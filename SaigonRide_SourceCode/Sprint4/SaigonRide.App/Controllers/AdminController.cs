@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using SaigonRide.App.Data;
 using SaigonRide.App.Models.Entities;
+using SaigonRide.App.Services;
+using SaigonRide.App.Hubs;
 
 namespace SaigonRide.App.Controllers;
 
@@ -11,10 +14,14 @@ namespace SaigonRide.App.Controllers;
 public class AdminController : Controller
 {
     private readonly AppDbContext _db;
+    private readonly EvrpSolverService _evrpSolver;
+    private readonly IHubContext<AdminHub> _adminHub;
 
-    public AdminController(AppDbContext db)
+    public AdminController(AppDbContext db, EvrpSolverService evrpSolver, IHubContext<AdminHub> adminHub)
     {
         _db = db;
+        _evrpSolver = evrpSolver;
+        _adminHub = adminHub;
     }
 
     [HttpGet]
@@ -145,6 +152,83 @@ public class AdminController : Controller
         }).OrderByDescending(s => s.UtilisationPct);
 
         return Ok(recs);
+    }
+
+    [HttpGet("SolveEvrp")]
+    public async Task<IActionResult> SolveEvrp()
+    {
+        var stations = await _db.Stations.Where(s => s.IsActive).ToListAsync();
+        
+        var availableMap = await _db.Vehicles
+            .Where(v => v.Status == VehicleStatus.Available && v.IsActive && v.StationId != null)
+            .GroupBy(v => v.StationId!.Value)
+            .Select(g => new { StationId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.StationId, x => x.Count);
+
+        int depotId = stations.FirstOrDefault()?.Id ?? 1;
+
+        var solution = _evrpSolver.Solve(stations, availableMap, depotId);
+        return Ok(solution);
+    }
+
+    [HttpPost("ExecuteEvrp")]
+    public async Task<IActionResult> ExecuteEvrp()
+    {
+        var stations = await _db.Stations.Where(s => s.IsActive).ToListAsync();
+        var allVehicles = await _db.Vehicles
+            .Where(v => v.Status == VehicleStatus.Available && v.IsActive && v.StationId != null)
+            .ToListAsync();
+
+        var surplusVehicles = new List<Vehicle>();
+        var deficits = new List<(int StationId, int DeficitCount)>();
+
+        foreach (var station in stations)
+        {
+            var stationVehicles = allVehicles.Where(v => v.StationId == station.Id).ToList();
+            int target = station.Capacity / 2;
+            int surplus = stationVehicles.Count - target;
+            if (surplus > 0)
+            {
+                surplusVehicles.AddRange(stationVehicles.Take(surplus));
+            }
+            else if (surplus < 0)
+            {
+                deficits.Add((station.Id, -surplus));
+            }
+        }
+
+        int moved = 0;
+        int surplusPointer = 0;
+
+        foreach (var deficit in deficits)
+        {
+            int needed = deficit.DeficitCount;
+            while (needed > 0 && surplusPointer < surplusVehicles.Count)
+            {
+                var vehicle = surplusVehicles[surplusPointer++];
+                vehicle.StationId = deficit.StationId;
+                needed--;
+                moved++;
+            }
+        }
+
+        if (moved > 0)
+        {
+            await _db.SaveChangesAsync();
+
+            // Notify clients of the station updates in real-time
+            foreach (var station in stations)
+            {
+                var availCount = allVehicles.Count(v => v.StationId == station.Id);
+                await AdminHub.NotifyStationUpdate(_adminHub, new {
+                    StationId = station.Id,
+                    AvailableBikes = availCount,
+                    Capacity = station.Capacity
+                });
+            }
+        }
+
+        return Ok(new { success = true, movedCount = moved });
     }
 }
 

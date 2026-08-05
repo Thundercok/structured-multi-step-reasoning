@@ -77,6 +77,7 @@ builder.Services.AddHostedService<StationUtilisationWorker>();
 builder.Services.AddScoped<IPaymentStrategy, VietQRPaymentStrategy>();
 builder.Services.AddScoped<IPaymentStrategy, StripePaymentStrategy>();
 builder.Services.AddScoped<PaymentStrategyFactory>();
+builder.Services.AddScoped<EvrpSolverService>();
 
 // ── MVC ───────────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();

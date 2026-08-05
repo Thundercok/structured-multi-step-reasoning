@@ -36,6 +36,22 @@ ViewData["Title"] = "Admin Command Center";
         0%   { background: #d4edda; }
         100% { background: #fff; }
     }
+    /* ── EVRP timeline styles ── */
+    .timeline-step { position: relative; margin-bottom: 4px; padding-left: 20px; }
+    .timeline-step::before {
+        content: ''; position: absolute; left: -21px; top: 4px;
+        width: 10px; height: 10px; border-radius: 50%; background: #2A5C43;
+        border: 2px solid #fff; box-shadow: 0 0 0 2px #2A5C43;
+    }
+    .timeline-step.step-start::before { background: #1a3a5c; box-shadow: 0 0 0 2px #1a3a5c; }
+    .timeline-step.step-end::before { background: #5c1a1a; box-shadow: 0 0 0 2px #5c1a1a; }
+    .timeline-step.step-recharge::before { background: #f57c00; box-shadow: 0 0 0 2px #f57c00; }
+    
+    .timeline-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; margin-left: 6px; }
+    .tb-load { background: #d4edda; color: #155724; }
+    .tb-unload { background: #d1ecf1; color: #0c5460; }
+    .tb-recharge { background: #fff3cd; color: #856404; }
+    .tb-depot { background: #e2e3e5; color: #383d41; }
 </style>
 
 <div class="admin-wrap">
@@ -84,6 +100,42 @@ ViewData["Title"] = "Admin Command Center";
         <tr><td colspan="6" style="color:#999;">Loading...</td></tr>
         </tbody>
     </table>
+
+    <!-- EVRP FLEET REBALANCING OPTIMIZER -->
+    <h3>⚡ Live EVRP Fleet Rebalancing</h3>
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 32px;" class="evrp-grid">
+        <!-- Solver Controls & Map -->
+        <div class="chart-box" style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 15px;">Interactive Rebalancing Route</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-sm" id="btnRunEvrp" style="background: #2A5C43; color: white;" onclick="runEvrpSolver()">Run Solver</button>
+                    <button class="btn-sm" id="btnApplyEvrp" style="background: #1a3a5c; color: white; display: none;" onclick="applyEvrpRebalancing()">Apply Rebalancing</button>
+                </div>
+            </div>
+            <div id="evrpMap" style="height: 380px; border-radius: 8px; border: 1px solid #e0e0e0; position: relative; z-index: 0;"></div>
+        </div>
+        <!-- Solver Output Metrics & Timeline -->
+        <div class="chart-box" style="padding: 20px; display: flex; flex-direction: column; max-height: 444px; overflow-y: auto;" id="evrpResultBox">
+            <span style="font-weight: 800; font-size: 15px; margin-bottom: 12px; display: block;">Optimization Plan</span>
+            <div id="evrpMetrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; display: none;">
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; text-align: center; border: 1px solid #eee;">
+                    <div style="font-size: 10px; text-transform: uppercase; color: #777;">Bikes Rebalanced</div>
+                    <div style="font-size: 20px; font-weight: 800; color: #2A5C43;" id="metricBikes">0</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; text-align: center; border: 1px solid #eee;">
+                    <div style="font-size: 10px; text-transform: uppercase; color: #777;">Total Distance</div>
+                    <div style="font-size: 20px; font-weight: 800; color: #1a3a5c;" id="metricDist">0.0 km</div>
+                </div>
+            </div>
+            <div id="evrpPlaceholder" style="color: #999; text-align: center; padding: 80px 0; font-size: 13px;">
+                Click "Run Solver" to compute the most energy-efficient rebalancing route.
+            </div>
+            <div class="timeline" id="evrpTimeline" style="display: none; flex-direction: column; gap: 12px; font-size: 13px; position: relative; padding-left: 16px; border-left: 2px dashed #ddd; margin-left: 10px;">
+                <!-- Timeline steps injected here -->
+            </div>
+        </div>
+    </div>
 
     <!-- STATION FLEET -->
     <h3>Station Fleet Status</h3>
@@ -140,6 +192,8 @@ ViewData["Title"] = "Admin Command Center";
 </div>
 
 @section Scripts {
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
 <script>
@@ -281,6 +335,200 @@ ViewData["Title"] = "Admin Command Center";
             row.classList.remove('flash-green');
             void row.offsetWidth;
             row.classList.add('flash-green');
+        });
+
+        connection.start().catch(() => {});
+    })();
+
+    // ── EVRP Map & Solver logic ──────────────────────────────────────────────────
+    let evrpMap = null;
+    let evrpMarkers = {};
+    let evrpPathLine = null;
+    let currentEvrpSolution = null;
+
+    // Initialize EVRP Map on load
+    (async () => {
+        try {
+            evrpMap = L.map('evrpMap', { zoomControl: true, scrollWheelZoom: true });
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 19
+            }).addTo(evrpMap);
+
+            await refreshEvrpMapStations();
+        } catch (e) {
+            console.error("EVRP Map initialization failed", e);
+        }
+    })();
+
+    async function refreshEvrpMapStations() {
+        if (!evrpMap) return;
+        const res = await fetch('/api/stations');
+        const stations = await res.json();
+        
+        // Remove existing markers
+        Object.values(evrpMarkers).forEach(m => evrpMap.removeLayer(m));
+        evrpMarkers = {};
+
+        const bounds = [];
+        stations.forEach(s => {
+            const fill = s.capacity > 0 ? (s.bikesAvailable / s.capacity) : 0;
+            const color = s.bikesAvailable === 0 ? '#c0392b' : fill < 0.3 ? '#e67e22' : '#2A5C43';
+
+            const icon = L.divIcon({
+                className: '',
+                html: `<div style="
+                    background:${color};color:#fff;font-weight:800;font-size:11px;
+                    padding:4px 8px;border-radius:12px;white-space:nowrap;
+                    box-shadow:0 1px 5px rgba(0,0,0,.2);border:1.5px solid #fff;
+                ">${s.bikesAvailable}/${s.capacity}</div>`,
+                iconAnchor: [20, 10]
+            });
+
+            const marker = L.marker([s.latitude, s.longitude], { icon }).addTo(evrpMap);
+            marker.bindPopup(`<strong>${s.name}</strong><br/>Available: ${s.bikesAvailable}/${s.capacity} (Target: ${Math.round(s.capacity/2)})`);
+            evrpMarkers[s.id] = marker;
+            bounds.push([s.latitude, s.longitude]);
+        });
+
+        if (bounds.length) evrpMap.fitBounds(bounds, { padding: [30, 30] });
+    }
+
+    async function runEvrpSolver() {
+        const btnRun = document.getElementById('btnRunEvrp');
+        const btnApply = document.getElementById('btnApplyEvrp');
+        const placeholder = document.getElementById('evrpPlaceholder');
+        const metrics = document.getElementById('evrpMetrics');
+        const timeline = document.getElementById('evrpTimeline');
+
+        btnRun.disabled = true;
+        btnRun.textContent = 'Solving...';
+
+        try {
+            const res = await fetch('/Admin/SolveEvrp');
+            if (!res.ok) throw new Error('Solver failed');
+            const data = await res.json();
+            currentEvrpSolution = data;
+
+            // Draw polyline on the map
+            if (evrpPathLine) evrpMap.removeLayer(evrpPathLine);
+            const pathCoords = data.steps
+                .filter(step => step.action !== 'Recharge')
+                .map(step => [step.latitude, step.longitude]);
+
+            evrpPathLine = L.polyline(pathCoords, {
+                color: '#1a3a5c',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '8, 8'
+            }).addTo(evrpMap);
+
+            // Fit map bounds to show entire route
+            evrpMap.fitBounds(evrpPathLine.getBounds(), { padding: [40, 40] });
+
+            // Display metrics
+            document.getElementById('metricBikes').textContent = data.bikesMoved;
+            document.getElementById('metricDist').textContent = `${data.totalDistance.toFixed(2)} km`;
+            metrics.style.display = 'grid';
+            placeholder.style.display = 'none';
+
+            // Display timeline steps
+            timeline.innerHTML = data.steps.map(s => {
+                let stepClass = '';
+                let actionBadge = '';
+                let actionDesc = '';
+
+                if (s.action === 'Start') {
+                    stepClass = 'step-start';
+                    actionBadge = `<span class="timeline-badge tb-depot">Start</span>`;
+                    actionDesc = `Depart from Depot (Station <strong>${s.stationName}</strong>)`;
+                } else if (s.action === 'End') {
+                    stepClass = 'step-end';
+                    actionBadge = `<span class="timeline-badge tb-depot">End</span>`;
+                    actionDesc = `Return to Depot (Station <strong>${s.stationName}</strong>)`;
+                } else if (s.action === 'Recharge') {
+                    stepClass = 'step-recharge';
+                    actionBadge = `<span class="timeline-badge tb-recharge">Recharge</span>`;
+                    actionDesc = `🔋 Recharging battery to 100% at <strong>${s.stationName}</strong>`;
+                } else if (s.action === 'Load') {
+                    actionBadge = `<span class="timeline-badge tb-load">Load</span>`;
+                    actionDesc = `📥 Pick up <strong>${s.bikesTransferred}</strong> bikes from <strong>${s.stationName}</strong>`;
+                } else if (s.action === 'Unload') {
+                    actionBadge = `<span class="timeline-badge tb-unload">Unload</span>`;
+                    actionDesc = `📤 Drop off <strong>${s.bikesTransferred}</strong> bikes to <strong>${s.stationName}</strong>`;
+                } else {
+                    actionDesc = `Visit station <strong>${s.stationName}</strong>`;
+                }
+
+                return `
+                    <div class="timeline-step ${stepClass}">
+                        <div style="font-weight:700;">${s.stationName} ${actionBadge}</div>
+                        <div style="color:#555;margin-top:2px;">${actionDesc}</div>
+                        <div style="font-size:11px;color:#888;margin-top:2px;display:flex;gap:12px;">
+                            <span>🔋 Battery: ${s.vehicleBatteryAfter.toFixed(0)}%</span>
+                            <span>📦 Cargo: ${s.vehicleLoadAfter}/10 bikes</span>
+                            <span>📍 dist: +${s.stepDistance.toFixed(2)} km (${s.cumulativeDistance.toFixed(2)} km)</span>
+                        </div>
+                    </div>`;
+            }).join('');
+            timeline.style.display = 'flex';
+
+            // Show Apply button
+            btnApply.style.display = 'inline-block';
+        } catch (e) {
+            alert('Failed to solve EVRP rebalancing. Ensure stations are seeded and database is available.');
+        } finally {
+            btnRun.disabled = false;
+            btnRun.textContent = 'Run Solver';
+        }
+    }
+
+    async function applyEvrpRebalancing() {
+        if (!confirm('Apply the calculated rebalancing plan? This will relocate vehicles in the database.')) return;
+
+        const btnApply = document.getElementById('btnApplyEvrp');
+        btnApply.disabled = true;
+        btnApply.textContent = 'Applying...';
+
+        try {
+            const res = await fetch('/Admin/ExecuteEvrp', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                alert(`Rebalancing successfully applied! Moved ${data.movedCount} vehicles.`);
+                
+                // Clear the solver UI
+                if (evrpPathLine) evrpMap.removeLayer(evrpPathLine);
+                document.getElementById('evrpMetrics').style.display = 'none';
+                document.getElementById('evrpTimeline').style.display = 'none';
+                document.getElementById('evrpPlaceholder').style.display = 'block';
+                btnApply.style.display = 'none';
+
+                // Refresh maps and data
+                await refreshEvrpMapStations();
+                
+                // Reload window to refresh the table lists
+                window.location.reload();
+            } else {
+                alert('Failed to apply rebalancing.');
+            }
+        } catch (e) {
+            alert('Error applying rebalancing.');
+        } finally {
+            btnApply.disabled = false;
+            btnApply.textContent = 'Apply Rebalancing';
+        }
+    }
+
+    // Refresh station markers when SignalR notifies updates
+    (() => {
+        if (!window.signalR) return;
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/admin')
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('StationUpdated', async () => {
+            await refreshEvrpMapStations();
         });
 
         connection.start().catch(() => {});
