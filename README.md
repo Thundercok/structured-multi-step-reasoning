@@ -1,8 +1,32 @@
-# 🐭 rat (Retrieval Augmented Tool) — macOS Smart Assistant
+# 🧠 Designing Large Language Models for Structured Multi-Step Reasoning
+> **Đề tài Nghiên cứu Khoa học Sinh viên (NCKHSV) — Năm học 2026–2027**  
+> **Khoa Công nghệ Thông tin — Trường Đại học Tôn Đức Thắng (TDTU)**  
+> **GVHD**: ThS. Trần Lương Quốc Đại  
+> **Sinh viên thực hiện**: Huỳnh Nhật Huy (523C0012) & Linn Pyae Phyoe (525K0025)  
 
-> **Ứng dụng quản trị tệp tin ngữ nghĩa đa phương thức, tìm kiếm siêu tốc (< 25ms) và trợ lý ghép thời khóa biểu nhóm/CLB tối ưu 100% On-Device cho macOS.**
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Thundercok/structured-multi-step-reasoning/blob/main/structured_reasoning.ipynb)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
+
+## 🔬 1. Lõi Nghiên Cứu (Core Research Framework & Notebook)
+Trọng tâm nghiên cứu của đề tài nằm tại file Jupyter Notebook độc lập, được thiết kế để chạy trực tiếp 1-click trên Google Colab (GPU T4 miễn phí) hoặc trên máy tính cục bộ:
+👉 **[`structured_reasoning.ipynb`](structured_reasoning.ipynb)** (Bấm nút `Open In Colab` ở trên để mở ngay).
+
+### 🚀 Kiến trúc Suy luận 4 Pha (4-Phase Structured Reasoning Pipeline)
+$$\text{Query} \xrightarrow[\text{Phase 1}]{\text{Decompose}} \{\text{Sub-Goals}\} \xrightarrow[\text{Phase 2}]{\text{Step Execution}} \text{Candidate Step} \xrightarrow[\text{Phase 3}]{\text{Sufficiency Verification}} \begin{cases} \text{PASS} \rightarrow \text{Next Step} \\ \text{FAIL} \xrightarrow[\text{Phase 4}]{\text{Self-Correct}} \text{Refined Step} \end{cases}$$
+
+1. **Phase 1: Problem Decomposition** — Phân rã bài toán phức tạp thành các sub-goals có cấu trúc JSON.
+2. **Phase 2: Atomic Step Deduction & Trace** — Thực thi từng bước kèm cấu trúc minh bạch `Thought -> Action -> Observation`.
+3. **Phase 3: Process-Level Verification** — Tự đánh giá tính đầy đủ và logic của bước trung gian trước khi chuyển sang bước tiếp theo.
+4. **Phase 4: Targeted Self-Correction** — Tự động kích hoạt cơ chế sửa sai và backtracking khi độ tin cậy dưới ngưỡng.
+
+---
+
+## 🖥️ 2. Môi Trường Thử Nghiệm Thực Tế Trên Thiết Bị (On-Device Testbed: `rat`)
+Mã nguồn ứng dụng `rat` (Retrieval Augmented Tool) đóng vai trò là môi trường thử nghiệm thực tế (on-device testbed) trên macOS nhằm đánh giá độ trễ và khả năng suy luận cục bộ không cần đám mây.
+
 
 ## ⚡ Hướng Dẫn Cài Đặt Siêu Nhanh (Dành Cho Bạn Bè)
 
