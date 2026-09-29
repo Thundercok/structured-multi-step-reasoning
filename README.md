@@ -14,18 +14,16 @@
 
 <br/>
 
-**Undergraduate Scientific Research (NCKHSV) — Academic Year 2026–2027**  
-**Faculty of Information Technology — Ton Duc Thang University (TDTU), Vietnam**
+**Autonomous Reasoning Research & Open-Source Initiative**
 
 ---
 
-### 👥 Research Team & Scientific Advisory
+### 👥 Research Team & Core Contributors
 
-| Role | Member | Student ID / Affiliation | Contact / GitHub |
-| :--- | :--- | :--- | :--- |
-| **Faculty Advisor** | **MSc. Tran Luong Quoc Dai** (*ThS. Trần Lương Quốc Đại*) | Faculty of Information Technology, TDTU | `tranluongquocdai@tdtu.edu.vn` |
-| **Lead Researcher** | **Huỳnh Nhật Huy** | MSSV: `523C0012` | [@Thundercok](https://github.com/Thundercok) |
-| **Co-Researcher** | **Linn Pyae Phyoe** | MSSV: `525K0025` | Faculty of IT, TDTU |
+| Role | Contributor | Profile / GitHub |
+| :--- | :--- | :--- |
+| **Project Lead & Architecture** | **Huỳnh Nhật Huy** | [@Thundercok](https://github.com/Thundercok) |
+| **Co-Researcher & Benchmark Lead** | **Linn Pyae Phyoe** | Contributor |
 
 **Core Interactive Research Notebook**: 👉 **[`structured_reasoning.ipynb`](structured_reasoning.ipynb)** (1-Click Run on Colab)
 
@@ -260,7 +258,7 @@ The [`rat`](rat/) (*Retrieval Augmented Tool*) application serves as the **Physi
 </div>
 
 ### 🌟 Key Testbed Features:
-* ⚡ **Spotlight Floating HUD (`Option + Shift + Space`)**: Raycast-style instant search HUD ($<25\text{ms}$ latency), with zero-eval sandboxed calculator (`safe_calculate`), TDTU Tan Phong campus room guide, and instant schedule lookup.
+* ⚡ **Spotlight Floating HUD (`Option + Shift + Space`)**: Raycast-style instant search HUD ($<25\text{ms}$ latency), with zero-eval sandboxed calculator (`safe_calculate`), campus room guide, and instant schedule lookup.
 * 🗂️ **AI Finder with Live CoT Reasoning Traces**: Inspects full decomposition traces (`Thought -> Action -> Observation`), with native preview for PDF, DOCX, PPTX, and Apple Vision OCR.
 * 📅 **Academic Timetable Compositor**:
   - Automatically merges multi-member schedules for student clubs and project groups.
@@ -334,7 +332,7 @@ structured-multi-step-reasoning/
 │   ├── main.py                      # Application entry point
 │   ├── crawler/                     # PDFKit parser, Apple Vision OCR, SQLite FTS5 WAL
 │   ├── engine/                      # M-RRF hybrid search, In-memory vector cache, FastEmbed
-│   ├── timetable/                   # TDTU schedule model & Golden Window compositor
+│   ├── timetable/                   # Multi-member schedule model & Golden Window compositor
 │   ├── ui/                          # Spotlight HUD, AI Finder, Claude Widget, Schedule Window
 │   └── os/                          # CrashShield, MemorySentinel, Hotkey Event Tap, Menu Bar
 ├── tests/                           # 🧪 Comprehensive test suite (125/125 PASS)
@@ -349,11 +347,11 @@ structured-multi-step-reasoning/
 
 ```mermaid
 timeline
-    title NCKHSV 2026-2027 Research Milestones
+    title Research & Development Milestones
     Phase 1 (Completed) : 4-Phase Pipeline Formalized : Calibrated Entry Predictor : In-Memory Vector Testbed
     Phase 2 (Completed) : Bellman Optimal Stopping Implementation : Apple MLX Metal Acceleration : 125 Test Cases 100% Pass
-    Phase 3 (In Progress) : GSM8K & MATH 200-Question Benchmarks (Linn) : Constrained Grammar Decoding (Huy) : LaTeX Draft Submission
-    Phase 4 (Upcoming) : University Scientific Council Review : Open-Source Release : Standalone MLX Model Distillation
+    Phase 3 (In Progress) : GSM8K & MATH 200-Question Benchmarks (Linn) : Constrained Grammar Decoding (Huy) : Preprint Submission
+    Phase 4 (Upcoming) : Empirical Paper Submission : Open-Source Benchmark Suite : Standalone MLX Model Distillation
 ```
 
 ### 📌 Delegation of Work:
@@ -363,8 +361,6 @@ timeline
 * **Huỳnh Nhật Huy**:
   - Integrate **Constrained Decoding** (Outlines / SGLang) for 100% strict JSON schema and Python AST validity.
   - Implement Speculative Verification to accelerate Phase 3 verification latency.
-* **Faculty Review (MSc. Tran Luong Quoc Dai)**:
-  - Scientific paper review and preparation for submission to the TDTU Student Scientific Research Council.
 
 ---
 
@@ -379,15 +375,6 @@ If you find this research framework or testbed useful in your academic work, ple
   title={Designing Large Language Models for Structured Multi-Step Reasoning: Dynamic Meta-Control, Process Verification, and On-Device Optimal Stopping},
   author={Huynh, Nhat Huy and Linn, Pyae Phyoe},
   year={2026},
-  institution={Ton Duc Thang University (TDTU)},
-  advisor={Tran, Luong Quoc Dai},
-  note={Undergraduate Scientific Research (NCKHSV 2026-2027), Faculty of Information Technology}
+  howpublished={\url{https://github.com/Thundercok/structured-multi-step-reasoning}}
 }
 ```
-
-<div align="center">
-
-**Faculty of Information Technology • Ton Duc Thang University (TDTU)**  
-*Ho Chi Minh City, Vietnam — Academic Year 2026–2027*
-
-</div>
