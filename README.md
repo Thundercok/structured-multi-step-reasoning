@@ -18,13 +18,6 @@
 
 ---
 
-### 👥 Research Team & Core Contributors
-
-| Role | Contributor | Profile / GitHub |
-| :--- | :--- | :--- |
-| **Project Lead & Architecture** | **Huỳnh Nhật Huy** | [@Thundercok](https://github.com/Thundercok) |
-| **Co-Researcher & Benchmark Lead** | **Linn Pyae Phyoe** | Contributor |
-
 **Core Interactive Research Notebook**: 👉 **[`structured_reasoning.ipynb`](structured_reasoning.ipynb)** (1-Click Run on Colab)
 
 </div>
