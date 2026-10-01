@@ -13,6 +13,7 @@ added_files = [
     ('rat/crawler', 'rat/crawler'),
     ('rat/engine', 'rat/engine'),
     ('rat/ui', 'rat/ui'),
+    ('rat/assets', 'rat/assets'),
     ('rat/os', 'rat/os'),
     ('rat/timetable', 'rat/timetable'),
 ]
@@ -30,6 +31,10 @@ hidden_imports = [
     'rat.timetable.compositor',
     'rat.timetable.data',
     'rat.ui.schedule_window',
+    'rat.ui.omnibar',
+    'rat.ui.chat_stream',
+    'rat.ui.claude_widget',
+    'rat.engine.meta_reasoner',
     'pynput',
     'pynput.keyboard',
     'pynput.keyboard._darwin',

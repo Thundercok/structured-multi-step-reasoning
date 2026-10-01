@@ -95,7 +95,8 @@ class MultiWayRRF:
                         "content_text": item.get("content_text", ""),
                         "summary": item.get("summary", ""),
                         "best_chunk_text": item.get("chunk_text", ""),
-                        "vector_similarity": item.get("similarity_score", 0.0),
+                        "vector_similarity": item.get("vector_similarity", item.get("similarity_score", 0.0)),
+                        "bm25": item.get("bm25"),
                     }
                 else:
                     # Enrich with content if missing
@@ -106,6 +107,8 @@ class MultiWayRRF:
                         doc_data[path]["best_chunk_text"] = item.get("chunk_text", "")
 
                 # Track facet contribution
+                if doc_data[path].get("bm25") is None and item.get("bm25") is not None:
+                    doc_data[path]["bm25"] = item.get("bm25")
                 if path not in doc_facet_hits:
                     doc_facet_hits[path] = set()
                     doc_facet_ranks[path] = {}

@@ -135,8 +135,29 @@ def extract_text_from_pdf(file_path: str) -> str:
         return ""
 
 
+def _extract_docx_native_xml(file_path: str) -> str:
+    """Zero-dependency fallback: read word/document.xml directly via zipfile + xml.etree."""
+    import zipfile
+    import xml.etree.ElementTree as ET
+    try:
+        with zipfile.ZipFile(file_path) as z:
+            xml_content = z.read("word/document.xml")
+            tree = ET.fromstring(xml_content)
+            ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+            texts = []
+            for para in tree.iter(f"{ns}p"):
+                para_texts = [node.text for node in para.iter(f"{ns}t") if node.text]
+                if para_texts:
+                    texts.append("".join(para_texts))
+                if sum(len(t) for t in texts) > MAX_CHARS_PER_DOC:
+                    break
+            return "\n".join(texts)
+    except Exception:
+        return ""
+
+
 def extract_text_from_docx(file_path: str) -> str:
-    """Extract text from Word (.docx) file using python-docx."""
+    """Extract text from Word (.docx) file. Uses python-docx if available, falls back to native XML."""
     try:
         import docx
         doc = docx.Document(file_path)
@@ -171,9 +192,12 @@ def extract_text_from_docx(file_path: str) -> str:
                 break
 
         return "\n".join(texts)
+    except ImportError:
+        logger.info(f"python-docx not available, using native XML fallback for {file_path}")
+        return _extract_docx_native_xml(file_path)
     except Exception as e:
-        logger.debug(f"Failed to extract DOCX {file_path}: {e}")
-        return ""
+        logger.debug(f"python-docx failed for {file_path}: {e}, trying native XML fallback")
+        return _extract_docx_native_xml(file_path)
 
 
 def extract_python_ast_symbols(code_text: str) -> str:

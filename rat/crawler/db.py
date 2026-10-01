@@ -255,6 +255,17 @@ class Database:
         row = cursor.fetchone()
         return row["count"] if row else 0
 
+    def get_recent_documents(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Return most recently modified documents."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT file_path, file_name, file_ext, file_size, modified_at, category "
+            "FROM documents ORDER BY modified_at DESC LIMIT ?",
+            (limit,)
+        )
+        return [dict(r) for r in cursor.fetchall()]
+
     def search_candidates(
         self,
         keywords: List[str],
@@ -327,6 +338,8 @@ class Database:
                 cursor.execute(sql_fts, exec_params)
                 rows = cursor.fetchall()
                 fts_results = [dict(r) for r in rows]
+                for candidate in fts_results:
+                    candidate["bm25"] = -candidate["rank"]
             except Exception as e:
                 logger.warning(f"FTS5 query failed: {e}")
 
@@ -366,7 +379,9 @@ class Database:
             # Merge name matches (first) with FTS matches
             seen_ids = set()
             merged_results = []
+            bm25_by_id = {candidate["id"]: candidate["bm25"] for candidate in fts_results}
             for r in name_rows:
+                r["bm25"] = bm25_by_id.get(r["id"])
                 if r["id"] not in seen_ids:
                     seen_ids.add(r["id"])
                     merged_results.append(r)
@@ -669,5 +684,4 @@ class Database:
         except Exception as e:
             logger.debug(f"search_by_vision_tags error: {e}")
             return []
-
 

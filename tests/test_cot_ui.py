@@ -36,7 +36,7 @@ class TestCoTPreviewPanelUI(unittest.TestCase):
         self.panel.set_item(None)
         self.assertEqual(self.panel.stack.currentIndex(), 0)
         self.assertEqual(self.panel.btn_tab_preview.property("selected"), "true")
-        self.assertEqual(self.panel.name_label.text(), "Chọn một tệp để xem chi tiết")
+        self.assertEqual(self.panel.name_label.text(), "Chọn một mục hoặc đặt câu hỏi")
         self.assertEqual(self.panel.preview_text.toPlainText(), "")
 
     def test_set_search_result_item(self) -> None:

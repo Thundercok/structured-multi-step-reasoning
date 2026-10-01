@@ -5,6 +5,7 @@ rat.ui.spotlight_window — 100% Genuine Apple macOS Light Theme Spotlight Windo
 from __future__ import annotations
 
 import logging
+import re
 import threading
 import time
 from typing import Any, Dict, List, Optional
@@ -32,6 +33,7 @@ from rat.config import config
 from rat.crawler.db import Database
 from rat.engine.hybrid_search import SearchEngine
 from rat.engine.reranker import SearchResultItem, sort_search_results
+from rat.ui.feedback import SearchFeedback
 from rat.ui.action_menu import ActionMenuDialog
 from rat.ui.apple_item_delegate import AppleSpotlightDelegate
 from rat.ui.preview_panel import (
@@ -163,6 +165,11 @@ class SearchInputEventFilter(QObject):
                 self.window._open_schedule()
                 return True
 
+            # 5c. Claude Widget: Cmd + W
+            if key == Qt.Key.Key_W and (modifiers & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier)):
+                self.window._open_claude_widget()
+                return True
+
             # 6. Filter Switching: Tab / Backtab or Cmd + 1..6
             if key == Qt.Key.Key_Tab:
                 self.window.cycle_filter(1)
@@ -238,6 +245,11 @@ class ResultListEventFilter(QObject):
                 self.window._open_schedule()
                 return True
 
+            # Claude Widget: Cmd + W
+            if key == Qt.Key.Key_W and (modifiers & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier)):
+                self.window._open_claude_widget()
+                return True
+
             # Escape hides window
             if key == Qt.Key.Key_Escape:
                 self.window.hide()
@@ -278,6 +290,7 @@ class SpotlightWindow(QMainWindow):
         self._init_thread()
         self._init_window()
         self._init_ui()
+        self.feedback = SearchFeedback(self, "spotlight", [self.result_list])
         self._load_initial_data()
 
     def _init_thread(self) -> None:
@@ -459,24 +472,125 @@ class SpotlightWindow(QMainWindow):
             latency = response.get("latency_ms", 0)
 
             # Sort results naturally A-Z (case-insensitive / in hoa or not), tie-breaker by most recent time
-            results = sort_search_results(results, "abc")
+            results = sort_search_results(results, "score")
 
-            # Check if query targets club timetable/schedule compositor
+            # Check if query targets club timetable/schedule compositor or dual-degree schedule
             q_text = getattr(self, "current_query", "") or self.search_input.text().strip()
             q_lower = q_text.lower()
-            schedule_keywords = ["tkb", "lich", "lịch", "thời khóa biểu", "thoi khoa bieu", "schedule", "clb", "golden slot"]
+
+            # 1. Quick Math / Calculation Card (safe_calculate zero-eval)
+            import re
+            calc_expr = None
+            if re.search(r"\d", q_text) and any(op in q_text for op in ["+", "*", "/", "%", "^", " - "]):
+                calc_expr = re.sub(r"^(?:tính|tinh|calc|calculate|\=)\s*", "", q_text, flags=re.I).strip()
+            elif re.match(r"^(?:tính|tinh|calc)\s+([0-9\.\+\-\*\/\(\)\s\^]+)$", q_text, flags=re.I):
+                m = re.match(r"^(?:tính|tinh|calc)\s+([0-9\.\+\-\*\/\(\)\s\^]+)$", q_text, flags=re.I)
+                if m:
+                    calc_expr = m.group(1).strip()
+
+            if calc_expr:
+                try:
+                    from reasoning_strategies import safe_calculate
+                    res_str = safe_calculate(calc_expr)
+                    if res_str and "Lỗi" not in res_str and res_str != "None":
+                        calc_item = SearchResultItem(
+                            file_path=f"rat://calc_copy/{res_str}",
+                            file_name=f"🧮 Kết quả tính toán: {res_str}",
+                            file_ext=".calc",
+                            file_size=0,
+                            modified_at=time.time(),
+                            score=2000.0,
+                            explanation="⚡ Tính toán an toàn tức thì • Nhấn ↵ để sao chép kết quả",
+                            snippet=f"Biểu thức: {calc_expr} = {res_str}\nNhấn Enter để sao chép số này vào clipboard.",
+                        )
+                        results.insert(0, calc_item)
+                except Exception as e:
+                    logger.debug(f"Spotlight calc card error: {e}")
+
+            # 2. Campus Room Guide Card (TDTU Tân Phong)
+            room_match = re.search(r"\b([A-Fa-fCcFf]\d{3}|TRET-NTD-2)\b", q_text)
+            if room_match:
+                try:
+                    from rat.timetable.model import resolve_room_location
+                    rm = room_match.group(1).upper()
+                    loc = resolve_room_location(rm)
+                    room_item = SearchResultItem(
+                        file_path="rat://room_location",
+                        file_name=f"📍 Vị trí phòng {rm}: {loc}",
+                        file_ext=".map",
+                        file_size=0,
+                        modified_at=time.time(),
+                        score=1800.0,
+                        explanation="🏫 Cơ sở Tân Phong, ĐH Tôn Đức Thắng • Nhấn ↵ để xem chi tiết",
+                        snippet=f"Phòng {rm} nằm tại {loc}.\nNhấn Enter để mở thẻ tra cứu chi tiết và bản đồ phòng.",
+                    )
+                    results.insert(0, room_item)
+                except Exception as e:
+                    logger.debug(f"Spotlight room card error: {e}")
+
+            # 3. Live Agenda / Today's Schedule Card
+            agenda_kw = ["hôm nay", "hom nay", "chiều nay", "chieu nay", "sáng nay", "sang nay", "tối nay", "toi nay", "tiết sau", "tiet sau", "lịch học", "lich hoc", "ai rảnh", "ai ranh"]
+            if any(k in q_lower for k in agenda_kw):
+                try:
+                    from rat.timetable.compositor import TimetableCompositor
+                    from rat.timetable.data import load_club_members
+                    comp = TimetableCompositor()
+                    members = load_club_members()
+                    huy = next((m for m in members if "Huy" in m.name), members[0])
+                    agenda = comp.get_today_agenda(huy)
+                    c_count = len(agenda)
+                    if c_count > 0:
+                        first_c = agenda[0]
+                        first_s = first_c["session"]
+                        deg = "[ThS]" if first_s.degree_level == "master" else "[ĐH]"
+                        ag_snip = f"Hôm nay ({huy.name}) có {c_count} ca học: [{first_c['start_time']} - {first_c['end_time']}] {deg} {first_s.course_name} (Phòng {first_s.room}) • {first_c['countdown']}"
+                    else:
+                        ag_snip = f"Hôm nay ({huy.name}) không có ca học nào trên TKB. Bạn đang hoàn toàn rảnh!"
+                    ag_item = SearchResultItem(
+                        file_path="rat://claude_widget",
+                        file_name=f"⚡ Lịch học hôm nay: {c_count} ca học ({huy.name})",
+                        file_ext=".app",
+                        file_size=0,
+                        modified_at=time.time(),
+                        score=1500.0,
+                        explanation="Nhấn ↵ để mở chi tiết trong Claude Widget (⌘W)",
+                        snippet=ag_snip,
+                    )
+                    results.insert(0, ag_item)
+                except Exception as e:
+                    logger.debug(f"Spotlight agenda card error: {e}")
+
+            schedule_keywords = [
+                "tkb", "lich", "lịch", "thời khóa biểu", "thoi khoa bieu",
+                "schedule", "clb", "golden slot", "thac si", "thạc sĩ",
+                "cao hoc", "cao học", "song bang", "song bằng", "hop nhat", "hợp nhất"
+            ]
             if any(k in q_lower for k in schedule_keywords):
                 schedule_item = SearchResultItem(
                     file_path="rat://schedule_compositor",
-                    file_name="🍵 Ghép Thời Khóa Biểu & Khung Giờ Vàng CLB (TDTU)",
+                    file_name="🎓 Ghép Thời Khóa Biểu & TKB Hợp Nhất (Đại Học & Thạc Sĩ)",
                     file_ext=".app",
                     file_size=0,
                     modified_at=time.time(),
                     score=999.0,
-                    explanation="⚡ Tác vụ nhanh: Mở bộ ghép lịch trình 6 thành viên CLB TDTU",
-                    snippet="Phối hợp thời khóa biểu 6 thành viên (Huỳnh Nhật Huy, Thảo Nguyên, Lan Anh, QTKD, KT, CNSH). Tìm khung giờ vàng 100% rảnh, xuất file .ics Calendar và sao chép cho nhóm chat Zalo/Messenger.",
+                    explanation="⚡ Tác vụ nhanh: Mở bộ TKB Hợp Nhất Song Bằng & Ghép lịch CLB TDTU",
+                    snippet="Live Updated • Hợp nhất môn cử nhân & cao học, nhận diện xung đột/chuyển ca, tìm khung giờ vàng nhóm và xuất .ics Calendar.",
                 )
                 results.insert(0, schedule_item)
+
+            widget_keywords = ["widget", "mini", "claude", "tro ly", "trợ lý", "hoi tkb", "hỏi tkb", "ai ranh", "ai rảnh"]
+            if any(k in q_lower for k in widget_keywords):
+                widget_item = SearchResultItem(
+                    file_path="rat://claude_widget",
+                    file_name="✦ Trợ Lý TKB & Widget Tương Tác (Claude Form Mode)",
+                    file_ext=".app",
+                    file_size=0,
+                    modified_at=time.time(),
+                    score=1000.0,
+                    explanation="⚡ Tác vụ nhanh: Mở Widget TKB tương tác đa năng dạng Claude Form",
+                    snippet="Truy cập dynamic: Hỏi tự nhiên hôm nay/chiều nay, kiểm tra phòng TDTU, ai rảnh, cảnh báo xung đột và sổ tay ghi chú.",
+                )
+                results.insert(0, widget_item)
 
             self.result_list.clear()
 
@@ -486,6 +600,11 @@ class SpotlightWindow(QMainWindow):
                 self.result_list.addItem(list_item)
 
             trace = response.get("reasoning_trace")
+            self.feedback.refresh(
+                self.result_list, response.get("query", self.current_query),
+                response.get("parsed_context", {}),
+                response.get("latency_ms"),
+            )
             plan = response.get("plan")
             self.preview_panel.set_reasoning_trace(trace, plan)
 
@@ -520,7 +639,10 @@ class SpotlightWindow(QMainWindow):
                 if getattr(search_item, "file_path", "") == "rat://schedule_compositor":
                     self._open_schedule()
                     return
-                open_file_default(search_item.file_path)
+                elif getattr(search_item, "file_path", "") == "rat://claude_widget":
+                    self._open_claude_widget()
+                    return
+                self.feedback.perform("open", search_item, open_file_default)
         except Exception as e:
             logger.error(f"Error handling double click in Spotlight: {e}", exc_info=True)
 
@@ -567,7 +689,19 @@ class SpotlightWindow(QMainWindow):
                 if getattr(search_item, "file_path", "") == "rat://schedule_compositor":
                     self._open_schedule()
                     return
-                open_file_default(search_item.file_path)
+                elif getattr(search_item, "file_path", "") == "rat://claude_widget":
+                    self._open_claude_widget()
+                    return
+                elif getattr(search_item, "file_path", "").startswith("rat://calc_copy/"):
+                    res_val = search_item.file_path.split("rat://calc_copy/", 1)[1]
+                    from PyQt6.QtWidgets import QApplication
+                    QApplication.clipboard().setText(res_val)
+                    self.show_toast(f"📋 Đã sao chép kết quả: {res_val}")
+                    return
+                elif getattr(search_item, "file_path", "") == "rat://room_location":
+                    self._open_claude_widget()
+                    return
+                self.feedback.perform("open", search_item, open_file_default)
 
     def _reveal_current_in_finder(self) -> None:
         curr_row = self.result_list.currentRow()
@@ -575,7 +709,7 @@ class SpotlightWindow(QMainWindow):
         if item:
             search_item: SearchResultItem = item.data(Qt.ItemDataRole.UserRole)
             if search_item:
-                reveal_in_finder(search_item.file_path)
+                self.feedback.perform("reveal", search_item, reveal_in_finder)
 
     def _open_current_in_terminal(self) -> None:
         curr_row = self.result_list.currentRow()
@@ -583,7 +717,7 @@ class SpotlightWindow(QMainWindow):
         if item:
             search_item: SearchResultItem = item.data(Qt.ItemDataRole.UserRole)
             if search_item:
-                open_in_terminal(search_item.file_path)
+                self.feedback.perform("terminal", search_item, open_in_terminal)
                 self.show_toast(f"💻 Đã mở Terminal: {search_item.file_name}")
 
     def _preview_quick_look(self) -> None:
@@ -666,6 +800,8 @@ class SpotlightWindow(QMainWindow):
             self.preview_panel.ask_input.setFocus()
         elif action_id == "schedule":
             self._open_schedule()
+        elif action_id == "widget":
+            self._open_claude_widget()
         elif action_id == "settings":
             self._open_settings()
 
@@ -680,6 +816,21 @@ class SpotlightWindow(QMainWindow):
             self._schedule_window.activateWindow()
         except Exception as e:
             logger.error(f"Error opening ScheduleCompositorWindow: {e}", exc_info=True)
+        finally:
+            self._dialog_active = False
+
+    def _open_claude_widget(self) -> None:
+        self._dialog_active = True
+        try:
+            from rat.ui.claude_widget import ClaudeTimetableWindow
+            if not hasattr(self, "_claude_widget_window") or not self._claude_widget_window:
+                self._claude_widget_window = ClaudeTimetableWindow()
+            self._claude_widget_window.show()
+            self._claude_widget_window.raise_()
+            self._claude_widget_window.activateWindow()
+            self.hide()
+        except Exception as e:
+            logger.error(f"Error opening ClaudeTimetableWindow: {e}", exc_info=True)
         finally:
             self._dialog_active = False
 

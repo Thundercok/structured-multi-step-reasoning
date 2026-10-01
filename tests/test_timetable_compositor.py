@@ -90,17 +90,165 @@ class TestTimetableCompositorEngine(unittest.TestCase):
 
     def test_availability_to_color_palette(self):
         c100 = availability_to_color(1.0)
-        self.assertEqual(c100["badge"], "🌿 100%")
+        self.assertEqual(c100["badge"], "100%")
         self.assertEqual(c100["bg"], "#dcfce7")
 
         c80 = availability_to_color(0.83)
-        self.assertEqual(c80["badge"], "☀️ Đa số")
+        self.assertEqual(c80["badge"], "Đa số")
 
         c50 = availability_to_color(0.5)
-        self.assertEqual(c50["badge"], "✨ Một nửa")
+        self.assertEqual(c50["badge"], "Một nửa")
 
         c0 = availability_to_color(0.2)
-        self.assertEqual(c0["badge"], "🌧️ Kẹt lịch")
+        self.assertEqual(c0["badge"], "Kẹt lịch")
+
+    def test_class_session_dual_degree_properties(self):
+        s_undergrad = ClassSession(start_period=1, end_period=3, course_name="Giải tích 1", room="A608", degree_level="undergrad")
+        self.assertFalse(s_undergrad.is_master)
+        self.assertEqual(s_undergrad.badge_text, "🎓 ĐH")
+        self.assertEqual(s_undergrad.time_range_str, "06:50 - 09:20")
+
+        s_master = ClassSession(start_period=13, end_period=15, course_name="Học máy nâng cao", room="C302", degree_level="master")
+        self.assertTrue(s_master.is_master)
+        self.assertEqual(s_master.badge_text, "🏛️ ThS")
+        self.assertEqual(s_master.time_range_str, "18:05 - 20:35")
+
+    def test_unified_schedule_filtering_and_search(self):
+        huy = next(m for m in self.members if m.id == "m1")
+        self.assertTrue(huy.is_dual_degree)
+
+        # All courses
+        all_sched = self.compositor.compute_unified_individual_schedule(huy, filter_level="all")
+        t2_courses = all_sched["T2"]
+        self.assertEqual(len(t2_courses), 3)  # 2 ĐH + 1 ThS
+
+        # Undergrad only
+        ug_sched = self.compositor.compute_unified_individual_schedule(huy, filter_level="undergrad")
+        self.assertEqual(len(ug_sched["T2"]), 2)
+        self.assertTrue(all(not s.is_master for s in ug_sched["T2"]))
+
+        # Master only
+        m_sched = self.compositor.compute_unified_individual_schedule(huy, filter_level="master")
+        self.assertEqual(len(m_sched["T2"]), 1)
+        self.assertTrue(m_sched["T2"][0].is_master)
+        self.assertEqual(m_sched["T2"][0].course_name, "Học máy nâng cao & Khai phá dữ liệu")
+
+        # Search query filter
+        search_res = self.compositor.compute_unified_individual_schedule(huy, search_query="LLMs")
+        self.assertEqual(len(search_res["T4"]), 1)
+        self.assertIn("LLMs", search_res["T4"][0].course_name)
+
+    def test_conflict_detection_engine(self):
+        # Create a test member with simulated overlap and tight turnaround
+        simulated_member = MemberSchedule(
+            id="test_dual",
+            name="Sinh viên Thử nghiệm",
+            is_dual_degree=True,
+            schedule={
+                "T2": [
+                    ClassSession(start_period=1, end_period=3, course_name="Toán ĐH", room="A101", degree_level="undergrad"),
+                    ClassSession(start_period=2, end_period=4, course_name="AI ThS Trùng Giờ", room="C202", degree_level="master"),
+                ],
+                "T3": [
+                    # Tiết 12 kết thúc 17:55, Tiết 13 bắt đầu 18:05 (gap 10 mins)
+                    ClassSession(start_period=10, end_period=12, course_name="Thực hành ĐH", room="A607", degree_level="undergrad"),
+                    ClassSession(start_period=13, end_period=15, course_name="Chuyên đề ThS", room="C305", degree_level="master"),
+                ]
+            }
+        )
+
+        conflicts = self.compositor.detect_schedule_conflicts(simulated_member)
+        self.assertEqual(len(conflicts), 2)
+
+        types = [c.conflict_type for c in conflicts]
+        self.assertIn("overlap", types)
+        self.assertIn("tight_turnaround", types)
+
+    def test_live_status_calculation(self):
+        from datetime import datetime
+        huy = next(m for m in self.members if m.id == "m1")
+
+        # Simulate Monday at 07:15 (during Tiết 1-3: 06:50 - 09:20)
+        # Note: 2026-09-07 was Monday (weekday=0)
+        dt_monday_in_class = datetime(2026, 9, 7, 7, 15, 0)
+        status = self.compositor.compute_live_status(huy, current_dt=dt_monday_in_class)
+
+        self.assertTrue(status.is_in_class)
+        self.assertIsNotNone(status.current_session)
+        self.assertIn("Giải tích", status.current_session.course_name)
+        # Ends at 09:20 (560 mins). 07:15 is 435 mins. Remaining = 125 mins.
+        self.assertEqual(status.remaining_minutes, 125)
+
+        # Simulate Monday at 12:15 (between morning and evening classes)
+        dt_monday_break = datetime(2026, 9, 7, 12, 15, 0)
+        status_break = self.compositor.compute_live_status(huy, current_dt=dt_monday_break)
+        self.assertFalse(status_break.is_in_class)
+        self.assertIsNotNone(status_break.next_session)
+        self.assertEqual(status_break.next_session.course_name, "Học máy nâng cao & Khai phá dữ liệu")
+
+    def test_unified_ics_and_clipboard_export(self):
+        huy = next(m for m in self.members if m.id == "m1")
+
+        ics = self.compositor.generate_unified_ics(huy, filter_level="all")
+        self.assertIn("BEGIN:VCALENDAR", ics)
+        self.assertIn("END:VCALENDAR", ics)
+        self.assertIn("[🎓 ĐH]", ics)
+        self.assertIn("[🏛️ ThS]", ics)
+        self.assertIn("Học máy nâng cao", ics)
+
+        clip_txt = self.compositor.generate_unified_clipboard_text(huy, filter_level="all")
+        self.assertIn("THỜI KHÓA BIỂU HỢP NHẤT", clip_txt)
+        self.assertIn("Song bằng Đại học & Thạc sĩ", clip_txt)
+        self.assertIn("🎓 ĐH", clip_txt)
+        self.assertIn("🏛️ ThS", clip_txt)
+
+    def test_room_location_resolution(self):
+        from rat.timetable.model import resolve_room_location
+        # Building A (CNTT lab)
+        r_a = resolve_room_location("A608")
+        self.assertIn("Tòa A", r_a)
+        self.assertIn("Tầng 6", r_a)
+
+        # Building C (Viện Sau Đại học)
+        r_c = resolve_room_location("C302")
+        self.assertIn("Tòa C", r_c)
+        self.assertIn("Viện Sau Đại Học", r_c)
+
+        # Building F
+        r_f = resolve_room_location("F702")
+        self.assertIn("Tòa F", r_f)
+        self.assertIn("Tầng 7", r_f)
+
+        # Sports arena
+        r_ntd = resolve_room_location("TRET-NTD-2")
+        self.assertIn("Nhà Thi Đấu Thể Thao", r_ntd)
+
+        # Online
+        r_on = resolve_room_location("HOCTRUCTUYEN-3")
+        self.assertIn("Học Trực Tuyến", r_on)
+
+    def test_workload_metrics_calculation(self):
+        huy = next(m for m in self.members if m.id == "m1")
+        stats = self.compositor.compute_workload_stats(huy)
+
+        self.assertGreater(stats["total_periods"], 20)
+        self.assertGreater(stats["undergrad_periods"], 10)
+        self.assertGreater(stats["master_periods"], 5)
+        self.assertIn(stats["intensity"], ["chill", "balanced", "heavy", "overload"])
+        self.assertGreaterEqual(stats["evening_classes"], 3)  # Evening master classes
+
+    def test_today_agenda_timeline(self):
+        from datetime import datetime
+        huy = next(m for m in self.members if m.id == "m1")
+
+        # Simulate Monday at 08:00 (during Tiết 1-3)
+        dt_monday = datetime(2026, 9, 7, 8, 0, 0)
+        agenda = self.compositor.get_today_agenda(huy, current_dt=dt_monday)
+        self.assertEqual(len(agenda), 3)  # Monday has 3 courses for Huy
+
+        statuses = [item["status"] for item in agenda]
+        self.assertIn("live", statuses)
+        self.assertIn("upcoming", statuses)
 
 
 class TestScheduleCompositorWindowUI(unittest.TestCase):
@@ -135,6 +283,7 @@ class TestScheduleCompositorWindowUI(unittest.TestCase):
         self.assertEqual(len(self.window.compositor.active_members), 6)
 
     def test_cell_click_renders_details(self):
+        self.window._set_mode("group")
         shift_matrix = self.window.compositor.compute_shift_matrix()
         test_shift = shift_matrix["T2"]["ca1"]
         self.window._on_cell_clicked(test_shift)
@@ -143,6 +292,73 @@ class TestScheduleCompositorWindowUI(unittest.TestCase):
         self.assertIn("Thứ 2", self.window.detail_title.text())
         self.assertIn("Ca 1", self.window.detail_title.text())
 
+    def test_mode_switching_and_degree_filters(self):
+        # Switch to Unified mode
+        self.window._set_mode("unified")
+        self.assertEqual(self.window.current_mode, "unified")
+        self.assertFalse(self.window.live_banner.isHidden())
+        self.assertFalse(self.window.conflict_bar.isHidden())
+        self.assertFalse(self.window.unified_toolbar_card.isHidden())
+        self.assertTrue(self.window.golden_bar.isHidden())
+
+        # Filter undergrad
+        self.window._set_degree_filter("undergrad")
+        self.assertEqual(self.window.filter_level, "undergrad")
+
+        # Filter master
+        self.window._set_degree_filter("master")
+        self.assertEqual(self.window.filter_level, "master")
+
+        # Search query
+        self.window._on_search_text_changed("Giải tích")
+        self.assertEqual(self.window.search_query, "Giải tích")
+
+        # Switch back to Group mode
+        self.window._set_mode("group")
+        self.assertEqual(self.window.current_mode, "group")
+        self.assertFalse(self.window.golden_bar.isHidden())
+        self.assertTrue(self.window.live_banner.isHidden())
+
+    def test_class_session_inspector_details(self):
+        test_session = ClassSession(
+            start_period=13,
+            end_period=15,
+            course_name="Xử lý ngôn ngữ tự nhiên & Mô hình LLMs",
+            room="C305",
+            degree_level="master",
+            course_code="840108",
+            lecturer="TS. Lê Hoàng",
+            notes="Viện Sau đại học (Tối Ca 5)"
+        )
+        self.window._on_class_session_clicked(test_session)
+        app.processEvents()
+
+        self.assertIn("Xử lý ngôn ngữ tự nhiên", self.window.detail_title.text())
+        self.assertEqual(self.window.selected_class_session, test_session)
+
+    def test_today_spotlight_view_and_utilities(self):
+        # Switch to today spotlight view
+        self.window._set_view_mode("today")
+        self.assertEqual(self.window.view_mode, "today")
+        self.assertEqual(self.window.views_stack.currentIndex(), 1)
+
+        # Room query navigator test
+        self.window._on_room_query_changed("C302")
+        self.assertIn("Tòa C", self.window.room_result_lbl.text())
+        self.assertIn("Viện Sau Đại Học", self.window.room_result_lbl.text())
+
+        # Course notes scratchpad test
+        self.window.course_notes_edit.setText("Link tài liệu môn học: https://drive.google.com/test")
+        self.window._save_current_course_note()
+        self.assertIn("Link tài liệu", self.window.course_notes.get("general", ""))
+
+        # Switch back to weekly grid
+        self.window._set_view_mode("weekly")
+        self.assertEqual(self.window.view_mode, "weekly")
+        self.assertEqual(self.window.views_stack.currentIndex(), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
+
+

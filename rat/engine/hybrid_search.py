@@ -95,6 +95,15 @@ class SearchEngine:
         context.source_domain = plan.source_domain
         context.visual_concepts = plan.visual_tags
 
+        # Soft Temporal: Widen retrieval window by ±15 days to catch files edited
+        # slightly outside the user's stated range (e.g. "tháng 8" file edited Sept 14).
+        # The Reranker will apply fine-grained decay scoring to prefer in-range files.
+        TEMPORAL_BUFFER_SECONDS = 15 * 86400  # 15 days
+        if plan.date_min is not None:
+            plan.date_min = plan.date_min - TEMPORAL_BUFFER_SECONDS
+        if plan.date_max is not None:
+            plan.date_max = plan.date_max + TEMPORAL_BUFFER_SECONDS
+
         # -----------------------------------------------------------------
         # Phase 2: Parallel Multi-Engine Retrieval & Adaptive M-RRF (< 40ms)
         # -----------------------------------------------------------------

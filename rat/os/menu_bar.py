@@ -70,45 +70,48 @@ class SystemTrayManager:
         on_open_finder: Optional[Callable[[], None]] = None,
         on_open_settings: Optional[Callable[[], None]] = None,
         on_open_schedule: Optional[Callable[[], None]] = None,
+        on_open_widget: Optional[Callable[[], None]] = None,
     ) -> None:
         self.on_open_spotlight = on_open_spotlight
         self.on_open_finder = on_open_finder
         self.on_open_settings = on_open_settings
         self.on_open_schedule = on_open_schedule
+        self.on_open_widget = on_open_widget
         self.tray_icon = QSystemTrayIcon()
         self.db = Database(config.db_path)
         self.rescan_worker: Optional[RescanWorker] = None
         self._init_tray()
 
     def _init_tray(self) -> None:
-        # Create icon
+        # Create macOS template icon (automatically inverts in dark mode)
         icon = QIcon(create_tray_pixmap())
+        icon.setIsMask(True)
         self.tray_icon.setIcon(icon)
-        self.tray_icon.setToolTip("rat — macOS Smart AI File Finder")
+        self.tray_icon.setToolTip("rat — Trợ lý sinh viên & công việc macOS")
 
-        # Create Menu
+        # Create Menu with warm paper styling
         menu = QMenu()
         menu.setStyleSheet("""
             QMenu {
-                background-color: #ffffff;
-                color: #1c1c1e;
-                border: 1px solid #d1d1d6;
-                border-radius: 8px;
-                padding: 4px;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                background-color: #fffdf9;
+                color: #2c241c;
+                border: 1px solid #d9d0c5;
+                border-radius: 10px;
+                padding: 5px;
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
                 font-size: 13px;
             }
             QMenu::item {
                 padding: 6px 14px;
-                border-radius: 4px;
+                border-radius: 6px;
             }
             QMenu::item:selected {
-                background-color: #007aff;
-                color: #ffffff;
+                background-color: #f7eedb;
+                color: #4c3a21;
             }
             QMenu::separator {
                 height: 1px;
-                background-color: #e5e5ea;
+                background-color: #ebe4db;
                 margin: 4px 8px;
             }
         """)
@@ -137,6 +140,12 @@ class SystemTrayManager:
         if self.on_open_schedule:
             action_schedule.triggered.connect(self.on_open_schedule)
         menu.addAction(action_schedule)
+
+        # Floating Widget Action
+        action_widget = QAction("⚡ Widget Thời Khóa Biểu (Claude Floating)", menu)
+        if self.on_open_widget:
+            action_widget.triggered.connect(self.on_open_widget)
+        menu.addAction(action_widget)
 
         menu.addSeparator()
 

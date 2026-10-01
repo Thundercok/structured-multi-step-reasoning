@@ -32,7 +32,7 @@ SUPPORTED_EXTENSIONS = {
     ".txt", ".md", ".markdown", ".rst",
     # Code & Configs
     ".py", ".js", ".jsx", ".ts", ".tsx", ".html", ".css", ".json", ".yaml", ".yml",
-    ".toml", ".sh", ".sql", ".xml", ".log", ".csv",
+    ".toml", ".sh", ".sql", ".xml", ".log",
     # Images (Metadata & OCR)
     ".jpg", ".jpeg", ".png", ".webp"
 }
@@ -96,14 +96,6 @@ class Config:
         self.indexed_directories: List[str] = [
             d for d in DEFAULT_WATCH_DIRS if os.path.exists(d)
         ]
-        # Include current project and downloads folder if available
-        custom_paths = [
-            "/Users/thundercock2/Downloads/drive-download-20260721T070924Z-1-001",
-            "/Users/thundercock2/Documents/Github/Spider-The-Web-Crawler",
-        ]
-        for p in custom_paths:
-            if os.path.exists(p) and p not in self.indexed_directories:
-                self.indexed_directories.append(p)
 
         self.llm_provider: str = "auto"  # "auto", "slm", "gemini", "openai", "ollama", "offline"
         self.gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")

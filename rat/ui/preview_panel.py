@@ -1,17 +1,18 @@
 """
-rat.ui.preview_panel — SOTA Apple macOS Sequoia & Raycast-grade Inspector Panel.
+rat.ui.preview_panel — macOS Sequoia "Liquid Glass" Detail & Conversational AI Panel.
 Features:
-- Native Apple Folded Dog-Ear & Squircle Hero Headers
-- Linear-style Metadata Tag Chips (Path, Modified, Provenance, Visual)
-- High-DPI Smooth Image Thumbnail Quick Look
-- SOTA FR-CoT Multi-Engine Convergence Stepper & Timeline
-- In-Situ AI Document Q&A Command Bar
+- Translucent frosted glass containers with physical top specular highlight
+- Interactive Chatbot Conversation Stream (User & Assistant bubbles)
+- Structured file metadata & Quick Look preview
+- In-situ continuous conversational bar
 """
 
 from __future__ import annotations
 
+import html
 import os
 import platform
+import re
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -58,6 +59,7 @@ EXT_DESCRIPTIONS = {
     ".jpg": "Hình ảnh JPEG",
     ".jpeg": "Hình ảnh JPEG",
     ".webp": "Hình ảnh WebP",
+    ".ai": "Tri thức & Phản hồi AI",
 }
 
 
@@ -86,8 +88,20 @@ def reveal_in_finder(file_path: str) -> None:
         subprocess.run(["xdg-open", parent_dir])
 
 
+def open_in_terminal(file_path: str) -> None:
+    if not file_path:
+        return
+    system = platform.system()
+    target_dir = file_path if os.path.isdir(file_path) else str(Path(file_path).parent)
+    if system == "Darwin":
+        subprocess.run(["open", "-a", "Terminal", target_dir])
+    elif system == "Windows":
+        subprocess.run(["cmd.exe", "/K", f"cd /d {target_dir}"])
+    else:
+        subprocess.run(["x-terminal-emulator", f"--working-directory={target_dir}"])
+
+
 def trigger_quicklook(file_path: str) -> None:
-    """Trigger genuine native macOS QuickLook preview (qlmanage -p)."""
     if not file_path or not os.path.exists(file_path):
         return
     system = platform.system()
@@ -97,23 +111,9 @@ def trigger_quicklook(file_path: str) -> None:
         open_file_default(file_path)
 
 
-def open_in_terminal(file_path: str) -> None:
-    """Open containing folder of file in macOS Terminal."""
-    if not file_path or not os.path.exists(file_path):
-        return
-    dir_path = file_path if os.path.isdir(file_path) else os.path.dirname(file_path)
-    system = platform.system()
-    if system == "Darwin":
-        subprocess.Popen(["open", "-a", "Terminal", dir_path])
-    elif system == "Windows":
-        subprocess.Popen(["cmd.exe", "/K", f"cd /d {dir_path}"], shell=True)
-    else:
-        subprocess.Popen(["xdg-open", dir_path])
-
-
 class PreviewPanel(QFrame):
-    """SOTA Apple macOS Sequoia & Raycast Inspector Panel."""
-    ask_requested = pyqtSignal(str, str, str)  # (file_path, file_name, question)
+    """Liquid Glass Detail & Conversational AI Chatbot Panel."""
+    ask_requested = pyqtSignal(str, str, str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -125,66 +125,74 @@ class PreviewPanel(QFrame):
 
     def _init_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 14, 14, 12)
-        layout.setSpacing(9)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(8)
 
         # -------------------------------------------------------------
-        # 1. Hero File Header (42x42 squircle icon + Title + Kind/Size)
+        # 1. Hero File Header (Liquid Glass Card)
         # -------------------------------------------------------------
         header_card = QFrame()
+        header_card.setObjectName("DetailHeaderCard")
         header_card.setStyleSheet("""
-            QFrame {
-                background-color: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
+            QFrame#DetailHeaderCard {
+                background-color: #fffdf9;
+                border: 1px solid #e2d9cd;
+                border-top: 1px solid #e2d9cd;
+                border-radius: 8px;
                 padding: 6px 10px;
+            }
+            QLabel {
+                border: none;
+                background: transparent;
             }
         """)
         h_layout = QHBoxLayout(header_card)
-        h_layout.setContentsMargins(4, 4, 4, 4)
+        h_layout.setContentsMargins(0, 0, 0, 0)
         h_layout.setSpacing(10)
 
-        self.badge_label = QLabel("FILE")
-        self.badge_label.setFixedSize(40, 40)
+        self.badge_label = QLabel("✦")
+        self.badge_label.setFixedSize(32, 32)
         self.badge_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.badge_label.setStyleSheet("""
-            background-color: #007aff;
-            color: #ffffff;
+            background-color: #f7eedb;
+            color: #60a5fa;
             font-weight: 700;
-            font-size: 11px;
-            border-radius: 8px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: 1px solid #e2cd98;
+            border-top: 1px solid #e2cd98;
         """)
 
         title_col = QVBoxLayout()
         title_col.setSpacing(2)
 
-        self.name_label = QLabel("Chọn một tệp tin")
-        self.name_label.setStyleSheet("color: #0f172a; font-size: 14.5px; font-weight: 600;")
+        self.name_label = QLabel("Chọn một mục hoặc đặt câu hỏi")
+        self.name_label.setStyleSheet("color: #1c1917; font-size: 13px; font-weight: 600;")
         self.name_label.setWordWrap(True)
 
-        self.meta_sub_label = QLabel("")
-        self.meta_sub_label.setStyleSheet("color: #64748b; font-size: 11px;")
+        self.meta_sub_label = QLabel("Trợ lý AI sẵn sàng giải đáp thắc mắc")
+        self.meta_sub_label.setStyleSheet("color: #78716c; font-size: 11px;")
 
         title_col.addWidget(self.name_label)
         title_col.addWidget(self.meta_sub_label)
 
-        self.btn_quicklook = QPushButton("👁️ Xem nhanh")
-        self.btn_quicklook.setToolTip("Mở macOS Quick Look (Phím Space hoặc ⌘Y)")
+        self.btn_quicklook = QPushButton("Space")
+        self.btn_quicklook.setToolTip("macOS Quick Look (Phím Space)")
         self.btn_quicklook.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_quicklook.setStyleSheet("""
             QPushButton {
-                background-color: #f1f5f9;
-                color: #334155;
-                border: 1px solid #cbd5e1;
-                border-radius: 6px;
-                padding: 5px 9px;
-                font-size: 11px;
+                background-color: #fffdf9;
+                color: #78716c;
+                border: 1px solid #e2d9cd;
+                border-top: 1px solid #e2d9cd;
+                border-radius: 4px;
+                padding: 3px 8px;
+                font-size: 10px;
                 font-weight: 600;
             }
             QPushButton:hover {
-                background-color: #e2e8f0;
-                color: #0f172a;
-                border-color: #94a3b8;
+                background-color: #fffdf9;
+                color: #1c1917;
             }
         """)
         self.btn_quicklook.clicked.connect(self._trigger_quicklook)
@@ -195,127 +203,130 @@ class PreviewPanel(QFrame):
         layout.addWidget(header_card)
 
         # -------------------------------------------------------------
-        # 2. Image Thumbnail Quick Look (Only shown for images)
+        # 2. Image Thumbnail Quick Look (Only for images)
         # -------------------------------------------------------------
         self.image_preview_box = QLabel()
         self.image_preview_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_preview_box.setFixedHeight(140)
+        self.image_preview_box.setFixedHeight(120)
         self.image_preview_box.setStyleSheet("""
             background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border: 1px solid #e2d9cd;
+            border-radius: 6px;
             padding: 4px;
         """)
         self.image_preview_box.hide()
         layout.addWidget(self.image_preview_box)
 
         # -------------------------------------------------------------
-        # 3. Linear-Style Metadata Tag Chips
+        # 3. Translucent Metadata Key-Value List
         # -------------------------------------------------------------
-        self.meta_chips_frame = QFrame()
-        self.meta_chips_frame.setStyleSheet("""
+        self.metadata_frame = QFrame()
+        self.reason_box = self.metadata_frame  # Backward compatibility alias
+        self.metadata_frame.setStyleSheet("""
             QFrame {
                 background-color: transparent;
+                border-bottom: 1px solid #e2d9cd;
+                padding-bottom: 4px;
             }
-            QLabel.MetaPill {
-                background-color: #f1f5f9;
-                color: #475569;
-                border: 1px solid #e2e8f0;
-                border-radius: 5px;
-                padding: 2px 7px;
-                font-size: 10.5px;
+            QLabel.MetaKey {
+                color: #78716c;
+                font-size: 11px;
                 font-weight: 500;
             }
-        """)
-        chips_layout = QHBoxLayout(self.meta_chips_frame)
-        chips_layout.setContentsMargins(0, 0, 0, 0)
-        chips_layout.setSpacing(5)
-
-        self.pill_path = QLabel("📁 /")
-        self.pill_path.setProperty("class", "MetaPill")
-        chips_layout.addWidget(self.pill_path)
-
-        self.pill_time = QLabel("🕒 Hôm nay")
-        self.pill_time.setProperty("class", "MetaPill")
-        chips_layout.addWidget(self.pill_time)
-
-        self.pill_source = QLabel("🌐 Safari")
-        self.pill_source.setProperty("class", "MetaPill")
-        self.pill_source.setStyleSheet("background-color: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff;")
-        self.pill_source.hide()
-        chips_layout.addWidget(self.pill_source)
-
-        chips_layout.addStretch()
-        layout.addWidget(self.meta_chips_frame)
-
-        # -------------------------------------------------------------
-        # 4. Context Reason Card (Soft Azure Tint)
-        # -------------------------------------------------------------
-        self.reason_box = QFrame()
-        self.reason_box.setStyleSheet("""
-            QFrame {
-                background-color: #f0f9ff;
-                border: 1px solid #bae6fd;
-                border-radius: 7px;
-                padding: 5px 8px;
+            QLabel.MetaVal {
+                color: #2c241c;
+                font-size: 11px;
+                font-weight: 400;
             }
         """)
-        reason_layout = QVBoxLayout(self.reason_box)
-        reason_layout.setContentsMargins(6, 4, 6, 4)
-        reason_layout.setSpacing(2)
+        meta_layout = QVBoxLayout(self.metadata_frame)
+        meta_layout.setContentsMargins(0, 0, 0, 0)
+        meta_layout.setSpacing(3)
 
-        self.reason_title = QLabel("💡 Khớp ngữ cảnh AI:")
-        self.reason_title.setStyleSheet("color: #0284c7; font-size: 11px; font-weight: 600;")
-        self.reason_text = QLabel("")
-        self.reason_text.setStyleSheet("color: #0369a1; font-size: 11.5px; line-height: 1.35;")
-        self.reason_text.setWordWrap(True)
+        row_path = QHBoxLayout()
+        lbl_k1 = QLabel("Đường dẫn")
+        lbl_k1.setProperty("class", "MetaKey")
+        self.val_path = QLabel("-")
+        self.val_path.setProperty("class", "MetaVal")
+        row_path.addWidget(lbl_k1)
+        row_path.addStretch()
+        row_path.addWidget(self.val_path)
+        meta_layout.addLayout(row_path)
 
-        reason_layout.addWidget(self.reason_title)
-        reason_layout.addWidget(self.reason_text)
-        layout.addWidget(self.reason_box)
+        row_mod = QHBoxLayout()
+        lbl_k2 = QLabel("Sửa đổi")
+        lbl_k2.setProperty("class", "MetaKey")
+        self.val_time = QLabel("-")
+        self.val_time.setProperty("class", "MetaVal")
+        row_mod.addWidget(lbl_k2)
+        row_mod.addStretch()
+        row_mod.addWidget(self.val_time)
+        meta_layout.addLayout(row_mod)
+
+        self.row_score = QHBoxLayout()
+        self.lbl_k3 = QLabel("Độ khớp AI")
+        self.lbl_k3.setProperty("class", "MetaKey")
+        self.val_score = QLabel("-")
+        self.val_score.setStyleSheet("""
+            background-color: #f7eedb;
+            color: #93c5fd;
+            border: 1px solid #e2cd98;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 600;
+        """)
+        self.row_score.addWidget(self.lbl_k3)
+        self.row_score.addStretch()
+        self.row_score.addWidget(self.val_score)
+        meta_layout.addLayout(self.row_score)
+
+        layout.addWidget(self.metadata_frame)
 
         # -------------------------------------------------------------
-        # 5. Segmented Mode Switcher (26px SOTA macOS Control)
+        # 4. Liquid Glass Segmented View Switcher
         # -------------------------------------------------------------
         switch_row = QHBoxLayout()
-        switch_row.setSpacing(6)
-        switch_row.setContentsMargins(0, 1, 0, 1)
+        switch_row.setSpacing(4)
+        switch_row.setContentsMargins(0, 2, 0, 2)
 
         self.seg_container = QFrame()
+        self.seg_container.setObjectName("SegContainer")
         self.seg_container.setStyleSheet("""
-            QFrame {
-                background-color: #f1f5f9;
-                border: 1px solid #e2e8f0;
-                border-radius: 6px;
+            QFrame#SegContainer {
+                background-color: #fffdf9;
+                border: 1px solid #e2d9cd;
+                border-top: 1px solid #e2d9cd;
+                border-radius: 5px;
             }
             QPushButton {
                 border: none;
                 border-radius: 4px;
-                padding: 3px 10px;
+                padding: 3px 9px;
                 font-size: 11px;
                 font-weight: 500;
-                color: #64748b;
+                color: #78716c;
                 background-color: transparent;
             }
             QPushButton:hover {
-                color: #0f172a;
+                color: #1c1917;
             }
             QPushButton[selected="true"] {
-                background-color: #ffffff;
-                color: #0f172a;
+                background-color: #f7eedb;
+                color: #1c1917;
                 font-weight: 600;
-                border: 1px solid #cbd5e1;
+                border: 1px solid #e2cd98;
             }
         """)
         seg_layout = QHBoxLayout(self.seg_container)
         seg_layout.setContentsMargins(2, 2, 2, 2)
         seg_layout.setSpacing(2)
 
-        self.btn_tab_preview = QPushButton("📄 Xem trước")
+        self.btn_tab_preview = QPushButton("📄 Nội dung")
         self.btn_tab_preview.setProperty("selected", "true")
         self.btn_tab_preview.clicked.connect(lambda: self.set_active_tab(0))
 
-        self.btn_tab_cot = QPushButton("🧠 Suy luận CoT")
+        self.btn_tab_cot = QPushButton("✦ Trợ lý AI")
         self.btn_tab_cot.setProperty("selected", "false")
         self.btn_tab_cot.clicked.connect(lambda: self.set_active_tab(1))
 
@@ -327,11 +338,11 @@ class PreviewPanel(QFrame):
         layout.addLayout(switch_row)
 
         # -------------------------------------------------------------
-        # 6. Stacked Pages: [Page 0: Preview Text | Page 1: CoT Timeline]
+        # 5. Stacked Content Pages: [Page 0: Preview | Page 1: Chatbot Stream]
         # -------------------------------------------------------------
         self.stack = QStackedWidget()
 
-        # Page 0: Quick Look Editor
+        # Page 0: Quick Look Text Editor
         self.preview_text = QTextEdit()
         self.preview_text.setObjectName("PreviewContent")
         self.preview_text.setReadOnly(True)
@@ -339,17 +350,19 @@ class PreviewPanel(QFrame):
         self.preview_text.setStyleSheet("""
             QTextEdit {
                 background-color: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                color: #0f172a;
+                border: 1px solid #e2d9cd;
+                border-top: 1px solid #e2d9cd;
+                border-radius: 6px;
+                color: #2c241c;
                 font-size: 11.5px;
+                font-family: "SF Mono", "Menlo", "Fira Code", monospace;
                 line-height: 1.45;
                 padding: 8px;
             }
         """)
         self.stack.addWidget(self.preview_text)
 
-        # Page 1: Minimalist CoT Timeline View
+        # Page 1: Chatbot Stream & Reasoning View
         self.cot_scroll = QScrollArea()
         self.cot_scroll.setWidgetResizable(True)
         self.cot_scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -358,62 +371,70 @@ class PreviewPanel(QFrame):
 
         self.cot_content_widget = QWidget()
         self.cot_content_layout = QVBoxLayout(self.cot_content_widget)
-        self.cot_content_layout.setContentsMargins(2, 2, 2, 2)
-        self.cot_content_layout.setSpacing(7)
+        self.cot_content_layout.setContentsMargins(0, 0, 0, 0)
+        self.cot_content_layout.setSpacing(6)
         self.cot_scroll.setWidget(self.cot_content_widget)
 
         self.stack.addWidget(self.cot_scroll)
         layout.addWidget(self.stack, 1)
 
         # -------------------------------------------------------------
-        # 7. Linear-Style In-Situ AI Document Q&A Bar
+        # 6. In-Situ Conversational AI Bar
         # -------------------------------------------------------------
         chat_frame = QFrame()
+        chat_frame.setObjectName("ChatFrame")
         chat_frame.setStyleSheet("""
-            QFrame {
-                background-color: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 4px 6px;
+            QFrame#ChatFrame {
+                background-color: #fffdf9;
+                border: 1px solid #e2d9cd;
+                border-top: 1px solid #e2d9cd;
+                border-radius: 6px;
+                padding: 3px 6px;
+            }
+            QLabel {
+                border: none;
+                background: transparent;
             }
         """)
         chat_layout = QVBoxLayout(chat_frame)
-        chat_layout.setContentsMargins(4, 4, 4, 4)
+        chat_layout.setContentsMargins(3, 3, 3, 3)
         chat_layout.setSpacing(4)
 
         input_row = QHBoxLayout()
         input_row.setSpacing(6)
 
+        ai_glyph = QLabel("✦")
+        ai_glyph.setStyleSheet("color: #60a5fa; font-size: 12px; font-weight: 700; padding-left: 2px;")
+        input_row.addWidget(ai_glyph)
+
         self.ask_input = QLineEdit()
-        self.ask_input.setPlaceholderText("💬 Hỏi AI về tệp này... (Nhấn ↵)")
+        self.ask_input.setPlaceholderText("Trò chuyện cùng AI hoặc hỏi về tài liệu này... (↵)")
         self.ask_input.setStyleSheet("""
             QLineEdit {
-                background-color: #ffffff;
-                color: #0f172a;
-                border: 1px solid #cbd5e1;
-                border-radius: 6px;
-                padding: 5px 9px;
+                background-color: transparent;
+                color: #1c1917;
+                border: none;
+                padding: 4px 4px;
                 font-size: 11.5px;
-            }
-            QLineEdit:focus {
-                border: 1.5px solid #007aff;
             }
         """)
         self.ask_input.returnPressed.connect(self._trigger_ask)
 
-        self.ask_btn = QPushButton("Hỏi ↵")
+        self.ask_btn = QPushButton("↵ Gửi")
+        self.ask_btn.setToolTip("Gửi tin nhắn cho AI")
         self.ask_btn.setStyleSheet("""
             QPushButton {
-                background-color: #007aff;
-                color: #ffffff;
+                background-color: #f2c94c;
+                color: #3b2c15;
                 font-weight: 600;
-                font-size: 11px;
-                border-radius: 6px;
-                padding: 5px 10px;
-                border: none;
+                font-size: 10.5px;
+                border-radius: 4px;
+                padding: 3px 8px;
+                border: 1px solid #e2cd98;
+                border-top: 1px solid #e2cd98;
             }
             QPushButton:hover {
-                background-color: #0056b3;
+                background-color: #e2cd98;
             }
         """)
         self.ask_btn.clicked.connect(self._trigger_ask)
@@ -424,24 +445,23 @@ class PreviewPanel(QFrame):
 
         self.qa_response_box = QLabel("")
         self.qa_response_box.setStyleSheet("""
-            background-color: #ffffff;
-            color: #1e293b;
+            background-color: #f8f6f2;
+            color: #2c241c;
             font-size: 11.5px;
-            padding: 7px 9px;
+            padding: 8px 10px;
             border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            line-height: 1.4;
+            border: 1px solid #e2cd98;
+            border-top: 1px solid #e2cd98;
+            line-height: 1.45;
         """)
         self.qa_response_box.setWordWrap(True)
         self.qa_response_box.hide()
         chat_layout.addWidget(self.qa_response_box)
 
         layout.addWidget(chat_frame)
-
         self._render_empty_cot()
 
     def set_active_tab(self, tab_index: int) -> None:
-        """Switch between 0 (Quick Look) and 1 (CoT Timeline)."""
         self.stack.setCurrentIndex(tab_index)
         if tab_index == 0:
             self.btn_tab_preview.setProperty("selected", "true")
@@ -456,16 +476,34 @@ class PreviewPanel(QFrame):
         self.btn_tab_cot.style().polish(self.btn_tab_cot)
 
     def _render_empty_cot(self) -> None:
-        """Render placeholder when no search query is active."""
         while self.cot_content_layout.count():
             item = self.cot_content_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
 
-        empty_label = QLabel("Chưa có chuỗi suy luận.\nHãy nhập câu hỏi tìm kiếm ở ô phía trên.")
-        empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        empty_label.setStyleSheet("color: #94a3b8; font-size: 11.5px; padding: 40px 10px;")
-        self.cot_content_layout.addWidget(empty_label)
+        welcome_card = QFrame()
+        welcome_card.setStyleSheet("""
+            QFrame {
+                background-color: #fffdf9;
+                border: 1px solid #e2d9cd;
+                border-top: 1px solid #e2d9cd;
+                border-radius: 8px;
+                padding: 16px 12px;
+            }
+        """)
+        w_layout = QVBoxLayout(welcome_card)
+        w_layout.setSpacing(6)
+
+        w_title = QLabel("✦ Trợ Lý Hội Thoại AI (Copilot)")
+        w_title.setStyleSheet("color: #60a5fa; font-size: 12.5px; font-weight: 600;")
+        w_layout.addWidget(w_title)
+
+        w_desc = QLabel("Nhập bất kỳ câu hỏi nào ở ô tìm kiếm hoặc thanh hội thoại bên dưới để trò chuyện cùng AI.")
+        w_desc.setStyleSheet("color: #78716c; font-size: 11px; line-height: 1.4;")
+        w_desc.setWordWrap(True)
+        w_layout.addWidget(w_desc)
+
+        self.cot_content_layout.addWidget(welcome_card)
         self.cot_content_layout.addStretch()
 
     def set_reasoning_trace(
@@ -473,121 +511,116 @@ class PreviewPanel(QFrame):
         trace: Optional[ReasoningTrace],
         plan: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """Update CoT reasoning trace with SOTA visual cards."""
         self.current_trace = trace
         self.current_plan = plan
 
         if not trace or not trace.steps:
-            self.btn_tab_cot.setText("🧠 Suy luận CoT")
+            self.btn_tab_cot.setText("✦ Trợ lý AI")
             self._render_empty_cot()
             return
 
         conf_pct = int(trace.final_confidence * 100)
-        self.btn_tab_cot.setText(f"🧠 Suy luận CoT ({conf_pct}%)")
+        self.btn_tab_cot.setText(f"✦ Trợ lý AI ({conf_pct}%)")
 
         while self.cot_content_layout.count():
             item = self.cot_content_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
 
-        # 1. Summary Header Card
-        status_text = "ĐỦ ĐIỀU KIỆN" if trace.is_sufficient else "PHẦN NÀO"
-        status_color = "#15803d" if trace.is_sufficient else "#b45309"
-        status_bg = "#f0fdf4" if trace.is_sufficient else "#fefce8"
-        border_color = "#bbf7d0" if trace.is_sufficient else "#fef08a"
-
-        header_card = QFrame()
-        header_card.setStyleSheet(f"""
-            QFrame {{
-                background-color: {status_bg};
-                border: 1px solid {border_color};
-                border-radius: 6px;
-                padding: 4px 8px;
-            }}
+        # 1. Chatbot Assistant Response Bubble
+        ai_bubble = QFrame()
+        ai_bubble.setStyleSheet("""
+            QFrame {
+                background-color: #f8f6f2;
+                border: 1px solid #e2cd98;
+                border-top: 1px solid #e2cd98;
+                border-radius: 8px;
+                padding: 8px 10px;
+            }
         """)
-        h_layout = QHBoxLayout(header_card)
-        h_layout.setContentsMargins(6, 3, 6, 3)
-        h_layout.setSpacing(6)
+        ai_b_layout = QVBoxLayout(ai_bubble)
+        ai_b_layout.setSpacing(4)
 
-        lbl_status = QLabel(f"● <b>{status_text}</b> ({conf_pct}%)")
-        lbl_status.setStyleSheet(f"color: {status_color}; font-size: 11.5px;")
-        h_layout.addWidget(lbl_status)
-        h_layout.addStretch()
+        ai_header = QHBoxLayout()
+        ai_tag = QLabel("✦ Trợ lý Copilot")
+        ai_tag.setStyleSheet("color: #60a5fa; font-size: 11px; font-weight: 700;")
+        ai_header.addWidget(ai_tag)
+        ai_header.addStretch()
 
-        lbl_latency = QLabel(f"⚡ {trace.total_latency_ms}ms • {len(trace.steps)} bước")
-        lbl_latency.setStyleSheet("color: #64748b; font-size: 10.5px;")
-        h_layout.addWidget(lbl_latency)
-        self.cot_content_layout.addWidget(header_card)
+        latency_lbl = QLabel(f"⚡ {trace.total_latency_ms}ms • {len(trace.steps)} bước suy luận")
+        latency_lbl.setStyleSheet("color: #887c70; font-size: 10px;")
+        ai_header.addWidget(latency_lbl)
+        ai_b_layout.addLayout(ai_header)
 
-        # 2. Render Step Cards
-        phase_icons = {
-            "decompose": ("🔍", "Phân rã mục tiêu (MFQD)", "#0284c7", "#f0f9ff", "#e0f2fe"),
-            "retrieve": ("⚡", "Truy xuất đa luồng (M-RRF)", "#7c3aed", "#faf5ff", "#f3e8ff"),
-            "evaluate": ("🎯", "Đánh giá thông tin", "#059669", "#ecfdf5", "#d1fae5"),
-            "correct": ("🛠️", "Tự động sửa lỗi (CRAG)", "#ea580c", "#fff7ed", "#ffedd5"),
-            "rerank": ("📊", "Tái xếp hạng & Bằng chứng", "#334155", "#f8fafc", "#e2e8f0"),
-            "synthesize": ("💬", "Tổng hợp tri thức", "#2563eb", "#eff6ff", "#dbeafe"),
-        }
+        # Direct Answer Text
+        if trace.steps and trace.steps[-1].thought:
+            ans_text = trace.steps[-1].thought
+        else:
+            ans_text = "Đã hoàn thành phân tích và xác minh bằng chứng."
 
-        for step in trace.steps:
-            icon, title_text, col_accent, col_bg, col_border = phase_icons.get(
-                step.phase, ("🔹", step.phase.upper(), "#475569", "#f8fafc", "#e2e8f0")
-            )
+        ans_lbl = QLabel(ans_text)
+        ans_lbl.setStyleSheet("color: #1c1917; font-size: 11.5px; line-height: 1.45;")
+        ans_lbl.setWordWrap(True)
+        ai_b_layout.addWidget(ans_lbl)
 
+        self.cot_content_layout.addWidget(ai_bubble)
+
+        # 2. Reasoning Ladder Steps (Glass Cards)
+        for idx, step in enumerate(trace.steps):
             step_card = QFrame()
-            step_card.setStyleSheet(f"""
-                QFrame {{
-                    background-color: {col_bg};
-                    border: 1px solid {col_border};
+            step_card.setStyleSheet("""
+                QFrame {
+                    background-color: #fffdf9;
+                    border: 1px solid #e2d9cd;
+                    border-top: 1px solid #e2d9cd;
                     border-radius: 6px;
-                    padding: 4px 7px;
-                }}
+                    padding: 5px 8px;
+                }
             """)
             s_layout = QVBoxLayout(step_card)
-            s_layout.setContentsMargins(5, 4, 5, 4)
+            s_layout.setContentsMargins(6, 4, 6, 4)
             s_layout.setSpacing(2)
 
             title_row = QHBoxLayout()
             title_row.setSpacing(6)
-            title_lbl = QLabel(f"{icon} <b>{title_text}</b>")
-            title_lbl.setStyleSheet(f"color: {col_accent}; font-size: 11px;")
+            title_lbl = QLabel(f"Bước {idx + 1}: {step.phase.upper()}")
+            title_lbl.setStyleSheet("color: #38bdf8; font-size: 10.5px; font-weight: 600;")
             title_row.addWidget(title_lbl)
             title_row.addStretch()
 
             step_ms = QLabel(f"{step.latency_ms}ms")
-            step_ms.setStyleSheet("color: #94a3b8; font-size: 10px;")
+            step_ms.setStyleSheet("color: #887c70; font-size: 9.5px;")
             title_row.addWidget(step_ms)
             s_layout.addLayout(title_row)
 
             obs_text = step.observation if step.observation else step.thought
             if obs_text:
                 desc_lbl = QLabel(obs_text)
-                desc_lbl.setStyleSheet("color: #334155; font-size: 10.5px; line-height: 1.35;")
+                desc_lbl.setStyleSheet("color: #2c241c; font-size: 10.5px; line-height: 1.35;")
                 desc_lbl.setWordWrap(True)
                 s_layout.addWidget(desc_lbl)
 
             self.cot_content_layout.addWidget(step_card)
 
         self.cot_content_layout.addStretch()
+        self.set_active_tab(1)
 
     def set_item(self, item: Optional[SearchResultItem], query: str = "") -> None:
-        """Update file details, metadata pills, thumbnail, and content with optional keyword highlighting."""
         self.current_item = item
         self.qa_response_box.hide()
         self.qa_response_box.setText("")
         self.ask_input.clear()
 
         if not item:
-            self.badge_label.setText("FILE")
-            self.badge_label.setStyleSheet("background-color: #e2e8f0; color: #64748b; font-weight: 700; font-size: 11px; border-radius: 8px;")
-            self.name_label.setText("Chọn một tệp để xem chi tiết")
-            self.meta_sub_label.setText("")
+            self.badge_label.setText("✦")
+            self.badge_label.setStyleSheet("background-color: #f7eedb; color: #60a5fa; font-weight: 700; font-size: 12px; border-radius: 6px;")
+            self.name_label.setText("Chọn một mục hoặc đặt câu hỏi")
+            self.meta_sub_label.setText("Trợ lý AI sẵn sàng giải đáp thắc mắc")
+            self.val_path.setText("-")
+            self.val_time.setText("-")
+            self.val_score.setText("-")
             self.image_preview_box.hide()
-            self.reason_box.hide()
             self.preview_text.setPlainText("")
-            self.pill_path.setText("📁 /")
-            self.pill_time.setText("🕒 Chưa có")
-            self.pill_source.hide()
             return
 
         info = get_ext_badge_info(item.file_ext)
@@ -596,8 +629,9 @@ class PreviewPanel(QFrame):
             background-color: {info['bg']};
             color: {info['fg']};
             font-weight: 700;
-            font-size: 11px;
-            border-radius: 8px;
+            font-size: 10px;
+            border-radius: 6px;
+            border: 1px solid #e2d9cd;
         """)
 
         self.name_label.setText(item.file_name)
@@ -606,39 +640,27 @@ class PreviewPanel(QFrame):
         desc = EXT_DESCRIPTIONS.get(ext_clean, f"Tệp {ext_clean.upper()}")
         self.meta_sub_label.setText(f"{desc}  •  {item.file_size_formatted}")
 
-        # Metadata Chips
+        # Metadata
         p = item.file_path
-        if len(p) > 42:
-            p = "..." + p[-38:]
-        self.pill_path.setText(f"📁 {p}")
-        self.pill_time.setText(f"🕒 {item.modified_formatted}")
+        if len(p) > 36:
+            p = "..." + p[-32:]
+        self.val_path.setText(p)
+        self.val_time.setText(item.modified_formatted)
 
-        # Provenance pill
-        snippet_text = item.snippet or ""
-        if "[File Provenance]" in snippet_text:
-            prov_app = "Safari"
-            for app_name in ["Telegram", "Chrome", "Slack", "Discord", "Overleaf", "Google Drive"]:
-                if app_name.lower() in snippet_text.lower():
-                    prov_app = app_name
-                    break
-            self.pill_source.setText(f"🌐 Tải từ {prov_app}")
-            self.pill_source.show()
-        else:
-            self.pill_source.hide()
-
-        # Reason Card (Only show if score > 10)
         score_val = int(getattr(item, "score", 0))
         if score_val > 10:
-            self.reason_box.show()
-            self.reason_text.setText(f"{item.explanation}  •  Độ khớp: {score_val}%")
+            self.val_score.setText(f"{score_val}%")
+            self.val_score.show()
+            self.lbl_k3.show()
         else:
-            self.reason_box.hide()
+            self.val_score.hide()
+            self.lbl_k3.hide()
 
         # Image Thumbnail View
         if ext_clean in [".png", ".jpg", ".jpeg", ".webp"] and os.path.exists(item.file_path):
             pix = QPixmap(item.file_path)
             if not pix.isNull():
-                scaled = pix.scaled(280, 130, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                scaled = pix.scaled(280, 120, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                 self.image_preview_box.setPixmap(scaled)
                 self.image_preview_box.show()
             else:
@@ -646,21 +668,19 @@ class PreviewPanel(QFrame):
         else:
             self.image_preview_box.hide()
 
-        # Text Quick Look with Smart Keyword Highlighting
+        # Content Preview with keyword highlight
+        snippet_text = item.snippet or ""
         preview_body = snippet_text if snippet_text else "(Không có nội dung trích đoạn xem trước)"
         if query and query.strip() and snippet_text:
-            import html
-            import re
             escaped_body = html.escape(preview_body)
-            # Find query words of length >= 2
             terms = [re.escape(w) for w in query.strip().split() if len(w) >= 2]
             if terms:
                 pattern = re.compile(r"(" + "|".join(terms) + r")", re.IGNORECASE)
                 highlighted = pattern.sub(
-                    r'<mark style="background-color: #fef08a; color: #854d0e; padding: 1px 3px; border-radius: 3px; font-weight: 600;">\1</mark>',
+                    r'<mark style="background-color: #f7eedb; color: #1c1917; padding: 1px 3px; border-radius: 3px;">\1</mark>',
                     escaped_body
                 )
-                self.preview_text.setHtml(f"<div style='font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 11.5px; line-height: 1.45; white-space: pre-wrap;'>{highlighted}</div>")
+                self.preview_text.setHtml(f"<div style='font-family: \"SF Mono\", \"Menlo\", \"Fira Code\", monospace; font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; color: #2c241c;'>{highlighted}</div>")
             else:
                 self.preview_text.setPlainText(preview_body)
         else:
@@ -668,23 +688,25 @@ class PreviewPanel(QFrame):
 
     def _trigger_ask(self) -> None:
         q = self.ask_input.text().strip()
-        if not q or not self.current_item:
+        if not q:
             return
 
+        target_path = self.current_item.file_path if self.current_item else ""
+        target_name = self.current_item.file_name if self.current_item else "General Query"
+
         self.qa_response_box.show()
-        self.qa_response_box.setText("⏳ <i>Đang phân tích tài liệu và suy luận...</i>")
-        self.ask_requested.emit(self.current_item.file_path, self.current_item.file_name, q)
+        self.qa_response_box.setText("✦ <i>Đang phân tích & suy luận câu trả lời...</i>")
+        self.ask_requested.emit(target_path, target_name, q)
 
     def set_qa_answer(self, result: Dict[str, Any]) -> None:
         ans = result.get("answer", "Không có câu trả lời.")
-        engine = result.get("engine", "AI")
+        engine = result.get("engine", "✦ Trợ lý AI")
         self.qa_response_box.show()
-        self.qa_response_box.setText(f"<b>💡 {engine}:</b>\n{ans}")
-        if not self.preview_text.toPlainText() or "💡" in self.preview_text.toPlainText():
+        self.qa_response_box.setText(f"<b>{engine}:</b>\n{ans}")
+        if not self.preview_text.toPlainText() or "💡" in self.preview_text.toPlainText() or "✦" in self.preview_text.toPlainText():
             self.preview_text.setPlainText(ans)
         self.set_active_tab(0)
 
     def _trigger_quicklook(self) -> None:
         if self.current_item and os.path.exists(self.current_item.file_path):
             trigger_quicklook(self.current_item.file_path)
-

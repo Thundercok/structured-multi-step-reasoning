@@ -1,10 +1,11 @@
 """
-rat.ui.apple_item_delegate — 100% Genuine Apple macOS Light Theme List Item Delegate.
-Renders authentic Apple Dog-Ear document icons, typography hierarchy, and smooth selection.
+rat.ui.apple_item_delegate — macOS "Liquid Glass" List Item Delegate.
+Renders frosted glass selection highlights, specular reflections, and Retina icons.
 """
 
 from __future__ import annotations
 
+import os
 from typing import Dict, Optional
 
 from PyQt6.QtCore import QFileInfo, QModelIndex, QRectF, QSize, Qt
@@ -13,7 +14,6 @@ from PyQt6.QtGui import (
     QColor,
     QFont,
     QFontMetrics,
-    QLinearGradient,
     QPainter,
     QPainterPath,
     QPen,
@@ -27,46 +27,46 @@ from rat.ui.theme import get_ext_badge_info
 
 class AppleSpotlightDelegate(QStyledItemDelegate):
     """
-    Native QPainter delegate that renders macOS Spotlight list rows with
-    authentic Apple Dog-Ear document icons, typography hierarchy, and zero layout clipping.
+    Liquid Glass List.Item delegate.
+    - 44px row height with frosted glass selection
+    - Top specular glass light refraction
+    - Crisp primary title (#f9fafb) & secondary subtitle (#9ca3af)
+    - Right-aligned translucent accessories
     """
 
     def __init__(self, parent: Optional[object] = None) -> None:
         super().__init__(parent)
-        self.row_height = 56
+        self.row_height = 44
 
-        # Standard Apple Typography
-        self.title_font = QFont(".AppleSystemUIFont", 13)
-        self.title_font.setWeight(QFont.Weight.DemiBold)
+        # Typography
+        self.title_font = QFont(".AppleSystemUIFont", 12)
+        self.title_font.setWeight(QFont.Weight.Medium)
 
         self.sub_font = QFont(".AppleSystemUIFont", 11)
         self.sub_font.setWeight(QFont.Weight.Normal)
 
-        self.badge_font = QFont(".AppleSystemUIFont", 9)
+        self.accessory_font = QFont(".AppleSystemUIFont", 10)
+        self.accessory_font.setWeight(QFont.Weight.Medium)
+
+        self.badge_font = QFont(".AppleSystemUIFont", 8)
         self.badge_font.setWeight(QFont.Weight.Bold)
 
-        self.meta_font = QFont(".AppleSystemUIFont", 10)
-        self.meta_font.setWeight(QFont.Weight.Medium)
-
-        # macOS Native System Icon Provider & In-Memory Pixmap Cache
         self.icon_provider = QFileIconProvider()
         self._icon_cache: Dict[str, Optional[QPixmap]] = {}
 
     def _get_system_pixmap(self, file_path: str, ext: str) -> Optional[QPixmap]:
-        """Fetch and cache authentic Retina 32x32 macOS system file icon."""
         cache_key = ext.lower() if ext else file_path
         if cache_key in self._icon_cache:
             return self._icon_cache[cache_key]
 
         try:
-            import os
             if file_path and os.path.exists(file_path):
                 qicon = self.icon_provider.icon(QFileInfo(file_path))
             else:
                 qicon = self.icon_provider.icon(QFileIconProvider.IconType.File)
 
             if not qicon.isNull():
-                pm = qicon.pixmap(32, 32)
+                pm = qicon.pixmap(22, 22)
                 self._icon_cache[cache_key] = pm
                 return pm
         except Exception:
@@ -78,50 +78,18 @@ class AppleSpotlightDelegate(QStyledItemDelegate):
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         return QSize(option.rect.width(), self.row_height)
 
-    def _draw_apple_document_icon(self, painter: QPainter, rect: QRectF, bg_color_hex: str, label_text: str) -> None:
-        """Draw an authentic Apple macOS Dog-Ear folded corner document icon."""
-        x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
-        fold_size = 8.0
-
-        # Document Path with folded top-right corner
-        path = QPainterPath()
-        path.moveTo(x + 4, y)
-        path.lineTo(x + w - fold_size, y)
-        path.lineTo(x + w, y + fold_size)
-        path.lineTo(x + w, y + h - 4)
-        path.quadTo(x + w, y + h, x + w - 4, y + h)
-        path.lineTo(x + 4, y + h)
-        path.quadTo(x, y + h, x, y + h - 4)
-        path.lineTo(x, y + 4)
-        path.quadTo(x, y, x + 4, y)
-        path.closeSubpath()
-
-        # Gradient fill
+    def _draw_compact_badge_icon(self, painter: QPainter, rect: QRectF, bg_color_hex: str, label_text: str) -> None:
         base_color = QColor(bg_color_hex)
-        grad = QLinearGradient(x, y, x, y + h)
-        grad.setColorAt(0.0, base_color.lighter(112))
-        grad.setColorAt(1.0, base_color.darker(108))
-
-        painter.setPen(QPen(QColor(0, 0, 0, 30), 1))
-        painter.setBrush(QBrush(grad))
-        painter.drawPath(path)
-
-        # Draw the folded corner flap
-        flap = QPainterPath()
-        flap.moveTo(x + w - fold_size, y)
-        flap.lineTo(x + w - fold_size, y + fold_size)
-        flap.lineTo(x + w, y + fold_size)
-        flap.closeSubpath()
+        path = QPainterPath()
+        path.addRoundedRect(rect, 4.0, 4.0)
 
         painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QBrush(base_color.lighter(135)))
-        painter.drawPath(flap)
+        painter.setBrush(QBrush(base_color))
+        painter.drawPath(path)
 
-        # Label text inside the document icon
         painter.setFont(self.badge_font)
         painter.setPen(QColor("#ffffff"))
-        text_rect = QRectF(x, y + 6, w - 2, h - 6)
-        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, label_text)
+        painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, label_text)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         item: Optional[SearchResultItem] = index.data(Qt.ItemDataRole.UserRole)
@@ -136,83 +104,90 @@ class AppleSpotlightDelegate(QStyledItemDelegate):
         is_selected = bool(option.state & QStyle.StateFlag.State_Selected)
         is_hover = bool(option.state & QStyle.StateFlag.State_MouseOver)
 
-        # 1. Background Selection State (Apple Light Blue Frost)
+        # 1. Skeuomorphic Selection & Hover State
         bg_rect = QRectF(rect.x() + 4, rect.y() + 2, rect.width() - 8, rect.height() - 4)
         if is_selected:
-            painter.setPen(QPen(QColor("#007aff"), 1))
-            painter.setBrush(QBrush(QColor("#e8edf7")))
-            painter.drawRoundedRect(bg_rect, 8, 8)
+            # Warm paper gold selection with tactile bottom border
+            painter.setPen(QPen(QColor("#D9A838"), 1))
+            painter.setBrush(QBrush(QColor("#FFF6DD")))
+            painter.drawRoundedRect(bg_rect, 7, 7)
+            bot_line = QRectF(bg_rect.x() + 4, bg_rect.bottom() - 1, bg_rect.width() - 8, 1)
+            painter.fillRect(bot_line, QColor("#CFA02E"))
         elif is_hover:
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QBrush(QColor(0, 0, 0, 10)))
-            painter.drawRoundedRect(bg_rect, 8, 8)
+            painter.setPen(QPen(QColor("#E2D8C8"), 1))
+            painter.setBrush(QBrush(QColor("#FAF6EE")))
+            painter.drawRoundedRect(bg_rect, 7, 7)
 
-        # 2. STT (Số Thứ Tự: 1, 2, 3...)
-        stt_num = index.row() + 1
-        stt_rect = QRectF(rect.x() + 6, rect.y(), 26, rect.height())
-        painter.setFont(self.meta_font)
-        painter.setPen(QColor("#007aff") if is_selected else QColor("#8e8e93"))
-        painter.drawText(stt_rect, Qt.AlignmentFlag.AlignCenter, str(stt_num))
-
-        # 3. Native macOS Retina Icon or Apple Dog-Ear Document Icon (32x32px)
+        # 2. Leading Icon (22x22px)
         ext = getattr(item, "file_ext", "")
         file_path = getattr(item, "file_path", "")
-        sys_pm = self._get_system_pixmap(file_path, ext)
-        if sys_pm and not sys_pm.isNull():
-            pm_x = int(rect.x() + 35)
-            pm_y = int(rect.y() + (rect.height() - 32) / 2)
-            painter.drawPixmap(pm_x, pm_y, 32, 32, sys_pm)
-        else:
+        icon_x = rect.x() + 12
+        icon_y = rect.y() + (rect.height() - 22) / 2
+
+        if ext in [".ai", ".calc", ".map", ".app"]:
             badge_info = get_ext_badge_info(ext)
-            doc_rect = QRectF(rect.x() + 36, rect.y() + (rect.height() - 36) / 2, 30, 36)
-            self._draw_apple_document_icon(painter, doc_rect, badge_info["bg"], badge_info["label"])
+            b_rect = QRectF(icon_x, icon_y, 22, 22)
+            self._draw_compact_badge_icon(painter, b_rect, badge_info["bg"], badge_info["label"])
+        else:
+            sys_pm = self._get_system_pixmap(file_path, ext)
+            if sys_pm and not sys_pm.isNull():
+                painter.drawPixmap(int(icon_x), int(icon_y), 22, 22, sys_pm)
+            else:
+                badge_info = get_ext_badge_info(ext)
+                b_rect = QRectF(icon_x, icon_y, 22, 22)
+                self._draw_compact_badge_icon(painter, b_rect, badge_info["bg"], badge_info["label"])
 
-        # Text Area Boundaries
-        text_x = rect.x() + 76
-        avail_width = rect.width() - 170
+        # 3. Typography
+        text_x = rect.x() + 44
+        avail_width = max(60, rect.width() - 44 - 90)
 
-        # 4. File Title (Apple Dark Black #1c1c1e, DemiBold, 13px)
+        # Title: Crisp dark ink (#1c1917)
         file_name = getattr(item, "file_name", "") or "Không rõ tên"
         painter.setFont(self.title_font)
-        painter.setPen(QColor("#1c1c1e"))
+        painter.setPen(QColor("#1c1917"))
         fm_title = QFontMetrics(self.title_font)
         elided_title = fm_title.elidedText(file_name, Qt.TextElideMode.ElideRight, int(avail_width))
-        painter.drawText(int(text_x), int(rect.y() + 22), elided_title)
+        painter.drawText(int(text_x), int(rect.y() + 17), elided_title)
 
-        # 5. Folder Path & Relative Modified Time Subtitle (Apple Gray #636366, 11px)
-        file_path = getattr(item, "file_path", "") or ""
+        # Subtitle: Muted ink (#78716c)
+        subtitle = getattr(item, "file_path", "") or ""
         mod_time = getattr(item, "modified_formatted", "") or ""
-        sub_text = f"{file_path}  •  {mod_time}" if mod_time else file_path
+        sub_text = f"{subtitle}  •  {mod_time}" if mod_time else subtitle
+
         painter.setFont(self.sub_font)
-        painter.setPen(QColor("#636366"))
+        painter.setPen(QColor("#78716c"))
         fm_sub = QFontMetrics(self.sub_font)
         elided_path = fm_sub.elidedText(sub_text, Qt.TextElideMode.ElideMiddle, int(avail_width))
-        painter.drawText(int(text_x), int(rect.y() + 41), elided_path)
+        painter.drawText(int(text_x), int(rect.y() + 33), elided_path)
 
-        # 6. Right Tag (Score % or File Size)
+        # 4. Right Accessories (Tactile sketch badge)
         score_val = int(getattr(item, "score", 0))
-        if score_val > 10:
-            tag_str = f"{score_val}%"
-            bg_pill = QColor("#e0f2fe")
-            fg_pill = QColor("#0284c7")
-            border_pill = QColor("#bae6fd")
+        if score_val > 10 and score_val <= 100:
+            tag_str = "Khớp 🧀" if score_val >= 70 else "Liên quan"
+            bg_acc = QColor("#FEF3C7")
+            fg_acc = QColor("#92400E")
+            border_acc = QColor("#FCD34D")
         else:
             tag_str = getattr(item, "file_size_formatted", "") or ""
-            bg_pill = QColor("#f2f2f7")
-            fg_pill = QColor("#636366")
-            border_pill = QColor("#e5e5ea")
+            bg_acc = QColor("#F5EFEB")
+            fg_acc = QColor("#574E45")
+            border_acc = QColor("#E0D6C8")
 
         if tag_str:
-            tag_width = 48
-            tag_x = rect.x() + rect.width() - tag_width - 12
-            tag_rect = QRectF(tag_x, rect.y() + (rect.height() - 20) / 2, tag_width, 20)
+            fm_acc = QFontMetrics(self.accessory_font)
+            text_w = fm_acc.horizontalAdvance(tag_str)
+            acc_w = max(46, text_w + 14)
+            acc_h = 19
+            acc_x = rect.x() + rect.width() - acc_w - 12
+            acc_y = rect.y() + (rect.height() - acc_h) / 2
+            acc_rect = QRectF(acc_x, acc_y, acc_w, acc_h)
 
-            painter.setPen(QPen(border_pill, 1))
-            painter.setBrush(QBrush(bg_pill))
-            painter.drawRoundedRect(tag_rect, 5, 5)
+            painter.setPen(QPen(border_acc, 1))
+            painter.setBrush(QBrush(bg_acc))
+            painter.drawRoundedRect(acc_rect, 4, 4)
 
-            painter.setFont(self.meta_font)
-            painter.setPen(fg_pill)
-            painter.drawText(tag_rect, Qt.AlignmentFlag.AlignCenter, tag_str)
+            painter.setFont(self.accessory_font)
+            painter.setPen(fg_acc)
+            painter.drawText(acc_rect, Qt.AlignmentFlag.AlignCenter, tag_str)
 
         painter.restore()

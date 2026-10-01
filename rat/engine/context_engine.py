@@ -55,11 +55,12 @@ CONCEPT_ONTOLOGY: Dict[str, Dict[str, Any]] = {
     "meeting_work": {
         "triggers": [
             "hop", "cuoc hop", "bien ban", "tong ket", "ke hoach", "tuan nay", "thang nay",
-            "sep", "bien ban hop", "noi dung hop", "bien ban lam viec"
+            "sep", "bien ban hop", "noi dung hop", "bien ban lam viec",
+            "hoi nghi", "hoi thao", "meeting"
         ],
-        "synonyms": ["biên bản họp", "cuộc họp", "kế hoạch", "tổng kết", "tiến độ", "meeting", "minutes", "task", "roadmap"],
+        "synonyms": ["biên bản họp", "biên bản", "cuộc họp", "kế hoạch", "tổng kết", "tiến độ", "hội nghị", "hội thảo", "meeting", "minutes", "task", "roadmap"],
         "extensions": [".docx", ".doc", ".pdf", ".txt", ".md"],
-        "intent_desc": "Biên bản họp, kế hoạch làm việc hoặc tài liệu tổng kết",
+        "intent_desc": "Biên bản họp, hội nghị, kế hoạch làm việc hoặc tài liệu tổng kết",
     },
     "lifestyle_health": {
         "triggers": [
@@ -147,6 +148,33 @@ CONCEPT_ONTOLOGY: Dict[str, Dict[str, Any]] = {
         "synonyms": ["google docs", "google drive", "google slides", "overleaf", "telegram", "zalo", "safari", "chrome", "github", "slack", "web", "download"],
         "extensions": [],
         "intent_desc": "Tệp tin được tải về từ nguồn web hoặc ứng dụng cụ thể (Google Docs, Overleaf, Telegram, Safari, Chrome...)",
+    },
+    "exam_test": {
+        "triggers": [
+            "de thi", "kiem tra", "on thi", "on tap", "trac nghiem", "dap an",
+            "de cuong", "midterm", "final", "exam", "quiz", "test"
+        ],
+        "synonyms": ["đề thi", "kiểm tra", "ôn thi", "trắc nghiệm", "đáp án", "đề cương", "exam", "test", "midterm", "final"],
+        "extensions": [".pdf", ".docx", ".doc", ".pptx", ".xlsx"],
+        "intent_desc": "Đề thi, bài kiểm tra, đề cương ôn tập hoặc đáp án",
+    },
+    "homework_assignment": {
+        "triggers": [
+            "bai tap", "bai tap lon", "btl", "assignment", "homework", "lab",
+            "thuc hanh", "bai lam", "nop bai", "han nop"
+        ],
+        "synonyms": ["bài tập", "bài tập lớn", "BTL", "assignment", "homework", "thực hành", "lab", "nộp bài", "hạn nộp"],
+        "extensions": [".pdf", ".docx", ".py", ".cpp", ".java", ".zip", ".xlsx"],
+        "intent_desc": "Bài tập, bài tập lớn, thực hành hoặc assignment môn học",
+    },
+    "lecture_material": {
+        "triggers": [
+            "bai giang", "giao trinh", "tai lieu hoc", "chuong",
+            "lecture", "textbook", "reading", "syllabus", "de cuong mon hoc"
+        ],
+        "synonyms": ["bài giảng", "giáo trình", "tài liệu", "chương", "lecture", "textbook", "syllabus", "đề cương môn học"],
+        "extensions": [".pdf", ".docx", ".pptx", ".ppt"],
+        "intent_desc": "Bài giảng, giáo trình hoặc tài liệu học tập",
     },
 }
 

@@ -20,19 +20,42 @@ def remove_accents(text: str) -> str:
     return text.lower()
 
 
-# Stopwords in normalized unaccented form
+# Stopwords in normalized unaccented form.
+# IMPORTANT: Do NOT add Vietnamese content words that form academic compound phrases.
+# e.g. "bai"+"tap" = "bài tập", "de"+"thi" = "đề thi", "bien"+"ban" = "biên bản" — must survive.
 STOPWORDS: Set[str] = {
-    # Vietnamese
-    "tim", "kiem", "cho", "toi", "tao", "minh", "ban", "gium", "ho", "cai", "con",
-    "file", "tep", "tai", "lieu", "van", "ban", "nay", "do", "no", "kia", "nao",
-    "o", "dau", "trong", "may", "tinh", "voi", "co", "chua", "nhac", "den", "ve",
-    "nhe", "nha", "a", "oi", "xem", "lai", "duoc", "khong", "moi", "cu", "vua",
-    "bai", "tap", "chu", "de", "muc", "noi", "dung", "va", "cua", "su", "cac",
-    "nhung", "mot", "la", "thi", "ma", "nhu", "ra", "vao", "theo",
+    # Vietnamese (function words / fillers only — NO content words)
+    "tim", "kiem", "cho", "toi", "tao", "minh", "gium", "ho", "cai", "con",
+    "tep", "van", "nay", "do", "no", "kia", "nao",
+    "o", "dau", "trong", "voi", "co", "chua", "nhac", "den", "ve",
+    "nhe", "nha", "oi", "xem", "lai", "duoc", "khong", "cu", "vua",
+    "chu", "noi", "va", "cua", "cac",
+    "nhung", "mot", "la", "ma", "nhu", "ra", "vao", "theo",
+    # Temporal fillers (should NOT become search keywords)
+    "hoi", "dao", "dot", "luc", "khoang", "vao",
     # English
     "find", "search", "get", "show", "me", "the", "a", "an", "file", "document",
     "files", "documents", "that", "which", "has", "contains", "about", "from",
     "where", "is", "in", "on", "please", "can", "you", "my", "of", "for", "with"
+}
+
+# Vietnamese compound phrases that must be kept as single keywords.
+# Protects multi-word terms whose individual tokens might look like stopwords or noise.
+PROTECTED_COMPOUNDS: Set[str] = {
+    # Academic subjects & tasks
+    "bai tap", "bai tap lon", "de thi", "kiem tra", "bao cao", "do an",
+    "khoa luan", "tot nghiep", "giai tich", "dai so", "xac suat", "thong ke",
+    "lap trinh", "co so du lieu", "tri tue nhan tao", "xu ly anh",
+    "mang may tinh", "he dieu hanh", "cong nghe phan mem",
+    "ky thuat dien", "vat ly", "hoa hoc", "sinh hoc", "kinh te",
+    "quan tri", "ke toan", "tai chinh", "de cuong", "on thi", "on tap",
+    # Administrative / work documents
+    "bien ban", "ke hoach", "de an", "noi dung", "tong ket",
+    "bien ban hop", "hoi nghi", "hoi thao",
+    # Common teacher references
+    "thay dung", "co dung", "thay hung", "co lan", "co thao",
+    # Misc academic
+    "bai giang", "giao trinh", "tai lieu", "de cuong mon hoc",
 }
 
 # Type mappings
@@ -330,9 +353,23 @@ class ContextParser:
         # Extract core keywords by removing temporal words, type words, exclusion words, and stopwords
         q_norm = remove_accents(cleaned_raw)
 
+        # Protect Vietnamese compound phrases before tokenization.
+        # Replace matched compounds with underscore-joined tokens so they survive stopword filtering.
+        q_protected = q_norm
+        found_compounds: List[str] = []
+        for compound in sorted(PROTECTED_COMPOUNDS, key=len, reverse=True):
+            if compound in q_protected:
+                placeholder = compound.replace(" ", "_")
+                q_protected = q_protected.replace(compound, placeholder)
+                found_compounds.append(compound)
+
         # Tokenize by non-alphanumeric
         tokens = re.findall(r"[\w\.\-]+", cleaned_raw)
         clean_keywords: List[str] = []
+
+        # Add protected compound phrases as keywords directly
+        for compound in found_compounds:
+            clean_keywords.append(compound.replace("_", " "))
 
         exclusion_tokens = set([remove_accents(k).lower() for k in excluded_keywords])
         exclusion_markers = {"khong", "phai", "lay", "chua", "tru", "loai", "except", "not", "without"}
@@ -350,7 +387,8 @@ class ContextParser:
                 "anh", "hinh", "code", "tep", "file"
             ]:
                 continue
-            clean_keywords.append(token)
+            if token not in clean_keywords:
+                clean_keywords.append(token)
 
         # If all tokens were filtered out (e.g. user literally just typed "tìm file word hôm qua"),
         # keep keywords empty so we retrieve by time and type filters.

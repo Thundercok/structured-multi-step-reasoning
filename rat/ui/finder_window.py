@@ -680,7 +680,7 @@ class FinderWindow(QMainWindow):
             ("⌘↵", "Finder"),
             ("⌘C", "Copy"),
             ("⌘F", "Tìm"),
-            ("⌥⇧Space", "Spotlight"),
+            ("⌘⇧Space", "Spotlight"),
         ]
         for key, desc in hotkeys:
             badge = QLabel(key)
@@ -737,7 +737,7 @@ class FinderWindow(QMainWindow):
         self.results_list.clear()
         for item in sorted_items:
             list_item = QListWidgetItem()
-            list_item.setSizeHint(QSize(self.results_list.width(), 58))
+            list_item.setSizeHint(QSize(self.results_list.width(), 44))
             list_item.setData(Qt.ItemDataRole.UserRole, item)
             self.results_list.addItem(list_item)
 

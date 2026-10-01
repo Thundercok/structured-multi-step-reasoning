@@ -38,12 +38,12 @@ class ActionItemWidget(QWidget):
         text_layout.setSpacing(2)
 
         self.title_label = QLabel(title)
-        self.title_label.setStyleSheet("color: #f4f4f5; font-size: 13px; font-weight: 500;")
+        self.title_label.setStyleSheet("color: #1c1917; font-size: 13px; font-weight: 500;")
         text_layout.addWidget(self.title_label)
 
         if description:
             self.desc_label = QLabel(description)
-            self.desc_label.setStyleSheet("color: #71717a; font-size: 11px;")
+            self.desc_label.setStyleSheet("color: #78716c; font-size: 11px;")
             text_layout.addWidget(self.desc_label)
 
         layout.addLayout(text_layout, 1)
@@ -52,9 +52,9 @@ class ActionItemWidget(QWidget):
         if shortcut:
             self.badge = QLabel(shortcut)
             self.badge.setStyleSheet("""
-                background-color: #27272a;
-                color: #a1a1aa;
-                border: 1px solid #3f3f46;
+                background-color: #fffefa;
+                color: #6d6258;
+                border: 1px solid #d8cfc3;
                 border-radius: 4px;
                 padding: 3px 6px;
                 font-size: 11px;
@@ -80,7 +80,7 @@ class ActionMenuDialog(QDialog):
         # Shadow effect
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(25)
-        shadow.setColor(QColor(0, 0, 0, 200))
+        shadow.setColor(QColor(136, 124, 112, 60))
         shadow.setOffset(0, 8)
 
         main_layout = QVBoxLayout(self)
@@ -90,9 +90,9 @@ class ActionMenuDialog(QDialog):
         container.setGraphicsEffect(shadow)
         container.setStyleSheet("""
             QFrame {
-                background-color: #16161a;
-                border: 1px solid #3f3f46;
-                border-radius: 12px;
+                background-color: #fffdf9;
+                border: 1px solid #d9d0c5;
+                border-radius: 16px;
             }
         """)
         container_layout = QVBoxLayout(container)
@@ -102,7 +102,7 @@ class ActionMenuDialog(QDialog):
         # Target item label
         header_text = f"Tác vụ cho: {self.target_item.file_name}" if self.target_item else "Menu tác vụ nhanh"
         header_label = QLabel(header_text)
-        header_label.setStyleSheet("color: #a1a1aa; font-size: 11px; font-weight: 600; padding: 4px 6px;")
+        header_label.setStyleSheet("color: #887c70; font-size: 11px; font-weight: 600; padding: 4px 6px;")
         container_layout.addWidget(header_label)
 
         # Filter box
@@ -110,15 +110,15 @@ class ActionMenuDialog(QDialog):
         self.search_box.setPlaceholderText("Lọc hành động...")
         self.search_box.setStyleSheet("""
             QLineEdit {
-                background-color: #202026;
-                color: #f4f4f5;
-                border: 1px solid #2e2e36;
+                background-color: #ffffff;
+                color: #1c1917;
+                border: 1px solid #d5cabc;
                 border-radius: 6px;
                 padding: 6px 10px;
                 font-size: 12px;
             }
             QLineEdit:focus {
-                border: 1.5px solid #6366f1;
+                border: 1.5px solid #e2cd98;
             }
         """)
         self.search_box.textChanged.connect(self._filter_actions)
@@ -136,12 +136,14 @@ class ActionMenuDialog(QDialog):
                 background-color: transparent;
                 border-radius: 6px;
                 margin: 2px 0px;
+                border: 1px solid transparent;
             }
             QListWidget::item:selected {
-                background-color: #312e81;
+                background-color: #f7eedb;
+                border: 1px solid #e2cd98;
             }
             QListWidget::item:hover {
-                background-color: #202026;
+                background-color: #f7f1e8;
             }
         """)
         self.action_list.itemActivated.connect(self._on_item_activated)
@@ -162,6 +164,7 @@ class ActionMenuDialog(QDialog):
             ("copy_content", "📄 Sao chép nội dung văn bản", "⌘⇧C", "Sao chép toàn bộ văn bản đã trích xuất"),
             ("ask_ai", "🧠 Hỏi đáp AI với tệp này", "⌘A", "Mở khung trò chuyện với SLM Qwen2.5"),
             ("schedule", "🍵 Ghép Lịch CLB & Khung Giờ Vàng", "⌘T", "Mở bộ ghép thời khóa biểu sinh viên & tìm giờ rảnh"),
+            ("widget", "✦ Trợ Lý TKB & Claude Form Mode", "⌘W", "Mở widget dạng thẻ Claude tương tác linh hoạt góc màn hình"),
             ("reindex_file", "🔄 Quét lại tệp tin này", "⌘R", "Cập nhật lại chỉ mục và vector cho tệp"),
             ("settings", "⚙️ Cài đặt hệ thống", "⌘,", "Mở bảng cấu hình thư mục và mô hình AI"),
         ]

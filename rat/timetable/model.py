@@ -54,6 +54,24 @@ class ClassSession:
     end_period: int
     course_name: str
     room: str = ""
+    degree_level: str = "undergrad"  # "undergrad" (Đại học) | "master" (Thạc sĩ/Cao học)
+    course_code: str = ""
+    lecturer: str = ""
+    notes: str = ""
+
+    @property
+    def is_master(self) -> bool:
+        return self.degree_level.lower() in ("master", "ths", "caohoc", "postgrad")
+
+    @property
+    def badge_text(self) -> str:
+        return "🏛️ ThS" if self.is_master else "🎓 ĐH"
+
+    @property
+    def time_range_str(self) -> str:
+        start_t = TDTU_PERIODS.get(self.start_period, ("??", "??", "", ""))[0]
+        end_t = TDTU_PERIODS.get(self.end_period, ("??", "??", "", ""))[1]
+        return f"{start_t} - {end_t}"
 
     def overlaps_period(self, period_id: int) -> bool:
         return self.start_period <= period_id <= self.end_period
@@ -67,13 +85,55 @@ class ClassSession:
             "end": self.end_period,
             "course": self.course_name,
             "room": self.room,
+            "degree_level": self.degree_level,
+            "course_code": self.course_code,
+            "lecturer": self.lecturer,
+            "notes": self.notes,
         }
 
     @classmethod
     def from_tuple(cls, t: tuple) -> ClassSession:
         if len(t) == 3:
             return cls(start_period=t[0], end_period=t[1], course_name=t[2], room="")
-        return cls(start_period=t[0], end_period=t[1], course_name=t[2], room=t[3])
+        if len(t) == 4:
+            return cls(start_period=t[0], end_period=t[1], course_name=t[2], room=t[3])
+        if len(t) == 5:
+            return cls(start_period=t[0], end_period=t[1], course_name=t[2], room=t[3], degree_level=t[4])
+        return cls(
+            start_period=t[0],
+            end_period=t[1],
+            course_name=t[2],
+            room=t[3],
+            degree_level=t[4],
+            course_code=t[5] if len(t) > 5 else "",
+            lecturer=t[6] if len(t) > 6 else "",
+            notes=t[7] if len(t) > 7 else ""
+        )
+
+
+@dataclass
+class ScheduleConflict:
+    """Represents a conflict or tight transition between two class sessions."""
+    day_code: str
+    day_name: str
+    session_a: ClassSession
+    session_b: ClassSession
+    conflict_type: str  # "overlap" (trùng tiết) | "tight_turnaround" (sát ca < 15 phút)
+    message: str
+
+
+@dataclass
+class LiveClassStatus:
+    """Current real-time status of a student's timetable."""
+    current_time_str: str
+    day_code: str
+    day_name: str
+    is_in_class: bool
+    current_session: Optional[ClassSession] = None
+    remaining_minutes: int = 0
+    next_session: Optional[ClassSession] = None
+    minutes_until_next: int = 0
+    message: str = ""
 
 
 @dataclass
@@ -86,6 +146,9 @@ class MemberSchedule:
     color_hex: str = "#3b82f6"
     schedule: Dict[str, List[ClassSession]] = field(default_factory=dict)
     active: bool = True
+    is_dual_degree: bool = False
+    master_major: str = ""
+    master_mssv: str = ""
 
     def is_busy_in_period(self, day_code: str, period_id: int) -> Optional[ClassSession]:
         sessions = self.schedule.get(day_code, [])
@@ -139,3 +202,46 @@ class GoldenWindow:
     @property
     def span_periods(self) -> int:
         return self.end_period - self.start_period + 1
+
+
+def resolve_room_location(room: str) -> str:
+    """
+    Parses TDTU room identifier and returns campus building, floor, and facility notes.
+    """
+    if not room:
+        return "Chưa xác định phòng"
+    r = room.strip().upper()
+
+    if "HOCTRUCTUYEN" in r or "ONLINE" in r:
+        return "🌐 Học Trực Tuyến (LMS / MS Teams / Google Meet)"
+    if "NTD" in r:
+        return "🏟️ Nhà Thi Đấu Thể Thao Đa Năng TDTU (Tầng trệt)"
+    if r.startswith("P15"):
+        return f"🏢 Tòa P (Khu Ngoại Ngữ & Sáng Tạo) — Phòng {room}"
+
+    prefix = r[0]
+    num_part = ""
+    for ch in r[1:]:
+        if ch.isdigit():
+            num_part += ch
+        else:
+            break
+
+    floor = num_part[0] if num_part else "1"
+    extra = ""
+    if prefix == "C" and ("302" in r or "305" in r or "301" in r):
+        extra = " • Viện Sau Đại Học TDTU"
+    elif prefix == "A" and ("6" in num_part or "7" in num_part):
+        extra = " • Lab máy tính CNTT"
+
+    b_names = {
+        "A": "Tòa A (CNTT & Hành Chính)",
+        "B": "Tòa B (Giảng Đường Lý Thuyết)",
+        "C": "Tòa C (KHUD & Sau Đại Học)",
+        "D": "Tòa D (Kiến Trúc & QTKD)",
+        "F": "Tòa F (Giảng Đường Lớn)",
+    }
+    b_name = b_names.get(prefix, f"Tòa {prefix}")
+    return f"{b_name} — Tầng {floor} ({room}){extra}"
+
+

@@ -24,15 +24,40 @@ INITIAL_CLUB_MEMBERS = [
         "name": "Huỳnh Nhật Huy",
         "mssv": "523C0012",
         "major": "Công nghệ Thông tin",
+        "is_dual_degree": True,
+        "master_major": "ThS Khoa học Máy tính & AI",
+        "master_mssv": "824C0005",
         "color_hex": "#3b82f6",  # Blue
         "schedule": {
-            "T2": [(1, 3, "Thực hành Giải tích ứng dụng CNTT 2", "A608"), (4, 6, "Giải tích ứng dụng CNTT 2", "F702")],
-            "T3": [(7, 9, "Lập trình hàm", "F712"), (10, 12, "Thực hành Lập trình hàm", "A607")],
-            "T4": [(4, 6, "Cấu trúc dữ liệu & giải thuật", "F702"), (7, 9, "Cấu trúc dữ liệu & giải thuật (Bù)", "C404")],
-            "T5": [(1, 3, "Kỹ năng soạn thảo VB kỹ thuật", "C406"), (7, 9, "Giải tích ứng dụng CNTT", "F610")],
-            "T6": [(1, 3, "Thực hành Giải tích ứng dụng CNTT", "A610"), (7, 9, "Thực hành Cấu trúc dữ liệu", "A707")],
-            "T7": [],
-            "CN": []
+            "T2": [
+                (1, 3, "Thực hành Giải tích ứng dụng CNTT 2", "A608", "undergrad", "501043", "ThS. Hoàng Nam", "Lab máy tính A608"),
+                (4, 6, "Giải tích ứng dụng CNTT 2", "F702", "undergrad", "501042", "TS. Vũ Hải", "Giảng đường F"),
+                (13, 15, "Học máy nâng cao & Khai phá dữ liệu", "C302", "master", "840101", "PGS.TS. Trần Minh", "Viện Sau đại học (Tối Ca 5)")
+            ],
+            "T3": [
+                (7, 9, "Lập trình hàm", "F712", "undergrad", "502011", "TS. Lê Khắc", "Lý thuyết"),
+                (10, 12, "Thực hành Lập trình hàm", "A607", "undergrad", "502012", "ThS. Đỗ Thắng", "Lab thực hành")
+            ],
+            "T4": [
+                (4, 6, "Cấu trúc dữ liệu & giải thuật", "F702", "undergrad", "502033", "TS. Phạm Trung", "Giảng đường F"),
+                (7, 9, "Cấu trúc dữ liệu & giải thuật (Bù)", "C404", "undergrad", "502033", "TS. Phạm Trung", "Buổi học bù"),
+                (13, 15, "Xử lý ngôn ngữ tự nhiên & Mô hình LLMs", "C305", "master", "840108", "TS. Lê Hoàng", "Viện Sau đại học (Tối Ca 5)")
+            ],
+            "T5": [
+                (1, 3, "Kỹ năng soạn thảo VB kỹ thuật", "C406", "undergrad", "503001", "ThS. Mai Anh", "Phòng đa năng"),
+                (7, 9, "Giải tích ứng dụng CNTT", "F610", "undergrad", "501041", "TS. Vũ Hải", "Lý thuyết")
+            ],
+            "T6": [
+                (1, 3, "Thực hành Giải tích ứng dụng CNTT", "A610", "undergrad", "501041", "ThS. Hoàng Nam", "Lab A610"),
+                (7, 9, "Thực hành Cấu trúc dữ liệu", "A707", "undergrad", "502034", "ThS. Bùi Dũng", "Lab CNTT"),
+                (13, 15, "Phương pháp NCKH & Viết bài báo quốc tế", "B301", "master", "840100", "GS.TS. Nguyễn Văn A", "Chuyên đề Sau đại học")
+            ],
+            "T7": [
+                (7, 10, "Thị giác máy tính nâng cao (Deep Learning)", "C402", "master", "840115", "TS. Phạm Thanh", "Chuyên đề Cao học thứ 7")
+            ],
+            "CN": [
+                (2, 5, "Tối ưu hóa trong Trí tuệ nhân tạo", "C301", "master", "840120", "TS. Đặng Tuấn", "Chuyên đề Cao học Chủ Nhật")
+            ]
         }
     },
     {
@@ -131,7 +156,11 @@ def dict_to_member_schedule(d: dict) -> MemberSchedule:
                     start_period=item.get("start", 1),
                     end_period=item.get("end", 1),
                     course_name=item.get("course", ""),
-                    room=item.get("room", "")
+                    room=item.get("room", ""),
+                    degree_level=item.get("degree_level", "undergrad"),
+                    course_code=item.get("course_code", ""),
+                    lecturer=item.get("lecturer", ""),
+                    notes=item.get("notes", "")
                 ))
     return MemberSchedule(
         id=d.get("id", ""),
@@ -140,7 +169,10 @@ def dict_to_member_schedule(d: dict) -> MemberSchedule:
         major=d.get("major", ""),
         color_hex=d.get("color_hex", "#3b82f6"),
         schedule=sched,
-        active=d.get("active", True)
+        active=d.get("active", True),
+        is_dual_degree=d.get("is_dual_degree", False),
+        master_major=d.get("master_major", ""),
+        master_mssv=d.get("master_mssv", ""),
     )
 
 
@@ -155,6 +187,9 @@ def member_schedule_to_dict(m: MemberSchedule) -> dict:
         "major": m.major,
         "color_hex": m.color_hex,
         "active": m.active,
+        "is_dual_degree": m.is_dual_degree,
+        "master_major": m.master_major,
+        "master_mssv": m.master_mssv,
         "schedule": sched_dict
     }
 
@@ -164,10 +199,10 @@ def get_default_club_members() -> List[MemberSchedule]:
     return [dict_to_member_schedule(d) for d in INITIAL_CLUB_MEMBERS]
 
 
-def load_club_members() -> List[MemberSchedule]:
+def load_club_members(force_reset: bool = False) -> List[MemberSchedule]:
     """Loads club members from ~/.rat/club_schedules.json or creates initial default."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    if not DATA_FILE.exists():
+    if force_reset or not DATA_FILE.exists():
         members = get_default_club_members()
         save_club_members(members)
         return members
@@ -175,7 +210,18 @@ def load_club_members() -> List[MemberSchedule]:
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-            return [dict_to_member_schedule(d) for d in data]
+            members = [dict_to_member_schedule(d) for d in data]
+            # Migration check: if old cache lacks dual degree details, upgrade it
+            m1_entry = next((m for m in members if m.id == "m1"), None)
+            if m1_entry and not m1_entry.is_dual_degree:
+                default_m1 = next((m for m in get_default_club_members() if m.id == "m1"), None)
+                if default_m1:
+                    m1_entry.is_dual_degree = True
+                    m1_entry.master_major = default_m1.master_major
+                    m1_entry.master_mssv = default_m1.master_mssv
+                    m1_entry.schedule = default_m1.schedule
+                    save_club_members(members)
+            return members
     except Exception as e:
         logger.error(f"Error loading {DATA_FILE}: {e}. Falling back to default.")
         return get_default_club_members()

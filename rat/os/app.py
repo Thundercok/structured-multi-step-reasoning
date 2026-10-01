@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Optional
+from typing import Any, Optional
 
 from PyQt6.QtCore import QObject, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QApplication
@@ -19,6 +19,7 @@ from rat.os.crash_shield import install_crash_shield
 from rat.os.hotkey import GlobalHotkeyManager
 from rat.os.menu_bar import SystemTrayManager
 from rat.ui.finder_window import FinderWindow
+from rat.ui.omnibar import OmnibarWindow
 from rat.ui.spotlight_window import SpotlightWindow
 
 logger = logging.getLogger("rat.os.app")
@@ -35,6 +36,26 @@ def activate_macos_app() -> None:
         pass
 
 
+class InitialIndexWorker(QObject):
+    """Background worker that runs the first-time full index after onboarding."""
+    progress = pyqtSignal(int, int, str)  # (completed, total, current_file_name)
+    finished = pyqtSignal(int, int)       # (indexed_count, total)
+
+    def run(self) -> None:
+        from rat.crawler.indexer import Indexer
+        from rat.config import set_thread_qos_background
+        set_thread_qos_background()
+        try:
+            indexer = Indexer()
+            indexed, total = indexer.run_full_index(
+                progress_callback=lambda c, t, name: self.progress.emit(c, t, name)
+            )
+            self.finished.emit(indexed, total)
+        except Exception as e:
+            logger.error(f"Initial index worker error: {e}", exc_info=True)
+            self.finished.emit(0, 0)
+
+
 class ResidentApplication(QObject):
     """Unified macOS Resident Background System."""
 
@@ -42,6 +63,7 @@ class ResidentApplication(QObject):
     open_finder_signal = pyqtSignal()
     open_settings_signal = pyqtSignal()
     open_schedule_signal = pyqtSignal()
+    open_widget_signal = pyqtSignal()
 
     def __init__(self, mode: str = "all") -> None:
         install_crash_shield()
@@ -52,9 +74,11 @@ class ResidentApplication(QObject):
         self.app.setQuitOnLastWindowClosed(False)  # Keep running in menu bar
         self.app._is_quitting = False
 
+        self.omnibar_window: Optional[OmnibarWindow] = None
         self.spotlight_window: Optional[SpotlightWindow] = None
         self.finder_window: Optional[FinderWindow] = None
         self.schedule_window: Optional[Any] = None
+        self.claude_widget_window: Optional[Any] = None
         self.tray_manager: Optional[SystemTrayManager] = None
         self.hotkey_manager: Optional[GlobalHotkeyManager] = None
         self.watcher: Optional[Watcher] = None
@@ -65,6 +89,7 @@ class ResidentApplication(QObject):
         self.open_finder_signal.connect(self._do_open_finder, Qt.ConnectionType.QueuedConnection)
         self.open_settings_signal.connect(self._do_open_settings, Qt.ConnectionType.QueuedConnection)
         self.open_schedule_signal.connect(self._do_open_schedule, Qt.ConnectionType.QueuedConnection)
+        self.open_widget_signal.connect(self._do_open_widget, Qt.ConnectionType.QueuedConnection)
         self.app.aboutToQuit.connect(self._on_app_quit)
 
     def _on_app_quit(self) -> None:
@@ -73,6 +98,12 @@ class ResidentApplication(QObject):
         self.app._is_quitting = True
 
         # 1. Stop UI Windows & their background QThreads
+        if self.omnibar_window:
+            try:
+                self.omnibar_window.shutdown()
+            except Exception as e:
+                logger.debug(f"Error shutting down omnibar_window: {e}")
+
         if self.spotlight_window:
             try:
                 if hasattr(self.spotlight_window, "shutdown"):
@@ -150,33 +181,34 @@ class ResidentApplication(QObject):
         """Thread-safe trigger to open Club Timetable Compositor window."""
         self.open_schedule_signal.emit()
 
+    def open_widget(self) -> None:
+        """Thread-safe trigger to open Claude Timetable Widget."""
+        self.open_widget_signal.emit()
+
     @pyqtSlot()
     def _do_toggle_spotlight(self) -> None:
-        """Toggle or summon the floating Spotlight HUD on the main Qt GUI thread."""
+        """Toggle or summon the unified Omnibar on the main Qt GUI thread."""
         try:
-            if not self.spotlight_window:
-                self.spotlight_window = SpotlightWindow()
+            if not self.omnibar_window:
+                self.omnibar_window = OmnibarWindow()
 
-            if self.spotlight_window.isVisible():
-                self.spotlight_window.hide()
+            if self.omnibar_window.isVisible() and self.omnibar_window.isActiveWindow():
+                self.omnibar_window.hide()
             else:
-                self.spotlight_window.show_spotlight()
+                self.omnibar_window.show_omnibar(initial_section=0)
         except Exception as e:
-            logger.error(f"Error toggling Spotlight HUD: {e}", exc_info=True)
+            logger.error(f"Error toggling Omnibar: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_open_finder(self) -> None:
-        """Open or bring the full AI Finder window to front on the main Qt GUI thread."""
+        """Open or bring the Omnibar Files section to front."""
         try:
-            if not self.finder_window:
-                self.finder_window = FinderWindow()
+            if not self.omnibar_window:
+                self.omnibar_window = OmnibarWindow()
 
-            activate_macos_app()
-            self.finder_window.show()
-            self.finder_window.raise_()
-            self.finder_window.activateWindow()
+            self.omnibar_window.show_omnibar(initial_section=1)
         except Exception as e:
-            logger.error(f"Error opening Finder window: {e}", exc_info=True)
+            logger.error(f"Error opening Omnibar Files: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_open_settings(self) -> None:
@@ -191,18 +223,58 @@ class ResidentApplication(QObject):
 
     @pyqtSlot()
     def _do_open_schedule(self) -> None:
-        """Open Club Timetable Compositor on the main Qt GUI thread."""
+        """Open the integrated Schedule section on the main Qt GUI thread."""
         try:
-            from rat.ui.schedule_window import ScheduleCompositorWindow
-            if not self.schedule_window:
-                self.schedule_window = ScheduleCompositorWindow()
+            if not self.omnibar_window:
+                self.omnibar_window = OmnibarWindow()
 
-            activate_macos_app()
-            self.schedule_window.show()
-            self.schedule_window.raise_()
-            self.schedule_window.activateWindow()
+            self.omnibar_window.show_omnibar(initial_section=2)
         except Exception as e:
-            logger.error(f"Error opening ScheduleCompositorWindow: {e}", exc_info=True)
+            logger.error(f"Error opening Omnibar Schedule: {e}", exc_info=True)
+
+    @pyqtSlot()
+    def _do_open_widget(self) -> None:
+        """Open Claude Timetable Widget on the main Qt GUI thread."""
+        try:
+            from rat.ui.claude_widget import ClaudeTimetableWindow
+            activate_macos_app()
+            if not self.claude_widget_window:
+                self.claude_widget_window = ClaudeTimetableWindow()
+            self.claude_widget_window.show()
+            self.claude_widget_window.raise_()
+            self.claude_widget_window.activateWindow()
+        except Exception as e:
+            logger.error(f"Error opening Claude Widget: {e}", exc_info=True)
+
+    def _start_initial_index(self) -> None:
+        """Launch background initial indexing after first-run onboarding."""
+        from PyQt6.QtCore import QThread
+        self._index_thread = QThread()
+        self._index_worker = InitialIndexWorker()
+        self._index_worker.moveToThread(self._index_thread)
+        self._index_thread.started.connect(self._index_worker.run)
+
+        def _on_progress(completed: int, total: int, name: str) -> None:
+            if self.tray_manager and completed % 100 == 0:
+                self.tray_manager.tray_icon.setToolTip(
+                    f"rat — Đang quét lần đầu: {completed}/{total} tệp..."
+                )
+
+        def _on_finished(indexed: int, total: int) -> None:
+            logger.info(f"Initial index complete: {indexed}/{total} files.")
+            if self.tray_manager:
+                self.tray_manager.tray_icon.setToolTip("rat — Sẵn sàng")
+                self.tray_manager.tray_icon.showMessage(
+                    "rat — Quét xong! ✅",
+                    f"Đã lập chỉ mục {total} tệp tin. Bấm {config.get_hotkey_display()} để tìm kiếm!",
+                    self.tray_manager.tray_icon.MessageIcon.Information,
+                    5000,
+                )
+            self._index_thread.quit()
+
+        self._index_worker.progress.connect(_on_progress, Qt.ConnectionType.QueuedConnection)
+        self._index_worker.finished.connect(_on_finished, Qt.ConnectionType.QueuedConnection)
+        self._index_thread.start()
 
     def run(self) -> int:
         """Start resident daemon services and application event loop."""
@@ -218,11 +290,14 @@ class ResidentApplication(QObject):
             except Exception as e:
                 logger.warning(f"Error presenting OnboardingDialog: {e}")
 
-        # Pre-initialize windows on the main thread
+            # 0.5. Auto-index existing files in background after first-run setup
+            self._start_initial_index()
+
+        # Pre-initialize unified Omnibar on the main thread
         try:
-            self.spotlight_window = SpotlightWindow()
+            self.omnibar_window = OmnibarWindow()
         except Exception as e:
-            logger.warning(f"Deferred SpotlightWindow initialization: {e}")
+            logger.warning(f"Deferred OmnibarWindow initialization: {e}")
 
         # 1. Start Global Hotkey Manager IMMEDIATELY
         self.hotkey_manager = GlobalHotkeyManager(on_trigger=self.toggle_spotlight)
@@ -234,6 +309,7 @@ class ResidentApplication(QObject):
             on_open_finder=self.open_finder,
             on_open_settings=self.open_settings,
             on_open_schedule=self.open_schedule,
+            on_open_widget=self.open_widget,
         )
         self.tray_manager.tray_icon.show()
 
@@ -277,6 +353,8 @@ class ResidentApplication(QObject):
             self.toggle_spotlight()
         elif self.mode == "schedule":
             self.open_schedule()
+        elif self.mode in ("widget", "mini", "claude"):
+            self.open_widget()
         elif self.mode == "daemon":
             logger.info("Running in pure background resident daemon mode (Menu Bar & Global Hotkey active).")
 

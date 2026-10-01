@@ -143,6 +143,46 @@ class SLMEngine:
             logger.debug(f"SLM generate call failed ({self.model}): {e}")
             return None
 
+    def generate_stream(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        timeout: float = 30.0,
+    ):
+        """Yield tokens in real-time as they are streamed from the local SLM."""
+        if not self.is_service_running():
+            return
+        url = f"{self.ollama_url}/api/generate"
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": True,
+            "options": {
+                "temperature": 0.2,
+                "num_predict": 512,
+            },
+        }
+        if system_prompt:
+            payload["system"] = system_prompt
+
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                for line in response:
+                    if line:
+                        chunk = json.loads(line.decode("utf-8"))
+                        token = chunk.get("response", "")
+                        done = chunk.get("done", False)
+                        yield token, done
+        except Exception as e:
+            logger.debug(f"SLM generate_stream error: {e}")
+
     def deconstruct_query(self, raw_query: str) -> Optional[Dict[str, Any]]:
         """
         Use SLM to deconstruct a messy query into structured search criteria & expanded synonyms.

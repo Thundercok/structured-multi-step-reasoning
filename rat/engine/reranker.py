@@ -71,6 +71,7 @@ class SearchResultItem:
         explanation: str,
         snippet: str,
         version_info: Optional[Dict[str, Any]] = None,
+        raw_scores: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.file_path = file_path
         self.file_name = file_name
@@ -83,6 +84,7 @@ class SearchResultItem:
         self.explanation = explanation
         self.snippet = snippet
         self.version_info = version_info
+        self.raw_scores = dict(raw_scores or {})
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -97,6 +99,7 @@ class SearchResultItem:
             "explanation": self.explanation,
             "snippet": self.snippet,
             "version_info": self.version_info,
+            "raw_scores": self.raw_scores,
         }
 
 
@@ -152,6 +155,18 @@ class Reranker:
         """
         score = 5.0
         reasons = []
+        feature_names = (
+            "ext_hit", "ext_miss", "kw_stem", "kw_word", "kw_substr", "kw_content",
+            "vec_sim", "sparse_only", "code_pen", "time_in", "time_near7",
+            "time_near15", "time_far", "recent3", "recent14", "prov_app",
+            "prov_dom", "visual", "facets3", "facets2",
+        )
+        features = dict.fromkeys(feature_names, 0.0)
+
+        def add(name: str, points: float) -> None:
+            nonlocal score
+            score += points
+            features[name] += points
 
         file_name = doc.get("file_name", "")
         file_ext = doc.get("file_ext", "").lower()
@@ -166,10 +181,10 @@ class Reranker:
         # 1. Extension match bonus & penalty
         if context.extensions:
             if file_ext in context.extensions:
-                score += 35.0
+                add("ext_hit", 35.0)
                 reasons.append(f"Đúng định dạng {file_ext.upper()}")
             else:
-                score -= 30.0
+                add("ext_miss", -30.0)
 
         # 2. Filename keyword & stem matches (Top Priority)
         matched_kws_name = []
@@ -183,16 +198,16 @@ class Reranker:
             # Exact stem match (e.g. "vietnam" == "vietnam")
             if stem_norm == kw_norm:
                 matched_kws_name.append(kw)
-                score += 80.0
+                add("kw_stem", 80.0)
             elif re.search(r"(?:^|[\s_\.\-])" + re.escape(kw_norm) + r"(?:$|[\s_\.\-])", name_norm):
                 matched_kws_name.append(kw)
-                score += 55.0
+                add("kw_word", 55.0)
             elif len(kw_norm) >= 4 and kw_norm in name_norm:
                 matched_kws_name.append(kw)
-                score += 40.0
+                add("kw_substr", 40.0)
             elif kw_norm in content_norm:
                 matched_kws_content.append(kw)
-                score += 15.0
+                add("kw_content", 15.0)
 
         if matched_kws_name:
             reasons.append(f"Tên file có chứa '{', '.join(matched_kws_name)}'")
@@ -203,40 +218,58 @@ class Reranker:
         vector_sim = doc.get("vector_similarity", 0.0)
         if vector_sim > 0.40:
             pct = int(vector_sim * 100)
-            score += vector_sim * 35.0
+            add("vec_sim", vector_sim * 35.0)
             reasons.append(f"Khớp ngữ nghĩa Vector {pct}%")
 
         if doc.get("matched_sparse") and not matched_kws_content and not matched_kws_name:
-            score += 10.0
+            add("sparse_only", 10.0)
             reasons.append("Khớp chỉ mục từ khóa FTS5")
 
         # 4. Penalty for incidental source code matches when user is searching for documents
         is_code_file = file_ext in [".py", ".js", ".ts", ".html", ".css", ".json", ".sh", ".sql"]
         user_wants_code = any(e in [".py", ".js", ".ts", ".html", ".css", ".json", ".sh", ".sql"] for e in context.extensions)
         if is_code_file and not user_wants_code and not matched_kws_name and len(context.keywords) > 0:
-            score -= 25.0
+            add("code_pen", -25.0)
 
-        # 5. Time constraint match / Recency boost
+        # 5. Soft Temporal Scoring with decay (replaces hard in/out binary penalty)
         if context.date_min is not None or context.date_max is not None:
-            in_range = True
-            if context.date_min is not None and modified_at < context.date_min:
-                in_range = False
-            if context.date_max is not None and modified_at > context.date_max:
-                in_range = False
+            orig_min = context.date_min
+            orig_max = context.date_max
 
-            if in_range:
-                score += 25.0
+            in_original_range = True
+            if orig_min is not None and modified_at < orig_min:
+                in_original_range = False
+            if orig_max is not None and modified_at > orig_max:
+                in_original_range = False
+
+            if in_original_range:
+                add("time_in", 25.0)
                 reasons.append(f"Khớp mốc thời gian ({context.time_desc})")
             else:
-                score -= 15.0
+                # Decay: closer to original range = smaller penalty
+                distance_seconds = 0
+                if orig_min is not None and modified_at < orig_min:
+                    distance_seconds = orig_min - modified_at
+                if orig_max is not None and modified_at > orig_max:
+                    distance_seconds = max(distance_seconds, modified_at - orig_max)
+                days_away = distance_seconds / 86400
+                # 0-7 days away: small penalty, 7-15 days: moderate penalty
+                if days_away <= 7:
+                    add("time_near7", -5.0)
+                    reasons.append(f"Gần mốc thời gian ({context.time_desc}, lệch {days_away:.0f} ngày)")
+                elif days_away <= 15:
+                    add("time_near15", -10.0)
+                    reasons.append(f"Lân cận mốc thời gian ({context.time_desc}, lệch {days_away:.0f} ngày)")
+                else:
+                    add("time_far", -18.0)
         elif matched_kws_name or matched_kws_content or vector_sim > 0.5:
             # Subtle recency boost for relevant recently modified files
             now = datetime.datetime.now().timestamp()
             days_old = (now - modified_at) / 86400
             if days_old < 3:
-                score += 8.0
+                add("recent3", 8.0)
             elif days_old < 14:
-                score += 4.0
+                add("recent14", 4.0)
 
         # 6. Provenance match bonus
         source_app = getattr(context, "source_app", None)
@@ -244,10 +277,10 @@ class Reranker:
         if source_app or source_dom:
             content_lower = content_sample.lower()
             if source_app and source_app.lower() in content_lower:
-                score += 30.0
+                add("prov_app", 30.0)
                 reasons.append(f"Nguồn gốc từ ứng dụng {source_app}")
             elif source_dom and source_dom.lower() in content_lower:
-                score += 25.0
+                add("prov_dom", 25.0)
                 reasons.append(f"Nguồn tải từ {source_dom}")
 
         # 7. Visual Taxonomy & OCR match bonus
@@ -256,18 +289,20 @@ class Reranker:
             content_lower = content_sample.lower()
             matched_visual = [v for v in visual_concepts if v.lower() in content_lower]
             if matched_visual:
-                score += 25.0
+                add("visual", 25.0)
                 reasons.append(f"Khớp nhãn thị giác [{', '.join(matched_visual)}]")
 
         # 8. Multi-Facet Convergence Bonus
         matched_facets = doc.get("matched_facets", [])
         if len(matched_facets) >= 3:
-            score += 15.0
+            add("facets3", 15.0)
             reasons.append(f"Hội tụ đa tầng ({len(matched_facets)} chiều: {', '.join(matched_facets)})")
         elif len(matched_facets) == 2:
-            score += 8.0
+            add("facets2", 8.0)
 
         # Clamp score to 0..100
+        doc["_raw_score"] = score
+        doc["_feats"] = features
         final_score = max(5.0, min(100.0, score))
         return final_score, reasons
 
@@ -337,6 +372,14 @@ class Reranker:
                 explanation=reason_text,
                 snippet=snippet,
                 version_info=version_info,
+                raw_scores={
+                    "bm25": doc.get("bm25"),
+                    "cosine": doc.get("vector_similarity"),
+                    "mrrf": doc.get("rrf_score"),
+                    "raw_score": doc.get("_raw_score", score),
+                    "feats": doc.get("_feats", {}),
+                    **({"prior_opens": doc["prior_opens"]} if "prior_opens" in doc else {}),
+                },
             )
             results.append(item)
 
@@ -393,4 +436,3 @@ def sort_search_results(items: List[SearchResultItem], sort_mode: str = "abc") -
             )
         )
     return items
-

@@ -1,38 +1,44 @@
 """
-rat.ui.theme — 100% Genuine Apple macOS Light Theme Design System.
+rat.ui.theme — warm, tactile light surfaces for rat
+A little paper, a little ink, and enough depth to feel touchable.
 """
 
-# Native Apple System Colors (macOS Light HIG)
+# Warm Paper Harmonized File Badges
 EXT_COLORS = {
-    # Pages / Word -> Apple Blue
-    ".docx": {"bg": "#007aff", "fg": "#ffffff", "border": "#0a84ff", "label": "DOC"},
-    ".doc": {"bg": "#007aff", "fg": "#ffffff", "border": "#0a84ff", "label": "DOC"},
-    # Preview / PDF -> Apple Red
-    ".pdf": {"bg": "#ff3b30", "fg": "#ffffff", "border": "#ff453a", "label": "PDF"},
-    # Numbers / Excel -> Apple Green
-    ".xlsx": {"bg": "#34c759", "fg": "#ffffff", "border": "#30d158", "label": "XLS"},
-    ".xls": {"bg": "#34c759", "fg": "#ffffff", "border": "#30d158", "label": "XLS"},
-    ".csv": {"bg": "#34c759", "fg": "#ffffff", "border": "#30d158", "label": "CSV"},
-    # Keynote / Slide -> Apple Orange
-    ".pptx": {"bg": "#ff9500", "fg": "#ffffff", "border": "#ff9f0a", "label": "PPT"},
-    ".ppt": {"bg": "#ff9500", "fg": "#ffffff", "border": "#ff9f0a", "label": "PPT"},
-    # Photos / Images -> Apple Teal
-    ".png": {"bg": "#30b0c7", "fg": "#ffffff", "border": "#40c8e0", "label": "IMG"},
-    ".jpg": {"bg": "#30b0c7", "fg": "#ffffff", "border": "#40c8e0", "label": "IMG"},
-    ".jpeg": {"bg": "#30b0c7", "fg": "#ffffff", "border": "#40c8e0", "label": "IMG"},
-    ".webp": {"bg": "#30b0c7", "fg": "#ffffff", "border": "#40c8e0", "label": "IMG"},
-    # Xcode / Code -> Apple Purple
-    ".py": {"bg": "#af52de", "fg": "#ffffff", "border": "#bf5af2", "label": "PY"},
-    ".js": {"bg": "#e6a100", "fg": "#ffffff", "border": "#ffd60a", "label": "JS"},
-    ".ts": {"bg": "#007aff", "fg": "#ffffff", "border": "#0a84ff", "label": "TS"},
-    ".html": {"bg": "#ff9500", "fg": "#ffffff", "border": "#ff9f0a", "label": "HTML"},
-    ".css": {"bg": "#30b0c7", "fg": "#ffffff", "border": "#40c8e0", "label": "CSS"},
-    ".json": {"bg": "#bf5af2", "fg": "#ffffff", "border": "#da8fff", "label": "JSON"},
-    ".sh": {"bg": "#34c759", "fg": "#ffffff", "border": "#30d158", "label": "SH"},
-    ".sql": {"bg": "#5856d6", "fg": "#ffffff", "border": "#7d7aff", "label": "SQL"},
-    # TextEdit / Notes -> Apple Graphite
-    ".txt": {"bg": "#636366", "fg": "#ffffff", "border": "#8e8e93", "label": "TXT"},
-    ".md": {"bg": "#636366", "fg": "#ffffff", "border": "#8e8e93", "label": "MD"},
+    # Pages / Word -> Classic Ink Blue
+    ".docx": {"bg": "#2563eb", "fg": "#ffffff", "border": "#1d4ed8", "label": "DOC"},
+    ".doc": {"bg": "#2563eb", "fg": "#ffffff", "border": "#1d4ed8", "label": "DOC"},
+    # Preview / PDF -> Warm Crimson
+    ".pdf": {"bg": "#dc2626", "fg": "#ffffff", "border": "#b91c1c", "label": "PDF"},
+    # Numbers / Excel -> Forest Green
+    ".xlsx": {"bg": "#16a34a", "fg": "#ffffff", "border": "#15803d", "label": "XLS"},
+    ".xls": {"bg": "#16a34a", "fg": "#ffffff", "border": "#15803d", "label": "XLS"},
+    ".csv": {"bg": "#16a34a", "fg": "#ffffff", "border": "#15803d", "label": "CSV"},
+    # Keynote / Slide -> Amber Orange
+    ".pptx": {"bg": "#ea580c", "fg": "#ffffff", "border": "#c2410c", "label": "PPT"},
+    ".ppt": {"bg": "#ea580c", "fg": "#ffffff", "border": "#c2410c", "label": "PPT"},
+    # Photos / Images -> Teal / Cyan
+    ".png": {"bg": "#0891b2", "fg": "#ffffff", "border": "#0e7490", "label": "IMG"},
+    ".jpg": {"bg": "#0891b2", "fg": "#ffffff", "border": "#0e7490", "label": "IMG"},
+    ".jpeg": {"bg": "#0891b2", "fg": "#ffffff", "border": "#0e7490", "label": "IMG"},
+    ".webp": {"bg": "#0891b2", "fg": "#ffffff", "border": "#0e7490", "label": "IMG"},
+    # Code -> Royal Purple
+    ".py": {"bg": "#7c3aed", "fg": "#ffffff", "border": "#6d28d9", "label": "PY"},
+    ".js": {"bg": "#d97706", "fg": "#ffffff", "border": "#b45309", "label": "JS"},
+    ".ts": {"bg": "#2563eb", "fg": "#ffffff", "border": "#1d4ed8", "label": "TS"},
+    ".html": {"bg": "#ea580c", "fg": "#ffffff", "border": "#c2410c", "label": "HTML"},
+    ".css": {"bg": "#0891b2", "fg": "#ffffff", "border": "#0e7490", "label": "CSS"},
+    ".json": {"bg": "#7c3aed", "fg": "#ffffff", "border": "#6d28d9", "label": "JSON"},
+    ".sh": {"bg": "#16a34a", "fg": "#ffffff", "border": "#15803d", "label": "SH"},
+    ".sql": {"bg": "#4f46e5", "fg": "#ffffff", "border": "#4338ca", "label": "SQL"},
+    # TextEdit / Notes -> Warm Stone
+    ".txt": {"bg": "#78716c", "fg": "#ffffff", "border": "#57534e", "label": "TXT"},
+    ".md": {"bg": "#78716c", "fg": "#ffffff", "border": "#57534e", "label": "MD"},
+    # AI / Chatbot Assistant -> Gold Sparkle
+    ".ai": {"bg": "#d97706", "fg": "#ffffff", "border": "#b45309", "label": "AI"},
+    ".calc": {"bg": "#ea580c", "fg": "#ffffff", "border": "#c2410c", "label": "CALC"},
+    ".map": {"bg": "#16a34a", "fg": "#ffffff", "border": "#15803d", "label": "MAP"},
+    ".app": {"bg": "#2563eb", "fg": "#ffffff", "border": "#1d4ed8", "label": "APP"},
 }
 
 
@@ -41,168 +47,332 @@ def get_ext_badge_info(ext: str) -> dict:
     if ext_clean in EXT_COLORS:
         return EXT_COLORS[ext_clean]
     label = ext_clean.lstrip(".").upper() or "FILE"
-    return {"bg": "#636366", "fg": "#ffffff", "border": "#8e8e93", "label": label[:4]}
+    return {"bg": "#8c7e6f", "fg": "#ffffff", "border": "#75685a", "label": label[:4]}
 
 
 RAYCAST_QSS = """
-/* SOTA Apple macOS Sequoia & Raycast Design System */
+/* ========================================================================= */
+/* AGENT CHUỘT - LIGHT MODE REFINED (WARM LIGHT GLASS SPECIFICATION)         */
+/* Clean, modern, warm light glass aesthetic with peeking mascot              */
+/* ========================================================================= */
+
 * {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Arial", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
     outline: none;
+    color: #1F2937;
 }
 
-/* Spotlight Window Container (Frosted Glass Acrylic Container) */
+/* Global Reset */
+QLabel {
+    border: none;
+    background: transparent;
+    color: #1F2937;
+}
+
+/* Single Unified Container - Warm Paper Light Surface */
 QFrame#SpotlightContainer {
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
+    background-color: #FCFAF7;
+    border: 1.5px solid rgba(43, 38, 31, 0.12);
     border-radius: 16px;
 }
 
-/* Search Header */
-QFrame#SearchHeader {
-    background-color: #fbfbfd;
-    border-bottom: 1px solid #e2e8f0;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    padding: 14px 18px 11px 18px;
+/* Integrated Input Bar */
+QFrame#QuickBar {
+    background: transparent;
+    border: none;
+    padding: 0px 4px;
 }
 
-QLineEdit#SearchInput {
-    background-color: #ffffff;
-    color: #0f172a;
-    font-size: 17px;
-    font-weight: 400;
-    border: 1px solid #cbd5e1;
+QFrame#QuickBar:hover {
+    background: transparent;
+}
+
+QFrame#HairlineDivider {
+    background-color: rgba(43, 38, 31, 0.08);
+    max-height: 1px;
+    min-height: 1px;
+    border: none;
+}
+
+QLineEdit#ChatComposerInput {
+    background: transparent;
+    color: #1F1A16;
+    border: none;
+    padding: 6px 8px;
+    font-size: 13.5px;
+    font-weight: 550;
+    selection-background-color: #FDE68A;
+    selection-color: #1F1A16;
+}
+
+/* Tactile Physical Mac Keycap */
+QLabel#ReturnKeycap {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "JetBrains Mono", monospace;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:1 #F0ECE4);
+    color: #4B4339;
+    border: 1px solid #D6CEBE;
+    border-bottom: 2.5px solid #BCB2A0;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+QLabel#ReturnKeycap[active="true"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FDE68A, stop:1 #F59E0B);
+    color: #1F1C18;
+    border: 1px solid #D97706;
+    border-bottom: 2.5px solid #B45309;
+    font-weight: 800;
+}
+
+/* Tactile Suggestion Chips */
+QPushButton.QuickSuggestionChip {
+    background-color: #FFFFFF;
+    color: #4A4036;
+    border: 1px solid #E6DFD5;
+    border-bottom: 2px solid #D4C9BA;
+    border-radius: 9px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    font-weight: 650;
+}
+
+QPushButton.QuickSuggestionChip:hover, QPushButton.QuickSuggestionChip:focus {
+    background-color: #FFFDF9;
+    color: #1F1A16;
+    border-color: #DEC88E;
+    border-bottom: 2px solid #C9A952;
+}
+
+QPushButton.QuickSuggestionChip:pressed {
+    background-color: #FEE8A2;
+    border-bottom: 1px solid #D4B872;
+    padding-top: 6px;
+    padding-bottom: 4px;
+}
+
+/* Status Indicator */
+QLabel#QuickModelBadge {
+    background-color: #FFF8E6;
+    color: #8C6200;
+    border: 1px solid #EAD494;
     border-radius: 10px;
-    padding: 10px 14px;
-    selection-background-color: #007aff;
-    selection-color: #ffffff;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    font-weight: 700;
 }
 
-QLineEdit#SearchInput:focus {
-    border: 1.5px solid #007aff;
-    background-color: #ffffff;
+QPushButton#OverlayExpandBtn {
+    background-color: #FFFFFF;
+    color: #6B5E50;
+    border: 1px solid rgba(43, 38, 31, 0.15);
+    border-radius: 13px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 26px;
+    min-height: 26px;
+    max-width: 26px;
+    max-height: 26px;
 }
 
-/* Scope Bar (Segmented Micro-Pills) */
+QPushButton#OverlayExpandBtn:hover {
+    background-color: #FFF6DD;
+    color: #1F1C18;
+    border-color: #E8CA7C;
+}
+
+QPushButton#OverlayExpandBtn:pressed {
+    background-color: #FFB800;
+}
+
+QPushButton#OverlayCloseBtn {
+    background-color: #FFFFFF;
+    color: #6B5E50;
+    border: 1px solid rgba(43, 38, 31, 0.15);
+    border-radius: 13px;
+    font-size: 10.5px;
+    font-weight: 700;
+    min-width: 26px;
+    min-height: 26px;
+    max-width: 26px;
+    max-height: 26px;
+}
+
+QPushButton#OverlayCloseBtn:hover {
+    background-color: #FFECEC;
+    color: #E03535;
+    border-color: #F8B4B4;
+}
+
+QPushButton#OverlayCloseBtn:pressed {
+    background-color: #FFD4D4;
+}
+
+/* Tactile Segmented Pill Switcher (Warm Paper Groove) */
 QFrame#FilterPillsBar {
-    background-color: transparent;
-    padding: 2px 0px 0px 0px;
+    background-color: #EFE9DF;
+    border: 1px solid rgba(43, 38, 31, 0.10);
+    border-radius: 9px;
+    padding: 2px 3px;
 }
 
 QPushButton.FilterPill {
-    background-color: #f1f5f9;
-    color: #475569;
+    background-color: transparent;
+    color: #6E6254;
     font-size: 11.5px;
-    font-weight: 500;
-    padding: 4px 11px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    padding: 5px 14px;
+    border: none;
+    border-radius: 7px;
+    margin-right: 2px;
 }
 
 QPushButton.FilterPill:hover {
-    background-color: #e2e8f0;
-    color: #0f172a;
+    background-color: rgba(255, 255, 255, 0.65);
+    color: #1F1C18;
 }
 
 QPushButton.FilterPill[active="true"] {
-    background-color: #007aff;
-    color: #ffffff;
-    font-weight: 600;
-    border: 1px solid #0062cc;
+    background-color: #FFFFFF;
+    color: #1F1C18;
+    border: 1px solid #DCD4C7;
+    border-bottom: 2px solid #C8BFB0;
+    font-weight: 750;
 }
 
-/* Result List */
-QListWidget#ResultList {
-    background-color: #ffffff;
-    border: none;
-    outline: none;
-    padding: 6px 8px;
+QPushButton.FilterPill:pressed {
+    background-color: #FEE8A2;
+    color: #1F1C18;
 }
 
-QListWidget#ResultList::item {
-    background-color: transparent;
+/* File Search Input Field */
+QLineEdit#SearchInput {
+    background-color: #FFFFFF;
+    color: #2B261F;
+    font-size: 13px;
+    font-weight: 550;
+    border: 1px solid rgba(43, 38, 31, 0.14);
     border-radius: 8px;
-    padding: 0px;
-    margin: 2px 0px;
-    border: none;
+    padding: 6px 12px;
+    selection-background-color: #FFBE3B;
+    selection-color: #2B261F;
 }
 
-QListWidget#ResultList::item:hover {
-    background-color: #f8fafc;
+/* Tactile Send / Action Button */
+QPushButton#SendButton, QPushButton.SendButton {
+    background-color: #FFB800;
+    color: #1F1C18;
+    border: 1px solid #E5A500;
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 750;
 }
 
-QListWidget#ResultList::item:selected {
-    background-color: #eff6ff;
-    border: 1px solid #38bdf8;
+QPushButton#SendButton:hover, QPushButton.SendButton:hover {
+    background-color: #FFA500;
 }
 
-/* Inspector / Quick Look Panel */
+QPushButton#SendButton:pressed, QPushButton.SendButton:pressed {
+    background-color: #E29300;
+}
+
+/* Splitter */
+QSplitter::handle {
+    background-color: rgba(43, 38, 31, 0.08);
+    width: 1px;
+}
+
+/* Result and Recent Lists */
+QListWidget#ResultList, QListWidget#RecentList {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(43, 38, 31, 0.10);
+    border-radius: 10px;
+    outline: none;
+    padding: 4px;
+}
+
+QListWidget#ResultList::item, QListWidget#RecentList::item {
+    background-color: transparent;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin: 1px 0px;
+}
+
+QListWidget#ResultList::item:selected, QListWidget#RecentList::item:selected {
+    background-color: #FFF4D4;
+    color: #2B261F;
+}
+
+/* Preview Inspector Panel */
 QFrame#PreviewPanel {
-    background-color: #fbfbfd;
-    border-left: 1px solid #e2e8f0;
-    border-bottom-right-radius: 16px;
-    padding: 14px 16px;
+    background-color: #FAFAF8;
+    border-left: 1px solid rgba(43, 38, 31, 0.08);
+    border-bottom-right-radius: 14px;
+    padding: 12px 14px;
 }
 
 QTextEdit#PreviewContent {
-    background-color: #ffffff;
-    color: #0f172a;
-    border: 1px solid #e2e8f0;
+    background-color: #FFFFFF;
+    color: #2B261F;
+    border: 1px solid rgba(43, 38, 31, 0.10);
     border-radius: 8px;
     font-size: 12px;
     padding: 10px;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Mono", "Menlo", monospace;
-    line-height: 1.55;
+    font-family: "SF Mono", "Menlo", monospace;
+    line-height: 1.5;
 }
 
-/* Raycast Action Footer with Keycap Badges */
+/* Vintage Action Footer */
 QFrame#ActionFooter {
-    background-color: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
-    padding: 8px 18px;
+    background-color: #F8F5F0;
+    border-top: 1px solid rgba(43, 38, 31, 0.08);
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    padding: 6px 14px;
 }
 
 QLabel#FooterStatus {
-    color: #475569;
-    font-size: 11.5px;
-    font-weight: 500;
+    color: #2B261F;
+    font-size: 11px;
+    font-weight: 700;
 }
 
-/* SOTA Keycaps with 3D physical feel */
 QLabel.HotkeyBadge {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #ffffff, stop:1 #f1f5f9);
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    border-bottom: 2px solid #94a3b8;
+    background-color: #FFFFFF;
+    color: #5A5044;
+    border: 1px solid rgba(43, 38, 31, 0.14);
     border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 10.5px;
-    font-weight: 600;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Menlo", monospace;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 700;
 }
 
-/* Minimalist macOS Light Scrollbars */
+/* macOS Minimalist Ghost Scrollbars */
 QScrollBar:vertical {
     border: none;
     background: transparent;
     width: 6px;
-    margin: 0px;
+    margin: 2px 2px 2px 0px;
 }
 
 QScrollBar::handle:vertical {
-    background: rgba(0, 0, 0, 0.18);
-    min-height: 25px;
+    background: rgba(43, 38, 31, 0.20);
+    min-height: 24px;
     border-radius: 3px;
+    border: none;
 }
 
 QScrollBar::handle:vertical:hover {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(43, 38, 31, 0.40);
 }
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
     height: 0px;
 }
 """

@@ -147,6 +147,66 @@ class TestSpotlightWindow(unittest.TestCase):
         self.assertIsNotNone(mgr)
         self.assertIsInstance(is_accessibility_trusted(), bool)
 
+    def test_math_query_prepends_calc_card(self):
+        """Verify math queries prepend the instant calculation result card."""
+        self.window.current_query = "tính 25 * 4 + 50"
+        self.window.search_input.setText("tính 25 * 4 + 50")
+        mock_response = {
+            "query": "tính 25 * 4 + 50",
+            "results": [],
+            "latency_ms": 1,
+            "reasoning_trace": None,
+            "plan": None,
+        }
+        req_id = self.window._request_counter
+        self.window._on_search_completed(req_id, mock_response)
+        app.processEvents()
+
+        self.assertGreaterEqual(self.window.result_list.count(), 1)
+        first_item: SearchResultItem = self.window.result_list.item(0).data(Qt.ItemDataRole.UserRole)
+        self.assertEqual(first_item.file_path, "rat://calc_copy/150")
+        self.assertIn("150", first_item.file_name)
+
+    def test_room_query_prepends_room_card(self):
+        """Verify room queries prepend the campus room guide card."""
+        self.window.current_query = "phòng C302"
+        self.window.search_input.setText("phòng C302")
+        mock_response = {
+            "query": "phòng C302",
+            "results": [],
+            "latency_ms": 1,
+            "reasoning_trace": None,
+            "plan": None,
+        }
+        req_id = self.window._request_counter
+        self.window._on_search_completed(req_id, mock_response)
+        app.processEvents()
+
+        self.assertGreaterEqual(self.window.result_list.count(), 1)
+        first_item: SearchResultItem = self.window.result_list.item(0).data(Qt.ItemDataRole.UserRole)
+        self.assertEqual(first_item.file_path, "rat://room_location")
+        self.assertIn("C302", first_item.file_name)
+
+    def test_agenda_query_prepends_agenda_card(self):
+        """Verify today's agenda queries prepend live agenda card."""
+        self.window.current_query = "chiều nay học gì"
+        self.window.search_input.setText("chiều nay học gì")
+        mock_response = {
+            "query": "chiều nay học gì",
+            "results": [],
+            "latency_ms": 1,
+            "reasoning_trace": None,
+            "plan": None,
+        }
+        req_id = self.window._request_counter
+        self.window._on_search_completed(req_id, mock_response)
+        app.processEvents()
+
+        self.assertGreaterEqual(self.window.result_list.count(), 1)
+        first_item: SearchResultItem = self.window.result_list.item(0).data(Qt.ItemDataRole.UserRole)
+        self.assertEqual(first_item.file_path, "rat://claude_widget")
+        self.assertIn("Lịch học hôm nay", first_item.file_name)
+
 
 if __name__ == "__main__":
     unittest.main()
