@@ -20,11 +20,20 @@ from reasoning_strategies import (
 
 COT_SUFFIX = "\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."
 REACT_SYSTEM = (
-    "Giải bài toán bằng ReAct. Mỗi lượt chỉ viết:\n"
-    "Thought: <suy nghĩ>\nAction: calculate[bieu_thuc_so_hoc] hoặc Action: finish[dap_an]\n"
-    "Không tự viết dòng Observation - hệ thống sẽ cung cấp sau khi bạn gọi calculate."
+    "Solve the problem with ReAct. Every response must contain exactly two lines: "
+    "one Thought line and one Action line. The action must be calculate[...] or "
+    "finish[...]. Put only a concrete arithmetic expression inside calculate and "
+    "only the final answer inside finish. Never write an Observation; the system "
+    "provides it after calculate."
 )
 PAL_SUFFIX = "\nViết 1 đoạn code Python giải bài này, gán kết quả cuối vào biến `result`. Chỉ trả code, trong 1 khối ```python```."
+
+REACT_EXAMPLE = [
+    {"role": "user", "content": "What is (12 + 8) * 3?"},
+    {"role": "assistant", "content": "Thought: I should calculate the expression.\nAction: calculate[(12+8)*3]"},
+    {"role": "user", "content": "Observation: 60"},
+    {"role": "assistant", "content": "Thought: The calculation gives the final answer.\nAction: finish[60]"},
+]
 
 
 class QwenMLXBackend:
@@ -47,6 +56,7 @@ class QwenMLXBackend:
         return np.array(mx.mean(hidden[0], axis=0))
 
     def run(self, strategy: A, query: str) -> tuple[str, float, int]:
+        self.last_trace = {"strategy": strategy.name, "generations": [], "tools": []}
         return {
             A.COT: self._cot,
             A.SELF_CONSISTENCY: self._self_consistency,
@@ -54,6 +64,11 @@ class QwenMLXBackend:
             A.REACT: self._react,
             A.PAL: self._pal,
         }[strategy](query)
+
+    def _record_tool(self, event: dict) -> None:
+        trace = getattr(self, "last_trace", None)
+        if trace is not None:
+            trace["tools"].append(event)
 
     # ---- strategies ----
 
@@ -79,15 +94,37 @@ class QwenMLXBackend:
             candidates.append(text)
             total_tok += n_tok
         listing = "\n\n".join(f"[{i}] {c}" for i, c in enumerate(candidates))
-        eval_prompt = f"Câu hỏi: {query}\n\nCác lời giải ứng viên:\n{listing}\n\nChọn lời giải ĐÚNG nhất. Trả đúng 1 dòng 'Best: <chỉ số>'."
+        eval_prompt = (
+            f"Câu hỏi: {query}\n\nCác lời giải ứng viên:\n{listing}\n\n"
+            f"Chọn lời giải đúng nhất. Chỉ trả về một trong các dòng: "
+            + ", ".join(f"Best: {index}" for index in range(branches))
+            + "."
+        )
         eval_text, eval_conf, eval_tok = self._chat([{"role": "user", "content": eval_prompt}], temp=0.0)
         total_tok += eval_tok
-        idx = extract_number_or_none(eval_text)
-        best = candidates[idx] if idx is not None and idx < branches else candidates[0]
-        return extract_answer(best), eval_conf, total_tok
+        answers = [extract_answer(candidate) for candidate in candidates]
+        idx = extract_best_index(eval_text, branches)
+        if idx is None:
+            answer, _ = majority_vote(answers)
+            selection = "majority_fallback"
+        else:
+            answer = answers[idx]
+            selection = "model_index"
+        self._record_tool({
+            "name": "candidate_selector",
+            "candidate_answers": answers,
+            "selector_output": eval_text,
+            "selected_index": idx,
+            "selection": selection,
+        })
+        return answer, eval_conf, total_tok
 
     def _react(self, query: str, max_turns: int = 4) -> tuple[str, float, int]:
-        msgs = [{"role": "system", "content": REACT_SYSTEM}, {"role": "user", "content": query}]
+        msgs = [
+            {"role": "system", "content": REACT_SYSTEM},
+            *REACT_EXAMPLE,
+            {"role": "user", "content": query},
+        ]
         total_tok, last_conf = 0, 0.0
         for _ in range(max_turns):
             text, conf, n_tok = self._chat(msgs, temp=0.0, max_tokens=200)
@@ -100,7 +137,11 @@ class QwenMLXBackend:
             if act == "finish":
                 return arg, last_conf, total_tok
             if act == "calculate":
-                msgs.append({"role": "user", "content": f"Observation: {safe_calculate(arg)}"})
+                observation = safe_calculate(arg)
+                self._record_tool({
+                    "name": "calculate", "input": arg, "output": observation,
+                })
+                msgs.append({"role": "user", "content": f"Observation: {observation}"})
             else:
                 break
         # hết lượt mà chưa finish() rõ ràng -> vẫn trả câu trả lời cuối nhưng hạ confidence
@@ -108,19 +149,31 @@ class QwenMLXBackend:
 
     def _pal(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + PAL_SUFFIX}], temp=0.0)
-        ok, result = run_python_sandboxed(extract_code(text))
-        return (result if ok else extract_answer(text)), (conf if ok else conf * 0.3), n_tok
+        code = extract_code(text)
+        ok, result = run_python_sandboxed(code)
+        self._record_tool({
+            "name": "python", "input": code, "ok": ok, "output": result,
+        })
+        answer = extract_answer(result) if ok else extract_answer(text)
+        return answer, (conf if ok else conf * 0.3), n_tok
 
     # ---- shared generation ----
 
     def _chat(self, messages: list[dict], temp: float = 0.0, max_tokens: int | None = None) -> tuple[str, float, int]:
-        prompt = self.tokenizer.apply_chat_template(messages, enable_thinking=False)
+        prompt = self.tokenizer.apply_chat_template(
+            messages,
+            enable_thinking=False,
+            add_generation_prompt=True,
+        )
         sampler = make_sampler(temp=temp)
         text, n_tok = "", 0
+        finish_reason = None
         logps, margins, entropies = [], [], []
         for r in stream_generate(self.model, self.tokenizer, prompt, max_tokens=max_tokens or self.max_tokens, sampler=sampler):
             text += r.text
             n_tok = r.generation_tokens
+            if getattr(r, "finish_reason", None) is not None:
+                finish_reason = r.finish_reason
             if getattr(r, "logprobs", None) is not None:
                 lp_arr = np.asarray(r.logprobs, dtype=np.float32)
                 if len(lp_arr) > r.token:
@@ -143,6 +196,13 @@ class QwenMLXBackend:
             "mean_entropy": mean_entropy,
             "confidence": conf,
         }
+        if hasattr(self, "last_trace"):
+            self.last_trace["generations"].append({
+                "output": text,
+                "tokens": n_tok,
+                "finish_reason": finish_reason,
+                "signals": dict(self.last_signals),
+            })
         return text, conf, n_tok
 
 
@@ -171,11 +231,14 @@ def compute_token_uncertainty(logprobs: np.ndarray, top_k: int = 10) -> tuple[fl
     return margin, norm_ent
 
 
-def extract_number_or_none(text: str) -> int | None:
+def extract_best_index(text: str, branches: int) -> int | None:
     import re
 
-    m = re.search(r"\d+", text)
-    return int(m.group()) if m else None
+    match = re.search(r"\bBest\s*:\s*\[?([0-9]+)\]?", text, re.IGNORECASE)
+    if match is None:
+        return None
+    index = int(match.group(1))
+    return index if 0 <= index < branches else None
 
 
 if __name__ == "__main__":

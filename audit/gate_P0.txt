@@ -1,0 +1,221 @@
+=== P0: git status --short & git diff --stat ===
+ M experiments/research_study.py
+ M qwen_mlx_backend.py
+ M reasoning_strategies.py
+ M test_qwen_mlx_backend_mocked.py
+ M test_reasoning_strategies.py
+ M tests/test_research_study.py
+?? audit/
+?? data/
+?? docs/stage0_gate_decision.md
+?? experiments/pilot_real_model.py
+?? scripts/build_nckh_dataset.py
+?? tests/test_harness_regressions.py
+
+ experiments/research_study.py   |   3 +
+ qwen_mlx_backend.py             |  93 ++++++++++++++++++++++-----
+ reasoning_strategies.py         | 138 ++++++++++++++++++++++++++++------------
+ test_qwen_mlx_backend_mocked.py |  35 ++++++++--
+ test_reasoning_strategies.py    |  21 +++++-
+ tests/test_research_study.py    |  25 ++++++++
+ 6 files changed, 255 insertions(+), 60 deletions(-)
+
+=== P0: RED PHASE (git stash push & run 5 regression tests) ===
+Saved working directory and index state On main: p0-fixes
+
+--- Running 5 regression tests on OLD code (expect FAIL on assert) ---
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+plugins: anyio-4.12.1, timeout-2.4.0
+timeout: 20.0s
+timeout method: signal
+timeout func_only: False
+collecting ... collected 5 items
+
+tests/test_harness_regressions.py::test_regression_generation_boundary_and_stop_token FAILED [ 20%]
+tests/test_harness_regressions.py::test_regression_react_placeholder_rejection FAILED [ 40%]
+tests/test_harness_regressions.py::test_regression_pal_timeout_and_sandbox_safety FAILED [ 60%]
+tests/test_harness_regressions.py::test_regression_parser_does_not_pick_wrong_trailing_token_or_unit FAILED [ 80%]
+tests/test_harness_regressions.py::test_regression_tot_selects_correct_candidate_branch FAILED [100%]
+
+=================================== FAILURES ===================================
+______________ test_regression_generation_boundary_and_stop_token ______________
+
+    def test_regression_generation_boundary_and_stop_token():
+        """Bug 1: apply_chat_template must specify add_generation_prompt=True, and finish_reason must be recorded in trace."""
+        b = make_backend()
+        scripted.queue(RAW_COT_TRACE_FIXTURE)
+        query = "Albert buys 2 large pizzas and 2 small pizzas per week for 4 weeks. What is the total number of pizza slices?"
+>       ans, conf, tok = b.run(A.COT, query)
+                         ^^^^^^^^^^^^^^^^^^^
+
+tests/test_harness_regressions.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+qwen_mlx_backend.py:50: in run
+    return {
+qwen_mlx_backend.py:61: in _cot
+    text, conf, n_tok = self._chat([{"role": "user", "content": query + COT_SUFFIX}], temp=0.0)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+qwen_mlx_backend.py:117: in _chat
+    prompt = self.tokenizer.apply_chat_template(messages, enable_thinking=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_qwen_mlx_backend_mocked.FakeTokenizer object at 0x16117f0b0>
+messages = [{'content': "Albert buys 2 large pizzas and 2 small pizzas per week for 4 weeks. What is the total number of pizza slices?\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'.", 'role': 'user'}]
+enable_thinking = False, add_generation_prompt = False, kw = {}
+@py_assert2 = True, @py_assert1 = False, @py_format4 = 'False is True'
+@py_format6 = 'chat prompt phải kết thúc ở vai assistant\n>assert False is True'
+
+    def apply_chat_template(self, messages, enable_thinking=False, add_generation_prompt=False, **kw):
+        assert enable_thinking is False, "phải tắt thinking cho baseline sạch"
+>       assert add_generation_prompt is True, "chat prompt phải kết thúc ở vai assistant"
+E       AssertionError: chat prompt phải kết thúc ở vai assistant
+E       assert False is True
+
+test_qwen_mlx_backend_mocked.py:103: AssertionError
+_________________ test_regression_react_placeholder_rejection __________________
+
+    def test_regression_react_placeholder_rejection():
+        """Bug 2: Parser rejects echoed placeholder templates, and REACT_SYSTEM contains no placeholder artifacts."""
+        # Parser must strip leading placeholder and extract the real numeric conclusion
+        parsed = extract_answer(RAW_REACT_PLACEHOLDER_FIXTURE)
+>       assert "<kết quả>" not in parsed, f"Parsed answer leaked prompt placeholder: {parsed!r}"
+E       AssertionError: Parsed answer leaked prompt placeholder: '<kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'
+E       assert '<kết quả>' not in '<kết quả> =... boxes total'
+E         
+E         '<kết quả>' is contained here:
+E           <kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total
+E         ? +++++++++
+
+tests/test_harness_regressions.py:89: AssertionError
+________________ test_regression_pal_timeout_and_sandbox_safety ________________
+
+    def test_regression_pal_timeout_and_sandbox_safety():
+        """Bug 3: PAL runner must cleanly timeout on infinite loops without hanging, and reject scripts producing no result."""
+        # 1. Infinite loop must cleanly terminate with timeout status in < 1 second
+        ok_loop, err_loop = run_python_sandboxed(RAW_PAL_INFINITE_LOOP_CODE, timeout=0.5)
+        assert not ok_loop and err_loop == "timeout", f"Loop must timeout cleanly, got ok={ok_loop}, err={err_loop!r}"
+    
+        # 2. Code with no result must NOT report ok=True
+        code_no_res = extract_code(RAW_PAL_NO_RESULT_CODE)
+        ok_no_res, err_no_res = run_python_sandboxed(code_no_res, timeout=2.0)
+>       assert not ok_no_res, f"Code without result must fail, but got ok={ok_no_res!r}"
+E       AssertionError: Code without result must fail, but got ok=True
+E       assert not True
+
+tests/test_harness_regressions.py:123: AssertionError
+______ test_regression_parser_does_not_pick_wrong_trailing_token_or_unit _______
+
+    def test_regression_parser_does_not_pick_wrong_trailing_token_or_unit():
+        """Bug 4: Parser extracts numeric conclusion without capturing trailing units or intermediate equation text."""
+        ans1 = extract_answer(RAW_PARSER_PIZZA_FIXTURE)
+>       assert ans1 == "192", f"Expected '192', got {ans1!r}"
+E       AssertionError: Expected '192', got 'Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.'
+E       assert 'Therefore, t...s 192 slices.' == '192'
+E         
+E         - 192
+E         + Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.
+
+tests/test_harness_regressions.py:146: AssertionError
+_____________ test_regression_tot_selects_correct_candidate_branch _____________
+
+    def test_regression_tot_selects_correct_candidate_branch():
+        """Bug 5: ToT candidate selection parses 'Best: [i]' rather than greedily matching numbers in the rationale."""
+        b = make_backend()
+        scripted.queue(
+            "Phương án 0... Answer: 422",
+            "Phương án 1... Answer: 1167",
+            "Phương án 2... Answer: 500",
+            RAW_TOT_EVAL_FIXTURE,
+        )
+>       ans, conf, tok = b.run(A.TOT, "Tính tổng số hộp hàng?")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_harness_regressions.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+qwen_mlx_backend.py:50: in run
+    return {
+qwen_mlx_backend.py:78: in _tot
+    text, _, n_tok = self._chat(msgs, temp=0.8)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+qwen_mlx_backend.py:117: in _chat
+    prompt = self.tokenizer.apply_chat_template(messages, enable_thinking=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_qwen_mlx_backend_mocked.FakeTokenizer object at 0x161a76b70>
+messages = [{'content': "Tính tổng số hộp hàng?\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'.", 'role': 'user'}]
+enable_thinking = False, add_generation_prompt = False, kw = {}
+@py_assert2 = True, @py_assert1 = False, @py_format4 = 'False is True'
+@py_format6 = 'chat prompt phải kết thúc ở vai assistant\n>assert False is True'
+
+    def apply_chat_template(self, messages, enable_thinking=False, add_generation_prompt=False, **kw):
+        assert enable_thinking is False, "phải tắt thinking cho baseline sạch"
+>       assert add_generation_prompt is True, "chat prompt phải kết thúc ở vai assistant"
+E       AssertionError: chat prompt phải kết thúc ở vai assistant
+E       assert False is True
+
+test_qwen_mlx_backend_mocked.py:103: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_harness_regressions.py::test_regression_generation_boundary_and_stop_token
+FAILED tests/test_harness_regressions.py::test_regression_react_placeholder_rejection
+FAILED tests/test_harness_regressions.py::test_regression_pal_timeout_and_sandbox_safety
+FAILED tests/test_harness_regressions.py::test_regression_parser_does_not_pick_wrong_trailing_token_or_unit
+FAILED tests/test_harness_regressions.py::test_regression_tot_selects_correct_candidate_branch
+============================== 5 failed in 6.00s ===============================
+
+=== P0: GREEN PHASE (git stash pop & run 5 regression tests) ===
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   experiments/research_study.py
+	modified:   qwen_mlx_backend.py
+	modified:   reasoning_strategies.py
+	modified:   test_qwen_mlx_backend_mocked.py
+	modified:   test_reasoning_strategies.py
+	modified:   tests/test_research_study.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	audit/
+	data/
+	docs/stage0_gate_decision.md
+	experiments/pilot_real_model.py
+	scripts/build_nckh_dataset.py
+	tests/test_harness_regressions.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (5bc6e1097071741c8b1185ced75f448952ed7e0d)
+
+--- Running 5 regression tests on NEW code (expect ALL PASS) ---
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+plugins: anyio-4.12.1, timeout-2.4.0
+timeout: 20.0s
+timeout method: signal
+timeout func_only: False
+collecting ... collected 5 items
+
+tests/test_harness_regressions.py::test_regression_generation_boundary_and_stop_token PASSED [ 20%]
+tests/test_harness_regressions.py::test_regression_react_placeholder_rejection PASSED [ 40%]
+tests/test_harness_regressions.py::test_regression_pal_timeout_and_sandbox_safety PASSED [ 60%]
+tests/test_harness_regressions.py::test_regression_parser_does_not_pick_wrong_trailing_token_or_unit PASSED [ 80%]
+tests/test_harness_regressions.py::test_regression_tot_selects_correct_candidate_branch PASSED [100%]
+
+============================== 5 passed in 5.34s ===============================
+
+=== P0: FULL SUITE EXECUTION ===
+Note on isolation / bisection: tests/test_frcot.py, tests/test_rat.py, and tests/test_portability_and_performance.py require local FastEmbed model cache in /var/folders/.../fastembed_cache which is missing offline. scratch/ contains visual mascot UI scripts. All core reasoning, reranker, index integrity, study, and harness suites run headless.
+........................................................................ [ 33%]
+........................................................................ [ 66%]
+.......................................................................  [100%]
+215 passed in 16.06s

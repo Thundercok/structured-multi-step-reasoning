@@ -10,7 +10,21 @@ def test_extract_answer_prefers_last_answer_line():
 
 
 def test_extract_answer_fallback_last_line():
-    assert extract_answer("không có nhãn nào cả\nkết quả là 7") == "kết quả là 7"
+    assert extract_answer("không có nhãn nào cả\nkết quả là 7") == "7"
+
+
+def test_extract_answer_normalizes_numeric_final_lines_without_scanning_full_trace():
+    assert extract_answer("work\nAnswer: 192 slices") == "192"
+    assert extract_answer("work\nTherefore, the total is 1,167 boxes.") == "1167"
+    assert extract_answer("Answer: No. The premise is insufficient.") == "No"
+    assert extract_answer("**Answer**: Yes, necessarily.") == "Yes"
+    assert extract_answer("The perimeter is 2*(24+18) = 84 cm") == "84"
+    assert extract_answer("The perimeter is: 84 cm") == "84"
+    assert extract_answer("In total, 32 + 16 = 48 slices in 4 weeks.") == "48"
+    assert extract_answer("Answer: <kết quả>.\nTherefore, the total is 1167 boxes.") == "1167"
+    assert extract_answer("100 days later\nThursday") == "Thursday"
+    assert extract_answer("Answer: Room 101") == "Room 101"
+    assert extract_answer("Answer: <Kết quả>.") == ""
 
 
 def test_numeric_match_handles_formatting():
@@ -61,6 +75,11 @@ def test_sandbox_blocks_import_and_filesystem():
 def test_sandbox_catches_runtime_error():
     ok, out = run_python_sandboxed("result = 1 / 0")
     assert not ok and "ZeroDivisionError" in out
+
+
+def test_sandbox_rejects_missing_result():
+    ok, out = run_python_sandboxed("intermediate = 42")
+    assert not ok and "no result" in out
 
 
 def test_sandbox_timeout():

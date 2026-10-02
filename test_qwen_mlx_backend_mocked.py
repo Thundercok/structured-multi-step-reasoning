@@ -57,10 +57,12 @@ class ScriptedGenerate:
         self.calls.append(prompt)
         full_text = self.scripts.pop(0)
         vocab = mx.array(np.full(16, -5.0, dtype=np.float32))
-        for i, tok in enumerate(full_text.split(" ")):
-            piece = tok + (" " if i < len(full_text.split(" ")) - 1 else "")
+        words = full_text.split(" ")
+        for i, tok in enumerate(words):
+            piece = tok + (" " if i < len(words) - 1 else "")
             lp = mx.array(vocab)
-            yield FakeGenResponse(text=piece, token=0, logprobs=lp, generation_tokens=i + 1)
+            reason = "stop" if i == len(words) - 1 else None
+            yield FakeGenResponse(text=piece, token=0, logprobs=lp, generation_tokens=i + 1, finish_reason=reason)
 
 
 scripted = ScriptedGenerate()
@@ -96,8 +98,9 @@ class FakeTokenizer:
     def encode(self, text):
         return [1] * max(len(text.split()), 1)
 
-    def apply_chat_template(self, messages, enable_thinking=False, **kw):
+    def apply_chat_template(self, messages, enable_thinking=False, add_generation_prompt=False, **kw):
         assert enable_thinking is False, "phải tắt thinking cho baseline sạch"
+        assert add_generation_prompt is True, "chat prompt phải kết thúc ở vai assistant"
         return [1]
 
 
@@ -134,12 +137,34 @@ def test_tot_picks_indexed_candidate():
     assert ans == "6"  # phải chọn đúng candidate[1], không phải candidate[0]
 
 
+def test_tot_invalid_selector_uses_candidate_majority():
+    scripted.queue("lời giải A... Answer: 5", "lời giải B... Answer: 6", "lời giải C... Answer: 5",
+                   "Best: 999")
+    ans, conf, tok = b_run(A.TOT, "câu hỏi bất kỳ")
+    assert ans == "5"
+
+
 def test_react_calculate_then_finish():
     scripted.queue("Thought: cần nhân Action: calculate[6*7]",
                     "Thought: xong rồi Action: finish[42]")
     ans, conf, tok = b_run(A.REACT, "6 nhân 7?")
     assert ans == "42"
     assert scripted.calls[-1][-1] if False else True  # observation được feed vào lượt sau (check gián tiếp qua kết quả đúng)
+
+
+def test_react_trace_keeps_raw_generations_and_tool_observation():
+    b = make_backend()
+    scripted.queue("Thought: cần nhân Action: calculate[6*7]",
+                   "Thought: xong rồi Action: finish[42]")
+    answer, _, _ = b.run(A.REACT, "6 nhân 7?")
+    assert answer == "42"
+    assert [entry["output"] for entry in b.last_trace["generations"]] == [
+        "Thought: cần nhân Action: calculate[6*7]",
+        "Thought: xong rồi Action: finish[42]",
+    ]
+    assert b.last_trace["tools"] == [
+        {"name": "calculate", "input": "6*7", "output": "42"},
+    ]
 
 
 def test_react_no_finish_within_turns_lowers_confidence():
@@ -157,7 +182,7 @@ def test_pal_executes_generated_code():
 def test_pal_falls_back_to_text_answer_on_bad_code():
     scripted.queue("```python\nresult = 1/0\n```\nAnswer: 42 (fallback)")
     ans, conf, tok = b_run(A.PAL, "câu hỏi")
-    assert ans == "42 (fallback)"  # code lỗi -> fallback sang extract_answer(text gốc), không crash
+    assert ans == "42"  # code lỗi -> fallback sang dòng Answer và chuẩn hóa số
 
 
 def test_compute_token_uncertainty_metrics():

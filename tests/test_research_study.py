@@ -91,6 +91,31 @@ def test_all_methods_share_attempts_and_charge_every_executed_strategy():
         assert row["answer"] == record["attempts"][row["path"][-1]]["answer"]
 
 
+def test_collection_preserves_optional_backend_raw_trace():
+    dataset = smoke_dataset()
+
+    class TraceBackend(MockDemoBackend):
+        def run(self, strategy, query):
+            result = super().run(strategy, query)
+            self.last_trace = {
+                "strategy": strategy.name,
+                "generations": [{"output": f"raw:{query}", "tokens": result[2]}],
+                "tools": [],
+            }
+            return result
+
+    backend = TraceBackend()
+
+    def set_seed(seed):
+        backend.rng = np.random.default_rng(seed)
+
+    records = collect_records(backend, dataset["items"], 42, set_seed, io.StringIO())
+    for record in records:
+        for strategy, attempt in record["attempts"].items():
+            assert attempt["trace"]["strategy"] == strategy
+            assert attempt["trace"]["generations"][0]["output"].startswith("raw:")
+
+
 def test_paired_intervals_use_groups_and_validate_pairing():
     rows = [
         {"id": str(index), "group_id": "same", "method": method, "tokens": tokens}

@@ -139,6 +139,9 @@ def collect_records(backend, items, seed, set_seed, event_file):
                 "correct": bool(check_answer(answer, item)), "strategy_ms": elapsed_ms,
                 "seed": action_seed,
             }
+            trace = getattr(backend, "last_trace", None)
+            if trace is not None:
+                attempt["trace"] = trace
             record["attempts"][strategy.name] = attempt
             event_file.write(json.dumps({"id": item["id"], "strategy": strategy.name, **attempt}, ensure_ascii=False) + "\n")
             event_file.flush()

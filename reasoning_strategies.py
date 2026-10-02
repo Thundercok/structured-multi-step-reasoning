@@ -1,17 +1,21 @@
 """Phần logic không phụ thuộc model - test được mà không cần load Qwen3."""
 
 import ast
-import contextlib
-import io
-import multiprocessing as mp
+import json
 import operator
 import re
+import subprocess
+import sys
 from collections import Counter
 
 CODE_FENCE = re.compile(r"```(?:python)?\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
-ANSWER_LINE = re.compile(r"answer\s*:\s*([^\n]+)", re.IGNORECASE)
+ANSWER_LINE = re.compile(r"(?:\*\*)?answer(?:\*\*)?\s*:\s*([^\n]+)", re.IGNORECASE)
 ACTION_LINE = re.compile(r"Action:\s*(\w+)\[(.*?)\]", re.DOTALL)
 NUM = re.compile(r"-?\d[\d,]*\.?\d*")
+NUMERIC_ANSWER = re.compile(r"^\s*-?\d[\d,]*\.?\d*(?:\s+[^\d]*)?\s*$")
+EQUALS_RESULT = re.compile(r"=\s*(-?\d[\d,]*\.?\d*)")
+TRAILING_NUMERIC_RESULT = re.compile(r"[:=]\s*(-?\d[\d,]*\.?\d*)(?:\s+[^\d]*)?\s*$")
+YES_NO_ANSWER = re.compile(r"^\s*(yes|no)\b", re.IGNORECASE)
 
 
 def extract_answer(text: str) -> str:
@@ -21,19 +25,57 @@ def extract_answer(text: str) -> str:
     if matches:
         for cand in reversed(matches):
             c_clean = cand.strip().strip(".")
-            if c_clean and c_clean not in placeholders:
-                return c_clean
+            if c_clean:
+                number = extract_conclusion_number(c_clean)
+                placeholder_prefix = next((
+                    placeholder for placeholder in placeholders
+                    if c_clean.casefold().startswith(placeholder)
+                ), None)
+                if placeholder_prefix and number is None:
+                    continue
+                yes_no = YES_NO_ANSWER.match(c_clean)
+                if yes_no:
+                    return yes_no.group(1)
+                return number if number is not None else c_clean
     lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
     for l in reversed(lines):
-        if l not in placeholders and not l.startswith("```"):
-            return l
-    return lines[-1] if lines else ""
+        answer_match = ANSWER_LINE.fullmatch(l)
+        if answer_match and answer_match.group(1).strip().strip(".").casefold() in placeholders:
+            continue
+        if l.casefold() in placeholders or l.startswith("```"):
+            continue
+        yes_no = YES_NO_ANSWER.match(l)
+        if yes_no:
+            return yes_no.group(1)
+        number = extract_conclusion_number(l)
+        if number is not None:
+            return number
+        return l
+    return ""
 
 
 def extract_number(text: str) -> str | None:
     """Số cuối cùng xuất hiện trong text, bỏ dấu phẩy ngăn cách nghìn. Dùng để so khớp đáp án GSM8K/MATH."""
     nums = NUM.findall(text.replace(",", ""))
     return nums[-1] if nums else None
+
+
+def extract_conclusion_number(text: str) -> str | None:
+    """Chuẩn hóa số chỉ khi chuỗi có hình thức đáp án hoặc tín hiệu kết luận."""
+    lowered = text.casefold()
+    conclusion_cues = (
+        "therefore", "thus", "hence", "final answer", "kết quả", "đáp án",
+        "do đó", "vậy", "total",
+    )
+    equals_results = EQUALS_RESULT.findall(text)
+    if equals_results:
+        return extract_number(equals_results[-1])
+    trailing = TRAILING_NUMERIC_RESULT.search(text)
+    if trailing:
+        return extract_number(trailing.group(1))
+    if NUMERIC_ANSWER.fullmatch(text) or any(cue in lowered for cue in conclusion_cues):
+        return extract_number(text)
+    return None
 
 
 def numeric_match(pred: str, gold: str, tol: float = 1e-4) -> bool:
@@ -89,43 +131,61 @@ def safe_calculate(expr: str) -> str:
 
 # ---------- sandbox Python cho PAL ----------
 
-_SAFE_BUILTINS = {n: getattr(__builtins__, n) if not isinstance(__builtins__, dict) else __builtins__[n]
-                   for n in ("print", "abs", "min", "max", "sum", "round", "len", "range", "sorted",
-                              "int", "float", "str", "list", "dict", "tuple", "set", "enumerate", "zip")}
+_PAL_RUNNER = r"""
+import builtins
+import contextlib
+import io
+import json
+import sys
 
-
-def _worker(code: str, q: mp.Queue) -> None:
-    ns = {"__builtins__": _SAFE_BUILTINS}
-    buf = io.StringIO()
-    try:
-        with contextlib.redirect_stdout(buf):
-            exec(code, ns)
-        out = buf.getvalue().strip()
-        val = str(ns.get("result", "")).strip()
-        if not val and out:
-            val = out.splitlines()[-1].strip()
-        q.put(("ok", val))
-    except Exception as e:
-        q.put(("error", f"{type(e).__name__}: {e}"))
+names = (
+    "print", "abs", "min", "max", "sum", "round", "len", "range", "sorted",
+    "int", "float", "str", "list", "dict", "tuple", "set", "enumerate", "zip",
+)
+namespace = {"__builtins__": {name: getattr(builtins, name) for name in names}}
+buffer = io.StringIO()
+try:
+    with contextlib.redirect_stdout(buffer):
+        exec(sys.stdin.read(), namespace)
+    output = buffer.getvalue().strip()
+    value = str(namespace.get("result", "")).strip()
+    if not value and output:
+        value = output.splitlines()[-1].strip()
+    if not value:
+        raise ValueError("code produced no result")
+    print(json.dumps(["ok", value]))
+except Exception as error:
+    print(json.dumps(["error", f"{type(error).__name__}: {error}"]))
+"""
 
 
 def run_python_sandboxed(code: str, timeout: float = 5.0) -> tuple[bool, str]:
-    """Chạy code trong process con, builtins bị giới hạn, không import/open/exec/eval.
-    Trả (thành_công, ket_qua_hoac_loi). result phải được code gán vào biến `result`.
+    """Chạy code trong interpreter con tối thiểu, không import lại MLX/Metal.
+
+    Builtins bị giới hạn và import/open/exec/eval bị chặn. Đây là helper cho
+    môi trường thí nghiệm được kiểm soát, không phải security boundary.
+    Trả (thành_công, ket_qua_hoac_loi). Code nên gán kết quả vào `result`.
     """
     if re.search(r"\b(import|open|exec|eval|__import__|__builtins__|subprocess|os\.)\b", code):
         return False, "blocked keyword in code"
-    q: mp.Queue = mp.Queue()
-    p = mp.Process(target=_worker, args=(code, q))
-    p.start()
-    p.join(timeout)
-    if p.is_alive():
-        p.terminate()
-        p.join()
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-I", "-c", _PAL_RUNNER],
+            input=code,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
         return False, "timeout"
-    if q.empty():
-        return False, "no result (crashed?)"
-    status, payload = q.get()
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or f"worker exited {completed.returncode}"
+        return False, detail
+    try:
+        status, payload = json.loads(completed.stdout)
+    except (ValueError, TypeError):
+        return False, "invalid worker response"
     return status == "ok", payload
 
 
