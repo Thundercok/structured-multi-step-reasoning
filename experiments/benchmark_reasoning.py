@@ -608,6 +608,14 @@ def generate_markdown_report(
 # ---------------------------------------------------------------------
 
 def run_benchmark() -> None:
+    raise RuntimeError(
+        "This legacy simulator mixes fitting and evaluation data and is retired as an experiment runner. "
+        "Use python -m experiments.research_study --backend smoke --output runs/smoke instead. "
+        "Existing simulator classes remain available for regression tests."
+    )
+
+
+def _legacy_benchmark_reference() -> None:
     logger.info("Initializing Academic & Quantitative Reasoning Benchmark...")
     dataset = get_expanded_benchmark()
     logger.info(f"Loaded {len(dataset)} evaluation instances across 4 reasoning tiers.")

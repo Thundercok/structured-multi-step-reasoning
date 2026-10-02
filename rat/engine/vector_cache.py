@@ -40,7 +40,7 @@ class VectorCache:
                     c.id as chunk_id, c.doc_id, c.file_path, c.chunk_index, c.embedding,
                     d.file_name, d.file_ext, d.file_size, d.created_at, d.modified_at
                 FROM document_chunks c
-                JOIN documents d ON c.doc_id = d.id
+                JOIN documents d ON c.doc_id = d.id AND c.file_path = d.file_path
                 WHERE c.embedding IS NOT NULL
             """)
             rows = cursor.fetchall()

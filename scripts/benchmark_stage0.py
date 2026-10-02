@@ -12,7 +12,6 @@ import os
 from pathlib import Path
 import platform
 import random
-import re
 import resource
 import sqlite3
 import subprocess
@@ -111,7 +110,7 @@ def worker(args):
     from rat.config import config
     config.db_path = args.snapshot
     config.use_slm = False
-    from rat.crawler.db import Database, remove_vietnamese_accents
+    from rat.crawler.db import Database, build_fts_query
     from rat.engine.context_parser import ContextParser
     from rat.engine.embedder import LocalEmbedder, DEFAULT_EMBED_MODEL
     from rat.engine.llm_client import LLMClient
@@ -123,7 +122,7 @@ def worker(args):
     from fastembed import TextEmbedding
     import numpy as np
 
-    database = Database(args.snapshot)
+    database = Database(args.snapshot, read_only=True)
     encoder = LocalEmbedder()
     vectors = VectorCache(database)
     fuser = MultiWayRRF()
@@ -148,18 +147,11 @@ def worker(args):
         return matrix[0] / norm
 
     def bm25_candidates(plan, filters):
-        terms = []
-        for keyword in plan.lexical_keywords:
-            safe = re.sub(r"[^\w]+", "", keyword.strip())
-            if safe:
-                terms.append(f"{safe}*")
-                unaccented = remove_vietnamese_accents(safe)
-                if unaccented != safe.lower():
-                    terms.append(f"{unaccented}*")
-        if not terms:
+        fts_query = build_fts_query(plan.lexical_keywords)
+        if not fts_query:
             return []
         conditions = ["documents_fts MATCH ?"]
-        parameters = [" OR ".join(terms)]
+        parameters = [fts_query]
         for name, operator, values in (
             ("file_ext", "IN", plan.extensions),
             ("file_ext", "NOT IN", plan.excluded_extensions),
@@ -232,6 +224,8 @@ def worker(args):
                     rss_mb=float(command("ps", "-o", "rss=", "-p", str(os.getpid()))) / 1024)
 
     with ExitStack() as stack:
+        from rat.crawler.dedup import dedup_engine
+        stack.enter_context(patch.object(dedup_engine, "db", database))
         for cls, methods in ((LLMClient, ("generate", "call_llm", "query_gemini", "query_openai", "query_ollama")),
                              (SLMEngine, ("generate", "generate_stream", "deconstruct_query"))):
             for name in methods:
@@ -298,6 +292,7 @@ def main():
             model=DEFAULT_EMBED_MODEL, embedding_model_provenance="index does not persist model identity; assumed, not verified",
             git_sha=command("git", "rev-parse", "HEAD"), git_status=command("git", "status", "--porcelain"),
             source_sha256=source_hashes, snapshot_sha256=file_hash(snapshot),
+            database_mode="read-only worker connections; no schema initialization",
             query_sha256=file_hash(query_file), queries=queries, iterations=args.iterations,
             power_source=command("pmset", "-g", "batt") if sys.platform == "darwin" else "unknown",
             platform=platform.platform(), python=sys.version,
@@ -328,8 +323,16 @@ def main():
             payload["error"] = str(error)
             raise
         finally:
+            final_snapshot_hash = file_hash(snapshot)
+            payload["manifest"]["snapshot_sha256_after"] = final_snapshot_hash
+            snapshot_changed = final_snapshot_hash != payload["manifest"]["snapshot_sha256"]
+            if snapshot_changed:
+                payload["status"] = "failed"
+                payload["error"] = "Benchmark snapshot changed during workers"
             output.write_text(json.dumps(payload, indent=2, ensure_ascii=False))
             print(output)
+            if snapshot_changed:
+                raise RuntimeError(payload["error"])
 
 
 if __name__ == "__main__":

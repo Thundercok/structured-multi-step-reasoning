@@ -350,26 +350,29 @@ class ContextParser:
         if excluded_extensions and extensions:
             extensions = [e for e in extensions if e not in excluded_extensions]
 
-        # Extract core keywords by removing temporal words, type words, exclusion words, and stopwords
-        q_norm = remove_accents(cleaned_raw)
-
-        # Protect Vietnamese compound phrases before tokenization.
-        # Replace matched compounds with underscore-joined tokens so they survive stopword filtering.
-        q_protected = q_norm
+        keyword_text = unicodedata.normalize("NFC", cleaned_raw)
+        word_matches = list(re.finditer(r"\w+", keyword_text))
+        normalized_words = [remove_accents(match.group()) for match in word_matches]
+        remaining_text = list(keyword_text)
+        consumed_words: Set[int] = set()
         found_compounds: List[str] = []
-        for compound in sorted(PROTECTED_COMPOUNDS, key=len, reverse=True):
-            if compound in q_protected:
-                placeholder = compound.replace(" ", "_")
-                q_protected = q_protected.replace(compound, placeholder)
-                found_compounds.append(compound)
+        for compound in sorted(PROTECTED_COMPOUNDS, key=lambda value: (-len(value), value)):
+            parts = compound.split()
+            for start in range(len(normalized_words) - len(parts) + 1):
+                stop = start + len(parts)
+                if normalized_words[start:stop] != parts or consumed_words.intersection(range(start, stop)):
+                    continue
+                if not all(keyword_text[word_matches[index].end():word_matches[index + 1].start()].isspace()
+                           for index in range(start, stop - 1)):
+                    continue
+                span_start, span_end = word_matches[start].start(), word_matches[stop - 1].end()
+                remaining_text[span_start:span_end] = " " * (span_end - span_start)
+                consumed_words.update(range(start, stop))
+                if compound not in found_compounds:
+                    found_compounds.append(compound)
 
-        # Tokenize by non-alphanumeric
-        tokens = re.findall(r"[\w\.\-]+", cleaned_raw)
-        clean_keywords: List[str] = []
-
-        # Add protected compound phrases as keywords directly
-        for compound in found_compounds:
-            clean_keywords.append(compound.replace("_", " "))
+        tokens = re.findall(r"[\w\.\-]+", "".join(remaining_text))
+        clean_keywords = list(found_compounds)
 
         exclusion_tokens = set([remove_accents(k).lower() for k in excluded_keywords])
         exclusion_markers = {"khong", "phai", "lay", "chua", "tru", "loai", "except", "not", "without"}

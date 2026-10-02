@@ -32,7 +32,29 @@ def test_fit_threshold_picks_global_optimum_on_toy_example():
     value_stop = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
     value_escalate = np.array([1.0, 1.0, -1.0, -1.0, -1.0])  # đáng escalate chỉ khi conf<0.5
     tau = fit_threshold(value_stop, value_escalate, conf)
-    assert 0.3 < tau < 0.5
+    assert 0.3 < tau <= 0.5
+
+
+def test_threshold_cannot_split_equal_confidences():
+    confidence = np.array([0.2, 0.2, 0.8])
+    stop = np.zeros(3)
+    escalate = np.array([3.0, -4.0, -1.0])
+    threshold = fit_threshold(stop, escalate, confidence)
+    realized_value = np.where(confidence < threshold, escalate, stop).sum()
+    assert realized_value == 0.0
+
+
+def test_tied_threshold_matches_exhaustive_feasible_cuts():
+    generator = np.random.default_rng(123)
+    for _ in range(50):
+        confidence = generator.choice([0.0, 0.5, 1.0], size=20)
+        stop = generator.normal(size=20)
+        escalate = generator.normal(size=20)
+        threshold = fit_threshold(stop, escalate, confidence)
+        candidates = [*np.unique(confidence), np.nextafter(confidence.max(), np.inf)]
+        expected = max(np.where(confidence < candidate, escalate, stop).sum() for candidate in candidates)
+        actual = np.where(confidence < threshold, escalate, stop).sum()
+        assert np.isclose(actual, expected)
 
 
 def test_fit_threshold_handles_escalate_none_and_all():

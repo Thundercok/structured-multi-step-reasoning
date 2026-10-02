@@ -7,7 +7,6 @@ from __future__ import annotations
 import logging
 import time
 import threading
-import warnings
 from typing import List, Optional, Union
 
 import numpy as np
@@ -15,6 +14,10 @@ import numpy as np
 logger = logging.getLogger("rat.embedder")
 
 DEFAULT_EMBED_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+
+
+class EmbeddingError(RuntimeError):
+    """Embedding could not be generated; no fabricated vector is returned."""
 
 
 class LocalEmbedder:
@@ -65,15 +68,19 @@ class LocalEmbedder:
                     try:
                         from fastembed import TextEmbedding
                         logger.info(f"Loading local embedding model: {self.model_name}")
-                        with warnings.catch_warnings():
-                            warnings.filterwarnings("ignore", message=".*uses mean pooling instead of CLS embedding.*")
-                            self._model = TextEmbedding(model_name=self.model_name)
-                        # Determine dimension with a dummy embedding
-                        dummy = list(self._model.embed(["test"]))[0]
-                        self._dimension = len(dummy)
-                    except Exception as e:
-                        logger.error(f"Failed to initialize FastEmbed: {e}")
+                        model = TextEmbedding(model_name=self.model_name)
+                        dummy = np.asarray(list(model.embed(["test"])), dtype=np.float32)
+                        if dummy.ndim != 2 or dummy.shape[0] != 1 or dummy.shape[1] == 0:
+                            raise ValueError("Invalid embedding model output shape")
+                        norm = np.linalg.norm(dummy[0])
+                        if not np.isfinite(dummy).all() or not np.isfinite(norm) or norm <= 0:
+                            raise ValueError("Invalid embedding model output values")
+                        self._dimension = dummy.shape[1]
+                        self._model = model
+                    except Exception as error:
+                        logger.error("Failed to initialize FastEmbed: %s", error)
                         self._model = None
+                        raise EmbeddingError(f"FastEmbed initialization failed for {self.model_name}") from error
         self._last_accessed = time.time()
         return self._model
 
@@ -92,22 +99,22 @@ class LocalEmbedder:
 
         model = self._load_model()
         if model is None:
-            # Fallback random normalized vectors if model fails to load
-            vecs = np.random.randn(len(texts), self._dimension).astype(np.float32)
-            norms = np.linalg.norm(vecs, axis=1, keepdims=True)
-            return vecs / np.maximum(norms, 1e-12)
+            raise EmbeddingError("No embedding model is available")
 
         try:
             embeddings_gen = model.embed(texts, batch_size=batch_size)
             vec_list = [np.array(vec, dtype=np.float32) for vec in embeddings_gen]
             matrix = np.vstack(vec_list)
 
-            # Ensure vectors are unit L2-normalized for pure dot-product cosine similarity
+            if matrix.shape != (len(texts), self._dimension) or not np.isfinite(matrix).all():
+                raise ValueError("Invalid embedding shape or non-finite values")
             norms = np.linalg.norm(matrix, axis=1, keepdims=True)
-            return matrix / np.maximum(norms, 1e-12)
-        except Exception as e:
-            logger.error(f"Error generating embeddings: {e}")
-            return np.zeros((len(texts), self._dimension), dtype=np.float32)
+            if not np.isfinite(norms).all() or np.any(norms <= 0):
+                raise ValueError("Invalid embedding norm")
+            return matrix / norms
+        except Exception as error:
+            logger.error("Error generating embeddings: %s", error)
+            raise EmbeddingError("Failed to generate valid embeddings") from error
 
     def embed_query(self, query: str) -> np.ndarray:
         """
@@ -124,7 +131,7 @@ class LocalEmbedder:
                 return self._query_cache[clean_q].copy()
 
         matrix = self.embed_texts([clean_q])
-        res = matrix[0] if len(matrix) > 0 else np.zeros(self._dimension, dtype=np.float32)
+        res = matrix[0]
 
         with self._cache_lock:
             if len(self._query_cache) >= self._cache_maxsize:

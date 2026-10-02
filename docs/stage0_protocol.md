@@ -53,6 +53,20 @@ assumption, explicitly recorded in the manifest. Models must already be cached;
 missing models or invalid vectors fail the run instead of silently using random
 embeddings. No index content or file paths are included in samples.
 
+Workers now use explicit read-only database connections, including deduplication;
+they do not run schema initialization. The manifest records before/after snapshot
+hashes and fails the run if they differ. Older runs made before lazy database
+initialization must be audited separately: importing RAT could mutate their
+snapshots. Multiword FTS terms now use the shared production phrase builder;
+compound-parser changes require a new baseline, not reuse of old latency or
+ranking numbers. The heuristic label alone does not version the full pipeline.
+
+Use `scripts/audit_embedding_drift.py` on a closed snapshot to check a seeded
+sample for inconsistency with the cached current model (see `index_integrity.md`).
+This does not establish the old model's identity or repair stored vectors. A
+latency run can still describe a suspect corpus, but must not be presented as
+validated relevance evidence.
+
 Each method runs in a fresh process. Cold is its first query with lazy model/vector
 loading included; Python import time is excluded and OS disk caches are not
 flushed. One cold sample is descriptive only, not a tail-latency estimate. All
@@ -81,3 +95,11 @@ query IDs, iteration, cold/warm phase, result/candidate counts, stage times, cur
 RSS and worker peak RSS accompany recomputable percentiles. A failed worker yields
 a failed partial JSON, never a successful baseline. Do not average run percentiles
 or infer statistical significance from this small default suite.
+
+Hybrid total latency is not the sum of independently measured component medians.
+Inspect paired per-query totals and stage timings when hybrid appears faster
+than lexical. Worker order is fixed, OS cache is not flushed, and CPU/BLAS thread
+scheduling and different candidate sets can confound cross-worker comparisons.
+These are possible explanations to investigate, not proof of a cause. An old
+run without its original snapshot cannot establish what caused an inversion;
+retain that limitation even after collecting a new baseline.

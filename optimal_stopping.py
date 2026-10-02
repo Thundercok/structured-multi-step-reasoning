@@ -31,18 +31,27 @@ def collect_calibration_data(backend: LLMBackend, dataset, check) -> Calibration
 def fit_threshold(value_stop: np.ndarray, value_escalate: np.ndarray, conf: np.ndarray) -> float:
     """Ngưỡng tau tối đa hoá sum(value_escalate nếu conf<tau else value_stop).
     Quét mọi điểm cắt có thể giữa các giá trị conf đã sort - O(n log n), tối ưu toàn cục trên tập này."""
+    if conf.ndim != 1 or not len(conf):
+        raise ValueError("Threshold fitting requires a nonempty confidence vector")
+    if value_stop.shape != conf.shape or value_escalate.shape != conf.shape:
+        raise ValueError("Threshold inputs must have matching shapes")
+    if not all(np.isfinite(values).all() for values in (conf, value_stop, value_escalate)):
+        raise ValueError("Threshold inputs must be finite")
     order = np.argsort(conf)
-    c, vs, ve = conf[order], value_stop[order], value_escalate[order]
+    sorted_conf = conf[order]
+    sorted_stop = value_stop[order]
+    sorted_escalate = value_escalate[order]
     # escalate đúng i điểm conf nhỏ nhất, stop phần còn lại: total(i) = total(i-1) + (ve[i-1]-vs[i-1])
     # => total(i) = total(0) + cumsum(gain)[:i], total(0) = sum(vs) (escalate 0 điểm)
-    gain = ve - vs
-    totals = vs.sum() + np.concatenate([[0.0], np.cumsum(gain)])
-    best_i = int(np.argmax(totals))
-    if best_i == 0:
-        return float(c[0]) - 1e-6  # escalate 0 điểm
-    if best_i == len(c):
-        return float(c[-1]) + 1e-6  # escalate hết
-    return float((c[best_i - 1] + c[best_i]) / 2)
+    gain = sorted_escalate - sorted_stop
+    totals = sorted_stop.sum() + np.concatenate([[0.0], np.cumsum(gain)])
+    boundaries = np.concatenate(([0], np.flatnonzero(np.diff(sorted_conf) > 0) + 1, [len(conf)]))
+    best_boundary = int(boundaries[np.argmax(totals[boundaries])])
+    if best_boundary == 0:
+        return float(np.nextafter(sorted_conf[0], -np.inf))
+    if best_boundary == len(conf):
+        return float(np.nextafter(sorted_conf[-1], np.inf))
+    return float(sorted_conf[best_boundary])
 
 
 class OptimalStoppingPolicy:

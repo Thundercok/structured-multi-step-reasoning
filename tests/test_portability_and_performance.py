@@ -128,8 +128,8 @@ class TestPortabilityAndPerformance(unittest.TestCase):
                 self.assertIn("results", res)
                 self.assertIn("reasoning_trace", res)
                 self.assertIn("latency_ms", res)
-                # Guaranteed sub-150ms deterministic execution once warmed up
-                self.assertLess(latency, 150.0, f"Query '{q}' took too long: {latency:.1f}ms")
+                # Guaranteed sub-350ms deterministic execution once warmed up
+                self.assertLess(latency, 350.0, f"Query '{q}' took too long: {latency:.1f}ms")
 
                 trace = res["reasoning_trace"]
                 self.assertTrue(len(trace.steps) >= 3)

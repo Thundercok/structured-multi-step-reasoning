@@ -52,7 +52,8 @@ class TestRatAssistant(unittest.TestCase):
     def test_context_parser_file_types(self) -> None:
         ctx_word = ContextParser.parse_query("tìm tài liệu word kế hoạch")
         self.assertIn(".docx", ctx_word.extensions)
-        self.assertIn("kế", ctx_word.keywords)
+        self.assertIn("ke hoach", ctx_word.keywords)
+        self.assertNotIn("kế", ctx_word.keywords)
 
         ctx_pdf = ContextParser.parse_query("file pdf hợp đồng thuê nhà")
         self.assertIn(".pdf", ctx_pdf.extensions)
@@ -123,7 +124,8 @@ class TestRatAssistant(unittest.TestCase):
         self.assertIn(".pdf", ctx.excluded_extensions)
         self.assertNotIn(".docx", ctx.extensions)
         self.assertNotIn(".pdf", ctx.extensions)
-        self.assertIn("kế", ctx.keywords)
+        self.assertIn("ke hoach", ctx.keywords)
+        self.assertNotIn("kế", ctx.keywords)
 
     def test_provenance_search(self) -> None:
         doc = {
@@ -361,4 +363,3 @@ class TestRatAssistant(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -12,7 +12,6 @@ from typing import Any, Dict, List
 # Default Paths
 HOME_DIR = Path.home()
 RAT_DIR = HOME_DIR / ".rat"
-RAT_DIR.mkdir(parents=True, exist_ok=True)
 
 CONFIG_FILE = RAT_DIR / "config.json"
 DEFAULT_DB_PATH = RAT_DIR / "rat_index.db"
@@ -92,7 +91,7 @@ def set_thread_qos_background() -> bool:
 
 class Config:
     def __init__(self) -> None:
-        self.db_path: str = str(DEFAULT_DB_PATH)
+        self.db_path: str = str(Path(os.getenv("RAT_DB_PATH") or DEFAULT_DB_PATH).expanduser())
         self.indexed_directories: List[str] = [
             d for d in DEFAULT_WATCH_DIRS if os.path.exists(d)
         ]
@@ -180,6 +179,7 @@ class Config:
             "deep_idle_timeout_seconds": self.deep_idle_timeout_seconds,
             "memory_pressure_eviction_enabled": self.memory_pressure_eviction_enabled,
         }
+        CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
