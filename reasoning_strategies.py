@@ -93,11 +93,119 @@ def parse_action(text: str) -> tuple[str, str] | None:
     return (m.group(1).lower(), m.group(2).strip()) if m else None
 
 
-def majority_vote(answers: list[str]) -> tuple[str, float]:
+def is_wordy_answer(ans: str) -> bool:
+    """True nếu Answer không phải số, không phải từ/tên đơn lẻ, và không phải biểu thức số học."""
+    ans = (ans or "").strip()
+    if not ans:
+        return False
+    if any(tok in ans for tok in ("\\", r"\text", r"\frac", "{", "}")):
+        return True
+    expr_chars = set("0123456789+-*/().= ×÷")
+    if set(ans).issubset(expr_chars) and any(c.isdigit() for c in ans):
+        return False
+    num = extract_number(ans)
+    if num is not None:
+        words = ans.split()
+        if len(words) <= 2:
+            return False
+    if re.fullmatch(r"[A-Za-z0-9_-]+\.?", ans):
+        return False
+    return True
+
+
+def parse_answer_details(text: str) -> tuple[str, str, bool]:
+    """
+    Trích xuất đáp án và phân loại:
+    Returns (answer, parse_status, wordy).
+    parse_status in {"marker", "fallback", "fail"}.
+    wordy: True nếu answer không phải số, từ/tên, hay biểu thức.
+    'fail' gồm cả chuỗi rỗng, câu giải thích dài, và LaTeX.
+    """
+    matches = ANSWER_LINE.findall(text)
+    placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
+    ans = ""
+    status = "fail"
+    if matches:
+        for cand in reversed(matches):
+            c_clean = cand.strip().strip(".")
+            if c_clean:
+                number = extract_conclusion_number(c_clean)
+                placeholder_prefix = next((
+                    placeholder for placeholder in placeholders
+                    if c_clean.casefold().startswith(placeholder)
+                ), None)
+                if placeholder_prefix and number is None:
+                    continue
+                yes_no = YES_NO_ANSWER.match(c_clean)
+                if yes_no:
+                    ans = yes_no.group(1)
+                else:
+                    ans = number if number is not None else c_clean
+                status = "marker"
+                break
+    if not ans:
+        lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
+        for l in reversed(lines):
+            answer_match = ANSWER_LINE.fullmatch(l)
+            if answer_match and answer_match.group(1).strip().strip(".").casefold() in placeholders:
+                continue
+            if l.casefold() in placeholders or l.startswith("```"):
+                continue
+            yes_no = YES_NO_ANSWER.match(l)
+            if yes_no:
+                ans = yes_no.group(1)
+            else:
+                number = extract_conclusion_number(l)
+                ans = number if number is not None else l
+            status = "fallback"
+            break
+
+    wordy = is_wordy_answer(ans)
+    if not ans or wordy or any(tok in ans for tok in ("\\", r"\text", "{", "}")):
+        status = "fail"
+
+    return ans, status, wordy
+
+
+def canonicalize_answer(s: str) -> str:
+    """Chuẩn hoá: số -> số; text -> lower/strip; biểu thức -> bỏ khoảng trắng."""
+    s = (s or "").strip()
+    if not s:
+        return ""
+    is_expr = any(op in s for op in ("+", "*", "/", "=")) or ("-" in s and not re.match(r"^-\d", s.strip()))
+    num = extract_number(s)
+    if num is not None and not is_expr:
+        try:
+            f = float(num)
+            if f.is_integer():
+                return str(int(f))
+            return str(f)
+        except ValueError:
+            pass
+    if is_expr and any(c.isdigit() for c in s):
+        expr_body = s.split("=")[-1] if "=" in s and not s.strip().endswith("=") else s
+        return "".join(expr_body.split())
+    return s.strip().lower()
+
+
+def majority_vote(answers: list[str], return_tie: bool = False) -> tuple[str, float] | tuple[str, float, bool]:
+    """Vote trên dạng chuẩn hoá, trả dạng chuẩn hoá. Hoà phiếu -> mẫu đầu, ghi tie=True."""
     if not answers:
-        return "", 0.0
-    vote, count = Counter(answers).most_common(1)[0]
-    return vote, count / len(answers)
+        return ("", 0.0, False) if return_tie else ("", 0.0)
+    canonical_list = [canonicalize_answer(a) for a in answers]
+    counts = Counter(canonical_list)
+    most_common = counts.most_common()
+    max_count = most_common[0][1]
+    top_candidates = [cand for cand, count in most_common if count == max_count]
+    is_tie = len(top_candidates) > 1 and len(answers) > 1
+    if is_tie:
+        winner = next(c for c in canonical_list if c in top_candidates)
+    else:
+        winner = top_candidates[0]
+    ratio = max_count / len(answers)
+    if return_tie:
+        return winner, ratio, is_tie
+    return winner, ratio
 
 
 # ---------- calculator an toàn cho ReAct (chỉ số học, không eval()) ----------

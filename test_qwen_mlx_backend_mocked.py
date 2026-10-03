@@ -221,6 +221,56 @@ def test_internal_signals_tracked_in_backend():
     assert 0.0 <= b.last_signals["mean_entropy"] <= 1.0
 
 
+def test_no_placeholders_in_prompts():
+    import re
+    import qwen_mlx_backend as qmb
+    from reasoning_env import ReasoningAction as A
+
+    constants = [
+        qmb.COT_SUFFIX,
+        qmb.DIRECT_SUFFIX,
+        qmb.REACT_SYSTEM,
+        qmb.PAL_SUFFIX,
+    ]
+    for msg in qmb.REACT_EXAMPLE:
+        constants.append(msg["content"])
+
+    b = make_backend()
+    captured = list(constants)
+    def capture_chat(messages, *args, **kwargs):
+        for m in messages:
+            captured.append(m["content"])
+        return "Answer: 42", 0.9, 10
+    b._chat = capture_chat
+
+    b.run(A.DIRECT, "Test query")
+    b.run(A.COT, "Test query")
+    b.run(A.SELF_CONSISTENCY, "Test query")
+    b.run(A.TOT, "Test query")
+    b.run(A.REACT, "Test query")
+    b.run(A.PAL, "Test query")
+
+    pattern = re.compile(r"<[^>\n]{1,30}>")
+    violations = []
+    for text in captured:
+        for m in pattern.findall(text):
+            if m in ("<think>", "</think>") or m.startswith("<|"):
+                continue
+            violations.append((m, text))
+
+    assert not violations, f"Found placeholders in prompts: {violations}"
+
+
+def test_sc_votes_on_canonical_answers():
+    from reasoning_strategies import majority_vote
+
+    samples = ['192', '192 slices', 'The result is 192', '190', '192.0']
+    winner, ratio = majority_vote(samples)
+    assert winner == '192', f"Expected canonical '192', got {winner!r}"
+    assert abs(ratio - 0.8) < 1e-4, f"Expected ratio 0.8, got {ratio}"
+
+
+
 def b_run(strategy, query, **kw):
     b = make_backend()
     if strategy == A.REACT and "max_turns" in kw:

@@ -14,12 +14,13 @@ from reasoning_strategies import (
     extract_code,
     majority_vote,
     parse_action,
+    parse_answer_details,
     run_python_sandboxed,
     safe_calculate,
 )
 
-COT_SUFFIX = "\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."
-DIRECT_SUFFIX = "\nTrả lời trực tiếp, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."
+COT_SUFFIX = "\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: ' rồi chỉ đáp án cuối (một số không đơn vị, một từ/tên, hoặc một biểu thức), không thêm câu chữ."
+DIRECT_SUFFIX = "\nTrả lời trực tiếp, kết thúc bằng đúng 1 dòng 'Answer: ' rồi chỉ đáp án cuối (một số không đơn vị, một từ/tên, hoặc một biểu thức), không thêm câu chữ."
 REACT_SYSTEM = (
     "Solve the problem with ReAct. Every response must contain exactly two lines: "
     "one Thought line and one Action line. The action must be calculate[...] or "
@@ -74,13 +75,27 @@ class QwenMLXBackend:
 
     # ---- strategies ----
 
+    def _record_status(self, ans: str, raw_text: str | None = None) -> None:
+        if hasattr(self, "last_trace") and self.last_trace:
+            _, status, wordy = parse_answer_details(raw_text if raw_text is not None else f"Answer: {ans}")
+            self.last_trace["parse_status"] = status
+            self.last_trace["wordy"] = wordy
+
     def _direct(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + DIRECT_SUFFIX}], temp=0.0)
-        return extract_answer(text), conf, n_tok
+        ans, status, wordy = parse_answer_details(text)
+        if hasattr(self, "last_trace") and self.last_trace:
+            self.last_trace["parse_status"] = status
+            self.last_trace["wordy"] = wordy
+        return ans, conf, n_tok
 
     def _cot(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + COT_SUFFIX}], temp=0.0)
-        return extract_answer(text), conf, n_tok
+        ans, status, wordy = parse_answer_details(text)
+        if hasattr(self, "last_trace") and self.last_trace:
+            self.last_trace["parse_status"] = status
+            self.last_trace["wordy"] = wordy
+        return ans, conf, n_tok
 
     def _self_consistency(self, query: str, k: int = 5) -> tuple[str, float, int]:
         msgs = [{"role": "user", "content": query + COT_SUFFIX}]
@@ -89,7 +104,10 @@ class QwenMLXBackend:
             text, _, n_tok = self._chat(msgs, temp=0.7)
             answers.append(extract_answer(text))
             total_tok += n_tok
-        vote, ratio = majority_vote(answers)
+        vote, ratio, is_tie = majority_vote(answers, return_tie=True)
+        self._record_status(vote)
+        if hasattr(self, "last_trace") and self.last_trace:
+            self.last_trace["tie"] = is_tie
         return vote, ratio, total_tok
 
     def _tot(self, query: str, branches: int = 3) -> tuple[str, float, int]:
@@ -123,6 +141,7 @@ class QwenMLXBackend:
             "selected_index": idx,
             "selection": selection,
         })
+        self._record_status(answer)
         return answer, eval_conf, total_tok
 
     def _react(self, query: str, max_turns: int = 4) -> tuple[str, float, int]:
@@ -141,6 +160,7 @@ class QwenMLXBackend:
                 break
             act, arg = parsed
             if act == "finish":
+                self._record_status(arg, f"Answer: {arg}")
                 return arg, last_conf, total_tok
             if act == "calculate":
                 observation = safe_calculate(arg)
@@ -150,8 +170,9 @@ class QwenMLXBackend:
                 msgs.append({"role": "user", "content": f"Observation: {observation}"})
             else:
                 break
-        # hết lượt mà chưa finish() rõ ràng -> vẫn trả câu trả lời cuối nhưng hạ confidence
-        return extract_answer(msgs[-1]["content"]), last_conf * 0.7, total_tok
+        ans = extract_answer(msgs[-1]["content"])
+        self._record_status(ans, msgs[-1]["content"])
+        return ans, last_conf * 0.7, total_tok
 
     def _pal(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + PAL_SUFFIX}], temp=0.0)
@@ -161,6 +182,7 @@ class QwenMLXBackend:
             "name": "python", "input": code, "ok": ok, "output": result,
         })
         answer = extract_answer(result) if ok else extract_answer(text)
+        self._record_status(answer, f"Answer: {result}" if ok else text)
         return answer, (conf if ok else conf * 0.3), n_tok
 
     # ---- shared generation ----
