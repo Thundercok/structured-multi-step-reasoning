@@ -1,0 +1,35 @@
+=== HF CACHE INVENTORY: mlx-community/Qwen3-8B-4bit ===
+total 0
+drwxr-xr-x@ 5 thundercock2  staff  160 Sep 29 21:05 .
+drwxr-xr-x@ 7 thundercock2  staff  224 Sep 29 21:05 ..
+drwxr-xr-x@ 3 thundercock2  staff   96 Sep 29 21:05 blobs
+drwxr-xr-x@ 3 thundercock2  staff   96 Sep 29 21:05 refs
+drwxr-xr-x@ 3 thundercock2  staff   96 Sep 29 21:05 snapshots
+
+/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit//blobs:
+total 24
+drwxr-xr-x@ 3 thundercock2  staff    96 Sep 29 21:05 .
+drwxr-xr-x@ 5 thundercock2  staff   160 Sep 29 21:05 ..
+-rw-r--r--@ 1 thundercock2  staff  9706 Sep 29 21:05 7345216a0785dc7086e8c245b2a9d3896ce2b756
+
+/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit//refs:
+total 8
+drwxr-xr-x@ 3 thundercock2  staff   96 Sep 29 21:05 .
+drwxr-xr-x@ 5 thundercock2  staff  160 Sep 29 21:05 ..
+-rw-r--r--@ 1 thundercock2  staff   40 Sep 29 21:05 main
+
+/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit//snapshots:
+total 0
+drwxr-xr-x@ 3 thundercock2  staff   96 Sep 29 21:05 .
+drwxr-xr-x@ 5 thundercock2  staff  160 Sep 29 21:05 ..
+drwxr-xr-x@ 3 thundercock2  staff   96 Sep 29 21:05 545dc4251c05440727734bcd94334791f6ab0192
+
+/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit//snapshots/545dc4251c05440727734bcd94334791f6ab0192:
+total 0
+drwxr-xr-x@ 3 thundercock2  staff  96 Sep 29 21:05 .
+drwxr-xr-x@ 3 thundercock2  staff  96 Sep 29 21:05 ..
+lrwxr-xr-x@ 1 thundercock2  staff  52 Sep 29 21:05 tokenizer_config.json -> ../../blobs/7345216a0785dc7086e8c245b2a9d3896ce2b756
+
+=== ATTEMPT OFFLINE LOAD ===
+Attempting to load mlx-community/Qwen3-8B-4bit from local HF cache (HF_HUB_OFFLINE=1)...
+LOAD_FAILED: FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192/config.json'
