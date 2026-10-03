@@ -1,0 +1,25 @@
+{
+  "gen_v2.json": {
+    "size_bytes": 133547,
+    "sha256": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+    "generator": "gen_tasks.py 0.1",
+    "seed": 0,
+    "n_per_level": 15,
+    "n_items": 180,
+    "sha256_items": "1ce47ca2fd9d22e9b790424278dcac8a0f99b71e4511f21203cc0f6a3bcf4e2a"
+  },
+  "gen_tune.json": {
+    "size_bytes": 70541,
+    "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+    "generator": "gen_tasks.py 0.1",
+    "seed": 1000,
+    "n_per_level": 8,
+    "n_items": 94,
+    "sha256_items": "f1b4847273eb04f1420b7c2e1c9ab39cf74a4d9dd460a9e9a08c2e58a2e7ee1e",
+    "sha256_items_previous": "4b6b1c819fbfbed48ba1b85571d2e114cbd7b9feaad5160519c3b771bc78c736",
+    "dropped_ids": [
+      "g24_0007_en_orig",
+      "g24_0013_en_orig"
+    ]
+  }
+}

@@ -50,6 +50,16 @@ def test_answer_checker_rejects_substrings_negation_and_trailing_wrong_numbers()
     text = {"answer_type": "text", "answer": "yes"}
     assert check_answer(" YES ", text)
     assert not check_answer("not yes", text)
+    # Procedural families (arith, order, g24)
+    arith_item = {"family": "arith", "answer": "52"}
+    assert check_answer("52.0", arith_item)
+    assert not check_answer("51", arith_item)
+    order_item = {"family": "order", "answer": "Heidi"}
+    assert check_answer("Heidi finished in 4th place", order_item)
+    assert not check_answer("Bob", order_item)
+    g24_item = {"family": "g24", "answer": "((10+(13+3))-2)", "meta": {"numbers": [10, 13, 2, 3]}}
+    assert check_answer("10 + 13 + 3 - 2 = 24", g24_item)
+    assert not check_answer("10 + 13 + 2 + 3", g24_item)
 
 
 def test_generation_is_order_independent_and_test_labels_do_not_fit_policy():

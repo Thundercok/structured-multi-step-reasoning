@@ -38,6 +38,9 @@ def normalized_text(value):
 
 
 def check_answer(answer, item):
+    if "family" in item or "checker" in item:
+        from scripts.gen_tasks import check as gen_check
+        return bool(gen_check(item, str(answer) if answer is not None else ""))
     if item["answer_type"] == "text":
         return normalized_text(answer) == normalized_text(item["answer"])
     try:
