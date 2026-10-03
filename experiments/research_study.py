@@ -20,6 +20,7 @@ import numpy as np
 from entry_predictor import EntryPredictor, EntryTrainingData
 from optimal_stopping import CalibrationData, OptimalStoppingPolicy
 from reasoning_env import LADDER, STRATEGIES, complexity_features
+from research_identity import FAMILIES, IDENTITY_VERSION, canonical_problem_id, problem_fingerprint
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,9 +43,16 @@ def check_answer(answer, item):
         from scripts.gen_tasks import check as gen_check
         return bool(gen_check(item, str(answer) if answer is not None else ""))
     if item["answer_type"] == "text":
-        return normalized_text(answer) == normalized_text(item["answer"])
+        labels = [item["answer"], *item.get("answer_aliases", [])]
+        return normalized_text(answer) in {normalized_text(label) for label in labels}
     try:
-        predicted = Decimal(str(answer).strip())
+        if item.get("decimal_separator") == ",":
+            from research_scoring import numeric_literal
+            predicted = numeric_literal(answer, ",")
+            if predicted is None:
+                return False
+        else:
+            predicted = Decimal(str(answer).strip())
         expected = Decimal(str(item["answer"]).strip())
         tolerance = Decimal(str(item.get("tolerance", 0)))
         return predicted.is_finite() and abs(predicted - expected) <= tolerance
@@ -52,7 +60,7 @@ def check_answer(answer, item):
         return False
 
 
-def validate_dataset(dataset):
+def validate_dataset(dataset, *, require_all_splits=True):
     for field in ("name", "version", "source", "license"):
         if not isinstance(dataset.get(field), str) or not dataset[field].strip():
             raise ValueError(f"Dataset requires nonempty {field}")
@@ -60,6 +68,12 @@ def validate_dataset(dataset):
     if not isinstance(items, list) or not items:
         raise ValueError("Dataset requires a nonempty items list")
     identifiers, queries, group_splits, observed_splits = set(), set(), {}, set()
+    problem_groups = {}
+    if dataset.get("identity_version") not in (None, IDENTITY_VERSION):
+        raise ValueError("Unknown procedural identity_version")
+    tuning = dataset.get("role") == "development_tuning"
+    if tuning and require_all_splits:
+        raise ValueError("Development tuning pools cannot be used as a held-out study dataset")
     for item in items:
         for field in ("id", "group_id", "split", "query", "answer", "answer_type"):
             if not isinstance(item.get(field), str) or not item[field].strip():
@@ -75,6 +89,37 @@ def validate_dataset(dataset):
         if existing_split != item["split"]:
             raise ValueError(f"Group {item['group_id']} crosses dataset splits")
         observed_splits.add(item["split"])
+        if tuning and item["split"] == "test":
+            raise ValueError("An exposed tuning pool cannot contain a held-out test split")
+        if "family" in item or "checker" in item:
+            family = item.get("family")
+            if family not in FAMILIES or item.get("checker", family) != family:
+                raise ValueError("Unknown or inconsistent procedural checker")
+            expected_type = "number" if family == "arith" else "text"
+            if item["answer_type"] != expected_type:
+                raise ValueError("Procedural answer_type does not match family")
+            fingerprint = problem_fingerprint(item)
+            group_and_split = (item["group_id"], item["split"])
+            if problem_groups.setdefault(fingerprint, group_and_split) != group_and_split:
+                raise ValueError("Canonical procedural problem crosses groups or splits")
+            problem_id = canonical_problem_id(item)
+            if "problem_id" in item and item["problem_id"] != problem_id:
+                raise ValueError("Incorrect canonical problem_id")
+            if dataset.get("identity_version") == IDENTITY_VERSION and (item.get("problem_id") != problem_id or item["group_id"] != problem_id):
+                raise ValueError("Canonical releases require problem_id and group_id to match identity")
+            from scripts import gen_tasks
+            rendered = getattr(gen_tasks, f"render_{family}")(item["meta"])
+            if rendered != item["query"]:
+                raise ValueError("Procedural query differs from its declared metadata/template")
+        if item.get("decimal_separator", ".") not in (".", ","):
+            raise ValueError("Unknown decimal_separator")
+        if "answer_aliases" in item:
+            aliases = item["answer_aliases"]
+            if item["answer_type"] != "text" or not isinstance(aliases, list) or not aliases or not all(isinstance(alias, str) and alias.strip() for alias in aliases):
+                raise ValueError("answer_aliases require a nonempty list of text answers")
+            normalized = [normalized_text(item["answer"]), *map(normalized_text, aliases)]
+            if len(normalized) != len(set(normalized)):
+                raise ValueError("Duplicate normalized answer aliases")
         if item["answer_type"] == "number":
             try:
                 gold = Decimal(item["answer"])
@@ -83,7 +128,7 @@ def validate_dataset(dataset):
                 raise ValueError("Invalid numeric answer or tolerance") from error
             if not gold.is_finite() or not tolerance.is_finite() or tolerance < 0:
                 raise ValueError("Numeric answers and tolerances must be finite; tolerance >= 0")
-    if observed_splits != set(SPLITS):
+    if require_all_splits and observed_splits != set(SPLITS):
         raise ValueError("Separate train, calibration and test splits are required")
     return items
 
@@ -113,6 +158,13 @@ def seed_for(seed, identifier, action):
 def collect_records(backend, items, seed, set_seed, event_file):
     records = []
     for item in sorted(items, key=lambda entry: entry["id"]):
+        answer_format = {
+            "answer_type": "expression" if item.get("family") == "g24" else "text" if item.get("family") == "order" else item["answer_type"],
+            "decimal_separator": item.get("decimal_separator", "."),
+        }
+        configure = getattr(backend, "configure_answer_format", None)
+        if configure is not None:
+            configure(**answer_format)
         set_seed(seed_for(seed, item["id"], "embed"))
         started = time.perf_counter()
         embedding = np.asarray(backend.embed(item["query"]), dtype=float)
@@ -124,6 +176,7 @@ def collect_records(backend, items, seed, set_seed, event_file):
             "id": item["id"], "group_id": item["group_id"], "split": item["split"],
             "embedding": embedding.tolist(), "embedding_ms": embedding_ms,
             "complexity": complexity_features(item["query"]).tolist(), "attempts": {},
+            "answer_format": answer_format,
         }
         order = np.random.default_rng(seed_for(seed, item["id"], "order")).permutation(len(STRATEGIES))
         for strategy_index in order:
@@ -241,8 +294,7 @@ def paired_interval(results, baseline, metric, seed, repetitions=2000):
     return {"mean_difference": mean, "ci95": np.quantile(draws, [0.025, 0.975]).tolist(), "groups": len(groups)}
 
 
-def summarize(results, lam, seed):
-    results = [{**row, "utility": float(row["correct"]) - lam * row["tokens"] / 1000} for row in results]
+def summarize_methods(results, lam):
     methods = {}
     for method in sorted({row["method"] for row in results}):
         rows = [row for row in results if row["method"] == method]
@@ -255,11 +307,16 @@ def summarize(results, lam, seed):
             "mean_strategy_ms_sum": float(np.mean([row["strategy_ms_sum"] for row in rows])),
             "mean_embedding_ms": float(np.mean([row["embedding_ms"] for row in rows])),
         }
+    return methods
+
+
+def summarize(results, lam, seed):
+    results = [{**row, "utility": float(row["correct"]) - lam * row["tokens"] / 1000} for row in results]
     comparisons = {
         baseline: {metric: paired_interval(results, baseline, metric, seed) for metric in ("correct", "tokens", "utility")}
         for baseline in ("one_shot_router", "fixed_self_consistency", "entry_without_escalation")
     }
-    return {"methods": methods, "paired_full_minus_baseline": comparisons}
+    return {"methods": summarize_methods(results, lam), "paired_full_minus_baseline": comparisons}
 
 
 def write_json(path, data):
@@ -275,6 +332,9 @@ def source_hashes():
     names = (
         "experiments/research_study.py", "optimal_stopping.py", "entry_predictor.py",
         "reasoning_env.py", "reasoning_strategies.py", "pipeline.py", "qwen_mlx_backend.py",
+        "scripts/gen_tasks.py",
+        "research_scoring.py",
+        "research_identity.py",
     )
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in names}
 
@@ -313,12 +373,23 @@ def main(argv=None):
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--backend", choices=("smoke", "mlx"))
     mode.add_argument("--replay", type=Path, help="Recompute a completed run without model calls or changing its settings")
+    mode.add_argument("--aggregate", type=Path, nargs="+", metavar="RUN", help="Aggregate compatible completed runs with distinct generation seeds")
     parser.add_argument("--dataset", type=Path)
     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--lam", type=float)
     parser.add_argument("--output", type=Path, required=True, help="New run directory; existing paths are never overwritten")
     args = parser.parse_args(argv)
+    if args.aggregate:
+        if any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):
+            parser.error("Aggregation uses the frozen input settings; overrides are not allowed")
+        from experiments.research_aggregate import write_aggregate
+
+        try:
+            write_aggregate(args.aggregate, args.output)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        return
     if args.replay and any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):
         parser.error("Replay uses the original dataset, model, seed and lambda; overrides are not allowed")
     args.seed = 42 if args.seed is None else args.seed

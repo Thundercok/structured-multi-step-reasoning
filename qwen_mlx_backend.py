@@ -50,6 +50,21 @@ class QwenMLXBackend:
 
     # ---- LLMBackend protocol ----
 
+    def configure_answer_format(self, answer_type: str, decimal_separator: str = ".") -> None:
+        """Use item format metadata only; the backend never receives gold labels."""
+        if answer_type not in ("number", "text", "expression") or decimal_separator not in (".", ","):
+            raise ValueError("Invalid research answer format")
+        self.answer_format = {"answer_type": answer_type, "decimal_separator": decimal_separator}
+
+    def _parse_answer(self, text: str) -> tuple[str, str, bool]:
+        return parse_answer_details(text, **getattr(self, "answer_format", {}))
+
+    def _extract_answer(self, text: str) -> str:
+        return extract_answer(text, **getattr(self, "answer_format", {}))
+
+    def _vote(self, answers: list[str], return_tie: bool = False):
+        return majority_vote(answers, return_tie=return_tie, **getattr(self, "answer_format", {}))
+
     def embed(self, query: str) -> np.ndarray:
         import mlx.core as mx
 
@@ -59,6 +74,8 @@ class QwenMLXBackend:
 
     def run(self, strategy: A, query: str) -> tuple[str, float, int]:
         self.last_trace = {"strategy": strategy.name, "generations": [], "tools": []}
+        if hasattr(self, "answer_format"):
+            self.last_trace["answer_format"] = dict(self.answer_format)
         return {
             A.DIRECT: self._direct,
             A.COT: self._cot,
@@ -77,13 +94,13 @@ class QwenMLXBackend:
 
     def _record_status(self, ans: str, raw_text: str | None = None) -> None:
         if hasattr(self, "last_trace") and self.last_trace:
-            _, status, wordy = parse_answer_details(raw_text if raw_text is not None else f"Answer: {ans}")
+            _, status, wordy = self._parse_answer(raw_text if raw_text is not None else f"Answer: {ans}")
             self.last_trace["parse_status"] = status
             self.last_trace["wordy"] = wordy
 
     def _direct(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + DIRECT_SUFFIX}], temp=0.0)
-        ans, status, wordy = parse_answer_details(text)
+        ans, status, wordy = self._parse_answer(text)
         if hasattr(self, "last_trace") and self.last_trace:
             self.last_trace["parse_status"] = status
             self.last_trace["wordy"] = wordy
@@ -91,7 +108,7 @@ class QwenMLXBackend:
 
     def _cot(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + COT_SUFFIX}], temp=0.0)
-        ans, status, wordy = parse_answer_details(text)
+        ans, status, wordy = self._parse_answer(text)
         if hasattr(self, "last_trace") and self.last_trace:
             self.last_trace["parse_status"] = status
             self.last_trace["wordy"] = wordy
@@ -102,9 +119,9 @@ class QwenMLXBackend:
         answers, total_tok = [], 0
         for _ in range(k):
             text, _, n_tok = self._chat(msgs, temp=0.7)
-            answers.append(extract_answer(text))
+            answers.append(self._extract_answer(text))
             total_tok += n_tok
-        vote, ratio, is_tie = majority_vote(answers, return_tie=True)
+        vote, ratio, is_tie = self._vote(answers, return_tie=True)
         self._record_status(vote)
         if hasattr(self, "last_trace") and self.last_trace:
             self.last_trace["tie"] = is_tie
@@ -126,10 +143,10 @@ class QwenMLXBackend:
         )
         eval_text, eval_conf, eval_tok = self._chat([{"role": "user", "content": eval_prompt}], temp=0.0)
         total_tok += eval_tok
-        answers = [extract_answer(candidate) for candidate in candidates]
+        answers = [self._extract_answer(candidate) for candidate in candidates]
         idx = extract_best_index(eval_text, branches)
         if idx is None:
-            answer, _ = majority_vote(answers)
+            answer, _ = self._vote(answers)
             selection = "majority_fallback"
         else:
             answer = answers[idx]
@@ -161,7 +178,8 @@ class QwenMLXBackend:
             act, arg = parsed
             if act == "finish":
                 self._record_status(arg, f"Answer: {arg}")
-                return arg, last_conf, total_tok
+                answer = self._extract_answer(f"Answer: {arg}") if hasattr(self, "answer_format") else arg
+                return answer, last_conf, total_tok
             if act == "calculate":
                 observation = safe_calculate(arg)
                 self._record_tool({
@@ -170,7 +188,7 @@ class QwenMLXBackend:
                 msgs.append({"role": "user", "content": f"Observation: {observation}"})
             else:
                 break
-        ans = extract_answer(msgs[-1]["content"])
+        ans = self._extract_answer(msgs[-1]["content"])
         self._record_status(ans, msgs[-1]["content"])
         return ans, last_conf * 0.7, total_tok
 
@@ -181,7 +199,7 @@ class QwenMLXBackend:
         self._record_tool({
             "name": "python", "input": code, "ok": ok, "output": result,
         })
-        answer = extract_answer(result) if ok else extract_answer(text)
+        answer = self._extract_answer(result) if ok else self._extract_answer(text)
         self._record_status(answer, f"Answer: {result}" if ok else text)
         return answer, (conf if ok else conf * 0.3), n_tok
 

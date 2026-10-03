@@ -20,6 +20,7 @@ from PyQt6.QtCore import (
     QObject,
     QParallelAnimationGroup,
     QPoint,
+    QPointF,
     QPropertyAnimation,
     QRect,
     QRectF,
@@ -94,6 +95,42 @@ from rat.ui.settings_dialog import SettingsDialog
 from rat.ui.theme import RAYCAST_QSS, get_ext_badge_info
 
 logger = logging.getLogger("rat.ui.omnibar")
+
+
+def configure_macos_fullscreen_overlay(widget: QWidget) -> None:
+    """
+    Ensure the overlay window floats on top of all macOS Spaces
+    including native full-screen apps (VS Code, Chrome, etc.).
+    """
+    try:
+        import sys
+        if sys.platform != "darwin":
+            return
+        from PyQt6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app and app.platformName() == "offscreen":
+            return
+        import objc
+        from ctypes import c_void_p
+        from AppKit import (
+            NSWindowCollectionBehaviorCanJoinAllSpaces,
+            NSWindowCollectionBehaviorFullScreenAuxiliary,
+            NSFloatingWindowLevel,
+        )
+
+        ns_view = objc.objc_object(c_void_p=int(widget.winId()))
+        ns_window = ns_view.window() if hasattr(ns_view, "window") else None
+        if ns_window:
+            behavior = ns_window.collectionBehavior()
+            ns_window.setCollectionBehavior_(
+                behavior
+                | NSWindowCollectionBehaviorCanJoinAllSpaces
+                | NSWindowCollectionBehaviorFullScreenAuxiliary
+            )
+            ns_window.setLevel_(NSFloatingWindowLevel)
+    except Exception as e:
+        logger.debug(f"macOS fullscreen overlay config error: {e}")
+
 
 SECTION_TABS = [
     ("home", "Trò chuyện", "Hỏi đáp & lịch hôm nay"),
@@ -285,7 +322,7 @@ class OmnibarInputFilter(QObject):
                         inp_text = self.window.chat_composer_input.text().strip()
                         if inp_text:
                             self.window._submit_chat_prompt(inp_text)
-                        elif hasattr(self.window, "speech_bubble") and self.window.speech_bubble.isVisible() and self.window.speech_bubble.text() != "Nghe đây. Cần gì?":
+                        elif hasattr(self.window, "speech_bubble") and self.window.speech_bubble.isVisible() and self.window.speech_bubble.has_reply:
                             self.window.speech_bubble._on_copy_clicked()
                     else:
                         self.window._activate_current_item()
@@ -299,7 +336,7 @@ class OmnibarInputFilter(QObject):
             # 4. Copy Path or Content / Copy Answer
             if key == Qt.Key.Key_C and is_cmd:
                 if self.window.current_section_idx == 0 and not getattr(self.window.chat_composer_input, "hasSelectedText", lambda: False)():
-                    if hasattr(self.window, "speech_bubble") and self.window.speech_bubble.isVisible() and self.window.speech_bubble.text() != "Nghe đây. Cần gì?":
+                    if hasattr(self.window, "speech_bubble") and self.window.speech_bubble.isVisible() and self.window.speech_bubble.has_reply:
                         self.window.speech_bubble._on_copy_clicked()
                         return True
                 if mod & Qt.KeyboardModifier.ShiftModifier:
@@ -342,8 +379,11 @@ class OmnibarInputFilter(QObject):
                 self.window.hide()
                 return True
 
-            # 9. Escape: Instant close (0ms latency)
+            # 9. Escape: If expanded, collapse to compact; else hide Omnibar
             if key == Qt.Key.Key_Escape:
+                if getattr(self.window, "is_expanded", False):
+                    self.window.set_expanded(False)
+                    return True
                 self.window.hide()
                 return True
 
@@ -378,6 +418,9 @@ class OmnibarListFilter(QObject):
                 return True
 
             if key == Qt.Key.Key_Escape:
+                if getattr(self.window, "is_expanded", False):
+                    self.window.set_expanded(False)
+                    return True
                 self.window.hide()
                 return True
 
@@ -401,11 +444,10 @@ class OmnibarListFilter(QObject):
 class ArtisticSpeechBubble(QFrame):
     """
     Floating Overlay Speech Bubble Component (Independent Layer).
-    - Decoupled from Chatbox layout: resizing never shifts or jitters the Chatbox.
-    - Dynamic QPainterPath vector tail with rounded rectangle (r=16px) & triangle tail locked to Mascot snout.
-    - Smooth streaming resize: WordWrap with fixed width (~380px), QPropertyAnimation target height (100ms - 150ms).
-    - Bottom bar action buttons: ['Chép', 'Lịch sử'] in Ghost Pill Button style (transparent bg, no black box).
-    - Single unified vector render (zero ghost/duplicate bubble artifact).
+    - Whimsical comic speech bubble with organic bezier tail locked to Chuột's snout.
+    - Clean header with amber dot and status pill; zero distracting buttons.
+    - WordWrap with smooth height adjustment.
+    - Soft shadow and warm porcelain gradient.
     """
 
     def __init__(self, window: "OmnibarWindow", parent: Optional[QWidget] = None) -> None:
@@ -413,72 +455,69 @@ class ArtisticSpeechBubble(QFrame):
         self.window = window
         self.setObjectName("RatSpeechBubble")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setFixedWidth(380)  # Fixed width (~380px) per spec
-        self.tail_y = 46  # Aligned directly to Chuột's tilted snout during pop-out
-        self._bubble_height = 86
-        self.setFixedHeight(86)
+        self.setFixedWidth(460)
+        self.tail_y = 46
+        self._bubble_height = 92
+        self.setFixedHeight(92)
 
         self._opacity_effect: Optional[QGraphicsOpacityEffect] = None
-        self._copy_reset_timer: Optional[QTimer] = None
         self._height_anim: Optional[QPropertyAnimation] = None
+        self._full_reply = ""
+        self._copy_text = ""
+        self._expanded = False
+        self._truncated = False
+        self._has_details = False
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(22, 10, 14, 8)
+        layout.setContentsMargins(22, 10, 16, 10)
         layout.setSpacing(6)
 
-        # Dialogue text - direct, crisp, zero filler, with word wrap
-        self.dialogue = QLabel("Nghe đây. Cần gì?", self)
-        self.dialogue.setStyleSheet("font-size: 12.5px; font-weight: 500; color: #111827; line-height: 1.35;")
-        self.dialogue.setWordWrap(True)
-        self.dialogue.setFixedWidth(340)
-        layout.addWidget(self.dialogue)
+        # 1. Header Meta Row (clean, no distracting buttons)
+        header = QHBoxLayout()
+        header.setSpacing(6)
 
-        # Bottom minimal actions row - single horizontal row at bottom right
-        actions = QHBoxLayout()
-        actions.setContentsMargins(0, 0, 0, 0)
-        actions.setSpacing(6)
-        actions.addStretch()
+        self.dot = QLabel("●")
+        self.dot.setStyleSheet("font-size: 8px; color: #F59E0B; margin-top: 1px;")
+        header.addWidget(self.dot)
 
-        ghost_pill_style = """
+        self.name_tag = QLabel("CHUỘT")
+        self.name_tag.setStyleSheet("font-size: 10px; font-weight: 800; color: #8C7E6F; letter-spacing: 1.2px;")
+        header.addWidget(self.name_tag)
+
+        self.context_pill = QLabel("Sẵn sàng")
+        self.context_pill.setStyleSheet("font-size: 10px; font-weight: 600; color: #6B7280; background: #F3F4F6; border-radius: 5px; padding: 1px 7px;")
+        header.addWidget(self.context_pill)
+
+        header.addStretch()
+        action_style = """
             QPushButton {
-                background-color: #F8F5EE;
-                color: #4A4036;
-                border: 1px solid #E2D7C7;
-                border-bottom: 2px solid #CFC4B2;
-                border-radius: 6px;
-                padding: 3px 10px;
-                font-size: 11px;
-                font-weight: 650;
+                background: transparent; border: none; border-radius: 4px;
+                color: #6B6258; font-size: 10px; padding: 2px 5px;
             }
-            QPushButton:hover {
-                background-color: #FFFDF9;
-                color: #1F1A16;
-                border-color: #D4B872;
-                border-bottom: 2px solid #C49F4E;
-            }
-            QPushButton:pressed {
-                background-color: #FEE8A2;
-                border-bottom: 1px solid #D4B872;
-            }
+            QPushButton:hover { background: #F3EFE8; color: #1F1A16; }
         """
-
-        self.btn_copy = QPushButton("Chép", self)
-        self.btn_copy.setToolTip("Sao chép (⌘C)")
+        self.btn_copy = QPushButton("Sao chép", self)
+        self.btn_copy.setStyleSheet(action_style)
+        self.btn_copy.setToolTip("Sao chép toàn bộ đáp án (⌘C)")
         self.btn_copy.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_copy.setFixedHeight(22)
-        self.btn_copy.setStyleSheet(ghost_pill_style)
         self.btn_copy.clicked.connect(self._on_copy_clicked)
-        actions.addWidget(self.btn_copy)
-
-        self.btn_hist = QPushButton("Lịch sử", self)
-        self.btn_hist.setToolTip("Mở rộng sổ tay chi tiết (⌘L)")
+        self.btn_copy.hide()
+        header.addWidget(self.btn_copy)
+        self.btn_hist = QPushButton("Đọc hết", self)
+        self.btn_hist.setStyleSheet(action_style)
+        self.btn_hist.setToolTip("Mở đáp án đầy đủ (⌘L)")
         self.btn_hist.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_hist.setFixedHeight(22)
-        self.btn_hist.setStyleSheet(ghost_pill_style)
-        self.btn_hist.clicked.connect(self._on_hist_clicked)
-        actions.addWidget(self.btn_hist)
+        self.btn_hist.clicked.connect(self.window.toggle_expand)
+        self.btn_hist.hide()
+        header.addWidget(self.btn_hist)
+        layout.addLayout(header)
 
-        layout.addLayout(actions)
+        # 2. Main Dialogue Text
+        self.dialogue = QLabel("Nghe đây. Cần tìm gì?", self)
+        self.dialogue.setStyleSheet("font-size: 13.5px; font-weight: 550; color: #1E293B; line-height: 1.45;")
+        self.dialogue.setWordWrap(True)
+        self.dialogue.setTextFormat(Qt.TextFormat.PlainText)
+        layout.addWidget(self.dialogue)
 
     @pyqtProperty(int)
     def bubbleHeight(self) -> int:
@@ -493,9 +532,10 @@ class ArtisticSpeechBubble(QFrame):
         """Calculate needed height and smoothly animate size without jitter (100ms - 150ms)."""
         fm = self.dialogue.fontMetrics()
         text = self.dialogue.text()
-        rect = fm.boundingRect(QRect(0, 0, 340, 10000), Qt.TextFlag.TextWordWrap, text)
-        text_h = max(18, rect.height())
-        target_h = max(82, text_h + 52)
+        rect = fm.boundingRect(QRect(0, 0, 420, 10000), Qt.TextFlag.TextWordWrap, text)
+        text_h = max(20, rect.height())
+        # Keep the reply inside the existing 120px mascot/bubble headroom.
+        target_h = max(92, min(112, text_h + 46))
 
         if not animated or not self.isVisible():
             self.setFixedHeight(target_h)
@@ -507,189 +547,249 @@ class ArtisticSpeechBubble(QFrame):
 
         if self.height() != target_h:
             self._height_anim.stop()
-            self._height_anim.setDuration(120)  # 100ms - 150ms per spec!
+            self._height_anim.setDuration(120)
             self._height_anim.setStartValue(self.height())
             self._height_anim.setEndValue(target_h)
             self._height_anim.start()
 
-    def _on_copy_clicked(self) -> None:
-        text = self.dialogue.text()
-        cb = QApplication.clipboard()
-        if cb:
-            cb.setText(text)
-        self.btn_copy.setText("✓ Đã chép")
-        self.btn_copy.setStyleSheet("""
-            QPushButton {
-                background-color: #FEF3C7;
-                color: #92400E;
-                border: 1px solid #FCD34D;
-                border-radius: 6px;
-                padding: 3px 10px;
-                font-size: 11px;
-                font-weight: 650;
-            }
-        """)
-        if not self._copy_reset_timer:
-            self._copy_reset_timer = QTimer(self)
-            self._copy_reset_timer.setSingleShot(True)
-            self._copy_reset_timer.timeout.connect(self._reset_copy_style)
-        self._copy_reset_timer.start(1200)
+    @property
+    def has_reply(self) -> bool:
+        return bool(self._copy_text.strip())
 
-        if hasattr(self.window, "show_toast"):
-            self.window.show_toast("✓ Đã sao chép")
+    def _fit_reply(self, text: str) -> str:
+        """Fit a preview to the bubble, retaining the full reply separately."""
+        fm = self.dialogue.fontMetrics()
 
-    def _reset_copy_style(self) -> None:
-        ghost_pill_style = """
-            QPushButton {
-                background-color: #F8F5EE;
-                color: #4A4036;
-                border: 1px solid #E2D7C7;
-                border-bottom: 2px solid #CFC4B2;
-                border-radius: 6px;
-                padding: 3px 10px;
-                font-size: 11px;
-                font-weight: 650;
-            }
-            QPushButton:hover {
-                background-color: #FFFDF9;
-                color: #1F1A16;
-                border-color: #D4B872;
-                border-bottom: 2px solid #C49F4E;
-            }
-        """
-        self.btn_copy.setText("Chép")
-        self.btn_copy.setStyleSheet(ghost_pill_style)
+        def fits(candidate: str) -> bool:
+            rect = fm.boundingRect(QRect(0, 0, 420, 10000), Qt.TextFlag.TextWordWrap, candidate)
+            return rect.height() <= 66 and rect.width() <= 420
 
-    def _on_hist_clicked(self) -> None:
-        if hasattr(self.window, "toggle_expand"):
-            self.window.toggle_expand()
+        if fits(text):
+            return text
+        low, high = 0, len(text)
+        while low < high:
+            mid = (low + high + 1) // 2
+            if fits(text[:mid].rstrip() + "…"):
+                low = mid
+            else:
+                high = mid - 1
+        prefix = text[:low].rstrip()
+        boundary = prefix.rfind(" ")
+        if boundary > len(prefix) * 0.7:
+            prefix = prefix[:boundary].rstrip()
+        return prefix + "…"
 
-    def set_reply(self, text: str, context_text: Optional[str] = None) -> None:
-        clean = text.strip()
-        self.dialogue.setText(clean)
+    def set_reply(
+        self,
+        text: str,
+        context_text: Optional[str] = None,
+        *,
+        copy_text: Optional[str] = None,
+        has_details: bool = False,
+    ) -> None:
+        self._full_reply = text.strip()
+        self._copy_text = text if copy_text is None else copy_text
+        self._has_details = has_details
+        preview = self._fit_reply(self._full_reply)
+        self._truncated = preview != self._full_reply
+        self.dialogue.setText(preview)
+        self.btn_copy.setVisible(self.has_reply)
+        self.btn_hist.setVisible(self.has_reply and (self._truncated or self._has_details or self._expanded))
+        self.btn_hist.setText("Thu gọn" if self._expanded else "Xem kết quả" if has_details else "Đọc hết")
+        if context_text:
+            self.context_pill.setText(context_text)
         self.update_target_height(animated=True)
+
+    def _on_copy_clicked(self) -> None:
+        if self.has_reply:
+            QApplication.clipboard().setText(self._copy_text)
+            self.window.show_toast("Đã sao chép toàn bộ đáp án")
 
     def setText(self, text: str) -> None:
         self.set_reply(text)
 
     def text(self) -> str:
-        return self.dialogue.text()
+        return self._full_reply or self.dialogue.text()
 
     def stream_token(self, token: str) -> None:
-        curr = self.dialogue.text()
-        self.dialogue.setText(curr + token)
-        self.update_target_height(animated=True)
+        self.set_reply(self._copy_text + token, "Đang gõ")
 
     def reset_welcome(self) -> None:
-        self.dialogue.setText("Nghe đây. Cần gì?")
+        self._full_reply = ""
+        self._copy_text = ""
+        self._truncated = False
+        self._has_details = False
+        self.btn_copy.hide()
+        self.btn_hist.hide()
+        self.dialogue.setText("Nghe đây. Cần tìm gì?")
+        self.context_pill.setText("Sẵn sàng")
         self.update_target_height(animated=False)
 
     def set_expanded_mode(self, is_expanded: bool) -> None:
-        if is_expanded:
-            self.btn_hist.setText("Thu gọn")
-        else:
-            self.btn_hist.setText("Lịch sử")
+        self._expanded = is_expanded
+        self.btn_hist.setText("Thu gọn" if is_expanded else "Xem kết quả" if self._has_details else "Đọc hết")
+        self.btn_hist.setVisible(self.has_reply and (self._truncated or self._has_details or is_expanded))
 
     def show_bubble(self) -> None:
         self.show()
         self.raise_()
         self.update_target_height(animated=False)
-        if not hasattr(self, "_opacity_effect") or self._opacity_effect is None:
-            self._opacity_effect = QGraphicsOpacityEffect(self)
-            self.setGraphicsEffect(self._opacity_effect)
-        if not hasattr(self, "_fade_anim"):
-            self._fade_anim = QPropertyAnimation(self._opacity_effect, b"opacity")
-            self._fade_anim.setDuration(140)
-            self._fade_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-        self._fade_anim.stop()
-        self._fade_anim.setStartValue(0.0)
-        self._fade_anim.setEndValue(1.0)
-        self._fade_anim.start()
 
     def hide_bubble(self) -> None:
-        if self.isVisible():
-            if not hasattr(self, "_opacity_effect") or self._opacity_effect is None:
-                self._opacity_effect = QGraphicsOpacityEffect(self)
-                self.setGraphicsEffect(self._opacity_effect)
-            if not hasattr(self, "_fade_anim"):
-                self._fade_anim = QPropertyAnimation(self._opacity_effect, b"opacity")
-                self._fade_anim.setDuration(120)
-                self._fade_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-            self._fade_anim.stop()
-            try:
-                self._fade_anim.finished.disconnect(self._do_hide)
-            except Exception:
-                pass
-            self._fade_anim.setStartValue(self._opacity_effect.opacity())
-            self._fade_anim.setEndValue(0.0)
-            self._fade_anim.finished.connect(self._do_hide)
-            self._fade_anim.start()
-        else:
-            self.hide()
-
-    def _do_hide(self) -> None:
-        try:
-            self._fade_anim.finished.disconnect(self._do_hide)
-        except Exception:
-            pass
         self.hide()
 
     def paintEvent(self, e: Any) -> None:
-        p = QPainter(self)
-        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        body_left = 18.0
-        body_top = 4.0
-        body_w = float(self.width() - body_left - 6.0)
-        body_h = float(self.height() - body_top - 6.0)
-        r = 16.0  # Bo góc 16px per spec!
+        tail_w = 12
+        tail_h = 14
+        tail_y = float(getattr(self, "tail_y", 30))
 
-        body_rect = QRectF(body_left, body_top, body_w, body_h)
+        w = self.width() - 4
+        h = self.height() - 4
+        r = 14
 
-        # Dynamic vector tail locked to mascot head/mouth
+        path = QPainterPath()
+        path.moveTo(2 + tail_w + r, 2)
+        path.lineTo(2 + w - r, 2)
+        path.quadTo(2 + w, 2, 2 + w, 2 + r)
+        path.lineTo(2 + w, 2 + h - r)
+        path.quadTo(2 + w, 2 + h, 2 + w - r, 2 + h)
+        path.lineTo(2 + tail_w + r, 2 + h)
+        path.quadTo(2 + tail_w, 2 + h, 2 + tail_w, 2 + h - r)
+
+        # Organic smooth bezier tail pointing to Chuột
+        path.lineTo(2 + tail_w, tail_y + tail_h)
         tip_x = 2.0
-        tip_y = float(getattr(self, "tail_y", 46.0))
-        if hasattr(self.window, "mascot_peeking"):
-            m = self.window.mascot_peeking
-            snout_parent_y = m.y() + 50.0
-            tip_y = snout_parent_y - self.y()
-            tip_y = max(body_top + 16.0, min(body_top + body_h - 16.0, tip_y))
+        tip_y = tail_y + tail_h * 0.45
+        path.quadTo(2 + tail_w * 0.4, tail_y + tail_h * 0.85, tip_x, tip_y)
+        path.quadTo(2 + tail_w * 0.35, tail_y + tail_h * 0.15, 2 + tail_w, tail_y)
 
-        tail_base_top = max(body_top + 10.0, tip_y - 8.0)
-        tail_base_bot = min(body_top + body_h - 10.0, tip_y + 8.0)
+        path.lineTo(2 + tail_w, 2 + r)
+        path.quadTo(2 + tail_w, 2, 2 + tail_w + r, 2)
+        path.closeSubpath()
 
-        # Rounded rectangle body path
-        rect_path = QPainterPath()
-        rect_path.addRoundedRect(body_rect, r, r)
+        # Soft multi-pass drop shadow
+        painter.save()
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(30, 24, 16, 12))
+        painter.translate(0, 4)
+        painter.drawPath(path)
+        painter.setBrush(QColor(30, 24, 16, 18))
+        painter.translate(0, -2)
+        painter.drawPath(path)
+        painter.restore()
 
-        # Triangle tail path
-        tail_path = QPainterPath()
-        tail_path.moveTo(body_left, tail_base_top)
-        tail_path.lineTo(tip_x, tip_y)
-        tail_path.lineTo(body_left, tail_base_bot)
-        tail_path.closeSubpath()
+        # Warm porcelain gradient fill
+        grad = QLinearGradient(0, 0, 0, h)
+        grad.setColorAt(0.0, QColor(255, 255, 255, 252))
+        grad.setColorAt(1.0, QColor(252, 250, 247, 248))
+        painter.setBrush(QBrush(grad))
 
-        # Seamless single vector path
-        full_path = rect_path.united(tail_path).simplified()
-
-        # Clean single-pass soft drop shadow (zero duplicate ghost path!)
-        p.save()
-        p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QColor(43, 38, 31, 20))
-        p.translate(0, 3)
-        p.drawPath(full_path)
-        p.restore()
-
-        # Warm porcelain cream background fill with subtle tactile border
-        grad = QLinearGradient(0, 0, 0, self.height())
-        grad.setColorAt(0.0, QColor(255, 255, 255, 255))
-        grad.setColorAt(1.0, QColor(252, 249, 244, 252))
-        p.setBrush(QBrush(grad))
-        p.setPen(QPen(QColor(43, 38, 31, 32), 1.2))
-        p.drawPath(full_path)
+        painter.setPen(QPen(QColor(40, 30, 20, 22), 1.0))
+        painter.drawPath(path)
 
 
 ComicSpeechFrame = ArtisticSpeechBubble
+
+
+class CompanionAvatarButton(QPushButton):
+    """
+    Tactile Companion Avatar button located right inside the search input / composer bar.
+    Renders Chuột's expressive bust with dynamic overhead badges:
+    - 'idle': Calm, friendly, ready
+    - 'searching': Magnifying glass 🔍
+    - 'thinking': Animated spinning loading ring + 💭
+    - 'angry': Comic angry vein mark 💢
+    """
+
+    def __init__(self, window: "OmnibarWindow", parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.window = window
+        self.setFixedSize(34, 34)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setToolTip("Chuột đồng hành · Nhấp để trò chuyện hoặc chọc giận!")
+        self.current_state = "idle"
+        self._spin_angle = 0
+        self._spin_timer = QTimer(self)
+        self._spin_timer.timeout.connect(self._on_spin_tick)
+        self._click_count = 0
+        self._last_click_time = 0.0
+        self.clicked.connect(self._on_clicked)
+
+        # Pre-load mascot bust pixmap
+        self._bust_pm = get_mascot_pixmap(24, 24, bust_only=True)
+
+    def _on_spin_tick(self) -> None:
+        self._spin_angle = (self._spin_angle + 25) % 360
+        self.update()
+
+    def set_state(self, state: str) -> None:
+        self.current_state = state
+        if state == "thinking":
+            if not self._spin_timer.isActive():
+                self._spin_timer.start(40)
+        else:
+            if self._spin_timer.isActive():
+                self._spin_timer.stop()
+        self.update()
+
+    def _on_clicked(self) -> None:
+        now = time.time()
+        if now - self._last_click_time < 1.5:
+            self._click_count += 1
+        else:
+            self._click_count = 1
+        self._last_click_time = now
+
+        if self._click_count >= 3:
+            # Angry reaction!
+            self.window.set_mascot_state("angry", "Bấm hoài vậy bạn ơi! Để yên cho Chuột làm việc coi! 💢")
+            QTimer.singleShot(4000, lambda: self.window.set_mascot_state("idle"))
+        else:
+            quotes = [
+                "Nghe đây. Cần tìm tài liệu hay hỏi gì thì gõ vào ô nè.",
+                "Tôi đang nghe đây. Nói lẹ đi bạn ơi.",
+                "Đừng chọc nữa, lo học bài đi!",
+                "Có bài tập hay phòng học nào cần tìm không?",
+            ]
+            q = quotes[self._click_count % len(quotes)]
+            self.window.set_mascot_state("speaking" if not self.window.is_expanded else "idle", q)
+
+    def paintEvent(self, event: Any) -> None:
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+
+        # Background capsule
+        p.setBrush(QColor("#F8F5EE"))
+        p.setPen(QPen(QColor("#E2D7C7"), 1.5))
+        p.drawRoundedRect(1, 1, 32, 32, 16, 16)
+
+        # Mascot face
+        if self._bust_pm and not self._bust_pm.isNull():
+            fx = (self.width() - self._bust_pm.width()) // 2
+            fy = (self.height() - self._bust_pm.height()) // 2 + 1
+            p.drawPixmap(fx, fy, self._bust_pm)
+
+        # State badge
+        st = self.current_state
+        if st == "thinking":
+            p.save()
+            p.translate(24, 8)
+            p.rotate(self._spin_angle)
+            pen = QPen(QColor("#F59E0B"), 2.2, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap)
+            p.setPen(pen)
+            p.drawArc(QRectF(-5, -5, 10, 10), 0, 270 * 16)
+            p.restore()
+        elif st == "searching":
+            p.setFont(QFont("Apple Color Emoji", 11))
+            p.drawText(QRectF(17, 0, 16, 16), Qt.AlignmentFlag.AlignCenter, "🔍")
+        elif st == "angry":
+            p.setFont(QFont("Apple Color Emoji", 12))
+            p.drawText(QRectF(17, -1, 16, 16), Qt.AlignmentFlag.AlignCenter, "💢")
+        p.end()
 
 
 class PeekingRatMascot(QWidget):
@@ -720,22 +820,27 @@ class PeekingRatMascot(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
+        self.current_state = "idle"
+        self._spin_angle = 0
+        self._spin_timer = QTimer(self)
+        self._spin_timer.timeout.connect(self._on_spin_tick)
+
         self._rotation: float = 0.0
         self.is_speaking: bool = False
 
-        # Load full mascot cutout sprite scaled up by 25% - 30% per spec
-        pm = get_mascot_pixmap(140, 150, bust_only=False)
+        # Load full mascot cutout sprite (146x146 bust with gripping paws)
+        pm = get_mascot_pixmap(146, 146, bust_only=True)
         self._mascot_pixmap = pm if (pm and not pm.isNull()) else QPixmap()
 
-        self.setFixedSize(175, 160)
+        self.setFixedSize(146, 146)
 
         # Coordinate anchors (container top rim is at y=120)
-        self.x_idle = 26
-        self.y_idle = 55          # paws (y=65 in widget) sit exactly on rim (y=120)
-        self.x_speaking = 46      # nhích sang bên 20px
-        self.y_speaking = 2       # trượt trục Y lên trên, toàn thân lộ ra trọn vẹn
+        self.x_idle = 24
+        self.y_idle = 8           # paws at bottom of 146px bust rest right at y=120 on rim
+        self.x_speaking = 44      # +20px per spec
+        self.y_speaking = 2       # nhấc lên một chút
         self.rot_idle = 0.0       # 0 degree khi núp
-        self.rot_speaking = 10.0  # +10 degree tilt khi ló xéo
+        self.rot_speaking = 10.0  # +10 degree tilt khi nói
 
         # Parallel animation group for smooth synchronous transform
         self._anim_group = QParallelAnimationGroup(self)
@@ -762,12 +867,12 @@ class PeekingRatMascot(QWidget):
     def set_anchors(self, container_x: int, container_y: int) -> None:
         """Update anchor positions relative to container geometry."""
         cx = container_x if container_x > 0 else 16
-        cy = container_y if container_y > 50 else 120
+        cy = container_y if container_y > 20 else 120
 
-        self.x_idle = cx + 10
-        self.y_idle = cy - 65    # paws (y=65 in widget) flush at cy (120)
+        self.x_idle = cx + 8
+        self.y_idle = max(2, cy - 112)  # container at 120 -> y_idle = 8
         self.x_speaking = self.x_idle + 20
-        self.y_speaking = 2       # popped out near top (y=2)
+        self.y_speaking = max(2, self.y_idle - 6)
         if not self.is_speaking:
             self.move(self.x_idle, self.y_idle)
             self._rotation = self.rot_idle
@@ -816,6 +921,20 @@ class PeekingRatMascot(QWidget):
         else:
             self.idle_retreated.emit()
 
+    def _on_spin_tick(self) -> None:
+        self._spin_angle = (self._spin_angle + 25) % 360
+        self.update()
+
+    def set_state(self, state: str) -> None:
+        self.current_state = state
+        if state == "thinking":
+            if not self._spin_timer.isActive():
+                self._spin_timer.start(40)
+        else:
+            if self._spin_timer.isActive():
+                self._spin_timer.stop()
+        self.update()
+
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
             if hasattr(self.window, "on_mascot_clicked"):
@@ -832,22 +951,41 @@ class PeekingRatMascot(QWidget):
         pm_h = self._mascot_pixmap.height()
 
         draw_x = (self.width() - pm_w) // 2
-        draw_y = 10  # 10px margin at top
+        draw_y = (self.height() - pm_h) // 2
 
         pivot_x = draw_x + pm_w / 2
-        pivot_y = draw_y + pm_h * 0.90
+        pivot_y = draw_y + pm_h * 0.95
 
         p.save()
         p.translate(pivot_x, pivot_y)
         p.rotate(self._rotation)
         p.translate(-pivot_x, -pivot_y)
 
-        # In IDLE (rotation == 0), clip out high tail on the right so ONLY eyes & 2 gripping paws peek out!
-        if abs(self._rotation) < 0.5:
-            p.setClipRect(draw_x, draw_y, int(pm_w * 0.69), pm_h)
-
         p.drawPixmap(draw_x, draw_y, self._mascot_pixmap)
         p.restore()
+
+        # Draw expressive overhead badge if active
+        st = self.current_state
+        head_cx = draw_x + int(pm_w * 0.36)
+        head_cy = draw_y + 16
+
+        if st == "thinking":
+            p.save()
+            p.translate(head_cx + 16, head_cy - 12)
+            p.rotate(self._spin_angle)
+            pen = QPen(QColor("#F59E0B"), 2.5, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap)
+            p.setPen(pen)
+            p.drawArc(QRectF(-8, -8, 16, 16), 0, 270 * 16)
+            p.restore()
+            p.setFont(QFont("Apple Color Emoji", 12))
+            p.drawText(QRectF(head_cx + 26, head_cy - 22, 18, 18), Qt.AlignmentFlag.AlignCenter, "💭")
+        elif st == "searching":
+            p.setFont(QFont("Apple Color Emoji", 18))
+            p.drawText(QRectF(head_cx + 10, head_cy - 20, 24, 24), Qt.AlignmentFlag.AlignCenter, "🔍")
+        elif st == "angry":
+            p.setFont(QFont("Apple Color Emoji", 18))
+            p.drawText(QRectF(head_cx - 4, head_cy - 10, 22, 22), Qt.AlignmentFlag.AlignCenter, "💢")
+
         p.end()
 
 
@@ -1020,9 +1158,10 @@ class OmnibarWindow(QMainWindow):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setStyleSheet(RAYCAST_QSS)
         self._resize_overlay(652, 238)
+        configure_macos_fullscreen_overlay(self)
 
     def _resize_overlay(self, new_width: int, new_height: int, animated: bool = False) -> None:
-        """Position window in the comfortable lower half of active screen to avoid eye strain."""
+        """Position window smoothly in comfortable upper area of screen with stable fixed top anchor."""
         try:
             cursor_pos = QCursor.pos()
             screen = QGuiApplication.screenAt(cursor_pos) or self.screen() or QGuiApplication.primaryScreen()
@@ -1030,23 +1169,15 @@ class OmnibarWindow(QMainWindow):
                 geo = screen.availableGeometry()
                 x = geo.x() + (geo.width() - new_width) // 2
 
-                # Anchor in lower half of screen (comfortable, least eye-straining position)
-                # Compact mode sits at ~54% of screen height
-                # Expanded mode expands upwards smoothly while preserving the base anchor
-                compact_h = 238
-                base_y = geo.y() + int(geo.height() * 0.54)
-                if new_height <= 260:
-                    y = base_y
-                else:
-                    target_bottom = min(base_y + compact_h + 16, geo.bottom() - 16)
-                    y = target_bottom - new_height
-                    y = max(geo.y() + 40, y)
+                # Fixed top anchor at ~18% of screen height (like Spotlight / Raycast)
+                # When expanding or collapsing, the search bar NEVER jumps!
+                target_y = geo.y() + int(geo.height() * 0.18)
+                target_rect = QRect(x, target_y, new_width, new_height)
 
-                target_rect = QRect(x, y, new_width, new_height)
                 if animated and self.isVisible():
                     if not hasattr(self, "_geom_anim"):
                         self._geom_anim = QPropertyAnimation(self, b"geometry")
-                        self._geom_anim.setDuration(180)
+                        self._geom_anim.setDuration(160)
                         self._geom_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
                     self._geom_anim.stop()
                     self._geom_anim.setStartValue(self.geometry())
@@ -1075,11 +1206,8 @@ class OmnibarWindow(QMainWindow):
 
     def showEvent(self, event: Any) -> None:
         super().showEvent(event)
-        if not self.is_expanded:
-            self._reset_quick_chat()
-        elif hasattr(self, "chat_composer_input"):
+        if hasattr(self, "chat_composer_input"):
             self.chat_composer_input.setFocus()
-            self.chat_composer_input.selectAll()
         self._animate_mascot_peek()
 
     def _animate_mascot_peek(self) -> None:
@@ -1095,9 +1223,9 @@ class OmnibarWindow(QMainWindow):
         super().resizeEvent(event)
         if hasattr(self, "speech_bubble") and hasattr(self, "container"):
             cx = self.container.x() if self.container.x() > 0 else 16
-            cy = self.container.y() if self.container.y() > 50 else 120
+            cy = self.container.y() if self.container.y() > 20 else 120
             bx = cx + 160
-            by = 12
+            by = max(4, cy - self.speech_bubble.height() - 14)
             self.speech_bubble.move(bx, by)
             self.speech_bubble.raise_()
             if hasattr(self, "mascot_peeking"):
@@ -1119,7 +1247,7 @@ class OmnibarWindow(QMainWindow):
 
     def _on_mascot_speaking_popped_out(self) -> None:
         """Speech bubble appears right after mouse finishes diagonal pop-out."""
-        if hasattr(self, "speech_bubble"):
+        if hasattr(self, "speech_bubble") and not self.is_expanded:
             self.speech_bubble.show_bubble()
 
     def set_mascot_idle(self) -> None:
@@ -1153,6 +1281,21 @@ class OmnibarWindow(QMainWindow):
         else:
             self.set_mascot_idle()
 
+    def set_mascot_state(self, state: str, text: Optional[str] = None) -> None:
+        """Unified state setter for Chuột across all UI widgets."""
+        self._mascot_state = state
+        if hasattr(self, "companion_avatar_btn"):
+            self.companion_avatar_btn.set_state(state)
+        if hasattr(self, "mascot_peeking"):
+            self.mascot_peeking.set_state(state)
+        if hasattr(self, "rat_stage") and self.rat_stage:
+            self.rat_stage.set_state(state, text)
+        if text:
+            if not self.is_expanded:
+                self.set_mascot_speaking(text)
+            elif hasattr(self, "footer_status"):
+                self.footer_status.setText(f"Chuột · {text}")
+
     def toggle_expand(self) -> None:
         """Toggle between compact HUD overlay and expanded detail notebook."""
         self.set_expanded(not self.is_expanded)
@@ -1164,30 +1307,64 @@ class OmnibarWindow(QMainWindow):
             self.speech_bubble.set_expanded_mode(expanded)
 
         if expanded:
+            if hasattr(self, "main_layout"):
+                self.main_layout.setContentsMargins(16, 120, 16, 16)
+            if hasattr(self, "mascot_peeking"):
+                self.mascot_peeking.show()
+                self.mascot_peeking.set_anchors(16, 120)
+            if hasattr(self, "speech_bubble"):
+                self.speech_bubble.hide()
+            if getattr(self, "btn_expand", None):
+                self.btn_expand.show()
+            if hasattr(self, "chat_header_status"):
+                self.chat_header_status.show()
             if hasattr(self, "section_bar"):
-                self.section_bar.show()
+                self.section_bar.hide()
             if hasattr(self, "content_stack"):
                 self.content_stack.show()
+                self.content_stack.setCurrentIndex(getattr(self, "current_section_idx", 0))
             if hasattr(self, "chat_stream"):
                 self.chat_stream.show()
+            if hasattr(self, "action_footer"):
+                self.action_footer.show()
             if hasattr(self, "quick_suggestions"):
                 self.quick_suggestions.hide()
             if hasattr(self, "hairline_divider"):
                 self.hairline_divider.hide()
-            self._resize_overlay(652, 610, animated=True)
+            self._resize_overlay(652, 580, animated=True)
             if hasattr(self, "btn_expand") and self.btn_expand:
                 self.btn_expand.setText("⤡")
         else:
+            if hasattr(self, "main_layout"):
+                self.main_layout.setContentsMargins(16, 120, 16, 16)
+            if hasattr(self, "mascot_peeking"):
+                self.mascot_peeking.show()
+                self.mascot_peeking.set_anchors(16, 120)
+            if hasattr(self, "speech_bubble"):
+                if self.speech_bubble.has_reply:
+                    self.speech_bubble.show_bubble()
+                else:
+                    self.speech_bubble.hide()
+            if hasattr(self, "chat_header_status"):
+                self.chat_header_status.hide()
+            if hasattr(self, "companion_avatar_btn"):
+                self.companion_avatar_btn.hide()
+            if hasattr(self, "btn_expand"):
+                self.btn_expand.hide()
+            if hasattr(self, "return_keycap"):
+                self.return_keycap.hide()
             if hasattr(self, "section_bar"):
                 self.section_bar.hide()
             if hasattr(self, "content_stack"):
                 self.content_stack.hide()
             if hasattr(self, "chat_stream"):
                 self.chat_stream.hide()
+            if hasattr(self, "action_footer"):
+                self.action_footer.hide()
             if hasattr(self, "quick_suggestions"):
                 self.quick_suggestions.show()
             if hasattr(self, "hairline_divider"):
-                self.hairline_divider.show()
+                self.hairline_divider.hide()
             self._resize_overlay(652, 238, animated=True)
             if hasattr(self, "btn_expand") and self.btn_expand:
                 self.btn_expand.setText("⤢")
@@ -1197,9 +1374,9 @@ class OmnibarWindow(QMainWindow):
 
         main_widget = QWidget(self)
         self.setCentralWidget(main_widget)
-        main_layout = QVBoxLayout(main_widget)
-        main_layout.setContentsMargins(16, 120, 16, 16)
-        main_layout.setSpacing(0)
+        self.main_layout = QVBoxLayout(main_widget)
+        self.main_layout.setContentsMargins(16, 120, 16, 16)
+        self.main_layout.setSpacing(0)
 
         # =============================================================
         # SINGLE UNIFIED CONTAINER (Warm Light Glass)
@@ -1207,6 +1384,13 @@ class OmnibarWindow(QMainWindow):
         container = QFrame(main_widget)
         container.setObjectName("SpotlightContainer")
         container.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        container.setStyleSheet("""
+            QFrame#SpotlightContainer {
+                background: #FFFFFF;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                border-radius: 16px;
+            }
+        """)
         cont_shadow = QGraphicsDropShadowEffect(container)
         cont_shadow.setBlurRadius(28)
         cont_shadow.setOffset(0, 10)
@@ -1215,7 +1399,7 @@ class OmnibarWindow(QMainWindow):
 
         self.container = container
         self.container_layout = QVBoxLayout(container)
-        self.container_layout.setContentsMargins(14, 10, 14, 10)
+        self.container_layout.setContentsMargins(14, 12, 14, 12)
         self.container_layout.setSpacing(8)
 
         # -------------------------------------------------------------
@@ -1223,15 +1407,17 @@ class OmnibarWindow(QMainWindow):
         # -------------------------------------------------------------
         self.mascot_peeking = PeekingRatMascot(self, main_widget)
         self.mascot_peeking.stackUnder(container)
+        self.mascot_peeking.setGeometry(24, 8, 146, 146)
         self.mascot_peeking.set_anchors(16, 120)
         self.mascot_peeking.speaking_popped_out.connect(self._on_mascot_speaking_popped_out)
         self.mascot_peeking.idle_retreated.connect(self._on_mascot_idle_retreated)
+        self.mascot_peeking.show()
 
         # -------------------------------------------------------------
         # ARTISTIC SPEECH BUBBLE (Sitting above container, flush right)
         # -------------------------------------------------------------
         self.speech_bubble = ArtisticSpeechBubble(self, main_widget)
-        self.speech_bubble.setGeometry(176, 12, 380, 86)
+        self.speech_bubble.setGeometry(176, 14, 460, 92)
         self.speech_bubble.hide()
 
         # Compatibility attributes
@@ -1251,22 +1437,36 @@ class OmnibarWindow(QMainWindow):
         # -------------------------------------------------------------
         quick_bar = QFrame()
         quick_bar.setObjectName("QuickBar")
-        quick_bar.setFixedHeight(40)
+        quick_bar.setFixedHeight(36)
 
         qb_layout = QHBoxLayout(quick_bar)
-        qb_layout.setContentsMargins(12, 0, 6, 0)
-        qb_layout.setSpacing(10)
+        qb_layout.setContentsMargins(4, 0, 4, 0)
+        qb_layout.setSpacing(6)
+
+        # Companion Avatar Button inside QuickBar (Hidden in clean mode)
+        self.companion_avatar_btn = CompanionAvatarButton(self, quick_bar)
+        self.companion_avatar_btn.hide()
+        qb_layout.addWidget(self.companion_avatar_btn, 0)
 
         self.chat_composer_input = QLineEdit()
         self.chat_composer_input.setObjectName("ChatComposerInput")
-        self.chat_composer_input.setPlaceholderText("Hỏi Chuột bất cứ thứ gì nè (Enter để gửi)...")
+        self.chat_composer_input.setPlaceholderText("Gõ câu hỏi, tên file, lịch học...")
+        self.chat_composer_input.setStyleSheet("""
+            QLineEdit#ChatComposerInput {
+                font-size: 14px;
+                border: none;
+                background: transparent;
+                color: #1F2937;
+                padding-left: 2px;
+            }
+        """)
         self.chat_composer_input.setClearButtonEnabled(True)
         self.chat_composer_input.installEventFilter(self.input_filter)
         self.chat_composer_input.returnPressed.connect(lambda: self._submit_chat_prompt(self.chat_composer_input.text()))
         self.chat_composer_input.textChanged.connect(self._on_composer_text_changed)
         qb_layout.addWidget(self.chat_composer_input, 1)
 
-        # Minimal model status badge
+        # Minimal model status badge (shown in expanded mode)
         has_slm = False
         try:
             from rat.engine.slm import slm_engine
@@ -1276,24 +1476,51 @@ class OmnibarWindow(QMainWindow):
         status_text = "● Qwen2.5" if has_slm else "● TDTU"
         self.chat_header_status = QLabel(status_text, quick_bar)
         self.chat_header_status.setObjectName("QuickModelBadge")
+        self.chat_header_status.hide()
         qb_layout.addWidget(self.chat_header_status)
 
-        self.return_keycap = QLabel("↵ Enter")
+        self.btn_expand = QPushButton("⤢", quick_bar)
+        self.btn_expand.setObjectName("BtnExpand")
+        self.btn_expand.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_expand.setToolTip("Mở rộng / Thu nhỏ (⌘L)")
+        self.btn_expand.clicked.connect(self.toggle_expand)
+        self.btn_expand.setFixedSize(26, 26)
+        self.btn_expand.setStyleSheet("""
+            QPushButton#BtnExpand {
+                background: transparent;
+                border: none;
+                color: #8C8275;
+                font-size: 13px;
+                font-weight: bold;
+                border-radius: 6px;
+            }
+            QPushButton#BtnExpand:hover {
+                background: rgba(43, 38, 31, 0.08);
+                color: #1F1A16;
+            }
+        """)
+        self.btn_expand.hide()
+        qb_layout.addWidget(self.btn_expand)
+
+        self.return_keycap = QLabel("↵")
         self.return_keycap.setObjectName("ReturnKeycap")
+        self.return_keycap.setToolTip("Nhấn Enter để gửi")
+        self.return_keycap.hide()
         qb_layout.addWidget(self.return_keycap)
 
         self.quick_bar = quick_bar
         self.container_layout.addWidget(quick_bar, 0)
 
         # -------------------------------------------------------------
-        # 2. HAIRLINE DIVIDER
+        # 2. HAIRLINE DIVIDER (Hidden in clean compact mode)
         # -------------------------------------------------------------
         self.hairline_divider = QFrame()
         self.hairline_divider.setObjectName("HairlineDivider")
         self.container_layout.addWidget(self.hairline_divider, 0)
+        self.hairline_divider.hide()
 
         # -------------------------------------------------------------
-        # 3. QUICK SUGGESTIONS STRIP (Keyboard-navigable chips)
+        # 3. QUICK SUGGESTIONS STRIP (Clean suggestion chips)
         # -------------------------------------------------------------
         self.quick_suggestions = QWidget()
         self.quick_suggestions.setObjectName("QuickSuggestionsStrip")
@@ -1313,12 +1540,29 @@ class OmnibarWindow(QMainWindow):
             chip_btn = QPushButton(label)
             chip_btn.setProperty("class", "QuickSuggestionChip")
             chip_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            chip_btn.setStyleSheet("""
+                QPushButton {
+                    background: #FAFAFA;
+                    border: 1px solid #E5E7EB;
+                    border-radius: 8px;
+                    padding: 4px 10px;
+                    font-size: 11px;
+                    color: #4B5563;
+                    font-weight: 500;
+                }
+                QPushButton:hover {
+                    background: #F3F4F6;
+                    border-color: #D1D5DB;
+                    color: #111827;
+                }
+            """)
             chip_btn.installEventFilter(self.input_filter)
             chip_btn.clicked.connect(lambda checked=False, q=q_text: self._submit_chat_prompt(q))
             qs_layout.addWidget(chip_btn)
             self.chip_buttons.append(chip_btn)
 
         self.container_layout.addWidget(self.quick_suggestions, 0)
+        self.quick_suggestions.show()
 
         # -------------------------------------------------------------
         # 4. FOLDER TABS (SECTION BAR)
@@ -1403,7 +1647,7 @@ class OmnibarWindow(QMainWindow):
         self.btn_settings.clicked.connect(self._open_settings)
         self.btn_settings.hide()
 
-        main_layout.addWidget(container, 1)
+        self.main_layout.addWidget(container, 1)
 
     def _on_composer_text_changed(self, text: str) -> None:
         q = text.strip()
@@ -1434,7 +1678,7 @@ class OmnibarWindow(QMainWindow):
         first_name = self.current_member.name.split()[-1] if self.current_member.name else "bạn"
         self.chat_stream = ChatStreamWidget(user_name=first_name)
         self.chat_stream.prompt_clicked.connect(self._submit_chat_prompt)
-        self.chat_stream.hide()  # Hidden until first message is asked
+        self.chat_stream.show()  # Visible surface with welcome prompts
         root_layout.addWidget(self.chat_stream, 1)
 
         # Hidden Compatibility Container for Tests
@@ -2398,26 +2642,31 @@ class OmnibarWindow(QMainWindow):
         inline_files: Optional[List[Any]] = None,
     ) -> None:
         """
-        Deliver quick response directly to Chuột's speech bubble,
-        while maintaining full history in the background chat stream.
+        Deliver assistant reply:
+        - In compact mode: Chuột speaks via speech bubble.
+        - In expanded mode: reply goes cleanly to chat stream, NO floating bubble outside!
         """
-        clean_text = answer.replace("**", "").replace("`", "")
-        self.set_mascot_speaking(clean_text)
+        context_str = f"{strategy} · {latency_ms:.0f}ms" if latency_ms > 0 else "Sẵn sàng"
+        self._present_compact_reply(answer, context_str, has_details=bool(inline_files or custom_widget))
 
         if hasattr(self, "chat_stream"):
-            self.chat_stream.add_assistant_message(
-                answer=answer,
-                reasoning_steps=reasoning_steps,
-                latency_ms=latency_ms,
-                strategy=strategy,
-                confidence=confidence,
-                custom_widget=custom_widget,
-                strategy_badge=strategy_badge,
-                inline_files=inline_files,
-            )
+            try:
+                self.chat_stream.add_assistant_message(
+                    answer=answer,
+                    reasoning_steps=reasoning_steps,
+                    latency_ms=latency_ms,
+                    strategy=strategy,
+                    confidence=confidence,
+                    custom_widget=custom_widget,
+                    inline_files=inline_files,
+                )
+            except Exception as e:
+                logger.debug(f"Chat stream add error: {e}")
 
         if getattr(self, "rat_stage", None):
             self.rat_stage.set_state("idle")
+        if getattr(self, "set_mascot_state", None) and getattr(self, "_mascot_state", "idle") != "angry":
+            self.set_mascot_state("idle")
 
     def _reset_chat(self) -> None:
         if hasattr(self, "chat_stream"):
@@ -2440,10 +2689,9 @@ class OmnibarWindow(QMainWindow):
         if self.current_section_idx != 0:
             self.switch_section(0)
 
-        # Quick mode answers directly via the speech bubble without forcing window expansion!
-        if getattr(self, "rat_stage", None):
-            self.rat_stage.set_state("thinking", "Chuột · Suy nghĩ...")
-        self.set_mascot_speaking("Đang tìm...")
+        # Quick mode answers directly via speech bubble without forcing expansion
+        self.set_mascot_state("thinking", "Chuột · Suy nghĩ...")
+        self.speech_bubble.set_reply("Đang suy nghĩ…", "Đang nghĩ", copy_text="")
 
         self.chat_stream.add_user_message(q)
         self.search_input.clear()
@@ -2498,6 +2746,19 @@ class OmnibarWindow(QMainWindow):
                 latency_ms=lat,
                 strategy="Direct",
             )
+            return
+
+        # 0d. Teasing / Scolding -> Angry mascot state
+        scold_words = ["đồ ngu", "ngu quá", "dở tệ", "chuột ngốc", "chuột ngu", "bực mình", "vô dụng", "ngu vcl", "ngu vch"]
+        if any(w in q_lower for w in scold_words):
+            self.set_mascot_state("angry")
+            ans_text = "Nói ai ngu đó? Tôi tìm được mọi file trong 5ms còn bạn thì ngồi gõ chửi bậy à? 💢"
+            self._deliver_assistant_reply(
+                answer=ans_text,
+                latency_ms=1.0,
+                strategy="Direct",
+            )
+            QTimer.singleShot(4000, lambda: self.set_mascot_state("idle"))
             return
 
         # 1. Academic Policy & Multi-Step Reasoning
@@ -2677,6 +2938,7 @@ class OmnibarWindow(QMainWindow):
         search_target = clean_q if len(clean_q) >= 2 else q
 
         if is_explicit_file:
+            self.set_mascot_state("searching")
             try:
                 search_res = self.engine.search(search_target, limit=4)
                 files = search_res.get("results", [])
@@ -2693,7 +2955,8 @@ class OmnibarWindow(QMainWindow):
                     self.footer_status.setText(f"{len(files)} tệp ({lat:.0f}ms)")
                     return
                 else:
-                    ans_text = f"Không có file này trong máy. Bạn nhớ nhầm tên à?"
+                    self.set_mascot_state("angry")
+                    ans_text = f"Không có file này trong máy. Bạn nhớ nhầm tên à? 💢"
                     self._deliver_assistant_reply(
                         answer=ans_text,
                         latency_ms=lat,
@@ -2701,6 +2964,7 @@ class OmnibarWindow(QMainWindow):
                         confidence=0.8,
                     )
                     self.footer_status.setText("0 tệp")
+                    QTimer.singleShot(4000, lambda: self.set_mascot_state("idle"))
                     return
             except Exception as e:
                 logger.debug(f"Chat explicit search error: {e}")
@@ -2869,10 +3133,23 @@ class OmnibarWindow(QMainWindow):
             elif self.current_section_idx == 1:
                 self.search_input.setFocus()
 
+    def _present_compact_reply(self, answer: str, status: str, *, has_details: bool = False) -> None:
+        """Keep compact and expanded views backed by the same full answer."""
+        clean = answer.replace("**", "").replace("`", "")
+        self.speech_bubble.set_reply(clean, status, copy_text=answer, has_details=has_details)
+        if self.is_expanded:
+            self.speech_bubble.hide_bubble()
+        else:
+            self.speech_bubble.show_bubble()
+            if not self.mascot_peeking.is_speaking:
+                self.mascot_peeking.pop_out_speaking()
+
     def _on_reasoning_token(self, handle: Dict[str, Any], token: str) -> None:
         self.chat_stream.append_stream_token(handle, token)
+        self._present_compact_reply(handle["full_text"], "Đang gõ")
         if getattr(self, "rat_stage", None):
             self.rat_stage.set_state("thinking", "Chuột · Đang gõ...")
+        self.set_mascot_state("thinking")
 
     def _on_reasoning_finished(
         self,
@@ -2883,10 +3160,14 @@ class OmnibarWindow(QMainWindow):
         strategy: str,
         badge: str,
     ) -> None:
+        # Non-streaming fallback and final corrections must replace partial tokens.
+        handle["full_text"] = answer if answer.strip() else handle.get("full_text", "")
         self.chat_stream.finalize_stream(handle, reasoning_steps=steps, latency_ms=latency_ms)
+        self._present_compact_reply(handle["full_text"], "Xong")
         self.footer_status.setText(f"Chuột · {strategy} ({latency_ms:.0f}ms)")
         if getattr(self, "rat_stage", None):
             self.rat_stage.set_state("idle")
+        self.set_mascot_state("idle")
 
     # -----------------------------------------------------------------
     # LIFECYCLE & WINDOW EVENTS
@@ -2901,33 +3182,39 @@ class OmnibarWindow(QMainWindow):
         except Exception:
             pass
 
-        self.switch_section(initial_section)
+        self.switch_section(0)
+        self.set_expanded(False)
 
-        # Smooth screen positioning: follow active mouse screen
+        # Smooth screen positioning: follow active mouse screen at stable ~18% top anchor
         try:
             from PyQt6.QtGui import QCursor
             cursor_pos = QCursor.pos()
             target_screen = QGuiApplication.screenAt(cursor_pos) or QGuiApplication.primaryScreen()
             if target_screen:
                 geo = target_screen.availableGeometry()
-                current_screen = self.screen()
-                if current_screen != target_screen or not self.isVisible():
-                    margin_bottom = 50
-                    x = geo.x() + (geo.width() - self.width()) // 2
-                    y = geo.y() + geo.height() - self.height() - margin_bottom
-                    self.move(x, max(geo.y() + 30, y))
+                margin_top = int(geo.height() * 0.18)
+                x = geo.x() + (geo.width() - self.width()) // 2
+                y = geo.y() + margin_top
+                self.move(x, y)
         except Exception:
             pass
+
+        # Configure macOS fullscreen auxiliary overlay so it floats above full-screen apps
+        configure_macos_fullscreen_overlay(self)
 
         self.show()
         self.raise_()
         self.activateWindow()
-        if self.current_section_idx == 0:
+        if hasattr(self, "speech_bubble"):
+            self.speech_bubble.show_bubble()
+        if hasattr(self, "mascot_peeking"):
+            self.mascot_peeking.show()
+            if self.speech_bubble.has_reply:
+                self.mascot_peeking.pop_out_speaking()
+            else:
+                self.mascot_peeking.retreat_to_idle()
+        if hasattr(self, "chat_composer_input"):
             self.chat_composer_input.setFocus()
-            self.chat_composer_input.selectAll()
-        elif self.current_section_idx == 1:
-            self.search_input.setFocus()
-            self.search_input.selectAll()
         QTimer.singleShot(500, self._finish_opening)
 
     def _finish_opening(self) -> None:

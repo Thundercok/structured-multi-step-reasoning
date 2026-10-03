@@ -46,13 +46,112 @@ Single-item schema illustration, not a runnable study dataset:
 Build splits before generation. Original problems, translations and paraphrases
 share a group and split. Validation rejects duplicate IDs/normalized queries,
 groups crossing splits, missing splits and invalid numeric labels. It cannot
-detect semantic paraphrases or verify answer truth; those require review.
+detect arbitrary semantic paraphrases or verify answer truth; those require review.
 Record source, license, original split and review provenance in the release.
 
-Text scoring normalizes whitespace/case only. Numeric scoring compares the
-entire returned answer with the label within its tolerance. A label appearing
-inside an incorrect explanation is not a correct answer. Audit extraction rules
-and labels on development examples before freezing test.
+Procedural inputs additionally require a known `family`/matching `checker`,
+matching answer type, valid problem metadata and the declared generator query
+template. Validation recomputes label-free canonical fingerprints and rejects
+the same problem appearing under different groups or splits, including runner
+renamings in ordering puzzles and permutations of Game-of-24 numbers. The
+fingerprint preserves arithmetic operation order and the asked ordering rank;
+it does not detect every mathematical or semantic equivalence. Canonical
+releases declare `identity_version=procedural-v1` and use the same stable
+`problem_id` and `group_id`, while item IDs have a release namespace.
+
+The candidate bundle `data/procedural_research_v1/` is reproducible without
+model calls:
+
+```bash
+python -m scripts.build_procedural_research_data --split-seed 42 --output data/NEW_RELEASE_DIRECTORY
+```
+
+The builder never overwrites a directory or modifies `gen_v2.json`/`gen_tune.json`.
+It excludes every main-source canonical class present anywhere in the legacy
+tuning pool. The historical H4 sweep covers all tuning items, so its original
+`test` label cannot establish a held-out study split. All tuning items are
+treated as exposed development, regardless of whether their model evaluation
+has finished. `tuning.json` contains train/calibration only and declares
+`role=development_tuning`; the supported study runner rejects it. Its schema
+can be checked by `validate_dataset(..., require_all_splits=False)` for data
+preparation only; this option does not enable running a held-out experiment.
+
+For `main.json`, canonical groups consisting solely of original test items
+retain test status. Any group with an original development member stays in
+development. Development groups are assigned by a deterministic SHA-256 rank
+within family/level strata, approximately one-third train and two-thirds
+calibration (split seed 42, distinct from generation seeds). No reviewed
+development item is promoted into test. Group variants remain together.
+
+The current candidate has 179 items/177 groups: train 36/36, calibration 72/71,
+test 71/70. The exposed tuning candidate has 94 items/91 groups: train 32/32,
+calibration 62/59. One main-source ordering item is excluded because it belongs
+to the tuning pool. There are zero shared canonical problems or item IDs
+between the two releases. Counts refer to retained questions and canonical
+classes, not validated difficulty or sufficient statistical power.
+
+The bundle records input/source/output hashes, original row fingerprints and
+IDs/splits, development review evidence, exclusions and family/level counts.
+Previously audited, unchanged development content retains its agent review;
+human review, ownership/license confirmation, held-out gold review and prior
+test-exposure review remain pending. This migration preserves question/label
+content and does not freeze a publication dataset or change Stage 0.
+
+Text scoring normalizes whitespace/case and matches the entire returned answer
+against the label or optional, explicitly reviewed `answer_aliases`. Aliases
+must be a nonempty list of distinct normalized strings on text items. They are
+fixed before evaluation; substring matches and free-form synonyms are rejected.
+Numeric scoring compares the entire returned scalar with the label within its
+tolerance. Items may declare `decimal_separator` (`.` by default, or `,` for
+reviewed Vietnamese development items). Dot notation remains accepted with
+comma notation; comma grouping is never guessed from the gold answer. A label
+appearing inside an incorrect explanation is not a correct answer.
+
+Research collection supplies answer-type/decimal metadata to the MLX adapter,
+without labels or aliases. Typed numeric extraction accepts only a whole scalar
+with optional currency/a bounded unit vocabulary, text extraction retains the
+whole final response, and expression extraction preserves the complete
+expression and optional equality. Thus negation or alternative answers cannot
+be reduced to a matching number/Yes/No. Unit suffix normalization does not
+validate physical dimensions. This conservative format contract can reject
+correct free-form explanations; prompts already request a bare final answer.
+Whole-answer bold Markdown, bold labels and contiguous repeated `Answer:`
+prefixes are presentation-normalized before typed parsing. The complete
+remaining candidate is still scored; the normalization never searches for a
+gold name or discards explanatory/contradictory clauses.
+
+Procedural arithmetic scores a complete scalar, ordering scores one named
+occupant with an optional rank consistent with the declared question, and
+Game-of-24 scores an exact binary arithmetic expression using each supplied
+integer exactly once. A single optional equality suffix must assert 24; wrong
+or chained equality suffixes are rejected. Voting compares preserved expression
+strings rather than their common result 24. These rules change scoring and need
+fresh source-pinned runs; legacy artifacts retain their original implementation.
+Audit extraction rules and labels on development examples before freezing test.
+
+The development-only audit is reproducible with
+`python -m scripts.audit_development_data --output audit/NEW_DIRECTORY`.
+It records agent proofs and query fingerprints, checks original group and
+canonical procedural problem identities, and compares blind held-out row
+hashes. Ordering identities canonicalize clue graphs under runner renaming with
+the asked rank retained. See `audit/development_data_review.json` for the
+reviewed variants; this is not independent human approval. Existing procedural
+legacy releases have structural split overlap; use the separate regrouped
+candidate for subsequent preparation. The audit leaves held-out content
+unchanged and does not change Stage 0.
+
+The completed historical Qwen3-8B H4 sweep is verified in
+`audit/G_completion_verification.json`. Its offline review is reproducible with
+`python -m scripts.review_tuning_sweep --output audit/NEW_REVIEW_DIRECTORY`.
+The [review report](../audit/qwen3-8b-tuning-review-20261003/report.md) reproduces
+all 188 historical scores, independently checks all 94 exposed tuning items,
+and separately records retrospective typed scores. It does not overwrite the
+raw trace/summary, generate new answers, fit policies or freeze parameters.
+DIRECT's 96-token budget and CoT's 1,024-token budget confound instruction and
+budget effects. Observed ceilings, floors and inconsistent ordering level
+accuracy require further development review before claiming calibrated
+difficulty. The checkpoint name recorded by that runner is cache metadata;
+fresh supported runs must pin an explicit local model snapshot.
 
 ## Fit and test separation
 
@@ -118,8 +217,48 @@ differences compare full policy with one-shot routing, fixed SC and removing
 escalation. Percentile 95% intervals use 2,000 bootstrap samples of original
 problem groups, retaining all variants within sampled groups. Intervals are
 conditional on the fitted policy and generation seed; one group yields no
-interval. Multiple seeds need a separate aggregate analysis and must not be
-treated as independent new questions. No automatic superiority claim is made.
+interval. No automatic superiority claim is made.
+
+### Multiple generation seeds
+
+Use the supported entry point after collecting the preregistered seeds:
+
+```bash
+python -m experiments.research_study --aggregate runs/seed-1 runs/seed-2 runs/seed-3 --output runs/aggregate
+```
+
+These paths are placeholders for completed collection or replay runs, not
+bundled measured results. At least two distinct seeds are required; the main
+study still targets at least three seeds fixed before inspecting test results.
+Replay copies of the same generation seed are rejected. Input runs must share
+the exact dataset hash, lambda, backend, evidence/token scope, model metadata,
+strategy labels, source hashes, Python/packages and platform. Different
+hardware or library versions need separate analyses. All declared artifact
+hashes are checked, and every method must contain every frozen test ID exactly
+once with the original group. Answers and cumulative costs/timing sums must
+agree with the selected attempts in `records.json`. The procedural checker
+source is now included in collection/replay source hashes as well.
+
+For each question and method, average correctness, tokens, utility and
+escalation across the observed seeds. Report the resulting question-weighted
+means and retain the unique test-question count; seed repetitions and variants
+are not new independent original problems. The paired differences use those
+seed-averaged question outcomes, followed by 2,000 percentile bootstrap draws
+of original problem groups with all their variants retained. Intervals are
+conditional on the frozen fitted policies and observed seed set; they do not
+include policy-fitting uncertainty or uncertainty over a population of new
+generation seeds. One original group gives no interval. Per-seed metrics and
+sample SD/min/max across seeds remain available for descriptive variability.
+
+Aggregation makes no model calls and fits no new policy. Its new directory
+contains `manifest.json`, `summary.json` and `report.md`; the manifest references
+each original run and its manifest/artifact hashes, and hashes the aggregate
+analysis implementation and outputs. It never overwrites an existing path and
+validates inputs before creating output. Hash consistency does not establish
+label review, preregistration or checkpoint identity. Every aggregate is marked
+as requiring publication review, and synthetic inputs retain the
+`synthetic_smoke` label. Generated-token costs and strategy replay times retain
+the same limits as individual runs. This analysis does not change Stage 0.
 
 Replay requires matching source hashes, checks dataset/record artifact hashes
 and retains seed/lambda. The dataset contains text and labels: publish only data

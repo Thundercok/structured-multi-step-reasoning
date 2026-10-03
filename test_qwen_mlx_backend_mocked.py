@@ -270,6 +270,37 @@ def test_sc_votes_on_canonical_answers():
     assert abs(ratio - 0.8) < 1e-4, f"Expected ratio 0.8, got {ratio}"
 
 
+def test_research_expression_format_survives_cot_sc_selection_and_tools():
+    from scripts.gen_tasks import check
+    expression = "10+13+3-2 = 24"
+    item = {"family": "g24", "meta": {"numbers": [10, 13, 2, 3]}}
+    for strategy in (A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL):
+        b = make_backend()
+        b.configure_answer_format("expression")
+        if strategy == A.SELF_CONSISTENCY:
+            scripted.queue(*([f"Answer: {expression}"] * 5))
+        elif strategy == A.TOT:
+            scripted.queue(*([f"Answer: {expression}"] * 3), "Best: 1")
+        elif strategy == A.REACT:
+            scripted.queue(f"Thought: done Action: finish[{expression}]")
+        elif strategy == A.PAL:
+            scripted.queue(f"```python\nresult = '{expression}'\n```")
+        else:
+            scripted.queue(f"Answer: {expression}")
+        answer, _, _ = b.run(strategy, "Use each given number once.")
+        assert check(item, answer), (strategy, answer)
+
+
+def test_research_typed_scalar_and_text_preserve_meaning():
+    b = make_backend()
+    b.configure_answer_format("number", ",")
+    scripted.queue("Answer: 129,6")
+    assert b.run(A.COT, "Vietnamese decimal question")[0] == "129.6"
+    b.configure_answer_format("text")
+    scripted.queue("Answer: No, the answer is Yes")
+    assert b.run(A.COT, "Logical question")[0] == "No, the answer is Yes"
+
+
 
 def b_run(strategy, query, **kw):
     b = make_backend()

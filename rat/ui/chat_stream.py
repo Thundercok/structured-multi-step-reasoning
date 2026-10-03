@@ -755,9 +755,8 @@ class ChatStreamWidget(QScrollArea):
         ans_lbl = handle["ans_lbl"]
         full_text = handle["full_text"]
 
-        if not ans_lbl.isVisible():
-            ans_lbl.setText(full_text)
-            ans_lbl.show()
+        ans_lbl.setText(full_text)
+        ans_lbl.show()
 
         status_lbl = handle["status_lbl"]
         if status_lbl.isVisible():

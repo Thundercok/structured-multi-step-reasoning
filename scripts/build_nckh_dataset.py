@@ -404,7 +404,7 @@ def split_groups_stratified(groups: List[Dict[str, Any]], seed: int = 42) -> Dic
 
 
 def build_dataset(seed: int = 42) -> Dict[str, Any]:
-    """Construct full verified dataset adhering to research_study schema."""
+    """Construct a draft; schema validity does not establish human review."""
     group_to_split = split_groups_stratified(RAW_GROUPS, seed=seed)
 
     items: List[Dict[str, Any]] = []
@@ -438,6 +438,14 @@ def build_dataset(seed: int = 42) -> Dict[str, Any]:
         "items": items,
     }
 
+    review_path = ROOT / "audit" / "development_data_review.json"
+    if seed == 42 and review_path.exists():
+        from scripts.audit_development_data import apply_curated_review
+        dataset = apply_curated_review(dataset, json.loads(review_path.read_text()))
+    elif seed != 42:
+        for item in items:
+            item["review_status"] = "unreviewed"
+
     # Validate against strict research study criteria
     validate_dataset(dataset)
     return dataset
@@ -463,7 +471,7 @@ def main():
     print(f"Dataset successfully built and validated: {out_path}")
     print(f"Total items: {len(items)} across {len(RAW_GROUPS)} groups")
     print(f"Distribution by split: {by_split}")
-    print("Group-level isolation: VERIFIED (Zero paraphrase leakage across train/calibration/test)")
+    print("Group IDs remain disjoint across splits; semantic duplicates and human review require separate evidence.")
 
 
 if __name__ == "__main__":

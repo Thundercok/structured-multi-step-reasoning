@@ -138,7 +138,8 @@ def main():
                         f_reason = r.finish_reason
                 wall_ms = (time.perf_counter() - t0) * 1000.0
 
-                ans, status, wordy = parse_answer_details(text)
+                answer_type = "expression" if it["family"] == "g24" else "text" if it["family"] == "order" else "number"
+                ans, status, wordy = parse_answer_details(text, answer_type=answer_type)
                 correct = bool(gen_check(it, ans))
 
                 rec = {

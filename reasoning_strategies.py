@@ -18,8 +18,11 @@ TRAILING_NUMERIC_RESULT = re.compile(r"[:=]\s*(-?\d[\d,]*\.?\d*)(?:\s+[^\d]*)?\s
 YES_NO_ANSWER = re.compile(r"^\s*(yes|no)\b", re.IGNORECASE)
 
 
-def extract_answer(text: str) -> str:
+def extract_answer(text: str, answer_type: str | None = None, decimal_separator: str = ".") -> str:
     """Lấy dòng 'Answer: ...' cuối cùng; fallback dòng cuối không rỗng."""
+    if answer_type is not None:
+        from research_scoring import parse_typed_answer
+        return parse_typed_answer(text, answer_type, decimal_separator)[0]
     matches = ANSWER_LINE.findall(text)
     placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
     if matches:
@@ -113,7 +116,7 @@ def is_wordy_answer(ans: str) -> bool:
     return True
 
 
-def parse_answer_details(text: str) -> tuple[str, str, bool]:
+def parse_answer_details(text: str, answer_type: str | None = None, decimal_separator: str = ".") -> tuple[str, str, bool]:
     """
     Trích xuất đáp án và phân loại:
     Returns (answer, parse_status, wordy).
@@ -121,6 +124,9 @@ def parse_answer_details(text: str) -> tuple[str, str, bool]:
     wordy: True nếu answer không phải số, từ/tên, hay biểu thức.
     'fail' gồm cả chuỗi rỗng, câu giải thích dài, và LaTeX.
     """
+    if answer_type is not None:
+        from research_scoring import parse_typed_answer
+        return parse_typed_answer(text, answer_type, decimal_separator)
     matches = ANSWER_LINE.findall(text)
     placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
     ans = ""
@@ -173,7 +179,8 @@ def canonicalize_answer(s: str) -> str:
     if not s:
         return ""
     is_expr = any(op in s for op in ("+", "*", "/", "=")) or ("-" in s and not re.match(r"^-\d", s.strip()))
-    num = extract_number(s)
+    has_ordinal = re.search(r"\d(?:st|nd|rd|th)\b", s, re.IGNORECASE) is not None
+    num = None if has_ordinal else extract_number(s)
     if num is not None and not is_expr:
         try:
             f = float(num)
@@ -188,11 +195,15 @@ def canonicalize_answer(s: str) -> str:
     return s.strip().lower()
 
 
-def majority_vote(answers: list[str], return_tie: bool = False) -> tuple[str, float] | tuple[str, float, bool]:
+def majority_vote(answers: list[str], return_tie: bool = False, answer_type: str | None = None, decimal_separator: str = ".") -> tuple[str, float] | tuple[str, float, bool]:
     """Vote trên dạng chuẩn hoá, trả dạng chuẩn hoá. Hoà phiếu -> mẫu đầu, ghi tie=True."""
     if not answers:
         return ("", 0.0, False) if return_tie else ("", 0.0)
-    canonical_list = [canonicalize_answer(a) for a in answers]
+    if answer_type is None:
+        canonical_list = [canonicalize_answer(a) for a in answers]
+    else:
+        from research_scoring import typed_vote_key
+        canonical_list = [typed_vote_key(a, answer_type, decimal_separator) for a in answers]
     counts = Counter(canonical_list)
     most_common = counts.most_common()
     max_count = most_common[0][1]

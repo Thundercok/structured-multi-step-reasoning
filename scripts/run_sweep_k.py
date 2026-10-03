@@ -40,7 +40,7 @@ def get_git_info():
     branch = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"])
     commit = _run(["git", "rev-parse", "--short", "HEAD"])
     tag = _run(["git", "describe", "--tags", "--exact-match", "HEAD"])
-    dirty = bool(_run(["git", "status", "--porcelain"]))
+    dirty = bool(_run(["git", "status", "--porcelain", "-uno"]))
     return {"branch": branch, "tag": tag, "commit": commit, "dirty": dirty}
 
 

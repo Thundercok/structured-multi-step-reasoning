@@ -129,7 +129,10 @@ def sols24(nums):  # distinct solution strings (commutative ops canonicalised on
 
 def check24(expr, nums):
     try:
-        tree = ast.parse(expr.replace("×", "*").replace("÷", "/").split("=")[0].strip(), mode="eval").body
+        parts = expr.replace("×", "*").replace("÷", "/").split("=")
+        if len(parts) > 2 or (len(parts) == 2 and not re.fullmatch(r"\s*24(?:\.0+)?\s*", parts[1])):
+            return False
+        tree = ast.parse(parts[0].strip(), mode="eval").body
         used = []
 
         def ev(n):
@@ -170,10 +173,15 @@ def check(item, pred):
     pred = (pred or "").strip()
     f = item["family"]
     if f == "arith":
-        mt = re.fullmatch(r"\$?\s*(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)\s*[A-Za-z%$ ]*\.?", pred)
-        return bool(mt) and Fraction(mt.group(1).replace(",", "")) == Fraction(item["answer"])
+        from research_scoring import numeric_literal
+        scalar = numeric_literal(pred, item.get("decimal_separator", "."), allow_units=True)
+        return scalar is not None and Fraction(scalar) == Fraction(item["answer"])
     if f == "order":
-        return [n for n in NAMES if re.search(rf"\b{n}\b", pred, re.I)] == [item["answer"]]
+        match = re.fullmatch(r"([A-Za-z]+)(?:\s+finished\s+(?:in\s+)?(\d+(?:st|nd|rd|th))(?:\s+place)?)?\.?", pred, re.I)
+        if not match or match.group(1).casefold() != item["answer"].casefold():
+            return False
+        ask = item.get("meta", {}).get("ask")
+        return match.group(2) is None or ask is None or match.group(2).casefold() == ORD[ask]
     if f == "g24":
         return check24(pred, item["meta"]["numbers"])
     raise KeyError(f)

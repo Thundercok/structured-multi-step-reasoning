@@ -1,8 +1,8 @@
 {
   "name": "nckh-multistep-reasoning-v1",
-  "version": "1.0.0",
+  "version": "1.0.1-development-audit",
   "source": "Curated benchmark with paraphrases & Vietnamese translations",
-  "license": "CC-BY-4.0",
+  "license": "Mixed item-level declarations; source and ownership review required",
   "items": [
     {
       "id": "pal_001_en_orig",
@@ -92,8 +92,22 @@
       "source": "GSM8K (Cobbe et al.)",
       "license": "MIT",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "source_provenance": {
+        "repository": "https://github.com/openai/grade-school-math",
+        "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+        "original_split": "train",
+        "original_line": 3,
+        "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+        "transformation": "English adaptation/paraphrase",
+        "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+      },
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_003_en_para",
@@ -105,8 +119,22 @@
       "source": "GSM8K (Cobbe et al.)",
       "license": "MIT",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "source_provenance": {
+        "repository": "https://github.com/openai/grade-school-math",
+        "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+        "original_split": "train",
+        "original_line": 3,
+        "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+        "transformation": "English adaptation/paraphrase",
+        "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+      },
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_003_vi_trans",
@@ -118,47 +146,78 @@
       "source": "GSM8K (Cobbe et al.)",
       "license": "MIT",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "source_provenance": {
+        "repository": "https://github.com/openai/grade-school-math",
+        "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+        "original_split": "train",
+        "original_line": 3,
+        "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+        "transformation": "Vietnamese translation",
+        "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+      },
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_004_en_orig",
       "group_id": "grp_pal_004",
       "split": "train",
-      "query": "Albert buys 2 large pizzas and 2 small pizzas per week for 4 weeks. A large pizza has 16 slices and a small pizza has 8 slices. In 4 weeks, how many slices of pizza does Albert eat in total?",
+      "query": "Albert buys 2 large pizzas and 2 small pizzas per week for 4 weeks. A large pizza has 16 slices and a small pizza has 8 slices. How many slices do all of those pizzas contain altogether?",
       "answer": "192",
       "answer_type": "number",
       "source": "Curated Arithmetic",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_004_en_para",
       "group_id": "grp_pal_004",
       "split": "train",
-      "query": "Every week across a 4-week period, Albert gets 2 large pizzas (16 slices each) and 2 small pizzas (8 slices each). Calculate the total number of slices he has after 4 weeks.",
+      "query": "Every week across a 4-week period, Albert gets 2 large pizzas (16 slices each) and 2 small pizzas (8 slices each). How many slices are contained in all the pizzas he receives over the 4 weeks?",
       "answer": "192",
       "answer_type": "number",
       "source": "Curated Arithmetic",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_004_vi_trans",
       "group_id": "grp_pal_004",
       "split": "train",
-      "query": "Albert mua 2 chiếc bánh pizza lớn và 2 chiếc pizza nhỏ mỗi tuần trong vòng 4 tuần. Một chiếc pizza lớn có 16 miếng và pizza nhỏ có 8 miếng. Trong 4 tuần, tổng cộng Albert đã ăn bao nhiêu miếng pizza?",
+      "query": "Albert mua 2 chiếc bánh pizza lớn và 2 chiếc pizza nhỏ mỗi tuần trong vòng 4 tuần. Một chiếc pizza lớn có 16 miếng và pizza nhỏ có 8 miếng. Hỏi tất cả số bánh pizza mua trong 4 tuần có tổng cộng bao nhiêu miếng?",
       "answer": "192",
       "answer_type": "number",
       "source": "Curated Arithmetic",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_005_en_orig",
@@ -170,8 +229,13 @@
       "source": "Curated Arithmetic",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0.01"
+      "review_status": "agent_reviewed",
+      "tolerance": "0.01",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_005_en_para",
@@ -183,8 +247,13 @@
       "source": "Curated Arithmetic",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0.01"
+      "review_status": "agent_reviewed",
+      "tolerance": "0.01",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_005_vi_trans",
@@ -196,8 +265,14 @@
       "source": "Curated Arithmetic",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0.01"
+      "review_status": "agent_reviewed",
+      "tolerance": "0.01",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_006_en_orig",
@@ -209,8 +284,13 @@
       "source": "Curated Physics/Math",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_006_en_para",
@@ -222,8 +302,13 @@
       "source": "Curated Physics/Math",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_006_vi_trans",
@@ -235,8 +320,14 @@
       "source": "Curated Physics/Math",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_007_en_orig",
@@ -248,8 +339,13 @@
       "source": "Classic Geometry",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_007_en_para",
@@ -261,8 +357,13 @@
       "source": "Classic Geometry",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_007_vi_trans",
@@ -274,8 +375,14 @@
       "source": "Classic Geometry",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_008_en_orig",
@@ -287,8 +394,13 @@
       "source": "Classic Algebra Puzzle",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_008_en_para",
@@ -300,8 +412,13 @@
       "source": "Classic Algebra Puzzle",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "pal_008_vi_trans",
@@ -313,8 +430,14 @@
       "source": "Classic Algebra Puzzle",
       "license": "CC-BY-4.0",
       "category": "pal",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_001_en_orig",
@@ -326,8 +449,13 @@
       "source": "Chained Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_001_en_para",
@@ -339,8 +467,13 @@
       "source": "Chained Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_001_vi_trans",
@@ -352,8 +485,14 @@
       "source": "Chained Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_002_en_orig",
@@ -365,8 +504,13 @@
       "source": "Chained Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_002_en_para",
@@ -378,8 +522,13 @@
       "source": "Chained Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_002_vi_trans",
@@ -391,8 +540,14 @@
       "source": "Chained Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_003_en_orig",
@@ -404,8 +559,13 @@
       "source": "Percentage Chaining",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_003_en_para",
@@ -417,8 +577,13 @@
       "source": "Percentage Chaining",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_003_vi_trans",
@@ -430,8 +595,14 @@
       "source": "Percentage Chaining",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_004_en_orig",
@@ -443,34 +614,50 @@
       "source": "Multi-segment Travel",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_004_en_para",
       "group_id": "grp_react_004",
       "split": "train",
-      "query": "A journey is split into three legs: 145 km, 210 km, and 85 km. Calculate the cumulative distance of the entire trip in kilometers.",
+      "query": "A journey is split into three legs: 145 km in 2 hours, 210 km in 3 hours, and 85 km in 1 hour. Calculate the cumulative distance of the entire trip in kilometers.",
       "answer": "440",
       "answer_type": "number",
       "source": "Multi-segment Travel",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_004_vi_trans",
       "group_id": "grp_react_004",
       "split": "train",
-      "query": "Một chuyến đi gồm 3 chặng: chặng một dài 145 km, chặng hai dài 210 km, và chặng ba dài 85 km. Hỏi tổng quãng đường đã đi là bao nhiêu km?",
+      "query": "Một chuyến đi gồm 3 chặng: chặng một dài 145 km trong 2 giờ, chặng hai dài 210 km trong 3 giờ, và chặng ba dài 85 km trong 1 giờ. Hỏi tổng quãng đường đã đi là bao nhiêu km?",
       "answer": "440",
       "answer_type": "number",
       "source": "Multi-segment Travel",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_005_en_orig",
@@ -482,8 +669,13 @@
       "source": "Inventory Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_005_en_para",
@@ -495,8 +687,13 @@
       "source": "Inventory Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_005_vi_trans",
@@ -508,8 +705,14 @@
       "source": "Inventory Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_006_en_orig",
@@ -560,8 +763,13 @@
       "source": "Compound Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_007_en_para",
@@ -573,8 +781,13 @@
       "source": "Compound Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "react_007_vi_trans",
@@ -586,8 +799,14 @@
       "source": "Compound Arithmetic",
       "license": "CC-BY-4.0",
       "category": "react",
-      "review_status": "reviewed",
-      "tolerance": "0"
+      "review_status": "agent_reviewed",
+      "tolerance": "0",
+      "decimal_separator": ",",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_001_en_orig",
@@ -635,7 +854,12 @@
       "source": "Syllogistic Logic",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_002_en_para",
@@ -647,19 +871,32 @@
       "source": "Syllogistic Logic",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_002_vi_trans",
       "group_id": "grp_plain_002",
       "split": "train",
-      "query": "Mọi bông hoa hồng đều là hoa. Một số loài hoa mau tàn. Chúng ta có thể kết luận chắc chắn rằng mọi bông hoa hồng đều mau tàn hay không? Trả lời Yes hoặc No.",
+      "query": "Mọi bông hoa hồng đều là hoa. Một số bông hoa mau tàn. Chúng ta có thể kết luận chắc chắn rằng mọi bông hoa hồng đều mau tàn hay không? Trả lời Yes hoặc No.",
       "answer": "No",
       "answer_type": "text",
       "source": "Syllogistic Logic",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "answer_aliases": [
+        "không"
+      ],
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_003_en_orig",
@@ -671,7 +908,12 @@
       "source": "Ordering Puzzle",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_003_en_para",
@@ -683,7 +925,12 @@
       "source": "Ordering Puzzle",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_003_vi_trans",
@@ -695,7 +942,12 @@
       "source": "Ordering Puzzle",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_004_en_orig",
@@ -707,7 +959,12 @@
       "source": "Modular Arithmetic / Calendar",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_004_en_para",
@@ -719,7 +976,12 @@
       "source": "Modular Arithmetic / Calendar",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_004_vi_trans",
@@ -731,7 +993,15 @@
       "source": "Modular Arithmetic / Calendar",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "answer_aliases": [
+        "thứ năm"
+      ],
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_005_en_orig",
@@ -743,7 +1013,12 @@
       "source": "Transitive Ordering",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_005_en_para",
@@ -755,7 +1030,12 @@
       "source": "Transitive Ordering",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_005_vi_trans",
@@ -767,43 +1047,70 @@
       "source": "Transitive Ordering",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "answer_aliases": [
+        "có"
+      ],
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_006_en_orig",
       "group_id": "grp_plain_006",
       "split": "calibration",
-      "query": "A farmer needs to cross a river with a wolf, a goat, and a cabbage. If left alone, the wolf eats the goat, and the goat eats the cabbage. Which item must the farmer take across first?",
+      "query": "A farmer must cross a river with a wolf, a goat, and a cabbage. The boat can carry only the farmer and one item, and only the farmer can row it. If left together on either bank without the farmer, the wolf eats the goat and the goat eats the cabbage. All must reach the other bank safely. Which item must the farmer take across first?",
       "answer": "Goat",
       "answer_type": "text",
       "source": "Classic River Crossing Riddle",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_006_en_para",
       "group_id": "grp_plain_006",
       "split": "calibration",
-      "query": "To transport a wolf, a goat, and a cabbage across a river safely without the wolf devouring the goat or the goat devouring the cabbage when unsupervised, which one must be moved first?",
+      "query": "A farmer must transport a wolf, a goat, and a cabbage safely across a river. Only the farmer can row, and the boat holds the farmer plus at most one item. Without the farmer on the same bank, the wolf eats the goat and the goat eats the cabbage. Which item must accompany the farmer on the first crossing?",
       "answer": "Goat",
       "answer_type": "text",
       "source": "Classic River Crossing Riddle",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_006_vi_trans",
       "group_id": "grp_plain_006",
       "split": "calibration",
-      "query": "Một bác nông dân cần chở một con sói, một con dê và một bắp cải qua sông. Nếu để ở cùng nhau mà không có người, sói sẽ ăn thịt dê, và dê sẽ ăn bắp cải. Hỏi bác nông dân phải chở thứ gì qua sông đầu tiên?",
+      "query": "Một bác nông dân phải chở một con sói, một con dê và một bắp cải qua sông an toàn. Thuyền chỉ chở được bác nông dân cùng tối đa một thứ, và chỉ bác nông dân có thể chèo thuyền. Nếu ở cùng một bờ mà không có bác nông dân, sói sẽ ăn dê và dê sẽ ăn bắp cải. Hỏi bác nông dân phải chở thứ gì qua sông trong chuyến đầu tiên?",
       "answer": "Goat",
       "answer_type": "text",
       "source": "Classic River Crossing Riddle",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "answer_aliases": [
+        "dê",
+        "con dê"
+      ],
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_007_en_orig",
@@ -815,7 +1122,12 @@
       "source": "Commonsense Physics",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_007_en_para",
@@ -827,19 +1139,34 @@
       "source": "Commonsense Physics",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     },
     {
       "id": "plain_007_vi_trans",
       "group_id": "grp_plain_007",
       "split": "calibration",
-      "query": "Vật nào nặng hơn: 1 kilôgam sắt hay 1 kilôgam lông vũ? Trả lời Steel, Feathers, hoặc Equal.",
+      "query": "Vật nào nặng hơn: 1 kilôgam thép hay 1 kilôgam lông vũ? Trả lời Steel, Feathers, hoặc Equal.",
       "answer": "Equal",
       "answer_type": "text",
       "source": "Commonsense Physics",
       "license": "CC-BY-4.0",
       "category": "plain",
-      "review_status": "reviewed"
+      "review_status": "agent_reviewed",
+      "answer_aliases": [
+        "bằng nhau",
+        "như nhau"
+      ],
+      "review": {
+        "reviewer": "Codex AI agent",
+        "artifact": "audit/development_data_review.json",
+        "human_review_status": "pending"
+      }
     }
-  ]
+  ],
+  "review_scope": "Agent review of train/calibration only; human sign-off pending; test unreviewed by this audit"
 }
