@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="5.363" timestamp="2026-10-03T10:10:12.870694+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_harness_regressions" name="test_regression_generation_boundary_and_stop_token" time="0.047" /><testcase classname="tests.test_harness_regressions" name="test_regression_react_placeholder_rejection" time="0.002"><failure message="AssertionError: REACT_SYSTEM prompt leaked placeholder 'bieu_thuc_so_hoc'&#10;assert 'bieu_thuc_so_hoc' not in 'Giải bài to...i calculate.'&#10;  &#10;  'bieu_thuc_so_hoc' is contained here:&#10;    calculate[bieu_thuc_so_hoc] hoặc Action: finish[dap_an]&#10;  ?           ++++++++++++++++&#10;    Không tự viết dòng Observation - hệ thống sẽ cung cấp sau khi bạn gọi calculate.">tests/test_harness_regressions.py:97: in test_regression_react_placeholder_rejection
+    assert "bieu_thuc_so_hoc" not in REACT_SYSTEM, "REACT_SYSTEM prompt leaked placeholder 'bieu_thuc_so_hoc'"
+E   AssertionError: REACT_SYSTEM prompt leaked placeholder 'bieu_thuc_so_hoc'
+E   assert 'bieu_thuc_so_hoc' not in 'Giải bài to...i calculate.'
+E     
+E     'bieu_thuc_so_hoc' is contained here:
+E       calculate[bieu_thuc_so_hoc] hoặc Action: finish[dap_an]
+E     ?           ++++++++++++++++
+E       Không tự viết dòng Observation - hệ thống sẽ cung cấp sau khi bạn gọi calculate.</failure></testcase><testcase classname="tests.test_harness_regressions" name="test_regression_pal_timeout_and_sandbox_safety" time="0.556" /><testcase classname="tests.test_harness_regressions" name="test_regression_parser_does_not_pick_wrong_trailing_token_or_unit" time="0.000" /><testcase classname="tests.test_harness_regressions" name="test_regression_tot_selects_correct_candidate_branch" time="0.017" /></testsuite></testsuites>

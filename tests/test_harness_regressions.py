@@ -70,7 +70,7 @@ def test_regression_generation_boundary_and_stop_token():
     assert hasattr(b, "last_trace"), "Backend must record last_trace"
     assert len(b.last_trace["generations"]) > 0, "Trace must capture generation events"
     last_gen = b.last_trace["generations"][0]
-    assert last_gen["finish_reason"] == "stop", f"Expected finish_reason 'stop', got {last_gen.get('finish_reason')!r}"
+    assert last_gen.get("finish_reason") == "stop", f"Expected finish_reason 'stop', got {last_gen.get('finish_reason')!r}"
 
 
 # ==============================================================================
@@ -84,7 +84,10 @@ RAW_REACT_PLACEHOLDER_FIXTURE = (
 
 
 def test_regression_react_placeholder_rejection():
-    """Bug 2: Parser rejects echoed placeholder templates, and REACT_SYSTEM contains no placeholder artifacts."""
+    """Bug 2: Parser rejects echoed placeholder templates, and REACT_SYSTEM contains no placeholder artifacts.
+
+    Ghi chú kiểm định: chưa tái hiện bug ReAct trên trace thật; chỉ kiểm parser + prompt.
+    """
     # Parser must strip leading placeholder and extract the real numeric conclusion
     parsed = extract_answer(RAW_REACT_PLACEHOLDER_FIXTURE)
     assert "<kết quả>" not in parsed, f"Parsed answer leaked prompt placeholder: {parsed!r}"

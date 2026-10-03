@@ -1,0 +1,12 @@
+F....                                                                    [100%]
+=================================== FAILURES ===================================
+______________ test_regression_generation_boundary_and_stop_token ______________
+tests/test_harness_regressions.py:73: in test_regression_generation_boundary_and_stop_token
+    assert last_gen.get("finish_reason") == "stop", f"Expected finish_reason 'stop', got {last_gen.get('finish_reason')!r}"
+E   AssertionError: Expected finish_reason 'stop', got None
+E   assert None == 'stop'
+E    +  where None = <built-in method get of dict object at 0x14a4718c0>('finish_reason')
+E    +    where <built-in method get of dict object at 0x14a4718c0> = {'output': 'To determine the total number of pizza slices Albert eats in 4 weeks, we need to calculate the number of s...nfidence': 0.08405139991054127, 'mean_entropy': 1.0, 'mean_margin': 0.0, 'p_seq': 0.006737946999085467}, 'tokens': 183}.get
+=========================== short test summary info ============================
+FAILED tests/test_harness_regressions.py::test_regression_generation_boundary_and_stop_token
+1 failed, 4 passed in 5.16s

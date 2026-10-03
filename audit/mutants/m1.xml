@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="5" time="5.642" timestamp="2026-10-03T10:09:53.408125+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_harness_regressions" name="test_regression_generation_boundary_and_stop_token" time="0.001"><failure message="AssertionError: chat prompt phải kết thúc ở vai assistant&#10;assert False is True">tests/test_harness_regressions.py:67: in test_regression_generation_boundary_and_stop_token
+    ans, conf, tok = b.run(A.COT, query)
+                     ^^^^^^^^^^^^^^^^^^^
+qwen_mlx_backend.py:60: in run
+    return {
+qwen_mlx_backend.py:76: in _cot
+    text, conf, n_tok = self._chat([{"role": "user", "content": query + COT_SUFFIX}], temp=0.0)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+qwen_mlx_backend.py:163: in _chat
+    prompt = self.tokenizer.apply_chat_template(messages, enable_thinking=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+test_qwen_mlx_backend_mocked.py:103: in apply_chat_template
+    assert add_generation_prompt is True, "chat prompt phải kết thúc ở vai assistant"
+E   AssertionError: chat prompt phải kết thúc ở vai assistant
+E   assert False is True</failure></testcase><testcase classname="tests.test_harness_regressions" name="test_regression_react_placeholder_rejection" time="0.000" /><testcase classname="tests.test_harness_regressions" name="test_regression_pal_timeout_and_sandbox_safety" time="0.561" /><testcase classname="tests.test_harness_regressions" name="test_regression_parser_does_not_pick_wrong_trailing_token_or_unit" time="0.001" /><testcase classname="tests.test_harness_regressions" name="test_regression_tot_selects_correct_candidate_branch" time="0.001"><failure message="AssertionError: chat prompt phải kết thúc ở vai assistant&#10;assert False is True">tests/test_harness_regressions.py:191: in test_regression_tot_selects_correct_candidate_branch
+    ans, conf, tok = b.run(A.TOT, "Tính tổng số hộp hàng?")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+qwen_mlx_backend.py:60: in run
+    return {
+qwen_mlx_backend.py:93: in _tot
+    text, _, n_tok = self._chat(msgs, temp=0.8)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+qwen_mlx_backend.py:163: in _chat
+    prompt = self.tokenizer.apply_chat_template(messages, enable_thinking=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+test_qwen_mlx_backend_mocked.py:103: in apply_chat_template
+    assert add_generation_prompt is True, "chat prompt phải kết thúc ở vai assistant"
+E   AssertionError: chat prompt phải kết thúc ở vai assistant
+E   assert False is True</failure></testcase></testsuite></testsuites>

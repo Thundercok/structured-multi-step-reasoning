@@ -1,0 +1,30 @@
+--- a/qwen_mlx_backend.py
++++ b/qwen_mlx_backend.py
+@@ -20,11 +20,9 @@
+ 
+ COT_SUFFIX = "\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."
+ REACT_SYSTEM = (
+-    "Solve the problem with ReAct. Every response must contain exactly two lines: "
+-    "one Thought line and one Action line. The action must be calculate[...] or "
+-    "finish[...]. Put only a concrete arithmetic expression inside calculate and "
+-    "only the final answer inside finish. Never write an Observation; the system "
+-    "provides it after calculate."
++    "Giải bài toán bằng ReAct. Mỗi lượt chỉ viết:\n"
++    "Thought: <suy nghĩ>\nAction: calculate[bieu_thuc_so_hoc] hoặc Action: finish[dap_an]\n"
++    "Không tự viết dòng Observation - hệ thống sẽ cung cấp sau khi bạn gọi calculate."
+ )
+ PAL_SUFFIX = "\nViết 1 đoạn code Python giải bài này, gán kết quả cuối vào biến `result`. Chỉ trả code, trong 1 khối ```python```."
+ 
+@@ -120,11 +118,7 @@
+         return answer, eval_conf, total_tok
+ 
+     def _react(self, query: str, max_turns: int = 4) -> tuple[str, float, int]:
+-        msgs = [
+-            {"role": "system", "content": REACT_SYSTEM},
+-            *REACT_EXAMPLE,
+-            {"role": "user", "content": query},
+-        ]
++        msgs = [{"role": "system", "content": REACT_SYSTEM}, {"role": "user", "content": query}]
+         total_tok, last_conf = 0, 0.0
+         for _ in range(max_turns):
+             text, conf, n_tok = self._chat(msgs, temp=0.0, max_tokens=200)

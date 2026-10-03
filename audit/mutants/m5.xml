@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="6.621" timestamp="2026-10-03T10:10:45.484310+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_harness_regressions" name="test_regression_generation_boundary_and_stop_token" time="0.053" /><testcase classname="tests.test_harness_regressions" name="test_regression_react_placeholder_rejection" time="0.000" /><testcase classname="tests.test_harness_regressions" name="test_regression_pal_timeout_and_sandbox_safety" time="0.573" /><testcase classname="tests.test_harness_regressions" name="test_regression_parser_does_not_pick_wrong_trailing_token_or_unit" time="0.001" /><testcase classname="tests.test_harness_regressions" name="test_regression_tot_selects_correct_candidate_branch" time="0.017"><failure message="AssertionError: ToT must select candidate 1 ('1167'), got '422'&#10;assert '422' == '1167'&#10;  &#10;  - 1167&#10;  + 422">tests/test_harness_regressions.py:192: in test_regression_tot_selects_correct_candidate_branch
+    assert ans == "1167", f"ToT must select candidate 1 ('1167'), got {ans!r}"
+E   AssertionError: ToT must select candidate 1 ('1167'), got '422'
+E   assert '422' == '1167'
+E     
+E     - 1167
+E     + 422</failure></testcase></testsuite></testsuites>

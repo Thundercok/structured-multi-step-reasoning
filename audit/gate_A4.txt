@@ -1,0 +1,70 @@
+=== git log --stat -3 --format='%h %ad %s' ===
+17d5606 Sat Oct 3 09:52:32 2026 +0700 feat(dataset): track draft dataset with manifest, pilot runner, and regression fixtures
+
+ data/MANIFEST.json                     |   6 +
+ data/nckh_reasoning_dataset_draft.json | 845 +++++++++++++++++++++++++++++++++
+ experiments/pilot_real_model.py        | 199 ++++++++
+ scripts/build_nckh_dataset.py          | 470 ++++++++++++++++++
+ scripts/mutation_check.py              | 231 +++++++++
+ tests/test_harness_regressions.py      |  16 +-
+ 6 files changed, 1765 insertions(+), 2 deletions(-)
+6aff01b Sat Oct 3 04:10:59 2026 +0700 fix(harness): 5 core regression fixes for real model reasoning
+
+ audit/gate_P0.txt                 | 221 ++++++++++++++++++++++++++++++++++++++
+ experiments/research_study.py     |   3 +
+ qwen_mlx_backend.py               |  93 +++++++++++++---
+ reasoning_strategies.py           | 138 +++++++++++++++++-------
+ test_qwen_mlx_backend_mocked.py   |  35 +++++-
+ test_reasoning_strategies.py      |  21 +++-
+ tests/test_harness_regressions.py | 177 ++++++++++++++++++++++++++++++
+ tests/test_research_study.py      |  25 +++++
+ 8 files changed, 653 insertions(+), 60 deletions(-)
+201331c Sat Oct 3 02:59:25 2026 +0700 feat(nckh): baseline integrity, test harness, and intent-aware reranker
+
+ .github/workflows/ci.yml                  |  14 +-
+ .gitignore                                |   5 +
+ AGENTS.md                                 |  29 ++
+ README.md                                 | 456 +++++++---------------------
+ docs/index_integrity.md                   | 162 ++++++++++
+ docs/reasoning_benchmark_results.md       |  92 +++---
+ docs/reasoning_benchmark_table.tex        |   2 +-
+ docs/references.bib                       | 116 +++++++
+ docs/related_work.md                      |  62 ++++
+ docs/research_plan.md                     | 111 +++++++
+ docs/research_protocol.md                 | 138 +++++++++
+ docs/stage0_protocol.md                   |  22 ++
+ experiments/benchmark_reasoning.py        |   8 +
+ experiments/research_study.py             | 404 +++++++++++++++++++++++++
+ optimal_stopping.py                       |  27 +-
+ rat/config.py                             |   4 +-
+ rat/crawler/db.py                         | 105 ++++---
+ rat/engine/adaptive_reranker.py           | 304 +++++++++++++++++++
+ rat/engine/context_parser.py              |  41 +--
+ rat/engine/embedder.py                    |  45 +--
+ rat/engine/vector_cache.py                |   2 +-
+ requirements-research.txt                 |   5 +
+ scripts/audit_embedding_drift.py          | 146 +++++++++
+ scripts/benchmark_stage0.py               |  29 +-
+ scripts/label_pool.py                     | 151 ++++++++++
+ scripts/relevance_pool.py                 | 485 ++++++++++++++++++++++++++++++
+ scripts/repair_index_links.py             | 133 ++++++++
+ test_optimal_stopping.py                  |  24 +-
+ tests/test_adaptive_reranker.py           |  71 +++++
+ tests/test_database_lifecycle.py          | 111 +++++++
+ tests/test_embedder_integrity.py          |  67 +++++
+ tests/test_embedding_audit.py             |  75 +++++
+ tests/test_fts_phrases.py                 |  52 ++++
+ tests/test_index_integrity.py             | 121 ++++++++
+ tests/test_index_link_repair.py           | 138 +++++++++
+ tests/test_portability_and_performance.py |   4 +-
+ tests/test_query_compounds.py             |  41 +++
+ tests/test_rat.py                         |   7 +-
+ tests/test_relevance_pool.py              | 173 +++++++++++
+ tests/test_research_study.py              | 150 +++++++++
+ 40 files changed, 3630 insertions(+), 502 deletions(-)
+
+=== git log --all --oneline -- docs/stage0_gate_decision.md ===
+
+=== git show --stat --format=%h 201331c | grep -n stage0 ===
+14: docs/stage0_protocol.md                   |  22 ++
+26: scripts/benchmark_stage0.py               |  29 +-

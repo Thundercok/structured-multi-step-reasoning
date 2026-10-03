@@ -1,0 +1,10 @@
+..F..                                                                    [100%]
+=================================== FAILURES ===================================
+________________ test_regression_pal_timeout_and_sandbox_safety ________________
+tests/test_harness_regressions.py:134: in test_regression_pal_timeout_and_sandbox_safety
+    assert not ok_no_res, f"Code without result must fail, but got ok={ok_no_res!r}"
+E   AssertionError: Code without result must fail, but got ok=True
+E   assert not True
+=========================== short test summary info ============================
+FAILED tests/test_harness_regressions.py::test_regression_pal_timeout_and_sandbox_safety
+1 failed, 4 passed in 6.17s

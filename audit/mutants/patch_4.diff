@@ -1,0 +1,84 @@
+--- a/reasoning_strategies.py
++++ b/reasoning_strategies.py
+@@ -9,49 +9,25 @@
+ from collections import Counter
+ 
+ CODE_FENCE = re.compile(r"```(?:python)?\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+-ANSWER_LINE = re.compile(r"(?:\*\*)?answer(?:\*\*)?\s*:\s*([^\n]+)", re.IGNORECASE)
++ANSWER_LINE = re.compile(r"answer\s*:\s*([^\n]+)", re.IGNORECASE)
+ ACTION_LINE = re.compile(r"Action:\s*(\w+)\[(.*?)\]", re.DOTALL)
+ NUM = re.compile(r"-?\d[\d,]*\.?\d*")
+-NUMERIC_ANSWER = re.compile(r"^\s*-?\d[\d,]*\.?\d*(?:\s+[^\d]*)?\s*$")
+-EQUALS_RESULT = re.compile(r"=\s*(-?\d[\d,]*\.?\d*)")
+-TRAILING_NUMERIC_RESULT = re.compile(r"[:=]\s*(-?\d[\d,]*\.?\d*)(?:\s+[^\d]*)?\s*$")
+-YES_NO_ANSWER = re.compile(r"^\s*(yes|no)\b", re.IGNORECASE)
+ 
+ 
+ def extract_answer(text: str) -> str:
+     """Lấy dòng 'Answer: ...' cuối cùng; fallback dòng cuối không rỗng."""
+     matches = ANSWER_LINE.findall(text)
+-    placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
++    placeholders = {"<kết quả>", "<suy nghĩ>", "bieu_thuc_so_hoc", "dap_an"}
+     if matches:
+         for cand in reversed(matches):
+             c_clean = cand.strip().strip(".")
+-            if c_clean:
+-                number = extract_conclusion_number(c_clean)
+-                placeholder_prefix = next((
+-                    placeholder for placeholder in placeholders
+-                    if c_clean.casefold().startswith(placeholder)
+-                ), None)
+-                if placeholder_prefix and number is None:
+-                    continue
+-                yes_no = YES_NO_ANSWER.match(c_clean)
+-                if yes_no:
+-                    return yes_no.group(1)
+-                return number if number is not None else c_clean
++            if c_clean and c_clean not in placeholders:
++                return c_clean
+     lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
+     for l in reversed(lines):
+-        answer_match = ANSWER_LINE.fullmatch(l)
+-        if answer_match and answer_match.group(1).strip().strip(".").casefold() in placeholders:
+-            continue
+-        if l.casefold() in placeholders or l.startswith("```"):
+-            continue
+-        yes_no = YES_NO_ANSWER.match(l)
+-        if yes_no:
+-            return yes_no.group(1)
+-        number = extract_conclusion_number(l)
+-        if number is not None:
+-            return number
+-        return l
+-    return ""
++        if l not in placeholders and not l.startswith("```"):
++            return l
++    return lines[-1] if lines else ""
+ 
+ 
+ def extract_number(text: str) -> str | None:
+@@ -60,24 +36,6 @@
+     return nums[-1] if nums else None
+ 
+ 
+-def extract_conclusion_number(text: str) -> str | None:
+-    """Chuẩn hóa số chỉ khi chuỗi có hình thức đáp án hoặc tín hiệu kết luận."""
+-    lowered = text.casefold()
+-    conclusion_cues = (
+-        "therefore", "thus", "hence", "final answer", "kết quả", "đáp án",
+-        "do đó", "vậy", "total",
+-    )
+-    equals_results = EQUALS_RESULT.findall(text)
+-    if equals_results:
+-        return extract_number(equals_results[-1])
+-    trailing = TRAILING_NUMERIC_RESULT.search(text)
+-    if trailing:
+-        return extract_number(trailing.group(1))
+-    if NUMERIC_ANSWER.fullmatch(text) or any(cue in lowered for cue in conclusion_cues):
+-        return extract_number(text)
+-    return None
+-
+-
+ def numeric_match(pred: str, gold: str, tol: float = 1e-4) -> bool:
+     p, g = extract_number(pred), extract_number(gold)
+     if p is None or g is None:

@@ -1,0 +1,55 @@
+--- a/qwen_mlx_backend.py
++++ b/qwen_mlx_backend.py
+@@ -94,30 +94,12 @@
+             candidates.append(text)
+             total_tok += n_tok
+         listing = "\n\n".join(f"[{i}] {c}" for i, c in enumerate(candidates))
+-        eval_prompt = (
+-            f"Câu hỏi: {query}\n\nCác lời giải ứng viên:\n{listing}\n\n"
+-            f"Chọn lời giải đúng nhất. Chỉ trả về một trong các dòng: "
+-            + ", ".join(f"Best: {index}" for index in range(branches))
+-            + "."
+-        )
++        eval_prompt = f"Câu hỏi: {query}\n\nCác lời giải ứng viên:\n{listing}\n\nChọn lời giải ĐÚNG nhất. Trả đúng 1 dòng 'Best: <chỉ số>'."
+         eval_text, eval_conf, eval_tok = self._chat([{"role": "user", "content": eval_prompt}], temp=0.0)
+         total_tok += eval_tok
+-        answers = [extract_answer(candidate) for candidate in candidates]
+-        idx = extract_best_index(eval_text, branches)
+-        if idx is None:
+-            answer, _ = majority_vote(answers)
+-            selection = "majority_fallback"
+-        else:
+-            answer = answers[idx]
+-            selection = "model_index"
+-        self._record_tool({
+-            "name": "candidate_selector",
+-            "candidate_answers": answers,
+-            "selector_output": eval_text,
+-            "selected_index": idx,
+-            "selection": selection,
+-        })
+-        return answer, eval_conf, total_tok
++        idx = extract_number_or_none(eval_text)
++        best = candidates[idx] if idx is not None and idx < branches else candidates[0]
++        return extract_answer(best), eval_conf, total_tok
+ 
+     def _react(self, query: str, max_turns: int = 4) -> tuple[str, float, int]:
+         msgs = [
+@@ -231,14 +213,11 @@
+     return margin, norm_ent
+ 
+ 
+-def extract_best_index(text: str, branches: int) -> int | None:
++def extract_number_or_none(text: str) -> int | None:
+     import re
+ 
+-    match = re.search(r"\bBest\s*:\s*\[?([0-9]+)\]?", text, re.IGNORECASE)
+-    if match is None:
+-        return None
+-    index = int(match.group(1))
+-    return index if 0 <= index < branches else None
++    m = re.search(r"\d+", text)
++    return int(m.group()) if m else None
+ 
+ 
+ if __name__ == "__main__":

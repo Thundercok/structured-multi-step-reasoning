@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="5" time="5.797" timestamp="2026-10-03T10:10:35.178945+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_harness_regressions" name="test_regression_generation_boundary_and_stop_token" time="0.052" /><testcase classname="tests.test_harness_regressions" name="test_regression_react_placeholder_rejection" time="0.002"><failure message="AssertionError: Parsed answer leaked prompt placeholder: '&lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'&#10;assert '&lt;kết quả&gt;' not in '&lt;kết quả&gt; =... boxes total'&#10;  &#10;  '&lt;kết quả&gt;' is contained here:&#10;    &lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total&#10;  ? +++++++++">tests/test_harness_regressions.py:93: in test_regression_react_placeholder_rejection
+    assert "&lt;kết quả&gt;" not in parsed, f"Parsed answer leaked prompt placeholder: {parsed!r}"
+E   AssertionError: Parsed answer leaked prompt placeholder: '&lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'
+E   assert '&lt;kết quả&gt;' not in '&lt;kết quả&gt; =... boxes total'
+E     
+E     '&lt;kết quả&gt;' is contained here:
+E       &lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total
+E     ? +++++++++</failure></testcase><testcase classname="tests.test_harness_regressions" name="test_regression_pal_timeout_and_sandbox_safety" time="0.571" /><testcase classname="tests.test_harness_regressions" name="test_regression_parser_does_not_pick_wrong_trailing_token_or_unit" time="0.001"><failure message="AssertionError: Expected '192', got 'Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.'&#10;assert 'Therefore, t...s 192 slices.' == '192'&#10;  &#10;  - 192&#10;  + Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.">tests/test_harness_regressions.py:160: in test_regression_parser_does_not_pick_wrong_trailing_token_or_unit
+    assert ans1 == "192", f"Expected '192', got {ans1!r}"
+E   AssertionError: Expected '192', got 'Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.'
+E   assert 'Therefore, t...s 192 slices.' == '192'
+E     
+E     - 192
+E     + Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.</failure></testcase><testcase classname="tests.test_harness_regressions" name="test_regression_tot_selects_correct_candidate_branch" time="0.014" /></testsuite></testsuites>
