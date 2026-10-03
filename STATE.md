@@ -36,6 +36,10 @@
 - Preparation/review instructions: `docs/development_pilot_protocol.md`.
   Human/source review and measured collection remain pending; publication
   parameters and difficulty calibration remain unfrozen.
+- Implementation/data/audit checkpoint: `ce298b1`. A fresh clone at that
+  commit passes **158 tests** and reproduces saved pilot outputs byte for byte;
+  fresh main-study smoke/replay/three-seed aggregation also passes. Verification:
+  `audit/development-pilot-validation-20261004/checkpoint_verification.json`.
 
 ---
 
