@@ -148,6 +148,15 @@ def test_cot_extracts_answer_and_confidence():
     assert ans == "21" and 0 < conf <= 1 and tok > 0
 
 
+def test_empty_answer_marker_does_not_stop_before_the_final_answer():
+    backend = make_backend()
+    backend.configure_answer_format("number")
+    scripted.queue("Working.\nAnswer:\n42\n")
+    answer, _, _ = backend.run(A.COT, "Return forty-two")
+    assert answer == "42"
+    assert "42" in backend.last_trace["generations"][0]["output"]
+
+
 def test_self_consistency_majority_vote():
     scripted.queue("suy luận... Answer: 10", "khác cách... Answer: 10", "sai... Answer: 9",
                     "đúng... Answer: 10", "đúng... Answer: 10")

@@ -132,8 +132,14 @@ def parse_answer_details(text: str, answer_type: str | None = None, decimal_sepa
     )
     ans = ""
     status = "fail"
+    placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
 
     def _clean_cand(norm: str) -> str:
+        # Keep legacy untyped Yes/No behavior. Typed research parsing returns
+        # earlier and retains the whole candidate for strict scoring.
+        yes_no = YES_NO_ANSWER.match(norm)
+        if yes_no:
+            return yes_no.group(1)
         is_expr = any(op in norm for op in ("+", "*", "/", "×", "÷")) or ("=" in norm and not re.match(r"^-\d", norm.strip()))
         if not is_expr:
             num = extract_conclusion_number(norm)
@@ -151,7 +157,7 @@ def parse_answer_details(text: str, answer_type: str | None = None, decimal_sepa
                 val = line
             if val:
                 norm = normalize_answer(val)
-                if norm:
+                if norm and norm.casefold() not in placeholders:
                     ans = _clean_cand(norm)
                     status = "marker"
                     break
@@ -160,7 +166,7 @@ def parse_answer_details(text: str, answer_type: str | None = None, decimal_sepa
                 next_l = lines[j].strip()
                 if next_l and not next_l.startswith("```"):
                     norm = normalize_answer(next_l)
-                    if norm:
+                    if norm and norm.casefold() not in placeholders:
                         ans = _clean_cand(norm)
                         status = "marker"
                         break
@@ -169,7 +175,6 @@ def parse_answer_details(text: str, answer_type: str | None = None, decimal_sepa
 
     # 2. Fallback to last non-empty line
     if not ans:
-        placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
         for l in reversed(lines):
             l = l.strip()
             if not l or l.startswith("```") or l.casefold() in placeholders:

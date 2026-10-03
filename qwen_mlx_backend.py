@@ -230,7 +230,9 @@ class QwenMLXBackend:
                 m, h = compute_token_uncertainty(lp_arr)
                 margins.append(m)
                 entropies.append(h)
-            m_stop = re.search(r"(?:^|\n)Answer:[^\r\n]*\r?\n", text)
+            # An empty marker is not a completed answer. Some responses put
+            # the value on the following line; let generation continue then.
+            m_stop = re.search(r"(?:^|\n)Answer:[^\S\r\n]*[^\s\r\n][^\r\n]*\r?\n", text)
             if m_stop:
                 text = text[:m_stop.end()]
                 finish_reason = "stop_answer"

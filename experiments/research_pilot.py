@@ -165,8 +165,22 @@ def local_model_metadata(model):
     weights = sorted(path.glob("*.safetensors"))
     if not path.is_dir() or not (path / "config.json").is_file() or not weights:
         raise ValueError("Pilot MLX requires a local model directory with config.json and safetensors weights; repository IDs are rejected")
-    files = sorted(set(weights + list(path.glob("*.json")) + list(path.glob("*.model"))))
+    files = sorted(set(weights + list(path.glob("*.json")) + list(path.glob("*.model"))
+                       + list(path.glob("*.txt")) + list(path.glob("README.md"))))
     return str(path), {file.name: sha256_file(file) for file in files}
+
+
+def verify_model_provenance(path, model, hashes):
+    provenance = json.loads(path.read_text())
+    rows = provenance.get("files", [])
+    expected = {row["name"]: row["sha256"] for row in rows}
+    if (provenance.get("local_content_matches_upstream_revision") is not True
+            or Path(provenance.get("local_directory", "")).resolve() != Path(model)
+            or expected != hashes or len(rows) != len(expected)
+            or not all(row.get("match") is True for row in rows)
+            or not provenance.get("repository") or not provenance.get("revision")):
+        raise ValueError("Pilot model provenance does not match the actual local model content")
+    return provenance
 
 
 def render_report(manifest, summary):
@@ -222,12 +236,15 @@ def run(args, parser, replay_manifest=None):
             parser.error("Token budgets and groups per stratum must be positive; budgets must be distinct")
         if args.backend == "smoke" and (args.dataset is not None or args.model is not None):
             parser.error("Smoke runs use only the bundled synthetic fixture")
+        if args.backend == "smoke" and args.model_provenance is not None:
+            parser.error("Synthetic pilot cannot use real model provenance")
         if args.backend == "mlx" and (args.dataset is None or args.model is None):
             parser.error("Pilot MLX requires --dataset and --model")
         seed = 42 if args.seed is None else args.seed
         original = synthetic_dataset() if args.backend == "smoke" else json.loads(args.dataset.read_text())
         dataset, selection = select_groups(original, seed, count)
         model, model_hashes = local_model_metadata(args.model) if args.backend == "mlx" else (None, {})
+        provenance = verify_model_provenance(args.model_provenance, model, model_hashes) if args.model_provenance else None
         packages = {}
         for name in ("numpy", "scikit-learn", "gymnasium", "mlx", "mlx-lm"):
             try:
@@ -237,7 +254,12 @@ def run(args, parser, replay_manifest=None):
         manifest = {
             "schema_version": 1, "pilot": True, "mode": "development_pilot", "backend": args.backend,
             "seed": seed, "model": model, "model_content_sha256": model_hashes,
-            "model_revision_verified": False, "publication_ready": False, "policy_fitted": False,
+            "model_revision_verified": provenance is not None,
+            "model_revision": provenance["revision"] if provenance else None,
+            "model_repository": provenance["repository"] if provenance else None,
+            "model_provenance_sha256": sha256_file(args.model_provenance) if provenance else None,
+            "human_review_status": dataset.get("human_review_status", "pending"),
+            "publication_ready": False, "policy_fitted": False,
             "evidence": "synthetic_pilot_smoke" if args.backend == "smoke" else "measured_development_pilot",
             "token_scope": "synthetic token units" if args.backend == "smoke" else "generated tokens summed over all calls; prompt tokens recorded separately",
             "strategies": [strategy.name for strategy in strategies], "strategy_labels": STRATEGY_LABELS,
@@ -254,6 +276,10 @@ def run(args, parser, replay_manifest=None):
     write_json(args.output / "manifest.json", manifest)
     write_json(args.output / "dataset.json", dataset)
     write_json(args.output / "selection.json", selection)
+    if replay_manifest is None and provenance is not None:
+        write_json(args.output / "model_provenance.json", provenance)
+    elif replay_manifest is not None and "model_provenance.json" in replay_manifest["artifact_sha256"]:
+        write_json(args.output / "model_provenance.json", json.loads((args.replay / "model_provenance.json").read_text()))
     try:
         if replay_manifest is None:
             started = time.perf_counter()

@@ -1,6 +1,6 @@
 # Execution State — NCKH Reasoning Harness
 
-## Current Phase: development pilot software validated; independent review and measured pilot pending
+## Current Phase: selected development pilot preflight verified; measured collection waiting for the active GPU sweep
 
 - **Branch**: `exp/reasoning-harness-v1`
 - **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0`, `harness-v1-run2`, `harness-v1-run3`
@@ -9,6 +9,33 @@
 - **H4 sweep**: complete, **188/188** records (DIRECT 94, COT 94); no missing, unexpected or duplicate item/arm pairs. Final `audit/G_sweep_trace.jsonl` and `audit/G_summary.txt` in this repository match the worktree copies byte for byte. Verification: `audit/G_completion_verification.json`.
 - **Model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
 - **Status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.
+
+---
+
+## Selected Pilot Preflight — 2026-10-04
+
+- `audit/development-pilot-preflight-20261004-final/` contains the selected
+  24-question review packet, exact-answer proofs, source provenance, pinned
+  upstream model metadata/license and verified local content hashes.
+- All 24 exposed development questions pass automated exact checks. An
+  independent subset dynamic program constructs Game-of-24 solutions without
+  using reference answers. Arithmetic and ordering are solved from query text.
+  Human review and procedural ownership confirmation remain pending.
+- All ten local model/tokenizer files match Hugging Face revision
+  `545dc4251c05440727734bcd94334791f6ab0192`; LFS uses SHA-256 and ordinary
+  files use Git blob hashes. The pilot accepts `--model-provenance`, rehashes
+  actual content before loading and retains the verification with the run.
+- Fixed new Prompt M regressions: an empty `Answer:` line no longer terminates
+  generation before its value; untyped Yes/No/placeholder behavior is preserved
+  while typed research scoring retains whole candidates. **172 research checks
+  pass**; tests and preparation make no model call.
+- Proposed pilot: DIRECT and CoT at both caps 96/1,024, seed 42, 96 conditions,
+  maximum 53,760 generated tokens. Prompt language differs between these arms,
+  so matching caps does not isolate instruction effects from language effects.
+- An existing Prompt M run in `../multi-step-structured-reasoning-run5` occupied
+  the same 16 GB Mac during preflight. Its files/process were preserved; the
+  supported pilot will wait for the GPU to become available. Stage 0 is unchanged
+  and no main-study parameters or publication claims are frozen here.
 
 ---
 

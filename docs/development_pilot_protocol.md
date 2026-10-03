@@ -64,8 +64,28 @@ python -m experiments.research_study --backend mlx --pilot --dataset data/proced
 The placeholder must be replaced with a reviewed local model directory.
 Repository identifiers are rejected. The manifest hashes safetensors weights
 and JSON/model tokenizer files before loading and records the resolved path.
-These hashes identify local content without independently authenticating an
-upstream revision; `model_revision_verified` remains false.
+These hashes alone identify local content without authenticating an upstream
+revision; `model_revision_verified` remains false unless an upstream-content
+verification is supplied with `--model-provenance`. Preparation can independently
+match LFS SHA-256 and ordinary Git blob hashes to a saved, pinned Hugging Face
+API response:
+
+```bash
+python -m scripts.prepare_development_pilot --model /path/to/pinned-local-mlx-snapshot --upstream-metadata /path/to/saved-upstream-responses --output audit/NEW_PILOT_PREFLIGHT
+```
+
+The resulting review packet includes the selected queries/golds, independent
+exact solutions, model content hashes and license/source evidence. Game-of-24
+verification constructs an expression by subset dynamic programming without
+using the supplied answer; arithmetic and ordering are solved from the query.
+This is automated verification, not human sign-off. Supply its
+`model_provenance.json` to measured pilot collection; the runner rehashes the
+actual local content, rejects a mismatch and saves the provenance with the run.
+
+The latest DIRECT suffix is Vietnamese and the CoT suffix is English. Record
+that difference with any development comparison; matching caps does not alone
+isolate instruction effects from prompt-language effects. Human/publication
+review remains pending even when local model content is authenticated.
 
 Record reviewer, date and evidence for candidate wording/golds/groups and
 ownership/license; selected development groups and prior exposure; applicable

@@ -394,13 +394,14 @@ def main(argv=None):
     budget.add_argument("--max-tokens", type=int, help="Pilot single per-call token cap")
     budget.add_argument("--token-budgets", nargs="+", type=int, help="Matched pilot per-call caps (default 96 1024)")
     parser.add_argument("--groups-per-stratum", type=int, help="Pilot groups per split/family/level (default 1)")
+    parser.add_argument("--model-provenance", type=Path, help="Pilot upstream model-content verification JSON")
     parser.add_argument("--dataset", type=Path)
     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--lam", type=float)
     parser.add_argument("--output", type=Path, required=True, help="New run directory; existing paths are never overwritten")
     args = parser.parse_args(argv)
-    pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum)
+    pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance)
     if (args.aggregate or args.replay) and (args.pilot or any(value is not None for value in pilot_settings)):
         parser.error("Replay and aggregation use frozen settings; pilot overrides are not allowed")
     if args.replay and any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):
