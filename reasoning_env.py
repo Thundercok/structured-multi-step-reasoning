@@ -14,6 +14,7 @@ class ReasoningAction(IntEnum):
     PAL = 4
     ESCALATE = 5
     STOP = 6
+    DIRECT = 7
 
 
 A = ReasoningAction
@@ -135,6 +136,7 @@ class ReasoningEnv(gym.Env):
         m = np.ones(len(A), dtype=bool)
         for s in STRATEGIES:
             m[s] = s in self.supported
+        m[A.DIRECT] = False
         m[A.ESCALATE] = self._next_rung() is not None
         m[A.STOP] = self.answer is not None
         return m

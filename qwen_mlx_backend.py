@@ -19,6 +19,7 @@ from reasoning_strategies import (
 )
 
 COT_SUFFIX = "\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."
+DIRECT_SUFFIX = "\nTrả lời trực tiếp, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."
 REACT_SYSTEM = (
     "Solve the problem with ReAct. Every response must contain exactly two lines: "
     "one Thought line and one Action line. The action must be calculate[...] or "
@@ -39,7 +40,7 @@ REACT_EXAMPLE = [
 class QwenMLXBackend:
     """LLMBackend cho ReasoningEnv, dùng mlx-lm + Qwen3-8B chạy local trên Apple Silicon."""
 
-    supported = frozenset({A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL})
+    supported = frozenset({A.DIRECT, A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL})
 
     def __init__(self, repo: str = "mlx-community/Qwen3-8B-4bit", max_tokens: int = 512):
         self.model, self.tokenizer = load(repo)
@@ -58,6 +59,7 @@ class QwenMLXBackend:
     def run(self, strategy: A, query: str) -> tuple[str, float, int]:
         self.last_trace = {"strategy": strategy.name, "generations": [], "tools": []}
         return {
+            A.DIRECT: self._direct,
             A.COT: self._cot,
             A.SELF_CONSISTENCY: self._self_consistency,
             A.TOT: self._tot,
@@ -71,6 +73,10 @@ class QwenMLXBackend:
             trace["tools"].append(event)
 
     # ---- strategies ----
+
+    def _direct(self, query: str) -> tuple[str, float, int]:
+        text, conf, n_tok = self._chat([{"role": "user", "content": query + DIRECT_SUFFIX}], temp=0.0)
+        return extract_answer(text), conf, n_tok
 
     def _cot(self, query: str) -> tuple[str, float, int]:
         text, conf, n_tok = self._chat([{"role": "user", "content": query + COT_SUFFIX}], temp=0.0)

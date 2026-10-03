@@ -117,6 +117,12 @@ def test_embed_shape_and_hidden_size():
     assert v.shape == (8,) and b.hidden_size == 8
 
 
+def test_direct_extracts_answer_and_confidence():
+    scripted.queue("Answer: 42")
+    ans, conf, tok = b_run(A.DIRECT, "6 nhân 7 bằng bao nhiêu?")
+    assert ans == "42" and 0 < conf <= 1 and tok > 0
+
+
 def test_cot_extracts_answer_and_confidence():
     scripted.queue("Bước 1: 3*7=21 Answer: 21")
     ans, conf, tok = b_run(A.COT, "3 nhân 7 bằng bao nhiêu?")
