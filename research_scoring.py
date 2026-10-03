@@ -9,20 +9,14 @@ from decimal import Decimal, InvalidOperation
 
 
 UNITS = r"(?:slices?|boxes?|units?|dollars?|USD|VND|dong|đồng|cm|km|kg|kilograms?|hours?|minutes?|%)"
-MARKER = re.compile(r"(?P<outer>\*\*)?answer(?P<label_close>\*\*)?\s*:\s*(?P<candidate>[^\n]+)", re.I)
+MARKER = re.compile(r"(?P<outer>\*\*)?(?:final\s+)?answer(?P<label_close>\*\*)?\s*:\s*(?P<candidate>[^\n]*)", re.I)
 
 
 def _presentation(candidate):
     """Remove whole-answer bold and contiguous repeated labels, not prose."""
-    while True:
-        before = candidate
-        if candidate.startswith("**") and candidate.endswith("**") and len(candidate) > 4:
-            candidate = candidate[2:-2].strip()
-        repeated = MARKER.fullmatch(candidate)
-        if repeated:
-            candidate = _marker_candidate(repeated)
-        if candidate == before:
-            return candidate
+    from reasoning_strategies import normalize_answer
+
+    return normalize_answer(candidate)
 
 
 def _marker_candidate(match):
@@ -61,9 +55,20 @@ def parse_typed_answer(text, answer_type, decimal_separator="."):
     if answer_type not in ("number", "text", "expression"):
         raise ValueError("Unknown research answer type")
     matches = list(MARKER.finditer(text))
+    candidate = ""
+    status = "fail"
     if matches:
-        candidate, status = _marker_candidate(matches[-1]), "marker"
-    else:
+        cand = _marker_candidate(matches[-1])
+        if cand:
+            candidate, status = cand, "marker"
+        else:
+            lines = text[matches[-1].end():].splitlines()
+            for l in lines:
+                l = l.strip()
+                if l and not l.startswith("```"):
+                    candidate, status = l, "marker"
+                    break
+    if not candidate:
         lines = [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("```")]
         candidate, status = (lines[-1], "fallback") if lines else ("", "fail")
     candidate = _presentation(candidate)

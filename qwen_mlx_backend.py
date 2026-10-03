@@ -3,6 +3,8 @@ không có 2 thứ đó nên phần load/generate KHÔNG được test end-to-en
 đúng với mlx-lm 0.31.3 (xem ghi chú cuối file). Trước khi train, tự chạy sanity check ở __main__.
 """
 
+import re
+
 import numpy as np
 
 from mlx_lm import load, stream_generate
@@ -19,7 +21,7 @@ from reasoning_strategies import (
     safe_calculate,
 )
 
-COT_SUFFIX = "\nHãy suy luận từng bước, kết thúc bằng đúng 1 dòng 'Answer: ' rồi chỉ đáp án cuối (một số không đơn vị, một từ/tên, hoặc một biểu thức), không thêm câu chữ."
+COT_SUFFIX = "\nWrite concise steps in plain text without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer."
 DIRECT_SUFFIX = "\nTrả lời trực tiếp, kết thúc bằng đúng 1 dòng 'Answer: ' rồi chỉ đáp án cuối (một số không đơn vị, một từ/tên, hoặc một biểu thức), không thêm câu chữ."
 REACT_SYSTEM = (
     "Solve the problem with ReAct. Every response must contain exactly two lines: "
@@ -228,6 +230,11 @@ class QwenMLXBackend:
                 m, h = compute_token_uncertainty(lp_arr)
                 margins.append(m)
                 entropies.append(h)
+            m_stop = re.search(r"(?:^|\n)Answer:[^\r\n]*\r?\n", text)
+            if m_stop:
+                text = text[:m_stop.end()]
+                finish_reason = "stop_answer"
+                break
 
         p_seq = float(np.clip(np.exp(np.mean(logps)), 0.0, 1.0)) if logps else 0.0
         mean_margin = float(np.mean(margins)) if margins else 0.0

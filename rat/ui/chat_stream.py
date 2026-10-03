@@ -35,7 +35,8 @@ from PyQt6.QtWidgets import (
 
 from rat.engine.reasoning_trace import ReasoningTrace
 from rat.engine.reranker import SearchResultItem
-from rat.ui.theme import get_ext_badge_info
+from rat.ui.compact_results import CompactFileRow
+from rat.ui.preview_panel import trigger_quicklook
 
 MASCOT_PATH = Path(__file__).resolve().parent.parent / "assets" / "rat_mascot_cutout.png"
 MASCOT_BUST_PATH = Path(__file__).resolve().parent.parent / "assets" / "rat_mascot_bust.png"
@@ -109,8 +110,8 @@ class ThinkingAccordion(QFrame):
 
         # Header Toggle Row
         self.latency_ms = latency_ms
-        lat_txt = f" ({int(self.latency_ms)}ms)" if self.latency_ms > 0 else ""
-        self._header_prefix = f"🧀 Xem Chuột suy nghĩ · {len(self.steps)} bước{lat_txt}"
+        self._header_prefix = f"Chi tiết xử lý · {len(self.steps)} mục"
+        self.setToolTip(f"Thời gian xử lý: {latency_ms:.0f} ms")
         self.header_btn = QPushButton(f"{self._header_prefix}  ▸")
         self.header_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.header_btn.setStyleSheet("""
@@ -153,119 +154,14 @@ class ThinkingAccordion(QFrame):
         self.steps_container.setVisible(self.is_expanded)
 
 
-class InlineFileCard(QFrame):
-    """Skeuomorphic Inline File Card inside the chat stream."""
+class InlineFileCard(CompactFileRow):
+    """The expanded conversation uses the same restrained, actionable file row."""
 
     def __init__(self, item: SearchResultItem, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
-        self.item = item
-        self._init_ui()
-
-    def _init_ui(self) -> None:
-        self.setObjectName("InlineFileCard")
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(6)
-        shadow.setOffset(0, 2)
-        shadow.setColor(QColor(43, 38, 31, 22))
-        self.setGraphicsEffect(shadow)
-
-        self.setStyleSheet("""
-            QFrame#InlineFileCard {
-                background-color: #FFFDF9;
-                border: 1.5px solid #D8CFBE;
-                border-bottom: 2px solid #C4B8A4;
-                border-radius: 9px;
-                padding: 7px 10px;
-            }
-            QFrame#InlineFileCard:hover {
-                background-color: #FFF9E8;
-                border-color: #DEC88E;
-            }
-            QLabel {
-                border: none;
-                background: transparent;
-            }
-        """)
-
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
-
-        # File Badge
-        badge_info = get_ext_badge_info(self.item.file_ext)
-        badge_lbl = QLabel(badge_info["label"])
-        badge_lbl.setFixedSize(28, 20)
-        badge_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        badge_lbl.setStyleSheet(f"""
-            background-color: {badge_info['bg']};
-            color: {badge_info['fg']};
-            font-size: 9px;
-            font-weight: 700;
-            border-radius: 4px;
-            border: 1px solid rgba(0,0,0,0.15);
-        """)
-        layout.addWidget(badge_lbl, 0, Qt.AlignmentFlag.AlignVCenter)
-
-        # Info
-        info_col = QVBoxLayout()
-        info_col.setSpacing(2)
-
-        name_lbl = QLabel(self.item.file_name)
-        name_lbl.setStyleSheet("color: #1c1917; font-size: 12px; font-weight: 700;")
-        info_col.addWidget(name_lbl)
-
-        p = self.item.file_path
-        if len(p) > 50:
-            p = "..." + p[-46:]
-        sub_lbl = QLabel(f"{p}  •  {self.item.file_size_formatted}")
-        sub_lbl.setStyleSheet("color: #78716c; font-size: 10px;")
-        info_col.addWidget(sub_lbl)
-        layout.addLayout(info_col, 1)
-
-        # Action Buttons
-        btn_open = QPushButton("Mở")
-        btn_open.setStyleSheet("""
-            QPushButton {
-                background-color: #f7e4ae;
-                color: #59451f;
-                border: 1px solid #e0be68;
-                border-radius: 7px;
-                padding: 4px 10px;
-                font-size: 10.5px;
-                font-weight: 700;
-            }
-            QPushButton:hover {
-                background-color: #fbeec4;
-            }
-            QPushButton:pressed {
-                background-color: #f0d78d;
-            }
-        """)
-        btn_open.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_open.clicked.connect(lambda: open_file_default(self.item.file_path))
-        layout.addWidget(btn_open)
-
-        btn_find = QPushButton("Hiện trong Finder")
-        btn_find.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #70665c;
-                border: 1px solid #e0d8ce;
-                border-radius: 7px;
-                padding: 4px 9px;
-                font-size: 10.5px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background-color: #f6f1ea;
-            }
-            QPushButton:pressed {
-                background-color: #eee8df;
-            }
-        """)
-        btn_find.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_find.clicked.connect(lambda: reveal_in_finder(self.item.file_path))
-        layout.addWidget(btn_find)
+        super().__init__(item, parent)
+        self.open_requested.connect(lambda result: open_file_default(result.file_path))
+        self.reveal_requested.connect(lambda result: reveal_in_finder(result.file_path))
+        self.preview_requested.connect(lambda result: trigger_quicklook(result.file_path))
 
 
 class MascotBackdrop(QWidget):
@@ -380,12 +276,12 @@ class ChatStreamWidget(QScrollArea):
             avatar_lbl.setFixedSize(44, 44)
             top_row.addWidget(avatar_lbl)
 
-        header_title = QLabel("Chuột nghe đây! 🧀")
+        header_title = QLabel("Ừ, nói đi.")
         header_title.setStyleSheet("color: #1F1A16; font-size: 16px; font-weight: 800; letter-spacing: -0.2px;")
         top_row.addWidget(header_title)
         w_layout.addLayout(top_row)
 
-        sub_desc = QLabel("Hỏi lịch học, tìm phòng C302, bới file cũ hay tính toán...\nCứ gõ tự nhiên, đừng hỏi bài tập lớn sát deadline là được nha.")
+        sub_desc = QLabel("Một câu hỏi, một ý chưa rõ, hoặc một việc cần gỡ.\nMình bắt đầu từ đó.")
         sub_desc.setStyleSheet("color: #786F66; font-size: 12px; font-weight: 500; line-height: 1.45;")
         sub_desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
         w_layout.addWidget(sub_desc)
@@ -427,10 +323,10 @@ class ChatStreamWidget(QScrollArea):
         c_layout.setVerticalSpacing(8)
 
         prompts = [
-            ("📅 Hôm nay tui có học môn gì?", "Hôm nay tôi có học môn gì không?"),
-            ("📍 Phòng C302 ở đâu vậy Chuột?", "Phòng C302 ở đâu?"),
-            ("📂 Tìm slide bài giảng gần nhất", "Tìm slide bài giảng gần đây"),
-            ("⚡ Tính CPA tích lũy 7.20", "Tính CPA tích lũy 64 tín chỉ điểm 7.20 học thêm 4 môn"),
+            ("Gỡ một ý tưởng", "Giúp mình nghĩ về "),
+            ("Phản biện một ý", "Phản biện giúp mình ý này: "),
+            ("Tìm một tệp", "tìm file "),
+            ("Lịch hôm nay", "Hôm nay học gì?"),
         ]
 
         for i, (btn_text, prompt_val) in enumerate(prompts):
@@ -528,17 +424,11 @@ class ChatStreamWidget(QScrollArea):
         card = QFrame()
         card.setObjectName("AssistantCard")
         card.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
-        c_shadow = QGraphicsDropShadowEffect(card)
-        c_shadow.setBlurRadius(8)
-        c_shadow.setOffset(0, 2)
-        c_shadow.setColor(QColor(43, 38, 31, 16))
-        card.setGraphicsEffect(c_shadow)
         card.setStyleSheet("""
             QFrame#AssistantCard {
                 background-color: #FFFFFF;
                 border: 1px solid rgba(43, 38, 31, 0.10);
-                border-bottom: 2px solid rgba(43, 38, 31, 0.14);
-                border-radius: 14px;
+                border-radius: 12px;
                 padding: 10px 14px;
             }
             QLabel {
@@ -567,7 +457,7 @@ class ChatStreamWidget(QScrollArea):
         ai_tag.setStyleSheet("color: #7A5800; font-size: 12px; font-weight: 800;")
         h_row.addWidget(ai_tag)
 
-        sub_tag = QLabel("· Thư ký lanh chanh 🧀")
+        sub_tag = QLabel("· " + {"Search": "Tìm tệp", "Math": "Tính nhanh", "Timetable": "Lịch học"}.get(strategy, "Trả lời"))
         sub_tag.setStyleSheet("color: #9E8F7A; font-size: 11px; font-weight: 550;")
         h_row.addWidget(sub_tag)
 
@@ -663,11 +553,6 @@ class ChatStreamWidget(QScrollArea):
 
         card = QFrame()
         card.setObjectName("AssistantCard")
-        c_shadow = QGraphicsDropShadowEffect(card)
-        c_shadow.setBlurRadius(10)
-        c_shadow.setOffset(0, 3)
-        c_shadow.setColor(QColor(0, 0, 0, 15))
-        card.setGraphicsEffect(c_shadow)
         card.setStyleSheet("""
             QFrame#AssistantCard {
                 background-color: #FFFFFF;
@@ -722,6 +607,7 @@ class ChatStreamWidget(QScrollArea):
             "card": card,
             "c_layout": c_layout,
             "status_lbl": status_lbl,
+            "badge_lbl": sub_tag,
             "ans_lbl": ans_lbl,
             "tokens": [],
             "full_text": "",
@@ -734,8 +620,9 @@ class ChatStreamWidget(QScrollArea):
         handle["full_text"] += token
 
         status_lbl = handle["status_lbl"]
-        if status_lbl.isVisible():
-            status_lbl.hide()
+        # Compact mode hides the parent; isVisible() is false even for an
+        # explicitly shown status. Hide it regardless before expanding later.
+        status_lbl.hide()
 
         ans_lbl = handle["ans_lbl"]
         if not ans_lbl.isVisible():
@@ -759,8 +646,7 @@ class ChatStreamWidget(QScrollArea):
         ans_lbl.show()
 
         status_lbl = handle["status_lbl"]
-        if status_lbl.isVisible():
-            status_lbl.hide()
+        status_lbl.hide()
 
         # Insert ThinkingAccordion above ans_lbl if steps provided
         if reasoning_steps and len(reasoning_steps) > 0 and not handle.get("accordion_added"):
@@ -773,7 +659,7 @@ class ChatStreamWidget(QScrollArea):
         btn_row = QHBoxLayout()
         btn_row.setSpacing(6)
 
-        btn_copy = QPushButton("📋 Sao chép")
+        btn_copy = QPushButton("Sao chép")
         btn_copy.setStyleSheet("""
             QPushButton {
                 background-color: #FFB800;
@@ -798,7 +684,11 @@ class ChatStreamWidget(QScrollArea):
             QApplication.clipboard().setText(full_text)
             btn_copy.setText("✓ Đã sao chép")
             from PyQt6.QtCore import QTimer
-            QTimer.singleShot(1500, lambda: btn_copy.setText("📋 Sao chép"))
+            timer = QTimer(btn_copy)
+            timer.setSingleShot(True)
+            timer.timeout.connect(lambda: btn_copy.setText("Sao chép"))
+            timer.timeout.connect(timer.deleteLater)
+            timer.start(1500)
 
         btn_copy.clicked.connect(_do_copy)
         btn_row.addWidget(btn_copy)

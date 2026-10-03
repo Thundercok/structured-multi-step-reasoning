@@ -320,6 +320,16 @@ def test_research_typed_scalar_and_text_preserve_meaning():
     assert b.run(A.COT, "Logical question")[0] == "No, the answer is Yes"
 
 
+def test_generation_stops_at_first_answer_line():
+    b = make_backend()
+    scripted.queue("Step 1: compute 20 + 22.\nAnswer: 42\nExtra unwanted commentary.")
+    ans, conf, tok = b.run(A.COT, "Compute 20 + 22")
+    assert ans == "42"
+    assert b.last_trace["generations"][0]["finish_reason"] == "stop_answer"
+    assert "Extra unwanted commentary" not in b.last_trace["generations"][0]["output"]
+
+
+
 
 def b_run(strategy, query, **kw):
     b = make_backend()

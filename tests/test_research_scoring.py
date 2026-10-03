@@ -107,3 +107,19 @@ def test_collection_supplies_format_without_gold_to_backend():
     }
     records = collect_records(Backend(), [item], 42, lambda seed: None, io.StringIO())
     assert all(attempt["correct"] for attempt in records[0]["attempts"].values())
+
+
+@pytest.mark.parametrize(
+    "raw,expected",
+    [
+        ("**364**", "364"),
+        ("**Answer: Erin**", "Erin"),
+        ("Answer: Bob", "Bob"),
+        ("Answer: (13 - 11) × (12 ÷ 1)", "(13 - 11) × (12 ÷ 1)"),
+    ],
+)
+def test_k_raw_fixtures_normalization(raw, expected):
+    from reasoning_strategies import normalize_answer
+
+    assert normalize_answer(raw) == expected
+

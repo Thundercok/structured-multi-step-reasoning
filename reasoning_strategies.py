@@ -18,43 +18,40 @@ TRAILING_NUMERIC_RESULT = re.compile(r"[:=]\s*(-?\d[\d,]*\.?\d*)(?:\s+[^\d]*)?\s
 YES_NO_ANSWER = re.compile(r"^\s*(yes|no)\b", re.IGNORECASE)
 
 
+def normalize_answer(ans: str) -> str:
+    """Format-only normalizer, never gold-based.
+
+    1. Strip one balanced ** wrapping the whole answer/label.
+    2. Collapse repeated leading "Answer:" or "Final Answer:".
+    """
+    s = (ans or "").strip()
+    while True:
+        before = s
+        if s.startswith("**") and s.endswith("**") and len(s) >= 4:
+            s = s[2:-2].strip()
+        m = re.match(
+            r"^(?:#{1,6}\s*)?(?:[^\w\s]+\s*)?(?:\*\*)?(?:final\s+)?answer(?:\*\*)?\s*:\s*",
+            s,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            s = s[m.end():].strip()
+        if s.endswith(".") and not re.search(r"\d\.\d", s):
+            s = s[:-1].strip()
+        if s.startswith("**") and s.endswith("**") and len(s) >= 4:
+            s = s[2:-2].strip()
+        if s == before:
+            break
+    return s
+
+
 def extract_answer(text: str, answer_type: str | None = None, decimal_separator: str = ".") -> str:
     """Lấy dòng 'Answer: ...' cuối cùng; fallback dòng cuối không rỗng."""
     if answer_type is not None:
         from research_scoring import parse_typed_answer
         return parse_typed_answer(text, answer_type, decimal_separator)[0]
-    matches = ANSWER_LINE.findall(text)
-    placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
-    if matches:
-        for cand in reversed(matches):
-            c_clean = cand.strip().strip(".")
-            if c_clean:
-                number = extract_conclusion_number(c_clean)
-                placeholder_prefix = next((
-                    placeholder for placeholder in placeholders
-                    if c_clean.casefold().startswith(placeholder)
-                ), None)
-                if placeholder_prefix and number is None:
-                    continue
-                yes_no = YES_NO_ANSWER.match(c_clean)
-                if yes_no:
-                    return yes_no.group(1)
-                return number if number is not None else c_clean
-    lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
-    for l in reversed(lines):
-        answer_match = ANSWER_LINE.fullmatch(l)
-        if answer_match and answer_match.group(1).strip().strip(".").casefold() in placeholders:
-            continue
-        if l.casefold() in placeholders or l.startswith("```"):
-            continue
-        yes_no = YES_NO_ANSWER.match(l)
-        if yes_no:
-            return yes_no.group(1)
-        number = extract_conclusion_number(l)
-        if number is not None:
-            return number
-        return l
-    return ""
+    return parse_answer_details(text, decimal_separator=decimal_separator)[0]
+
 
 
 def extract_number(text: str) -> str | None:
@@ -127,44 +124,71 @@ def parse_answer_details(text: str, answer_type: str | None = None, decimal_sepa
     if answer_type is not None:
         from research_scoring import parse_typed_answer
         return parse_typed_answer(text, answer_type, decimal_separator)
-    matches = ANSWER_LINE.findall(text)
-    placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
+
+    lines = text.splitlines()
+    marker_re = re.compile(
+        r"(?:#{1,6}\s*)?(?:[^\w\s]+\s*)?(?:\*\*)?(?:final\s+)?answer(?:\*\*)?\s*:\s*(.*)",
+        re.IGNORECASE,
+    )
     ans = ""
     status = "fail"
-    if matches:
-        for cand in reversed(matches):
-            c_clean = cand.strip().strip(".")
-            if c_clean:
-                number = extract_conclusion_number(c_clean)
-                placeholder_prefix = next((
-                    placeholder for placeholder in placeholders
-                    if c_clean.casefold().startswith(placeholder)
-                ), None)
-                if placeholder_prefix and number is None:
-                    continue
-                yes_no = YES_NO_ANSWER.match(c_clean)
-                if yes_no:
-                    ans = yes_no.group(1)
-                else:
-                    ans = number if number is not None else c_clean
-                status = "marker"
+
+    def _clean_cand(norm: str) -> str:
+        is_expr = any(op in norm for op in ("+", "*", "/", "×", "÷")) or ("=" in norm and not re.match(r"^-\d", norm.strip()))
+        if not is_expr:
+            num = extract_conclusion_number(norm)
+            if num is not None:
+                return num
+        return norm
+
+    # 1. Search backwards for marker line (accept same line or next line)
+    for i in range(len(lines) - 1, -1, -1):
+        line = lines[i].strip()
+        m = marker_re.search(line)
+        if m:
+            val = m.group(1).strip()
+            if line.startswith("**") and line.endswith("**") and len(line) >= 4:
+                val = line
+            if val:
+                norm = normalize_answer(val)
+                if norm:
+                    ans = _clean_cand(norm)
+                    status = "marker"
+                    break
+            # Check next non-empty line
+            for j in range(i + 1, len(lines)):
+                next_l = lines[j].strip()
+                if next_l and not next_l.startswith("```"):
+                    norm = normalize_answer(next_l)
+                    if norm:
+                        ans = _clean_cand(norm)
+                        status = "marker"
+                        break
+            if ans:
                 break
+
+    # 2. Fallback to last non-empty line
     if not ans:
-        lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
+        placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
         for l in reversed(lines):
-            answer_match = ANSWER_LINE.fullmatch(l)
-            if answer_match and answer_match.group(1).strip().strip(".").casefold() in placeholders:
-                continue
-            if l.casefold() in placeholders or l.startswith("```"):
+            l = l.strip()
+            if not l or l.startswith("```") or l.casefold() in placeholders:
                 continue
             yes_no = YES_NO_ANSWER.match(l)
             if yes_no:
                 ans = yes_no.group(1)
-            else:
-                number = extract_conclusion_number(l)
-                ans = number if number is not None else l
-            status = "fallback"
-            break
+                status = "fallback"
+                break
+            num = extract_conclusion_number(l)
+            if num is not None:
+                ans = num
+                status = "fallback"
+                break
+            norm = normalize_answer(l)
+            if norm and norm.casefold() not in placeholders:
+                ans = norm
+                status = "fallback"
+                break
 
     wordy = is_wordy_answer(ans)
     if not ans or wordy or any(tok in ans for tok in ("\\", r"\text", "{", "}")):
