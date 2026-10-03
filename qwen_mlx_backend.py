@@ -171,6 +171,7 @@ class QwenMLXBackend:
             enable_thinking=False,
             add_generation_prompt=True,
         )
+        p_tok = len(prompt) if isinstance(prompt, list) else len(self.tokenizer.encode(prompt))
         sampler = make_sampler(temp=temp)
         text, n_tok = "", 0
         finish_reason = None
@@ -204,6 +205,7 @@ class QwenMLXBackend:
         }
         if hasattr(self, "last_trace"):
             self.last_trace["generations"].append({
+                "prompt_tokens": p_tok,
                 "output": text,
                 "tokens": n_tok,
                 "finish_reason": finish_reason,

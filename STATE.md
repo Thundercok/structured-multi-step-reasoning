@@ -1,30 +1,51 @@
 # Execution State — NCKH Reasoning Harness
 
-## Current Phase: Section B-lite Step 2 Blocked -> Stopped & Awaiting User Direction
+## Current Phase: Section B-lite Complete -> Awaiting User Instruction for Full Dev / Decision Rule
 
 - **Branch**: `exp/reasoning-harness-v1`
 - **Tag**: `harness-v1-run0`
 - **Worktree**: `../reasoning-run` (HEAD: `1088095`)
-- **Timestamp**: 2026-10-03T10:18:00+07:00
+- **Timestamp**: 2026-10-03T11:25:00+07:00
 
 ---
 
-## Progress Log
+## Section B-lite Summary (Steps 0 – 5)
 
-### Step 0: Added DIRECT Arm & Verified 10 Reasoning Files
-- Added `DIRECT = 7` to `ReasoningAction` in `reasoning_env.py` (explicitly masked out in `ReasoningEnv._mask()` to maintain RL environment invariants).
-- Implemented `_direct` and `DIRECT_SUFFIX` in `qwen_mlx_backend.py` using standard `"Answer: <kết quả>"` format and `extract_answer` parser.
-- Added mock unit test `test_direct_extracts_answer_and_confidence` in `test_qwen_mlx_backend_mocked.py`.
-- Ran full 10 reasoning test suite: **74 passed in 6.17s** (tee'd to `audit/B_gate0.txt`).
-- Committed explicitly and updated tag `harness-v1-run0`.
+1. **Step 0. Arm DIRECT & Mock Test Verification**:
+   - Added `DIRECT = 7` to `ReasoningAction` in `reasoning_env.py` (masked out in `ReasoningEnv._mask()` to maintain RL environment invariants).
+   - Added `_direct()` and `DIRECT_SUFFIX = "\nTrả lời trực tiếp, kết thúc bằng đúng 1 dòng 'Answer: <kết quả>'."` to `qwen_mlx_backend.py`.
+   - Added `test_direct_extracts_answer_and_confidence` unit test to `test_qwen_mlx_backend_mocked.py`.
+   - Ran 10 reasoning files: **74 passed in 6.17s** (verbatim in `audit/B_gate0.txt`).
+   - Committed explicitly and tagged `harness-v1-run0`.
 
-### Step 1: Clean Detached Worktree
-- Created detached worktree at `../reasoning-run` on tag `harness-v1-run0`. All subsequent operations executed from this directory.
+2. **Step 1. Detached Worktree**:
+   - Created clean worktree at `../reasoning-run` pointing to `harness-v1-run0`. All subsequent evaluations executed within this directory.
 
-### Step 2: Cache Audit for `mlx-community/Qwen3-8B-4bit` (GATE HIT: STOPPED)
-- Inspected local HF cache at `~/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/`.
-- Snapshot `545dc4251c05440727734bcd94334791f6ab0192` contains ONLY `tokenizer_config.json` (symlinked to a single blob of 9,706 bytes).
-- Essential model files are missing: `config.json`, `model.safetensors` (or weights shards), `tokenizer.json`.
-- Offline load attempt (`HF_HUB_OFFLINE=1 python -c "import mlx_lm; mlx_lm.load('mlx-community/Qwen3-8B-4bit')"`) failed cleanly with:
-  `FileNotFoundError: [Errno 2] No such file or directory: '.../config.json'`.
-- In strict adherence to Rule 2 (`thiếu file → dừng báo, không tự tải`), **execution stopped immediately without attempting network download**.
+3. **Step 2. Model Loading & Tokenizer Inspection**:
+   - Evaluated model: `mlx-community/Qwen2.5-0.5B-Instruct-4bit` (offline loaded from local HF cache).
+   - `tokenizer.eos_token`: `<|im_end|>` (encodes to ID `151645`).
+   - Ran 1 test generation with `enable_thinking=False` (temp=0.0): produced 126 tokens, finished with `finish_reason: stop` (verbatim in `audit/B_step2.txt`).
+
+4. **Step 3. PAL Subprocess Coexistence in Loaded MLX Process**:
+   - In same process with loaded model on Metal device:
+     - Valid PAL script: `ok=True, result='1167'` in **39.22 ms**.
+     - Infinite loop script (`while True: pass`): cleanly timed out at **2.010 s** (timeout limit: 2.0s) without hanging.
+     - Verbatim in `audit/B_step3.txt`.
+
+5. **Step 4. Smoke Run (3 Groups × 3 Variants × 6 Arms = 54 Evaluations)**:
+   - Groups selected (`seed=0`): `grp_pal_004`, `grp_plain_004`, `grp_react_007`.
+   - 9 items evaluated across 6 arms: `DIRECT`, `COT`, `SC`, `TOT`, `REACT`, `PAL`.
+   - Saved 54 full trace records to `audit/B_smoke_trace.jsonl` containing `raw_output`, `finish_reason`, `prompt_tokens`, `completion_tokens`, `n_calls`, `wall_ms`, `parsed`, `gold`, `correct`.
+
+6. **Step 5. Results Table & Raw Samples**:
+   - Generated summary table and 3 random item inspections per arm from `audit/B_smoke_trace.jsonl` (verbatim in `audit/B_summary.txt`).
+   - Halted without strategic comparison claims.
+
+---
+
+## Next Steps (Awaiting User Command)
+
+- Review smoke table metrics (`#parse fail`, `% max_tokens`, accuracy, latency).
+- On user approval:
+  - Proceed with full development run across all 12 groups (36 items × 6 arms = 216 evaluations).
+  - Threshold fitting & decision rule evaluation for meta-reasoning pipeline.

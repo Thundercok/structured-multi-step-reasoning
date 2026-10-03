@@ -1,2 +1,20 @@
-Attempting to load mlx-community/Qwen3-8B-4bit from local HF cache (HF_HUB_OFFLINE=1)...
-LOAD_FAILED: FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192/config.json'
+=== STEP 2: LOAD MODEL mlx-community/Qwen2.5-0.5B-Instruct-4bit ===
+Model loaded: mlx-community/Qwen2.5-0.5B-Instruct-4bit
+tokenizer.eos_token: <|im_end|>
+eos_token_ids in tokenizer: {151645}
+token '<|im_end|>' encodes to: [151645]
+
+=== TEMPLATED PROMPT ===
+[151644, 8948, 198, 2610, 525, 1207, 16948, 11, 3465, 553, 54364, 14817, 13, 1446, 525, 264, 10950, 17847, 13, 151645, 198, 151644, 872, 198, 45, 92599, 220, 18, 128432, 259, 77689, 128309, 220, 19, 20, 15, 15, 15, 128329, 11, 220, 22, 128432, 259, 77689, 128309, 293, 3441, 135594, 30, 151645, 198, 151644, 77091, 198]
+=== GENERATING 1 SAMPLE (temp=0.0) ===
+=== RAW GENERATION OUTPUT ===
+Để giải quyết bài toán này, chúng ta cần hiểu rằng mỗi quả táo có giá trị tương đương với một đồng. Vì vậy, nếu mỗi quả táo giá 45000 đồng, thì 7 quả táo sẽ được tính bằng 7 x 45000 đồng.
+
+Để tính tổng số tiền từ 7 quả táo, chúng ta cần thực hiện phép nhân:
+
+7 x 45000 = 3150000
+
+Vậy, 7 quả táo sẽ được tính bằng 3150000 đồng.
+
+finish_reason: stop
+tokens: 126
