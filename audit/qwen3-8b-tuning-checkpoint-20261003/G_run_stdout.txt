@@ -1,0 +1,52 @@
+=== INITIALIZING MODEL mlx-community/Qwen3-8B-4bit ===
+Model snapshot hash: 545dc4251c05440727734bcd94334791f6ab0192
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 84072.91it/s]
+tokenizer.eos_token: <|im_end|>
+tokenizer.eos_token_ids: [151645]
+
+=== G2: 1 GENERATION SAMPLE (enable_thinking=False) ===
+Last 80 chars of decoded templated prompt: u thức), không thêm câu chữ.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n
+Raw output: 'Giá 1 quả táo là 45000 ÷ 3 = 15000 đồng.  \nGiá 7 quả táo là 15000 × 7 = 105000 đồng.  \nAnswer: 105000'
+finish_reason: stop
+Has '<think>' in output: False
+
+=== G3: SWEEP ON DATA/GEN_TUNE.JSON (94 ITEMS × 2 ARMS) ===
+Loaded 94 items from /Users/thundercock2/Documents/Github/reasoning-run3/data/gen_tune.json
+
+--- Arm: DIRECT (max_tokens=96) ---
+  [10/94] arith_0009_en_orig -> 'Step 4: Subtract 386 → 750' (gold: '364', ok: False)
+  [20/94] arith_0019_en_orig -> '144' (gold: '141764', ok: False)
+  [30/94] arith_0029_en_orig -> '3. Add 34433: $ 52421 + 34433 =' (gold: '1434178', ok: False)
+  [40/94] order_0007_en_orig -> 'Heidi' (gold: 'Grace', ok: False)
+  [50/94] order_0017_en_orig -> 'Carol' (gold: 'Frank', ok: False)
+  [60/94] order_0027_en_orig -> 'Alice' (gold: 'Erin', ok: False)
+  [70/94] g24_0005_en_orig -> '(6 / (4 - (4 / 3))) * 3' (gold: '((4*3)*(6-4))', ok: False)
+  [80/94] g24_0017_en_orig -> '(9 - 5) * (8 - 4)' (gold: '(4*((5+9)-8))', ok: False)
+  [90/94] g24_0027_en_orig -> '(11 - 7) * (7 + 5)' (gold: '(7*(5-(11/7)))', ok: False)
+  [94/94] g24_0031_en_orig -> '(9 - 5) * (4 + 1)' (gold: '((5*(9-4))-1)', ok: False)
+
+--- Arm: COT (max_tokens=1024) ---
+  [10/94] arith_0009_en_orig -> '364' (gold: '364', ok: True)
+  [20/94] arith_0019_en_orig -> '141764' (gold: '141764', ok: True)
+=== INITIALIZING MODEL mlx-community/Qwen3-8B-4bit ===
+Model snapshot hash: 545dc4251c05440727734bcd94334791f6ab0192
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 121378.57it/s]
+tokenizer.eos_token: <|im_end|>
+tokenizer.eos_token_ids: [151645]
+
+=== G2: 1 GENERATION SAMPLE (enable_thinking=False) ===
+Last 80 chars of decoded templated prompt: u thức), không thêm câu chữ.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n
+Raw output: 'Giá 1 quả táo là 45000 ÷ 3 = 15000 đồng.  \nGiá 7 quả táo là 15000 × 7 = 105000 đồng.  \nAnswer: 105000'
+finish_reason: stop
+Has '<think>' in output: False
+
+=== G3: SWEEP ON DATA/GEN_TUNE.JSON (94 ITEMS × 2 ARMS) ===
+Loaded 94 items from /Users/thundercock2/Documents/Github/reasoning-run3/data/gen_tune.json
+Resuming: found 115 existing records in /Users/thundercock2/Documents/Github/reasoning-run3/audit/G_sweep_trace.jsonl
+
+--- Arm: DIRECT (max_tokens=96) ---
+
+--- Arm: COT (max_tokens=1024) ---
+  [30/94] arith_0029_en_orig -> '1434178' (gold: '1434178', ok: True)
+  [40/94] order_0007_en_orig -> 'Grace' (gold: 'Grace', ok: True)
+  [50/94] order_0017_en_orig -> '**Dave, Erin, Carol, Alice, Frank,' (gold: 'Frank', ok: False)

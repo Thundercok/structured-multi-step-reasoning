@@ -1,0 +1,25 @@
+{
+  "status": "complete",
+  "kind": "development_data_audit",
+  "model_calls": 0,
+  "dataset_release_ready": false,
+  "script_sha256": "32affc71a1f55336bce83b32a05d266fccb3cbf41b7e191ca1b8393ad130ed8a",
+  "source_sha256": {
+    "scripts/audit_development_data.py": "32affc71a1f55336bce83b32a05d266fccb3cbf41b7e191ca1b8393ad130ed8a",
+    "research_scoring.py": "8c13925dc6455c3888008488885781bb39159bd1499ce2d620054c770dcc9d1b",
+    "experiments/research_study.py": "d67e0d46d6c4cb358e62c450cc86bf1c41195b5b8b71350c8b18a48329a2fd91",
+    "scripts/gen_tasks.py": "d64bd1c2648ca52bd7ea568b5cc892bf387c7726239f35fec51028e280c3b475",
+    "reasoning_strategies.py": "40fd609a1501df1c9343f1ea80560ca802a517e87c0f3c180580a43e8b958849",
+    "qwen_mlx_backend.py": "5f00af2a3c7e886bae43e1bf0f4e61fe8e8d287629e293b18451090e2c0606e3"
+  },
+  "review_evidence_sha256": {
+    "audit/development_data_review.json": "c653aa25e71f2172bb167292e1e1de4a74b2e3e720a6f47f17bf4e7021c65843",
+    "audit/development-source-evidence.json": "d5fdeff109e54d5fea800a51f1ac4299f8aef6063e6d986141dc75441b23f2ca",
+    "audit/development_audit_baseline.json": "47c9cd7dc561e205d25892f6cb55949b6611a481fb3e658c1e39ba48e0ed10e2"
+  },
+  "artifact_sha256": {
+    "checks.json": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+    "report.md": "e70716618e2409718f15339f228d1964282d236cd9edf724473d9b804e493b07",
+    "validation.json": "1fa2f546dfece326571246141c34343fc21b0f898dd7d8205e0c30517ff8748a"
+  }
+}

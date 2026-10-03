@@ -77,9 +77,9 @@ class MockDemoBackend:
     """Synthetic benchmark backend with controlled cluster separation for rapid testing."""
     TYPES = {"pal": 0, "react": 1, "plain": 2}
     LADDER_ACC = {A.COT: 0.60, A.SELF_CONSISTENCY: 0.78, A.TOT: 0.90}
-    COST = {A.COT: 300, A.SELF_CONSISTENCY: 1500, A.TOT: 5000, A.REACT: 600, A.PAL: 300}
+    COST = {A.COT: 300, A.SELF_CONSISTENCY: 1500, A.TOT: 5000, A.REACT: 600, A.PAL: 300, A.DIRECT: 150}
     hidden_size = 6
-    supported = frozenset({A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL})
+    supported = frozenset({A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL, A.DIRECT})
 
     def __init__(self, seed: int = 42):
         self.rng = np.random.default_rng(seed)
@@ -108,6 +108,8 @@ class MockDemoBackend:
             acc = 0.95 if t == 0 else 0.10
         elif strategy == A.REACT:
             acc = 0.90 if t == 1 else 0.15
+        elif strategy == A.DIRECT:
+            acc = 0.45 if t == 2 else 0.20
         else:
             acc = self.LADDER_ACC[strategy] if t == 2 else 0.30
 

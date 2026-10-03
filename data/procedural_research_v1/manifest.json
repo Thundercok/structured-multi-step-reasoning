@@ -1,0 +1,35 @@
+{
+  "status": "complete",
+  "kind": "procedural_dataset_candidate",
+  "identity_version": "procedural-v1",
+  "split_seed": 42,
+  "inputs": {
+    "main": {
+      "path": "data/gen_v2.json",
+      "sha256": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+      "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+      "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61"
+    },
+    "tuning": {
+      "path": "data/gen_tune.json",
+      "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+      "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+      "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61"
+    }
+  },
+  "source_sha256": {
+    "scripts/build_procedural_research_data.py": "e25aa574fe277e0c1317bef0ae8d3b5101caa9db6639242834ef9c38b7ae814f",
+    "research_identity.py": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "experiments/research_study.py": "cfbd427734fcc1052394883db62d8ff07da288307bb028866ad6463c89407849",
+    "scripts/gen_tasks.py": "d64bd1c2648ca52bd7ea568b5cc892bf387c7726239f35fec51028e280c3b475"
+  },
+  "artifact_sha256": {
+    "main.json": "fa5d09d9a1074de0e65ae544ff977b6c2751a1a36c60fd721d51234a9b2b3ddc",
+    "tuning.json": "069ca68a4d34d40a3c2f559dffadaa255e73e1e9719e8e488f171a091e002d95",
+    "checks.json": "bacd68a801c4e8f70bf9033aaf13b5244ddd718b45e53f76baf3a5c8e2daedaa",
+    "report.md": "bbf61dea31ff384160f1da377c8f2c92460b2822163508906e034c911d430f96"
+  },
+  "publication_ready": false,
+  "model_calls": 0,
+  "stage0_changed": false
+}

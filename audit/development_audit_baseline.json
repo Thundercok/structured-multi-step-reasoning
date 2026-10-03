@@ -1,0 +1,23 @@
+{
+  "scope": "Machine fingerprints only for test rows; no semantic test review",
+  "datasets": [
+    {
+      "path": "data/nckh_reasoning_dataset_draft.json",
+      "sha256_before": "4509141d669f044a0b873e731f116f1c64db137e7859ad0b2d641061eccb0d43",
+      "held_out_items": 12,
+      "held_out_rows_sha256": "1d1db6a6c62606a160ff1ab57d65f7f8ceed074c5129b44932d7f0626042d763"
+    },
+    {
+      "path": "data/gen_v2.json",
+      "sha256_before": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+      "held_out_items": 72,
+      "held_out_rows_sha256": "b97893bde328033355bf4c5f7d03b152b36541d4a9dabec05608f5f1efa9aed1"
+    },
+    {
+      "path": "data/gen_tune.json",
+      "sha256_before": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+      "held_out_items": 34,
+      "held_out_rows_sha256": "9b831723150b42bed05e1ca753a67d7a8f0362fe38b757c665cbebab9cd193e9"
+    }
+  ]
+}

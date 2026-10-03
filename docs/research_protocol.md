@@ -72,9 +72,18 @@ tuning pool. The historical H4 sweep covers all tuning items, so its original
 `test` label cannot establish a held-out study split. All tuning items are
 treated as exposed development, regardless of whether their model evaluation
 has finished. `tuning.json` contains train/calibration only and declares
-`role=development_tuning`; the supported study runner rejects it. Its schema
+`role=development_tuning`; the held-out study mode rejects it. Its schema
 can be checked by `validate_dataset(..., require_all_splits=False)` for data
 preparation only; this option does not enable running a held-out experiment.
+
+The supported entry point also provides `--pilot` for this exposed pool. It
+samples complete groups by split/family/level, runs matched per-call budgets,
+and reports fixed-strategy diagnostics without embeddings, policy fitting or
+test evaluation. Test-containing inputs are rejected before model loading.
+Pilot artifacts cannot enter the held-out multi-seed aggregate. See the
+[development pilot protocol](development_pilot_protocol.md) for preparation
+commands, review and measurement limits. Synthetic validation does not complete
+M2 or change the existing Stage 0 decision.
 
 For `main.json`, canonical groups consisting solely of original test items
 retain test status. Any group with an original development member stays in

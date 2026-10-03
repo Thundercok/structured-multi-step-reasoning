@@ -1,0 +1,38 @@
+{
+  "kind": "partial_legacy_tuning_sweep_checkpoint",
+  "status": "partial",
+  "captured_at_utc": "2026-10-03T09:41:43.975495+00:00",
+  "source_worktree": "/Users/thundercock2/Documents/Github/reasoning-run3",
+  "commit": "76d311b",
+  "expected_records": 188,
+  "completed_records": 148,
+  "records_by_arm": {
+    "DIRECT": 94,
+    "COT": 54
+  },
+  "remaining_records": 40,
+  "duplicate_keys": 0,
+  "model_id": "mlx-community/Qwen3-8B-4bit",
+  "model_snapshot": "545dc4251c05440727734bcd94334791f6ab0192",
+  "dataset_sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+  "summary_present_at_capture": false,
+  "source_sha256": {
+    "scripts/run_sweep_g.py": "65fb37576244299745631b5ecb612e260cb72fe17ad5c5da239d5bc131c43005",
+    "qwen_mlx_backend.py": "be88f450220f9ed85d61f95629d0850ddb710d2f8d79fae69cf19bfa0919739b",
+    "reasoning_strategies.py": "d261a278604f25aa472c6f125bb5c29568a8af742b75c5a566b505abe9c360ff",
+    "scripts/gen_tasks.py": "08ad26facbaa84e384e5e10212faa8f78e41864a5c79625ea34171a01ac6d755"
+  },
+  "worktree_status": " M scripts/run_sweep_g.py\n?? audit/G_run_stdout.txt\n?? audit/G_sweep_trace.jsonl\n?? audit/G_sweep_trace.jsonl.bak\n",
+  "artifact_sha256": {
+    "G_sweep_trace.jsonl": "33a0ee8fdd0c5a667ce17c46689af127c387a0014812b2f3f5ec539c27ca53be",
+    "G_run_stdout.txt": "5904aa29cf6c7e1f7ebeff2f1d96d1fd2f85c24aa6ce9e5c8eb8abcacca748ec",
+    "run_sweep_g.py.snapshot": "65fb37576244299745631b5ecb612e260cb72fe17ad5c5da239d5bc131c43005"
+  },
+  "incomplete_trailing_bytes_not_copied": 0,
+  "model_calls_by_checkpoint": 0,
+  "scope": "Entire legacy tuning pool is exposed development. Raw historical scoring retained; no paper comparisons or new scorer validation.",
+  "token_scope": "Recorded completion_tokens are generated tokens; prompt_tokens separate, not full inference cost.",
+  "timing_scope": "Legacy per-arm wall_ms; not measured online controller latency.",
+  "publication_ready": false,
+  "stage0_changed": false
+}

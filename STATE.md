@@ -1,14 +1,41 @@
 # Execution State — NCKH Reasoning Harness
 
-## Current Phase: H4 tuning review complete; independent review and development pilot preparation pending
+## Current Phase: development pilot software validated; independent review and measured pilot pending
 
 - **Branch**: `exp/reasoning-harness-v1`
 - **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0`, `harness-v1-run2`, `harness-v1-run3`
 - **Note on harness-v1-run1**: `harness-v1-run1` nằm trên main (`f51db3f`), thiếu fix P0. Nhánh `exp/reasoning-harness-v1` đã cherry-pick commit này thành `0047bb2` (gộp MANIFEST).
 - **Completed sweep worktree**: `../reasoning-run3` (detached HEAD at `harness-v1-run3` / `76d311b`).
 - **H4 sweep**: complete, **188/188** records (DIRECT 94, COT 94); no missing, unexpected or duplicate item/arm pairs. Final `audit/G_sweep_trace.jsonl` and `audit/G_summary.txt` in this repository match the worktree copies byte for byte. Verification: `audit/G_completion_verification.json`.
-- **Model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors, verified snapshot `545dc4251c05440727734bcd94334791f6ab0192`).
+- **Model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
 - **Status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.
+
+---
+
+## Development Pilot Implementation — 2026-10-04
+
+- Supported `python -m experiments.research_study --pilot` collects fixed
+  strategy diagnostics on train/calibration only. It rejects held-out inputs
+  before model loading and fits no controller. Main-study evaluation and the
+  existing Stage 0 decision remain separate.
+- Whole-group, label-independent sampling by split/family/level; proposed
+  DIRECT/CoT grid gives both arms per-call caps of 96 and 1,024. Default sampling
+  selects 24 items / 24 canonical groups from the actual tuning candidate.
+  These are preparation choices, not frozen main-study parameters.
+- Records preserve raw messages/output, generation settings, finish reasons,
+  heuristic confidence, prompt/generated counts, all-call strategy cost and
+  duration. ReAct respects smaller caps while retaining its 200-token ceiling.
+  Measured pilot inputs require a local model directory with content hashes;
+  those hashes do not authenticate an upstream revision.
+- **158 research tests passed**, including the required harness, stopping and
+  entry checks. Synthetic pilot/replay and fresh main-study smoke/replay/
+  three-seed aggregation validate software only; no new model inference ran.
+- Evidence: `audit/development-pilot-validation-20261004/`. Historical candidate
+  manifest restored to its original, audit-verified source hashes. Rebuilding
+  unchanged data checks content reproducibility without rewriting provenance.
+- Preparation/review instructions: `docs/development_pilot_protocol.md`.
+  Human/source review and measured collection remain pending; publication
+  parameters and difficulty calibration remain unfrozen.
 
 ---
 
@@ -169,10 +196,9 @@
 - Obtain independent human/source review; keep held-out review separate from
   development tuning. Review prior test exposure before freezing the candidate.
   Dataset/scoring checks do not establish model quality.
-- Prepare a development-only collection workflow through the supported entry
-  point and declare pilot budget comparisons. The existing all-split study
-  runner must not be labeled a development-only pilot. Retain H4 as historical
-  exposed-development diagnostics; main-study comparisons remain pending.
+- Review the development-only pilot configuration and matched budget grid in
+  `docs/development_pilot_protocol.md`. Retain H4 as historical exposed-
+  development diagnostics; main-study comparisons remain pending.
 - Freeze model snapshot, prompts, lambda and generation seeds, and satisfy the
   applicable Stage 0 review before further Qwen/Meta-Reasoner measurements.
 - Collect development/pilot artifacts through the supported research pipeline,

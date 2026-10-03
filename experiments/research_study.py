@@ -19,7 +19,7 @@ import numpy as np
 
 from entry_predictor import EntryPredictor, EntryTrainingData
 from optimal_stopping import CalibrationData, OptimalStoppingPolicy
-from reasoning_env import LADDER, STRATEGIES, complexity_features
+from reasoning_env import LADDER, ReasoningAction as A, STRATEGIES, complexity_features
 from research_identity import FAMILIES, IDENTITY_VERSION, canonical_problem_id, problem_fingerprint
 
 
@@ -31,6 +31,7 @@ STRATEGY_LABELS = {
     "TOT": "Candidate selection (legacy TOT identifier)",
     "REACT": "ReAct calculator",
     "PAL": "PAL",
+    "DIRECT": "Direct",
 }
 
 
@@ -60,7 +61,7 @@ def check_answer(answer, item):
         return False
 
 
-def validate_dataset(dataset, *, require_all_splits=True):
+def validate_dataset(dataset, *, require_all_splits=True, pilot=False):
     for field in ("name", "version", "source", "license"):
         if not isinstance(dataset.get(field), str) or not dataset[field].strip():
             raise ValueError(f"Dataset requires nonempty {field}")
@@ -72,7 +73,10 @@ def validate_dataset(dataset, *, require_all_splits=True):
     if dataset.get("identity_version") not in (None, IDENTITY_VERSION):
         raise ValueError("Unknown procedural identity_version")
     tuning = dataset.get("role") == "development_tuning"
-    if tuning and require_all_splits:
+    if pilot:
+        if not tuning:
+            raise ValueError("Pilot mode requires a development tuning dataset (role='development_tuning')")
+    elif tuning and require_all_splits:
         raise ValueError("Development tuning pools cannot be used as a held-out study dataset")
     for item in items:
         for field in ("id", "group_id", "split", "query", "answer", "answer_type"):
@@ -89,6 +93,8 @@ def validate_dataset(dataset, *, require_all_splits=True):
         if existing_split != item["split"]:
             raise ValueError(f"Group {item['group_id']} crosses dataset splits")
         observed_splits.add(item["split"])
+        if pilot and item["split"] == "test":
+            raise ValueError("Pilot mode cannot contain a held-out test split; main-study test questions must remain untouched")
         if tuning and item["split"] == "test":
             raise ValueError("An exposed tuning pool cannot contain a held-out test split")
         if "family" in item or "checker" in item:
@@ -128,14 +134,18 @@ def validate_dataset(dataset, *, require_all_splits=True):
                 raise ValueError("Invalid numeric answer or tolerance") from error
             if not gold.is_finite() or not tolerance.is_finite() or tolerance < 0:
                 raise ValueError("Numeric answers and tolerances must be finite; tolerance >= 0")
-    if require_all_splits and observed_splits != set(SPLITS):
+    if pilot:
+        if observed_splits != {"train", "calibration"}:
+            raise ValueError("Pilot mode requires both train and calibration splits")
+    elif require_all_splits and observed_splits != set(SPLITS):
         raise ValueError("Separate train, calibration and test splits are required")
     return items
 
 
-def smoke_dataset():
+def smoke_dataset(*, pilot=False):
     items = []
-    for split in SPLITS:
+    splits = ("train", "calibration") if pilot else SPLITS
+    for split in splits:
         for category in ("pal", "react", "plain"):
             for index in range(8):
                 identifier = f"{category}_{split}_{index}"
@@ -144,7 +154,9 @@ def smoke_dataset():
                     "query": identifier, "answer": "OK", "answer_type": "text",
                 })
     return {
-        "name": "synthetic-controller-smoke", "version": "1",
+        "name": "synthetic-controller-smoke-pilot" if pilot else "synthetic-controller-smoke",
+        "version": "1",
+        "role": "development_tuning" if pilot else "main_study",
         "source": "Generated category markers; no real reasoning questions",
         "license": "Project-authored test fixture", "items": items,
     }
@@ -155,7 +167,8 @@ def seed_for(seed, identifier, action):
     return int.from_bytes(digest[:4], "big")
 
 
-def collect_records(backend, items, seed, set_seed, event_file):
+def collect_records(backend, items, seed, set_seed, event_file, strategies=None):
+    strategies = strategies or STRATEGIES
     records = []
     for item in sorted(items, key=lambda entry: entry["id"]):
         answer_format = {
@@ -178,9 +191,9 @@ def collect_records(backend, items, seed, set_seed, event_file):
             "complexity": complexity_features(item["query"]).tolist(), "attempts": {},
             "answer_format": answer_format,
         }
-        order = np.random.default_rng(seed_for(seed, item["id"], "order")).permutation(len(STRATEGIES))
+        order = np.random.default_rng(seed_for(seed, item["id"], "order")).permutation(len(strategies))
         for strategy_index in order:
-            strategy = STRATEGIES[strategy_index]
+            strategy = strategies[strategy_index]
             action_seed = seed_for(seed, item["id"], strategy.name)
             set_seed(action_seed)
             started = time.perf_counter()
@@ -335,6 +348,7 @@ def source_hashes():
         "scripts/gen_tasks.py",
         "research_scoring.py",
         "research_identity.py",
+        "experiments/research_pilot.py",
     )
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in names}
 
@@ -374,12 +388,43 @@ def main(argv=None):
     mode.add_argument("--backend", choices=("smoke", "mlx"))
     mode.add_argument("--replay", type=Path, help="Recompute a completed run without model calls or changing its settings")
     mode.add_argument("--aggregate", type=Path, nargs="+", metavar="RUN", help="Aggregate compatible completed runs with distinct generation seeds")
+    parser.add_argument("--pilot", action="store_true", help="Fixed-strategy diagnostics on exposed development only")
+    parser.add_argument("--strategies", nargs="+", choices=("DIRECT", "COT", "SELF_CONSISTENCY", "TOT", "REACT", "PAL"), help="Pilot strategies (default DIRECT COT)")
+    budget = parser.add_mutually_exclusive_group()
+    budget.add_argument("--max-tokens", type=int, help="Pilot single per-call token cap")
+    budget.add_argument("--token-budgets", nargs="+", type=int, help="Matched pilot per-call caps (default 96 1024)")
+    parser.add_argument("--groups-per-stratum", type=int, help="Pilot groups per split/family/level (default 1)")
     parser.add_argument("--dataset", type=Path)
     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--lam", type=float)
     parser.add_argument("--output", type=Path, required=True, help="New run directory; existing paths are never overwritten")
     args = parser.parse_args(argv)
+    pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum)
+    if (args.aggregate or args.replay) and (args.pilot or any(value is not None for value in pilot_settings)):
+        parser.error("Replay and aggregation use frozen settings; pilot overrides are not allowed")
+    if args.replay and any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):
+        parser.error("Replay uses the original dataset, model, seed and lambda; overrides are not allowed")
+    if args.pilot:
+        from experiments.research_pilot import run
+        try:
+            run(args, parser)
+        except ValueError as error:
+            parser.error(str(error))
+        return
+    if any(value is not None for value in pilot_settings):
+        parser.error("Strategy, sampling and budget options require --pilot")
+    if args.replay:
+        if any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):
+            parser.error("Replay uses frozen settings; overrides are not allowed")
+        replay_manifest = json.loads((args.replay / "manifest.json").read_text())
+        if replay_manifest.get("pilot"):
+            from experiments.research_pilot import run
+            try:
+                run(args, parser, replay_manifest=replay_manifest)
+            except ValueError as error:
+                parser.error(str(error))
+            return
     if args.aggregate:
         if any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):
             parser.error("Aggregation uses the frozen input settings; overrides are not allowed")

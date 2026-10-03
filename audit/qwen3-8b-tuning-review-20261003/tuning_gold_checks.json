@@ -1,0 +1,816 @@
+[
+  {
+    "id": "arith_0000_en_orig",
+    "original_split": "dev",
+    "expected_answer": "115",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0001_en_orig",
+    "original_split": "dev",
+    "expected_answer": "2760",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0002_en_orig",
+    "original_split": "calib",
+    "expected_answer": "133",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0003_en_orig",
+    "original_split": "calib",
+    "expected_answer": "450",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0004_en_orig",
+    "original_split": "calib",
+    "expected_answer": "43",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0005_en_orig",
+    "original_split": "test",
+    "expected_answer": "101",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0006_en_orig",
+    "original_split": "test",
+    "expected_answer": "318",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0007_en_orig",
+    "original_split": "test",
+    "expected_answer": "77",
+    "proof": {
+      "parsed_steps": 2
+    }
+  },
+  {
+    "id": "arith_0008_en_orig",
+    "original_split": "dev",
+    "expected_answer": "1292",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0009_en_orig",
+    "original_split": "dev",
+    "expected_answer": "364",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0010_en_orig",
+    "original_split": "calib",
+    "expected_answer": "3821",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0011_en_orig",
+    "original_split": "calib",
+    "expected_answer": "1196",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0012_en_orig",
+    "original_split": "calib",
+    "expected_answer": "46593",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0013_en_orig",
+    "original_split": "test",
+    "expected_answer": "36106",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0014_en_orig",
+    "original_split": "test",
+    "expected_answer": "8397",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0015_en_orig",
+    "original_split": "test",
+    "expected_answer": "2141",
+    "proof": {
+      "parsed_steps": 4
+    }
+  },
+  {
+    "id": "arith_0016_en_orig",
+    "original_split": "dev",
+    "expected_answer": "26981",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0017_en_orig",
+    "original_split": "dev",
+    "expected_answer": "56150",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0018_en_orig",
+    "original_split": "calib",
+    "expected_answer": "9028",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0019_en_orig",
+    "original_split": "calib",
+    "expected_answer": "141764",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0020_en_orig",
+    "original_split": "calib",
+    "expected_answer": "1826",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0021_en_orig",
+    "original_split": "test",
+    "expected_answer": "6193",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0022_en_orig",
+    "original_split": "test",
+    "expected_answer": "4303",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0023_en_orig",
+    "original_split": "test",
+    "expected_answer": "40444",
+    "proof": {
+      "parsed_steps": 6
+    }
+  },
+  {
+    "id": "arith_0024_en_orig",
+    "original_split": "dev",
+    "expected_answer": "4693538",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0025_en_orig",
+    "original_split": "dev",
+    "expected_answer": "2466710",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0026_en_orig",
+    "original_split": "calib",
+    "expected_answer": "25842332",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0027_en_orig",
+    "original_split": "calib",
+    "expected_answer": "230037",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0028_en_orig",
+    "original_split": "calib",
+    "expected_answer": "113731565",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0029_en_orig",
+    "original_split": "test",
+    "expected_answer": "1434178",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0030_en_orig",
+    "original_split": "test",
+    "expected_answer": "808396",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "arith_0031_en_orig",
+    "original_split": "test",
+    "expected_answer": "917720389173354",
+    "proof": {
+      "parsed_steps": 8
+    }
+  },
+  {
+    "id": "order_0000_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0001_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0002_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Dave",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0003_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0004_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Carol",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0005_en_orig",
+    "original_split": "test",
+    "expected_answer": "Heidi",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0006_en_orig",
+    "original_split": "test",
+    "expected_answer": "Carol",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0007_en_orig",
+    "original_split": "test",
+    "expected_answer": "Grace",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 3
+    }
+  },
+  {
+    "id": "order_0008_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Frank",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0009_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0010_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Erin",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0011_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0012_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Dave",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0013_en_orig",
+    "original_split": "test",
+    "expected_answer": "Frank",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0014_en_orig",
+    "original_split": "test",
+    "expected_answer": "Heidi",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0015_en_orig",
+    "original_split": "test",
+    "expected_answer": "Grace",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 4
+    }
+  },
+  {
+    "id": "order_0016_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Erin",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0017_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Frank",
+    "proof": {
+      "consistent_orders": 6,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0018_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Frank",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0019_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Grace",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0020_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Erin",
+    "proof": {
+      "consistent_orders": 4,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0021_en_orig",
+    "original_split": "test",
+    "expected_answer": "Alice",
+    "proof": {
+      "consistent_orders": 6,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0022_en_orig",
+    "original_split": "test",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0023_en_orig",
+    "original_split": "test",
+    "expected_answer": "Dave",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 5
+    }
+  },
+  {
+    "id": "order_0024_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Heidi",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0025_en_orig",
+    "original_split": "dev",
+    "expected_answer": "Erin",
+    "proof": {
+      "consistent_orders": 2,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0026_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Alice",
+    "proof": {
+      "consistent_orders": 8,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0027_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Erin",
+    "proof": {
+      "consistent_orders": 6,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0028_en_orig",
+    "original_split": "calib",
+    "expected_answer": "Heidi",
+    "proof": {
+      "consistent_orders": 60,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0029_en_orig",
+    "original_split": "test",
+    "expected_answer": "Carol",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0030_en_orig",
+    "original_split": "test",
+    "expected_answer": "Grace",
+    "proof": {
+      "consistent_orders": 1,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "order_0031_en_orig",
+    "original_split": "test",
+    "expected_answer": "Bob",
+    "proof": {
+      "consistent_orders": 24,
+      "parsed_clues": 6
+    }
+  },
+  {
+    "id": "g24_0000_en_orig",
+    "original_split": "dev",
+    "expected_answer": "((12+(13+2))-3)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0001_en_orig",
+    "original_split": "dev",
+    "expected_answer": "((3-9)*(4-8))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0002_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((10+(7+8))-1)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0003_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((4+7)+(5+8))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0004_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((1*12)*(8-6))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0005_en_orig",
+    "original_split": "test",
+    "expected_answer": "((4*3)*(6-4))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0006_en_orig",
+    "original_split": "test",
+    "expected_answer": "((10+(13+9))-8)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0008_en_orig",
+    "original_split": "dev",
+    "expected_answer": "((13+(2*7))-3)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0009_en_orig",
+    "original_split": "dev",
+    "expected_answer": "(((5*6)-2)-4)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0010_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((12*(13-11))/1)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0011_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((2*(3+11))-4)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0012_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((11+(4*5))-7)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0014_en_orig",
+    "original_split": "test",
+    "expected_answer": "((3*(7+9))/2)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0015_en_orig",
+    "original_split": "test",
+    "expected_answer": "((13*(5-3))-2)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0016_en_orig",
+    "original_split": "dev",
+    "expected_answer": "(12*((1+12)-11))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0017_en_orig",
+    "original_split": "dev",
+    "expected_answer": "(4*((5+9)-8))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0018_en_orig",
+    "original_split": "calib",
+    "expected_answer": "(3*((4+13)-9))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0019_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((1-13)*(11-13))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0020_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((12*12)/(4+2))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0021_en_orig",
+    "original_split": "test",
+    "expected_answer": "((5+1)+(6*3))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0022_en_orig",
+    "original_split": "test",
+    "expected_answer": "((8*6)/(9-7))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0023_en_orig",
+    "original_split": "test",
+    "expected_answer": "(8*((10+4)-11))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0024_en_orig",
+    "original_split": "dev",
+    "expected_answer": "(((9*5)-10)-11)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0025_en_orig",
+    "original_split": "dev",
+    "expected_answer": "((5*(13-8))-1)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0026_en_orig",
+    "original_split": "calib",
+    "expected_answer": "(4+(10*(1+1)))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0027_en_orig",
+    "original_split": "calib",
+    "expected_answer": "(7*(5-(11/7)))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0028_en_orig",
+    "original_split": "calib",
+    "expected_answer": "((8*(13-9))-8)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0029_en_orig",
+    "original_split": "test",
+    "expected_answer": "(4+(4*(13-8)))",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0030_en_orig",
+    "original_split": "test",
+    "expected_answer": "(((13*4)-4)/2)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  },
+  {
+    "id": "g24_0031_en_orig",
+    "original_split": "test",
+    "expected_answer": "((5*(9-4))-1)",
+    "proof": {
+      "exact_value": "24",
+      "numbers_used_exactly_once": true
+    }
+  }
+]

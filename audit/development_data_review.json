@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "reviewer": "Codex AI agent",
+  "date": "2026-10-03",
+  "human_review_status": "pending",
+  "scope": "Curated train/calibration and procedural dev/calib only; held-out rows unchanged",
+  "baseline": "audit/development_audit_baseline.json",
+  "source_evidence": "audit/development-source-evidence.json",
+  "curated_groups": [
+    {
+      "group_id": "grp_pal_003",
+      "split": "calibration",
+      "expected_answer": "5",
+      "independent_proof": "100 - 100/2 - 15 - 2*15",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Official GSM8K training record matched semantically, not verbatim; local en_orig is an adaptation.",
+      "variant_query_sha256": {
+        "pal_003_en_orig": "0b963df87504a99cf723cacc702bd389d1ba5306e1b5de2b02162a38bb197876",
+        "pal_003_en_para": "22ffc2998b130c4d464f1c02ec1f714699877670066bd8825e8acece7487303e",
+        "pal_003_vi_trans": "a92490804913905980f119f37b5f327b15e530094bd2e4fb735c39c4165552af"
+      },
+      "source_status": "Pinned GSM8K training adaptation; MIT repository license verified",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_pal_004",
+      "split": "train",
+      "expected_answer": "192",
+      "independent_proof": "(2*16 + 2*8)*4",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Repaired consumption assumption: all variants now ask for slices contained in purchased pizzas.",
+      "variant_query_sha256": {
+        "pal_004_en_orig": "4975c731a2022fae62e22c287c31697d8181e994e4930f16b120599fb3cd0e56",
+        "pal_004_en_para": "16e7a78cc05850bd9c5728754eef8d9fe55701d624fee7d767a608840c9b2ed7",
+        "pal_004_vi_trans": "f9113cc02f7bf5f61deb5048825c0aab2890902c63ae5ea939703f9d530a43c5"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_pal_005",
+      "split": "train",
+      "expected_answer": "129.6",
+      "independent_proof": "150 * 80/100 * 108/100",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "pal_005_en_orig": "1997a719cc519d5931f3da10931b7f430866429720a5d69cb44a6e8d8af36aeb",
+        "pal_005_en_para": "52108f5c9561be9418e944121c147b7d5e1d3733387d64e885306b1dd42b72fb",
+        "pal_005_vi_trans": "aac0b855f2a02a168c8db690464ec0cde67c0da0c83ec9f6be2f5769f3d0b31b"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_pal_006",
+      "split": "calibration",
+      "expected_answer": "285",
+      "independent_proof": "75*2 + 90*3/2",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "pal_006_en_orig": "fd33a90dacf6fa9906a624fa299d28d1169a6a03c6d27bcf5dec7acf55accc61",
+        "pal_006_en_para": "ae7899ac5ad4cc2f553121176b4489f0b4ee85b7989e9f8213d4a04076ab2a50",
+        "pal_006_vi_trans": "63c149b1fc833677269435d45a80be114d83d398cfb4d4c8e4252a059665bffe"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_pal_007",
+      "split": "train",
+      "expected_answer": "84",
+      "independent_proof": "2*(24+18)",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "pal_007_en_orig": "04ded8211575ec43e105a3a26f7c9f9b75b64425e70c6831f7363ba6ce624f0f",
+        "pal_007_en_para": "57065989d5cde88faef285cea7d6c7c3c1b55e7181706b7524ed0fd6acbdc5cf",
+        "pal_007_vi_trans": "3082a32228dc682ca9ed1e1ab48ea6124fd733401ec15048ed3d5faa4bbf52cf"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_pal_008",
+      "split": "train",
+      "expected_answer": "40",
+      "independent_proof": "(320 - 2*120)/(4-2)",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "pal_008_en_orig": "c4b3cccf2088ef5d5af1b3f5c7f0678be887df65b8cce52b4df58cb23e79781a",
+        "pal_008_en_para": "75c32776207b36c53889d1eb010ee8dc8b7c04255286130c1ccfa2818ec3ff93",
+        "pal_008_vi_trans": "bc556bc613885ac7ffeaed5d050abf7786755855a3fc792ad403ff12f095283d"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_react_001",
+      "split": "calibration",
+      "expected_answer": "9501",
+      "independent_proof": "345*28 - 1240/5 + 89",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "react_001_en_orig": "4234aa2cb85dc2b1e56af3a343cc473fa67a1508cb123c4526a4b2a773e376ca",
+        "react_001_en_para": "92f230457a348be0405458ae1bf1e242a05d4b94100ee75990eb3a85c68a7936",
+        "react_001_vi_trans": "9e188cb67b01d1bc7e8c0af8777af91588eccd6e396f7a674e06ee72e98a7628"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_react_002",
+      "split": "train",
+      "expected_answer": "1167",
+      "independent_proof": "24*18 + 15*25 + 30*12",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "react_002_en_orig": "360ea71ab4823ad72819d7649cda0520fd3b491ab757045cfacf51defed14b13",
+        "react_002_en_para": "a37cd42307e40c029a8de8b93a20d8c031568280f5f9f39012848332b825c428",
+        "react_002_vi_trans": "7a7b4bdc0b7a7940a5a73aabf292bd9fdfc0ad5ef0d358673791b808f92961fc"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_react_003",
+      "split": "train",
+      "expected_answer": "146",
+      "independent_proof": "15/100*840 + 25/100*620 - 30/100*450",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "react_003_en_orig": "828e627e774d335e894894535b93c7f21147740ad2df11010dc12391e1055eff",
+        "react_003_en_para": "b7bdfda283a2b1c7c8fd19e34a7a24ed2d6cbafb2902585822c2ac976134f9e4",
+        "react_003_vi_trans": "290065aad6ab95fd2f57823024b359f1b3db8202848a1577e22a27994ee371d5"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_react_004",
+      "split": "train",
+      "expected_answer": "440",
+      "independent_proof": "145+210+85",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Restored the same three duration facts in paraphrase/translation; irrelevant facts still affect difficulty and routing features.",
+      "variant_query_sha256": {
+        "react_004_en_orig": "6f023ad45679b22a9b56970d17301a9ccb61aa27defd05ac458d5e3cc653ff1c",
+        "react_004_en_para": "f8adee36952445e96136f7a2157eb7f97bbaf100ad3830b3c7ca06e79a8cef6a",
+        "react_004_vi_trans": "bfa963bd1e3d8a2cd1ebc52cde54d3de0a7cd20b87a932fd02164d8b4bb511f3"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_react_005",
+      "split": "calibration",
+      "expected_answer": "1500",
+      "independent_proof": "450+520+610-80",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "react_005_en_orig": "2de000f24135d39c43190bcf924fb252406f520b6114e71b01961ff7f037f87b",
+        "react_005_en_para": "2f4dd2ed3c8488363b73b08ca79f6578bc3f0bdd42a0fcf25d6a9b139356cb11",
+        "react_005_vi_trans": "0f7f3d9ad05eafcca230c1e018821582d8709b3ba273c6ea8544937f331759a4"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_react_007",
+      "split": "train",
+      "expected_answer": "210",
+      "independent_proof": "3*(45+55) - 4*(120-85) + 250/5",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "react_007_en_orig": "5e4be88d0108262e94923ee8e55fd4aefe740454502381189d3aeae40e18d10c",
+        "react_007_en_para": "95c6adae8a4f3cda541172e39be931de3d91395680560e4db09d964600cbf18c",
+        "react_007_vi_trans": "efd8fb4ca7e34776c22f04ea0e15791bb4d8f35f21aefe4e68453d477ee094e9"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_plain_002",
+      "split": "train",
+      "expected_answer": "No",
+      "independent_proof": "Countermodel: rose is a flower that fades slowly; lily is a flower that fades quickly.",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Changed Vietnamese species-level wording to individual flowers; countermodel establishes non-entailment.",
+      "variant_query_sha256": {
+        "plain_002_en_orig": "b28354ab9232478938e29a8e26179931b389501c3f52d41a7e2f619bb425a94e",
+        "plain_002_en_para": "31b03d90283130ac7083289b11960b57b630d2332bfb92be96c0981603552e69",
+        "plain_002_vi_trans": "9d5da3aebfd5840e22d150320e5216dcec151ef50202ab342454631c10f9068d"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_plain_003",
+      "split": "train",
+      "expected_answer": "E",
+      "independent_proof": "Exhaustive ordering: 1 consistent order, E-D-C-A-B.",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "plain_003_en_orig": "a49823f57aa7a7a1d9fe1cd82d08ba7d70be0e8502a14fcae8e40418b7a1288b",
+        "plain_003_en_para": "ef41d2b065eda350a7a4ef6e1f0c93a7063a5abd64066450231056fcbecc16d5",
+        "plain_003_vi_trans": "86793a7bac9368b8ab8765f9df4251000696b0ac207c5332921f40242c9e1fec"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_plain_004",
+      "split": "train",
+      "expected_answer": "Thursday",
+      "independent_proof": "Tuesday index 1 + 100 days modulo 7 = Thursday index 3.",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "plain_004_en_orig": "c7c5b06cafc298e600644ba0c6b6bd7bf97e32f930e1830bcbdc4c6a564b843e",
+        "plain_004_en_para": "c40cda0080bf03151d8fdf182eef3f43706ea6b9941855a3b34aa300000b482a",
+        "plain_004_vi_trans": "2c1ecfcafcd1f0529dc6c23f0aaedb501ceb17aaa7c1d56e334a7b4b48d6d4bf"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_plain_005",
+      "split": "train",
+      "expected_answer": "Yes",
+      "independent_proof": "All consistent strict age orderings put Tom before Tyke.",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Facts, units, relationships and requested target agree across the three variants.",
+      "variant_query_sha256": {
+        "plain_005_en_orig": "ff2863f9522c3583f896da0af9f7ce5b53342fcb77322980dfaa9e83d9560cbd",
+        "plain_005_en_para": "a7efcac0e06073bf0b27396c05b80b0d87cda471fbca84c67542538d95b592ab",
+        "plain_005_vi_trans": "5765c6b7b33a6893b5e9c6a4bb7253f7a26613c8af51f4269a909f9180f0d7ae"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_plain_006",
+      "split": "calibration",
+      "expected_answer": "Goat",
+      "independent_proof": "Boat carries farmer plus one item; only removing Goat leaves a safe unattended starting bank.",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Added farmer-plus-one boat capacity, farmer-only rowing and unattended-bank rules in all variants.",
+      "variant_query_sha256": {
+        "plain_006_en_orig": "f5cfb9d1da54decbc7f8fbe830b82715e2ed85b3f0f55a7041cd3fec2c04cfa9",
+        "plain_006_en_para": "b484d311e10be782583a73efd1e62b411215b6856e31141f8fdb0bc2d5dcf9cd",
+        "plain_006_vi_trans": "f329c8bb87cd2c743be2dc9e71571b0a20c19d516bc9187be1d5832fc57b08ff"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    },
+    {
+      "group_id": "grp_plain_007",
+      "split": "calibration",
+      "expected_answer": "Equal",
+      "independent_proof": "Both masses are exactly 1 kg, using the ordinary mass interpretation.",
+      "semantic_review": "Agent inspected all three variants for facts, target and assumptions",
+      "translation_review": "Corrected Vietnamese iron to steel; both equal mass labels remain valid under ordinary mass interpretation.",
+      "variant_query_sha256": {
+        "plain_007_en_orig": "18fa9beddecb11c03bed8b329b201c2044520e7c374e5d6b4c733082114a9664",
+        "plain_007_en_para": "120cc55ac3581365e5ba9959832bce5338ff7340d277b670774fd47c5724587e",
+        "plain_007_vi_trans": "a1f5b916771702e1832243c50f44fcc68a3ce91474e808102b6de753868b9080"
+      },
+      "source_status": "Template origin/ownership not established by descriptive source name; item license is a declaration",
+      "human_review_status": "pending"
+    }
+  ],
+  "item_corrections": {
+    "pal_004_en_orig": {
+      "query": "Albert buys 2 large pizzas and 2 small pizzas per week for 4 weeks. A large pizza has 16 slices and a small pizza has 8 slices. How many slices do all of those pizzas contain altogether?"
+    },
+    "pal_004_en_para": {
+      "query": "Every week across a 4-week period, Albert gets 2 large pizzas (16 slices each) and 2 small pizzas (8 slices each). How many slices are contained in all the pizzas he receives over the 4 weeks?"
+    },
+    "pal_004_vi_trans": {
+      "query": "Albert mua 2 chiếc bánh pizza lớn và 2 chiếc pizza nhỏ mỗi tuần trong vòng 4 tuần. Một chiếc pizza lớn có 16 miếng và pizza nhỏ có 8 miếng. Hỏi tất cả số bánh pizza mua trong 4 tuần có tổng cộng bao nhiêu miếng?",
+      "decimal_separator": ","
+    },
+    "react_004_en_para": {
+      "query": "A journey is split into three legs: 145 km in 2 hours, 210 km in 3 hours, and 85 km in 1 hour. Calculate the cumulative distance of the entire trip in kilometers."
+    },
+    "react_004_vi_trans": {
+      "query": "Một chuyến đi gồm 3 chặng: chặng một dài 145 km trong 2 giờ, chặng hai dài 210 km trong 3 giờ, và chặng ba dài 85 km trong 1 giờ. Hỏi tổng quãng đường đã đi là bao nhiêu km?",
+      "decimal_separator": ","
+    },
+    "plain_002_vi_trans": {
+      "query": "Mọi bông hoa hồng đều là hoa. Một số bông hoa mau tàn. Chúng ta có thể kết luận chắc chắn rằng mọi bông hoa hồng đều mau tàn hay không? Trả lời Yes hoặc No.",
+      "answer_aliases": [
+        "không"
+      ]
+    },
+    "plain_006_en_orig": {
+      "query": "A farmer must cross a river with a wolf, a goat, and a cabbage. The boat can carry only the farmer and one item, and only the farmer can row it. If left together on either bank without the farmer, the wolf eats the goat and the goat eats the cabbage. All must reach the other bank safely. Which item must the farmer take across first?"
+    },
+    "plain_006_en_para": {
+      "query": "A farmer must transport a wolf, a goat, and a cabbage safely across a river. Only the farmer can row, and the boat holds the farmer plus at most one item. Without the farmer on the same bank, the wolf eats the goat and the goat eats the cabbage. Which item must accompany the farmer on the first crossing?"
+    },
+    "plain_006_vi_trans": {
+      "query": "Một bác nông dân phải chở một con sói, một con dê và một bắp cải qua sông an toàn. Thuyền chỉ chở được bác nông dân cùng tối đa một thứ, và chỉ bác nông dân có thể chèo thuyền. Nếu ở cùng một bờ mà không có bác nông dân, sói sẽ ăn dê và dê sẽ ăn bắp cải. Hỏi bác nông dân phải chở thứ gì qua sông trong chuyến đầu tiên?",
+      "answer_aliases": [
+        "dê",
+        "con dê"
+      ]
+    },
+    "plain_007_vi_trans": {
+      "query": "Vật nào nặng hơn: 1 kilôgam thép hay 1 kilôgam lông vũ? Trả lời Steel, Feathers, hoặc Equal.",
+      "answer_aliases": [
+        "bằng nhau",
+        "như nhau"
+      ]
+    },
+    "pal_003_en_orig": {
+      "source_provenance": {
+        "repository": "https://github.com/openai/grade-school-math",
+        "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+        "original_split": "train",
+        "original_line": 3,
+        "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+        "transformation": "English adaptation/paraphrase",
+        "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+      }
+    },
+    "pal_003_en_para": {
+      "source_provenance": {
+        "repository": "https://github.com/openai/grade-school-math",
+        "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+        "original_split": "train",
+        "original_line": 3,
+        "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+        "transformation": "English adaptation/paraphrase",
+        "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+      }
+    },
+    "pal_003_vi_trans": {
+      "decimal_separator": ",",
+      "source_provenance": {
+        "repository": "https://github.com/openai/grade-school-math",
+        "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+        "original_split": "train",
+        "original_line": 3,
+        "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+        "transformation": "Vietnamese translation",
+        "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+      }
+    },
+    "pal_005_vi_trans": {
+      "decimal_separator": ","
+    },
+    "pal_006_vi_trans": {
+      "decimal_separator": ","
+    },
+    "pal_007_vi_trans": {
+      "decimal_separator": ","
+    },
+    "pal_008_vi_trans": {
+      "decimal_separator": ","
+    },
+    "react_001_vi_trans": {
+      "decimal_separator": ","
+    },
+    "react_002_vi_trans": {
+      "decimal_separator": ","
+    },
+    "react_003_vi_trans": {
+      "decimal_separator": ","
+    },
+    "react_005_vi_trans": {
+      "decimal_separator": ","
+    },
+    "react_007_vi_trans": {
+      "decimal_separator": ","
+    },
+    "plain_004_vi_trans": {
+      "answer_aliases": [
+        "thứ năm"
+      ]
+    },
+    "plain_005_vi_trans": {
+      "answer_aliases": [
+        "có"
+      ]
+    }
+  },
+  "publication_status": "Needs independent human review, source/ownership records and a separate held-out review process"
+}

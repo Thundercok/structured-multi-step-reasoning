@@ -1,0 +1,34 @@
+{
+  "repository": "https://github.com/openai/grade-school-math",
+  "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+  "source_files": [
+    {
+      "original_split": "train",
+      "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/train.jsonl",
+      "sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465"
+    },
+    {
+      "original_split": "test",
+      "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/test.jsonl",
+      "sha256": "3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14"
+    }
+  ],
+  "license_url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE",
+  "license_sha256": "86bbb73e855821d7c401912fd4bf82e34313e6e3b6fd6f909f2b6cc9e209a53b",
+  "license_header": "MIT License",
+  "development_matches": [
+    {
+      "original_item_id": "pal_003_en_orig",
+      "original_split": "train",
+      "line": 3,
+      "source_question_sha256": "9eea4e53dec08963ef76fdee76346277a0ae3356c2c1bb67223507ebd6340740",
+      "local_question_sha256": "0b963df87504a99cf723cacc702bd389d1ba5306e1b5de2b02162a38bb197876",
+      "literal_question_match": false,
+      "answer_label": "5",
+      "matches_local_label": true,
+      "source_question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more money does Betty need to buy the wallet?",
+      "source_answer": "In the beginning, Betty has only 100 / 2 = $<<100/2=50>>50.\nBetty's grandparents gave her 15 * 2 = $<<15*2=30>>30.\nThis means, Betty needs 100 - 50 - 30 - 15 = $<<100-50-30-15=5>>5 more.\n#### 5"
+    }
+  ],
+  "scope": "Only a local calibration question was matched. No local test question/label was reviewed or emitted."
+}

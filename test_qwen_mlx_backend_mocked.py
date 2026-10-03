@@ -117,6 +117,25 @@ def test_embed_shape_and_hidden_size():
     assert v.shape == (8,) and b.hidden_size == 8
 
 
+def test_react_respects_small_pilot_cap_and_records_actual_generation_settings(monkeypatch):
+    import qwen_mlx_backend as module
+    captured = []
+    def generate(*args, **kwargs):
+        captured.append(kwargs["max_tokens"])
+        return scripted(*args, **kwargs)
+    monkeypatch.setattr(module, "stream_generate", generate)
+    for cap in (48, 512):
+        backend = make_backend()
+        backend.max_tokens = cap
+        scripted.queue("Thought: done.\nAction: finish[7]")
+        backend.run(A.REACT, "Return seven")
+        generation = backend.last_trace["generations"][0]
+        assert captured[-1] == generation["max_tokens"] == min(cap, 200)
+        assert generation["temperature"] == 0.0
+        assert generation["enable_thinking"] is False
+        assert generation["messages"][-1]["content"] == "Return seven"
+
+
 def test_direct_extracts_answer_and_confidence():
     scripted.queue("Answer: 42")
     ans, conf, tok = b_run(A.DIRECT, "6 nhân 7 bằng bao nhiêu?")

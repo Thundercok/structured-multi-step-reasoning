@@ -104,7 +104,20 @@ items in 177 canonical groups and a separate 94-item exposed tuning pool.
 Canonical identities keep renamed ordering puzzles in one group, all groups
 stay within one split, and tuning/main identities are disjoint. Eligible
 original test items retain test status; reviewed development content is never
-promoted into test. The study runner rejects the development-only tuning file.
+promoted into test. Held-out study mode rejects the development-only tuning
+file. The supported `--pilot` mode accepts development tuning inputs and never
+fits a controller or evaluates test. Validate it without a model:
+
+```bash
+python -m experiments.research_study --backend smoke --pilot --strategies DIRECT COT --token-budgets 96 1024 --output runs/NEW_PILOT_SMOKE
+python -m experiments.research_study --replay runs/NEW_PILOT_SMOKE --output runs/NEW_PILOT_REPLAY
+```
+
+Matched caps apply per generation call; multi-call strategies have larger total
+costs. See the [pilot protocol](docs/development_pilot_protocol.md) for sampling,
+local model hashes, review and measurement limits. Defaults are proposed
+diagnostics; human/source review and the measured pilot remain pending.
+Historical artifact manifests retain their original source hashes.
 
 The [completed Qwen3-8B tuning review](audit/qwen3-8b-tuning-review-20261003/report.md)
 reproduces the 188 historical parser/scorer outcomes and records retrospective

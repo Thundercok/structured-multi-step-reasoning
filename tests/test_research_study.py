@@ -183,3 +183,21 @@ def test_retired_simulator_cannot_overwrite_research_report():
 
     with pytest.raises(RuntimeError, match="retired"):
         run_benchmark()
+
+
+def test_pilot_mode_rejects_main_study_dataset_or_held_out_test_split():
+    with pytest.raises(ValueError, match="development tuning"):
+        validate_dataset(smoke_dataset(pilot=False), pilot=True)
+    poisoned = smoke_dataset(pilot=True)
+    poisoned["items"][0]["split"] = "test"
+    with pytest.raises(ValueError, match="held-out test split"):
+        validate_dataset(poisoned, pilot=True)
+    missing_calib = smoke_dataset(pilot=True)
+    missing_calib["items"] = [item for item in missing_calib["items"] if item["split"] != "calibration"]
+    with pytest.raises(ValueError, match="both train and calibration"):
+        validate_dataset(missing_calib, pilot=True)
+
+
+def test_standard_mode_rejects_tuning_pool():
+    with pytest.raises(ValueError, match="tuning pools"):
+        validate_dataset(smoke_dataset(pilot=True), pilot=False)

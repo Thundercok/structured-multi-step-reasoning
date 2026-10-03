@@ -169,7 +169,7 @@ class QwenMLXBackend:
         ]
         total_tok, last_conf = 0, 0.0
         for _ in range(max_turns):
-            text, conf, n_tok = self._chat(msgs, temp=0.0, max_tokens=200)
+            text, conf, n_tok = self._chat(msgs, temp=0.0, max_tokens=min(200, self.max_tokens))
             total_tok, last_conf = total_tok + n_tok, conf
             msgs.append({"role": "assistant", "content": text})
             parsed = parse_action(text)
@@ -245,6 +245,10 @@ class QwenMLXBackend:
         }
         if hasattr(self, "last_trace"):
             self.last_trace["generations"].append({
+                "messages": [dict(message) for message in messages],
+                "max_tokens": max_tokens or self.max_tokens,
+                "temperature": temp,
+                "enable_thinking": False,
                 "prompt_tokens": p_tok,
                 "output": text,
                 "tokens": n_tok,
