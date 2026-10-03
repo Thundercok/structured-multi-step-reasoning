@@ -2,10 +2,10 @@
 
 ## Current Phase: Section B-lite Complete -> Awaiting User Instruction for Full Dev / Decision Rule
 
-- **Branch**: `exp/reasoning-harness-v1`
-- **Tag**: `harness-v1-run0`
-- **Worktree**: `../reasoning-run` (HEAD: `1088095`)
-- **Timestamp**: 2026-10-03T11:25:00+07:00
+- **Branch**: `exp/reasoning-harness-v1` (synced to `origin/exp/reasoning-harness-v1`)
+- **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0` (all pushed to `origin`)
+- **Remote**: `origin` (`https://github.com/Thundercok/structured-multi-step-reasoning.git`)
+- **Timestamp**: 2026-10-03T14:35:00+07:00
 
 ---
 
