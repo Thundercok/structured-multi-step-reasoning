@@ -1,0 +1,29 @@
+=== QWEN MODELS IN HF CACHE ===
+models--mlx-community--Qwen2.5-0.5B-Instruct-4bit
+models--mlx-community--Qwen3-8B-4bit
+
+=== INVENTORY: models--mlx-community--Qwen3-8B-4bit ===
+snapshots/545dc4251c05440727734bcd94334791f6ab0192/tokenizer_config.json: 9706 bytes
+blobs/7345216a0785dc7086e8c245b2a9d3896ce2b756: 9706 bytes
+refs/main: 40 bytes
+
+=== INVENTORY: models--mlx-community--Qwen2.5-0.5B-Instruct-4bit ===
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/model.safetensors: 278064920 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/added_tokens.json: 605 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/tokenizer_config.json: 7308 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/special_tokens_map.json: 613 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/config.json: 783 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/tokenizer.json: 7031673 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/merges.txt: 1671853 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/vocab.json: 2776833 bytes
+snapshots/a5339a4131f135d0fdc6a5c8b5bbed2753bbe0f3/model.safetensors.index.json: 44209 bytes
+blobs/e3c0e76e4e54c951f36d49e3042347b58382136e: 783 bytes
+blobs/8831428421e282132532f717fcaba43f8c7f5445: 44209 bytes
+blobs/ac23c0aaa2434523c494330aeb79c58395378103: 613 bytes
+blobs/4783fe10ac3adce15ac8f358ef5462739852c569: 2776833 bytes
+blobs/31349551d90c7606f325fe0f11bbb8bd5fa0d7c7: 1671853 bytes
+blobs/482ccbc1096b0e9400e86e33f189681c2aebdab9: 7308 bytes
+blobs/482ced4679301bf287ebb310bdd1790eb4514232: 605 bytes
+blobs/ddffab9cbc7bf6dde941c6724841eeca8981fcfa81ca20ff8efff1396326d153: 278064920 bytes
+blobs/d24314ef7f0afd1b678c2e24c767e19f24f86b0e: 7031673 bytes
+refs/main: 40 bytes
