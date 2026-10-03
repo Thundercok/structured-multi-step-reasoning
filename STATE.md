@@ -2,10 +2,10 @@
 
 ## Current Phase: Section B-lite Complete -> Awaiting User Instruction for Full Dev / Decision Rule
 
-- **Branch**: `exp/reasoning-harness-v1` (synced to `origin/exp/reasoning-harness-v1`)
-- **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0` (all pushed to `origin`)
-- **Remote**: `origin` (`https://github.com/Thundercok/structured-multi-step-reasoning.git`)
-- **Timestamp**: 2026-10-03T14:35:00+07:00
+- **Branch**: `exp/reasoning-harness-v1`
+- **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0`
+- **Note on harness-v1-run1**: `harness-v1-run1` nằm trên main (`f51db3f`), thiếu fix P0. Nhánh `exp/reasoning-harness-v1` đã cherry-pick commit này thành `0047bb2` (gộp MANIFEST).
+- **Timestamp**: 2026-10-03T15:25:00+07:00
 
 ---
 
