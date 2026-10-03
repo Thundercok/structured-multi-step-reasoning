@@ -1,0 +1,32 @@
+{
+  "status": "complete",
+  "kind": "legacy_tuning_sweep_completion_verification",
+  "verified_at_utc": "2026-10-03T13:30:21.052820+00:00",
+  "trace_last_modified_local": "2026-10-03T17:31:01.558090+07:00",
+  "source_worktree": "/Users/thundercock2/Documents/Github/reasoning-run3",
+  "expected_records": 188,
+  "verified_records": 188,
+  "records_by_arm": {
+    "DIRECT": 94,
+    "COT": 94
+  },
+  "missing_keys": 0,
+  "unexpected_keys": 0,
+  "duplicate_keys": 0,
+  "all_original_item_metadata_and_gold_match": true,
+  "model_id": "mlx-community/Qwen3-8B-4bit",
+  "snapshot_hash": "545dc4251c05440727734bcd94334791f6ab0192",
+  "commit": "76d311b",
+  "dataset_sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+  "artifact_sha256": {
+    "audit/G_sweep_trace.jsonl": "90452d146991d9669f314173a412f90eb00ea5a137d96931d7c4e40ec3ea2489",
+    "audit/G_summary.txt": "d29c1fb0dda285483ca59f723812af5480bb4f956475a1fe26db7424f52c0d3a"
+  },
+  "main_copies_byte_identical_to_worktree": true,
+  "scope": "Completed historical DIRECT/COT tuning sweep with legacy scorer; entire tuning pool is exposed development.",
+  "token_scope": "Recorded completion_tokens are generated tokens; prompt_tokens separate; full inference costs not measured.",
+  "timing_scope": "Legacy per-arm wall_ms; online controller latency not measured.",
+  "publication_ready": false,
+  "stage0_changed": false,
+  "new_model_calls": 0
+}

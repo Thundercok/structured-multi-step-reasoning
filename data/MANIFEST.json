@@ -25,5 +25,13 @@
       "g24_0007_en_orig",
       "g24_0013_en_orig"
     ]
+  },
+  "audit/G_sweep_trace.jsonl": {
+    "size_bytes": 217952,
+    "sha256": "90452d146991d9669f314173a412f90eb00ea5a137d96931d7c4e40ec3ea2489",
+    "n_records": 188,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "76d311b",
+    "tag": "harness-v1-run3"
   }
 }

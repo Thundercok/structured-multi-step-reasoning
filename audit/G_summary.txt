@@ -1,0 +1,74 @@
+=== RUN HEADER ===
+branch: HEAD
+tag: harness-v1-run3
+commit: 76d311b
+dirty: True
+model_id: mlx-community/Qwen3-8B-4bit
+snapshot_hash: 545dc4251c05440727734bcd94334791f6ab0192
+eos_ids: [151645]
+
+=== TUNE SWEEP RESULTS TABLE ===
+| family | level | n | DIRECT acc | COT acc | %max_tokens | %fallback | %wordy | mean completion_tokens |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| arith | 1 | 8 | 87.5% | 100.0% | 0.0% | 0.0% | 0.0% | 44.9 |
+| arith | 2 | 8 | 25.0% | 100.0% | 43.8% | 6.2% | 37.5% | 106.2 |
+| arith | 3 | 8 | 0.0% | 100.0% | 50.0% | 31.2% | 18.8% | 145.7 |
+| arith | 4 | 8 | 0.0% | 50.0% | 56.2% | 6.2% | 37.5% | 259.1 |
+| order | 1 | 8 | 37.5% | 87.5% | 0.0% | 0.0% | 0.0% | 73.4 |
+| order | 2 | 8 | 75.0% | 87.5% | 0.0% | 0.0% | 18.8% | 165.5 |
+| order | 3 | 8 | 25.0% | 75.0% | 18.8% | 6.2% | 18.8% | 307.1 |
+| order | 4 | 8 | 0.0% | 100.0% | 0.0% | 0.0% | 12.5% | 293.8 |
+| g24 | 1 | 7 | 14.3% | 42.9% | 28.6% | 21.4% | 7.1% | 351.4 |
+| g24 | 2 | 7 | 0.0% | 0.0% | 35.7% | 35.7% | 7.1% | 432.7 |
+| g24 | 3 | 8 | 12.5% | 12.5% | 37.5% | 37.5% | 0.0% | 457.4 |
+| g24 | 4 | 8 | 0.0% | 37.5% | 31.2% | 25.0% | 6.2% | 391.3 |
+
+=== 2 WRONG ITEMS PER FAMILY (COT) ===
+
+--- Family: arith (4 wrong in COT) ---
+  Wrong Sample 1:
+    id: arith_0025_en_orig
+    raw_tail: 98.888...  \nBut the exact value is:\n\nAnswer: 2465598.888...  \nBut the problem may have intended an integer, so the correct answer is:\n\nAnswer: 2465598.888...  \nBut the exact value is:\n\nAnswer: 2465598.888...  \nBut the problem may have intended an integer, so the correct answer is:\n\nAnswer: 2465598.8
+    parsed: '2465598.8'
+    gold: '2466710'
+    parse_status: marker
+    wordy: False
+  Wrong Sample 2:
+    id: arith_0026_en_orig
+    raw_tail:  6**  \n   $ 25134 \div 6 = 4189 $\n\n5. **Multiply the result by 82**  \n   $ 4189 \times 82 = 343598 $\n\n6. **Subtract 32593**  \n   $ 343598 - 32593 = 311005 $\n\n7. **Multiply the result by 83**  \n   $ 311005 \times 83 = 25813415 $\n\n8. **Add 37217**  \n   $ 25813415 + 37217 = 25850632 $\n\nAnswer: 25850632
+    parsed: '25850632'
+    gold: '25842332'
+    parse_status: marker
+    wordy: False
+
+--- Family: order (4 wrong in COT) ---
+  Wrong Sample 1:
+    id: order_0006_en_orig
+    raw_tail: nished immediately before Carol → Alice = Carol -1  \n2. Carol finished before Dave → Carol < Dave  \n3. Carol finished after Frank → Frank < Carol  \n\nTừ (1) và (3): Frank < Carol < Alice < Dave (vì Alice = Carol -1)  \nVậy thứ tự là: Frank, Carol, Alice, Dave  \n\nVị trí thứ 3 là Alice.  \n\nAnswer: Alice
+    parsed: 'Alice'
+    gold: 'Carol'
+    parse_status: marker
+    wordy: False
+  Wrong Sample 2:
+    id: order_0012_en_orig
+    raw_tail: **, then:\n\n**Dave → Carol → Heidi → Grace → Alice**\n\nThis satisfies all conditions:\n- **Carol → Heidi** ✅  \n- **Dave → Grace** ✅  \n- **Grace after Carol** ✅  \n- **Grace before Alice** ✅\n\nSo the full order is:  \n**Dave → Carol → Heidi → Grace → Alice**\n\nNow, the 3rd place is **Heidi**.\n\nAnswer: Heidi
+    parsed: 'Heidi'
+    gold: 'Dave'
+    parse_status: marker
+    wordy: False
+
+--- Family: g24 (23 wrong in COT) ---
+  Wrong Sample 1:
+    id: g24_0000_en_orig
+    raw_tail: = 18 → Không đúng.\n\nThử:  \n(12 ÷ (13 - 11)) × 3 = 6 × 3 = 18 → Không đúng.\n\nThử:  \n(13 - (12 ÷ 3)) × 2 = 9 × 2 = 18 → Không đúng.\n\nThử:  \n(12 ÷ (13 - 11)) × 3 = 6 × 3 = 18 → Không đúng.\n\nThử:  \n(13 - (12 ÷ 3)) × 2 = 9 × 2 = 18 → Không đúng.\n\nThử:  \n(12 ÷ (13 - 11)) × 3 = 6 × 3 = 18 → Không đúng.\n\nTh
+    parsed: 'Th'
+    gold: '((12+(13+2))-3)'
+    parse_status: fallback
+    wordy: False
+  Wrong Sample 2:
+    id: g24_0001_en_orig
+    raw_tail:   \n(8 * 3) = 24  \n(9 - 3) = 6  \n4 * 6 = 24  \n\nKết hợp lại:  \n(8 * 3) = 24  \n(9 - 3) = 6  \n4 * 6 = 24  \n\nTừ đó:  \n(8 * 3) = 24  \n(9 - 3) = 6  \n4 * 6 = 24  \n\nKết hợp lại:  \n(8 * 3) = 24  \n(9 - 3) = 6  \n4 * 6 = 24  \n\nTừ đó:  \n(8 * 3) = 24  \n(9 - 3) = 6  \n4 * 6 = 24  \n\nKết hợp lại:  \n(8 * 3) = 24  \n(9 -
+    parsed: '(9 -'
+    gold: '((3-9)*(4-8))'
+    parse_status: fallback
+    wordy: False
