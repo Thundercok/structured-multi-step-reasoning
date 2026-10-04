@@ -284,13 +284,15 @@ class TestOmnibarWindow(unittest.TestCase):
         bubble = self.window.speech_bubble
         bubble.btn_hist.click()
         app.processEvents()
-        self.assertTrue(self.window.is_expanded)
-        self.assertFalse(self.window.chat_stream.isHidden())
-        self.assertTrue(bubble.isHidden())  # No duplicate answer above the chat.
-        self.assertFalse(self.window.btn_expand.isHidden())
-        self.window.btn_expand.click()
+        self.assertFalse(self.window.is_expanded)
+        self.assertTrue(self.window.is_reading_reply)
+        self.assertFalse(self.window.reply_reader.isHidden())
+        self.assertTrue(self.window.chat_stream.isHidden())
+        self.assertTrue(bubble.isHidden())  # No duplicate answer above the reader.
+        self.window.reply_reader.close_button.click()
         app.processEvents()
         self.assertFalse(self.window.is_expanded)
+        self.assertFalse(self.window.is_reading_reply)
         self.assertFalse(bubble.isHidden())
         self.assertEqual(bubble.text(), answer.strip())
 
@@ -691,37 +693,307 @@ class TestOmnibarWindow(unittest.TestCase):
         bubble = self.window.speech_bubble
         self.assertLessEqual(bubble.y() + bubble.height(), self.window.container.y())
 
-    def test_toast_timer_belongs_to_window_and_cannot_restore_over_a_newer_status(self):
-        self.window.show_toast("Đã sao chép", 100)
-        self.assertIs(self.window._toast_timer.parent(), self.window)
-        self.window.footer_status.setText("Đã có kết quả mới")
-        self.window._restore_toast()
-        self.assertEqual(self.window.footer_status.text(), "Đã có kết quả mới")
-        self.window.shutdown()
-        self.assertFalse(self.window._toast_timer.isActive())
+    def test_read_full_shows_only_latest_answer_without_losing_multiline_draft(self):
+        answer = "## Hướng B\n\nMột luận điểm rõ.\n\n- Điểm mạnh.\n- Điểm cần kiểm chứng."
+        self.window._deliver_assistant_reply("Câu trả lời trước không nằm trong vùng đọc này.")
+        self.window._deliver_assistant_reply(answer)
+        draft = "Phản biện giúp mình:\nĐiểm nào còn yếu?"
+        self.window.chat_composer_input.setText(draft)
+        self.window.show()
+        self.window.speech_bubble.btn_hist.click()
+        app.processEvents()
+        self.assertTrue(self.window.is_reading_reply)
+        self.assertFalse(self.window.is_expanded)
+        self.assertTrue(self.window.chat_stream.isHidden())
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.assertFalse(self.window.mascot_peeking.isHidden())
+        self.assertEqual(self.window.reply_reader.full_reply, answer)
+        self.assertNotIn("Câu trả lời trước", self.window.reply_reader.body.toPlainText())
+        self.assertEqual(self.window.chat_composer_input.text(), draft)
+        reader_bottom = self.window.reply_reader.mapTo(self.window.container, self.window.reply_reader.rect().bottomLeft()).y()
+        self.assertLess(reader_bottom, self.window.quick_bar.y())
+        self.window.reply_reader.copy_button.click()
+        self.assertEqual(QApplication.clipboard().text(), answer)
 
-    def test_copy_confirmation_timer_is_destroyed_with_a_cleared_card(self):
-        from PyQt6 import sip
+    def test_escape_closes_reader_before_hiding_and_preserves_draft(self):
         from PyQt6.QtTest import QTest
-        from PyQt6.QtWidgets import QPushButton
-        self.window._deliver_assistant_reply("Đáp án cần giữ nguyên.")
-        button = next(button for button in self.window.chat_stream.findChildren(QPushButton) if button.text() == "Sao chép")
-        button.click()
-        timer = button._copy_restore_timer
-        self.assertIs(timer.parent(), button)
-        self.assertEqual(QApplication.clipboard().text(), "Đáp án cần giữ nguyên.")
-        self.window._reset_chat()
-        QTest.qWait(20)
-        self.assertTrue(sip.isdeleted(timer))
+        self.window.show()
+        self.window._deliver_assistant_reply("Một câu cần đọc. " * 60)
+        self.window.read_full_reply()
+        self.window.chat_composer_input.setText("Câu tiếp\nĐang viết")
+        self.window.activateWindow()
+        self.window.reply_reader.body.setFocus()
+        app.processEvents()
+        QTest.keyClick(self.window.reply_reader.body, Qt.Key.Key_Escape)
+        app.processEvents()
+        self.assertFalse(self.window.is_reading_reply)
+        self.assertFalse(self.window.isHidden())
+        self.assertEqual(self.window.chat_composer_input.text(), "Câu tiếp\nĐang viết")
+        self.assertTrue(self.window.chat_composer_input.hasFocus())
 
-    def test_compact_preview_collapses_blank_paragraphs_but_preserves_full_copy(self):
-        answer = "Đầu tiên, xác định mục tiêu.\n\nSau đó, chọn một hướng."
+    def test_hide_reopen_preserves_in_place_reader_and_multiline_draft(self):
+        self.window._deliver_assistant_reply("Một câu cần đọc. " * 60)
+        self.window.read_full_reply()
+        self.window.chat_composer_input.setText("Ý đầu\nÝ tiếp 🐀")
+        with patch("rat.os.app.activate_macos_app"), patch("rat.ui.omnibar.configure_macos_fullscreen_overlay"):
+            self.window.hide()
+            self.window.show_omnibar()
+        self.assertTrue(self.window.is_reading_reply)
+        self.assertFalse(self.window.reply_reader.isHidden())
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.assertEqual(self.window.chat_composer_input.text(), "Ý đầu\nÝ tiếp 🐀")
+
+    def test_full_conversation_toggle_closes_reader_without_losing_answer(self):
+        answer = "Một câu cần đọc. " * 60
+        self.window._deliver_assistant_reply(answer)
+        self.window.read_full_reply()
+        self.window.toggle_expand()
+        self.assertTrue(self.window.is_expanded)
+        self.assertFalse(self.window.is_reading_reply)
+        self.assertTrue(self.window.reply_reader.isHidden())
+        self.assertEqual(self.window.reply_reader.full_reply, answer)
+
+    def test_composer_shift_enter_then_enter_sends_exact_multiline_prompt_once(self):
+        from PyQt6.QtTest import QTest
+        composer = self.window.chat_composer_input
+        composer.setText("Cùng nghĩ về hai hướng:")
+        composer.setCursorPosition(len(composer.text()))
+        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
+            QTest.keyClick(composer, Qt.Key.Key_Return, Qt.KeyboardModifier.ShiftModifier)
+            composer.insertPlainText("A hay B 🐀?")
+            worker.assert_not_called()
+            query = "Cùng nghĩ về hai hướng:\nA hay B 🐀?"
+            self.assertEqual(composer.text(), query)
+            QTest.keyClick(composer, Qt.Key.Key_Return)
+            worker.assert_called_once_with(query, history=[])
+            self.assertEqual(composer.text(), "")
+            self.assertEqual(composer.height(), composer.MIN_HEIGHT)
+
+    def test_composer_arrows_edit_draft_instead_of_navigating_file_results(self):
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        self.window._deliver_assistant_reply("4 tệp", inline_files=self._compact_files())
+        composer = self.window.chat_composer_input
+        composer.setText("Dòng đầu\nDòng cuối")
+        composer.setCursorPosition(len(composer.text()))
+        composer.setFocus()
+        app.processEvents()
+        QTest.keyClick(composer, Qt.Key.Key_Up)
+        self.assertLess(composer.textCursor().position(), len(composer.text()))
+        self.assertEqual(self.window.compact_file_list.currentRow(), 0)
+        self.assertTrue(composer.hasFocus())
+
+    def test_multiline_growth_keeps_bottom_anchor_and_resets_height(self):
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        QTest.qWait(200)
+        bottom = self.window.geometry().bottom()
+        composer = self.window.chat_composer_input
+        composer.setText("Một\nHai\nBa\nBốn")
+        app.processEvents()
+        self.assertEqual(self.window.geometry().bottom(), bottom)
+        self.assertEqual(self.window.quick_bar.height(), composer.height())
+        self.assertGreater(self.window.height(), 238)
+        composer.clear()
+        app.processEvents()
+        self.assertEqual(self.window.geometry().bottom(), bottom)
+        self.assertEqual(self.window.height(), 238)
+
+    def test_busy_enter_keeps_multiline_second_draft_and_does_not_start_another_worker(self):
+        from PyQt6.QtTest import QTest
+        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
+            self.window._submit_chat_prompt("Cùng nghĩ một hướng")
+            self.window.chat_composer_input.setText("Một câu nữa:\nGiữ câu này lại.")
+            QTest.keyClick(self.window.chat_composer_input, Qt.Key.Key_Return)
+            self.assertEqual(worker.call_count, 1)
+            self.assertEqual(self.window.chat_composer_input.text(), "Một câu nữa:\nGiữ câu này lại.")
+
+    def test_next_prompt_closes_old_reader_and_reset_clears_its_contents(self):
+        self.window._deliver_assistant_reply("Một câu cần đọc. " * 60)
+        self.window.read_full_reply()
+        with patch("rat.ui.omnibar.StreamReasoningWorker"):
+            self.window._submit_chat_prompt("Cùng nghĩ một hướng tiếp")
+        self.assertFalse(self.window.is_reading_reply)
+        self.assertEqual(self.window.reply_reader.full_reply, "")
+        self.window._reset_chat()
+        self.assertTrue(self.window.reply_reader.isHidden())
+        self.assertEqual(self.window.chat_composer_input.height(), self.window.chat_composer_input.MIN_HEIGHT)
+
+    def test_compact_preview_is_at_most_three_lines_and_keeps_structured_read_action(self):
+        answer = "## Ba bước\n\n- Phác dàn ý.\n- Tìm bằng chứng.\n- Viết bản nháp."
         self.window._deliver_assistant_reply(answer)
         bubble = self.window.speech_bubble
-        self.assertNotIn("\n", bubble.dialogue.text())
-        self.assertEqual(bubble.text(), answer)
-        bubble._on_copy_clicked()
-        self.assertEqual(QApplication.clipboard().text(), answer)
+        bounds = bubble.dialogue.fontMetrics().boundingRect(
+            QRect(0, 0, 420, 10000), Qt.TextFlag.TextWordWrap, bubble.dialogue.text()
+        )
+        self.assertLessEqual(bounds.height(), bubble.dialogue.fontMetrics().lineSpacing() * 3)
+        self.assertNotIn("##", bubble.dialogue.text())
+        self.assertFalse(bubble.btn_hist.isHidden())
+
+    def test_reader_expansion_and_multiline_composer_stay_inside_screen(self):
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        self.window._deliver_assistant_reply("Một câu cần đọc. " * 60)
+        self.window.read_full_reply()
+        self.window.chat_composer_input.setText("Một\nHai\nBa\nBốn")
+        QTest.qWait(200)
+        geometry = self.window.geometry()
+        available = self.window.screen().availableGeometry()
+        self.assertTrue(available.contains(geometry))
+        self.assertEqual(geometry, lower_overlay_geometry(available, geometry.width(), geometry.height()))
+        self.assertEqual(self.window.width(), 652)
+
+    def test_full_chat_places_composer_and_hint_below_conversation(self):
+        from PyQt6.QtCore import QPoint
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        self.window._deliver_assistant_reply("Một câu để nghĩ tiếp.")
+        self.window.set_expanded(True)
+        self.window.chat_composer_input.setText("Một\nHai\nBa\nBốn 🐀")
+        QTest.qWait(250)
+        layout = self.window.container_layout
+        self.assertLess(layout.indexOf(self.window.content_stack), layout.indexOf(self.window.hairline_divider))
+        self.assertLess(layout.indexOf(self.window.hairline_divider), layout.indexOf(self.window.quick_bar))
+        self.assertLess(layout.indexOf(self.window.quick_bar), layout.indexOf(self.window.compact_footer))
+        chat_bottom = self.window.content_stack.mapTo(self.window, QPoint(0, self.window.content_stack.height())).y()
+        composer_top = self.window.quick_bar.mapTo(self.window, QPoint(0, 0)).y()
+        self.assertLess(chat_bottom, composer_top)
+        self.assertEqual(self.window.size().width(), 788)
+        self.assertEqual(self.window.size().height(), 580)
+        self.assertTrue(self.window.action_footer.isHidden())
+        self.assertFalse(self.window.compact_footer.isHidden())
+        self.assertFalse(self.window.hairline_divider.isHidden())
+        self.assertIn("Shift+↵", self.window.compact_hint.text())
+        self.assertFalse(self.window.mascot_peeking.isHidden())
+        self.assertEqual(self.window.mascot_peeking.size().width(), 146)
+
+    def test_conversation_layout_roundtrip_preserves_reader_files_and_draft(self):
+        answer = "## Une idée\n\nMột câu cần đọc tiếp. " * 30
+        draft = "Một ý\nHai ý 🐀"
+        self.window._deliver_assistant_reply(answer, inline_files=self._compact_files())
+        self.window.chat_composer_input.setText(draft)
+        for _ in range(3):
+            self.window.set_expanded(True)
+            self.window.set_expanded(False)
+            self.window.read_full_reply()
+            layout = self.window.container_layout
+            self.assertLess(layout.indexOf(self.window.reply_reader), layout.indexOf(self.window.quick_bar))
+            self.assertLess(layout.indexOf(self.window.quick_bar), layout.indexOf(self.window.compact_file_list))
+            self.assertTrue(self.window.hairline_divider.isHidden())
+            self.assertTrue(self.window.action_footer.isHidden())
+            self.assertEqual(self.window.reply_reader.full_reply, answer)
+            self.assertEqual(self.window.chat_composer_input.text(), draft)
+        self.window.set_reply_reader_open(False)
+        self.assertFalse(self.window.compact_file_list.isHidden())
+
+    def test_other_sections_keep_their_footer_without_chat_chrome(self):
+        self.window.set_expanded(True)
+        for idx in (1, 2, 3):
+            self.window.switch_section(idx)
+            self.assertFalse(self.window.action_footer.isHidden())
+            self.assertTrue(self.window.compact_footer.isHidden())
+            self.assertTrue(self.window.hairline_divider.isHidden())
+            self.assertTrue(self.window.quick_bar.isHidden())
+        self.window.switch_section(0)
+        self.assertTrue(self.window.action_footer.isHidden())
+        self.assertFalse(self.window.compact_footer.isHidden())
+
+    def test_full_mode_mascot_hops_to_own_side_space_and_returns_to_quick_rim(self):
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        answer = "Giữ nguyên câu trả lời và câu đang gõ."
+        self.window._deliver_assistant_reply(answer)
+        draft = "Một câu tiếp\nHai ý 🐀"
+        self.window.chat_composer_input.setText(draft)
+        self.window.set_expanded(True)
+        QTest.qWait(450)
+        mascot = self.window.mascot_peeking
+        self.assertTrue(mascot.side_docked)
+        self.assertLess(mascot.geometry().right(), self.window.container.x())
+        self.assertTrue(self.window.centralWidget().rect().contains(mascot.geometry()))
+        self.assertFalse(mascot.geometry().intersects(self.window.container.geometry()))
+        self.assertEqual(mascot.width(), 146)
+        self.assertEqual(mascot._mascot_pixmap.cacheKey(), mascot._mascot_full_pixmap.cacheKey())
+        self.assertEqual(self.window.container.width(), 620)
+        self.assertEqual(self.window.container.y(), 16)
+        self.assertTrue(self.window.screen().availableGeometry().contains(self.window.geometry()))
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        for state in ("thinking", "searching", "angry", "idle"):
+            self.window.set_mascot_state(state)
+            self.assertLess(mascot.geometry().right(), self.window.container.x())
+        self.window.set_expanded(False)
+        QTest.qWait(450)
+        self.assertFalse(mascot.side_docked)
+        self.assertEqual(mascot._mascot_pixmap.cacheKey(), mascot._mascot_bust_pixmap.cacheKey())
+        self.assertEqual(mascot.x_speaking - mascot.x_idle, 20)
+        self.assertEqual(mascot.rot_speaking, 10.0)
+        self.assertEqual(self.window.width(), 652)
+        self.assertEqual(self.window.container.y(), 120)
+        self.assertEqual(self.window.chat_composer_input.text(), draft)
+        self.assertEqual(self.window.reply_reader.full_reply, answer)
+
+    def test_full_reply_native_selection_and_escape_after_keyboard_jump_still_work(self):
+        from PyQt6.QtGui import QTextCursor
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        self.window.set_expanded(True)
+        handle = self.window.chat_stream.create_streaming_message()
+        self.window._on_reasoning_token(handle, "\n\n".join(f"Đoạn {i}: một ý cần đọc." for i in range(40)))
+        QTest.qWait(250)
+        body = handle["ans_lbl"]
+        body.setFocus()
+        cursor = body.textCursor()
+        cursor.setPosition(0)
+        cursor.setPosition(6, QTextCursor.MoveMode.KeepAnchor)
+        body.setTextCursor(cursor)
+        QTest.keyClick(body, Qt.Key.Key_C, Qt.KeyboardModifier.ControlModifier)
+        self.assertEqual(QApplication.clipboard().text(), body.textCursor().selectedText())
+        stream = self.window.chat_stream
+        stream.verticalScrollBar().setValue(25)
+        stream.jump_button.setFocus()
+        QTest.keyClick(stream.jump_button, Qt.Key.Key_Space)
+        QTest.qWait(200)
+        self.assertEqual(stream.verticalScrollBar().value(), stream.verticalScrollBar().maximum())
+        self.window.chat_composer_input.setText("Giữ draft này 🐀")
+        QTest.keyClick(stream, Qt.Key.Key_Escape)
+        self.assertFalse(self.window.is_expanded)
+        self.assertEqual(self.window.chat_composer_input.text(), "Giữ draft này 🐀")
+
+    def test_preview_panel_ask_requested_connected(self):
+        panel = self.window.preview_panel
+        calls = []
+        panel.ask_requested.connect(lambda p, n, q: calls.append((p, n, q)))
+        panel.ask_requested.emit("/tmp/test.txt", "test.txt", "Tóm tắt?")
+        self.assertEqual(calls, [("/tmp/test.txt", "test.txt", "Tóm tắt?")])
+        # Verify qa_finished is wired to set_qa_answer
+        self.window.qa_worker.qa_finished.emit({"answer": "Nội dung tóm tắt mẫu.", "engine": "AI Test"})
+        self.assertIn("Nội dung tóm tắt mẫu", panel.qa_response_box.text())
+
+    def test_action_menu_ask_ai_and_reindex_handlers(self):
+        from rat.engine.reranker import SearchResultItem
+        dummy_item = SearchResultItem(
+            file_path="/tmp/fixture.pdf",
+            file_name="fixture.pdf",
+            file_ext=".pdf",
+            file_size=1024,
+            modified_at=1000.0,
+            score=10.0,
+            snippet="dummy content",
+            explanation="Tệp PDF",
+        )
+        self.window._current_action_item = dummy_item
+        # Test ask_ai
+        self.window.switch_section(1)
+        self.window._handle_action("ask_ai")
+        self.assertEqual(self.window.current_section_idx, 0)
+        self.assertIn("fixture.pdf", self.window.chat_composer_input.text())
+
+        # Test reindex_file with mock
+        with patch("rat.crawler.indexer.Indexer.index_single_file", return_value=True) as mock_idx, \
+             patch("os.path.exists", return_value=True):
+            self.window._handle_action("reindex_file")
+            mock_idx.assert_called_once_with("/tmp/fixture.pdf", force=True)
+            self.assertIn("Đã cập nhật chỉ mục", self.window.footer_status.text())
 
 
 class TestStreamReasoningWorker(unittest.TestCase):

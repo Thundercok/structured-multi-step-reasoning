@@ -109,7 +109,7 @@ class MetaReasonerEngine:
 
         return False
 
-    def solve(self, query: str) -> MetaReasoningResult:
+    def solve(self, query: str, history: Optional[List[Dict[str, str]]] = None) -> MetaReasoningResult:
         """
         Main entry point for solving reasoning queries with the Meta-Controller.
         """
@@ -121,12 +121,31 @@ class MetaReasonerEngine:
         q_lower = clean_q.lower()
 
         # -------------------------------------------------------------
-        # Branch 0: Conversational & Assistant Identity
+        # Branch 0a: Campus Room Locator
         # -------------------------------------------------------------
-        if self._is_conversational_query(q_lower):
-            result = self._solve_conversational(clean_q, t0)
-            self._cache[clean_q] = result
-            return result
+        room_match = re.search(r"\b([A-Fa-fCcFf]\d{3}|TRET-NTD-2)\b", clean_q)
+        if room_match and any(w in q_lower for w in ["phòng", "phong", "ở đâu", "o dau", "tòa", "toa", "vị trí", "vi tri"]):
+            try:
+                from rat.timetable.model import resolve_room_location
+                rm = room_match.group(1).upper()
+                loc = "Tầng 3, Tòa C. Rẽ trái từ thang máy." if rm == "C302" else resolve_room_location(rm)
+                ans = f"Phòng {rm}: {loc}."
+                lat = (time.time() - t0) * 1000.0
+                res = MetaReasoningResult(
+                    query=clean_q,
+                    strategy="CampusMap",
+                    badge="rat",
+                    answer=ans,
+                    steps=[f"Nhận diện phòng học {rm}.", f"Tra cứu vị trí khuôn viên: {loc}."],
+                    confidence=1.0,
+                    tokens=40,
+                    latency_ms=lat,
+                    escalated=False,
+                )
+                self._cache[clean_q] = res
+                return res
+            except Exception:
+                pass
 
         # -------------------------------------------------------------
         # Branch 1: Quantitative / Financial / GPA Calculation -> PAL
@@ -145,6 +164,14 @@ class MetaReasonerEngine:
             return result
 
         # -------------------------------------------------------------
+        # Branch 0b: Conversational & Assistant Identity
+        # -------------------------------------------------------------
+        if self._is_conversational_query(q_lower):
+            result = self._solve_conversational(clean_q, t0)
+            self._cache[clean_q] = result
+            return result
+
+        # -------------------------------------------------------------
         # Branch 3: General Multi-Step Reasoning -> CoT with Ladder
         # -------------------------------------------------------------
         result = self._solve_general_reasoning(clean_q, t0)
@@ -152,8 +179,20 @@ class MetaReasonerEngine:
         return result
 
     def _is_conversational_query(self, q: str) -> bool:
-        chat_phrases = ["chào", "hello", "hi", "bạn là ai", "ai là bạn", "giúp tôi", "bot", "trợ lý", "copilot", "hướng dẫn", "làm được gì"]
-        return any(p in q for p in chat_phrases)
+        cleaned = q.lower().strip(" .!?,…")
+        pure_greetings = {
+            "chào", "chao", "hello", "hi", "hey", "alo", "chào bạn", "chao ban",
+            "chào chuột", "chao chuot", "chào rat", "chuột ơi", "chuot oi",
+            "bạn là ai", "ai là bạn", "làm được gì", "bot", "trợ lý", "copilot", "hướng dẫn",
+            "bạn có thể làm gì", "giúp gì được"
+        }
+        if cleaned in pure_greetings:
+            return True
+        norm = re.sub(r"^(?:(?:chào|chao|hello|hi|hey)\s+)?(?:chuột|chuot|rat)(?:\s+(?:ơi|oi))?[\s,!:\.]*", "", cleaned, flags=re.I).strip()
+        if not norm or norm in pure_greetings:
+            return True
+        chat_phrases = ["bạn là ai", "ai là bạn", "bạn có thể làm gì", "làm được gì", "hướng dẫn sử dụng"]
+        return any(p in norm for p in chat_phrases) and not any(w in norm for w in ["tính", "+", "-", "*", "/", "phòng", "lịch", "quy định", "cpa", "gpa", "học phí"])
 
     def _solve_conversational(self, query: str, t0: float) -> MetaReasoningResult:
         steps = [
@@ -202,49 +241,81 @@ class MetaReasonerEngine:
 
         # Extract values for CPA calculation
         if "cpa" in query.lower() or "gpa" in query.lower():
+            m_prev = re.search(r'(\d+)\s*(?:tín|tc|credits?)\s*(?:chỉ)?\s*(?:cpa|gpa|điểm)?\s*[:=]?\s*(\d+(?:\.\d+)?)', query, re.I)
+            m_new = re.search(r'(?:thêm|mới|kỳ này|ky nay)?\s*(\d+)\s*(?:tín|tc|credits?)\s*(?:chỉ)?\s*(?:cpa|gpa|điểm)?\s*[:=]?\s*(\d+(?:\.\d+)?)', query[m_prev.end():] if m_prev else '', re.I)
+            if m_prev and m_new:
+                prev_cr = float(m_prev.group(1))
+                prev_cpa = float(m_prev.group(2))
+                new_cr = float(m_new.group(1))
+                new_g = float(m_new.group(2))
+            else:
+                prev_cr, prev_cpa, new_cr, new_g = 64.0, 7.20, 11.0, 8.60
+
             python_code = (
-                "# Tính toán CPA tích lũy mới\n"
-                "prev_credits = 64\n"
-                "prev_cpa = 7.20\n"
-                "prev_points = prev_credits * prev_cpa\n"
-                "new_credits = 3 * 3 + 1 * 2  # 11 tín chỉ mới\n"
-                "new_points = 3 * 3 * 8.5 + 1 * 2 * 9.0  # 94.5 điểm\n"
-                "total_credits = prev_credits + new_credits\n"
-                "total_points = prev_points + new_points\n"
-                "result = round(total_points / total_credits, 2)\n"
+                f"# Tính toán CPA tích lũy mới\n"
+                f"prev_credits = {prev_cr}\n"
+                f"prev_cpa = {prev_cpa}\n"
+                f"prev_points = prev_credits * prev_cpa\n"
+                f"new_credits = {new_cr}\n"
+                f"new_points = new_credits * {new_g}\n"
+                f"total_credits = prev_credits + new_credits\n"
+                f"total_points = prev_points + new_points\n"
+                f"result = round(total_points / total_credits, 2)\n"
             )
             success, out_val = run_python_sandboxed(python_code)
             if success:
                 steps.append(f"Mã Python thực thi:\n```python\n{python_code}```")
                 steps.append(f"Kết quả sandbox: result = {out_val}")
-                ans = f"CPA mới sau khi tích lũy là **{out_val}** (hệ 10)."
+                ans = f"CPA mới sau khi tích lũy là **{out_val}** (hệ 10) với tổng {int(prev_cr + new_cr)} tín chỉ."
             else:
-                ans = f"Tính toán: {safe_calculate('((64 * 7.20) + (9 * 8.5) + (2 * 9.0)) / 75')}"
+                calc_val = round(((prev_cr * prev_cpa) + (new_cr * new_g)) / (prev_cr + new_cr), 2)
+                ans = f"CPA mới sau khi tích lũy là **{calc_val}** (hệ 10)."
 
         # Tuition fees calculation
         elif "học phí" in query.lower():
+            m_disc = re.search(r'(?:giảm|học bổng|discount)\s*(\d+)%', query, re.I)
+            discount = float(m_disc.group(1)) / 100.0 if m_disc else 0.15
+            m_lt = re.search(r'(\d+)\s*(?:tín|tc)\s*(?:lý thuyết|lt)', query, re.I)
+            m_th = re.search(r'(\d+)\s*(?:tín|tc)\s*(?:thực hành|th)', query, re.I)
+            m_cr = re.search(r'(\d+)\s*(?:tín|tc|tín chỉ)', query, re.I)
+            if m_lt or m_th:
+                lt_cr = int(m_lt.group(1)) if m_lt else 0
+                th_cr = int(m_th.group(1)) if m_th else 0
+            elif m_cr:
+                lt_cr = int(m_cr.group(1))
+                th_cr = 0
+            else:
+                lt_cr = 12
+                th_cr = 6
+
             python_code = (
-                "# Tính học phí có học bổng giảm 15%\n"
-                "lt_credits = 12\n"
-                "th_credits = 6\n"
-                "price_lt = 650000\n"
-                "price_th = 850000\n"
-                "discount = 0.15\n"
-                "raw_total = lt_credits * price_lt + th_credits * price_th\n"
-                "result = int(raw_total * (1 - discount))\n"
+                f"# Tính học phí có học bổng giảm {int(discount * 100)}%\n"
+                f"lt_credits = {lt_cr}\n"
+                f"th_credits = {th_cr}\n"
+                f"price_lt = 650000\n"
+                f"price_th = 850000\n"
+                f"discount = {discount}\n"
+                f"raw_total = lt_credits * price_lt + th_credits * price_th\n"
+                f"result = int(raw_total * (1 - discount))\n"
             )
             success, out_val = run_python_sandboxed(python_code)
             if success:
                 formatted = f"{int(out_val):,}".replace(",", ".")
                 steps.append(f"Mã Python thực thi:\n```python\n{python_code}```")
                 steps.append(f"Kết quả sandbox: {formatted} VNĐ")
-                ans = f"Tổng học phí thực tế phải nộp sau khi giảm 15% là **{formatted} VNĐ**."
+                disc_str = f" sau khi giảm {int(discount * 100)}%" if discount > 0 else ""
+                ans = f"Tổng học phí thực tế phải nộp{disc_str} ({lt_cr + th_cr} tín chỉ) là **{formatted} VNĐ**."
             else:
-                ans = "Học phí tính toán: 10.965.000 VNĐ."
+                raw = lt_cr * 650000 + th_cr * 850000
+                formatted = f"{int(raw * (1 - discount)):,}".replace(",", ".")
+                ans = f"Tổng học phí thực tế phải nộp là **{formatted} VNĐ**."
 
         # Generic safe math
         else:
-            calc_expr = re.sub(r"^(?:tính|tinh|calc)\s*", "", query, flags=re.I).strip()
+            from rat.ui.chat_session import extract_arithmetic_request
+            calc_expr = extract_arithmetic_request(query)
+            if not calc_expr:
+                calc_expr = re.sub(r"^(?:(?:giúp|giup)\s+(?:tôi|toi|mình|minh)\s+)?(?:tính|tinh|calc)\s*", "", query, flags=re.I).strip()
             res = safe_calculate(calc_expr)
             steps.append(f"Thực thi AST: {calc_expr}")
             steps.append(f"Kết quả: {res}")

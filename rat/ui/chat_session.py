@@ -5,8 +5,10 @@ These do not change the research controller or any experiment prompts.
 
 from __future__ import annotations
 
+import datetime
 import json
 import re
+import uuid
 
 
 CHAT_SYSTEM_PROMPT = (
@@ -33,7 +35,8 @@ def normalize_chat_request(query: str) -> str:
             r"(?:\s+(?:ơi|oi))?(?:\s*[,!:]\s*|\s+|$)",
             "", text, flags=re.I,
         )
-        text = re.sub(r"^(?:giúp|giup)\s+(?:tôi|toi|mình|minh)\s+", "", text, flags=re.I)
+        text = re.sub(r"^(?:cho\s+(?:tôi|mình|em)\s+hỏi\s*[,:]?\s*|hỏi\s*[,:]?\s*)", "", text, flags=re.I)
+        text = re.sub(r"^(?:giúp|giup)\s+(?:tôi|toi|mình|minh|em)\s+", "", text, flags=re.I)
         text = text.strip()
         if text == previous:
             break
@@ -43,9 +46,16 @@ def normalize_chat_request(query: str) -> str:
 def extract_arithmetic_request(query: str) -> str | None:
     """Only a complete arithmetic request may go to the deterministic calculator."""
     text = normalize_chat_request(query)
-    text = re.sub(r"^(?:tính|tinh|calc|calculate|=)\s*", "", text, flags=re.I)
     text = re.sub(
-        r"\s*(?:(?:bằng|bang|là|la|ra)\s+)?(?:bao nhiêu|bao nhieu|mấy|may)\s*[?!.]*$",
+        r"^(?:(?:hãy|vui lòng|làm ơn|nhờ)\s+)?(?:tính|tinh|calc|calculate|=)\s*(?:(?:giúp|giup|hộ|ho|giùm|gium)\s*(?:tôi|toi|mình|minh|em)?\s*)?",
+        "", text, flags=re.I,
+    ).strip()
+    text = re.sub(
+        r"\s*(?:(?:giúp|giup|hộ|ho|giùm|gium)(?:\s+(?:tôi|toi|mình|minh|em|với|voi|nhé|nhe|nha))?|với|voi|nhé|nhe|nha)\s*[?!.]*$",
+        "", text, flags=re.I,
+    ).strip()
+    text = re.sub(
+        r"\s*(?:(?:bằng|bang|là|la|ra)\s+)?(?:bao nhiêu|bao nhieu|mấy|may)\s*(?:vậy|vay|thế|the|nhỉ|nhi)?\s*[?!.]*$",
         "", text, flags=re.I,
     ).strip().rstrip("?!")
     if len(text) > 160 or not re.search(r"\d", text):
@@ -64,9 +74,21 @@ class ConversationHistory:
 
     def __init__(self) -> None:
         self._turns: list[tuple[str, str]] = []
+        self.session_id: str = self._generate_session_id()
+        self.created_at: datetime.datetime = datetime.datetime.now()
+
+    @staticmethod
+    def _generate_session_id() -> str:
+        return f"c-{uuid.uuid4().hex[:4]}"
 
     def clear(self) -> None:
         self._turns.clear()
+        self.session_id = self._generate_session_id()
+        self.created_at = datetime.datetime.now()
+
+    def get_tag_label(self) -> str:
+        date_str = self.created_at.strftime("%d/%m · %H:%M")
+        return f"#{self.session_id} · {date_str}"
 
     def add_turn(self, query: str, answer: str) -> None:
         if query.strip() and answer.strip():

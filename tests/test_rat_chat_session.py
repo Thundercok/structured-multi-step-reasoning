@@ -14,6 +14,9 @@ from rat.ui.chat_session import (
 
 @pytest.mark.parametrize("query, expected", [
     ("Giúp tôi tính 2+2", "2+2"),
+    ("Tính giúp tôi 2 + 2", "2 + 2"),
+    ("chuột ơi tính 100 * 5 giúp với", "100 * 5"),
+    ("tính giúp 50 / 2", "50 / 2"),
     ("Chuột ơi, 2+2 bằng bao nhiêu?", "2+2"),
     ("Chào chuột, giúp mình tính (12 - 2) / 5", "(12 - 2) / 5"),
     ("tính 2^3", "2**3"),

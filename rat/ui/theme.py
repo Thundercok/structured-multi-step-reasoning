@@ -50,6 +50,100 @@ def get_ext_badge_info(ext: str) -> dict:
     return {"bg": "#8c7e6f", "fg": "#ffffff", "border": "#75685a", "label": label[:4]}
 
 
+# Quiet conversation surfaces: shared by finished replies, streaming replies and
+# their secondary actions. The existing paper shell and mascot stay unchanged.
+CHAT_COLORS = {
+    "ink": "#302B24",
+    "secondary": "#6F6456",
+    "border": "#E9E1D5",
+    "paper": "#FFFDFA",
+    "tint": "#F7F3EC",
+    "hover": "#EEE6D8",
+    "focus": "#B49A6B",
+}
+
+CHAT_CARD_QSS = f"""
+    QFrame#AssistantCard {{
+        background: {CHAT_COLORS['paper']};
+        border: 1px solid {CHAT_COLORS['border']};
+        border-left: 3px solid #D8CDBE;
+        border-radius: 11px;
+    }}
+    QLabel {{ border: none; background: transparent; color: {CHAT_COLORS['ink']}; }}
+"""
+
+CONVERSATION_RIBBON_QSS = f"""
+    QFrame#ConversationRibbon {{
+        background: #FAF7F2;
+        border: 1px solid #EBE4D8;
+        border-radius: 8px;
+    }}
+    QLabel#RibbonTag {{
+        color: #5C5245;
+        font-size: 11px;
+        font-weight: 600;
+        background: transparent;
+        border: none;
+    }}
+    QLabel#RibbonTurnBadge {{
+        color: #7B6E5F;
+        font-size: 10px;
+        font-weight: 500;
+        background: #EDE5D8;
+        border-radius: 4px;
+        padding: 1px 6px;
+        border: none;
+    }}
+    QPushButton#RibbonClearBtn {{
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        color: #8A7E70;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 2px 8px;
+    }}
+    QPushButton#RibbonClearBtn:hover {{
+        background: #EDE5D8;
+        color: #241E19;
+    }}
+    QPushButton#RibbonClearBtn:pressed {{
+        background: #E3D9C9;
+    }}
+"""
+
+CHAT_ACTION_QSS = f"""
+    QPushButton {{
+        background: transparent; border: 1px solid transparent; border-radius: 5px;
+        color: {CHAT_COLORS['secondary']}; font-size: 10px; font-weight: 400;
+        padding: 3px 6px;
+    }}
+    QPushButton:hover {{ background: {CHAT_COLORS['tint']}; color: {CHAT_COLORS['ink']}; }}
+    QPushButton:pressed {{ background: {CHAT_COLORS['hover']}; }}
+    QPushButton:focus {{ border-color: {CHAT_COLORS['focus']}; }}
+    QPushButton:disabled {{ color: #9A9184; }}
+"""
+
+CHAT_USER_QSS = f"""
+    QFrame#UserBubble {{
+        background: #F4EFE6; border: 1px solid #E2D7C6;
+        border-radius: 11px; border-bottom-right-radius: 4px;
+    }}
+    QLabel {{ color: {CHAT_COLORS['ink']}; font-size: 13px; font-weight: 400;
+        border: none; background: transparent; }}
+"""
+
+# Only visible while reading above the latest message. It never takes layout space.
+CHAT_JUMP_QSS = f"""
+    QPushButton {{ background: {CHAT_COLORS['paper']}; color: {CHAT_COLORS['ink']};
+        border: 1px solid #D6C7AF; border-radius: 12px;
+        font-size: 11px; padding: 5px 10px; }}
+    QPushButton:hover {{ background: {CHAT_COLORS['tint']}; }}
+    QPushButton:pressed {{ background: {CHAT_COLORS['hover']}; }}
+    QPushButton:focus {{ border-color: {CHAT_COLORS['focus']}; }}
+"""
+
+
 RAYCAST_QSS = """
 /* ========================================================================= */
 /* AGENT CHUỘT - LIGHT MODE REFINED (WARM LIGHT GLASS SPECIFICATION)         */
