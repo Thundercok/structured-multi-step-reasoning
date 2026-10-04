@@ -21,7 +21,7 @@ def parse_gold(solution):
     return format(Decimal(value.replace(",", "")).normalize(), "f")
 
 
-def build_items(rows, revision, count=24, seed=42):
+def build_items(rows, revision, count=24, seed=42, *, exclude_identities=None):
     if count < 2 or count % 2:
         raise ValueError("Use a positive even count for equal development splits")
     unique = {}
@@ -30,9 +30,11 @@ def build_items(rows, revision, count=24, seed=42):
             raise ValueError("Source row has no question")
         identity = hashlib.sha256(normalized_text(row["question"]).encode()).hexdigest()
         unique.setdefault(identity, (index, row))
-    if len(unique) < count:
+    exclude_identities = set(exclude_identities or ())
+    eligible = set(unique) - exclude_identities
+    if len(eligible) < count:
         raise ValueError("Not enough distinct training questions")
-    ranked = sorted(unique, key=lambda identity: (
+    ranked = sorted(eligible, key=lambda identity: (
         hashlib.sha256(f"{seed}:gsm8k-development:{identity}".encode()).hexdigest(), identity))[:count]
     items, review = [], []
     for position, identity in enumerate(ranked):
@@ -49,6 +51,7 @@ def build_items(rows, revision, count=24, seed=42):
     return items, review, {"seed": seed, "selection": "SHA-256 ranking of normalized question identity; no labels or outcomes",
         "grouping": "exact normalized question identity; semantic duplicates require review",
         "source_rows": len(rows), "unique_normalized_queries": len(unique), "selected_groups": count,
+        "excluded_normalized_queries": len(set(unique) & exclude_identities), "eligible_groups": len(eligible),
         "split_assignment": "alternate rank positions: equal train/calibration; both exposed development"}
 
 
@@ -58,6 +61,7 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--count", type=int, default=24)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--exclude-dataset", type=Path, nargs="+", default=[], help="Exclude exposed development queries by normalized identity")
     args = parser.parse_args(argv)
     if args.output.exists():
         raise FileExistsError(args.output)
@@ -70,7 +74,14 @@ def main(argv=None):
         if name not in ("train.jsonl", "LICENSE", "README.md") or sha256_file(args.source / name) != metadata["sha256"]:
             raise ValueError("Source file changed or includes an unexpected path")
     rows = [json.loads(line) for line in (args.source / "train.jsonl").read_text().splitlines()]
-    items, review, selection = build_items(rows, source["revision"], args.count, args.seed)
+    excluded, exclusions = set(), []
+    for path in args.exclude_dataset:
+        previous = json.loads(path.read_text())
+        validate_dataset(previous, pilot=True)
+        identities = {hashlib.sha256(normalized_text(item["query"]).encode()).hexdigest() for item in previous["items"]}
+        excluded.update(identities)
+        exclusions.append({"dataset": str(path), "dataset_sha256": sha256_file(path), "normalized_groups": len(identities)})
+    items, review, selection = build_items(rows, source["revision"], args.count, args.seed, exclude_identities=excluded)
     dataset = {"name": "gsm8k-training-development", "version": "1", "role": "development_tuning",
         "source": f"https://github.com/openai/grade-school-math/tree/{source['revision']}",
         "license": "MIT; upstream LICENSE preserved in the source audit", "human_review_status": "pending",
@@ -83,6 +94,7 @@ def main(argv=None):
         "source_manifest_sha256": sha256_file(args.source / "manifest.json"),
         "source_revision": source["revision"], "source_sha256": sha256_file(Path(__file__)),
         "dataset_sha256": sha256_file(args.output / "dataset.json"), "selection": selection,
+        "exclusion_datasets": exclusions,
         "new_model_calls": 0, "official_test_used": False, "human_review_status": "pending", "publication_ready": False})
     print(args.output / "dataset.json")
 

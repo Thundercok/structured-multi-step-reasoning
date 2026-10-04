@@ -1,0 +1,25 @@
+{
+  "kind": "development_candidate_integrity_only",
+  "candidate_questions": 96,
+  "candidate_groups": 96,
+  "rule_fitting_groups": 48,
+  "development_validation_groups": 48,
+  "excluded_previous_groups": 24,
+  "old_new_normalized_overlap": 0,
+  "cross_role_group_overlap": 0,
+  "source_coordinates_preserved": true,
+  "source_numeric_extraction_consistent": true,
+  "historical_candidate_and_measured_input_hashes_unchanged": true,
+  "required_and_data_tests": {
+    "passed": 33,
+    "failed": 0
+  },
+  "independent_word_problem_gold_checks": "pending",
+  "wording_and_semantic_group_review": "pending",
+  "human_review_status": "pending",
+  "official_test_used": false,
+  "model_calls": 0,
+  "rule_fitted": false,
+  "model_quality_evidence": false,
+  "publication_ready": false
+}

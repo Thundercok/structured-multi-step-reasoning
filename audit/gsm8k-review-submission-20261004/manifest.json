@@ -1,0 +1,27 @@
+{
+  "kind": "supplementary_development_review",
+  "candidate_dataset_sha256": "cdc763dbf1efa7859cd50338e20fbe9ec9d4e820396443f771079ed5a141e47b",
+  "retained_dataset_sha256": "98fa5f9de358e373c44f4234855df5de9dc9969bbcce57a2ce27019e68d2b3db",
+  "artifact_sha256": {
+    "submitted_review.md": "f11322d79b08e5eacf8862271b83bf5ae2b6a6fa71816c80bbb3dff2623ec5d9",
+    "review.json": "1ebfb7a9bad793b932e7dd7eb411957cb2d9799fcbe7ab5c737a70cece68b786"
+  },
+  "passes": 22,
+  "qualified_passes": 1,
+  "exclusions": 1,
+  "retained": 23,
+  "id_normalizations": [
+    {
+      "supplied": "gsm8k-dev-000330",
+      "canonical": "gsm8k-dev-00330",
+      "basis": "ordinal 4, matching query description and gold 6"
+    }
+  ],
+  "reviewer_display_name": "AI Expert Auditor / Review Team",
+  "review_source": "user message in this chat",
+  "review_date": "2026-10-04",
+  "human_review_status": "pending",
+  "historical_artifacts_changed": false,
+  "new_model_calls": 0,
+  "publication_ready": false
+}

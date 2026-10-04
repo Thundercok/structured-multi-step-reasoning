@@ -30,11 +30,23 @@ còn hai câu có thể cứu trong các đầu ra đã lưu. Lợi ích thực 
 
 ## Quyết định tiếp theo
 
+Bản kiểm duyệt bổ sung ngày 04/10/2026 do người dùng gửi đã được
+[lưu riêng](../audit/gsm8k-review-submission-20261004/manifest.json): 22 câu đạt,
+câu 10 đạt với cách hiểu “8 times less” là 1/8, câu 15 tiếp tục bị loại. Tên
+người duyệt được ghi là “AI Expert Auditor / Review Team”; đây là nguồn kiểm
+duyệt bổ sung, chưa xác minh được human sign-off. Dataset/gold và các artifact
+đo cũ giữ nguyên hash và trạng thái tại thời điểm collection.
+
 Tiếp tục bằng một phép đo development validation riêng: đối chiếu ba baseline
 cố định với một quy tắc chọn từ thông tin câu hỏi đơn giản. Cần chốt nhóm
 fitting/validation và budget trước khi có đầu ra mới. Không fit trên 23 câu này
 rồi gọi kết quả là held out. Song song, đọc prior work để quyết định phạm vi
 đóng góp của entry routing và stopping; hiện chưa chứng minh được tính mới.
+
+[Protocol development tiếp theo](gsm8k_development_validation_protocol_20261004.md)
+đã ghi trước mẫu 96 nhóm mới, loại toàn bộ 24 câu cũ, chia 48 nhóm cho chọn quy
+tắc và 48 nhóm để kiểm tra quy tắc đã chốt. Đây là candidate và thiết kế, chưa
+có model outputs hay kết quả fit/validation mới.
 
 Bạn bắt đầu ở [gói duyệt câu hỏi](../data/gsm8k_development_reviewed_v1/review.md).
 Phân công và bước đọc paper nằm trong [bảng việc](research_work_split_20261004.md).
