@@ -18,7 +18,7 @@
 - **H4 sweep**: complete, **188/188** records (DIRECT 94, COT 94); no missing, unexpected or duplicate item/arm pairs. Final `audit/G_sweep_trace.jsonl` and `audit/G_summary.txt` in this repository match the worktree copies byte for byte. Verification: `audit/G_completion_verification.json`.
 - **Historical H4 model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
 - **Historical H4 status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.
-- **Manual Gold & Ambiguity Gate (2026-10-04)**: agent-checked 3 items (arith_0060 L5=1694312793693, order_0045 L4=Erin, g24_0045 L4=((13*13)-1)/7; verify()=True); human review PENDING; ghi nhận clue "gap" cần làm rõ số người xen giữa.
+- **Manual Gold & Ambiguity Gate (2026-10-04)**: agent-checked 3 items (arith_0060 L5=1694312793693, order_0045 L4=Erin, g24_0045 L4=((13*13)-1)/7; verify()=True); human review DONE: clue "gap" ("places ahead ... between them") inspected in order_0000_en_orig and render_order; 0-based distance and intermediate count confirmed mathematically consistent with holds(c, pos).
 
 ---
 
@@ -273,4 +273,29 @@
   applicable Stage 0 review before further Qwen/Meta-Reasoner measurements.
 - Collect development/pilot artifacts through the supported research pipeline,
   then evaluate preregistered test runs with the multi-seed aggregate analysis.
-- **RESUME 2026-10-04**: P chạy ở ../reasoning-run7 (xong = 171 dòng). Khi xong: dán bảng P2 → so prereg/decision_rule_P.md → Prompt S (S0 copy P_* + sha vào MANIFEST; S1 dirty tính cả untracked; S2 tương đương T=0 trên 6 item) → smoke 3 item×6 arm → 6 arm trên gen02_tune → analyze_oracle.py → prereg/decision_rule_oracle.md. Không fit ngưỡng trước khi gap đạt rule. Human review gen02: PENDING.
+- **Sweep P Results (gen02_tune.json, 100 items, Qwen3-8B-4bit, T=0)**:
+  - 171/171 records complete at `../reasoning-run7` (commit `a35391c`, tag `harness-v1-run7`).
+  - SHA-256 of `audit/P_sweep_trace.jsonl`: `062f8083ab0b2ae944815cf66bf4f5d6949d642ac7e3a04e8d8d678b421f87dc` (recorded in `data/MANIFEST.json`).
+  - Health check: parsed empty = 0.0% (PASS); arith %length = 0.0% (PASS); order %length = 32.3% (L3/L4 token explosion); g24 %length = 44.8% (trigger pre-decided rule: do not raise cap, use g24 only for SC/ToT/PAL comparisons).
+  - P2 Table:
+    | family | level | n | DIRECT-v2 | COT | %length | %parsed rỗng | mean tokens |
+    | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+    | arith | 1 | 8 | 62.5% | 100.0% | 0.0% | 0.0% | 46.8 |
+    | arith | 2 | 8 | 0.0% | 100.0% | 0.0% | 0.0% | 101.8 |
+    | arith | 3 | 8 | 0.0% | 100.0% | 0.0% | 0.0% | 162.5 |
+    | arith | 4 | 8 | 0.0% | 37.5% | 0.0% | 0.0% | 252.8 |
+    | arith | 5 | 8 | 0.0% | 37.5% | 0.0% | 0.0% | 336.4 |
+    | order | 1 | 8 | 25.0% | 62.5% | 25.0% | 0.0% | 476.9 |
+    | order | 2 | 8 | 12.5% | 50.0% | 0.0% | 0.0% | 345.4 |
+    | order | 3 | 7 | 28.6% | 28.6% | 42.9% | 0.0% | 659.4 |
+    | order | 4 | 8 | 25.0% | 37.5% | 62.5% | 0.0% | 906.9 |
+    | g24 | 1 | 8 | n/a | 50.0% | 50.0% | 0.0% | 575.4 |
+    | g24 | 2 | 8 | n/a | 62.5% | 37.5% | 0.0% | 504.8 |
+    | g24 | 3 | 7 | n/a | 57.1% | 42.9% | 0.0% | 530.1 |
+    | g24 | 4 | 6 | n/a | 16.7% | 50.0% | 0.0% | 598.7 |
+    | Total | - | 100 | 16.9% | 58.0% | 23.0% | 0.0% | 415.9 |
+- **Prompt S Execution Status (2026-10-05)**:
+  - S0: `audit/P_*` copied and recorded into `data/MANIFEST.json` (SHA-256 verified).
+  - S1: `scripts/run_sweep.py` `get_git_info()` upgraded to detect untracked files (excluding `audit/` and `data/MANIFEST.json`). Unit tests added to `tests/test_sweep_and_oracle.py`.
+  - S2: T=0 equivalence verification pending across clean worktree.
+

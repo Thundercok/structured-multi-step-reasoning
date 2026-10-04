@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
-def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42) -> dict:
+def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42, _is_sub: bool = False) -> dict:
     if not records:
         raise ValueError("No records to analyze")
 
@@ -142,7 +142,15 @@ def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42) 
         hi_idx = min(int(0.975 * len(arr)), len(arr) - 1)
         return (arr[lo_idx], arr[hi_idx])
 
-    return {
+    family_results = {}
+    if not _is_sub:
+        families = sorted(list(set(r.get("family", "") for r in records if r.get("family"))))
+        for fam in families:
+            fam_recs = [r for r in records if r.get("family") == fam]
+            if fam_recs:
+                family_results[fam] = analyze_trace(fam_recs, n_bootstrap=n_bootstrap, seed=seed, _is_sub=True)
+
+    out = {
         "n_items": n_items,
         "arms": arm_stats,
         "best_single": {
@@ -161,6 +169,9 @@ def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42) 
             "ci_95": ci(boot_gaps),
         },
     }
+    if family_results:
+        out["families"] = family_results
+    return out
 
 
 def synthetic_oracle_test(n_items: int = 2000, p: float = 0.5, seed: int = 42) -> dict:
@@ -176,6 +187,7 @@ def synthetic_oracle_test(n_items: int = 2000, p: float = 0.5, seed: int = 42) -
             records.append({
                 "id": item_id,
                 "group_id": group_id,
+                "family": "synthetic",
                 "arm": arm,
                 "correct": correct,
                 "prompt_tokens": 20,
@@ -195,7 +207,7 @@ def synthetic_oracle_test(n_items: int = 2000, p: float = 0.5, seed: int = 42) -
 
 
 def print_report(res: dict):
-    print("=== PER-ARM COMPARISON TABLE ===")
+    print("=== PER-ARM COMPARISON TABLE (POOLED) ===")
     print("| arm | n | acc | prompt tok | compl tok | total tok |")
     print("| --- | --- | --- | --- | --- | --- |")
     for arm, s in res["arms"].items():
@@ -209,10 +221,26 @@ def print_report(res: dict):
     o = res["oracle"]
     g = res["gap"]
 
-    print("=== ORACLE & ROUTER HEADROOM ===")
+    print("=== ORACLE & ROUTER HEADROOM (POOLED) ===")
     print(f"Best single arm: {b['arm']} (acc = {b['accuracy']:.1%}, 95% CI: [{b['ci_95'][0]:.1%}, {b['ci_95'][1]:.1%}], tokens = {b['mean_total_tokens']:.1f})")
     print(f"Oracle (cheapest correct): acc = {o['accuracy']:.1%}, 95% CI: [{o['ci_95'][0]:.1%}, {o['ci_95'][1]:.1%}], tokens = {o['mean_total_tokens']:.1f}")
     print(f"Oracle Gap: +{g['gap']:.1%} (95% CI: [{g['ci_95'][0]:.1%}, {g['ci_95'][1]:.1%}])")
+
+    if res.get("families"):
+        print("\n=== PER-FAMILY BREAKDOWN ===")
+        for fam, f_res in res["families"].items():
+            print(f"\n--- Family: {fam.upper()} (n={f_res['n_items']}) ---")
+            print("| arm | n | acc | total tok |")
+            print("| --- | --- | --- | --- |")
+            for arm, s in f_res["arms"].items():
+                print(f"| {arm} | {s['n']} | {s['accuracy']:.1%} | {s['mean_total_tokens']:.1f} |")
+            fb = f_res["best_single"]
+            fo = f_res["oracle"]
+            fg = f_res["gap"]
+            print(f"Best single: {fb['arm']} ({fb['accuracy']:.1%}, [{fb['ci_95'][0]:.1%}, {fb['ci_95'][1]:.1%}])")
+            print(f"Oracle: {fo['accuracy']:.1%} ([{fo['ci_95'][0]:.1%}, {fo['ci_95'][1]:.1%}])")
+            print(f"Oracle Gap: +{fg['gap']:.1%} ([{fg['ci_95'][0]:.1%}, {fg['ci_95'][1]:.1%}])")
+
 
 
 def main():

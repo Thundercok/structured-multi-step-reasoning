@@ -58,5 +58,14 @@
     "model_id": "mlx-community/Qwen3-8B-4bit",
     "commit": "76d311b",
     "tag": "harness-v1-run3"
+  },
+  "audit/P_sweep_trace.jsonl": {
+    "size_bytes": 246734,
+    "sha256": "062f8083ab0b2ae944815cf66bf4f5d6949d642ac7e3a04e8d8d678b421f87dc",
+    "n_records": 171,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "a35391c",
+    "tag": "harness-v1-run7"
   }
 }
+

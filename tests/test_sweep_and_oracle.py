@@ -67,3 +67,37 @@ def test_run_sweep_stub_and_resume(tmp_path):
     analysis = analyze_trace(records_after, n_bootstrap=50)
     assert analysis["n_items"] == 2
     assert len(analysis["arms"]) == 6
+
+
+def test_get_git_info_untracked_dirty(tmp_path):
+    from scripts.run_sweep import get_git_info
+
+    # Initialize isolated git repository
+    subprocess.check_call(["git", "init"], cwd=str(tmp_path))
+    subprocess.check_call(["git", "config", "user.name", "Test Runner"], cwd=str(tmp_path))
+    subprocess.check_call(["git", "config", "user.email", "test@example.com"], cwd=str(tmp_path))
+    (tmp_path / "README.md").write_text("initial repo")
+    subprocess.check_call(["git", "add", "README.md"], cwd=str(tmp_path))
+    subprocess.check_call(["git", "commit", "-m", "init"], cwd=str(tmp_path))
+
+    # 1. Clean repo initially
+    info = get_git_info(cwd=tmp_path)
+    assert info["dirty"] is False
+
+    # 2. Files in audit/ should not trigger dirty
+    (tmp_path / "audit").mkdir()
+    (tmp_path / "audit" / "trace.jsonl").write_text("trace data")
+    (tmp_path / "audit" / "summary.txt").write_text("summary data")
+    assert get_git_info(cwd=tmp_path)["dirty"] is False
+
+    # 3. Modified/created data/MANIFEST.json should not trigger dirty
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "MANIFEST.json").write_text("{}")
+    assert get_git_info(cwd=tmp_path)["dirty"] is False
+
+    # 4. Untracked file in project should trigger dirty == True
+    dummy = tmp_path / "scripts" / "dummy_untracked.py"
+    dummy.parent.mkdir(parents=True, exist_ok=True)
+    dummy.write_text("print('untracked')")
+    assert get_git_info(cwd=tmp_path)["dirty"] is True
+

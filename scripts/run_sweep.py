@@ -30,18 +30,37 @@ DEFAULT_SNAPSHOT_DIR = os.path.expanduser(
 )
 
 
-def get_git_info():
+def get_git_info(cwd: Path = ROOT):
     def _run(cmd):
         try:
-            return subprocess.check_output(cmd, cwd=str(ROOT), stderr=subprocess.DEVNULL).decode().strip()
+            return subprocess.check_output(cmd, cwd=str(cwd), stderr=subprocess.DEVNULL).decode().strip()
         except Exception:
             return "unknown"
 
     branch = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"])
     commit = _run(["git", "rev-parse", "--short", "HEAD"])
     tag = _run(["git", "describe", "--tags", "--exact-match", "HEAD"])
-    dirty = bool(_run(["git", "status", "--porcelain", "-uno"]))
+
+    status_raw = _run(["git", "status", "--porcelain", "-uall"])
+    dirty = False
+    if status_raw and status_raw != "unknown":
+        for line in status_raw.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            path_part = line[2:].strip().strip('"')
+            if "->" in path_part:
+                path_part = path_part.split("->")[-1].strip().strip('"')
+            path_clean = path_part.lstrip("/")
+            if path_clean == "audit" or path_clean.startswith("audit/"):
+                continue
+            if path_clean == "data/MANIFEST.json":
+                continue
+            dirty = True
+            break
+
     return {"branch": branch, "tag": tag, "commit": commit, "dirty": dirty}
+
 
 
 def get_safetensors_blobs(snapshot_dir: Path) -> dict:
@@ -321,6 +340,7 @@ def main():
     ap.add_argument("--out", default="audit/sweep_trace.jsonl", help="Path to output jsonl")
     ap.add_argument("--out-summary", default=None, help="Path to output summary txt")
     ap.add_argument("--max-items", type=int, default=None, help="Max items per arm (for smoke testing)")
+    ap.add_argument("--item-ids", default=None, help="Comma-separated item IDs to filter")
     ap.add_argument("--model-id", default="mlx-community/Qwen3-8B-4bit")
     ap.add_argument("--snapshot-dir", default=DEFAULT_SNAPSHOT_DIR)
     ap.add_argument("--stub", action="store_true", help="Run with mock runner for offline verification")
@@ -349,6 +369,9 @@ def main():
     with open(ds_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     items = data["items"]
+    if args.item_ids:
+        selected_ids = {x.strip() for x in args.item_ids.split(",") if x.strip()}
+        items = [it for it in items if it["id"] in selected_ids]
     if args.max_items is not None:
         items = items[: args.max_items]
 
