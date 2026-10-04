@@ -13,8 +13,9 @@ và tái lập được cũng có ích. Giai đoạn hiện tại là pilot, ch�
 
 ## Việc gần nhất
 
-Mình thực hiện pilot GSM8K: ba chiến lược cố định trên 23 câu development đã
-qua kiểm tra của agent, seed 42, cap 1.024, chỉ dẫn tiếng Anh. Một câu trong mẫu
+Mình đã hoàn thành pilot GSM8K: ba chiến lược cố định trên 23 câu development đã
+qua kiểm tra của agent, seed 42, cap 1.024, chỉ dẫn tiếng Anh. [Bảng kết quả](gsm8k_development_results_20261004.md)
+ghi DIRECT 20/23, CoT 19/23 và PAL 21/23. Một câu trong mẫu
 24 câu ban đầu đã bị loại vì mơ hồ trước khi xem đầu ra model. Xác nhận của con
 người vẫn đang chờ; tập test chưa dùng.
 
@@ -22,6 +23,16 @@ Bạn bắt đầu ở gói duyệt, chỉ cần gửi ghi chú theo dạng `ID 
 Mình trả một bảng accuracy/token, các lỗi tiêu biểu và khuyến nghị tiếp tục hay
 thu hẹp. Sau đó mới chọn phép đo cho controller. Bạn không cần tự cài môi trường
 hoặc chạy các lệnh thí nghiệm.
+
+Sau phần duyệt câu hỏi, bắt đầu đọc abstract của ba bài này:
+
+- [PAL](https://arxiv.org/abs/2211.10435): dùng model viết chương trình rồi giao việc tính cho interpreter. Đây là đối chứng có trước; adapter zero-shot hiện tại chưa tái lập toàn bộ thí nghiệm few-shot của bài.
+- [Route to Reason](https://arxiv.org/abs/2505.19435): chọn cả model và chiến lược dưới ràng buộc ngân sách. Cần đối chiếu với phạm vi một model cố định của mình.
+- [BEST-Route](https://arxiv.org/abs/2506.22716): chọn model cùng số lần lấy mẫu. Cần đọc kỹ để phân biệt phân bổ tính toán với quyết định dừng của policy trong repo.
+
+Mỗi bài chỉ cần ghi trước ba dòng: **họ chọn gì; dùng thông tin gì để chọn;
+đo với baseline nào**. Đây là bước đọc ban đầu, không thay thế việc đọc phương
+pháp/thí nghiệm và không xác nhận tính mới của đề tài.
 
 ## Lộ trình dự kiến
 

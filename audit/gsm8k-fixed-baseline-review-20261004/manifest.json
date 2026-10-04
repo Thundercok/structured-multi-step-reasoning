@@ -1,0 +1,15 @@
+{
+  "kind": "audited_fixed_math_development_baselines",
+  "input_manifest_sha256": "0b99564e57cbb2b96bfda1735bb215ca749f4db4598dde5591827361a3e7c066",
+  "source_sha256": "fb8883c91667b38993df3d846960ac0d9356ab674b316d6ba13f7ac5fe684a8f",
+  "summary_sha256": "a90170a7d8a13fcf5262d30dcaec68847aab0a1846e1d0b35ecb79a33771c6cc",
+  "records_rescored": 69,
+  "new_model_calls": 0,
+  "human_review_status": "pending",
+  "publication_ready": false,
+  "artifact_sha256": {
+    "summary.json": "a90170a7d8a13fcf5262d30dcaec68847aab0a1846e1d0b35ecb79a33771c6cc",
+    "report.md": "1db39c4467075b4b5f4ebecc7174ee55fb68faf3bed0ab676d1a0f55e2974709",
+    "verification.json": "6bb19fba59a3fb2159e6d659c77c15ce26a6e4e4ee6c0d2c035e393ac3ca7fc8"
+  }
+}
