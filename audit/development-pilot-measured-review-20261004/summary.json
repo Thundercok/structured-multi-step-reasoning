@@ -1,0 +1,932 @@
+{
+  "descriptive_only": true,
+  "policy_fitted": false,
+  "aggregates": [
+    {
+      "family": "all",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 24,
+      "groups": 24,
+      "correct": 5,
+      "accuracy": 0.20833333333333334,
+      "mean_generated_tokens": 38.708333333333336,
+      "mean_prompt_tokens": 113.75,
+      "mean_strategy_ms": 4716.8487342916405,
+      "parse_failures": 5,
+      "length_stops": 7
+    },
+    {
+      "family": "all",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 24,
+      "groups": 24,
+      "correct": 5,
+      "accuracy": 0.20833333333333334,
+      "mean_generated_tokens": 90.33333333333333,
+      "mean_prompt_tokens": 95.75,
+      "mean_strategy_ms": 9095.701157999278,
+      "parse_failures": 12,
+      "length_stops": 19
+    },
+    {
+      "family": "all",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 24,
+      "groups": 24,
+      "correct": 10,
+      "accuracy": 0.4166666666666667,
+      "mean_generated_tokens": 116.79166666666667,
+      "mean_prompt_tokens": 113.75,
+      "mean_strategy_ms": 12999.10302608305,
+      "parse_failures": 0,
+      "length_stops": 1
+    },
+    {
+      "family": "all",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 24,
+      "groups": 24,
+      "correct": 15,
+      "accuracy": 0.625,
+      "mean_generated_tokens": 324.875,
+      "mean_prompt_tokens": 95.75,
+      "mean_strategy_ms": 29704.45164058401,
+      "parse_failures": 4,
+      "length_stops": 4
+    },
+    {
+      "family": "arith",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 8,
+      "groups": 8,
+      "correct": 2,
+      "accuracy": 0.25,
+      "mean_generated_tokens": 80.125,
+      "mean_prompt_tokens": 131.875,
+      "mean_strategy_ms": 8020.633828250084,
+      "parse_failures": 5,
+      "length_stops": 6
+    },
+    {
+      "family": "arith",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 8,
+      "groups": 8,
+      "correct": 3,
+      "accuracy": 0.375,
+      "mean_generated_tokens": 82.5,
+      "mean_prompt_tokens": 113.875,
+      "mean_strategy_ms": 7670.275202999619,
+      "parse_failures": 5,
+      "length_stops": 5
+    },
+    {
+      "family": "arith",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 8,
+      "groups": 8,
+      "correct": 6,
+      "accuracy": 0.75,
+      "mean_generated_tokens": 247.125,
+      "mean_prompt_tokens": 131.875,
+      "mean_strategy_ms": 25155.170083375197,
+      "parse_failures": 0,
+      "length_stops": 1
+    },
+    {
+      "family": "arith",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 8,
+      "groups": 8,
+      "correct": 6,
+      "accuracy": 0.75,
+      "mean_generated_tokens": 151.75,
+      "mean_prompt_tokens": 113.875,
+      "mean_strategy_ms": 13188.618932250392,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "g24",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 8,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 20.5,
+      "mean_prompt_tokens": 95.625,
+      "mean_strategy_ms": 3188.2452967502104,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "g24",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 8,
+      "groups": 8,
+      "correct": 1,
+      "accuracy": 0.125,
+      "mean_generated_tokens": 92.875,
+      "mean_prompt_tokens": 77.625,
+      "mean_strategy_ms": 8580.20105737387,
+      "parse_failures": 7,
+      "length_stops": 7
+    },
+    {
+      "family": "g24",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 8,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 20.5,
+      "mean_prompt_tokens": 95.625,
+      "mean_strategy_ms": 3018.2103178735815,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "g24",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 8,
+      "groups": 8,
+      "correct": 4,
+      "accuracy": 0.5,
+      "mean_generated_tokens": 587.375,
+      "mean_prompt_tokens": 77.625,
+      "mean_strategy_ms": 50938.67531250043,
+      "parse_failures": 4,
+      "length_stops": 4
+    },
+    {
+      "family": "order",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 8,
+      "groups": 8,
+      "correct": 3,
+      "accuracy": 0.375,
+      "mean_generated_tokens": 15.5,
+      "mean_prompt_tokens": 113.75,
+      "mean_strategy_ms": 2941.6670778746266,
+      "parse_failures": 0,
+      "length_stops": 1
+    },
+    {
+      "family": "order",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 8,
+      "groups": 8,
+      "correct": 1,
+      "accuracy": 0.125,
+      "mean_generated_tokens": 95.625,
+      "mean_prompt_tokens": 95.75,
+      "mean_strategy_ms": 11036.627213624342,
+      "parse_failures": 0,
+      "length_stops": 7
+    },
+    {
+      "family": "order",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 8,
+      "groups": 8,
+      "correct": 4,
+      "accuracy": 0.5,
+      "mean_generated_tokens": 82.75,
+      "mean_prompt_tokens": 113.75,
+      "mean_strategy_ms": 10823.928677000367,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "order",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 8,
+      "groups": 8,
+      "correct": 5,
+      "accuracy": 0.625,
+      "mean_generated_tokens": 235.5,
+      "mean_prompt_tokens": 95.75,
+      "mean_strategy_ms": 24986.060677001205,
+      "parse_failures": 0,
+      "length_stops": 0
+    }
+  ],
+  "paired_strategy_differences": [
+    {
+      "family": "all",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 24,
+      "groups": 24,
+      "both_correct": 3,
+      "became_correct": 2,
+      "became_incorrect": 2,
+      "both_incorrect": 17,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": 51.625
+    },
+    {
+      "family": "all",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 24,
+      "groups": 24,
+      "both_correct": 9,
+      "became_correct": 6,
+      "became_incorrect": 1,
+      "both_incorrect": 8,
+      "mean_accuracy_difference": 0.20833333333333334,
+      "mean_generated_token_difference": 208.08333333333334
+    },
+    {
+      "family": "arith",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 2,
+      "became_correct": 1,
+      "became_incorrect": 0,
+      "both_incorrect": 5,
+      "mean_accuracy_difference": 0.125,
+      "mean_generated_token_difference": 2.375
+    },
+    {
+      "family": "arith",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 6,
+      "became_correct": 0,
+      "became_incorrect": 0,
+      "both_incorrect": 2,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": -95.375
+    },
+    {
+      "family": "g24",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 1,
+      "became_incorrect": 0,
+      "both_incorrect": 7,
+      "mean_accuracy_difference": 0.125,
+      "mean_generated_token_difference": 72.375
+    },
+    {
+      "family": "g24",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 4,
+      "became_incorrect": 0,
+      "both_incorrect": 4,
+      "mean_accuracy_difference": 0.5,
+      "mean_generated_token_difference": 566.875
+    },
+    {
+      "family": "order",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 1,
+      "became_correct": 0,
+      "became_incorrect": 2,
+      "both_incorrect": 5,
+      "mean_accuracy_difference": -0.25,
+      "mean_generated_token_difference": 80.125
+    },
+    {
+      "family": "order",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 3,
+      "became_correct": 2,
+      "became_incorrect": 1,
+      "both_incorrect": 2,
+      "mean_accuracy_difference": 0.125,
+      "mean_generated_token_difference": 152.75
+    }
+  ],
+  "paired_cap_differences": [
+    {
+      "family": "all",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 24,
+      "groups": 24,
+      "both_correct": 5,
+      "became_correct": 5,
+      "became_incorrect": 0,
+      "both_incorrect": 14,
+      "mean_accuracy_difference": 0.20833333333333334,
+      "mean_generated_token_difference": 78.08333333333333
+    },
+    {
+      "family": "all",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 24,
+      "groups": 24,
+      "both_correct": 5,
+      "became_correct": 10,
+      "became_incorrect": 0,
+      "both_incorrect": 9,
+      "mean_accuracy_difference": 0.4166666666666667,
+      "mean_generated_token_difference": 234.54166666666666
+    },
+    {
+      "family": "arith",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 2,
+      "became_correct": 4,
+      "became_incorrect": 0,
+      "both_incorrect": 2,
+      "mean_accuracy_difference": 0.5,
+      "mean_generated_token_difference": 167.0
+    },
+    {
+      "family": "arith",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 3,
+      "became_correct": 3,
+      "became_incorrect": 0,
+      "both_incorrect": 2,
+      "mean_accuracy_difference": 0.375,
+      "mean_generated_token_difference": 69.25
+    },
+    {
+      "family": "g24",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 0,
+      "became_incorrect": 0,
+      "both_incorrect": 8,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": 0.0
+    },
+    {
+      "family": "g24",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 1,
+      "became_correct": 3,
+      "became_incorrect": 0,
+      "both_incorrect": 4,
+      "mean_accuracy_difference": 0.375,
+      "mean_generated_token_difference": 494.5
+    },
+    {
+      "family": "order",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 3,
+      "became_correct": 1,
+      "became_incorrect": 0,
+      "both_incorrect": 4,
+      "mean_accuracy_difference": 0.125,
+      "mean_generated_token_difference": 67.25
+    },
+    {
+      "family": "order",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 8,
+      "groups": 8,
+      "both_correct": 1,
+      "became_correct": 4,
+      "became_incorrect": 0,
+      "both_incorrect": 3,
+      "mean_accuracy_difference": 0.5,
+      "mean_generated_token_difference": 139.875
+    }
+  ],
+  "failures": [
+    {
+      "id": "procedural-tuning-v1/arith_0009_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "",
+      "confidence": 0.9990792174555135,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0009_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Step 4: Subtract 386 → 750",
+      "confidence": 0.9885171009122903,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0011_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Step 4: Add 980 → 216 + 980 = 1196",
+      "confidence": 0.9884524778308159,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0019_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Add 7915: 65",
+      "confidence": 0.998016358181332,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0019_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Step 4: 6560 + 7915 = 144",
+      "confidence": 0.9863552606056268,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0022_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Divide by 3: 57924 / 3 = 193",
+      "confidence": 0.9947220676246136,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0022_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "4. Divide by 3:",
+      "confidence": 0.988922454846621,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0028_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "114176565",
+      "confidence": 0.9912079587438096,
+      "tokens": 336
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0028_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Divide by 2: 2564672 / 2 = 1282336",
+      "confidence": 0.9939973683370734,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0028_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "3. Divide by 2:",
+      "confidence": 0.9698811122716351,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0028_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "114176565",
+      "confidence": 0.9979920008004335,
+      "tokens": 289
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0031_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "1217114444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444",
+      "confidence": 0.9860869956385689,
+      "tokens": 1024
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0031_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "121711444444444444444444444444444444444444444444444444444444444444444444444444444444444444444",
+      "confidence": 0.8620600411784612,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0031_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "920440658069354",
+      "confidence": 0.9949460203626745,
+      "tokens": 318
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0031_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Subtract 22117: 407858700 - 22117 = 40",
+      "confidence": 0.9908227638828146,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0003_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(8 / (7 - 5)) * (4 + 1)",
+      "confidence": 0.9484502786854093,
+      "tokens": 19
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0003_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(8 / (7 - 5)) * (4 + 1)",
+      "confidence": 0.9484502786854093,
+      "tokens": 19
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0003_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Try (8 / (7 - 5)) * 4 = (8 / 2) * 4 = 4 * 4",
+      "confidence": 0.9191026354998549,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0005_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(6 / (4 - (4 / 3))) * 3",
+      "confidence": 0.9614043788968577,
+      "tokens": 18
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0005_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(6 / (4 - (4 / 3))) * 3",
+      "confidence": 0.9614043788968577,
+      "tokens": 18
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Try (9 - (7 - (3 + 2",
+      "confidence": 0.9523882345212835,
+      "tokens": 1024
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Try 3 * (9 - (7 - 2)) = 3 * (9 - 5) = 3 * 4 =",
+      "confidence": 0.9037261067169848,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(9 - 3) * (2 + 7) / 7 * 3",
+      "confidence": 0.9649649296019107,
+      "tokens": 22
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(9 - 3) * (2 + 7) / 7 * 3",
+      "confidence": 0.9649649296019107,
+      "tokens": 22
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Start by considering the numbers 13, 2, 3, and 5. Try combining them using operations. Notice that 13 - 5 = 8, and 8 * 3 = 24. To get 8, use 13 - 5. Then multiply by 3. That uses 13, 5, and 3. The remaining number is 2, which isn't used yet. Try another approach",
+      "confidence": 0.9036422592324382,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(13 - 5) * (3 - 2) * 2 + 2",
+      "confidence": 0.9636157030072211,
+      "tokens": 23
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(13 - 5) * (3 - 2) * 2 + 2",
+      "confidence": 0.9636157030072211,
+      "tokens": 23
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Try (5 * (3 +",
+      "confidence": 0.9548324174076265,
+      "tokens": 1024
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0022_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(9 - 6) * (8 - 7) * 24",
+      "confidence": 0.9675694970217837,
+      "tokens": 20
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0022_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Check the expression: 6 * (8 / (9 - 7)) = 6 * (8",
+      "confidence": 0.9087635276146835,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0022_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(9 - 6) * (8 - 7) * 24",
+      "confidence": 0.9675694970217837,
+      "tokens": 20
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Now 11 - 2.5 = 8.5, which is not",
+      "confidence": 0.932605997157326,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(11 - (10 - 8)) * 4",
+      "confidence": 0.9966289047949692,
+      "tokens": 17
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Try (11 * 4) - (10 + 8)",
+      "confidence": 0.9606001781517808,
+      "tokens": 1024
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(11 - (10 - 8)) * 4",
+      "confidence": 0.9966289047949692,
+      "tokens": 17
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(13 - 5) * (8 / (13 - 5)) * (8 - 5)",
+      "confidence": 0.9721699038244527,
+      "tokens": 28
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Try 8 * (5 - 1) = 32, then 32 - 13 = 19, not helpful",
+      "confidence": 0.9573748299362155,
+      "tokens": 1024
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(13 - 5) * (8 / (13 - 5)) * (8 - 5)",
+      "confidence": 0.9721699038244527,
+      "tokens": 28
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Try 13 - (5 + 1) = 7, then 8 * 7 = 56, not helpful",
+      "confidence": 0.9044145127305858,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0029_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "(13 - 8) * (4 + 4)",
+      "confidence": 0.9882809387287397,
+      "tokens": 17
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0029_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "(13 - 8) * (4 + 4)",
+      "confidence": 0.9882809387287397,
+      "tokens": 17
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0029_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "Check: (13 - 8) * 4 + 4 = 5 * 4 + 4 = 20 + 4",
+      "confidence": 0.9211035966312773,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0003_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "So the order must be: Grace, Heidi, Frank, Bob",
+      "confidence": 0.9320661596401139,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0009_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "From clue 3",
+      "confidence": 0.9423711590992419,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0009_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Carol",
+      "confidence": 0.9139814942645432,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0009_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "Carol",
+      "confidence": 0.9139814942645432,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0010_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "From clue 3, Erin must be",
+      "confidence": 0.9323078286246373,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0019_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "Dave",
+      "confidence": 0.8829833365298354,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0019_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Dave",
+      "confidence": 0.8829833365298354,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0019_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "From clue 1:",
+      "confidence": 0.9429790654308329,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0022_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Alice",
+      "confidence": 0.8861409041291195,
+      "tokens": 248
+    },
+    {
+      "id": "procedural-tuning-v1/order_0022_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "From clue 3, Dave finished before",
+      "confidence": 0.9458002886430246,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0022_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "From (4)",
+      "confidence": 0.9636303745057246,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0025_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "Grace",
+      "confidence": 0.952613567412569,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0025_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Grace",
+      "confidence": 0.952613567412569,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0025_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Carol",
+      "confidence": 0.90123751289877,
+      "tokens": 300
+    },
+    {
+      "id": "procedural-tuning-v1/order_0025_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "From clue 5: Carol immediately before Alice → Carol → Alice",
+      "confidence": 0.9582484271308125,
+      "tokens": 96
+    },
+    {
+      "id": "procedural-tuning-v1/order_0029_en_orig",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "Bob",
+      "confidence": 0.9111206124179252,
+      "tokens": 473
+    },
+    {
+      "id": "procedural-tuning-v1/order_0029_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "Frank",
+      "confidence": 0.9060935346187229,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0029_en_orig",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "Frank",
+      "confidence": 0.9060935346187229,
+      "tokens": 4
+    },
+    {
+      "id": "procedural-tuning-v1/order_0029_en_orig",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "From clue",
+      "confidence": 0.9611637908397404,
+      "tokens": 96
+    }
+  ]
+}

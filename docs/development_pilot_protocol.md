@@ -1,8 +1,10 @@
 # Development pilot preparation
 
-Status: implementation and synthetic validation. Human/source and pilot
-configuration review remain pending. The existing Stage 0 decision is unchanged;
-this checkpoint does not freeze parameters or establish measured model quality.
+Status: the first internal measured pilot is complete, with raw-score auditing
+and byte-identical replay. See [the pilot evidence](development_pilot_results_20261004.md).
+Human/source sign-off and main-study configuration remain pending. The existing
+Stage 0 decision is unchanged; this pilot does not freeze parameters or establish
+held-out model quality.
 
 ## Purpose and boundary
 
@@ -53,9 +55,9 @@ fixture execution. Replay checks all declared artifact/source hashes, retains
 settings, makes no model call and recomputes diagnostic summaries. Outputs are
 never overwritten; failures preserve every completed, flushed attempt.
 
-## Prepare measured collection after review
+## Measured development collection
 
-Preparation command, **not executed for this checkpoint**:
+Example command for a separately recorded development run:
 
 ```bash
 python -m experiments.research_study --backend mlx --pilot --dataset data/procedural_research_v1/tuning.json --model /path/to/pinned-local-mlx-snapshot --strategies DIRECT COT --token-budgets 96 1024 --groups-per-stratum 1 --seed 42 --output runs/NEW_MEASURED_DEVELOPMENT_PILOT

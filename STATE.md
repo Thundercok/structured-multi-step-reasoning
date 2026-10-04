@@ -1,6 +1,6 @@
 # Execution State — NCKH Reasoning Harness
 
-## Current Phase: selected development pilot preflight verified; measured collection waiting for the active GPU sweep
+## Current Phase: measured development pilot complete and replay verified; human review and main-study configuration remain pending
 
 - **Branch**: `exp/reasoning-harness-v1`
 - **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0`, `harness-v1-run2`, `harness-v1-run3`, `harness-v1-run4`, `harness-v1-run5`
@@ -14,14 +14,43 @@
   Do not move tags while M3 is actively executing (run headers record tag/commit). RAT work has been segregated to a dedicated worktree and branch (`git worktree add ../rat-ui -b rat-ui`) so subsequent research sessions remain completely isolated.
 - **Note on harness-v1-run1**: `harness-v1-run1` nằm trên main (`f51db3f`), thiếu fix P0. Nhánh `exp/reasoning-harness-v1` đã cherry-pick commit này thành `0047bb2` (gộp MANIFEST).
 - **Completed sweep worktree**: `../reasoning-run3` (detached HEAD at `harness-v1-run3` / `76d311b`).
-- **Active sweep worktree**: `../multi-step-structured-reasoning-run5` (detached HEAD at `harness-v1-run5` / `d3ac47a`).
+- **Preceding Prompt M sweep worktree**: `../multi-step-structured-reasoning-run5` (detached HEAD at `harness-v1-run5` / `d3ac47a`).
 - **H4 sweep**: complete, **188/188** records (DIRECT 94, COT 94); no missing, unexpected or duplicate item/arm pairs. Final `audit/G_sweep_trace.jsonl` and `audit/G_summary.txt` in this repository match the worktree copies byte for byte. Verification: `audit/G_completion_verification.json`.
-- **Model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
-- **Status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.
+- **Historical H4 model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
+- **Historical H4 status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.
 
 ---
 
-## Selected Pilot Preflight — 2026-10-04
+## Measured Development Pilot — 2026-10-04
+
+- **96/96 evaluations complete**, 24 exposed questions / 24 canonical groups,
+  DIRECT and CoT at both caps 96/1,024, seed 42. No test evaluation, embedding,
+  tool call, threshold fitting or controller measurement.
+- Correct/questions: at cap 96, DIRECT **5/24**, CoT **5/24**; at cap 1,024,
+  DIRECT **10/24**, CoT **15/24**. Generated tokens total **13,697**, excluding
+  prompt/full inference costs. DIRECT/CoT prompt language differs; no causal
+  instruction-only or superiority claim follows from these descriptive counts.
+- All 96 raw answers, scores, costs and condition identities verified. Replay
+  reproduces dataset, selection, records, summary, report and provenance byte
+  for byte, with zero new model calls. Every incorrect evaluation has heuristic
+  confidence at least 0.8; calibration requires separate development review.
+- Evidence: `audit/development-pilot-measured-20261004-runtimefix/`,
+  `audit/development-pilot-measured-review-20261004/`,
+  `audit/development-pilot-measured-replay-20261004/` and
+  `docs/development_pilot_results_20261004.md`.
+- Clean collection source **05a93cf**, retained on local
+  `codex/development-pilot-runtime`: 495dec2 plus native MLX bfloat16 export
+  fix. Required harness/native checks: **55 passed**. The initial failed run
+  (zero completed evaluations) is preserved separately. Model content matches
+  all ten upstream runtime files; selected questions/golds remain unchanged.
+- Human/source sign-off and main-study configuration remain pending. Stage 0
+  is unchanged. The mixed scope of shared-index commit 1d1de1b is recorded in
+  `audit/development-pilot-analysis-validation-20261004-final/commit_scope.json`;
+  concurrent content is preserved and excluded from this collection snapshot.
+
+---
+
+## Selected Pilot Preflight — 2026-10-04 (before measured collection)
 
 - `audit/development-pilot-preflight-20261004-final/` contains the selected
   24-question review packet, exact-answer proofs, source provenance, pinned

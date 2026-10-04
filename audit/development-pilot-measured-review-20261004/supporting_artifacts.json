@@ -1,0 +1,16 @@
+{
+  "kind": "measured_pilot_supporting_artifacts",
+  "status": "complete",
+  "recorded_utc": "2026-10-04T02:16:27.159434+00:00",
+  "analysis_manifest_sha256": "f63b8f0acb6e5ceaf55cc7aceb7f57bd2afec43fe663dce75af1e50a759808b1",
+  "artifact_sha256": {
+    "failure_review.json": "9ab98d7fc5156ad3a00d617a1c335de81b99a8319eb0888a0dfab2788a683f2c",
+    "analysis_source.py": "1df0c183f42a504df5f1b8090ce11c6c41a6b264186655a21cfc6706925aa86b",
+    "verifier_source.py": "012763a94ccdf7eadd5ac5f1c50384e05c3924a5d3c6f319bb9635fc3364aaaa",
+    "validation.json": "7217b6a1be20e84f1e39fd1cc37f55121941c1576e7391be2282dfd7d3865e63",
+    "reproduction_verification.json": "ada92e53974b61637c27a666d53c503cf39018c8a6dad9f3e8ea4114a4a17af8",
+    "collection-source.bundle": "d5eee3076fb6109a3862b72116cbb75b216f0baa9d7a2f7f39f1db8e1538218d"
+  },
+  "new_model_calls": 0,
+  "publication_ready": false
+}

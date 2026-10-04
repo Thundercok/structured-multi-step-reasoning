@@ -1,0 +1,200 @@
+{
+  "seed": 42,
+  "groups_per_stratum": 1,
+  "strata": [
+    {
+      "split": "calibration",
+      "family": "arith",
+      "level": "1",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "arith",
+      "level": "2",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "arith",
+      "level": "3",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "arith",
+      "level": "4",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "g24",
+      "level": "1",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "g24",
+      "level": "2",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "g24",
+      "level": "3",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "g24",
+      "level": "4",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "order",
+      "level": "1",
+      "available_groups": 4,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "order",
+      "level": "2",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "order",
+      "level": "3",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "order",
+      "level": "4",
+      "available_groups": 5,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "arith",
+      "level": "1",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "arith",
+      "level": "2",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "arith",
+      "level": "3",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "arith",
+      "level": "4",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "g24",
+      "level": "1",
+      "available_groups": 2,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "g24",
+      "level": "2",
+      "available_groups": 2,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "g24",
+      "level": "3",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "g24",
+      "level": "4",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "order",
+      "level": "1",
+      "available_groups": 2,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "order",
+      "level": "2",
+      "available_groups": 2,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "order",
+      "level": "3",
+      "available_groups": 3,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "order",
+      "level": "4",
+      "available_groups": 3,
+      "selected_groups": 1
+    }
+  ],
+  "selected_group_ids": [
+    "problem_arith_2caf3c62bbf57df7a2150f1c891cd3954ed9bb76cb5972a42011af154b70f490",
+    "problem_arith_5046c477407365d70e1abc49147668292d95c7ecbb262ae615db55251b3f9fbd",
+    "problem_arith_6d2f018f0fb52202a0b9b836b43eff06c32e38981ac1ba9a344182cd029d4aff",
+    "problem_arith_780a9357856d04344a343e1fe19e6691a05c4d03eb05e6db3cd40410e759d9c5",
+    "problem_arith_a52b30a47a397879809ae8c705c0236f8c5453aa3899a245d98631de7692d7d5",
+    "problem_arith_bc9bb616d10d16d8073f86a4e50d4987caec2b6edb1e27f6601a2f0427d85e4c",
+    "problem_arith_eb29854a063ae8479c94036e78c682161d3360fe830c294c2d3c638482735cba",
+    "problem_arith_f966842feea873c987cdedf90970da7a57291e33ff5559fa685348a892727dee",
+    "problem_g24_197b52691f342362e2b7e0c6460336846564452a434b03a9c8198353b8cad3ae",
+    "problem_g24_30266fbc58e3f5d463f658babdac2e5014d6b0d94babbe179ab389a23b76ab4c",
+    "problem_g24_466f407f10aefaff694c82fc6ba9b6f5dab106141a5412800828847fcdc45d4a",
+    "problem_g24_5f4a0af0af588ae50b4bbb9cc010d5cae31561c45cdac8cfe1f48b1af79b0c46",
+    "problem_g24_9eeb12c7cc8470e00becb7082af48dd1b8cb66413a905c6c4252291ae3be9fe7",
+    "problem_g24_d12e53ce13c53b9d0d3a385ce05c7aac368ef613649f2f5bf0fccdde16f1defb",
+    "problem_g24_d99b8baba7c1ae5576a14a06d08f21802312a80e4a27eabda74d97ffac7de65e",
+    "problem_g24_fd82477d08227a92c561dc3cd28c9f59a016586e427742f530edb5cb908a39dc",
+    "problem_order_044cff87dd79000d39a07fc793fde0f0857e63001dfc7b59678a6f7da32dddd5",
+    "problem_order_32230264192397169411929e43ef9f5e83633eaae25c52f2a14796a1cefcee32",
+    "problem_order_3b9e730265f4b560ffc9e200ff424d6b42c15127eb50f07a8186f1926108c60d",
+    "problem_order_5b177b8791678072997dee83b07ad13d662e72fc25de16a2edf586a9dcb22b04",
+    "problem_order_c848a3b12452287df08817cfd0f1fc5ac9d722573e33fe767116a25266685a7a",
+    "problem_order_ce36d981bc672066105590a989fb2d606fc0ef7fee89b76b6c6abe9e297fb502",
+    "problem_order_e2005f8ff438a740aaffa1edbd4bf1e912f73b676f0fb5d2243693128a8b4119",
+    "problem_order_ea047e189ea882611822f47fe21f517aa82b3cdc24cad5c8702732989b48099f"
+  ]
+}
