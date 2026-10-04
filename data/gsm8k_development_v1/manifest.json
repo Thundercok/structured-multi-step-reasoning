@@ -1,0 +1,20 @@
+{
+  "kind": "gsm8k_training_only_development_preparation",
+  "source_manifest_sha256": "66874286c7c5167e26fa23c91c701fdef4d46b52bbe869564595e66125ac7906",
+  "source_revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+  "source_sha256": "1840c3a8eae968d28c824c9dca41a619561f0f378175a6950ae6a6d65fe77e79",
+  "dataset_sha256": "cdc763dbf1efa7859cd50338e20fbe9ec9d4e820396443f771079ed5a141e47b",
+  "selection": {
+    "seed": 42,
+    "selection": "SHA-256 ranking of normalized question identity; no labels or outcomes",
+    "grouping": "exact normalized question identity; semantic duplicates require review",
+    "source_rows": 7473,
+    "unique_normalized_queries": 7473,
+    "selected_groups": 24,
+    "split_assignment": "alternate rank positions: equal train/calibration; both exposed development"
+  },
+  "new_model_calls": 0,
+  "official_test_used": false,
+  "human_review_status": "pending",
+  "publication_ready": false
+}

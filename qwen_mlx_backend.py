@@ -4,6 +4,7 @@ không có 2 thứ đó nên phần load/generate KHÔNG được test end-to-en
 """
 
 import re
+import time
 
 import numpy as np
 
@@ -32,6 +33,12 @@ REACT_SYSTEM = (
 )
 PAL_SUFFIX = "\nViết 1 đoạn code Python giải bài này, gán kết quả cuối vào biến `result`. Chỉ trả code, trong 1 khối ```python```."
 
+MATH_EN_SUFFIXES = {
+    A.DIRECT: "\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units.",
+    A.COT: "\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units.",
+    A.PAL: "\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block.",
+}
+
 REACT_EXAMPLE = [
     {"role": "user", "content": "What is (12 + 8) * 3?"},
     {"role": "assistant", "content": "Thought: I should calculate the expression.\nAction: calculate[(12+8)*3]"},
@@ -45,12 +52,23 @@ class QwenMLXBackend:
 
     supported = frozenset({A.DIRECT, A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL})
 
-    def __init__(self, repo: str = "mlx-community/Qwen3-8B-4bit", max_tokens: int = 512):
+    def __init__(self, repo: str = "mlx-community/Qwen3-8B-4bit", max_tokens: int = 512, *, prompt_profile: str = "legacy"):
+        self.configure_prompt_profile(prompt_profile)
         self.model, self.tokenizer = load(repo)
         self.hidden_size = self.model.args.hidden_size
         self.max_tokens = max_tokens
 
     # ---- LLMBackend protocol ----
+
+    def configure_prompt_profile(self, profile: str) -> None:
+        if profile not in ("legacy", "english-math-v1"):
+            raise ValueError("Unknown prompt profile")
+        self.prompt_profile = profile
+
+    def _suffix(self, strategy: A) -> str:
+        if getattr(self, "prompt_profile", "legacy") == "english-math-v1":
+            return MATH_EN_SUFFIXES[strategy]
+        return {A.DIRECT: DIRECT_SUFFIX, A.COT: COT_SUFFIX, A.PAL: PAL_SUFFIX}[strategy]
 
     def configure_answer_format(self, answer_type: str, decimal_separator: str = ".") -> None:
         """Use item format metadata only; the backend never receives gold labels."""
@@ -75,7 +93,10 @@ class QwenMLXBackend:
         return np.asarray(mx.mean(hidden[0], axis=0).astype(mx.float32))
 
     def run(self, strategy: A, query: str) -> tuple[str, float, int]:
-        self.last_trace = {"strategy": strategy.name, "generations": [], "tools": []}
+        profile = getattr(self, "prompt_profile", "legacy")
+        if profile == "english-math-v1" and strategy not in MATH_EN_SUFFIXES:
+            raise ValueError("English math profile supports DIRECT, COT and PAL only")
+        self.last_trace = {"strategy": strategy.name, "prompt_profile": profile, "generations": [], "tools": []}
         if hasattr(self, "answer_format"):
             self.last_trace["answer_format"] = dict(self.answer_format)
         return {
@@ -101,7 +122,7 @@ class QwenMLXBackend:
             self.last_trace["wordy"] = wordy
 
     def _direct(self, query: str) -> tuple[str, float, int]:
-        text, conf, n_tok = self._chat([{"role": "user", "content": query + DIRECT_SUFFIX}], temp=0.0)
+        text, conf, n_tok = self._chat([{"role": "user", "content": query + self._suffix(A.DIRECT)}], temp=0.0)
         ans, status, wordy = self._parse_answer(text)
         if hasattr(self, "last_trace") and self.last_trace:
             self.last_trace["parse_status"] = status
@@ -109,7 +130,7 @@ class QwenMLXBackend:
         return ans, conf, n_tok
 
     def _cot(self, query: str) -> tuple[str, float, int]:
-        text, conf, n_tok = self._chat([{"role": "user", "content": query + COT_SUFFIX}], temp=0.0)
+        text, conf, n_tok = self._chat([{"role": "user", "content": query + self._suffix(A.COT)}], temp=0.0)
         ans, status, wordy = self._parse_answer(text)
         if hasattr(self, "last_trace") and self.last_trace:
             self.last_trace["parse_status"] = status
@@ -195,11 +216,13 @@ class QwenMLXBackend:
         return ans, last_conf * 0.7, total_tok
 
     def _pal(self, query: str) -> tuple[str, float, int]:
-        text, conf, n_tok = self._chat([{"role": "user", "content": query + PAL_SUFFIX}], temp=0.0)
+        text, conf, n_tok = self._chat([{"role": "user", "content": query + self._suffix(A.PAL)}], temp=0.0)
         code = extract_code(text)
+        tool_started = time.perf_counter()
         ok, result = run_python_sandboxed(code)
+        tool_ms = (time.perf_counter() - tool_started) * 1000
         self._record_tool({
-            "name": "python", "input": code, "ok": ok, "output": result,
+            "name": "python", "input": code, "ok": ok, "output": result, "duration_ms": tool_ms,
         })
         answer = self._extract_answer(result) if ok else self._extract_answer(text)
         self._record_status(answer, f"Answer: {result}" if ok else text)

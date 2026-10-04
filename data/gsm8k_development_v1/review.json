@@ -1,0 +1,122 @@
+[
+  {
+    "id": "gsm8k-dev-05545",
+    "source_solution": "There are 6500 kg – 150 kg = <<6500-150=6350>>6350 kg of sellable potatoes.\nThese will fit into 6350 kg / 50 kg/bag = <<6350/50=127>>127 bags\nIn total, these will be sold for 127 bags * $72/bag = $<<127*72=9144>>9144\n#### 9144",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02161",
+    "source_solution": "John's pants cost 50*.6=$<<50*.6=30>>30 more than his pants\nSo his shirt cost 50+30=$<<50+30=80>>80\nSo in total he spent 80+50=$<<80+50=130>>130\n#### 130",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05507",
+    "source_solution": "Since 450 liters represents 45%, then each 1% is equal to 450 liters/45 = <<450/45=10>>10 liters.\nHence, the capacity of each tank is 10 liters x 100 = <<10*100=1000>>1000 liters.\nSo, the first tank needs 1000 - 300 = <<1000-300=700>>700 liters of water more.\nWhile the second tank needs 1000 - 450 = <<1000-450=550>>550 liters more.\nTherefore, 700 + 550 = <<700+550=1250>>1250 liters of water are needed to fill the two tanks.\n#### 1250",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00330",
+    "source_solution": "Since 1 dozen is equal to 12, then Samuel has 2 x 12 = <<24=24>>24 doughnuts.\nWhile Cathy has 3 x 12 = <<3*12=36>>36.\nThey both have 24 + 36 = <<24+36=60>>60 doughnuts together.\nThere are 8 friends + 1 (Samuel) + 1 (Cathy) = <<8+1+1=10>>10 that will share the doughnuts.\nThus, each of them will get 60/10 = <<60/10=6>>6 doughnuts.\n#### 6",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05994",
+    "source_solution": "He burns 2300-1800=<<2300-1800=500>>500 calories a day\nHe needs to burn 4000*10=<<4000*10=40000>>40,000 calories to hit his goal\nThat means it will take him 40,000/500=<<40000/500=80>>80 days\n#### 80",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01342",
+    "source_solution": "Sasha completes 15 questions/hour * 2 hours = <<15*2=30>>30 questions.\nThis means there are still 60 questions – 30 questions = <<60-30=30>>30 questions left to complete.\n#### 30",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05093",
+    "source_solution": "First find his current travel time 600 miles / 50 miles per hour = <<600/50=12>>12 hours.\n12 hours - 4 hours = <<12-4=8>>8 hours desired travel time\n600 miles / 8 hours = <<600/8=75>>75 miles per hour.\n75 miles per hour - 50 miles per hour = <<75-50=25>>25 miles per hour faster\n#### 25",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00482",
+    "source_solution": "The cost will for 3 adults will be $12/adult x 3 adults = $<<12*3=36>>36\nThe cost for 3 children will be $10/child x 3 children = $<<10*3=30>>30\nThe total cost will be $36 + $30 = $<<36+30=66>>66\n#### 66",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00077",
+    "source_solution": "The garden produced 237 potatoes - 60 = <<237-60=177>>177 cucumbers.\nThe garden produced 177 cucumbers * 2 peppers/cucumber = <<177*2=354>>354 peppers.\nThe garden produced 237 potatoes + 177 cucumbers + 354 peppers = <<237+177+354=768>>768 vegetables.\n#### 768",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05565",
+    "source_solution": "Find the amount Mrs. Sutton’s class raised by dividing $2300 by 2. $2300/2 = $<<2300/2=1150>>1150\nFind the amount Miss Rollin’s class raised by multiplying $1150 by 8. $1150 x 8 = $<<1150*8=9200>>9200\nMultiply $9200 by 3 to find the total amount raised. $9200 x 3 = $<<9200*3=27600>>27600\nConvert 2% to decimal. 2/100 = <<2/100=0.02>>0.02\nMultiply $27600 by 0.02 to find the administration fees. $27600 x 0.02 = $<<27600*0.02=552>>552\nSubtract the administration fee from the total amount raised. $27600 - $552 = $<<27600-552=27048>>27048\n#### 27048",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05794",
+    "source_solution": "If she buys 1 toy at $12.00 she gets the 2nd toy 1/2 off, the 2nd toy is 12*.5 = $<<12*.5=6.00>>6.00\n1 full-priced toy is $12.00 and 1/2 priced toy is $6.00 so these 2 toys come to 12+6 = $<<12+6=18.00>>18.00\nShe buys 2 more toys that are \"buy one get one 1/2 off\" so all total she spends 2*18 = $<<2*18=36.00>>36.00\n#### 36",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04607",
+    "source_solution": "Nate had read 400 x 20/100 = <<400*20/100=80>>80 pages.\nSo, he still needs to read 400 - 80 = <<400-80=320>>320 pages to finish the book.\n#### 320",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01851",
+    "source_solution": "Drew’s lawn is 22 * 36 = <<22*36=792>>792 square feet.\nHe bought enough grass seed to cover 250 * 4 = <<250*4=1000>>1000 square feet.\nThus, the leftover grass seed can cover 1000 - 792 = <<1000-792=208>>208 square feet.\n#### 208",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02814",
+    "source_solution": "Reversing the steps to obtain the amount she spent at the supermarket, $50 less than $350 is $350-$50 = $<<350-50=300>>300\nIf $300 was thrice the amount she spent at the supermarket, then the amount spent at the supermarket was $300/3 = $<<300/3=100>>100\nIn addition to what she spent fixing her auto, she spent $100+$350 = $<<100+350=450>>450 altogether\n#### 450",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03628",
+    "source_solution": "For every 3 steps forward, he adds 2 more backwards so each 'step' gained costs 5 actual steps\n66 steps distance * 5 steps moved = <<66*5=330>>330 steps total\n#### 330",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01628",
+    "source_solution": "In the first 3 hours the pool gets 50 gallons/hour x 3 hours = <<50*3=150>>150 gallons\nWith the addition of the other hose, the pool was filling with a rate of 50 gallons/hour + 70 gallons/hour = <<50+70=120>>120 gallons/hour\nIn the next 2 hours with both hoses the pool gets 120 gallons/hour x 2 hours = <<120*2=240>>240 gallons\nThe pool's total capacity is 240 gallons + 150 gallons = <<240+150=390>>390 gallons\n#### 390",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07294",
+    "source_solution": "Let c be the number of cats Brenda needs to spay and d be the number of dogs. We know that c + d = 21 and d = 2c.\nSubstituting the second equation into the first, we get c + 2c = 21\nCombining like terms, we get 3c = 21\nDividing both sides by 3, we get c = 7\n#### 7",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01492",
+    "source_solution": "If each of the 20 customers bought 15 marbles, then they bought 20*15 = <<20*15=300>>300 marbles in total from Mr Julien's store.\nThe number of marbles remaining in the store is 400-300 = <<400-300=100>>100 marbles\n#### 100",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04765",
+    "source_solution": "Happy has to take 40/100 * 15 = <<40/100*15=6>>6 more cups of water than she takes currently to reach the recommended water intake levels by her doctor.\nIn total, she is supposed to drink 6+15 = <<6+15=21>>21 cups of water every week.\n#### 21",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04625",
+    "source_solution": "With 2 tractor teams working for 2 days, this is like 2*2=<<2*2=4>>4 days worth of work by a single tractor, which they call tractor days.\nWith 5 tractor teams working for 4 days, this is 7*3=21 tractor days.\nIn total, the effort of all the tractor teams is 4+21=<<4+21=25>>25 tractor days.\nIf they need to plant 1700 acres with their 25 tractor days, then each tractor team needs to plant 1700/25 = <<1700/25=68>>68 acres of cotton per day.\n#### 68",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00196",
+    "source_solution": "Mary spent 5 x $6 = $<<5*6=30>>30 on drinks.\nShe spent 10 x $14 = $<<10*14=140>>140 on pizzas.\nShe spent a total amount of $30 + $140 = $<<30+140=170>>170.\nTherefore, Mary got a change of $200 - $170 = $<<200-170=30>>30 after paying all the items for her pizza party.\n#### 30",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04046",
+    "source_solution": "During 6 days, Laura would spend 2 * 6 = <<2*6=12>>12 hours in the park.\nIf it takes 30 minutes (or 0.5 of an hour) walking to and from the park, then for the six trips, it would take her an additional 0.5 * 6 = <<0.5*6=3>>3 hours to walk to and from the park.\nIn total, she would spend a total of 12 + 3 = <<12+3=15>>15 hours on her six trips.\nSo, the fraction of time spent in the park would be 12 / 15 = <<12/15=0.8>>0.8.\nThus, converting fraction to percentage, Laura spent 0.8 * 100% = 80% of her trip time at the park.\n#### 80",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02834",
+    "source_solution": "First find the number of students in Mr. Feldstein's class who prefer goldfish: 2/3 * 30 students = <<2/3*30=20>>20 students\nThen find the number of students in Mr. Feldstein's class who prefer goldfish: 1/6 * 30 students = <<1/6*30=5>>5 students\nThen find the number of students in Ms. Henderson's class who prefer goldfish: 1/5 * 30 students = <<1/5*30=6>>6 students\nThen add the number of students from each class who prefer goldfish to find the total: 20 students + 5 students + 6 students = <<20+5+6=31>>31 students\n#### 31",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00083",
+    "source_solution": "If Irene worked 50 hours last week, the total number of hours counting as overtime is 50-40 = <<50-40=10>>10 hours.\nSince she's given $20 for every hour of overtime, she earned 10*$20 = $<<10*20=200>>200 in overtime.\nHer total income, including the overtime, is $500+$200= $<<500+200=700>>700\n#### 700",
+    "human_review_status": "pending"
+  }
+]

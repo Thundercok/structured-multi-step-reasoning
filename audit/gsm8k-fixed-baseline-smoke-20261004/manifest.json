@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "pilot": true,
+  "mode": "development_pilot",
+  "backend": "smoke",
+  "seed": 42,
+  "model": null,
+  "model_content_sha256": {},
+  "model_revision_verified": false,
+  "model_revision": null,
+  "model_repository": null,
+  "model_provenance_sha256": null,
+  "human_review_status": "pending",
+  "publication_ready": false,
+  "policy_fitted": false,
+  "evidence": "synthetic_pilot_smoke",
+  "token_scope": "synthetic token units",
+  "strategies": [
+    "DIRECT",
+    "COT",
+    "PAL"
+  ],
+  "strategy_labels": {
+    "COT": "CoT",
+    "SELF_CONSISTENCY": "Self-consistency",
+    "TOT": "Candidate selection (legacy TOT identifier)",
+    "REACT": "ReAct calculator",
+    "PAL": "PAL",
+    "DIRECT": "Direct"
+  },
+  "prompt_profile": "english-math-v1",
+  "token_budgets": [
+    1024
+  ],
+  "budget_scope": "per generation call; ReAct min(cap, 200)",
+  "input_dataset_sha256": null,
+  "source_sha256": {
+    "experiments/research_study.py": "e5278c9787da5d7cc12ad13f1d9807437aeaecdd6df8aab386363b484c9e3ba8",
+    "optimal_stopping.py": "51e88d2661e34da3e6a5c27e5af572b3df0966709a4817e01145fadea967e3cf",
+    "entry_predictor.py": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03",
+    "reasoning_env.py": "51ca9b55327e5755b2a4094136e7fc51b159dd359631693fd900ae7fb5997b8b",
+    "reasoning_strategies.py": "55d315b2268c94b48860efa1aa4de16fc33291566ad80b94cd752d33b2b94147",
+    "pipeline.py": "a06335996eca15fd2d8a5838fd9577325284616c6c59412030e4b43d9b45bec6",
+    "qwen_mlx_backend.py": "99a3940ead1253139624f4c8a99ff0f1c40bb43f5c005bac61bdd24064f70bd2",
+    "scripts/gen_tasks.py": "5ab0aa7883c627b42dee1fe94329960c5313f948df32639ae7ce0d6a704c271a",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "research_identity.py": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "experiments/research_pilot.py": "56fe38f3273e0a11541726b5e3cfb9d504c7f5012cc3954dc41ef6dc14d83e42"
+  },
+  "git_sha": "c3dd694c1bed9153a117893869b8c1ce2244f05c",
+  "git_status": "M STATE.md\n M experiments/research_pilot.py\n M experiments/research_study.py\n M qwen_mlx_backend.py\n M rat/ui/omnibar.py\n M rat/ui/theme.py\n M test_qwen_mlx_backend_mocked.py\n M tests/test_omnibar.py\n M tests/test_research_pilot.py\n?? audit/K_summary.txt\n?? audit/K_sweep_trace.jsonl\n?? audit/M_summary.txt\n?? audit/M_sweep_trace.jsonl\n?? audit/gsm8k-source-20261004/\n?? data/gsm8k_development_reviewed_v1/\n?? data/gsm8k_development_v1/\n?? docs/gsm8k_development_protocol_20261004.md\n?? docs/rat_ui_direction_research_2026-10-03.md\n?? docs/research_work_split_20261004.md\n?? rat/ui/chat_composer.py\n?? rat/ui/reply_reader.py\n?? scratch/avatar_angry.png\n?? scratch/avatar_idle.png\n?? scratch/avatar_searching.png\n?? scratch/avatar_thinking.png\n?? scratch/capture_all_live_views.py\n?? scratch/check_rat_reading_v3.py\n?? scratch/check_rat_reply_layout.py\n?? scratch/check_rat_surface_v2.py\n?? scratch/current_live_omnibar.png\n?? scratch/live_avatar_angry.png\n?? scratch/live_avatar_searching.png\n?? scratch/live_avatar_thinking.png\n?? scratch/live_chuot_angry.png\n?? scratch/live_tab_club.png\n?? scratch/live_tab_files.png\n?? scratch/live_tab_schedule.png\n?? scratch/mascot_angry.png\n?? scratch/mascot_idle.png\n?? scratch/mascot_searching.png\n?? scratch/mascot_thinking.png\n?? scratch/peeking_angry.png\n?? scratch/peeking_idle.png\n?? scratch/peeking_searching.png\n?? scratch/peeking_thinking.png\n?? scratch/rat_reply_validation/\n?? scratch/render_all_mascot_states.py\n?? scratch/render_user_requested.py\n?? scratch/test_clean_whimsical.png\n?? scratch/test_emoji.png\n?? scratch/test_interactive_replies.py\n?? scratch/test_layout.py\n?? scratch/test_live_reply_angry.png\n?? scratch/test_live_reply_math.png\n?? scratch/test_live_reply_room.png\n?? scratch/test_omnibar_live_render.py\n?? scratch/test_tabs.py\n?? scratch/test_user_requested_clean.png\n?? scratch/test_whimsical_peeking.png\n?? scratch/test_whimsical_speaking.png\n?? scratch/vector_avatar_angry.png\n?? scratch/vector_avatar_idle.png\n?? scratch/vector_avatar_searching.png\n?? scratch/vector_avatar_thinking.png\n?? scripts/prepare_gsm8k_development.py\n?? tests/test_gsm8k_development.py\n?? tests/test_rat_composer.py",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+    "numpy": "2.5.2",
+    "scikit-learn": "1.9.0",
+    "gymnasium": "1.3.0",
+    "mlx": "0.32.2",
+    "mlx-lm": "0.31.3"
+  },
+  "stage0_decision_sha256": "ddff59b640051b83af05cd3bd2d5be47f3274203aa10c2c96d731f8ec08b834c",
+  "stage0_reevaluated": false,
+  "status": "complete",
+  "started_utc": "2026-10-04T11:22:35.881593+00:00",
+  "backend_load_ms": 0.0038329962990246713,
+  "artifact_sha256": {
+    "attempts.jsonl": "4f62fa60ed8f735c74efcd6261d4cd1cc044de51d67fc5abd199b558d627b191",
+    "dataset.json": "60e7e6f58669392f1e5edebca45df60e59bb0f57e0e00ee0e740866ed530d463",
+    "records.json": "dc56a3e79ec0501313581a9a24efae9252162ea926bd016e6845729d0563edb6",
+    "report.md": "2d5eb15a5f251708b736dac6706d1d32b60306af9c1440276be494f1bb37ca6f",
+    "selection.json": "f567ab5088e83f9f938a73e5d1c6388517bc6674238ac3467ae1b61d6321f89b",
+    "summary.json": "90682c0bd554047ca1ef1463ac3caa0ec1c8fe10d7fd419abfbd7bad8f8b55a9"
+  },
+  "finished_utc": "2026-10-04T11:22:35.893588+00:00"
+}

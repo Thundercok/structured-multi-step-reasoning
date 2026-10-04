@@ -173,6 +173,37 @@ def test_cot_extracts_answer_and_confidence():
     assert ans == "21" and 0 < conf <= 1 and tok > 0
 
 
+def test_english_math_profile_records_distinct_english_prompts_and_numeric_outputs():
+    from qwen_mlx_backend import MATH_EN_SUFFIXES
+    query = "Three notebooks cost 15 dollars. What do seven cost?"
+    prompts = []
+    for action in (A.DIRECT, A.COT, A.PAL):
+        backend = make_backend()
+        backend.configure_prompt_profile("english-math-v1")
+        backend.configure_answer_format("number")
+        scripted.queue("```python\nresult = 35\n```" if action == A.PAL else "Answer: 35")
+        answer, _, tokens = backend.run(action, query)
+        assert answer == "35" and tokens > 0
+        assert backend.last_trace["prompt_profile"] == "english-math-v1"
+        content = backend.last_trace["generations"][0]["messages"][0]["content"]
+        assert content == query + MATH_EN_SUFFIXES[action]
+        assert content.isascii()
+        prompts.append(content)
+    assert len(set(prompts)) == 3
+
+
+def test_prompt_profile_validation_does_not_load_model(monkeypatch):
+    import pytest
+    import qwen_mlx_backend as module
+    monkeypatch.setattr(module, "load", lambda *args: pytest.fail("Invalid profile must not load weights"))
+    with pytest.raises(ValueError, match="prompt profile"):
+        QwenMLXBackend(prompt_profile="unknown")
+    backend = make_backend()
+    backend.configure_prompt_profile("english-math-v1")
+    with pytest.raises(ValueError, match="DIRECT, COT and PAL"):
+        backend.run(A.REACT, "Return seven")
+
+
 def test_empty_answer_marker_does_not_stop_before_the_final_answer():
     backend = make_backend()
     backend.configure_answer_format("number")

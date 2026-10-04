@@ -1,0 +1,33 @@
+{
+  "repository": "openai/grade-school-math",
+  "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+  "downloaded_paths": [
+    "grade_school_math/data/train.jsonl",
+    "LICENSE",
+    "README.md"
+  ],
+  "official_test_downloaded": false,
+  "files": {
+    "train.jsonl": {
+      "remote_path": "grade_school_math/data/train.jsonl",
+      "git_blob_sha1": "7d97154b91aef28d01c3301741c81ce90039a4b1",
+      "sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465",
+      "bytes": 4166206,
+      "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/train.jsonl"
+    },
+    "LICENSE": {
+      "remote_path": "LICENSE",
+      "git_blob_sha1": "9e84fcbc4d81a1f433c90caf9f1cef373c12edae",
+      "sha256": "86bbb73e855821d7c401912fd4bf82e34313e6e3b6fd6f909f2b6cc9e209a53b",
+      "bytes": 1062,
+      "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE"
+    },
+    "README.md": {
+      "remote_path": "README.md",
+      "git_blob_sha1": "f5d12ef45cc7b78dbc148cbd060994decbc3159d",
+      "sha256": "27e1676d572f2289210170ff6dbb8c2ef7d9f6950c0f08c978ea8ee6b39dca29",
+      "bytes": 6112,
+      "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/README.md"
+    }
+  }
+}

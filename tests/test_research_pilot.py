@@ -149,6 +149,19 @@ def test_pilot_replay_rejects_tampering_and_overrides(tmp_path):
     assert not (tmp_path / "tampered").exists()
 
 
+def test_prompt_profile_is_frozen_in_pilot_and_replay_rejects_override(tmp_path):
+    original, replay = tmp_path / "english", tmp_path / "replay"
+    study.main(["--backend", "smoke", "--pilot", "--strategies", "DIRECT", "COT", "PAL",
+                "--prompt-profile", "english-math-v1", "--max-tokens", "1024", "--output", str(original)])
+    assert read(original, "manifest.json")["prompt_profile"] == "english-math-v1"
+    study.main(["--replay", str(original), "--output", str(replay)])
+    assert read(replay, "manifest.json")["prompt_profile"] == "english-math-v1"
+    with pytest.raises(SystemExit):
+        study.main(["--replay", str(original), "--prompt-profile", "legacy", "--output", str(tmp_path / "override")])
+    with pytest.raises(SystemExit):
+        study.main(["--backend", "smoke", "--prompt-profile", "english-math-v1", "--output", str(tmp_path / "heldout")])
+
+
 def test_local_model_content_is_hashed_and_repository_ids_rejected(tmp_path):
     with pytest.raises(ValueError, match="local model directory"):
         pilot.local_model_metadata("mlx-community/missing-model")

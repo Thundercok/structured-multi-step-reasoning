@@ -228,6 +228,9 @@ def run(args, parser, replay_manifest=None):
         if args.lam is not None:
             parser.error("Pilot collects both development splits without policy utility or fitting; --lam is inapplicable")
         strategies = tuple(A[name] for name in (args.strategies or ["DIRECT", "COT"]))
+        profile = args.prompt_profile or "legacy"
+        if profile == "english-math-v1" and any(strategy not in (A.DIRECT, A.COT, A.PAL) for strategy in strategies):
+            parser.error("English math profile supports DIRECT, COT and PAL only")
         budgets = args.token_budgets or ([args.max_tokens] if args.max_tokens is not None else [96, 1024])
         count = args.groups_per_stratum if args.groups_per_stratum is not None else 1
         if len(strategies) != len(set(strategies)) or any(strategy not in PILOT_STRATEGIES for strategy in strategies):
@@ -243,6 +246,8 @@ def run(args, parser, replay_manifest=None):
         seed = 42 if args.seed is None else args.seed
         original = synthetic_dataset() if args.backend == "smoke" else json.loads(args.dataset.read_text())
         dataset, selection = select_groups(original, seed, count)
+        if args.backend == "mlx" and profile == "english-math-v1" and any(item["answer_type"] != "number" for item in dataset["items"]):
+            parser.error("English math profile requires numeric development questions")
         model, model_hashes = local_model_metadata(args.model) if args.backend == "mlx" else (None, {})
         provenance = verify_model_provenance(args.model_provenance, model, model_hashes) if args.model_provenance else None
         packages = {}
@@ -263,6 +268,7 @@ def run(args, parser, replay_manifest=None):
             "evidence": "synthetic_pilot_smoke" if args.backend == "smoke" else "measured_development_pilot",
             "token_scope": "synthetic token units" if args.backend == "smoke" else "generated tokens summed over all calls; prompt tokens recorded separately",
             "strategies": [strategy.name for strategy in strategies], "strategy_labels": STRATEGY_LABELS,
+            "prompt_profile": profile,
             "token_budgets": budgets, "budget_scope": "per generation call; ReAct min(cap, 200)",
             "input_dataset_sha256": sha256_file(args.dataset) if args.dataset else None,
             "source_sha256": source_hashes(), "git_sha": git_value("rev-parse", "HEAD"),
@@ -291,7 +297,7 @@ def run(args, parser, replay_manifest=None):
             else:
                 import mlx.core as mx
                 from qwen_mlx_backend import QwenMLXBackend
-                backend = QwenMLXBackend(repo=model)
+                backend = QwenMLXBackend(repo=model, prompt_profile=manifest["prompt_profile"])
                 set_seed = mx.random.seed
             manifest["backend_load_ms"] = (time.perf_counter() - started) * 1000
             with (args.output / "attempts.jsonl").open("w", encoding="utf-8") as stream:

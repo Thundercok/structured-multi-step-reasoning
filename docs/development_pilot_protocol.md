@@ -89,6 +89,12 @@ that difference with any development comparison; matching caps does not alone
 isolate instruction effects from prompt-language effects. Human/publication
 review remains pending even when local model content is authenticated.
 
+The opt-in `--prompt-profile english-math-v1` supports numeric DIRECT, CoT and
+PAL development comparisons with English instructions. It is restricted to
+pilot mode, saved in manifests/raw traces and frozen by replay. Legacy defaults
+remain as above. See the separate [GSM8K development protocol](gsm8k_development_protocol_20261004.md)
+for the training-only sample, pre-generation wording exclusion and fixed budget.
+
 Record reviewer, date and evidence for candidate wording/golds/groups and
 ownership/license; selected development groups and prior exposure; applicable
 Stage 0 decision (`docs/stage0_gate_decision.md`); model content, prompt/parser
