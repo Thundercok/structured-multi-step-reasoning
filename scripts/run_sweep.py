@@ -401,8 +401,12 @@ def main():
 
     with open(out_path, "a", encoding="utf-8") as jf:
         for arm_name in selected_arms:
-            print(f"\n=== Executing Arm: {arm_name} ({len(items)} items) ===")
-            for idx, it in enumerate(items, 1):
+            arm_items = [
+                it for it in items
+                if not (arm_name == "DIRECT-v2" and it["family"] not in ("arith", "order"))
+            ]
+            print(f"\n=== Executing Arm: {arm_name} ({len(arm_items)} items) ===")
+            for idx, it in enumerate(arm_items, 1):
                 key = (arm_name, it["id"])
                 if key in done_keys:
                     continue

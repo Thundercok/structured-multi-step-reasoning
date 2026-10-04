@@ -47,10 +47,25 @@ def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42, 
         p_toks = sum(r.get("prompt_tokens", 0) for r in arm_recs) / n_arm
         c_toks = sum(r.get("completion_tokens", 0) for r in arm_recs) / n_arm
         tot_toks = p_toks + c_toks
+        # Length rate:
+        len_cnt = sum(1 for r in arm_recs if r.get("finish_reason") == "length")
+        pct_length = (len_cnt / n_arm) if n_arm > 0 else 0.0
+
+        # Finished-only parse-fail:
+        fin_recs = [r for r in arm_recs if r.get("finish_reason") != "length"]
+        n_fin = len(fin_recs)
+        parse_fail_cnt = sum(
+            1 for r in fin_recs if not str(r.get("parsed", "")).strip() or r.get("parse_status") in ("fail", "pal_fail")
+        )
+        pct_parse_fail_fin = (parse_fail_cnt / n_fin) if n_fin > 0 else 0.0
+
         arm_stats[arm] = {
             "n": n_arm,
             "correct": corr,
             "accuracy": acc,
+            "pct_length": pct_length,
+            "pct_parse_fail_finished": pct_parse_fail_fin,
+            "n_finished": n_fin,
             "mean_prompt_tokens": p_toks,
             "mean_completion_tokens": c_toks,
             "mean_total_tokens": tot_toks,
@@ -143,12 +158,39 @@ def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42, 
         return (arr[lo_idx], arr[hi_idx])
 
     family_results = {}
+    arm_x_family = {}
     if not _is_sub:
         families = sorted(list(set(r.get("family", "") for r in records if r.get("family"))))
         for fam in families:
             fam_recs = [r for r in records if r.get("family") == fam]
             if fam_recs:
                 family_results[fam] = analyze_trace(fam_recs, n_bootstrap=n_bootstrap, seed=seed, _is_sub=True)
+
+        for arm in all_arms:
+            arm_x_family[arm] = {}
+            for fam in families:
+                sub = [r for r in records if r["arm"] == arm and r.get("family") == fam]
+                if not sub:
+                    continue
+                n_sub = len(sub)
+                c_sub = sum(1 for r in sub if r["correct"])
+                p_sub = sum(r.get("prompt_tokens", 0) for r in sub) / n_sub
+                cm_sub = sum(r.get("completion_tokens", 0) for r in sub) / n_sub
+                l_sub = sum(1 for r in sub if r.get("finish_reason") == "length")
+                fin_sub = [r for r in sub if r.get("finish_reason") != "length"]
+                n_fin_sub = len(fin_sub)
+                pf_sub = sum(
+                    1 for r in fin_sub if not str(r.get("parsed", "")).strip() or r.get("parse_status") in ("fail", "pal_fail")
+                )
+                arm_x_family[arm][fam] = {
+                    "n": n_sub,
+                    "accuracy": c_sub / n_sub,
+                    "pct_length": l_sub / n_sub,
+                    "pct_parse_fail_finished": (pf_sub / n_fin_sub) if n_fin_sub > 0 else 0.0,
+                    "mean_prompt_tokens": p_sub,
+                    "mean_completion_tokens": cm_sub,
+                    "mean_total_tokens": p_sub + cm_sub,
+                }
 
     out = {
         "n_items": n_items,
@@ -171,6 +213,8 @@ def analyze_trace(records: list[dict], n_bootstrap: int = 1000, seed: int = 42, 
     }
     if family_results:
         out["families"] = family_results
+    if arm_x_family:
+        out["arm_x_family"] = arm_x_family
     return out
 
 
@@ -207,13 +251,25 @@ def synthetic_oracle_test(n_items: int = 2000, p: float = 0.5, seed: int = 42) -
 
 
 def print_report(res: dict):
+    if res.get("arm_x_family"):
+        print("=== ARM x FAMILY BREAKDOWN ===")
+        print("| arm | family | n | acc | %length | %parse-fail(finished) | mean prompt+compl tok |")
+        print("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |")
+        for arm, fams in res["arm_x_family"].items():
+            for fam, s in fams.items():
+                print(
+                    f"| {arm} | {fam} | {s['n']} | {s['accuracy']:.1%} | {s['pct_length']:.1%} | "
+                    f"{s['pct_parse_fail_finished']:.1%} | {s['mean_total_tokens']:.1f} |"
+                )
+        print()
+
     print("=== PER-ARM COMPARISON TABLE (POOLED) ===")
-    print("| arm | n | acc | prompt tok | compl tok | total tok |")
-    print("| --- | --- | --- | --- | --- | --- |")
+    print("| arm | n | acc | %length | %parse-fail(finished) | mean prompt tok | mean compl tok | total tok |")
+    print("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
     for arm, s in res["arms"].items():
         print(
-            f"| {arm} | {s['n']} | {s['accuracy']:.1%} | {s['mean_prompt_tokens']:.1f} | "
-            f"{s['mean_completion_tokens']:.1f} | {s['mean_total_tokens']:.1f} |"
+            f"| {arm} | {s['n']} | {s['accuracy']:.1%} | {s['pct_length']:.1%} | {s['pct_parse_fail_finished']:.1%} | "
+            f"{s['mean_prompt_tokens']:.1f} | {s['mean_completion_tokens']:.1f} | {s['mean_total_tokens']:.1f} |"
         )
     print()
 
@@ -227,19 +283,27 @@ def print_report(res: dict):
     print(f"Oracle Gap: +{g['gap']:.1%} (95% CI: [{g['ci_95'][0]:.1%}, {g['ci_95'][1]:.1%}])")
 
     if res.get("families"):
-        print("\n=== PER-FAMILY BREAKDOWN ===")
+        print("\n=== PER-FAMILY HEADROOM & 95% CI ===")
         for fam, f_res in res["families"].items():
-            print(f"\n--- Family: {fam.upper()} (n={f_res['n_items']}) ---")
-            print("| arm | n | acc | total tok |")
-            print("| --- | --- | --- | --- |")
-            for arm, s in f_res["arms"].items():
-                print(f"| {arm} | {s['n']} | {s['accuracy']:.1%} | {s['mean_total_tokens']:.1f} |")
             fb = f_res["best_single"]
             fo = f_res["oracle"]
             fg = f_res["gap"]
-            print(f"Best single: {fb['arm']} ({fb['accuracy']:.1%}, [{fb['ci_95'][0]:.1%}, {fb['ci_95'][1]:.1%}])")
-            print(f"Oracle: {fo['accuracy']:.1%} ([{fo['ci_95'][0]:.1%}, {fo['ci_95'][1]:.1%}])")
-            print(f"Oracle Gap: +{fg['gap']:.1%} ([{fg['ci_95'][0]:.1%}, {fg['ci_95'][1]:.1%}])")
+            print(f"- {fam.upper()} (n={f_res['n_items']}):")
+            print(f"  Best single: {fb['arm']} ({fb['accuracy']:.1%}, 95% CI: [{fb['ci_95'][0]:.1%}, {fb['ci_95'][1]:.1%}], tok={fb['mean_total_tokens']:.1f})")
+            print(f"  Oracle: {fo['accuracy']:.1%}, 95% CI: [{fo['ci_95'][0]:.1%}, {fo['ci_95'][1]:.1%}], tok={fo['mean_total_tokens']:.1f}")
+            print(f"  Oracle Gap: +{fg['gap']:.1%}, 95% CI: [{fg['ci_95'][0]:.1%}, {fg['ci_95'][1]:.1%}]")
+
+    print("\n=== VERDICT VS PREREG/DECISION_RULE_ORACLE.MD ===")
+    gap_val = g["gap"]
+    ci_lo = g["ci_95"][0]
+    pass_pooled = (gap_val >= 0.10) and (ci_lo >= 0.05)
+    print(f"Prereg threshold: gap >= 10.0pp and CI lower bound >= 5.0pp")
+    print(f"Observed pooled: gap = {gap_val*100:.1f}pp, CI lower bound = {ci_lo*100:.1f}pp")
+    if pass_pooled:
+        print("Verdict: GO to fit/calibration.")
+    else:
+        print("Verdict: NO-GO (fix arms/knobs; no threshold fitting).")
+
 
 
 

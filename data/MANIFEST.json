@@ -65,7 +65,9 @@
     "n_records": 171,
     "model_id": "mlx-community/Qwen3-8B-4bit",
     "commit": "a35391c",
-    "tag": "harness-v1-run7"
+    "tag": "harness-v1-run7",
+    "note": "header dirty=False wrong; run_sweep_p.py was untracked; reproducible via scripts/legacy/run_sweep_p.py @ 9b65e45"
   }
 }
+
 
