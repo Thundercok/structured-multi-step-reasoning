@@ -72,7 +72,7 @@ class QwenMLXBackend:
 
         ids = mx.array(self.tokenizer.encode(query))[None]
         hidden = self.model.model(ids)  # (1, seq, hidden) - trước lm_head, đúng ý "dùng chính LLM"
-        return np.array(mx.mean(hidden[0], axis=0))
+        return np.asarray(mx.mean(hidden[0], axis=0).astype(mx.float32))
 
     def run(self, strategy: A, query: str) -> tuple[str, float, int]:
         self.last_trace = {"strategy": strategy.name, "generations": [], "tools": []}
@@ -208,6 +208,8 @@ class QwenMLXBackend:
     # ---- shared generation ----
 
     def _chat(self, messages: list[dict], temp: float = 0.0, max_tokens: int | None = None) -> tuple[str, float, int]:
+        import mlx.core as mx
+
         prompt = self.tokenizer.apply_chat_template(
             messages,
             enable_thinking=False,
@@ -224,7 +226,7 @@ class QwenMLXBackend:
             if getattr(r, "finish_reason", None) is not None:
                 finish_reason = r.finish_reason
             if getattr(r, "logprobs", None) is not None:
-                lp_arr = np.asarray(r.logprobs, dtype=np.float32)
+                lp_arr = np.asarray(mx.array(r.logprobs, dtype=mx.float32), dtype=np.float32)
                 if len(lp_arr) > r.token:
                     logps.append(float(lp_arr[r.token]))
                 m, h = compute_token_uncertainty(lp_arr)

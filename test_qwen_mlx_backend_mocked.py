@@ -117,6 +117,31 @@ def test_embed_shape_and_hidden_size():
     assert v.shape == (8,) and b.hidden_size == 8
 
 
+def test_bfloat16_logprobs_produce_finite_confidence(monkeypatch):
+    import pytest
+    import qwen_mlx_backend as module
+    if not hasattr(mx, "bfloat16"):
+        pytest.skip("Requires native MLX bfloat16 arrays")
+    values = mx.array([-0.25, -2.0, -4.0], dtype=mx.bfloat16)
+    response = FakeGenResponse("Answer: 42", 0, values, 1, "stop")
+    monkeypatch.setattr(module, "stream_generate", lambda *args, **kwargs: iter([response]))
+    backend = make_backend()
+    answer, confidence, tokens = backend.run(A.DIRECT, "Return forty-two")
+    assert answer == "42" and tokens == 1 and np.isfinite(confidence)
+    assert np.isclose(backend.last_signals["p_seq"], np.exp(-0.25))
+
+
+def test_bfloat16_hidden_states_export_float32_embedding():
+    import pytest
+    if not hasattr(mx, "bfloat16"):
+        pytest.skip("Requires native MLX bfloat16 arrays")
+    backend = make_backend()
+    backend.model.model = lambda ids: mx.array([[[1.0, 2.0], [3.0, 4.0]]], dtype=mx.bfloat16)
+    embedding = backend.embed("two words")
+    assert embedding.dtype == np.float32
+    np.testing.assert_array_equal(embedding, [2.0, 3.0])
+
+
 def test_react_respects_small_pilot_cap_and_records_actual_generation_settings(monkeypatch):
     import qwen_mlx_backend as module
     captured = []
