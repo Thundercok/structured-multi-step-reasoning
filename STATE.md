@@ -273,3 +273,4 @@
   applicable Stage 0 review before further Qwen/Meta-Reasoner measurements.
 - Collect development/pilot artifacts through the supported research pipeline,
   then evaluate preregistered test runs with the multi-seed aggregate analysis.
+- **RESUME 2026-10-04**: P chạy ở ../reasoning-run7 (xong = 171 dòng). Khi xong: dán bảng P2 → so prereg/decision_rule_P.md → Prompt S (S0 copy P_* + sha vào MANIFEST; S1 dirty tính cả untracked; S2 tương đương T=0 trên 6 item) → smoke 3 item×6 arm → 6 arm trên gen02_tune → analyze_oracle.py → prereg/decision_rule_oracle.md. Không fit ngưỡng trước khi gap đạt rule. Human review gen02: PENDING.
