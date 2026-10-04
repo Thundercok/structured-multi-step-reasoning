@@ -1,10 +1,10 @@
 {
  "meta": {
-  "generator": "gen_tasks.py 0.2",
+  "generator": "gen_tasks.py 0.2.1",
   "seed": 0,
   "n_per_level": 15,
   "n_items": 195,
-  "sha256_items": "2e811a020509b1461f40d9336b1a305d2edf38292d01b1006958d44644d880a8"
+  "sha256_items": "da682450329ed16c4898764c0849b5688acab839f9335038f8fd3d16cb0db453"
  },
  "items": [
   {
@@ -22,7 +22,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 59,
     "steps": [
@@ -52,7 +52,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 72,
     "steps": [
@@ -82,7 +82,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 84,
     "steps": [
@@ -112,7 +112,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 22,
     "steps": [
@@ -142,7 +142,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 22,
     "steps": [
@@ -172,7 +172,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 81,
     "steps": [
@@ -202,7 +202,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 88,
     "steps": [
@@ -232,7 +232,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 43,
     "steps": [
@@ -262,7 +262,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 61,
     "steps": [
@@ -292,7 +292,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 73,
     "steps": [
@@ -322,7 +322,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 18,
     "steps": [
@@ -352,7 +352,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 79,
     "steps": [
@@ -382,7 +382,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 75,
     "steps": [
@@ -412,7 +412,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 47,
     "steps": [
@@ -442,7 +442,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 36,
     "steps": [
@@ -472,7 +472,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 917,
     "steps": [
@@ -510,7 +510,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 133,
     "steps": [
@@ -548,7 +548,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 182,
     "steps": [
@@ -586,7 +586,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 776,
     "steps": [
@@ -624,7 +624,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 116,
     "steps": [
@@ -662,7 +662,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 935,
     "steps": [
@@ -700,7 +700,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 227,
     "steps": [
@@ -738,7 +738,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 720,
     "steps": [
@@ -776,7 +776,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 795,
     "steps": [
@@ -814,7 +814,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 762,
     "steps": [
@@ -852,7 +852,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 710,
     "steps": [
@@ -890,7 +890,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 814,
     "steps": [
@@ -928,7 +928,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 711,
     "steps": [
@@ -966,7 +966,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 465,
     "steps": [
@@ -1004,7 +1004,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 856,
     "steps": [
@@ -1042,7 +1042,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 5716,
     "steps": [
@@ -1088,7 +1088,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 4922,
     "steps": [
@@ -1134,7 +1134,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 5247,
     "steps": [
@@ -1180,7 +1180,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 9987,
     "steps": [
@@ -1226,7 +1226,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 2948,
     "steps": [
@@ -1272,7 +1272,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 5202,
     "steps": [
@@ -1318,7 +1318,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 1688,
     "steps": [
@@ -1364,7 +1364,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 3268,
     "steps": [
@@ -1410,7 +1410,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 5743,
     "steps": [
@@ -1456,7 +1456,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 7605,
     "steps": [
@@ -1502,7 +1502,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 9154,
     "steps": [
@@ -1548,7 +1548,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 4621,
     "steps": [
@@ -1594,7 +1594,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 4606,
     "steps": [
@@ -1640,7 +1640,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 7520,
     "steps": [
@@ -1686,7 +1686,7 @@
     "max_mult": 9
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 8993,
     "steps": [
@@ -1732,7 +1732,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 11272,
     "steps": [
@@ -1786,7 +1786,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 39503,
     "steps": [
@@ -1840,7 +1840,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 37014,
     "steps": [
@@ -1894,7 +1894,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 18601,
     "steps": [
@@ -1948,7 +1948,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 64770,
     "steps": [
@@ -2002,7 +2002,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 12651,
     "steps": [
@@ -2056,7 +2056,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 95258,
     "steps": [
@@ -2110,7 +2110,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 56734,
     "steps": [
@@ -2164,7 +2164,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 29095,
     "steps": [
@@ -2218,7 +2218,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 75093,
     "steps": [
@@ -2272,7 +2272,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 88196,
     "steps": [
@@ -2326,7 +2326,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 55147,
     "steps": [
@@ -2380,7 +2380,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 79891,
     "steps": [
@@ -2434,7 +2434,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 88801,
     "steps": [
@@ -2488,7 +2488,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 68302,
     "steps": [
@@ -2542,7 +2542,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 24700,
     "steps": [
@@ -2604,7 +2604,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 10241,
     "steps": [
@@ -2666,7 +2666,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 15314,
     "steps": [
@@ -2728,7 +2728,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 79492,
     "steps": [
@@ -2790,7 +2790,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 92419,
     "steps": [
@@ -2852,7 +2852,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 68193,
     "steps": [
@@ -2914,7 +2914,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 15397,
     "steps": [
@@ -2976,7 +2976,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 68627,
     "steps": [
@@ -3038,7 +3038,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 92991,
     "steps": [
@@ -3100,7 +3100,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 43390,
     "steps": [
@@ -3162,7 +3162,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 69467,
     "steps": [
@@ -3224,7 +3224,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 36426,
     "steps": [
@@ -3286,7 +3286,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 74694,
     "steps": [
@@ -3348,7 +3348,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 26788,
     "steps": [
@@ -3410,7 +3410,7 @@
     "max_mult": 99
    },
    "checker": "arith",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "start": 90592,
     "steps": [
@@ -3460,7 +3460,7 @@
   {
    "id": "order_0000_en_orig",
    "group_id": "grp_order_0000",
-   "query": "5 runners (Dave, Alice, Erin, Carol, Frank) ran a race with no ties. Clues: Frank finished exactly 2 places before Erin; Erin finished immediately before Alice; Dave finished immediately before Frank. Who finished in 3rd place?",
+   "query": "5 runners (Dave, Alice, Erin, Carol, Frank) ran a race with no ties. Clues: Frank finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Erin finished immediately before Alice; Dave finished immediately before Frank. Who finished in 3rd place?",
    "answer": "Carol",
    "split": "dev",
    "category": "order",
@@ -3471,7 +3471,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -3506,7 +3506,7 @@
   {
    "id": "order_0001_en_orig",
    "group_id": "grp_order_0001",
-   "query": "5 runners (Dave, Frank, Bob, Grace, Heidi) ran a race with no ties. Clues: Grace finished before Bob; Dave finished exactly 3 places before Frank; Grace finished immediately before Heidi. Who finished in 1st place?",
+   "query": "5 runners (Dave, Frank, Bob, Grace, Heidi) ran a race with no ties. Clues: Grace finished before Bob; Dave finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Grace finished immediately before Heidi. Who finished in 1st place?",
    "answer": "Dave",
    "split": "dev",
    "category": "order",
@@ -3517,7 +3517,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -3552,7 +3552,7 @@
   {
    "id": "order_0002_en_orig",
    "group_id": "grp_order_0002",
-   "query": "5 runners (Frank, Grace, Carol, Dave, Alice) ran a race with no ties. Clues: Alice finished immediately before Frank; Dave finished exactly 3 places before Grace; Carol finished after Frank. Who finished in 3rd place?",
+   "query": "5 runners (Frank, Grace, Carol, Dave, Alice) ran a race with no ties. Clues: Alice finished immediately before Frank; Dave finished exactly 3 places ahead of Grace, with exactly 2 runners between them; Carol finished after Frank. Who finished in 3rd place?",
    "answer": "Frank",
    "split": "dev",
    "category": "order",
@@ -3563,7 +3563,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Frank",
@@ -3609,7 +3609,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -3650,7 +3650,7 @@
   {
    "id": "order_0004_en_orig",
    "group_id": "grp_order_0004",
-   "query": "5 runners (Alice, Erin, Bob, Grace, Frank) ran a race with no ties. Clues: Frank finished exactly 2 places before Grace; Erin finished immediately before Bob; Erin finished after Grace. Who finished in 2nd place?",
+   "query": "5 runners (Alice, Erin, Bob, Grace, Frank) ran a race with no ties. Clues: Frank finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Erin finished immediately before Bob; Erin finished after Grace. Who finished in 2nd place?",
    "answer": "Alice",
    "split": "calib",
    "category": "order",
@@ -3661,7 +3661,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -3707,7 +3707,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Frank",
@@ -3748,7 +3748,7 @@
   {
    "id": "order_0006_en_orig",
    "group_id": "grp_order_0006",
-   "query": "5 runners (Alice, Heidi, Carol, Grace, Frank) ran a race with no ties. Clues: Heidi finished before Frank; Alice finished exactly 3 places before Frank; Grace finished immediately before Carol. Who finished in 5th place?",
+   "query": "5 runners (Alice, Heidi, Carol, Grace, Frank) ran a race with no ties. Clues: Heidi finished before Frank; Alice finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Grace finished immediately before Carol. Who finished in 5th place?",
    "answer": "Frank",
    "split": "calib",
    "category": "order",
@@ -3759,7 +3759,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -3805,7 +3805,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Frank",
@@ -3846,7 +3846,7 @@
   {
    "id": "order_0008_en_orig",
    "group_id": "grp_order_0008",
-   "query": "5 runners (Bob, Erin, Frank, Grace, Dave) ran a race with no ties. Clues: Frank finished exactly 3 places before Erin; Frank finished after Bob. Who finished in 1st place?",
+   "query": "5 runners (Bob, Erin, Frank, Grace, Dave) ran a race with no ties. Clues: Frank finished exactly 3 places ahead of Erin, with exactly 2 runners between them; Frank finished after Bob. Who finished in 1st place?",
    "answer": "Bob",
    "split": "calib",
    "category": "order",
@@ -3857,7 +3857,7 @@
     "clues": 2
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Bob",
@@ -3886,7 +3886,7 @@
   {
    "id": "order_0009_en_orig",
    "group_id": "grp_order_0009",
-   "query": "5 runners (Grace, Frank, Erin, Bob, Alice) ran a race with no ties. Clues: Frank finished exactly 2 places before Alice; Grace finished immediately before Erin; Alice finished immediately before Grace. Who finished in 3rd place?",
+   "query": "5 runners (Grace, Frank, Erin, Bob, Alice) ran a race with no ties. Clues: Frank finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Grace finished immediately before Erin; Alice finished immediately before Grace. Who finished in 3rd place?",
    "answer": "Alice",
    "split": "test",
    "category": "order",
@@ -3897,7 +3897,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -3932,7 +3932,7 @@
   {
    "id": "order_0010_en_orig",
    "group_id": "grp_order_0010",
-   "query": "5 runners (Grace, Frank, Dave, Carol, Erin) ran a race with no ties. Clues: Grace finished exactly 2 places before Carol; Carol finished before Dave; Carol finished before Erin. Who finished in 1st place?",
+   "query": "5 runners (Grace, Frank, Dave, Carol, Erin) ran a race with no ties. Clues: Grace finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Carol finished before Dave; Carol finished before Erin. Who finished in 1st place?",
    "answer": "Grace",
    "split": "test",
    "category": "order",
@@ -3943,7 +3943,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -3978,7 +3978,7 @@
   {
    "id": "order_0011_en_orig",
    "group_id": "grp_order_0011",
-   "query": "5 runners (Grace, Dave, Erin, Bob, Alice) ran a race with no ties. Clues: Alice finished before Bob; Bob finished immediately before Grace; Erin finished exactly 3 places before Dave. Who finished in 1st place?",
+   "query": "5 runners (Grace, Dave, Erin, Bob, Alice) ran a race with no ties. Clues: Alice finished before Bob; Bob finished immediately before Grace; Erin finished exactly 3 places ahead of Dave, with exactly 2 runners between them. Who finished in 1st place?",
    "answer": "Alice",
    "split": "test",
    "category": "order",
@@ -3989,7 +3989,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -4024,7 +4024,7 @@
   {
    "id": "order_0012_en_orig",
    "group_id": "grp_order_0012",
-   "query": "5 runners (Carol, Bob, Grace, Dave, Alice) ran a race with no ties. Clues: Dave finished exactly 2 places before Grace; Carol finished immediately before Alice; Dave finished before Carol. Who finished in 2nd place?",
+   "query": "5 runners (Carol, Bob, Grace, Dave, Alice) ran a race with no ties. Clues: Dave finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Carol finished immediately before Alice; Dave finished before Carol. Who finished in 2nd place?",
    "answer": "Bob",
    "split": "test",
    "category": "order",
@@ -4035,7 +4035,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -4070,7 +4070,7 @@
   {
    "id": "order_0013_en_orig",
    "group_id": "grp_order_0013",
-   "query": "5 runners (Frank, Grace, Alice, Bob, Dave) ran a race with no ties. Clues: Bob finished before Dave; Grace finished immediately before Bob; Frank finished exactly 2 places before Dave. Who finished in 3rd place?",
+   "query": "5 runners (Frank, Grace, Alice, Bob, Dave) ran a race with no ties. Clues: Bob finished before Dave; Grace finished immediately before Bob; Frank finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 3rd place?",
    "answer": "Frank",
    "split": "test",
    "category": "order",
@@ -4081,7 +4081,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Frank",
@@ -4116,7 +4116,7 @@
   {
    "id": "order_0014_en_orig",
    "group_id": "grp_order_0014",
-   "query": "5 runners (Carol, Heidi, Alice, Bob, Erin) ran a race with no ties. Clues: Carol finished immediately before Bob; Alice finished after Erin; Bob finished exactly 2 places before Heidi; Alice finished before Heidi. Who finished in 1st place?",
+   "query": "5 runners (Carol, Heidi, Alice, Bob, Erin) ran a race with no ties. Clues: Carol finished immediately before Bob; Alice finished after Erin; Bob finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Alice finished before Heidi. Who finished in 1st place?",
    "answer": "Erin",
    "split": "test",
    "category": "order",
@@ -4127,7 +4127,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -4168,7 +4168,7 @@
   {
    "id": "order_0015_en_orig",
    "group_id": "grp_order_0015",
-   "query": "6 runners (Alice, Dave, Carol, Bob, Grace, Heidi) ran a race with no ties. Clues: Grace finished before Heidi; Carol finished immediately before Bob; Grace finished exactly 3 places before Carol; Heidi finished exactly 3 places before Alice. Who finished in 1st place?",
+   "query": "6 runners (Alice, Dave, Carol, Bob, Grace, Heidi) ran a race with no ties. Clues: Grace finished before Heidi; Carol finished immediately before Bob; Grace finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Heidi finished exactly 3 places ahead of Alice, with exactly 2 runners between them. Who finished in 1st place?",
    "answer": "Grace",
    "split": "dev",
    "category": "order",
@@ -4179,7 +4179,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -4221,7 +4221,7 @@
   {
    "id": "order_0016_en_orig",
    "group_id": "grp_order_0016",
-   "query": "6 runners (Alice, Heidi, Dave, Carol, Bob, Erin) ran a race with no ties. Clues: Erin finished after Heidi; Bob finished after Dave; Carol finished immediately before Erin; Bob finished exactly 2 places before Alice. Who finished in 6th place?",
+   "query": "6 runners (Alice, Heidi, Dave, Carol, Bob, Erin) ran a race with no ties. Clues: Erin finished after Heidi; Bob finished after Dave; Carol finished immediately before Erin; Bob finished exactly 2 places ahead of Alice, with exactly 1 runner between them. Who finished in 6th place?",
    "answer": "Erin",
    "split": "dev",
    "category": "order",
@@ -4232,7 +4232,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -4274,7 +4274,7 @@
   {
    "id": "order_0017_en_orig",
    "group_id": "grp_order_0017",
-   "query": "6 runners (Grace, Frank, Bob, Heidi, Alice, Dave) ran a race with no ties. Clues: Heidi finished exactly 2 places before Dave; Grace finished exactly 2 places before Bob; Alice finished before Frank; Bob finished immediately before Alice. Who finished in 1st place?",
+   "query": "6 runners (Grace, Frank, Bob, Heidi, Alice, Dave) ran a race with no ties. Clues: Heidi finished exactly 2 places ahead of Dave, with exactly 1 runner between them; Grace finished exactly 2 places ahead of Bob, with exactly 1 runner between them; Alice finished before Frank; Bob finished immediately before Alice. Who finished in 1st place?",
    "answer": "Heidi",
    "split": "dev",
    "category": "order",
@@ -4285,7 +4285,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -4327,7 +4327,7 @@
   {
    "id": "order_0018_en_orig",
    "group_id": "grp_order_0018",
-   "query": "6 runners (Dave, Heidi, Bob, Grace, Erin, Carol) ran a race with no ties. Clues: Grace finished after Carol; Carol finished exactly 2 places before Erin; Dave finished after Bob; Bob finished immediately before Grace. Who finished in 5th place?",
+   "query": "6 runners (Dave, Heidi, Bob, Grace, Erin, Carol) ran a race with no ties. Clues: Grace finished after Carol; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Dave finished after Bob; Bob finished immediately before Grace. Who finished in 5th place?",
    "answer": "Grace",
    "split": "calib",
    "category": "order",
@@ -4338,7 +4338,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -4380,7 +4380,7 @@
   {
    "id": "order_0019_en_orig",
    "group_id": "grp_order_0019",
-   "query": "6 runners (Carol, Erin, Heidi, Grace, Alice, Bob) ran a race with no ties. Clues: Carol finished immediately before Heidi; Erin finished exactly 3 places before Carol; Alice finished before Bob; Heidi finished before Grace. Who finished in 2nd place?",
+   "query": "6 runners (Carol, Erin, Heidi, Grace, Alice, Bob) ran a race with no ties. Clues: Carol finished immediately before Heidi; Erin finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Alice finished before Bob; Heidi finished before Grace. Who finished in 2nd place?",
    "answer": "Alice",
    "split": "calib",
    "category": "order",
@@ -4391,7 +4391,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -4433,7 +4433,7 @@
   {
    "id": "order_0020_en_orig",
    "group_id": "grp_order_0020",
-   "query": "6 runners (Bob, Grace, Dave, Erin, Heidi, Alice) ran a race with no ties. Clues: Dave finished exactly 3 places before Bob; Bob finished exactly 2 places before Heidi; Alice finished exactly 2 places before Bob; Dave finished exactly 2 places before Grace. Who finished in 5th place?",
+   "query": "6 runners (Bob, Grace, Dave, Erin, Heidi, Alice) ran a race with no ties. Clues: Dave finished exactly 3 places ahead of Bob, with exactly 2 runners between them; Bob finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Alice finished exactly 2 places ahead of Bob, with exactly 1 runner between them; Dave finished exactly 2 places ahead of Grace, with exactly 1 runner between them. Who finished in 5th place?",
    "answer": "Erin",
    "split": "calib",
    "category": "order",
@@ -4444,7 +4444,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Bob",
@@ -4486,7 +4486,7 @@
   {
    "id": "order_0021_en_orig",
    "group_id": "grp_order_0021",
-   "query": "6 runners (Carol, Alice, Erin, Frank, Grace, Heidi) ran a race with no ties. Clues: Heidi finished after Alice; Grace finished exactly 2 places before Alice; Frank finished before Carol; Carol finished exactly 3 places before Heidi. Who finished in 4th place?",
+   "query": "6 runners (Carol, Alice, Erin, Frank, Grace, Heidi) ran a race with no ties. Clues: Heidi finished after Alice; Grace finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Frank finished before Carol; Carol finished exactly 3 places ahead of Heidi, with exactly 2 runners between them. Who finished in 4th place?",
    "answer": "Alice",
    "split": "calib",
    "category": "order",
@@ -4497,7 +4497,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -4539,7 +4539,7 @@
   {
    "id": "order_0022_en_orig",
    "group_id": "grp_order_0022",
-   "query": "6 runners (Heidi, Frank, Grace, Dave, Carol, Alice) ran a race with no ties. Clues: Dave finished immediately before Alice; Grace finished exactly 2 places before Heidi; Heidi finished exactly 3 places before Frank. Who finished in 5th place?",
+   "query": "6 runners (Heidi, Frank, Grace, Dave, Carol, Alice) ran a race with no ties. Clues: Dave finished immediately before Alice; Grace finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Heidi finished exactly 3 places ahead of Frank, with exactly 2 runners between them. Who finished in 5th place?",
    "answer": "Alice",
    "split": "calib",
    "category": "order",
@@ -4550,7 +4550,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Heidi",
@@ -4586,7 +4586,7 @@
   {
    "id": "order_0023_en_orig",
    "group_id": "grp_order_0023",
-   "query": "6 runners (Heidi, Alice, Grace, Dave, Erin, Carol) ran a race with no ties. Clues: Carol finished before Erin; Carol finished after Alice; Dave finished exactly 2 places before Alice; Heidi finished after Erin. Who finished in 2nd place?",
+   "query": "6 runners (Heidi, Alice, Grace, Dave, Erin, Carol) ran a race with no ties. Clues: Carol finished before Erin; Carol finished after Alice; Dave finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Heidi finished after Erin. Who finished in 2nd place?",
    "answer": "Grace",
    "split": "calib",
    "category": "order",
@@ -4597,7 +4597,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Heidi",
@@ -4639,7 +4639,7 @@
   {
    "id": "order_0024_en_orig",
    "group_id": "grp_order_0024",
-   "query": "6 runners (Erin, Carol, Bob, Alice, Dave, Frank) ran a race with no ties. Clues: Frank finished after Carol; Dave finished exactly 3 places before Erin; Bob finished exactly 2 places before Erin; Alice finished exactly 2 places before Dave. Who finished in 5th place?",
+   "query": "6 runners (Erin, Carol, Bob, Alice, Dave, Frank) ran a race with no ties. Clues: Frank finished after Carol; Dave finished exactly 3 places ahead of Erin, with exactly 2 runners between them; Bob finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Alice finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 5th place?",
    "answer": "Frank",
    "split": "test",
    "category": "order",
@@ -4650,7 +4650,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -4703,7 +4703,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Bob",
@@ -4762,7 +4762,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Frank",
@@ -4810,7 +4810,7 @@
   {
    "id": "order_0027_en_orig",
    "group_id": "grp_order_0027",
-   "query": "6 runners (Carol, Erin, Grace, Alice, Heidi, Frank) ran a race with no ties. Clues: Carol finished exactly 2 places before Erin; Alice finished exactly 3 places before Frank; Heidi finished exactly 2 places before Alice. Who finished in 5th place?",
+   "query": "6 runners (Carol, Erin, Grace, Alice, Heidi, Frank) ran a race with no ties. Clues: Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Alice finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Heidi finished exactly 2 places ahead of Alice, with exactly 1 runner between them. Who finished in 5th place?",
    "answer": "Grace",
    "split": "test",
    "category": "order",
@@ -4821,7 +4821,7 @@
     "clues": 3
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -4857,7 +4857,7 @@
   {
    "id": "order_0028_en_orig",
    "group_id": "grp_order_0028",
-   "query": "6 runners (Bob, Erin, Grace, Carol, Heidi, Dave) ran a race with no ties. Clues: Erin finished before Bob; Grace finished after Heidi; Dave finished exactly 3 places before Bob; Heidi finished exactly 2 places before Bob; Heidi finished immediately before Carol. Who finished in 4th place?",
+   "query": "6 runners (Bob, Erin, Grace, Carol, Heidi, Dave) ran a race with no ties. Clues: Erin finished before Bob; Grace finished after Heidi; Dave finished exactly 3 places ahead of Bob, with exactly 2 runners between them; Heidi finished exactly 2 places ahead of Bob, with exactly 1 runner between them; Heidi finished immediately before Carol. Who finished in 4th place?",
    "answer": "Carol",
    "split": "test",
    "category": "order",
@@ -4868,7 +4868,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Bob",
@@ -4916,7 +4916,7 @@
   {
    "id": "order_0029_en_orig",
    "group_id": "grp_order_0029",
-   "query": "6 runners (Heidi, Dave, Frank, Bob, Grace, Erin) ran a race with no ties. Clues: Frank finished exactly 2 places before Heidi; Heidi finished exactly 3 places before Grace. Who finished in 6th place?",
+   "query": "6 runners (Heidi, Dave, Frank, Bob, Grace, Erin) ran a race with no ties. Clues: Frank finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Heidi finished exactly 3 places ahead of Grace, with exactly 2 runners between them. Who finished in 6th place?",
    "answer": "Grace",
    "split": "test",
    "category": "order",
@@ -4927,7 +4927,7 @@
     "clues": 2
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Heidi",
@@ -4957,7 +4957,7 @@
   {
    "id": "order_0030_en_orig",
    "group_id": "grp_order_0030",
-   "query": "7 runners (Carol, Bob, Dave, Erin, Grace, Heidi, Alice) ran a race with no ties. Clues: Heidi finished before Dave; Bob finished exactly 3 places before Heidi; Heidi finished before Alice; Grace finished immediately before Heidi; Carol finished exactly 2 places before Erin. Who finished in 4th place?",
+   "query": "7 runners (Carol, Bob, Dave, Erin, Grace, Heidi, Alice) ran a race with no ties. Clues: Heidi finished before Dave; Bob finished exactly 3 places ahead of Heidi, with exactly 2 runners between them; Heidi finished before Alice; Grace finished immediately before Heidi; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them. Who finished in 4th place?",
    "answer": "Grace",
    "split": "dev",
    "category": "order",
@@ -4968,7 +4968,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -5017,7 +5017,7 @@
   {
    "id": "order_0031_en_orig",
    "group_id": "grp_order_0031",
-   "query": "7 runners (Alice, Bob, Dave, Erin, Carol, Grace, Heidi) ran a race with no ties. Clues: Grace finished exactly 2 places before Dave; Grace finished before Alice; Heidi finished after Carol; Carol finished immediately before Dave; Erin finished after Bob; Alice finished before Bob. Who finished in 2nd place?",
+   "query": "7 runners (Alice, Bob, Dave, Erin, Carol, Grace, Heidi) ran a race with no ties. Clues: Grace finished exactly 2 places ahead of Dave, with exactly 1 runner between them; Grace finished before Alice; Heidi finished after Carol; Carol finished immediately before Dave; Erin finished after Bob; Alice finished before Bob. Who finished in 2nd place?",
    "answer": "Carol",
    "split": "dev",
    "category": "order",
@@ -5028,7 +5028,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -5083,7 +5083,7 @@
   {
    "id": "order_0032_en_orig",
    "group_id": "grp_order_0032",
-   "query": "7 runners (Erin, Dave, Alice, Carol, Heidi, Bob, Frank) ran a race with no ties. Clues: Erin finished before Dave; Carol finished exactly 2 places before Erin; Heidi finished after Alice; Carol finished before Alice; Dave finished before Frank; Alice finished before Bob. Who finished in 2nd place?",
+   "query": "7 runners (Erin, Dave, Alice, Carol, Heidi, Bob, Frank) ran a race with no ties. Clues: Erin finished before Dave; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Heidi finished after Alice; Carol finished before Alice; Dave finished before Frank; Alice finished before Bob. Who finished in 2nd place?",
    "answer": "Alice",
    "split": "dev",
    "category": "order",
@@ -5094,7 +5094,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -5149,7 +5149,7 @@
   {
    "id": "order_0033_en_orig",
    "group_id": "grp_order_0033",
-   "query": "7 runners (Dave, Bob, Heidi, Carol, Grace, Frank, Alice) ran a race with no ties. Clues: Alice finished exactly 3 places before Heidi; Bob finished exactly 3 places before Carol; Frank finished after Carol; Frank finished immediately before Dave; Bob finished immediately before Grace. Who finished in 1st place?",
+   "query": "7 runners (Dave, Bob, Heidi, Carol, Grace, Frank, Alice) ran a race with no ties. Clues: Alice finished exactly 3 places ahead of Heidi, with exactly 2 runners between them; Bob finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Frank finished after Carol; Frank finished immediately before Dave; Bob finished immediately before Grace. Who finished in 1st place?",
    "answer": "Alice",
    "split": "calib",
    "category": "order",
@@ -5160,7 +5160,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -5209,7 +5209,7 @@
   {
    "id": "order_0034_en_orig",
    "group_id": "grp_order_0034",
-   "query": "7 runners (Carol, Heidi, Erin, Alice, Dave, Bob, Grace) ran a race with no ties. Clues: Carol finished exactly 3 places before Erin; Erin finished exactly 3 places before Alice. Who finished in 4th place?",
+   "query": "7 runners (Carol, Heidi, Erin, Alice, Dave, Bob, Grace) ran a race with no ties. Clues: Carol finished exactly 3 places ahead of Erin, with exactly 2 runners between them; Erin finished exactly 3 places ahead of Alice, with exactly 2 runners between them. Who finished in 4th place?",
    "answer": "Erin",
    "split": "calib",
    "category": "order",
@@ -5220,7 +5220,7 @@
     "clues": 2
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -5251,7 +5251,7 @@
   {
    "id": "order_0035_en_orig",
    "group_id": "grp_order_0035",
-   "query": "7 runners (Dave, Bob, Grace, Carol, Frank, Alice, Heidi) ran a race with no ties. Clues: Bob finished exactly 3 places before Carol; Heidi finished immediately before Dave; Alice finished before Heidi; Dave finished after Grace; Frank finished exactly 2 places before Bob. Who finished in 6th place?",
+   "query": "7 runners (Dave, Bob, Grace, Carol, Frank, Alice, Heidi) ran a race with no ties. Clues: Bob finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Heidi finished immediately before Dave; Alice finished before Heidi; Dave finished after Grace; Frank finished exactly 2 places ahead of Bob, with exactly 1 runner between them. Who finished in 6th place?",
    "answer": "Dave",
    "split": "calib",
    "category": "order",
@@ -5262,7 +5262,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -5311,7 +5311,7 @@
   {
    "id": "order_0036_en_orig",
    "group_id": "grp_order_0036",
-   "query": "7 runners (Grace, Carol, Frank, Dave, Heidi, Erin, Alice) ran a race with no ties. Clues: Heidi finished exactly 2 places before Alice; Frank finished exactly 3 places before Dave; Erin finished exactly 2 places before Grace; Carol finished before Heidi; Heidi finished after Grace. Who finished in 7th place?",
+   "query": "7 runners (Grace, Carol, Frank, Dave, Heidi, Erin, Alice) ran a race with no ties. Clues: Heidi finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Frank finished exactly 3 places ahead of Dave, with exactly 2 runners between them; Erin finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Carol finished before Heidi; Heidi finished after Grace. Who finished in 7th place?",
    "answer": "Alice",
    "split": "calib",
    "category": "order",
@@ -5322,7 +5322,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -5371,7 +5371,7 @@
   {
    "id": "order_0037_en_orig",
    "group_id": "grp_order_0037",
-   "query": "7 runners (Erin, Grace, Frank, Carol, Heidi, Dave, Bob) ran a race with no ties. Clues: Grace finished exactly 2 places before Carol; Bob finished exactly 3 places before Heidi; Heidi finished after Erin; Grace finished immediately before Erin. Who finished in 2nd place?",
+   "query": "7 runners (Erin, Grace, Frank, Carol, Heidi, Dave, Bob) ran a race with no ties. Clues: Grace finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Bob finished exactly 3 places ahead of Heidi, with exactly 2 runners between them; Heidi finished after Erin; Grace finished immediately before Erin. Who finished in 2nd place?",
    "answer": "Erin",
    "split": "calib",
    "category": "order",
@@ -5382,7 +5382,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -5425,7 +5425,7 @@
   {
    "id": "order_0038_en_orig",
    "group_id": "grp_order_0038",
-   "query": "7 runners (Erin, Alice, Frank, Grace, Heidi, Carol, Dave) ran a race with no ties. Clues: Erin finished exactly 3 places before Grace; Grace finished exactly 3 places before Dave. Who finished in 7th place?",
+   "query": "7 runners (Erin, Alice, Frank, Grace, Heidi, Carol, Dave) ran a race with no ties. Clues: Erin finished exactly 3 places ahead of Grace, with exactly 2 runners between them; Grace finished exactly 3 places ahead of Dave, with exactly 2 runners between them. Who finished in 7th place?",
    "answer": "Dave",
    "split": "calib",
    "category": "order",
@@ -5436,7 +5436,7 @@
     "clues": 2
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -5467,7 +5467,7 @@
   {
    "id": "order_0039_en_orig",
    "group_id": "grp_order_0039",
-   "query": "7 runners (Erin, Carol, Frank, Heidi, Bob, Grace, Alice) ran a race with no ties. Clues: Erin finished exactly 2 places before Alice; Erin finished before Carol; Alice finished exactly 2 places before Heidi; Bob finished after Alice; Heidi finished immediately before Frank; Grace finished immediately before Alice. Who finished in 5th place?",
+   "query": "7 runners (Erin, Carol, Frank, Heidi, Bob, Grace, Alice) ran a race with no ties. Clues: Erin finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Erin finished before Carol; Alice finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Bob finished after Alice; Heidi finished immediately before Frank; Grace finished immediately before Alice. Who finished in 5th place?",
    "answer": "Heidi",
    "split": "test",
    "category": "order",
@@ -5478,7 +5478,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -5533,7 +5533,7 @@
   {
    "id": "order_0040_en_orig",
    "group_id": "grp_order_0040",
-   "query": "7 runners (Grace, Heidi, Dave, Alice, Carol, Frank, Erin) ran a race with no ties. Clues: Alice finished exactly 3 places before Grace; Erin finished before Heidi; Dave finished after Grace; Heidi finished exactly 3 places before Frank; Alice finished exactly 2 places before Carol. Who finished in 4th place?",
+   "query": "7 runners (Grace, Heidi, Dave, Alice, Carol, Frank, Erin) ran a race with no ties. Clues: Alice finished exactly 3 places ahead of Grace, with exactly 2 runners between them; Erin finished before Heidi; Dave finished after Grace; Heidi finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Alice finished exactly 2 places ahead of Carol, with exactly 1 runner between them. Who finished in 4th place?",
    "answer": "Carol",
    "split": "test",
    "category": "order",
@@ -5544,7 +5544,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -5593,7 +5593,7 @@
   {
    "id": "order_0041_en_orig",
    "group_id": "grp_order_0041",
-   "query": "7 runners (Carol, Heidi, Erin, Alice, Frank, Bob, Dave) ran a race with no ties. Clues: Carol finished before Alice; Dave finished immediately before Bob; Heidi finished before Erin; Frank finished after Dave; Erin finished exactly 2 places before Bob; Dave finished exactly 2 places before Carol. Who finished in 1st place?",
+   "query": "7 runners (Carol, Heidi, Erin, Alice, Frank, Bob, Dave) ran a race with no ties. Clues: Carol finished before Alice; Dave finished immediately before Bob; Heidi finished before Erin; Frank finished after Dave; Erin finished exactly 2 places ahead of Bob, with exactly 1 runner between them; Dave finished exactly 2 places ahead of Carol, with exactly 1 runner between them. Who finished in 1st place?",
    "answer": "Heidi",
    "split": "test",
    "category": "order",
@@ -5604,7 +5604,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -5659,7 +5659,7 @@
   {
    "id": "order_0042_en_orig",
    "group_id": "grp_order_0042",
-   "query": "7 runners (Dave, Grace, Erin, Alice, Heidi, Bob, Carol) ran a race with no ties. Clues: Erin finished exactly 2 places before Bob; Alice finished immediately before Erin; Grace finished after Alice; Heidi finished before Bob; Alice finished before Carol; Alice finished exactly 2 places before Dave. Who finished in 4th place?",
+   "query": "7 runners (Dave, Grace, Erin, Alice, Heidi, Bob, Carol) ran a race with no ties. Clues: Erin finished exactly 2 places ahead of Bob, with exactly 1 runner between them; Alice finished immediately before Erin; Grace finished after Alice; Heidi finished before Bob; Alice finished before Carol; Alice finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 4th place?",
    "answer": "Dave",
    "split": "test",
    "category": "order",
@@ -5670,7 +5670,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -5725,7 +5725,7 @@
   {
    "id": "order_0043_en_orig",
    "group_id": "grp_order_0043",
-   "query": "7 runners (Heidi, Erin, Grace, Bob, Dave, Frank, Carol) ran a race with no ties. Clues: Heidi finished exactly 2 places before Frank; Heidi finished exactly 3 places before Grace; Heidi finished before Bob; Erin finished exactly 2 places before Heidi; Carol finished after Heidi. Who finished in 3rd place?",
+   "query": "7 runners (Heidi, Erin, Grace, Bob, Dave, Frank, Carol) ran a race with no ties. Clues: Heidi finished exactly 2 places ahead of Frank, with exactly 1 runner between them; Heidi finished exactly 3 places ahead of Grace, with exactly 2 runners between them; Heidi finished before Bob; Erin finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Carol finished after Heidi. Who finished in 3rd place?",
    "answer": "Heidi",
    "split": "test",
    "category": "order",
@@ -5736,7 +5736,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Heidi",
@@ -5785,7 +5785,7 @@
   {
    "id": "order_0044_en_orig",
    "group_id": "grp_order_0044",
-   "query": "7 runners (Grace, Carol, Erin, Bob, Heidi, Frank, Dave) ran a race with no ties. Clues: Carol finished exactly 2 places before Erin; Frank finished before Grace; Frank finished exactly 2 places before Carol; Grace finished exactly 3 places before Heidi. Who finished in 7th place?",
+   "query": "7 runners (Grace, Carol, Erin, Bob, Heidi, Frank, Dave) ran a race with no ties. Clues: Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Frank finished before Grace; Frank finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Grace finished exactly 3 places ahead of Heidi, with exactly 2 runners between them. Who finished in 7th place?",
    "answer": "Heidi",
    "split": "test",
    "category": "order",
@@ -5796,7 +5796,7 @@
     "clues": 4
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -5839,7 +5839,7 @@
   {
    "id": "order_0045_en_orig",
    "group_id": "grp_order_0045",
-   "query": "8 runners (Bob, Erin, Heidi, Alice, Grace, Dave, Frank, Carol) ran a race with no ties. Clues: Erin finished immediately before Heidi; Erin finished before Frank; Carol finished immediately before Alice; Heidi finished before Alice; Dave finished before Grace; Bob finished immediately before Dave; Dave finished exactly 2 places before Heidi. Who finished in 3rd place?",
+   "query": "8 runners (Bob, Erin, Heidi, Alice, Grace, Dave, Frank, Carol) ran a race with no ties. Clues: Erin finished immediately before Heidi; Erin finished before Frank; Carol finished immediately before Alice; Heidi finished before Alice; Dave finished before Grace; Bob finished immediately before Dave; Dave finished exactly 2 places ahead of Heidi, with exactly 1 runner between them. Who finished in 3rd place?",
    "answer": "Erin",
    "split": "dev",
    "category": "order",
@@ -5850,7 +5850,7 @@
     "clues": 7
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Bob",
@@ -5912,7 +5912,7 @@
   {
    "id": "order_0046_en_orig",
    "group_id": "grp_order_0046",
-   "query": "8 runners (Dave, Frank, Grace, Carol, Bob, Alice, Heidi, Erin) ran a race with no ties. Clues: Erin finished exactly 2 places before Carol; Grace finished exactly 3 places before Dave; Dave finished before Erin; Erin finished before Bob; Bob finished before Alice. Who finished in 7th place?",
+   "query": "8 runners (Dave, Frank, Grace, Carol, Bob, Alice, Heidi, Erin) ran a race with no ties. Clues: Erin finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Grace finished exactly 3 places ahead of Dave, with exactly 2 runners between them; Dave finished before Erin; Erin finished before Bob; Bob finished before Alice. Who finished in 7th place?",
    "answer": "Carol",
    "split": "dev",
    "category": "order",
@@ -5923,7 +5923,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -5973,7 +5973,7 @@
   {
    "id": "order_0047_en_orig",
    "group_id": "grp_order_0047",
-   "query": "8 runners (Dave, Alice, Erin, Heidi, Frank, Grace, Carol, Bob) ran a race with no ties. Clues: Frank finished exactly 3 places before Dave; Frank finished immediately before Erin; Dave finished exactly 3 places before Carol; Grace finished before Erin; Bob finished exactly 3 places before Alice. Who finished in 4th place?",
+   "query": "8 runners (Dave, Alice, Erin, Heidi, Frank, Grace, Carol, Bob) ran a race with no ties. Clues: Frank finished exactly 3 places ahead of Dave, with exactly 2 runners between them; Frank finished immediately before Erin; Dave finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Grace finished before Erin; Bob finished exactly 3 places ahead of Alice, with exactly 2 runners between them. Who finished in 4th place?",
    "answer": "Bob",
    "split": "dev",
    "category": "order",
@@ -5984,7 +5984,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Dave",
@@ -6034,7 +6034,7 @@
   {
    "id": "order_0048_en_orig",
    "group_id": "grp_order_0048",
-   "query": "8 runners (Erin, Bob, Heidi, Carol, Grace, Alice, Dave, Frank) ran a race with no ties. Clues: Heidi finished immediately before Bob; Bob finished immediately before Grace; Alice finished after Frank; Bob finished exactly 2 places before Carol; Frank finished exactly 3 places before Bob; Erin finished exactly 2 places before Dave. Who finished in 7th place?",
+   "query": "8 runners (Erin, Bob, Heidi, Carol, Grace, Alice, Dave, Frank) ran a race with no ties. Clues: Heidi finished immediately before Bob; Bob finished immediately before Grace; Alice finished after Frank; Bob finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Frank finished exactly 3 places ahead of Bob, with exactly 2 runners between them; Erin finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 7th place?",
    "answer": "Carol",
    "split": "calib",
    "category": "order",
@@ -6045,7 +6045,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -6101,7 +6101,7 @@
   {
    "id": "order_0049_en_orig",
    "group_id": "grp_order_0049",
-   "query": "8 runners (Heidi, Frank, Grace, Bob, Alice, Dave, Carol, Erin) ran a race with no ties. Clues: Dave finished exactly 3 places before Frank; Erin finished before Alice; Bob finished immediately before Erin; Alice finished after Heidi; Carol finished immediately before Frank; Alice finished immediately before Carol; Grace finished before Erin. Who finished in 5th place?",
+   "query": "8 runners (Heidi, Frank, Grace, Bob, Alice, Dave, Carol, Erin) ran a race with no ties. Clues: Dave finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Erin finished before Alice; Bob finished immediately before Erin; Alice finished after Heidi; Carol finished immediately before Frank; Alice finished immediately before Carol; Grace finished before Erin. Who finished in 5th place?",
    "answer": "Dave",
    "split": "calib",
    "category": "order",
@@ -6112,7 +6112,7 @@
     "clues": 7
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Heidi",
@@ -6174,7 +6174,7 @@
   {
    "id": "order_0050_en_orig",
    "group_id": "grp_order_0050",
-   "query": "8 runners (Erin, Alice, Carol, Bob, Dave, Grace, Heidi, Frank) ran a race with no ties. Clues: Heidi finished immediately before Erin; Grace finished before Erin; Dave finished exactly 2 places before Erin; Frank finished before Carol; Bob finished exactly 2 places before Heidi; Carol finished before Grace; Alice finished after Grace. Who finished in 3rd place?",
+   "query": "8 runners (Erin, Alice, Carol, Bob, Dave, Grace, Heidi, Frank) ran a race with no ties. Clues: Heidi finished immediately before Erin; Grace finished before Erin; Dave finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Frank finished before Carol; Bob finished exactly 2 places ahead of Heidi, with exactly 1 runner between them; Carol finished before Grace; Alice finished after Grace. Who finished in 3rd place?",
    "answer": "Grace",
    "split": "calib",
    "category": "order",
@@ -6185,7 +6185,7 @@
     "clues": 7
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Erin",
@@ -6247,7 +6247,7 @@
   {
    "id": "order_0051_en_orig",
    "group_id": "grp_order_0051",
-   "query": "8 runners (Carol, Alice, Grace, Erin, Dave, Heidi, Bob, Frank) ran a race with no ties. Clues: Heidi finished after Frank; Alice finished exactly 3 places before Grace; Erin finished exactly 2 places before Bob; Grace finished before Frank; Alice finished immediately before Carol; Grace finished immediately before Bob; Bob finished after Dave. Who finished in 3rd place?",
+   "query": "8 runners (Carol, Alice, Grace, Erin, Dave, Heidi, Bob, Frank) ran a race with no ties. Clues: Heidi finished after Frank; Alice finished exactly 3 places ahead of Grace, with exactly 2 runners between them; Erin finished exactly 2 places ahead of Bob, with exactly 1 runner between them; Grace finished before Frank; Alice finished immediately before Carol; Grace finished immediately before Bob; Bob finished after Dave. Who finished in 3rd place?",
    "answer": "Carol",
    "split": "calib",
    "category": "order",
@@ -6258,7 +6258,7 @@
     "clues": 7
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -6320,7 +6320,7 @@
   {
    "id": "order_0052_en_orig",
    "group_id": "grp_order_0052",
-   "query": "8 runners (Heidi, Frank, Erin, Alice, Dave, Grace, Carol, Bob) ran a race with no ties. Clues: Carol finished before Alice; Bob finished exactly 3 places before Erin; Alice finished before Dave; Grace finished after Frank; Bob finished immediately before Grace; Dave finished exactly 2 places before Grace. Who finished in 4th place?",
+   "query": "8 runners (Heidi, Frank, Erin, Alice, Dave, Grace, Carol, Bob) ran a race with no ties. Clues: Carol finished before Alice; Bob finished exactly 3 places ahead of Erin, with exactly 2 runners between them; Alice finished before Dave; Grace finished after Frank; Bob finished immediately before Grace; Dave finished exactly 2 places ahead of Grace, with exactly 1 runner between them. Who finished in 4th place?",
    "answer": "Dave",
    "split": "calib",
    "category": "order",
@@ -6331,7 +6331,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Heidi",
@@ -6387,7 +6387,7 @@
   {
    "id": "order_0053_en_orig",
    "group_id": "grp_order_0053",
-   "query": "8 runners (Alice, Dave, Grace, Frank, Erin, Bob, Heidi, Carol) ran a race with no ties. Clues: Grace finished after Heidi; Carol finished exactly 2 places before Alice; Grace finished before Bob; Dave finished exactly 3 places before Bob; Heidi finished exactly 3 places before Carol; Heidi finished immediately before Erin. Who finished in 5th place?",
+   "query": "8 runners (Alice, Dave, Grace, Frank, Erin, Bob, Heidi, Carol) ran a race with no ties. Clues: Grace finished after Heidi; Carol finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Grace finished before Bob; Dave finished exactly 3 places ahead of Bob, with exactly 2 runners between them; Heidi finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Heidi finished immediately before Erin. Who finished in 5th place?",
    "answer": "Dave",
    "split": "calib",
    "category": "order",
@@ -6398,7 +6398,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -6454,7 +6454,7 @@
   {
    "id": "order_0054_en_orig",
    "group_id": "grp_order_0054",
-   "query": "8 runners (Grace, Dave, Heidi, Carol, Alice, Erin, Frank, Bob) ran a race with no ties. Clues: Grace finished exactly 3 places before Alice; Carol finished exactly 2 places before Alice; Bob finished exactly 3 places before Dave; Erin finished before Frank; Erin finished exactly 3 places before Bob; Bob finished exactly 2 places before Heidi. Who finished in 8th place?",
+   "query": "8 runners (Grace, Dave, Heidi, Carol, Alice, Erin, Frank, Bob) ran a race with no ties. Clues: Grace finished exactly 3 places ahead of Alice, with exactly 2 runners between them; Carol finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Bob finished exactly 3 places ahead of Dave, with exactly 2 runners between them; Erin finished before Frank; Erin finished exactly 3 places ahead of Bob, with exactly 2 runners between them; Bob finished exactly 2 places ahead of Heidi, with exactly 1 runner between them. Who finished in 8th place?",
    "answer": "Frank",
    "split": "test",
    "category": "order",
@@ -6465,7 +6465,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Grace",
@@ -6521,7 +6521,7 @@
   {
    "id": "order_0055_en_orig",
    "group_id": "grp_order_0055",
-   "query": "8 runners (Alice, Carol, Grace, Heidi, Erin, Dave, Frank, Bob) ran a race with no ties. Clues: Alice finished after Frank; Bob finished after Heidi; Carol finished after Dave; Grace finished after Frank; Erin finished exactly 3 places before Frank; Frank finished before Dave. Who finished in 2nd place?",
+   "query": "8 runners (Alice, Carol, Grace, Heidi, Erin, Dave, Frank, Bob) ran a race with no ties. Clues: Alice finished after Frank; Bob finished after Heidi; Carol finished after Dave; Grace finished after Frank; Erin finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Frank finished before Dave. Who finished in 2nd place?",
    "answer": "Heidi",
    "split": "test",
    "category": "order",
@@ -6532,7 +6532,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -6588,7 +6588,7 @@
   {
    "id": "order_0056_en_orig",
    "group_id": "grp_order_0056",
-   "query": "8 runners (Alice, Heidi, Grace, Bob, Carol, Dave, Frank, Erin) ran a race with no ties. Clues: Heidi finished after Bob; Grace finished after Frank; Frank finished before Dave; Erin finished before Carol; Frank finished before Bob; Grace finished exactly 2 places before Alice; Frank finished exactly 2 places before Erin. Who finished in 3rd place?",
+   "query": "8 runners (Alice, Heidi, Grace, Bob, Carol, Dave, Frank, Erin) ran a race with no ties. Clues: Heidi finished after Bob; Grace finished after Frank; Frank finished before Dave; Erin finished before Carol; Frank finished before Bob; Grace finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Frank finished exactly 2 places ahead of Erin, with exactly 1 runner between them. Who finished in 3rd place?",
    "answer": "Erin",
    "split": "test",
    "category": "order",
@@ -6599,7 +6599,7 @@
     "clues": 7
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Alice",
@@ -6661,7 +6661,7 @@
   {
    "id": "order_0057_en_orig",
    "group_id": "grp_order_0057",
-   "query": "8 runners (Carol, Dave, Bob, Erin, Alice, Frank, Heidi, Grace) ran a race with no ties. Clues: Erin finished immediately before Carol; Grace finished exactly 3 places before Alice; Grace finished after Erin; Dave finished exactly 2 places before Alice; Carol finished after Heidi; Bob finished before Grace. Who finished in 7th place?",
+   "query": "8 runners (Carol, Dave, Bob, Erin, Alice, Frank, Heidi, Grace) ran a race with no ties. Clues: Erin finished immediately before Carol; Grace finished exactly 3 places ahead of Alice, with exactly 2 runners between them; Grace finished after Erin; Dave finished exactly 2 places ahead of Alice, with exactly 1 runner between them; Carol finished after Heidi; Bob finished before Grace. Who finished in 7th place?",
    "answer": "Frank",
    "split": "test",
    "category": "order",
@@ -6672,7 +6672,7 @@
     "clues": 6
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -6728,7 +6728,7 @@
   {
    "id": "order_0058_en_orig",
    "group_id": "grp_order_0058",
-   "query": "8 runners (Bob, Heidi, Carol, Grace, Dave, Erin, Frank, Alice) ran a race with no ties. Clues: Carol finished before Erin; Dave finished exactly 3 places before Frank; Carol finished immediately before Alice; Bob finished after Frank; Bob finished immediately before Carol. Who finished in 5th place?",
+   "query": "8 runners (Bob, Heidi, Carol, Grace, Dave, Erin, Frank, Alice) ran a race with no ties. Clues: Carol finished before Erin; Dave finished exactly 3 places ahead of Frank, with exactly 2 runners between them; Carol finished immediately before Alice; Bob finished after Frank; Bob finished immediately before Carol. Who finished in 5th place?",
    "answer": "Bob",
    "split": "test",
    "category": "order",
@@ -6739,7 +6739,7 @@
     "clues": 5
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Bob",
@@ -6789,7 +6789,7 @@
   {
    "id": "order_0059_en_orig",
    "group_id": "grp_order_0059",
-   "query": "8 runners (Carol, Dave, Heidi, Grace, Bob, Erin, Frank, Alice) ran a race with no ties. Clues: Alice finished before Frank; Carol finished before Alice; Heidi finished immediately before Frank; Grace finished before Carol; Bob finished exactly 3 places before Erin; Dave finished exactly 3 places before Alice; Erin finished before Frank. Who finished in 7th place?",
+   "query": "8 runners (Carol, Dave, Heidi, Grace, Bob, Erin, Frank, Alice) ran a race with no ties. Clues: Alice finished before Frank; Carol finished before Alice; Heidi finished immediately before Frank; Grace finished before Carol; Bob finished exactly 3 places ahead of Erin, with exactly 2 runners between them; Dave finished exactly 3 places ahead of Alice, with exactly 2 runners between them; Erin finished before Frank. Who finished in 7th place?",
    "answer": "Heidi",
    "split": "test",
    "category": "order",
@@ -6800,7 +6800,7 @@
     "clues": 7
    },
    "checker": "order",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "names": [
      "Carol",
@@ -6872,7 +6872,7 @@
     "n_solutions": 26
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -6895,7 +6895,7 @@
     "n_solutions": 53
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      3,
@@ -6918,7 +6918,7 @@
     "n_solutions": 26
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      12,
@@ -6941,7 +6941,7 @@
     "n_solutions": 48
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -6964,7 +6964,7 @@
     "n_solutions": 29
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      9,
@@ -6987,7 +6987,7 @@
     "n_solutions": 46
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7010,7 +7010,7 @@
     "n_solutions": 50
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      10,
@@ -7033,7 +7033,7 @@
     "n_solutions": 22
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      5,
@@ -7056,7 +7056,7 @@
     "n_solutions": 24
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      3,
@@ -7079,7 +7079,7 @@
     "n_solutions": 28
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7102,7 +7102,7 @@
     "n_solutions": 59
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      3,
@@ -7125,7 +7125,7 @@
     "n_solutions": 28
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -7148,7 +7148,7 @@
     "n_solutions": 59
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      11,
@@ -7171,7 +7171,7 @@
     "n_solutions": 36
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      8,
@@ -7194,7 +7194,7 @@
     "n_solutions": 23
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7217,7 +7217,7 @@
     "n_solutions": 11
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      5,
@@ -7240,7 +7240,7 @@
     "n_solutions": 11
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7263,7 +7263,7 @@
     "n_solutions": 9
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -7286,7 +7286,7 @@
     "n_solutions": 11
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      12,
@@ -7309,7 +7309,7 @@
     "n_solutions": 14
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      8,
@@ -7332,7 +7332,7 @@
     "n_solutions": 8
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -7355,7 +7355,7 @@
     "n_solutions": 12
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      9,
@@ -7378,7 +7378,7 @@
     "n_solutions": 8
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -7401,7 +7401,7 @@
     "n_solutions": 13
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      12,
@@ -7424,7 +7424,7 @@
     "n_solutions": 14
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      12,
@@ -7447,7 +7447,7 @@
     "n_solutions": 9
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -7470,7 +7470,7 @@
     "n_solutions": 11
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      12,
@@ -7493,7 +7493,7 @@
     "n_solutions": 14
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      12,
@@ -7516,7 +7516,7 @@
     "n_solutions": 11
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      8,
@@ -7539,7 +7539,7 @@
     "n_solutions": 8
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      9,
@@ -7562,7 +7562,7 @@
     "n_solutions": 5
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      10,
@@ -7585,7 +7585,7 @@
     "n_solutions": 5
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      8,
@@ -7608,7 +7608,7 @@
     "n_solutions": 4
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7631,7 +7631,7 @@
     "n_solutions": 5
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      1,
@@ -7654,7 +7654,7 @@
     "n_solutions": 7
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      13,
@@ -7677,7 +7677,7 @@
     "n_solutions": 6
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      7,
@@ -7700,7 +7700,7 @@
     "n_solutions": 4
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      3,
@@ -7723,7 +7723,7 @@
     "n_solutions": 4
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7746,7 +7746,7 @@
     "n_solutions": 7
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      8,
@@ -7769,7 +7769,7 @@
     "n_solutions": 7
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -7792,7 +7792,7 @@
     "n_solutions": 5
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      13,
@@ -7815,7 +7815,7 @@
     "n_solutions": 4
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      11,
@@ -7838,7 +7838,7 @@
     "n_solutions": 7
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      2,
@@ -7861,7 +7861,7 @@
     "n_solutions": 7
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      1,
@@ -7884,7 +7884,7 @@
     "n_solutions": 5
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      13,
@@ -7907,7 +7907,7 @@
     "n_solutions": 1
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      1,
@@ -7930,7 +7930,7 @@
     "n_solutions": 1
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      13,
@@ -7953,7 +7953,7 @@
     "n_solutions": 1
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      5,
@@ -7976,7 +7976,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      6,
@@ -7999,7 +7999,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      11,
@@ -8022,7 +8022,7 @@
     "n_solutions": 3
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      13,
@@ -8045,7 +8045,7 @@
     "n_solutions": 1
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      4,
@@ -8068,7 +8068,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      10,
@@ -8091,7 +8091,7 @@
     "n_solutions": 1
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      11,
@@ -8114,7 +8114,7 @@
     "n_solutions": 3
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      1,
@@ -8137,7 +8137,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      13,
@@ -8160,7 +8160,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      9,
@@ -8183,7 +8183,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      9,
@@ -8206,7 +8206,7 @@
     "n_solutions": 3
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      11,
@@ -8229,7 +8229,7 @@
     "n_solutions": 2
    },
    "checker": "g24",
-   "source": "procedural:gen_tasks.py@0.2/seed=0",
+   "source": "procedural:gen_tasks.py@0.2.1/seed=0",
    "meta": {
     "numbers": [
      10,

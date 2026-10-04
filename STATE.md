@@ -18,6 +18,7 @@
 - **H4 sweep**: complete, **188/188** records (DIRECT 94, COT 94); no missing, unexpected or duplicate item/arm pairs. Final `audit/G_sweep_trace.jsonl` and `audit/G_summary.txt` in this repository match the worktree copies byte for byte. Verification: `audit/G_completion_verification.json`.
 - **Historical H4 model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
 - **Historical H4 status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.
+- **Manual Gold & Ambiguity Gate (2026-10-04)**: agent-checked 3 items (arith_0060 L5=1694312793693, order_0045 L4=Erin, g24_0045 L4=((13*13)-1)/7; verify()=True); human review PENDING; ghi nhận clue "gap" cần làm rõ số người xen giữa.
 
 ---
 

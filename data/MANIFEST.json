@@ -27,23 +27,23 @@
     ]
   },
   "gen02_v2.json": {
-    "size_bytes": 155117,
-    "sha256": "9d27d29faa31f491af11121a9a69765e33797f6c4ca4656512de1ecb6999e1b3",
-    "generator": "gen_tasks.py 0.2",
+    "size_bytes": 159432,
+    "sha256": "98e8f41e55f77e1a321b23a7a746240a4e855c7f6150a4ef59cb66f6676eacf7",
+    "generator": "gen_tasks.py 0.2.1",
     "seed": 0,
     "n_per_level": 15,
     "n_items": 195,
-    "sha256_items": "2e811a020509b1461f40d9336b1a305d2edf38292d01b1006958d44644d880a8"
+    "sha256_items": "da682450329ed16c4898764c0849b5688acab839f9335038f8fd3d16cb0db453"
   },
   "gen02_tune.json": {
-    "size_bytes": 80485,
-    "sha256": "88b5ee96f9bc74f0746ec30f0efa8ba893d9963ec13be9a5b7898af7dfcc91de",
-    "generator": "gen_tasks.py 0.2",
+    "size_bytes": 82570,
+    "sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+    "generator": "gen_tasks.py 0.2.1",
     "seed": 1000,
     "n_per_level": 8,
     "n_items": 100,
-    "sha256_items": "7abe39a50507a2a36635caeaea477fb8c81f59353bcb5bfea231eb04e31df459",
-    "sha256_items_previous": "3c65d49c233b3059df6f82949b743c24f199657966cc52d59539535e70018ee7",
+    "sha256_items": "6e9383b013552a2cf87dee15740a6ea3b87acb9a8b28cf27f9f80feae5dbfe91",
+    "sha256_items_previous": "338b33c78114e0dca8dd2cd597c492bf87acff1729fc01dc490a0ab607e40c59",
     "dropped_ids": [
       "order_0018_en_orig",
       "g24_0017_en_orig",

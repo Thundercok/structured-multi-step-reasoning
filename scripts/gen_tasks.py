@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-VERSION = "0.2"
+VERSION = "0.2.1"
 NAMES = ["Alice", "Bob", "Carol", "Dave", "Erin", "Frank", "Grace", "Heidi"]
 ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
 ARITH_LEVELS = [(2, 2, 9), (4, 3, 9), (6, 4, 9), (8, 5, 99), (10, 5, 99)]  # (steps, digits, max multiplier)
@@ -83,7 +83,10 @@ def render_order(m):
             if (x + y) % 2: txt.append(f"{names[x]} finished before {names[y]}")
             else: txt.append(f"{names[y]} finished after {names[x]}")
         elif t in ("g", "gap"):
-            txt.append(f"{names[x]} finished exactly {c[3]} places before {names[y]}")
+            k = c[3]
+            between = k - 1
+            noun = "runner" if between == 1 else "runners"
+            txt.append(f"{names[x]} finished exactly {k} places ahead of {names[y]}, with exactly {between} {noun} between them")
         else:
             raise ValueError(f"Unknown clue type: {t}")
     names_str = ", ".join(names)
