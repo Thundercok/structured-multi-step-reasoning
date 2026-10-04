@@ -1,0 +1,12 @@
+{
+  "kind": "development_pilot_reference_assessment",
+  "input_manifest_sha256": "f91b24d08eb7a988b3a3f8bcac727eec9a129f1f80e52198610f3316fcd7597c",
+  "audited_analysis_manifest_sha256": "f63b8f0acb6e5ceaf55cc7aceb7f57bd2afec43fe663dce75af1e50a759808b1",
+  "score_validator_sha256": "1df0c183f42a504df5f1b8090ce11c6c41a6b264186655a21cfc6706925aa86b",
+  "source_sha256": "a3126d0b0dcffc890c0cc26b2eb5bfe251677d37a53f8642e54c78ef27d3a9a4",
+  "evidence": "measured_development_pilot",
+  "assessment_sha256": "7444521b9997eac667f8c8a08921fc5abc7055885e65617a223f13b50937084f",
+  "new_model_calls": 0,
+  "publication_ready": false,
+  "policy_fitted": false
+}
