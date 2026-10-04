@@ -17,7 +17,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from PyQt6.QtCore import QEvent, Qt, pyqtSignal
+from PyQt6.QtCore import QEvent, Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QCursor, QPainter, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
@@ -78,6 +78,19 @@ def reveal_in_finder(file_path: str) -> None:
     else:
         parent_dir = str(Path(file_path).parent)
         subprocess.run(["xdg-open", parent_dir])
+
+
+def copy_reply_to_clipboard(button: QPushButton, text: str) -> None:
+    """The reset timer belongs to the card button and dies when that card is cleared."""
+    QApplication.clipboard().setText(text)
+    button.setText("Đã sao chép")
+    timer = getattr(button, "_copy_restore_timer", None)
+    if timer is None:
+        timer = QTimer(button)
+        timer.setSingleShot(True)
+        timer.timeout.connect(lambda: button.setText("Sao chép"))
+        button._copy_restore_timer = timer
+    timer.start(1500)
 
 
 class ThinkingAccordion(QFrame):
@@ -189,6 +202,9 @@ class ChatStreamWidget(QScrollArea):
         self._message_count = 0
         self._mascot_pixmap = QPixmap(str(MASCOT_PATH)) if MASCOT_PATH.exists() else QPixmap()
         self._show_watermark = False
+        self._scroll_timer = QTimer(self)
+        self._scroll_timer.setSingleShot(True)
+        self._scroll_timer.timeout.connect(self._scroll_to_bottom_now)
         self._init_ui()
 
     def viewportEvent(self, event: object) -> bool:
@@ -517,10 +533,7 @@ class ChatStreamWidget(QScrollArea):
         btn_copy.setCursor(Qt.CursorShape.PointingHandCursor)
 
         def _do_copy():
-            QApplication.clipboard().setText(answer)
-            btn_copy.setText("✓ Đã sao chép")
-            from PyQt6.QtCore import QTimer
-            QTimer.singleShot(1500, lambda: btn_copy.setText("Sao chép"))
+            copy_reply_to_clipboard(btn_copy, answer)
 
         btn_copy.clicked.connect(_do_copy)
         btn_row.addWidget(btn_copy)
@@ -531,12 +544,12 @@ class ChatStreamWidget(QScrollArea):
         self._scroll_to_bottom()
 
     def _scroll_to_bottom(self) -> None:
-        from PyQt6.QtCore import QTimer
-        def _do_scroll():
-            sb = self.verticalScrollBar()
-            if sb:
-                sb.setValue(sb.maximum())
-        QTimer.singleShot(10, _do_scroll)
+        self._scroll_timer.start(10)
+
+    def _scroll_to_bottom_now(self) -> None:
+        sb = self.verticalScrollBar()
+        if sb:
+            sb.setValue(sb.maximum())
 
     def create_streaming_message(
         self,
@@ -662,33 +675,26 @@ class ChatStreamWidget(QScrollArea):
         btn_copy = QPushButton("Sao chép")
         btn_copy.setStyleSheet("""
             QPushButton {
-                background-color: #FFB800;
-                border: 1px solid #E2A200;
-                color: #1A1816;
+                background-color: #F7F3EC;
+                border: 1px solid #E5DED3;
+                color: #63594B;
                 font-size: 11px;
-                font-weight: 700;
+                font-weight: 500;
                 padding: 4px 12px;
                 border-radius: 7px;
             }
             QPushButton:hover {
-                background-color: #FFA500;
+                background-color: #EDE5D6;
             }
             QPushButton:pressed {
-                background-color: #E29300;
+                background-color: #E7DDCD;
                 padding-top: 5px;
             }
         """)
         btn_copy.setCursor(Qt.CursorShape.PointingHandCursor)
 
         def _do_copy():
-            QApplication.clipboard().setText(full_text)
-            btn_copy.setText("✓ Đã sao chép")
-            from PyQt6.QtCore import QTimer
-            timer = QTimer(btn_copy)
-            timer.setSingleShot(True)
-            timer.timeout.connect(lambda: btn_copy.setText("Sao chép"))
-            timer.timeout.connect(timer.deleteLater)
-            timer.start(1500)
+            copy_reply_to_clipboard(btn_copy, full_text)
 
         btn_copy.clicked.connect(_do_copy)
         btn_row.addWidget(btn_copy)

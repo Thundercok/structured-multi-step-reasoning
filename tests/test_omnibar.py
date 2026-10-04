@@ -691,6 +691,38 @@ class TestOmnibarWindow(unittest.TestCase):
         bubble = self.window.speech_bubble
         self.assertLessEqual(bubble.y() + bubble.height(), self.window.container.y())
 
+    def test_toast_timer_belongs_to_window_and_cannot_restore_over_a_newer_status(self):
+        self.window.show_toast("Đã sao chép", 100)
+        self.assertIs(self.window._toast_timer.parent(), self.window)
+        self.window.footer_status.setText("Đã có kết quả mới")
+        self.window._restore_toast()
+        self.assertEqual(self.window.footer_status.text(), "Đã có kết quả mới")
+        self.window.shutdown()
+        self.assertFalse(self.window._toast_timer.isActive())
+
+    def test_copy_confirmation_timer_is_destroyed_with_a_cleared_card(self):
+        from PyQt6 import sip
+        from PyQt6.QtTest import QTest
+        from PyQt6.QtWidgets import QPushButton
+        self.window._deliver_assistant_reply("Đáp án cần giữ nguyên.")
+        button = next(button for button in self.window.chat_stream.findChildren(QPushButton) if button.text() == "Sao chép")
+        button.click()
+        timer = button._copy_restore_timer
+        self.assertIs(timer.parent(), button)
+        self.assertEqual(QApplication.clipboard().text(), "Đáp án cần giữ nguyên.")
+        self.window._reset_chat()
+        QTest.qWait(20)
+        self.assertTrue(sip.isdeleted(timer))
+
+    def test_compact_preview_collapses_blank_paragraphs_but_preserves_full_copy(self):
+        answer = "Đầu tiên, xác định mục tiêu.\n\nSau đó, chọn một hướng."
+        self.window._deliver_assistant_reply(answer)
+        bubble = self.window.speech_bubble
+        self.assertNotIn("\n", bubble.dialogue.text())
+        self.assertEqual(bubble.text(), answer)
+        bubble._on_copy_clicked()
+        self.assertEqual(QApplication.clipboard().text(), answer)
+
 
 class TestStreamReasoningWorker(unittest.TestCase):
     def test_interrupted_stream_is_not_claimed_as_a_complete_answer(self):

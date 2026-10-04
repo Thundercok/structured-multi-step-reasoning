@@ -2917,6 +2917,8 @@ class OmnibarWindow(QMainWindow):
             self.footer_status.setText("Đang trả lời câu trước. Câu đang gõ vẫn được giữ.")
             return
 
+        if hasattr(self, "_mascot_click_timer"):
+            self._mascot_click_timer.stop()
         self._pending_chat_query = q
         self._set_compact_files(None)
 
