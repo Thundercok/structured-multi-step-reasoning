@@ -1,0 +1,1524 @@
+{
+  "descriptive_only": true,
+  "policy_fitted": false,
+  "aggregates": [
+    {
+      "family": "all",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 48,
+      "groups": 24,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0031700624276709277,
+      "parse_failures": 48,
+      "length_stops": 48
+    },
+    {
+      "family": "all",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 48,
+      "groups": 24,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.003141541621213643,
+      "parse_failures": 48,
+      "length_stops": 48
+    },
+    {
+      "family": "all",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 48,
+      "groups": 24,
+      "correct": 29,
+      "accuracy": 0.6041666666666666,
+      "mean_generated_tokens": 120.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.003692728986000778,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "all",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 48,
+      "groups": 24,
+      "correct": 28,
+      "accuracy": 0.5833333333333334,
+      "mean_generated_tokens": 300.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0032099582085720613,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "pal",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 16,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.003299187596894626,
+      "parse_failures": 16,
+      "length_stops": 16
+    },
+    {
+      "family": "pal",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 16,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0034348124700045446,
+      "parse_failures": 16,
+      "length_stops": 16
+    },
+    {
+      "family": "pal",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 16,
+      "groups": 8,
+      "correct": 10,
+      "accuracy": 0.625,
+      "mean_generated_tokens": 120.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.004997374958293221,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "pal",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 16,
+      "groups": 8,
+      "correct": 12,
+      "accuracy": 0.75,
+      "mean_generated_tokens": 300.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.003335812493787671,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "plain",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 16,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0031927497730066534,
+      "parse_failures": 16,
+      "length_stops": 16
+    },
+    {
+      "family": "plain",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 16,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.003000124934260384,
+      "parse_failures": 16,
+      "length_stops": 16
+    },
+    {
+      "family": "plain",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 16,
+      "groups": 8,
+      "correct": 10,
+      "accuracy": 0.625,
+      "mean_generated_tokens": 120.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0031015623562780092,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "plain",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 16,
+      "groups": 8,
+      "correct": 8,
+      "accuracy": 0.5,
+      "mean_generated_tokens": 300.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0030935624408812146,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "react",
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "items": 16,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0030182499131115037,
+      "parse_failures": 16,
+      "length_stops": 16
+    },
+    {
+      "family": "react",
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "items": 16,
+      "groups": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "mean_generated_tokens": 96.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0029896874593760003,
+      "parse_failures": 16,
+      "length_stops": 16
+    },
+    {
+      "family": "react",
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "items": 16,
+      "groups": 8,
+      "correct": 9,
+      "accuracy": 0.5625,
+      "mean_generated_tokens": 120.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0029792496434311033,
+      "parse_failures": 0,
+      "length_stops": 0
+    },
+    {
+      "family": "react",
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "items": 16,
+      "groups": 8,
+      "correct": 8,
+      "accuracy": 0.5,
+      "mean_generated_tokens": 300.0,
+      "mean_prompt_tokens": 1.0,
+      "mean_strategy_ms": 0.0032004996910472983,
+      "parse_failures": 0,
+      "length_stops": 0
+    }
+  ],
+  "paired_strategy_differences": [
+    {
+      "family": "all",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 48,
+      "groups": 24,
+      "both_correct": 0,
+      "became_correct": 0,
+      "became_incorrect": 0,
+      "both_incorrect": 48,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": 0.0
+    },
+    {
+      "family": "all",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 48,
+      "groups": 24,
+      "both_correct": 18,
+      "became_correct": 10,
+      "became_incorrect": 11,
+      "both_incorrect": 9,
+      "mean_accuracy_difference": -0.020833333333333332,
+      "mean_generated_token_difference": 180.0
+    },
+    {
+      "family": "pal",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 0,
+      "became_incorrect": 0,
+      "both_incorrect": 16,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": 0.0
+    },
+    {
+      "family": "pal",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 9,
+      "became_correct": 3,
+      "became_incorrect": 1,
+      "both_incorrect": 3,
+      "mean_accuracy_difference": 0.125,
+      "mean_generated_token_difference": 180.0
+    },
+    {
+      "family": "plain",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 0,
+      "became_incorrect": 0,
+      "both_incorrect": 16,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": 0.0
+    },
+    {
+      "family": "plain",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 5,
+      "became_correct": 3,
+      "became_incorrect": 5,
+      "both_incorrect": 3,
+      "mean_accuracy_difference": -0.125,
+      "mean_generated_token_difference": 180.0
+    },
+    {
+      "family": "react",
+      "cap_per_call": 96,
+      "comparison": "COT minus DIRECT",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 0,
+      "became_incorrect": 0,
+      "both_incorrect": 16,
+      "mean_accuracy_difference": 0.0,
+      "mean_generated_token_difference": 0.0
+    },
+    {
+      "family": "react",
+      "cap_per_call": 1024,
+      "comparison": "COT minus DIRECT",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 4,
+      "became_correct": 4,
+      "became_incorrect": 5,
+      "both_incorrect": 3,
+      "mean_accuracy_difference": -0.0625,
+      "mean_generated_token_difference": 180.0
+    }
+  ],
+  "paired_cap_differences": [
+    {
+      "family": "all",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 48,
+      "groups": 24,
+      "both_correct": 0,
+      "became_correct": 29,
+      "became_incorrect": 0,
+      "both_incorrect": 19,
+      "mean_accuracy_difference": 0.6041666666666666,
+      "mean_generated_token_difference": 24.0
+    },
+    {
+      "family": "all",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 48,
+      "groups": 24,
+      "both_correct": 0,
+      "became_correct": 28,
+      "became_incorrect": 0,
+      "both_incorrect": 20,
+      "mean_accuracy_difference": 0.5833333333333334,
+      "mean_generated_token_difference": 204.0
+    },
+    {
+      "family": "pal",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 10,
+      "became_incorrect": 0,
+      "both_incorrect": 6,
+      "mean_accuracy_difference": 0.625,
+      "mean_generated_token_difference": 24.0
+    },
+    {
+      "family": "pal",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 12,
+      "became_incorrect": 0,
+      "both_incorrect": 4,
+      "mean_accuracy_difference": 0.75,
+      "mean_generated_token_difference": 204.0
+    },
+    {
+      "family": "plain",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 10,
+      "became_incorrect": 0,
+      "both_incorrect": 6,
+      "mean_accuracy_difference": 0.625,
+      "mean_generated_token_difference": 24.0
+    },
+    {
+      "family": "plain",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 8,
+      "became_incorrect": 0,
+      "both_incorrect": 8,
+      "mean_accuracy_difference": 0.5,
+      "mean_generated_token_difference": 204.0
+    },
+    {
+      "family": "react",
+      "strategy": "DIRECT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 9,
+      "became_incorrect": 0,
+      "both_incorrect": 7,
+      "mean_accuracy_difference": 0.5625,
+      "mean_generated_token_difference": 24.0
+    },
+    {
+      "family": "react",
+      "strategy": "COT",
+      "comparison": "cap 1024 minus cap 96",
+      "items": 16,
+      "groups": 8,
+      "both_correct": 0,
+      "became_correct": 8,
+      "became_incorrect": 0,
+      "both_incorrect": 8,
+      "mean_accuracy_difference": 0.5,
+      "mean_generated_token_difference": 204.0
+    }
+  ],
+  "failures": [
+    {
+      "id": "pal_calibration_0",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3418096764136081,
+      "tokens": 120
+    },
+    {
+      "id": "pal_calibration_0",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7523130325420478,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_0",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7523130325420478,
+      "tokens": 300
+    },
+    {
+      "id": "pal_calibration_0",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3418096764136081,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_1",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.4258739830625345,
+      "tokens": 300
+    },
+    {
+      "id": "pal_calibration_1",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8119281662799271,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_1",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.4258739830625345,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_2",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.26736420677348066,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_2",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7202389036369549,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_3",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.29544537924458275,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_3",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.6698904754922872,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_4",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.29122629284628404,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_4",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.40229775859028455,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_5",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.816709650397569,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_5",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8432463462554414,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_6",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.4635662051610814,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_6",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8012548761313001,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_7",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.48865644416522386,
+      "tokens": 300
+    },
+    {
+      "id": "pal_calibration_7",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.46790512200498874,
+      "tokens": 120
+    },
+    {
+      "id": "pal_calibration_7",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.48865644416522386,
+      "tokens": 96
+    },
+    {
+      "id": "pal_calibration_7",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.46790512200498874,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_0",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5969257119858401,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_0",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.6862038729192772,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_1",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5511773184811466,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_1",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7639728287160434,
+      "tokens": 120
+    },
+    {
+      "id": "pal_train_1",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7639728287160434,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_2",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.12282849225229492,
+      "tokens": 120
+    },
+    {
+      "id": "pal_train_2",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.12282849225229492,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_2",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.11128768747707883,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_3",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7871517302618314,
+      "tokens": 120
+    },
+    {
+      "id": "pal_train_3",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7871517302618314,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_3",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5302169916223697,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_4",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.829564080885488,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_4",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.47473299251985995,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_5",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.47448672556042965,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_5",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8187997642080442,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_6",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.4951917287744985,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_6",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.815803426288285,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_7",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.4148044378058903,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_7",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7522176951299662,
+      "tokens": 96
+    },
+    {
+      "id": "pal_train_7",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.4148044378058903,
+      "tokens": 300
+    },
+    {
+      "id": "pal_train_7",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7522176951299662,
+      "tokens": 120
+    },
+    {
+      "id": "plain_calibration_0",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.2118440367072875,
+      "tokens": 120
+    },
+    {
+      "id": "plain_calibration_0",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.2118440367072875,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_0",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5188394662907923,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_1",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.35751507734707455,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_1",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3225845294062826,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_1",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3225845294062826,
+      "tokens": 120
+    },
+    {
+      "id": "plain_calibration_2",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.2992288084614092,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_2",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7207693901904094,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_3",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.33681529708323943,
+      "tokens": 120
+    },
+    {
+      "id": "plain_calibration_3",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.518340290633304,
+      "tokens": 300
+    },
+    {
+      "id": "plain_calibration_3",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.33681529708323943,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_3",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.518340290633304,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_4",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3807552947560755,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_4",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.6402249744150388,
+      "tokens": 300
+    },
+    {
+      "id": "plain_calibration_4",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.6402249744150388,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_5",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7218255112558701,
+      "tokens": 300
+    },
+    {
+      "id": "plain_calibration_5",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7218255112558701,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_5",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8894290132495055,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_6",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3110503967030632,
+      "tokens": 120
+    },
+    {
+      "id": "plain_calibration_6",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3110503967030632,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_6",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.1005549035524191,
+      "tokens": 300
+    },
+    {
+      "id": "plain_calibration_6",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.1005549035524191,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_7",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.47999694978450064,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_7",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.19627039682354877,
+      "tokens": 96
+    },
+    {
+      "id": "plain_calibration_7",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.47999694978450064,
+      "tokens": 300
+    },
+    {
+      "id": "plain_train_0",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.11875767768596682,
+      "tokens": 120
+    },
+    {
+      "id": "plain_train_0",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.11875767768596682,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_0",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.39296472900290347,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_1",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.6982084099479358,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_1",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.18351423455103602,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_2",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5792305743490194,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_2",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5966658061041613,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_3",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.1587690759319906,
+      "tokens": 300
+    },
+    {
+      "id": "plain_train_3",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.1587690759319906,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_3",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.22464217516905338,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_4",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.1634457214457733,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_4",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8665674746719004,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_5",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7389101800660186,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_5",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7919638133611095,
+      "tokens": 300
+    },
+    {
+      "id": "plain_train_5",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7389101800660186,
+      "tokens": 120
+    },
+    {
+      "id": "plain_train_5",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7919638133611095,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_6",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.5480941689315325,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_6",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8537085504767121,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_7",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3328224889018578,
+      "tokens": 96
+    },
+    {
+      "id": "plain_train_7",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.14809151078010796,
+      "tokens": 300
+    },
+    {
+      "id": "plain_train_7",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.14809151078010796,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_0",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.2691746435580901,
+      "tokens": 120
+    },
+    {
+      "id": "react_calibration_0",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.2691746435580901,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_0",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8882280179021187,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_1",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.6529027070361484,
+      "tokens": 120
+    },
+    {
+      "id": "react_calibration_1",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3051697124578014,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_1",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.6529027070361484,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_2",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.4179511311846651,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_2",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.49486988480451527,
+      "tokens": 120
+    },
+    {
+      "id": "react_calibration_2",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.49486988480451527,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_2",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.4179511311846651,
+      "tokens": 300
+    },
+    {
+      "id": "react_calibration_3",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7871943050467572,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_3",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.36959465268068104,
+      "tokens": 300
+    },
+    {
+      "id": "react_calibration_3",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.36959465268068104,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_4",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3255820143513377,
+      "tokens": 300
+    },
+    {
+      "id": "react_calibration_4",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3260681402420148,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_4",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3255820143513377,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_4",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3260681402420148,
+      "tokens": 120
+    },
+    {
+      "id": "react_calibration_5",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.20660780628357067,
+      "tokens": 120
+    },
+    {
+      "id": "react_calibration_5",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.20660780628357067,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_5",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3387802706342658,
+      "tokens": 300
+    },
+    {
+      "id": "react_calibration_5",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3387802706342658,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_6",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.12824612824438067,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_6",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.12824612824438067,
+      "tokens": 300
+    },
+    {
+      "id": "react_calibration_6",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7691604591994694,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_7",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.6514832649348996,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_7",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3480088795312775,
+      "tokens": 96
+    },
+    {
+      "id": "react_calibration_7",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.3480088795312775,
+      "tokens": 120
+    },
+    {
+      "id": "react_train_0",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.23449016118700092,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_0",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.578203040320213,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_1",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.19467209971001004,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_1",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8526355946458434,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_2",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.707422062958754,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_2",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.707422062958754,
+      "tokens": 300
+    },
+    {
+      "id": "react_train_2",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.13595513011790647,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_3",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.2716288897005688,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_3",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.8602972851455704,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_4",
+      "strategy": "DIRECT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.23593620774772817,
+      "tokens": 120
+    },
+    {
+      "id": "react_train_4",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.23593620774772817,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_4",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3628990537517073,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_5",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.4780886834394211,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_5",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7937648901144689,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_6",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.3920255190228936,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_6",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7992976410525752,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_6",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.7992976410525752,
+      "tokens": 300
+    },
+    {
+      "id": "react_train_7",
+      "strategy": "DIRECT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.7755875326722186,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_7",
+      "strategy": "COT",
+      "token_budget": 96,
+      "answer": "wrong",
+      "confidence": 0.24729214420462828,
+      "tokens": 96
+    },
+    {
+      "id": "react_train_7",
+      "strategy": "COT",
+      "token_budget": 1024,
+      "answer": "wrong",
+      "confidence": 0.24729214420462828,
+      "tokens": 300
+    }
+  ]
+}

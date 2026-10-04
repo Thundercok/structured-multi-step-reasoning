@@ -338,6 +338,15 @@ def test_generation_stops_at_first_answer_line():
     assert "Extra unwanted commentary" not in b.last_trace["generations"][0]["output"]
 
 
+def test_generation_does_not_stop_at_empty_answer_line():
+    b = make_backend()
+    scripted.queue("Step 1: compute.\nAnswer:\n364\n")
+    ans, conf, tok = b.run(A.COT, "Compute 364")
+    assert ans == "364"
+    assert b.last_trace["generations"][0]["finish_reason"] != "stop_answer"
+    assert "364" in b.last_trace["generations"][0]["output"]
+
+
 
 
 def b_run(strategy, query, **kw):

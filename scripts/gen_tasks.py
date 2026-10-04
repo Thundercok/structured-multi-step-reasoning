@@ -15,13 +15,18 @@ import argparse, ast, hashlib, itertools, json, os, random, re, sys, time
 from collections import Counter
 from fractions import Fraction
 
-VERSION = "0.1"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+VERSION = "0.2"
 NAMES = ["Alice", "Bob", "Carol", "Dave", "Erin", "Frank", "Grace", "Heidi"]
 ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
-ARITH_LEVELS = [(2, 2, 9), (4, 3, 9), (6, 4, 9), (8, 5, 99)]  # (steps, digits, max multiplier)
-ORDER_LEVELS = [4, 5, 6, 7]                                     # runners
-G24_LEVELS = [(17, 10**9), (8, 16), (4, 7), (1, 3)]             # (min, max) distinct solution strings
+ARITH_LEVELS = [(2, 2, 9), (4, 3, 9), (6, 4, 9), (8, 5, 99), (10, 5, 99)]  # (steps, digits, max multiplier)
+ORDER_LEVELS = [5, 6, 7, 8]                                                 # runners
+G24_LEVELS = [(17, 10**9), (8, 16), (4, 7), (1, 3)]                         # (min, max) distinct solution strings
 FAMILIES = ("arith", "order", "g24")
+PERMS = {n: list(itertools.permutations(range(n))) for n in (4, 5, 6, 7, 8)}
 
 
 # ---------- arith ----------
@@ -62,26 +67,51 @@ def gen_arith(rng, level):
 
 # ---------- order ----------
 def holds(c, pos):  # pos[i] = position of entity i
-    t, x, y = c
-    return pos[x] < pos[y] if t == "b" else pos[y] == pos[x] + 1
+    t, x, y = c[0], c[1], c[2]
+    if t == "b": return pos[x] < pos[y]
+    if t == "a": return pos[y] == pos[x] + 1
+    if t in ("g", "gap"): return pos[y] == pos[x] + c[3]
+    raise ValueError(f"Unknown clue type: {t}")
 
 
 def render_order(m):
     names, txt = m["names"], []
-    for t, x, y in m["clues"]:
+    for c in m["clues"]:
+        t, x, y = c[0], c[1], c[2]
         if t == "a": txt.append(f"{names[x]} finished immediately before {names[y]}")
-        elif (x + y) % 2: txt.append(f"{names[x]} finished before {names[y]}")
-        else: txt.append(f"{names[y]} finished after {names[x]}")
-    return (f"{len(names)} runners ({', '.join(names)}) ran a race with no ties. Clues: " + "; ".join(txt)
-            + f". Who finished in {ORD[m['ask']]} place?")
+        elif t == "b":
+            if (x + y) % 2: txt.append(f"{names[x]} finished before {names[y]}")
+            else: txt.append(f"{names[y]} finished after {names[x]}")
+        elif t in ("g", "gap"):
+            txt.append(f"{names[x]} finished exactly {c[3]} places before {names[y]}")
+        else:
+            raise ValueError(f"Unknown clue type: {t}")
+    names_str = ", ".join(names)
+    ask_ord = ORD[m["ask"]]
+    return (f"{len(names)} runners ({names_str}) ran a race with no ties. Clues: " + "; ".join(txt)
+            + f". Who finished in {ask_ord} place?")
 
 
 def consistent(m):  # independent brute force: occupants of the asked position over all consistent orders
     out = set()
-    for pos in itertools.permutations(range(len(m["names"]))):
+    n = len(m["names"])
+    perms = PERMS.get(n) or list(itertools.permutations(range(n)))
+    for pos in perms:
         if all(holds(c, pos) for c in m["clues"]):
             out.add(pos.index(m["ask"]))
     return out
+
+
+def canonical_order_key(m):
+    n = len(m["names"])
+    clues = m["clues"]
+    perms = PERMS.get(n) or list(itertools.permutations(range(n)))
+    norm_clues = [(c[0], c[1], c[2], c[3] if len(c) > 3 else (1 if c[0] == "a" else 0)) for c in clues]
+    min_relabeling = min(
+        tuple(sorted((t, p[x], p[y], k) for t, x, y, k in norm_clues))
+        for p in perms
+    )
+    return (n, m["ask"], min_relabeling)
 
 
 def gen_order(rng, level):
@@ -89,10 +119,12 @@ def gen_order(rng, level):
     names = rng.sample(NAMES, n)
     truth = list(range(n)); rng.shuffle(truth)  # truth[i] = position of entity i
     ask = rng.randrange(n)
-    cands = [("b", x, y) for x, y in itertools.permutations(range(n), 2) if truth[x] < truth[y]]
-    cands += [("a", x, y) for x, y in itertools.permutations(range(n), 2) if truth[y] == truth[x] + 1]
+    cands = [("b", x, y, 0) for x, y in itertools.permutations(range(n), 2) if truth[x] < truth[y]]
+    cands += [("a", x, y, 1) for x, y in itertools.permutations(range(n), 2) if truth[y] == truth[x] + 1]
+    for k in (2, 3):
+        cands += [("g", x, y, k) for x, y in itertools.permutations(range(n), 2) if truth[y] == truth[x] + k]
     rng.shuffle(cands)
-    allp = list(itertools.permutations(range(n)))
+    allp = PERMS[n]
     clues, alive = [], allp
     for c in cands:  # add true clues until the asked position is determined
         clues.append(c); alive = [p for p in alive if holds(c, p)]
@@ -206,7 +238,11 @@ def _verify(item):
 
 
 def _key(fam, m, q):
-    return tuple(sorted(m["numbers"])) if fam == "g24" else q
+    if fam == "g24":
+        return tuple(sorted(m["numbers"]))
+    if fam == "order":
+        return canonical_order_key(m)
+    return q
 
 
 def build(n_per_level=15, seed=0, ratios=(0.2, 0.4, 0.4), families=FAMILIES):
@@ -222,8 +258,10 @@ def build(n_per_level=15, seed=0, ratios=(0.2, 0.4, 0.4), families=FAMILIES):
             for i in range(n_per_level):
                 while True:
                     m, q, a, diff = fn(rng, lvl)
-                    if _key(fam, m, q) not in seen: break
-                seen.add(_key(fam, m, q))
+                    k = _key(fam, m, q)
+                    if k not in seen:
+                        break
+                seen.add(k)
                 split = "dev" if i < b[0] else "calib" if i < b[1] else "test"
                 items.append({"id": f"{fam}_{idx:04d}_en_orig", "group_id": f"grp_{fam}_{idx:04d}", "query": q,
                               "answer": a, "split": split, "category": fam, "family": fam, "level": lvl + 1,
@@ -275,6 +313,10 @@ def selftest():
     assert digest(a) != digest(build(3, seed=2)), "seed ignored"
     assert all(verify(it) for it in a), "verify failed"
     gids = [it["group_id"] for it in a]; assert len(gids) == len(set(gids))
+    for fam in FAMILIES:  # canonical duplicates = 0 on every build
+        fam_items = [it for it in a if it["family"] == fam]
+        fam_keys = [_key(it["family"], it["meta"], it["query"]) for it in fam_items]
+        assert len(fam_keys) == len(set(fam_keys)), f"Canonical duplicates found in {fam}"
     for fam in FAMILIES:  # gold must satisfy check() and every wrong answer must fail it
         for it in (x for x in a if x["family"] == fam):
             assert check(it, it["answer"]), (fam, it["id"])
@@ -284,6 +326,8 @@ def selftest():
     orr = {"family": "order", "answer": "Carol"}
     assert all(check(orr, p) for p in ["Carol", "carol.", "Carol finished 3rd"])
     assert not any(check(orr, p) for p in ["Bob", "Carol or Bob", ""])
+    assert holds(["g", 0, 2, 2], [0, 1, 2])
+    assert not holds(["g", 0, 2, 2], [0, 2, 1])
     g = {"family": "g24", "meta": {"numbers": [1, 2, 3, 4]}}
     assert all(check(g, p) for p in ["1*2*3*4", "(1+2+3)*4", "(1+2+3)*4 = 24", "4*3*2*1"])
     assert not any(check(g, p) for p in ["(1+2+3)*5", "24", "1*2*3*4*1", "-1+25", "2**3*3*1", "(1+2+3)*4.0", "1/0*2*3*4", "1*2*3"])
@@ -297,7 +341,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n-per-level", type=int, default=15)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--out", default="data/gen_v2.json")
+    ap.add_argument("--out", default="data/gen02_v2.json")
     ap.add_argument("--verify", metavar="PATH")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()

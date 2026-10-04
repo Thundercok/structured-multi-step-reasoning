@@ -21,6 +21,13 @@ def test_gen_v2_json_file_verification():
     assert gen_tasks.verify_file(str(DATA_PATH)) is True
 
 
+def test_gen02_json_files_verification():
+    for name in ["gen02_v2.json", "gen02_tune.json"]:
+        p = ROOT / "data" / name
+        assert p.exists(), f"{name} should exist"
+        assert gen_tasks.verify_file(str(p)) is True
+
+
 def test_check_contract_arith():
     item = {
         "family": "arith",

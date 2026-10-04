@@ -1,0 +1,29 @@
+{
+  "kind": "paired_pilot_analysis_software_validation",
+  "recorded_utc": "2026-10-04T00:25:48.329642+00:00",
+  "collection_commit": "495dec2ec921e8647d6a5df7305f1a3cb7a88fe8",
+  "evidence": "synthetic_pilot_smoke",
+  "collection_source_sha256": {
+    "experiments/research_study.py": "5f1849c39fa202ad209bf1736585595bf493ba5d5f9eca9ff0f8cda3f9ab2956",
+    "optimal_stopping.py": "51e88d2661e34da3e6a5c27e5af572b3df0966709a4817e01145fadea967e3cf",
+    "entry_predictor.py": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03",
+    "reasoning_env.py": "51ca9b55327e5755b2a4094136e7fc51b159dd359631693fd900ae7fb5997b8b",
+    "reasoning_strategies.py": "55d315b2268c94b48860efa1aa4de16fc33291566ad80b94cd752d33b2b94147",
+    "pipeline.py": "a06335996eca15fd2d8a5838fd9577325284616c6c59412030e4b43d9b45bec6",
+    "qwen_mlx_backend.py": "d45e244e963455ffc64f948c0d5819376346b3cf78d674d9ec5d8c779795b871",
+    "scripts/gen_tasks.py": "d64bd1c2648ca52bd7ea568b5cc892bf387c7726239f35fec51028e280c3b475",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "research_identity.py": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "experiments/research_pilot.py": "97afaa80210aea3dc90f80ccc60b96daea06214d70fa6470022e052a47855917"
+  },
+  "analysis_source_sha256": "1df0c183f42a504df5f1b8090ce11c6c41a6b264186655a21cfc6706925aa86b",
+  "test_command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_development_pilot_analysis.py -q",
+  "observed_test_result": "6 passed in 2.25s",
+  "replay_data_records_selection_summary_report_byte_identical": true,
+  "analysis_manifest_sha256": "a38d28848d9145d40640740913dd5afb000a9463f8ea5df2cfafa2b66906208c",
+  "questions": 48,
+  "original_groups": 24,
+  "attempts": 192,
+  "new_model_calls": 0,
+  "publication_ready": false
+}

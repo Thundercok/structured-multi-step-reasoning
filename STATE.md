@@ -3,9 +3,18 @@
 ## Current Phase: selected development pilot preflight verified; measured collection waiting for the active GPU sweep
 
 - **Branch**: `exp/reasoning-harness-v1`
-- **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0`, `harness-v1-run2`, `harness-v1-run3`
+- **Tags**: `v0.1.0-nckh-baseline`, `harness-p0-fixed`, `harness-v1-run0`, `harness-v1-run2`, `harness-v1-run3`, `harness-v1-run4`, `harness-v1-run5`
+- **Note on harness-v1-run5**: run5 includes `rat/ui/*` and RAT tests from another session:
+  - `rat/ui/chat_session.py`
+  - `rat/ui/chat_stream.py`
+  - `rat/ui/compact_results.py`
+  - `rat/ui/omnibar.py`
+  - `tests/test_omnibar.py`
+  - `tests/test_rat_chat_session.py`
+  Do not move tags while M3 is actively executing (run headers record tag/commit). RAT work has been segregated to a dedicated worktree and branch (`git worktree add ../rat-ui -b rat-ui`) so subsequent research sessions remain completely isolated.
 - **Note on harness-v1-run1**: `harness-v1-run1` nằm trên main (`f51db3f`), thiếu fix P0. Nhánh `exp/reasoning-harness-v1` đã cherry-pick commit này thành `0047bb2` (gộp MANIFEST).
 - **Completed sweep worktree**: `../reasoning-run3` (detached HEAD at `harness-v1-run3` / `76d311b`).
+- **Active sweep worktree**: `../multi-step-structured-reasoning-run5` (detached HEAD at `harness-v1-run5` / `d3ac47a`).
 - **H4 sweep**: complete, **188/188** records (DIRECT 94, COT 94); no missing, unexpected or duplicate item/arm pairs. Final `audit/G_sweep_trace.jsonl` and `audit/G_summary.txt` in this repository match the worktree copies byte for byte. Verification: `audit/G_completion_verification.json`.
 - **Model**: `mlx-community/Qwen3-8B-4bit` (4.29 GB safetensors; cache-derived snapshot name `545dc4251c05440727734bcd94334791f6ab0192`, without independent loaded-weight identity verification).
 - **Status checked**: 2026-10-03, sweep completion and agent retrospective review verified; independent human review pending.

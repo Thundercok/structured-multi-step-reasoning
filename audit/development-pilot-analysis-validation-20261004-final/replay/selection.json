@@ -1,0 +1,200 @@
+{
+  "seed": 42,
+  "groups_per_stratum": 1,
+  "strata": [
+    {
+      "split": "calibration",
+      "family": "pal",
+      "level": "1",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "pal",
+      "level": "2",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "pal",
+      "level": "3",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "pal",
+      "level": "4",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "plain",
+      "level": "1",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "plain",
+      "level": "2",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "plain",
+      "level": "3",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "plain",
+      "level": "4",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "react",
+      "level": "1",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "react",
+      "level": "2",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "react",
+      "level": "3",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "calibration",
+      "family": "react",
+      "level": "4",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "pal",
+      "level": "1",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "pal",
+      "level": "2",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "pal",
+      "level": "3",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "pal",
+      "level": "4",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "plain",
+      "level": "1",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "plain",
+      "level": "2",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "plain",
+      "level": "3",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "plain",
+      "level": "4",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "react",
+      "level": "1",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "react",
+      "level": "2",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "react",
+      "level": "3",
+      "available_groups": 1,
+      "selected_groups": 1
+    },
+    {
+      "split": "train",
+      "family": "react",
+      "level": "4",
+      "available_groups": 1,
+      "selected_groups": 1
+    }
+  ],
+  "selected_group_ids": [
+    "pal_calibration_group_0",
+    "pal_calibration_group_1",
+    "pal_calibration_group_2",
+    "pal_calibration_group_3",
+    "pal_train_group_0",
+    "pal_train_group_1",
+    "pal_train_group_2",
+    "pal_train_group_3",
+    "plain_calibration_group_0",
+    "plain_calibration_group_1",
+    "plain_calibration_group_2",
+    "plain_calibration_group_3",
+    "plain_train_group_0",
+    "plain_train_group_1",
+    "plain_train_group_2",
+    "plain_train_group_3",
+    "react_calibration_group_0",
+    "react_calibration_group_1",
+    "react_calibration_group_2",
+    "react_calibration_group_3",
+    "react_train_group_0",
+    "react_train_group_1",
+    "react_train_group_2",
+    "react_train_group_3"
+  ]
+}
