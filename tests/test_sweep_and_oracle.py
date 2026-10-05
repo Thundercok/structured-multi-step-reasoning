@@ -53,11 +53,23 @@ def test_run_sweep_stub_and_resume(tmp_path):
         "eos_token_ids", "enable_thinking", "branch", "tag",
         "commit", "dirty", "raw_output", "parsed", "gold", "correct",
         "prompt_tokens", "completion_tokens", "n_tokens", "mean_logprob", "min_logprob",
+        "token_logprobs", "gen_logprobs",
         "finish_reason", "wall_ms",
     ]
     for r in records:
         for f in required_fields:
             assert f in r, f"Missing header/trace field: {f} in record {r}"
+        if r["arm"] in ("SC", "TOT"):
+            assert isinstance(r.get("gen_logprobs"), list)
+            assert len(r["gen_logprobs"]) > 0
+            assert all(isinstance(sub, list) for sub in r["gen_logprobs"])
+            assert r.get("token_logprobs") is None
+        else:
+            assert isinstance(r.get("token_logprobs"), list)
+            assert len(r["token_logprobs"]) > 0
+            assert all(isinstance(x, (float, int)) for x in r["token_logprobs"])
+            assert r.get("gen_logprobs") is None
+
         if r["arm"] == "SC":
             assert isinstance(r.get("sc_candidates"), list)
             assert isinstance(r.get("sc_vote_share"), (float, int))
