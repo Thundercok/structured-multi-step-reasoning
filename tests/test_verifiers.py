@@ -27,14 +27,27 @@ ORDER_RIGHT_FIXTURES = [
 ]
 
 
-@pytest.mark.parametrize("raw", ARITH_WRONG_FIXTURES)
+LATEX_WRONG_FIXTURES = [
+    r"Multiply: 15 \times 4 = 65\nAnswer: 65",
+    r"Divide: 100 \div 4 = 20\nAnswer: 20",
+    r"Multiply: 7 \cdot 8 = 54\nAnswer: 54",
+]
+
+LATEX_RIGHT_FIXTURES = [
+    r"Multiply: 15 \times 4 = 60\nDivide: 60 \div 3 = 20\nMultiply: 20 \cdot 5 = 100\nAnswer: 100",
+    r"Step 1: 50 \times 2 = 100\nStep 2: 100 \div 5 = 20\nAnswer: 20",
+    r"Calculation: 8 \cdot 9 = 72\nAnswer: 72",
+]
+
+
+@pytest.mark.parametrize("raw", ARITH_WRONG_FIXTURES + LATEX_WRONG_FIXTURES)
 def test_arith_verifier_wrong_fixtures(raw: str):
     flag, reason = arith_verifier(raw)
     assert flag is True
     assert reason != "ok"
 
 
-@pytest.mark.parametrize("raw", ARITH_RIGHT_FIXTURES)
+@pytest.mark.parametrize("raw", ARITH_RIGHT_FIXTURES + LATEX_RIGHT_FIXTURES)
 def test_arith_verifier_right_fixtures(raw: str):
     flag, reason = arith_verifier(raw)
     assert flag is False

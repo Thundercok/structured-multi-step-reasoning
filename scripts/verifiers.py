@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Deterministic program-verifier guardrails for reasoning traces.
+r"""Deterministic program-verifier guardrails for reasoning traces.
 
 Implements symbolic execution and constraint checking for:
-- arith: recompute all arithmetic steps 'A op B = C' and check for non-integer final answers.
+- arith: recompute all arithmetic steps 'A op B = C' (supporting +, -, *, /, ×, ÷, \times, \div, \cdot)
+  and check for non-integer final answers.
 - order: parse the final full runner ordering and verify all problem clues and ask position.
 """
 from __future__ import annotations
@@ -12,7 +13,9 @@ from typing import Any
 
 
 def arith_verifier(raw: str) -> tuple[bool, str]:
-    """Recomputes every 'A op B = C' (+ - * × / ÷) in raw and flags non-integer final answers.
+    """Recomputes every 'A op B = C' in raw and flags non-integer final answers.
+
+    Supported operators: +, -, *, ×, /, ÷, \\times, \\div, \\cdot.
 
     Returns:
         (flag, reason): flag=True if an error or invalid step is detected, False otherwise.
@@ -34,6 +37,8 @@ def arith_verifier(raw: str) -> tuple[bool, str]:
     # Remove thousand separators inside numbers (e.g. 310,005 -> 310005)
     text = re.sub(r"(?<=\d),(?=\d{3}\b)", "", raw)
     text = text.replace("−", "-").replace("–", "-")
+    # Normalize LaTeX operators
+    text = text.replace(r"\times", "*").replace(r"\div", "/").replace(r"\cdot", "*")
 
     # Match equations of form A op B = C
     eq_pattern = re.compile(
@@ -128,12 +133,10 @@ def _parse_full_ordering(raw: str, names: list[str]) -> list[str] | None:
                     return [names_lower[p.lower()] for p in parts]
 
     # Strategy 5: Numbered list or assignment block near conclusion
-    # Examples: '1. Carol', '1: Dave', '1st: Bob', '- Heidi = 1'
     for start_line in range(len(lines) - 1, -1, -1):
         block: dict[int, str] = {}
         for idx in range(start_line, max(-1, start_line - 25), -1):
             cur_line = lines[idx]
-            # Avoid disjunctions ('Grace or Heidi') and placeholders ('?')
             if " or " in cur_line.lower() or "?" in cur_line:
                 continue
             m1 = re.match(r"^(?:[-*]\s*)?(\d+)(?:st|nd|rd|th)?\s*[:.]\s*([A-Za-z]+)\s*$", cur_line)
@@ -165,8 +168,10 @@ def order_verifier(raw: str, meta: dict[str, Any], flag_unextractable: bool = Fa
     """Parses the final full ordering from raw output and validates clues in meta.
 
     Returns:
-        (flag, reason): flag=True if a constraint is violated (or unextractable if
+        (flag, reason): flag=True if constraints are violated (or unextractable if
         flag_unextractable=True), False if clean.
+        When clues are violated, returns ALL violated clues in reason:
+        'clues_violated: [clue1, clue2, ...]'.
         'ordering not extractable' is returned as its own status when no full
         ordering can be parsed.
     """
@@ -181,10 +186,10 @@ def order_verifier(raw: str, meta: dict[str, Any], flag_unextractable: bool = Fa
     # Map each entity index to its 0-based position in the extracted ordering
     pos = {i: ordering.index(names[i]) for i in range(len(names))}
 
-    # Check each clue in meta
-    for clue in clues:
-        if not _holds_clue(clue, pos):
-            return True, f"clue_violated: {clue}"
+    # Check each clue in meta; collect ALL violated clues
+    violated_clues = [clue for clue in clues if not _holds_clue(clue, pos)]
+    if violated_clues:
+        return True, f"clues_violated: {violated_clues}"
 
     # Verify that the final answer matches the runner placed in the asked position
     if ask is not None and 0 <= ask < len(ordering):
