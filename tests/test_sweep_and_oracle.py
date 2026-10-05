@@ -52,11 +52,18 @@ def test_run_sweep_stub_and_resume(tmp_path):
         "snapshot_dir", "snapshot_hash", "safetensors_blobs",
         "eos_token_ids", "enable_thinking", "branch", "tag",
         "commit", "dirty", "raw_output", "parsed", "gold", "correct",
-        "prompt_tokens", "completion_tokens", "finish_reason", "wall_ms",
+        "prompt_tokens", "completion_tokens", "n_tokens", "mean_logprob", "min_logprob",
+        "finish_reason", "wall_ms",
     ]
     for r in records:
         for f in required_fields:
             assert f in r, f"Missing header/trace field: {f} in record {r}"
+        if r["arm"] == "SC":
+            assert isinstance(r.get("sc_candidates"), list)
+            assert isinstance(r.get("sc_vote_share"), (float, int))
+        if r["arm"] == "TOT":
+            assert isinstance(r.get("tot_candidates"), list)
+            assert isinstance(r.get("tot_eval_scores"), list)
 
     # 2. Second run: resume should append 0 duplicates
     subprocess.check_call(cmd)

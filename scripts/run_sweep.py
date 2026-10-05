@@ -16,6 +16,8 @@ import subprocess
 import sys
 import time
 
+import numpy as np
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -88,37 +90,52 @@ class StubRunner:
 
     def run_arm(self, arm_name: str, item: dict) -> dict:
         gold = item["answer"]
+        sc_candidates = None
+        sc_vote_share = None
+        tot_candidates = None
+        tot_eval_scores = None
+
         # Simulate realistic outputs per arm
         if arm_name == "DIRECT-v2":
             raw = f"{gold}"
             parsed = gold
             tok = 12
             f_reason = "stop"
+            mean_lp, min_lp = -0.15, -0.45
         elif arm_name == "COT":
             raw = f"Step 1: solve.\nAnswer: {gold}"
             parsed = gold
             tok = 120
             f_reason = "stop"
+            mean_lp, min_lp = -0.25, -0.85
         elif arm_name == "SC":
             raw = f"Sample majority.\nAnswer: {gold}"
             parsed = gold
             tok = 500
             f_reason = "stop"
+            mean_lp, min_lp = -0.30, -1.10
+            sc_candidates = [gold] * 5
+            sc_vote_share = 1.0
         elif arm_name == "TOT":
             raw = f"Tree search Best: 0.\nAnswer: {gold}"
             parsed = gold
             tok = 350
             f_reason = "stop"
+            mean_lp, min_lp = -0.28, -0.95
+            tot_candidates = [gold] * 3
+            tot_eval_scores = [1.0, 0.0, 0.0]
         elif arm_name == "REACT":
             raw = f"Thought: solve Action: finish[{gold}]"
             parsed = gold
             tok = 80
             f_reason = "stop"
+            mean_lp, min_lp = -0.20, -0.60
         elif arm_name == "PAL":
             raw = f"```python\nresult = {gold!r}\n```\nAnswer: {gold}"
             parsed = gold
             tok = 90
             f_reason = "stop"
+            mean_lp, min_lp = -0.22, -0.70
         else:
             raise ValueError(f"Unknown arm: {arm_name}")
 
@@ -130,6 +147,13 @@ class StubRunner:
             "parse_status": "marker" if parsed else "fail",
             "prompt_tokens": len(item["query"].split()) + 20,
             "completion_tokens": tok,
+            "n_tokens": tok,
+            "mean_logprob": mean_lp,
+            "min_logprob": min_lp,
+            "sc_candidates": sc_candidates,
+            "sc_vote_share": sc_vote_share,
+            "tot_candidates": tot_candidates,
+            "tot_eval_scores": tot_eval_scores,
             "finish_reason": f_reason,
             "wall_ms": 150.0,
             "repeat": False,
@@ -157,11 +181,20 @@ class MLXRunner:
 
     def _generate_stream(self, prompt: str, max_tokens: int, sampler, check_stop_answer: bool = True):
         text, tok, f_reason = "", 0, None
+        logps = []
         for r in self.mlx_lm.stream_generate(self.model, self.tokenizer, prompt, max_tokens=max_tokens, sampler=sampler):
             text += r.text
             tok = r.generation_tokens
             if getattr(r, "finish_reason", None) is not None:
                 f_reason = r.finish_reason
+
+            if getattr(r, "logprobs", None) is not None and getattr(r, "token", None) is not None:
+                try:
+                    lp_arr = np.asarray(r.logprobs, dtype=np.float32)
+                    if len(lp_arr) > r.token:
+                        logps.append(float(lp_arr[r.token]))
+                except Exception:
+                    pass
 
             if check_stop_answer:
                 m_stop = re.search(r"(?:^|\n)Answer:[ \t]*\S[^\r\n]*\r?\n", text)
@@ -169,11 +202,18 @@ class MLXRunner:
                     text = text[:m_stop.end()]
                     f_reason = "stop_answer"
                     break
-        return text, tok, f_reason or "stop"
+
+        mean_lp = float(np.mean(logps)) if logps else None
+        min_lp = float(np.min(logps)) if logps else None
+        return text, tok, f_reason or "stop", mean_lp, min_lp
 
     def run_arm(self, arm_name: str, item: dict) -> dict:
         query = item["query"]
         t0 = time.perf_counter()
+        sc_candidates = None
+        sc_vote_share = None
+        tot_candidates = None
+        tot_eval_scores = None
 
         if arm_name == "DIRECT-v2":
             user_content = query + "\nGive only the final answer directly without explanation."
@@ -183,7 +223,7 @@ class MLXRunner:
             p_tok = len(self.tokenizer.encode(prompt))
             sampler = self.make_sampler(temp=0.0)
 
-            text, tok, f_reason = self._generate_stream(prompt, max_tokens=24, sampler=sampler, check_stop_answer=False)
+            text, tok, f_reason, mean_lp, min_lp = self._generate_stream(prompt, max_tokens=24, sampler=sampler, check_stop_answer=False)
             first_line = text.strip().splitlines()[0].strip() if text.strip() else ""
             clean_first_line = first_line.replace("**", "").strip()
             parsed = extract_answer("Answer: " + clean_first_line)
@@ -197,7 +237,7 @@ class MLXRunner:
             p_tok = len(self.tokenizer.encode(prompt))
             sampler = self.make_sampler(temp=0.0)
 
-            text, tok, f_reason = self._generate_stream(prompt, max_tokens=1024, sampler=sampler, check_stop_answer=True)
+            text, tok, f_reason, mean_lp, min_lp = self._generate_stream(prompt, max_tokens=1024, sampler=sampler, check_stop_answer=True)
             parsed, status, wordy = parse_answer_details(text)
 
         elif arm_name == "SC":
@@ -208,21 +248,31 @@ class MLXRunner:
             sampler = self.make_sampler(temp=0.7, top_p=0.8, top_k=20)
 
             candidates, all_texts, total_tok = [], [], 0
+            all_m_lps, all_min_lps = [], []
             f_reason = "stop"
             for _ in range(5):
-                t_branch, tok_branch, fr_branch = self._generate_stream(prompt, max_tokens=1024, sampler=sampler, check_stop_answer=True)
+                t_branch, tok_branch, fr_branch, m_lp, min_l = self._generate_stream(prompt, max_tokens=1024, sampler=sampler, check_stop_answer=True)
                 ans_b, _, _ = parse_answer_details(t_branch)
                 candidates.append(ans_b)
                 all_texts.append(t_branch)
                 total_tok += tok_branch
+                if m_lp is not None:
+                    all_m_lps.append(m_lp)
+                if min_l is not None:
+                    all_min_lps.append(min_l)
                 if fr_branch == "length":
                     f_reason = "length"
 
-            parsed, _ = majority_vote(candidates)
+            parsed, max_votes = majority_vote(candidates)
+            vote_share = float(max_votes / len(candidates)) if candidates else 0.0
             text = "\n---\n".join(all_texts)
             tok = total_tok
             status = "majority" if parsed else "fail"
             wordy = False
+            sc_candidates = candidates
+            sc_vote_share = round(vote_share, 4)
+            mean_lp = float(np.mean(all_m_lps)) if all_m_lps else None
+            min_lp = min(all_min_lps) if all_min_lps else None
 
         elif arm_name == "TOT":
             user_content = query + COT_SUFFIX
@@ -233,10 +283,13 @@ class MLXRunner:
             # 3 candidate branches
             sampler_branch = self.make_sampler(temp=0.8)
             candidates, all_texts, total_tok = [], [], 0
+            candidate_answers = []
             for _ in range(3):
-                t_branch, tok_branch, _ = self._generate_stream(prompt, max_tokens=1024, sampler=sampler_branch, check_stop_answer=True)
+                t_branch, tok_branch, _, _, _ = self._generate_stream(prompt, max_tokens=1024, sampler=sampler_branch, check_stop_answer=True)
                 candidates.append(t_branch)
                 total_tok += tok_branch
+                ans_b, _, _ = parse_answer_details(t_branch)
+                candidate_answers.append(ans_b)
 
             # Selector prompt
             listing = "\n\n".join(f"[{i}] {c}" for i, c in enumerate(candidates))
@@ -247,7 +300,7 @@ class MLXRunner:
             eval_msgs = [{"role": "user", "content": eval_prompt}]
             eval_p_str = self.tokenizer.apply_chat_template(eval_msgs, tokenize=False, enable_thinking=False, add_generation_prompt=True)
             sampler_eval = self.make_sampler(temp=0.0)
-            eval_text, eval_tok, _ = self._generate_stream(eval_p_str, max_tokens=64, sampler=sampler_eval, check_stop_answer=False)
+            eval_text, eval_tok, _, eval_m_lp, eval_min_lp = self._generate_stream(eval_p_str, max_tokens=64, sampler=sampler_eval, check_stop_answer=False)
             total_tok += eval_tok
 
             import re as re_mod
@@ -258,6 +311,10 @@ class MLXRunner:
             text = best_sol + f"\n[Selection: Best: {idx}]"
             tok = total_tok
             f_reason = "stop"
+            mean_lp = eval_m_lp
+            min_lp = eval_min_lp
+            tot_candidates = candidate_answers
+            tot_eval_scores = [1.0 if i == idx else 0.0 for i in range(len(candidates))]
 
         elif arm_name == "REACT":
             from qwen_mlx_backend import REACT_SYSTEM, REACT_EXAMPLE, parse_action, safe_calculate
@@ -268,12 +325,17 @@ class MLXRunner:
             text = ""
             parsed = ""
             f_reason = "stop"
+            step_m_lps, step_min_lps = [], []
 
             for _ in range(4):
                 prompt_r = self.tokenizer.apply_chat_template(msgs, tokenize=False, enable_thinking=False, add_generation_prompt=True)
-                t_step, tok_step, _ = self._generate_stream(prompt_r, max_tokens=200, sampler=sampler, check_stop_answer=False)
+                t_step, tok_step, _, s_m_lp, s_min_lp = self._generate_stream(prompt_r, max_tokens=200, sampler=sampler, check_stop_answer=False)
                 total_tok += tok_step
                 text += t_step + "\n"
+                if s_m_lp is not None:
+                    step_m_lps.append(s_m_lp)
+                if s_min_lp is not None:
+                    step_min_lps.append(s_min_lp)
                 msgs.append({"role": "assistant", "content": t_step})
                 act_info = parse_action(t_step)
                 if act_info is None:
@@ -293,6 +355,8 @@ class MLXRunner:
             tok = total_tok
             status = "react" if parsed else "fail"
             wordy = False
+            mean_lp = float(np.mean(step_m_lps)) if step_m_lps else None
+            min_lp = min(step_min_lps) if step_min_lps else None
 
         elif arm_name == "PAL":
             from qwen_mlx_backend import PAL_SUFFIX, extract_code, run_python_sandboxed
@@ -302,7 +366,7 @@ class MLXRunner:
             p_tok = len(self.tokenizer.encode(prompt))
             sampler = self.make_sampler(temp=0.0)
 
-            text, tok, f_reason = self._generate_stream(prompt, max_tokens=512, sampler=sampler, check_stop_answer=False)
+            text, tok, f_reason, mean_lp, min_lp = self._generate_stream(prompt, max_tokens=512, sampler=sampler, check_stop_answer=False)
             code = extract_code(text)
             ok, res = run_python_sandboxed(code)
             parsed = extract_answer(res) if ok else extract_answer(text)
@@ -326,11 +390,19 @@ class MLXRunner:
             "parse_status": status,
             "prompt_tokens": p_tok,
             "completion_tokens": tok,
+            "n_tokens": tok,
+            "mean_logprob": round(mean_lp, 4) if mean_lp is not None else None,
+            "min_logprob": round(min_lp, 4) if min_lp is not None else None,
+            "sc_candidates": sc_candidates,
+            "sc_vote_share": sc_vote_share,
+            "tot_candidates": tot_candidates,
+            "tot_eval_scores": tot_eval_scores,
             "finish_reason": f_reason,
             "wall_ms": round(wall_ms, 2),
             "repeat": check_repeated_lines(text),
             "wordy": wordy,
         }
+
 
 
 def main():
