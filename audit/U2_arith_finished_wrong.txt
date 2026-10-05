@@ -1,0 +1,19 @@
+=== U2: COT FINISHED-WRONG ARITH ITEMS (n=10) ===
+| id | first false equation | true value | final answer non-integer? |
+| :--- | :--- | :--- | :---: |
+| arith_0024_en_orig | 11314 - 11147 = 1767 | 167 | y |
+| arith_0025_en_orig | 43936 × 98 = 4305632 | 4305728 | y |
+| arith_0026_en_orig | 4189 * 82 = 343598 | 343498 | n |
+| arith_0028_en_orig | 30019 * 83 = 2501577 | 2491577 | n |
+| arith_0031_en_orig | 4841175 * 84 = 407858700 | 406658700 | n |
+| arith_0032_en_orig | 663 * 81 = 53603 | 53703 | n |
+| arith_0034_en_orig | 23874 × 81 = 1933894 | 1933794 | n |
+| arith_0036_en_orig | 2820455 * 59 = 166307845 | 166406845 | n |
+| arith_0037_en_orig | 24429 × 74 = 1806906 | 1807746 | n |
+| arith_0039_en_orig | 39199 × 72 = 2812328 | 2822328 | n |
+
+=== METRICS: NON-INTEGER RULE ===
+Rule: arith answer non-integer => wrong
+- Recall among finished-wrong: 2/10 = 20.0%
+- False positives among finished-correct: 0/30 = 0.0%
+- Precision: 2/2 = 100.0%
