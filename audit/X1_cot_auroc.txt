@@ -1,0 +1,47 @@
+=== View: All items (N=100) ===
+
+Family: arith (total=40, n_pos=30, n_neg=10)
+  mean_logprob        : 0.663 (95% CI [0.485, 0.816])
+  min_logprob         : 0.793 (95% CI [0.620, 0.921])
+  -completion_tokens  : 0.930 (95% CI [0.833, 0.989])
+  -level              : 0.900 (95% CI [0.795, 0.975])
+
+Family: order (total=31, n_pos=14, n_neg=17)
+  mean_logprob        : 0.265 (95% CI [0.101, 0.450])
+  min_logprob         : 0.571 (95% CI [0.361, 0.768])
+  -completion_tokens  : 0.811 (95% CI [0.636, 0.942])
+  -level              : 0.622 (95% CI [0.421, 0.812])
+
+Family: g24 (total=29, n_pos=14, n_neg=15)
+  mean_logprob        : 0.190 (95% CI [0.042, 0.374])
+  min_logprob         : 0.776 (95% CI [0.586, 0.938])
+  -completion_tokens  : 0.883 (95% CI [0.707, 1.000])
+  -level              : 0.610 (95% CI [0.397, 0.817])
+
+Family: pooled (total=100, n_pos=58, n_neg=42)
+  mean_logprob        : 0.570 (95% CI [0.456, 0.680])
+  min_logprob         : 0.717 (95% CI [0.614, 0.808])
+  -completion_tokens  : 0.887 (95% CI [0.810, 0.948])
+  -level              : 0.665 (95% CI [0.558, 0.771])
+=== View: Finished-only (N=77) ===
+
+Family: arith (total=40, n_pos=30, n_neg=10)
+  mean_logprob        : 0.663 (95% CI [0.485, 0.816])
+  min_logprob         : 0.793 (95% CI [0.620, 0.921])
+  -completion_tokens  : 0.930 (95% CI [0.833, 0.989])
+  -level              : 0.900 (95% CI [0.795, 0.975])
+
+Family: order (total=21, n_pos=14, n_neg=7)
+  mean_logprob        : 0.551 (95% CI [0.250, 0.817])
+  min_logprob         : 0.587 (95% CI [0.308, 0.843])
+  -completion_tokens  : 0.541 (95% CI [0.294, 0.796])
+  -level              : 0.515 (95% CI [0.283, 0.756])
+
+Family: g24 (total=16, n_pos=14, n_neg=2)
+  AUROC: n/a (n_neg < 5)
+
+Family: pooled (total=77, n_pos=58, n_neg=19)
+  mean_logprob        : 0.580 (95% CI [0.431, 0.722])
+  min_logprob         : 0.630 (95% CI [0.498, 0.763])
+  -completion_tokens  : 0.750 (95% CI [0.616, 0.871])
+  -level              : 0.758 (95% CI [0.612, 0.876])

@@ -1,0 +1,4 @@
+Total COT records: 100
+Matches in {len(token_logprobs), len(token_logprobs)+1}: 23/100 (23.0%)
+Diff distribution len(tokens) - len(token_logprobs): {-1: 77, 0: 23}
+Breakdown: -1 (77 items, all finished-only where trailing newline was trimmed in output text), 0 (23 items, length truncated)

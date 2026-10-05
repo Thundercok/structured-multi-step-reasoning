@@ -1,0 +1,5 @@
+Finished-only COT: N=77, n_pos=58, n_neg=19, 5-fold Stratified CV (seed 0)
+
+Base: [family one-hot + level]      | OOF AUROC: 0.7173 | Mean Fold AUROC: 0.7453 (+/- 0.1316)
++ mean_logprob                      | OOF AUROC: 0.7142 | Mean Fold AUROC: 0.7246 (+/- 0.1595)
++ min_logprob                       | OOF AUROC: 0.7527 | Mean Fold AUROC: 0.7525 (+/- 0.1435)

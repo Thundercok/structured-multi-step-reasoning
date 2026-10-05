@@ -1,0 +1,4 @@
+Snapshot file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/run11_snapshot.jsonl
+Line count: 230
+SHA256: 7d614d246900468a4e4073e6dcfc7d9bbccf1f3c5fab3f252b0be7d05ea8df3d
+Arm counts: {'DIRECT-v2': 71, 'COT': 100, 'SC': 59}
