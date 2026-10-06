@@ -4,3 +4,4 @@ Cost = prompt+completion tokens of every arm actually run.
 Per family vs always-COT, always-E, oracle: accuracy, mean tokens, 95% cluster-bootstrap CI of (V - COT) accuracy.
 V promising only if delta >= +5pp with CI lower bound > 0 AND mean tokens <= 0.6 x always-E. Else no cascade claim.
 Verifier rules were written after seeing these errors (in-sample): any claim needs confirmation on fresh gen02_v2 dev items.
+Note: E = SC (order) was fixed after seeing SC ≈ COT on the 61-item preview trace.

@@ -56,22 +56,29 @@ không gian hành động, tín hiệu quyết định, cách học policy và c
 thuật toán đã có trước, thu hẹp đóng góp sang đánh giá thực nghiệm và giới hạn
 trong bối cảnh đã chọn.
 
-## Mốc hoàn thành
+## Mốc hoàn thành & Tiến độ thực tế (Milestone Tracking)
 
-| Mốc | Sản phẩm | Điều kiện hoàn thành |
-| --- | --- | --- |
-| M0: phạm vi | RQ, prior-art matrix, protocol | Ghi trước metric chính, baseline, lambda, seeds và giới hạn claim |
-| M1: dữ liệu | Dataset có nguồn, phiên bản, đáp án được kiểm tra | Tách nhóm bài gốc giữa train/calibration/test; test chưa xem; không thêm tiền tố để tăng cỡ mẫu |
-| M2: pilot | Raw outputs của model thật trên development | Kiểm tra parser, token, confidence và thời gian; chốt prompt/model snapshot trước test |
-| M3: thực nghiệm chính | Các run độc lập và bảng so sánh tái lập | Mục tiêu ban đầu ít nhất 3 generation seeds định trước; chọn cỡ mẫu theo pilot và độ rộng khoảng tin cậy |
-| M4: bài báo | Bản thảo + artifact index | Mỗi bảng có manifest/raw log; báo cáo ablation, thất bại, giới hạn và kết quả âm |
-| M5: demo | Luồng app tối thiểu | Người ít rành công nghệ thực hiện được tác vụ chính; đo usability riêng |
+| Mốc | Sản phẩm | Trạng thái | Điều kiện hoàn thành & Bằng chứng thực nghiệm |
+| --- | --- | :---: | --- |
+| **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **HOÀN THÀNH (100%)** | Đã commit các file prereg: `decision_rule_P.md`, `decision_rule_signal.md`, `decision_rule_cascade.md` trước khi đọc dữ liệu test. |
+| **M1: Dữ liệu chuẩn** | Dataset procedural có verifier độc lập | **HOÀN THÀNH (100%)** | `data/gen02_tune.json` v0.2.1 (100 items), ground truth giải tích bằng toán, độc lập giữa các split. |
+| **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng Logprob vs Verifier | **HOÀN THÀNH (100%)** | Đo logprob trên MLX (`run11_snapshot.jsonl`): Logprob confidence **FAIL** prereg; Hoàn thành Symbolic Verifier (`scripts/verifiers.py`) đạt **Recall 100%**. |
+| **M3: Thực nghiệm chính** | Sweep độc lập 6 arms trên model thật | **ĐANG CHẠY (63%)** | `run11_sweep_trace.jsonl` (359/571 lines): DIRECT (16.9%), COT (58.0%), SC (53.0%), ToT (70.5% - tăng vọt +22.5pp trên Order). |
+| **M4: Bài báo & Cascade** | Cascade policy evaluation, manuscript, artifacts | **CHUẨN BỊ (30%)** | Đã chốt quy tắc cascade; chờ Run 11 hoàn tất để tính delta accuracy, token cost và cluster-bootstrap CI. |
+| **M5: Minh họa RAT** | Demo luồng app tối thiểu | **KẾ TIẾP** | Thực hiện sau khi hoàn tất bài báo NCKH. |
 
-M0 và hạ tầng thí nghiệm đã được phác thảo trong lần chỉnh này. M1–M4 còn cần
-dữ liệu được duyệt, chạy mô hình thật và viết kết quả. Smoke test không thay thế
-các mốc đó. Gate Stage 0 đang giữ nguyên: đọc protocol Stage 0 trước khi chạy
-chương trình đo/huấn luyện Qwen/Meta-Reasoner đã bị đóng băng. Việc thêm runner
-không tự xác nhận gate đã đạt.
+## Nhật ký Tiến trình Thực nghiệm (Chronological Execution Log)
+
+| Thời điểm / Bước | Hành động & Mã nguồn | Kết quả & Phát hiện Khoa học chính | Artifacts & Commit |
+| --- | --- | --- | --- |
+| **Run 7 - Run 8** | Hợp nhất harness 6 arm, sửa render gap clue | Chuẩn hóa `scripts/run_sweep.py` và `scripts/analyze_oracle.py`, cố định tập dữ liệu `gen02` v0.2.1. | Commit `809e0ec`, Tag `harness-v1-run8` |
+| **Stage P Audit** | Chạy đánh giá P sweep trên DIRECT & COT | arith PASS tiêu chí prereg; order & g24 sụp đổ do vòng lặp greedy ("Try... Nope"). Xác nhận cần các arm tìm kiếm mạnh hơn. | Commit `b37dbc5` (`prereg/decision_rule_P.md`) |
+| **Run 11 Launch** | Khởi chạy 6-arm sweep (`DIRECT, COT, SC, TOT, REACT, PAL`) trên GPU Apple Silicon | Đo đạc đầy đủ logprob và completion tokens dưới điều kiện kiểm soát ngặt nghèo (cold-start, deterministic greedy). | Background PID 23672, `audit/run11_sweep_trace.jsonl` |
+| **Prompt X & Y** | Phân tích hiệu chuẩn Logprob (Repeated 5-fold CV $\times 20$) | **Kết quả âm tính có giá trị (Negative Finding)**: Logprob không vượt qua baseline (+0.05 AUROC với CI > 0). Order rơi vào dải nhiễu 0.23–0.31. **FAIL prereg**, quyết định dừng fit ngưỡng logprob, chuyển sang Symbolic Verifier. | Commit `a8789d2`, `b4cc2a0` (`prereg/decision_rule_signal.md`) |
+| **Prompt Z** | Lập trình Deterministic Program Verifiers | Hoàn thành `scripts/verifiers.py`: `arith_verifier` và `order_verifier`. Đạt **Recall 100%** trên mẫu sai; FPR = 0% trên arith, 21.4% trên order (bắt đúng 3 ca model suy luận vi phạm clue nhưng đoán bừa trúng đáp án). 12 unit test PASS. | Commit `0474647` |
+| **Prompt AA** | Bóc tách cơ chế lỗi Clue Gap & nâng cấp LaTeX Verifier | **Phát hiện đột phá**: 12/23 (52.2%) clue gap bị vi phạm so với 0/33 (0.0%) clue before. Bổ sung hỗ trợ LaTeX (`\times`, `\div`, `\cdot`) cho `arith_verifier`, 18 unit tests PASS. Khóa prereg cascade policy. | Commit `ebd0d30`, `a024ea9` (`prereg/decision_rule_cascade.md`) |
+| **Prompt AB** | Tách cách diễn đạt (Wording) khỏi độ khó bản chất (Gap Difficulty) | Chuẩn bị `gen_tasks.py` v0.2.2 hỗ trợ gap_style B ("if X in p, Y in p+k") và tập `data/gen02_tune_gapB.json` để chạy đối chứng sau Run 11. | *Đang tiến hành* |
+
 
 ## Nhánh nghiên cứu và ứng dụng
 
@@ -79,7 +86,13 @@ Nhánh chính dùng câu hỏi tự chứa đủ dữ kiện, để quy lỗi ch
 controller. Câu hỏi về quy chế trường cần nguồn và ngày hiệu lực; khi chưa có
 thì không dùng làm ground truth thực nghiệm chính.
 
-Nhánh phụ của RAT dùng tác vụ tìm file thật: tìm slide Calculus theo tên, môn,
+RAT được định hướng là trợ lý cá nhân theo hướng “second me”, hỗ trợ công việc
+hằng ngày dựa trên ngữ cảnh, nhu cầu và cách làm việc của từng người. Định hướng
+này phục vụ nhiều đối tượng người dùng. Đây là mục tiêu phát triển lâu dài;
+trong đề tài NCKH hiện tại, RAT vẫn là ứng dụng minh họa, còn thí nghiệm và bài
+báo là ưu tiên. Các khả năng cá nhân hóa cần được xây dựng và đánh giá riêng.
+
+Tác vụ minh họa ban đầu của RAT là tìm file thật: tìm slide Calculus theo tên, môn,
 nội dung, và cách hỏi tiếng Việt/Anh. Người dùng cần danh sách file liên quan,
 không một tên file được chọn trước; chưa có lần tìm đúng được xác nhận làm mốc.
 Kiểm tra liên kết document–chunk trước khi chỉnh xếp hạng (xem
