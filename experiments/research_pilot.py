@@ -21,6 +21,7 @@ from experiments.research_study import (
     source_hashes, validate_dataset, write_json,
 )
 from reasoning_env import ReasoningAction as A
+from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
 
 
 PILOT_STRATEGIES = (A.DIRECT, A.COT, A.SELF_CONSISTENCY, A.TOT, A.REACT, A.PAL)
@@ -77,12 +78,19 @@ class PilotSmokeBackend:
         cap = min(200, self.max_tokens) if strategy == A.REACT else self.max_tokens
         count = min(required, cap)
         truncated = required > cap
-        answer = "OK" if ok and not truncated else "wrong"
+        answer = "" if truncated else "OK" if ok else "wrong"
+        suffix = (
+            ALIGNED_DIRECT_COT_SUFFIX_TEXT[strategy.name]
+            if getattr(self, "prompt_profile", None) == "aligned-direct-cot-v1"
+            else ""
+        )
         self.last_trace = {
-            "synthetic": True, "strategy": strategy.name, "parse_status": "fail" if truncated else "marker",
+            "synthetic": True, "strategy": strategy.name,
+            "prompt_profile": getattr(self, "prompt_profile", "legacy"),
+            "parse_status": "fail" if truncated else "marker", "wordy": False,
             "answer_format": self.answer_format, "tools": [],
-            "generations": [{"output": f"Answer: {answer}", "tokens": count,
-                "prompt_tokens": 1, "messages": [{"role": "user", "content": query}],
+            "generations": [{"output": "" if truncated else f"Answer: {answer}", "tokens": count,
+                "prompt_tokens": 1, "messages": [{"role": "user", "content": query + suffix}],
                 "max_tokens": cap, "temperature": 0.0, "enable_thinking": False,
                 "finish_reason": "length" if truncated else "stop"} for _ in range(calls)],
         }
@@ -231,6 +239,8 @@ def run(args, parser, replay_manifest=None):
         profile = args.prompt_profile or "legacy"
         if profile == "english-math-v1" and any(strategy not in (A.DIRECT, A.COT, A.PAL) for strategy in strategies):
             parser.error("English math profile supports DIRECT, COT and PAL only")
+        if profile == "aligned-direct-cot-v1" and any(strategy not in (A.DIRECT, A.COT) for strategy in strategies):
+            parser.error("Aligned DIRECT/CoT profile supports DIRECT and COT only")
         budgets = args.token_budgets or ([args.max_tokens] if args.max_tokens is not None else [96, 1024])
         count = args.groups_per_stratum if args.groups_per_stratum is not None else 1
         if len(strategies) != len(set(strategies)) or any(strategy not in PILOT_STRATEGIES for strategy in strategies):
@@ -291,6 +301,7 @@ def run(args, parser, replay_manifest=None):
             started = time.perf_counter()
             if args.backend == "smoke":
                 backend = PilotSmokeBackend()
+                backend.prompt_profile = manifest["prompt_profile"]
 
                 def set_seed(value):
                     backend.rng = np.random.default_rng(value)

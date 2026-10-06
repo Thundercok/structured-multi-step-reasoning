@@ -192,6 +192,30 @@ def test_english_math_profile_records_distinct_english_prompts_and_numeric_outpu
     assert len(set(prompts)) == 3
 
 
+def test_aligned_direct_cot_profile_changes_only_visible_reasoning_instruction():
+    from qwen_mlx_backend import ALIGNED_DIRECT_COT_SUFFIXES
+
+    query = "Arrange Alice before Bob, then give the first name."
+    prompts = {}
+    for action, output in ((A.DIRECT, "Answer: Alice"), (A.COT, "Alice must precede Bob.\nAnswer: Alice")):
+        backend = make_backend()
+        backend.configure_prompt_profile("aligned-direct-cot-v1")
+        backend.configure_answer_format("text")
+        scripted.queue(output)
+        answer, _, tokens = backend.run(action, query)
+        assert answer == "Alice" and tokens > 0
+        assert backend.last_trace["prompt_profile"] == "aligned-direct-cot-v1"
+        generation = backend.last_trace["generations"][0]
+        assert generation["messages"][0]["content"] == query + ALIGNED_DIRECT_COT_SUFFIXES[action]
+        assert generation["messages"][0]["content"].isascii()
+        assert generation["enable_thinking"] is False
+        prompts[action] = generation["messages"][0]["content"]
+    assert "without showing reasoning" in prompts[A.DIRECT]
+    assert "reasoning steps" in prompts[A.COT]
+    assert "End with exactly one line 'Answer: '" in prompts[A.DIRECT]
+    assert "End with exactly one line 'Answer: '" in prompts[A.COT]
+
+
 def test_prompt_profile_validation_does_not_load_model(monkeypatch):
     import pytest
     import qwen_mlx_backend as module
@@ -202,6 +226,9 @@ def test_prompt_profile_validation_does_not_load_model(monkeypatch):
     backend.configure_prompt_profile("english-math-v1")
     with pytest.raises(ValueError, match="DIRECT, COT and PAL"):
         backend.run(A.REACT, "Return seven")
+    backend.configure_prompt_profile("aligned-direct-cot-v1")
+    with pytest.raises(ValueError, match="DIRECT and COT"):
+        backend.run(A.PAL, "Return seven")
 
 
 def test_empty_answer_marker_does_not_stop_before_the_final_answer():

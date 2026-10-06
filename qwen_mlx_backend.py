@@ -12,6 +12,7 @@ from mlx_lm import load, stream_generate
 from mlx_lm.sample_utils import make_sampler
 
 from reasoning_env import ReasoningAction as A
+from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
 from reasoning_strategies import (
     extract_answer,
     extract_code,
@@ -39,6 +40,15 @@ MATH_EN_SUFFIXES = {
     A.PAL: "\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block.",
 }
 
+# Development-only profile for a clean DIRECT-vs-CoT manipulation across
+# numeric, text and expression answers.  Both arms use the same language and
+# final-answer contract; the only intended difference is whether visible steps
+# are requested.  Keep this separately named so historical ``legacy`` artifacts
+# retain their original prompts.
+ALIGNED_DIRECT_COT_SUFFIXES = {
+    A[name]: suffix for name, suffix in ALIGNED_DIRECT_COT_SUFFIX_TEXT.items()
+}
+
 REACT_EXAMPLE = [
     {"role": "user", "content": "What is (12 + 8) * 3?"},
     {"role": "assistant", "content": "Thought: I should calculate the expression.\nAction: calculate[(12+8)*3]"},
@@ -61,13 +71,16 @@ class QwenMLXBackend:
     # ---- LLMBackend protocol ----
 
     def configure_prompt_profile(self, profile: str) -> None:
-        if profile not in ("legacy", "english-math-v1"):
+        if profile not in ("legacy", "english-math-v1", "aligned-direct-cot-v1"):
             raise ValueError("Unknown prompt profile")
         self.prompt_profile = profile
 
     def _suffix(self, strategy: A) -> str:
-        if getattr(self, "prompt_profile", "legacy") == "english-math-v1":
+        profile = getattr(self, "prompt_profile", "legacy")
+        if profile == "english-math-v1":
             return MATH_EN_SUFFIXES[strategy]
+        if profile == "aligned-direct-cot-v1":
+            return ALIGNED_DIRECT_COT_SUFFIXES[strategy]
         return {A.DIRECT: DIRECT_SUFFIX, A.COT: COT_SUFFIX, A.PAL: PAL_SUFFIX}[strategy]
 
     def configure_answer_format(self, answer_type: str, decimal_separator: str = ".") -> None:
@@ -96,6 +109,8 @@ class QwenMLXBackend:
         profile = getattr(self, "prompt_profile", "legacy")
         if profile == "english-math-v1" and strategy not in MATH_EN_SUFFIXES:
             raise ValueError("English math profile supports DIRECT, COT and PAL only")
+        if profile == "aligned-direct-cot-v1" and strategy not in ALIGNED_DIRECT_COT_SUFFIXES:
+            raise ValueError("Aligned DIRECT/CoT profile supports DIRECT and COT only")
         self.last_trace = {"strategy": strategy.name, "prompt_profile": profile, "generations": [], "tools": []}
         if hasattr(self, "answer_format"):
             self.last_trace["answer_format"] = dict(self.answer_format)

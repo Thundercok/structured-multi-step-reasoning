@@ -348,6 +348,7 @@ def source_hashes():
         "scripts/gen_tasks.py",
         "research_scoring.py",
         "research_identity.py",
+        "research_prompt_profiles.py",
         "experiments/research_pilot.py",
     )
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in names}
@@ -388,6 +389,10 @@ def main(argv=None):
     mode.add_argument("--backend", choices=("smoke", "mlx"))
     mode.add_argument("--replay", type=Path, help="Recompute a completed run without model calls or changing its settings")
     mode.add_argument("--aggregate", type=Path, nargs="+", metavar="RUN", help="Aggregate compatible completed runs with distinct generation seeds")
+    mode.add_argument(
+        "--direct-cot-analysis", type=Path, metavar="PILOT_RUN",
+        help="Development-only replay of a fixed DIRECT-to-CoT policy; never calls a model",
+    )
     parser.add_argument("--pilot", action="store_true", help="Fixed-strategy diagnostics on exposed development only")
     parser.add_argument("--strategies", nargs="+", choices=("DIRECT", "COT", "SELF_CONSISTENCY", "TOT", "REACT", "PAL"), help="Pilot strategies (default DIRECT COT)")
     budget = parser.add_mutually_exclusive_group()
@@ -395,7 +400,11 @@ def main(argv=None):
     budget.add_argument("--token-budgets", nargs="+", type=int, help="Matched pilot per-call caps (default 96 1024)")
     parser.add_argument("--groups-per-stratum", type=int, help="Pilot groups per split/family/level (default 1)")
     parser.add_argument("--model-provenance", type=Path, help="Pilot upstream model-content verification JSON")
-    parser.add_argument("--prompt-profile", choices=("legacy", "english-math-v1"), help="Pilot prompt profile; replay retains the recorded profile")
+    parser.add_argument("--direct-cot-budget", type=int, help="Matched per-call budget to replay from a DIRECT/CoT pilot")
+    parser.add_argument(
+        "--prompt-profile", choices=("legacy", "english-math-v1", "aligned-direct-cot-v1"),
+        help="Pilot prompt profile; replay retains the recorded profile",
+    )
     parser.add_argument("--dataset", type=Path)
     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
     parser.add_argument("--seed", type=int)
@@ -403,6 +412,28 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True, help="New run directory; existing paths are never overwritten")
     args = parser.parse_args(argv)
     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
+    if args.direct_cot_analysis:
+        forbidden = (
+            args.dataset, args.model, args.seed,
+            *pilot_settings,
+        )
+        if args.pilot or any(value is not None for value in forbidden):
+            parser.error("DIRECT/CoT analysis replays frozen pilot artifacts; collection overrides are not allowed")
+        args.lam = 0.02 if args.lam is None else args.lam
+        if not math.isfinite(args.lam) or args.lam < 0:
+            parser.error("--lam must be finite and nonnegative")
+        if args.direct_cot_budget is not None and args.direct_cot_budget <= 0:
+            parser.error("--direct-cot-budget must be positive")
+        from experiments.direct_cot_analysis import write_analysis
+
+        try:
+            write_analysis(args.direct_cot_analysis, args.output, args.lam, args.direct_cot_budget)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        print(f"direct_cot_development_analysis: {args.output / 'report.md'}")
+        return
+    if args.direct_cot_budget is not None:
+        parser.error("--direct-cot-budget requires --direct-cot-analysis")
     if (args.aggregate or args.replay) and (args.pilot or any(value is not None for value in pilot_settings)):
         parser.error("Replay and aggregation use frozen settings; pilot overrides are not allowed")
     if args.replay and any(value is not None for value in (args.dataset, args.model, args.seed, args.lam)):

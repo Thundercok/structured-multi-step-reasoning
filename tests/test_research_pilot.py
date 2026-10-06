@@ -162,6 +162,27 @@ def test_prompt_profile_is_frozen_in_pilot_and_replay_rejects_override(tmp_path)
         study.main(["--backend", "smoke", "--prompt-profile", "english-math-v1", "--output", str(tmp_path / "heldout")])
 
 
+def test_aligned_direct_cot_profile_is_frozen_and_rejects_other_strategies(tmp_path):
+    output = tmp_path / "aligned"
+    study.main([
+        "--backend", "smoke", "--pilot", "--strategies", "DIRECT", "COT",
+        "--prompt-profile", "aligned-direct-cot-v1", "--max-tokens", "512",
+        "--output", str(output),
+    ])
+    manifest = read(output, "manifest.json")
+    assert manifest["prompt_profile"] == "aligned-direct-cot-v1"
+    assert manifest["strategies"] == ["DIRECT", "COT"]
+    assert manifest["token_budgets"] == [512]
+
+    invalid = tmp_path / "aligned-with-pal"
+    with pytest.raises(SystemExit):
+        study.main([
+            "--backend", "smoke", "--pilot", "--strategies", "DIRECT", "COT", "PAL",
+            "--prompt-profile", "aligned-direct-cot-v1", "--output", str(invalid),
+        ])
+    assert not invalid.exists()
+
+
 def test_local_model_content_is_hashed_and_repository_ids_rejected(tmp_path):
     with pytest.raises(ValueError, match="local model directory"):
         pilot.local_model_metadata("mlx-community/missing-model")
