@@ -6,10 +6,9 @@
 **Trạng thái bằng chứng:** Khảo sát thăm dò trên tập development (Exploratory on exposed tune pool); các quy tắc và verifier được phát triển sau khi quan sát mẫu lỗi (in-sample). Cần xác minh độc lập trên tập confirmatory (`gen02_v2`) trước khi mở held-out test.  
 **Ngày cập nhật:** 2026-10-06  
 **Artifacts Nguồn:**
-- Trace 6 arms: `audit/run11_sweep_trace.jsonl` ($N=571$)
-- Trace đối chứng Gap B: `audit/gapB_sweep_trace.jsonl` ($N=31$)
-- Script báo cáo: `scripts/report_results.py`
-- Bảng và biểu đồ audit: `audit/AD_report_results.txt`, `audit/AD_oracle_rule.txt`, `audit/AD_posthoc_tot.txt`, `audit/AD_failure_modes.txt`, `audit/AD_sc_consensus.txt`, `audit/AD_pareto.png`
+- Traces: `audit/run11_sweep_trace.jsonl` ($N=571$), `audit/ae_palv2_trace.jsonl` ($N=100$), `audit/gapB_sweep_trace.jsonl` ($N=31$)
+- Scripts: `scripts/report_results.py`, `scripts/analyze_ae4.py`
+- Audit artifacts: `audit/AD_report_results.txt`, `audit/AD_oracle_rule.txt`, `audit/AE_oracle_rule_7arm.txt`, `audit/AE_table_pal_palv2_tot.txt`, `audit/AD_pareto.png`
 
 ---
 
@@ -27,7 +26,7 @@ Dữ liệu thực nghiệm 571 lượt sinh từ Run 11 và 31 lượt sinh đ�
    Theo [`prereg/decision_rule_oracle.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/prereg/decision_rule_oracle.md), cổng yêu cầu khoảng trống Oracle (gap) $\ge 10$ pp và cận dưới 95% CI $\ge 5$ pp. Kết quả kiểm định phân cụm bootstrap cho thấy: Arithmetic đạt gap $= 0,0$ pp (PAL đạt 100%, không còn dư địa); Ordering đạt gap $= +12,9$ pp nhưng cận dưới CI chỉ đạt $+3,2$ pp ($< 5$ pp); Game-of-24 đạt gap $= +6,9$ pp ($< 10$ pp). Cả 3 họ đều nhận kết luận **NO-GO**, nghĩa là không đủ khoảng trống bổ sung giữa các arm để fit ngưỡng router toàn cục.
 4. **Phân hóa Chiến lược theo Họ Bài toán (Home Arms):**  
    - **Số học:** PAL đạt 40/40 (100,0%) với 194,1 tokens (rẻ hơn CoT 305,6 tokens). Việc chạy CoT rồi mới leo thang sang PAL (Policy V) tốn 371,6 tokens ($1,91\times$ so với PAL), cho thấy phân tầng sau (cascade) là lãng phí tài nguyên trên bài toán có công cụ ngoài rẻ hơn.
-   - **Xếp hạng & Tổ hợp:** Best-of-3 with judge (`TOT`) dẫn đầu (Order 67,7%, G24 58,6%) ở mức chi phí $\approx 2,4\times$ CoT. Ngược lại, Self-Consistency (`SC`) suy giảm độ chính xác (Order 35,5%, G24 41,4%); phân tích vote share (AD5) xác nhận 30,0% các ca sai trên Order có ít nhất 3/5 mẫu đồng thuận trên cùng một đáp án sai.
+   - **Xếp hạng & Tổ hợp:** Best-of-3 with judge (`TOT`) dẫn đầu trong các phương pháp sinh tự nhiên (Order 67,7%, G24 58,6%) ở mức chi phí $\approx 2,4\times$ CoT. Ngược lại, Self-Consistency (`SC`) suy giảm độ chính xác (Order 35,5%, G24 41,4%); phân tích vote share (AD5) bác bỏ giả thuyết 'SC hội tụ vào cùng một đáp án sai': cơ chế thất bại chính của SC là sự phân tán phiếu (dispersion), với mean winner share khi sai chỉ 0,44 trên Order và 0,28 trên G24 (chỉ 6/20 và 1/17 ca sai có $\ge 3/5$ phiếu đồng thuận).
 
 ---
 
@@ -78,8 +77,11 @@ Dữ liệu thực nghiệm 571 lượt sinh từ Run 11 và 31 lượt sinh đ�
 
 | Family | Always-COT | Always-TOT | Oracle(COT,TOT) | Policy V' (post-hoc E=TOT) | Delta (V' - COT) [95% CI] | Token Ratio (V' / TOT) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **order** | 45,2% (712,2 tok) | 67,7% (1894,0 tok) | 74,2% (1025,2 tok) | **71,0% (2088,1 tok, esc: 20/31)** | **+25,8 pp** [+6,5 pp; +45,2 pp] | 1,10 |
-| **g24** | 48,3% (627,8 tok) | 58,6% (1446,8 tok) | 62,1% (780,6 tok) | **62,1% (1649,8 tok, esc: 15/29)** | **+13,8 pp** [+3,4 pp; +27,6 pp] | 1,14 |
+| **order** | 45,2% (712,2 tok) | 67,7% (1894,0 tok) | 74,2% (1025,2 tok) | **71,0% (2088,1 tok, esc: 20/31)** | **+25,8 pp** [+6,5 pp; +45,2 pp] | **1,10** |
+| **g24** | 48,3% (627,8 tok) | 58,6% (1446,8 tok) | 62,1% (780,6 tok) | **62,1% (1649,8 tok, esc: 15/29)** | **+13,8 pp** [+3,4 pp; +27,6 pp] | **1,14** |
+
+**Đánh giá chi phí của Chính sách $V'$:**  
+Chính sách $V'$ (chạy COT trước, nếu verifier vi phạm hoặc chạm trần length thì leo thang sang TOT) **tiêu tốn nhiều token hơn always-TOT** trên cả hai họ bài toán (Order: 2088,1 vs 1894,0 tokens, đắt hơn 10,2%; G24: 1649,8 vs 1446,8 tokens, đắt hơn 14,0%), chỉ để đổi lấy thêm đúng 1 câu giải đúng (+3,2 pp trên Order, +3,4 pp trên G24). Kết quả này **trượt điều kiện chi phí token của preregistration** (yêu cầu chi phí cascade $\le 0,6\times E$). Về mặt lý thuyết xác suất, cơ chế cascade chỉ có lợi thế chi phí khi tỷ lệ leo thang thấp hơn $1 - c_{\text{COT}} / c_{\text{TOT}} \approx 62\%$; tuy nhiên thực tế tỷ lệ leo thang lên tới 64,5% trên Order (20/31), và các câu bị leo thang vốn là các ca khó nên tốn chi phí ToT nhiều hơn mức trung bình.
 
 *Lưu ý về Verifier Recall:* Bộ `order_verifier` và `check24` được xây dựng và tinh chỉnh trực tiếp trên các lỗi quan sát được của tập `gen02_tune` (in-sample). Tỷ lệ recall cao và delta trên cần được kiểm chứng lại (confirmatory replication) trên tập split chưa thấy (`gen02_v2`).
 
@@ -91,9 +93,9 @@ Dữ liệu thực nghiệm 571 lượt sinh từ Run 11 và 31 lượt sinh đ�
 
 | Arm | Family | Total | Failure Mode | Count | Share (%) | Nguyên nhân gốc rễ (Root Cause) |
 | :--- | :--- | ---: | :--- | ---: | ---: | :--- |
-| **PAL** | order | 31 | exception (sandbox import block) | 30 | 96,8% | Prompt PAL yêu cầu gán số vào biến `result` và cấm import. Khi giải xếp hạng, mô hình cố tình viết `from itertools import permutations` $\to$ Sandbox chặn import fail-closed. |
+| **PAL** | order | 31 | exception (sandbox import block) | 30 | 96,8% | Prompt PAL yêu cầu gán số vào biến `result` và cấm import. Khi giải xếp hạng, mô hình cố tình viết `from itertools import permutations` $\to$ Sandbox ban đầu chặn import fail-closed (**sandbox artifact**; được giải phóng ở PAL-v2). |
 | **PAL** | order | 31 | wrong value (syntax token parsed) | 1 | 3,2% | Lời giải sinh mã chứa comment hoặc từ khóa cú pháp không trả về tên hợp lệ. |
-| **PAL** | g24 | 29 | exception (sandbox import block) | 21 | 72,4% | Mô hình cố import `itertools.product` để duyệt biểu thức $\to$ Bị sandbox chặn. |
+| **PAL** | g24 | 29 | exception (sandbox import block) | 21 | 72,4% | Mô hình cố import `itertools.product` để duyệt biểu thức $\to$ Bị sandbox chặn (**sandbox artifact**; được giải phóng ở PAL-v2). |
 | **PAL** | g24 | 29 | wrong value / invalid syntax | 8 | 27,6% | Mô hình trả về giá trị scalar 24 hoặc cú pháp biểu thức sai quy cách. |
 | **REACT** | g24 | 29 | wrong value / invalid format | 22 | 75,9% | ReAct chỉ có công cụ tính toán số học (`calculate[...]`), không có công cụ tìm kiếm cây. Vòng lặp ReAct sinh biểu thức tính thử nhưng không ghép đủ 4 số. |
 | **REACT** | g24 | 29 | wrong type (scalar 24) | 7 | 24,1% | G24 yêu cầu chuỗi biểu thức toán học (VD: `((12*6)/1)/3`), nhưng ReAct trả về kết quả scalar là số `24`. |
@@ -114,7 +116,7 @@ Dữ liệu thực nghiệm 571 lượt sinh từ Run 11 và 31 lượt sinh đ�
 | g24 | **Wrong** | 17 | **0,282** | **0,200** | **1 / 17 ( 5,9%)** |
 | g24 | Total | 29 | 0,414 | 0,400 | 9 / 29 (31,0%) |
 
-**Ý nghĩa:** Trên Ordering, trong **30,0%** trường hợp sai, có ít nhất 3 trên 5 đường sinh ngẫu nhiên cùng đồng thuận vào một đáp án sai (consistent with bias reinforcement). Ngược lại, trên Game-of-24, các mẫu sai phân tán mạnh (median winner share chỉ 0,20 - mỗi mẫu một đáp án sai khác nhau).
+**Ý nghĩa:** Phân tích thực nghiệm bác bỏ giả thuyết cho rằng SC thường xuyên củng cố và hội tụ vào cùng một đáp án sai ("SC converges on the same wrong answer"). Thực tế, cơ chế thất bại của SC chủ yếu là do phân tán (dispersion): khi dự đoán sai, mức đồng thuận trung bình chỉ đạt 0,440 trên Ordering và 0,282 trên Game-of-24 (các mẫu sinh các đáp án khác nhau, không có consensus rõ ràng). Số ca sai có đa số áp đảo ($\ge 3/5$ phiếu) chỉ là 6/20 (30,0%) trên Order và 1/17 (5,9%) trên G24.
 
 ---
 
@@ -156,3 +158,23 @@ Router không có giá trị phân biệt giữa PAL và ToT (vì đó là bài 
    ToT đạt $67,7\%$ trên Order nhưng tốn $1894$ tokens ($2,7\times$ CoT). Một router thông minh có nhiệm vụ phân biệt: câu Order nào có đồ thị ràng buộc đơn giản, tuyến tính để giải bằng CoT (712 tokens), và câu nào có ràng buộc lồng nhau/chu trình phức tạp để kích hoạt ToT.
 2. **Kiểm tra Rationale và Dừng / Leo thang Có điều kiện (Verifier-guided stopping):**  
    Khởi chạy CoT giá rẻ; sử dụng `order_verifier` hoặc `check24` để phát hiện lỗi lập luận hoặc vòng lặp chạm trần. Nếu vi phạm, leo thang sang ToT. Chính sách này đạt $71,0\%$ trên Order và $62,1\%$ trên G24, giữ được chất lượng của ToT mà vẫn cung cấp cơ chế kiểm định hình thức cho từng lời giải.
+
+---
+
+## 9. Giới hạn Nghiên cứu (Limitations)
+
+1. **Bản chất Thăm dò trên Tập Dữ liệu Đã lộ (Exploratory on Exposed Tune Pool):**  
+   Toàn bộ kết quả trong báo cáo này được thực hiện trên tập `data/gen02_tune.json` ($N=100$). Các quy tắc kiểm tra (verifiers), phân loại lỗi và nhánh leo thang hậu nghiệm ($V'$) đều được thiết kế sau khi nhóm nghiên cứu đã quan sát các mẫu thất bại cụ thể. Do đó, các phát hiện này mang tính thăm dò (exploratory, in-sample) và bắt buộc phải được tái khẳng định độc lập (confirmatory replication) trên tập split chưa từng tiếp cận (`data/gen02_v2.json`) trước khi đưa ra kết luận công bố chính thức.
+
+2. **Artifact Môi trường Thực thi của PAL ban đầu (Sandbox Artifact):**  
+   Tỷ lệ chính xác 0,0% của PAL trên họ Ordering (0/31) và Game-of-24 (0/29) trong Run 11 là một artifact kỹ thuật của sandbox: môi trường ban đầu chặn toàn bộ từ khóa `import`, khiến các đoạn mã sử dụng `itertools.permutations` và `itertools.product` bị fail-closed ngay lập tức. Đây không phải giới hạn năng lực sinh mã của mô hình, và được chuẩn hóa lại trong biến thể `PAL-v2` với sandbox allowlist hợp lệ.
+
+3. **Bất lợi Chi phí của Cơ chế Cascade $V'$ so với Always-ToT:**  
+   Chính sách leo thang hai chặng $V'$ tiêu tốn token nhiều hơn always-TOT (+10,2% trên Order và +14,0% trên G24) mà chỉ mang lại thêm 1 câu đúng duy nhất. $V'$ vi phạm tiêu chí chi phí của preregistration ($\le 0,6\times E$). Về mặt kinh tế tính toán, cascade chỉ tiết kiệm khi tỷ lệ leo thang thấp hơn $1 - c_{\text{COT}} / c_{\text{TOT}} \approx 62\%$, trong khi thực tế tỷ lệ leo thang lên tới 64,5% trên Order, và các bài toán bị đẩy sang ToT là những bài toán phức tạp, tiêu tốn nhiều tài nguyên hơn mức trung bình của ToT.
+
+4. **Lỗi của Self-Consistency là do Phân tán (Dispersion), Không phải Đồng thuận Sai:**  
+   Phân tích thực nghiệm trực tiếp bác bỏ nhận định trước đây cho rằng SC hội tụ vào đáp án sai. Thực tế, khi SC dự đoán sai, winner vote share trung bình chỉ là 0,440 trên Order và 0,282 trên G24; tỷ lệ sai có từ 3/5 phiếu trở lên chỉ là 6/20 (Order) và 1/17 (G24). Do đó, sự suy giảm của SC bắt nguồn từ việc mô hình bị phân tán lời giải trong không gian tổ hợp, chứ không phải do củng cố thiên kiến sai lầm.
+
+5. **Giới hạn Mô hình Đơn lẻ và Tham số Giải mã:**  
+   Các khảo sát mới được thực hiện trên một mô hình cụ thể (`Qwen3-8B-4bit`) trên phần cứng Apple Silicon MLX, với một lần chạy đơn lẻ (single seed) cho mỗi arm. Mặc dù các kiểm định bootstrap phân cụm theo `group_id` đã được áp dụng để kiểm soát phương sai, việc khái quát hóa sang các họ mô hình khác hoặc các dải nhiệt độ khác cần thêm thực nghiệm kiểm chứng đa hạt giống (multi-seed runs).
+

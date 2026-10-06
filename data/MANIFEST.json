@@ -84,5 +84,14 @@
     "commit": "d6f7d32",
     "tag": "harness-v1-run11",
     "note": "run11 sc_vote_share field was logged as share/5 due to double-division; use recomputation from sc_candidates"
+  },
+  "audit/ae_palv2_trace.jsonl": {
+    "size_bytes": 343387,
+    "sha256": "c3f2bb0de9e1d04356497911dfb0377597fa7862799cff6754bd8a412ac0d57c",
+    "n_records": 100,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "6986e6d",
+    "tag": "harness-v1-run12",
+    "description": "PAL-v2 benchmark sweep on gen02_tune (Prompt AE)"
   }
 }

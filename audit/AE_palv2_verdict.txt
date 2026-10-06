@@ -1,0 +1,8 @@
+## Verdict vs prereg/decision_rule_palv2.md
+
+- **Order**: PAL-v2 64.5% (20/31) vs ToT 67.7% (21/31); Tokens: 474.3 vs 1894.0 (ratio 0.25x, threshold <= 0.50x)
+  Acc condition: FAIL; Token condition: PASS
+- **G24**: PAL-v2 0.0% (0/29) vs ToT 58.6% (17/29); Tokens: 474.8 vs 1446.8 (ratio 0.33x, threshold <= 0.50x)
+  Acc condition: FAIL; Token condition: PASS
+
+**VERDICT: REJECTED / CODE-SOLVABLE NOT SATISFIED on order, g24.** ToT stays best on the failing family (order, g24); PAL limits documented.
