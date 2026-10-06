@@ -120,3 +120,38 @@ def test_get_git_info_untracked_dirty(tmp_path):
     dummy.write_text("print('untracked')")
     assert get_git_info(cwd=tmp_path)["dirty"] is True
 
+
+def test_pal_v2_sandboxed_allowlist():
+    from reasoning_strategies import run_python_sandboxed
+    allowed = ("itertools", "math", "fractions", "functools", "collections")
+
+    # 1. itertools.permutations works
+    code_ok = (
+        "import itertools\n"
+        "perms = list(itertools.permutations([1, 2, 3]))\n"
+        "result = len(perms)\n"
+    )
+    ok, res = run_python_sandboxed(code_ok, timeout=5.0, allowed_imports=allowed)
+    assert ok is True
+    assert res.strip() == "6"
+
+    # 2. import os is blocked
+    code_os = "import os\nresult = 1\n"
+    ok, res = run_python_sandboxed(code_os, timeout=5.0, allowed_imports=allowed)
+    assert ok is False
+    assert "blocked keyword" in res or "Import of 'os'" in res
+
+    # 3. while True times out
+    code_inf = "while True:\n    pass\n"
+    ok, res = run_python_sandboxed(code_inf, timeout=0.5, allowed_imports=allowed)
+    assert ok is False
+    assert res == "timeout"
+
+
+def test_sc_vote_computation():
+    from scripts.run_sweep import sc_vote
+    ans, share = sc_vote(["a", "a", "a", "b", "c"])
+    assert ans == "a"
+    assert share == 0.6
+
+

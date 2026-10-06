@@ -75,5 +75,14 @@
     "n_items": 31,
     "sha256_items": "4c36d1f9d5c8c5a815b313accef39b74c7e37f933d02031f40e9248084a6a41c",
     "description": "31 order items of gen02_tune re-rendered in gap_style B (ids suffixed _gB)"
+  },
+  "audit/run11_sweep_trace.jsonl": {
+    "size_bytes": 3519729,
+    "sha256": "3d57df7f4e81c71513a30b46a190c2d848ea020dac78adf88776620b6e67e632",
+    "n_records": 571,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "d6f7d32",
+    "tag": "harness-v1-run11",
+    "note": "run11 sc_vote_share field was logged as share/5 due to double-division; use recomputation from sc_candidates"
   }
 }

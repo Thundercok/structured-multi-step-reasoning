@@ -31,6 +31,28 @@ DEFAULT_SNAPSHOT_DIR = os.path.expanduser(
     "~/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192"
 )
 
+# PAL-v2 (prereg/decision_rule_palv2.md): PAL plus an import allowlist and a
+# prompt that names it. Everything else (decoder, 512-token cap, builtins,
+# timeout, `result` contract) is identical to PAL.
+PAL_V2_ALLOWED_IMPORTS = ("itertools", "math", "fractions", "functools", "collections")
+PAL_V2_SUFFIX_EXTRA = (
+    " Chỉ được import các module: itertools, math, fractions, functools, collections"
+    " (không import module nào khác)."
+)
+
+
+def sc_vote(candidates: list[str]) -> tuple[str, float | None]:
+    """Majority answer and winner share k/n.
+
+    `majority_vote` already returns k/n. Run11 divided it by n again, so its
+    logged `sc_vote_share` equals share/5; recompute from `sc_candidates`.
+    """
+    if not candidates:
+        return "", 0.0
+    parsed, share = majority_vote(candidates)
+    return parsed, round(float(share), 4)
+
+
 
 def get_git_info(cwd: Path = ROOT):
     def _run(cmd):
@@ -144,11 +166,18 @@ class StubRunner:
             f_reason = "stop"
             mean_lp, min_lp = -0.22, -0.70
             token_logprobs = [-0.22] * 90
+        elif arm_name == "PAL-v2":
+            raw = f"```python\nimport itertools\nresult = {gold!r}\n```\nAnswer: {gold}"
+            parsed = gold
+            tok = 95
+            f_reason = "stop"
+            mean_lp, min_lp = -0.22, -0.70
+            token_logprobs = [-0.22] * 95
         else:
             raise ValueError(f"Unknown arm: {arm_name}")
 
         correct = bool(gen_check(item, parsed))
-        return {
+        out = {
             "raw_output": raw,
             "parsed": parsed,
             "correct": correct,
@@ -169,6 +198,9 @@ class StubRunner:
             "repeat": False,
             "wordy": False,
         }
+        if arm_name == "PAL-v2":
+            out["pal_exec"] = {"ok": True, "output": str(gold)}
+        return out
 
 
 class MLXRunner:
@@ -278,14 +310,12 @@ class MLXRunner:
                 if fr_branch == "length":
                     f_reason = "length"
 
-            parsed, max_votes = majority_vote(candidates)
-            vote_share = float(max_votes / len(candidates)) if candidates else 0.0
+            parsed, sc_vote_share = sc_vote(candidates)
             text = "\n---\n".join(all_texts)
             tok = total_tok
             status = "majority" if parsed else "fail"
             wordy = False
             sc_candidates = candidates
-            sc_vote_share = round(vote_share, 4)
             mean_lp = round(float(np.mean(all_m_lps)), 4) if all_m_lps else None
             min_lp = min(all_min_lps) if all_min_lps else None
             gen_logprobs = branch_logprobs_list
@@ -396,6 +426,23 @@ class MLXRunner:
             wordy = False
             token_logprobs = logps
 
+        elif arm_name == "PAL-v2":
+            from qwen_mlx_backend import PAL_SUFFIX, extract_code, run_python_sandboxed
+            user_content = query + PAL_SUFFIX + PAL_V2_SUFFIX_EXTRA
+            msgs = [{"role": "user", "content": user_content}]
+            prompt = self.tokenizer.apply_chat_template(msgs, tokenize=False, enable_thinking=False, add_generation_prompt=True)
+            p_tok = len(self.tokenizer.encode(prompt))
+            sampler = self.make_sampler(temp=0.0)
+
+            text, tok, f_reason, mean_lp, min_lp, logps = self._generate_stream(prompt, max_tokens=512, sampler=sampler, check_stop_answer=False)
+            code = extract_code(text)
+            ok, res = run_python_sandboxed(code, allowed_imports=PAL_V2_ALLOWED_IMPORTS)
+            parsed = extract_answer(res) if ok else extract_answer(text)
+            status = "pal" if ok else "pal_fail"
+            wordy = False
+            token_logprobs = logps
+            pal_exec = {"ok": ok, "output": str(res)[:500]}
+
         else:
             raise ValueError(f"Unknown arm: {arm_name}")
 
@@ -406,7 +453,7 @@ class MLXRunner:
         else:
             correct = bool(gen_check(item, parsed))
 
-        return {
+        out = {
             "raw_output": text,
             "parsed": parsed,
             "correct": correct,
@@ -427,6 +474,9 @@ class MLXRunner:
             "repeat": check_repeated_lines(text),
             "wordy": wordy,
         }
+        if arm_name == "PAL-v2":
+            out["pal_exec"] = pal_exec
+        return out
 
 
 

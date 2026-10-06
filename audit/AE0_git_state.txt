@@ -1,0 +1,43 @@
+$ git log --oneline -3 origin/main
+2f212a9 feat(audit): report_results script, Prompt AD evaluation artifacts, failure diagnostics, and revised report
+79f0a0d feat(research): empirical findings report, prompt profiles, aligned direct/cot analysis, and raw sweep traces
+ddc320c docs: update milestone tracking and execution log with Run 11, Prompt AB, and Cascade
+
+$ git branch -vv
+  backup-local-main-safety        869c736 feat(research): add structured reasoning notebook for NCKHSV and update README
+  backup-main-before-thinning     1c39dae build(packaging): slim DMG bundle, exclude PyTorch bloat, and add Gatekeeper helper
+  codex/development-pilot-runtime 05a93cf fix(mlx): cast bfloat16 arrays before NumPy export
+  exp/reasoning-harness-v1        79f0a0d feat(research): empirical findings report, prompt profiles, aligned direct/cot analysis, and raw sweep traces
+* main                            2f212a9 [origin/main] feat(audit): report_results script, Prompt AD evaluation artifacts, failure diagnostics, and revised report
++ rat-ui                          3d6debc (/Users/thundercock2/Documents/Github/rat-ui) [origin/rat-ui] feat(rat): preserve scratch renders and assets
+
+$ git show --stat --oneline HEAD | tail -25
+2f212a9 feat(audit): report_results script, Prompt AD evaluation artifacts, failure diagnostics, and revised report
+ audit/AD_failure_modes.txt                         |    42 +
+ audit/AD_oracle_rule.txt                           |     5 +
+ audit/AD_pareto.png                                |   Bin 0 -> 512967 bytes
+ audit/AD_posthoc_tot.txt                           |     4 +
+ audit/AD_report_results.txt                        |    19 +
+ audit/AD_sc_consensus.txt                          |     8 +
+ audit/run11_think_on_demand_replay/manifest.json   |    36 +
+ audit/run11_think_on_demand_replay/policy.json     |    25 +
+ audit/run11_think_on_demand_replay/report.md       |    43 +
+ audit/run11_think_on_demand_replay/results.json    | 15477 +++++++++++++++++++
+ .../source_validation.json                         |    77 +
+ audit/run11_think_on_demand_replay/summary.json    |   245 +
+ docs/direct_cot_development_protocol.md            |    10 +-
+ docs/empirical_findings_report.md                  |   216 +-
+ docs/research_plan.md                              |    46 +-
+ docs/think_on_demand_replay_protocol.md            |    89 +
+ experiments/research_study.py                      |    23 +
+ experiments/think_on_demand_replay.py              |   555 +
+ scripts/report_results.py                          |   505 +
+ scripts/verifiers.py                               |   154 +
+ tests/test_think_on_demand_replay.py               |    83 +
+ tests/test_verifiers.py                            |   101 +-
+ 22 files changed, 17640 insertions(+), 123 deletions(-)
+
+$ git merge-base --is-ancestor f51db3f origin/main
+no
+$ git ls-remote --tags origin harness-v1-run1
+4033e923a24d23c1056bfbc384556f0573c344cb	refs/tags/harness-v1-run1

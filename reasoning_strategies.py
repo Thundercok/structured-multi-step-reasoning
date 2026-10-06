@@ -286,11 +286,24 @@ import io
 import json
 import sys
 
+allowed_imports = set(json.loads(sys.argv[1])) if len(sys.argv) > 1 and sys.argv[1] else set()
+
+def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
+    root = name.split('.')[0]
+    if root not in allowed_imports:
+        raise ImportError(f"Import of {name!r} is not allowed")
+    return builtins.__import__(name, globals, locals, fromlist, level)
+
 names = (
     "print", "abs", "min", "max", "sum", "round", "len", "range", "sorted",
     "int", "float", "str", "list", "dict", "tuple", "set", "enumerate", "zip",
+    "bool", "isinstance", "type", "reversed", "any", "all",
 )
-namespace = {"__builtins__": {name: getattr(builtins, name) for name in names}}
+b_dict = {name: getattr(builtins, name) for name in names if hasattr(builtins, name)}
+if allowed_imports:
+    b_dict["__import__"] = safe_import
+
+namespace = {"__builtins__": b_dict}
 buffer = io.StringIO()
 try:
     with contextlib.redirect_stdout(buffer):
@@ -307,18 +320,31 @@ except Exception as error:
 """
 
 
-def run_python_sandboxed(code: str, timeout: float = 5.0) -> tuple[bool, str]:
+def run_python_sandboxed(
+    code: str,
+    timeout: float = 5.0,
+    allowed_imports: tuple[str, ...] | list[str] | set[str] | None = None,
+) -> tuple[bool, str]:
     """Chạy code trong interpreter con tối thiểu, không import lại MLX/Metal.
 
-    Builtins bị giới hạn và import/open/exec/eval bị chặn. Đây là helper cho
-    môi trường thí nghiệm được kiểm soát, không phải security boundary.
+    Builtins bị giới hạn và open/exec/eval/os/subprocess bị chặn.
+    Nếu allowed_imports được cung cấp, cho phép import các module trong danh sách.
     Trả (thành_công, ket_qua_hoac_loi). Code nên gán kết quả vào `result`.
     """
-    if re.search(r"\b(import|open|exec|eval|__import__|__builtins__|subprocess|os\.)\b", code):
-        return False, "blocked keyword in code"
+    if allowed_imports:
+        if re.search(r"\b(open|exec|eval|__import__|__builtins__|subprocess|os\b|sys\b)\b", code):
+            return False, "blocked keyword in code"
+    else:
+        if re.search(r"\b(import|open|exec|eval|__import__|__builtins__|subprocess|os\.)\b", code):
+            return False, "blocked keyword in code"
+
+    cmd = [sys.executable, "-I", "-c", _PAL_RUNNER]
+    if allowed_imports:
+        cmd.append(json.dumps(list(allowed_imports)))
+
     try:
         completed = subprocess.run(
-            [sys.executable, "-I", "-c", _PAL_RUNNER],
+            cmd,
             input=code,
             capture_output=True,
             text=True,
