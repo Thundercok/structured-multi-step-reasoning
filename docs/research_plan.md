@@ -63,8 +63,8 @@ trong bối cảnh đã chọn.
 | **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **HOÀN THÀNH (100%)** | Đã commit các file prereg: `decision_rule_P.md`, `decision_rule_signal.md`, `decision_rule_cascade.md` trước khi đọc dữ liệu test. |
 | **M1: Dữ liệu chuẩn** | Dataset procedural có verifier độc lập | **HOÀN THÀNH (100%)** | `data/gen02_tune.json` v0.2.1 (100 items), ground truth giải tích bằng toán, độc lập giữa các split. |
 | **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng Logprob vs Verifier | **HOÀN THÀNH (100%)** | Đo logprob trên MLX (`run11_snapshot.jsonl`): Logprob confidence **FAIL** prereg; Hoàn thành Symbolic Verifier (`scripts/verifiers.py`) đạt **Recall 100%**. |
-| **M3: Thực nghiệm chính** | Sweep độc lập 6 arms trên model thật | **ĐANG CHẠY (63%)** | `run11_sweep_trace.jsonl` (359/571 lines): DIRECT (16.9%), COT (58.0%), SC (53.0%), ToT (70.5% - tăng vọt +22.5pp trên Order). |
-| **M4: Bài báo & Cascade** | Cascade policy evaluation, manuscript, artifacts | **CHUẨN BỊ (30%)** | Đã chốt quy tắc cascade; chờ Run 11 hoàn tất để tính delta accuracy, token cost và cluster-bootstrap CI. |
+| **M3: Thực nghiệm chính** | Sweep độc lập 6 arms trên model thật | **HOÀN THÀNH (100%)** | Hoàn thành đủ 571/571 dòng run11: DIRECT 16.9%, COT 58.0%, SC 53.0%, TOT 68.0%, REACT 39.0%, PAL 40.0% (100% arith). ToT thống trị bài toán tìm kiếm (order 67.7%, g24 58.6%). |
+| **M4: Bài báo & Cascade** | Cascade policy evaluation & Wording Ablation | **HOÀN THÀNH (80%)** | Đã hoàn tất đánh giá Policy V (prereg): Arith delta +25.0pp CI [+12.5; +40.0], Order delta +0.0pp CI [-12.9; +12.9]. Hoàn tất kiểm chứng Style A vs Style B (gapB): vi phạm clue gap giảm từ 52.2% xuống 14.8%, acc tăng +12.9pp. |
 | **M5: Minh họa RAT** | Demo luồng app tối thiểu | **KẾ TIẾP** | Thực hiện sau khi hoàn tất bài báo NCKH. |
 
 ## Nhật ký Tiến trình Thực nghiệm (Chronological Execution Log)
@@ -77,7 +77,9 @@ trong bối cảnh đã chọn.
 | **Prompt X & Y** | Phân tích hiệu chuẩn Logprob (Repeated 5-fold CV $\times 20$) | **Kết quả âm tính có giá trị (Negative Finding)**: Logprob không vượt qua baseline (+0.05 AUROC với CI > 0). Order rơi vào dải nhiễu 0.23–0.31. **FAIL prereg**, quyết định dừng fit ngưỡng logprob, chuyển sang Symbolic Verifier. | Commit `a8789d2`, `b4cc2a0` (`prereg/decision_rule_signal.md`) |
 | **Prompt Z** | Lập trình Deterministic Program Verifiers | Hoàn thành `scripts/verifiers.py`: `arith_verifier` và `order_verifier`. Đạt **Recall 100%** trên mẫu sai; FPR = 0% trên arith, 21.4% trên order (bắt đúng 3 ca model suy luận vi phạm clue nhưng đoán bừa trúng đáp án). 12 unit test PASS. | Commit `0474647` |
 | **Prompt AA** | Bóc tách cơ chế lỗi Clue Gap & nâng cấp LaTeX Verifier | **Phát hiện đột phá**: 12/23 (52.2%) clue gap bị vi phạm so với 0/33 (0.0%) clue before. Bổ sung hỗ trợ LaTeX (`\times`, `\div`, `\cdot`) cho `arith_verifier`, 18 unit tests PASS. Khóa prereg cascade policy. | Commit `ebd0d30`, `a024ea9` (`prereg/decision_rule_cascade.md`) |
-| **Prompt AB** | Tách cách diễn đạt (Wording) khỏi độ khó bản chất (Gap Difficulty) | Chuẩn bị `gen_tasks.py` v0.2.2 hỗ trợ gap_style B ("if X in p, Y in p+k") và tập `data/gen02_tune_gapB.json` để chạy đối chứng sau Run 11. | *Đang tiến hành* |
+| **Run 11 Done** | Hoàn thành sweep 571/571 dòng trên GPU | Đủ 6 arms: TOT dẫn đầu tổng thể (68.0%) và vượt trội trên Order (67.7% vs COT 45.2%). PAL đạt 100% arith với token cực thấp (194 tok). SC (53.0%) thua COT (58.0%) do khuếch đại bẫy greedy. | `reasoning-run11/audit/run11_sweep_trace.jsonl` |
+| **Prompt AB** | Thực nghiệm đối chứng cách diễn đạt (Style A vs Style B) | **Xác nhận giả thuyết Wording**: Tỷ lệ vi phạm clue gap giảm ngoạn mục từ 52.2% (12/23) xuống **14.8% (4/27)** (đạt tiêu chí $\le 26\%$). Tỷ lệ dừng do cạn token giảm từ 10 xuống 3; accuracy tổng thể tăng từ 45.2% lên **58.1% (+12.9pp)**. | Commit `52323fa`, Tag `harness-v1-gapB`, `reasoning-gapB/audit/gapB_sweep_trace.jsonl` |
+| **Cascade Policy V** | Đánh giá chính sách phân tầng theo prereg | **Arith**: delta +25.0pp, 95% Cluster-Bootstrap CI [+12.5pp; +40.0pp]; tuy nhiên ratio token V/PAL = 1.91 (PAL vốn rẻ hơn COT nên chỉ cần Entry Router, không cần Cascade). **Order**: delta +0.0pp (SC kém hơn COT, ToT mới là cứu cánh). | `prereg/decision_rule_cascade.md` |
 
 
 ## Nhánh nghiên cứu và ứng dụng
