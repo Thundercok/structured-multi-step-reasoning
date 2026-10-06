@@ -1,0 +1,6 @@
+| Family | Arm | n | Accuracy (corr/n) | Mean Prompt Tok | Mean Comp Tok | Mean Total Tok | %Length | Failure Mechanism |
+| :--- | :--- | ---: | :---: | ---: | ---: | ---: | ---: | :--- |
+| g24 | PAL     | 29 |   0.0% ( 0/29) |   84.0 |  398.1 |  482.1 |  27.6% | 21 import blocked, 8 invalid syntax |
+| g24 | PAL-v2  | 29 |   0.0% ( 0/29) |  107.0 |  367.7 |  474.8 |  27.6% | 29 eval blocked in sandbox |
+| g24 | PAL-v3  | 29 |   0.0% ( 0/29) |  128.0 |  398.9 |  526.9 |  20.7% | 29 eval blocked (negative constraint ignored) |
+| g24 | TOT     | 29 |  58.6% (17/29) |   78.0 | 1368.8 | 1446.8 |   0.0% | 12 search/judge errors |

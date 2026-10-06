@@ -93,5 +93,14 @@
     "commit": "6986e6d",
     "tag": "harness-v1-run12",
     "description": "PAL-v2 benchmark sweep on gen02_tune (Prompt AE)"
+  },
+  "audit/af_palv3_trace.jsonl": {
+    "size_bytes": 139676,
+    "sha256": "496712b4250dbc2b18fd1d3592da92701d222c11a293a7e288a8f4bd65ceb12d",
+    "n_records": 29,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "171ec8e",
+    "tag": "harness-v1-run13",
+    "description": "PAL-v3 benchmark sweep on gen02_tune g24 items (Prompt AF1)"
   }
 }
