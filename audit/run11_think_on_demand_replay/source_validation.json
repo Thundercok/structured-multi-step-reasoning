@@ -1,0 +1,77 @@
+{
+  "row_count": 571,
+  "unique_conditions": 571,
+  "provenance": {
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "snapshot_hash": "545dc4251c05440727734bcd94334791f6ab0192",
+    "safetensors_blobs": {
+      "model.safetensors": "f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8"
+    },
+    "enable_thinking": false,
+    "commit": "d6f7d32",
+    "dirty": false,
+    "tag": "harness-v1-run11",
+    "branch": "HEAD",
+    "eos_token_ids": [
+      151645
+    ]
+  },
+  "sc_checker_disagreements": [
+    {
+      "id": "order_0004_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "order_0005_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "g24_0001_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "g24_0004_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "g24_0006_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "g24_0010_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "g24_0016_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    },
+    {
+      "id": "g24_0022_en_orig",
+      "arm": "SC",
+      "finish_reason": "length",
+      "recorded_correct": false,
+      "checker_correct": true
+    }
+  ]
+}

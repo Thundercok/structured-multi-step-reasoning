@@ -1,0 +1,8 @@
+| Family | Status | n | Mean Winner Vote Share (Reconstructed k/5) | Median Winner Share | Mean Logged sc_vote_share (Double-div /5) | Share with Winner Share >= 0.6 (>=3/5 votes) |
+| :--- | :--- | ---: | :---: | :---: | :---: | :---: |
+| order | Correct | 11 | 0.782 | 0.800 | 0.156 | 10/11 ( 90.9%) |
+| order | Wrong   | 20 | 0.440 | 0.400 | 0.088 |  6/20 ( 30.0%) |
+| order | Total   | 31 | 0.561 | 0.600 | 0.112 | 16/31 ( 51.6%) |
+| g24   | Correct | 12 | 0.600 | 0.600 | 0.120 |  8/12 ( 66.7%) |
+| g24   | Wrong   | 17 | 0.282 | 0.200 | 0.056 |  1/17 (  5.9%) |
+| g24   | Total   | 29 | 0.414 | 0.400 | 0.083 |  9/29 ( 31.0%) |

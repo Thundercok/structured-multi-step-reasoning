@@ -393,6 +393,10 @@ def main(argv=None):
         "--direct-cot-analysis", type=Path, metavar="PILOT_RUN",
         help="Development-only replay of a fixed DIRECT-to-CoT policy; never calls a model",
     )
+    mode.add_argument(
+        "--run11-think-on-demand-replay", type=Path, metavar="TRACE",
+        help="Post-hoc development replay on the exact hashed Run 11 trace; never calls a model",
+    )
     parser.add_argument("--pilot", action="store_true", help="Fixed-strategy diagnostics on exposed development only")
     parser.add_argument("--strategies", nargs="+", choices=("DIRECT", "COT", "SELF_CONSISTENCY", "TOT", "REACT", "PAL"), help="Pilot strategies (default DIRECT COT)")
     budget = parser.add_mutually_exclusive_group()
@@ -412,6 +416,25 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True, help="New run directory; existing paths are never overwritten")
     args = parser.parse_args(argv)
     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
+    if args.run11_think_on_demand_replay:
+        forbidden = (
+            args.model, args.seed, args.direct_cot_budget,
+            *pilot_settings,
+        )
+        if args.pilot or any(value is not None for value in forbidden):
+            parser.error("Run 11 replay uses frozen artifacts; collection overrides are not allowed")
+        args.lam = 0.02 if args.lam is None else args.lam
+        if not math.isfinite(args.lam) or args.lam < 0:
+            parser.error("--lam must be finite and nonnegative")
+        dataset = args.dataset or ROOT / "data" / "gen02_tune.json"
+        from experiments.think_on_demand_replay import write_analysis
+
+        try:
+            write_analysis(args.run11_think_on_demand_replay, dataset, args.output, args.lam)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        print(f"run11_think_on_demand_posthoc_replay: {args.output / 'report.md'}")
+        return
     if args.direct_cot_analysis:
         forbidden = (
             args.dataset, args.model, args.seed,

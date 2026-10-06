@@ -1,0 +1,25 @@
+{
+  "scope": [
+    "arith",
+    "order"
+  ],
+  "frozen_policy_v": {
+    "status": "preregistered_but_in_sample_verifier",
+    "rule": "COT; on legacy verifier flag or COT length: PAL for arith, SC for order"
+  },
+  "posthoc_think_on_demand_fail_open": {
+    "status": "reconstructed_posthoc_not_deployable_evidence",
+    "rule": "arith -> PAL; order -> COT, then TOT on legacy verifier flag or COT length",
+    "unextractable_ordering": "legacy pass (unsafe)"
+  },
+  "posthoc_think_on_demand_fail_closed": {
+    "status": "exploratory_safety_variant_not_deployable_evidence",
+    "rule": "arith -> PAL; order -> COT, then TOT unless tri-state verifier is valid",
+    "unextractable_ordering": "escalate"
+  },
+  "runtime_metadata_assumptions": [
+    "perfect dataset family label",
+    "canonical structured order metadata"
+  ],
+  "uses_gold_at_runtime": false
+}

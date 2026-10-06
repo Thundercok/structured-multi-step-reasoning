@@ -8,8 +8,28 @@ Implements symbolic execution and constraint checking for:
 """
 from __future__ import annotations
 
+import ast
 import re
+from dataclasses import dataclass
+from enum import Enum
+from fractions import Fraction
 from typing import Any
+
+
+class VerificationStatus(str, Enum):
+    """Outcome of a fail-closed rationale verification attempt."""
+
+    VALID = "valid"
+    INVALID = "invalid"
+    UNVERIFIABLE = "unverifiable"
+
+
+@dataclass(frozen=True)
+class VerificationResult:
+    """Structured verifier result used by development-only routing analyses."""
+
+    status: VerificationStatus
+    reason: str
 
 
 def arith_verifier(raw: str) -> tuple[bool, str]:
@@ -68,6 +88,55 @@ def arith_verifier(raw: str) -> tuple[bool, str]:
             return True, f"arith_step_mismatch: {a_str} {op} {b_str} = {c_str} (expected {expected})"
 
     return False, "ok"
+
+
+def verify_arith_rationale(raw: str, meta: dict[str, Any] | None = None) -> VerificationResult:
+    """Classify an arithmetic rationale without consulting a reference answer.
+
+    ``meta`` is accepted so all family verifiers have a compatible call shape,
+    but it is intentionally ignored.  In particular, neither ``gold`` nor
+    ``answer`` fields can affect this result.
+
+    The legacy :func:`arith_verifier` remains unchanged and fail-open when it
+    cannot extract an equation.  This API makes that third state explicit.
+    """
+    del meta
+
+    flagged, reason = arith_verifier(raw)
+    if flagged:
+        return VerificationResult(VerificationStatus.INVALID, reason)
+
+    # The legacy verifier does not recognize fractional final answers.  Treat a
+    # syntactically scalar fraction as invalid when it is not an integer, while
+    # leaving prose/unparseable answers to the equation-based classification.
+    ans_match = re.search(r"Answer:\s*([^\n\r]+)", raw, re.I)
+    if ans_match:
+        answer = ans_match.group(1).strip().rstrip(".").replace(",", "")
+        if re.fullmatch(r"[+-]?\d+\s*/\s*[+-]?\d+", answer):
+            try:
+                if Fraction(answer.replace(" ", "")).denominator != 1:
+                    return VerificationResult(
+                        VerificationStatus.INVALID,
+                        f"non_integer_final_answer: {ans_match.group(1).strip().rstrip('.')}",
+                    )
+            except (ValueError, ZeroDivisionError):
+                return VerificationResult(
+                    VerificationStatus.INVALID,
+                    f"invalid_final_answer: {ans_match.group(1).strip().rstrip('.')}",
+                )
+
+    # Mirror the legacy normalization and equation grammar exactly.  This keeps
+    # legacy decisions stable while distinguishing "no checked evidence" from
+    # a genuinely clean rationale.
+    text = re.sub(r"(?<=\d),(?=\d{3}\b)", "", raw)
+    text = text.replace("−", "-").replace("–", "-")
+    text = text.replace(r"\times", "*").replace(r"\div", "/").replace(r"\cdot", "*")
+    eq_pattern = re.compile(
+        r"(-?\d+(?:\.\d+)?)\s*([\+\-\*\/×÷])\s*(-?\d+(?:\.\d+)?)\s*=\s*(-?\d+(?:\.\d+)?)"
+    )
+    if not eq_pattern.search(text):
+        return VerificationResult(VerificationStatus.UNVERIFIABLE, "no arithmetic equation extractable")
+    return VerificationResult(VerificationStatus.VALID, "ok")
 
 
 def _holds_clue(clue: list[Any], pos: dict[int, int]) -> bool:
@@ -201,3 +270,88 @@ def order_verifier(raw: str, meta: dict[str, Any], flag_unextractable: bool = Fa
                 return True, f"answer_position_mismatch: answered {ans_runner} but position is {expected_runner}"
 
     return False, "ok"
+
+
+def verify_order_rationale(raw: str, meta: dict[str, Any]) -> VerificationResult:
+    """Classify a full ordering as valid, invalid, or unextractable.
+
+    Only the puzzle structure (``names``, ``clues`` and ``ask``) is used.
+    Reference-answer-like fields in ``meta`` are deliberately ignored.
+    """
+    names = meta.get("names", [])
+    if _parse_full_ordering(raw, names) is None:
+        return VerificationResult(VerificationStatus.UNVERIFIABLE, "ordering not extractable")
+
+    flagged, reason = order_verifier(raw, meta, flag_unextractable=False)
+    if flagged:
+        return VerificationResult(VerificationStatus.INVALID, reason)
+    return VerificationResult(VerificationStatus.VALID, reason)
+
+
+_G24_ANSWER_MARKER = re.compile(
+    r"(?P<outer>\*\*)?(?:final\s+)?answer(?P<label_close>\*\*)?\s*:\s*(?P<candidate>[^\n\r]*)",
+    re.I,
+)
+
+
+def _extract_g24_answer(raw: str) -> str | None:
+    """Return the last explicitly marked Game-of-24 expression, if present."""
+    matches = list(_G24_ANSWER_MARKER.finditer(raw))
+    if not matches:
+        return None
+
+    match = matches[-1]
+    candidate = match.group("candidate").strip()
+    if not candidate:
+        for line in raw[match.end() :].splitlines():
+            candidate = line.strip()
+            if candidate and not candidate.startswith("```"):
+                break
+        else:
+            return None
+
+    # Normalize presentation-only wrappers.  The mathematical expression is
+    # still validated independently by check24 below.
+    if match.group("outer") and not match.group("label_close") and candidate.endswith("**"):
+        candidate = candidate[:-2].strip()
+    if candidate.startswith("**") and candidate.endswith("**") and len(candidate) > 4:
+        candidate = candidate[2:-2].strip()
+    candidate = candidate.strip("`").strip()
+    if len(candidate) >= 2 and candidate[0] == candidate[-1] == "$":
+        candidate = candidate[1:-1].strip()
+    boxed = re.fullmatch(r"\\boxed\{(.+)\}", candidate)
+    if boxed:
+        candidate = boxed.group(1).strip()
+    if candidate.endswith(".") and not candidate.endswith("..."):
+        candidate = candidate[:-1].rstrip()
+    return candidate or None
+
+
+def verify_g24_rationale(raw: str, meta: dict[str, Any]) -> VerificationResult:
+    """Validate the final marked Game-of-24 expression using only input numbers."""
+    expression = _extract_g24_answer(raw)
+    if expression is None:
+        return VerificationResult(VerificationStatus.UNVERIFIABLE, "answer expression not extractable")
+
+    normalized = expression.replace("×", "*").replace("÷", "/")
+    parts = normalized.split("=")
+    if not parts or len(parts) > 2 or not parts[0].strip():
+        return VerificationResult(VerificationStatus.UNVERIFIABLE, "answer expression not parseable")
+    try:
+        ast.parse(parts[0].strip(), mode="eval")
+    except (SyntaxError, ValueError):
+        return VerificationResult(VerificationStatus.UNVERIFIABLE, "answer expression not parseable")
+
+    numbers = meta.get("numbers")
+    if not isinstance(numbers, (list, tuple)):
+        return VerificationResult(VerificationStatus.UNVERIFIABLE, "input numbers unavailable")
+
+    # Imported lazily to keep the existing arithmetic/order verifier path light.
+    from scripts.gen_tasks import check24
+
+    if not check24(normalized, list(numbers)):
+        return VerificationResult(
+            VerificationStatus.INVALID,
+            "expression does not make 24 using each input number exactly once",
+        )
+    return VerificationResult(VerificationStatus.VALID, "ok")

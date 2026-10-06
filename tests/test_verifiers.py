@@ -1,6 +1,13 @@
 # Unit tests for arith_verifier and order_verifier
 import pytest
-from scripts.verifiers import arith_verifier, order_verifier
+from scripts.verifiers import (
+    VerificationStatus,
+    arith_verifier,
+    order_verifier,
+    verify_arith_rationale,
+    verify_g24_rationale,
+    verify_order_rationale,
+)
 
 ARITH_WRONG_FIXTURES = [
     'Start with 11314.  \nSubtract 11147 to get 1767.  \nAdd 21566 to get 23333.  \nMultiply by 86 to get 2007558.  \nMultiply by 60 to get 120453480.  \nSubtract 50388 to get 120403092.  \nDivide by 6 to get 20067182.  \nAdd 92170 to get 20076449.  \nDivide by 4 to get 5019112.25.  \n\nAnswer: 5019112.25',
@@ -66,3 +73,95 @@ def test_order_verifier_right_fixtures(raw: str, meta: dict):
     flag, reason = order_verifier(raw, meta)
     assert flag is False
     assert reason == "ok"
+
+
+def test_verification_status_values_are_stable():
+    assert [status.value for status in VerificationStatus] == ["valid", "invalid", "unverifiable"]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("Compute 2 + 3 = 5.\nAnswer: 5", VerificationStatus.VALID),
+        ("Compute 2 + 3 = 6.\nAnswer: 6", VerificationStatus.INVALID),
+        ("The result follows directly.\nAnswer: 5", VerificationStatus.UNVERIFIABLE),
+        ("Compute 1 / 2 = 0.5.\nAnswer: 1/2", VerificationStatus.INVALID),
+    ],
+)
+def test_verify_arith_rationale_has_three_states(raw: str, expected: VerificationStatus):
+    assert verify_arith_rationale(raw).status is expected
+
+
+def test_verify_arith_rationale_does_not_use_gold_fields():
+    raw = "Compute 7 * 6 = 42.\nAnswer: 42"
+    first = verify_arith_rationale(raw, {"gold": "0", "answer": "999"})
+    second = verify_arith_rationale(raw, {"gold": "42", "answer": "42"})
+    assert first == second
+    assert first.status is VerificationStatus.VALID
+
+
+def test_arith_legacy_fail_open_behavior_is_unchanged():
+    raw = "Multiply 95 by 7 to get 665.\nAnswer: 665"
+    assert arith_verifier(raw) == (False, "ok")
+    assert verify_arith_rationale(raw).status is VerificationStatus.UNVERIFIABLE
+
+
+ORDER_META = {
+    "names": ["Alice", "Bob", "Carol"],
+    "clues": [["b", 0, 1, 0], ["a", 1, 2, 1]],
+    "ask": 2,
+}
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("Final order: Alice, Bob, Carol\nAnswer: Carol", VerificationStatus.VALID),
+        ("Final order: Bob, Alice, Carol\nAnswer: Carol", VerificationStatus.INVALID),
+        ("Final order: Alice, Bob, Carol\nAnswer: Alice", VerificationStatus.INVALID),
+        ("Alice is before Bob.\nAnswer: Carol", VerificationStatus.UNVERIFIABLE),
+    ],
+)
+def test_verify_order_rationale_has_three_states(raw: str, expected: VerificationStatus):
+    assert verify_order_rationale(raw, ORDER_META).status is expected
+
+
+def test_verify_order_rationale_ignores_reference_answer_fields():
+    raw = "Final order: Alice, Bob, Carol\nAnswer: Carol"
+    wrong_gold = verify_order_rationale(raw, {**ORDER_META, "gold": "Alice", "answer": "Alice"})
+    right_gold = verify_order_rationale(raw, {**ORDER_META, "gold": "Carol", "answer": "Carol"})
+    assert wrong_gold == right_gold
+    assert wrong_gold.status is VerificationStatus.VALID
+
+
+def test_order_legacy_unextractable_switch_is_unchanged():
+    raw = "Alice is before Bob.\nAnswer: Carol"
+    assert order_verifier(raw, ORDER_META) == (False, "ordering not extractable")
+    assert order_verifier(raw, ORDER_META, flag_unextractable=True) == (
+        True,
+        "ordering not extractable",
+    )
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("Reasoning.\n**Answer: 1 × 2 × 3 × 4**", VerificationStatus.VALID),
+        ("Reasoning.\n**Answer**: **1 * 2 * 3 * 4**", VerificationStatus.VALID),
+        ("Reasoning.\nAnswer: 6 * 4 = 24", VerificationStatus.INVALID),
+        ("Reasoning.\nAnswer: 1 + 2 + 3 + 4", VerificationStatus.INVALID),
+        ("Reasoning.\nAnswer: 1 + (", VerificationStatus.UNVERIFIABLE),
+        ("The expression is 1 * 2 * 3 * 4.", VerificationStatus.UNVERIFIABLE),
+    ],
+)
+def test_verify_g24_rationale_has_three_states(raw: str, expected: VerificationStatus):
+    result = verify_g24_rationale(raw, {"numbers": [1, 2, 3, 4]})
+    assert result.status is expected
+
+
+def test_verify_g24_rationale_uses_inputs_not_gold():
+    raw = "Answer: 1 * 2 * 3 * 4"
+    wrong_gold = verify_g24_rationale(raw, {"numbers": [1, 2, 3, 4], "gold": "6 * 4"})
+    right_gold = verify_g24_rationale(raw, {"numbers": [1, 2, 3, 4], "gold": "1 * 2 * 3 * 4"})
+    assert wrong_gold == right_gold
+    assert wrong_gold.status is VerificationStatus.VALID

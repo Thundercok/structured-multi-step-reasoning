@@ -1,0 +1,4 @@
+| Family | Always-COT | Always-TOT | Oracle(COT,TOT) | Policy V' (post-hoc E=TOT) | Delta (V' - COT) [95% CI] | Token Ratio (V' / TOT) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| order | 45.2% (712.2 tok) | 67.7% (1894.0 tok) | 74.2% (1025.2 tok) | 71.0% (2088.1 tok, esc: 20/31) | +25.8 pp [+6.5 pp; +45.2 pp] | 1.10 |
+| g24   | 48.3% (627.8 tok) | 58.6% (1446.8 tok) | 62.1% (780.6 tok) | 62.1% (1649.8 tok, esc: 15/29) | +13.8 pp [+3.4 pp; +27.6 pp] | 1.14 |

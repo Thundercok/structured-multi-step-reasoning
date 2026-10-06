@@ -58,28 +58,32 @@ trong bối cảnh đã chọn.
 
 ## Mốc hoàn thành & Tiến độ thực tế (Milestone Tracking)
 
+`gen02_tune`, Run 11 và GapB đều là development đã lộ theo
+`research_protocol.md`. Hoàn thành một artifact kỹ thuật không đồng nghĩa đã hoàn
+thành bằng chứng cho bài báo. Stage 0 của chiến dịch Qwen/Meta-Reasoner chưa đổi.
+
 | Mốc | Sản phẩm | Trạng thái | Điều kiện hoàn thành & Bằng chứng thực nghiệm |
 | --- | --- | :---: | --- |
-| **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **HOÀN THÀNH (100%)** | Đã commit các file prereg: `decision_rule_P.md`, `decision_rule_signal.md`, `decision_rule_cascade.md` trước khi đọc dữ liệu test. |
-| **M1: Dữ liệu chuẩn** | Dataset procedural có verifier độc lập | **HOÀN THÀNH (100%)** | `data/gen02_tune.json` v0.2.1 (100 items), ground truth giải tích bằng toán, độc lập giữa các split. |
-| **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng Logprob vs Verifier | **HOÀN THÀNH (100%)** | Đo logprob trên MLX (`run11_snapshot.jsonl`): Logprob confidence **FAIL** prereg; Hoàn thành Symbolic Verifier (`scripts/verifiers.py`) đạt **Recall 100%**. |
-| **M3: Thực nghiệm chính** | Sweep độc lập 6 arms trên model thật | **HOÀN THÀNH (100%)** | Hoàn thành đủ 571/571 dòng run11: DIRECT 16.9%, COT 58.0%, SC 53.0%, TOT 68.0%, REACT 39.0%, PAL 40.0% (100% arith). ToT thống trị bài toán tìm kiếm (order 67.7%, g24 58.6%). |
-| **M4: Bài báo & Cascade** | Cascade policy evaluation & Wording Ablation | **HOÀN THÀNH (80%)** | Đã hoàn tất đánh giá Policy V (prereg): Arith delta +25.0pp CI [+12.5; +40.0], Order delta +0.0pp CI [-12.9; +12.9]. Hoàn tất kiểm chứng Style A vs Style B (gapB): vi phạm clue gap giảm từ 52.2% xuống 14.8%, acc tăng +12.9pp. |
-| **M5: Minh họa RAT** | Demo luồng app tối thiểu | **KẾ TIẾP** | Thực hiện sau khi hoàn tất bài báo NCKH. |
+| **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **ĐANG HOÀN THIỆN** | Có các decision rule P/signal/cascade, nhưng analyzer signal hiện chưa thực thi đúng repeated 5-fold CV ×20, baseline có completion length và `answer_first_lp`. Cần đồng bộ protocol--implementation trước khi gọi gate là đã chấm. |
+| **M1: Dữ liệu chuẩn** | Dataset procedural có verifier độc lập | **ĐANG REVIEW** | `data/gen02_tune.json` v0.2.1 là pool development đã lộ, không phải held-out test. Bundle procedural mới đã tách development/test về cấu trúc nhưng human review, license/ownership, prior-exposure review và freeze publication còn chờ. |
+| **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng confidence và verifier | **CHƯA QUA GATE** | Có trace model thật và verifier development. Kết luận confidence chưa chấm đúng prereg; Recall 100% của verifier chỉ trên fixture lỗi trong-sample và cần fresh development replication. |
+| **M3: Thực nghiệm chính** | Sweep nhiều seed trên model/dataset đã freeze | **CHƯA CHẠY** | Run 11 đã đủ 571 bản ghi development nhưng dùng model session tuần tự, mixed sampling, token proxy thiếu input multi-call và SC có lỗi scoring semantics. Nó dùng để debug/thiết kế, không hoàn tất M3. |
+| **M4: Bài báo & Cascade** | Policy evaluation, ablation và tổng hợp bằng chứng | **ĐANG LÀM** | Policy V hiện là replay trong-sample; GapB là paired exploratory (9 rescues, 5 harms, McNemar exact hai phía p≈0,424) và có selection-by-extractability. Chưa có claim confirmatory. |
+| **M5: Minh họa RAT** | Demo luồng app tối thiểu | **ĐỂ SAU** | Chỉ thực hiện sau khi evidence pipeline và bản thảo nghiên cứu đạt gate. |
 
 ## Nhật ký Tiến trình Thực nghiệm (Chronological Execution Log)
 
 | Thời điểm / Bước | Hành động & Mã nguồn | Kết quả & Phát hiện Khoa học chính | Artifacts & Commit |
 | --- | --- | --- | --- |
-| **Run 7 - Run 8** | Hợp nhất harness 6 arm, sửa render gap clue | Chuẩn hóa `scripts/run_sweep.py` và `scripts/analyze_oracle.py`, cố định tập dữ liệu `gen02` v0.2.1. | Commit `809e0ec`, Tag `harness-v1-run8` |
-| **Stage P Audit** | Chạy đánh giá P sweep trên DIRECT & COT | arith PASS tiêu chí prereg; order & g24 sụp đổ do vòng lặp greedy ("Try... Nope"). Xác nhận cần các arm tìm kiếm mạnh hơn. | Commit `b37dbc5` (`prereg/decision_rule_P.md`) |
-| **Run 11 Launch** | Khởi chạy 6-arm sweep (`DIRECT, COT, SC, TOT, REACT, PAL`) trên GPU Apple Silicon | Đo đạc đầy đủ logprob và completion tokens dưới điều kiện kiểm soát ngặt nghèo (cold-start, deterministic greedy). | Background PID 23672, `audit/run11_sweep_trace.jsonl` |
-| **Prompt X & Y** | Phân tích hiệu chuẩn Logprob (Repeated 5-fold CV $\times 20$) | **Kết quả âm tính có giá trị (Negative Finding)**: Logprob không vượt qua baseline (+0.05 AUROC với CI > 0). Order rơi vào dải nhiễu 0.23–0.31. **FAIL prereg**, quyết định dừng fit ngưỡng logprob, chuyển sang Symbolic Verifier. | Commit `a8789d2`, `b4cc2a0` (`prereg/decision_rule_signal.md`) |
-| **Prompt Z** | Lập trình Deterministic Program Verifiers | Hoàn thành `scripts/verifiers.py`: `arith_verifier` và `order_verifier`. Đạt **Recall 100%** trên mẫu sai; FPR = 0% trên arith, 21.4% trên order (bắt đúng 3 ca model suy luận vi phạm clue nhưng đoán bừa trúng đáp án). 12 unit test PASS. | Commit `0474647` |
-| **Prompt AA** | Bóc tách cơ chế lỗi Clue Gap & nâng cấp LaTeX Verifier | **Phát hiện đột phá**: 12/23 (52.2%) clue gap bị vi phạm so với 0/33 (0.0%) clue before. Bổ sung hỗ trợ LaTeX (`\times`, `\div`, `\cdot`) cho `arith_verifier`, 18 unit tests PASS. Khóa prereg cascade policy. | Commit `ebd0d30`, `a024ea9` (`prereg/decision_rule_cascade.md`) |
-| **Run 11 Done** | Hoàn thành sweep 571/571 dòng trên GPU | Đủ 6 arms: TOT dẫn đầu tổng thể (68.0%) và vượt trội trên Order (67.7% vs COT 45.2%). PAL đạt 100% arith với token cực thấp (194 tok). SC (53.0%) thua COT (58.0%) do khuếch đại bẫy greedy. | `reasoning-run11/audit/run11_sweep_trace.jsonl` |
-| **Prompt AB** | Thực nghiệm đối chứng cách diễn đạt (Style A vs Style B) | **Xác nhận giả thuyết Wording**: Tỷ lệ vi phạm clue gap giảm ngoạn mục từ 52.2% (12/23) xuống **14.8% (4/27)** (đạt tiêu chí $\le 26\%$). Tỷ lệ dừng do cạn token giảm từ 10 xuống 3; accuracy tổng thể tăng từ 45.2% lên **58.1% (+12.9pp)**. | Commit `52323fa`, Tag `harness-v1-gapB`, `reasoning-gapB/audit/gapB_sweep_trace.jsonl` |
-| **Cascade Policy V** | Đánh giá chính sách phân tầng theo prereg | **Arith**: delta +25.0pp, 95% Cluster-Bootstrap CI [+12.5pp; +40.0pp]; tuy nhiên ratio token V/PAL = 1.91 (PAL vốn rẻ hơn COT nên chỉ cần Entry Router, không cần Cascade). **Order**: delta +0.0pp (SC kém hơn COT, ToT mới là cứu cánh). | `prereg/decision_rule_cascade.md` |
+| **Run 7 - Run 8** | Hợp nhất harness 6 arm, sửa render gap clue | Chuẩn hóa runner và analyzer legacy; `gen02` v0.2.1 chỉ được cố định cho chiến dịch development lịch sử, không phải publication dataset. | Commit `809e0ec`, Tag `harness-v1-run8` |
+| **Stage P Audit** | Chạy đánh giá P trên DIRECT & COT | Quan sát development cho thấy nhiều lỗi lặp greedy ở Ordering/G24; dùng để hình thành arm và chẩn đoán tiếp theo, không phải kết quả held-out. | Commit `b37dbc5` (`prereg/decision_rule_P.md`) |
+| **Run 11 Launch** | Chạy 6-arm sweep trên Qwen3-8B-4bit/Apple Silicon | Model được nạp một lần và tái sử dụng tuần tự. DIRECT/COT/ReAct/PAL greedy; SC sampling năm nhánh; `TOT` lịch sử sampling ba lời giải hoàn chỉnh rồi selector greedy. | `audit/run11_sweep_trace.jsonl` |
+| **Prompt X & Y** | Phân tích confidence | Analyzer đã chạy exploratory AUROC và một 5-fold CV seed 0. Nó chưa tái lập repeated 5-fold ×20, thiếu `completion_tokens` trong baseline CV và thiếu `answer_first_lp`; chưa thể chấm PASS/FAIL prereg. | Commit `a8789d2`, `b4cc2a0` (`prereg/decision_rule_signal.md`) |
+| **Prompt Z** | Lập trình deterministic verifiers | Có `arith_verifier` và `order_verifier` cùng unit tests. Recall/FPR đã báo chỉ thuộc fixture development in-sample; chưa có bằng chứng tổng quát trên fresh set. | Commit `0474647` |
+| **Prompt AA** | Phân tích clue gap và hỗ trợ LaTeX | Quan sát trích xuất được 12/23 vi phạm gap và 0/33 before; mẫu số phụ thuộc response trích xuất được. Dùng làm chẩn đoán development, không gọi là phát hiện confirmatory. | Commit `ebd0d30`, `a024ea9` (`prereg/decision_rule_cascade.md`) |
+| **Run 11 Done** | Hoàn thành 571 bản ghi development | Giữ ma trận accuracy như số thô. `TOT` là candidate selection chứ không phải tree search; proxy token thiếu prompt multi-call. SC còn lỗi: một nhánh length ép cả arm sai, ảnh hưởng 31/100 bản ghi có `parsed`. | `audit/run11_sweep_trace.jsonl` |
+| **Prompt AB** | Paired wording ablation Style A/B | B đạt 18/31 so với A 14/31, với 9 rescues và 5 harms; McNemar exact hai phía p≈0,424. Tỷ lệ gap 12/23 so với 4/27 có selection-by-extractability. | Commit `52323fa`, Tag `harness-v1-gapB`, `audit/gapB_sweep_trace.jsonl` |
+| **Cascade Policy V** | Replay policy đã khóa trên pool development | Legacy replay cho Arith +25,0 pp và Ordering +0,0 pp, nhưng verifier là in-sample, SC bị lỗi semantics và token proxy không phải full inference cost. Bỏ diễn giải oracle cost; cần fresh replication trước mọi claim. | `prereg/decision_rule_cascade.md` |
 
 
 ## Nhánh nghiên cứu và ứng dụng
@@ -114,13 +118,15 @@ mascot, animation và thêm cửa sổ chưa nằm trên đường hoàn thành 
 3. **Phương pháp:** entry predictor, ladder, confidence, utility và giới hạn thuật toán.
 4. **Thực nghiệm:** nguồn dữ liệu, grouped split, model/prompt/version, baselines, chi phí và thống kê.
 5. **Kết quả:** accuracy–token, paired differences, ablation, biến thiên theo seed; không điền số minh hoạ.
-6. **Phân tích lỗi:** confidence sai, escalation gây hại, overhead và tính tổng quát.
+6. **Phân tích lỗi:** giới hạn confidence, escalation rescue/harm, overhead và tính tổng quát.
 7. **Demo:** phần ngắn hoặc phụ lục, chỉ các khả năng đã chạy được.
 8. **Kết luận/tái lập:** phát hiện có bằng chứng, artifact và câu hỏi còn mở.
 
 ## Bàn giao cho cộng tác viên/Claude
 
-Đọc tài liệu này và `research_protocol.md` trước khi thêm tính năng. Việc tiếp
-theo là duyệt câu hỏi/đáp án và nguồn dataset, cố định split/model snapshot,
-rồi chạy pilot có log. Không lấy benchmark mô phỏng làm kết quả NCKH. Mỗi đề
-xuất tính năng cần giải thích nó kiểm chứng RQ nào hoặc gỡ mốc nào.
+Đọc tài liệu này và `research_protocol.md` trước khi thêm tính năng. Thứ tự gần
+nhất là sửa/retrospective-rescore semantics của SC, triển khai đúng analyzer
+confidence đã preregister, chốt phạm vi token cost multi-call, rồi duyệt và freeze
+dataset/model/prompt/seed trước pilot mới. Không lấy benchmark mô phỏng hoặc Run 11
+development làm kết quả NCKH. Mỗi đề xuất tính năng cần giải thích nó kiểm chứng RQ
+nào hoặc gỡ mốc nào.

@@ -14,10 +14,12 @@ and replay stay headless and independent of RAT, Qt, and personal-file indexing.
 
 This is conditional escalation, not targeted correction. DIRECT and CoT each
 receive the original query; CoT never receives the DIRECT answer or rationale.
-Both use the same pinned Qwen snapshot, selected development questions,
-generation seed, greedy decoding, 1,024-token per-call cap, answer contract, and
-English prompt profile `aligned-direct-cot-v1`. The intended manipulation is
-only whether visible reasoning steps are requested.
+Both use the same pinned Qwen snapshot, selected development questions, greedy
+decoding, 1,024-token per-call cap, answer contract, and English prompt profile
+`aligned-direct-cot-v1`. The collection seed is shared, while the deterministic
+per-attempt seed is derived separately from `(collection seed, item ID,
+strategy)`. The intended manipulation is only whether visible reasoning steps
+are requested.
 
 `enable_thinking=False` remains fixed. Therefore “CoT” here means an
 **elicited visible rationale**, not access to or measurement of a model's hidden
