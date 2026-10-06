@@ -39,6 +39,9 @@ PAL_V2_SUFFIX_EXTRA = (
     " Chỉ được import các module: itertools, math, fractions, functools, collections"
     " (không import module nào khác)."
 )
+PAL_V3_SUFFIX_EXTRA = (
+    " eval, exec, compile are unavailable; carry (value, expression-string) pairs and build expressions recursively."
+)
 
 
 def sc_vote(candidates: list[str]) -> tuple[str, float | None]:
@@ -173,6 +176,13 @@ class StubRunner:
             f_reason = "stop"
             mean_lp, min_lp = -0.22, -0.70
             token_logprobs = [-0.22] * 95
+        elif arm_name == "PAL-v3":
+            raw = f"```python\nimport itertools\nresult = {gold!r}\n```\nAnswer: {gold}"
+            parsed = gold
+            tok = 100
+            f_reason = "stop"
+            mean_lp, min_lp = -0.22, -0.70
+            token_logprobs = [-0.22] * 100
         else:
             raise ValueError(f"Unknown arm: {arm_name}")
 
@@ -198,7 +208,7 @@ class StubRunner:
             "repeat": False,
             "wordy": False,
         }
-        if arm_name == "PAL-v2":
+        if arm_name in ("PAL-v2", "PAL-v3"):
             out["pal_exec"] = {"ok": True, "output": str(gold)}
         return out
 
@@ -426,9 +436,10 @@ class MLXRunner:
             wordy = False
             token_logprobs = logps
 
-        elif arm_name == "PAL-v2":
+        elif arm_name in ("PAL-v2", "PAL-v3"):
             from qwen_mlx_backend import PAL_SUFFIX, extract_code, run_python_sandboxed
-            user_content = query + PAL_SUFFIX + PAL_V2_SUFFIX_EXTRA
+            suffix = PAL_V2_SUFFIX_EXTRA if arm_name == "PAL-v2" else (PAL_V2_SUFFIX_EXTRA + PAL_V3_SUFFIX_EXTRA)
+            user_content = query + PAL_SUFFIX + suffix
             msgs = [{"role": "user", "content": user_content}]
             prompt = self.tokenizer.apply_chat_template(msgs, tokenize=False, enable_thinking=False, add_generation_prompt=True)
             p_tok = len(self.tokenizer.encode(prompt))
@@ -474,7 +485,7 @@ class MLXRunner:
             "repeat": check_repeated_lines(text),
             "wordy": wordy,
         }
-        if arm_name == "PAL-v2":
+        if arm_name in ("PAL-v2", "PAL-v3"):
             out["pal_exec"] = pal_exec
         return out
 
