@@ -45,9 +45,13 @@ class EvalResult:
 
 
 def check_answer(pred: Any, gold: Any) -> bool:
-    """Robust answer checker supporting numerical equivalence, case insensitivity, and normalization."""
+    """Robust answer checker supporting numerical equivalence, case insensitivity, normalization, and dataset item dicts."""
     if pred is None:
         return False
+    if isinstance(gold, dict):
+        from experiments.research_study import check_answer as study_check
+        return study_check(pred, gold)
+
     p_str = str(pred).strip()
     g_str = str(gold).strip()
 
@@ -61,12 +65,15 @@ def check_answer(pred: Any, gold: Any) -> bool:
     if p_clean == g_clean:
         return True
 
-    # 3. Substring match for keywords (e.g. 'Charlie' in 'The answer is Charlie')
+    # 3. Substring match for keywords (e.g. 'Charlie' in 'The answer is Charlie'), rejecting negation
     p_tokens = set(p_clean.split())
     if g_clean in p_tokens or g_str.lower() in p_str.lower():
+        if f"not {g_clean}" in p_clean or f"no {g_clean}" in p_clean or f"khong {g_clean}" in p_clean:
+            return False
         return True
 
     return False
+
 
 
 # =============================================================================

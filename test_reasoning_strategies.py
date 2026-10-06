@@ -87,8 +87,37 @@ def test_sandbox_timeout():
     assert not ok and out == "timeout"
 
 
+def test_extract_item_answer():
+    from reasoning_strategies import extract_item_answer
+
+    # Number item
+    num_item = {"answer_type": "number", "answer": "129.6"}
+    assert extract_item_answer("work\nAnswer: 129.6", num_item) == "129.6"
+
+    # Comma-decimal item
+    comma_item = {"answer_type": "number", "answer": "129,6", "decimal_separator": ","}
+    assert extract_item_answer("work\nAnswer: 129,6", comma_item) == "129.6"
+
+    # Untyped fallback
+    assert extract_item_answer("work\nAnswer: 42") == "42"
+
+
+def test_weighted_majority_vote():
+    # Equal counts, but second candidate has higher total weight
+    answers = ["10", "20", "10", "20"]
+    weights = [0.1, 0.9, 0.1, 0.9]  # 20 has total weight 1.8 vs 0.2
+    winner, ratio = majority_vote(answers, weights=weights)
+    assert winner == "20"
+    assert ratio == 1.8 / 2.0
+
+    # Ties with return_tie
+    winner, ratio, is_tie = majority_vote(["A", "B"], return_tie=True)
+    assert is_tie is True
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn()
             print("ok", name)
+

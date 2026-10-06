@@ -123,8 +123,76 @@ def test_policy_beats_cheapest_and_costs_less_than_priciest():
     assert 0 < escalated_to_tot < 1  # phải thật sự dùng ladder có chọn lọc, không phải luôn 1 rung
 
 
+def test_brier_score_and_ece():
+    from optimal_stopping import brier_score, expected_calibration_error
+
+    # Perfect confidence
+    conf = np.array([1.0, 1.0, 0.0, 0.0])
+    correct = np.array([1.0, 1.0, 0.0, 0.0])
+    assert brier_score(conf, correct) == 0.0
+    assert expected_calibration_error(conf, correct) == 0.0
+
+    # Overconfident wrong predictions
+    overconf = np.array([0.9, 0.9, 0.9, 0.9])
+    all_wrong = np.array([0.0, 0.0, 0.0, 0.0])
+    assert brier_score(overconf, all_wrong) == 0.81
+    assert np.isclose(expected_calibration_error(overconf, all_wrong), 0.9)
+
+
+def test_calibrators_reduce_calibration_error():
+    from optimal_stopping import IsotonicCalibrator, PlattCalibrator, expected_calibration_error
+
+    rng = np.random.default_rng(42)
+    N = 100
+    # True accuracy is only 40%, but raw confidence is inflated between 0.80 and 0.95
+    raw_conf = rng.uniform(0.80, 0.95, size=N)
+    correct = (rng.uniform(0, 1, size=N) < 0.40).astype(float)
+
+    raw_ece = expected_calibration_error(raw_conf, correct)
+    assert raw_ece > 0.40  # Heavily miscalibrated
+
+    platt = PlattCalibrator().fit(raw_conf, correct)
+    cal_conf_platt = platt.predict(raw_conf)
+    platt_ece = expected_calibration_error(cal_conf_platt, correct)
+    assert platt_ece < raw_ece  # Platt calibration reduces ECE significantly
+
+    iso = IsotonicCalibrator().fit(raw_conf, correct)
+    cal_conf_iso = iso.predict(raw_conf)
+    iso_ece = expected_calibration_error(cal_conf_iso, correct)
+    assert iso_ece < raw_ece  # Isotonic calibration reduces ECE
+
+
+def test_bootstrap_thresholds_returns_valid_intervals():
+    from optimal_stopping import bootstrap_thresholds
+
+    backend = MockLadderLLM(GOLD, seed=4)
+    calib = collect_calibration_data(backend, DATA[:100], CHECK)
+    boot = bootstrap_thresholds(calib, lam=0.02, n_bootstraps=50, seed=42)
+
+    assert len(boot["point_estimate"]) == 2
+    assert len(boot["mean"]) == 2
+    assert len(boot["std"]) == 2
+    assert len(boot["ci"]) == 2
+    # Verify confidence intervals: lower <= upper
+    for ci in boot["ci"]:
+        assert ci[0] <= ci[1]
+
+
+def test_policy_with_recalibrate_and_bootstrap():
+    backend = MockLadderLLM(GOLD, seed=5)
+    calib = collect_calibration_data(backend, DATA[:100], CHECK)
+    policy = OptimalStoppingPolicy(lam=0.02, recalibrate="platt").fit(calib, n_bootstraps=30, bootstrap_seed=42)
+
+    assert len(policy.calibrators) == 3
+    assert policy.tau_ci is not None
+    assert len(policy.tau_ci["ci"]) == 2
+    # Escalate check with calibrated confidence
+    assert isinstance(policy.should_escalate(0, 0.8), bool)
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn()
             print("ok", name)
+
