@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 NAMES = ["Alice", "Bob", "Carol", "Dave", "Erin", "Frank", "Grace", "Heidi"]
 ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
 ARITH_LEVELS = [(2, 2, 9), (4, 3, 9), (6, 4, 9), (8, 5, 99), (10, 5, 99)]  # (steps, digits, max multiplier)
@@ -74,7 +74,9 @@ def holds(c, pos):  # pos[i] = position of entity i
     raise ValueError(f"Unknown clue type: {t}")
 
 
-def render_order(m):
+def render_order(m, gap_style=None):
+    if gap_style is None:
+        gap_style = m.get("gap_style", "A")
     names, txt = m["names"], []
     for c in m["clues"]:
         t, x, y = c[0], c[1], c[2]
@@ -84,9 +86,12 @@ def render_order(m):
             else: txt.append(f"{names[y]} finished after {names[x]}")
         elif t in ("g", "gap"):
             k = c[3]
-            between = k - 1
-            noun = "runner" if between == 1 else "runners"
-            txt.append(f"{names[x]} finished exactly {k} places ahead of {names[y]}, with exactly {between} {noun} between them")
+            if gap_style == "B":
+                txt.append(f"{names[x]} finished {k} places ahead of {names[y]}: if {names[x]} is in position p, then {names[y]} is in position p+{k}")
+            else:
+                between = k - 1
+                noun = "runner" if between == 1 else "runners"
+                txt.append(f"{names[x]} finished exactly {k} places ahead of {names[y]}, with exactly {between} {noun} between them")
         else:
             raise ValueError(f"Unknown clue type: {t}")
     names_str = ", ".join(names)
@@ -117,7 +122,7 @@ def canonical_order_key(m):
     return (n, m["ask"], min_relabeling)
 
 
-def gen_order(rng, level):
+def gen_order(rng, level, gap_style="A"):
     n = ORDER_LEVELS[level]
     names = rng.sample(NAMES, n)
     truth = list(range(n)); rng.shuffle(truth)  # truth[i] = position of entity i
@@ -136,8 +141,8 @@ def gen_order(rng, level):
         rest = [d for d in clues if d != c]
         if len({p.index(ask) for p in allp if all(holds(d, p) for d in rest)}) == 1: clues = rest
     rng.shuffle(clues)
-    m = {"names": names, "clues": [list(c) for c in clues], "ask": ask}
-    return m, render_order(m), names[truth.index(ask)], {"runners": n, "clues": len(clues)}
+    m = {"names": names, "clues": [list(c) for c in clues], "ask": ask, "gap_style": gap_style}
+    return m, render_order(m, gap_style=gap_style), names[truth.index(ask)], {"runners": n, "clues": len(clues)}
 
 
 # ---------- g24 ----------
@@ -234,7 +239,7 @@ def _verify(item):
     if f == "arith":
         return render_arith(m) == item["query"] and str(run_arith(m)) == item["answer"]
     if f == "order":
-        return render_order(m) == item["query"] and consistent(m) == {m["names"].index(item["answer"])}
+        return render_order(m, gap_style=m.get("gap_style", "A")) == item["query"] and consistent(m) == {m["names"].index(item["answer"])}
     if f == "g24":
         return render_g24(m) == item["query"] and check24(item["answer"], m["numbers"]) and bool(sols24(m["numbers"]))
     return False

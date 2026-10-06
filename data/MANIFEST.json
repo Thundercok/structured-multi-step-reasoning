@@ -67,7 +67,13 @@
     "commit": "a35391c",
     "tag": "harness-v1-run7",
     "note": "header dirty=False wrong; run_sweep_p.py was untracked; reproducible via scripts/legacy/run_sweep_p.py @ 9b65e45"
+  },
+  "gen02_tune_gapB.json": {
+    "size_bytes": 34501,
+    "sha256": "83ae6771e9394a166a01aa0c5edd557e14b78418e8d186e71bd871b59ea82e55",
+    "generator": "gen_tasks.py 0.2.2",
+    "n_items": 31,
+    "sha256_items": "4c36d1f9d5c8c5a815b313accef39b74c7e37f933d02031f40e9248084a6a41c",
+    "description": "31 order items of gen02_tune re-rendered in gap_style B (ids suffixed _gB)"
   }
 }
-
-
