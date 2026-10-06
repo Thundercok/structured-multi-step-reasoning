@@ -27,3 +27,6 @@ python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entr
 Publish only claims supported by reviewed run artifacts. State whether costs are
 synthetic, generated-token counts, or full inference costs, and distinguish
 replayed strategy time from measured online latency.
+
+- Never git push/pull/reset/force unless the user says so in the same message.
+
