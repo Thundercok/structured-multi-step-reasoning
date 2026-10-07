@@ -299,3 +299,17 @@
   - S1: `scripts/run_sweep.py` `get_git_info()` upgraded to detect untracked files (excluding `audit/` and `data/MANIFEST.json`). Unit tests added to `tests/test_sweep_and_oracle.py`.
   - S2: T=0 equivalence verification pending across clean worktree.
 
+
+## RESUME CAPSULE (2026-10-07), read first
+Model/protocol: Qwen3-8B-4bit (mlx-community, snapshot 545dc425...), enable_thinking=False, T=0 (SC T=0.7), COT cap 1024; one suffix + normalizer + EOS stop since run5. Tags harness-v1-run0..run14. Every sweep runs from a clean detached worktree at a tag. Push disabled (re-enable: git remote set-url --push origin <URL>).
+Data: gen02_tune (100: arith 40, order 31, g24 29; exposed, exploratory), gen02_tune_gapB (31 order, gap wording B), gen02_v2 (195, confirmatory, never run), gen02_v2b (195, gap B, verified, never run). Gold is solver-verified; human review of the generator is PENDING.
+Results on gen02_tune (single run, in-sample, small n):
+- arith: PAL 40/40 @194 tok; COT 30/40 @306; ToT/SC 30/40. Oracle gap 0 -> NO-GO. DIRECT ~0 beyond L1.
+- order: ToT 21/31 @1894; PAL-v2 20/31 @474; COT 14/31 @712; SC 11/31. Strong-arm oracle +16.1pp CI[3.2,29.0] NO-GO; 7-arm +22.6 CI[9.7,38.7] (arms added post hoc, includes guess arms).
+- g24: ToT 17/29 @1447; COT 14/29; PAL/v2/v3 = 0 because the sandbox blocks eval (INVALID test); PAL-v4 (AST eval) pending.
+- Policy W (PAL-v2 -> ToT if code gives no result): order 23/31 @916 vs ToT 21/31 @1894; diff +6.5pp CI[-9.7,22.6]; post hoc.
+- Wording: gap-clue violations 12/23 (A) -> 4/27 (B). PAL-v2 order errors: 5/11 are offset mistranslations.
+- Logprob signals failed prereg. Verifiers (arith recompute 10/10, 0/30 FP; order clues 7/7) are in-sample. SC fails by dispersion, not consensus. run11 sc_vote_share is k/5/5: recompute from sc_candidates.
+PENDING: AG3 (GPU ~40 min): PAL-v4 on gen02_tune, then PAL-v4+ToT on gapB. Prereg: prereg/decision_rule_ag.md (R1 g24: PAL-v4 >=17/29 and <=723 tok; R2 order gapB: PAL-v4 >= ToT and <=0.5x tokens; R3 W). Analysis: scripts/report_ag.py. First attempt aborted (ran in main tree); partial traces in audit/_aborted_AG3/.
+NEXT: (1) AG3 from a clean worktree. (2) If g24 and order are code-solvable: add a program-resistant family (multi-hop QA over paraphrased passages with lookup tools); criterion: best PAL >=10pp below COT on dev after sandbox/helper/wording fixes. (3) Verified-PAL: PAL prints the full ordering, check it against clues, escalate on violation. (4) Confirmatory run on gen02_v2b dev->calib->test with COT, ToT, PAL-v4, W. (5) Human review of the generator.
+RULES: no `git add .`; no push/pull/reset; prereg committed before results; numbers only from committed scripts + audit/*.txt; agent reports need raw output; one MLX process at a time; caffeinate for long runs.
