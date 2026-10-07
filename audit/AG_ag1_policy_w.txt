@@ -1,0 +1,19 @@
+=== AG1: POLICY W EVALUATION ON ORDERING (N = 31) ===
+Policy W definition: Stage 1 = PAL-v2; Escalate to ToT iff (exec status != ok OR result empty/None OR finish == length)
+
+Strategy           | Correct  | Accuracy   | Mean Tokens  | Escalations 
+------------------------------------------------------------------------
+Always-PAL-v2      | 20/31    |   64.5%    |    474.3     | 0/31 (0.0%) 
+Always-ToT         | 21/31    |   67.7%    |   1894.0     | N/A         
+Policy W (Cascade) | 23/31    |   74.2%    |    916.0     | 6/31 (19.4%)
+Oracle(PAL-v2, ToT) | 25/31    |   80.6%    |    703.0     | N/A         
+------------------------------------------------------------------------
+Delta (W - ToT): +6.5 pp | 95% Cluster-Bootstrap CI: [-9.7 pp; +22.6 pp]
+
+Escalation details (6 items):
+  - order_0003_en_orig: PAL-v2=False -> ToT=True => Resolved=True
+  - order_0019_en_orig: PAL-v2=False -> ToT=False => Resolved=False
+  - order_0022_en_orig: PAL-v2=False -> ToT=True => Resolved=True
+  - order_0023_en_orig: PAL-v2=False -> ToT=True => Resolved=True
+  - order_0030_en_orig: PAL-v2=False -> ToT=False => Resolved=False
+  - order_0031_en_orig: PAL-v2=False -> ToT=False => Resolved=False

@@ -1,0 +1,9 @@
+=== AG2: SANDBOX VERIFICATION TESTS ===
+Test 1 [eval arithmetic]: PASSED -> eval('(3+5)*2') == 16 (res='16')
+Test 2a [__import__ blocked]: PASSED -> ok=False, detail='blocked keyword in code'
+Test 2b [open blocked]: PASSED -> ok=False, detail='blocked keyword in code'
+Test 3 [evaluate keyword boundary]: PASSED -> ok=True, result='42'
+Test 4 [itertools permutations]: PASSED -> ok=True, result='6'
+Test 5 [timeout]: PASSED -> ok=False, detail='timeout'
+
+All 5 AG2 Sandbox tests passed successfully!

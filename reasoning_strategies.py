@@ -317,8 +317,10 @@ def safe_calculate(expr: str) -> str:
 # ---------- sandbox Python cho PAL ----------
 
 _PAL_RUNNER = r"""
+import ast
 import builtins
 import contextlib
+import fractions
 import io
 import json
 import sys
@@ -331,12 +333,74 @@ def safe_import(name, globals=None, locals=None, fromlist=(), level=0):
         raise ImportError(f"Import of {name!r} is not allowed")
     return builtins.__import__(name, globals, locals, fromlist, level)
 
+def safe_eval(expr_str, globals=None, locals=None):
+    if not isinstance(expr_str, str):
+        if isinstance(expr_str, (int, float, fractions.Fraction)):
+            return expr_str
+        raise TypeError("eval() arg 1 must be a string")
+    tree = ast.parse(expr_str.strip(), mode="eval")
+    def _eval_node(node):
+        if isinstance(node, ast.Expression):
+            return _eval_node(node.body)
+        elif isinstance(node, ast.Constant):
+            if isinstance(node.value, (int, float, complex)):
+                return node.value
+            raise ValueError(f"Unsupported constant: {node.value!r}")
+        elif isinstance(node, ast.UnaryOp):
+            val = _eval_node(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return +val
+            elif isinstance(node.op, ast.USub):
+                return -val
+            raise ValueError(f"Unsupported unary operator: {type(node.op).__name__}")
+        elif isinstance(node, ast.BinOp):
+            left = _eval_node(node.left)
+            right = _eval_node(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            elif isinstance(node.op, ast.Sub):
+                return left - right
+            elif isinstance(node.op, ast.Mult):
+                return left * right
+            elif isinstance(node.op, ast.Div):
+                if isinstance(left, int) and isinstance(right, int) and right != 0:
+                    return fractions.Fraction(left, right)
+                return left / right
+            elif isinstance(node.op, ast.FloorDiv):
+                return left // right
+            elif isinstance(node.op, ast.Mod):
+                return left % right
+            elif isinstance(node.op, ast.Pow):
+                return left ** right
+            raise ValueError(f"Unsupported binary operator: {type(node.op).__name__}")
+        elif isinstance(node, ast.Call):
+            func_name = getattr(node.func, "id", None)
+            if func_name in ("Fraction", "float", "int"):
+                args = [_eval_node(a) for a in node.args]
+                if func_name == "Fraction":
+                    return fractions.Fraction(*args)
+                elif func_name == "float":
+                    return float(*args)
+                elif func_name == "int":
+                    return int(*args)
+            raise ValueError(f"Unsupported function call in eval: {func_name}")
+        elif isinstance(node, ast.Name):
+            if locals and node.id in locals:
+                return locals[node.id]
+            if globals and node.id in globals:
+                return globals[node.id]
+            raise ValueError(f"Unsupported variable in eval: {node.id}")
+        else:
+            raise ValueError(f"Unsupported AST node: {type(node).__name__}")
+    return _eval_node(tree)
+
 names = (
     "print", "abs", "min", "max", "sum", "round", "len", "range", "sorted",
     "int", "float", "str", "list", "dict", "tuple", "set", "enumerate", "zip",
     "bool", "isinstance", "type", "reversed", "any", "all",
 )
 b_dict = {name: getattr(builtins, name) for name in names if hasattr(builtins, name)}
+b_dict["eval"] = safe_eval
 if allowed_imports:
     b_dict["__import__"] = safe_import
 
@@ -364,15 +428,16 @@ def run_python_sandboxed(
 ) -> tuple[bool, str]:
     """Chạy code trong interpreter con tối thiểu, không import lại MLX/Metal.
 
-    Builtins bị giới hạn và open/exec/eval/os/subprocess bị chặn.
+    Builtins bị giới hạn và open/exec/compile/os/subprocess bị chặn.
+    eval được thay thế bằng bộ tính toán số học an toàn dựa trên AST.
     Nếu allowed_imports được cung cấp, cho phép import các module trong danh sách.
     Trả (thành_công, ket_qua_hoac_loi). Code nên gán kết quả vào `result`.
     """
     if allowed_imports:
-        if re.search(r"\b(open|exec|eval|__import__|__builtins__|subprocess|os\b|sys\b)\b", code):
+        if re.search(r"\b(open|exec|compile|__import__|__builtins__|subprocess|os\b|sys\b)\b", code):
             return False, "blocked keyword in code"
     else:
-        if re.search(r"\b(import|open|exec|eval|__import__|__builtins__|subprocess|os\.)\b", code):
+        if re.search(r"\b(import|open|exec|compile|__import__|__builtins__|subprocess|os\.)\b", code):
             return False, "blocked keyword in code"
 
     cmd = [sys.executable, "-I", "-c", _PAL_RUNNER]
