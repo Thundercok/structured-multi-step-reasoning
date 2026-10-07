@@ -2,11 +2,13 @@
 
 import ast
 import json
+import math
 import operator
 import re
 import subprocess
 import sys
 from collections import Counter
+
 
 CODE_FENCE = re.compile(r"```(?:python)?\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 ANSWER_LINE = re.compile(r"(?:\*\*)?answer(?:\*\*)?\s*:\s*([^\n]+)", re.IGNORECASE)
@@ -51,6 +53,16 @@ def extract_answer(text: str, answer_type: str | None = None, decimal_separator:
         from research_scoring import parse_typed_answer
         return parse_typed_answer(text, answer_type, decimal_separator)[0]
     return parse_answer_details(text, decimal_separator=decimal_separator)[0]
+
+
+def extract_item_answer(text: str, item: dict | None = None) -> str:
+    """Trích xuất đáp án tự động ánh xạ answer_type và decimal_separator từ dataset item (nếu có)."""
+    if item is not None and isinstance(item, dict):
+        answer_type = item.get("answer_type")
+        decimal_sep = item.get("decimal_separator", ".")
+        return extract_answer(text, answer_type=answer_type, decimal_separator=decimal_sep)
+    return extract_answer(text)
+
 
 
 
@@ -224,8 +236,15 @@ def canonicalize_answer(s: str) -> str:
     return s.strip().lower()
 
 
-def majority_vote(answers: list[str], return_tie: bool = False, answer_type: str | None = None, decimal_separator: str = ".") -> tuple[str, float] | tuple[str, float, bool]:
-    """Vote trên dạng chuẩn hoá, trả dạng chuẩn hoá. Hoà phiếu -> mẫu đầu, ghi tie=True."""
+def majority_vote(
+    answers: list[str],
+    return_tie: bool = False,
+    answer_type: str | None = None,
+    decimal_separator: str = ".",
+    weights: list[float] | None = None,
+) -> tuple[str, float] | tuple[str, float, bool]:
+    """Vote trên dạng chuẩn hoá, trả dạng chuẩn hoá. Hoà phiếu -> mẫu đầu, ghi tie=True.
+    Hỗ trợ weights tùy chọn cho trọng số tin cậy per-sample."""
     if not answers:
         return ("", 0.0, False) if return_tie else ("", 0.0)
     if answer_type is None:
@@ -233,19 +252,37 @@ def majority_vote(answers: list[str], return_tie: bool = False, answer_type: str
     else:
         from research_scoring import typed_vote_key
         canonical_list = [typed_vote_key(a, answer_type, decimal_separator) for a in answers]
-    counts = Counter(canonical_list)
-    most_common = counts.most_common()
-    max_count = most_common[0][1]
-    top_candidates = [cand for cand, count in most_common if count == max_count]
-    is_tie = len(top_candidates) > 1 and len(answers) > 1
-    if is_tie:
+
+    if weights is not None and len(weights) == len(answers):
+        total_weight = float(sum(weights))
+        if total_weight <= 0.0:
+            total_weight = float(len(answers))
+            weights = [1.0] * len(answers)
+        weight_map: dict[str, float] = {}
+        for cand, w in zip(canonical_list, weights):
+            weight_map[cand] = weight_map.get(cand, 0.0) + float(w)
+        sorted_weights = sorted(weight_map.items(), key=lambda x: x[1], reverse=True)
+        max_weight = sorted_weights[0][1]
+        top_candidates = [cand for cand, w in sorted_weights if math.isclose(w, max_weight)]
+        is_tie = len(top_candidates) > 1 and len(answers) > 1
         winner = next(c for c in canonical_list if c in top_candidates)
+        ratio = float(max_weight / total_weight)
     else:
-        winner = top_candidates[0]
-    ratio = max_count / len(answers)
+        counts = Counter(canonical_list)
+        most_common = counts.most_common()
+        max_count = most_common[0][1]
+        top_candidates = [cand for cand, count in most_common if count == max_count]
+        is_tie = len(top_candidates) > 1 and len(answers) > 1
+        if is_tie:
+            winner = next(c for c in canonical_list if c in top_candidates)
+        else:
+            winner = top_candidates[0]
+        ratio = max_count / len(answers)
+
     if return_tie:
         return winner, ratio, is_tie
     return winner, ratio
+
 
 
 # ---------- calculator an toàn cho ReAct (chỉ số học, không eval()) ----------

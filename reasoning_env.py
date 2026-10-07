@@ -33,20 +33,42 @@ class LLMBackend(Protocol):
         """(answer, confidence in [0,1], tổng token tiêu thụ gồm mọi sample/nhánh)."""
 
 
-def complexity_features(query: str) -> np.ndarray:
+def complexity_features(query: str, version: int = 1) -> np.ndarray:
+    """Đặc trưng độ phức tạp của câu hỏi.
+    version=1: 3 đặc trưng nguyên bản [độ dài, số lượng số, từ khóa toán].
+    version=2: 6 đặc trưng mở rộng (bổ sung từ khóa thứ tự, điều kiện, độ lồng câu).
+    """
     n_words = len(query.split())
     n_nums = len(re.findall(r"\d+(?:\.\d+)?", query))
-    math_kw = re.search(r"[+*/=^%]|\s-\s|\b(?:sum|total|each|per|ratio|percent|times|average)\b", query.lower())
+    q_lower = query.lower()
+    math_kw = re.search(r"[+*/=^%]|\s-\s|\b(?:sum|total|each|per|ratio|percent|times|average|calculate|evaluate|compute)\b", q_lower)
+    base = [
+        min(np.log1p(n_words) / 6.0, 1.0),
+        min(n_nums / 10.0, 1.0),
+        float(math_kw is not None),
+    ]
+    if version == 1:
+        return np.array(base, dtype=np.float32)
+
+    order_kw = re.search(r"\b(?:first|last|before|after|ahead|behind|rank|position|place|order|ranking)\b", q_lower)
+    cond_kw = re.search(r"\b(?:if|unless|given that|assuming|suppose|condition|whenever|whether)\b", q_lower)
+    n_punct = len(re.findall(r"[,;:\(\)\[\]]", query))
+    nesting = min(n_punct / 8.0, 1.0)
     return np.array(
-        [min(np.log1p(n_words) / 6.0, 1.0), min(n_nums / 10.0, 1.0), float(math_kw is not None)],
+        base + [float(order_kw is not None), float(cond_kw is not None), float(nesting)],
         dtype=np.float32,
     )
+
+
+def expanded_complexity_features(query: str) -> np.ndarray:
+    """Phiên bản 6 chiều của complexity_features."""
+    return complexity_features(query, version=2)
 
 
 class ReasoningEnv(gym.Env):
     """1 episode = 1 query. Mỗi step chạy 1 strategy, hoặc STOP để chấm đáp án hiện tại.
 
-    State = [embedding (L2-norm) | complexity(3) | confidence gần nhất | đã dùng strategy nào (5) | t/max_steps].
+    State = [embedding (L2-norm) | complexity | confidence gần nhất | đã dùng strategy nào (5) | t/max_steps].
     Hai phần cuối là bắt buộc: thiếu chúng thì cùng 1 confidence sau CoT hay sau ToT là hai tình huống khác nhau,
     và max_steps làm bài toán mất tính Markov.
 
@@ -71,12 +93,17 @@ class ReasoningEnv(gym.Env):
         beta: float = 0.2,
         max_steps: int = 4,
         invalid_penalty: float = 0.1,
+        complexity_version: int = 1,
+        reward_initial_confidence: bool = False,
     ):
         super().__init__()
         self.llm, self.dataset, self.check = llm, dataset, check
         self.supported = frozenset(getattr(llm, "supported", STRATEGIES))
         self.lam, self.beta, self.max_steps, self.invalid_penalty = lam, beta, max_steps, invalid_penalty
-        self.state_dim = llm.hidden_size + N_COMPLEXITY + 1 + len(STRATEGIES) + 1
+        self.complexity_version = complexity_version
+        self.reward_initial_confidence = reward_initial_confidence
+        n_comp = 6 if complexity_version == 2 else N_COMPLEXITY
+        self.state_dim = llm.hidden_size + n_comp + 1 + len(STRATEGIES) + 1
         self.action_space = gym.spaces.Discrete(len(A))
         self.observation_space = gym.spaces.Box(-1.0, 1.0, (self.state_dim,), np.float32)
         self._emb_cache: dict[str, np.ndarray] = {}
@@ -118,7 +145,7 @@ class ReasoningEnv(gym.Env):
             if strat in LADDER:
                 self._rung = max(self._rung, LADDER.index(strat) + 1)
             reward = -self.lam * cost
-            if had_answer:
+            if had_answer or self.reward_initial_confidence:
                 reward += self.beta * (self.conf - prev_conf)
 
         truncated = not terminated and self.t >= self.max_steps
@@ -148,5 +175,11 @@ class ReasoningEnv(gym.Env):
             # hidden state của LLM có vài chiều outlier rất lớn -> L2-norm để mạng Q không bị chi phối bởi chúng
             emb = self._emb_cache[self.query] = v / (np.linalg.norm(v) + 1e-8)
         return np.concatenate(
-            [emb, complexity_features(self.query), [self.conf], self.used, [self.t / self.max_steps]]
+            [
+                emb,
+                complexity_features(self.query, version=self.complexity_version),
+                [self.conf],
+                self.used,
+                [self.t / self.max_steps],
+            ]
         ).astype(np.float32)

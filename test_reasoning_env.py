@@ -108,8 +108,45 @@ def test_truncation_without_answer_is_wrong():
     assert trunc and not info["is_correct"] and np.isclose(r, -env.invalid_penalty - 1.0)
 
 
+def test_expanded_complexity_features():
+    from reasoning_env import complexity_features, expanded_complexity_features
+
+    q1 = "What is 5 + 7?"
+    f_v1 = complexity_features(q1, version=1)
+    assert len(f_v1) == 3
+    assert f_v1[2] == 1.0  # math keyword '+'
+
+    q2 = "Who finished after Heidi, if Bob was in second place?"
+    f_v2 = expanded_complexity_features(q2)
+    assert len(f_v2) == 6
+    assert f_v2[3] == 1.0  # ordering keyword 'after'
+    assert f_v2[4] == 1.0  # conditional keyword 'if'
+    assert f_v2[5] > 0.0   # nesting/punctuation
+
+
+def test_env_with_expanded_features_and_initial_confidence_reward():
+    lam, beta = 0.05, 0.2
+    env = make_env(
+        deterministic=True,
+        lam=lam,
+        beta=beta,
+        complexity_version=2,
+        reward_initial_confidence=True,
+    )
+    obs, info = env.reset(options={"index": 3})
+    assert obs.shape == (env.state_dim,)
+    assert env.state_dim == env.llm.hidden_size + 6 + 1 + len(env.supported) + 1
+
+    # First step gets initial confidence reward beta * conf
+    _, r1, *_ = env.step(A.COT)
+    # COT conf is 0.8 in deterministic MockLLM
+    expected_r1 = -lam * 0.3 + beta * 0.8
+    assert np.isclose(r1, expected_r1)
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn()
             print("ok", name)
+
