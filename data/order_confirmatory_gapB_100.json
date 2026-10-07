@@ -1,0 +1,5895 @@
+{
+ "meta": {
+  "generator": "gen_tasks.py 0.2.2 / build_order_confirmatory.py",
+  "seed": 5000,
+  "n_items": 100,
+  "n_per_level": 25,
+  "family": "order",
+  "gap_style": "B",
+  "sha256_items": "dc50a9e4e2ada13ee463cdad6a9c0ed2a43fe89308f75be4c93500a1bcb9e6a1"
+ },
+ "items": [
+  {
+   "id": "order_conf_0000_en_gapB",
+   "group_id": "grp_order_conf_0000",
+   "query": "5 runners (Dave, Carol, Heidi, Frank, Alice) ran a race with no ties. Clues: Carol finished immediately before Dave; Dave finished after Heidi; Dave finished 2 places ahead of Alice: if Dave is in position p, then Alice is in position p+2. Who finished in 4th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Carol",
+     "Heidi",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "a",
+      1,
+      0,
+      1
+     ],
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "g",
+      0,
+      4,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0001_en_gapB",
+   "group_id": "grp_order_conf_0001",
+   "query": "5 runners (Dave, Grace, Frank, Bob, Erin) ran a race with no ties. Clues: Dave finished 3 places ahead of Frank: if Dave is in position p, then Frank is in position p+3; Bob finished immediately before Frank; Erin finished immediately before Dave. Who finished in 3rd place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Grace",
+     "Frank",
+     "Bob",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      2,
+      3
+     ],
+     [
+      "a",
+      3,
+      2,
+      1
+     ],
+     [
+      "a",
+      4,
+      0,
+      1
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0002_en_gapB",
+   "group_id": "grp_order_conf_0002",
+   "query": "5 runners (Heidi, Frank, Erin, Carol, Grace) ran a race with no ties. Clues: Frank finished immediately before Heidi; Heidi finished after Grace; Carol finished before Heidi; Erin finished before Frank. Who finished in 4th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Frank",
+     "Erin",
+     "Carol",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "a",
+      1,
+      0,
+      1
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "b",
+      2,
+      1,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0003_en_gapB",
+   "group_id": "grp_order_conf_0003",
+   "query": "5 runners (Dave, Bob, Frank, Erin, Grace) ran a race with no ties. Clues: Erin finished before Dave; Grace finished 2 places ahead of Dave: if Grace is in position p, then Dave is in position p+2; Frank finished before Erin; Dave finished before Bob. Who finished in 2nd place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Bob",
+     "Frank",
+     "Erin",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "g",
+      4,
+      0,
+      2
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "b",
+      0,
+      1,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0004_en_gapB",
+   "group_id": "grp_order_conf_0004",
+   "query": "5 runners (Heidi, Bob, Dave, Frank, Alice) ran a race with no ties. Clues: Heidi finished before Bob; Bob finished 3 places ahead of Dave: if Bob is in position p, then Dave is in position p+3; Alice finished before Frank. Who finished in 3rd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Bob",
+     "Dave",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "g",
+      1,
+      2,
+      3
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0005_en_gapB",
+   "group_id": "grp_order_conf_0005",
+   "query": "5 runners (Erin, Frank, Heidi, Carol, Alice) ran a race with no ties. Clues: Frank finished immediately before Alice; Carol finished 3 places ahead of Frank: if Carol is in position p, then Frank is in position p+3. Who finished in 4th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Frank",
+     "Heidi",
+     "Carol",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "a",
+      1,
+      4,
+      1
+     ],
+     [
+      "g",
+      3,
+      1,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0006_en_gapB",
+   "group_id": "grp_order_conf_0006",
+   "query": "5 runners (Carol, Erin, Heidi, Grace, Dave) ran a race with no ties. Clues: Carol finished after Heidi; Carol finished before Erin; Grace finished immediately before Dave; Heidi finished 3 places ahead of Dave: if Heidi is in position p, then Dave is in position p+3. Who finished in 5th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Erin",
+     "Heidi",
+     "Grace",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "a",
+      3,
+      4,
+      1
+     ],
+     [
+      "g",
+      2,
+      4,
+      3
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0007_en_gapB",
+   "group_id": "grp_order_conf_0007",
+   "query": "5 runners (Alice, Carol, Frank, Grace, Dave) ran a race with no ties. Clues: Frank finished 3 places ahead of Alice: if Frank is in position p, then Alice is in position p+3; Alice finished before Grace. Who finished in 5th place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Carol",
+     "Frank",
+     "Grace",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      0,
+      3
+     ],
+     [
+      "b",
+      0,
+      3,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0008_en_gapB",
+   "group_id": "grp_order_conf_0008",
+   "query": "5 runners (Alice, Frank, Heidi, Dave, Grace) ran a race with no ties. Clues: Heidi finished before Dave; Heidi finished immediately before Alice; Dave finished immediately before Frank; Frank finished immediately before Grace. Who finished in 2nd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Frank",
+     "Heidi",
+     "Dave",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "a",
+      2,
+      0,
+      1
+     ],
+     [
+      "a",
+      3,
+      1,
+      1
+     ],
+     [
+      "a",
+      1,
+      4,
+      1
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0009_en_gapB",
+   "group_id": "grp_order_conf_0009",
+   "query": "5 runners (Carol, Frank, Grace, Dave, Erin) ran a race with no ties. Clues: Erin finished immediately before Dave; Frank finished before Grace; Grace finished 3 places ahead of Dave: if Grace is in position p, then Dave is in position p+3. Who finished in 3rd place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Frank",
+     "Grace",
+     "Dave",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "a",
+      4,
+      3,
+      1
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ],
+     [
+      "g",
+      2,
+      3,
+      3
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0010_en_gapB",
+   "group_id": "grp_order_conf_0010",
+   "query": "5 runners (Erin, Heidi, Dave, Alice, Frank) ran a race with no ties. Clues: Heidi finished 2 places ahead of Erin: if Heidi is in position p, then Erin is in position p+2; Erin finished immediately before Alice; Dave finished immediately before Heidi. Who finished in 1st place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Heidi",
+     "Dave",
+     "Alice",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      0,
+      2
+     ],
+     [
+      "a",
+      0,
+      3,
+      1
+     ],
+     [
+      "a",
+      2,
+      1,
+      1
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0011_en_gapB",
+   "group_id": "grp_order_conf_0011",
+   "query": "5 runners (Heidi, Erin, Grace, Frank, Alice) ran a race with no ties. Clues: Alice finished immediately before Heidi; Alice finished after Grace; Alice finished 2 places ahead of Erin: if Alice is in position p, then Erin is in position p+2; Frank finished before Heidi. Who finished in 3rd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Erin",
+     "Grace",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "a",
+      4,
+      0,
+      1
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ],
+     [
+      "g",
+      4,
+      1,
+      2
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0012_en_gapB",
+   "group_id": "grp_order_conf_0012",
+   "query": "5 runners (Bob, Carol, Alice, Dave, Frank) ran a race with no ties. Clues: Frank finished 2 places ahead of Carol: if Frank is in position p, then Carol is in position p+2; Alice finished 2 places ahead of Dave: if Alice is in position p, then Dave is in position p+2; Carol finished before Bob. Who finished in 5th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Carol",
+     "Alice",
+     "Dave",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      1,
+      2
+     ],
+     [
+      "g",
+      2,
+      3,
+      2
+     ],
+     [
+      "b",
+      1,
+      0,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0013_en_gapB",
+   "group_id": "grp_order_conf_0013",
+   "query": "5 runners (Frank, Grace, Alice, Erin, Bob) ran a race with no ties. Clues: Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2; Frank finished 3 places ahead of Alice: if Frank is in position p, then Alice is in position p+3; Bob finished 2 places ahead of Erin: if Bob is in position p, then Erin is in position p+2. Who finished in 2nd place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Grace",
+     "Alice",
+     "Erin",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      2,
+      2
+     ],
+     [
+      "g",
+      0,
+      2,
+      3
+     ],
+     [
+      "g",
+      4,
+      3,
+      2
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0014_en_gapB",
+   "group_id": "grp_order_conf_0014",
+   "query": "5 runners (Grace, Erin, Carol, Frank, Dave) ran a race with no ties. Clues: Frank finished before Carol; Carol finished 3 places ahead of Erin: if Carol is in position p, then Erin is in position p+3; Grace finished immediately before Erin. Who finished in 4th place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Erin",
+     "Carol",
+     "Frank",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "g",
+      2,
+      1,
+      3
+     ],
+     [
+      "a",
+      0,
+      1,
+      1
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0015_en_gapB",
+   "group_id": "grp_order_conf_0015",
+   "query": "5 runners (Carol, Alice, Dave, Frank, Grace) ran a race with no ties. Clues: Carol finished after Grace; Grace finished after Dave; Alice finished immediately before Dave; Alice finished 2 places ahead of Frank: if Alice is in position p, then Frank is in position p+2. Who finished in 3rd place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Alice",
+     "Dave",
+     "Frank",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ],
+     [
+      "a",
+      1,
+      2,
+      1
+     ],
+     [
+      "g",
+      1,
+      3,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0016_en_gapB",
+   "group_id": "grp_order_conf_0016",
+   "query": "5 runners (Carol, Heidi, Alice, Grace, Frank) ran a race with no ties. Clues: Carol finished 2 places ahead of Heidi: if Carol is in position p, then Heidi is in position p+2; Frank finished after Carol; Alice finished immediately before Heidi; Heidi finished after Grace. Who finished in 2nd place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Alice",
+     "Grace",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      1,
+      2
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "a",
+      2,
+      1,
+      1
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0017_en_gapB",
+   "group_id": "grp_order_conf_0017",
+   "query": "5 runners (Erin, Heidi, Bob, Dave, Carol) ran a race with no ties. Clues: Heidi finished 3 places ahead of Bob: if Heidi is in position p, then Bob is in position p+3; Carol finished after Bob. Who finished in 1st place?",
+   "answer": "Heidi",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Heidi",
+     "Bob",
+     "Dave",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      2,
+      3
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0018_en_gapB",
+   "group_id": "grp_order_conf_0018",
+   "query": "5 runners (Alice, Heidi, Grace, Carol, Erin) ran a race with no ties. Clues: Grace finished before Heidi; Erin finished immediately before Heidi; Carol finished before Erin; Alice finished immediately before Carol. Who finished in 4th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Heidi",
+     "Grace",
+     "Carol",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      1,
+      0
+     ],
+     [
+      "a",
+      4,
+      1,
+      1
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "a",
+      0,
+      3,
+      1
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0019_en_gapB",
+   "group_id": "grp_order_conf_0019",
+   "query": "5 runners (Grace, Heidi, Frank, Dave, Carol) ran a race with no ties. Clues: Frank finished before Heidi; Dave finished immediately before Grace; Frank finished before Dave; Carol finished after Grace. Who finished in 1st place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Heidi",
+     "Frank",
+     "Dave",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      1,
+      0
+     ],
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0020_en_gapB",
+   "group_id": "grp_order_conf_0020",
+   "query": "5 runners (Alice, Grace, Dave, Bob, Frank) ran a race with no ties. Clues: Bob finished immediately before Alice; Frank finished immediately before Grace; Bob finished 2 places ahead of Frank: if Bob is in position p, then Frank is in position p+2; Frank finished after Dave. Who finished in 3rd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Grace",
+     "Dave",
+     "Bob",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "a",
+      4,
+      1,
+      1
+     ],
+     [
+      "g",
+      3,
+      4,
+      2
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0021_en_gapB",
+   "group_id": "grp_order_conf_0021",
+   "query": "5 runners (Frank, Grace, Alice, Erin, Bob) ran a race with no ties. Clues: Erin finished after Grace; Frank finished after Alice; Bob finished after Frank; Alice finished immediately before Erin. Who finished in 2nd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Grace",
+     "Alice",
+     "Erin",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      3,
+      0
+     ],
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "a",
+      2,
+      3,
+      1
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0022_en_gapB",
+   "group_id": "grp_order_conf_0022",
+   "query": "5 runners (Carol, Erin, Heidi, Frank, Bob) ran a race with no ties. Clues: Heidi finished immediately before Carol; Erin finished 2 places ahead of Heidi: if Erin is in position p, then Heidi is in position p+2; Bob finished immediately before Heidi; Frank finished before Carol. Who finished in 1st place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Erin",
+     "Heidi",
+     "Frank",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "a",
+      2,
+      0,
+      1
+     ],
+     [
+      "g",
+      1,
+      2,
+      2
+     ],
+     [
+      "a",
+      4,
+      2,
+      1
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0023_en_gapB",
+   "group_id": "grp_order_conf_0023",
+   "query": "5 runners (Bob, Heidi, Frank, Carol, Erin) ran a race with no ties. Clues: Frank finished after Bob; Heidi finished 2 places ahead of Carol: if Heidi is in position p, then Carol is in position p+2; Bob finished after Erin; Erin finished immediately before Carol. Who finished in 4th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Heidi",
+     "Frank",
+     "Carol",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      2,
+      0
+     ],
+     [
+      "g",
+      1,
+      3,
+      2
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "a",
+      4,
+      3,
+      1
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0024_en_gapB",
+   "group_id": "grp_order_conf_0024",
+   "query": "5 runners (Bob, Erin, Carol, Grace, Alice) ran a race with no ties. Clues: Alice finished after Bob; Alice finished before Grace; Bob finished 3 places ahead of Grace: if Bob is in position p, then Grace is in position p+3; Erin finished before Carol; Erin finished 2 places ahead of Grace: if Erin is in position p, then Grace is in position p+2. Who finished in 3rd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Erin",
+     "Carol",
+     "Grace",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ],
+     [
+      "g",
+      0,
+      3,
+      3
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ],
+     [
+      "g",
+      1,
+      3,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0025_en_gapB",
+   "group_id": "grp_order_conf_0025",
+   "query": "6 runners (Carol, Grace, Dave, Heidi, Frank, Alice) ran a race with no ties. Clues: Alice finished 2 places ahead of Carol: if Alice is in position p, then Carol is in position p+2; Heidi finished 3 places ahead of Alice: if Heidi is in position p, then Alice is in position p+3. Who finished in 4th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Grace",
+     "Dave",
+     "Heidi",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      5,
+      0,
+      2
+     ],
+     [
+      "g",
+      3,
+      5,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0026_en_gapB",
+   "group_id": "grp_order_conf_0026",
+   "query": "6 runners (Carol, Bob, Frank, Grace, Erin, Dave) ran a race with no ties. Clues: Grace finished 3 places ahead of Dave: if Grace is in position p, then Dave is in position p+3; Erin finished after Frank; Bob finished after Grace; Grace finished before Frank; Carol finished before Grace. Who finished in 5th place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Bob",
+     "Frank",
+     "Grace",
+     "Erin",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      5,
+      3
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "b",
+      0,
+      3,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0027_en_gapB",
+   "group_id": "grp_order_conf_0027",
+   "query": "6 runners (Bob, Heidi, Alice, Grace, Carol, Frank) ran a race with no ties. Clues: Heidi finished immediately before Carol; Grace finished before Carol; Heidi finished 2 places ahead of Frank: if Heidi is in position p, then Frank is in position p+2; Alice finished after Bob; Alice finished before Heidi. Who finished in 4th place?",
+   "answer": "Heidi",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Heidi",
+     "Alice",
+     "Grace",
+     "Carol",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "a",
+      1,
+      4,
+      1
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "g",
+      1,
+      5,
+      2
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ],
+     [
+      "b",
+      2,
+      1,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0028_en_gapB",
+   "group_id": "grp_order_conf_0028",
+   "query": "6 runners (Dave, Alice, Heidi, Frank, Erin, Grace) ran a race with no ties. Clues: Erin finished before Frank; Erin finished before Grace; Erin finished immediately before Heidi; Heidi finished after Dave; Alice finished before Heidi. Who finished in 3rd place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Alice",
+     "Heidi",
+     "Frank",
+     "Erin",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      3,
+      0
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "a",
+      4,
+      2,
+      1
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0029_en_gapB",
+   "group_id": "grp_order_conf_0029",
+   "query": "6 runners (Erin, Frank, Grace, Carol, Alice, Dave) ran a race with no ties. Clues: Alice finished 3 places ahead of Dave: if Alice is in position p, then Dave is in position p+3; Grace finished before Dave; Frank finished after Carol; Carol finished immediately before Erin; Grace finished after Alice. Who finished in 6th place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Frank",
+     "Grace",
+     "Carol",
+     "Alice",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      5,
+      3
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0030_en_gapB",
+   "group_id": "grp_order_conf_0030",
+   "query": "6 runners (Carol, Alice, Dave, Bob, Heidi, Grace) ran a race with no ties. Clues: Bob finished immediately before Carol; Alice finished immediately before Dave; Bob finished 3 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+3; Carol finished after Dave. Who finished in 4th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Alice",
+     "Dave",
+     "Bob",
+     "Heidi",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "a",
+      1,
+      2,
+      1
+     ],
+     [
+      "g",
+      3,
+      4,
+      3
+     ],
+     [
+      "b",
+      2,
+      0,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0031_en_gapB",
+   "group_id": "grp_order_conf_0031",
+   "query": "6 runners (Frank, Heidi, Erin, Dave, Grace, Alice) ran a race with no ties. Clues: Heidi finished after Dave; Frank finished 2 places ahead of Alice: if Frank is in position p, then Alice is in position p+2; Grace finished immediately before Dave; Alice finished before Erin. Who finished in 5th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Heidi",
+     "Erin",
+     "Dave",
+     "Grace",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "g",
+      0,
+      5,
+      2
+     ],
+     [
+      "a",
+      4,
+      3,
+      1
+     ],
+     [
+      "b",
+      5,
+      2,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0032_en_gapB",
+   "group_id": "grp_order_conf_0032",
+   "query": "6 runners (Carol, Heidi, Grace, Erin, Frank, Dave) ran a race with no ties. Clues: Frank finished immediately before Dave; Carol finished before Dave; Dave finished 3 places ahead of Heidi: if Dave is in position p, then Heidi is in position p+3. Who finished in 1st place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Grace",
+     "Erin",
+     "Frank",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "a",
+      4,
+      5,
+      1
+     ],
+     [
+      "b",
+      0,
+      5,
+      0
+     ],
+     [
+      "g",
+      5,
+      1,
+      3
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0033_en_gapB",
+   "group_id": "grp_order_conf_0033",
+   "query": "6 runners (Grace, Dave, Erin, Bob, Carol, Alice) ran a race with no ties. Clues: Dave finished before Erin; Bob finished before Grace; Erin finished after Carol; Alice finished immediately before Erin; Alice finished 2 places ahead of Grace: if Alice is in position p, then Grace is in position p+2. Who finished in 4th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Dave",
+     "Erin",
+     "Bob",
+     "Carol",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      2,
+      0
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "a",
+      5,
+      2,
+      1
+     ],
+     [
+      "g",
+      5,
+      0,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0034_en_gapB",
+   "group_id": "grp_order_conf_0034",
+   "query": "6 runners (Bob, Carol, Erin, Frank, Grace, Dave) ran a race with no ties. Clues: Carol finished 3 places ahead of Bob: if Carol is in position p, then Bob is in position p+3; Dave finished immediately before Frank; Frank finished immediately before Bob; Grace finished before Frank; Grace finished after Erin. Who finished in 3rd place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Carol",
+     "Erin",
+     "Frank",
+     "Grace",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      0,
+      3
+     ],
+     [
+      "a",
+      5,
+      3,
+      1
+     ],
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0035_en_gapB",
+   "group_id": "grp_order_conf_0035",
+   "query": "6 runners (Dave, Grace, Erin, Heidi, Alice, Bob) ran a race with no ties. Clues: Erin finished after Alice; Grace finished immediately before Bob; Dave finished before Heidi; Grace finished 2 places ahead of Heidi: if Grace is in position p, then Heidi is in position p+2; Heidi finished before Alice. Who finished in 1st place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Grace",
+     "Erin",
+     "Heidi",
+     "Alice",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "a",
+      1,
+      5,
+      1
+     ],
+     [
+      "b",
+      0,
+      3,
+      0
+     ],
+     [
+      "g",
+      1,
+      3,
+      2
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0036_en_gapB",
+   "group_id": "grp_order_conf_0036",
+   "query": "6 runners (Alice, Bob, Dave, Frank, Erin, Heidi) ran a race with no ties. Clues: Alice finished before Frank; Bob finished 2 places ahead of Erin: if Bob is in position p, then Erin is in position p+2; Alice finished immediately before Erin; Dave finished 2 places ahead of Bob: if Dave is in position p, then Bob is in position p+2. Who finished in 3rd place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Bob",
+     "Dave",
+     "Frank",
+     "Erin",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      3,
+      0
+     ],
+     [
+      "g",
+      1,
+      4,
+      2
+     ],
+     [
+      "a",
+      0,
+      4,
+      1
+     ],
+     [
+      "g",
+      2,
+      1,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0037_en_gapB",
+   "group_id": "grp_order_conf_0037",
+   "query": "6 runners (Erin, Grace, Carol, Alice, Heidi, Bob) ran a race with no ties. Clues: Alice finished 2 places ahead of Bob: if Alice is in position p, then Bob is in position p+2; Bob finished after Grace; Grace finished immediately before Carol; Erin finished immediately before Bob; Heidi finished after Carol. Who finished in 1st place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Grace",
+     "Carol",
+     "Alice",
+     "Heidi",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      5,
+      2
+     ],
+     [
+      "b",
+      1,
+      5,
+      0
+     ],
+     [
+      "a",
+      1,
+      2,
+      1
+     ],
+     [
+      "a",
+      0,
+      5,
+      1
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0038_en_gapB",
+   "group_id": "grp_order_conf_0038",
+   "query": "6 runners (Frank, Alice, Heidi, Dave, Carol, Erin) ran a race with no ties. Clues: Carol finished before Erin; Erin finished before Frank; Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2; Dave finished immediately before Carol; Erin finished immediately before Heidi. Who finished in 3rd place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Alice",
+     "Heidi",
+     "Dave",
+     "Carol",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ],
+     [
+      "g",
+      5,
+      1,
+      2
+     ],
+     [
+      "a",
+      3,
+      4,
+      1
+     ],
+     [
+      "a",
+      5,
+      2,
+      1
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0039_en_gapB",
+   "group_id": "grp_order_conf_0039",
+   "query": "6 runners (Alice, Dave, Heidi, Grace, Erin, Carol) ran a race with no ties. Clues: Grace finished 3 places ahead of Dave: if Grace is in position p, then Dave is in position p+3; Grace finished after Carol; Alice finished 2 places ahead of Dave: if Alice is in position p, then Dave is in position p+2; Alice finished after Erin. Who finished in 5th place?",
+   "answer": "Heidi",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Dave",
+     "Heidi",
+     "Grace",
+     "Erin",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      1,
+      3
+     ],
+     [
+      "b",
+      5,
+      3,
+      0
+     ],
+     [
+      "g",
+      0,
+      1,
+      2
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0040_en_gapB",
+   "group_id": "grp_order_conf_0040",
+   "query": "6 runners (Grace, Carol, Dave, Bob, Frank, Alice) ran a race with no ties. Clues: Grace finished before Carol; Bob finished before Grace; Dave finished immediately before Bob; Frank finished 2 places ahead of Grace: if Frank is in position p, then Grace is in position p+2. Who finished in 2nd place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Carol",
+     "Dave",
+     "Bob",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "a",
+      2,
+      3,
+      1
+     ],
+     [
+      "g",
+      4,
+      0,
+      2
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0041_en_gapB",
+   "group_id": "grp_order_conf_0041",
+   "query": "6 runners (Grace, Heidi, Bob, Carol, Frank, Erin) ran a race with no ties. Clues: Carol finished after Heidi; Erin finished after Carol; Erin finished before Grace; Bob finished after Grace; Frank finished before Carol. Who finished in 5th place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Heidi",
+     "Bob",
+     "Carol",
+     "Frank",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      3,
+      0
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0042_en_gapB",
+   "group_id": "grp_order_conf_0042",
+   "query": "6 runners (Carol, Heidi, Grace, Erin, Frank, Alice) ran a race with no ties. Clues: Carol finished 2 places ahead of Alice: if Carol is in position p, then Alice is in position p+2; Grace finished 3 places ahead of Alice: if Grace is in position p, then Alice is in position p+3; Alice finished after Erin; Grace finished 2 places ahead of Frank: if Grace is in position p, then Frank is in position p+2; Erin finished after Heidi. Who finished in 2nd place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Grace",
+     "Erin",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      5,
+      2
+     ],
+     [
+      "g",
+      2,
+      5,
+      3
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "g",
+      2,
+      4,
+      2
+     ],
+     [
+      "b",
+      1,
+      3,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0043_en_gapB",
+   "group_id": "grp_order_conf_0043",
+   "query": "6 runners (Frank, Erin, Bob, Heidi, Carol, Alice) ran a race with no ties. Clues: Erin finished 3 places ahead of Carol: if Erin is in position p, then Carol is in position p+3; Frank finished immediately before Alice; Alice finished immediately before Erin. Who finished in 6th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Erin",
+     "Bob",
+     "Heidi",
+     "Carol",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      4,
+      3
+     ],
+     [
+      "a",
+      0,
+      5,
+      1
+     ],
+     [
+      "a",
+      5,
+      1,
+      1
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0044_en_gapB",
+   "group_id": "grp_order_conf_0044",
+   "query": "6 runners (Alice, Carol, Bob, Heidi, Dave, Frank) ran a race with no ties. Clues: Bob finished immediately before Dave; Alice finished 3 places ahead of Carol: if Alice is in position p, then Carol is in position p+3; Alice finished after Dave. Who finished in 1st place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Carol",
+     "Bob",
+     "Heidi",
+     "Dave",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "a",
+      2,
+      4,
+      1
+     ],
+     [
+      "g",
+      0,
+      1,
+      3
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0045_en_gapB",
+   "group_id": "grp_order_conf_0045",
+   "query": "6 runners (Erin, Dave, Bob, Carol, Grace, Frank) ran a race with no ties. Clues: Frank finished 3 places ahead of Dave: if Frank is in position p, then Dave is in position p+3; Erin finished after Grace; Bob finished before Frank; Erin finished before Carol. Who finished in 4th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Dave",
+     "Bob",
+     "Carol",
+     "Grace",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      5,
+      1,
+      3
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "b",
+      0,
+      3,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0046_en_gapB",
+   "group_id": "grp_order_conf_0046",
+   "query": "6 runners (Heidi, Erin, Grace, Bob, Frank, Carol) ran a race with no ties. Clues: Grace finished immediately before Carol; Frank finished before Bob; Grace finished after Heidi; Bob finished 2 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+2. Who finished in 3rd place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Erin",
+     "Grace",
+     "Bob",
+     "Frank",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "a",
+      2,
+      5,
+      1
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ],
+     [
+      "g",
+      3,
+      0,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0047_en_gapB",
+   "group_id": "grp_order_conf_0047",
+   "query": "6 runners (Carol, Heidi, Erin, Alice, Dave, Frank) ran a race with no ties. Clues: Alice finished before Carol; Alice finished before Erin; Frank finished after Alice; Heidi finished 3 places ahead of Dave: if Heidi is in position p, then Dave is in position p+3; Alice finished immediately before Heidi. Who finished in 1st place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Erin",
+     "Alice",
+     "Dave",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "g",
+      1,
+      4,
+      3
+     ],
+     [
+      "a",
+      3,
+      1,
+      1
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0048_en_gapB",
+   "group_id": "grp_order_conf_0048",
+   "query": "6 runners (Dave, Alice, Bob, Heidi, Erin, Carol) ran a race with no ties. Clues: Dave finished after Bob; Bob finished after Erin; Alice finished after Heidi; Bob finished immediately before Carol; Alice finished before Bob. Who finished in 5th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Alice",
+     "Bob",
+     "Heidi",
+     "Erin",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "a",
+      2,
+      5,
+      1
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0049_en_gapB",
+   "group_id": "grp_order_conf_0049",
+   "query": "6 runners (Frank, Dave, Erin, Heidi, Grace, Carol) ran a race with no ties. Clues: Frank finished before Dave; Erin finished 2 places ahead of Frank: if Erin is in position p, then Frank is in position p+2; Dave finished 2 places ahead of Carol: if Dave is in position p, then Carol is in position p+2. Who finished in 3rd place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Dave",
+     "Erin",
+     "Heidi",
+     "Grace",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "g",
+      2,
+      0,
+      2
+     ],
+     [
+      "g",
+      1,
+      5,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0050_en_gapB",
+   "group_id": "grp_order_conf_0050",
+   "query": "7 runners (Alice, Bob, Dave, Erin, Frank, Heidi, Grace) ran a race with no ties. Clues: Grace finished before Bob; Frank finished after Alice; Erin finished 2 places ahead of Dave: if Erin is in position p, then Dave is in position p+2; Grace finished immediately before Heidi; Frank finished before Heidi; Dave finished before Heidi. Who finished in 5th place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Bob",
+     "Dave",
+     "Erin",
+     "Frank",
+     "Heidi",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      1,
+      0
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "g",
+      3,
+      2,
+      2
+     ],
+     [
+      "a",
+      6,
+      5,
+      1
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0051_en_gapB",
+   "group_id": "grp_order_conf_0051",
+   "query": "7 runners (Frank, Dave, Heidi, Alice, Carol, Erin, Bob) ran a race with no ties. Clues: Heidi finished 2 places ahead of Dave: if Heidi is in position p, then Dave is in position p+2; Frank finished 3 places ahead of Dave: if Frank is in position p, then Dave is in position p+3; Heidi finished after Bob; Alice finished immediately before Dave; Alice finished after Erin; Dave finished immediately before Carol. Who finished in 5th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Dave",
+     "Heidi",
+     "Alice",
+     "Carol",
+     "Erin",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      1,
+      2
+     ],
+     [
+      "g",
+      0,
+      1,
+      3
+     ],
+     [
+      "b",
+      6,
+      2,
+      0
+     ],
+     [
+      "a",
+      3,
+      1,
+      1
+     ],
+     [
+      "b",
+      5,
+      3,
+      0
+     ],
+     [
+      "a",
+      1,
+      4,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0052_en_gapB",
+   "group_id": "grp_order_conf_0052",
+   "query": "7 runners (Heidi, Dave, Grace, Bob, Erin, Frank, Carol) ran a race with no ties. Clues: Grace finished 2 places ahead of Erin: if Grace is in position p, then Erin is in position p+2; Erin finished before Frank; Dave finished 3 places ahead of Bob: if Dave is in position p, then Bob is in position p+3; Carol finished after Erin; Bob finished immediately before Heidi. Who finished in 5th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Dave",
+     "Grace",
+     "Bob",
+     "Erin",
+     "Frank",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      4,
+      2
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "g",
+      1,
+      3,
+      3
+     ],
+     [
+      "b",
+      4,
+      6,
+      0
+     ],
+     [
+      "a",
+      3,
+      0,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0053_en_gapB",
+   "group_id": "grp_order_conf_0053",
+   "query": "7 runners (Bob, Heidi, Carol, Frank, Grace, Erin, Alice) ran a race with no ties. Clues: Frank finished after Heidi; Carol finished 3 places ahead of Erin: if Carol is in position p, then Erin is in position p+3; Frank finished 2 places ahead of Bob: if Frank is in position p, then Bob is in position p+2; Grace finished before Heidi; Frank finished after Erin. Who finished in 2nd place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Heidi",
+     "Carol",
+     "Frank",
+     "Grace",
+     "Erin",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      3,
+      0
+     ],
+     [
+      "g",
+      2,
+      5,
+      3
+     ],
+     [
+      "g",
+      3,
+      0,
+      2
+     ],
+     [
+      "b",
+      4,
+      1,
+      0
+     ],
+     [
+      "b",
+      5,
+      3,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0054_en_gapB",
+   "group_id": "grp_order_conf_0054",
+   "query": "7 runners (Alice, Grace, Frank, Carol, Bob, Dave, Heidi) ran a race with no ties. Clues: Carol finished immediately before Heidi; Alice finished after Bob; Bob finished 3 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+3; Grace finished 2 places ahead of Heidi: if Grace is in position p, then Heidi is in position p+2; Frank finished before Dave; Heidi finished 2 places ahead of Dave: if Heidi is in position p, then Dave is in position p+2; Grace finished before Frank. Who finished in 5th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Grace",
+     "Frank",
+     "Carol",
+     "Bob",
+     "Dave",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "a",
+      3,
+      6,
+      1
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "g",
+      4,
+      6,
+      3
+     ],
+     [
+      "g",
+      1,
+      6,
+      2
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "g",
+      6,
+      5,
+      2
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0055_en_gapB",
+   "group_id": "grp_order_conf_0055",
+   "query": "7 runners (Carol, Grace, Heidi, Frank, Dave, Bob, Erin) ran a race with no ties. Clues: Erin finished before Bob; Dave finished 3 places ahead of Frank: if Dave is in position p, then Frank is in position p+3; Carol finished after Erin; Heidi finished 2 places ahead of Dave: if Heidi is in position p, then Dave is in position p+2; Dave finished immediately before Erin. Who finished in 3rd place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Grace",
+     "Heidi",
+     "Frank",
+     "Dave",
+     "Bob",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      5,
+      0
+     ],
+     [
+      "g",
+      4,
+      3,
+      3
+     ],
+     [
+      "b",
+      6,
+      0,
+      0
+     ],
+     [
+      "g",
+      2,
+      4,
+      2
+     ],
+     [
+      "a",
+      4,
+      6,
+      1
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0056_en_gapB",
+   "group_id": "grp_order_conf_0056",
+   "query": "7 runners (Erin, Dave, Heidi, Frank, Carol, Alice, Bob) ran a race with no ties. Clues: Dave finished 2 places ahead of Carol: if Dave is in position p, then Carol is in position p+2; Alice finished immediately before Dave; Alice finished before Bob; Dave finished immediately before Frank; Heidi finished 2 places ahead of Alice: if Heidi is in position p, then Alice is in position p+2. Who finished in 6th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Dave",
+     "Heidi",
+     "Frank",
+     "Carol",
+     "Alice",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      4,
+      2
+     ],
+     [
+      "a",
+      5,
+      1,
+      1
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ],
+     [
+      "a",
+      1,
+      3,
+      1
+     ],
+     [
+      "g",
+      2,
+      5,
+      2
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0057_en_gapB",
+   "group_id": "grp_order_conf_0057",
+   "query": "7 runners (Heidi, Erin, Frank, Carol, Alice, Bob, Grace) ran a race with no ties. Clues: Alice finished after Grace; Bob finished 2 places ahead of Frank: if Bob is in position p, then Frank is in position p+2; Carol finished immediately before Grace; Erin finished after Carol; Heidi finished after Grace. Who finished in 1st place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Erin",
+     "Frank",
+     "Carol",
+     "Alice",
+     "Bob",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      4,
+      0
+     ],
+     [
+      "g",
+      5,
+      2,
+      2
+     ],
+     [
+      "a",
+      3,
+      6,
+      1
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      6,
+      0,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0058_en_gapB",
+   "group_id": "grp_order_conf_0058",
+   "query": "7 runners (Dave, Bob, Carol, Heidi, Erin, Alice, Frank) ran a race with no ties. Clues: Alice finished 3 places ahead of Bob: if Alice is in position p, then Bob is in position p+3; Alice finished 2 places ahead of Dave: if Alice is in position p, then Dave is in position p+2; Erin finished 3 places ahead of Frank: if Erin is in position p, then Frank is in position p+3; Heidi finished after Alice; Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2. Who finished in 7th place?",
+   "answer": "Heidi",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Bob",
+     "Carol",
+     "Heidi",
+     "Erin",
+     "Alice",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      5,
+      1,
+      3
+     ],
+     [
+      "g",
+      5,
+      0,
+      2
+     ],
+     [
+      "g",
+      4,
+      6,
+      3
+     ],
+     [
+      "b",
+      5,
+      3,
+      0
+     ],
+     [
+      "g",
+      2,
+      4,
+      2
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0059_en_gapB",
+   "group_id": "grp_order_conf_0059",
+   "query": "7 runners (Grace, Frank, Bob, Carol, Dave, Erin, Alice) ran a race with no ties. Clues: Grace finished 3 places ahead of Alice: if Grace is in position p, then Alice is in position p+3; Erin finished immediately before Grace; Alice finished immediately before Frank; Frank finished before Bob. Who finished in 5th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Frank",
+     "Bob",
+     "Carol",
+     "Dave",
+     "Erin",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      6,
+      3
+     ],
+     [
+      "a",
+      5,
+      0,
+      1
+     ],
+     [
+      "a",
+      6,
+      1,
+      1
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0060_en_gapB",
+   "group_id": "grp_order_conf_0060",
+   "query": "7 runners (Bob, Alice, Heidi, Frank, Erin, Grace, Dave) ran a race with no ties. Clues: Heidi finished before Grace; Alice finished after Frank; Heidi finished after Dave; Bob finished immediately before Heidi; Erin finished 3 places ahead of Frank: if Erin is in position p, then Frank is in position p+3. Who finished in 5th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Alice",
+     "Heidi",
+     "Frank",
+     "Erin",
+     "Grace",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      6,
+      2,
+      0
+     ],
+     [
+      "a",
+      0,
+      2,
+      1
+     ],
+     [
+      "g",
+      4,
+      3,
+      3
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0061_en_gapB",
+   "group_id": "grp_order_conf_0061",
+   "query": "7 runners (Heidi, Bob, Carol, Frank, Dave, Alice, Grace) ran a race with no ties. Clues: Bob finished immediately before Carol; Heidi finished after Dave; Dave finished after Grace; Heidi finished 2 places ahead of Alice: if Heidi is in position p, then Alice is in position p+2; Heidi finished 3 places ahead of Bob: if Heidi is in position p, then Bob is in position p+3. Who finished in 4th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Bob",
+     "Carol",
+     "Frank",
+     "Dave",
+     "Alice",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "a",
+      1,
+      2,
+      1
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "b",
+      6,
+      4,
+      0
+     ],
+     [
+      "g",
+      0,
+      5,
+      2
+     ],
+     [
+      "g",
+      0,
+      1,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0062_en_gapB",
+   "group_id": "grp_order_conf_0062",
+   "query": "7 runners (Erin, Heidi, Frank, Dave, Carol, Alice, Grace) ran a race with no ties. Clues: Heidi finished 2 places ahead of Frank: if Heidi is in position p, then Frank is in position p+2; Erin finished before Heidi; Heidi finished immediately before Carol; Grace finished before Alice; Heidi finished before Grace; Grace finished before Dave. Who finished in 4th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Heidi",
+     "Frank",
+     "Dave",
+     "Carol",
+     "Alice",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      2,
+      2
+     ],
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "a",
+      1,
+      4,
+      1
+     ],
+     [
+      "b",
+      6,
+      5,
+      0
+     ],
+     [
+      "b",
+      1,
+      6,
+      0
+     ],
+     [
+      "b",
+      6,
+      3,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0063_en_gapB",
+   "group_id": "grp_order_conf_0063",
+   "query": "7 runners (Erin, Alice, Grace, Carol, Heidi, Frank, Dave) ran a race with no ties. Clues: Carol finished 2 places ahead of Dave: if Carol is in position p, then Dave is in position p+2; Erin finished after Grace; Dave finished before Alice; Frank finished before Dave; Dave finished immediately before Erin; Erin finished after Heidi. Who finished in 3rd place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Alice",
+     "Grace",
+     "Carol",
+     "Heidi",
+     "Frank",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      6,
+      2
+     ],
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "b",
+      6,
+      1,
+      0
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ],
+     [
+      "a",
+      6,
+      0,
+      1
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0064_en_gapB",
+   "group_id": "grp_order_conf_0064",
+   "query": "7 runners (Frank, Grace, Heidi, Bob, Alice, Dave, Erin) ran a race with no ties. Clues: Heidi finished before Grace; Alice finished 2 places ahead of Bob: if Alice is in position p, then Bob is in position p+2; Heidi finished immediately before Erin; Dave finished before Alice; Alice finished after Frank. Who finished in 5th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Grace",
+     "Heidi",
+     "Bob",
+     "Alice",
+     "Dave",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      1,
+      0
+     ],
+     [
+      "g",
+      4,
+      3,
+      2
+     ],
+     [
+      "a",
+      2,
+      6,
+      1
+     ],
+     [
+      "b",
+      5,
+      4,
+      0
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0065_en_gapB",
+   "group_id": "grp_order_conf_0065",
+   "query": "7 runners (Frank, Alice, Dave, Bob, Grace, Erin, Carol) ran a race with no ties. Clues: Bob finished before Frank; Dave finished before Erin; Frank finished after Grace; Grace finished after Carol; Frank finished immediately before Erin; Alice finished 2 places ahead of Frank: if Alice is in position p, then Frank is in position p+2. Who finished in 4th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Alice",
+     "Dave",
+     "Bob",
+     "Grace",
+     "Erin",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "b",
+      6,
+      4,
+      0
+     ],
+     [
+      "a",
+      0,
+      5,
+      1
+     ],
+     [
+      "g",
+      1,
+      0,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0066_en_gapB",
+   "group_id": "grp_order_conf_0066",
+   "query": "7 runners (Bob, Frank, Erin, Alice, Carol, Dave, Grace) ran a race with no ties. Clues: Alice finished 2 places ahead of Bob: if Alice is in position p, then Bob is in position p+2; Alice finished immediately before Grace; Grace finished before Frank; Dave finished after Alice; Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2. Who finished in 3rd place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Frank",
+     "Erin",
+     "Alice",
+     "Carol",
+     "Dave",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      0,
+      2
+     ],
+     [
+      "a",
+      3,
+      6,
+      1
+     ],
+     [
+      "b",
+      6,
+      1,
+      0
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "g",
+      2,
+      3,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0067_en_gapB",
+   "group_id": "grp_order_conf_0067",
+   "query": "7 runners (Bob, Heidi, Grace, Carol, Frank, Alice, Dave) ran a race with no ties. Clues: Grace finished 3 places ahead of Heidi: if Grace is in position p, then Heidi is in position p+3; Carol finished 2 places ahead of Frank: if Carol is in position p, then Frank is in position p+2; Alice finished 3 places ahead of Grace: if Alice is in position p, then Grace is in position p+3. Who finished in 5th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Heidi",
+     "Grace",
+     "Carol",
+     "Frank",
+     "Alice",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      1,
+      3
+     ],
+     [
+      "g",
+      3,
+      4,
+      2
+     ],
+     [
+      "g",
+      5,
+      2,
+      3
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0068_en_gapB",
+   "group_id": "grp_order_conf_0068",
+   "query": "7 runners (Frank, Carol, Alice, Erin, Heidi, Bob, Grace) ran a race with no ties. Clues: Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2; Alice finished before Bob; Bob finished immediately before Grace; Frank finished immediately before Heidi; Heidi finished immediately before Erin. Who finished in 1st place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Carol",
+     "Alice",
+     "Erin",
+     "Heidi",
+     "Bob",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      2,
+      2
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "a",
+      5,
+      6,
+      1
+     ],
+     [
+      "a",
+      0,
+      4,
+      1
+     ],
+     [
+      "a",
+      4,
+      3,
+      1
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0069_en_gapB",
+   "group_id": "grp_order_conf_0069",
+   "query": "7 runners (Alice, Grace, Heidi, Bob, Frank, Erin, Carol) ran a race with no ties. Clues: Carol finished before Bob; Grace finished after Bob; Heidi finished after Frank; Carol finished 3 places ahead of Heidi: if Carol is in position p, then Heidi is in position p+3; Bob finished before Alice; Erin finished after Bob; Grace finished before Heidi. Who finished in 5th place?",
+   "answer": "Heidi",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Grace",
+     "Heidi",
+     "Bob",
+     "Frank",
+     "Erin",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      3,
+      0
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "g",
+      6,
+      2,
+      3
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0070_en_gapB",
+   "group_id": "grp_order_conf_0070",
+   "query": "7 runners (Frank, Heidi, Bob, Grace, Carol, Dave, Alice) ran a race with no ties. Clues: Bob finished immediately before Grace; Carol finished before Grace; Grace finished before Alice; Carol finished before Heidi; Frank finished after Carol; Bob finished before Dave. Who finished in 1st place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Heidi",
+     "Bob",
+     "Grace",
+     "Carol",
+     "Dave",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "a",
+      2,
+      3,
+      1
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ],
+     [
+      "b",
+      3,
+      6,
+      0
+     ],
+     [
+      "b",
+      4,
+      1,
+      0
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0071_en_gapB",
+   "group_id": "grp_order_conf_0071",
+   "query": "7 runners (Bob, Grace, Alice, Carol, Erin, Heidi, Dave) ran a race with no ties. Clues: Erin finished after Bob; Dave finished immediately before Bob; Carol finished 2 places ahead of Grace: if Carol is in position p, then Grace is in position p+2; Heidi finished 3 places ahead of Alice: if Heidi is in position p, then Alice is in position p+3; Heidi finished before Bob. Who finished in 4th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Grace",
+     "Alice",
+     "Carol",
+     "Erin",
+     "Heidi",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "a",
+      6,
+      0,
+      1
+     ],
+     [
+      "g",
+      3,
+      1,
+      2
+     ],
+     [
+      "g",
+      5,
+      2,
+      3
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0072_en_gapB",
+   "group_id": "grp_order_conf_0072",
+   "query": "7 runners (Heidi, Bob, Alice, Erin, Grace, Frank, Carol) ran a race with no ties. Clues: Heidi finished before Bob; Bob finished before Carol; Carol finished 3 places ahead of Erin: if Carol is in position p, then Erin is in position p+3; Frank finished immediately before Bob. Who finished in 3rd place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Bob",
+     "Alice",
+     "Erin",
+     "Grace",
+     "Frank",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "b",
+      1,
+      6,
+      0
+     ],
+     [
+      "g",
+      6,
+      3,
+      3
+     ],
+     [
+      "a",
+      5,
+      1,
+      1
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0073_en_gapB",
+   "group_id": "grp_order_conf_0073",
+   "query": "7 runners (Alice, Carol, Bob, Erin, Grace, Heidi, Dave) ran a race with no ties. Clues: Grace finished 2 places ahead of Alice: if Grace is in position p, then Alice is in position p+2; Erin finished immediately before Dave; Heidi finished 2 places ahead of Erin: if Heidi is in position p, then Erin is in position p+2; Bob finished after Grace; Carol finished immediately before Alice. Who finished in 6th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Carol",
+     "Bob",
+     "Erin",
+     "Grace",
+     "Heidi",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      0,
+      2
+     ],
+     [
+      "a",
+      3,
+      6,
+      1
+     ],
+     [
+      "g",
+      5,
+      3,
+      2
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "a",
+      1,
+      0,
+      1
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0074_en_gapB",
+   "group_id": "grp_order_conf_0074",
+   "query": "7 runners (Dave, Bob, Erin, Frank, Grace, Heidi, Carol) ran a race with no ties. Clues: Heidi finished immediately before Carol; Grace finished 2 places ahead of Bob: if Grace is in position p, then Bob is in position p+2; Heidi finished before Dave; Frank finished 3 places ahead of Carol: if Frank is in position p, then Carol is in position p+3; Erin finished before Frank. Who finished in 3rd place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Bob",
+     "Erin",
+     "Frank",
+     "Grace",
+     "Heidi",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "a",
+      5,
+      6,
+      1
+     ],
+     [
+      "g",
+      4,
+      1,
+      2
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ],
+     [
+      "g",
+      3,
+      6,
+      3
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0075_en_gapB",
+   "group_id": "grp_order_conf_0075",
+   "query": "8 runners (Frank, Bob, Carol, Alice, Dave, Erin, Grace, Heidi) ran a race with no ties. Clues: Dave finished before Bob; Carol finished immediately before Frank; Alice finished 3 places ahead of Bob: if Alice is in position p, then Bob is in position p+3; Carol finished 2 places ahead of Bob: if Carol is in position p, then Bob is in position p+2; Heidi finished before Frank; Grace finished before Erin; Erin finished 3 places ahead of Carol: if Erin is in position p, then Carol is in position p+3. Who finished in 5th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Bob",
+     "Carol",
+     "Alice",
+     "Dave",
+     "Erin",
+     "Grace",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      1,
+      0
+     ],
+     [
+      "a",
+      2,
+      0,
+      1
+     ],
+     [
+      "g",
+      3,
+      1,
+      3
+     ],
+     [
+      "g",
+      2,
+      1,
+      2
+     ],
+     [
+      "b",
+      7,
+      0,
+      0
+     ],
+     [
+      "b",
+      6,
+      5,
+      0
+     ],
+     [
+      "g",
+      5,
+      2,
+      3
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0076_en_gapB",
+   "group_id": "grp_order_conf_0076",
+   "query": "8 runners (Dave, Bob, Carol, Frank, Erin, Alice, Grace, Heidi) ran a race with no ties. Clues: Grace finished immediately before Frank; Frank finished immediately before Heidi; Erin finished 2 places ahead of Frank: if Erin is in position p, then Frank is in position p+2; Carol finished 3 places ahead of Bob: if Carol is in position p, then Bob is in position p+3; Dave finished 3 places ahead of Grace: if Dave is in position p, then Grace is in position p+3. Who finished in 4th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Dave",
+     "Bob",
+     "Carol",
+     "Frank",
+     "Erin",
+     "Alice",
+     "Grace",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "a",
+      6,
+      3,
+      1
+     ],
+     [
+      "a",
+      3,
+      7,
+      1
+     ],
+     [
+      "g",
+      4,
+      3,
+      2
+     ],
+     [
+      "g",
+      2,
+      1,
+      3
+     ],
+     [
+      "g",
+      0,
+      6,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0077_en_gapB",
+   "group_id": "grp_order_conf_0077",
+   "query": "8 runners (Frank, Bob, Carol, Heidi, Grace, Alice, Dave, Erin) ran a race with no ties. Clues: Erin finished before Frank; Alice finished before Grace; Grace finished 2 places ahead of Bob: if Grace is in position p, then Bob is in position p+2; Erin finished before Carol; Erin finished 3 places ahead of Heidi: if Erin is in position p, then Heidi is in position p+3; Erin finished immediately before Dave; Dave finished 3 places ahead of Bob: if Dave is in position p, then Bob is in position p+3. Who finished in 6th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Bob",
+     "Carol",
+     "Heidi",
+     "Grace",
+     "Alice",
+     "Dave",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      7,
+      0,
+      0
+     ],
+     [
+      "b",
+      5,
+      4,
+      0
+     ],
+     [
+      "g",
+      4,
+      1,
+      2
+     ],
+     [
+      "b",
+      7,
+      2,
+      0
+     ],
+     [
+      "g",
+      7,
+      3,
+      3
+     ],
+     [
+      "a",
+      7,
+      6,
+      1
+     ],
+     [
+      "g",
+      6,
+      1,
+      3
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0078_en_gapB",
+   "group_id": "grp_order_conf_0078",
+   "query": "8 runners (Alice, Grace, Carol, Erin, Bob, Dave, Frank, Heidi) ran a race with no ties. Clues: Carol finished 3 places ahead of Grace: if Carol is in position p, then Grace is in position p+3; Dave finished 3 places ahead of Heidi: if Dave is in position p, then Heidi is in position p+3; Heidi finished immediately before Carol. Who finished in 5th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Grace",
+     "Carol",
+     "Erin",
+     "Bob",
+     "Dave",
+     "Frank",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      1,
+      3
+     ],
+     [
+      "g",
+      5,
+      7,
+      3
+     ],
+     [
+      "a",
+      7,
+      2,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0079_en_gapB",
+   "group_id": "grp_order_conf_0079",
+   "query": "8 runners (Carol, Bob, Dave, Grace, Alice, Erin, Heidi, Frank) ran a race with no ties. Clues: Carol finished before Erin; Frank finished before Dave; Erin finished immediately before Heidi; Bob finished after Grace; Dave finished immediately before Erin; Heidi finished immediately before Bob; Alice finished before Erin. Who finished in 5th place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Bob",
+     "Dave",
+     "Grace",
+     "Alice",
+     "Erin",
+     "Heidi",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      5,
+      0
+     ],
+     [
+      "b",
+      7,
+      2,
+      0
+     ],
+     [
+      "a",
+      5,
+      6,
+      1
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "a",
+      2,
+      5,
+      1
+     ],
+     [
+      "a",
+      6,
+      1,
+      1
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0080_en_gapB",
+   "group_id": "grp_order_conf_0080",
+   "query": "8 runners (Alice, Erin, Carol, Bob, Frank, Grace, Dave, Heidi) ran a race with no ties. Clues: Grace finished before Carol; Dave finished before Erin; Carol finished 3 places ahead of Alice: if Carol is in position p, then Alice is in position p+3; Erin finished before Carol; Grace finished immediately before Frank. Who finished in 8th place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Erin",
+     "Carol",
+     "Bob",
+     "Frank",
+     "Grace",
+     "Dave",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      5,
+      2,
+      0
+     ],
+     [
+      "b",
+      6,
+      1,
+      0
+     ],
+     [
+      "g",
+      2,
+      0,
+      3
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ],
+     [
+      "a",
+      5,
+      4,
+      1
+     ]
+    ],
+    "ask": 7,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0081_en_gapB",
+   "group_id": "grp_order_conf_0081",
+   "query": "8 runners (Erin, Alice, Carol, Grace, Bob, Frank, Dave, Heidi) ran a race with no ties. Clues: Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2; Heidi finished 2 places ahead of Frank: if Heidi is in position p, then Frank is in position p+2; Frank finished before Dave; Dave finished before Grace; Bob finished 3 places ahead of Frank: if Bob is in position p, then Frank is in position p+3; Alice finished before Bob. Who finished in 5th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Alice",
+     "Carol",
+     "Grace",
+     "Bob",
+     "Frank",
+     "Dave",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      0,
+      2
+     ],
+     [
+      "g",
+      7,
+      5,
+      2
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ],
+     [
+      "b",
+      6,
+      3,
+      0
+     ],
+     [
+      "g",
+      4,
+      5,
+      3
+     ],
+     [
+      "b",
+      1,
+      4,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0082_en_gapB",
+   "group_id": "grp_order_conf_0082",
+   "query": "8 runners (Grace, Carol, Bob, Erin, Alice, Frank, Dave, Heidi) ran a race with no ties. Clues: Grace finished before Frank; Dave finished 2 places ahead of Erin: if Dave is in position p, then Erin is in position p+2; Bob finished before Erin; Erin finished before Alice; Alice finished immediately before Frank; Alice finished 3 places ahead of Heidi: if Alice is in position p, then Heidi is in position p+3. Who finished in 7th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Carol",
+     "Bob",
+     "Erin",
+     "Alice",
+     "Frank",
+     "Dave",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      5,
+      0
+     ],
+     [
+      "g",
+      6,
+      3,
+      2
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "a",
+      4,
+      5,
+      1
+     ],
+     [
+      "g",
+      4,
+      7,
+      3
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0083_en_gapB",
+   "group_id": "grp_order_conf_0083",
+   "query": "8 runners (Frank, Alice, Bob, Heidi, Erin, Dave, Grace, Carol) ran a race with no ties. Clues: Alice finished before Erin; Erin finished 2 places ahead of Heidi: if Erin is in position p, then Heidi is in position p+2; Heidi finished 2 places ahead of Frank: if Heidi is in position p, then Frank is in position p+2; Grace finished immediately before Bob; Alice finished 2 places ahead of Bob: if Alice is in position p, then Bob is in position p+2. Who finished in 8th place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Alice",
+     "Bob",
+     "Heidi",
+     "Erin",
+     "Dave",
+     "Grace",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "g",
+      4,
+      3,
+      2
+     ],
+     [
+      "g",
+      3,
+      0,
+      2
+     ],
+     [
+      "a",
+      6,
+      2,
+      1
+     ],
+     [
+      "g",
+      1,
+      2,
+      2
+     ]
+    ],
+    "ask": 7,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0084_en_gapB",
+   "group_id": "grp_order_conf_0084",
+   "query": "8 runners (Alice, Frank, Heidi, Erin, Carol, Grace, Dave, Bob) ran a race with no ties. Clues: Carol finished before Frank; Grace finished immediately before Bob; Erin finished after Bob; Bob finished before Dave; Carol finished 3 places ahead of Dave: if Carol is in position p, then Dave is in position p+3; Alice finished before Bob; Bob finished before Heidi. Who finished in 1st place?",
+   "answer": "Alice",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Frank",
+     "Heidi",
+     "Erin",
+     "Carol",
+     "Grace",
+     "Dave",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      1,
+      0
+     ],
+     [
+      "a",
+      5,
+      7,
+      1
+     ],
+     [
+      "b",
+      7,
+      3,
+      0
+     ],
+     [
+      "b",
+      7,
+      6,
+      0
+     ],
+     [
+      "g",
+      4,
+      6,
+      3
+     ],
+     [
+      "b",
+      0,
+      7,
+      0
+     ],
+     [
+      "b",
+      7,
+      2,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0085_en_gapB",
+   "group_id": "grp_order_conf_0085",
+   "query": "8 runners (Frank, Bob, Grace, Alice, Dave, Heidi, Carol, Erin) ran a race with no ties. Clues: Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2; Bob finished before Dave; Carol finished 2 places ahead of Frank: if Carol is in position p, then Frank is in position p+2; Dave finished immediately before Alice; Alice finished after Heidi; Grace finished before Alice. Who finished in 6th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Bob",
+     "Grace",
+     "Alice",
+     "Dave",
+     "Heidi",
+     "Carol",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      7,
+      3,
+      2
+     ],
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "g",
+      6,
+      0,
+      2
+     ],
+     [
+      "a",
+      4,
+      3,
+      1
+     ],
+     [
+      "b",
+      5,
+      3,
+      0
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0086_en_gapB",
+   "group_id": "grp_order_conf_0086",
+   "query": "8 runners (Frank, Alice, Erin, Grace, Bob, Dave, Heidi, Carol) ran a race with no ties. Clues: Alice finished before Bob; Carol finished immediately before Dave; Heidi finished 2 places ahead of Erin: if Heidi is in position p, then Erin is in position p+2; Alice finished 3 places ahead of Heidi: if Alice is in position p, then Heidi is in position p+3; Heidi finished before Grace; Carol finished 3 places ahead of Grace: if Carol is in position p, then Grace is in position p+3; Carol finished before Frank. Who finished in 6th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Frank",
+     "Alice",
+     "Erin",
+     "Grace",
+     "Bob",
+     "Dave",
+     "Heidi",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "a",
+      7,
+      5,
+      1
+     ],
+     [
+      "g",
+      6,
+      2,
+      2
+     ],
+     [
+      "g",
+      1,
+      6,
+      3
+     ],
+     [
+      "b",
+      6,
+      3,
+      0
+     ],
+     [
+      "g",
+      7,
+      3,
+      3
+     ],
+     [
+      "b",
+      7,
+      0,
+      0
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0087_en_gapB",
+   "group_id": "grp_order_conf_0087",
+   "query": "8 runners (Bob, Grace, Frank, Carol, Dave, Alice, Heidi, Erin) ran a race with no ties. Clues: Frank finished 2 places ahead of Erin: if Frank is in position p, then Erin is in position p+2; Dave finished 3 places ahead of Heidi: if Dave is in position p, then Heidi is in position p+3; Erin finished 2 places ahead of Grace: if Erin is in position p, then Grace is in position p+2; Alice finished immediately before Frank; Dave finished after Frank. Who finished in 4th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Grace",
+     "Frank",
+     "Carol",
+     "Dave",
+     "Alice",
+     "Heidi",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      7,
+      2
+     ],
+     [
+      "g",
+      4,
+      6,
+      3
+     ],
+     [
+      "g",
+      7,
+      1,
+      2
+     ],
+     [
+      "a",
+      5,
+      2,
+      1
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0088_en_gapB",
+   "group_id": "grp_order_conf_0088",
+   "query": "8 runners (Alice, Heidi, Carol, Frank, Bob, Grace, Erin, Dave) ran a race with no ties. Clues: Dave finished before Bob; Alice finished immediately before Grace; Carol finished 2 places ahead of Dave: if Carol is in position p, then Dave is in position p+2; Heidi finished after Frank; Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2; Alice finished before Frank. Who finished in 2nd place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Heidi",
+     "Carol",
+     "Frank",
+     "Bob",
+     "Grace",
+     "Erin",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      7,
+      4,
+      0
+     ],
+     [
+      "a",
+      0,
+      5,
+      1
+     ],
+     [
+      "g",
+      2,
+      7,
+      2
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "g",
+      6,
+      0,
+      2
+     ],
+     [
+      "b",
+      0,
+      3,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0089_en_gapB",
+   "group_id": "grp_order_conf_0089",
+   "query": "8 runners (Carol, Grace, Bob, Frank, Heidi, Alice, Dave, Erin) ran a race with no ties. Clues: Bob finished 3 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+3; Frank finished 2 places ahead of Grace: if Frank is in position p, then Grace is in position p+2; Carol finished 2 places ahead of Frank: if Carol is in position p, then Frank is in position p+2; Dave finished before Grace; Erin finished 3 places ahead of Grace: if Erin is in position p, then Grace is in position p+3. Who finished in 5th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Grace",
+     "Bob",
+     "Frank",
+     "Heidi",
+     "Alice",
+     "Dave",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      4,
+      3
+     ],
+     [
+      "g",
+      3,
+      1,
+      2
+     ],
+     [
+      "g",
+      0,
+      3,
+      2
+     ],
+     [
+      "b",
+      6,
+      1,
+      0
+     ],
+     [
+      "g",
+      7,
+      1,
+      3
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0090_en_gapB",
+   "group_id": "grp_order_conf_0090",
+   "query": "8 runners (Carol, Frank, Alice, Erin, Dave, Grace, Bob, Heidi) ran a race with no ties. Clues: Erin finished before Dave; Carol finished 2 places ahead of Frank: if Carol is in position p, then Frank is in position p+2; Heidi finished after Erin; Bob finished immediately before Frank; Heidi finished immediately before Grace; Alice finished immediately before Carol; Bob finished before Erin. Who finished in 5th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Frank",
+     "Alice",
+     "Erin",
+     "Dave",
+     "Grace",
+     "Bob",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "g",
+      0,
+      1,
+      2
+     ],
+     [
+      "b",
+      3,
+      7,
+      0
+     ],
+     [
+      "a",
+      6,
+      1,
+      1
+     ],
+     [
+      "a",
+      7,
+      5,
+      1
+     ],
+     [
+      "a",
+      2,
+      0,
+      1
+     ],
+     [
+      "b",
+      6,
+      3,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0091_en_gapB",
+   "group_id": "grp_order_conf_0091",
+   "query": "8 runners (Carol, Erin, Heidi, Grace, Frank, Bob, Dave, Alice) ran a race with no ties. Clues: Frank finished after Dave; Grace finished immediately before Carol; Alice finished 3 places ahead of Bob: if Alice is in position p, then Bob is in position p+3; Grace finished before Heidi; Bob finished 2 places ahead of Erin: if Bob is in position p, then Erin is in position p+2; Alice finished before Carol; Frank finished before Erin. Who finished in 1st place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Carol",
+     "Erin",
+     "Heidi",
+     "Grace",
+     "Frank",
+     "Bob",
+     "Dave",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      4,
+      0
+     ],
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "g",
+      7,
+      5,
+      3
+     ],
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "g",
+      5,
+      1,
+      2
+     ],
+     [
+      "b",
+      7,
+      0,
+      0
+     ],
+     [
+      "b",
+      4,
+      1,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0092_en_gapB",
+   "group_id": "grp_order_conf_0092",
+   "query": "8 runners (Alice, Heidi, Grace, Frank, Dave, Carol, Erin, Bob) ran a race with no ties. Clues: Bob finished immediately before Alice; Erin finished immediately before Frank; Bob finished 2 places ahead of Grace: if Bob is in position p, then Grace is in position p+2; Carol finished before Dave; Heidi finished immediately before Erin; Carol finished after Bob; Erin finished before Carol. Who finished in 7th place?",
+   "answer": "Carol",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Heidi",
+     "Grace",
+     "Frank",
+     "Dave",
+     "Carol",
+     "Erin",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "a",
+      7,
+      0,
+      1
+     ],
+     [
+      "a",
+      6,
+      3,
+      1
+     ],
+     [
+      "g",
+      7,
+      2,
+      2
+     ],
+     [
+      "b",
+      5,
+      4,
+      0
+     ],
+     [
+      "a",
+      1,
+      6,
+      1
+     ],
+     [
+      "b",
+      7,
+      5,
+      0
+     ],
+     [
+      "b",
+      6,
+      5,
+      0
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0093_en_gapB",
+   "group_id": "grp_order_conf_0093",
+   "query": "8 runners (Grace, Alice, Carol, Bob, Heidi, Erin, Frank, Dave) ran a race with no ties. Clues: Erin finished 2 places ahead of Dave: if Erin is in position p, then Dave is in position p+2; Frank finished 3 places ahead of Heidi: if Frank is in position p, then Heidi is in position p+3; Erin finished after Bob; Alice finished immediately before Heidi; Carol finished immediately before Alice; Frank finished before Dave. Who finished in 8th place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Grace",
+     "Alice",
+     "Carol",
+     "Bob",
+     "Heidi",
+     "Erin",
+     "Frank",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      5,
+      7,
+      2
+     ],
+     [
+      "g",
+      6,
+      4,
+      3
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "a",
+      1,
+      4,
+      1
+     ],
+     [
+      "a",
+      2,
+      1,
+      1
+     ],
+     [
+      "b",
+      6,
+      7,
+      0
+     ]
+    ],
+    "ask": 7,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0094_en_gapB",
+   "group_id": "grp_order_conf_0094",
+   "query": "8 runners (Bob, Heidi, Frank, Erin, Alice, Dave, Grace, Carol) ran a race with no ties. Clues: Erin finished 2 places ahead of Grace: if Erin is in position p, then Grace is in position p+2; Frank finished immediately before Carol; Carol finished immediately before Dave; Alice finished 3 places ahead of Bob: if Alice is in position p, then Bob is in position p+3; Carol finished before Alice. Who finished in 1st place?",
+   "answer": "Frank",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Heidi",
+     "Frank",
+     "Erin",
+     "Alice",
+     "Dave",
+     "Grace",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      6,
+      2
+     ],
+     [
+      "a",
+      2,
+      7,
+      1
+     ],
+     [
+      "a",
+      7,
+      5,
+      1
+     ],
+     [
+      "g",
+      4,
+      0,
+      3
+     ],
+     [
+      "b",
+      7,
+      4,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0095_en_gapB",
+   "group_id": "grp_order_conf_0095",
+   "query": "8 runners (Heidi, Grace, Alice, Carol, Erin, Bob, Dave, Frank) ran a race with no ties. Clues: Heidi finished before Frank; Grace finished 3 places ahead of Frank: if Grace is in position p, then Frank is in position p+3; Dave finished immediately before Frank; Dave finished after Erin; Dave finished 3 places ahead of Bob: if Dave is in position p, then Bob is in position p+3; Heidi finished 2 places ahead of Alice: if Heidi is in position p, then Alice is in position p+2. Who finished in 8th place?",
+   "answer": "Bob",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Grace",
+     "Alice",
+     "Carol",
+     "Erin",
+     "Bob",
+     "Dave",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      7,
+      0
+     ],
+     [
+      "g",
+      1,
+      7,
+      3
+     ],
+     [
+      "a",
+      6,
+      7,
+      1
+     ],
+     [
+      "b",
+      4,
+      6,
+      0
+     ],
+     [
+      "g",
+      6,
+      5,
+      3
+     ],
+     [
+      "g",
+      0,
+      2,
+      2
+     ]
+    ],
+    "ask": 7,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0096_en_gapB",
+   "group_id": "grp_order_conf_0096",
+   "query": "8 runners (Erin, Dave, Heidi, Frank, Bob, Alice, Carol, Grace) ran a race with no ties. Clues: Erin finished before Alice; Carol finished 2 places ahead of Bob: if Carol is in position p, then Bob is in position p+2; Alice finished 3 places ahead of Frank: if Alice is in position p, then Frank is in position p+3; Dave finished before Bob; Alice finished before Heidi; Heidi finished 3 places ahead of Dave: if Heidi is in position p, then Dave is in position p+3. Who finished in 4th place?",
+   "answer": "Heidi",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Dave",
+     "Heidi",
+     "Frank",
+     "Bob",
+     "Alice",
+     "Carol",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      5,
+      0
+     ],
+     [
+      "g",
+      6,
+      4,
+      2
+     ],
+     [
+      "g",
+      5,
+      3,
+      3
+     ],
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "b",
+      5,
+      2,
+      0
+     ],
+     [
+      "g",
+      2,
+      1,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0097_en_gapB",
+   "group_id": "grp_order_conf_0097",
+   "query": "8 runners (Alice, Grace, Heidi, Frank, Carol, Bob, Dave, Erin) ran a race with no ties. Clues: Alice finished before Grace; Erin finished immediately before Grace; Frank finished 2 places ahead of Carol: if Frank is in position p, then Carol is in position p+2; Erin finished before Carol; Dave finished immediately before Carol; Erin finished 3 places ahead of Heidi: if Erin is in position p, then Heidi is in position p+3. Who finished in 7th place?",
+   "answer": "Dave",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Alice",
+     "Grace",
+     "Heidi",
+     "Frank",
+     "Carol",
+     "Bob",
+     "Dave",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "a",
+      7,
+      1,
+      1
+     ],
+     [
+      "g",
+      3,
+      4,
+      2
+     ],
+     [
+      "b",
+      7,
+      4,
+      0
+     ],
+     [
+      "a",
+      6,
+      4,
+      1
+     ],
+     [
+      "g",
+      7,
+      2,
+      3
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0098_en_gapB",
+   "group_id": "grp_order_conf_0098",
+   "query": "8 runners (Erin, Heidi, Grace, Bob, Dave, Alice, Carol, Frank) ran a race with no ties. Clues: Carol finished 3 places ahead of Erin: if Carol is in position p, then Erin is in position p+3; Bob finished 3 places ahead of Dave: if Bob is in position p, then Dave is in position p+3; Dave finished 3 places ahead of Grace: if Dave is in position p, then Grace is in position p+3; Heidi finished before Carol; Grace finished immediately before Alice. Who finished in 6th place?",
+   "answer": "Erin",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Erin",
+     "Heidi",
+     "Grace",
+     "Bob",
+     "Dave",
+     "Alice",
+     "Carol",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      6,
+      0,
+      3
+     ],
+     [
+      "g",
+      3,
+      4,
+      3
+     ],
+     [
+      "g",
+      4,
+      2,
+      3
+     ],
+     [
+      "b",
+      1,
+      6,
+      0
+     ],
+     [
+      "a",
+      2,
+      5,
+      1
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_conf_0099_en_gapB",
+   "group_id": "grp_order_conf_0099",
+   "query": "8 runners (Bob, Frank, Erin, Grace, Heidi, Alice, Carol, Dave) ran a race with no ties. Clues: Erin finished 2 places ahead of Grace: if Erin is in position p, then Grace is in position p+2; Heidi finished 2 places ahead of Alice: if Heidi is in position p, then Alice is in position p+2; Dave finished 3 places ahead of Grace: if Dave is in position p, then Grace is in position p+3; Bob finished 2 places ahead of Carol: if Bob is in position p, then Carol is in position p+2; Bob finished 3 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+3. Who finished in 4th place?",
+   "answer": "Grace",
+   "split": "confirmatory",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=5000/gapB",
+   "meta": {
+    "names": [
+     "Bob",
+     "Frank",
+     "Erin",
+     "Grace",
+     "Heidi",
+     "Alice",
+     "Carol",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      3,
+      2
+     ],
+     [
+      "g",
+      4,
+      5,
+      2
+     ],
+     [
+      "g",
+      7,
+      3,
+      3
+     ],
+     [
+      "g",
+      0,
+      6,
+      2
+     ],
+     [
+      "g",
+      0,
+      4,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  }
+ ]
+}

@@ -253,7 +253,7 @@ def _key(fam, m, q):
     return q
 
 
-def build(n_per_level=15, seed=0, ratios=(0.2, 0.4, 0.4), families=FAMILIES):
+def build(n_per_level=15, seed=0, ratios=(0.2, 0.4, 0.4), families=FAMILIES, gap_style="A"):
     rng = random.Random(seed)
     gens = {"arith": (gen_arith, len(ARITH_LEVELS)), "order": (gen_order, len(ORDER_LEVELS)), "g24": (gen_g24, len(G24_LEVELS))}
     b = [round(n_per_level * sum(ratios[:i + 1])) for i in range(len(ratios))]
@@ -265,7 +265,10 @@ def build(n_per_level=15, seed=0, ratios=(0.2, 0.4, 0.4), families=FAMILIES):
         for lvl in range(n_levels):
             for i in range(n_per_level):
                 while True:
-                    m, q, a, diff = fn(rng, lvl)
+                    if fam == "order":
+                        m, q, a, diff = fn(rng, lvl, gap_style=gap_style)
+                    else:
+                        m, q, a, diff = fn(rng, lvl)
                     k = _key(fam, m, q)
                     if k not in seen:
                         break
@@ -349,13 +352,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n-per-level", type=int, default=15)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--gap-style", default="A", choices=["A", "B"])
     ap.add_argument("--out", default="data/gen02_v2.json")
     ap.add_argument("--verify", metavar="PATH")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest: return selftest()
     if a.verify: sys.exit(0 if verify_file(a.verify) else 1)
-    items = build(a.n_per_level, a.seed)
+    items = build(a.n_per_level, a.seed, gap_style=a.gap_style)
     meta = dump(items, a.out, a.seed, a.n_per_level)
     print(json.dumps(meta)); table(items)
 

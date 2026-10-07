@@ -102,5 +102,26 @@
     "commit": "171ec8e",
     "tag": "harness-v1-run13",
     "description": "PAL-v3 benchmark sweep on gen02_tune g24 items (Prompt AF1)"
+  },
+  "gen02_v2b.json": {
+    "size_bytes": 162021,
+    "sha256": "bd6633009310e4e4638adc102898feb5c236b2615f0bbecc736f1d2c8e5dde8c",
+    "generator": "gen_tasks.py 0.2.2",
+    "seed": 0,
+    "n_per_level": 15,
+    "n_items": 195,
+    "sha256_items": "d7ca98637f1d6c8d281fb9f2dc7220a7e96873c8e3686e121fb549b42b49c54d"
+  },
+  "order_confirmatory_gapB_100.json": {
+    "size_bytes": 114161,
+    "sha256": "beb7df75bd7e863fd7b40e901f5e10ba14998fb0d945ecebfa722d8f49391c9c",
+    "generator": "gen_tasks.py 0.2.2 / build_order_confirmatory.py",
+    "seed": 5000,
+    "n_per_level": 25,
+    "n_items": 100,
+    "family": "order",
+    "gap_style": "B",
+    "sha256_items": "dc50a9e4e2ada13ee463cdad6a9c0ed2a43fe89308f75be4c93500a1bcb9e6a1",
+    "description": "Fresh confirmatory ordering dataset (gapB wording, seed 5000, 100 items, 0% overlap with tune pool)"
   }
 }
