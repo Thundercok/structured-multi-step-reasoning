@@ -1,0 +1,30 @@
+| Family | Signal | Agreed Items / Total | Correct When Agreed | P(Correct \| Agree) |
+| :--- | :--- | :---: | :---: | :---: |
+| arith | agree(PAL-v2,COT) | 30/40 (75.0%) | 30/30 | 100.0% |
+| arith | agree(PAL-v2,ToT) | 30/40 (75.0%) | 30/30 | 100.0% |
+| arith | pal_agree>=2 | 30/40 (75.0%) | 30/30 | 100.0% |
+| arith | pal_agree>=3 | 30/40 (75.0%) | 30/30 | 100.0% |
+| arith | plurality_agree>=2 | 37/40 (92.5%) | 30/37 |  81.1% |
+| arith | plurality_agree>=3 | 33/40 (82.5%) | 30/33 |  90.9% |
+| arith | plurality_agree==4 | 30/40 (75.0%) | 30/30 | 100.0% |
+| order | agree(PAL-v2,COT) | 14/31 (45.2%) | 13/14 |  92.9% |
+| order | agree(PAL-v2,ToT) | 17/31 (54.8%) | 16/17 |  94.1% |
+| order | pal_agree>=2 | 18/31 (58.1%) | 17/18 |  94.4% |
+| order | pal_agree>=3 | 16/31 (51.6%) | 15/16 |  93.8% |
+| order | plurality_agree>=2 | 22/31 (71.0%) | 18/22 |  81.8% |
+| order | plurality_agree>=3 | 18/31 (58.1%) | 15/18 |  83.3% |
+| order | plurality_agree==4 | 9/31 (29.0%) | 9/9 | 100.0% |
+| g24 | agree(PAL-v2,COT) | 0/29 (0.0%) | 0/0 |   0.0% |
+| g24 | agree(PAL-v2,ToT) | 0/29 (0.0%) | 0/0 |   0.0% |
+| g24 | pal_agree>=2 | 0/29 (0.0%) | 0/0 |   0.0% |
+| g24 | pal_agree>=3 | 0/29 (0.0%) | 0/0 |   0.0% |
+| g24 | plurality_agree>=2 | 17/29 (58.6%) | 16/17 |  94.1% |
+| g24 | plurality_agree>=3 | 12/29 (41.4%) | 12/12 | 100.0% |
+| g24 | plurality_agree==4 | 0/29 (0.0%) | 0/0 |   0.0% |
+| pooled | agree(PAL-v2,COT) | 44/100 (44.0%) | 43/44 |  97.7% |
+| pooled | agree(PAL-v2,ToT) | 47/100 (47.0%) | 46/47 |  97.9% |
+| pooled | pal_agree>=2 | 48/100 (48.0%) | 47/48 |  97.9% |
+| pooled | pal_agree>=3 | 46/100 (46.0%) | 45/46 |  97.8% |
+| pooled | plurality_agree>=2 | 76/100 (76.0%) | 64/76 |  84.2% |
+| pooled | plurality_agree>=3 | 63/100 (63.0%) | 57/63 |  90.5% |
+| pooled | plurality_agree==4 | 39/100 (39.0%) | 39/39 | 100.0% |
