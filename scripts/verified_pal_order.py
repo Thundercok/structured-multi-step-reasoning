@@ -3,10 +3,13 @@
 Pure offline, fail-closed verification of witness certificates produced by PAL.
 Does NOT access ground truth labels or item['meta']. Parses query text into a
 Constraint IR and validates the candidate permutation and final answer.
+The generic default also solves the parsed constraints to establish uniqueness
+of the asked occupant. This is not a witness-only constant-cost verifier.
 """
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 from dataclasses import dataclass
@@ -51,170 +54,173 @@ _ORD_MAP = {
 }
 
 
+_QUERY = re.compile(
+    r"\s*([2-8])\s+runners\s*\(([A-Za-z]+(?:\s*,\s*[A-Za-z]+)+)\)"
+    r"\s+ran\s+a\s+race\s+with\s+no\s+ties\.\s*Clues:\s*(.+)\."
+    r"\s*Who\s+finished\s+in\s+([1-8](?:st|nd|rd|th))\s+place\?\s*",
+    re.I | re.S,
+)
+
+
 def parse_order_query(query: str) -> OrderConstraintIR | None:
-    """Parses raw ordering query text into a structured Constraint IR.
-
-    Returns None (fail-closed) if the query grammar is unrecognized.
-    """
-    if not query:
+    """Consume the entire supported template; no clause is silently dropped."""
+    if not isinstance(query, str) or len(query) > 8192:
         return None
-
-    # 1. Parse runner names from preamble: 'N runners (Name1, Name2, ...) ran a race'
-    m_preamble = re.search(r"(\d+)\s+runners\s*\(([^)]+)\)\s+ran\s+a\s+race\s+with\s+no\s+ties", query, re.I)
-    if not m_preamble:
+    match = _QUERY.fullmatch(query)
+    if match is None:
         return None
-
-    expected_n = int(m_preamble.group(1))
-    runners = tuple(r.strip() for r in m_preamble.group(2).split(",") if r.strip())
-    if len(runners) != expected_n or len(set(runners)) != expected_n:
+    n = int(match[1])
+    runners = tuple(name.strip() for name in match[2].split(","))
+    if not 2 <= n <= 8 or len(runners) != n or len({name.casefold() for name in runners}) != n:
         return None
-    runner_set = set(runners)
-
-    # 2. Parse asked position: 'Who finished in {ord} place?'
-    m_ask = re.search(r"Who\s+finished\s+in\s+(\d+(?:st|nd|rd|th))\s+place\?", query, re.I)
-    if not m_ask:
+    names = {name.casefold(): name for name in runners}
+    rank = _ORD_MAP.get(match[4].lower())
+    if rank is None or rank > n:
         return None
-    ask_ord = m_ask.group(1).lower()
-    if ask_ord not in _ORD_MAP:
+    clauses = [text.strip() for text in match[3].split(";")]
+    if not clauses or any(not text for text in clauses):
         return None
-    ask_rank = _ORD_MAP[ask_ord]
-    if ask_rank < 1 or ask_rank > expected_n:
-        return None
-
-    # 3. Parse Clues section: 'Clues: clue1; clue2; ...'
-    m_clues = re.search(r"Clues:\s*(.*?)\.\s*Who\s+finished\s+in", query, re.DOTALL | re.I)
-    if not m_clues:
-        return None
-
-    clue_texts = [c.strip() for c in m_clues.group(1).split(";") if c.strip()]
-    if not clue_texts:
-        return None
-
-    parsed_clues: list[OrderClue] = []
-    for raw_c in clue_texts:
-        c_clean = raw_c.strip()
-
-        # Check: Immediately before: 'X finished immediately before Y'
-        m_adj = re.fullmatch(r"([A-Za-z]+)\s+finished\s+immediately\s+before\s+([A-Za-z]+)", c_clean)
-        if m_adj:
-            x, y = m_adj.group(1), m_adj.group(2)
-            if x not in runner_set or y not in runner_set or x == y:
-                return None
-            parsed_clues.append(OrderClue("immediately_before", x, y, 1, c_clean))
-            continue
-
-        # Check: Gap Clue Style B: 'X finished K places ahead of Y: if X is in position p, then Y is in position p+K'
-        m_gap_b = re.fullmatch(
-            r"([A-Za-z]+)\s+finished\s+(\d+)\s+places\s+ahead\s+of\s+([A-Za-z]+):\s*if\s+\1\s+is\s+in\s+position\s+p,\s*then\s+\3\s+is\s+in\s+position\s+p\+(\d+)",
-            c_clean,
+    clues = []
+    for text in clauses:
+        relation = re.fullmatch(
+            r"([A-Za-z]+)\s+finished\s+(immediately\s+before|immediately\s+after|before|after)\s+([A-Za-z]+)",
+            text, re.I,
         )
-        if m_gap_b:
-            x, k1, y, k2 = m_gap_b.group(1), int(m_gap_b.group(2)), m_gap_b.group(3), int(m_gap_b.group(4))
-            if k1 != k2 or k1 < 1:
+        if relation:
+            x, y = relation[1].casefold(), relation[3].casefold()
+            kind = " ".join(relation[2].lower().split())
+            if kind.endswith("after"):
+                x, y = y, x
+            offset = 1 if kind.startswith("immediately") else None
+            clue_type = "immediately_before" if offset else "before"
+        else:
+            gap_b = re.fullmatch(
+                r"([A-Za-z]+)\s+finished\s+(\d+)\s+places\s+ahead\s+of\s+([A-Za-z]+):"
+                r"\s*if\s+\1\s+is\s+in\s+position\s+p,\s*then\s+\3\s+is\s+in\s+position\s+p\+(\d+)",
+                text, re.I,
+            )
+            gap_a = re.fullmatch(
+                r"([A-Za-z]+)\s+finished\s+exactly\s+(\d+)\s+places\s+ahead\s+of\s+([A-Za-z]+),"
+                r"\s*with\s+exactly\s+(\d+)\s+runners?\s+between\s+them",
+                text, re.I,
+            )
+            gap = gap_b or gap_a
+            if gap is None:
                 return None
-            if x not in runner_set or y not in runner_set or x == y:
+            if len(gap[2]) > 1 or len(gap[4]) > 1:
                 return None
-            parsed_clues.append(OrderClue("gap", x, y, k1, c_clean))
-            continue
+            x, y, offset = gap[1].casefold(), gap[3].casefold(), int(gap[2])
+            other = int(gap[4]) if gap_b else int(gap[4]) + 1
+            if not 1 <= offset < n or offset != other:
+                return None
+            clue_type = "gap"
+        if x not in names or y not in names or x == y:
+            return None
+        clues.append(OrderClue(clue_type, names[x], names[y], offset, text))
+    return OrderConstraintIR(runners, tuple(clues), rank, query)
 
-        # Check: Gap Clue Style A: 'X finished exactly K places ahead of Y, with exactly M runner(s) between them'
-        m_gap_a = re.fullmatch(
-            r"([A-Za-z]+)\s+finished\s+exactly\s+(\d+)\s+places\s+ahead\s+of\s+([A-Za-z]+),\s*with\s+exactly\s+(\d+)\s+runners?\s+between\s+them",
-            c_clean,
-        )
-        if m_gap_a:
-            x, k, y, between = m_gap_a.group(1), int(m_gap_a.group(2)), m_gap_a.group(3), int(m_gap_a.group(4))
-            if between != k - 1 or k < 1:
-                return None
-            if x not in runner_set or y not in runner_set or x == y:
-                return None
-            parsed_clues.append(OrderClue("gap", x, y, k, c_clean))
-            continue
 
-        # Check: General Before: 'X finished before Y'
-        m_bef = re.fullmatch(r"([A-Za-z]+)\s+finished\s+before\s+([A-Za-z]+)", c_clean)
-        if m_bef:
-            x, y = m_bef.group(1), m_bef.group(2)
-            if x not in runner_set or y not in runner_set or x == y:
-                return None
-            parsed_clues.append(OrderClue("before", x, y, None, c_clean))
-            continue
+@dataclass(frozen=True)
+class OrderSolveResult:
+    status: str  # solved, ambiguous, unsatisfiable, unsupported
+    answer: str | None = None
+    order: tuple[str, ...] | None = None
+    solution_count: int = 0
+    assignments_checked: int = 0
 
-        # Check: General After: 'Y finished after X' (meaning X finished before Y)
-        m_aft = re.fullmatch(r"([A-Za-z]+)\s+finished\s+after\s+([A-Za-z]+)", c_clean)
-        if m_aft:
-            y, x = m_aft.group(1), m_aft.group(2)
-            if x not in runner_set or y not in runner_set or x == y:
-                return None
-            parsed_clues.append(OrderClue("before", x, y, None, c_clean))
-            continue
 
-        # If any clue does not match known grammar, fail closed
-        return None
+def solve_order_ir(ir: OrderConstraintIR) -> OrderSolveResult:
+    """Exact query-only baseline. Multiple orders may share one asked occupant."""
+    occupants: set[str] = set()
+    witness = None
+    count, checked = 0, 0
+    pos: dict[str, int] = {}
 
-    return OrderConstraintIR(
-        runners=runners,
-        clues=tuple(parsed_clues),
-        ask_rank=ask_rank,
-        raw_query=query,
-    )
+    def partial_holds():
+        for clue in ir.clues:
+            px, py = pos.get(clue.runner_x), pos.get(clue.runner_y)
+            if px is None or py is None:
+                continue
+            if clue.clue_type == "before" and px >= py:
+                return False
+            if clue.clue_type in ("immediately_before", "gap") and py - px != clue.offset:
+                return False
+        return True
+
+    def visit(order):
+        nonlocal witness, count, checked
+        if len(occupants) > 1:
+            return
+        if len(order) == len(ir.runners):
+            count += 1
+            occupants.add(order[ir.ask_rank - 1])
+            if witness is None:
+                witness = order
+            return
+        for name in ir.runners:
+            if name in pos:
+                continue
+            checked += 1
+            pos[name] = len(order) + 1
+            if partial_holds():
+                visit((*order, name))
+            del pos[name]
+            if len(occupants) > 1:
+                return
+
+    visit(())
+    if not occupants:
+        return OrderSolveResult("unsatisfiable", assignments_checked=checked)
+    if len(occupants) > 1:
+        return OrderSolveResult("ambiguous", solution_count=count, assignments_checked=checked)
+    return OrderSolveResult("solved", next(iter(occupants)), witness, count, checked)
+
+
+def solve_order_query(query: str) -> OrderSolveResult:
+    """Return only an entailed occupant; abstain on ambiguous/unsupported input."""
+    ir = parse_order_query(query)
+    return OrderSolveResult("unsupported") if ir is None else solve_order_ir(ir)
+
+
+def _unique_json_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate certificate key")
+        result[key] = value
+    return result
 
 
 def extract_order_certificate(raw: Any) -> dict[str, Any] | None:
-    """Extracts candidate certificate {'order': [...], 'answer': '...'} from raw output or payload.
-
-    Accepts:
-    1. A dictionary already containing 'order' and 'answer'
-    2. A JSON string or JSON block in raw text
-    3. Python dictionary literal in raw text
-    """
+    """Decode a whole execution payload; never search source code for a witness."""
     if isinstance(raw, dict):
-        if "order" in raw and "answer" in raw:
-            return raw
+        return raw if set(raw) == {"order", "answer"} else None
+    if not isinstance(raw, str) or not raw.strip() or len(raw) > 16384:
         return None
-
-    if not isinstance(raw, str) or not raw.strip():
-        return None
-
     text = raw.strip()
-
-    # 1. Search for JSON block ```json ... ```
-    json_blocks = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
-    for block in reversed(json_blocks):
+    fence = re.fullmatch(r"```(?:json)?\s*(\{.*\})\s*```", text, re.S)
+    if fence:
+        text = fence[1]
+    try:
+        data = json.loads(text, object_pairs_hook=_unique_json_keys)
+    except (ValueError, RecursionError):
         try:
-            data = json.loads(block)
-            if isinstance(data, dict) and "order" in data and "answer" in data:
-                return data
-        except Exception:
-            pass
-
-    # 2. Direct JSON object
-    for m in reversed(list(re.finditer(r"\{[^{}]*\"order\"[^{}]*\}", text, re.DOTALL))):
-        try:
-            data = json.loads(m.group(0))
-            if isinstance(data, dict) and "order" in data and "answer" in data:
-                return data
-        except Exception:
-            pass
-
-    # 3. Handle result = {"order": [...], "answer": "..."} in code or output
-    m_dict = re.search(r"result\s*=\s*(\{[^}]+\})", text)
-    if m_dict:
-        try:
-            # Replace single quotes for json parsing if needed
-            s = m_dict.group(1).replace("'", '"')
-            data = json.loads(s)
-            if isinstance(data, dict) and "order" in data and "answer" in data:
-                return data
-        except Exception:
-            pass
-
-    return None
+            tree = ast.parse(text, mode="eval")
+            if not isinstance(tree.body, ast.Dict):
+                return None
+            keys = [ast.literal_eval(key) for key in tree.body.keys]
+            if len(keys) != len(set(keys)):
+                return None
+            data = ast.literal_eval(tree)
+        except (ValueError, TypeError, SyntaxError, RecursionError):
+            return None
+    return data if isinstance(data, dict) and set(data) == {"order", "answer"} else None
 
 
 def verify_order_certificate(
     query: str,
     raw_or_cert: Any,
+    *, require_unique_answer: bool = True,
 ) -> OrderVerificationResult:
     """Evaluates an ordering witness certificate against the parsed query constraints.
 
@@ -264,6 +270,11 @@ def verify_order_certificate(
             certificate=cert,
         )
 
+    if not all(isinstance(name, str) for name in order):
+        return OrderVerificationResult(
+            OrderVerificationStatus.INVALID, "order_runner_not_a_string", ir, cert,
+        )
+
     if set(order) != set(ir.runners):
         missing = set(ir.runners) - set(order)
         extra = set(order) - set(ir.runners)
@@ -311,8 +322,8 @@ def verify_order_certificate(
 
     # 5. Check answer alignment with asked rank
     expected_answer = order[ir.ask_rank - 1]
-    clean_ans = str(answer).strip()
-    if clean_ans != expected_answer:
+    clean_ans = answer
+    if not isinstance(answer, str) or clean_ans != expected_answer:
         return OrderVerificationResult(
             status=OrderVerificationStatus.INVALID,
             reason=f"answer_mismatch: asked rank {ir.ask_rank} is {expected_answer}, certificate claims {clean_ans}",
@@ -320,11 +331,37 @@ def verify_order_certificate(
             certificate=cert,
         )
 
+    if require_unique_answer:
+        solved = solve_order_ir(ir)
+        if solved.status != "solved":
+            return OrderVerificationResult(
+                OrderVerificationStatus.UNVERIFIABLE, f"query_{solved.status}", ir, cert,
+            )
+
     return OrderVerificationResult(
         status=OrderVerificationStatus.VALID,
         reason="ok",
         ir=ir,
         certificate=cert,
+    )
+
+
+def verify_order_execution(
+    query: str, execution: dict, *, require_unique_answer: bool = True,
+) -> OrderVerificationResult:
+    """Gate the actual successful result, never a literal in generated source.
+
+    Set require_unique_answer=False only for a release whose unique asked-rank
+    guarantee was independently reviewed. The generic default includes solving.
+    """
+    if not isinstance(execution, dict) or execution.get("ok") is not True:
+        return OrderVerificationResult(OrderVerificationStatus.UNVERIFIABLE, "execution_failed")
+    if execution.get("finish_reason") == "length":
+        return OrderVerificationResult(OrderVerificationStatus.UNVERIFIABLE, "generation_length")
+    if execution.get("finish_reason") not in ("stop", "stop_answer"):
+        return OrderVerificationResult(OrderVerificationStatus.UNVERIFIABLE, "termination_unrecorded_or_failed")
+    return verify_order_certificate(
+        query, execution.get("output"), require_unique_answer=require_unique_answer,
     )
 
 

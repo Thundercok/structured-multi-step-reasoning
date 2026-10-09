@@ -1,0 +1,124 @@
+{
+  "name": "ordering-pilot-train-2",
+  "version": "1.0.0-candidate",
+  "role": "development_tuning",
+  "identity_version": "procedural-v1",
+  "source": "Frozen 100-item candidate plus exposed gen02_tune development; see manifest hashes",
+  "license": "Project procedural generator; ownership/license confirmation pending",
+  "human_review_status": "pending",
+  "unique_asked_rank_review_status": "pending",
+  "publication_ready": false,
+  "items": [
+    {
+      "id": "order_0000_en_orig",
+      "group_id": "problem_order_d55fe093fb5e862021c69552eac5d92e35ca9c778626bca7f0155a22a6c17f60",
+      "query": "5 runners (Carol, Grace, Alice, Heidi, Frank) ran a race with no ties. Clues: Frank finished immediately before Grace; Carol finished exactly 2 places ahead of Frank, with exactly 1 runner between them; Grace finished immediately before Heidi. Who finished in 1st place?",
+      "answer": "Carol",
+      "split": "train",
+      "category": "order",
+      "family": "order",
+      "level": 1,
+      "difficulty": {
+        "runners": 5,
+        "clues": 3
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.2.1/seed=1000",
+      "meta": {
+        "names": [
+          "Carol",
+          "Grace",
+          "Alice",
+          "Heidi",
+          "Frank"
+        ],
+        "clues": [
+          [
+            "a",
+            4,
+            1,
+            1
+          ],
+          [
+            "g",
+            0,
+            4,
+            2
+          ],
+          [
+            "a",
+            1,
+            3,
+            1
+          ]
+        ],
+        "ask": 0
+      },
+      "answer_type": "text",
+      "problem_id": "problem_order_d55fe093fb5e862021c69552eac5d92e35ca9c778626bca7f0155a22a6c17f60",
+      "source_provenance": {
+        "original_id": "order_0000_en_orig",
+        "original_split": "dev"
+      }
+    },
+    {
+      "id": "order_0001_en_orig",
+      "group_id": "problem_order_3a16792a782d8dbcbfb99bd4bbc1b665244081b821bc1bebdb42e8e4e82b2601",
+      "query": "5 runners (Erin, Alice, Grace, Dave, Frank) ran a race with no ties. Clues: Frank finished after Grace; Erin finished immediately before Dave; Erin finished exactly 2 places ahead of Frank, with exactly 1 runner between them; Frank finished before Alice. Who finished in 4th place?",
+      "answer": "Frank",
+      "split": "train",
+      "category": "order",
+      "family": "order",
+      "level": 1,
+      "difficulty": {
+        "runners": 5,
+        "clues": 4
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.2.1/seed=1000",
+      "meta": {
+        "names": [
+          "Erin",
+          "Alice",
+          "Grace",
+          "Dave",
+          "Frank"
+        ],
+        "clues": [
+          [
+            "b",
+            2,
+            4,
+            0
+          ],
+          [
+            "a",
+            0,
+            3,
+            1
+          ],
+          [
+            "g",
+            0,
+            4,
+            2
+          ],
+          [
+            "b",
+            4,
+            1,
+            0
+          ]
+        ],
+        "ask": 3
+      },
+      "answer_type": "text",
+      "problem_id": "problem_order_3a16792a782d8dbcbfb99bd4bbc1b665244081b821bc1bebdb42e8e4e82b2601",
+      "source_provenance": {
+        "original_id": "order_0001_en_orig",
+        "original_split": "dev"
+      }
+    }
+  ],
+  "evidence": "synthetic_smoke"
+}

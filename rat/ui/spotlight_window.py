@@ -398,6 +398,7 @@ class SpotlightWindow(QMainWindow):
 
         # Right Quick Look Inspector
         self.preview_panel = PreviewPanel()
+        self.preview_panel.suggest_name_requested.connect(self._open_naming_dialog)
         self.splitter.addWidget(self.preview_panel)
 
         self.splitter.setSizes([475, 475])
@@ -796,6 +797,8 @@ class SpotlightWindow(QMainWindow):
             self._copy_current_path()
         elif action_id == "copy_content" and search_item:
             self._copy_current_content()
+        elif action_id == "suggest_name" and search_item:
+            self._open_naming_dialog(search_item)
         elif action_id == "ask_ai" and search_item:
             self.preview_panel.ask_input.setFocus()
         elif action_id == "schedule":
@@ -804,6 +807,42 @@ class SpotlightWindow(QMainWindow):
             self._open_claude_widget()
         elif action_id == "settings":
             self._open_settings()
+
+    def _open_naming_dialog(self, search_item: Optional[SearchResultItem] = None) -> None:
+        if not search_item:
+            curr_row = self.result_list.currentRow()
+            curr_item = self.result_list.item(curr_row)
+            search_item = curr_item.data(Qt.ItemDataRole.UserRole) if curr_item else None
+
+        if not search_item:
+            return
+
+        self._dialog_active = True
+        try:
+            from rat.ui.naming_dialog import FilenameSuggestionDialog
+            dialog = FilenameSuggestionDialog(target_item=search_item, parent=self)
+            dialog.file_renamed.connect(self._on_file_renamed)
+            pos = self.mapToGlobal(QPoint((self.width() - dialog.width()) // 2, (self.height() - dialog.height()) // 2))
+            dialog.move(pos)
+            dialog.exec()
+        except Exception as e:
+            logger.error(f"Error opening FilenameSuggestionDialog: {e}", exc_info=True)
+        finally:
+            self._dialog_active = False
+            self.search_input.setFocus()
+
+    def _on_file_renamed(self, old_path: str, new_path: str) -> None:
+        new_name = os.path.basename(new_path)
+        curr_row = self.result_list.currentRow()
+        curr_item = self.result_list.item(curr_row)
+        if curr_item:
+            search_item: Optional[SearchResultItem] = curr_item.data(Qt.ItemDataRole.UserRole)
+            if search_item:
+                search_item.file_name = new_name
+                search_item.file_path = new_path
+                search_item.file_ext = os.path.splitext(new_name)[1]
+                self.preview_panel.set_item(search_item, query=self.current_query)
+        self.footer_status.setText(f"✓ Đã đổi tên thành '{new_name}'")
 
     def _open_schedule(self) -> None:
         self._dialog_active = True

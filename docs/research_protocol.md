@@ -8,6 +8,21 @@ on the same held-out outputs. This applies to the current strategies because
 each receives only the original query, not earlier strategies' answers. It is
 not a process-verification or targeted-correction experiment.
 
+The separate, ordering-only [certificate extension](order_certificate_study_protocol.md)
+adds offline candidate preparation and same-output exec/certificate gate smoke
+replay. Its generic verifier includes exact uniqueness solving and a mandatory
+query-only symbolic baseline. A call-checkpointed development-only collector is
+available; offline/mock regressions and a two-question raw development-pilot
+review are available, not a confirmatory or generally validated native adapter.
+The authorized eight-train-question contract-v2 run completed 56 model calls;
+its [offline review](../audit/order_dev8_contract_v2_review_20261008.md) verifies
+the saved artifacts and 64 replay rows, with no extra model calls. This is
+exposed-development evidence only. There is no fitted router or confirmatory result, and its
+draft addendum does not change Stage 0. Its proposed −5 pp margin/cap are not
+frozen or power-validated. Confirmatory measured ingestion remains disabled.
+Unlike legacy generated-token cost below, this extension accounts for every
+invoked call's prompt **and** completion tokens, labeled separately.
+
 Replay isolates policy decisions from generation noise. It estimates selected
 path quality and token cost. It does not simulate cache state, parallel
 scheduling or online latency. Collection cost is additional: all strategies
@@ -274,6 +289,14 @@ and retains seed/lambda. The dataset contains text and labels: publish only data
 cleared for sharing. Personal feedback belongs outside the public benchmark.
 
 ## Publication gate
+
+The supplementary `--agreement-analysis` mode reanalyses only hash-pinned,
+exposed Run 11/PAL-v2 development outputs, without model calls. Its corrected
+mean-repeat AUROC intervals are conditional, exploratory and unadjusted for
+multiple comparisons; the original contradictory agreement prereg remains
+review-pending. Costs are legacy token proxies, not full per-call costs. See
+[the retrospective correction protocol](agreement_reanalysis_protocol_20261008.md).
+This mode does not change prospective data, publication gates or Stage 0.
 
 - Review answers/group assignments; freeze dataset/model revisions.
 - Complete pilot checks, seed selection and resource estimates; satisfy Stage 0

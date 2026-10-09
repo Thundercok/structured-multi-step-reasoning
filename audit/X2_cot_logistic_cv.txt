@@ -1,5 +1,32 @@
-Finished-only COT: N=77, n_pos=58, n_neg=19, 5-fold Stratified CV (seed 0)
+Finished-only COT: Repeated 5-fold CV x20 (seeds 0..19) with paired cluster bootstrap (B=2000, seed=42)
+Controlling Preregistration: prereg/decision_rule_signal.md
+Dual-family requirement: delta AUROC >= 0.05 and 95% CI lower > 0 in arith AND order separately.
 
-Base: [family one-hot + level]      | OOF AUROC: 0.7173 | Mean Fold AUROC: 0.7453 (+/- 0.1316)
-+ mean_logprob                      | OOF AUROC: 0.7142 | Mean Fold AUROC: 0.7246 (+/- 0.1595)
-+ min_logprob                       | OOF AUROC: 0.7527 | Mean Fold AUROC: 0.7525 (+/- 0.1435)
+=== Family: arith (N=40, pos=30, neg=10) ===
+Baseline mean AUROC: 0.8947
+  Baseline             | Mean AUROC: 0.8947 (+/- 0.0192)
+  + mean_logprob       | Mean AUROC: 0.9188 (+/- 0.0178) | Delta: +0.0242 | 95% CI [-0.0032, +0.0682] | Pass: False
+  + min_logprob        | Mean AUROC: 0.9608 (+/- 0.0147) | Delta: +0.0662 | 95% CI [+0.0061, +0.1551] | Pass: True
+  + answer_first_lp    | Mean AUROC: 0.8947 (+/- 0.0192) | Delta: +0.0000 | 95% CI [+0.0000, +0.0000] | Pass: False
+
+=== Family: order (N=21, pos=14, neg=7) ===
+Baseline mean AUROC: 0.1643
+  Baseline             | Mean AUROC: 0.1643 (+/- 0.0772)
+  + mean_logprob       | Mean AUROC: 0.1633 (+/- 0.0749) | Delta: -0.0010 | 95% CI [-0.0532, +0.0582] | Pass: False
+  + min_logprob        | Mean AUROC: 0.2112 (+/- 0.0715) | Delta: +0.0469 | 95% CI [-0.0456, +0.1468] | Pass: False
+  + answer_first_lp    | Mean AUROC: 0.1643 (+/- 0.0772) | Delta: +0.0000 | 95% CI [+0.0000, +0.0000] | Pass: False
+
+=== Family: pooled (N=77, pos=58, neg=19) ===
+Baseline mean AUROC: 0.7569
+  Baseline             | Mean AUROC: 0.7569 (+/- 0.0330)
+  + mean_logprob       | Mean AUROC: 0.7614 (+/- 0.0316) | Delta: +0.0045 | 95% CI [-0.0169, +0.0271] | Pass: False
+  + min_logprob        | Mean AUROC: 0.7978 (+/- 0.0297) | Delta: +0.0409 | 95% CI [-0.0021, +0.0876] | Pass: False
+  + answer_first_lp    | Mean AUROC: 0.7569 (+/- 0.0330) | Delta: +0.0000 | 95% CI [+0.0000, +0.0000] | Pass: False
+
+=== Gate Decision Rule Evaluation ===
+Signal + mean_logprob      : arith pass=False (delta=+0.0242, CI=[-0.0032, +0.0682]) | order pass=False (delta=-0.0010, CI=[-0.0532, +0.0582]) --> Dual-family: FAIL
+Signal + min_logprob       : arith pass=True (delta=+0.0662, CI=[+0.0061, +0.1551]) | order pass=False (delta=+0.0469, CI=[-0.0456, +0.1468]) --> Dual-family: FAIL
+Signal + answer_first_lp   : arith pass=False (delta=+0.0000, CI=[+0.0000, +0.0000]) | order pass=False (delta=+0.0000, CI=[+0.0000, +0.0000]) --> Dual-family: FAIL
+
+Final Verdict: GATE FAIL
+Prescribed Action: No threshold fitting on logprob signals; use verifier- or agreement-based escalation.

@@ -1,0 +1,238 @@
+{
+  "evidence": "synthetic_smoke",
+  "methods": {
+    "fixed_pal_answer": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 0.25,
+      "mean_tokens": 127.25,
+      "escalation_rate": 0.0,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        0.0,
+        0.75
+      ],
+      "mean_tokens_ci95": [
+        123.5,
+        131.0
+      ]
+    },
+    "fixed_pal_certificate": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 0.25,
+      "mean_tokens": 139.25,
+      "escalation_rate": 0.0,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        0.0,
+        0.75
+      ],
+      "mean_tokens_ci95": [
+        135.5,
+        143.0
+      ]
+    },
+    "fixed_candidate_selection": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 1.0,
+      "mean_tokens": 557.0,
+      "escalation_rate": 0.0,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        1.0,
+        1.0
+      ],
+      "mean_tokens_ci95": [
+        542.0,
+        572.0
+      ]
+    },
+    "fixed_thinking_native": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 1.0,
+      "mean_tokens": 165.25,
+      "escalation_rate": 0.0,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        1.0,
+        1.0
+      ],
+      "mean_tokens_ci95": [
+        161.5,
+        169.0
+      ]
+    },
+    "w_answer": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 0.5,
+      "mean_tokens": 260.25,
+      "escalation_rate": 0.25,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        0.0,
+        1.0
+      ],
+      "mean_tokens_ci95": [
+        127.25,
+        522.5
+      ],
+      "cost_identity": {
+        "mean_initial_tokens": 127.25,
+        "mean_fallback_tokens_given_reject": 532.0,
+        "reconstructed_mean_tokens": 260.25
+      },
+      "rescue_from_initial": 3,
+      "harm_from_initial": 0
+    },
+    "w_certificate": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 0.5,
+      "mean_tokens": 272.25,
+      "escalation_rate": 0.25,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        0.0,
+        1.0
+      ],
+      "mean_tokens_ci95": [
+        139.25,
+        534.5
+      ],
+      "cost_identity": {
+        "mean_initial_tokens": 139.25,
+        "mean_fallback_tokens_given_reject": 532.0,
+        "reconstructed_mean_tokens": 272.25
+      },
+      "rescue_from_initial": 3,
+      "harm_from_initial": 0
+    },
+    "verified_certificate": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 1.0,
+      "mean_tokens": 553.25,
+      "escalation_rate": 0.75,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.04757308245946964,
+      "mean_offline_solver_ms": 0.0,
+      "accuracy_ci95": [
+        1.0,
+        1.0
+      ],
+      "mean_tokens_ci95": [
+        279.75,
+        702.5
+      ],
+      "cost_identity": {
+        "mean_initial_tokens": 139.25,
+        "mean_fallback_tokens_given_reject": 552.0,
+        "reconstructed_mean_tokens": 553.25
+      },
+      "rescue_from_initial": 9,
+      "harm_from_initial": 0,
+      "gate_confusion_by_answer": {
+        "true_accept": 3,
+        "false_accept": 0,
+        "true_reject": 9,
+        "false_reject": 0
+      }
+    },
+    "symbolic_solver": {
+      "questions": 4,
+      "groups": 4,
+      "generations_per_question": 3,
+      "accuracy": 1.0,
+      "mean_tokens": 0.0,
+      "escalation_rate": 0.0,
+      "false_accepts": 0,
+      "false_accept_groups": 0,
+      "mean_replayed_strategy_ms": 0.0,
+      "mean_offline_verifier_ms": 0.0,
+      "mean_offline_solver_ms": 0.08532273932360113,
+      "accuracy_ci95": [
+        1.0,
+        1.0
+      ],
+      "mean_tokens_ci95": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "paired_verified_minus_candidate": {
+    "baseline": "fixed_candidate_selection",
+    "accuracy_delta": 0.0,
+    "accuracy_delta_ci95": [
+      0.0,
+      0.0
+    ],
+    "token_ratio": 0.9932675044883303,
+    "token_ratio_ci95": [
+      0.4933862433862434,
+      1.25
+    ],
+    "accuracy_bootstrap_degenerate": true,
+    "statistical_gate_pass": false,
+    "rescue": 0,
+    "harm": 0
+  },
+  "paired_verified_minus_w_certificate": {
+    "baseline": "w_certificate",
+    "accuracy_delta": 0.5,
+    "accuracy_delta_ci95": [
+      0.0,
+      1.0
+    ],
+    "token_ratio": 2.032139577594123,
+    "token_ratio_ci95": [
+      1.0,
+      5.0
+    ],
+    "accuracy_bootstrap_degenerate": false,
+    "statistical_gate_pass": false,
+    "rescue": 6,
+    "harm": 0
+  },
+  "statistical_gate_pass": false,
+  "decision": "synthetic_validation_only",
+  "bootstrap_unit": "group_id, retaining every item and generation seed",
+  "token_scope": "sum of all model-call prompt and completion counts; not FLOPs/energy/full inference cost"
+}

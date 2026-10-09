@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Báo Cáo Toàn Diện: Quá Trình Phát Triển & Khảo Sát Thực Nghiệm VGC (2026)</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-right {
+      content: "Trang " counter(page) " / " counter(pages);
+      font-size: 8pt;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #64748b;
+    }
+    @bottom-left {
+      content: "NCKH: Multi-Step Structured Reasoning & Verified Cascades";
+      font-size: 8pt;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Noto Sans", sans-serif;
+    color: #0f172a;
+    line-height: 1.5;
+    font-size: 9.5pt;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4 {
+    color: #0f172a;
+    font-weight: 700;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  h1 {
+    font-size: 18pt;
+    line-height: 1.2;
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 6px;
+    margin-top: 0;
+    color: #0369a1;
+  }
+
+  h2 {
+    font-size: 13pt;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 4px;
+    margin-top: 18px;
+    color: #0f172a;
+  }
+
+  h3 {
+    font-size: 10.5pt;
+    color: #334155;
+    margin-top: 12px;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 8px;
+    text-align: justify;
+  }
+
+  /* Header Meta Box */
+  .meta-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 8.5pt;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .meta-box div span {
+    font-weight: 600;
+    color: #475569;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px 0;
+    font-size: 8pt;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 7px;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    font-weight: 600;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+
+  /* Badges & Tags */
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 600;
+  }
+  .badge-pass { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .badge-fail { background-color: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+  .badge-warn { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .badge-info { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+
+  /* Callout Boxes */
+  .callout {
+    border-left: 4px solid #0284c7;
+    background-color: #f0f9ff;
+    padding: 8px 12px;
+    margin: 10px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+  .callout-title {
+    font-weight: 700;
+    color: #0369a1;
+    margin-bottom: 3px;
+  }
+
+  .callout-warn {
+    border-left-color: #eab308;
+    background-color: #fefce8;
+  }
+  .callout-warn .callout-title {
+    color: #a16207;
+  }
+
+  .callout-danger {
+    border-left-color: #e11d48;
+    background-color: #fff1f2;
+  }
+  .callout-danger .callout-title {
+    color: #be123c;
+  }
+
+  /* Timeline / Milestones */
+  .timeline {
+    margin: 12px 0;
+    padding-left: 10px;
+    border-left: 2px solid #cbd5e1;
+  }
+  .timeline-item {
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 14px;
+  }
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -15px;
+    top: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #0284c7;
+    border: 2px solid #ffffff;
+  }
+  .timeline-title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 9pt;
+  }
+  .timeline-date {
+    font-size: 7.5pt;
+    color: #64748b;
+    margin-bottom: 2px;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 8pt;
+    background-color: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+<h1>BÁO CÁO TOÀN DIỆN TIẾN TRÌNH NGHIÊN CỨU & PHÁT TRIỂN</h1>
+<div style="font-size: 11pt; color: #475569; margin-top: -4px; margin-bottom: 12px; font-weight: 600;">
+  Kiểm Chứng Tín Hiệu Định Tuyến, Đánh Giá Đa Chiến Lược & Khung Tầng Thác Xác Thực (VGC)
+</div>
+
+<div class="meta-box">
+  <div><span>Đề tài:</span> NCKH Sinh viên — Multi-Step Structured Reasoning</div>
+  <div><span>Mô hình khảo sát:</span> Qwen3-8B-4bit (MLX Apple Silicon)</div>
+  <div><span>Bộ dữ liệu:</span> 3 Họ bài toán (Arithmetic, Logic Ordering, Game of 24)</div>
+  <div><span>Thời điểm chốt:</span> 08/10/2026 (Asia/Saigon)</div>
+  <div><span>Trạng thái kiểm định:</span> Phát triển & Thăm dò (Exploratory / Development)</div>
+  <div><span>Tập kiểm chứng (Test):</span> 100 câu độc lập — Khóa cứng (Blind & Frozen)</div>
+</div>
+
+<h2>1. Tổng Quan & Bối Cảnh Nghiên Cứu (Executive Summary)</h2>
+<p>
+  Đề tài tập trung giải quyết bài toán: <b>Làm thế nào để hệ thống suy luận đa bước đạt độ chính xác cao nhất với chi phí tính toán (token) tối ưu?</b> Cụ thể, nghiên cứu so sánh các chiến lược suy luận đơn lẻ (CoT, ToT, Self-Consistency, Program-Aided Language / PAL), cơ chế leo thang dựa trên thực thi (Execution Gate W), cơ chế đồng thuận dị thể (Heterogeneous Agreement), và tầng thác xác thực chứng chỉ hình thức (Verified Generation Cascade - VGC).
+</p>
+<div class="callout">
+  <div class="callout-title">Điểm nghẽn nghiên cứu cốt lõi (Core Research Dilemma)</div>
+  Trên họ bài toán sắp xếp logic (<code>order</code>), solver hình thức dựa trên ràng buộc (<code>solve_order_query</code>) giải chính xác <b>31/31 câu development</b> trong <b>3.14 ms</b> với <b>0 token LLM</b>. Do đó, nếu bài toán thuần túy nằm trong template cố định, LLM không có lợi thế kinh tế. Đóng góp thực sự của VGC nằm ở ranh giới: kiểm chứng chứng chỉ khi ngôn ngữ phong phú vượt ngoài tầm solver cứng, hoặc làm bộ lọc triệt tiêu lỗi ngụy biện logic (Silent False Accepts) mà execution gate W bỏ sót.
+</div>
+
+<h2>2. Lịch Sử Tiến Hóa Qua Các Giai Đoạn (Development Progression)</h2>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="timeline-title">Giai đoạn 0: Chuẩn Hóa Hạ Tầng & Triệt Tiêu Warm-Start Nhiễm Bẩn</div>
+    <div class="timeline-date">Tháng 09 - Đầu tháng 10/2026</div>
+    <p>Phát hiện lỗ hổng benchmark runner dùng chung <code>EliteArchive</code> giữa các sweep làm sai lệch kết quả (warm-start rò rỉ). Đã thực hiện cô lập tuyệt đối: bắt buộc <b>Independent Cold-Starts</b> từ <code>build_greedy</code> trên thư mục sạch. Thiết lập Stage 0 gate cho chiến dịch Qwen3.</p>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-title">Giai đoạn 1: Khảo Sát Tín Hiệu Logprob (Prompt X & Y) — Kết Quả Âm Có Giá Trị</div>
+    <div class="timeline-date">06/10/2026</div>
+    <p>Kiểm tra giả thuyết: Token logprob (<code>mean_logprob</code>, <code>min_logprob</code>) có thể làm tín hiệu định tuyến tin cậy? Kết quả thực nghiệm 5-fold CV &times; 20 chứng minh logprob <b>trượt cổng preregistration</b> (&Delta;AUROC &lt; 0.05 hoặc khoảng tin cậy chứa 0). Logprob không phản ánh đúng năng lực suy luận đa bước.</p>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-title">Giai đoạn 2: Khảo Sát Đồng Thuận Dị Thể (Prompt AJ) — "Free Verifier" Là Cái Bẫy</div>
+    <div class="timeline-date">08/10/2026 (Sáng & Chiều)</div>
+    <p>Kiểm tra tín hiệu đồng thuận giữa các chiến lược (PAL-v2, CoT, ToT, SC). Kết quả:
+      <br>&bull; <i>Arithmetic:</i> PAL đạt 100% (40/40), CoT đạt 75%. Đồng thuận buộc leo thang sai ở 25% số câu, kéo tụt độ chính xác từ <b>100% xuống 75%</b> và tăng token lên <b>+260%</b>.
+      <br>&bull; <i>Ordering:</i> Xuất hiện lỗi đồng thuận ngụy biện (<code>order_0010_en_orig</code>: cả 3 model cùng ra "alice" dù gold là "grace").
+      <br>&bull; Chính sách Replay G1/G2 hoàn toàn thua kém Execution Gate W (W đạt 80% với 933 token vs G1 đạt 69% với 1,815 token).
+    </p>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-title">Giai đoạn 3: Khảo Sát Thử Nghiệm Model Thật Trên GPU (Real Pilot N=2 & N=8)</div>
+    <div class="timeline-date">08/10/2026 (Tối)</div>
+    <p>Chạy model thật Qwen3-8B-4bit trên MLX Apple Silicon với journal fsync chống gián đoạn (<code>calls.jsonl</code>).
+      <br>&bull; Qwen3 sinh chuẩn schema certificate JSON <code>{"order": [...], "answer": "..."}</code>.
+      <br>&bull; Verifier bắt được lỗi logic thực sự (model dịch nhầm <i>2 places ahead</i> thành <code>!= 3</code> trong Python).
+      <br>&bull; Phát hiện hiện tượng <b>Harm</b>: Fallback ToT bị lỗi selector (model sinh <code>Answer: 2</code> thay vì <code>Best: 2</code>), làm mất trắng 3,700 tokens. Native-thinking bị cắt cụt do trần 1,024 / 2,048 tokens.
+    </p>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-title">Giai đoạn 4: Shadow Replay "What-If" & Định Hình Contract v3</div>
+    <div class="timeline-date">08/10/2026 (Đêm)</div>
+    <p>Phân tích hồi quy hậu nghiệm (shadow) trên 8 câu development: chuẩn hóa format Markdown giúp cứu vãn nhánh ToT (Verified tăng từ 4 &rarr; 6/8, W-cert tăng từ 4 &rarr; 5/8). Xác định mục tiêu ưu tiên là chuẩn hóa Contract v3 offline trước khi nghĩ đến pilot mới.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>3. Tổng Hợp Dữ Liệu Thực Nghiệm Qua Các Giai Đoạn</h2>
+
+<h3>3.1. Chẩn Đoán Cổng AUROC: Đồng Thuận Dị Thể (Heterogeneous Agreement Gate)</h3>
+<p>
+  Đánh giá qua repeated 5-fold CV &times; 20 phân cụm theo <code>group_id</code> (N=100 gen02_tune). Tiêu chuẩn qua cổng: &Delta;AUROC &ge; 0.05 và chặn dưới bootstrap 95% &gt; 0.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Họ bài toán</th>
+      <th>Tín hiệu dự đoán đúng PAL</th>
+      <th class="text-center">AUROC Gốc</th>
+      <th class="text-center">AUROC Tín hiệu</th>
+      <th class="text-center">&Delta; AUROC</th>
+      <th class="text-center">95% Paired CI</th>
+      <th class="text-center">Trạng thái Cổng</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>arith</b> ($N=40$)</td>
+      <td>+ agree(PAL, CoT / ToT)</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center"><span class="badge badge-warn">Suy biến (PAL 40/40)</span></td>
+    </tr>
+    <tr>
+      <td rowspan="3"><b>order</b> ($N=31$)</td>
+      <td>+ agree(PAL, CoT)</td>
+      <td class="text-center">0.7175</td>
+      <td class="text-center">0.7805</td>
+      <td class="text-center">+0.0630</td>
+      <td class="text-center">[-0.0629, +0.1928]</td>
+      <td class="text-center"><span class="badge badge-fail">TRƯỢT (CI &le; 0)</span></td>
+    </tr>
+    <tr>
+      <td>+ agree(PAL, ToT)</td>
+      <td class="text-center">0.7175</td>
+      <td class="text-center">0.8370</td>
+      <td class="text-center">+0.1195</td>
+      <td class="text-center">[-0.0253, +0.2758]</td>
+      <td class="text-center"><span class="badge badge-fail">TRƯỢT (CI &le; 0)</span></td>
+    </tr>
+    <tr>
+      <td><b>+ n_agree (PAL)</b></td>
+      <td class="text-center">0.7175</td>
+      <td class="text-center">0.8582</td>
+      <td class="text-center"><b>+0.1407</b></td>
+      <td class="text-center"><b>[+0.0221, +0.2775]</b></td>
+      <td class="text-center"><span class="badge badge-pass">ĐẠT (Thăm dò)</span></td>
+    </tr>
+    <tr>
+      <td><b>g24</b> ($N=29$)</td>
+      <td>+ agree(PAL, CoT / ToT)</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center">N/A</td>
+      <td class="text-center"><span class="badge badge-warn">Suy biến (PAL 0/29)</span></td>
+    </tr>
+    <tr>
+      <td><b>pooled</b> ($N=100$)</td>
+      <td>+ n_agree (PAL)</td>
+      <td class="text-center">0.9767</td>
+      <td class="text-center">0.9899</td>
+      <td class="text-center">+0.0132</td>
+      <td class="text-center">[+0.0014, +0.0320]</td>
+      <td class="text-center"><span class="badge badge-fail">TRƯỢT (&Delta; &lt; 0.05)</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.2. Hiệu Suất Chính Sách Replay: Đồng Thuận (G1/G2) vs Execution Gate (W)</h3>
+<p>
+  Đo đạc hồi quy trên 100 câu trace lịch sử; tất cả các stage và chi phí nhánh đều được tính đủ.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Họ bài toán</th>
+      <th>Chính sách (Policy)</th>
+      <th class="text-center">Độ chính xác</th>
+      <th class="text-center">95% Cluster CI</th>
+      <th class="text-center">Mean Tokens</th>
+      <th class="text-center">Tỷ lệ Leo thang</th>
+      <th>Đánh giá chất lượng</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><b>arith</b> ($N=40$)</td>
+      <td>always-PAL-v2</td>
+      <td class="text-center"><b>100.0%</b></td>
+      <td class="text-center">[100%, 100%]</td>
+      <td class="text-center">229.2</td>
+      <td class="text-center">0.0%</td>
+      <td>Tối ưu tuyệt đối (Oracle cục bộ)</td>
+    </tr>
+    <tr>
+      <td><b>W (Exec fail &rarr; ToT)</b></td>
+      <td class="text-center"><b>100.0%</b></td>
+      <td class="text-center">[100%, 100%]</td>
+      <td class="text-center"><b>229.2</b></td>
+      <td class="text-center"><b>0.0%</b></td>
+      <td>Không leo thang thừa</td>
+    </tr>
+    <tr>
+      <td>G1 / G2 (Agreement)</td>
+      <td class="text-center">75.0%</td>
+      <td class="text-center">[62.5%, 87.5%]</td>
+      <td class="text-center">824.0</td>
+      <td class="text-center">25.0%</td>
+      <td><span class="badge badge-fail">Suy thoái (-25 pp, +260% tok)</span></td>
+    </tr>
+    <tr>
+      <td rowspan="3"><b>order</b> ($N=31$)</td>
+      <td>always-PAL-v2</td>
+      <td class="text-center">64.5%</td>
+      <td class="text-center">[48.4%, 80.6%]</td>
+      <td class="text-center">474.3</td>
+      <td class="text-center">0.0%</td>
+      <td>Baseline nhanh</td>
+    </tr>
+    <tr>
+      <td><b>W (Exec fail &rarr; ToT)</b></td>
+      <td class="text-center"><b>74.2%</b></td>
+      <td class="text-center">[58.1%, 90.3%]</td>
+      <td class="text-center"><b>916.0</b></td>
+      <td class="text-center"><b>19.4%</b></td>
+      <td><span class="badge badge-pass">Hiệu quả nhất trên trace cũ</span></td>
+    </tr>
+    <tr>
+      <td>G1 / G2 (Agreement)</td>
+      <td class="text-center">71.0%</td>
+      <td class="text-center">[54.8%, 87.1%]</td>
+      <td class="text-center">2,228.5</td>
+      <td class="text-center">54.8%</td>
+      <td>Tốn token quá mức (+143%)</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>pooled</b> ($N=100$)</td>
+      <td><b>W (Exec fail &rarr; ToT)</b></td>
+      <td class="text-center"><b>80.0%</b></td>
+      <td class="text-center">[72.0%, 88.0%]</td>
+      <td class="text-center"><b>932.9</b></td>
+      <td class="text-center"><b>35.0%</b></td>
+      <td>Đè bẹp đồng thuận dị thể</td>
+    </tr>
+    <tr>
+      <td>G1 / G2 (Agreement)</td>
+      <td class="text-center">69.0%</td>
+      <td class="text-center">[60.0%, 78.0%]</td>
+      <td class="text-center">1,577.7</td>
+      <td class="text-center">56.0%</td>
+      <td>Độ chính xác thấp, token cao</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.3. Đo Đạc Thực Tế Trên GPU: Pilot N=8 (Contract v2) & Shadow Replay</h3>
+<p>
+  Đo lường thật bằng Qwen3-8B-4bit trên 8 câu development train. Cột Shadow phản ánh tiềm năng sửa đổi Contract v3 offline.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Phương pháp / Cấu hình</th>
+      <th class="text-center">Thực tế v2 (Acc)</th>
+      <th class="text-center">Shadow A (Format)</th>
+      <th class="text-center">Shadow B (Format+Guard)</th>
+      <th class="text-center">Mean Model Tokens</th>
+      <th>Ghi chú chẩn đoán</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fixed PAL-answer</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">266.4</td>
+      <td>Chỉ xuất 1 tên duy nhất</td>
+    </tr>
+    <tr>
+      <td>Fixed PAL-certificate</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">410.6</td>
+      <td>Xuất đủ dict <code>order + answer</code></td>
+    </tr>
+    <tr>
+      <td>Fixed Candidate-selection</td>
+      <td class="text-center">3 / 8</td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center"><b>5 / 8</b></td>
+      <td class="text-center">5,225.6</td>
+      <td>3 nhánh CoT + 1 selector (rất đắt)</td>
+    </tr>
+    <tr>
+      <td>Fixed Native-thinking</td>
+      <td class="text-center">0 / 8</td>
+      <td class="text-center">0 / 8</td>
+      <td class="text-center">0 / 8</td>
+      <td class="text-center">2,150.4</td>
+      <td>Cạn trần 2,048 tokens (bị cắt cụt)</td>
+    </tr>
+    <tr>
+      <td><b>W-certificate (Exec gate)</b></td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">5 / 8</td>
+      <td class="text-center">5 / 8</td>
+      <td class="text-center"><b>1,185.9</b></td>
+      <td>Chỉ leo thang khi exec fail (1/8)</td>
+    </tr>
+    <tr>
+      <td><b>Verified-certificate (VGC)</b></td>
+      <td class="text-center">4 / 8</td>
+      <td class="text-center">5 / 8</td>
+      <td class="text-center"><b>6 / 8</b></td>
+      <td class="text-center">3,626.6</td>
+      <td>Leo thang 5/8 (chặn invalid witness)</td>
+    </tr>
+    <tr>
+      <td><b>Symbolic Solver (Baseline)</b></td>
+      <td class="text-center"><b>8 / 8</b></td>
+      <td class="text-center"><b>8 / 8</b></td>
+      <td class="text-center"><b>8 / 8</b></td>
+      <td class="text-center"><b>0.0</b></td>
+      <td>Exact solver; 0 token, 1.4 ms CPU</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>4. Phân Tích Cơ Chế Thất Bại & Hiện Tượng HARM Thực Tế</h2>
+
+<div class="callout callout-danger">
+  <div class="callout-title">Nghịch lý Verifier: Invalid Witness nhưng Correct Answer (False Reject &rarr; Harm)</div>
+  <p>
+    Tại câu <code>order_0001_en_orig</code> trong pilot thực tế:
+    <br>&bull; <b>Lỗi của Model:</b> Qwen3 viết mã Python dịch nhầm điều kiện: <i>"Erin finished exactly 2 places ahead of Frank"</i> bị chuyển thành <code>abs(idx(Erin) - idx(Frank)) != 3</code>.
+    <br>&bull; <b>Hành vi của Verifier:</b> <code>verify_order_execution</code> phát hiện hoán vị vi phạm Clue 3 &rarr; gán nhãn <code>INVALID</code> &rarr; từ chối và kích hoạt leo thang sang ToT.
+    <br>&bull; <b>Hiện tượng Harm:</b> Dù chứng chỉ sai, vị trí thứ 4 trong mã vô tình vẫn trúng đáp án <code>Frank</code>! Khi Verifier từ chối, cascade bị đẩy sang <code>candidate_selection</code>. Nhưng bộ chọn selector của ToT lại sinh lỗi format (<code>Answer: 2</code> thay vì <code>Best: 2</code>), trả về rỗng &rarr; <b>Làm sai kết quả cuối cùng</b> và tiêu tốn thêm <b>+3,733 tokens</b>.
+  </p>
+</div>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Nghịch lý Đồng Thuận: Correlated Semantic Hallucination</div>
+  <p>
+    Tại câu <code>order_0010_en_orig</code> trong khảo sát Sweep AJ:
+    <br>&bull; Đề bài hỏi: Ai về đích ở vị trí thứ 6? (Đáp án đúng: <b>Grace</b>).
+    <br>&bull; PAL-v2 đưa ra: <b>Alice</b>.
+    <br>&bull; CoT đưa ra: <b>Alice</b>.
+    <br>&bull; ToT đưa ra: <b>Alice</b>.
+    <br>&bull; <b>Kết luận:</b> Cả 3 phương pháp độc lập cùng đồng thuận sai ở "Alice" vì cùng chia sẻ thiên kiến hiểu nhầm clue vị trí ("ahead of Grace" bị đảo thành về sau). Đồng thuận &ge; 3 vẫn chấp nhận đáp án sai &rarr; Chứng minh <b>đồng thuận không thể thay thế verifier độc lập</b>.
+  </p>
+</div>
+
+<h2>5. Kế Hoạch Triển Khai Contract v3 Offline</h2>
+<p>
+  Dựa trên các bài học từ pilot thực tế và shadow replay, ưu tiên hàng đầu hiện nay là <b>chuẩn hóa hoàn chỉnh Contract v3 offline</b> trước khi thực hiện bất kỳ phép đo GPU nào tiếp theo:
+</p>
+
+<table style="margin-top: 8px;">
+  <thead>
+    <tr>
+      <th style="width: 25%;">Hạng mục</th>
+      <th style="width: 45%;">Giải pháp kỹ thuật Contract v3</th>
+      <th style="width: 30%;">Tiêu chuẩn nghiệm thu (Acceptance Criteria)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>1. Bóc tách Format Markdown</b></td>
+      <td>Mở rộng parser nhận diện các biến thể đáp án chuẩn:
+        <br>&bull; <code>Answer: NAME</code>
+        <br>&bull; <code>**Answer: NAME**</code>
+        <br>&bull; <code>**Answer:** NAME</code>
+        <br>&bull; Heading Markdown: <code>### Answer: NAME</code>
+      </td>
+      <td>&bull; Khớp đúng danh sách runner suy ra từ đề.
+        <br>&bull; Từ chối câu mơ hồ, chứa nhiều đáp án mâu thuẫn, hoặc đáp án nằm ngoài đề.
+      </td>
+    </tr>
+    <tr>
+      <td><b>2. Bộ Chọn Ứng Viên Hoàn Tất (Completion-Aware Guard)</b></td>
+      <td>Trong <code>candidate_selection</code>:
+        <br>&bull; Parser selector chấp nhận cả <code>Best: X</code> lẫn <code>Answer: X</code>.
+        <br>&bull; <b>Tuyệt đối không chọn nhánh bị cắt cụt</b> (<code>finish_reason: length</code>).
+        <br>&bull; Nếu nhánh được chọn bị lỗi/cắt, tự động chuyển sang <b>nhánh hoàn chỉnh duy nhất</b> nếu chỉ có đúng 1 nhánh hợp lệ. Nếu có &gt; 1 nhánh hoặc không có nhánh nào thì abstain.
+      </td>
+      <td>&bull; Cứu được câu <code>order_0016</code> (chuyển sang nhánh 2 hợp lệ).
+        <br>&bull; Không dùng gold để chọn nhánh; quyết định hoàn toàn dựa trên tính toàn vẹn cú pháp trước khi chấm điểm.
+      </td>
+    </tr>
+    <tr>
+      <td><b>3. Bộ Test Hồi Quy (Regression Suite)</b></td>
+      <td>Bổ sung test fixtures bao phủ:
+        <br>&bull; Các mẫu Markdown phong phú và bẫy cú pháp.
+        <br>&bull; Tình huống nhánh selector bị cắt vs hoàn tất.
+        <br>&bull; Kiểm tra bảo tồn nguyên tắc fail-closed.
+      </td>
+      <td>&bull; 100% test case trong <code>tests/test_order_certificate_study.py</code> và <code>tests/test_verified_pal_order.py</code> vượt qua mà không cần GPU.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. Kết Luận Khoa Học & Định Hướng Bài Báo (NCKH)</h2>
+<ol style="margin-top: 6px; padding-left: 18px;">
+  <li><b>Về mặt học thuật:</b> Nghiên cứu đã làm sáng tỏ 2 kết quả âm cực kỳ đắt giá mà các bài báo trước thường né tránh:
+    (1) <i>Token logprob là tín hiệu định tuyến kém</i> trong suy luận đa bước;
+    (2) <i>Đồng thuận dị thể không miễn phí</i>: nó vừa gây lãng phí token khủng khiếp, vừa kéo tụt chất lượng của nhánh chuyên gia (Arithmetic), lại vừa bất lực trước ảo giác ngữ nghĩa tương quan (Ordering).
+  </li>
+  <li><b>Về tính tất yếu của VGC:</b> VGC giải quyết triệt để vấn đề invalid witness. Tuy nhiên, để VGC vượt trội hơn Execution Gate W, hệ thống bắt buộc phải có một <b>cơ chế Fallback vững chắc</b>. Nếu Fallback yếu, việc verifier từ chối một lời giải ngụy biện (nhưng vô tình đoán đúng đáp án) sẽ gây hại cho toàn bộ cascade (Harm).
+  </li>
+  <li><b>Quy tắc thực nghiệm:</b> Giữ nguyên 100 câu test độc lập. Chưa tăng cap token bừa bãi. Hoàn thiện Contract v3 offline với kiểm thử nghiêm ngặt trước khi chạy pilot tiếp theo.
+  </li>
+</ol>
+
+<div style="margin-top: 24px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 8pt; color: #64748b; text-align: center;">
+  Tài liệu nghiên cứu nội bộ &bull; Antigravity Multi-Step Structured Reasoning Group &bull; Báo cáo được tạo tự động: 08/10/2026
+</div>
+
+</body>
+</html>

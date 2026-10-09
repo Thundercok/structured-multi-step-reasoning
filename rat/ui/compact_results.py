@@ -36,6 +36,7 @@ class CompactFileRow(QFrame):
     open_requested = pyqtSignal(object)
     preview_requested = pyqtSignal(object)
     reveal_requested = pyqtSignal(object)
+    cite_requested = pyqtSignal(object)
     ROW_HEIGHT = 48
 
     def __init__(self, item: SearchResultItem, parent=None):
@@ -72,9 +73,26 @@ class CompactFileRow(QFrame):
 
         details = QVBoxLayout()
         details.setSpacing(2)
+
+        name_row = QHBoxLayout()
+        name_row.setContentsMargins(0, 0, 0, 0)
+        name_row.setSpacing(6)
+
         self.name_label = ElidedLabel(item.file_name)
         self.name_label.setStyleSheet("font-size: 13px; font-weight: 500; color: #302B24;")
-        details.addWidget(self.name_label)
+        name_row.addWidget(self.name_label, 1)
+
+        if getattr(item, "verified", False):
+            v_badge = QLabel("✓ VGC")
+            v_badge.setStyleSheet(
+                "background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; "
+                "border-radius: 4px; font-size: 9px; font-weight: 700; padding: 1px 4px;"
+            )
+            v_badge.setToolTip("Trích đoạn đã được kiểm chứng không ảo giác (VGC Verified)")
+            name_row.addWidget(v_badge, 0)
+
+        details.addLayout(name_row)
+
         folder = Path(item.file_path).parent.name
         self.detail_label = ElidedLabel(f"{folder} · {item.file_size_formatted} · {item.modified_formatted}")
         self.detail_label.setStyleSheet("font-size: 10px; color: #766E63;")

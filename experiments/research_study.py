@@ -397,6 +397,17 @@ def main(argv=None):
         "--run11-think-on-demand-replay", type=Path, metavar="TRACE",
         help="Post-hoc development replay on the exact hashed Run 11 trace; never calls a model",
     )
+    mode.add_argument("--order-certificate-smoke", action="store_true", help="Offline synthetic validation of certificate gates and complete per-call cost")
+    mode.add_argument("--order-certificate-prepare", type=Path, metavar="CANDIDATE", help="Adapt the frozen ordering candidate and audit label-free group isolation")
+    mode.add_argument("--order-certificate-analysis", type=Path, metavar="RUN", help="Validate and replay frozen ordering certificate artifacts")
+    mode.add_argument("--order-certificate-pilot", action="store_true", help="Call-checkpointed ordering diagnostics on exposed train only; never confirmatory")
+    mode.add_argument("--cot-restart-pilot", action="store_true", help="Run or resume the Qwen3.5-4B CoT restart development pilot on exposed questions")
+    mode.add_argument("--agreement-analysis", action="store_true", help="Offline exploratory reanalysis of pinned Run 11/PAL-v2 development outputs; never calls a model")
+    parser.add_argument("--order-pilot-mock", action="store_true", help="Synthetic ordering pilot; never import or load MLX")
+    parser.add_argument("--order-pilot-items", type=int, help="Exposed ordering train questions (default 2)")
+    parser.add_argument("--order-pilot-thinking-tokens", type=int, help="Development-only native-thinking cap override")
+    parser.add_argument("--cot-restart-mock", action="store_true", help="Synthetic mock pilot; never import or load MLX")
+    parser.add_argument("--cot-restart-smoke-only", action="store_true", help="Run only the 4-call smoke verification")
     parser.add_argument("--pilot", action="store_true", help="Fixed-strategy diagnostics on exposed development only")
     parser.add_argument("--strategies", nargs="+", choices=("DIRECT", "COT", "SELF_CONSISTENCY", "TOT", "REACT", "PAL"), help="Pilot strategies (default DIRECT COT)")
     budget = parser.add_mutually_exclusive_group()
@@ -413,9 +424,61 @@ def main(argv=None):
     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--lam", type=float)
-    parser.add_argument("--output", type=Path, required=True, help="New run directory; existing paths are never overwritten")
+    parser.add_argument("--output", type=Path, required=True, help="New run directory; only the ordering development pilot supports exact compatible resume")
     args = parser.parse_args(argv)
     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
+    if args.order_certificate_pilot:
+        if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.lam, args.direct_cot_budget, *pilot_settings)):
+            parser.error("Ordering pilot selects exposed train only; generic collection overrides are not allowed")
+        from scripts.pilot_order_certificate import run_pilot
+        try:
+            run_pilot(num_items=2 if args.order_pilot_items is None else args.order_pilot_items,
+                      seeds=[42 if args.seed is None else args.seed], output_dir=args.output,
+                      thinking_max_tokens=args.order_pilot_thinking_tokens, mock=args.order_pilot_mock)
+        except (ValueError, OSError, RuntimeError) as error:
+            parser.error(str(error))
+        print(f"order_certificate_development_pilot: {args.output / 'report.md'}")
+        return
+    if args.order_pilot_mock or args.order_pilot_items is not None or args.order_pilot_thinking_tokens is not None:
+        parser.error("Ordering pilot overrides require --order-certificate-pilot")
+    if args.cot_restart_pilot:
+        if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
+            parser.error("CoT restart pilot uses pinned exposed questions and settings; overrides are not allowed")
+        from experiments.cot_restart_pilot import run_cot_restart_pilot
+        try:
+            run_cot_restart_pilot(output_dir=args.output, mock=args.cot_restart_mock, smoke_only=args.cot_restart_smoke_only)
+        except (ValueError, OSError, RuntimeError) as error:
+            parser.error(str(error))
+        print(f"cot_restart_development_pilot: {args.output / 'report.md'}")
+        return
+    if args.cot_restart_mock or args.cot_restart_smoke_only:
+        parser.error("CoT restart overrides require --cot-restart-pilot")
+    if args.agreement_analysis:
+        if args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
+            parser.error("Agreement analysis uses pinned exposed development artifacts and fixed settings; overrides are not allowed")
+        from scripts.agreement import write_analysis
+        try:
+            write_analysis(args.output)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        print(f"agreement_exploratory_reanalysis: {args.output / 'report.md'}")
+        return
+    if args.order_certificate_smoke or args.order_certificate_prepare or args.order_certificate_analysis:
+        if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
+            parser.error("Ordering certificate modes use frozen settings; collection overrides are not allowed")
+        from experiments.order_certificate_study import prepare_dataset, replay, run_smoke
+
+        try:
+            if args.order_certificate_prepare:
+                prepare_dataset(args.order_certificate_prepare, args.output)
+            elif args.order_certificate_analysis:
+                replay(args.order_certificate_analysis, args.output)
+            else:
+                run_smoke(args.output)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        print(f"order_certificate_offline: {args.output / 'report.md'}")
+        return
     if args.run11_think_on_demand_replay:
         forbidden = (
             args.model, args.seed, args.direct_cot_budget,

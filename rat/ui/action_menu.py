@@ -162,6 +162,7 @@ class ActionMenuDialog(QDialog):
             ("terminal", "💻 Mở thư mục trong Terminal", "⌥↵", "Mở thư mục chứa tệp này trong Terminal"),
             ("copy_path", "📋 Sao chép đường dẫn (Copy Path)", "⌘C", "Sao chép đường dẫn tuyệt đối vào clipboard"),
             ("copy_content", "📄 Sao chép nội dung văn bản", "⌘⇧C", "Sao chép toàn bộ văn bản đã trích xuất"),
+            ("suggest_name", "🏷️ Gợi ý tên tệp AI (Suggest Name)", "⌘N", "Dùng AI phân tích nội dung tệp để gợi ý tên phù hợp"),
             ("ask_ai", "🧠 Hỏi đáp AI với tệp này", "⌘A", "Mở khung trò chuyện với SLM Qwen2.5"),
             ("schedule", "🍵 Ghép Lịch CLB & Khung Giờ Vàng", "⌘T", "Mở bộ ghép thời khóa biểu sinh viên & tìm giờ rảnh"),
             ("widget", "✦ Trợ Lý TKB & Claude Form Mode", "⌘W", "Mở widget dạng thẻ Claude tương tác linh hoạt góc màn hình"),

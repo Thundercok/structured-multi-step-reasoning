@@ -100,6 +100,18 @@ def test_canonical_identity_preserves_operations_multisets_and_asked_rank():
     assert canonical_problem_id(row) != canonical_problem_id(repeated)
 
 
+def test_gap_clues_preserve_offset_and_legacy_identity():
+    row = ordering("x", ["Alice", "Bob", "Carol", "Dave"], "train")
+    legacy_id = canonical_problem_id(row)
+    four_fields = copy.deepcopy(row)
+    four_fields["meta"]["clues"] = [clue + [1 if clue[0] == "a" else 0] for clue in row["meta"]["clues"]]
+    assert canonical_problem_id(four_fields) == legacy_id
+    four_fields["meta"]["clues"].append(["g", 0, 3, 3])
+    first = canonical_problem_id(four_fields)
+    four_fields["meta"]["clues"][-1][-1] = 2
+    assert canonical_problem_id(four_fields) != first
+
+
 def test_validator_rejects_false_ids_checker_and_metadata():
     main_data, _, _ = build_release(*inputs())
     for patch in ({"problem_id": "fake"}, {"checker": "g24"}, {"query": "Different puzzle"}, {"answer_type": "text"}, {"meta": {"start": True, "steps": [["add", 1]]}}):

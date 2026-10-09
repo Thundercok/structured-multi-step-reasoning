@@ -22,10 +22,9 @@ cascades. Dense retrieval and VectorCache preload require both ID and path to
 match, so legacy mismatches cannot leak mixed metadata into results.
 
 These safeguards do not repair already-corrupt rows, verify embedding-model
-provenance, or guarantee topical relevance. Restart RAT to discard an old
-in-memory cache after deploying the code. Ongoing cached updates/deletions and
-embedding freshness need separate evaluation; a clean join is not proof that
-every vector matches the latest file contents.
+provenance, or guarantee topical relevance. Restart RAT after deploying the
+updated code. The cache now follows committed updates/deletions automatically;
+embedding freshness relative to the source file still needs separate evaluation.
 
 ## Import and snapshot isolation
 
@@ -115,6 +114,48 @@ stale text/vector pairs can also cause it. Grouping uses the document's latest
 groups do not estimate population rates reliably. Preserve FastEmbed's pooling
 change warning rather than hiding it.
 
+## Atomic indexing and cache freshness
+
+The indexer extracts content and generates embeddings before changing the index.
+`Database.replace_document` publishes metadata, FTS text and replacement chunks
+in one transaction. Embedding failure keeps the previous complete version;
+failed SQL writes roll back the whole replacement. Empty, whitespace-only or
+short content clears obsolete semantic chunks while keeping the current text
+available to lexical search. The unchanged-file check requires identical
+modification timestamps and sizes, so edits within the same second are processed.
+
+Each `VectorCache` owns a lazy read-only connection to its selected database.
+Before searching, it checks SQLite's `PRAGMA data_version` and reloads its vector
+matrix when another connection has committed a change. Versions are compared
+on that same dedicated connection, as required by the
+[SQLite contract](https://www.sqlite.org/pragma.html#pragma_data_version).
+Scoring and lazy text enrichment share a read transaction, so a concurrent write
+cannot pair an old vector with new chunk text. Results use persisted positive
+chunk IDs; indexing no longer appends synthetic IDs to a global cache. Separate
+databases retain separate results, and deletion/rename events become visible
+without restarting the cache. `close()` releases its owned connection and arrays.
+Legacy append/remove hooks only invalidate the cache; writes must reach SQLite
+first.
+
+The first search after a commit reloads all chunk vectors. Unchanged searches
+reuse the matrix, but no new large-index latency or relevance result is claimed.
+Files that change without changing either timestamp or size, or during content
+extraction/generation, still need stronger source-version validation.
+
+## Watcher lifecycle
+
+Constructing `FolderWatcher` does not start its queue worker. Startup is tracked
+and synchronized, duplicate starts are ignored, and shutdown cancels startup
+even while folders are being scheduled or the observer is starting. Restart uses
+a new watchdog observer. Queue waits are interruptible; late events are rejected
+after shutdown, and an individual indexing error is logged without killing the
+queue worker.
+
+Shutdown waits up to two seconds. An index operation already executing may finish
+later; another watcher generation cannot start while prior threads remain alive.
+The direct `RatFileEventHandler` constructor retains its default autostart
+behavior for existing callers.
+
 ## Compound-query correctness
 
 Protected Vietnamese compounds are now matched as whole words, longest first,
@@ -137,13 +178,33 @@ any future per-query topic state must be local, never shared on the reranker.
 python -m pytest tests/test_index_integrity.py tests/test_index_link_repair.py -q
 python -m pytest tests/test_database_lifecycle.py tests/test_embedder_integrity.py \
   tests/test_embedding_audit.py tests/test_query_compounds.py tests/test_fts_phrases.py -q
+python -m pytest tests/test_vector_cache_freshness.py tests/test_indexer_consistency.py \
+  tests/test_watcher_lifecycle.py -q
 ```
 
 Tests cover update-after-insert and fresh-connection IDs, wrong-parent rejection,
 embedding-row mismatch, atomic rollback, deletion, both dense retrieval paths,
 copy-only repair, quarantine preservation, no overwrite, idempotence, failure
-rollback, committed WAL data and the default read-only CLI. Run application
-tests with a temporary HOME to isolate default-config/database singletons.
+rollback, committed WAL data and the default read-only CLI. New regressions also
+cover cached insertion/replacement/deletion, external and concurrent writes,
+metadata filters, database isolation, rename events, atomic FTS/chunk rollback,
+failed embeddings, shortened content and watcher startup/shutdown races. Set
+`RAT_DB_PATH` to a temporary database before running these core checks. Tests use
+synthetic embeddings, fake observers and an unscheduled watchdog observer; they
+do not measure judged relevance or a running desktop application's performance.
+
+Validation checkpoint, 2026-10-08: **103 passed** on Python 3.12, including the
+three new regression suites, existing integrity/lifecycle/embedding/query checks,
+relevance-pool helpers and the existing watcher extension-filter check. Reproduce
+the combined check with a fresh temporary `RAT_DB_PATH`:
+
+```bash
+python -m pytest tests/test_vector_cache_freshness.py tests/test_indexer_consistency.py \
+  tests/test_watcher_lifecycle.py tests/test_index_integrity.py tests/test_index_link_repair.py \
+  tests/test_database_lifecycle.py tests/test_embedder_integrity.py tests/test_embedding_audit.py \
+  tests/test_query_compounds.py tests/test_fts_phrases.py tests/test_relevance_pool.py \
+  tests/test_portability_and_performance.py::TestPortabilityAndPerformance::test_watcher_filters_unsupported_extensions -q
+```
 
 After correctness checks, collect graded judgments for multiple relevant files
 per query. Prioritize Precision@5 and nDCG@10; report recall only with a clearly
@@ -160,3 +221,19 @@ pool should deduplicate copies by content hash and combine multiple retrieval
 methods plus random candidates, with development and held-out query groups fixed
 before tuning. The existing diagnostic queries are development data, not a
 sealed test set.
+
+## Next engineering work
+
+Priority scores use `(impact + risk) × (6 − effort)`, with 1–5 ratings.
+These are engineering estimates, not measured model outcomes.
+
+| Order | Work | Impact / risk / effort | Score | Estimated effort and purpose |
+| --- | --- | --- | --- | --- |
+| 1 | Add isolated RAT core checks to CI | 4 / 4 / 2 | 32 | About half a day; catch index/cache/watcher regressions automatically alongside the existing research checks. |
+| 2 | Validate source versions across extraction and commit | 4 / 5 / 3 | 27 | About 1–2 days; detect edits during indexing and coordinate in-flight work with delete/move events. |
+| 3 | Record embedding identity and plan legacy-vector migration | 4 / 4 / 4 | 16 | Several days plus review; make model/preprocessing changes auditable before replacing existing vectors. |
+
+The current phase repairs transactional/index lifecycle correctness. Follow it
+with CI and source-version checks; evaluate retrieval on a separate reviewed
+query pool before changing relevance weights. Embedding migration remains a
+separate deployment step with preserved snapshots.

@@ -1,0 +1,209 @@
+{
+  "trace_file": "/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-153/test_run_analysis_end_to_end0/mock_trace.jsonl",
+  "sha256": "4d54381c0a69b57243ba7239747246c0ca43a0bbf5a2c3be80f005f984ad2368",
+  "n_records": 40,
+  "cot_finished_only_n": 20,
+  "protocol": {
+    "cv_splits": 5,
+    "cv_repeats": 20,
+    "bootstrap_draws": 2000,
+    "baseline_features": {
+      "family_specific": [
+        "level",
+        "completion_tokens"
+      ],
+      "pooled": [
+        "family_one_hot",
+        "level",
+        "completion_tokens"
+      ]
+    }
+  },
+  "family_results": {
+    "arith": {
+      "n": 10,
+      "n_pos": 6,
+      "n_neg": 4,
+      "baseline_mean_auroc": 0.1375,
+      "models": {
+        "Baseline": {
+          "mean_auroc": 0.1375,
+          "std_auroc": 0.11569536147429017,
+          "delta": 0.0,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false
+        },
+        "+ mean_logprob": {
+          "mean_auroc": 0.1375,
+          "std_auroc": 0.11569536147429017,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        },
+        "+ min_logprob": {
+          "mean_auroc": 0.1375,
+          "std_auroc": 0.11569536147429017,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        },
+        "+ answer_first_lp": {
+          "mean_auroc": 0.1375,
+          "std_auroc": 0.11569536147429017,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        }
+      }
+    },
+    "order": {
+      "n": 10,
+      "n_pos": 7,
+      "n_neg": 3,
+      "baseline_mean_auroc": 0.1380952380952381,
+      "models": {
+        "Baseline": {
+          "mean_auroc": 0.1380952380952381,
+          "std_auroc": 0.09331389496316868,
+          "delta": 0.0,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false
+        },
+        "+ mean_logprob": {
+          "mean_auroc": 0.1380952380952381,
+          "std_auroc": 0.09331389496316868,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        },
+        "+ min_logprob": {
+          "mean_auroc": 0.1380952380952381,
+          "std_auroc": 0.09331389496316868,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        },
+        "+ answer_first_lp": {
+          "mean_auroc": 0.1380952380952381,
+          "std_auroc": 0.09331389496316868,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        }
+      }
+    },
+    "pooled": {
+      "n": 20,
+      "n_pos": 13,
+      "n_neg": 7,
+      "baseline_mean_auroc": 0.23653846153846153,
+      "models": {
+        "Baseline": {
+          "mean_auroc": 0.23653846153846153,
+          "std_auroc": 0.1039097281997182,
+          "delta": 0.0,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false
+        },
+        "+ mean_logprob": {
+          "mean_auroc": 0.23653846153846153,
+          "std_auroc": 0.1039097281997182,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        },
+        "+ min_logprob": {
+          "mean_auroc": 0.23653846153846153,
+          "std_auroc": 0.1039097281997182,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        },
+        "+ answer_first_lp": {
+          "mean_auroc": 0.23653846153846153,
+          "std_auroc": 0.1039097281997182,
+          "delta": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "passed": false
+        }
+      }
+    }
+  },
+  "gate_summary": {
+    "gate_verdict": "GATE FAIL",
+    "passed": false,
+    "rule": "delta >= 0.05 and ci_95_low > 0 in arith AND order separately",
+    "prescribed_action": "No threshold fitting on logprob signals; use verifier- or agreement-based escalation.",
+    "signals": {
+      "+ mean_logprob": {
+        "arith": {
+          "delta": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "passed": false
+        },
+        "order": {
+          "delta": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "passed": false
+        },
+        "signal_passed_dual_family": false
+      },
+      "+ min_logprob": {
+        "arith": {
+          "delta": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "passed": false
+        },
+        "order": {
+          "delta": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "passed": false
+        },
+        "signal_passed_dual_family": false
+      },
+      "+ answer_first_lp": {
+        "arith": {
+          "delta": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "passed": false
+        },
+        "order": {
+          "delta": 0.0,
+          "ci": [
+            0.0,
+            0.0
+          ],
+          "passed": false
+        },
+        "signal_passed_dual_family": false
+      }
+    }
+  }
+}

@@ -1,0 +1,855 @@
+{
+  "status": "exploratory_review_pending",
+  "preregistration_pass": false,
+  "confirmatory": false,
+  "gate": {
+    "arith": {
+      "n": 40,
+      "n_pos": 40,
+      "n_neg": 0,
+      "degenerate": true,
+      "models": {
+        "Baseline": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ agree(PAL,COT)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ agree(PAL,TOT)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ n_agree (PAL)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ n_agree (plurality)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        }
+      }
+    },
+    "order": {
+      "n": 31,
+      "n_pos": 20,
+      "n_neg": 11,
+      "degenerate": false,
+      "models": {
+        "Baseline": {
+          "mean_auroc": 0.7175,
+          "std_auroc": 0.03740759966098728,
+          "delta": 0.0,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ agree(PAL,COT)": {
+          "mean_auroc": 0.7804545454545455,
+          "std_auroc": 0.02981000442194472,
+          "delta": 0.06295454545454549,
+          "ci_low": -0.06290800865800886,
+          "ci_high": 0.19280270989974907,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ agree(PAL,TOT)": {
+          "mean_auroc": 0.8370454545454546,
+          "std_auroc": 0.02465778169964012,
+          "delta": 0.11954545454545462,
+          "ci_low": -0.025300862332112352,
+          "ci_high": 0.27584313725490206,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ n_agree (PAL)": {
+          "mean_auroc": 0.858181818181818,
+          "std_auroc": 0.027671329554953484,
+          "delta": 0.14068181818181802,
+          "ci_low": 0.022146865325077817,
+          "ci_high": 0.2775315656565657,
+          "passed": true,
+          "individual_diagnostic_threshold_met": true,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ n_agree (plurality)": {
+          "mean_auroc": 0.7904545454545455,
+          "std_auroc": 0.035932098498130303,
+          "delta": 0.0729545454545455,
+          "ci_low": -0.02353244047619126,
+          "ci_high": 0.1854709595959594,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        }
+      }
+    },
+    "g24": {
+      "n": 29,
+      "n_pos": 0,
+      "n_neg": 29,
+      "degenerate": true,
+      "models": {
+        "Baseline": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ agree(PAL,COT)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ agree(PAL,TOT)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ n_agree (PAL)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        },
+        "+ n_agree (plurality)": {
+          "mean_auroc": null,
+          "delta": null,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "status": "not_evaluable_single_class"
+        }
+      }
+    },
+    "pooled": {
+      "n": 100,
+      "n_pos": 60,
+      "n_neg": 40,
+      "degenerate": false,
+      "models": {
+        "Baseline": {
+          "mean_auroc": 0.9766666666666668,
+          "std_auroc": 0.002940379794062878,
+          "delta": 0.0,
+          "ci_low": null,
+          "ci_high": null,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ agree(PAL,COT)": {
+          "mean_auroc": 0.9807083333333335,
+          "std_auroc": 0.0019414162928702867,
+          "delta": 0.004041666666666721,
+          "ci_low": -0.01092394480519491,
+          "ci_high": 0.020189881896616718,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ agree(PAL,TOT)": {
+          "mean_auroc": 0.9870208333333332,
+          "std_auroc": 0.0019151941807555835,
+          "delta": 0.010354166666666442,
+          "ci_low": -0.004687481188674897,
+          "ci_high": 0.031094203064557183,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ n_agree (PAL)": {
+          "mean_auroc": 0.9898750000000002,
+          "std_auroc": 0.0013443554837417866,
+          "delta": 0.013208333333333377,
+          "ci_low": 0.0013659526723780375,
+          "ci_high": 0.0319807247837772,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        },
+        "+ n_agree (plurality)": {
+          "mean_auroc": 0.983625,
+          "std_auroc": 0.0020159950672338036,
+          "delta": 0.006958333333333178,
+          "ci_low": -0.0025856119791669435,
+          "ci_high": 0.01999220524623248,
+          "passed": false,
+          "individual_diagnostic_threshold_met": false,
+          "preregistration_pass": false,
+          "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+          "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+          "multiplicity_adjusted": false
+        }
+      }
+    }
+  },
+  "precision": {
+    "arith": {
+      "agree(PAL-v2,COT)": {
+        "n_agreed": 30,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 1.0
+      },
+      "agree(PAL-v2,ToT)": {
+        "n_agreed": 30,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 1.0
+      },
+      "pal_agree>=2": {
+        "n_agreed": 30,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 1.0
+      },
+      "pal_agree>=3": {
+        "n_agreed": 30,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 1.0
+      },
+      "pal_agree==4": {
+        "n_agreed": 30,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 1.0
+      },
+      "plurality_agree>=2": {
+        "n_agreed": 37,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 0.8108108108108109
+      },
+      "plurality_agree>=3": {
+        "n_agreed": 33,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 0.9090909090909091
+      },
+      "plurality_agree==4": {
+        "n_agreed": 30,
+        "n_total": 40,
+        "n_corr": 30,
+        "p_corr": 1.0
+      }
+    },
+    "order": {
+      "agree(PAL-v2,COT)": {
+        "n_agreed": 14,
+        "n_total": 31,
+        "n_corr": 13,
+        "p_corr": 0.9285714285714286
+      },
+      "agree(PAL-v2,ToT)": {
+        "n_agreed": 17,
+        "n_total": 31,
+        "n_corr": 16,
+        "p_corr": 0.9411764705882353
+      },
+      "pal_agree>=2": {
+        "n_agreed": 18,
+        "n_total": 31,
+        "n_corr": 17,
+        "p_corr": 0.9444444444444444
+      },
+      "pal_agree>=3": {
+        "n_agreed": 16,
+        "n_total": 31,
+        "n_corr": 15,
+        "p_corr": 0.9375
+      },
+      "pal_agree==4": {
+        "n_agreed": 9,
+        "n_total": 31,
+        "n_corr": 9,
+        "p_corr": 1.0
+      },
+      "plurality_agree>=2": {
+        "n_agreed": 22,
+        "n_total": 31,
+        "n_corr": 18,
+        "p_corr": 0.8181818181818182
+      },
+      "plurality_agree>=3": {
+        "n_agreed": 18,
+        "n_total": 31,
+        "n_corr": 15,
+        "p_corr": 0.8333333333333334
+      },
+      "plurality_agree==4": {
+        "n_agreed": 9,
+        "n_total": 31,
+        "n_corr": 9,
+        "p_corr": 1.0
+      }
+    },
+    "g24": {
+      "agree(PAL-v2,COT)": {
+        "n_agreed": 0,
+        "n_total": 29,
+        "n_corr": 0,
+        "p_corr": null
+      },
+      "agree(PAL-v2,ToT)": {
+        "n_agreed": 0,
+        "n_total": 29,
+        "n_corr": 0,
+        "p_corr": null
+      },
+      "pal_agree>=2": {
+        "n_agreed": 0,
+        "n_total": 29,
+        "n_corr": 0,
+        "p_corr": null
+      },
+      "pal_agree>=3": {
+        "n_agreed": 0,
+        "n_total": 29,
+        "n_corr": 0,
+        "p_corr": null
+      },
+      "pal_agree==4": {
+        "n_agreed": 0,
+        "n_total": 29,
+        "n_corr": 0,
+        "p_corr": null
+      },
+      "plurality_agree>=2": {
+        "n_agreed": 17,
+        "n_total": 29,
+        "n_corr": 16,
+        "p_corr": 0.9411764705882353
+      },
+      "plurality_agree>=3": {
+        "n_agreed": 12,
+        "n_total": 29,
+        "n_corr": 12,
+        "p_corr": 1.0
+      },
+      "plurality_agree==4": {
+        "n_agreed": 0,
+        "n_total": 29,
+        "n_corr": 0,
+        "p_corr": null
+      }
+    },
+    "pooled": {
+      "agree(PAL-v2,COT)": {
+        "n_agreed": 44,
+        "n_total": 100,
+        "n_corr": 43,
+        "p_corr": 0.9772727272727273
+      },
+      "agree(PAL-v2,ToT)": {
+        "n_agreed": 47,
+        "n_total": 100,
+        "n_corr": 46,
+        "p_corr": 0.9787234042553191
+      },
+      "pal_agree>=2": {
+        "n_agreed": 48,
+        "n_total": 100,
+        "n_corr": 47,
+        "p_corr": 0.9791666666666666
+      },
+      "pal_agree>=3": {
+        "n_agreed": 46,
+        "n_total": 100,
+        "n_corr": 45,
+        "p_corr": 0.9782608695652174
+      },
+      "pal_agree==4": {
+        "n_agreed": 39,
+        "n_total": 100,
+        "n_corr": 39,
+        "p_corr": 1.0
+      },
+      "plurality_agree>=2": {
+        "n_agreed": 76,
+        "n_total": 100,
+        "n_corr": 64,
+        "p_corr": 0.8421052631578947
+      },
+      "plurality_agree>=3": {
+        "n_agreed": 63,
+        "n_total": 100,
+        "n_corr": 57,
+        "p_corr": 0.9047619047619048
+      },
+      "plurality_agree==4": {
+        "n_agreed": 39,
+        "n_total": 100,
+        "n_corr": 39,
+        "p_corr": 1.0
+      }
+    }
+  },
+  "replay": {
+    "arith": {
+      "always-PAL-v2": {
+        "n": 40,
+        "corr": 40,
+        "acc": 1.0,
+        "acc_ci": [
+          1.0,
+          1.0
+        ],
+        "mean_tok": 229.15,
+        "tok_ci": [
+          207.825,
+          249.150625
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "always-ToT": {
+        "n": 40,
+        "corr": 30,
+        "acc": 0.75,
+        "acc_ci": [
+          0.6,
+          0.875
+        ],
+        "mean_tok": 688.55,
+        "tok_ci": [
+          571.390625,
+          820.6799999999998
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "W": {
+        "n": 40,
+        "corr": 40,
+        "acc": 1.0,
+        "acc_ci": [
+          1.0,
+          1.0
+        ],
+        "mean_tok": 229.15,
+        "tok_ci": [
+          209.0,
+          249.35125
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G1": {
+        "n": 40,
+        "corr": 30,
+        "acc": 0.75,
+        "acc_ci": [
+          0.624375,
+          0.875
+        ],
+        "mean_tok": 824.025,
+        "tok_ci": [
+          633.245625,
+          1037.7256249999998
+        ],
+        "esc_cnt": 10,
+        "esc_rate": 0.25,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G2": {
+        "n": 40,
+        "corr": 30,
+        "acc": 0.75,
+        "acc_ci": [
+          0.625,
+          0.875
+        ],
+        "mean_tok": 824.025,
+        "tok_ci": [
+          624.19875,
+          1029.8281249999998
+        ],
+        "esc_cnt": 10,
+        "esc_rate": 0.25,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      }
+    },
+    "order": {
+      "always-PAL-v2": {
+        "n": 31,
+        "corr": 20,
+        "acc": 0.6451612903225806,
+        "acc_ci": [
+          0.4838709677419355,
+          0.8064516129032258
+        ],
+        "mean_tok": 474.3225806451613,
+        "tok_ci": [
+          440.64274193548385,
+          508.8475806451612
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "always-ToT": {
+        "n": 31,
+        "corr": 21,
+        "acc": 0.6774193548387096,
+        "acc_ci": [
+          0.5161290322580645,
+          0.8387096774193549
+        ],
+        "mean_tok": 1893.967741935484,
+        "tok_ci": [
+          1639.9153225806451,
+          2146.683870967741
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "W": {
+        "n": 31,
+        "corr": 23,
+        "acc": 0.7419354838709677,
+        "acc_ci": [
+          0.5806451612903226,
+          0.9032258064516129
+        ],
+        "mean_tok": 915.9677419354839,
+        "tok_ci": [
+          598.4983870967742,
+          1285.4088709677414
+        ],
+        "esc_cnt": 6,
+        "esc_rate": 0.1935483870967742,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G1": {
+        "n": 31,
+        "corr": 22,
+        "acc": 0.7096774193548387,
+        "acc_ci": [
+          0.5483870967741935,
+          0.8709677419354839
+        ],
+        "mean_tok": 2406.064516129032,
+        "tok_ci": [
+          1896.433870967742,
+          2943.7129032258063
+        ],
+        "esc_cnt": 17,
+        "esc_rate": 0.5483870967741935,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G2": {
+        "n": 31,
+        "corr": 22,
+        "acc": 0.7096774193548387,
+        "acc_ci": [
+          0.5483870967741935,
+          0.8709677419354839
+        ],
+        "mean_tok": 2228.483870967742,
+        "tok_ci": [
+          1761.3443548387097,
+          2721.3741935483868
+        ],
+        "esc_cnt": 17,
+        "esc_rate": 0.5483870967741935,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      }
+    },
+    "g24": {
+      "always-PAL-v2": {
+        "n": 29,
+        "corr": 0,
+        "acc": 0.0,
+        "acc_ci": [
+          0.0,
+          0.0
+        ],
+        "mean_tok": 474.7586206896552,
+        "tok_ci": [
+          432.44827586206895,
+          517.7008620689655
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "always-ToT": {
+        "n": 29,
+        "corr": 17,
+        "acc": 0.5862068965517241,
+        "acc_ci": [
+          0.41379310344827586,
+          0.7586206896551724
+        ],
+        "mean_tok": 1446.7931034482758,
+        "tok_ci": [
+          1210.2060344827587,
+          1692.4284482758621
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "W": {
+        "n": 29,
+        "corr": 17,
+        "acc": 0.5862068965517241,
+        "acc_ci": [
+          0.41379310344827586,
+          0.7586206896551724
+        ],
+        "mean_tok": 1921.551724137931,
+        "tok_ci": [
+          1685.8387931034483,
+          2166.4258620689657
+        ],
+        "esc_cnt": 29,
+        "esc_rate": 1.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G1": {
+        "n": 29,
+        "corr": 17,
+        "acc": 0.5862068965517241,
+        "acc_ci": [
+          0.41379310344827586,
+          0.7586206896551724
+        ],
+        "mean_tok": 2549.3793103448274,
+        "tok_ci": [
+          2182.3741379310345,
+          2921.3163793103445
+        ],
+        "esc_cnt": 29,
+        "esc_rate": 1.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G2": {
+        "n": 29,
+        "corr": 17,
+        "acc": 0.5862068965517241,
+        "acc_ci": [
+          0.41379310344827586,
+          0.7586206896551724
+        ],
+        "mean_tok": 1921.551724137931,
+        "tok_ci": [
+          1669.683620689655,
+          2170.7525862068965
+        ],
+        "esc_cnt": 29,
+        "esc_rate": 1.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      }
+    },
+    "pooled": {
+      "always-PAL-v2": {
+        "n": 100,
+        "corr": 60,
+        "acc": 0.6,
+        "acc_ci": [
+          0.5,
+          0.69
+        ],
+        "mean_tok": 376.38,
+        "tok_ci": [
+          347.365,
+          406.53049999999996
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "always-ToT": {
+        "n": 100,
+        "corr": 68,
+        "acc": 0.68,
+        "acc_ci": [
+          0.59,
+          0.77
+        ],
+        "mean_tok": 1282.12,
+        "tok_ci": [
+          1132.8960000000002,
+          1425.3529999999998
+        ],
+        "esc_cnt": 0,
+        "esc_rate": 0.0,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "W": {
+        "n": 100,
+        "corr": 80,
+        "acc": 0.8,
+        "acc_ci": [
+          0.72,
+          0.88
+        ],
+        "mean_tok": 932.86,
+        "tok_ci": [
+          758.866,
+          1120.7682499999996
+        ],
+        "esc_cnt": 35,
+        "esc_rate": 0.35,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G1": {
+        "n": 100,
+        "corr": 69,
+        "acc": 0.69,
+        "acc_ci": [
+          0.6,
+          0.78
+        ],
+        "mean_tok": 1814.81,
+        "tok_ci": [
+          1548.98,
+          2085.2375
+        ],
+        "esc_cnt": 56,
+        "esc_rate": 0.56,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      },
+      "G2": {
+        "n": 100,
+        "corr": 69,
+        "acc": 0.69,
+        "acc_ci": [
+          0.6,
+          0.78
+        ],
+        "mean_tok": 1577.69,
+        "tok_ci": [
+          1351.94875,
+          1790.3419999999996
+        ],
+        "esc_cnt": 56,
+        "esc_rate": 0.56,
+        "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+        "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained"
+      }
+    }
+  },
+  "notes": [
+    "EXPLORATORY reanalysis of exposed gen02_tune; its legacy test label does not make this a confirmatory test.",
+    "Point estimates and paired cluster intervals both use mean-repeat OOF AUROC. Intervals condition on fixed predictions; folds/models are not refitted in bootstrap.",
+    "Four signals per evaluable family have unadjusted intervals. An individual diagnostic threshold is not a global preregistration pass or evidence of VGC superiority.",
+    "Historical prereg requires arith AND order, but its final verdict mentions order alone. This conflict remains review-pending; arith's single-class target is not evaluable.",
+    "All gate signals predict PAL-v2 parsed-answer correctness. The plurality signal is an auxiliary predictor, not a separate plurality-correctness target.",
+    "g24 agreement is validity-assisted: check24 maps different valid expressions to one key using question numbers. It is not pure answer identity or verifier-free agreement.",
+    "Four-arm n_agree consumes historical PAL, CoT, candidate-selection and SC outputs (nominal collector configuration: 1+1+4+5 calls); no free or cheap online gate is established.",
+    "Legacy candidate selection (labelled ToT) retains only one branch's prompt-token count; other branch and selector inputs are missing. All invoked arm fields are summed, but full per-call cost cannot be recovered.",
+    "Parsed answers are retrospectively rescored. Candidate-selection and selected-SC termination cannot be fully reconstructed; this is not a corrected fresh model measurement.",
+    "Replay G1/G2 use only PAL/CoT pair agreement, not four-arm n_agree. Their failure does not rule out every agreement policy or establish a verifier as the only solution.",
+    "Agree-and-wrong lists demonstrate shared incorrect parsed answers; causal explanations require independent review.",
+    "No new generation, GPU, model loading, prospective-test evaluation or Stage 0 change occurs."
+  ]
+}

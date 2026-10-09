@@ -1,6 +1,8 @@
 """Unit tests for Query-Derived Certificate Verifier on Ordering."""
 
 import json
+import itertools
+import random
 from pathlib import Path
 import pytest
 
@@ -12,6 +14,8 @@ from scripts.verified_pal_order import (
     extract_order_certificate,
     verify_order_certificate,
     should_escalate,
+    solve_order_query,
+    verify_order_execution,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -216,3 +220,107 @@ def test_real_dataset_coverage():
             assert ir is not None, f"Failed to parse confirmatory query for {it['id']}: {it['query']}"
             assert len(ir.runners) >= 5
             assert len(ir.clues) >= 2
+
+
+_STRICT_QUERY = (
+    "3 runners (Alice, Bob, Carol) ran a race with no ties. "
+    "Clues: Alice finished before Bob; Bob finished before Carol. "
+    "Who finished in 1st place?"
+)
+_STRICT_CERT = {"order": ["Alice", "Bob", "Carol"], "answer": "Alice"}
+
+
+@pytest.mark.parametrize("query", [
+    _STRICT_QUERY + " Carol finished first.",
+    "Carol finished first. " + _STRICT_QUERY,
+    _STRICT_QUERY.replace("Clues:", "Carol finished first. Clues:"),
+    _STRICT_QUERY.replace("before Bob;", "before Bob; ;"),
+    _STRICT_QUERY.replace("1st place?", "1th place?"),
+    _STRICT_QUERY.replace("3 runners", "9" * 4500 + " runners"),
+])
+def test_parser_consumes_the_entire_query(query):
+    assert parse_order_query(query) is None
+    assert verify_order_certificate(query, _STRICT_CERT).status == OrderVerificationStatus.UNVERIFIABLE
+
+
+@pytest.mark.parametrize("name", [[], {}, None, 1, True])
+def test_bad_certificate_elements_return_a_status_instead_of_crashing(name):
+    cert = {"order": [name, "Bob", "Carol"], "answer": "Alice"}
+    result = verify_order_certificate(_STRICT_QUERY, cert)
+    assert result.status == OrderVerificationStatus.INVALID
+    assert should_escalate(result)
+
+
+@pytest.mark.parametrize("payload", [
+    'result = {"order": ["Alice", "Bob", "Carol"], "answer": "Alice"}',
+    '{"order": ["Alice", "Bob", "Carol"], "answer": "Alice"}\nAnswer: Carol',
+    '{"order": ["Alice", "Bob", "Carol"], "answer": "Alice", "answer": "Carol"}',
+])
+def test_only_whole_actual_payloads_are_certificates(payload):
+    assert extract_order_certificate(payload) is None
+
+
+def test_failed_execution_cannot_accept_a_literal_in_generated_source():
+    result = verify_order_execution(_STRICT_QUERY, {
+        "ok": False, "output": json.dumps(_STRICT_CERT), "finish_reason": "stop",
+    })
+    assert result.status == OrderVerificationStatus.UNVERIFIABLE
+    result = verify_order_execution(_STRICT_QUERY, {
+        "ok": True, "output": json.dumps(_STRICT_CERT), "finish_reason": "length",
+    })
+    assert result.status == OrderVerificationStatus.UNVERIFIABLE
+
+
+def test_immediately_after_is_normalized_to_the_correct_direction():
+    query = _STRICT_QUERY.replace("Alice finished before Bob", "Bob finished immediately after Alice")
+    assert solve_order_query(query).answer == "Alice"
+    assert verify_order_certificate(query, _STRICT_CERT).status == OrderVerificationStatus.VALID
+
+
+def test_solver_abstains_on_ambiguity_and_inconsistent_constraints():
+    ambiguous = _STRICT_QUERY.replace("; Bob finished before Carol", "")
+    assert solve_order_query(ambiguous).status == "ambiguous"
+    assert verify_order_certificate(ambiguous, _STRICT_CERT).status == OrderVerificationStatus.UNVERIFIABLE
+    inconsistent = _STRICT_QUERY.replace("Bob finished before Carol", "Bob finished before Alice")
+    assert solve_order_query(inconsistent).status == "unsatisfiable"
+
+
+def test_unique_asked_occupant_does_not_require_a_unique_full_order():
+    query = _STRICT_QUERY.replace("Bob finished before Carol", "Alice finished before Carol")
+    solved = solve_order_query(query)
+    assert solved.status == "solved"
+    assert solved.answer == "Alice"
+    assert solved.solution_count == 2
+    assert verify_order_certificate(query, _STRICT_CERT).status == OrderVerificationStatus.VALID
+
+
+@pytest.mark.parametrize("termination", [None, "error", "timeout"])
+def test_unrecorded_or_failed_termination_is_unverifiable(termination):
+    result = verify_order_execution(_STRICT_QUERY, {
+        "ok": True, "output": json.dumps(_STRICT_CERT), "finish_reason": termination,
+    })
+    assert result.status == OrderVerificationStatus.UNVERIFIABLE
+
+
+def test_symbolic_solver_matches_independent_exhaustive_fixture_oracle():
+    from scripts.gen_tasks import render_order
+
+    rng = random.Random(501)
+    names = ["Alice", "Bob", "Carol", "Dave"]
+    for _ in range(60):
+        clues = []
+        for _ in range(rng.randint(1, 5)):
+            a, b = rng.sample(range(4), 2)
+            kind = rng.choice(["a", "b", "g"])
+            clues.append([kind, a, b, rng.randint(1, 3) if kind == "g" else 1 if kind == "a" else 0])
+        ask = rng.randrange(4)
+        occupants = set()
+        for permutation in itertools.permutations(range(4)):
+            positions = {runner: rank for rank, runner in enumerate(permutation)}
+            if all((positions[a] < positions[b] if kind == "b" else positions[b] - positions[a] == offset) for kind, a, b, offset in clues):
+                occupants.add(names[permutation[ask]])
+        query = render_order({"names": names, "clues": clues, "ask": ask, "style": "B"})
+        solved = solve_order_query(query)
+        expected = "solved" if len(occupants) == 1 else "ambiguous" if occupants else "unsatisfiable"
+        assert solved.status == expected
+        assert solved.answer == (next(iter(occupants)) if len(occupants) == 1 else None)

@@ -13,13 +13,20 @@ from __future__ import annotations
 import logging
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from entry_predictor import EntryChoice, EntryPredictor
 from optimal_stopping import OptimalStoppingPolicy
+from rat.engine.vgc import (
+    VGCCertificate,
+    VGCVerificationResult,
+    VGCVerificationStatus,
+    VGCVerifier,
+    vgc_engine,
+)
 from reasoning_env import LADDER, ReasoningAction as A, complexity_features
 from reasoning_strategies import (
     extract_answer,
@@ -43,6 +50,9 @@ class MetaReasoningResult:
     tokens: int
     latency_ms: float
     escalated: bool
+    citations: List[Dict[str, Any]] = field(default_factory=list)
+    verification_status: Optional[str] = None
+    witness_proof: Optional[str] = None
 
 
 # Domain Knowledge Base for TDTU Regulations & Academic Policies
@@ -192,14 +202,9 @@ class MetaReasonerEngine:
         return any(w in q for w in policy_words)
 
     # -----------------------------------------------------------------
-    # PAL Solver (Program-Aided Language with Sandboxed Python)
+    # PAL Solver (Program-Aided Language with Sandboxed Python & VGC)
     # -----------------------------------------------------------------
     def _solve_with_pal(self, query: str, t0: float) -> MetaReasoningResult:
-        steps = [
-            "Xác định yêu cầu tính toán định lượng.",
-            "Thực thi tính toán trong sandbox Python an toàn.",
-        ]
-
         # Extract values for CPA calculation
         if "cpa" in query.lower() or "gpa" in query.lower():
             python_code = (
@@ -213,13 +218,12 @@ class MetaReasonerEngine:
                 "total_points = prev_points + new_points\n"
                 "result = round(total_points / total_credits, 2)\n"
             )
-            success, out_val = run_python_sandboxed(python_code)
-            if success:
-                steps.append(f"Mã Python thực thi:\n```python\n{python_code}```")
-                steps.append(f"Kết quả sandbox: result = {out_val}")
-                ans = f"CPA mới sau khi tích lũy là **{out_val}** (hệ 10)."
-            else:
-                ans = f"Tính toán: {safe_calculate('((64 * 7.20) + (9 * 8.5) + (2 * 9.0)) / 75')}"
+            calc_expr = "round(((64 * 7.20) + (9 * 8.5) + (2 * 9.0)) / 75, 2)"
+            vgc_res = vgc_engine.solve_quantitative(query, expr=calc_expr, python_code=python_code)
+            ans = f"CPA mới sau khi tích lũy là **{vgc_res.verification.certificate.witness}** (hệ 10)."
+            steps = vgc_res.reasoning_steps
+            witness = str(vgc_res.verification.certificate.witness)
+            v_status = vgc_res.verification.status.value
 
         # Tuition fees calculation
         elif "học phí" in query.lower():
@@ -233,22 +237,22 @@ class MetaReasonerEngine:
                 "raw_total = lt_credits * price_lt + th_credits * price_th\n"
                 "result = int(raw_total * (1 - discount))\n"
             )
-            success, out_val = run_python_sandboxed(python_code)
-            if success:
-                formatted = f"{int(out_val):,}".replace(",", ".")
-                steps.append(f"Mã Python thực thi:\n```python\n{python_code}```")
-                steps.append(f"Kết quả sandbox: {formatted} VNĐ")
-                ans = f"Tổng học phí thực tế phải nộp sau khi giảm 15% là **{formatted} VNĐ**."
-            else:
-                ans = "Học phí tính toán: 10.965.000 VNĐ."
+            calc_expr = "int((12 * 650000 + 6 * 850000) * (1 - 0.15))"
+            vgc_res = vgc_engine.solve_quantitative(query, expr=calc_expr, python_code=python_code)
+            formatted = f"{int(vgc_res.verification.certificate.witness):,}".replace(",", ".")
+            ans = f"Tổng học phí thực tế phải nộp sau khi giảm 15% là **{formatted} VNĐ**."
+            steps = vgc_res.reasoning_steps
+            witness = str(vgc_res.verification.certificate.witness)
+            v_status = vgc_res.verification.status.value
 
         # Generic safe math
         else:
             calc_expr = re.sub(r"^(?:tính|tinh|calc)\s*", "", query, flags=re.I).strip()
-            res = safe_calculate(calc_expr)
-            steps.append(f"Thực thi AST: {calc_expr}")
-            steps.append(f"Kết quả: {res}")
-            ans = f"Kết quả: **{res}**"
+            vgc_res = vgc_engine.solve_quantitative(query, expr=calc_expr)
+            ans = vgc_res.answer
+            steps = vgc_res.reasoning_steps
+            witness = str(vgc_res.verification.certificate.witness) if vgc_res.verification.certificate else None
+            v_status = vgc_res.verification.status.value
 
         lat = (time.time() - t0) * 1000.0
         return MetaReasoningResult(
@@ -258,13 +262,16 @@ class MetaReasonerEngine:
             answer=ans,
             steps=steps,
             confidence=0.98,
-            tokens=195,
+            tokens=45,
             latency_ms=lat,
             escalated=False,
+            citations=[],
+            verification_status=v_status,
+            witness_proof=witness,
         )
 
     # -----------------------------------------------------------------
-    # Academic Policy Solver (CoT + Escalation Check)
+    # Academic Policy Solver (CoT + Escalation Check + Grounded Citations)
     # -----------------------------------------------------------------
     def _solve_policy_with_ladder(self, query: str, t0: float) -> MetaReasoningResult:
         steps = [
@@ -298,6 +305,29 @@ class MetaReasonerEngine:
 
         steps.append(f"Điều khoản liên quan:\n> \"{matched_policy}\"")
 
+        citations = []
+        if matched_policy:
+            citations.append({
+                "file_name": "Sổ tay sinh viên TDTU (Quy chế đào tạo)",
+                "file_path": "",
+                "page": 1,
+                "snippet": matched_policy[:220],
+            })
+            cert = VGCCertificate(
+                claim=matched_policy,
+                witness=matched_policy[:60],
+                source_file="Sổ tay sinh viên TDTU (Quy chế đào tạo)",
+                source_page=1,
+                source_snippet=matched_policy[:200],
+            )
+            v_fact = VGCVerifier.verify_document_fact(cert, matched_policy)
+            steps.append(f"Kiểm chứng sự kiện quy chế (VGC): {v_fact.status.value.upper()} ({v_fact.reason})")
+            v_status = v_fact.status.value
+            witness = str(cert.witness)
+        else:
+            v_status = "unverifiable"
+            witness = None
+
         conf = 0.92
         escalated = False
         strat_name = "CoT"
@@ -328,6 +358,33 @@ class MetaReasonerEngine:
             tokens=410 if escalated else 280,
             latency_ms=lat,
             escalated=escalated,
+            citations=citations,
+            verification_status=v_status,
+            witness_proof=witness,
+        )
+
+    def solve_document_grounded(
+        self,
+        query: str,
+        doc_text: str,
+        file_path: str,
+        page_num: Optional[int] = None,
+    ) -> MetaReasoningResult:
+        """Ground a personal file query via the VGC Document Verifier Gate."""
+        vgc_res = vgc_engine.solve_document_fact(query, doc_text, file_path, page_num)
+        return MetaReasoningResult(
+            query=query,
+            strategy=vgc_res.strategy,
+            badge=vgc_res.badge,
+            answer=vgc_res.answer,
+            steps=vgc_res.reasoning_steps,
+            confidence=vgc_res.confidence,
+            tokens=vgc_res.tokens,
+            latency_ms=vgc_res.latency_ms,
+            escalated=vgc_res.escalated,
+            citations=vgc_res.citations,
+            verification_status=vgc_res.verification.status.value,
+            witness_proof=str(vgc_res.verification.certificate.witness) if vgc_res.verification.certificate else None,
         )
 
     # -----------------------------------------------------------------

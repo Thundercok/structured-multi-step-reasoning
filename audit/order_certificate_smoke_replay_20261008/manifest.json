@@ -1,0 +1,27 @@
+{
+  "mode": "order_certificate_analysis",
+  "evidence": "synthetic_smoke",
+  "source_manifest_sha256": "26f21c938c5c62380b565db63c57b737d5e48ebbef36844304db5793c9fee787",
+  "model_calls": false,
+  "status": "complete",
+  "source_sha256": {
+    "experiments/order_certificate_study.py": "38a7a9c5d4e86f0411d36f13b6645e5d9a81e1116e041f665d472575b66642fe",
+    "experiments/research_study.py": "e11690b69270c3451484a1f250145d858cc894efaa234d63c3c7e3ac614bc790",
+    "scripts/verified_pal_order.py": "2b6c4c89e17870a27d496a8f4cf1c1a73b49e0866ccf37701daa94697b7bc0d8",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0"
+  },
+  "started_utc": "2026-10-08T02:14:30.005789+00:00",
+  "git_head": "2d6faef80799ad15839490d23d42928ee0f974c7",
+  "git_status": "M docs/research_plan.md\n M docs/research_protocol.md\n M experiments/research_study.py\n M research_identity.py\n M scripts/verified_pal_order.py\n M tests/test_procedural_research_data.py\n M tests/test_verified_pal_order.py\n?? audit/_aborted_AG3/\n?? audit/order_certificate_smoke_20261008/\n?? data/gen02_v2b.json\n?? data/order_certificate_candidate_v1/\n?? docs/order_certificate_study_protocol.md\n?? experiments/order_certificate_study.py\n?? prereg/decision_rule_verified_pal_order_v2.md\n?? scripts/report_ag.py\n?? tests/test_order_certificate_study.py",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "numpy": "2.5.2",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "publication_review_required": true,
+  "artifact_sha256": {
+    "results.json": "da29c77681c4b45287e10bcfb7d332419ef2783a480f6ffe13a6084edd5e2454",
+    "summary.json": "3a1fa0e546a52e75ac6b78a868c7faf8012878f6b88e12a775c10847be565221",
+    "report.md": "b1e2d121a42b38da5331ac1612225a0001b83f386130acf98d0e164c8204a744"
+  },
+  "finished_utc": "2026-10-08T02:14:30.107017+00:00"
+}

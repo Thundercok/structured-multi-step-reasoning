@@ -10,6 +10,7 @@ import re
 import sqlite3
 import threading
 import unicodedata
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -42,6 +43,34 @@ def build_fts_query(keywords: List[str]) -> str:
     return " OR ".join(terms)
 
 
+class QueryCache:
+    """Thread-safe LRU query cache for sub-2ms prefix and repeated search responses."""
+
+    def __init__(self, maxsize: int = 150) -> None:
+        self.maxsize = maxsize
+        self._cache: OrderedDict[tuple, List[Dict[str, Any]]] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def get(self, key: tuple) -> Optional[List[Dict[str, Any]]]:
+        with self._lock:
+            if key in self._cache:
+                self._cache.move_to_end(key)
+                return [dict(d) for d in self._cache[key]]
+            return None
+
+    def set(self, key: tuple, value: List[Dict[str, Any]]) -> None:
+        with self._lock:
+            if key in self._cache:
+                self._cache.move_to_end(key)
+            self._cache[key] = [dict(d) for d in value]
+            if len(self._cache) > self.maxsize:
+                self._cache.popitem(last=False)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._cache.clear()
+
+
 _GLOBAL_DB_LOCK = threading.RLock()
 
 
@@ -53,6 +82,7 @@ class Database:
         self.read_only = read_only
         self._local = threading.local()
         self._initialized = read_only
+        self.query_cache = QueryCache(maxsize=150)
 
     def get_connection(self) -> sqlite3.Connection:
         """Initialize on first database use, never on object construction or import."""
@@ -194,52 +224,71 @@ class Database:
             self._initialized = True
 
     def upsert_document(self, doc: Dict[str, Any]) -> int:
-        """Insert or update a document in the index."""
+        """Insert or update document metadata in one transaction."""
+        self.query_cache.clear()
         with _GLOBAL_DB_LOCK:
             conn = self.get_connection()
-            cursor = conn.cursor()
+            with conn:
+                return self._upsert_document(conn, doc)
 
-            content = doc.get("content_text", "") or ""
-            norm_text = remove_vietnamese_accents(f"{doc['file_name']} {content}")
+    def _upsert_document(self, conn: sqlite3.Connection, doc: Dict[str, Any]) -> int:
+        """Write metadata without committing the caller's transaction."""
+        cursor = conn.cursor()
 
-            cursor.execute("""
-                INSERT INTO documents (
-                    file_path, file_name, file_ext, file_size,
-                    created_at, modified_at, md5_hash, content_text,
-                    summary, normalized_text, indexed_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(file_path) DO UPDATE SET
-                    file_name = excluded.file_name,
-                    file_ext = excluded.file_ext,
-                    file_size = excluded.file_size,
-                    created_at = excluded.created_at,
-                    modified_at = excluded.modified_at,
-                    md5_hash = excluded.md5_hash,
-                    content_text = excluded.content_text,
-                    summary = excluded.summary,
-                    normalized_text = excluded.normalized_text,
-                    indexed_at = excluded.indexed_at
-            """, (
-                doc["file_path"],
-                doc["file_name"],
-                doc["file_ext"].lower(),
-                doc["file_size"],
-                doc["created_at"],
-                doc["modified_at"],
-                doc.get("md5_hash", ""),
-                content,
-                doc.get("summary", ""),
-                norm_text,
-                doc["indexed_at"],
-            ))
-            doc_id = conn.execute(
-                "SELECT id FROM documents WHERE file_path = ?", (doc["file_path"],)
-            ).fetchone()[0]
-            conn.commit()
+        content = doc.get("content_text", "") or ""
+        norm_text = remove_vietnamese_accents(f"{doc['file_name']} {content}")
+
+        cursor.execute("""
+            INSERT INTO documents (
+                file_path, file_name, file_ext, file_size,
+                created_at, modified_at, md5_hash, content_text,
+                summary, normalized_text, indexed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(file_path) DO UPDATE SET
+                file_name = excluded.file_name,
+                file_ext = excluded.file_ext,
+                file_size = excluded.file_size,
+                created_at = excluded.created_at,
+                modified_at = excluded.modified_at,
+                md5_hash = excluded.md5_hash,
+                content_text = excluded.content_text,
+                summary = excluded.summary,
+                normalized_text = excluded.normalized_text,
+                indexed_at = excluded.indexed_at
+        """, (
+            doc["file_path"],
+            doc["file_name"],
+            doc["file_ext"].lower(),
+            doc["file_size"],
+            doc["created_at"],
+            doc["modified_at"],
+            doc.get("md5_hash", ""),
+            content,
+            doc.get("summary", ""),
+            norm_text,
+            doc["indexed_at"],
+        ))
+        doc_id = conn.execute(
+            "SELECT id FROM documents WHERE file_path = ?", (doc["file_path"],)
+        ).fetchone()[0]
+        return doc_id
+
+    def replace_document(
+        self, doc: Dict[str, Any], chunks: List[Any], embeddings: np.ndarray,
+    ) -> int:
+        """Publish metadata, FTS text and all chunks together, or roll back all."""
+        self.query_cache.clear()
+        with _GLOBAL_DB_LOCK:
+            conn = self.get_connection()
+            with conn:
+                conn.execute("BEGIN IMMEDIATE")
+                doc_id = self._upsert_document(conn, doc)
+                self._replace_document_chunks(conn, doc_id, doc["file_path"], chunks, embeddings)
             return doc_id
 
     def delete_document(self, file_path: str) -> None:
         """Delete document by file path."""
+        self.query_cache.clear()
         with _GLOBAL_DB_LOCK:
             conn = self.get_connection()
             with conn:
@@ -312,6 +361,18 @@ class Database:
         """
         Multi-tier candidate retrieval using FTS5 BM25 search & metadata filters.
         """
+        cache_key = (
+            tuple(sorted(k.strip().lower() for k in (keywords or []) if k.strip())),
+            tuple(sorted(e.lower() for e in (extensions or []))),
+            tuple(sorted(e.lower() for e in (excluded_extensions or []))),
+            date_min,
+            date_max,
+            limit,
+        )
+        cached = self.query_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         conn = self.get_connection()
         cursor = conn.cursor()
 
@@ -414,7 +475,9 @@ class Database:
                     merged_results.append(r)
 
             if merged_results:
-                return merged_results[:limit]
+                res = merged_results[:limit]
+                self.query_cache.set(cache_key, res)
+                return res
 
             # Fallback to LIKE if FTS fails or returns 0 matches
             like_clauses = []
@@ -437,7 +500,9 @@ class Database:
                 LIMIT ?
             """
             cursor.execute(sql_like, params + like_params + [limit])
-            return [dict(r) for r in cursor.fetchall()]
+            res = [dict(r) for r in cursor.fetchall()]
+            self.query_cache.set(cache_key, res)
+            return res
 
         # Case 2: No keywords -> Return recent files matching metadata
         sql_recent = f"""
@@ -451,7 +516,9 @@ class Database:
             LIMIT ?
         """
         cursor.execute(sql_recent, params + [limit])
-        return [dict(r) for r in cursor.fetchall()]
+        res = [dict(r) for r in cursor.fetchall()]
+        self.query_cache.set(cache_key, res)
+        return res
 
     def save_document_chunks(
         self,
@@ -460,9 +527,18 @@ class Database:
         chunks: List[Any],
         embeddings: np.ndarray,
     ) -> None:
-        """Store semantic chunks and their vector embeddings for a document."""
-        if not chunks or len(chunks) == 0 or embeddings.size == 0:
-            return
+        """Replace chunks transactionally; an empty set clears previous chunks."""
+        with _GLOBAL_DB_LOCK:
+            conn = self.get_connection()
+            with conn:
+                conn.execute("BEGIN IMMEDIATE")
+                self._replace_document_chunks(conn, doc_id, file_path, chunks, embeddings)
+
+    def _replace_document_chunks(
+        self, conn: sqlite3.Connection, doc_id: int, file_path: str,
+        chunks: List[Any], embeddings: np.ndarray,
+    ) -> None:
+        """Validate and replace chunks inside the caller's write transaction."""
         if embeddings.ndim != 2 or len(embeddings) != len(chunks):
             raise ValueError("Each chunk must have one embedding row")
 
@@ -473,20 +549,16 @@ class Database:
             chunk_index = chunk.chunk_index if hasattr(chunk, "chunk_index") else chunk_number
             rows_to_insert.append((doc_id, file_path, chunk_index, text, emb_bytes))
 
-        with _GLOBAL_DB_LOCK:
-            conn = self.get_connection()
-            with conn:
-                conn.execute("BEGIN IMMEDIATE")
-                parent = conn.execute(
-                    "SELECT id FROM documents WHERE id = ? AND file_path = ?", (doc_id, file_path)
-                ).fetchone()
-                if parent is None:
-                    raise ValueError("Chunk document ID does not match its file path")
-                conn.execute("DELETE FROM document_chunks WHERE file_path = ?", (file_path,))
-                conn.executemany("""
-                    INSERT INTO document_chunks (doc_id, file_path, chunk_index, chunk_text, embedding)
-                    VALUES (?, ?, ?, ?, ?)
-                """, rows_to_insert)
+        parent = conn.execute(
+            "SELECT id FROM documents WHERE id = ? AND file_path = ?", (doc_id, file_path)
+        ).fetchone()
+        if parent is None:
+            raise ValueError("Chunk document ID does not match its file path")
+        conn.execute("DELETE FROM document_chunks WHERE file_path = ?", (file_path,))
+        conn.executemany("""
+            INSERT INTO document_chunks (doc_id, file_path, chunk_index, chunk_text, embedding)
+            VALUES (?, ?, ?, ?, ?)
+        """, rows_to_insert)
 
     def search_vector_candidates(
         self,
@@ -597,6 +669,7 @@ class Database:
                     deleted_count += 1
             if deleted_count > 0:
                 conn.commit()
+                self.query_cache.clear()
         return deleted_count
 
     def search_by_provenance(

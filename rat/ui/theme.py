@@ -341,8 +341,9 @@ QLabel#FooterStatus {
 
 QLabel.HotkeyBadge {
     background-color: #FFFFFF;
-    color: #5A5044;
-    border: 1px solid rgba(43, 38, 31, 0.14);
+    color: #4B4136;
+    border: 1px solid #DCD4C4;
+    border-bottom: 2px solid #B8AB98;
     border-radius: 4px;
     padding: 1px 5px;
     font-size: 10px;

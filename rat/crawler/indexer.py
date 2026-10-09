@@ -13,6 +13,8 @@ import time
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Set, Tuple
 
+import numpy as np
+
 from rat.config import (
     IGNORE_DIRS,
     IGNORE_PATTERNS,
@@ -120,7 +122,7 @@ class Indexer:
             # Check if file has already been indexed and not modified
             if not force:
                 existing = self.db.get_document_by_path(str(path))
-                if existing and abs(existing["modified_at"] - modified_at) < 1.0:
+                if existing and existing["modified_at"] == modified_at and existing["file_size"] == size:
                     return False  # Up to date
 
             # Extract deep text content
@@ -151,36 +153,15 @@ class Indexer:
                 "indexed_at": time.time(),
             }
 
-            doc_id = self.db.upsert_document(doc)
-
-            # Generate semantic chunks and dense vector embeddings
+            # Prepare vectors before publishing any metadata or FTS changes.
+            chunks = []
+            chunk_embeddings = np.empty((0, 384), dtype=np.float32)
             if content_text and len(content_text.strip()) > 30:
                 chunks = chunker.chunk_text(content_text)
                 if chunks:
                     chunk_texts = [c.text for c in chunks]
                     chunk_embeddings = embedder.embed_texts(chunk_texts)
-                    self.db.save_document_chunks(doc_id, str(path), chunks, chunk_embeddings)
-
-                    # Dynamic VectorCache sync (eliminates index staleness)
-                    try:
-                        from rat.engine.vector_cache import vector_cache
-                        if vector_cache._is_loaded:
-                            new_recs = [{
-                                "chunk_id": -1,
-                                "doc_id": doc_id,
-                                "file_path": str(path),
-                                "file_name": doc["file_name"],
-                                "file_ext": doc["file_ext"],
-                                "file_size": doc["file_size"],
-                                "created_at": doc["created_at"],
-                                "modified_at": doc["modified_at"],
-                                "chunk_index": c.chunk_index,
-                                "chunk_text": c.text,
-                            } for c in chunks]
-                            vector_cache.append_vectors(new_recs, chunk_embeddings)
-                    except Exception as ve:
-                        logger.debug(f"Dynamic VectorCache sync note: {ve}")
-
+            self.db.replace_document(doc, chunks, chunk_embeddings)
             return True
         except Exception as e:
             logger.error(f"Error indexing {file_path_str}: {e}")

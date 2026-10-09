@@ -101,19 +101,65 @@ def open_in_terminal(file_path: str) -> None:
         subprocess.run(["x-terminal-emulator", f"--working-directory={target_dir}"])
 
 
-def trigger_quicklook(file_path: str) -> None:
+_quicklook_proc: Optional[subprocess.Popen] = None
+_quicklook_current_path: Optional[str] = None
+
+
+def trigger_quicklook(file_path: str) -> bool:
+    """
+    Toggle native macOS QuickLook preview window for the target file.
+    If already previewing the same file, closes the preview window.
+    If previewing a different file, closes previous and launches new preview.
+    """
+    global _quicklook_proc, _quicklook_current_path
     if not file_path or not os.path.exists(file_path):
-        return
+        return False
+
     system = platform.system()
     if system == "Darwin":
-        subprocess.Popen(["qlmanage", "-p", file_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if _quicklook_proc and _quicklook_proc.poll() is None:
+            prev_path = _quicklook_current_path
+            try:
+                _quicklook_proc.terminate()
+            except Exception:
+                pass
+            _quicklook_proc = None
+            _quicklook_current_path = None
+            if prev_path == file_path:
+                return False
+
+        try:
+            _quicklook_current_path = file_path
+            _quicklook_proc = subprocess.Popen(
+                ["qlmanage", "-p", file_path],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        except Exception as e:
+            logger.warning(f"Failed to launch qlmanage: {e}")
+            return False
     else:
         open_file_default(file_path)
+        return True
+
+
+def close_quicklook() -> None:
+    """Close any active QuickLook preview process."""
+    global _quicklook_proc, _quicklook_current_path
+    if _quicklook_proc and _quicklook_proc.poll() is None:
+        try:
+            _quicklook_proc.terminate()
+        except Exception:
+            pass
+    _quicklook_proc = None
+    _quicklook_current_path = None
 
 
 class PreviewPanel(QFrame):
     """Liquid Glass Detail & Conversational AI Chatbot Panel."""
     ask_requested = pyqtSignal(str, str, str)
+    suggest_name_requested = pyqtSignal(object)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -176,6 +222,27 @@ class PreviewPanel(QFrame):
         title_col.addWidget(self.name_label)
         title_col.addWidget(self.meta_sub_label)
 
+        self.btn_suggest_name = QPushButton("🏷️ Đổi tên")
+        self.btn_suggest_name.setToolTip("Gợi ý & Đổi tên tệp bằng AI (⌘N)")
+        self.btn_suggest_name.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_suggest_name.setStyleSheet("""
+            QPushButton {
+                background-color: #fffdf9;
+                color: #78716c;
+                border: 1px solid #e2d9cd;
+                border-radius: 4px;
+                padding: 3px 8px;
+                font-size: 10px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #f7eedb;
+                color: #5c4d3c;
+                border: 1px solid #d4a359;
+            }
+        """)
+        self.btn_suggest_name.clicked.connect(self._trigger_suggest_name)
+
         self.btn_quicklook = QPushButton("Space")
         self.btn_quicklook.setToolTip("macOS Quick Look (Phím Space)")
         self.btn_quicklook.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -199,6 +266,7 @@ class PreviewPanel(QFrame):
 
         h_layout.addWidget(self.badge_label)
         h_layout.addLayout(title_col, 1)
+        h_layout.addWidget(self.btn_suggest_name)
         h_layout.addWidget(self.btn_quicklook)
         layout.addWidget(header_card)
 
@@ -634,11 +702,15 @@ class PreviewPanel(QFrame):
             border: 1px solid #e2d9cd;
         """)
 
-        self.name_label.setText(item.file_name)
+        if getattr(item, "verified", False):
+            self.name_label.setText(f"{item.file_name}  ✓ VGC")
+        else:
+            self.name_label.setText(item.file_name)
 
         ext_clean = item.file_ext.lower()
         desc = EXT_DESCRIPTIONS.get(ext_clean, f"Tệp {ext_clean.upper()}")
-        self.meta_sub_label.setText(f"{desc}  •  {item.file_size_formatted}")
+        v_tag = "  •  ✓ Đã kiểm chứng trích đoạn" if getattr(item, "verified", False) else ""
+        self.meta_sub_label.setText(f"{desc}  •  {item.file_size_formatted}{v_tag}")
 
         # Metadata
         p = item.file_path
@@ -710,3 +782,8 @@ class PreviewPanel(QFrame):
     def _trigger_quicklook(self) -> None:
         if self.current_item and os.path.exists(self.current_item.file_path):
             trigger_quicklook(self.current_item.file_path)
+
+    def _trigger_suggest_name(self) -> None:
+        if self.current_item:
+            self.suggest_name_requested.emit(self.current_item)
+

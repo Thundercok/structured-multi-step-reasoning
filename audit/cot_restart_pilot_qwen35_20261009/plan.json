@@ -1,0 +1,128 @@
+{
+  "selected_items": [
+    {
+      "id": "arith_0027_en_orig",
+      "family": "arith",
+      "fingerprint": "1548f3beec98dc2b5a30ef4e9296ab59778c1cd665dd2fb7f321564008a6c966",
+      "canonical_id": "problem_arith_1548f3beec98dc2b5a30ef4e9296ab59778c1cd665dd2fb7f321564008a6c966",
+      "answer_type": "number",
+      "gold": "230037",
+      "query": "A counter starts at 36501. Apply these steps in order: (1) divide the result by 3; (2) multiply the result by 7; (3) subtract 35947; (4) multiply the result by 26; (5) subtract 16065; (6) subtract 18283; (7) divide the result by 8; (8) add 74359. What is the final value of the counter?"
+    },
+    {
+      "id": "arith_0039_en_orig",
+      "family": "arith",
+      "fingerprint": "523b8b2d3768af0bd2c9fd2cfa430295985b59abc52ee27ba1a43234569765a2",
+      "canonical_id": "problem_arith_523b8b2d3768af0bd2c9fd2cfa430295985b59abc52ee27ba1a43234569765a2",
+      "answer_type": "number",
+      "gold": "2822328",
+      "query": "A counter starts at 22311. Apply these steps in order: (1) add 16252; (2) add 22603; (3) add 50689; (4) subtract 26926; (5) add 70397; (6) add 10546; (7) subtract 82083; (8) add 33808; (9) divide the result by 3; (10) multiply the result by 72. What is the final value of the counter?"
+    },
+    {
+      "id": "arith_0023_en_orig",
+      "family": "arith",
+      "fingerprint": "24a0fe0f76ac981f52ad0b9da69eb50a8d649600bd94eda8a15fa4f190f7cf89",
+      "canonical_id": "problem_arith_24a0fe0f76ac981f52ad0b9da69eb50a8d649600bd94eda8a15fa4f190f7cf89",
+      "answer_type": "number",
+      "gold": "40444",
+      "query": "A counter starts at 9710. Apply these steps in order: (1) add 6666; (2) add 3846; (3) multiply the result by 9; (4) divide the result by 3; (5) multiply the result by 4; (6) divide the result by 6. What is the final value of the counter?"
+    },
+    {
+      "id": "arith_0032_en_orig",
+      "family": "arith",
+      "fingerprint": "bddf716f70438222901a1ebc0dd966011e32901ab034ea3921f88815e54a1017",
+      "canonical_id": "problem_arith_bddf716f70438222901a1ebc0dd966011e32901ab034ea3921f88815e54a1017",
+      "answer_type": "number",
+      "gold": "49835709",
+      "query": "A counter starts at 40083. Apply these steps in order: (1) divide the result by 3; (2) subtract 3632; (3) subtract 5868; (4) subtract 3198; (5) multiply the result by 81; (6) divide the result by 3; (7) subtract 12155; (8) multiply the result by 96; (9) subtract 48225; (10) multiply the result by 99. What is the final value of the counter?"
+    },
+    {
+      "id": "order_0012_en_orig",
+      "family": "order",
+      "fingerprint": "e3fa93d738109a1dbe1eecd10763e6e217a640571ba23bd95f06faf9f7572277",
+      "canonical_id": "problem_order_e3fa93d738109a1dbe1eecd10763e6e217a640571ba23bd95f06faf9f7572277",
+      "answer_type": "text",
+      "gold": "Dave",
+      "query": "6 runners (Frank, Carol, Bob, Heidi, Erin, Dave) ran a race with no ties. Clues: Carol finished immediately before Heidi; Carol finished before Frank; Bob finished before Heidi; Bob finished immediately before Dave; Erin finished immediately before Frank. Who finished in 2nd place?"
+    },
+    {
+      "id": "order_0004_en_orig",
+      "family": "order",
+      "fingerprint": "9971a986d5cc522e01d64286a257ec2543e61291752d42c7ca11e662227f7b04",
+      "canonical_id": "problem_order_9971a986d5cc522e01d64286a257ec2543e61291752d42c7ca11e662227f7b04",
+      "answer_type": "text",
+      "gold": "Heidi",
+      "query": "5 runners (Carol, Frank, Heidi, Grace, Alice) ran a race with no ties. Clues: Alice finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Alice finished after Heidi; Frank finished exactly 2 places ahead of Alice, with exactly 1 runner between them. Who finished in 2nd place?"
+    },
+    {
+      "id": "order_0006_en_orig",
+      "family": "order",
+      "fingerprint": "df8268eb625695ca6f9812d3bc5fcce3e620634d572ef5b482fa94590cd3f0c9",
+      "canonical_id": "problem_order_df8268eb625695ca6f9812d3bc5fcce3e620634d572ef5b482fa94590cd3f0c9",
+      "answer_type": "text",
+      "gold": "Frank",
+      "query": "5 runners (Carol, Grace, Dave, Frank, Heidi) ran a race with no ties. Clues: Frank finished after Grace; Carol finished before Frank; Carol finished immediately before Dave; Heidi finished before Frank. Who finished in 5th place?"
+    },
+    {
+      "id": "order_0027_en_orig",
+      "family": "order",
+      "fingerprint": "a5171cfcb4d056d69b688a291a3a9932d130a075a910dd1e1df1ff867cbc2788",
+      "canonical_id": "problem_order_a5171cfcb4d056d69b688a291a3a9932d130a075a910dd1e1df1ff867cbc2788",
+      "answer_type": "text",
+      "gold": "Alice",
+      "query": "8 runners (Alice, Frank, Grace, Dave, Heidi, Bob, Erin, Carol) ran a race with no ties. Clues: Frank finished after Dave; Heidi finished exactly 3 places ahead of Dave, with exactly 2 runners between them; Bob finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Heidi finished before Bob; Heidi finished immediately before Erin; Alice finished after Erin; Alice finished immediately before Grace. Who finished in 7th place?"
+    },
+    {
+      "id": "g24_0014_en_orig",
+      "family": "g24",
+      "fingerprint": "455ed3b7b1d65391424205aebbf5255dad1baa41f7d8235cb9d4d17062871150",
+      "canonical_id": "problem_g24_455ed3b7b1d65391424205aebbf5255dad1baa41f7d8235cb9d4d17062871150",
+      "answer_type": "expression",
+      "gold": "((4*9)-(4*3))",
+      "query": "Using each of the numbers 4, 4, 3 and 9 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24."
+    },
+    {
+      "id": "g24_0028_en_orig",
+      "family": "g24",
+      "fingerprint": "6e456575637feadb3c722832196a5965052e94583f837cdd4b7a55dfbee675b0",
+      "canonical_id": "problem_g24_6e456575637feadb3c722832196a5965052e94583f837cdd4b7a55dfbee675b0",
+      "answer_type": "expression",
+      "gold": "((10-8)*(11+1))",
+      "query": "Using each of the numbers 8, 11, 10 and 1 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24."
+    },
+    {
+      "id": "g24_0023_en_orig",
+      "family": "g24",
+      "fingerprint": "0ac0488edec87fe14b4dee7887b71fd0bd66d08cf6a687417337d350362d9f24",
+      "canonical_id": "problem_g24_0ac0488edec87fe14b4dee7887b71fd0bd66d08cf6a687417337d350362d9f24",
+      "answer_type": "expression",
+      "gold": "(12+(6*(9-7)))",
+      "query": "Using each of the numbers 7, 6, 9 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24."
+    },
+    {
+      "id": "g24_0018_en_orig",
+      "family": "g24",
+      "fingerprint": "bcf963359fffcd014a7786bccf38344e98ac31b55d5fff897e6d59a1efec6cfd",
+      "canonical_id": "problem_g24_bcf963359fffcd014a7786bccf38344e98ac31b55d5fff897e6d59a1efec6cfd",
+      "answer_type": "expression",
+      "gold": "((13+10)+(2/2))",
+      "query": "Using each of the numbers 13, 10, 2 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24."
+    }
+  ],
+  "budgets": [
+    1024,
+    2048
+  ],
+  "configs": [
+    "regenerate",
+    "restart_q025",
+    "restart_q050",
+    "restart_q075",
+    "thinking_native"
+  ],
+  "sampling": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "base_cot_budget": 1024
+  }
+}

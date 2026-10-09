@@ -8,19 +8,21 @@ Evaluates:
 - Policy replay: G1, G2 vs always-ToT, W, always-PAL-v2 with cluster-bootstrap 95% CIs
 """
 
+import argparse
 from collections import Counter, defaultdict
-from decimal import Decimal
+from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
+import platform
 import random
-import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import KFold
+import sklearn
 from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,6 +37,35 @@ AUDIT_DIR = ROOT / "audit"
 RUN11_TRACE = AUDIT_DIR / "run11_sweep_trace.jsonl"
 PALV2_TRACE = AUDIT_DIR / "ae_palv2_trace.jsonl"
 TUNE_PATH = ROOT / "data" / "gen02_tune.json"
+ESTIMAND = "mean of item-pooled OOF AUROC across recorded CV repetitions"
+TOKEN_SCOPE = "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost"
+ANALYSIS_SETTINGS = {
+    "n_splits": 5, "n_repeats": 20, "n_bootstrap": 2000, "seed": 42,
+    "estimand": ESTIMAND, "delta_threshold": 0.05,
+    "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+    "multiplicity": "four signal comparisons per evaluable family; individual unadjusted intervals; exploratory only",
+    "target": "retrospective PAL-v2 parsed-answer correctness; plurality is an auxiliary predictor of that same target",
+    "token_scope": TOKEN_SCOPE,
+}
+PINNED_INPUTS = {
+    RUN11_TRACE: "3d57df7f4e81c71513a30b46a190c2d848ea020dac78adf88776620b6e67e632",
+    PALV2_TRACE: "c3f2bb0de9e1d04356497911dfb0377597fa7862799cff6754bd8a412ac0d57c",
+    TUNE_PATH: "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+}
+ANALYSIS_NOTES = [
+    "EXPLORATORY reanalysis of exposed gen02_tune; its legacy test label does not make this a confirmatory test.",
+    "Point estimates and paired cluster intervals both use mean-repeat OOF AUROC. Intervals condition on fixed predictions; folds/models are not refitted in bootstrap.",
+    "Four signals per evaluable family have unadjusted intervals. An individual diagnostic threshold is not a global preregistration pass or evidence of VGC superiority.",
+    "Historical prereg requires arith AND order, but its final verdict mentions order alone. This conflict remains review-pending; arith's single-class target is not evaluable.",
+    "All gate signals predict PAL-v2 parsed-answer correctness. The plurality signal is an auxiliary predictor, not a separate plurality-correctness target.",
+    "g24 agreement is validity-assisted: check24 maps different valid expressions to one key using question numbers. It is not pure answer identity or verifier-free agreement.",
+    "Four-arm n_agree consumes historical PAL, CoT, candidate-selection and SC outputs (nominal collector configuration: 1+1+4+5 calls); no free or cheap online gate is established.",
+    "Legacy candidate selection (labelled ToT) retains only one branch's prompt-token count; other branch and selector inputs are missing. All invoked arm fields are summed, but full per-call cost cannot be recovered.",
+    "Parsed answers are retrospectively rescored. Candidate-selection and selected-SC termination cannot be fully reconstructed; this is not a corrected fresh model measurement.",
+    "Replay G1/G2 use only PAL/CoT pair agreement, not four-arm n_agree. Their failure does not rule out every agreement policy or establish a verifier as the only solution.",
+    "Agree-and-wrong lists demonstrate shared incorrect parsed answers; causal explanations require independent review.",
+    "No new generation, GPU, model loading, prospective-test evaluation or Stage 0 change occurs.",
+]
 
 
 def canonicalize_answer(val: Any, family: str, item_meta: Optional[Dict[str, Any]] = None) -> str:
@@ -97,12 +128,90 @@ def load_dataset() -> Tuple[List[Dict[str, Any]], Dict[str, Dict[str, Any]], Dic
         tune_data = json.load(f)
         tasks = {it["id"]: it for it in tune_data["items"]}
 
+    items = tune_data["items"]
+    if len(tasks) != len(items) or not items:
+        raise ValueError("Duplicate IDs or empty development dataset")
     r11_by_id: Dict[str, Dict[str, Any]] = defaultdict(dict)
     for r in r11:
+        if r["id"] not in tasks or r["arm"] in r11_by_id[r["id"]]:
+            raise ValueError("Unknown or duplicate Run 11 item/arm")
         r11_by_id[r["id"]][r["arm"]] = r
 
     pal_by_id = {r["id"]: r for r in pal}
-    return tune_data["items"], r11_by_id, pal_by_id
+    if len(pal_by_id) != len(pal) or set(pal_by_id) != set(tasks):
+        raise ValueError("Duplicate or incomplete PAL-v2 matrix")
+    for item in items:
+        rows = r11_by_id[item["id"]]
+        if not {"COT", "TOT", "SC"} <= rows.keys():
+            raise ValueError("Incomplete agreement arm matrix")
+        for row in [pal_by_id[item["id"]], *rows.values()]:
+            if any(row.get(key) != item[key] for key in ("group_id", "family", "level")) or row.get("gold") != item["answer"]:
+                raise ValueError("Trace identity or gold differs from development data")
+            if any(type(row.get(key)) is not int or row[key] < 0 for key in ("prompt_tokens", "completion_tokens")):
+                raise ValueError("Invalid legacy token telemetry")
+    return items, r11_by_id, pal_by_id
+
+
+def _mean_auc_kernel(predictions, y):
+    """Pairwise AUROC kernel, averaged AFTER evaluating each CV repetition.
+
+    Counting positive > negative as 1 and ties as 0.5 gives exactly the
+    binary empirical AUROC. Averaging these comparisons across repetitions
+    preserves mean-repetition AUROC, unlike ranking averaged predictions.
+    """
+    predictions = np.asarray(predictions, dtype=float)
+    y = np.asarray(y)
+    if y.ndim != 1 or predictions.ndim != 2 or predictions.shape[1] != len(y) or not len(predictions) or not np.isfinite(predictions).all():
+        raise ValueError("Expected finite repetition x item OOF predictions")
+    if set(y) != {0, 1}:
+        raise ValueError("AUROC requires both binary classes")
+    diff = predictions[:, y == 1, None] - predictions[:, None, y == 0]
+    return ((diff > 0) + 0.5 * (diff == 0)).mean(axis=0)
+
+
+def paired_oof_bootstrap(oof_predictions, y, groups, *, n_bootstrap=2000, seed=42):
+    """Fast paired group bootstrap of the SAME mean-repeat AUROC statistic.
+
+    All models and repetitions use each identical cluster draw. Weights retain
+    every item/variant within a sampled group. Degenerate draws are counted and
+    rejected with a bounded retry budget, never an unbounded loop.
+    """
+    y, groups = np.asarray(y), np.asarray(groups)
+    if y.ndim != 1 or groups.ndim != 1 or type(n_bootstrap) is not int or n_bootstrap < 1 or len(y) != len(groups):
+        raise ValueError("Invalid bootstrap count or grouping")
+    unique_groups = sorted(set(groups))
+    if len(unique_groups) < 2 or set(y) != {0, 1} or "Baseline" not in oof_predictions:
+        raise ValueError("Bootstrap needs two groups, both classes and Baseline")
+    kernels = {name: _mean_auc_kernel(preds, y) for name, preds in oof_predictions.items()}
+    if len({np.asarray(preds).shape for preds in oof_predictions.values()}) != 1:
+        raise ValueError("Models must share the same OOF repetitions and items")
+    group_lookup = {group: index for index, group in enumerate(unique_groups)}
+    item_group = np.array([group_lookup[group] for group in groups])
+    rng = np.random.default_rng(seed)
+    samples = {name: [] for name in kernels}
+    accepted = attempted = 0
+    max_attempts = max(1000, 50 * n_bootstrap)
+    while accepted < n_bootstrap and attempted < max_attempts:
+        size = min(n_bootstrap - accepted, max_attempts - attempted)
+        draw = rng.integers(0, len(unique_groups), size=(size, len(unique_groups)))
+        counts = np.zeros((size, len(unique_groups)), dtype=int)
+        np.add.at(counts, (np.arange(size)[:, None], draw), 1)
+        weights = counts[:, item_group]
+        pos, neg = weights[:, y == 1], weights[:, y == 0]
+        denominator = pos.sum(axis=1) * neg.sum(axis=1)
+        valid = denominator > 0
+        for name, kernel in kernels.items():
+            scores = np.einsum("bi,ij,bj->b", pos[valid], kernel, neg[valid]) / denominator[valid]
+            samples[name].extend(scores.tolist())
+        accepted += int(valid.sum())
+        attempted += size
+    if accepted != n_bootstrap:
+        raise ValueError("Insufficient nondegenerate bootstrap draws; review grouping")
+    base = np.array(samples["Baseline"])
+    differences = {name: (np.array(values) - base).tolist() for name, values in samples.items() if name != "Baseline"}
+    return differences, {"accepted_draws": accepted, "attempted_draws": attempted,
+                         "discarded_one_class_draws": attempted - accepted, "seed": seed,
+                         "estimand": ESTIMAND, "refit": False}
 
 
 def is_pal_exec_fail(p_rec: Dict[str, Any]) -> bool:
@@ -129,127 +238,93 @@ def run_cv_evaluation(
     n_repeats: int = 20,
     n_bootstrap: int = 2000,
     seed: int = 42,
+    artifacts=None,
 ) -> Dict[str, Any]:
-    """Repeated 5-fold CV x20 with paired cluster bootstrap on group_id."""
+    """Repeated grouped CV; point estimate and CI both use mean-repeat AUROC."""
+    y, groups = np.asarray(y), np.asarray(groups)
+    if y.ndim != 1 or groups.ndim != 1:
+        raise ValueError("Expected one-dimensional binary labels and groups")
+    models_dict = {name: np.asarray(X, dtype=float) for name, X in models_dict.items()}
     n_samples = len(y)
-    unique_groups = sorted(list(set(groups)))
-    n_groups = len(unique_groups)
+    unique_groups = sorted(set(groups))
+    if (y.ndim != 1 or groups.ndim != 1 or len(groups) != n_samples
+            or set(y) != {0, 1} or type(n_splits) is not int
+            or not 2 <= n_splits <= len(unique_groups)
+            or type(n_repeats) is not int or n_repeats < 1
+            or type(n_bootstrap) is not int or n_bootstrap < 1
+            or "Baseline" not in models_dict
+            or not np.array_equal(models_dict["Baseline"], X_base)):
+        raise ValueError("Invalid binary grouped-CV design or baseline")
+    if any(np.asarray(X).ndim != 2 or len(X) != n_samples or not np.isfinite(X).all()
+           for X in models_dict.values()):
+        raise ValueError("Invalid feature matrix")
     group_to_indices = defaultdict(list)
-    for idx, g in enumerate(groups):
-        group_to_indices[g].append(idx)
-
-    # Store OOF probabilities for each repetition and model
-    oof_preds = {m_name: np.zeros((n_repeats, n_samples)) for m_name in models_dict}
+    for index, group in enumerate(groups):
+        group_to_indices[group].append(index)
+    oof_preds = {name: np.full((n_repeats, n_samples), np.nan) for name in models_dict}
+    assignments = np.full((n_repeats, n_samples), -1, dtype=int)
+    constant_training_folds = 0
 
     for rep in range(n_repeats):
-        rng_split = random.Random(seed + rep)
         shuffled_groups = unique_groups.copy()
-        rng_split.shuffle(shuffled_groups)
-
-        # Split groups into folds
-        fold_groups = [shuffled_groups[i::n_splits] for i in range(n_splits)]
-
-        for fold_idx in range(n_splits):
-            val_g = set(fold_groups[fold_idx])
-            train_g = set(shuffled_groups) - val_g
-
-            train_idx = [i for g in train_g for i in group_to_indices[g]]
-            val_idx = [i for g in val_g for i in group_to_indices[g]]
-
-            y_tr, y_va = y[train_idx], y[val_idx]
-
-            for m_name, X in models_dict.items():
-                X_tr, X_va = X[train_idx], X[val_idx]
-                scaler = StandardScaler()
-                X_tr_s = scaler.fit_transform(X_tr)
-                X_va_s = scaler.transform(X_va)
-
-                clf = LogisticRegression(C=1.0, random_state=0, max_iter=1000)
-                # If only one class in train fold, default to constant
-                if len(set(y_tr)) < 2:
-                    p = float(y_tr[0])
-                    oof_preds[m_name][rep, val_idx] = p
+        random.Random(seed + rep).shuffle(shuffled_groups)
+        folds = [shuffled_groups[i::n_splits] for i in range(n_splits)]
+        for fold_index, validation_groups in enumerate(folds):
+            validation_set = set(validation_groups)
+            train_idx = sorted(i for group in unique_groups if group not in validation_set
+                               for i in group_to_indices[group])
+            val_idx = sorted(i for group in validation_groups for i in group_to_indices[group])
+            assignments[rep, val_idx] = fold_index
+            y_tr = y[train_idx]
+            single_class = len(set(y_tr)) == 1
+            constant_training_folds += int(single_class)
+            for name, X in models_dict.items():
+                if single_class:
+                    oof_preds[name][rep, val_idx] = float(y_tr[0])
                 else:
-                    clf.fit(X_tr_s, y_tr)
-                    oof_preds[m_name][rep, val_idx] = clf.predict_proba(X_va_s)[:, 1]
+                    scaler = StandardScaler()
+                    X_tr = scaler.fit_transform(X[train_idx])
+                    X_va = scaler.transform(X[val_idx])
+                    clf = LogisticRegression(C=1.0, random_state=0, max_iter=1000)
+                    clf.fit(X_tr, y_tr)
+                    oof_preds[name][rep, val_idx] = clf.predict_proba(X_va)[:, 1]
+    if any(not np.isfinite(preds).all() for preds in oof_preds.values()) or (assignments < 0).any():
+        raise ValueError("Incomplete OOF predictions")
 
-    # Calculate average OOF predictions across repetitions
-    oof_mean = {m_name: np.mean(oof_preds[m_name], axis=0) for m_name in models_dict}
-
-    # Baseline AUROC per repetition
-    rep_aucs = {m_name: [] for m_name in models_dict}
-    for rep in range(n_repeats):
-        for m_name in models_dict:
-            try:
-                score = roc_auc_score(y, oof_preds[m_name][rep])
-                rep_aucs[m_name].append(score)
-            except ValueError:
-                rep_aucs[m_name].append(np.nan)
-
-    # Paired cluster bootstrap across group_id on mean OOF predictions
-    rng_boot = np.random.default_rng(seed)
-    boot_diffs = {m_name: [] for m_name in models_dict if m_name != "Baseline"}
-
-    if len(set(y)) >= 2:
-        while min(len(v) for v in boot_diffs.values()) < n_bootstrap:
-            sg = rng_boot.choice(unique_groups, size=n_groups, replace=True)
-            boot_idx = [i for g in sg for i in group_to_indices[g]]
-            y_b = y[boot_idx]
-            if len(set(y_b)) < 2:
-                continue
-
-            try:
-                base_auc = roc_auc_score(y_b, oof_mean["Baseline"][boot_idx])
-            except ValueError:
-                continue
-
-            for m_name in boot_diffs:
-                try:
-                    sig_auc = roc_auc_score(y_b, oof_mean[m_name][boot_idx])
-                    boot_diffs[m_name].append(sig_auc - base_auc)
-                except ValueError:
-                    continue
-
+    rep_aucs = {name: [float(roc_auc_score(y, scores)) for scores in preds]
+                for name, preds in oof_preds.items()}
+    differences, bootstrap = paired_oof_bootstrap(
+        oof_preds, y, groups, n_bootstrap=n_bootstrap, seed=seed,
+    )
+    base_mean = float(np.mean(rep_aucs["Baseline"]))
     results = {}
-    base_mean = np.nanmean(rep_aucs["Baseline"])
-    base_std = np.nanstd(rep_aucs["Baseline"])
-    results["Baseline"] = {
-        "mean_auroc": base_mean,
-        "std_auroc": base_std,
-        "delta": 0.0,
-        "ci_low": 0.0,
-        "ci_high": 0.0,
-        "passed": False,
-    }
-
-    for m_name in models_dict:
-        if m_name == "Baseline":
-            continue
-        m_mean = np.nanmean(rep_aucs[m_name])
-        m_std = np.nanstd(rep_aucs[m_name])
-        delta = m_mean - base_mean
-
-        diffs = boot_diffs.get(m_name, [])
-        if diffs:
-            ci_low = float(np.percentile(diffs, 2.5))
-            ci_high = float(np.percentile(diffs, 97.5))
-        else:
-            ci_low, ci_high = np.nan, np.nan
-
-        passed = bool(delta >= 0.05 and ci_low > 0.0)
-        results[m_name] = {
-            "mean_auroc": m_mean,
-            "std_auroc": m_std,
-            "delta": delta,
-            "ci_low": ci_low,
-            "ci_high": ci_high,
-            "passed": passed,
+    for name, aucs in rep_aucs.items():
+        mean = float(np.mean(aucs))
+        delta = mean - base_mean
+        ci_low, ci_high = (np.quantile(differences[name], [0.025, 0.975]).tolist()
+                           if name in differences else (None, None))
+        met = bool(name != "Baseline" and delta >= 0.05 and ci_low > 0)
+        results[name] = {
+            "mean_auroc": mean, "std_auroc": float(np.std(aucs)), "delta": delta,
+            "ci_low": ci_low, "ci_high": ci_high,
+            "passed": met, "individual_diagnostic_threshold_met": met,
+            "preregistration_pass": False, "estimand": ESTIMAND,
+            "ci_scope": ANALYSIS_SETTINGS["ci_scope"], "multiplicity_adjusted": False,
         }
-
+    if artifacts is not None:
+        artifacts.update(
+            target=y.tolist(), groups=groups.tolist(), fold_assignments=assignments.tolist(),
+            oof_predictions={name: preds.tolist() for name, preds in oof_preds.items()},
+            feature_matrices={name: np.asarray(X).tolist() for name, X in models_dict.items()},
+            repeat_aurocs=rep_aucs, bootstrap_deltas=differences, bootstrap=bootstrap,
+            constant_training_folds=constant_training_folds,
+            cv_settings={"n_splits": n_splits, "n_repeats": n_repeats,
+                         "split_seeds": [seed + rep for rep in range(n_repeats)]},
+        )
     return results
 
 
-def evaluate_gate_all():
+def evaluate_gate_all(artifacts=None):
     items, r11_by_id, pal_by_id = load_dataset()
 
     families = ["arith", "order", "g24", "pooled"]
@@ -319,10 +394,18 @@ def evaluate_gate_all():
             # Degenerate case (e.g. arith where PAL is 40/40, or g24 where PAL is 0/29)
             gate_results[fam] = {
                 "n": n, "n_pos": n_pos, "n_neg": n_neg, "degenerate": True,
-                "models": {m: {"mean_auroc": np.nan, "delta": np.nan, "ci_low": np.nan, "ci_high": np.nan, "passed": False} for m in models_dict}
+                "models": {m: {"mean_auroc": None, "delta": None, "ci_low": None, "ci_high": None,
+                               "passed": False, "individual_diagnostic_threshold_met": False,
+                               "preregistration_pass": False, "status": "not_evaluable_single_class"} for m in models_dict}
             }
+            if artifacts is not None:
+                artifacts[fam] = {"ids": [it["id"] for it in f_items], "status": "not_evaluable_single_class"}
         else:
-            cv_res = run_cv_evaluation(X_base, models_dict, y, groups)
+            detail = {} if artifacts is not None else None
+            cv_res = run_cv_evaluation(X_base, models_dict, y, groups, artifacts=detail)
+            if detail is not None:
+                detail["ids"] = [it["id"] for it in f_items]
+                artifacts[fam] = detail
             gate_results[fam] = {
                 "n": n, "n_pos": n_pos, "n_neg": n_neg, "degenerate": False,
                 "models": cv_res,
@@ -427,7 +510,7 @@ def evaluate_precision_and_failures():
                                 "query": it["query"],
                             })
 
-            p_corr = (n_corr / n_agreed) if n_agreed > 0 else 0.0
+            p_corr = (n_corr / n_agreed) if n_agreed > 0 else None
             prec_table[fam][sig] = {
                 "n_agreed": n_agreed,
                 "n_total": n_total,
@@ -438,7 +521,7 @@ def evaluate_precision_and_failures():
     return prec_table, agree_wrong_list
 
 
-def evaluate_replay_policies():
+def evaluate_replay_policies(artifacts=None):
     items, r11_by_id, pal_by_id = load_dataset()
     families = ["arith", "order", "g24", "pooled"]
     policies = ["always-PAL-v2", "always-ToT", "W", "G1", "G2"]
@@ -527,6 +610,12 @@ def evaluate_replay_policies():
                     })
 
         replay_results[fam] = {}
+        if artifacts is not None:
+            for pol, recs in policy_records.items():
+                for item, rec in zip(f_items, recs):
+                    rec["id"] = item["id"]
+                    rec["token_scope"] = TOKEN_SCOPE
+            artifacts[fam] = policy_records
         for pol in policies:
             recs = policy_records[pol]
             corr_cnt = sum(1 for r in recs if r["correct"])
@@ -560,6 +649,8 @@ def evaluate_replay_policies():
                 "tok_ci": tok_ci,
                 "esc_cnt": esc_cnt,
                 "esc_rate": esc_rate,
+                "token_scope": TOKEN_SCOPE,
+                "scoring_scope": "retrospective parsed answers; legacy candidate/SC branch termination is not fully retained",
             }
 
     return replay_results
@@ -570,17 +661,17 @@ def build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_res
 
     # 1. Gate Table
     gate_lines = []
-    gate_lines.append("| Family | Signal | Baseline AUROC | Signal AUROC | Δ AUROC | 95% Paired-Bootstrap CI | Gate Passed (Δ≥0.05, CI_low>0) |")
+    gate_lines.append("| Family | Signal predicting PAL correctness | Mean repeat baseline AUROC | Mean repeat signal AUROC | Δ AUROC | Paired 95% CI, SAME statistic | Unadjusted diagnostic threshold |")
     gate_lines.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |")
 
     for fam in ["arith", "order", "g24", "pooled"]:
         info = gate_results[fam]
         fam_label = f"{fam} (N={info['n']})"
         if info["degenerate"]:
-            note = "Degenerate (100% acc, no negative class)" if fam == "arith" else "Degenerate (0% acc, no positive class)"
+            note = f"Single-class PAL target ({info['n_pos']} positive, {info['n_neg']} negative)"
             gate_lines.append(f"| **{fam_label}** | Baseline | N/A | N/A | N/A | N/A | N/A ({note}) |")
             for sig in ["+ agree(PAL,COT)", "+ agree(PAL,TOT)", "+ n_agree (PAL)", "+ n_agree (plurality)"]:
-                gate_lines.append(f"| {fam} | {sig} | N/A | N/A | N/A | N/A | Failed ({note}) |")
+                gate_lines.append(f"| {fam} | {sig} | N/A | N/A | N/A | N/A | NOT EVALUABLE ({note}) |")
         else:
             base_auroc = info["models"]["Baseline"]["mean_auroc"]
             for sig in ["+ agree(PAL,COT)", "+ agree(PAL,TOT)", "+ n_agree (PAL)", "+ n_agree (plurality)"]:
@@ -588,7 +679,7 @@ def build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_res
                 s_auroc = m_info["mean_auroc"]
                 d = m_info["delta"]
                 ci_l, ci_h = m_info["ci_low"], m_info["ci_high"]
-                pass_str = "**PASS**" if m_info["passed"] else "FAIL"
+                pass_str = "MET (exploratory only)" if m_info["passed"] else "NOT MET"
                 gate_lines.append(
                     f"| {fam} | {sig} | {base_auroc:.4f} | {s_auroc:.4f} | {d:+.4f} | [{ci_l:+.4f}, {ci_h:+.4f}] | {pass_str} |"
                 )
@@ -599,18 +690,19 @@ def build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_res
     prec_lines.append("| Family | Signal | Agreed Items / Total | Correct When Agreed | P(Correct \\| Agree) |")
     prec_lines.append("| :--- | :--- | :---: | :---: | :---: |")
     for fam in ["arith", "order", "g24", "pooled"]:
-        for sig in ["agree(PAL-v2,COT)", "agree(PAL-v2,ToT)", "pal_agree>=2", "pal_agree>=3", "plurality_agree>=2", "plurality_agree>=3", "plurality_agree==4"]:
+        for sig in ["agree(PAL-v2,COT)", "agree(PAL-v2,ToT)", "pal_agree>=2", "pal_agree>=3", "pal_agree==4", "plurality_agree>=2", "plurality_agree>=3", "plurality_agree==4"]:
             info = prec_table[fam][sig]
             n_a = info["n_agreed"]
             n_t = info["n_total"]
             n_c = info["n_corr"]
             p = info["p_corr"]
-            prec_lines.append(f"| {fam} | {sig} | {n_a}/{n_t} ({n_a/n_t*100:.1f}%) | {n_c}/{n_a} | {p*100:5.1f}% |")
+            precision = f"{p*100:.1f}%" if p is not None else "N/A (no agreements)"
+            prec_lines.append(f"| {fam} | {sig} | {n_a}/{n_t} ({n_a/n_t*100:.1f}%) | {n_c}/{n_a} | {precision} |")
     tables["precision"] = "\n".join(prec_lines)
 
     # 3. Agree-and-Wrong List
     wrong_lines = []
-    wrong_lines.append("| Item ID | Family | Level | Signal | Accepted Answer | Gold Answer | Arms (PAL-v2 / COT / ToT / SC) | Correlated Mechanism |")
+    wrong_lines.append("| Item ID | Family | Level | Signal | Accepted Answer | Gold Answer | Arms (PAL-v2 / COT / candidate selection / SC) | Observation, NOT causal diagnosis |")
     wrong_lines.append("| :--- | :--- | :---: | :--- | :---: | :---: | :--- | :--- |")
 
     seen_items = set()
@@ -620,14 +712,7 @@ def build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_res
             continue
         seen_items.add(key)
         arms_str = f"PAL: {w['arms']['PAL-v2']}, COT: {w['arms']['COT']}, ToT: {w['arms']['TOT']}, SC: {w['arms']['SC']}"
-        if w["family"] == "arith":
-            mech = "Correlated LM arithmetic error (multi-digit computation failed on language arms while PAL is exact)"
-        elif w["family"] == "order":
-            mech = "Correlated clue offset misinterpretation (e.g. ahead vs behind or 1st vs last)"
-        elif w["family"] == "g24":
-            mech = "Correlated invalid expression (digit omission / duplicate digit hallucination)"
-        else:
-            mech = "Correlated hallucination across language model arms"
+        mech = "Shared incorrect parsed answer; underlying cause not independently reviewed"
         wrong_lines.append(
             f"| `{w['id']}` | {w['family']} | {w['level']} | {w['signal']} | **{w['accepted']}** | **{w['gold']}** | {arms_str} | {mech} |"
         )
@@ -635,7 +720,7 @@ def build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_res
 
     # 4. Replay Policies Table
     replay_lines = []
-    replay_lines.append("| Family | Policy | Accuracy (corr/n) | 95% Cluster CI (Acc) | Mean Tokens | 95% Cluster CI (Tok) | Escalation Rate |")
+    replay_lines.append("| Family | Policy | Retrospective accuracy (corr/n) | 95% Cluster CI (Acc) | Mean LEGACY token proxy | 95% Cluster CI (Proxy) | Escalation Rate |")
     replay_lines.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |")
 
     for fam in ["arith", "order", "g24", "pooled"]:
@@ -653,29 +738,97 @@ def build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_res
     return tables
 
 
-def main():
+def _sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _hash_paths(paths):
+    return {str(path.relative_to(ROOT)): _sha256(path) for path in paths}
+
+
+def write_analysis(output):
+    """Reanalyse only pinned, exposed inputs into a NEW, provenance-rich directory.
+
+    Historical AJ artifacts and the contradictory original prereg remain intact.
+    Complete all calculations and recheck input/source hashes before creating any
+    output. This mode cannot substitute prospective test data or start a model.
+    """
+    output = Path(output)
+    if output.exists() or output.is_symlink():
+        raise ValueError("Agreement analysis requires a new output directory")
+    for path, expected in PINNED_INPUTS.items():
+        if _sha256(path) != expected:
+            raise ValueError(f"Pinned development input hash mismatch: {path.name}")
+    source_paths = [Path(__file__).resolve(), ROOT / "experiments/research_study.py",
+                    ROOT / "reasoning_strategies.py", ROOT / "research_scoring.py",
+                    ROOT / "scripts/gen_tasks.py", ROOT / "docs/agreement_reanalysis_protocol_20261008.md"]
+    historical_paths = [ROOT / "prereg/decision_rule_agree.md",
+                        *[AUDIT_DIR / name for name in (
+                            "AJ_gate_tables.txt", "AJ_precision_table.txt", "AJ_agree_and_wrong.txt",
+                            "AJ_policy_table.txt", "AJ_summary.txt")]]
+    sources, inputs = _hash_paths(source_paths), _hash_paths(PINNED_INPUTS)
+    historical = _hash_paths(historical_paths)
     test_canonicalizer()
-    gate_results = evaluate_gate_all()
-    prec_table, agree_wrong_list = evaluate_precision_and_failures()
-    replay_results = evaluate_replay_policies()
-    tables = build_markdown_tables(gate_results, prec_table, agree_wrong_list, replay_results)
+    items, _, _ = load_dataset()
+    cv_artifacts, policy_artifacts = {}, {}
+    gate_results = evaluate_gate_all(artifacts=cv_artifacts)
+    precision, wrong = evaluate_precision_and_failures()
+    replay = evaluate_replay_policies(artifacts=policy_artifacts)
+    tables = build_markdown_tables(gate_results, precision, wrong, replay)
+    summary = {"status": "exploratory_review_pending", "preregistration_pass": False,
+               "confirmatory": False, "gate": gate_results, "precision": precision,
+               "replay": replay, "notes": ANALYSIS_NOTES}
+    report = "# Agreement reanalysis — EXPLORATORY\n\n"
+    report += "Review status: software/statistic correction; publication and prereg interpretation pending.\n\n"
+    report += "\n".join(f"- {note}" for note in ANALYSIS_NOTES) + "\n\n"
+    for heading, key in (("Gate diagnostics", "gate"), ("Conditional precision", "precision"),
+                         ("Shared incorrect answers (not causal diagnoses)", "agree_wrong"),
+                         ("Retrospective policy replay — legacy token proxy", "replay")):
+        report += f"## {heading}\n\n{tables[key]}\n\n"
+    if sources != _hash_paths(source_paths) or inputs != _hash_paths(PINNED_INPUTS) or historical != _hash_paths(historical_paths):
+        raise ValueError("Source/input/history changed during analysis; rerun into a new directory")
+    # Strict serialization catches nonfinite or nonportable output before writing.
+    artifacts = {"settings.json": ANALYSIS_SETTINGS, "summary.json": summary,
+                 "cv.json": cv_artifacts, "policy_rows.json": policy_artifacts,
+                 "agree_and_wrong.json": wrong}
+    serialized = {name: json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
+                  for name, value in artifacts.items()}
+    from experiments.research_study import git_value
 
-    # Write audit text files
-    AUDIT_DIR.mkdir(parents=True, exist_ok=True)
-    (AUDIT_DIR / "AJ_gate_tables.txt").write_text(tables["gate"] + "\n", encoding="utf-8")
-    (AUDIT_DIR / "AJ_precision_table.txt").write_text(tables["precision"] + "\n", encoding="utf-8")
-    (AUDIT_DIR / "AJ_agree_and_wrong.txt").write_text(tables["agree_wrong"] + "\n", encoding="utf-8")
-    (AUDIT_DIR / "AJ_policy_table.txt").write_text(tables["replay"] + "\n", encoding="utf-8")
+    manifest = {
+        "schema_version": 1, "status": "complete", "evidence": "historical_measured_development_reanalysis",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "new_model_calls": 0, "confirmatory": False, "prospective_test_evaluated": False,
+        "publication_review_required": True, "preregistration_pass": False,
+        "token_scope": TOKEN_SCOPE, "settings": ANALYSIS_SETTINGS,
+        "inputs_sha256": inputs, "source_sha256": sources,
+        "preserved_historical_sha256": historical,
+        "n_items": len(items), "n_groups": len({item['group_id'] for item in items}),
+        "family_counts": dict(Counter(item["family"] for item in items)),
+        "runtime": {"python": platform.python_version(), "numpy": np.__version__,
+                    "scikit_learn": sklearn.__version__, "platform": platform.platform()},
+        "git_head": git_value("rev-parse", "HEAD"), "git_status": git_value("status", "--short"),
+    }
+    output.mkdir(parents=True, exist_ok=False)
+    for name, content in serialized.items():
+        (output / name).write_text(content, encoding="utf-8")
+    for name, content in tables.items():
+        (output / f"{name}_table.md").write_text(content + "\n", encoding="utf-8")
+    (output / "report.md").write_text(report, encoding="utf-8")
+    manifest["artifacts_sha256"] = {path.name: _sha256(path) for path in sorted(output.iterdir())}
+    (output / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
+    return summary
 
-    summary_text = (
-        "# Prompt AJ Analysis Summary\n\n"
-        "## Gate Evaluation (AJ2)\n\n" + tables["gate"] + "\n\n"
-        "## Precision Table (AJ2)\n\n" + tables["precision"] + "\n\n"
-        "## Agree-and-Wrong List (AJ2)\n\n" + tables["agree_wrong"] + "\n\n"
-        "## Replay Policy Evaluation (AJ3)\n\n" + tables["replay"] + "\n"
-    )
-    (AUDIT_DIR / "AJ_summary.txt").write_text(summary_text, encoding="utf-8")
-    print(summary_text)
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True, help="NEW directory; never overwrite historical AJ artifacts")
+    args = parser.parse_args(argv)
+    try:
+        write_analysis(args.output)
+    except (ValueError, OSError) as error:
+        parser.error(str(error))
+    print(f"agreement_exploratory_reanalysis: {args.output / 'report.md'}")
 
 
 if __name__ == "__main__":

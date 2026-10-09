@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "prepared_pending_review",
+  "model_calls": 0,
+  "created_utc": "2026-10-09T09:43:48.446957+00:00",
+  "evidence": "CPU-only preparation of exposed legacy CoT text; not repair outcomes",
+  "uses_held_out_data": false,
+  "input_sha256": {
+    "audit/run11_sweep_trace.jsonl": "3d57df7f4e81c71513a30b46a190c2d848ea020dac78adf88776620b6e67e632",
+    "data/gen02_tune.json": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c"
+  },
+  "source_sha256": {
+    "scripts/prepare_cot_restart.py": "cd204d68c8f9e9b3ef46961d3e462771305c63fafdcf4f212c053a1f86bbe486",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "docs/cot_restart_preflight_protocol_20261009.md": "4cd4d7d2f2a070945674c5e12879f536a1c21a4a5015917275b1f202466004f1"
+  },
+  "tokenizer_path": "/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192/tokenizer.json",
+  "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+  "tokenizer_scope": "local CPU retokenization only; no model weights or generation token IDs",
+  "menu": [
+    0.0,
+    0.25,
+    0.5,
+    0.75
+  ],
+  "boundary_rule": "interior_sentence_punctuation_v1",
+  "development_split_seed": 42,
+  "human_review_status": "pending",
+  "future_model_execution_authorized": false,
+  "stage0_changed": false,
+  "artifact_sha256": {
+    "summary.json": "a9ef91b4bda958324eb62ba98d1ae197e8ebbd63a665443ab691c150288adcd6",
+    "observations.json": "eeeaa5c786822f93dc9997d4e60980e039ba6de3df034fb72faafd72a3157a85",
+    "checkpoints.jsonl": "522ac5075829b4e5a50d66d2379d950c1e32838cbc63a5f58dca512b4ab97761",
+    "report.md": "0e74560a188a4a114eccf01dba80c6d88ed418a7512c15fc8425e2e8211d2456"
+  }
+}

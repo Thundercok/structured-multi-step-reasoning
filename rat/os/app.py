@@ -18,19 +18,23 @@ from rat.crawler.watcher import Watcher
 from rat.os.crash_shield import install_crash_shield
 from rat.os.hotkey import GlobalHotkeyManager
 from rat.os.menu_bar import SystemTrayManager
+from rat.os.single_instance import (
+    SingleInstanceServer,
+    kill_stale_orphan_instances,
+    try_activate_existing_instance,
+)
 from rat.ui.finder_window import FinderWindow
 from rat.ui.omnibar import OmnibarWindow
-from rat.ui.spotlight_window import SpotlightWindow
 
 logger = logging.getLogger("rat.os.app")
 
 
 def activate_macos_app() -> None:
-    """Ensure the Python GUI gains active foreground focus on macOS."""
+    """Ensure the Python GUI gains active foreground focus on macOS without breaking fullscreen spaces."""
     try:
-        from AppKit import NSApplication, NSApplicationActivationPolicyRegular
+        from AppKit import NSApplication, NSApplicationActivationPolicyAccessory
         ns_app = NSApplication.sharedApplication()
-        ns_app.setActivationPolicy_(NSApplicationActivationPolicyRegular)
+        ns_app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
         ns_app.activateIgnoringOtherApps_(True)
     except Exception:
         pass
@@ -74,8 +78,9 @@ class ResidentApplication(QObject):
         self.app.setQuitOnLastWindowClosed(False)  # Keep running in menu bar
         self.app._is_quitting = False
 
+        self.single_instance_server: Optional[SingleInstanceServer] = None
         self.omnibar_window: Optional[OmnibarWindow] = None
-        self.spotlight_window: Optional[SpotlightWindow] = None
+        self.spotlight_window: Optional[Any] = None
         self.finder_window: Optional[FinderWindow] = None
         self.schedule_window: Optional[Any] = None
         self.claude_widget_window: Optional[Any] = None
@@ -83,6 +88,8 @@ class ResidentApplication(QObject):
         self.hotkey_manager: Optional[GlobalHotkeyManager] = None
         self.watcher: Optional[Watcher] = None
         self.memory_sentinel: Optional[Any] = None
+        self.warmup_worker: Optional[Any] = None
+        self.warmup_thread: Optional[Any] = None
 
         # Cross-thread safe signal dispatching to main event loop
         self.toggle_spotlight_signal.connect(self._do_toggle_spotlight, Qt.ConnectionType.QueuedConnection)
@@ -162,6 +169,26 @@ class ResidentApplication(QObject):
                 self.hotkey_manager.stop()
             except Exception as e:
                 logger.debug(f"Error stopping hotkey_manager: {e}")
+
+        # 4. Stop Single Instance IPC Server
+        if self.single_instance_server:
+            try:
+                self.single_instance_server.stop()
+            except Exception as e:
+                logger.debug(f"Error stopping single_instance_server: {e}")
+
+        # 5. Stop Semester Document Warmup
+        if self.warmup_worker:
+            try:
+                self.warmup_worker.stop()
+            except Exception as e:
+                logger.debug(f"Error stopping warmup_worker: {e}")
+        if self.warmup_thread and self.warmup_thread.isRunning():
+            try:
+                self.warmup_thread.quit()
+                self.warmup_thread.wait(1000)
+            except Exception as e:
+                logger.debug(f"Error waiting for warmup_thread: {e}")
 
         logger.info("ResidentApplication: Teardown complete. Exiting cleanly.")
 
@@ -276,11 +303,54 @@ class ResidentApplication(QObject):
         self._index_worker.finished.connect(_on_finished, Qt.ConnectionType.QueuedConnection)
         self._index_thread.start()
 
+    def _start_semester_warmup(self) -> None:
+        """Launch background FTS5 document content pre-warming for semester directories."""
+        if getattr(self.app, "_is_quitting", False):
+            return
+        try:
+            from PyQt6.QtCore import QThread
+            from rat.crawler.warmup import SemesterWarmupWorker
+            self.warmup_thread = QThread()
+            self.warmup_worker = SemesterWarmupWorker()
+            self.warmup_worker.moveToThread(self.warmup_thread)
+            self.warmup_thread.started.connect(self.warmup_worker.run)
+
+            def _on_finished(warmed: int) -> None:
+                logger.info(f"Semester warmup completed. Pre-warmed {warmed} academic files.")
+                if self.warmup_thread and self.warmup_thread.isRunning():
+                    self.warmup_thread.quit()
+
+            self.warmup_worker.finished.connect(_on_finished, Qt.ConnectionType.QueuedConnection)
+            self.warmup_thread.start()
+        except Exception as e:
+            logger.warning(f"Failed to start semester warmup: {e}")
+
+    @pyqtSlot(str)
+    def _on_single_instance_command(self, cmd: str) -> None:
+        """Handle command relayed from a subsequent rat launch attempt."""
+        logger.info(f"ResidentApplication received remote single-instance command: '{cmd}'")
+        activate_macos_app()
+        if cmd == "finder":
+            self.open_finder()
+        elif cmd in ("schedule", "tkb", "lich"):
+            self.open_schedule()
+        elif cmd in ("widget", "mini", "claude"):
+            self.open_widget()
+        elif cmd == "settings":
+            self.open_settings()
+        else:
+            self.toggle_spotlight()
+
     def run(self) -> int:
         """Start resident daemon services and application event loop."""
         logger.info("Initializing macOS Resident AI Finder System...")
 
-        # 0. First-run Onboarding & Permissions Wizard
+        # 0. Start Single Instance Server to prevent duplicates
+        self.single_instance_server = SingleInstanceServer(self)
+        self.single_instance_server.command_received.connect(self._on_single_instance_command)
+        self.single_instance_server.start()
+
+        # 0.5. First-run Onboarding & Permissions Wizard
         if not config.first_run_completed:
             try:
                 from rat.ui.onboarding_dialog import OnboardingDialog
@@ -290,7 +360,7 @@ class ResidentApplication(QObject):
             except Exception as e:
                 logger.warning(f"Error presenting OnboardingDialog: {e}")
 
-            # 0.5. Auto-index existing files in background after first-run setup
+            # Auto-index existing files in background after first-run setup
             self._start_initial_index()
 
         # Pre-initialize unified Omnibar on the main thread
@@ -346,6 +416,9 @@ class ResidentApplication(QObject):
             except Exception as e:
                 logger.warning(f"Failed to start MemorySentinel: {e}")
 
+        # 4.5. Background Semester Document Warmup (QoS Background)
+        QTimer.singleShot(2500, self._start_semester_warmup)
+
         # 5. Open initial window based on mode
         if self.mode == "finder":
             self.open_finder()
@@ -362,6 +435,20 @@ class ResidentApplication(QObject):
 
 
 def run_resident_app(mode: str = "finder") -> None:
-    """Launch the resident system."""
+    """Launch the resident system with strict single-instance enforcement."""
+    # Ensure QApplication exists for socket IPC and event processing
+    app = QApplication.instance() or QApplication(sys.argv)
+
+    # 1. Attempt to delegate to existing running instance
+    if try_activate_existing_instance(command=mode):
+        logger.info(f"rat: Primary resident instance activated with '{mode}'. Exiting.")
+        sys.exit(0)
+
+    # 2. Clean up any stale zombie instances if server was not reachable
+    killed = kill_stale_orphan_instances()
+    if killed > 0:
+        logger.info(f"Cleaned up {killed} stale orphan rat process(es).")
+
+    # 3. Launch the single resident application
     res_app = ResidentApplication(mode=mode)
     sys.exit(res_app.run())

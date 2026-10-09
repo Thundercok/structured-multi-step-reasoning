@@ -1,5 +1,5 @@
-Paired SC vs COT on available items: n = 59
-SC accuracy:  39/59 (66.1%)
-COT accuracy: 40/59 (67.8%)
-SC right & COT wrong: 2
-COT right & SC wrong: 3
+Paired SC vs COT on available items: n = 100
+SC accuracy:  53/100 (53.0%)
+COT accuracy: 58/100 (58.0%)
+SC right & COT wrong: 4
+COT right & SC wrong: 9

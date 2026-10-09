@@ -1,0 +1,77 @@
+{
+  "evidence": "CPU-only preparation of exposed legacy CoT text; not repair outcomes",
+  "source_records": 571,
+  "cot_traces": 100,
+  "canonical_questions": 100,
+  "checkpoint_rows": 400,
+  "model_calls": 0,
+  "historical_correct": 58,
+  "retrospective_typed_correct": 58,
+  "retrospective_score_changes": 0,
+  "failure_profile": {
+    "correct": 58,
+    "wrong_final_answer_not_localized": 18,
+    "format_or_missing_final": 1,
+    "truncation": 23
+  },
+  "review_flags": {
+    "menu_prefixes_collapsed": 48,
+    "answer_format_needs_review": 24,
+    "source_truncated": 23,
+    "missing_or_multiple_final_markers": 23
+  },
+  "checkpoint_review_candidates": 76,
+  "candidate_correct": 58,
+  "candidate_wrong": 18,
+  "retokenization_count_mismatches": 77,
+  "by_family": {
+    "arith": {
+      "n": 40,
+      "historical_correct": 30,
+      "retrospective_typed_correct": 30,
+      "length_stops": 0,
+      "checkpoint_review_candidates": 39,
+      "recorded_completion_mean": 180.025,
+      "recorded_completion_median": 165.0,
+      "recorded_completion_min": 35,
+      "recorded_completion_max": 373
+    },
+    "g24": {
+      "n": 29,
+      "historical_correct": 14,
+      "retrospective_typed_correct": 14,
+      "length_stops": 13,
+      "checkpoint_review_candidates": 16,
+      "recorded_completion_mean": 549.7931034482758,
+      "recorded_completion_median": 331,
+      "recorded_completion_min": 86,
+      "recorded_completion_max": 1024
+    },
+    "order": {
+      "n": 31,
+      "historical_correct": 14,
+      "retrospective_typed_correct": 14,
+      "length_stops": 10,
+      "checkpoint_review_candidates": 21,
+      "recorded_completion_mean": 595.1290322580645,
+      "recorded_completion_median": 415,
+      "recorded_completion_min": 192,
+      "recorded_completion_max": 1024
+    }
+  },
+  "by_development_fold": {
+    "dev_fit": {
+      "traces": 51,
+      "canonical_questions": 51
+    },
+    "dev_eval": {
+      "traces": 49,
+      "canonical_questions": 49
+    }
+  },
+  "repair_values_measured": false,
+  "repairability_labels_available": false,
+  "oracle_or_probe_evaluated": false,
+  "stage0_changed": false,
+  "publication_ready": false
+}

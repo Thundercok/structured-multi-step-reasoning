@@ -106,6 +106,8 @@ class MemorySentinel:
         self.eviction_count: int = 0
         self.last_eviction_time: float = 0.0
         self.last_eviction_reason: str = ""
+        self._last_logged_reason: str = ""
+        self._last_logged_time: float = 0.0
 
     def register_eviction_callback(self, callback: Callable[[str], None]) -> None:
         """Register a function to be invoked when eviction is triggered."""
@@ -131,7 +133,13 @@ class MemorySentinel:
             self.eviction_count += 1
             callbacks = list(self._callbacks)
 
-        logger.info(f"MemorySentinel triggered eviction. Reason: {reason}")
+        now = time.time()
+        if reason != self._last_logged_reason or (now - self._last_logged_time) >= 60.0:
+            logger.info(f"MemorySentinel triggered eviction. Reason: {reason}")
+            self._last_logged_reason = reason
+            self._last_logged_time = now
+        else:
+            logger.debug(f"MemorySentinel repeated eviction suppressed. Reason: {reason}")
 
         for cb in callbacks:
             try:

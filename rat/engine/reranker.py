@@ -58,7 +58,7 @@ def format_file_size(size_bytes: int) -> str:
 
 
 class SearchResultItem:
-    """Structured search result with context explanation and metadata."""
+    """Structured search result with context explanation, VGC verification, and metadata."""
 
     def __init__(
         self,
@@ -72,6 +72,9 @@ class SearchResultItem:
         snippet: str,
         version_info: Optional[Dict[str, Any]] = None,
         raw_scores: Optional[Dict[str, Any]] = None,
+        verified: bool = False,
+        page_num: Optional[int] = None,
+        vgc_certificate: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.file_path = file_path
         self.file_name = file_name
@@ -85,6 +88,18 @@ class SearchResultItem:
         self.snippet = snippet
         self.version_info = version_info
         self.raw_scores = dict(raw_scores or {})
+        self.verified = verified
+        self.page_num = page_num
+        self.vgc_certificate = vgc_certificate
+
+    def to_citation(self) -> Dict[str, Any]:
+        """Convert search result item into a grounded citation for Chat & QuickLook."""
+        return {
+            "file_path": self.file_path,
+            "file_name": self.file_name,
+            "page": self.page_num or 1,
+            "snippet": self.snippet or self.explanation,
+        }
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -100,6 +115,9 @@ class SearchResultItem:
             "snippet": self.snippet,
             "version_info": self.version_info,
             "raw_scores": self.raw_scores,
+            "verified": self.verified,
+            "page_num": self.page_num,
+            "vgc_certificate": self.vgc_certificate,
         }
 
 
@@ -160,13 +178,15 @@ class Reranker:
             "vec_sim", "sparse_only", "code_pen", "time_in", "time_near7",
             "time_near15", "time_far", "recent3", "recent14", "prov_app",
             "prov_dom", "visual", "facets3", "facets2",
+            "study_doc", "sem_dir", "course_code_dir", "slide_lecture",
+            "acronym_match",
         )
         features = dict.fromkeys(feature_names, 0.0)
 
         def add(name: str, points: float) -> None:
             nonlocal score
             score += points
-            features[name] += points
+            features[name] = features.get(name, 0.0) + points
 
         file_name = doc.get("file_name", "")
         file_ext = doc.get("file_ext", "").lower()
@@ -292,7 +312,91 @@ class Reranker:
                 add("visual", 25.0)
                 reasons.append(f"Khớp nhãn thị giác [{', '.join(matched_visual)}]")
 
-        # 8. Multi-Facet Convergence Bonus
+        # 8. Semester & Slide-Aware Ranking for Academic Course Bridge
+        file_path = doc.get("file_path", "")
+        path_norm = remove_accents(file_path).lower()
+
+        # Detect academic course intent from keywords, course codes, or curriculum aliases
+        course_codes = [kw for kw in context.keywords if re.fullmatch(r"\d{5,7}|[a-z]\d{5,6}", kw.lower())]
+        course_aliases = getattr(context, "course_aliases", []) or []
+        is_study_intent = bool(course_codes) or bool(course_aliases) or any(
+            k in name_norm or any(k in kw.lower() for kw in context.keywords)
+            for k in ["tai lieu", "tài liệu", "slide", "bai giang", "bài giảng", "lab", "assignment", "mon hoc", "môn học"]
+        )
+
+        if is_study_intent:
+            # 8a. Study document format bonus (.pdf, .pptx, .docx, .ipynb, etc.)
+            study_exts = {".pdf", ".pptx", ".ppt", ".docx", ".doc", ".ipynb", ".xlsx"}
+            if file_ext in study_exts:
+                add("study_doc", 25.0)
+                reasons.append(f"Tài liệu học tập ({file_ext.upper()})")
+
+            # 8b. Semester directory pattern bonus (e.g. HK241, 2024-2025, Hoc_Ky)
+            sem_match = re.search(r"(?:^|[/\\])(?:hk\d{2,3}|(?:20)?2[3-6][-_](?:20)?2[4-7]|hoc[-_ ]?ky|semester|sem[-_ ]?\d|mon[-_ ]?hoc)(?:[/\\]|$)", path_norm)
+            if sem_match:
+                add("sem_dir", 35.0)
+                reasons.append("Thư mục học kỳ (HK / Niên khóa)")
+
+            # 8c. Course Code or Course Alias in directory path bonus
+            matched_code = False
+            if course_codes and any(code in path_norm for code in course_codes):
+                matched_code = True
+            elif course_aliases:
+                clean_aliases = [remove_accents(a).lower().replace(" ", "") for a in course_aliases if len(a) >= 4]
+                path_compact = path_norm.replace(" ", "")
+                if any(ca in path_compact for ca in clean_aliases):
+                    matched_code = True
+
+            if matched_code:
+                add("course_code_dir", 30.0)
+                reasons.append("Thư mục đúng mã học phần / Tên môn tương đương")
+
+            # 8d. Slide, lecture, lab, assignment naming bonus
+            is_slide_or_lab = bool(re.search(r"(?:^|[\s_\.\-])(?:slide|lecture|chuong|ch\d*|bai[-_ ]?giang|bai[-_ ]?tap|lab\d*|assignment|gk|ck|de[-_ ]?thi)", name_norm))
+            if is_slide_or_lab:
+                add("slide_lecture", 30.0)
+                reasons.append("Bài giảng / Slide / Lab học phần")
+
+        # 8e. Initials-based Acronym Matching with Typo Tolerance (e.g. pttkht or pttkth)
+        from rat.engine.curriculum_mapper import generate_acronym, damerau_levenshtein_le_1
+        matched_acronyms = []
+        for kw in context.keywords:
+            kw_norm = remove_accents(kw).lower()
+            if 2 <= len(kw_norm) <= 7 and kw_norm.isalpha():
+                matched_for_kw = False
+                for part in Path(file_path).parts:
+                    part_acr = generate_acronym(part)
+                    if part_acr:
+                        if part_acr == kw_norm:
+                            matched_acronyms.append(f"{kw} → {part}")
+                            add("acronym_match", 60.0)
+                            matched_for_kw = True
+                            break
+                        elif len(kw_norm) >= 4 and damerau_levenshtein_le_1(kw_norm, part_acr):
+                            matched_acronyms.append(f"{kw} ~ {part_acr} ({part})")
+                            add("acronym_match", 55.0)
+                            matched_for_kw = True
+                            break
+                    part_tokens = [t.lower() for t in re.findall(r"[A-Za-z0-9]+", part)]
+                    for pt in part_tokens:
+                        if pt == kw_norm:
+                            matched_acronyms.append(f"{kw} ∈ {part}")
+                            add("acronym_match", 60.0)
+                            matched_for_kw = True
+                            break
+                        elif len(kw_norm) >= 4 and damerau_levenshtein_le_1(kw_norm, pt):
+                            matched_acronyms.append(f"{kw} ~ {pt} ({part})")
+                            add("acronym_match", 55.0)
+                            matched_for_kw = True
+                            break
+                    if matched_for_kw:
+                        break
+                if matched_for_kw:
+                    break
+        if matched_acronyms:
+            reasons.append(f"Khớp viết tắt môn học ({', '.join(matched_acronyms)})")
+
+        # 9. Multi-Facet Convergence Bonus
         matched_facets = doc.get("matched_facets", [])
         if len(matched_facets) >= 3:
             add("facets3", 15.0)
@@ -360,6 +464,33 @@ class Reranker:
             except Exception:
                 pass
 
+            # VGC Fail-Closed Verification on snippet
+            verified = False
+            cert_dict = None
+            page_num = doc.get("page_number") or doc.get("chunk_page") or 1
+            content_sample = doc.get("content_text") or doc.get("best_chunk_text") or ""
+            if snippet and content_sample:
+                try:
+                    from rat.engine.vgc import VGCCertificate, VGCVerificationStatus, VGCVerifier
+                    cert = VGCCertificate(
+                        claim=snippet,
+                        witness=snippet[:60],
+                        source_file=doc["file_path"],
+                        source_page=page_num,
+                        source_snippet=snippet,
+                    )
+                    v_res = VGCVerifier.verify_document_fact(cert, content_sample)
+                    if v_res.status == VGCVerificationStatus.VALID:
+                        verified = True
+                        cert_dict = {
+                            "claim": cert.claim,
+                            "witness": cert.witness,
+                            "verification_ms": v_res.verification_ms,
+                        }
+                        reasons.append("✓ Xác thực VGC")
+                except Exception as e:
+                    logger.debug(f"VGC document verification error: {e}")
+
             # Build user friendly reason explanation
             reason_text = " • ".join(reasons) if reasons else f"Tệp phù hợp với ngữ cảnh ({doc['file_ext'].upper()})"
             item = SearchResultItem(
@@ -380,6 +511,9 @@ class Reranker:
                     "feats": doc.get("_feats", {}),
                     **({"prior_opens": doc["prior_opens"]} if "prior_opens" in doc else {}),
                 },
+                verified=verified,
+                page_num=page_num,
+                vgc_certificate=cert_dict,
             )
             results.append(item)
 

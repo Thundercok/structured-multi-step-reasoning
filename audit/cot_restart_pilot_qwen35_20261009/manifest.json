@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "study": "cot_restart_pilot_qwen35",
+  "role": "exposed_development_pilot",
+  "model_repository": "mlx-community/Qwen3.5-4B-MLX-4bit",
+  "model_revision": "32f3e8ecf65426fc3306969496342d504bfa13f3",
+  "base_model": "Qwen/Qwen3.5-4B",
+  "quantization": {
+    "bits": 4,
+    "group_size": 64,
+    "mode": "affine"
+  },
+  "model_hashes": {
+    "config.json": "f3efc81b2ea8d96a45301037d3ccccbcccdef44a961845c87f286aaddbc6eaaa",
+    "tokenizer.json": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+    "tokenizer_config.json": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182",
+    "model.safetensors": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+  },
+  "dev_pool_sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+  "source_hashes": {
+    "experiments/cot_restart_pilot.py": "93a9d098e6f937d0fc720f3fec4fe3b1a68c89797f4130c73621dcea94bad3fb",
+    "experiments/research_study.py": "030208de64b150178e36d002fec0f305f80477f0ea98d3f49e5145ae60e2b61f",
+    "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "research_prompt_profiles.py": "49873e4d541dcae5c9c836d9d9e4946122f1bb3354f45c957acfe23a0ce0b867",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "docs/cot_restart_preflight_protocol_20261009.md": "4cd4d7d2f2a070945674c5e12879f536a1c21a4a5015917275b1f202466004f1"
+  },
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "started_utc": "2026-10-09T12:01:51.604147+00:00",
+  "status": "smoke_complete",
+  "mock": false,
+  "confirmatory": false,
+  "publication_review_required": true,
+  "safety_limits": {
+    "max_calls": 136,
+    "max_completion_tokens": 250000,
+    "max_duration_seconds": 28800
+  },
+  "journal_head": "fde2322d5cb9eb5b49d4da01f68047efffcd5a70d5d0c24f518f5d075a7a3ea8",
+  "journal_count": 98,
+  "total_calls": 98,
+  "total_completion_tokens": 57905,
+  "finished_utc": "2026-10-09T12:03:11.070285+00:00"
+}

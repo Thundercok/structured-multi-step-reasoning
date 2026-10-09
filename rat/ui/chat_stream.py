@@ -81,7 +81,7 @@ def reveal_in_finder(file_path: str) -> None:
 
 
 class ThinkingAccordion(QFrame):
-    """Collapsible Thinking Process Card (CoT / Escalation Ladder)."""
+    """Collapsible Thinking Process Card (CoT / Escalation Ladder / VGC Verifier)."""
 
     def __init__(self, steps: List[str], latency_ms: float = 0.0, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -108,25 +108,37 @@ class ThinkingAccordion(QFrame):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(4)
 
-        # Header Toggle Row
+        # Detect verification or escalation flags in steps
+        is_verified = any("✓" in s or "hợp lệ" in s.lower() for s in self.steps)
+        is_escalated = any("escalat" in s.lower() or "bị từ chối" in s.lower() for s in self.steps)
+
+        if is_verified and not is_escalated:
+            self._header_prefix = f"✓ Đã kiểm chứng (VGC) · {len(self.steps)} bước"
+            header_color = "#166534"
+        elif is_escalated:
+            self._header_prefix = f"⚡ Leo thang suy luận (ESCALATED) · {len(self.steps)} bước"
+            header_color = "#92400E"
+        else:
+            self._header_prefix = f"Chi tiết xử lý · {len(self.steps)} mục"
+            header_color = "#2B261F"
+
         self.latency_ms = latency_ms
-        self._header_prefix = f"Chi tiết xử lý · {len(self.steps)} mục"
         self.setToolTip(f"Thời gian xử lý: {latency_ms:.0f} ms")
         self.header_btn = QPushButton(f"{self._header_prefix}  ▸")
         self.header_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.header_btn.setStyleSheet("""
-            QPushButton {
+        self.header_btn.setStyleSheet(f"""
+            QPushButton {{
                 background: transparent;
                 border: none;
-                color: #2B261F;
+                color: {header_color};
                 font-size: 11.5px;
                 font-weight: 800;
                 text-align: left;
                 padding: 2px 0px;
-            }
-            QPushButton:hover {
+            }}
+            QPushButton:hover {{
                 color: #FFA000;
-            }
+            }}
         """)
         self.header_btn.clicked.connect(self._toggle_expanded)
         self.main_layout.addWidget(self.header_btn)
@@ -138,8 +150,15 @@ class ThinkingAccordion(QFrame):
         self.steps_layout.setSpacing(4)
 
         for idx, step_txt in enumerate(self.steps):
+            if "✓" in step_txt or "hợp lệ" in step_txt.lower():
+                step_color = "#166534"
+            elif "từ chối" in step_txt.lower() or "escalat" in step_txt.lower() or "⚠️" in step_txt:
+                step_color = "#92400E"
+            else:
+                step_color = "#2B261F"
+
             step_lbl = QLabel(f"<b>Bước {idx + 1}:</b> {step_txt}")
-            step_lbl.setStyleSheet("color: #2B261F; font-size: 11px; line-height: 1.4;")
+            step_lbl.setStyleSheet(f"color: {step_color}; font-size: 11px; line-height: 1.4;")
             step_lbl.setWordWrap(True)
             step_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             self.steps_layout.addWidget(step_lbl)
@@ -154,6 +173,78 @@ class ThinkingAccordion(QFrame):
         self.steps_container.setVisible(self.is_expanded)
 
 
+class CitationChip(QFrame):
+    """
+    Native macOS Liquid Glass Citation Chip.
+    Displays: 📄 <FileName> [· Trang <Page>]
+    Hover: Rich tooltip preview of the grounded quotation witness.
+    Click: Directly invokes trigger_quicklook(file_path).
+    """
+
+    def __init__(self, citation: Dict[str, Any], parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.citation = citation
+        self.file_path = citation.get("file_path", "")
+        self.file_name = citation.get("file_name") or (Path(self.file_path).name if self.file_path else "Tài liệu")
+        self.page = citation.get("page")
+        self.snippet = citation.get("snippet", "")
+        self._init_ui()
+
+    def _init_ui(self) -> None:
+        self.setObjectName("CitationChip")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet("""
+            QFrame#CitationChip {
+                background-color: #F3F4F6;
+                border: 1px solid #E5E7EB;
+                border-radius: 6px;
+                padding: 3px 8px;
+            }
+            QFrame#CitationChip:hover {
+                background-color: #E5E7EB;
+                border-color: #D1D5DB;
+            }
+            QLabel {
+                border: none;
+                background: transparent;
+            }
+        """)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(6, 2, 6, 2)
+        layout.setSpacing(5)
+
+        icon_lbl = QLabel("📄")
+        icon_lbl.setStyleSheet("font-size: 11px;")
+        layout.addWidget(icon_lbl)
+
+        label_txt = self.file_name
+        if self.page:
+            label_txt += f" · Trang {self.page}"
+
+        text_lbl = QLabel(label_txt)
+        text_lbl.setStyleSheet("color: #374151; font-size: 11px; font-weight: 600;")
+        layout.addWidget(text_lbl)
+
+        # Tooltip snippet preview
+        tip = f"<b>{html.escape(self.file_name)}</b>"
+        if self.page:
+            tip += f" (Trang {self.page})"
+        if self.snippet:
+            tip += f"<br/><br/><i>\"{html.escape(self.snippet)}\"</i>"
+        if self.file_path and os.path.exists(self.file_path):
+            tip += "<br/><br/><span style='color: #2563EB;'>Nhấn để xem trước (QuickLook)</span>"
+        self.setToolTip(tip)
+
+    def mousePressEvent(self, event: Any) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            if self.file_path and os.path.exists(self.file_path):
+                trigger_quicklook(self.file_path)
+            elif self.file_path:
+                open_file_default(self.file_path)
+        super().mousePressEvent(event)
+
+
 class InlineFileCard(CompactFileRow):
     """The expanded conversation uses the same restrained, actionable file row."""
 
@@ -162,6 +253,255 @@ class InlineFileCard(CompactFileRow):
         self.open_requested.connect(lambda result: open_file_default(result.file_path))
         self.reveal_requested.connect(lambda result: reveal_in_finder(result.file_path))
         self.preview_requested.connect(lambda result: trigger_quicklook(result.file_path))
+
+
+class TimetableSessionCard(QFrame):
+    """
+    Native macOS Session Card representing an individual class session.
+    Features:
+    - Course name with degree badge (🎓 ĐH / 🏛️ ThS)
+    - Time range & shift description (e.g. 07:40 - 11:10 · Ca 1-2)
+    - Room & resolved building/floor location
+    - Direct Action Buttons (Feature A):
+      * 📂 Tìm tài liệu: Searches RAT file index for slides/notes of this course
+      * 🗺️ Vị trí: Triggers campus map / navigation assistance for the classroom
+      * 📋 Chép: Copies structured class info to clipboard with visual feedback
+    """
+    prompt_requested = pyqtSignal(str)
+
+    def __init__(self, session: Any, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.session = session
+        self._init_ui()
+
+    def _init_ui(self) -> None:
+        from rat.timetable.model import TDTU_PERIODS, resolve_room_location
+        s = self.session
+        self.setObjectName("TimetableSessionCard")
+        self.setStyleSheet("""
+            QFrame#TimetableSessionCard {
+                background-color: #FAF8F5;
+                border: 1px solid #E6DFD5;
+                border-radius: 9px;
+                padding: 8px 12px;
+            }
+            QFrame#TimetableSessionCard:hover {
+                background-color: #FDFBF8;
+                border-color: #D6CBBC;
+            }
+            QLabel {
+                background: transparent;
+                border: none;
+            }
+            QPushButton.CardActionBtn {
+                background-color: #FFFFFF;
+                border: 1px solid #DCD4C4;
+                border-radius: 6px;
+                color: #4B4136;
+                font-size: 11px;
+                font-weight: 550;
+                padding: 3px 9px;
+            }
+            QPushButton.CardActionBtn:hover {
+                background-color: #F7F3EC;
+                border-color: #BDB09E;
+                color: #1F1A16;
+            }
+            QPushButton.CardActionBtn:pressed {
+                background-color: #EDE5D8;
+            }
+        """)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        # Extract session details safely
+        if isinstance(s, dict):
+            course_name = s.get("course_name") or s.get("course") or "Môn học"
+            course_code = s.get("course_code") or ""
+            room = s.get("room") or ""
+            p_start = s.get("start_period", 1)
+            p_end = s.get("end_period", 3)
+            degree_level = s.get("degree_level", "undergrad")
+            badge_txt = "🏛️ ThS" if degree_level in ("master", "ths", "caohoc", "postgrad") else "🎓 ĐH"
+        else:
+            course_name = getattr(s, "course_name", "Môn học")
+            course_code = getattr(s, "course_code", "")
+            room = getattr(s, "room", "")
+            p_start = getattr(s, "start_period", 1)
+            p_end = getattr(s, "end_period", 3)
+            badge_txt = getattr(s, "badge_text", "🎓 ĐH")
+
+        # Row 1: Course Name + Degree Badge (Left) and Time Range (Right)
+        top_row = QHBoxLayout()
+        top_row.setSpacing(6)
+
+        badge_lbl = QLabel(badge_txt)
+        badge_lbl.setStyleSheet("""
+            background-color: #EDE7DC;
+            color: #5A5043;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 10px;
+            font-weight: bold;
+        """)
+        top_row.addWidget(badge_lbl)
+
+        course_lbl = QLabel(course_name)
+        course_lbl.setStyleSheet("color: #1F1A16; font-size: 12.5px; font-weight: 700;")
+        top_row.addWidget(course_lbl)
+
+        if course_code:
+            code_lbl = QLabel(f"({course_code})")
+            code_lbl.setStyleSheet("color: #8C8275; font-size: 11px; font-weight: 550;")
+            top_row.addWidget(code_lbl)
+
+        top_row.addStretch()
+
+        p_start_str = TDTU_PERIODS.get(p_start, ("00:00", "", "", ""))[0]
+        p_end_str = TDTU_PERIODS.get(p_end, ("", "23:59", "", ""))[1]
+        start_ca = TDTU_PERIODS.get(p_start, ("", "", "", "Ca 1"))[3]
+        end_ca = TDTU_PERIODS.get(p_end, ("", "", "", "Ca 1"))[3]
+        ca_desc = start_ca if start_ca == end_ca else f"{start_ca}-{end_ca}"
+
+        time_lbl = QLabel(f"{p_start_str} - {p_end_str} ({ca_desc})")
+        time_lbl.setStyleSheet("color: #786F66; font-size: 11.5px; font-weight: 600;")
+        top_row.addWidget(time_lbl)
+        layout.addLayout(top_row)
+
+        # Row 2: Location
+        loc_str = resolve_room_location(room) if room else "Chưa xác định phòng"
+        loc_lbl = QLabel(f"📍 Phòng {room or '—'} · {loc_str}")
+        loc_lbl.setStyleSheet("color: #4B4136; font-size: 11px;")
+        layout.addWidget(loc_lbl)
+
+        # Row 3: Action Buttons
+        btn_row = QHBoxLayout()
+        btn_row.setSpacing(6)
+
+        # Smart File Bridge: Combine course_code and course_name
+        search_terms = f"{course_code} {course_name}".strip() if course_code else course_name
+        self.btn_files = QPushButton("📂 Tìm tài liệu")
+        self.btn_files.setProperty("class", "CardActionBtn")
+        self.btn_files.setCursor(Qt.CursorShape.PointingHandCursor)
+        tip_code = f" [{course_code}]" if course_code else ""
+        self.btn_files.setToolTip(f"Tìm slide, bài giảng, bài tập môn {course_name}{tip_code}")
+        self.btn_files.clicked.connect(lambda: self.prompt_requested.emit(f"tìm tài liệu {search_terms}"))
+        btn_row.addWidget(self.btn_files)
+
+        if room:
+            self.btn_room = QPushButton("🗺️ Vị trí")
+            self.btn_room.setProperty("class", "CardActionBtn")
+            self.btn_room.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.btn_room.setToolTip(f"Xem vị trí và chỉ đường phòng {room}")
+            self.btn_room.clicked.connect(lambda: self.prompt_requested.emit(f"phòng {room}"))
+            btn_row.addWidget(self.btn_room)
+
+        self.btn_copy = QPushButton("📋 Chép")
+        self.btn_copy.setProperty("class", "CardActionBtn")
+        self.btn_copy.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        code_tag = f" [{course_code}]" if course_code else ""
+        copy_text = f"{course_name}{code_tag} ({p_start_str}-{p_end_str}, Phòng {room or '—'}) — {loc_str}"
+        def _copy_info():
+            QApplication.clipboard().setText(copy_text)
+            self.btn_copy.setText("✓ Đã chép")
+            from PyQt6.QtCore import QTimer
+            QTimer.singleShot(1500, lambda: self.btn_copy.setText("📋 Chép"))
+
+        self.btn_copy.clicked.connect(_copy_info)
+        btn_row.addWidget(self.btn_copy)
+
+        btn_row.addStretch()
+        layout.addLayout(btn_row)
+
+
+class TimetableDeckWidget(QWidget):
+    """
+    Composite Timetable Container with Session Cards (Feature A) and Contextual Follow-up Chips (Feature B).
+    """
+    prompt_requested = pyqtSignal(str)
+
+    def __init__(
+        self,
+        sessions: List[Any],
+        day_label: str = "hôm nay",
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(parent)
+        self.sessions = sessions
+        self.day_label = day_label
+        self.session_cards: List[TimetableSessionCard] = []
+        self.follow_up_chips: List[QPushButton] = []
+        self._init_ui()
+
+    def _init_ui(self) -> None:
+        self.setStyleSheet("background: transparent; border: none;")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 4, 0, 4)
+        layout.setSpacing(8)
+
+        # Feature A: Session Cards
+        if self.sessions:
+            for s in self.sessions:
+                card = TimetableSessionCard(s, parent=self)
+                card.prompt_requested.connect(self.prompt_requested.emit)
+                self.session_cards.append(card)
+                layout.addWidget(card)
+        else:
+            empty_lbl = QLabel(f"Lịch học {self.day_label}: Không có ca học nào trên trường.")
+            empty_lbl.setStyleSheet("color: #786F66; font-size: 11.5px; font-style: italic; padding: 4px 0px;")
+            layout.addWidget(empty_lbl)
+
+        # Feature B: Follow-up Contextual Suggestion Chips
+        chips_box = QVBoxLayout()
+        chips_box.setSpacing(4)
+
+        chips_row = QHBoxLayout()
+        chips_row.setSpacing(6)
+
+        chip_style = """
+            QPushButton.SuggestionChip {
+                background-color: #F5EFEB;
+                border: 1px solid #DFD5C6;
+                border-radius: 12px;
+                color: #5C4E3D;
+                font-size: 11px;
+                font-weight: 600;
+                padding: 4px 11px;
+            }
+            QPushButton.SuggestionChip:hover {
+                background-color: #EDE3D8;
+                border-color: #C4B5A0;
+                color: #2E2519;
+            }
+            QPushButton.SuggestionChip:pressed {
+                background-color: #DFD2BF;
+            }
+        """
+
+        follow_ups: List[Tuple[str, str]] = []
+        if "mai" in self.day_label.lower():
+            follow_ups.append(("⏮️ Lịch hôm nay", "hôm nay học gì?"))
+        else:
+            follow_ups.append(("⏭️ Lịch ngày mai", "ngày mai học gì?"))
+
+        follow_ups.append(("☕ Khung giờ rảnh", "giờ rảnh hôm nay"))
+        follow_ups.append(("👥 Ai trong CLB rảnh?", "ai rảnh hôm nay"))
+
+        for label, prompt in follow_ups:
+            chip = QPushButton(label)
+            chip.setProperty("class", "SuggestionChip")
+            chip.setStyleSheet(chip_style)
+            chip.setCursor(Qt.CursorShape.PointingHandCursor)
+            chip.clicked.connect(lambda _, p=prompt: self.prompt_requested.emit(p))
+            self.follow_up_chips.append(chip)
+            chips_row.addWidget(chip)
+
+        chips_row.addStretch()
+        chips_box.addLayout(chips_row)
+        layout.addLayout(chips_box)
 
 
 class MascotBackdrop(QWidget):
@@ -412,8 +752,9 @@ class ChatStreamWidget(QScrollArea):
         confidence: float = 0.95,
         inline_files: Optional[List[SearchResultItem]] = None,
         custom_widget: Optional[QWidget] = None,
+        citations: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
-        """Render an AI Assistant response with thinking process and rich cards."""
+        """Render an AI Assistant response with thinking process, grounded citations, and rich cards."""
         if self._message_count == 0 and hasattr(self, "welcome_widget"):
             self.welcome_widget.hide()
             self._show_watermark = True
@@ -457,7 +798,7 @@ class ChatStreamWidget(QScrollArea):
         ai_tag.setStyleSheet("color: #7A5800; font-size: 12px; font-weight: 800;")
         h_row.addWidget(ai_tag)
 
-        sub_tag = QLabel("· " + {"Search": "Tìm tệp", "Math": "Tính nhanh", "Timetable": "Lịch học"}.get(strategy, "Trả lời"))
+        sub_tag = QLabel("· " + {"Search": "Tìm tệp", "Math": "Tính nhanh", "Timetable": "Lịch học", "PAL": "Kiểm chứng (PAL)", "CoT": "Quy chế"}.get(strategy, "Trả lời"))
         sub_tag.setStyleSheet("color: #9E8F7A; font-size: 11px; font-weight: 550;")
         h_row.addWidget(sub_tag)
 
@@ -477,9 +818,28 @@ class ChatStreamWidget(QScrollArea):
         ans_lbl.setWordWrap(True)
         c_layout.addWidget(ans_lbl)
 
-        # Optional Custom Widget (e.g. Agenda, Room guide, Math card)
+        # Optional Custom Widget (e.g. Agenda, Room guide, Math card, Timetable)
         if custom_widget is not None:
+            if hasattr(custom_widget, "prompt_requested"):
+                custom_widget.prompt_requested.connect(self.prompt_clicked.emit)
             c_layout.addWidget(custom_widget)
+
+        # Grounded Citation Chips (VGC Anti-Hallucination)
+        if citations and len(citations) > 0:
+            c_box = QVBoxLayout()
+            c_box.setSpacing(4)
+            c_title = QLabel("Nguồn trích dẫn:")
+            c_title.setStyleSheet("color: #6B7280; font-size: 11px; font-weight: 600; padding-top: 2px;")
+            c_box.addWidget(c_title)
+
+            chips_flow = QHBoxLayout()
+            chips_flow.setSpacing(6)
+            for cit in citations:
+                chip = CitationChip(cit)
+                chips_flow.addWidget(chip)
+            chips_flow.addStretch()
+            c_box.addLayout(chips_flow)
+            c_layout.addLayout(c_box)
 
         # Optional Inline File Cards (for file search responses)
         if inline_files and len(inline_files) > 0:
@@ -636,8 +996,9 @@ class ChatStreamWidget(QScrollArea):
         handle: Dict[str, Any],
         reasoning_steps: Optional[List[str]] = None,
         latency_ms: float = 0.0,
+        citations: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
-        """Finalize streamed message with thinking accordion and action buttons."""
+        """Finalize streamed message with thinking accordion, grounded citations, and action buttons."""
         c_layout = handle["c_layout"]
         ans_lbl = handle["ans_lbl"]
         full_text = handle["full_text"]
@@ -654,6 +1015,24 @@ class ChatStreamWidget(QScrollArea):
             idx = c_layout.indexOf(ans_lbl)
             c_layout.insertWidget(idx, accordion)
             handle["accordion_added"] = True
+
+        # Insert Grounded Citation Chips if provided
+        if citations and len(citations) > 0 and not handle.get("citations_added"):
+            c_box = QVBoxLayout()
+            c_box.setSpacing(4)
+            c_title = QLabel("Nguồn trích dẫn:")
+            c_title.setStyleSheet("color: #6B7280; font-size: 11px; font-weight: 600; padding-top: 2px;")
+            c_box.addWidget(c_title)
+
+            chips_flow = QHBoxLayout()
+            chips_flow.setSpacing(6)
+            for cit in citations:
+                chip = CitationChip(cit)
+                chips_flow.addWidget(chip)
+            chips_flow.addStretch()
+            c_box.addLayout(chips_flow)
+            c_layout.addLayout(c_box)
+            handle["citations_added"] = True
 
         # Copy button footer
         btn_row = QHBoxLayout()

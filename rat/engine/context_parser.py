@@ -96,6 +96,7 @@ class ParsedContext:
         source_app: Optional[str] = None,
         source_domain: Optional[str] = None,
         visual_concepts: Optional[List[str]] = None,
+        course_aliases: Optional[List[str]] = None,
     ) -> None:
         self.raw_query = raw_query
         self.keywords = keywords
@@ -109,6 +110,7 @@ class ParsedContext:
         self.source_app = source_app
         self.source_domain = source_domain
         self.visual_concepts = visual_concepts or []
+        self.course_aliases = course_aliases or []
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -124,6 +126,7 @@ class ParsedContext:
             "source_app": self.source_app,
             "source_domain": self.source_domain,
             "visual_concepts": self.visual_concepts,
+            "course_aliases": self.course_aliases,
         }
 
 
@@ -393,6 +396,13 @@ class ContextParser:
             if token not in clean_keywords:
                 clean_keywords.append(token)
 
+        # Expand curriculum course codes and aliases (e.g. 501043 <-> CO2003, Kiến trúc máy tính)
+        from rat.engine.curriculum_mapper import curriculum_mapper
+        course_aliases = curriculum_mapper.expand(cleaned_raw)
+        for alias in course_aliases:
+            if re.fullmatch(r"[A-Za-z0-9_]{3,8}", alias) and alias not in clean_keywords:
+                clean_keywords.append(alias)
+
         # If all tokens were filtered out (e.g. user literally just typed "tìm file word hôm qua"),
         # keep keywords empty so we retrieve by time and type filters.
         return ParsedContext(
@@ -408,4 +418,5 @@ class ContextParser:
             source_app=source_app,
             source_domain=source_domain,
             visual_concepts=visual_concepts,
+            course_aliases=course_aliases,
         )

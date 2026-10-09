@@ -20,7 +20,7 @@ def _integer(value, minimum=0):
 @lru_cache(maxsize=2048)
 def _order_graph(n, clues):
     return min(
-        tuple(sorted((kind, mapping[a], mapping[b]) for kind, a, b in clues))
+        tuple(sorted((clue[0], mapping[clue[1]], mapping[clue[2]], *clue[3:]) for clue in clues))
         for mapping in itertools.permutations(range(n))
     )
 
@@ -53,11 +53,22 @@ def problem_fingerprint(item):
     n = len(names)
     if not _integer(ask) or ask >= n or not isinstance(clues, list) or not clues:
         raise ValueError("Invalid ordering rank or clues")
+    normalized_clues = []
     for clue in clues:
-        if not isinstance(clue, (list, tuple)) or len(clue) != 3 or clue[0] not in ("a", "b") or not all(_integer(x) and x < n for x in clue[1:]) or clue[1] == clue[2]:
+        if not isinstance(clue, (list, tuple)) or len(clue) not in (3, 4) or clue[0] not in ("a", "b", "g", "gap") or not all(_integer(x) and x < n for x in clue[1:3]) or clue[1] == clue[2]:
             raise ValueError("Invalid ordering clue")
+        kind, a, b = clue[:3]
+        if kind in ("g", "gap"):
+            if len(clue) != 4 or not _integer(clue[3], 1) or clue[3] >= n:
+                raise ValueError("Invalid ordering gap")
+            normalized_clues.append(("g", a, b, clue[3]))
+        else:
+            if len(clue) == 4 and (type(clue[3]) is not int or clue[3] != (1 if kind == "a" else 0)):
+                raise ValueError("Invalid ordering offset")
+            # Preserve procedural-v1 identities for legacy three-field clues.
+            normalized_clues.append((kind, a, b))
     # Repeated copies of a clue do not change the underlying puzzle.
-    canonical = _order_graph(n, tuple(sorted(set(map(tuple, clues)))))
+    canonical = _order_graph(n, tuple(sorted(set(normalized_clues))))
     return digest([family, n, ask, canonical])
 
 

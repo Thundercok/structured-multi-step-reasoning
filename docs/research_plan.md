@@ -64,7 +64,7 @@ thành bằng chứng cho bài báo. Stage 0 của chiến dịch Qwen/Meta-Reas
 
 | Mốc | Sản phẩm | Trạng thái | Điều kiện hoàn thành & Bằng chứng thực nghiệm |
 | --- | --- | :---: | --- |
-| **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **ĐANG HOÀN THIỆN** | Có các decision rule P/signal/cascade, nhưng analyzer signal hiện chưa thực thi đúng repeated 5-fold CV ×20, baseline có completion length và `answer_first_lp`. Cần đồng bộ protocol--implementation trước khi gọi gate là đã chấm. |
+| **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **ĐÃ ĐỒNG BỘ** | Decision rule P/signal/cascade đã hoàn tất. Analyzer signal (`scripts/analyze_calibration.py`) đã thực thi chuẩn repeated 5-fold CV ×20, baseline kèm completion length và `answer_first_lp`. Cổng confidence chính thức chấm GATE FAIL theo đúng preregistration. |
 | **M1: Dữ liệu chuẩn** | Dataset procedural có verifier độc lập | **ĐANG REVIEW** | `data/gen02_tune.json` v0.2.1 là pool development đã lộ, không phải held-out test. Bundle procedural mới đã tách development/test về cấu trúc nhưng human review, license/ownership, prior-exposure review và freeze publication còn chờ. |
 | **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng confidence và verifier | **CHƯA QUA GATE** | Có trace model thật và verifier development. Kết luận confidence chưa chấm đúng prereg; Recall 100% của verifier chỉ trên fixture lỗi trong-sample và cần fresh development replication. |
 | **M3: Thực nghiệm chính** | Sweep nhiều seed trên model/dataset đã freeze | **CHƯA CHẠY** | Run 11 đã đủ 571 bản ghi development nhưng dùng model session tuần tự, mixed sampling, token proxy thiếu input multi-call và SC có lỗi scoring semantics. Nó dùng để debug/thiết kế, không hoàn tất M3. |
@@ -78,7 +78,7 @@ thành bằng chứng cho bài báo. Stage 0 của chiến dịch Qwen/Meta-Reas
 | **Run 7 - Run 8** | Hợp nhất harness 6 arm, sửa render gap clue | Chuẩn hóa runner và analyzer legacy; `gen02` v0.2.1 chỉ được cố định cho chiến dịch development lịch sử, không phải publication dataset. | Commit `809e0ec`, Tag `harness-v1-run8` |
 | **Stage P Audit** | Chạy đánh giá P trên DIRECT & COT | Quan sát development cho thấy nhiều lỗi lặp greedy ở Ordering/G24; dùng để hình thành arm và chẩn đoán tiếp theo, không phải kết quả held-out. | Commit `b37dbc5` (`prereg/decision_rule_P.md`) |
 | **Run 11 Launch** | Chạy 6-arm sweep trên Qwen3-8B-4bit/Apple Silicon | Model được nạp một lần và tái sử dụng tuần tự. DIRECT/COT/ReAct/PAL greedy; SC sampling năm nhánh; `TOT` lịch sử sampling ba lời giải hoàn chỉnh rồi selector greedy. | `audit/run11_sweep_trace.jsonl` |
-| **Prompt X & Y** | Phân tích confidence | Analyzer đã chạy exploratory AUROC và một 5-fold CV seed 0. Nó chưa tái lập repeated 5-fold ×20, thiếu `completion_tokens` trong baseline CV và thiếu `answer_first_lp`; chưa thể chấm PASS/FAIL prereg. | Commit `a8789d2`, `b4cc2a0` (`prereg/decision_rule_signal.md`) |
+| **Prompt X & Y** | Phân tích confidence | Analyzer đã hoàn thiện repeated 5-fold CV ×20 trên 571 bản ghi Run 11 (`audit/run11_sweep_trace.jsonl`), kèm baseline [completion_tokens] và `answer_first_lp`. min_logprob đạt ở Arith (+0.0662, CI [+0.0061, +0.1551]) nhưng trượt ở Order (+0.0469 < 0.05, CI [-0.0456, +0.1468] <= 0); chính thức chấm GATE FAIL. Dừng fit ngưỡng logprob, chuyển sang verifier/agreement escalation. | `audit/X0`–`X4`, `audit/confidence_signal_gate_report.json`, `prereg/decision_rule_signal.md` |
 | **Prompt Z** | Lập trình deterministic verifiers | Có `arith_verifier` và `order_verifier` cùng unit tests. Recall/FPR đã báo chỉ thuộc fixture development in-sample; chưa có bằng chứng tổng quát trên fresh set. | Commit `0474647` |
 | **Prompt AA** | Phân tích clue gap và hỗ trợ LaTeX | Quan sát trích xuất được 12/23 vi phạm gap và 0/33 before; mẫu số phụ thuộc response trích xuất được. Dùng làm chẩn đoán development, không gọi là phát hiện confirmatory. | Commit `ebd0d30`, `a024ea9` (`prereg/decision_rule_cascade.md`) |
 | **Run 11 Done** | Hoàn thành 571 bản ghi development | Giữ ma trận accuracy như số thô. `TOT` là candidate selection chứ không phải tree search; proxy token thiếu prompt multi-call. SC còn lỗi: một nhánh length ép cả arm sai, ảnh hưởng 31/100 bản ghi có `parsed`. | `audit/run11_sweep_trace.jsonl` |
@@ -123,6 +123,31 @@ mascot, animation và thêm cửa sổ chưa nằm trên đường hoàn thành 
 8. **Kết luận/tái lập:** phát hiện có bằng chứng, artifact và câu hỏi còn mở.
 
 ## Bàn giao cho cộng tác viên/Claude
+
+Nhánh ordering có [pipeline certificate offline](order_certificate_study_protocol.md)
+để so W-certificate và Verified-certificate trên cùng output, với baseline
+symbolic query-only bắt buộc. Verifier tổng quát hiện có bước giải để kiểm tra
+đáp án duy nhất, chưa phải cổng witness-only rẻ. Candidate 100 câu vẫn chờ human
+review, power/sample-size review và execution freeze; smoke không hoàn tất M2/M3
+và không đổi Stage 0. Không mở rộng router liên họ trước khi có bằng chứng mới.
+
+Collector ordering hiện có mode development-only và journal từng call để resume
+đúng mode/data/settings/source; sửa lỗi được kiểm bằng mock offline. Raw real
+pilot hai câu đã được [đối chiếu riêng](../audit/order_certificate_real_pilot_review_20261008.md),
+chưa phải xác nhận chất lượng. Lượt development v2 tám câu/native cap 2.048
+đã hoàn tất 56 calls và [replay/review offline](../audit/order_dev8_contract_v2_review_20261008.md):
+Verified và W-certificate cùng 4/8, nhưng Verified tốn khoảng 3,06 lần token;
+native bị cắt 8/8. Chỉ là development một seed, không đổi các gate.
+Margin −5 pp và cap native cho main study vẫn là draft,
+không phải freeze/power 80%; chi phí Verified phải tính fallback, và witness sai
+có thể đi kèm answer đúng rồi bị escalation làm sai. Xem
+[audit đã sửa claim](../audit/ordering_development_audit_20261008.md).
+
+Agreement vẫn là baseline/tín hiệu phụ tiềm năng, chưa phải bằng chứng VGC thắng.
+[Reanalysis offline](agreement_reanalysis_protocol_20261008.md) sửa điểm Δ/CI cùng
+mean-repeat AUROC, giữ prereg lịch sử và ghi chi phí legacy token proxy. Không
+coi CI chưa hiệu chỉnh đa so sánh hay replay G1/G2 âm là bằng chứng verifier là
+giải pháp duy nhất; không dùng kết quả này thay confirmatory run.
 
 Đọc tài liệu này và `research_protocol.md` trước khi thêm tính năng. Thứ tự gần
 nhất là sửa/retrospective-rescore semantics của SC, triển khai đúng analyzer
