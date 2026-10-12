@@ -1,0 +1,16 @@
+{
+  "model": "qwen3:4b-instruct",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Reply only: hello"
+    }
+  ],
+  "stream": false,
+  "think": false,
+  "options": {
+    "temperature": 0,
+    "num_predict": 32,
+    "num_ctx": 8192
+  }
+}

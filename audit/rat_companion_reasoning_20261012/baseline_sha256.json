@@ -1,0 +1,11 @@
+{
+  "rat/ui/omnibar.py": "49addc78ffc4c7bb472bf35fa14aad8ce6d9f07069f2a8c809bd8167b0199287",
+  "rat/ui/chat_stream.py": "7f32e24947bb90194f9f4f6cd4ccdd31a6982a4471ef19c5d24733c6f43d491b",
+  "rat/ui/chat_session.py": "2df6d573ff378c5fb12af1e0d23e29b23112e77d48344b52f194b3c47b339967",
+  "rat/engine/assistant_runtime.py": "4fcecb413526106701a52eb60eabd66a922819387d367b425ff8f33094ee6063",
+  "rat/kernel/capabilities/__init__.py": "4f958327ea803e2d8a5a2f6d73d79b20cce6f61827cf5830c5b7ef36d671e242",
+  "rat.spec": "d7bae8f6bd2132310d8d6ad540351ef49db271d56b2417351dfdefbd049701cb",
+  "docs/rat_ui_fluidity.md": "ef1da8d74ecabd122abe880120f7ac5ee66823b6a9b055092f06e98b8a027af6",
+  "docs/rat_backlog.md": "ccc7eff9dcd83500bf05ab2a08ab19f237aed2dae21fea335e025ce26df080f2",
+  "tests/test_rat_chat_session.py": "14bfe59058d8d93999aa242b764dd67e8a2dd1dd49611a09ca69e10559582e05"
+}

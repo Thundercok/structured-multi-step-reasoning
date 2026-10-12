@@ -1,0 +1,18 @@
+{
+  "model": "rat-qwen3:4b",
+  "created_at": "2026-10-11T12:26:18.365195Z",
+  "message": {
+    "role": "assistant",
+    "content": "Okay, the user just said \"Reply only: hello\". Hmm, they want a very specific response - just the word \"hello\" with nothing else. \n\n"
+  },
+  "done": true,
+  "done_reason": "length",
+  "total_duration": 12073286834,
+  "load_duration": 6290315125,
+  "prompt_eval_count": 16,
+  "prompt_eval_cached_count": 0,
+  "prompt_eval_duration": 505638000,
+  "eval_count": 32,
+  "eval_duration": 5225476000,
+  "client_elapsed_ms": 12157.615041942336
+}

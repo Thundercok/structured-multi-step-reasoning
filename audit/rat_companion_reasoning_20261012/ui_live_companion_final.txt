@@ -1,0 +1,50 @@
+............................Fatal Python error: Segmentation fault
+
+Thread 0x000000016d263000 (most recent call first):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/astrology/svg.py", line 18 in wheel_point
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/astrology/svg.py", line 85 in render_wheel
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/astrology/svg.py", line 135 in render_poster
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/astrology/export.py", line 32 in export_chart
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/capabilities/natal.py", line 174 in handle_export_chart
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/registry.py", line 131 in execute
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/dispatcher.py", line 61 in _run
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/dispatcher.py", line 183 in resume_input
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_interaction_kernel_ui.py", line 107 in <lambda>
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/assistant_worker.py", line 52 in run
+
+Current thread 0x00000001f6379d80 (most recent call first):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_interaction_kernel_ui.py", line 112 in test_inline_export_worker_writes_selected_file_without_changing_chart
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 372 in _main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/config/__init__.py", line 223 in console_main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pytest/__main__.py", line 9 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+
+Extension modules: PyQt6.QtCore, PyQt6.QtGui, PyQt6.QtWidgets, PyQt6.QtTest, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, _watchdog_fsevents, swisseph, PyQt6.QtSvg, PyQt6.QtNetwork, objc._objc, CoreFoundation._CoreFoundation, CoreFoundation._inlines, Foundation._Foundation, Foundation._inlines, AppKit._AppKit, AppKit._inlines (total: 17)

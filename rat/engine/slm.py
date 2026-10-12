@@ -103,25 +103,63 @@ class SLMEngine:
             logger.error(f"Failed to pull model {model_name}: {e}")
             return False
 
-    def generate(
+    def chat_with_meta(self, messages: List[Dict[str, Any]], tools: List[Dict[str, Any]],
+                       timeout: float = 90.0, max_tokens: int = 640, thinking: bool = False,
+                       response_format: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Ollama native tool calling; retain token counts and the assistant message."""
+        payload = {"model": self.model, "messages": messages, "stream": False, "think": thinking,
+                   "options": {"temperature": 0.1, "num_predict": max_tokens, "num_ctx": 8192}}
+        if tools:
+            payload["tools"] = tools
+        if response_format:
+            payload["format"] = response_format
+        req = urllib.request.Request(self.ollama_url + "/api/chat",
+            data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}, method="POST")
+        tick = time.perf_counter()
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as reply:
+                data = json.load(reply)
+            return {"message": data.get("message", {}),
+                    "prompt_tokens": int(data.get("prompt_eval_count") or 0),
+                    "completion_tokens": int(data.get("eval_count") or 0),
+                    "done_reason": data.get("done_reason"), "error": data.get("error") or (None if data.get("done") is True else "incomplete_chat_response"),
+                    "request": payload,
+                    "duration_ms": (time.perf_counter() - tick) * 1000}
+        except Exception as exc:
+            return {"message": {}, "prompt_tokens": 0, "completion_tokens": 0,
+                    "request": payload,
+                    "error": str(exc), "duration_ms": (time.perf_counter() - tick) * 1000}
+
+    def generate_with_meta(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
         json_format: bool = False,
-        timeout: float = 25.0
-    ) -> Optional[str]:
-        """Send prompt to local SLM and receive completion."""
+        timeout: float = 60.0,
+        temperature: float = 0.1,
+        max_tokens: int = 512,
+    ) -> Dict[str, Any]:
+        """Send prompt to local SLM and receive completion along with raw token and latency metrics."""
         if not self.is_service_running():
-            return None
+            return {
+                "response": "",
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+                "duration_ms": 0.0,
+                "done_reason": "service_offline",
+                "error": "Ollama service is not running or unreachable.",
+            }
+
         url = f"{self.ollama_url}/api/generate"
         payload: Dict[str, Any] = {
             "model": self.model,
             "prompt": prompt,
             "stream": False,
             "options": {
-                "temperature": 0.1,
-                "num_predict": 512,
-            }
+                "temperature": temperature,
+                "num_predict": max_tokens,
+            },
         }
         if system_prompt:
             payload["system"] = system_prompt
@@ -135,13 +173,53 @@ class SLMEngine:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
+        t0 = time.time()
         try:
             with urllib.request.urlopen(req, timeout=timeout) as response:
                 res = json.loads(response.read().decode("utf-8"))
-                return res.get("response", "").strip()
+                p_toks = int(res.get("prompt_eval_count") or 0)
+                c_toks = int(res.get("eval_count") or 0)
+                tot_ns = float(res.get("total_duration") or 0)
+                dur_ms = (tot_ns / 1e6) if tot_ns > 0 else (time.time() - t0) * 1000.0
+
+                return {
+                    "response": res.get("response", "").strip(),
+                    "prompt_tokens": p_toks,
+                    "completion_tokens": c_toks,
+                    "total_tokens": p_toks + c_toks,
+                    "duration_ms": round(dur_ms, 2),
+                    "done_reason": res.get("done_reason", "stop"),
+                    "error": None,
+                }
         except Exception as e:
             logger.debug(f"SLM generate call failed ({self.model}): {e}")
+            return {
+                "response": "",
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+                "duration_ms": round((time.time() - t0) * 1000.0, 2),
+                "done_reason": "error",
+                "error": str(e),
+            }
+
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        json_format: bool = False,
+        timeout: float = 25.0
+    ) -> Optional[str]:
+        """Send prompt to local SLM and receive completion text."""
+        res = self.generate_with_meta(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            json_format=json_format,
+            timeout=timeout,
+        )
+        if res.get("error") or not res.get("response"):
             return None
+        return res["response"]
 
     def generate_stream(
         self,

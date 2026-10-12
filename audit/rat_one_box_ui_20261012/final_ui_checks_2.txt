@@ -1,0 +1,9 @@
+..................................................................... [ 73%]
+.........................                                                [100%]
+=============================== warnings summary ===============================
+tests/test_timetable_chat_cards.py::TestTimetableChatCards::test_omnibar_schedule_chat_delivers_deck_widget
+  /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/engine/embedder.py:71: UserWarning: The model sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 now uses mean pooling instead of CLS embedding. In order to preserve the previous behaviour, consider either pinning fastembed version to 0.5.1 or using `add_custom_model` functionality.
+    model = TextEmbedding(model_name=self.model_name)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+94 passed, 1 warning, 3 subtests passed in 58.34s

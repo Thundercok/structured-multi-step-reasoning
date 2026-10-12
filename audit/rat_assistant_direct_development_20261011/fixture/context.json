@@ -1,0 +1,34 @@
+{
+  "member": {
+    "id": "fixture-student",
+    "name": "Fixture Student",
+    "mssv": "",
+    "major": "",
+    "color_hex": "#3b82f6",
+    "schedule": {
+      "T2": [
+        {
+          "start_period": 1,
+          "end_period": 3,
+          "course_name": "Networks",
+          "room": "B203",
+          "degree_level": "undergrad",
+          "course_code": "NET101",
+          "lecturer": "",
+          "notes": ""
+        }
+      ]
+    },
+    "active": true,
+    "is_dual_degree": false,
+    "master_major": "",
+    "master_mssv": ""
+  },
+  "now": "2026-10-12T06:00:00",
+  "requests": [
+    "Tìm tài liệu Networks trong chỉ mục rồi đọc và tóm tắt nội dung bằng 3 ý.",
+    "What is my next class? Use the get_schedule tool to check.",
+    "Calculate 47 * 83 using the calculate tool."
+  ],
+  "file_sha256": "41cd772b6166cf303dcd10ea671bfdf340187eef474c1f729f930efcfda56baf"
+}

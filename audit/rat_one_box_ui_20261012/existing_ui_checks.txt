@@ -1,0 +1,284 @@
+F......F.....F.FF.F..F......F..F.......FF............FF.........F.... [ 92%]
+......                                                                   [100%]
+=================================== FAILURES ===================================
+_ TestOmnibarWindow.test_actual_expand_collapse_respects_layout_minimum_and_bottom_anchor _
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_actual_expand_collapse_respects_layout_minimum_and_bottom_anchor>
+
+    def test_actual_expand_collapse_respects_layout_minimum_and_bottom_anchor(self):
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        app.processEvents()
+        for expanded in (False, True, False):
+            self.window.set_expanded(expanded)
+            QTest.qWait(200)
+            actual = self.window.geometry()
+            available = self.window.screen().availableGeometry()
+>           self.assertEqual(actual, lower_overlay_geometry(available, actual.width(), actual.height()))
+E           AssertionError: PyQt6.QtCore.QRect(74, 120, 620, 128) != PyQt6.QtCore.QRect(90, 636, 620, 128)
+
+tests/test_omnibar.py:564: AssertionError
+----------------------------- Captured stderr call -----------------------------
+qt.qpa.fonts: Populating font family aliases took 341 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+_ TestOmnibarWindow.test_compact_results_keyboard_opens_selected_file_not_a_recent_file _
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_compact_results_keyboard_opens_selected_file_not_a_recent_file>
+
+    def test_compact_results_keyboard_opens_selected_file_not_a_recent_file(self):
+        from PyQt6.QtTest import QTest
+        files = self._compact_files()
+        self.window.show()
+        self.window._deliver_assistant_reply("4 tệp", inline_files=files)
+        app.processEvents()
+        self.window.chat_composer_input.setFocus()
+        QTest.keyClick(self.window.chat_composer_input, Qt.Key.Key_Down)
+>       self.assertTrue(self.window.compact_file_list.hasFocus())
+E       AssertionError: False is not true
+
+tests/test_omnibar.py:668: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+__ TestOmnibarWindow.test_expanded_stream_does_not_duplicate_reply_in_bubble ___
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_expanded_stream_does_not_duplicate_reply_in_bubble>
+
+    def test_expanded_stream_does_not_duplicate_reply_in_bubble(self):
+        self.window.set_expanded(True)
+        handle = self.window.chat_stream.create_streaming_message()
+        self.window._on_reasoning_token(handle, "Đáp án trong vùng đọc đầy đủ")
+        self.window._on_reasoning_finished(handle, handle["full_text"], [], 10, "Direct", "Direct")
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.window.set_expanded(False)
+>       self.assertFalse(self.window.speech_bubble.isHidden())
+E       AssertionError: True is not false
+
+tests/test_omnibar.py:419: AssertionError
+_ TestOmnibarWindow.test_file_results_are_visible_and_actionable_without_expanding_chat _
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_file_results_are_visible_and_actionable_without_expanding_chat>
+
+    def test_file_results_are_visible_and_actionable_without_expanding_chat(self):
+        files = self._compact_files()
+        self.window.show()
+        self.window._deliver_assistant_reply("4 tệp khớp ‘slides tích phân’.", strategy="Search", inline_files=files)
+        app.processEvents()
+        self.assertFalse(self.window.is_expanded)
+>       self.assertTrue(self.window.compact_file_list.isVisible())
+E       AssertionError: False is not true
+
+tests/test_omnibar.py:592: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+___ TestOmnibarWindow.test_files_survive_hide_reopen_and_expanded_round_trip ___
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_files_survive_hide_reopen_and_expanded_round_trip>
+
+    def test_files_survive_hide_reopen_and_expanded_round_trip(self):
+        files = self._compact_files()
+        self.window._deliver_assistant_reply("4 tệp", inline_files=files)
+        with patch("rat.os.app.activate_macos_app"), patch("rat.ui.omnibar.configure_macos_fullscreen_overlay"):
+            self.window.show_omnibar()
+            self.window.hide()
+            self.window.show_omnibar()
+        self.window.set_expanded(True)
+        self.assertTrue(self.window.compact_file_list.isHidden())
+        self.window.set_expanded(False)
+>       self.assertFalse(self.window.compact_file_list.isHidden())
+E       AssertionError: True is not false
+
+tests/test_omnibar.py:689: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+This plugin does not support setting window opacity
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+________ TestOmnibarWindow.test_final_reply_without_tokens_is_displayed ________
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_final_reply_without_tokens_is_displayed>
+
+    def test_final_reply_without_tokens_is_displayed(self):
+        handle = self.window.chat_stream.create_streaming_message()
+        answer = "Một câu trả lời **hoàn chỉnh** không có token streaming."
+        self.window._on_reasoning_finished(handle, answer, [], 10, "Fallback", "Direct")
+        self.assertEqual(handle["full_text"], answer)
+        self.assertEqual(handle["ans_lbl"].text(), answer)
+        self.assertIn("hoàn chỉnh", self.window.speech_bubble.dialogue.text())
+>       self.assertFalse(self.window.speech_bubble.isHidden())
+E       AssertionError: True is not false
+
+tests/test_omnibar.py:298: AssertionError
+_____ TestOmnibarWindow.test_growing_reply_bubble_stays_above_the_composer _____
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_growing_reply_bubble_stays_above_the_composer>
+
+    def test_growing_reply_bubble_stays_above_the_composer(self):
+        from PyQt6.QtTest import QTest
+        self.window.show()
+        self.window._deliver_assistant_reply("Ừ.")
+        QTest.qWait(150)
+        self.window._deliver_assistant_reply("Một ý cần đọc cho rõ, không đè lên ô nhập. " * 100)
+        QTest.qWait(200)
+        bubble = self.window.speech_bubble
+>       self.assertLessEqual(bubble.y() + bubble.height(), self.window.container.y())
+E       AssertionError: 114 not less than or equal to 12
+
+tests/test_omnibar.py:757: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+_ TestOmnibarWindow.test_long_file_names_are_elided_without_widening_the_overlay _
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_long_file_names_are_elided_without_widening_the_overlay>
+
+    def test_long_file_names_are_elided_without_widening_the_overlay(self):
+        from PyQt6.QtTest import QTest
+        files = self._compact_files(1)
+        files[0].file_name = "Tích_phân_" * 60 + ".pdf"
+        self.window.show()
+        self.window._deliver_assistant_reply("Một tệp", inline_files=files)
+        QTest.qWait(200)
+        row = self.window.compact_file_list.itemWidget(self.window.compact_file_list.item(0))
+>       self.assertEqual(self.window.width(), 652)
+E       AssertionError: 620 != 652
+
+tests/test_omnibar.py:744: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+_______ TestOmnibarWindow.test_mascot_diagonal_popout_and_speech_bubble ________
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_mascot_diagonal_popout_and_speech_bubble>
+
+    def test_mascot_diagonal_popout_and_speech_bubble(self):
+        """Verify diagonal pop-out combines X-shift, Y-slide, and 10 deg rotation with OutBack easing."""
+        from PyQt6.QtCore import QEasingCurve
+        mascot = self.window.mascot_peeking
+    
+        # Trigger speaking
+        self.window.set_mascot_speaking("Xin chào bạn học!")
+>       self.assertTrue(mascot.is_speaking)
+E       AssertionError: False is not true
+
+tests/test_omnibar.py:248: AssertionError
+_____ TestOmnibarWindow.test_polite_math_requests_reach_the_same_assistant _____
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_polite_math_requests_reach_the_same_assistant>
+
+    def test_polite_math_requests_reach_the_same_assistant(self):
+        for query in ("Giúp tôi tính 2+2", "Chuột ơi, 2+2 bằng bao nhiêu?", "chào chuột tính 2^3"):
+            self.window._reset_chat()
+            self.window._submit_chat_prompt(query)
+            self.assertEqual(self.window._current_reasoner.query, query)
+>           self.assertTrue(self.window.is_expanded)
+E           AssertionError: False is not true
+
+tests/test_omnibar.py:427: AssertionError
+____ TestOmnibarWindow.test_read_full_reply_then_collapse_preserves_answer _____
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_read_full_reply_then_collapse_preserves_answer>
+
+    def test_read_full_reply_then_collapse_preserves_answer(self):
+        answer = "Một đáp án dài. " * 100
+        self.window._deliver_assistant_reply(answer)
+        bubble = self.window.speech_bubble
+        bubble.btn_hist.click()
+        app.processEvents()
+        self.assertTrue(self.window.is_expanded)
+        self.assertFalse(self.window.chat_stream.isHidden())
+        self.assertTrue(bubble.isHidden())  # No duplicate answer above the chat.
+>       self.assertTrue(self.window.btn_expand.isHidden())
+E       AssertionError: False is not true
+
+tests/test_omnibar.py:341: AssertionError
+________ TestOmnibarWindow.test_streaming_reply_reaches_compact_bubble _________
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_streaming_reply_reaches_compact_bubble>
+
+    def test_streaming_reply_reaches_compact_bubble(self):
+        handle = self.window.chat_stream.create_streaming_message()
+        self.window._on_reasoning_token(handle, "Đầu tiên, ")
+        self.window._on_reasoning_token(handle, "xác định mục tiêu.")
+        self.assertEqual(self.window.speech_bubble.text(), "Đầu tiên, xác định mục tiêu.")
+>       self.assertFalse(self.window.speech_bubble.isHidden())
+E       AssertionError: True is not false
+
+tests/test_omnibar.py:287: AssertionError
+_ TestOmnibarWindow.test_summon_uses_lower_screen_geometry_instead_of_old_top_anchor _
+
+self = <tests.test_omnibar.TestOmnibarWindow testMethod=test_summon_uses_lower_screen_geometry_instead_of_old_top_anchor>
+
+    def test_summon_uses_lower_screen_geometry_instead_of_old_top_anchor(self):
+        screen = MagicMock()
+        available = QRect(-1440, 40, 1440, 860)
+        screen.availableGeometry.return_value = available
+        with patch("rat.ui.omnibar.QGuiApplication.screenAt", return_value=screen), \
+             patch("rat.os.app.activate_macos_app"), \
+             patch("rat.ui.omnibar.configure_macos_fullscreen_overlay"):
+            self.window.show_omnibar()
+>       self.assertEqual(self.window.geometry(), lower_overlay_geometry(available, self.window.width(), self.window.height()))
+E       AssertionError: PyQt6.QtCore.QRect(12, 160, 620, 128) != PyQt6.QtCore.QRect(-1030, 736, 620, 128)
+
+tests/test_omnibar.py:576: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+_______ TestTimetableChatCards.test_footer_keycaps_and_stationary_mascot _______
+
+self = <tests.test_timetable_chat_cards.TestTimetableChatCards testMethod=test_footer_keycaps_and_stationary_mascot>
+_mock_overlay = <MagicMock name='configure_macos_fullscreen_overlay' id='12897571072'>
+_mock_act = <MagicMock name='activate_macos_app' id='12897569056'>
+
+    @patch("rat.os.app.activate_macos_app")
+    @patch("rat.ui.omnibar.configure_macos_fullscreen_overlay")
+    def test_footer_keycaps_and_stationary_mascot(self, _mock_overlay, _mock_act):
+        window = OmnibarWindow()
+        try:
+            window.show_omnibar(initial_section=0)
+            # Verify keycaps_box is populated with tactile keycaps
+            self.assertTrue(hasattr(window, "keycaps_box"))
+>           self.assertGreaterEqual(window.keycaps_layout.count(), 3)
+E           AssertionError: 0 not greater than or equal to 3
+
+tests/test_timetable_chat_cards.py:130: AssertionError
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+=============================== warnings summary ===============================
+tests/test_timetable_chat_cards.py::TestTimetableChatCards::test_footer_keycaps_and_stationary_mascot
+  /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/engine/embedder.py:71: UserWarning: The model sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 now uses mean pooling instead of CLS embedding. In order to preserve the previous behaviour, consider either pinning fastembed version to 0.5.1 or using `add_custom_model` functionality.
+    model = TextEmbedding(model_name=self.model_name)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_actual_expand_collapse_respects_layout_minimum_and_bottom_anchor
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_compact_results_keyboard_opens_selected_file_not_a_recent_file
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_expanded_stream_does_not_duplicate_reply_in_bubble
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_file_results_are_visible_and_actionable_without_expanding_chat
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_files_survive_hide_reopen_and_expanded_round_trip
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_final_reply_without_tokens_is_displayed
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_growing_reply_bubble_stays_above_the_composer
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_long_file_names_are_elided_without_widening_the_overlay
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_mascot_diagonal_popout_and_speech_bubble
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_polite_math_requests_reach_the_same_assistant
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_read_full_reply_then_collapse_preserves_answer
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_streaming_reply_reaches_compact_bubble
+FAILED tests/test_omnibar.py::TestOmnibarWindow::test_summon_uses_lower_screen_geometry_instead_of_old_top_anchor
+FAILED tests/test_timetable_chat_cards.py::TestTimetableChatCards::test_footer_keycaps_and_stationary_mascot
+14 failed, 61 passed, 1 warning, 3 subtests passed in 76.04s (0:01:16)

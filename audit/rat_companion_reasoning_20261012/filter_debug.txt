@@ -1,0 +1,1 @@
+.EQThread: Destroyed while thread is still running

@@ -10,7 +10,9 @@ from nesy_docai import (
     BoundingBoxVisualizer,
     PDFDocumentProcessor
 )
-from api_server import read_root, health_check
+pytest.importorskip("fastapi")
+pytest.importorskip("multipart")
+from compatibility.api_server import read_root, health_check
 
 
 def test_visualizer():

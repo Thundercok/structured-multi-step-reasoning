@@ -25,7 +25,11 @@ logging.basicConfig(
 def main() -> None:
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
-        if cmd in ("search", "index", "status", "ask", "dedup", "--help", "-h"):
+        if cmd in ("astrology", "natal", "la-so"):
+            from rat.astrology.__main__ import main as natal_main
+            natal_main()
+            return
+        elif cmd in ("search", "index", "status", "ask", "dedup", "--help", "-h"):
             cli_main()
             return
         elif cmd in ("init-shell", "shell"):

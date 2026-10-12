@@ -1,0 +1,8 @@
+{
+  "scope": "offscreen_ui_replay",
+  "model_calls": 0,
+  "source_record": "audit/rat_assistant_recorded_inputs_20261011/records.jsonl:dev-1",
+  "sources_are_artificial": true,
+  "quality_claim": null,
+  "note": "UI replays recorded live output; answer failed to read/summarize. Pending indicator is a replay."
+}

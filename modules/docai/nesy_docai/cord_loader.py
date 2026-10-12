@@ -1,5 +1,5 @@
 """
-Real-world Dataset Loader & ANLS Evaluator for CORD & MC-OCR Vietnamese Datasets
+Compatibility ANLS helper and hardcoded synthetic receipt examples.
 """
 
 import json
@@ -8,9 +8,8 @@ from typing import Dict, List, Any
 
 class RealWorldDatasetLoader:
     """
-    Loader and Evaluator for Real-World Benchmarks:
-    - CORD (Consolidated Receipt Dataset - NAVER Clova)
-    - MC-OCR (Vietnamese Receipt Dataset)
+    Historical class name retained for imports. The bundled samples are
+    handwritten fixtures, not a fetched/reviewed CORD or MC-OCR dataset.
     """
 
     def calculate_anls(self, ground_truth: str, prediction: str, threshold: float = 0.5) -> float:
@@ -48,12 +47,13 @@ class RealWorldDatasetLoader:
 
     def load_cord_sample_benchmark(self) -> List[Dict[str, Any]]:
         """
-        Returns annotated samples representing real CORD & MC-OCR Vietnamese benchmark standards.
+        Return two synthetic fixtures. No image corpus or published split is loaded.
         """
         return [
             {
-                "id": "CORD_REAL_001",
-                "source_dataset": "CORD (NAVER Clova / AAAI 2020)",
+                "id": "CORD_INSPIRED_SYNTHETIC_001",
+                "source_dataset": "CORD-inspired synthetic fixture (not a CORD release)",
+                "evidence_scope": "synthetic_fixture",
                 "image_filename": "receipt_cord_001.png",
                 "ground_truth": {
                     "seller_name": "STARBUCKS COFFEE VIETNAM",
@@ -81,7 +81,8 @@ class RealWorldDatasetLoader:
             },
             {
                 "id": "MC_OCR_VN_002",
-                "source_dataset": "MC-OCR (Vietnamese Receipt Challenge)",
+                "source_dataset": "MC-OCR-inspired synthetic fixture (not an MC-OCR release)",
+                "evidence_scope": "synthetic_fixture",
                 "image_filename": "mc_ocr_vn_002.png",
                 "ground_truth": {
                     "seller_name": "NHÀ SÁCH PHƯƠNG NAM",

@@ -1,0 +1,3 @@
+# Optional desktop demonstration; independent of requirements-research.txt.
+# AGPL-3.0 binding. See docs/natal_chart.md before distribution/public hosting.
+pyswisseph==2.10.3.2

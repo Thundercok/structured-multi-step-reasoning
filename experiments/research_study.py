@@ -402,12 +402,15 @@ def main(argv=None):
     mode.add_argument("--order-certificate-analysis", type=Path, metavar="RUN", help="Validate and replay frozen ordering certificate artifacts")
     mode.add_argument("--order-certificate-pilot", action="store_true", help="Call-checkpointed ordering diagnostics on exposed train only; never confirmatory")
     mode.add_argument("--cot-restart-pilot", action="store_true", help="Run or resume the Qwen3.5-4B CoT restart development pilot on exposed questions")
+    mode.add_argument("--cot-restart-addendum", action="store_true", help="Run the read-only full-prefix continuation addendum on historical pilot base traces")
     mode.add_argument("--agreement-analysis", action="store_true", help="Offline exploratory reanalysis of pinned Run 11/PAL-v2 development outputs; never calls a model")
     parser.add_argument("--order-pilot-mock", action="store_true", help="Synthetic ordering pilot; never import or load MLX")
     parser.add_argument("--order-pilot-items", type=int, help="Exposed ordering train questions (default 2)")
     parser.add_argument("--order-pilot-thinking-tokens", type=int, help="Development-only native-thinking cap override")
     parser.add_argument("--cot-restart-mock", action="store_true", help="Synthetic mock pilot; never import or load MLX")
     parser.add_argument("--cot-restart-smoke-only", action="store_true", help="Run only the 4-call smoke verification")
+    parser.add_argument("--historical-run", type=Path, help="Directory of completed historical pilot run (default: audit/cot_restart_pilot_qwen35_20261009)")
+    parser.add_argument("--cot-restart-addendum-mock", action="store_true", help="Synthetic mock addendum; never import or load MLX")
     parser.add_argument("--pilot", action="store_true", help="Fixed-strategy diagnostics on exposed development only")
     parser.add_argument("--strategies", nargs="+", choices=("DIRECT", "COT", "SELF_CONSISTENCY", "TOT", "REACT", "PAL"), help="Pilot strategies (default DIRECT COT)")
     budget = parser.add_mutually_exclusive_group()
@@ -453,6 +456,19 @@ def main(argv=None):
         return
     if args.cot_restart_mock or args.cot_restart_smoke_only:
         parser.error("CoT restart overrides require --cot-restart-pilot")
+    if args.cot_restart_addendum:
+        if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
+            parser.error("CoT restart addendum uses pinned exposed questions and settings; overrides are not allowed")
+        from experiments.cot_restart_addendum import DEFAULT_HISTORICAL_DIR, run_cot_restart_addendum
+        hist_dir = args.historical_run if args.historical_run is not None else DEFAULT_HISTORICAL_DIR
+        try:
+            run_cot_restart_addendum(historical_dir=hist_dir, output_dir=args.output, mock=args.cot_restart_addendum_mock)
+        except (ValueError, OSError, RuntimeError) as error:
+            parser.error(str(error))
+        print(f"cot_restart_addendum: {args.output / 'report.md'}")
+        return
+    if args.cot_restart_addendum_mock or args.historical_run is not None:
+        parser.error("Addendum overrides require --cot-restart-addendum")
     if args.agreement_analysis:
         if args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
             parser.error("Agreement analysis uses pinned exposed development artifacts and fixed settings; overrides are not allowed")

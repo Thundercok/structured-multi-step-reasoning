@@ -17,7 +17,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from PyQt6.QtCore import QEvent, Qt, pyqtSignal
+from PyQt6.QtCore import QEvent, QTimer, Qt, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QCursor, QPainter, QPixmap
 from PyQt6.QtWidgets import (
     QApplication,
@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -250,6 +251,8 @@ class InlineFileCard(CompactFileRow):
 
     def __init__(self, item: SearchResultItem, parent: Optional[QWidget] = None) -> None:
         super().__init__(item, parent)
+        if item.explanation in {"Đã đọc", "Đã tìm thấy"}:
+            self.detail_label.set_full_text(f"{item.explanation} · {Path(item.file_path).parent.name} · {item.file_size_formatted}")
         self.open_requested.connect(lambda result: open_file_default(result.file_path))
         self.reveal_requested.connect(lambda result: reveal_in_finder(result.file_path))
         self.preview_requested.connect(lambda result: trigger_quicklook(result.file_path))
@@ -369,6 +372,12 @@ class TimetableSessionCard(QFrame):
         time_lbl.setStyleSheet("color: #786F66; font-size: 11.5px; font-weight: 600;")
         top_row.addWidget(time_lbl)
         layout.addLayout(top_row)
+
+        day = s.get("day", "") if isinstance(s, dict) else getattr(s, "notes", "")
+        if day:
+            day_lbl = QLabel(f"{day} · Lịch tuần")
+            day_lbl.setStyleSheet("color: #786F66; font-size: 11px;")
+            layout.addWidget(day_lbl)
 
         # Row 2: Location
         loc_str = resolve_room_location(room) if room else "Chưa xác định phòng"
@@ -522,14 +531,41 @@ class ChatStreamWidget(QScrollArea):
     Pins the rat mascot watermark to the viewport background when active.
     """
     prompt_clicked = pyqtSignal(str)
+    content_changed = pyqtSignal()
 
     def __init__(self, user_name: str = "Huy", parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.user_name = user_name
         self._message_count = 0
+        self._compact = True
+        self._turn_widgets = []
+        self._turn_id = 0
         self._mascot_pixmap = QPixmap(str(MASCOT_PATH)) if MASCOT_PATH.exists() else QPixmap()
         self._show_watermark = False
         self._init_ui()
+        self._follow_latest = True
+        self._scroll_timer = QTimer(self)
+        self._scroll_timer.setSingleShot(True)
+        self._scroll_timer.timeout.connect(self._follow_scroll)
+        self._restore_timer = QTimer(self)
+        self._restore_timer.setSingleShot(True)
+        self._restore_timer.timeout.connect(self._restore_scroll)
+        self._reading_restore = None
+        bar = self.verticalScrollBar()
+        bar.valueChanged.connect(self._on_scroll_value_changed)
+        bar.rangeChanged.connect(self._on_scroll_range_changed)
+
+    def _on_scroll_value_changed(self, value):
+        self._follow_latest = value >= self.verticalScrollBar().maximum() - 12
+
+    def _on_scroll_range_changed(self, low, high):
+        if self._follow_latest:
+            self._scroll_timer.start(0)
+
+    def _follow_scroll(self):
+        if self._follow_latest:
+            bar = self.verticalScrollBar()
+            bar.setValue(bar.maximum())
 
     def viewportEvent(self, event: object) -> bool:
         res = super().viewportEvent(event)
@@ -584,106 +620,95 @@ class ChatStreamWidget(QScrollArea):
         self.container = MascotBackdrop()
         self.container.setStyleSheet("background: transparent;")
         self.layout = QVBoxLayout(self.container)
-        self.layout.setContentsMargins(14, 8, 14, 8)
-        self.layout.setSpacing(10)
+        self.layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+        self.layout.setContentsMargins(4, 8, 4, 8)
+        self.layout.setSpacing(16)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.setWidget(self.container)
+        self.container.installEventFilter(self)
         self._render_welcome_state()
+
+    def eventFilter(self, watched, event):
+        if watched is getattr(self, 'container', None) and event.type() == QEvent.Type.LayoutRequest:
+            self._fit_content_height()
+            self.content_changed.emit()
+        return super().eventFilter(watched, event)
+
+    def _fit_content_height(self):
+        layout = self.container.layout()
+        height = layout.totalHeightForWidth(self.viewport().width())
+        if height >= 0 and height != self.container.minimumHeight():
+            self.container.setMinimumHeight(height)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, 'container'):
+            self._fit_content_height()
+
+    def _track_message(self, widget, kind):
+        if kind == 'user' or not self._turn_widgets or self._turn_widgets[-1][1] != 'user':
+            self._turn_id += 1
+        self._turn_widgets.append((widget, kind, self._turn_id))
+        self.set_compact(self._compact)
+        self.content_changed.emit()
+
+    def set_compact(self, compact):
+        from rat.ui.view_renderer import QtViewRenderer
+        self._compact = bool(compact)
+        for widget, kind, turn in self._turn_widgets:
+            widget.setVisible(not compact or turn == self._turn_id)
+        for renderer in self.findChildren(QtViewRenderer):
+            renderer.set_compact(compact)
+        self.content_changed.emit()
+
+    def restore_reading_position(self, value=None):
+        self._reading_restore = (value, self._follow_latest, None)
+        self._restore_timer.start(0)
+
+    def _restore_scroll(self):
+        from PyQt6 import sip
+        request, self._reading_restore = self._reading_restore, None
+        if request is None:
+            return
+        value, follow, current = request
+        bar = self.verticalScrollBar()
+        if value is not None:
+            bar.setValue(min(value, bar.maximum()))
+        else:
+            current = current or next((widget for widget, kind, turn in self._turn_widgets if turn == self._turn_id), None)
+            bar.setValue(current.y() if current is not None and not sip.isdeleted(current) else 0)
+        self._follow_latest = follow if value is not None else False
+
+    def _show_result_start(self, handle):
+        """Make a newly arriving interactive result readable from its beginning."""
+        self._follow_latest = False
+        self._reading_restore = (None, False, handle['card'])
+        self._restore_timer.start(0)
 
     def is_empty(self) -> bool:
         return self._message_count == 0
 
-    def _render_welcome_state(self) -> None:
-        """Cozy, tactile welcome state with tongue-in-cheek suggestions."""
+    def _render_welcome_state(self):
         self._show_watermark = False
         self.welcome_widget = QWidget()
-        self.welcome_widget.setObjectName("WelcomeCard")
-        w_layout = QVBoxLayout(self.welcome_widget)
-        w_layout.setContentsMargins(16, 20, 16, 16)
-        w_layout.setSpacing(10)
-        w_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # Mascot Avatar or Icon Header
-        top_row = QHBoxLayout()
-        top_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        top_row.setSpacing(8)
-
-        pm = get_mascot_pixmap(44, 44, bust_only=True)
-        if pm and not pm.isNull():
-            avatar_lbl = QLabel()
-            avatar_lbl.setPixmap(pm)
-            avatar_lbl.setFixedSize(44, 44)
-            top_row.addWidget(avatar_lbl)
-
-        header_title = QLabel("Ừ, nói đi.")
-        header_title.setStyleSheet("color: #1F1A16; font-size: 16px; font-weight: 800; letter-spacing: -0.2px;")
-        top_row.addWidget(header_title)
-        w_layout.addLayout(top_row)
-
-        sub_desc = QLabel("Một câu hỏi, một ý chưa rõ, hoặc một việc cần gỡ.\nMình bắt đầu từ đó.")
-        sub_desc.setStyleSheet("color: #786F66; font-size: 12px; font-weight: 500; line-height: 1.45;")
-        sub_desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        w_layout.addWidget(sub_desc)
-
-        # Prompt chip container (Grid of 2 columns)
-        chips_frame = QFrame()
-        chips_frame.setStyleSheet("""
-            QFrame {
-                background: transparent;
-                border: none;
-            }
-            QPushButton.PromptSuggestionBtn {
-                background-color: #FFFFFF;
-                color: #3D352B;
-                border: 1px solid #E2D8C8;
-                border-bottom: 2px solid #CFC4B2;
-                border-radius: 9px;
-                padding: 7px 12px;
-                font-size: 11.5px;
-                font-weight: 650;
-                text-align: left;
-            }
-            QPushButton.PromptSuggestionBtn:hover {
-                background-color: #FFFDF9;
-                color: #1F1A16;
-                border-color: #D4B872;
-                border-bottom: 2px solid #C49F4E;
-            }
-            QPushButton.PromptSuggestionBtn:pressed {
-                background-color: #FEE8A2;
-                border-bottom: 1px solid #D4B872;
-                padding-top: 8px;
-                padding-bottom: 6px;
-            }
-        """)
-        c_layout = QGridLayout(chips_frame)
-        c_layout.setContentsMargins(0, 8, 0, 0)
-        c_layout.setHorizontalSpacing(8)
-        c_layout.setVerticalSpacing(8)
-
-        prompts = [
-            ("Gỡ một ý tưởng", "Giúp mình nghĩ về "),
-            ("Phản biện một ý", "Phản biện giúp mình ý này: "),
-            ("Tìm một tệp", "tìm file "),
-            ("Lịch hôm nay", "Hôm nay học gì?"),
-        ]
-
-        for i, (btn_text, prompt_val) in enumerate(prompts):
-            btn = QPushButton(btn_text)
-            btn.setProperty("class", "PromptSuggestionBtn")
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.clicked.connect(lambda _, p=prompt_val: self.prompt_clicked.emit(p))
-            c_layout.addWidget(btn, i // 2, i % 2)
-
-        w_layout.addWidget(chips_frame)
-
-        self.layout.addWidget(self.welcome_widget, 1)
-        self.viewport().update()
+        layout = QVBoxLayout(self.welcome_widget)
+        layout.setContentsMargins(0, 14, 0, 12)
+        text = QLabel('Một câu hỏi, một việc cần làm. Cứ nói với mình.')
+        text.setWordWrap(True)
+        text.setStyleSheet('color: #968B7D; font-size: 13px; background: transparent; border: none;')
+        layout.addWidget(text)
+        self.layout.addWidget(self.welcome_widget)
 
     def clear_chat(self) -> None:
         """Reset conversation and return to welcome state."""
+        self._scroll_timer.stop()
+        self._restore_timer.stop()
+        self._reading_restore = None
+        self._follow_latest = True
         self._message_count = 0
+        self._turn_widgets.clear()
+        self._turn_id = 0
         self._show_watermark = False
         while self.layout.count():
             item = self.layout.takeAt(0)
@@ -692,287 +717,113 @@ class ChatStreamWidget(QScrollArea):
         self._render_welcome_state()
         self.viewport().update()
 
-    def add_user_message(self, text: str) -> None:
-        """Render a user prompt speech bubble."""
-        if self._message_count == 0 and hasattr(self, "welcome_widget"):
-            self.welcome_widget.hide()
-            self._show_watermark = True
-            self.viewport().update()
-
+    def add_user_message(self, text):
+        self.welcome_widget.hide()
         self._message_count += 1
-
-        bubble_row = QHBoxLayout()
-        bubble_row.setContentsMargins(0, 2, 0, 2)
-        bubble_row.addStretch()
-
-        bubble = QFrame()
-        bubble.setObjectName("UserBubble")
-        bubble.setMaximumWidth(460)
-        bubble.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-        b_shadow = QGraphicsDropShadowEffect(bubble)
-        b_shadow.setBlurRadius(6)
-        b_shadow.setOffset(0, 2)
-        b_shadow.setColor(QColor(43, 38, 31, 14))
-        bubble.setGraphicsEffect(b_shadow)
-        bubble.setStyleSheet("""
-            QFrame#UserBubble {
-                background-color: #F4EFE6;
-                border: 1px solid #DECFC0;
-                border-bottom: 2px solid #CCC0B0;
-                border-radius: 13px;
-                border-bottom-right-radius: 3px;
-                padding: 8px 14px;
-            }
-            QLabel {
-                color: #1F1A16;
-                font-size: 13px;
-                font-weight: 550;
-                border: none;
-                background: transparent;
-            }
-        """)
-
-        b_layout = QVBoxLayout(bubble)
-        b_layout.setContentsMargins(0, 0, 0, 0)
-        lbl = QLabel(text)
-        lbl.setWordWrap(True)
-        lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        b_layout.addWidget(lbl)
-
-        bubble_row.addWidget(bubble, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop)
-        self.layout.addLayout(bubble_row)
-        self._scroll_to_bottom()
+        row = QLabel(text)
+        row.setObjectName('UserMessage')
+        row.setTextFormat(Qt.TextFormat.PlainText)
+        row.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        row.setWordWrap(True)
+        row.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Maximum)
+        row.setStyleSheet('color: #998D7B; font-size: 12px; border: none; background: transparent; padding: 3px 0;')
+        self.layout.addWidget(row)
+        self._track_message(row, 'user')
+        self._scroll_to_bottom(force=True)
 
     def add_assistant_message(
-        self,
-        answer: str,
-        reasoning_steps: Optional[List[str]] = None,
-        latency_ms: float = 0.0,
-        strategy: str = "Meta-RL",
-        confidence: float = 0.95,
-        inline_files: Optional[List[SearchResultItem]] = None,
-        custom_widget: Optional[QWidget] = None,
-        citations: Optional[List[Dict[str, Any]]] = None,
-    ) -> None:
-        """Render an AI Assistant response with thinking process, grounded citations, and rich cards."""
-        if self._message_count == 0 and hasattr(self, "welcome_widget"):
-            self.welcome_widget.hide()
-            self._show_watermark = True
-            self.viewport().update()
+        self, answer: str, reasoning_steps=None, latency_ms=0.0,
+        strategy="Assistant", confidence=1.0, inline_files=None,
+        custom_widget=None, citations=None,
+    ):
+        """Completed and streaming replies share the same rendering path."""
+        handle = self.create_streaming_message(strategy=strategy)
+        handle['full_text'] = answer
+        self.finalize_stream(handle, reasoning_steps=reasoning_steps,
+            latency_ms=latency_ms, citations=citations, inline_files=inline_files,
+            custom_widget=custom_widget)
+        return handle
 
+    def _scroll_to_bottom(self, force=False):
+        self.content_changed.emit()
+        if force:
+            self._follow_latest = True
+        if self._follow_latest:
+            self._scroll_timer.start(0)
+
+    def create_streaming_message(self, strategy='Assistant', badge='Đang xử lý'):
+        self.welcome_widget.hide()
         self._message_count += 1
-
         card = QFrame()
-        card.setObjectName("AssistantCard")
-        card.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
-        card.setStyleSheet("""
-            QFrame#AssistantCard {
-                background-color: #FFFFFF;
-                border: 1px solid rgba(43, 38, 31, 0.10);
-                border-radius: 12px;
-                padding: 10px 14px;
-            }
-            QLabel {
-                border: none;
-                background: transparent;
-                color: #1F1A16;
-            }
-        """)
+        card.setObjectName('AssistantCard')
+        card.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Maximum)
+        card.setStyleSheet('QFrame#AssistantCard { background: transparent; border: none; } QLabel { border: none; background: transparent; color: #302B24; }')
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        badge_label = QLabel(badge, card)
+        badge_label.hide()  # Trace metadata stays available without becoming a card header.
+        status = QLabel('Đang xử lý…')
+        status.setStyleSheet('color: #9C8D77; font-size: 12px; padding: 2px 0;')
+        layout.addWidget(status)
+        answer = QLabel('')
+        answer.setTextFormat(Qt.TextFormat.MarkdownText)
+        answer.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        answer.setWordWrap(True)
+        answer.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Maximum)
+        answer.setStyleSheet('color: #302B24; font-size: 13px;')
+        answer.hide()
+        layout.addWidget(answer)
+        from rat.ui.work_context import WorkTracePane
+        trace = WorkTracePane(card)
+        trace.changed.connect(self.content_changed)
+        layout.addWidget(trace)
+        self.layout.addWidget(card)
+        self._track_message(card, 'assistant')
+        self._scroll_to_bottom(force=True)
+        return dict(card=card, c_layout=layout, status_lbl=status, badge_lbl=badge_label,
+            ans_lbl=answer, tokens=[], full_text='', accordion_added=False, work_trace=trace)
 
-        c_layout = QVBoxLayout(card)
-        c_layout.setContentsMargins(0, 0, 0, 0)
-        c_layout.setSpacing(6)
-
-        # Header tag row
-        h_row = QHBoxLayout()
-        h_row.setSpacing(6)
-
-        pm = get_mascot_pixmap(20, 20, bust_only=True)
-        if pm and not pm.isNull():
-            mascot_icon = QLabel()
-            mascot_icon.setPixmap(pm)
-            mascot_icon.setFixedSize(20, 20)
-            h_row.addWidget(mascot_icon)
-
-        ai_tag = QLabel("Chuột")
-        ai_tag.setStyleSheet("color: #7A5800; font-size: 12px; font-weight: 800;")
-        h_row.addWidget(ai_tag)
-
-        sub_tag = QLabel("· " + {"Search": "Tìm tệp", "Math": "Tính nhanh", "Timetable": "Lịch học", "PAL": "Kiểm chứng (PAL)", "CoT": "Quy chế"}.get(strategy, "Trả lời"))
-        sub_tag.setStyleSheet("color: #9E8F7A; font-size: 11px; font-weight: 550;")
-        h_row.addWidget(sub_tag)
-
-        h_row.addStretch()
-        c_layout.addLayout(h_row)
-
-        # Optional Collapsible Thinking Process Accordion
-        if reasoning_steps and len(reasoning_steps) > 0:
-            accordion = ThinkingAccordion(reasoning_steps, latency_ms=latency_ms)
-            c_layout.addWidget(accordion)
-
-        # Main Answer Text
-        ans_lbl = QLabel(answer)
-        ans_lbl.setTextFormat(Qt.TextFormat.MarkdownText)
-        ans_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        ans_lbl.setStyleSheet("color: #1F2937; font-size: 13px; line-height: 1.5;")
-        ans_lbl.setWordWrap(True)
-        c_layout.addWidget(ans_lbl)
-
-        # Optional Custom Widget (e.g. Agenda, Room guide, Math card, Timetable)
+    def update_source_cards(self, handle, *, inline_files=None, custom_widget=None):
+        """Show observed sources while the model is still working."""
+        old = handle.get("sources_widget")
+        existing_panel = getattr(old, "artifact_panel", None)
+        if existing_panel is not None and custom_widget is not None and hasattr(custom_widget, "update_from"):
+            position = self.verticalScrollBar().value()
+            existing_panel.update_from(custom_widget)
+            custom_widget.deleteLater()
+            self.set_compact(self._compact)
+            self.content_changed.emit()
+            self.restore_reading_position(position)
+            return
+        old = handle.pop("sources_widget", None)
+        if old is not None:
+            handle["c_layout"].removeWidget(old)
+            old.hide()
+            old.deleteLater()
+        if not inline_files and custom_widget is None:
+            return
+        host = QWidget()
+        layout = QVBoxLayout(host)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
         if custom_widget is not None:
+            if hasattr(custom_widget, "update_from"):
+                host.artifact_panel = custom_widget
             if hasattr(custom_widget, "prompt_requested"):
                 custom_widget.prompt_requested.connect(self.prompt_clicked.emit)
-            c_layout.addWidget(custom_widget)
-
-        # Grounded Citation Chips (VGC Anti-Hallucination)
-        if citations and len(citations) > 0:
-            c_box = QVBoxLayout()
-            c_box.setSpacing(4)
-            c_title = QLabel("Nguồn trích dẫn:")
-            c_title.setStyleSheet("color: #6B7280; font-size: 11px; font-weight: 600; padding-top: 2px;")
-            c_box.addWidget(c_title)
-
-            chips_flow = QHBoxLayout()
-            chips_flow.setSpacing(6)
-            for cit in citations:
-                chip = CitationChip(cit)
-                chips_flow.addWidget(chip)
-            chips_flow.addStretch()
-            c_box.addLayout(chips_flow)
-            c_layout.addLayout(c_box)
-
-        # Optional Inline File Cards (for file search responses)
-        if inline_files and len(inline_files) > 0:
-            files_box = QVBoxLayout()
-            files_box.setSpacing(4)
-            for f_item in inline_files[:4]:
-                file_card = InlineFileCard(f_item)
-                files_box.addWidget(file_card)
-            c_layout.addLayout(files_box)
-
-        # Action Buttons Footer
-        btn_row = QHBoxLayout()
-        btn_row.setSpacing(6)
-
-        btn_copy = QPushButton("Sao chép")
-        btn_copy.setStyleSheet("""
-            QPushButton {
-                background-color: #F9FAFB;
-                border: 1px solid #E5E7EB;
-                color: #4B5563;
-                font-size: 11px;
-                font-weight: 600;
-                padding: 4px 12px;
-                border-radius: 6px;
-            }
-            QPushButton:hover {
-                background-color: #F3F4F6;
-                color: #1F2937;
-                border-color: #D1D5DB;
-            }
-            QPushButton:pressed {
-                background-color: #E5E7EB;
-            }
-        """)
-        btn_copy.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        def _do_copy():
-            QApplication.clipboard().setText(answer)
-            btn_copy.setText("✓ Đã sao chép")
-            from PyQt6.QtCore import QTimer
-            QTimer.singleShot(1500, lambda: btn_copy.setText("Sao chép"))
-
-        btn_copy.clicked.connect(_do_copy)
-        btn_row.addWidget(btn_copy)
-        btn_row.addStretch()
-
-        c_layout.addLayout(btn_row)
-        self.layout.addWidget(card)
-        self._scroll_to_bottom()
-
-    def _scroll_to_bottom(self) -> None:
-        from PyQt6.QtCore import QTimer
-        def _do_scroll():
-            sb = self.verticalScrollBar()
-            if sb:
-                sb.setValue(sb.maximum())
-        QTimer.singleShot(10, _do_scroll)
-
-    def create_streaming_message(
-        self,
-        strategy: str = "On-Device Qwen",
-        badge: str = "Qwen2.5 (Metal)",
-    ) -> Dict[str, Any]:
-        """Creates an Assistant card ready to stream tokens with a real-time thinking indicator."""
-        if self._message_count == 0 and hasattr(self, "welcome_widget"):
-            self.welcome_widget.hide()
-            self._show_watermark = True
-            self.viewport().update()
-
-        self._message_count += 1
-
-        card = QFrame()
-        card.setObjectName("AssistantCard")
-        card.setStyleSheet("""
-            QFrame#AssistantCard {
-                background-color: #FFFFFF;
-                border: 1px solid rgba(0, 0, 0, 0.06);
-                border-radius: 14px;
-                padding: 10px 14px;
-            }
-            QLabel {
-                border: none;
-                background: transparent;
-                color: #1F2937;
-            }
-        """)
-
-        c_layout = QVBoxLayout(card)
-        c_layout.setContentsMargins(0, 0, 0, 0)
-        c_layout.setSpacing(6)
-
-        # Header tag row
-        h_row = QHBoxLayout()
-        h_row.setSpacing(6)
-
-        ai_tag = QLabel("Chuột")
-        ai_tag.setStyleSheet("color: #1F2937; font-size: 12px; font-weight: 750;")
-        h_row.addWidget(ai_tag)
-
-        sub_tag = QLabel(f"· {badge}")
-        sub_tag.setStyleSheet("color: #9CA3AF; font-size: 11px; font-weight: 500;")
-        h_row.addWidget(sub_tag)
-
-        h_row.addStretch()
-        c_layout.addLayout(h_row)
-
-        # Thinking Status Indicator
-        status_lbl = QLabel("Chuột đang suy nghĩ...")
-        status_lbl.setStyleSheet("color: #9CA3AF; font-size: 12px; font-style: italic; padding: 4px 0px;")
-        c_layout.addWidget(status_lbl)
-
-        # Main Answer Text Label (hidden initially)
-        ans_lbl = QLabel("")
-        ans_lbl.setTextFormat(Qt.TextFormat.MarkdownText)
-        ans_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        ans_lbl.setStyleSheet("color: #1F2937; font-size: 13px; line-height: 1.5;")
-        ans_lbl.setWordWrap(True)
-        ans_lbl.hide()
-        c_layout.addWidget(ans_lbl)
-
-        self.layout.addWidget(card)
-        self._scroll_to_bottom()
-
-        return {
-            "card": card,
-            "c_layout": c_layout,
-            "status_lbl": status_lbl,
-            "badge_lbl": sub_tag,
-            "ans_lbl": ans_lbl,
-            "tokens": [],
-            "full_text": "",
-            "accordion_added": False,
-        }
+            layout.addWidget(custom_widget)
+        if inline_files and not getattr(custom_widget, "covers_documents", False):
+            title = QLabel("Tài liệu đã tìm")
+            title.setStyleSheet("color: #786F66; font-size: 11px; padding-top: 8px;")
+            layout.addWidget(title)
+            for item in inline_files[:4]:
+                layout.addWidget(InlineFileCard(item))
+        handle["sources_widget"] = host
+        handle["c_layout"].insertWidget(handle["c_layout"].indexOf(handle["work_trace"]), host)
+        self.set_compact(self._compact)
+        self.content_changed.emit()
+        self._show_result_start(handle)
 
     def append_stream_token(self, handle: Dict[str, Any], token: str) -> None:
         """Append streamed token and update message live with smooth scrolling."""
@@ -989,6 +840,9 @@ class ChatStreamWidget(QScrollArea):
             ans_lbl.show()
 
         ans_lbl.setText(handle["full_text"])
+        handle['c_layout'].invalidate()
+        self.layout.invalidate()
+        self._fit_content_height()
         self._scroll_to_bottom()
 
     def finalize_stream(
@@ -997,6 +851,9 @@ class ChatStreamWidget(QScrollArea):
         reasoning_steps: Optional[List[str]] = None,
         latency_ms: float = 0.0,
         citations: Optional[List[Dict[str, Any]]] = None,
+        inline_files: Optional[List[SearchResultItem]] = None,
+        custom_widget: Optional[QWidget] = None,
+        retry_prompt: Optional[str] = None,
     ) -> None:
         """Finalize streamed message with thinking accordion, grounded citations, and action buttons."""
         c_layout = handle["c_layout"]
@@ -1004,10 +861,17 @@ class ChatStreamWidget(QScrollArea):
         full_text = handle["full_text"]
 
         ans_lbl.setText(full_text)
-        ans_lbl.show()
+        ans_lbl.setVisible(bool(full_text))
 
         status_lbl = handle["status_lbl"]
         status_lbl.hide()
+
+        self.update_source_cards(handle, inline_files=inline_files, custom_widget=custom_widget)
+        if retry_prompt:
+            retry = QPushButton("Thử lại")
+            retry.setCursor(Qt.CursorShape.PointingHandCursor)
+            retry.clicked.connect(lambda: self.prompt_clicked.emit(retry_prompt))
+            c_layout.addWidget(retry)
 
         # Insert ThinkingAccordion above ans_lbl if steps provided
         if reasoning_steps and len(reasoning_steps) > 0 and not handle.get("accordion_added"):
@@ -1041,19 +905,19 @@ class ChatStreamWidget(QScrollArea):
         btn_copy = QPushButton("Sao chép")
         btn_copy.setStyleSheet("""
             QPushButton {
-                background-color: #FFB800;
-                border: 1px solid #E2A200;
-                color: #1A1816;
+                background-color: #F2ECE2;
+                border: none;
+                color: #766548;
                 font-size: 11px;
                 font-weight: 700;
                 padding: 4px 12px;
                 border-radius: 7px;
             }
             QPushButton:hover {
-                background-color: #FFA500;
+                background-color: #EAE0D1;
             }
             QPushButton:pressed {
-                background-color: #E29300;
+                background-color: #EAE0D1;
                 padding-top: 5px;
             }
         """)

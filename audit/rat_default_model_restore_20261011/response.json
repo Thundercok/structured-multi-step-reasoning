@@ -1,0 +1,11 @@
+{
+  "model": "qwen2.5:1.5b",
+  "created_at": "2026-10-11T13:06:42.729961Z",
+  "message": {
+    "role": "assistant",
+    "content": ""
+  },
+  "done": true,
+  "done_reason": "load",
+  "elapsed_ms": 3281.7550000036135
+}

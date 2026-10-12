@@ -1,0 +1,1 @@
+FF                                                                       [100%]QThread: Destroyed while thread is still running

@@ -1,0 +1,9 @@
+{
+  "inference_collection": "model requests executed serially; no second RAT evaluation job overlapped",
+  "environment": "normal desktop load; Qt validation and shell diagnostics were also active during parts of collection",
+  "latency_claim": "measured development elapsed time, not a controlled hardware speed benchmark",
+  "zero_token_on_timeout": "usage was unavailable, not zero actual inference cost",
+  "review_status": "pending",
+  "stage0_changed": false,
+  "candidate_variant_diagnosis": "qwen3:4b metadata identifies Qwen3-4B-Thinking-2507. Calls requested think=false, but this variant only advertised true. Timeouts and invalid schema outputs are app/variant compatibility failures, not a fair quality comparison with a non-thinking instruct model. See audit/rat_qwen3_template_adapter_20261011."
+}

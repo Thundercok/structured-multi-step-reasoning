@@ -1,0 +1,12 @@
+{
+  "collection": "serial exposed app-development fixture after variant diagnosis",
+  "candidate": "qwen3:4b-instruct",
+  "candidate_variant_metadata": "audit/rat_qwen3_instruct_preflight_20261011/show.json",
+  "other_inference_jobs_started_by_this_session": false,
+  "normal_desktop_load_controlled": false,
+  "quality_review": "pending; no auto labels from tools",
+  "latency_scope": "measured online app calls including plan, tools and client overhead; not isolated hardware benchmark",
+  "token_scope": "reported prompt+completion; timeout counts unavailable represented as zero",
+  "stage0_changed": false,
+  "baseline_loading_failure": "Ollama server.log reported qwen2.5 llama-server startup aborted at the 30s client deadline while Qwen3 Instruct remained resident. Treat these requests as serving/load failures, not model-quality observations. No unsupported inference-cost estimate is imputed."
+}

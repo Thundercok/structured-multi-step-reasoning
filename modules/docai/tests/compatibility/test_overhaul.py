@@ -28,4 +28,8 @@ def test_overhaul_benchmark_metrics():
 
     assert "mean_anls_score" in metrics
     assert metrics["mean_anls_score"] == 1.0
-    assert metrics["real_world_cord_mc_ocr_acc"] == 100.0
+    assert metrics["synthetic_example_total_accuracy"] == 100.0
+    assert metrics["evidence_scope"] == "synthetic_smoke"
+    assert metrics["ocr_executed"] is False
+    assert metrics["pure_ocr_baseline_acc"] is None
+    assert metrics["stp_rate"] is None

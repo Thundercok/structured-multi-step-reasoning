@@ -1,0 +1,12 @@
+{
+  "evidence": "synthetic_smoke",
+  "stage0_changed": false,
+  "research_study_result": false,
+  "dataset_sha256": "a350f2402824be9ca06def72994b379eb050a70ba16336add3bc53f97522c975",
+  "policy_sha256": "1aeee09897c365714ede750e5dd653fce2ebcc8a59c91c1804f16e6e5d41ccfc",
+  "controller_source_sha256": "223c402df0eac6b1d407e2fa3a9d4c43edebcb5109a827a323b24f5b4f28a8fb",
+  "fitting_source_sha256": "bf6ad728f9e47adba5f600ff2524c6b99a17e890b07a8c85b1a6e2507eedbce0",
+  "model_calls": 0,
+  "publication_review_required": true,
+  "evaluation": "Not evaluated on held-out labels during fitting"
+}

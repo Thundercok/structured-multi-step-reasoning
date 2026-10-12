@@ -1,0 +1,24 @@
+{
+  "scope": "three-body one-epoch check, not global accuracy certification",
+  "tolerance_arcseconds": 5,
+  "rows": [
+    {
+      "id": "sun",
+      "horizons_longitude": 84.3021485,
+      "rat_longitude": 84.30215908406151,
+      "difference_arcseconds": 0.038102621397229086
+    },
+    {
+      "id": "moon",
+      "horizons_longitude": 244.1346105,
+      "rat_longitude": 244.13459299368037,
+      "difference_arcseconds": 0.06302275069174357
+    },
+    {
+      "id": "mars",
+      "horizons_longitude": 89.0485508,
+      "rat_longitude": 89.04856225888621,
+      "difference_arcseconds": 0.04125199034206162
+    }
+  ]
+}

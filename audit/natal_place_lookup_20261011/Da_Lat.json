@@ -1,0 +1,26 @@
+{
+  "query": "Da Lat",
+  "url": "https://geocoding-api.open-meteo.com/v1/search?name=Da+Lat&count=8&language=vi&format=json",
+  "response": {
+    "results": [
+      {
+        "id": 1584071,
+        "name": "Ðà Lạt",
+        "latitude": 11.94646,
+        "longitude": 108.44193,
+        "elevation": 1483.0,
+        "feature_code": "PPLA",
+        "country_code": "VN",
+        "admin1_id": 13494356,
+        "admin2_id": 1905197,
+        "timezone": "Asia/Ho_Chi_Minh",
+        "population": 258014,
+        "country_id": 1562822,
+        "country": "Việt Nam",
+        "admin1": "Lam Dong",
+        "admin2": "Thành Phố Đà Lạt"
+      }
+    ],
+    "generationtime_ms": 0.27227402
+  }
+}

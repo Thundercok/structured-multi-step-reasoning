@@ -8,3 +8,16 @@ __pycache__/
 
 local_state/
 vision_native_bin
+
+local_state/
+nesy_docai/intake/vision_native_bin
+
+*.egg-info/
+build/
+dist/
+tmp/
+
+*.egg-info/
+build/
+dist/
+tmp/

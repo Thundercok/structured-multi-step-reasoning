@@ -123,7 +123,8 @@ def test_real_ocr_tokens_from_generated_hardcore_zip():
     from hardcore_invoices_challenge.zip (generated via PIL canvas rendering).
     Verifies actual macOS Vision API / Tesseract live OCR bounding box extractions.
     """
-    zip_path = "hardcore_invoices_challenge.zip"
+    from pathlib import Path
+    zip_path = str(Path(__file__).resolve().parents[2] / "fixtures/hardcore_invoices_challenge.zip")
     assert os.path.exists(zip_path), "hardcore_invoices_challenge.zip must exist"
 
     tmp_extract_dir = tempfile.mkdtemp()

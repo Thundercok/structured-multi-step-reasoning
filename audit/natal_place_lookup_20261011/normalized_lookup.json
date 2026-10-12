@@ -1,0 +1,13 @@
+{
+  "input": "Đà Lạt",
+  "sent_place_query": "Da Lat",
+  "results": [
+    {
+      "name": "Ðà Lạt, Lam Dong, Việt Nam",
+      "latitude": 11.94646,
+      "longitude": 108.44193,
+      "timezone": "Asia/Ho_Chi_Minh"
+    }
+  ],
+  "personal_birth_data_sent": false
+}

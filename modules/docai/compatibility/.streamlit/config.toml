@@ -1,12 +1,12 @@
 [server]
 port = 8501
-address = "0.0.0.0"
+address = "127.0.0.1"
 headless = true
-enableCORS = false
-enableXsrfProtection = false
-maxUploadSize = 500
-maxMessageSize = 500
+enableCORS = true
+enableXsrfProtection = true
+maxUploadSize = 25
+maxMessageSize = 25
 
 [browser]
 gatherUsageStats = false
-serverAddress = "0.0.0.0"
+serverAddress = "127.0.0.1"

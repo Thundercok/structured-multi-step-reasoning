@@ -30,3 +30,13 @@ replayed strategy time from measured online latency.
 
 - Never git push/pull/reset/force unless the user says so in the same message.
 
+
+# Canonical repository and deferred DocAI
+
+The primary repository is now `Thundercok/nesy-docai`, locally accessible through
+`~/github/nesy-docai` (real checkout: `SoftwareEngineering2026`). Structured
+reasoning and RAT live at the root. DocAI is standalone under `modules/docai/`
+with its own dependencies and tests; integration into RAT is deferred by the
+user. Keep it out of the default RAT registry and research startup until a
+later integration request. The legacy reasoning checkout/shared worktrees and
+`.migration-backups/` are recovery material; do not remove them as routine cleanup.

@@ -18,4 +18,11 @@ dmg_temp/
 .venv/
 runs/
 outputs/
+nesy_docai/intake/vision_native_bin
+integrations/nesy_docai/tmp/
 *pool*.json
+
+# Recovery material and deferred standalone DocAI state
+.migration-backups/
+modules/docai/local_state/
+modules/docai/nesy_docai/intake/vision_native_bin

@@ -7,13 +7,15 @@ from __future__ import annotations
 
 import json
 import re
+from rat.engine.persona import COMPANION_PERSONA
 
 
 CHAT_SYSTEM_PROMPT = (
+    COMPANION_PERSONA +
     "Bạn là Chuột, trợ lý giúp người dùng hỏi đáp và suy nghĩ cùng nhau. "
-    "Giọng bình thản, hơi mỉa nhẹ khi phù hợp; không cố pha trò, không mắng, "
+    "Giọng bình thản, thân thiện; không cố pha trò, không mắng, "
     "không đổ lỗi hay chế giễu người dùng. Không thêm lời khen xã giao hay emoji; "
-    "không cần câu nào cũng có lời mỉa. Khi họ bực hoặc cần giúp, ưu tiên giúp việc. "
+    "Khi họ bực hoặc cần giúp, ưu tiên giúp việc. "
     "Trả lời rõ ràng bằng tiếng Việt, đủ ý nhưng không dài dòng. "
     "Dựa vào các lượt trao đổi trước để trả lời yêu cầu mới nhất; không lặp lại lời chào "
     "hoặc hướng dẫn tính năng khi họ đang hỏi một việc cụ thể. "
@@ -57,23 +59,37 @@ def extract_arithmetic_request(query: str) -> str | None:
 
 
 class ConversationHistory:
-    """Keep completed turns only, bounded in both turns and prompt characters."""
+    """Bound completed answers and an honest context of incomplete requests."""
 
     MAX_TURNS = 6
     MAX_CHARS = 6000
 
     def __init__(self) -> None:
         self._turns: list[tuple[str, str]] = []
+        self._context_turns: list[tuple[str, str]] = []
 
     def clear(self) -> None:
         self._turns.clear()
+        self._context_turns.clear()
 
     def add_turn(self, query: str, answer: str) -> None:
         if query.strip() and answer.strip():
             # A very long pasted message must not grow stored context without bound.
             limit = self.MAX_CHARS // 2
-            self._turns.append((self._clip(query, limit), self._clip(answer, limit)))
+            turn = (self._clip(query, limit), self._clip(answer, limit))
+            self._turns.append(turn)
             self._turns = self._turns[-self.MAX_TURNS:]
+            self._context_turns.append(turn)
+            self._context_turns = self._context_turns[-self.MAX_TURNS:]
+
+    def add_attempt(self, query: str, status: str = 'failed') -> None:
+        if status not in ('failed', 'cancelled', 'needs_input'):
+            raise ValueError('Unknown incomplete execution status')
+        if query.strip():
+            event = json.dumps({'origin': 'runtime_execution_status', 'status': status,
+                                'successful_answer_produced': False})
+            self._context_turns.append((self._clip(query, self.MAX_CHARS // 2), event))
+            self._context_turns = self._context_turns[-self.MAX_TURNS:]
 
     @staticmethod
     def _clip(text: str, limit: int) -> str:
@@ -81,9 +97,17 @@ class ConversationHistory:
         return text if len(text) <= limit else text[:limit - len(marker)] + marker
 
     def messages(self) -> list[dict[str, str]]:
+        """Successful completed turns only; status notices are never answers."""
+        return self._bounded_messages(self._turns)
+
+    def context_messages(self) -> list[dict[str, str]]:
+        """Include failed/cancelled user requests with explicitly attributed status."""
+        return self._bounded_messages(self._context_turns)
+
+    def _bounded_messages(self, records) -> list[dict[str, str]]:
         turns: list[tuple[str, str]] = []
         used = 0
-        for query, answer in reversed(self._turns):
+        for query, answer in reversed(records):
             size = len(query) + len(answer)
             if used + size > self.MAX_CHARS:
                 break

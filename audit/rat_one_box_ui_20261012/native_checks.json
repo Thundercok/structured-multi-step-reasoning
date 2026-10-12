@@ -1,0 +1,18 @@
+{
+  "type": "observations_from_native_UI_inspection",
+  "fixture_birth_data": {
+    "date": "2000-06-15",
+    "time": "09:30",
+    "place": "Hồ Chí Minh"
+  },
+  "checked": [
+    "compact inline form",
+    "field and composer draft persistence across modes",
+    "actual chart creation through dispatcher",
+    "time edit retained across expansion",
+    "Apply changed time to 10:00 and revision to 2",
+    "final-source accessibility disclosure exposed celestial-position table"
+  ],
+  "final_app_state": "source app running; illustrative chart open",
+  "model_quality_evaluation": false
+}

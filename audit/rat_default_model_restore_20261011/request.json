@@ -1,0 +1,9 @@
+{
+  "model": "qwen2.5:1.5b",
+  "messages": [],
+  "stream": false,
+  "keep_alive": "5m",
+  "options": {
+    "num_ctx": 8192
+  }
+}

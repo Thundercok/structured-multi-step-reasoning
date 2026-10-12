@@ -6,6 +6,7 @@ Z3 SMT solver execution, proof certificate generation, and live OCR.
 
 import os
 import pytest
+pytest.importorskip("streamlit")
 from streamlit.testing.v1 import AppTest
 
 
@@ -13,7 +14,8 @@ def test_streamlit_app_e2e_initial_render():
     """
     Simulates user opening Streamlit app and verifies initial render without exceptions.
     """
-    app_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "app_streamlit.py"))
+    from pathlib import Path
+    app_path = str(Path(__file__).resolve().parents[2] / "compatibility/app_streamlit.py")
     at = AppTest.from_file(app_path, default_timeout=30)
     at.run()
 

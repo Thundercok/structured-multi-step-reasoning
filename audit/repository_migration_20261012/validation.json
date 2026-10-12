@@ -1,0 +1,69 @@
+{
+  "date_utc": "2026-10-12T08:14:16.033827+00:00",
+  "evidence_scope": "repository_migration_and_software_validation; no new real-model study",
+  "canonical_checkout": "/Users/thundercock2/Documents/Github/SoftwareEngineering2026",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "root_checks": {
+    "command": "QT_QPA_PLATFORM=offscreen python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_docai_separation.py tests/test_interaction_kernel.py tests/test_interaction_kernel_regressions.py tests/test_assistant_runtime.py tests/test_turn_notes_preview.py -q",
+    "exit_code": 0,
+    "passed": 91,
+    "elapsed_seconds": 32.88
+  },
+  "docai_checks": {
+    "command": "cd modules/docai && ../../.venv/bin/python -m pytest tests -q -r s",
+    "exit_code": 0,
+    "passed": 54,
+    "skipped": 1,
+    "skip_reason": "Live OCR batch on synthetic images is opt-in.",
+    "elapsed_seconds": 11.8
+  },
+  "initial_root_check": {
+    "passed": 82,
+    "failed": 1,
+    "failure": "Ignored legacy bytecode directories left a root nesy_docai namespace.",
+    "resolution": "Preserved those caches in modules/docai/local_state/pre_migration_python_cache; final root checks passed."
+  },
+  "standalone_wheel": {
+    "file": "nesy_docai_prototype-1.1.0-py3-none-any.whl",
+    "sha256": "f29752cd818b4323a54596c090d296eb32605a1d6f188b235963065eaeab46b8",
+    "swift_source_included": true,
+    "rat_included": false,
+    "build_command": "python -m pip --disable-pip-version-check wheel --no-deps --no-build-isolation . --wheel-dir /private/tmp/nesy-docai-wheel-check",
+    "exit_code": 0,
+    "initial_environment_limitation": "Existing legacy .venv lacks setuptools. Build succeeded with the existing default Python build backend; no environment/package upgrade was performed."
+  },
+  "recovery": [
+    {
+      "bundle": "structured-reasoning.bundle",
+      "restored_head": "835cbda946dd0acde7a77e35ac08efb86d50dbc9",
+      "bare_clone_restore": true,
+      "ancestor_of_migration": true
+    },
+    {
+      "bundle": "nesy-before-migration.bundle",
+      "restored_head": "8e5533b6f376d32481dcfbc1762daf21bf260c65",
+      "bare_clone_restore": true,
+      "ancestor_of_migration": true
+    }
+  ],
+  "file_preservation": {
+    "source_files": 1593,
+    "verified_destinations": 1592,
+    "adapted_files": 11,
+    "intentionally_deferred": [
+      "rat/kernel/capabilities/invoices.py"
+    ],
+    "ignored_state_files": 205,
+    "late_updates_preserved": 11
+  },
+  "research_scope_changed": false,
+  "stage_0_changed": false,
+  "docai_registered_in_rat": false,
+  "model_calls": 0,
+  "publication": {
+    "pushed": false,
+    "source_github_deleted": false,
+    "reason": "AGENTS.md requires explicit push authorization in the current user message."
+  }
+}

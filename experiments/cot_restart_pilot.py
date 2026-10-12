@@ -1,8 +1,9 @@
 """Qwen3.5-4B CoT restart development pilot on exposed development questions.
 
 Strictly local, reproducible, sequential pilot execution for Apple Silicon (Mac 16 GB).
-Includes append-only journal, prompt+prefix+completion token accounting, sentence-boundary
-checkpoint snapping, prefix deduplication, and hard safety ceilings.
+Includes append-only journal with strict identity resume checks, prompt+prefix+completion
+token accounting, full end-to-end path cost tracking, sentence-boundary checkpoint snapping,
+prefix deduplication, an answer-completion formatting baseline, and hard safety ceilings.
 """
 
 from __future__ import annotations
@@ -57,7 +58,24 @@ DEV_POOL_SHA256 = "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a120
 
 # Pilot protocols
 MENU = (0.0, 0.25, 0.5, 0.75)
-CONFIG_ARMS = ("regenerate", "restart_q025", "restart_q050", "restart_q075", "thinking_native")
+# Canonical pilot arms from historical 136-call pilot
+CANONICAL_PILOT_ARMS = (
+    "regenerate",
+    "restart_q025",
+    "restart_q050",
+    "restart_q075",
+    "thinking_native",
+)
+# Proposed 6-arm configuration including full_prefix_continuation (upper bound: 160 calls; rejected under 136 ceiling)
+PROPOSED_6ARM_CONFIG = (
+    "regenerate",
+    "restart_q025",
+    "restart_q050",
+    "restart_q075",
+    "full_prefix_continuation",
+    "thinking_native",
+)
+CONFIG_ARMS = CANONICAL_PILOT_ARMS
 BUDGETS = (1024, 2048)
 SAMPLING_TEMPERATURE = 0.6
 SAMPLING_TOP_P = 0.95
@@ -71,6 +89,7 @@ MAX_DURATION_SECONDS = 8 * 3600  # 8 hours
 # Source code files to hash
 SOURCE_FILES = (
     "experiments/cot_restart_pilot.py",
+    "experiments/cot_restart_addendum.py",
     "experiments/research_study.py",
     "reasoning_strategies.py",
     "research_identity.py",
@@ -78,6 +97,21 @@ SOURCE_FILES = (
     "scripts/gen_tasks.py",
     "docs/cot_restart_preflight_protocol_20261009.md",
 )
+
+
+def calculate_planned_calls_upper_bound(
+    n_questions: int,
+    config_arms: tuple[str, ...] | list[str],
+    budgets: tuple[int, ...] | list[int],
+    has_smoke: bool = True,
+) -> int:
+    """Compute worst-case model call upper bound assuming non-collapsing prefixes."""
+    smoke_calls = 4 if has_smoke else 0
+    base_calls = n_questions
+    prefix_arms_count = sum(1 for a in config_arms if a != "thinking_native")
+    thinking_arms_count = 1 if "thinking_native" in config_arms else 0
+    intervention_calls = n_questions * (prefix_arms_count + thinking_arms_count) * len(budgets)
+    return smoke_calls + base_calls + intervention_calls
 
 FINAL_MARKER = re.compile(
     r"^[ \t]*(?:#{1,6}[ \t]*)?(?:\*\*)?(?:final[ \t]+)?answer"
@@ -192,9 +226,15 @@ def derive_call_seed(base_seed: int, question_id: str, arm: str, budget: int) ->
     return int.from_bytes(h[:4], "big")
 
 
-def get_memory_telemetry() -> dict[str, float]:
-    """Report peak memory in megabytes via getrusage and MLX core."""
+def get_memory_telemetry(mock: bool = False) -> dict[str, float]:
+    """Report peak memory in megabytes via getrusage and MLX core (when not mock)."""
     rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)
+    if mock:
+        return {
+            "ru_maxrss_mb": round(rss_mb, 2),
+            "metal_peak_mb": 0.0,
+            "metal_active_mb": 0.0,
+        }
     metal_peak_mb = 0.0
     metal_active_mb = 0.0
     try:
@@ -216,13 +256,97 @@ def get_memory_telemetry() -> dict[str, float]:
     }
 
 
-class PilotJournal:
-    """Append-only fsynced journal with sha256 chaining for development pilot."""
+def get_runtime_versions() -> dict[str, Any]:
+    """Capture runtime environment and package versions for reproducibility."""
+    versions = {
+        "python": sys.version,
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+    }
+    for pkg in ("mlx", "mlx_lm", "transformers", "huggingface_hub"):
+        try:
+            import importlib.metadata
+            versions[pkg] = importlib.metadata.version(pkg)
+        except Exception:
+            versions[pkg] = None
+    return versions
 
-    def __init__(self, directory: Path, manifest: dict):
+
+def resolve_and_verify_local_snapshot(local_path: Path | str | None = None) -> Path:
+    """Resolve and strictly verify the local pinned MLX model snapshot before loading.
+
+    Enforces that:
+    1. The snapshot directory exists on the local filesystem.
+    2. All pinned model files (config.json, tokenizer.json, tokenizer_config.json, model.safetensors)
+       are present with exact SHA-256 matching MODEL_FILE_HASHES.
+    3. The loader strictly receives a verified local directory path, prohibiting network downloads.
+    """
+    if local_path is not None:
+        cand = Path(local_path).resolve()
+    else:
+        cand = (
+            Path.home()
+            / ".cache"
+            / "huggingface"
+            / "hub"
+            / "models--mlx-community--Qwen3.5-4B-MLX-4bit"
+            / "snapshots"
+            / MODEL_REVISION
+        ).resolve()
+
+    if not cand.exists() or not cand.is_dir():
+        raise FileNotFoundError(
+            f"Local model snapshot directory not found: {cand}. "
+            f"Expected verified local snapshot for {MODEL_REPOSITORY} at revision {MODEL_REVISION}. "
+            "Network downloads during experiment execution are strictly prohibited."
+        )
+
+    for fname, exp_hash in MODEL_FILE_HASHES.items():
+        fpath = cand / fname
+        if not fpath.exists():
+            raise FileNotFoundError(
+                f"Required model file '{fname}' missing from local snapshot {cand}"
+            )
+        act_hash = file_sha256(fpath)
+        if act_hash != exp_hash:
+            raise ValueError(
+                f"Model file '{fname}' hash mismatch in snapshot {cand}: "
+                f"actual={act_hash}, expected pinned={exp_hash}"
+            )
+
+    return cand
+
+
+def build_run_identity(mock: bool, config_arms: tuple[str, ...] | list[str] = CONFIG_ARMS) -> dict[str, Any]:
+    """Immutable identity fingerprint to prevent cross-run contamination on resume."""
+    return {
+        "schema_version": 1,
+        "study": "cot_restart_pilot_qwen35",
+        "role": "exposed_development_pilot",
+        "mock": mock,
+        "model_repository": "mock" if mock else MODEL_REPOSITORY,
+        "model_revision": "mock" if mock else MODEL_REVISION,
+        "quantization": None if mock else QUANTIZATION,
+        "dev_pool_sha256": DEV_POOL_SHA256,
+        "settings_sha256": text_sha256(encoded_json({
+            "budgets": list(BUDGETS),
+            "sampling_temperature": SAMPLING_TEMPERATURE,
+            "sampling_top_p": SAMPLING_TOP_P,
+            "base_cot_budget": BASE_COT_BUDGET,
+            "config_arms": list(config_arms),
+        })),
+        "source_sha256": source_hashes(),
+    }
+
+
+class PilotJournal:
+    """Append-only fsynced journal with sha256 chaining and strict identity resume validation."""
+
+    def __init__(self, directory: Path, manifest: dict, expected_identity: dict | None = None):
         self.directory = Path(directory)
         self.directory.mkdir(parents=True, exist_ok=True)
         self.journal_file = self.directory / "calls.jsonl"
+        self.manifest_file = self.directory / "manifest.json"
         self.lock_file = (self.directory / ".writer.lock").open("a")
         fcntl.flock(self.lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
@@ -230,7 +354,109 @@ class PilotJournal:
         self.count = 0
         self.cache: dict[tuple[str, ...], dict] = {}
         self.total_completion_tokens = 0
-        self.manifest = manifest
+        self.total_incurred_prompt_tokens = 0
+        self.total_incurred_tokens = 0
+        self.executed_model_calls = 0
+        self.skipped_calls = 0
+        self.total_attempted_calls = 0
+        self.failed_attempts = 0
+        self.cost_status = "zero_incurred"
+        self.in_flight_call: dict | None = None
+
+        # Strict identity and data integrity verification on resume
+        if self.manifest_file.exists():
+            existing = json.loads(self.manifest_file.read_text(encoding="utf-8"))
+            if expected_identity is not None:
+                existing_id = existing.get("identity")
+                if existing_id is None:
+                    raise ValueError(
+                        f"Resume error in {directory}: existing manifest lacks pinned identity. "
+                        "Preserve directory and use a new output directory."
+                    )
+                # Verify all pinned identity keys in strict deterministic order
+                identity_keys = (
+                    "study",
+                    "role",
+                    "mock",
+                    "model_repository",
+                    "model_revision",
+                    "quantization",
+                    "dev_pool_sha256",
+                    "settings_sha256",
+                    "source_sha256",
+                    "schema_version",
+                )
+                for key in identity_keys:
+                    if existing_id.get(key) != expected_identity.get(key):
+                        detail = ""
+                        if key == "source_sha256":
+                            ex_src = existing_id.get(key) or {}
+                            req_src = expected_identity.get(key) or {}
+                            file_diffs = [
+                                f for f in sorted(set(ex_src.keys()) | set(req_src.keys()))
+                                if ex_src.get(f) != req_src.get(f)
+                            ]
+                            detail = f" (modified files: {file_diffs})"
+                        raise ValueError(
+                            f"Resume identity mismatch on '{key}' in {directory}{detail}: "
+                            f"existing={existing_id.get(key)}, requested={expected_identity.get(key)}. "
+                            "Preserve directory and use a new output directory to prevent mixing runs."
+                        )
+                # Check for any unexpected extra keys
+                if set(existing_id.keys()) != set(expected_identity.keys()):
+                    diff_keys = sorted(set(existing_id.keys()) ^ set(expected_identity.keys()))
+                    raise ValueError(
+                        f"Resume identity key mismatch on {diff_keys} in {directory}. "
+                        "Preserve directory and use a new output directory to prevent mixing runs."
+                    )
+
+                # Verify actual dataset pool on disk matches pinned identity
+                actual_pool_sha256 = file_sha256(DEV_POOL_PATH)
+                if actual_pool_sha256 != DEV_POOL_SHA256:
+                    raise ValueError(
+                        f"Actual dataset pool file {DEV_POOL_PATH} corrupted or modified on disk: "
+                        f"actual sha256={actual_pool_sha256}, expected pinned={DEV_POOL_SHA256}."
+                    )
+                if actual_pool_sha256 != existing_id.get("dev_pool_sha256"):
+                    raise ValueError(
+                        f"Resume dataset pool mismatch in {directory}: "
+                        f"actual file {DEV_POOL_PATH} sha256={actual_pool_sha256} does not match "
+                        f"recorded identity dev_pool_sha256={existing_id.get('dev_pool_sha256')}."
+                    )
+
+                # If dataset.json exists in directory, verify its contents and recorded hash
+                dataset_file = self.directory / "dataset.json"
+                if dataset_file.exists():
+                    try:
+                        dataset_doc = json.loads(dataset_file.read_text(encoding="utf-8"))
+                        expected_items = select_pilot_questions(DEV_POOL_PATH)
+                        if dataset_doc.get("items") != expected_items:
+                            raise ValueError(
+                                f"Resume dataset items mismatch in {directory}: "
+                                f"{dataset_file} items do not match canonical selection from {DEV_POOL_PATH}."
+                            )
+                        if "artifact_hashes" in existing and "dataset.json" in existing["artifact_hashes"]:
+                            actual_ds_sha = file_sha256(dataset_file)
+                            recorded_ds_sha = existing["artifact_hashes"]["dataset.json"]
+                            if actual_ds_sha != recorded_ds_sha:
+                                raise ValueError(
+                                    f"Resume dataset file hash mismatch in {directory}: "
+                                    f"actual {dataset_file} sha256={actual_ds_sha} != recorded {recorded_ds_sha}."
+                                    )
+                    except json.JSONDecodeError as e:
+                        raise ValueError(f"Resume corrupt dataset file in {directory}: {e}")
+
+            # Synchronize caller's manifest dict with existing manifest on disk
+            manifest.clear()
+            manifest.update(existing)
+            if manifest.get("status") != "complete":
+                manifest["status"] = "running"
+                manifest.pop("error", None)
+                manifest["resumed_utc"] = datetime.now(timezone.utc).isoformat()
+            self.manifest = manifest
+            self.save_manifest()
+        else:
+            self.manifest = manifest
 
         if self.journal_file.exists():
             self._replay()
@@ -239,6 +465,8 @@ class PilotJournal:
 
     def _replay(self) -> None:
         lines = self.journal_file.read_text(encoding="utf-8").splitlines(keepends=True)
+        started_count = 0
+        completed_count = 0
         for line in lines:
             if not line.endswith("\n"):
                 raise ValueError("Torn journal tail in calls.jsonl; preserve for audit")
@@ -248,19 +476,97 @@ class PilotJournal:
                 raise ValueError("Corrupt journal entry checksum")
             if body.get("previous") != self.head or body.get("sequence") != self.count:
                 raise ValueError("Journal sequence or head mismatch")
-            key = (body["kind"], *body["key"])
+            kind = body.get("kind")
+            key = (kind, *body["key"])
             self.cache[key] = body["value"]
             self.head = entry["sha256"]
             self.count += 1
-            if body.get("kind") in ("smoke", "base_cot", "restart_call"):
+            if kind == "call_started":
+                started_count += 1
+            elif kind in ("smoke", "base_cot", "restart_call", "addendum_call"):
                 val = body["value"]
-                self.total_completion_tokens += int(val.get("completion_tokens", 0))
+                is_skipped = val.get("skipped", False) or val.get("budget_infeasible", False)
+                if is_skipped:
+                    self.skipped_calls += 1
+                else:
+                    completed_count += 1
+                    self.executed_model_calls += 1
+                    self.total_completion_tokens += int(val.get("completion_tokens", 0))
+                    self.total_incurred_prompt_tokens += int(val.get("prompt_tokens", 0))
+                    self.total_incurred_tokens += int(val.get("total_tokens", 0))
+
+        if started_count > 0:
+            self.total_attempted_calls = started_count
+            self.failed_attempts = max(0, started_count - completed_count)
+        else:
+            self.total_attempted_calls = self.executed_model_calls
+            self.failed_attempts = 0
+
+        if self.failed_attempts > 0:
+            self.cost_status = "unknown_incurred"
+        elif self.executed_model_calls > 0:
+            self.cost_status = "known_incurred"
+        else:
+            self.cost_status = "zero_incurred"
 
     def has(self, kind: str, *key_parts: str) -> bool:
         return (kind, *key_parts) in self.cache
 
     def get(self, kind: str, *key_parts: str) -> dict | None:
         return self.cache.get((kind, *key_parts))
+
+    def record_call_started(
+        self,
+        target_kind: str,
+        target_key: list[str],
+        prompt: str,
+        prompt_tokens: int,
+    ) -> None:
+        """Fsync a call_started record to journal before backend inference starts."""
+        attempt_id = self.total_attempted_calls + 1
+        val = {
+            "attempt": attempt_id,
+            "target_kind": target_kind,
+            "target_key": target_key,
+            "prompt_tokens_required": prompt_tokens,
+            "started_utc": datetime.now(timezone.utc).isoformat(),
+        }
+        started_key = [*target_key, f"attempt_{attempt_id}"]
+        body = {
+            "sequence": self.count,
+            "previous": self.head,
+            "kind": "call_started",
+            "key": started_key,
+            "value": val,
+        }
+        entry = {**body, "sha256": text_sha256(encoded_json(body))}
+        with self.journal_file.open("a", encoding="utf-8") as f:
+            f.write(encoded_json(entry) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+
+        self.cache[("call_started", *started_key)] = val
+        self.head = entry["sha256"]
+        self.count += 1
+        self.total_attempted_calls += 1
+        self.in_flight_call = {
+            "kind": target_kind,
+            "key": target_key,
+            "attempt": attempt_id,
+            "prompt_tokens": prompt_tokens,
+        }
+        self.failed_attempts = max(0, self.total_attempted_calls - self.executed_model_calls)
+        self.cost_status = "unknown_incurred"
+
+        # Update manifest state immediately
+        self.manifest["journal_head"] = self.head
+        self.manifest["journal_count"] = self.count
+        self.manifest["journal_records"] = self.count
+        self.manifest["total_attempted_calls"] = self.total_attempted_calls
+        self.manifest["failed_attempts"] = self.failed_attempts
+        self.manifest["cost_status"] = self.cost_status
+        self.manifest["in_flight_call"] = self.in_flight_call
+        self.save_manifest()
 
     def append(self, kind: str, key_parts: list[str], value: dict) -> None:
         composite_key = (kind, *key_parts)
@@ -283,14 +589,37 @@ class PilotJournal:
         self.cache[composite_key] = value
         self.head = entry["sha256"]
         self.count += 1
-        if kind in ("smoke", "base_cot", "restart_call"):
-            self.total_completion_tokens += int(value.get("completion_tokens", 0))
+        if kind in ("smoke", "base_cot", "restart_call", "addendum_call"):
+            is_skipped = value.get("skipped", False) or value.get("budget_infeasible", False)
+            if is_skipped:
+                self.skipped_calls += 1
+            else:
+                self.executed_model_calls += 1
+                self.total_completion_tokens += int(value.get("completion_tokens", 0))
+                self.total_incurred_prompt_tokens += int(value.get("prompt_tokens", 0))
+                self.total_incurred_tokens += int(value.get("total_tokens", 0))
+
+        self.in_flight_call = None
+        self.manifest.pop("in_flight_call", None)
+        self.failed_attempts = max(0, self.total_attempted_calls - self.executed_model_calls)
+        if self.failed_attempts == 0:
+            self.cost_status = "known_incurred" if self.executed_model_calls > 0 else "zero_incurred"
+        else:
+            self.cost_status = "unknown_incurred"
 
         # Update manifest journal state
         self.manifest["journal_head"] = self.head
         self.manifest["journal_count"] = self.count
-        self.manifest["total_calls"] = self.count
+        self.manifest["journal_records"] = self.count
+        self.manifest["executed_model_calls"] = self.executed_model_calls
+        self.manifest["total_attempted_calls"] = self.total_attempted_calls
+        self.manifest["failed_attempts"] = self.failed_attempts
+        self.manifest["cost_status"] = self.cost_status
+        self.manifest["skipped_calls"] = self.skipped_calls
+        self.manifest["total_calls"] = self.executed_model_calls
         self.manifest["total_completion_tokens"] = self.total_completion_tokens
+        self.manifest["total_incurred_prompt_tokens"] = self.total_incurred_prompt_tokens
+        self.manifest["total_incurred_tokens"] = self.total_incurred_tokens
         self.save_manifest()
 
     def save_manifest(self) -> None:
@@ -307,11 +636,11 @@ class PilotJournal:
 
 
 class MockLLM:
-    """Offline mock tokenizer and model for complete pre-run test coverage."""
+    """Offline mock tokenizer and model; strictly never imports or touches MLX."""
 
     class MockTokenizer:
         def encode(self, text: str) -> list[int]:
-            return [ord(c) % 256 for c in text]
+            return [hash(w) % 256 for w in re.findall(r"\w+|[^\w\s]", text)]
 
         def apply_chat_template(
             self,
@@ -349,7 +678,7 @@ class MockLLM:
         seed: int,
         is_thinking: bool = False,
     ) -> tuple[str, int, str]:
-        # Return deterministic mock output
+        # Return deterministic mock output without touching MLX
         if is_thinking:
             output = f"Thinking step by step for seed {seed}.\n</think>\n\nAnswer: 42\n"
         else:
@@ -406,7 +735,6 @@ def run_smoke_verification(
 ) -> list[dict]:
     """Execute up to 4 smoke calls verifying non-thinking, thinking, and prefix continuation."""
     smoke_calls = []
-    # Smoke query
     query = "Calculate (15 * 3) + 12."
     suffix = ALIGNED_DIRECT_COT_SUFFIX_TEXT["COT"]
 
@@ -474,6 +802,7 @@ def run_smoke_verification(
         )
         p_tok = len(tokenizer.encode(prompt))
 
+        journal.record_call_started("smoke", [cid], prompt, p_tok)
         out_text, comp_tok, finish, dur_ms = execute_llm_call(
             model,
             tokenizer,
@@ -484,7 +813,7 @@ def run_smoke_verification(
             is_mock=is_mock,
             is_thinking=spec["enable_thinking"],
         )
-        mem = get_memory_telemetry()
+        mem = get_memory_telemetry(mock=is_mock)
         record = {
             "id": cid,
             "description": spec["desc"],
@@ -508,10 +837,43 @@ def run_cot_restart_pilot(
     output_dir: Path,
     mock: bool = False,
     smoke_only: bool = False,
+    config_arms: tuple[str, ...] | list[str] | None = None,
+    budgets: tuple[int, ...] | list[int] | None = None,
 ) -> dict[str, Any]:
     """Main execution engine for Qwen3.5-4B CoT restart development pilot."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Verify dataset pool on disk matches pinned hash before execution
+    actual_pool_sha256 = file_sha256(DEV_POOL_PATH)
+    if actual_pool_sha256 != DEV_POOL_SHA256:
+        raise ValueError(
+            f"Dataset pool file {DEV_POOL_PATH} corrupted or modified on disk: "
+            f"actual sha256={actual_pool_sha256}, expected pinned={DEV_POOL_SHA256}."
+        )
+
+    arms_to_run = tuple(config_arms) if config_arms is not None else CONFIG_ARMS
+    budgets_to_run = tuple(budgets) if budgets is not None else BUDGETS
+    items = select_pilot_questions(DEV_POOL_PATH)
+
+    # Budget preflight: reject any plan exceeding MAX_CALLS_LIMIT BEFORE backend load
+    if not smoke_only:
+        worst_case_calls = calculate_planned_calls_upper_bound(
+            n_questions=len(items),
+            config_arms=arms_to_run,
+            budgets=budgets_to_run,
+            has_smoke=True,
+        )
+        if worst_case_calls > MAX_CALLS_LIMIT:
+            raise ValueError(
+                f"Budget preflight rejected: planned worst-case model calls ({worst_case_calls}) "
+                f"exceeds MAX_CALLS_LIMIT ({MAX_CALLS_LIMIT}). "
+                f"Configuration: {len(items)} items x {len(arms_to_run)} arms x {len(budgets_to_run)} budgets "
+                f"+ {len(items)} base + 4 smoke = {worst_case_calls} calls. "
+                "Refusing to load backend or execute calls."
+            )
+
+    expected_identity = build_run_identity(mock, config_arms=arms_to_run)
 
     manifest_path = output_dir / "manifest.json"
     if manifest_path.exists():
@@ -521,11 +883,12 @@ def run_cot_restart_pilot(
             "schema_version": 1,
             "study": "cot_restart_pilot_qwen35",
             "role": "exposed_development_pilot",
-            "model_repository": MODEL_REPOSITORY,
-            "model_revision": MODEL_REVISION,
+            "identity": expected_identity,
+            "model_repository": "mock" if mock else MODEL_REPOSITORY,
+            "model_revision": "mock" if mock else MODEL_REVISION,
             "base_model": BASE_MODEL,
-            "quantization": QUANTIZATION,
-            "model_hashes": MODEL_FILE_HASHES,
+            "quantization": None if mock else QUANTIZATION,
+            "model_hashes": MODEL_FILE_HASHES if not mock else {},
             "dev_pool_sha256": DEV_POOL_SHA256,
             "source_hashes": source_hashes(),
             "python": sys.version,
@@ -543,17 +906,24 @@ def run_cot_restart_pilot(
             },
         }
 
-    journal = PilotJournal(output_dir, manifest)
+    journal = PilotJournal(output_dir, manifest, expected_identity=expected_identity)
     pilot_started_time = time.perf_counter()
 
     try:
-        # Load runtime / model
+        # Load runtime / model (mock strictly never imports MLX)
         if mock:
             model = MockLLM()
             tokenizer = model.tokenizer
+            manifest["local_model_path"] = "mock"
+            manifest["runtime_versions"] = get_runtime_versions()
         else:
+            snapshot_path = resolve_and_verify_local_snapshot()
+            os.environ["HF_HUB_OFFLINE"] = "1"
+            os.environ["TRANSFORMERS_OFFLINE"] = "1"
             from mlx_lm import load as mlx_load
-            model, tokenizer = mlx_load(MODEL_REPOSITORY, revision=MODEL_REVISION)
+            model, tokenizer = mlx_load(str(snapshot_path))
+            manifest["local_model_path"] = str(snapshot_path)
+            manifest["runtime_versions"] = get_runtime_versions()
 
         # Step 1: Smoke Verification (up to 4 calls)
         smoke_results = run_smoke_verification(journal, model, tokenizer, is_mock=mock)
@@ -567,7 +937,6 @@ def run_cot_restart_pilot(
             return {"smoke_calls": smoke_results, "manifest": manifest}
 
         # Step 2: Select 12 canonical questions and freeze plan
-        items = select_pilot_questions(DEV_POOL_PATH)
         dataset_doc = {
             "name": "cot-restart-pilot-exposed-12",
             "role": "development_tuning",
@@ -589,8 +958,8 @@ def run_cot_restart_pilot(
                 }
                 for it in items
             ],
-            "budgets": list(BUDGETS),
-            "configs": list(CONFIG_ARMS),
+            "budgets": list(budgets_to_run),
+            "configs": list(arms_to_run),
             "sampling": {
                 "temperature": SAMPLING_TEMPERATURE,
                 "top_p": SAMPLING_TOP_P,
@@ -618,6 +987,7 @@ def run_cot_restart_pilot(
             p_tok = len(tokenizer.encode(prompt))
             seed = derive_call_seed(42, qid, "base_cot", BASE_COT_BUDGET)
 
+            journal.record_call_started("base_cot", [qid], prompt, p_tok)
             out_text, comp_tok, finish, dur_ms = execute_llm_call(
                 model,
                 tokenizer,
@@ -641,7 +1011,11 @@ def run_cot_restart_pilot(
             trace_record = {
                 "id": qid,
                 "family": family,
+                "executed_call": True,
+                "skipped": False,
                 "prompt": prompt,
+                "prompt_tokens_required": p_tok,
+                "incurred_prompt_tokens": p_tok,
                 "prompt_tokens": p_tok,
                 "raw_output": out_text,
                 "completion_tokens": comp_tok,
@@ -659,7 +1033,7 @@ def run_cot_restart_pilot(
                 "prefix_info": info,
                 "prefix_menu": menu,
                 "duration_ms": round(dur_ms, 2),
-                "memory": get_memory_telemetry(),
+                "memory": get_memory_telemetry(mock=mock),
             }
             journal.append("base_cot", [qid], trace_record)
             base_traces[qid] = trace_record
@@ -675,25 +1049,30 @@ def run_cot_restart_pilot(
 
             # Map menu q to prefixes: {0.0: "", 0.25: ..., 0.5: ..., 0.75: ...}
             q_to_prefix = {m["q_requested"]: m["prefix"] for m in menu}
+            # Full uncut reasoning body (q=1.0) before any answer block
+            uncut_body = reasoning_prefix(base["raw_output"])[0]
 
             # Config arm definitions:
-            # "regenerate": q=0.0, empty prefix
-            # "restart_q025": q=0.25 prefix
-            # "restart_q050": q=0.50 prefix
-            # "restart_q075": q=0.75 prefix
-            # "thinking_native": native thinking
+            # - "regenerate": q=0.0, empty prefix
+            # - "restart_q025": q=0.25 sentence boundary prefix
+            # - "restart_q050": q=0.50 sentence boundary prefix
+            # - "restart_q075": q=0.75 sentence boundary prefix
+            # - "full_prefix_continuation": q=1.0 uncut reasoning body (continues CoT from uncut prefix)
+            # - "thinking_native": native thinking
             arm_specs = {
                 "regenerate": {"type": "cot_prefix", "prefix": q_to_prefix[0.0], "q": 0.0},
                 "restart_q025": {"type": "cot_prefix", "prefix": q_to_prefix[0.25], "q": 0.25},
                 "restart_q050": {"type": "cot_prefix", "prefix": q_to_prefix[0.50], "q": 0.50},
                 "restart_q075": {"type": "cot_prefix", "prefix": q_to_prefix[0.75], "q": 0.75},
+                "full_prefix_continuation": {"type": "cot_prefix", "prefix": uncut_body, "q": 1.0},
                 "thinking_native": {"type": "thinking_native", "prefix": "", "q": None},
             }
 
             # Prefix deduplication: identify unique prefixes to avoid redundant calls
+            prefix_arms = [a for a in arms_to_run if a != "thinking_native"]
             prefix_to_canonical: dict[str, str] = {}
             canonical_to_arms: dict[str, list[str]] = defaultdict(list)
-            for arm_name in ("regenerate", "restart_q025", "restart_q050", "restart_q075"):
+            for arm_name in prefix_arms:
                 p_text = arm_specs[arm_name]["prefix"]
                 p_hash = text_sha256(p_text)
                 if p_hash not in canonical_to_arms:
@@ -701,8 +1080,8 @@ def run_cot_restart_pilot(
                 canonical_to_arms[p_hash].append(arm_name)
                 prefix_to_canonical[arm_name] = p_hash
 
-            for budget in BUDGETS:
-                # 1. Execute unique restart/regenerate prefixes
+            for budget in budgets_to_run:
+                # 1. Execute unique restart/regenerate prefix calls
                 executed_prefix_calls: dict[str, dict] = {}
                 for p_hash, associated_arms in canonical_to_arms.items():
                     rep_arm = associated_arms[0]
@@ -740,20 +1119,28 @@ def run_cot_restart_pilot(
 
                         if comp_cap <= 0:
                             res = {
+                                "executed_call": False,
+                                "skipped": True,
+                                "skip_reason": "budget_infeasible",
                                 "budget_infeasible": True,
                                 "prompt": prompt,
-                                "prompt_tokens": p_tok,
+                                "prompt_tokens_required": p_tok,
+                                "incurred_prompt_tokens": 0,
+                                "prompt_tokens": 0,
                                 "completion_cap": 0,
                                 "raw_output": "",
                                 "completion_tokens": 0,
-                                "total_tokens": p_tok,
+                                "total_tokens": 0,
                                 "finish_reason": "budget_infeasible",
                                 "parsed_answer": None,
+                                "parse_status": "budget_infeasible",
+                                "wordy": False,
                                 "correct": False,
                                 "duration_ms": 0.0,
                             }
                         else:
                             seed = derive_call_seed(42, qid, rep_arm, budget)
+                            journal.record_call_started("restart_call", call_key, prompt, p_tok)
                             out_text, comp_tok, finish, dur_ms = execute_llm_call(
                                 model,
                                 tokenizer,
@@ -772,8 +1159,13 @@ def run_cot_restart_pilot(
                             correct = bool(gen_check(it, parsed)) if parsed is not None else False
 
                             res = {
+                                "executed_call": True,
+                                "skipped": False,
+                                "skip_reason": None,
                                 "budget_infeasible": False,
                                 "prompt": prompt,
+                                "prompt_tokens_required": p_tok,
+                                "incurred_prompt_tokens": p_tok,
                                 "prompt_tokens": p_tok,
                                 "completion_cap": comp_cap,
                                 "raw_output": out_text,
@@ -786,13 +1178,13 @@ def run_cot_restart_pilot(
                                 "wordy": wordy,
                                 "correct": correct,
                                 "duration_ms": round(dur_ms, 2),
-                                "memory": get_memory_telemetry(),
+                                "memory": get_memory_telemetry(mock=mock),
                             }
                         journal.append("restart_call", call_key, res)
                     executed_prefix_calls[p_hash] = res
 
                 # Map executed prefix calls to each prefix arm
-                for arm_name in ("regenerate", "restart_q025", "restart_q050", "restart_q075"):
+                for arm_name in prefix_arms:
                     p_hash = prefix_to_canonical[arm_name]
                     shared_call = executed_prefix_calls[p_hash]
                     is_shared = len(canonical_to_arms[p_hash]) > 1
@@ -809,96 +1201,110 @@ def run_cot_restart_pilot(
                     }
                     restart_records.append(arm_record)
 
-                # 2. Execute thinking_native arm
-                native_key = [qid, "thinking_native", str(budget)]
-                if journal.has("restart_call", *native_key):
-                    native_res = journal.get("restart_call", *native_key)
-                else:
-                    _check_safety_limits(journal, pilot_started_time)
-                    thinking_suffix = (
-                        "\nSolve the question. End your final response with exactly one line "
-                        "'Answer: ' followed only by the final answer."
-                    )
-                    msgs = [{"role": "user", "content": it["query"] + thinking_suffix}]
-                    prompt = tokenizer.apply_chat_template(
-                        msgs, tokenize=False, add_generation_prompt=True, enable_thinking=True
-                    )
-                    p_tok = len(tokenizer.encode(prompt))
-                    comp_cap = budget - p_tok
-
-                    if comp_cap <= 0:
-                        native_res = {
-                            "budget_infeasible": True,
-                            "prompt": prompt,
-                            "prompt_tokens": p_tok,
-                            "completion_cap": 0,
-                            "raw_output": "",
-                            "completion_tokens": 0,
-                            "total_tokens": p_tok,
-                            "finish_reason": "budget_infeasible",
-                            "parsed_answer": None,
-                            "correct": False,
-                            "duration_ms": 0.0,
-                        }
+                # 2. Execute thinking_native arm (if requested in arms_to_run)
+                if "thinking_native" in arms_to_run:
+                    native_key = [qid, "thinking_native", str(budget)]
+                    if journal.has("restart_call", *native_key):
+                        native_res = journal.get("restart_call", *native_key)
                     else:
-                        seed = derive_call_seed(42, qid, "thinking_native", budget)
-                        out_text, comp_tok, finish, dur_ms = execute_llm_call(
-                            model,
-                            tokenizer,
-                            prompt,
-                            max_tokens=comp_cap,
-                            temp=SAMPLING_TEMPERATURE,
-                            seed=seed,
-                            is_mock=mock,
-                            is_thinking=True,
+                        _check_safety_limits(journal, pilot_started_time)
+                        thinking_suffix = (
+                            "\nSolve the question. End your final response with exactly one line "
+                            "'Answer: ' followed only by the final answer."
                         )
+                        msgs = [{"role": "user", "content": it["query"] + thinking_suffix}]
+                        prompt = tokenizer.apply_chat_template(
+                            msgs, tokenize=False, add_generation_prompt=True, enable_thinking=True
+                        )
+                        p_tok = len(tokenizer.encode(prompt))
+                        comp_cap = budget - p_tok
 
-                        # Thinking-native rule: ONLY extract answer after </think> block
-                        if "</think>" not in out_text:
-                            parsed = None
-                            status = "truncated_thinking"
-                            wordy = False
-                            correct = False
+                        if comp_cap <= 0:
+                            native_res = {
+                                "executed_call": False,
+                                "skipped": True,
+                                "skip_reason": "budget_infeasible",
+                                "budget_infeasible": True,
+                                "prompt": prompt,
+                                "prompt_tokens_required": p_tok,
+                                "incurred_prompt_tokens": 0,
+                                "prompt_tokens": 0,
+                                "completion_cap": 0,
+                                "raw_output": "",
+                                "completion_tokens": 0,
+                                "total_tokens": 0,
+                                "finish_reason": "budget_infeasible",
+                                "parsed_answer": None,
+                                "parse_status": "budget_infeasible",
+                                "wordy": False,
+                                "correct": False,
+                                "duration_ms": 0.0,
+                            }
                         else:
-                            post_think = out_text.split("</think>")[-1]
-                            family = it["family"]
-                            ans_type = "expression" if family == "g24" else "text" if family == "order" else "number"
-                            parsed, status, wordy = parse_answer_details(post_think, answer_type=ans_type)
-                            correct = bool(gen_check(it, parsed)) if parsed is not None else False
+                            seed = derive_call_seed(42, qid, "thinking_native", budget)
+                            journal.record_call_started("restart_call", native_key, prompt, p_tok)
+                            out_text, comp_tok, finish, dur_ms = execute_llm_call(
+                                model,
+                                tokenizer,
+                                prompt,
+                                max_tokens=comp_cap,
+                                temp=SAMPLING_TEMPERATURE,
+                                seed=seed,
+                                is_mock=mock,
+                                is_thinking=True,
+                            )
 
-                        native_res = {
-                            "budget_infeasible": False,
-                            "prompt": prompt,
-                            "prompt_tokens": p_tok,
-                            "completion_cap": comp_cap,
-                            "raw_output": out_text,
-                            "completion_tokens": comp_tok,
-                            "total_tokens": p_tok + comp_tok,
-                            "finish_reason": finish,
-                            "parsed_answer": parsed,
-                            "parse_status": status,
-                            "wordy": wordy,
-                            "correct": correct,
-                            "duration_ms": round(dur_ms, 2),
-                            "memory": get_memory_telemetry(),
-                        }
-                    journal.append("restart_call", native_key, native_res)
+                            # Thinking-native rule: ONLY extract answer after </think> block
+                            if "</think>" not in out_text:
+                                parsed = None
+                                status = "truncated_thinking"
+                                wordy = False
+                                correct = False
+                            else:
+                                post_think = out_text.split("</think>")[-1]
+                                family = it["family"]
+                                ans_type = "expression" if family == "g24" else "text" if family == "order" else "number"
+                                parsed, status, wordy = parse_answer_details(post_think, answer_type=ans_type)
+                                correct = bool(gen_check(it, parsed)) if parsed is not None else False
 
-                restart_records.append({
-                    "question_id": qid,
-                    "family": it["family"],
-                    "arm": "thinking_native",
-                    "budget": budget,
-                    "canonical_prefix_sha256": None,
-                    "is_deduplicated_call": False,
-                    "associated_arms": ["thinking_native"],
-                    "base_correct": base["correct"],
-                    **native_res,
-                })
+                            native_res = {
+                                "executed_call": True,
+                                "skipped": False,
+                                "skip_reason": None,
+                                "budget_infeasible": False,
+                                "prompt": prompt,
+                                "prompt_tokens_required": p_tok,
+                                "incurred_prompt_tokens": p_tok,
+                                "prompt_tokens": p_tok,
+                                "completion_cap": comp_cap,
+                                "raw_output": out_text,
+                                "completion_tokens": comp_tok,
+                                "total_tokens": p_tok + comp_tok,
+                                "finish_reason": finish,
+                                "parsed_answer": parsed,
+                                "parse_status": status,
+                                "wordy": wordy,
+                                "correct": correct,
+                                "duration_ms": round(dur_ms, 2),
+                                "memory": get_memory_telemetry(mock=mock),
+                            }
+                        journal.append("restart_call", native_key, native_res)
+
+                    restart_records.append({
+                        "question_id": qid,
+                        "family": it["family"],
+                        "arm": "thinking_native",
+                        "budget": budget,
+                        "canonical_prefix_sha256": None,
+                        "is_deduplicated_call": False,
+                        "associated_arms": ["thinking_native"],
+                        "base_correct": base["correct"],
+                        **native_res,
+                    })
 
         atomic_save_json(output_dir / "restart_records.json", restart_records)
 
-        # Generate summary report
+        # Generate summary report with complete end-to-end policy path accounting
         summary = generate_summary_statistics(base_traces, restart_records, journal)
         atomic_save_json(output_dir / "summary.json", summary)
 
@@ -909,13 +1315,14 @@ def run_cot_restart_pilot(
         codex_report = render_result_for_codex(manifest, summary, output_dir)
         (output_dir / "RESULT_FOR_CODEX.md").write_text(codex_report, encoding="utf-8")
 
-        manifest["status"] = "complete"
-        manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
-        manifest["artifact_hashes"] = {
+        journal.manifest["status"] = "complete"
+        journal.manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
+        journal.manifest["artifact_hashes"] = {
             p.name: file_sha256(p)
             for p in sorted(output_dir.iterdir())
             if p.is_file() and p.name != "manifest.json" and not p.name.startswith(".")
         }
+        manifest.update(journal.manifest)
         journal.save_manifest()
         journal.close()
 
@@ -929,14 +1336,30 @@ def run_cot_restart_pilot(
     except Exception as e:
         manifest["status"] = "failed"
         manifest["error"] = f"{type(e).__name__}: {str(e)}"
+        if journal.in_flight_call is not None:
+            manifest["in_flight_call"] = journal.in_flight_call
+        manifest["total_attempted_calls"] = journal.total_attempted_calls
+        manifest["failed_attempts"] = journal.failed_attempts
+        manifest["executed_model_calls"] = journal.executed_model_calls
+        manifest["total_completion_tokens"] = journal.total_completion_tokens
+        manifest["total_incurred_prompt_tokens"] = journal.total_incurred_prompt_tokens
+        manifest["total_incurred_tokens"] = journal.total_incurred_tokens
+        manifest["cost_status"] = (
+            "unknown_incurred"
+            if (journal.failed_attempts > 0 or journal.cost_status == "unknown_incurred")
+            else ("known_incurred" if journal.executed_model_calls > 0 else "zero_incurred")
+        )
+        journal.manifest.update(manifest)
         journal.save_manifest()
         journal.close()
         raise
 
 
 def _check_safety_limits(journal: PilotJournal, started_time: float) -> None:
-    if journal.count >= MAX_CALLS_LIMIT:
-        raise RuntimeError(f"Safety limit reached: call count {journal.count} >= {MAX_CALLS_LIMIT}")
+    if journal.executed_model_calls >= MAX_CALLS_LIMIT:
+        raise RuntimeError(
+            f"Safety limit reached: executed call count {journal.executed_model_calls} >= {MAX_CALLS_LIMIT}"
+        )
     if journal.total_completion_tokens >= MAX_COMPLETION_TOKENS_LIMIT:
         raise RuntimeError(
             f"Safety limit reached: completion tokens {journal.total_completion_tokens} >= {MAX_COMPLETION_TOKENS_LIMIT}"
@@ -958,7 +1381,7 @@ def generate_summary_statistics(
     restart_records: list[dict],
     journal: PilotJournal,
 ) -> dict[str, Any]:
-    """Compute accuracy, rescue/harm, format/truncation, and separated token costs."""
+    """Compute accuracy, rescue/harm, format/truncation, and full end-to-end path costs."""
     n_questions = len(base_traces)
     base_correct_count = sum(1 for b in base_traces.values() if b["correct"])
     base_wrong_count = n_questions - base_correct_count
@@ -967,6 +1390,17 @@ def generate_summary_statistics(
     for r in restart_records:
         key = (r["arm"], r["budget"])
         cells[key].append(r)
+
+    # First calculate regenerate end-to-end reference cost for savings comparison
+    regen_e2e_total = {}
+    for budget in BUDGETS:
+        regen_rows = cells.get(("regenerate", budget), [])
+        if regen_rows:
+            e2e_totals = [
+                base_traces[r["question_id"]]["total_tokens"] + r.get("total_tokens", 0)
+                for r in regen_rows
+            ]
+            regen_e2e_total[budget] = sum(e2e_totals) / len(e2e_totals)
 
     cell_summaries = {}
     for (arm, budget), rows in sorted(cells.items()):
@@ -986,10 +1420,33 @@ def generate_summary_statistics(
         infeasible = sum(1 for r in rows if r.get("budget_infeasible", False))
         format_failures = sum(1 for r in rows if r.get("parse_status") != "marker" and not r.get("budget_infeasible", False))
 
+        # 1. Intervention call alone
         mean_prompt_tokens = sum(r.get("prompt_tokens", 0) for r in rows) / total if total else 0.0
         mean_completion_tokens = sum(r.get("completion_tokens", 0) for r in rows) / total if total else 0.0
         mean_total_tokens = sum(r.get("total_tokens", 0) for r in rows) / total if total else 0.0
         mean_duration_ms = sum(r.get("duration_ms", 0) for r in rows) / total if total else 0.0
+
+        # 2. End-to-end policy path tokens (including initial base CoT trace)
+        if arm == "thinking_native":
+            # Native thinking is standalone one-shot without initial CoT trace
+            mean_e2e_prompt = mean_prompt_tokens
+            mean_e2e_comp = mean_completion_tokens
+            mean_e2e_total = mean_total_tokens
+        else:
+            e2e_totals = []
+            e2e_prompts = []
+            e2e_comps = []
+            for r in rows:
+                b = base_traces.get(r["question_id"], {})
+                e2e_totals.append(b.get("total_tokens", 0) + r.get("total_tokens", 0))
+                e2e_prompts.append(b.get("prompt_tokens", 0) + r.get("prompt_tokens", 0))
+                e2e_comps.append(b.get("completion_tokens", 0) + r.get("completion_tokens", 0))
+            mean_e2e_prompt = sum(e2e_prompts) / len(e2e_prompts) if e2e_prompts else 0.0
+            mean_e2e_comp = sum(e2e_comps) / len(e2e_comps) if e2e_comps else 0.0
+            mean_e2e_total = sum(e2e_totals) / len(e2e_totals) if e2e_totals else 0.0
+
+        ref_e2e = regen_e2e_total.get(budget, 0.0)
+        path_savings_pct = ((ref_e2e - mean_e2e_total) / ref_e2e * 100.0) if ref_e2e > 0.0 and arm != "thinking_native" else 0.0
 
         cell_summaries[f"{arm}_b{budget}"] = {
             "arm": arm,
@@ -1006,24 +1463,37 @@ def generate_summary_statistics(
             "truncations": truncations,
             "budget_infeasible": infeasible,
             "format_failures": format_failures,
-            "mean_prompt_tokens": round(mean_prompt_tokens, 1),
-            "mean_completion_tokens": round(mean_completion_tokens, 1),
-            "mean_total_tokens": round(mean_total_tokens, 1),
+            # Intervention call cost
+            "mean_intervention_prompt_tokens": round(mean_prompt_tokens, 1),
+            "mean_intervention_completion_tokens": round(mean_completion_tokens, 1),
+            "mean_intervention_total_tokens": round(mean_total_tokens, 1),
             "mean_duration_ms": round(mean_duration_ms, 1),
+            # Full end-to-end policy path cost
+            "mean_e2e_prompt_tokens": round(mean_e2e_prompt, 1),
+            "mean_e2e_completion_tokens": round(mean_e2e_comp, 1),
+            "mean_e2e_total_tokens": round(mean_e2e_total, 1),
+            "path_savings_vs_regenerate_pct": round(path_savings_pct, 1),
         }
 
-    # Collection cost: all calls actually made in the journal
     total_calls = journal.count
     total_completion_tokens = journal.total_completion_tokens
+
+    mean_base_total = sum(b.get("total_tokens", 0) for b in base_traces.values()) / n_questions if n_questions else 0.0
 
     return {
         "dataset_items": n_questions,
         "base_cot_accuracy": round(base_correct_count / n_questions, 4) if n_questions else 0.0,
         "base_initially_correct": base_correct_count,
         "base_initially_wrong": base_wrong_count,
+        "mean_base_cot_total_tokens": round(mean_base_total, 1),
         "collection_cost": {
-            "total_model_calls": total_calls,
-            "total_completion_tokens": total_completion_tokens,
+            "journal_records": journal.count,
+            "executed_model_calls": journal.executed_model_calls,
+            "skipped_calls": journal.skipped_calls,
+            "total_model_calls": journal.executed_model_calls,
+            "total_completion_tokens": journal.total_completion_tokens,
+            "total_incurred_prompt_tokens": journal.total_incurred_prompt_tokens,
+            "total_incurred_tokens": journal.total_incurred_tokens,
         },
         "cells": cell_summaries,
     }
@@ -1058,6 +1528,7 @@ def render_markdown_report(
         "## Base Visible CoT Trace Outcomes (12 Canonical Questions)",
         f"- **Initial Accuracy**: {summary['base_cot_accuracy'] * 100:.1f}% ({summary['base_initially_correct']}/{summary['dataset_items']})",
         f"- **Initially Wrong (Rescue Denominator)**: {summary['base_initially_wrong']}",
+        f"- **Mean Base CoT Total Tokens**: {summary.get('mean_base_cot_total_tokens', 0.0):.1f} tokens/item",
         "",
         "| ID | Family | Base Outcome | Truncated? | Boundary Count | Distinct Menu Prefixes |",
         "| --- | --- | --- | --- | --- | --- |",
@@ -1073,35 +1544,37 @@ def render_markdown_report(
         "",
         "## Restart Configurations & Budgets Comparison",
         "",
-        "| Config / Arm | Budget | Accuracy | Rescue (den={}) | Harm (den={}) | Trunc | Infeasible | Prompt Tok | Comp Tok | Total Tok | Timing (ms) |".format(
+        "| Config / Arm | Budget | Accuracy | Rescue (den={}) | Harm (den={}) | Trunc | Call Comp Tok | Call Total Tok | End-to-End Path Tok | Path Savings vs Regen |".format(
             summary["base_initially_wrong"], summary["base_initially_correct"]
         ),
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ])
 
     for cell_id, c in sorted(summary["cells"].items()):
         acc_pct = f"{c['accuracy'] * 100:.1f}%"
         res_str = f"{c['rescued']}/{c['initially_wrong_denominator']} ({c['rescue_rate']*100:.1f}%)"
         harm_str = f"{c['harmed']}/{c['initially_correct_denominator']} ({c['harm_rate']*100:.1f}%)"
+        sav_str = f"{c['path_savings_vs_regenerate_pct']:+.1f}%" if c['arm'] != 'thinking_native' else "N/A"
         lines.append(
             f"| `{c['arm']}` | {c['budget']} | {acc_pct} | {res_str} | {harm_str} | "
-            f"{c['truncations']} | {c['budget_infeasible']} | {c['mean_prompt_tokens']:.0f} | "
-            f"{c['mean_completion_tokens']:.0f} | {c['mean_total_tokens']:.0f} | {c['mean_duration_ms']:.0f} |"
+            f"{c['truncations']} | {c['mean_intervention_completion_tokens']:.0f} | {c['mean_intervention_total_tokens']:.0f} | "
+            f"{c['mean_e2e_total_tokens']:.0f} | {sav_str} |"
         )
 
     lines.extend([
         "",
-        "## Cost Separation: Collection vs. Hypothetical Selected Path",
+        "## Cost Accounting: Collection vs. End-to-End Policy Path",
         f"- **Full Collection Cost**: {summary['collection_cost']['total_model_calls']} calls, "
         f"{summary['collection_cost']['total_completion_tokens']} completion tokens.",
-        "- **Hypothetical Path Cost**: Each item on a standalone policy path executes only its specific prefix call.",
-        "  Prefill tokens are accounted for in total budget ceiling.",
+        "- **End-to-End Policy Path Cost**: A deployed policy running an intervention must first execute the initial CoT.",
+        f"  - Initial CoT token burden: mean {summary.get('mean_base_cot_total_tokens', 0.0):.1f} total tokens/item.",
+        "  - Path savings vs regenerate are calculated per cell from recorded token totals in the summary table above.",
         "",
-        "## Scientific Notes & Limitations",
-        "- One draw per cell: exploratory feasibility only, not confirmatory.",
-        "- No per-item gold oracle claims.",
-        "- Deduplication was strictly applied to identical snapped prefixes.",
-        "- Next steps: Full review of pilot findings before running 24-question / 480-call batches.",
+        "## Arm Definitions & Protocol Status",
+        "- `full_prefix_continuation` (q=1.0 uncut prefill): tests continuation from the full uncut prefix without rollback under the standard CoT reasoning prompt.",
+        "- Single-draw exploratory feasibility diagnostic on exposed development pool.",
+        "- Outcome-blind question selection using seed 42.",
+        "- Larger replication batches remain on hold pending review.",
     ])
     return "\n".join(lines) + "\n"
 
@@ -1118,7 +1591,7 @@ def render_result_for_codex(
         f"- **Execution Date**: {manifest.get('started_utc')}",
         f"- **Status**: `{manifest.get('status')}`",
         f"- **Artifact Directory**: `{output_dir.resolve()}`",
-        f"- **Model**: `{manifest.get('model_repository')}` (revision `{manifest.get('model_revision')[:10]}`)",
+        f"- **Model**: `{manifest.get('model_repository')}` (revision `{str(manifest.get('model_revision'))[:10]}`)",
         f"- **Runtime**: macOS Apple Silicon 16 GB, MLX 4-bit affine",
         "",
         "## Quantitative Inventory",
@@ -1127,27 +1600,31 @@ def render_result_for_codex(
         f"- **Canonical Questions**: 12 (4 arith, 4 order, 4 g24)",
         f"- **Initial Base CoT Accuracy**: {summary['base_cot_accuracy']*100:.1f}% ({summary['base_initially_correct']}/{summary['dataset_items']})",
         f"- **Rescue Denominator**: {summary['base_initially_wrong']} initially wrong questions",
+        f"- **Mean Base CoT Tokens**: {summary.get('mean_base_cot_total_tokens', 0.0):.1f} tokens/item",
         "",
         "## Arm Summary Across Budgets",
         "",
-        "| Arm | Budget | Accuracy | Rescued | Harmed | Trunc | Mean Total Tok |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Arm | Budget | Accuracy | Rescued | Harmed | Trunc | Call Total Tok | End-to-End Path Tok | Path Savings vs Regen |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for cell_id, c in sorted(summary["cells"].items()):
+        sav_str = f"{c['path_savings_vs_regenerate_pct']:+.1f}%" if c['arm'] != 'thinking_native' else "N/A"
         lines.append(
             f"| `{c['arm']}` | {c['budget']} | {c['accuracy']*100:.1f}% | "
             f"{c['rescued']}/{c['initially_wrong_denominator']} | "
             f"{c['harmed']}/{c['initially_correct_denominator']} | "
-            f"{c['truncations']} | {c['mean_total_tokens']:.0f} |"
+            f"{c['truncations']} | {c['mean_intervention_total_tokens']:.0f} | {c['mean_e2e_total_tokens']:.0f} | {sav_str} |"
         )
 
     lines.extend([
         "",
-        "## Key Findings & Checkpoint Fidelity",
-        "1. Real assistant prefill continuation operates seamlessly via MLX and ChatML.",
-        "2. Conservative sentence boundary snapping successfully isolates partial rationale prefixes.",
-        "3. Token accounting strictly enforces budget = prompt + prefix + completion.",
-        "4. No confirmatory claims or Stage 0 amendments are made from this small sample.",
-        "5. Larger 24-question / 480-call batches remain on hold pending review.",
+        "## Key Protocol Invariants & Status",
+        "1. Real assistant prefill continuation operates via tokenizer apply_chat_template without critique prompting.",
+        "2. Conservative sentence boundary snapping isolates partial rationale prefixes outcome-blind.",
+        "3. Token accounting strictly enforces budget = prompt + prefix + completion cap.",
+        "4. Cost accounting integrates initial CoT cost with intervention call cost for end-to-end policy path evaluation.",
+        "5. `full_prefix_continuation` provides full uncut prefix continuation without rollback.",
+        "6. Single draw per cell: diagnostic feasibility only; no confirmatory claims or Stage 0 amendments.",
+        "7. Larger batches remain on hold pending review.",
     ])
     return "\n".join(lines) + "\n"

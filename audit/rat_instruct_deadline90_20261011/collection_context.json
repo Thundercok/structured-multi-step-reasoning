@@ -1,0 +1,17 @@
+{
+  "scope": "exposed two-turn app probe",
+  "client_deadline_seconds": 90,
+  "failed_request_context": true,
+  "stage0_changed": false,
+  "model_quality_review": "pending",
+  "code_sha256": {
+    "rat/engine/assistant_runtime.py": "789a2361543d9bac9c52cade0d3a8eac005dbab730e8545bd47f13cff369ccdf",
+    "rat/engine/slm.py": "65d506aed501be5cc2c9795e020447515f0b7d88cc404557b9aac9da646cc817",
+    "rat/engine/task_state.py": "59b7a639d104bdf75c7c68f10fc6b688935d65085350634eefda1f0c7a98d406",
+    "rat/ui/chat_session.py": "34b32e9d441d553b03b458d0de7a91ce77e5197d6e0b8fad95dddbf31e14fde2",
+    "scripts/eval_assistant_agent.py": "062bee75ecc3a609824e740b564481aab3a11caad4745a5878036578e7d74135"
+  },
+  "normal_desktop_load_controlled": false,
+  "small_headless_regressions_during_collection": "67 passed; not a controlled hardware-latency benchmark",
+  "observed_outcome": "First turn hit the 90s plan timeout. Follow-up retained the previous failed request and made schedule, search and read calls. Final message was internal task-state JSON, not the requested preparation plan. Transport completion alone is not task success; quality ratings remain pending."
+}

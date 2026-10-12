@@ -1,0 +1,169 @@
+{
+  "status": "SAT",
+  "raw_fields": {
+    "subtotal": "100000",
+    "tax": "10000",
+    "total": "110000",
+    "currency": "VND",
+    "line_items": [],
+    "seller_name": "",
+    "invoice_id": "",
+    "unresolved_labels": []
+  },
+  "candidate_values": {
+    "line_amounts": [],
+    "subtotal": 100000,
+    "tax": 10000,
+    "discount": 0,
+    "total": 110000,
+    "tax_rate": "10%"
+  },
+  "solver_model": "[S = 100000, T = 10000, V = 110000, D = 0]",
+  "review_required": true,
+  "evidence_scope": "synthetic_ocr_smoke",
+  "consistency_scope": "candidate_arithmetic_under_fixed_prototype_rules",
+  "candidate_selection": "uniqueness_not_checked",
+  "tax_brackets": [
+    0,
+    5,
+    8,
+    10
+  ],
+  "rounding_tolerance_vnd": 2,
+  "notices": [
+    "Đối chiếu các trường với hóa đơn gốc trước khi sử dụng.",
+    "Kết quả Z3 chỉ kiểm tra tính nhất quán của các giá trị ứng viên.",
+    "Chưa trích xuất được các dòng hàng; chỉ kiểm tra các tổng tiền."
+  ],
+  "missing_fields": [],
+  "source": {
+    "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/nesy_docai_migration_20261012/synthetic_invoice.png",
+    "filename": "synthetic_invoice.png",
+    "sha256": "baef5112eb37466c4c2602c663e9c2a412800794248045b724badf9a935a531b",
+    "extraction_truncated": false,
+    "engine": "tesseract"
+  },
+  "source_text": "SYNTHETIC OCR FIXTURE\nSubtotal: 100000\nTax: 10000\nTotal: 110000",
+  "ocr_tokens": [
+    {
+      "text": "SYNTHETIC",
+      "confidence": 0.9598191799999999,
+      "bbox": [
+        42,
+        38,
+        252,
+        65
+      ],
+      "level": 5,
+      "line_num": 1,
+      "word_num": 1
+    },
+    {
+      "text": "OCR",
+      "confidence": 0.9658844000000001,
+      "bbox": [
+        266,
+        38,
+        348,
+        65
+      ],
+      "level": 5,
+      "line_num": 1,
+      "word_num": 2
+    },
+    {
+      "text": "FIXTURE",
+      "confidence": 0.96669418,
+      "bbox": [
+        362,
+        38,
+        518,
+        65
+      ],
+      "level": 5,
+      "line_num": 1,
+      "word_num": 3
+    },
+    {
+      "text": "Subtotal:",
+      "confidence": 0.96380318,
+      "bbox": [
+        42,
+        123,
+        186,
+        150
+      ],
+      "level": 5,
+      "line_num": 2,
+      "word_num": 1
+    },
+    {
+      "text": "100000",
+      "confidence": 0.96380318,
+      "bbox": [
+        205,
+        123,
+        325,
+        150
+      ],
+      "level": 5,
+      "line_num": 2,
+      "word_num": 2
+    },
+    {
+      "text": "Tax:",
+      "confidence": 0.95983421,
+      "bbox": [
+        41,
+        208,
+        110,
+        235
+      ],
+      "level": 5,
+      "line_num": 3,
+      "word_num": 1
+    },
+    {
+      "text": "10000",
+      "confidence": 0.9649865,
+      "bbox": [
+        129,
+        208,
+        228,
+        235
+      ],
+      "level": 5,
+      "line_num": 3,
+      "word_num": 2
+    },
+    {
+      "text": "Total:",
+      "confidence": 0.95642365,
+      "bbox": [
+        41,
+        293,
+        131,
+        320
+      ],
+      "level": 5,
+      "line_num": 1,
+      "word_num": 1
+    },
+    {
+      "text": "110000",
+      "confidence": 0.96378151,
+      "bbox": [
+        171,
+        293,
+        270,
+        320
+      ],
+      "level": 5,
+      "line_num": 1,
+      "word_num": 2
+    }
+  ],
+  "validation_fixture": "synthetic_rendered_image; one fixture; not OCR accuracy evidence",
+  "elapsed_seconds": 30.389873332926072,
+  "timing_scope": "one_cold_synthetic_file_inspection_including_native_attempt_and_tesseract_fallback; not a general latency estimate"
+}

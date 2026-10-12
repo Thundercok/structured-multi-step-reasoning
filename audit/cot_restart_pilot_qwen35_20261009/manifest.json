@@ -30,7 +30,7 @@
   "platform": "macOS-26.5.2-arm64-arm-64bit",
   "machine": "arm64",
   "started_utc": "2026-10-09T12:01:51.604147+00:00",
-  "status": "smoke_complete",
+  "status": "complete",
   "mock": false,
   "confirmatory": false,
   "publication_review_required": true,
@@ -39,9 +39,20 @@
     "max_completion_tokens": 250000,
     "max_duration_seconds": 28800
   },
-  "journal_head": "fde2322d5cb9eb5b49d4da01f68047efffcd5a70d5d0c24f518f5d075a7a3ea8",
-  "journal_count": 98,
-  "total_calls": 98,
-  "total_completion_tokens": 57905,
-  "finished_utc": "2026-10-09T12:03:11.070285+00:00"
+  "journal_head": "b8e0df5bdbaa7ce76ae27ef98f53f1ac486ead6c1406596453d5da56882e7dd0",
+  "journal_count": 136,
+  "total_calls": 136,
+  "total_completion_tokens": 90197,
+  "finished_utc": "2026-10-09T16:36:23.170420+00:00",
+  "artifact_hashes": {
+    "RESULT_FOR_CODEX.md": "a29635b448b026eb3df03fe9ba82b109017e848f28875cd19e456b9130da2d7d",
+    "base_traces.json": "b84972d97af7f24eaa434012438b603fb87cc7ebc8f3ecb7bfb85b79b48202d5",
+    "calls.jsonl": "b27b0155e4281557d6e6c672f754cf92dc97e22697288031ff4af89db9a7dcc6",
+    "dataset.json": "bc7c3ff389fa0fb217627cef44de2327c8c8df47c9b3b6c7db361ae1502fe109",
+    "plan.json": "a37837392eac8fb1dae331a2a1c5cd4a526a2995cc30176a54da19a3c36b1031",
+    "report.md": "5318b2562cd295b7ade0916c49127b767ff1dece29e50c74171fefc1a448995d",
+    "restart_records.json": "e03307aec61501831802c59e7342e7313a362d3132ef37544d58ba74c1c9f4fa",
+    "smoke_telemetry.json": "41cc3f22d53123c4040b661251da86316cd76ad8ecb4520d0de2de17754a1038",
+    "summary.json": "617db58e25052bfe2d5d7be19cf63d12bd971ec728896efbd6d82d32784e0533"
+  }
 }

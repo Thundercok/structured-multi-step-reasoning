@@ -56,7 +56,7 @@ class SettingsDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None, on_settings_changed=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Cài đặt 'rat' — Trợ lý Tìm kiếm Tệp tin")
-        self.setFixedSize(560, 660)
+        self.setFixedSize(560, 700)
         self.on_settings_changed = on_settings_changed
         self.indexer = Indexer()
         self._init_ui()
@@ -237,6 +237,13 @@ class SettingsDialog(QDialog):
         self.chk_slm.setChecked(config.use_slm)
         slm_layout.addWidget(self.chk_slm)
 
+        self.combo_assistant = QComboBox()
+        self.combo_assistant.addItem("Trợ lý: theo SLM hiện tại", "")
+        for name in dict.fromkeys(slm_engine.list_installed_models() + ([config.assistant_model] if config.assistant_model else [])):
+            self.combo_assistant.addItem("Trợ lý: " + name, name)
+        self.combo_assistant.setCurrentIndex(max(0, self.combo_assistant.findData(config.assistant_model)))
+        slm_layout.addWidget(self.combo_assistant)
+
         layout.addWidget(slm_group)
 
         # 5. LLM API Keys Group (Optional Cloud)
@@ -330,6 +337,7 @@ class SettingsDialog(QDialog):
         config.openai_api_key = self.input_openai.text().strip()
         config.auto_watch = self.chk_autowatch.isChecked()
         config.use_slm = self.chk_slm.isChecked()
+        config.assistant_model = self.combo_assistant.currentData() or ""
 
         # Update global hotkey if changed
         chosen_hotkey = self.combo_hotkey.currentData()

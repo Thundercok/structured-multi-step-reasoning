@@ -1,0 +1,74 @@
+.....................F................F................................. [ 80%]
+.................                                                        [100%]
+=================================== FAILURES ===================================
+______________ test_context_includes_followup_and_selected_member ______________
+
+runtime = <rat.engine.assistant_runtime.AssistantRuntime object at 0x1212ec8f0>
+
+    def test_context_includes_followup_and_selected_member(runtime):
+        messages = runtime._native_messages('Tóm tắt cái đó', [],
+            history=[{'role': 'assistant', 'content': 'Found Networks notes'}],
+            previous_sources=[{'path': '/notes/networks.txt'}], member_id='student',
+            now_dt=datetime(2026, 10, 11, 14))
+>       assert messages[-1]['content'] == 'Tóm tắt cái đó'
+E       AssertionError: assert 'Continue car...observations.' == 'Tóm tắt cái đó'
+E         
+E         - Tóm tắt cái đó
+E         + Continue carrying out the latest user request above, including every requested part. Planning observations are proposals, not completed actions. Do not merely summarize them. Perform needed actions with the available tools and answer only from actual observations.
+
+tests/test_assistant_runtime.py:88: AssertionError
+_____ test_birth_place_lookup_keeps_candidates_and_calculated_chart_source _____
+
+runtime = <rat.engine.assistant_runtime.AssistantRuntime object at 0x121358470>
+
+    def test_birth_place_lookup_keeps_candidates_and_calculated_chart_source(runtime):
+        pytest.importorskip('swisseph')
+        from rat.astrology.places import Place
+        places = (Place('HCM', 10.8231, 106.6297, 'Asia/Ho_Chi_Minh'), Place('Other', 21, 105, 'Asia/Ho_Chi_Minh'))
+        with patch('rat.astrology.places.search_places', return_value=places) as lookup:
+            result = runtime.execute_tool('search_birth_places', {'query': 'Ho Chi Minh City'})
+        lookup.assert_called_once_with('Ho Chi Minh City')
+        assert len(result) == 2 and result[0]['timezone'] == places[0].timezone
+        calculated = runtime.execute_tool('create_natal_chart', {
+            'date': '2000-06-15', 'time': '09:30', 'place': result[0]['name'],
+            'latitude': result[0]['latitude'], 'longitude': result[0]['longitude'], 'timezone': result[0]['timezone']})
+        step = AgentStep(1, '', tool_name='create_natal_chart', tool_result=calculated)
+        sources = observed_sources(step)
+        messages = runtime._native_messages('Explain these observations', [step], previous_sources=sources)
+>       observation = json.loads(messages[-1]['content'])['observation']['chart']
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_assistant_runtime.py:232: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x1070e4860>
+s = 'Continue carrying out the latest user request above, including every requested part. Planning observations are propos...o not merely summarize them. Perform needed actions with the available tools and answer only from actual observations.'
+idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/decoder.py:355: JSONDecodeError
+=========================== short test summary info ============================
+FAILED tests/test_assistant_runtime.py::test_context_includes_followup_and_selected_member
+FAILED tests/test_assistant_runtime.py::test_birth_place_lookup_keeps_candidates_and_calculated_chart_source
+2 failed, 87 passed in 9.13s

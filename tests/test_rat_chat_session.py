@@ -75,3 +75,20 @@ def test_new_chat_clears_context_and_latest_query_is_not_clipped():
     assert history.messages() == []
     query = "Câu mới " * 2000
     assert build_chat_prompt(query, history.messages()) == query
+
+
+def test_failed_request_survives_followup_without_becoming_a_successful_answer():
+    history = ConversationHistory()
+    query = 'Read my next-class notes; I have 20 minutes.'
+    history.add_attempt(query)
+    assert history.messages() == []
+    context = history.context_messages()
+    assert context[0] == {'role': 'user', 'content': query}
+    status = json.loads(context[1]['content'])
+    assert status['origin'] == 'runtime_execution_status'
+    assert status['successful_answer_produced'] is False
+    assert status['status'] == 'failed'
+    history.add_turn('I already know IP routing.', 'I still need to read the notes.')
+    assert history.context_messages()[0]['content'] == query
+    history.clear()
+    assert history.context_messages() == []

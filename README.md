@@ -1,4 +1,4 @@
-# Structured Multi-Step Reasoning
+# NeSy — Structured Reasoning & RAT
 
 Research prototype for **budget-aware strategy selection and stopping with a fixed language model**.
 
@@ -181,6 +181,12 @@ adding app styling or UI features. Exchange the same commit, dataset version
 and model snapshot when reproducing results. Desktop dependencies remain in
 `requirements.txt`; app usability is evaluated separately.
 
+The optional [RAT Natal Atlas](docs/natal_chart.md) opens with
+`python -m rat.astrology` after installing `requirements-astrology.txt`. It offers
+a local birth form, calculated natal wheel, detailed tables and SVG/PNG/PDF
+exports without starting personal-file indexing or model inference. This desktop
+feature does not supply model-quality evidence or change the research gates.
+
 The [development data/scoring audit](audit/development-data-20261003-final/report.md)
 verifies 222 development items and records agent review provenance. It repairs
 scoring and wording issues while preserving all held-out rows. The existing
@@ -201,4 +207,14 @@ python -m pytest tests/test_research_scoring.py tests/test_development_data_audi
 ```
 
 Collaboration hub:
-[Thundercok/structured-multi-step-reasoning](https://github.com/Thundercok/structured-multi-step-reasoning).
+[Thundercok/nesy-docai](https://github.com/Thundercok/nesy-docai).
+
+## Separate DocAI module
+
+The invoice/OCR prototype is preserved at [modules/docai](modules/docai/README.md)
+with its own dependencies, CLI and tests. It is not registered in RAT and is not
+part of the reasoning study. Integration is deferred. The research entry point
+and existing Stage 0/publication gates remain unchanged.
+
+See [repository migration notes](docs/repository_migration.md) for history,
+working-state preservation and publication status.

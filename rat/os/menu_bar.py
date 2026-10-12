@@ -71,12 +71,14 @@ class SystemTrayManager:
         on_open_settings: Optional[Callable[[], None]] = None,
         on_open_schedule: Optional[Callable[[], None]] = None,
         on_open_widget: Optional[Callable[[], None]] = None,
+        on_open_natal: Optional[Callable[[], None]] = None,
     ) -> None:
         self.on_open_spotlight = on_open_spotlight
         self.on_open_finder = on_open_finder
         self.on_open_settings = on_open_settings
         self.on_open_schedule = on_open_schedule
         self.on_open_widget = on_open_widget
+        self.on_open_natal = on_open_natal
         self.tray_icon = QSystemTrayIcon()
         self.db = Database(config.db_path)
         self.rescan_worker: Optional[RescanWorker] = None
@@ -140,6 +142,11 @@ class SystemTrayManager:
         if self.on_open_schedule:
             action_schedule.triggered.connect(self.on_open_schedule)
         menu.addAction(action_schedule)
+
+        action_natal = QAction("✧ Bản đồ sao cá nhân...", menu)
+        if self.on_open_natal:
+            action_natal.triggered.connect(self.on_open_natal)
+        menu.addAction(action_natal)
 
         # Floating Widget Action
         action_widget = QAction("⚡ Widget Thời Khóa Biểu (Claude Floating)", menu)

@@ -32,7 +32,7 @@ class EInvoiceXMLReaderEngine:
         except Exception:
             return False
 
-    def process_xml(self, xml_filepath: str) -> Dict[str, Any]:
+    def process_xml(self, xml_filepath: str, *, preserve_raw_fields: bool = False) -> Dict[str, Any]:
         """
         Parses a Vietnamese e-invoice XML file and returns structured accounting fields.
         """
@@ -124,9 +124,9 @@ class EInvoiceXMLReaderEngine:
         for idx, item_node in enumerate(item_nodes, 1):
             desc = find_text_anywhere(item_node, ["Ten", "ItemName", "ProductName", "Description"]) or f"Mặt hàng {idx}"
             unit = find_text_anywhere(item_node, ["DVTinh", "UnitName", "Unit"]) or ""
-            qty_str = find_text_anywhere(item_node, ["SLuong", "Quantity", "Qty"]) or "1"
-            price_str = find_text_anywhere(item_node, ["DGia", "Price", "UnitPrice"]) or "0"
-            amount_str = find_text_anywhere(item_node, ["TTien", "Amount", "TotalAmount"]) or "0"
+            qty_str = find_text_anywhere(item_node, ["SLuong", "Quantity", "Qty"]) or ("" if preserve_raw_fields else "1")
+            price_str = find_text_anywhere(item_node, ["DGia", "Price", "UnitPrice"]) or ("" if preserve_raw_fields else "0")
+            amount_str = find_text_anywhere(item_node, ["TTien", "Amount", "TotalAmount"]) or ("" if preserve_raw_fields else "0")
             tax_rate_str = find_text_anywhere(item_node, ["TSuat", "VATRate", "TaxRate"]) or ""
 
             line_items.append({
@@ -144,11 +144,26 @@ class EInvoiceXMLReaderEngine:
         tax_str = find_text_anywhere(root, ["TgTThue", "VATAmount", "TotalVATAmount", "TaxAmount"]) or ""
         total_str = find_text_anywhere(root, ["TgTTTBSo", "TotalAmountWithVAT", "TotalAmount", "GrandTotal"]) or ""
         tax_rate_str = find_text_anywhere(root, ["TSuat", "VATRate", "TaxRate"]) or ""
+        if preserve_raw_fields:
+            # A provider schema has not been validated. Resolve only a unique
+            # explicit total outside item nodes; do not choose the first of
+            # multiple invoices/totals or reuse a line amount as grand total.
+            item_elements = {element for node in item_nodes for element in node.iter()}
+            def explicit_total(tags):
+                values = [element.text.strip() for element in root.iter()
+                          if element not in item_elements and element.tag.split("}")[-1] in tags
+                          and element.text and element.text.strip()]
+                return values[0] if len(values) == 1 else ""
+            subtotal_str = explicit_total({"TgTCThue", "TotalAmountWithoutVAT", "SubTotal", "Subtotal"})
+            tax_str = explicit_total({"TgTThue", "VATAmount", "TotalVATAmount", "TaxAmount"})
+            total_str = explicit_total({"TgTTTBSo", "TotalAmountWithVAT", "TotalAmount", "GrandTotal"})
 
         # Clean numbers
         def clean_num_str(val: Optional[str]) -> str:
             if not val:
                 return ""
+            if preserve_raw_fields:
+                return val
             cleaned = re.sub(r"[^\d\.]", "", str(val).replace(",", "."))
             try:
                 num = float(cleaned)
@@ -161,12 +176,12 @@ class EInvoiceXMLReaderEngine:
         total_clean = clean_num_str(total_str)
 
         # Fallback math if fields are partially missing in XML
-        if subtotal_clean and tax_clean and not total_clean:
+        if not preserve_raw_fields and subtotal_clean and tax_clean and not total_clean:
             try:
                 total_clean = str(int(subtotal_clean) + int(tax_clean))
             except ValueError:
                 pass
-        elif subtotal_clean and total_clean and not tax_clean:
+        elif not preserve_raw_fields and subtotal_clean and total_clean and not tax_clean:
             try:
                 tax_clean = str(int(total_clean) - int(subtotal_clean))
             except ValueError:
@@ -202,7 +217,7 @@ class EInvoiceXMLReaderEngine:
             full_invoice_code, seller_tax_id, total_clean
         )
 
-        return {
+        record = {
             "is_xml": True,
             "invoice_id": full_invoice_code,
             "invoice_number": invoice_num,
@@ -224,3 +239,8 @@ class EInvoiceXMLReaderEngine:
             "confidence_score": 1.0,
             "source_type": "XML_E_INVOICE_TT78"
         }
+        if preserve_raw_fields:
+            record["currency"] = find_text_anywhere(root, ["DVTTe", "Currency", "CurrencyCode"]) or "VND"
+            record.pop("audit_status")
+            record.pop("confidence_score")
+        return record

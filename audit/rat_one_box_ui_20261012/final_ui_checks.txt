@@ -1,0 +1,34 @@
+...........F......................................................... [ 73%]
+.........................                                                [100%]
+=================================== FAILURES ===================================
+__________ test_result_opens_at_start_instead_of_skipping_form_fields __________
+
+window = <rat.ui.omnibar.OmnibarWindow object at 0x142bf7f70>
+
+    def test_result_opens_at_start_instead_of_skipping_form_fields(window):
+        window.open_natal_chart()
+        QTest.qWait(60)
+>       assert window.chat_stream.verticalScrollBar().value() == 0
+E       assert 8 == 0
+E        +  where 8 = <built-in method value of QScrollBar object at 0x16503f570>()
+E        +    where <built-in method value of QScrollBar object at 0x16503f570> = <PyQt6.QtWidgets.QScrollBar object at 0x16503f570>.value
+E        +      where <PyQt6.QtWidgets.QScrollBar object at 0x16503f570> = <built-in method verticalScrollBar of ChatStreamWidget object at 0x165077610>()
+E        +        where <built-in method verticalScrollBar of ChatStreamWidget object at 0x165077610> = <rat.ui.chat_stream.ChatStreamWidget object at 0x165077610>.verticalScrollBar
+E        +          where <rat.ui.chat_stream.ChatStreamWidget object at 0x165077610> = <rat.ui.omnibar.OmnibarWindow object at 0x142bf7f70>.chat_stream
+
+tests/test_rat_one_box_ui.py:220: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+=============================== warnings summary ===============================
+tests/test_timetable_chat_cards.py::TestTimetableChatCards::test_omnibar_schedule_chat_delivers_deck_widget
+  /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/engine/embedder.py:71: UserWarning: The model sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 now uses mean pooling instead of CLS embedding. In order to preserve the previous behaviour, consider either pinning fastembed version to 0.5.1 or using `add_custom_model` functionality.
+    model = TextEmbedding(model_name=self.model_name)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_rat_one_box_ui.py::test_result_opens_at_start_instead_of_skipping_form_fields
+1 failed, 93 passed, 1 warning, 3 subtests passed in 76.23s (0:01:16)

@@ -1,0 +1,20 @@
+{
+  "rat/kernel/dispatcher.py": "1c65f044f3e03ac2e5cbb54e730322a9c025eaae944907250e9800b227969fe1",
+  "rat/kernel/registry.py": "d6ecf994a65fc3ceccd23cd28b84ad30da5eaaa4f0afb30adaefe392bc68b719",
+  "rat/kernel/__init__.py": "0bfdd4d0ab7920b8e765efee01cc93925c9b269625fbfff0d305c8969fa05fad",
+  "rat/kernel/view_spec.py": "d7f13d1918210483294e5d5016a4aee7e349cc6541bff4c60c4f87983d80e38d",
+  "rat/kernel/contracts.py": "7728472bd71ae67fd5bbc36da3328f2d39dab97fe70d23ee5fb08e82dec16754",
+  "rat/kernel/capabilities/documents.py": "38962318c6cad7b0655741d169b97784dc8bc9ee5e38e795a3af2b3e0ed6ac9b",
+  "rat/kernel/capabilities/natal.py": "2f36e65445c0c2c45fdd40aa260791db89b5a1caaa27f115fb39f8201de91d5f",
+  "rat/kernel/capabilities/__init__.py": "de9f9b7861bc2785fc05cde4734789c4c5cc74a593e8372227e43d89d601b303",
+  "rat/kernel/capabilities/timetable.py": "96271127bd571b3619ff5b57815503b6644185535b48921f16e681ba41af2724",
+  "rat/ui/view_renderer.py": "9242d98ec290a8af116ef90a4ff55276815924fff43959bf0c46bfcf6524b24f",
+  "rat/ui/assistant_presenter.py": "4fb4b0b8324110807c67bb2ba83327eea204a1a7baa94408b3aa2ac9527c786a",
+  "rat/ui/omnibar.py": "822965498c8dea41bc8e41c1b103c806c28bc63b754421ad53b4767a2a464963",
+  "rat/engine/assistant_runtime.py": "a3b256eebfed6a67634a9fb9dc67a34bf88bb755f636405fae8ad820a3246629",
+  "rat/ui/chat_stream.py": "4596ed042eed110e7c3136c858bbc7c9f334fdd1795bdf1530b33f938e023d08",
+  "rat/astrology/chart.py": "e56307d0c5dab643f010796d4556b46e67646887e00b8c72e1ed0dfe260988a1",
+  "rat/astrology/export.py": "d537554d1bd1e955f18e0acc0da43b4fc836b8dcb7723b22e99b66119031d044",
+  "rat.spec": "29a95210b5ec34f5d7828e6a1fd21861786eb6740d4443796a9f8792f377d041",
+  "tests/test_interaction_kernel.py": "128f3bb581c3158820af682082da5f0c68d7026a52c7c1aef3db74533b79ccf3"
+}

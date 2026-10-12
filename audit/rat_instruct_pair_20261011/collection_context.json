@@ -1,0 +1,10 @@
+{
+  "scope": "exposed artificial app pair; human quality ratings pending",
+  "client_deadline_seconds": 90,
+  "raw_runtime_sha256": "789a2361543d9bac9c52cade0d3a8eac005dbab730e8545bd47f13cff369ccdf",
+  "normal_desktop_load_controlled": false,
+  "parallel_validation": "Qt UI regressions ran during this collection; branch latency is not an isolated benchmark",
+  "stage0_changed": false,
+  "usable_for_fit": false,
+  "observed_branch_failure": "stop synthesis timed out; unreported stop inference costs are unknown. Reported token delta is not the full cost difference."
+}

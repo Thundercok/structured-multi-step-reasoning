@@ -59,6 +59,8 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QMainWindow,
+    QMenu,
+    QProgressBar,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -67,6 +69,9 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from rat.ui.surface_layout import ChatComposer, CurrentPageStack, motion_enabled
+from rat.ui.live_companion import LiveCompanion
 
 from rat.config import config
 from rat.crawler.db import Database
@@ -99,8 +104,6 @@ from rat.ui.chat_session import (
     CHAT_SYSTEM_PROMPT,
     ConversationHistory,
     build_chat_prompt,
-    extract_arithmetic_request,
-    normalize_chat_request,
 )
 from rat.ui.settings_dialog import SettingsDialog
 from rat.ui.theme import RAYCAST_QSS, get_ext_badge_info
@@ -291,6 +294,24 @@ class StreamReasoningWorker(QThread):
             )
 
 
+class OmnibarModeFilter(QObject):
+    """Keep the mode shortcut available in every editor belonging to this box."""
+    def __init__(self, window):
+        super().__init__(window)
+        self.window = window
+
+    def eventFilter(self, watched, event):
+        if event.type() in (QEvent.Type.KeyPress, QEvent.Type.ShortcutOverride) and isinstance(
+            watched, QWidget) and watched.window() is self.window:
+            if event.key() == Qt.Key.Key_L and event.modifiers() & (
+                Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier):
+                if event.type() == QEvent.Type.KeyPress:
+                    self.window.toggle_expand()
+                event.accept()
+                return True
+        return False
+
+
 class OmnibarInputFilter(QObject):
     """Keyboard-first event filter for Omnibar input."""
 
@@ -310,6 +331,14 @@ class OmnibarInputFilter(QObject):
                 Qt.Key.Key_A, Qt.Key.Key_C, Qt.Key.Key_V, Qt.Key.Key_X, Qt.Key.Key_Z,
             ):
                 return super().eventFilter(watched, event)
+
+            if watched is getattr(self.window, "chat_composer_input", None):
+                if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and mod & Qt.KeyboardModifier.ShiftModifier:
+                    return False
+                if key in (Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageUp, Qt.Key.Key_PageDown) and not is_cmd:
+                    return False
+                if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
+                    return False
 
             # Chip Button Keyboard Navigation
             chips = getattr(self.window, "chip_buttons", [])
@@ -376,6 +405,9 @@ class OmnibarInputFilter(QObject):
                     self.window._open_current_in_terminal()
                 else:
                     if self.window.current_section_idx == 0:
+                        if watched is getattr(self.window, "full_chat_input", None):
+                            self.window._submit_full_chat_prompt()
+                            return True
                         inp_text = self.window.chat_composer_input.text().strip()
                         if inp_text:
                             self.window._submit_chat_prompt(inp_text)
@@ -407,18 +439,14 @@ class OmnibarInputFilter(QObject):
                     self.window._copy_current_path()
                 return True
 
-            # 5. Tab / Backtab -> Cycle Sections
-            if key == Qt.Key.Key_Tab:
-                self.window.cycle_section(1)
-                return True
-            elif key == Qt.Key.Key_Backtab:
-                self.window.cycle_section(-1)
-                return True
+            # Tab follows visible conversation controls instead of changing pages.
+            if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
+                return False
 
             # 6. Cmd + 1..4 -> Direct Section Jump
             if is_cmd and Qt.Key.Key_1 <= key <= Qt.Key.Key_4:
                 idx = key - Qt.Key.Key_1
-                self.window.switch_section(idx)
+                self.window.activate_chat_feature(idx)
                 return True
 
             # 7. Cmd + K -> Action Menu
@@ -768,102 +796,10 @@ class ArtisticSpeechBubble(QFrame):
 ComicSpeechFrame = ArtisticSpeechBubble
 
 
-class CompanionAvatarButton(QPushButton):
-    """
-    Tactile Companion Avatar button located right inside the search input / composer bar.
-    Renders Chuột's expressive bust with dynamic overhead badges:
-    - 'idle': Calm, friendly, ready
-    - 'searching': Magnifying glass 🔍
-    - 'thinking': Animated spinning loading ring + 💭
-    - 'angry': Comic angry vein mark 💢
-    """
+class CompanionAvatarButton(LiveCompanion):
+    """Compatibility name for the shared live character."""
+    pass
 
-    def __init__(self, window: "OmnibarWindow", parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
-        self.window = window
-        self.setFixedSize(34, 34)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setToolTip("Chuột đồng hành · Nhấp để trò chuyện hoặc chọc giận!")
-        self.current_state = "idle"
-        self._spin_angle = 0
-        self._spin_timer = QTimer(self)
-        self._spin_timer.timeout.connect(self._on_spin_tick)
-        self._click_count = 0
-        self._last_click_time = 0.0
-        self.clicked.connect(self._on_clicked)
-
-        # Pre-load mascot bust pixmap
-        self._bust_pm = get_mascot_pixmap(24, 24, bust_only=True)
-
-    def _on_spin_tick(self) -> None:
-        self._spin_angle = (self._spin_angle + 25) % 360
-        self.update()
-
-    def set_state(self, state: str) -> None:
-        self.current_state = state
-        if state == "thinking":
-            if not self._spin_timer.isActive():
-                self._spin_timer.start(40)
-        else:
-            if self._spin_timer.isActive():
-                self._spin_timer.stop()
-        self.update()
-
-    def _on_clicked(self) -> None:
-        now = time.time()
-        if now - self._last_click_time < 1.5:
-            self._click_count += 1
-        else:
-            self._click_count = 1
-        self._last_click_time = now
-
-        if self._click_count >= 3:
-            # Angry reaction!
-            self.window.set_mascot_state("angry", "Ừ, tôi vẫn ở đây. Ô nhập cũng ở ngay bên cạnh đấy.")
-            QTimer.singleShot(4000, lambda: self.window.set_mascot_state("idle"))
-        else:
-            quotes = [
-                "Nghe đây. Cần gì?",
-                "Ừ, tôi đang nghe. Cứ gõ đi.",
-                "Có mặt. Không cần điểm danh lần nữa đâu.",
-                "Đưa câu hỏi đây, mình gỡ từng ý.",
-            ]
-            q = quotes[self._click_count % len(quotes)]
-            self.window.set_mascot_state("speaking" if not self.window.is_expanded else "idle", q)
-
-    def paintEvent(self, event: Any) -> None:
-        p = QPainter(self)
-        p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-
-        # Background capsule
-        p.setBrush(QColor("#F8F5EE"))
-        p.setPen(QPen(QColor("#E2D7C7"), 1.5))
-        p.drawRoundedRect(1, 1, 32, 32, 16, 16)
-
-        # Mascot face
-        if self._bust_pm and not self._bust_pm.isNull():
-            fx = (self.width() - self._bust_pm.width()) // 2
-            fy = (self.height() - self._bust_pm.height()) // 2 + 1
-            p.drawPixmap(fx, fy, self._bust_pm)
-
-        # State badge
-        st = self.current_state
-        if st == "thinking":
-            p.save()
-            p.translate(24, 8)
-            p.rotate(self._spin_angle)
-            pen = QPen(QColor("#F59E0B"), 2.2, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap)
-            p.setPen(pen)
-            p.drawArc(QRectF(-5, -5, 10, 10), 0, 270 * 16)
-            p.restore()
-        elif st == "searching":
-            p.setFont(QFont("Apple Color Emoji", 11))
-            p.drawText(QRectF(17, 0, 16, 16), Qt.AlignmentFlag.AlignCenter, "🔍")
-        elif st == "angry":
-            p.setFont(QFont("Apple Color Emoji", 12))
-            p.drawText(QRectF(17, -1, 16, 16), Qt.AlignmentFlag.AlignCenter, "💢")
-        p.end()
 
 
 class PeekingRatMascot(QWidget):
@@ -1186,6 +1122,13 @@ class OmnibarWindow(QMainWindow):
         self.engine = SearchEngine(self.db)
         self.compositor = TimetableCompositor(load_club_members())
         self.members: List[MemberSchedule] = self.compositor.members
+        from rat.engine.assistant_runtime import AssistantRuntime
+        from rat.engine.slm import SLMEngine
+        self.assistant_runtime = AssistantRuntime(db=self.db, compositor=self.compositor, use_live_model=True,
+            plan_tasks=True, model_client=SLMEngine(model=config.assistant_model or config.ollama_model))
+        self._assistant_sources = []
+        self._assistant_task_state = {}
+        self._assistant_handle = None
 
         self.current_section_idx = 0
         self.active_file_filter_idx = 0
@@ -1200,6 +1143,7 @@ class OmnibarWindow(QMainWindow):
         self._chat_generation = 0
         self._current_reasoner: Optional[StreamReasoningWorker] = None
         self._reasoning_workers: set[StreamReasoningWorker] = set()
+        self._artifact_worker = None
         self._chat_file_request: Optional[Dict[str, Any]] = None
         self._toast_timer = QTimer(self)
         self._toast_timer.setSingleShot(True)
@@ -1216,8 +1160,12 @@ class OmnibarWindow(QMainWindow):
 
         self._drag_pos = QPoint()
         self._init_thread()
+        self._surface_fit_pending = False
+        self._surface_scroll = {}
         self._init_window()
         self._init_ui()
+        self._mode_filter = OmnibarModeFilter(self)
+        QApplication.instance().installEventFilter(self._mode_filter)
         self.feedback = SearchFeedback(self, "omnibar", [self.result_list, self.recent_list, self.compact_file_list])
         self._load_initial_data()
 
@@ -1243,23 +1191,32 @@ class OmnibarWindow(QMainWindow):
         configure_macos_fullscreen_overlay(self)
 
     def _resize_overlay(self, new_width: int, new_height: int, animated: bool = False) -> None:
-        """Keep the overlay low on the active screen, with room to grow upward."""
-        # Qt may need a couple more pixels than the nominal compact height.
-        # Position using the actual layout minimum so the bottom anchor stays exact.
+        """Keep the composer's position stable while the conversation grows below."""
         minimum = self.minimumSizeHint()
-        new_width = max(new_width, minimum.width())
-        new_height = max(new_height, minimum.height())
+        new_width = int(max(new_width, minimum.width()))
+        new_height = int(max(new_height, minimum.height()))
         try:
             cursor_pos = QCursor.pos()
-            screen = QGuiApplication.screenAt(cursor_pos) or self.screen() or QGuiApplication.primaryScreen()
+            screen = (self.screen() if self.isVisible() else QGuiApplication.screenAt(cursor_pos)) or QGuiApplication.primaryScreen()
             if screen:
                 geo = screen.availableGeometry()
-                target_rect = lower_overlay_geometry(geo, new_width, new_height)
+                new_width = min(new_width, geo.width() - 24)
+                new_height = min(new_height, geo.height() - 24)
+                if self.isVisible():
+                    left = max(geo.left() + 12, min(self.x(), geo.right() - new_width - 11))
+                    top = max(geo.top() + 12, min(self.y(), geo.bottom() - new_height - 11))
+                    target_rect = QRect(left, top, int(new_width), int(new_height))
+                else:
+                    # Leave room below the stable composer for a compact result to grow.
+                    target_rect = QRect(geo.left() + (geo.width() - int(new_width)) // 2,
+                        geo.top() + min(120, geo.height() // 6), int(new_width), int(new_height))
 
                 if hasattr(self, "_geom_anim"):
+                    if self._geom_anim.state() == QPropertyAnimation.State.Running and self._geom_anim.endValue() == target_rect:
+                        return
                     self._geom_anim.stop()
 
-                if animated and self.isVisible():
+                if animated and self.isVisible() and motion_enabled():
                     if not hasattr(self, "_geom_anim"):
                         self._geom_anim = QPropertyAnimation(self, b"geometry")
                         self._geom_anim.setDuration(200)
@@ -1296,13 +1253,7 @@ class OmnibarWindow(QMainWindow):
         self._animate_mascot_peek()
 
     def _animate_mascot_peek(self) -> None:
-        """State-aware mascot transition."""
-        if not hasattr(self, "mascot_peeking"):
-            return
-        if getattr(self.mascot_peeking, "is_speaking", False):
-            self.mascot_peeking.pop_out_speaking()
-        else:
-            self.mascot_peeking.retreat_to_idle()
+        self.mascot_peeking.hide()
 
     def resizeEvent(self, event: Any) -> None:
         super().resizeEvent(event)
@@ -1323,38 +1274,25 @@ class OmnibarWindow(QMainWindow):
         self.speech_bubble.raise_()
         self.speech_bubble.update()
 
-    def set_mascot_speaking(self, text: Optional[str] = None) -> None:
-        """Activate SPEAKING state: triggers diagonal pop-out and speech bubble."""
+    def set_mascot_speaking(self, text=None):
         if text:
-            if hasattr(self, "speech_bubble"):
-                self.speech_bubble.set_reply(text)
-        if hasattr(self, "mascot_peeking"):
-            if not self.mascot_peeking.is_speaking:
-                if hasattr(self, "speech_bubble"):
-                    self.speech_bubble.hide()
-                self.mascot_peeking.pop_out_speaking()
-            else:
-                if hasattr(self, "speech_bubble"):
-                    self.speech_bubble.show_bubble()
+            self.speech_bubble.set_reply(text)
+        self.speech_bubble.hide()
+        self.mascot_peeking.hide()
 
-    def _on_mascot_speaking_popped_out(self) -> None:
-        """Speech bubble appears right after mouse finishes diagonal pop-out."""
-        if hasattr(self, "speech_bubble") and not self.is_expanded:
-            self.speech_bubble.show_bubble()
+    def _on_mascot_speaking_popped_out(self):
+        self.speech_bubble.hide()
 
-    def set_mascot_idle(self) -> None:
-        """Activate IDLE state: hides speech bubble and retreats to peeking paws/eyes."""
-        if hasattr(self, "speech_bubble"):
-            self.speech_bubble.hide_bubble()
-        if hasattr(self, "mascot_peeking"):
-            self.mascot_peeking.retreat_to_idle()
+    def set_mascot_idle(self):
+        self.speech_bubble.hide()
+        self.mascot_peeking.hide()
 
     def _on_mascot_idle_retreated(self) -> None:
         pass
 
     def on_mascot_clicked(self) -> None:
-        """Disabled: mascot stays stationary and calm without jumping or popping out."""
-        pass
+        """Forward legacy mascot clicks to the visible live companion."""
+        self.companion_avatar_btn.click()
 
     def set_mascot_state(self, state: str, text: Optional[str] = None) -> None:
         """Unified state setter for Chuột across all UI widgets."""
@@ -1376,81 +1314,31 @@ class OmnibarWindow(QMainWindow):
         self.set_expanded(not self.is_expanded)
 
     def set_expanded(self, expanded: bool) -> None:
-        """Explicitly switch between compact HUD and full notebook mode."""
-        self.is_expanded = expanded
-        if hasattr(self, "speech_bubble"):
-            self.speech_bubble.set_expanded_mode(expanded)
-
-        if expanded:
-            if hasattr(self, "main_layout"):
-                self.main_layout.setContentsMargins(16, 28, 16, 16)
-            if hasattr(self, "mascot_peeking"):
-                self.mascot_peeking.hide()
-            if hasattr(self, "speech_bubble"):
-                self.speech_bubble.hide()
-            if hasattr(self, "quick_bar"):
-                self.quick_bar.hide()
-            if hasattr(self, "chat_header_status"):
-                self.chat_header_status.hide()
-            if hasattr(self, "btn_expand"):
-                self.btn_expand.hide()
-            if hasattr(self, "section_bar"):
-                self.section_bar.show()
-            if hasattr(self, "hairline_divider"):
-                self.hairline_divider.show()
-            if hasattr(self, "content_stack"):
-                self.content_stack.show()
-                self.content_stack.setCurrentIndex(getattr(self, "current_section_idx", 0))
-            if hasattr(self, "chat_stream"):
-                self.chat_stream.show()
-            if hasattr(self, "action_footer"):
-                self.action_footer.show()
-                self._render_action_footer_keycaps()
-            if hasattr(self, "quick_suggestions"):
-                self.quick_suggestions.hide()
-            if hasattr(self, "compact_file_list"):
-                self.compact_file_list.hide()
-                self.compact_footer.hide()
-            if hasattr(self, "compact_cot"):
-                self.compact_cot.hide()
-            self._resize_overlay(700, 580, animated=True)
-            if getattr(self, "current_section_idx", 0) == 0 and hasattr(self, "full_chat_input"):
-                self.full_chat_input.setFocus()
-            elif getattr(self, "current_section_idx", 0) == 1 and hasattr(self, "search_input"):
-                self.search_input.setFocus()
-        else:
-            if hasattr(self, "main_layout"):
-                self.main_layout.setContentsMargins(16, 120, 16, 16)
-            if hasattr(self, "mascot_peeking"):
-                self.mascot_peeking.show()
-                self.mascot_peeking.set_anchors(16, 120)
-            if hasattr(self, "speech_bubble"):
-                if self.speech_bubble.has_reply:
-                    self.speech_bubble.show_bubble()
-                else:
-                    self.speech_bubble.hide()
-            if hasattr(self, "quick_bar"):
-                self.quick_bar.show()
-            if hasattr(self, "section_bar"):
-                self.section_bar.hide()
-            if hasattr(self, "hairline_divider"):
-                self.hairline_divider.hide()
-            if hasattr(self, "content_stack"):
-                self.content_stack.hide()
-            if hasattr(self, "chat_stream"):
-                self.chat_stream.hide()
-            if hasattr(self, "action_footer"):
-                self.action_footer.hide()
-            if hasattr(self, "btn_expand"):
-                self.btn_expand.show()
-                self.btn_expand.setText("⤢")
-            if hasattr(self, "compact_cot") and self.compact_cot._current_steps:
-                self.compact_cot.show()
-            if hasattr(self, "quick_suggestions"):
-                self._sync_compact_surface()
-            self._resize_overlay(652, self._compact_height(), animated=True)
-            if hasattr(self, "chat_composer_input"):
-                self.chat_composer_input.setFocus()
+        """Resize the same editor and result tree; never submit or rebuild a view."""
+        old_mode = self.is_expanded
+        focus = QApplication.focusWidget()
+        if hasattr(self, 'chat_stream'):
+            self._surface_scroll[old_mode] = self.chat_stream.verticalScrollBar().value()
+        self.is_expanded = bool(expanded)
+        self._interaction_surface_active = True
+        self.main_layout.setContentsMargins(12, 12, 12, 12)
+        self.quick_bar.show()
+        self.btn_expand.show()
+        self.btn_expand.setText('−' if expanded else '+')
+        self.btn_expand.setAccessibleName('Thu gọn hội thoại' if expanded else 'Mở rộng hội thoại')
+        self.btn_expand.setToolTip(('Thu gọn' if expanded else 'Mở rộng') + ' (⌘L)')
+        for widget in (self.mascot_peeking, self.speech_bubble, self.section_bar,
+                       self.hairline_divider, self.action_footer, self.compact_cot,
+                       self.compact_file_list, self.compact_footer):
+            widget.hide()
+        self.content_stack.setVisible(self.is_expanded or self.current_section_idx != 0 or not self.chat_stream.is_empty())
+        self.chat_stream.set_compact(not self.is_expanded)
+        self._sync_compact_surface()
+        if old_mode != self.is_expanded:
+            self._resize_overlay(820 if expanded else 620, self._surface_height(), animated=True)
+            self.chat_stream.restore_reading_position(self._surface_scroll.get(self.is_expanded))
+        if focus is not None and self.isAncestorOf(focus) and focus.isVisible():
+            focus.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def _init_ui(self) -> None:
         self.input_filter = OmnibarInputFilter(self)
@@ -1459,8 +1347,8 @@ class OmnibarWindow(QMainWindow):
         main_widget.setObjectName("OmnibarCanvas")
         main_widget.setStyleSheet("QWidget#OmnibarCanvas { background: transparent; border: none; }")
         self.setCentralWidget(main_widget)
-        self.main_layout = QVBoxLayout(main_widget)
-        self.main_layout.setContentsMargins(16, 120, 16, 16)
+        self.main_layout = QHBoxLayout(main_widget)
+        self.main_layout.setContentsMargins(12, 12, 12, 12)
         self.main_layout.setSpacing(0)
 
         # =============================================================
@@ -1522,22 +1410,22 @@ class OmnibarWindow(QMainWindow):
         # -------------------------------------------------------------
         quick_bar = QFrame()
         quick_bar.setObjectName("QuickBar")
-        quick_bar.setFixedHeight(36)
+        quick_bar.setMinimumHeight(42)
 
         qb_layout = QHBoxLayout(quick_bar)
         qb_layout.setContentsMargins(4, 0, 4, 0)
         qb_layout.setSpacing(6)
 
-        # Companion Avatar Button inside QuickBar (Hidden in clean mode)
-        self.companion_avatar_btn = CompanionAvatarButton(self, quick_bar)
-        self.companion_avatar_btn.hide()
-        qb_layout.addWidget(self.companion_avatar_btn, 0)
+        # Companion stands beside the chat, sharing its window and lifecycle.
+        self.companion_avatar_btn = CompanionAvatarButton(self, main_widget)
+        self.companion_avatar_btn.show()
+        self.main_layout.addWidget(self.companion_avatar_btn, 0, Qt.AlignmentFlag.AlignTop)
 
-        self.chat_composer_input = QLineEdit()
+        self.chat_composer_input = ChatComposer()
         self.chat_composer_input.setObjectName("ChatComposerInput")
         self.chat_composer_input.setPlaceholderText("Hỏi một điều, tìm một tệp…")
         self.chat_composer_input.setStyleSheet("""
-            QLineEdit#ChatComposerInput {
+            QPlainTextEdit#ChatComposerInput {
                 font-size: 13px;
                 font-weight: 400;
                 border: none;
@@ -1546,10 +1434,11 @@ class OmnibarWindow(QMainWindow):
                 padding-left: 2px;
             }
         """)
-        self.chat_composer_input.setClearButtonEnabled(True)
+        self.chat_composer_input.setAccessibleName("Yêu cầu cho Chuột")
         self.chat_composer_input.installEventFilter(self.input_filter)
         self.chat_composer_input.returnPressed.connect(lambda: self._submit_chat_prompt(self.chat_composer_input.text()))
-        self.chat_composer_input.textChanged.connect(self._on_composer_text_changed)
+        self.chat_composer_input.textChanged.connect(lambda: self._on_composer_text_changed(self.chat_composer_input.text()))
+        self.chat_composer_input.height_changed.connect(self._schedule_surface_fit)
         qb_layout.addWidget(self.chat_composer_input, 1)
 
         # Minimal model status badge (shown in expanded mode)
@@ -1565,7 +1454,7 @@ class OmnibarWindow(QMainWindow):
         self.chat_header_status.hide()
         qb_layout.addWidget(self.chat_header_status)
 
-        self.btn_expand = QPushButton("⤢", quick_bar)
+        self.btn_expand = QPushButton("+", quick_bar)
         self.btn_expand.setObjectName("BtnExpand")
         self.btn_expand.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_expand.setToolTip("Mở rộng / Thu nhỏ (⌘L)")
@@ -1587,6 +1476,24 @@ class OmnibarWindow(QMainWindow):
         """)
         self.btn_expand.show()
         qb_layout.addWidget(self.btn_expand)
+
+        self.btn_surface_menu = QPushButton("⋯", quick_bar)
+        self.btn_surface_menu.setObjectName("SurfaceMenu")
+        self.btn_surface_menu.setAccessibleName("Tùy chọn hội thoại")
+        self.btn_surface_menu.setToolTip("Hội thoại và cài đặt")
+        self.btn_surface_menu.setFixedSize(28, 28)
+        self.btn_surface_menu.setStyleSheet("QPushButton { border: none; background: transparent; color: #8C8275; font-size: 20px; } QPushButton:hover { color: #302B24; background: #F3EEE5; border-radius: 7px; } QPushButton::menu-indicator { image: none; width: 0; }")
+        menu = QMenu(self.btn_surface_menu)
+        menu.addAction("Hội thoại mới", self._reset_chat)
+        menu.addSeparator()
+        menu.addAction("Lập lá số", self.open_natal_chart)
+        menu.addAction("Tìm tài liệu…", lambda: self.activate_chat_feature(1))
+        menu.addAction("Xem lịch học", lambda: self.activate_chat_feature(2))
+        menu.addAction("Giờ rảnh của nhóm…", lambda: self.activate_chat_feature(3))
+        menu.addSeparator()
+        menu.addAction("Cài đặt…", self._open_settings)
+        self.btn_surface_menu.setMenu(menu)
+        qb_layout.addWidget(self.btn_surface_menu)
 
         self.return_keycap = QLabel("↵")
         self.return_keycap.setObjectName("ReturnKeycap")
@@ -1631,11 +1538,24 @@ class OmnibarWindow(QMainWindow):
                 border-bottom: 1.5px solid #DCD4C4;
             }
         """)
-        self.chat_composer_send.clicked.connect(lambda: self._submit_chat_prompt(self.chat_composer_input.text()))
+        self.chat_composer_send.clicked.connect(self._submit_chat_or_stop)
         qb_layout.addWidget(self.chat_composer_send)
 
         self.quick_bar = quick_bar
         self.container_layout.addWidget(quick_bar, 0)
+
+        from rat.ui.work_context import NotebookPane
+        self.notebook_pane = NotebookPane(self.assistant_runtime.notebook, container)
+        self.notebook_pane.changed.connect(self._schedule_surface_fit)
+        self.notebook_pane.error.connect(self.show_toast)
+        self.notebook_pane.changed_notes.connect(self._on_notes_changed)
+        self.container_layout.addWidget(self.notebook_pane, 0)
+
+        self.surface_notice = QLabel('', container)
+        self.surface_notice.setWordWrap(True)
+        self.surface_notice.setStyleSheet('color: #927249; font-size: 12px; border: none; background: transparent; padding: 2px 4px;')
+        self.surface_notice.hide()
+        self.container_layout.addWidget(self.surface_notice)
 
         # -------------------------------------------------------------
         # 1b. COMPACT CHAIN-OF-THOUGHT (CoT) RIBBON (Min Mode)
@@ -1663,9 +1583,9 @@ class OmnibarWindow(QMainWindow):
         qs_layout.setSpacing(6)
 
         sugg_chips = [
-            ("Cùng nghĩ một ý", "Giúp mình nghĩ về ", False),
-            ("Tìm tệp…", "tìm file ", False),
-            ("Lịch hôm nay", "hôm nay học gì", True),
+            ("Gỡ một việc", "Giúp mình ", False),
+            ("Tìm tài liệu", "Mình đang tìm tài liệu về ", False),
+            ("Chuẩn bị buổi tới", "Buổi học tiếp theo của mình cần chuẩn bị gì?", True),
         ]
         self.chip_buttons: List[QPushButton] = []
         for label, q_text, submit in sugg_chips:
@@ -1793,7 +1713,14 @@ class OmnibarWindow(QMainWindow):
             self.section_buttons.append(btn)
         section_layout.addStretch()
 
-        self.full_model_badge = QLabel("● Qwen2.5")
+        self.btn_natal = QPushButton("✧ Lá số")
+        self.btn_natal.setToolTip("Lập bản đồ sao cá nhân theo ngày, giờ và nơi sinh")
+        self.btn_natal.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_natal.clicked.connect(lambda checked=False: self.open_natal_chart())
+        self.btn_natal.setStyleSheet("QPushButton { background: #EEE5D5; color: #705C38; border: none; border-radius: 6px; padding: 5px 9px; font-size: 11px; } QPushButton:hover { background: #E2D4BA; }")
+        section_layout.addWidget(self.btn_natal)
+
+        self.full_model_badge = QLabel("● " + self.assistant_runtime.model_client.model if self.assistant_runtime.model_client else "● " + config.ollama_model)
         self.full_model_badge.setStyleSheet("""
             color: #92400E;
             background: #FEF3C7;
@@ -1831,7 +1758,7 @@ class OmnibarWindow(QMainWindow):
         # -------------------------------------------------------------
         # 5. CONTENT STACK
         # -------------------------------------------------------------
-        self.content_stack = QStackedWidget()
+        self.content_stack = CurrentPageStack()
         # Unselected timetable/club pages must not impose their size on the chat overlay.
         self.content_stack.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
         self.content_stack.setStyleSheet("background: transparent;")
@@ -1891,10 +1818,55 @@ class OmnibarWindow(QMainWindow):
         self.main_layout.addWidget(container, 1)
 
     def _compact_height(self) -> int:
-        if not hasattr(self, "container"):
-            return 238
-        self.container_layout.activate()
-        return max(238, self.container.minimumSizeHint().height() + 136)
+        return self._surface_height()
+
+    def _surface_height(self):
+        screen = self.screen() or QGuiApplication.primaryScreen()
+        available = screen.availableGeometry().height() if screen else 900
+        if self.is_expanded:
+            room = screen.availableGeometry().bottom() - self.y() - 12 if screen and self.isVisible() else available - 72
+            return min(760, max(300, room))
+        chrome = self.quick_bar.sizeHint().height() + 50
+        minimum = self.companion_avatar_btn.height() + 24 if not self.companion_avatar_btn.isHidden() else 128
+        if not self.notebook_pane.isHidden():
+            chrome += self.notebook_pane.sizeHint().height() + 8
+        if self.chat_stream.is_empty():
+            return min(available * 0.65, max(minimum, chrome + self.quick_suggestions.sizeHint().height()))
+        self.chat_stream.container.layout().activate()
+        layout = self.chat_stream.container.layout()
+        content = layout.totalHeightForWidth(self.chat_stream.viewport().width())
+        if content < 0:
+            content = layout.sizeHint().height()
+        return min(max(240, available * 0.65), max(220, chrome + content))
+
+    def _schedule_surface_fit(self):
+        if getattr(self, '_surface_fit_pending', False):
+            return
+        self._surface_fit_pending = True
+        QTimer.singleShot(0, self._fit_surface)
+
+    def _fit_surface(self):
+        self._surface_fit_pending = False
+        if not hasattr(self, 'chat_stream') or getattr(self, '_shutting_down', False):
+            return
+        target = int(self._surface_height())
+        if abs(target - self.height()) > 3:
+            self._resize_overlay(820 if self.is_expanded else 620, target, animated=True)
+
+    def activate_chat_feature(self, index):
+        self.current_section_idx = 0
+        self.content_stack.setCurrentIndex(0)
+        self._show_interaction_surface()
+        if index == 1:
+            self._prefill_chat('Tìm tài liệu về ')
+        elif index == 2:
+            self._submit_chat_prompt('Hôm nay tôi học gì?')
+        elif index == 3:
+            self._prefill_chat('Tìm khung giờ rảnh cho nhóm ')
+        elif index == 4:
+            self._open_settings()
+        else:
+            self.chat_composer_input.setFocus()
 
     def _render_footer_keycaps(self, shortcuts: List[Tuple[str, str]]) -> None:
         if not hasattr(self, "keycaps_layout"):
@@ -1947,6 +1919,8 @@ class OmnibarWindow(QMainWindow):
             ("⌘K", "Tác vụ"),
             ("⎋", "Đóng"),
         ]
+        if self.current_section_idx == 0:
+            hotkeys = [("↵", "Gửi"), ("⇥", "Chuyển mục"), ("⎋", "Thu gọn")]
         for idx, (key, desc) in enumerate(hotkeys):
             if idx > 0:
                 dot = QLabel("•")
@@ -1971,53 +1945,103 @@ class OmnibarWindow(QMainWindow):
             self.action_footer_keycaps_layout.addWidget(desc_lbl)
 
     def _sync_compact_surface(self) -> None:
-        """Suggestions are onboarding, not permanent decoration beneath every result."""
-        quick = not self.is_expanded and self.current_section_idx == 0
+        """Only one live composer and one result viewport in both sizes."""
+        if getattr(self, '_shutting_down', False):
+            return
         busy = self._pending_chat_query is not None
-        has_files = self.compact_file_list.count() > 0
+        updating = self._artifact_worker is not None
         started = not self.chat_stream.is_empty()
-        self.quick_suggestions.setVisible(quick and not started and not busy)
-        self.compact_file_list.setVisible(quick and has_files)
-        self.compact_footer.setVisible(quick and (started or busy or has_files))
-        if has_files:
-            self._render_footer_keycaps([
-                ("↑↓", "Chọn"),
-                ("↵", "Mở"),
-                ("␣", "Xem nhanh"),
-                ("⎋", "Thu gọn"),
-            ])
+        self.quick_suggestions.setVisible(not started and not busy and not updating and self.current_section_idx == 0)
+        for widget in (self.speech_bubble, self.mascot_peeking, self.compact_cot,
+                       self.compact_file_list, self.compact_footer, self.section_bar,
+                       self.action_footer, self.hairline_divider):
+            widget.hide()
+        self.quick_bar.setVisible(self.current_section_idx == 0)
+        self.content_stack.setVisible(started or self.is_expanded or self.current_section_idx != 0)
+        self.chat_composer_input.setPlaceholderText('Hỏi tiếp hoặc sửa điều gì đó…' if started else 'Bạn muốn làm gì?')
+        self.chat_composer_send.setText('■' if busy else '…' if updating else '↑')
+        self.chat_composer_send.setToolTip('Dừng xử lý' if busy else 'Đang cập nhật kết quả' if updating else 'Gửi · Enter (Shift+Enter xuống dòng)')
+        self.chat_composer_send.setAccessibleName('Dừng xử lý' if busy else 'Đang cập nhật kết quả' if updating else 'Gửi yêu cầu')
+        self.chat_composer_send.setEnabled(not updating and (busy or bool(self.chat_composer_input.text().strip())))
+        self.notebook_pane.set_busy(busy or updating)
+        self.companion_avatar_btn.setVisible(self.current_section_idx == 0)
+        if busy or updating:
+            self.companion_avatar_btn.set_state('thinking')
+        elif self.assistant_runtime.dispatcher.state.pending_input_request:
+            self.companion_avatar_btn.set_state('waiting')
+        elif getattr(self, '_mascot_state', 'idle') == 'error':
+            self.companion_avatar_btn.set_state('error')
         else:
-            self._render_footer_keycaps([
-                ("↵", "Gửi"),
-                ("⇧↵", "Xuống dòng"),
-                ("⎋", "Thu gọn"),
-            ])
-        if hasattr(self, "compact_cot"):
-            has_cot = bool(self.compact_cot._current_steps) or busy
-            self.compact_cot.setVisible(quick and has_cot)
+            self.companion_avatar_btn.set_state('done' if started else 'idle')
+        self._schedule_surface_fit()
 
-        self.chat_composer_input.setPlaceholderText("Hỏi tiếp hoặc tìm tệp…" if started else "Hỏi một điều, tìm một tệp…")
-        self.chat_composer_send.setEnabled(bool(self.chat_composer_input.text().strip()) and not busy)
-        if quick:
-            self._resize_overlay(652, self._compact_height(), animated=True)
+    def _update_work_results(self, handle, artifacts=()):
+        seen = handle.setdefault('seen_result_revisions', {})
+        active = self.assistant_runtime.notebook.result_ids()
+        for artifact in artifacts:
+            if seen.get(artifact.id) != artifact.revision:
+                if artifact.id not in active:
+                    active.append(artifact.id)
+                seen[artifact.id] = artifact.revision
+        active = [key for key in active if self.assistant_runtime.artifact_store.get(key) is not None]
+        if artifacts:
+            self.assistant_runtime.notebook.select_results(active)
+        if self.assistant_runtime.notebook.selection_set:
+            handle['artifacts'] = {key: self.assistant_runtime.artifact_store.get(key)
+                for key in self.assistant_runtime.notebook.result_ids()
+                if self.assistant_runtime.artifact_store.get(key) is not None}
+
+    def _work_sources(self, sources):
+        return [] if self.assistant_runtime.notebook.selection_set else sources
+
+    def _carry_work_results(self, handle):
+        previous = getattr(self, '_latest_assistant_handle', None)
+        if previous is None or previous is handle:
+            return
+        handle['seen_result_revisions'] = dict(previous.get('seen_result_revisions', {}))
+        self._update_work_results(handle)
+        if self.assistant_runtime.notebook.selection_set and not handle.get('artifacts'):
+            return
+        host = previous.pop('sources_widget', None)
+        if host is not None:
+            previous['c_layout'].removeWidget(host)
+            handle['c_layout'].insertWidget(handle['c_layout'].indexOf(handle['work_trace']), host)
+            handle['sources_widget'] = host
+            self.chat_stream.set_compact(not self.is_expanded)
+
+    def _on_notes_changed(self):
+        self.companion_avatar_btn.set_state('noting')
+        self._schedule_surface_fit()
+
+    def _append_direct_trace(self, result):
+        from rat.engine.assistant_runtime import AgentStep
+        handle = getattr(self, '_latest_assistant_handle', None)
+        if handle is None:
+            return
+        events = self.assistant_runtime.dispatcher.state.events
+        event = next((event for event in reversed(events) if event.type in ('operation_completed', 'waiting_input', 'operation_failed')), None)
+        if event is None:
+            return
+        trace = handle['work_trace']
+        payload = {'status': 'needs_input', 'prompt': result.input_request.prompt} if result.input_request else result.result
+        step = AgentStep(len(trace.entries) + 1, '', event.operation_name,
+            tool_result=payload, error=result.error, artifacts=[result.artifact] if result.artifact else [])
+        trace.add_step(step)
+        trace.set_status('Cần thêm dữ kiện' if result.status == 'needs_input' else 'Đã cập nhật' if result.status == 'success' else 'Chưa hoàn tất')
 
     def _prefill_chat(self, text: str) -> None:
         self.chat_composer_input.setText(text)
-        if hasattr(self, "full_chat_input"):
-            self.full_chat_input.setText(text)
-            if self.is_expanded:
-                self.full_chat_input.setFocus()
-                self.full_chat_input.setCursorPosition(len(text))
-                return
         self.chat_composer_input.setFocus()
         self.chat_composer_input.setCursorPosition(len(text))
 
     def _submit_full_chat_prompt(self) -> None:
-        if hasattr(self, "full_chat_input"):
-            q = self.full_chat_input.text().strip()
-            if q:
-                self.full_chat_input.clear()
-                self._submit_chat_prompt(q)
+        self._submit_chat_prompt(self.chat_composer_input.text())
+
+    def _submit_full_chat_or_stop(self) -> None:
+        if self._pending_chat_query is not None:
+            self._cancel_assistant()
+        else:
+            self._submit_full_chat_prompt()
 
     def _set_compact_files(self, files: Optional[List[SearchResultItem]]) -> None:
         self.compact_file_list.clear()
@@ -2044,7 +2068,7 @@ class OmnibarWindow(QMainWindow):
     def _on_composer_text_changed(self, text: str) -> None:
         q = text.strip()
         is_active = bool(q)
-        self.chat_composer_send.setEnabled(is_active and self._pending_chat_query is None)
+        self.chat_composer_send.setEnabled(self._artifact_worker is None and (is_active or self._pending_chat_query is not None))
         if hasattr(self, "return_keycap"):
             self.return_keycap.setProperty("active", "true" if is_active else "false")
             self.return_keycap.style().unpolish(self.return_keycap)
@@ -2081,47 +2105,9 @@ class OmnibarWindow(QMainWindow):
         self.chat_stream.prompt_clicked.connect(_on_chat_prompt_action)
         root_layout.addWidget(self.chat_stream, 1)
 
-        # Bottom Chat Composer for Full Mode
-        composer_frame = QFrame()
-        composer_frame.setObjectName("FullChatComposer")
-        composer_frame.setStyleSheet("""
-            QFrame#FullChatComposer {
-                background-color: #FAF7F1;
-                border: 1px solid #E6DFD5;
-                border-radius: 9px;
-            }
-        """)
-        c_layout = QHBoxLayout(composer_frame)
-        c_layout.setContentsMargins(8, 4, 8, 4)
-        c_layout.setSpacing(6)
-
-        self.full_chat_input = QLineEdit()
-        self.full_chat_input.setPlaceholderText("Hỏi chuột hoặc tìm tệp…")
-        self.full_chat_input.setStyleSheet("QLineEdit { font-size: 13px; border: none; background: transparent; color: #26221D; }")
-        self.full_chat_input.installEventFilter(self.input_filter)
-        self.full_chat_input.returnPressed.connect(self._submit_full_chat_prompt)
-        c_layout.addWidget(self.full_chat_input, 1)
-
-        self.full_chat_send = QPushButton("↑")
-        self.full_chat_send.setFixedSize(26, 26)
-        self.full_chat_send.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.full_chat_send.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #F59E0B, stop:1 #D97706);
-                color: #FFFFFF;
-                border: 1px solid #B45309;
-                border-radius: 7px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background: #FBBF24;
-            }
-        """)
-        self.full_chat_send.clicked.connect(self._submit_full_chat_prompt)
-        c_layout.addWidget(self.full_chat_send)
-
-        root_layout.addWidget(composer_frame, 0)
+        self.full_chat_input = self.chat_composer_input
+        self.full_chat_send = self.chat_composer_send
+        self.chat_stream.content_changed.connect(self._sync_compact_surface)
 
         # Hidden Compatibility Container for Tests
         compat_box = QWidget(widget)
@@ -2557,6 +2543,27 @@ class OmnibarWindow(QMainWindow):
 
         c_layout.addWidget(sys_card)
 
+        assistant_card = QFrame()
+        assistant_card.setStyleSheet(folder_card.styleSheet())
+        ai_layout = QVBoxLayout(assistant_card)
+        ai_layout.setContentsMargins(12, 10, 12, 10)
+        ai_layout.addWidget(QLabel("Model cho cuộc trò chuyện"))
+        ai_row = QHBoxLayout()
+        self.settings_assistant_combo = QComboBox()
+        self.settings_assistant_combo.setAccessibleName("Model trợ lý cục bộ")
+        self.settings_assistant_combo.addItem("Theo SLM hiện tại · " + config.ollama_model, "")
+        self.settings_assistant_combo.currentIndexChanged.connect(self._settings_choose_assistant_model)
+        ai_row.addWidget(self.settings_assistant_combo, 1)
+        refresh_models = QPushButton("Cập nhật danh sách")
+        refresh_models.clicked.connect(self._refresh_assistant_models)
+        ai_row.addWidget(refresh_models)
+        ai_layout.addLayout(ai_row)
+        note = QLabel("Chọn model đã tải trong Ollama. Áp dụng từ lượt chat tiếp theo.")
+        note.setWordWrap(True)
+        note.setStyleSheet("color: #786F66; font-size: 11px;")
+        ai_layout.addWidget(note)
+        c_layout.addWidget(assistant_card)
+
         # 3. Maintenance & Actions Card
         act_card = QFrame()
         act_card.setProperty("class", "SettingsCard")
@@ -2628,10 +2635,38 @@ class OmnibarWindow(QMainWindow):
         return widget
 
     def _refresh_settings_view(self) -> None:
+        self._refresh_assistant_models()
         if hasattr(self, "settings_folder_list"):
             self.settings_folder_list.clear()
             for d in config.indexed_directories:
                 self.settings_folder_list.addItem(str(d))
+
+    def _refresh_assistant_models(self):
+        from rat.engine.slm import slm_engine
+        combo = self.settings_assistant_combo
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem("Theo SLM hiện tại · " + config.ollama_model, "")
+        names = slm_engine.list_installed_models()
+        for name in dict.fromkeys(names + ([config.assistant_model] if config.assistant_model else [])):
+            combo.addItem(name, name)
+        combo.setCurrentIndex(max(0, combo.findData(config.assistant_model)))
+        combo.blockSignals(False)
+
+    def _settings_choose_assistant_model(self, index):
+        selected = self.settings_assistant_combo.itemData(index)
+        if isinstance(selected, str):
+            config.assistant_model = selected
+            config.save()
+            self.settings_status_lbl.setText("Đã lưu model cho lượt chat tiếp theo.")
+
+    def _apply_assistant_model(self):
+        from rat.engine.slm import SLMEngine
+        chosen = config.assistant_model or config.ollama_model
+        client = self.assistant_runtime.model_client
+        if client is None or client.model != chosen:
+            self.assistant_runtime.model_client = SLMEngine(model=chosen)
+        self.full_model_badge.setText("● " + chosen)
 
     def _settings_add_folder(self) -> None:
         from PyQt6.QtWidgets import QFileDialog
@@ -3072,6 +3107,7 @@ class OmnibarWindow(QMainWindow):
                     f"Kiểm chứng: Đối chiếu {len(files)} tài liệu phù hợp",
                 ]
 
+            citations = response.get("citations")
             self._deliver_assistant_reply(
                 answer,
                 latency_ms=latency,
@@ -3397,9 +3433,7 @@ class OmnibarWindow(QMainWindow):
         citations: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
         """
-        Deliver assistant reply:
-        - In compact mode: Chuột speaks via speech bubble.
-        - In expanded mode: reply goes cleanly to chat stream, NO floating bubble outside!
+        Deliver a completed reply into the persistent conversation viewport.
         """
         self._complete_chat_turn(answer)
         self._set_compact_files(inline_files)
@@ -3415,7 +3449,7 @@ class OmnibarWindow(QMainWindow):
 
         if hasattr(self, "chat_stream"):
             try:
-                self.chat_stream.add_assistant_message(
+                self._latest_assistant_handle = self.chat_stream.add_assistant_message(
                     answer=answer,
                     reasoning_steps=reasoning_steps,
                     latency_ms=latency_ms,
@@ -3447,18 +3481,31 @@ class OmnibarWindow(QMainWindow):
     def _reset_chat(self) -> None:
         self._chat_generation += 1
         self._conversation.clear()
+        self._assistant_sources = []
+        self._assistant_task_state = {}
+        self._assistant_handle = None
         self._pending_chat_query = None
         self._chat_file_request = None
         self._request_counter += 1
         if self._current_reasoner is not None:
             self._current_reasoner.requestInterruption()
             self._current_reasoner = None
+        if self._artifact_worker is not None:
+            self._artifact_worker.requestInterruption()
+            self._artifact_worker = None
+        if hasattr(self, "assistant_runtime") and hasattr(self.assistant_runtime, "artifact_store"):
+            self.assistant_runtime.dispatcher.reset()
+        self._latest_assistant_handle = None
+        self._surface_scroll.clear()
+        self.assistant_runtime.notebook.clear()
+        self.notebook_pane.set_open(False, animate=False)
+        self.notebook_pane.refresh()
         if hasattr(self, "chat_stream"):
             self.chat_stream.clear_chat()
         if hasattr(self, "compact_cot"):
             self.compact_cot.clear()
         self._set_compact_files(None)
-        self.set_expanded(False)
+        self.set_expanded(self.is_expanded)
         self.set_mascot_idle()
         if hasattr(self, "speech_bubble"):
             self.speech_bubble.reset_welcome()
@@ -3472,22 +3519,24 @@ class OmnibarWindow(QMainWindow):
         q = query.strip()
         if not q:
             return
-        if self._pending_chat_query is not None:
+        if self._pending_chat_query is not None or self._artifact_worker is not None:
             # Keep a second draft intact rather than interleaving unfinished turns.
             self.footer_status.setText("Đang trả lời câu trước. Câu đang gõ vẫn được giữ.")
             return
 
+        self._apply_assistant_model()
         self._pending_chat_query = q
+        self._last_assistant_query = q
         self._set_compact_files(None)
 
         if self.current_section_idx != 0:
             self.switch_section(0)
 
-        # Quick mode answers directly via speech bubble without forcing expansion
+        # Keep one conversation surface for requests and their sources.
         self.set_mascot_state("thinking", "Chuột · Suy nghĩ...")
         self.speech_bubble.set_reply("Đang suy nghĩ…", "Đang nghĩ", copy_text="")
         if hasattr(self, "compact_cot"):
-            self.compact_cot.set_thinking_state("Nhận diện ý định & kiểm chứng đa bước...")
+            self.compact_cot.clear()
 
         self.chat_stream.add_user_message(q)
         self.search_input.clear()
@@ -3498,328 +3547,316 @@ class OmnibarWindow(QMainWindow):
             self.return_keycap.setProperty("active", "false")
             self.return_keycap.style().unpolish(self.return_keycap)
             self.return_keycap.style().polish(self.return_keycap)
-        request = normalize_chat_request(q)
-        q_lower = request.lower()
-        intent = q_lower.strip(" .!?,…")
-        original_intent = q.lower().strip(" .!?,…")
-        t0 = time.time()
+        self._show_interaction_surface()
+        handle = self.chat_stream.create_streaming_message(strategy="Assistant", badge="Đang xử lý")
+        handle["generation"] = self._chat_generation
+        handle["observed_sources"] = list(self._assistant_sources)
+        self._carry_work_results(handle)
+        handle["work_trace"].set_status("Đã nhận việc")
+        self._assistant_handle = handle
+        from rat.ui.assistant_worker import AssistantWorker
+        worker = AssistantWorker(
+            self.assistant_runtime, q, history=self._conversation.context_messages(),
+            previous_sources=list(self._assistant_sources), member_id=self.current_member.id,
+            task_state=dict(self._assistant_task_state),
+            parent=QApplication.instance(),
+        )
+        self._current_reasoner = worker
+        self._reasoning_workers.add(worker)
+        worker.progress_changed.connect(lambda status, h=handle: self._on_assistant_progress(h, status))
+        worker.step_completed.connect(lambda step, h=handle: self._on_assistant_step(h, step))
+        worker.response_ready.connect(lambda result, h=handle: self._on_assistant_response(h, result))
+        worker.finished.connect(lambda w=worker: self._on_chat_worker_finished(w))
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+        self._sync_compact_surface()
 
-        # Shortcuts must match a whole intent, never swallow an attached request.
-        greetings = ["chào", "chao", "hello", "hi", "alo", "helo", "hey", "chuột ơi", "chuot oi", "chào chuột", "chao chuot", "rat ơi", "rat oi", "chào rat", "chao rat"]
-        if original_intent in greetings or intent in greetings:
-            lat = (time.time() - t0) * 1000.0
-            self._deliver_assistant_reply(
-                answer="Nghe đây. Cần gì?",
-                latency_ms=lat,
-                strategy="Direct",
-            )
+    def _on_assistant_progress(self, handle, status):
+        if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
             return
+        handle["status_lbl"].setText(status)
+        self.footer_status.setText(status)
+        self.speech_bubble.set_reply(status, "Đang xử lý", copy_text="")
+        handle["work_trace"].set_status(status)
 
-        # 0b. Help & Capabilities Guide
-        help_kw = ["help", "giúp", "bạn làm được gì", "ban lam duoc gi", "làm được gì", "lam duoc gi", "bạn có thể làm gì", "hướng dẫn", "huong dan", "tính năng", "tinh nang", "dùng sao", "dung sao"]
-        if intent in help_kw:
-            lat = (time.time() - t0) * 1000.0
-            ans_text = "Hỏi đáp, cùng nghĩ ý tưởng, hoặc tra lịch, phòng học, tìm tệp và tính nhanh. Cứ gõ việc bạn cần."
-            self._deliver_assistant_reply(
-                answer=ans_text,
-                latency_ms=lat,
-                strategy="Direct",
-            )
+    def _on_assistant_step(self, handle, step):
+        if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
             return
-
-        # 0c. Gratitude & Goodbyes
-        if intent in ["cảm ơn", "cam on", "thanks", "thank you", "tks", "cảm ơn chuột", "cảm ơn rat"]:
-            lat = (time.time() - t0) * 1000.0
-            self._deliver_assistant_reply(
-                answer="Ừ, được rồi. Cần gì cứ gọi.",
-                latency_ms=lat,
-                strategy="Direct",
-            )
+        handle["work_trace"].add_step(step)
+        self.notebook_pane.refresh()
+        if isinstance(step.tool_result, dict) and step.tool_result.get('notes_updated'):
+            self.companion_avatar_btn.set_state('noting')
+        from rat.engine.assistant_runtime import observed_sources
+        from rat.ui.assistant_presenter import document_cards, source_panel
+        sources = observed_sources(step, handle["observed_sources"])
+        task_updated = step.tool_name == "update_task_state" and isinstance(step.tool_result, dict) and "task_state" in step.tool_result
+        if task_updated:
+            handle["task_state"] = step.tool_result["task_state"]
+        if getattr(step, "artifacts", None):
+            handle.setdefault("artifacts", {}).update({a.id: a for a in step.artifacts})
+        selection_updated = isinstance(step.tool_result, dict) and 'result_refs' in step.tool_result
+        if selection_updated:
+            self._update_work_results(handle)
+        else:
+            self._update_work_results(handle, getattr(step, 'artifacts', []))
+        if sources == handle["observed_sources"] and not task_updated and not getattr(step, "artifacts", None) and not selection_updated:
             return
-
-        if intent in ["tạm biệt", "tam biet", "bye", "bai", "bye chuột", "bye rat"]:
-            lat = (time.time() - t0) * 1000.0
-            self._deliver_assistant_reply(
-                answer="Ừ. Tôi ở đây khi cần.",
-                latency_ms=lat,
-                strategy="Direct",
-            )
-            return
-
-        # Only standalone mascot teasing gets a cheeky canned response.
-        # Frustration or an insult attached to a real task still goes to the model.
-        if original_intent in ["chuột ngốc", "chuột ngu", "rat ngốc", "rat ngu"]:
-            ans_text = "Ừ, chê xong rồi thì đưa việc đây. Mình thử lại."
-            self._deliver_assistant_reply(
-                answer=ans_text,
-                latency_ms=1.0,
-                strategy="Direct",
-            )
-            return
-
-        # 2. Campus Room Locator
-        room_match = re.search(r"\b([A-Fa-fCcFf]\d{3}|TRET-NTD-2)\b", q)
-        if room_match and (any(w in q_lower for w in ["phòng", "phong", "ở đâu", "o dau", "tòa", "toa", "vị trí", "vi tri"]) or len(q.split()) <= 2):
-            try:
-                rm = room_match.group(1).upper()
-                lat = (time.time() - t0) * 1000.0
-                if rm == "C302":
-                    ans_text = "Tầng 3, Tòa C. Rẽ trái từ thang máy."
-                else:
-                    loc = resolve_room_location(rm)
-                    ans_text = f"Phòng {rm}: {loc}."
-                self._deliver_assistant_reply(
-                    answer=ans_text,
-                    latency_ms=lat,
-                    strategy="CampusMap",
-                    confidence=1.0,
-                )
-                self.footer_status.setText(f"Phòng {rm} ({lat:.0f}ms)")
-                return
-            except Exception as e:
-                logger.debug(f"Chat room error: {e}")
-
-        schedule_intent = bool(re.search(
-            r"\b(?:lịch học|lich hoc|tkb|thời khóa biểu|thoi khoa bieu|ca học|ca hoc|"
-            r"lịch (?:hôm nay|ngày mai|thứ)|lich (?:hom nay|ngay mai|thu)|"
-            r"(?:có )?học (?:gì|môn nào|ở đâu)|hoc (?:gi|mon nao|o dau))\b", q_lower
-        )) or intent in ["lịch", "lich", "hôm nay", "hom nay", "ngày mai", "ngay mai"]
-        if schedule_intent and not any(k in q_lower for k in ["tìm", "tệp", "file", "tài liệu", "tai lieu"]):
-            try:
-                day_name_map = {
-                    "T2": "Thứ Hai", "T3": "Thứ Ba", "T4": "Thứ Tư",
-                    "T5": "Thứ Năm", "T6": "Thứ Sáu", "T7": "Thứ Bảy", "CN": "Chủ Nhật"
-                }
-                target_day = None
-                day_label = ""
-                now = datetime.now()
-
-                if "hôm nay" in q_lower or "hom nay" in q_lower:
-                    target_day = "TODAY"
-                    day_label = "hôm nay"
-                elif "ngày mai" in q_lower or "ngay mai" in q_lower or "mai " in q_lower or q_lower == "mai":
-                    target_day = "TOMORROW"
-                    day_label = "ngày mai"
-                else:
-                    for d_code, kws in [
-                        ("T2", ["thứ 2", "thứ hai", "thu 2", "thu hai", "t2"]),
-                        ("T3", ["thứ 3", "thứ ba", "thu 3", "thu ba", "t3"]),
-                        ("T4", ["thứ 4", "thứ tư", "thu 4", "thu tu", "t4"]),
-                        ("T5", ["thứ 5", "thứ năm", "thu 5", "thu nam", "t5"]),
-                        ("T6", ["thứ 6", "thứ sáu", "thu 6", "thu sau", "t6"]),
-                        ("T7", ["thứ 7", "thứ bảy", "thu 7", "thu bay", "t7"]),
-                        ("CN", ["chủ nhật", "chu nhat", "cn"]),
-                    ]:
-                        if any(kw in q_lower for kw in kws):
-                            target_day = d_code
-                            day_label = day_name_map[d_code]
-                            break
-
-                if target_day or any(k in q_lower for k in ["lịch học", "tkb", "thời khóa biểu"]):
-                    if target_day == "TODAY" or target_day is None:
-                        agenda = self.compositor.get_today_agenda(self.current_member)
-                        sessions = [item["session"] for item in agenda]
-                        day_label = "hôm nay"
-                    elif target_day == "TOMORROW":
-                        tomorrow_idx = (now.weekday() + 1) % 7
-                        code_map = {0: "T2", 1: "T3", 2: "T4", 3: "T5", 4: "T6", 5: "T7", 6: "CN"}
-                        t_code = code_map[tomorrow_idx]
-                        sessions = self.current_member.schedule.get(t_code, [])
-                        day_label = f"ngày mai ({day_name_map[t_code]})"
-                    else:
-                        sessions = self.current_member.schedule.get(target_day, [])
-
-                    lat = (time.time() - t0) * 1000.0
-                    if sessions:
-                        from rat.timetable.model import TDTU_PERIODS
-                        sched_items = []
-                        for s in sessions:
-                            p_start_str = TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
-                            p_end_str = TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
-                            sched_items.append(f"{s.course_name} ({p_start_str}-{p_end_str}, {s.room})")
-                        ans_text = f"Lịch {day_label} ({len(sessions)} môn): " + "; ".join(sched_items)
-                    else:
-                        ans_text = f"Lịch học {day_label}: Không có ca học nào."
-
-                    from rat.ui.chat_stream import TimetableDeckWidget
-                    custom_widget = TimetableDeckWidget(sessions, day_label=day_label)
-
-                    self._deliver_assistant_reply(
-                        answer=ans_text,
-                        latency_ms=lat,
-                        strategy="Timetable",
-                        confidence=1.0,
-                        custom_widget=custom_widget,
-                    )
-                    self.footer_status.setText(f"Lịch học {day_label} ({lat:.0f}ms)")
-                    return
-            except Exception as e:
-                logger.debug(f"Chat schedule error: {e}")
-
-        # 4. Instant Math Calculation
-        calc_expr = extract_arithmetic_request(q)
-
-        if calc_expr:
-            try:
-                try:
-                    from rat.engine.meta_reasoner import safe_calculate
-                except ImportError:
-                    from reasoning_strategies import safe_calculate
-                res_str = safe_calculate(calc_expr)
-                if res_str and res_str.lower().startswith(("error:", "lỗi")):
-                    answer = (
-                        "Không thể chia cho 0. Thử đổi số chia nhé."
-                        if "division by zero" in res_str or "modulo by zero" in res_str
-                        else "Chưa tính được biểu thức này. Kiểm tra số và dấu phép tính nhé."
-                    )
-                    self._deliver_assistant_reply(answer, strategy="Math", confidence=0.0)
-                    return
-                if res_str and not res_str.lower().startswith(("error:", "lỗi")) and res_str != "None":
-                    lat = (time.time() - t0) * 1000.0
-                    ans_text = f"{calc_expr} = {res_str}"
-                    self._deliver_assistant_reply(
-                        answer=ans_text,
-                        latency_ms=lat,
-                        strategy="Math",
-                        confidence=1.0,
-                    )
-                    self.footer_status.setText(f"Tính toán ({lat:.0f}ms)")
-                    return
-            except Exception as e:
-                logger.debug(f"Chat calc error: {e}")
-
-        # 5. Club Golden Slots & Group Availability
-        if intent == "clb" or any(k in q_lower for k in ["ai rảnh", "ai ranh", "golden slot", "giờ rảnh", "gio ranh", "lịch họp nhóm"]):
-            try:
-                slots = self.compositor.find_golden_windows(min_ratio=0.8)
-                lat = (time.time() - t0) * 1000.0
-                if slots:
-                    s = slots[0]
-                    free_names = ", ".join(s.free_members[:4])
-                    if len(s.free_members) > 4:
-                        free_names += f" và {len(s.free_members) - 4} bạn khác"
-                    ans_text = (
-                        f"Khung giờ họp tốt nhất: {s.day_name} ({s.time_range}), "
-                        f"{s.free_count}/{s.total_count} người rảnh ({int(s.ratio * 100)}%). "
-                        f"Thành viên: {free_names}."
-                    )
-                else:
-                    ans_text = "Không có khung giờ nào đạt ≥80% thành viên rảnh trong tuần."
-                self._deliver_assistant_reply(
-                    answer=ans_text,
-                    latency_ms=lat,
-                    strategy="Club-Matrix",
-                    confidence=1.0,
-                )
-                self.footer_status.setText(f"Giờ rảnh CLB ({lat:.0f}ms)")
-                return
-            except Exception as e:
-                logger.debug(f"Chat club error: {e}")
-
-        # 6. Explicit File / Document Search
-        is_explicit_file = (
-            bool(re.fullmatch(r"[^\s]+\.(?:py|pdf|docx|xlsx|pptx|txt|md|json|csv|sh|png|jpg|jpeg|zip|tar|gz)", request, flags=re.I))
-            or bool(re.match(r"^(?:(?:tìm|kiếm)\s+(?:kiếm\s+)?(?:file|tệp|tài liệu|tập tin)|(?:search|find)\s+(?:file|document))\b", request, flags=re.I))
-            or q_lower.startswith("file:")
+        handle["observed_sources"] = sources
+        self.chat_stream.update_source_cards(
+            handle,
+            inline_files=document_cards(self._work_sources(sources)),
+            custom_widget=source_panel(
+                self._work_sources(sources),
+                self.open_natal_chart,
+                handle.get("task_state"),
+                artifacts=list(handle.get("artifacts", {}).values()),
+                registry=self.assistant_runtime.registry,
+                on_action=self._on_action_dispatched,
+                on_input=self._on_input_submitted,
+            ),
         )
 
-        clean_q = re.sub(r"^(?:(?:tìm|kiếm)\s+(?:kiếm\s+)?(?:file|tệp|tài liệu|tập tin)|(?:search|find)\s+(?:file|document)|file:)\s*", "", request, flags=re.I).strip()
-        search_target = clean_q if len(clean_q) >= 2 else request
+    def _on_assistant_response(self, handle, response):
+        if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
+            return
+        failed = bool(response.error)
+        handle["work_trace"].finish(response)
+        self.notebook_pane.refresh()
+        if failed:
+            self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query,
+                                           'cancelled' if response.error == 'cancelled' else 'failed')
+            self._pending_chat_query = None
+            if response.error == "cancelled":
+                answer = "Đã dừng. Bạn có thể đổi yêu cầu hoặc hỏi tiếp."
+            elif response.error in {"token_budget_exhausted", "step_budget_exhausted", "controller_finish_refused"}:
+                answer = ("Mình chưa hoàn tất yêu cầu trong lượt này. Các nguồn đã tìm được vẫn ở bên dưới; bạn có thể hỏi tiếp về một nguồn."
+                          if response.sources else "Mình chưa hoàn tất yêu cầu trong lượt này. Bạn có thể thu hẹp yêu cầu hoặc thử lại.")
+            else:
+                answer = "Mình chưa trả lời được lượt này. Bạn có thể thử lại hoặc kiểm tra Ollama trong Cài đặt."
+            self.footer_status.setText("Chưa hoàn tất")
+        elif response.pending_input_request is not None:
+            answer = ''  # The grounded question is displayed once with its inputs.
+            self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query, 'needs_input')
+            self._pending_chat_query = None
+            self.footer_status.setText("Cần thêm thông tin")
+        else:
+            answer = response.answer
+            self._complete_chat_turn(answer)
+            self.footer_status.setText("Đã trả lời · có thể hỏi tiếp")
+        self._current_reasoner = None
+        self._assistant_handle = None
+        self._assistant_sources = list(response.sources or self._assistant_sources)[-12:]
+        if response.task_state_updated:
+            self._assistant_task_state = dict(response.task_state)
+        self._latest_assistant_handle = handle
+        if response.artifacts:
+            handle.setdefault("artifacts", {}).update({a.id: a for a in response.artifacts})
+        self._update_work_results(handle, response.artifacts if not self.assistant_runtime.notebook.selection_set else [])
+        from rat.ui.assistant_presenter import document_cards, source_panel
+        files = document_cards(self._work_sources(self._assistant_sources))
+        agenda = source_panel(
+            self._work_sources(self._assistant_sources),
+            self.open_natal_chart,
+            response.task_state if response.task_state_updated else None,
+            artifacts=list(handle.get("artifacts", {}).values()),
+            registry=self.assistant_runtime.registry,
+            on_action=self._on_action_dispatched,
+            on_input=self._on_input_submitted,
+        )
+        handle["full_text"] = answer
+        handle["badge_lbl"].setText("· Chưa hoàn tất" if failed else "· Chuột")
+        handle["card"].setToolTip(f"Thời gian xử lý: {response.total_time_ms / 1000:.1f} giây")
+        self.chat_stream.finalize_stream(
+            handle, latency_ms=response.total_time_ms, inline_files=files,
+            custom_widget=agenda, retry_prompt=self._last_assistant_query if failed else None,
+        )
+        self._set_compact_files(files)
+        self._present_compact_reply(answer, "Chưa hoàn tất" if failed else "Trả lời", has_details=bool(agenda))
+        self.compact_cot.clear()
+        self.set_mascot_idle()
+        self._mascot_state = "error" if failed else "idle"
+        self._sync_compact_surface()
 
-        if is_explicit_file:
-            if not clean_q:
-                self._deliver_assistant_reply("Bạn muốn tìm tệp nào? Gõ một phần tên hoặc nội dung.")
-                return
-            self.set_mascot_state("searching")
-            self.search_timer.stop()
-            self._request_counter += 1
-            self._chat_file_request = {
-                "request_id": self._request_counter, "generation": self._chat_generation,
-                "target": search_target, "started_at": t0,
-            }
-            self.speech_bubble.set_reply("Đang tìm tệp…", "Tìm tệp", copy_text="")
+    def _cancel_assistant(self):
+        worker = self._current_reasoner
+        if worker is None:
+            return
+        worker.requestInterruption()
+        self.assistant_runtime.notebook.invalidate_pending()
+        self.notebook_pane.refresh()
+        self._chat_generation += 1
+        self._current_reasoner = None
+        if self._pending_chat_query:
+            self._conversation.add_attempt(self._pending_chat_query, 'cancelled')
+        self._pending_chat_query = None
+        handle = self._assistant_handle
+        self._assistant_handle = None
+        if handle:
+            handle["work_trace"].set_status("Đã dừng")
+            handle["full_text"] = "Đã dừng. Bạn có thể đổi yêu cầu hoặc hỏi tiếp."
+            handle["badge_lbl"].setText("· Đã dừng")
+            from rat.ui.assistant_presenter import document_cards, source_panel
+            sources = handle.get("observed_sources", [])
+            if handle.get("task_state"):
+                self._assistant_task_state = dict(handle["task_state"])
+            self._assistant_sources = list(sources or self._assistant_sources)[-12:]
+            self.chat_stream.finalize_stream(
+                handle,
+                inline_files=document_cards(self._work_sources(sources)),
+                custom_widget=source_panel(
+                    self._work_sources(sources),
+                    self.open_natal_chart,
+                    handle.get("task_state"),
+                    artifacts=list(handle.get("artifacts", {}).values()),
+                    registry=self.assistant_runtime.registry,
+                    on_action=self._on_action_dispatched,
+                    on_input=self._on_input_submitted,
+                ),
+            )
+        self.footer_status.setText("Đã dừng")
+        self.compact_cot.clear()
+        self.set_mascot_idle()
+        self._sync_compact_surface()
+
+    def _submit_chat_or_stop(self):
+        if self._pending_chat_query is not None:
+            self._cancel_assistant()
+        else:
+            self._submit_chat_prompt(self.chat_composer_input.text())
+
+    def _show_interaction_surface(self):
+        self._interaction_surface_active = True
+        self.content_stack.show()
+        self.chat_stream.show()
+        self._sync_compact_surface()
+
+    def open_natal_chart(self, birth=None):
+        self.switch_section(0)
+        self._show_interaction_surface()
+        if birth is not None:
+            from dataclasses import asdict
+            values = dict(birth) if isinstance(birth, dict) else asdict(birth)
+            self._start_artifact_operation(lambda: self.assistant_runtime.dispatcher.execute_operation("create_natal_chart", values))
+        else:
+            charts = self.assistant_runtime.artifact_store.find_by_kind("natal_chart")
+            if not charts and not self.assistant_runtime.dispatcher.state.pending_input_request:
+                self.assistant_runtime.dispatcher.execute_operation("create_natal_chart", {})
+            self._refresh_latest_assistant_panel()
+
+    def _artifact_context(self):
+        from datetime import datetime
+        return {"member_id": self.current_member.id, "now_dt": datetime.now().astimezone(),
+                "get_schedule": self.assistant_runtime.tool_get_schedule}
+
+    def _start_artifact_operation(self, callback, *, note_inputs=None):
+        if self._pending_chat_query is not None or self._artifact_worker is not None:
+            self.show_toast("Chuột đang xử lý. Chờ xong hoặc dừng trước khi thay đổi kết quả.")
+            return
+        from rat.ui.assistant_worker import ArtifactWorker
+        generation = self._chat_generation
+        worker = ArtifactWorker(callback, parent=QApplication.instance())
+        self._artifact_worker = worker
+        self._reasoning_workers.add(worker)
+        worker.result_ready.connect(lambda result: self._on_artifact_result(generation, result, note_inputs=note_inputs))
+        def finished():
+            self._reasoning_workers.discard(worker)
+            if self._artifact_worker is worker:
+                self._artifact_worker = None
             self._sync_compact_surface()
-            self.search_requested.emit(self._request_counter, search_target, [])
+        worker.finished.connect(finished)
+        worker.finished.connect(worker.deleteLater)
+        self.footer_status.setText("Đang xử lý…")
+        worker.start()
+        self._sync_compact_surface()
+
+    def _on_action_dispatched(self, action, user_inputs):
+        context = self._artifact_context()
+        fields = (action.input_schema or {}).get('properties', {})
+        labels = {name: schema.get('label', schema.get('title', name)) for name, schema in fields.items()}
+        self._start_artifact_operation(lambda: self.assistant_runtime.dispatcher.dispatch(action, user_inputs, context),
+            note_inputs=(action.target_artifact_id, labels, dict(user_inputs)))
+
+    def _on_input_submitted(self, request_id, values):
+        context = self._artifact_context()
+        pending = self.assistant_runtime.dispatcher.state.pending_input_request
+        labels = {item['name']: item.get('label', item['name']) for item in pending.missing_fields} if pending and pending.id == request_id else {}
+        self._start_artifact_operation(lambda: self.assistant_runtime.dispatcher.resume_input(request_id, values, context),
+            note_inputs=(request_id, labels, dict(values)))
+
+    def _on_artifact_result(self, generation, result, *, note_inputs=None):
+        if generation != self._chat_generation:
             return
-
-        # 6b. Dynamic Meta-Reasoner with Verified Generation Cascade (VGC)
-        try:
-            from rat.engine.meta_reasoner import ACADEMIC_POLICIES_KB, meta_reasoner
-            # Deliver verified fast answers for quantitative math or verifiable handbook regulations
-            is_quant = meta_reasoner._is_quantitative_query(q_lower)
-            is_verifiable_policy = any(k in q_lower for k in ACADEMIC_POLICIES_KB)
-            if is_quant or is_verifiable_policy:
-                r_res = meta_reasoner.solve(q)
-                if r_res and r_res.verification_status == "valid":
-                    self._deliver_assistant_reply(
-                        answer=r_res.answer,
-                        latency_ms=r_res.latency_ms,
-                        strategy=r_res.strategy,
-                        confidence=r_res.confidence,
-                        reasoning_steps=r_res.steps,
-                        strategy_badge=r_res.badge,
-                        citations=r_res.citations,
-                    )
-                    self.footer_status.setText(f"{r_res.badge} ({r_res.latency_ms:.0f}ms)")
-                    return
-        except Exception as e:
-            logger.debug(f"Meta-Reasoner VGC dispatch error: {e}")
-
-        # 7. Conversational Reasoning / Q&A / On-Device AI Streaming
-        try:
-            handle = self.chat_stream.create_streaming_message(
-                strategy="AI cục bộ",
-                badge="Đang kết nối",
-            )
-            handle["generation"] = self._chat_generation
-            self.footer_status.setText("Chuột đang suy nghĩ...")
-            worker = StreamReasoningWorker(q, history=self._conversation.messages())
-            self._current_reasoner = worker
-            self._reasoning_workers.add(worker)
-            worker.token_received.connect(
-                lambda tok, h=handle: self._on_reasoning_token(h, tok)
-            )
-            worker.reasoning_finished.connect(
-                lambda ans, stp, lat, strat, bdg, h=handle: self._on_reasoning_finished(h, ans, stp, lat, strat, bdg)
-            )
-            worker.finished.connect(lambda w=worker: self._on_chat_worker_finished(w))
-            worker.finished.connect(worker.deleteLater)
-            worker.start()
+        if result.status not in ("success", "needs_input"):
+            self.footer_status.setText(result.error or "Không thực hiện được thao tác.")
+            self.show_toast(result.error or "Không thực hiện được thao tác.", 8000)
+            self._append_direct_trace(result)
+            self._mascot_state = 'error'
+            self.companion_avatar_btn.set_state('error')
             return
-        except Exception as e:
-            logger.debug(f"Chat reasoning fallback error: {e}")
+        self.surface_notice.hide()
+        if result.artifact:
+            from rat.engine.assistant_runtime import AgentStep, observed_sources
+            name = result.artifact.provenance.get("operation_name")
+            self._assistant_sources = observed_sources(AgentStep(0, "", name, tool_result=result.result), self._assistant_sources)[-12:]
+        self.footer_status.setText("Cần thêm thông tin" if result.status == "needs_input" else "Đã cập nhật")
+        if result.artifact:
+            active = [key for key in self.assistant_runtime.notebook.result_ids()
+                if self.assistant_runtime.artifact_store.get(key) is not None]
+            if result.artifact.id not in active:
+                active.append(result.artifact.id)
+            self.assistant_runtime.notebook.select_results(active)
+        self._refresh_latest_assistant_panel(result.artifact)
+        self._append_direct_trace(result)
+        if note_inputs and result.status in ('success', 'needs_input'):
+            key, labels, values = note_inputs
+            target = result.artifact.id if result.artifact else key
+            for field, label in labels.items():
+                if field in values and values[field] is not None and values[field] != '':
+                    value = values[field]
+                    value = ('Có' if value else 'Không') if isinstance(value, bool) else str(value)
+                    try:
+                        self.assistant_runtime.notebook.record_input('input:' + target + ':' + field,
+                            label + ': ' + value, source='control:' + target)
+                    except ValueError as exc:
+                        self.show_toast('Kết quả đã cập nhật. ' + str(exc), 8000)
+            self.notebook_pane.refresh()
+            self.companion_avatar_btn.react('noting')
 
-        # 8. Implicit File Search as Fallback
-        try:
-            search_res = self.engine.search(search_target, limit=3)
-            files = search_res.get("results", [])
-            lat = search_res.get("latency_ms", (time.time() - t0) * 1000.0)
-            if files:
-                ans_text = f"Gợi ý {len(files)} tệp liên quan đến '{search_target}'."
-                citations = [f.to_citation() for f in files if hasattr(f, "to_citation")]
-                self._deliver_assistant_reply(
-                    answer=ans_text,
-                    latency_ms=lat,
-                    strategy="Search",
-                    confidence=0.85,
-                    inline_files=files,
-                    citations=citations,
-                )
-                self.footer_status.setText(f"{len(files)} tệp ({lat:.0f}ms)")
-                return
-        except Exception:
-            pass
+    def _refresh_latest_assistant_panel(self, changed=None):
+        from rat.ui.assistant_presenter import document_cards, source_panel
+        handle = getattr(self, "_latest_assistant_handle", None)
+        if handle is None:
+            handle = self.chat_stream.create_streaming_message(strategy="Assistant", badge="Kết quả")
+            handle["full_text"] = ""
+            handle["status_lbl"].hide()
+            self._latest_assistant_handle = handle
+        artifacts = handle.setdefault("artifacts", {})
+        if changed:
+            artifacts[changed.id] = changed
+        elif not artifacts:
+            artifacts.update({a.id: a for a in self.assistant_runtime.artifact_store.list()[-4:]})
+        artifacts = {key: self.assistant_runtime.artifact_store.get(key) for key in artifacts}
+        artifacts = {key: value for key, value in artifacts.items() if value is not None}
+        handle["artifacts"] = artifacts
+        if not self.assistant_runtime.notebook.selection_set:
+            self._update_work_results(handle, artifacts.values())
+        else:
+            self._update_work_results(handle)
+        artifacts = handle['artifacts']
+        panel = source_panel(self._work_sources(self._assistant_sources), artifacts=list(artifacts.values()),
+                             registry=self.assistant_runtime.registry,
+                             on_action=self._on_action_dispatched, on_input=self._on_input_submitted)
+        self.chat_stream.update_source_cards(handle, inline_files=document_cards(self._work_sources(self._assistant_sources)), custom_widget=panel)
 
-        # 9. Fallback Guide
-        lat = (time.time() - t0) * 1000.0
-        fallback_ans = "Chưa gửi được câu hỏi tới AI. Thử lại hoặc kiểm tra mô hình trong Cài đặt nhé."
-        self._deliver_assistant_reply(
-            answer=fallback_ans,
-            latency_ms=lat,
-            strategy="Direct",
-            confidence=0.80,
-        )
-        self.footer_status.setText("Sẵn sàng")
+    def _ask_about_natal_chart(self, prompt, chart):
+        if self._pending_chat_query is not None:
+            if hasattr(self, '_natal_window'):
+                self._natal_window.form_status.setText('Chuột đang xử lý một yêu cầu. Dừng hoặc chờ xong rồi hỏi về lá số.')
+            return
+        self._assistant_sources = [s for s in self._assistant_sources if s.get('type') != 'natal_chart']
+        self._assistant_sources.append({'type': 'natal_chart', 'chart': chart})
+        self.show_omnibar(initial_section=0)
+        self._submit_chat_prompt(prompt)
 
     def _quick_search(self, query: str) -> None:
         if self.current_section_idx == 0:
@@ -3879,6 +3916,9 @@ class OmnibarWindow(QMainWindow):
         self._toast_restore = (message, self.footer_status.text(), self.footer_status.styleSheet())
         self.footer_status.setText(message)
         self.footer_status.setStyleSheet("color: #69583D; font-weight: 500;")
+        self.surface_notice.setText(message)
+        self.surface_notice.show()
+        self._schedule_surface_fit()
         if not self.is_expanded and not self.compact_footer.isHidden():
             self.compact_hint.set_full_text(message)
         self._toast_timer.start(timeout_ms)
@@ -3889,6 +3929,8 @@ class OmnibarWindow(QMainWindow):
         message, old_text, old_style = self._toast_restore
         self._toast_restore = None
         # A newer search/reply status wins over an old copy confirmation.
+        self.surface_notice.hide()
+        self._schedule_surface_fit()
         if self.footer_status.text() == message:
             self.footer_status.setText(old_text)
         self.footer_status.setStyleSheet(old_style)
@@ -3971,25 +4013,22 @@ class OmnibarWindow(QMainWindow):
                     self.preview_panel.set_item(search_item, query=self.current_query)
 
     def _open_settings(self) -> None:
-        for idx, (sec_id, _, _) in enumerate(SECTION_TABS):
-            if sec_id == "settings":
-                self.switch_section(idx)
-                break
+        from rat.ui.settings_dialog import SettingsDialog
+        focus = QApplication.focusWidget()
+        self._dialog_active = True
+        try:
+            dialog = SettingsDialog(self)
+            dialog.exec()
+        finally:
+            self._dialog_active = False
+            if focus is not None and self.isAncestorOf(focus) and focus.isVisible():
+                focus.setFocus()
 
-    def _present_compact_reply(
-        self, answer: str, status: str, *, has_details: bool = False, file_summary: bool = False
-    ) -> None:
-        """Keep compact and expanded views backed by the same full answer."""
-        clean = answer.replace("**", "").replace("`", "")
-        self.speech_bubble.set_reply(
-            clean, status, copy_text=answer, has_details=has_details, file_summary=file_summary
-        )
-        if self.is_expanded:
-            self.speech_bubble.hide_bubble()
-        else:
-            self.speech_bubble.show_bubble()
-            if not self.mascot_peeking.is_speaking:
-                self.mascot_peeking.pop_out_speaking()
+    def _present_compact_reply(self, answer, status, *, has_details=False, file_summary=False):
+        # Kept as a read-only compatibility record; the live answer has one view.
+        self.speech_bubble.set_reply(answer.replace('**', '').replace('`', ''), status,
+            copy_text=answer, has_details=has_details, file_summary=file_summary)
+        self.speech_bubble.hide()
 
     def _on_reasoning_token(self, handle: Dict[str, Any], token: str) -> None:
         if handle.get("generation", self._chat_generation) != self._chat_generation:
@@ -4030,9 +4069,14 @@ class OmnibarWindow(QMainWindow):
         self.set_mascot_state("idle")
         self._sync_compact_surface()
 
-    def _on_chat_worker_finished(self, worker: StreamReasoningWorker) -> None:
+    def _on_chat_worker_finished(self, worker) -> None:
         self._reasoning_workers.discard(worker)
         if self._current_reasoner is worker:
+            if hasattr(worker, "response_ready") and self._assistant_handle:
+                from rat.engine.assistant_runtime import AgentResponse
+                self._on_assistant_response(self._assistant_handle,
+                    AgentResponse("", [], 0, 0, 0, error="unexpected_worker_exit"))
+                return
             self._current_reasoner = None
             self._pending_chat_query = None
             self._deliver_assistant_reply(
@@ -4048,11 +4092,10 @@ class OmnibarWindow(QMainWindow):
         self._is_opening = True
         self._was_activated = False
 
-        self.switch_section(0)
-        self.set_expanded(False)
-
-        # Placement on current screen
-        self._resize_overlay(652, self._compact_height())
+        self.current_section_idx = 0
+        self.content_stack.setCurrentIndex(0)
+        self.set_expanded(self.is_expanded)
+        self._resize_overlay(820 if self.is_expanded else 620, self._surface_height())
 
         # Configure macOS fullscreen auxiliary overlay so it floats above all spaces
         configure_macos_fullscreen_overlay(self)
@@ -4071,25 +4114,17 @@ class OmnibarWindow(QMainWindow):
             pass
 
         self._entrance_anim = QPropertyAnimation(self, b"windowOpacity")
-        self._entrance_anim.setDuration(160)
+        self._entrance_anim.setDuration(160 if motion_enabled() else 0)
         self._entrance_anim.setStartValue(0.0)
         self._entrance_anim.setEndValue(1.0)
         self._entrance_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
         self._entrance_anim.start()
 
-        if hasattr(self, "speech_bubble"):
-            if self.speech_bubble.has_reply or self._pending_chat_query is not None:
-                self.speech_bubble.show_bubble()
-            else:
-                self.speech_bubble.hide_bubble()
-        if hasattr(self, "mascot_peeking"):
-            self.mascot_peeking.show()
-            if self.speech_bubble.has_reply:
-                self.mascot_peeking.pop_out_speaking()
-            else:
-                self.mascot_peeking.retreat_to_idle()
-        if hasattr(self, "chat_composer_input"):
-            self.chat_composer_input.setFocus()
+        self.speech_bubble.hide()
+        self.mascot_peeking.hide()
+        self.chat_composer_input.setFocus()
+        if initial_section:
+            self.activate_chat_feature(initial_section)
         QTimer.singleShot(500, self._finish_opening)
 
     def _finish_opening(self) -> None:
@@ -4103,6 +4138,7 @@ class OmnibarWindow(QMainWindow):
                 self._was_activated = True
             elif (
                 not getattr(self, "_dialog_active", False)
+                and QApplication.activePopupWidget() is None
                 and not getattr(self, "_is_opening", False)
                 and getattr(self, "_was_activated", False)
             ):
@@ -4131,7 +4167,10 @@ class OmnibarWindow(QMainWindow):
 
     def shutdown(self) -> None:
         """Graceful zero-crash thread cleanup."""
+        self._shutting_down = True
+        QApplication.instance().removeEventFilter(self._mode_filter)
         self._toast_timer.stop()
+        self.companion_avatar_btn.timer.stop()
         self._toast_restore = None
         self._chat_generation += 1
         self._pending_chat_query = None
@@ -4140,8 +4179,15 @@ class OmnibarWindow(QMainWindow):
         for worker in workers:
             worker.requestInterruption()
             # No delayed callback may touch widgets while the window is closing.
-            worker.token_received.disconnect()
-            worker.reasoning_finished.disconnect()
+            if hasattr(worker, "result_ready"):
+                worker.result_ready.disconnect()
+            elif hasattr(worker, "response_ready"):
+                worker.response_ready.disconnect()
+                worker.progress_changed.disconnect()
+                worker.step_completed.disconnect()
+            else:
+                worker.token_received.disconnect()
+                worker.reasoning_finished.disconnect()
         for worker in workers:
             if worker.isRunning():
                 # Streaming I/O has a 30-second timeout; never terminate an inference thread.

@@ -1,0 +1,4 @@
+{
+  "note": "Early exploratory collection overlapped a local paired-collector request. Do not use these wall times for fair cross-model latency comparisons; the serial comparison is collected separately.",
+  "stage0_changed": false
+}

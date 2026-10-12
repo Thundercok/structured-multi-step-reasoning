@@ -1,6 +1,5 @@
 """
-Scientific Benchmark Evaluator Runner for nesy-docai
-Evaluates ANLS, Field F1, STP Rate, and Logic Consistency Rate (LCR).
+Compatibility synthetic smoke runner. Does not run OCR or load a real corpus.
 """
 
 from nesy_docai.benchmark_suite import InvoiceBenchmarkSuite
@@ -11,14 +10,14 @@ def main():
     metrics = suite.run_full_evaluation(num_samples=50)
 
     print("=" * 60)
-    print("  VIE-Invoice Benchmark Evaluation Summary (50 Invoices)")
+    print("  NeSy-DocAI SYNTHETIC SMOKE (repeated fixture; not 50 independent invoices)")
     print("=" * 60)
-    print(f"  - Dataset Size:                        {metrics['dataset_size']} Invoices (4 Difficulty Tiers)")
-    print(f"  - Pure Neural / OCR Baseline Accuracy: {metrics['pure_ocr_baseline_acc']:.1f}%")
-    print(f"  - NeSy-DocAI System 2 (Z3) Accuracy:   {metrics['nesy_docai_acc']:.1f}%")
+    print(f"  - Repeated synthetic rows:             {metrics['dataset_size']}")
+    print("  - OCR baseline:                        unmeasured")
+    print(f"  - Synthetic candidate totals matched: {metrics['nesy_docai_acc']:.1f}%")
     print(f"  - Logic & Arithmetic Consistency (LCR): {metrics['lcr_rate']:.1f}%")
-    print(f"  - Straight-Through Processing (STP):    {metrics['stp_rate']:.1f}%")
-    print(f"  - Average Z3 Resolution Latency:       {metrics['avg_latency_ms']:.2f} ms / invoice")
+    print("  - Automatic approval:                  unavailable; review required")
+    print(f"  - Candidate generation + Z3 time:      {metrics['avg_latency_ms']:.2f} ms / fixture")
     print("=" * 60)
 
 

@@ -1,0 +1,27 @@
+......F..........                                                        [100%]
+=================================== FAILURES ===================================
+______________ test_streaming_does_not_pull_reader_back_to_bottom ______________
+
+window = <rat.ui.omnibar.OmnibarWindow object at 0x16d2f0370>
+
+    def test_streaming_does_not_pull_reader_back_to_bottom(window):
+        window.set_expanded(True)
+        stream = window.chat_stream
+        handle = stream.create_streaming_message()
+        stream.append_stream_token(handle, '\n'.join(['Một dòng nội dung dài để đọc.'] * 80))
+        QTest.qWait(30)
+        bar = stream.verticalScrollBar()
+>       assert bar.maximum() > 0
+E       assert 0 > 0
+E        +  where 0 = <built-in method maximum of QScrollBar object at 0x16cc968f0>()
+E        +    where <built-in method maximum of QScrollBar object at 0x16cc968f0> = <PyQt6.QtWidgets.QScrollBar object at 0x16cc968f0>.maximum
+
+tests/test_rat_one_box_ui.py:169: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+=========================== short test summary info ============================
+FAILED tests/test_rat_one_box_ui.py::test_streaming_does_not_pull_reader_back_to_bottom
+1 failed, 16 passed in 42.58s

@@ -15,6 +15,15 @@ from rat.ui.omnibar import OmnibarWindow
 
 
 class TestTimetableChatCards(unittest.TestCase):
+    def setUp(self):
+        # These are UI fixtures; never initialize personal-file search/indexing.
+        for target in ('SearchEngine', 'Database'):
+            patcher = patch('rat.ui.omnibar.' + target)
+            mock = patcher.start()
+            self.addCleanup(patcher.stop)
+            if target == 'Database':
+                mock.return_value.get_stats.return_value = {'total_files': 0}
+                mock.return_value.get_recent_documents.return_value = []
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
@@ -101,32 +110,35 @@ class TestTimetableChatCards(unittest.TestCase):
     @patch("rat.os.app.activate_macos_app")
     @patch("rat.ui.omnibar.configure_macos_fullscreen_overlay")
     def test_omnibar_schedule_chat_delivers_deck_widget(self, _mock_overlay, _mock_act):
-        window = OmnibarWindow()
-        try:
-            window.show_omnibar(initial_section=0)
-            window._submit_chat_prompt("hôm nay học gì?")
-
-            # Verify that assistant delivered a message with TimetableDeckWidget
-            last_card = window.chat_stream.container.layout().itemAt(
-                window.chat_stream.container.layout().count() - 1
-            )
-            self.assertIsNotNone(last_card)
-
-            # Check footer status
-            self.assertIn("Lịch học", window.footer_status.text())
-        finally:
-            window.shutdown()
-            window.close()
+        from rat.engine.assistant_runtime import AgentResponse
+        with patch("rat.ui.assistant_worker.AssistantWorker.start"):
+            window = OmnibarWindow()
+            try:
+                window.show_omnibar(initial_section=0)
+                window._submit_chat_prompt("hôm nay học gì?")
+                handle = window._assistant_handle
+                source = {"type": "schedule", "course_name": "Networks", "course_code": "NET101",
+                          "room": "B203", "day_code": "T2", "day": "Thứ Hai", "start_period": 1, "end_period": 3}
+                window._on_assistant_response(handle, AgentResponse("Bạn có Networks.", [], 10, 1, 0, sources=[source]))
+                deck = handle["card"].findChild(TimetableDeckWidget)
+                self.assertIsNotNone(deck)
+                self.assertEqual(deck.session_cards[0].session.course_name, "Networks")
+                self.assertIn("Đã trả lời", window.footer_status.text())
+            finally:
+                window.shutdown()
+                window.close()
 
     @patch("rat.os.app.activate_macos_app")
     @patch("rat.ui.omnibar.configure_macos_fullscreen_overlay")
-    def test_footer_keycaps_and_stationary_mascot(self, _mock_overlay, _mock_act):
+    def test_one_box_without_section_footer_or_mascot_popout(self, _mock_overlay, _mock_act):
         window = OmnibarWindow()
         try:
             window.show_omnibar(initial_section=0)
-            # Verify keycaps_box is populated with tactile keycaps
-            self.assertTrue(hasattr(window, "keycaps_box"))
-            self.assertGreaterEqual(window.keycaps_layout.count(), 3)
+            # One chat box keeps utility chrome out of the reading surface.
+            self.assertTrue(window.section_bar.isHidden())
+            self.assertTrue(window.action_footer.isHidden())
+            self.assertTrue(window.quick_bar.isVisible())
+            self.assertIs(window.full_chat_input, window.chat_composer_input)
             # Click mascot should NOT trigger jumping / speaking
             window.mascot_peeking.mousePressEvent(MagicMock())
             self.assertFalse(window.mascot_peeking.is_speaking)

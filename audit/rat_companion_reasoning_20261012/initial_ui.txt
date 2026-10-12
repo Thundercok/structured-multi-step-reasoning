@@ -1,0 +1,49 @@
+Fatal Python error: Aborted
+
+Current thread 0x00000001f6379d80 (most recent call first):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/chat_stream.py", line 663 in set_compact
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 1355 in set_expanded
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 2732 in switch_section
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 2767 in _load_initial_data
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 1190 in __init__
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_rat_one_box_ui.py", line 31 in window
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/fixtures.py", line 908 in call_fixture_func
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/fixtures.py", line 1202 in pytest_fixture_setup
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/fixtures.py", line 1110 in execute
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/fixtures.py", line 627 in _get_active_fixturedef
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/fixtures.py", line 539 in getfixturevalue
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/fixtures.py", line 707 in _fillfixtures
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/python.py", line 1723 in setup
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 523 in setup
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 165 in pytest_runtest_setup
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 131 in runtestprotocol
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 372 in _main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_callers.py", line 103 in _multicall
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pluggy/_hooks.py", line 513 in __call__
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/_pytest/config/__init__.py", line 223 in console_main
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pytest/__main__.py", line 9 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+
+Extension modules: PyQt6.QtCore, PyQt6.QtGui, PyQt6.QtWidgets, PyQt6.QtTest, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, _watchdog_fsevents (total: 7)

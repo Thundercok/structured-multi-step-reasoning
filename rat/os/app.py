@@ -68,6 +68,7 @@ class ResidentApplication(QObject):
     open_settings_signal = pyqtSignal()
     open_schedule_signal = pyqtSignal()
     open_widget_signal = pyqtSignal()
+    open_natal_signal = pyqtSignal()
 
     def __init__(self, mode: str = "all") -> None:
         install_crash_shield()
@@ -97,6 +98,7 @@ class ResidentApplication(QObject):
         self.open_settings_signal.connect(self._do_open_settings, Qt.ConnectionType.QueuedConnection)
         self.open_schedule_signal.connect(self._do_open_schedule, Qt.ConnectionType.QueuedConnection)
         self.open_widget_signal.connect(self._do_open_widget, Qt.ConnectionType.QueuedConnection)
+        self.open_natal_signal.connect(self._do_open_natal, Qt.ConnectionType.QueuedConnection)
         self.app.aboutToQuit.connect(self._on_app_quit)
 
     def _on_app_quit(self) -> None:
@@ -212,6 +214,16 @@ class ResidentApplication(QObject):
         """Thread-safe trigger to open Claude Timetable Widget."""
         self.open_widget_signal.emit()
 
+    def open_natal(self) -> None:
+        self.open_natal_signal.emit()
+
+    @pyqtSlot()
+    def _do_open_natal(self) -> None:
+        if not self.omnibar_window:
+            self.omnibar_window = OmnibarWindow()
+        self.omnibar_window.show_omnibar()
+        self.omnibar_window.open_natal_chart()
+
     @pyqtSlot()
     def _do_toggle_spotlight(self) -> None:
         """Toggle or summon the unified Omnibar on the main Qt GUI thread."""
@@ -261,15 +273,12 @@ class ResidentApplication(QObject):
 
     @pyqtSlot()
     def _do_open_widget(self) -> None:
-        """Open Claude Timetable Widget on the main Qt GUI thread."""
+        """The mini entry point opens the same compact conversation."""
         try:
-            from rat.ui.claude_widget import ClaudeTimetableWindow
-            activate_macos_app()
-            if not self.claude_widget_window:
-                self.claude_widget_window = ClaudeTimetableWindow()
-            self.claude_widget_window.show()
-            self.claude_widget_window.raise_()
-            self.claude_widget_window.activateWindow()
+            if not self.omnibar_window:
+                self.omnibar_window = OmnibarWindow()
+            self.omnibar_window.set_expanded(False)
+            self.omnibar_window.show_omnibar()
         except Exception as e:
             logger.error(f"Error opening Claude Widget: {e}", exc_info=True)
 
@@ -380,6 +389,7 @@ class ResidentApplication(QObject):
             on_open_settings=self.open_settings,
             on_open_schedule=self.open_schedule,
             on_open_widget=self.open_widget,
+            on_open_natal=self.open_natal,
         )
         self.tray_manager.tray_icon.show()
 

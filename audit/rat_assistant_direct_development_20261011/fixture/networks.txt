@@ -1,0 +1,4 @@
+Networks NET101: TCP retransmits missing segments.
+Exercise: explain timeout backoff.
+Chapter 2: IP routing.
+Chapter 3: TCP transport.

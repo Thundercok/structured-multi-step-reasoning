@@ -101,6 +101,7 @@ class Config:
         self.openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
         self.ollama_url: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
         self.ollama_model: str = "qwen2.5:1.5b"
+        self.assistant_model: str = ""  # Assistant-only override; empty inherits SLM.
         self.use_slm: bool = True
         self.auto_watch: bool = True
         self.max_results: int = 15
@@ -142,6 +143,8 @@ class Config:
                         self.ollama_url = data["ollama_url"]
                     if "ollama_model" in data:
                         self.ollama_model = data["ollama_model"]
+                    if isinstance(data.get("assistant_model"), str):
+                        self.assistant_model = data["assistant_model"]
                     if "auto_watch" in data:
                         self.auto_watch = data["auto_watch"]
                     if "max_results" in data:
@@ -172,6 +175,7 @@ class Config:
             "openai_api_key": self.openai_api_key,
             "ollama_url": self.ollama_url,
             "ollama_model": self.ollama_model,
+            "assistant_model": self.assistant_model,
             "auto_watch": self.auto_watch,
             "max_results": self.max_results,
             "global_hotkey": self.global_hotkey,

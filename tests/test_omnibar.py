@@ -25,6 +25,9 @@ from rat.ui.omnibar import OmnibarWindow, StreamReasoningWorker, lower_overlay_g
 
 class TestOmnibarWindow(unittest.TestCase):
     def setUp(self):
+        patcher = patch("rat.ui.assistant_worker.AssistantWorker.start")
+        self.agent_start = patcher.start()
+        self.addCleanup(patcher.stop)
         with patch("rat.ui.omnibar.Database") as mock_db, \
              patch("rat.ui.omnibar.SearchEngine") as mock_engine, \
              patch("rat.ui.feedback.FeedbackLog"):
@@ -60,16 +63,64 @@ class TestOmnibarWindow(unittest.TestCase):
             app.processEvents()
 
     def test_initial_attributes_and_sections(self):
-        """Verify Omnibar initialized with 4 sections and defaults to Home (0)."""
+        """Verify Omnibar initialized with 5 sections and defaults to Home (0)."""
         self.assertIsNotNone(self.window.search_input)
-        self.assertEqual(len(self.window.section_buttons), 4)
+        self.assertEqual(len(self.window.section_buttons), 5)
         self.assertEqual(self.window.current_section_idx, 0)
         self.assertEqual(self.window.content_stack.currentIndex(), 0)
         self.assertIn("Huy", self.window.current_member.name)
 
+    def test_natal_navigation_can_be_opened_twice_and_reset_clears_task_state(self):
+        import importlib.util
+        self.window.show()
+        self.window.btn_natal.click()
+        self.assertEqual(self.window.current_section_idx, 0)
+        artifacts = self.window.assistant_runtime.artifact_store.list()
+        self.assertTrue(len(artifacts) > 0)
+        self.assertEqual(artifacts[0].kind, "input_request")
+        # Direct entry does not open a standalone QMainWindow or hide the main RAT surface
+        self.assertFalse(self.window.isHidden())
+        self.assertIsNone(getattr(self.window, "_natal_window", None))
+        self.window.btn_natal.click()
+        self.assertEqual(len(self.window.assistant_runtime.artifact_store.list()), 1)
+        self.window._assistant_task_state = {'goal': 'previous goal'}
+        self.window._reset_chat()
+        self.assertEqual(self.window._assistant_task_state, {})
+        self.assertEqual(len(self.window.assistant_runtime.artifact_store.list()), 0)
+
+    def test_inline_natal_form_finishes_through_worker_without_feature_window(self):
+        import time
+        from PyQt6.QtTest import QTest
+        self.window.open_natal_chart()
+        pending = self.window.assistant_runtime.dispatcher.state.pending_input_request
+        self.assertIsNotNone(pending)
+        self.window._on_input_submitted(pending.id, dict(name='Ví dụ kiểm thử', date='2000-06-15',
+            time='09:30', place='Hồ Chí Minh', latitude=10.8231, longitude=106.6297, timezone='Asia/Ho_Chi_Minh'))
+        deadline = time.monotonic() + 10
+        while self.window._artifact_worker is not None and time.monotonic() < deadline:
+            QTest.qWait(10)
+        charts = self.window.assistant_runtime.artifact_store.find_by_kind('natal_chart')
+        self.assertEqual(len(charts), 1)
+        self.assertIsNone(self.window.assistant_runtime.artifact_store.get(pending.id))
+        self.assertFalse(hasattr(self.window, '_natal_window'))
+        self.assertTrue(self.window._interaction_surface_active)
+        self.assertTrue(self.window.section_bar.isHidden())
+        handle = self.window._latest_assistant_handle
+        self.assertIn(charts[0].id, handle['artifacts'])
+        self.assertNotIn(pending.id, handle['artifacts'])
+
+    def test_assistant_model_choice_does_not_change_document_model(self):
+        from rat.config import config
+        from rat.engine.slm import slm_engine
+        before = slm_engine.model
+        with patch.object(config, 'assistant_model', 'qwen3:4b'):
+            self.window._apply_assistant_model()
+            self.assertEqual(self.window.assistant_runtime.model_client.model, 'qwen3:4b')
+            self.assertEqual(slm_engine.model, before)
+
     def test_switch_sections(self):
-        """Verify switching through all sections (Home, Files, Schedule, Club) works smoothly."""
-        for idx in range(4):
+        """Verify switching through all sections (Home, Files, Schedule, Club, Settings) works smoothly."""
+        for idx in range(5):
             self.window.switch_section(idx)
             app.processEvents()
             self.assertEqual(self.window.current_section_idx, idx)
@@ -187,68 +238,38 @@ class TestOmnibarWindow(unittest.TestCase):
         self.assertEqual(mascot.x(), mascot.x_idle)
         self.assertEqual(mascot.y(), mascot.y_idle)
 
-    def test_mascot_diagonal_popout_and_speech_bubble(self):
-        """Verify diagonal pop-out combines X-shift, Y-slide, and 10 deg rotation with OutBack easing."""
-        from PyQt6.QtCore import QEasingCurve
-        mascot = self.window.mascot_peeking
-
-        # Trigger speaking
-        self.window.set_mascot_speaking("Xin chào bạn học!")
-        self.assertTrue(mascot.is_speaking)
-
-        # Check animation specs: ~350ms duration, OutBack easing
-        self.assertEqual(mascot._pos_anim.duration(), 350)
-        self.assertEqual(mascot._rot_anim.duration(), 350)
-        self.assertEqual(mascot._pos_anim.easingCurve().type(), QEasingCurve.Type.OutBack)
-        self.assertEqual(mascot._rot_anim.easingCurve().type(), QEasingCurve.Type.OutBack)
-
-        # Check target values: Y slides up, X shifts 15-25px (+20px), rotation tilts to 10 deg
-        self.assertEqual(mascot._pos_anim.endValue().x(), mascot.x_speaking)
-        self.assertEqual(mascot._pos_anim.endValue().y(), mascot.y_speaking)
-        self.assertEqual(mascot.x_speaking - mascot.x_idle, 20)
-        self.assertLess(mascot.y_speaking, mascot.y_idle)
-        self.assertEqual(mascot._rot_anim.endValue(), 10.0)
-
-        # Simulate completion of pop-out animation
-        mascot._anim_group.stop()
-        mascot.move(mascot.x_speaking, mascot.y_speaking)
-        mascot.rotation = mascot.rot_speaking
-        mascot.speaking_popped_out.emit()
+    def test_reply_stays_in_conversation_without_mascot_popout(self):
+        self.window.show()
+        self.window._deliver_assistant_reply("Xin chào bạn học!")
         app.processEvents()
+        self.assertTrue(self.window.mascot_peeking.isHidden())
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.assertTrue(self.window.chat_stream.isVisible())
+        self.assertIn("Xin chào", self.window._latest_assistant_handle['ans_lbl'].text())
 
-        # Speech bubble appears right after pop-out completes
-        self.assertFalse(self.window.speech_bubble.isHidden())
-        self.assertIn("Xin chào bạn học!", self.window.speech_bubble.text())
-        self.assertEqual(self.window.speech_bubble.tail_y, 46)
-
-        # Retreat back to idle
-        self.window.set_mascot_idle()
-        self.assertFalse(mascot.is_speaking)
-        self.assertEqual(mascot._rot_anim.endValue(), 0.0)
-        self.assertEqual(mascot._pos_anim.endValue().x(), mascot.x_idle)
-        self.assertEqual(mascot._pos_anim.endValue().y(), mascot.y_idle)
-
-    def test_streaming_reply_reaches_compact_bubble(self):
+    def test_streaming_reply_reaches_same_compact_viewport(self):
+        self.window.show()
         handle = self.window.chat_stream.create_streaming_message()
         self.window._on_reasoning_token(handle, "Đầu tiên, ")
         self.window._on_reasoning_token(handle, "xác định mục tiêu.")
-        self.assertEqual(self.window.speech_bubble.text(), "Đầu tiên, xác định mục tiêu.")
-        self.assertFalse(self.window.speech_bubble.isHidden())
-        self.assertTrue(self.window.chat_stream.isHidden())
-        self.assertEqual(self.window.speech_bubble.context_pill.text(), "Đang gõ")
+        self.assertEqual(handle['ans_lbl'].text(), "Đầu tiên, xác định mục tiêu.")
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.assertTrue(self.window.chat_stream.isVisible())
+        self.assertTrue(handle['status_lbl'].isHidden())
 
-    def test_final_reply_without_tokens_is_displayed(self):
+    def test_final_reply_without_tokens_is_displayed_and_copyable(self):
+        from PyQt6.QtWidgets import QPushButton
+        self.window.show()
         handle = self.window.chat_stream.create_streaming_message()
         answer = "Một câu trả lời **hoàn chỉnh** không có token streaming."
         self.window._on_reasoning_finished(handle, answer, [], 10, "Fallback", "Direct")
-        self.assertEqual(handle["full_text"], answer)
-        self.assertEqual(handle["ans_lbl"].text(), answer)
-        self.assertIn("hoàn chỉnh", self.window.speech_bubble.dialogue.text())
-        self.assertFalse(self.window.speech_bubble.isHidden())
-        self.window.speech_bubble.btn_copy.click()
+        self.assertEqual(handle['full_text'], answer)
+        self.assertEqual(handle['ans_lbl'].text(), answer)
+        self.assertTrue(handle['ans_lbl'].isVisible())
+        copy = next(b for b in handle['card'].findChildren(QPushButton) if b.text() == 'Sao chép')
+        copy.click()
         self.assertEqual(QApplication.clipboard().text(), answer)
-        self.assertTrue(handle["status_lbl"].isHidden())
-        self.assertEqual(handle["badge_lbl"].text(), "· Direct")
+        self.assertTrue(handle['status_lbl'].isHidden())
 
     def test_final_reply_replaces_partial_stream(self):
         handle = self.window.chat_stream.create_streaming_message()
@@ -278,21 +299,20 @@ class TestOmnibarWindow(unittest.TestCase):
         bubble.btn_copy.click()
         self.assertEqual(QApplication.clipboard().text(), answer)
 
-    def test_read_full_reply_then_collapse_preserves_answer(self):
+    def test_expand_then_collapse_keeps_same_complete_answer(self):
+        self.window.show()
         answer = "Một đáp án dài. " * 100
         self.window._deliver_assistant_reply(answer)
-        bubble = self.window.speech_bubble
-        bubble.btn_hist.click()
-        app.processEvents()
-        self.assertTrue(self.window.is_expanded)
-        self.assertFalse(self.window.chat_stream.isHidden())
-        self.assertTrue(bubble.isHidden())  # No duplicate answer above the chat.
-        self.assertFalse(self.window.btn_expand.isHidden())
-        self.window.btn_expand.click()
-        app.processEvents()
-        self.assertFalse(self.window.is_expanded)
-        self.assertFalse(bubble.isHidden())
-        self.assertEqual(bubble.text(), answer.strip())
+        label = self.window._latest_assistant_handle['ans_lbl']
+        for mode in (True, False):
+            self.window.set_expanded(mode)
+            app.processEvents()
+            self.assertEqual(self.window.is_expanded, mode)
+            self.assertTrue(self.window.btn_expand.isVisible())
+            self.assertTrue(self.window.chat_stream.isVisible())
+            self.assertIs(self.window._latest_assistant_handle['ans_lbl'], label)
+            self.assertEqual(label.text(), answer)
+            self.assertTrue(self.window.speech_bubble.isHidden())
 
     def test_short_reply_does_not_add_read_full_action(self):
         self.window._deliver_assistant_reply("Bắt đầu từ một ý.")
@@ -358,135 +378,119 @@ class TestOmnibarWindow(unittest.TestCase):
         self.assertEqual(self.window.speech_bubble.text(), answer)
         self.assertEqual(self.window.chat_composer_input.text(), "Câu đang viết dở")
 
-    def test_expanded_stream_does_not_duplicate_reply_in_bubble(self):
+    def test_expanded_stream_does_not_duplicate_reply_when_collapsed(self):
+        self.window.show()
         self.window.set_expanded(True)
         handle = self.window.chat_stream.create_streaming_message()
         self.window._on_reasoning_token(handle, "Đáp án trong vùng đọc đầy đủ")
-        self.window._on_reasoning_finished(handle, handle["full_text"], [], 10, "Direct", "Direct")
-        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.window._on_reasoning_finished(handle, handle['full_text'], [], 10, "Direct", "Direct")
         self.window.set_expanded(False)
-        self.assertFalse(self.window.speech_bubble.isHidden())
-        self.assertEqual(self.window.speech_bubble.text(), "Đáp án trong vùng đọc đầy đủ")
+        self.assertTrue(self.window.speech_bubble.isHidden())
+        self.assertTrue(handle['ans_lbl'].isVisible())
+        self.assertEqual(handle['ans_lbl'].text(), "Đáp án trong vùng đọc đầy đủ")
 
-    def test_polite_math_requests_are_calculated_not_hijacked(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            for query in ("Giúp tôi tính 2+2", "Chuột ơi, 2+2 bằng bao nhiêu?", "chào chuột tính 2^3"):
-                with self.subTest(query=query):
-                    self.window._submit_chat_prompt(query)
-                    self.assertIn("= " + ("8" if "^" in query else "4"), self.window.speech_bubble.text())
-                    self.assertNotIn("error:", self.window.speech_bubble.text())
-                    self.assertIsNone(self.window._pending_chat_query)
-            worker.assert_not_called()
-
-    def test_invalid_arithmetic_has_actionable_feedback_not_a_raw_python_error(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            for query in ("1/0", "2 + * 3"):
-                self.window._submit_chat_prompt(query)
-                self.assertNotIn("error:", self.window.speech_bubble.text())
-                self.assertNotIn("syntax", self.window.speech_bubble.text())
-                self.assertIsNone(self.window._pending_chat_query)
-            worker.assert_not_called()
-
-    def test_questions_with_greeting_help_thanks_or_frustration_reach_ai(self):
-        queries = (
-            "Giúp tôi tìm hướng cho bài viết",
-            "Chuột ơi, mình nên chọn hướng nào?",
-            "Chào chuột giúp tôi nghĩ mở bài",
-            "Cảm ơn, giờ phản biện hướng vừa rồi",
-            "Tôi đang bực mình vì chưa nghĩ ra mở bài",
-            "Chuột ngu, giúp tôi sửa mở bài",
-            "Tôi có 2 ý tưởng + 3 phương án, giúp chọn hướng",
-            "Hôm nay tôi muốn suy nghĩ về bài viết",
-            "Lên ý tưởng cho CLB",
-        )
-        for query in queries:
-            with self.subTest(query=query), patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-                self.window._reset_chat()
-                self.window._submit_chat_prompt(query)
-                worker.assert_called_once_with(query, history=[])
-                worker.return_value.start.assert_called_once()
-                self.assertNotEqual(self.window._mascot_state, "angry")
-
-    def test_standalone_shortcuts_still_work_without_model(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            for query in ("Chào chuột!", "help", "Chuột làm được gì?", "cảm ơn", "bye", "chuột ngốc"):
-                with self.subTest(query=query):
-                    self.window._submit_chat_prompt(query)
-                    self.assertTrue(self.window.speech_bubble.has_reply)
-                    self.assertIsNone(self.window._pending_chat_query)
-            worker.assert_not_called()
-
-    def test_actual_tool_requests_still_use_local_data(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt("Chuột ơi, phòng C302 ở đâu?")
-            self.assertIn("Tòa C", self.window.speech_bubble.text())
-            self.window._submit_chat_prompt("Giúp tôi xem lịch học hôm nay")
-            self.assertIn("Lịch", self.window.speech_bubble.text())
-            self.window._submit_chat_prompt("Giúp tôi tìm file báo cáo")
-            request = self.window._chat_file_request
-            self.assertEqual(request["target"], "báo cáo")
-            self.window._on_search_completed(request["request_id"], {"results": [], "latency_ms": 5})
-            self.assertIn("chỉ mục", self.window.speech_bubble.text())
-            self.assertNotIn("nhầm", self.window.speech_bubble.text())
-            self.assertNotEqual(self.window._mascot_state, "angry")
-            worker.assert_not_called()
-
-    def test_ai_followup_receives_completed_user_and_assistant_turns(self):
-        first_query = "Mình đang chọn hướng cho bài viết."
-        answer = "Hướng B tập trung vào một luận điểm rõ hơn."
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt(first_query)
-            worker.assert_called_once_with(first_query, history=[])
-            finish = worker.return_value.reasoning_finished.connect.call_args.args[0]
-            finish(answer, [], 10, "AI cục bộ", "Model thử nghiệm")
-            followup = "Phản biện hướng vừa rồi."
-            self.window._submit_chat_prompt(followup)
-            self.assertEqual(worker.call_args.args, (followup,))
-            self.assertEqual(worker.call_args.kwargs["history"], [
-                {"role": "user", "content": first_query},
-                {"role": "assistant", "content": answer},
-            ])
-
-    def test_direct_answers_are_also_in_followup_context(self):
-        self.window._submit_chat_prompt("2+2")
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt("Giải thích kết quả vừa rồi")
-            self.assertEqual(worker.call_args.kwargs["history"], [
-                {"role": "user", "content": "2+2"},
-                {"role": "assistant", "content": "2+2 = 4"},
-            ])
-
-    def test_pending_reply_preserves_second_draft_without_starting_another_worker(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt("Mình đang chọn hướng cho bài viết.")
-            self.window.chat_composer_input.setText("Câu tiếp theo đang viết")
-            self.window._submit_chat_prompt(self.window.chat_composer_input.text())
-            self.assertEqual(worker.call_count, 1)
-            self.assertEqual(self.window.chat_composer_input.text(), "Câu tiếp theo đang viết")
-
-    def test_reset_clears_context_and_ignores_old_worker_callbacks(self):
-        self.window._submit_chat_prompt("2+2")
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt("Giải thích kết quả vừa rồi")
-            token = worker.return_value.token_received.connect.call_args.args[0]
-            finish = worker.return_value.reasoning_finished.connect.call_args.args[0]
+    def test_polite_math_requests_reach_same_assistant_without_forcing_full(self):
+        for query in ("Giúp tôi tính 2+2", "Chuột ơi, 2+2 bằng bao nhiêu?", "chào chuột tính 2^3"):
             self.window._reset_chat()
-            token("Token cũ")
-            finish("Đáp án phiên cũ", [], 10, "AI cục bộ", "Model")
+            self.window._submit_chat_prompt(query)
+            self.assertEqual(self.window._current_reasoner.query, query)
+            self.assertFalse(self.window.is_expanded)
+
+    def test_model_failure_is_actionable_and_not_saved_as_an_answer(self):
+        from rat.engine.assistant_runtime import AgentResponse
+        self.window._submit_chat_prompt("1/0")
+        handle = self.window._assistant_handle
+        response = AgentResponse("", [], 10, 0, 0, error="invalid_model_output")
+        self.window._on_assistant_response(handle, response)
+        self.assertIn("thử lại", handle["full_text"])
+        self.assertNotIn("invalid_model_output", handle["full_text"])
+        self.assertEqual(self.window._conversation.messages(), [])
+        context = self.window._conversation.context_messages()
+        self.assertEqual(context[0]['content'], '1/0')
+        self.assertIn('successful_answer_produced', context[1]['content'])
+        self.assertIsNone(self.window._pending_chat_query)
+
+    def test_unfamiliar_phrasing_and_followups_use_the_same_worker(self):
+        for query in ("Chào, tìm tài liệu cho buổi kế tiếp", "Cái đó có nói về TCP không?", "Mình kẹt ở phần này", "Lên ý tưởng cho CLB"):
+            self.window._reset_chat()
+            self.window._submit_chat_prompt(query)
+            self.assertEqual(self.window._current_reasoner.query, query)
+            self.assertEqual(self.window._pending_chat_query, query)
+
+    def test_greetings_and_help_are_model_authored(self):
+        for query in ("Chào chuột!", "help", "Chuột làm được gì?", "cảm ơn"):
+            self.window._reset_chat()
+            self.window._submit_chat_prompt(query)
+            self.assertEqual(self.window._current_reasoner.query, query)
             self.assertFalse(self.window.speech_bubble.has_reply)
-            self.assertEqual(self.window._conversation.messages(), [])
-            self.window._submit_chat_prompt("Bắt đầu một ý mới")
-            self.assertEqual(worker.call_args.kwargs["history"], [])
+
+    def test_local_data_is_available_to_worker_without_gui_thread_search(self):
+        self.window._submit_chat_prompt("Tìm giúp slide mình cần cho buổi học tới")
+        worker = self.window._current_reasoner
+        self.assertIs(worker.runtime.db, self.window.db)
+        self.assertEqual(worker.context["member_id"], self.window.current_member.id)
+        self.window.engine.search.assert_not_called()
+
+    def test_ai_followup_receives_conversation_and_observed_sources(self):
+        from rat.engine.assistant_runtime import AgentResponse
+        query, answer = "Tìm tài liệu Networks", "Mình tìm được ghi chú TCP."
+        self.window._submit_chat_prompt(query)
+        sources = [{"type": "document", "path": "/tmp/networks.txt", "filename": "networks.txt"}]
+        self.window._on_assistant_response(self.window._assistant_handle, AgentResponse(answer, [], 10, 0, 0, sources=sources))
+        self.window._submit_chat_prompt("Tóm tắt cái đó")
+        context = self.window._current_reasoner.context
+        self.assertEqual(context["history"], [{"role": "user", "content": query}, {"role": "assistant", "content": answer}])
+        self.assertEqual(context["previous_sources"], sources)
+
+    def test_natal_interpretation_passes_chart_as_source_not_chat_json(self):
+        chart = {'birth': {'name': 'Example'}, 'positions': [{'longitude': 84.3}]}
+        with patch.object(self.window, 'show_omnibar'):
+            self.window._ask_about_natal_chart('Diễn giải lá số gốc', chart)
+        worker = self.window._current_reasoner
+        self.assertEqual(worker.query, 'Diễn giải lá số gốc')
+        self.assertEqual(worker.context['previous_sources'], [{'type': 'natal_chart', 'chart': chart}])
+        self.assertNotIn('longitude', worker.query)
+        with patch.object(self.window, 'show_omnibar') as show:
+            self.window._ask_about_natal_chart('A second chart request', {'birth': {}})
+        show.assert_not_called()
+        self.assertIs(self.window._current_reasoner, worker)
+
+    def test_completed_answers_are_also_in_followup_context(self):
+        self.window._pending_chat_query = "2+2"
+        self.window._deliver_assistant_reply("2+2 = 4")
+        self.window._submit_chat_prompt("Giải thích kết quả vừa rồi")
+        self.assertEqual(self.window._current_reasoner.context["history"][-1]["content"], "2+2 = 4")
+
+    def test_pending_reply_preserves_second_draft_and_stop_is_available(self):
+        self.window._submit_chat_prompt("Giúp mình một việc")
+        worker = self.window._current_reasoner
+        self.window.chat_composer_input.setText("Câu tiếp theo đang viết")
+        self.window._submit_chat_prompt(self.window.chat_composer_input.text())
+        self.assertIs(self.window._current_reasoner, worker)
+        self.assertEqual(self.window.chat_composer_input.text(), "Câu tiếp theo đang viết")
+        self.assertTrue(self.window.full_chat_send.isEnabled())
+        self.assertEqual(self.window.full_chat_send.text(), "■")
+
+    def test_reset_clears_sources_and_ignores_old_worker_callbacks(self):
+        from rat.engine.assistant_runtime import AgentResponse
+        self.window._submit_chat_prompt("Giúp mình")
+        old = self.window._assistant_handle
+        self.window._assistant_sources = [{"path": "/old"}]
+        self.window._reset_chat()
+        self.window._on_assistant_response(old, AgentResponse("Đáp án cũ", [], 0, 0, 0))
+        self.assertEqual(self.window._assistant_sources, [])
+        self.assertEqual(self.window._conversation.messages(), [])
+        self.assertFalse(self.window.speech_bubble.has_reply)
 
     def test_hide_and_reopen_keeps_semantic_context(self):
-        self.window._submit_chat_prompt("2+2")
+        self.window._pending_chat_query = "2+2"
+        self.window._deliver_assistant_reply("2+2 = 4")
         with patch("rat.os.app.activate_macos_app"), patch("rat.ui.omnibar.configure_macos_fullscreen_overlay"):
             self.window.show_omnibar()
             self.window.hide()
             self.window.show_omnibar()
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt("Giải thích kết quả vừa rồi")
-            self.assertEqual(worker.call_args.kwargs["history"][-1]["content"], "2+2 = 4")
+        self.window._submit_chat_prompt("Giải thích kết quả vừa rồi")
+        self.assertEqual(self.window._current_reasoner.context["history"][-1]["content"], "2+2 = 4")
 
     def test_completed_reply_does_not_show_thinking_status_when_expanded(self):
         handle = self.window.chat_stream.create_streaming_message(badge="Đang kết nối")
@@ -496,14 +500,13 @@ class TestOmnibarWindow(unittest.TestCase):
         self.assertEqual(handle["badge_lbl"].text(), "· Model thực tế")
 
     def test_connection_error_is_displayed_but_not_saved_as_a_model_answer(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window._submit_chat_prompt("Cùng nghĩ về bài viết")
-            finish = worker.return_value.reasoning_finished.connect.call_args.args[0]
-            finish("Kiểm tra Ollama rồi thử lại.", [], 10, "AI chưa sẵn sàng", "Chưa kết nối")
-            self.assertIn("Ollama", self.window.speech_bubble.text())
-            self.assertEqual(self.window.speech_bubble.context_pill.text(), "Chưa kết nối")
-            self.assertEqual(self.window._conversation.messages(), [])
-            self.assertIsNone(self.window._pending_chat_query)
+        from rat.engine.assistant_runtime import AgentResponse
+        self.window._submit_chat_prompt("Cùng nghĩ về bài viết")
+        self.window._on_assistant_response(self.window._assistant_handle,
+            AgentResponse("", [], 10, 0, 0, error="connection_refused"))
+        self.assertIn("Ollama", self.window.speech_bubble.text())
+        self.assertEqual(self.window._conversation.messages(), [])
+        self.assertIsNone(self.window._pending_chat_query)
 
     def test_lower_placement_works_with_multiple_screen_origins(self):
         for available in (QRect(0, 25, 1440, 875), QRect(-1920, -400, 1920, 1080), QRect(1440, 100, 1280, 720)):
@@ -519,28 +522,28 @@ class TestOmnibarWindow(unittest.TestCase):
         available = QRect(-300, 100, 600, 500)
         self.assertTrue(available.contains(lower_overlay_geometry(available, 652, 580)))
 
-    def test_actual_expand_collapse_respects_layout_minimum_and_bottom_anchor(self):
+    def test_expand_collapse_respects_screen_and_keeps_composer_top(self):
         from PyQt6.QtTest import QTest
         self.window.show()
         app.processEvents()
-        for expanded in (False, True, False):
+        top = self.window.y()
+        for expanded in (True, False):
             self.window.set_expanded(expanded)
-            QTest.qWait(200)
-            actual = self.window.geometry()
-            available = self.window.screen().availableGeometry()
-            self.assertEqual(actual, lower_overlay_geometry(available, actual.width(), actual.height()))
-            self.assertTrue(available.contains(actual))
+            QTest.qWait(250)
+            self.assertEqual(self.window.y(), top)
+            self.assertTrue(self.window.screen().availableGeometry().contains(self.window.geometry()))
         self.assertLess(self.window.height(), 260)
 
-    def test_summon_uses_lower_screen_geometry_instead_of_old_top_anchor(self):
+    def test_hidden_summon_places_composer_with_room_below_on_selected_screen(self):
         screen = MagicMock()
         available = QRect(-1440, 40, 1440, 860)
         screen.availableGeometry.return_value = available
-        with patch("rat.ui.omnibar.QGuiApplication.screenAt", return_value=screen), \
-             patch("rat.os.app.activate_macos_app"), \
-             patch("rat.ui.omnibar.configure_macos_fullscreen_overlay"):
-            self.window.show_omnibar()
-        self.assertEqual(self.window.geometry(), lower_overlay_geometry(available, self.window.width(), self.window.height()))
+        with patch('rat.ui.omnibar.QGuiApplication.screenAt', return_value=screen):
+            self.window._resize_overlay(620, 128)
+        actual = self.window.geometry()
+        self.assertTrue(available.contains(actual))
+        self.assertEqual(actual.y(), available.y() + 120)
+        self.assertEqual(actual.center().x(), available.center().x())
 
     @staticmethod
     def _compact_files(count=4):
@@ -550,146 +553,175 @@ class TestOmnibarWindow(unittest.TestCase):
             modified_at=time.time() - 86400, score=90 - i, explanation="Tệp mẫu", snippet="",
         ) for i in range(count)]
 
-    def test_file_results_are_visible_and_actionable_without_expanding_chat(self):
+    def test_file_results_are_actionable_in_same_compact_chat(self):
+        from rat.ui.chat_stream import InlineFileCard
         files = self._compact_files()
         self.window.show()
-        self.window._deliver_assistant_reply("4 tệp khớp ‘slides tích phân’.", strategy="Search", inline_files=files)
+        self.window._deliver_assistant_reply('Mình tìm thấy 4 tệp.', inline_files=files)
         app.processEvents()
         self.assertFalse(self.window.is_expanded)
-        self.assertTrue(self.window.compact_file_list.isVisible())
-        self.assertEqual(self.window.compact_file_list.count(), 4)
+        self.assertTrue(self.window.compact_file_list.isHidden())
+        rows = self.window.chat_stream.findChildren(InlineFileCard)
+        self.assertEqual(len(rows), 4)
+        self.assertTrue(all(row.isVisible() for row in rows))
         self.assertTrue(self.window.quick_suggestions.isHidden())
-        self.assertTrue(self.window.speech_bubble.btn_hist.isHidden())
-        self.assertTrue(self.window.speech_bubble.btn_copy.isHidden())
-        row = self.window.compact_file_list.itemWidget(self.window.compact_file_list.item(0))
-        self.assertEqual(row.name_label.full_text, files[0].file_name)
-        with patch("rat.ui.omnibar.open_file_default") as open_file, \
-             patch("rat.ui.omnibar.trigger_quicklook") as preview, \
-             patch("rat.ui.omnibar.reveal_in_finder") as reveal:
-            row.btn_open.click()
-            row.btn_preview.click()
-            row.btn_reveal.click()
-            open_file.assert_called_once_with(files[0].file_path)
+        with patch('rat.ui.chat_stream.open_file_default') as opened, patch('rat.ui.chat_stream.trigger_quicklook') as preview, patch('rat.ui.chat_stream.reveal_in_finder') as reveal:
+            rows[0].btn_open.click()
+            rows[0].btn_preview.click()
+            rows[0].btn_reveal.click()
+            opened.assert_called_once_with(files[0].file_path)
             preview.assert_called_once_with(files[0].file_path)
             reveal.assert_called_once_with(files[0].file_path)
 
-    def test_async_file_search_shows_loading_and_does_not_call_engine_on_gui_thread(self):
-        from PyQt6.QtTest import QSignalSpy
-        self.window.search_requested.disconnect(self.window.worker.do_search)
-        spy = QSignalSpy(self.window.search_requested)
-        self.window.engine.search.reset_mock()
-        self.window._submit_chat_prompt("tìm file slides tích phân")
-        self.assertEqual(len(spy), 1)
-        self.assertEqual(spy[0][1], "slides tích phân")
-        self.window.engine.search.assert_not_called()
-        self.assertFalse(self.window.speech_bubble.has_reply)
-        self.assertIn("Đang tìm", self.window.speech_bubble.text())
-        self.window._on_search_completed(spy[0][0], {"results": self._compact_files(), "latency_ms": 1719})
-        self.assertEqual(self.window.compact_file_list.count(), 4)
-        self.assertEqual(self.window.speech_bubble.context_pill.text(), "Tìm tệp")
-        self.assertNotIn("1719", self.window.speech_bubble.context_pill.text())
-        self.assertIsNone(self.window._pending_chat_query)
+    def test_assistant_dispatch_does_not_run_tools_on_gui_thread(self):
+        self.window.assistant_runtime.run = MagicMock()
+        self.window._submit_chat_prompt("Tìm slides tích phân")
+        self.window.assistant_runtime.run.assert_not_called()
+        self.assertEqual(self.window._current_reasoner.query, "Tìm slides tích phân")
+        self.assertIn("đang", self.window._assistant_handle["status_lbl"].text().lower())
 
-    def test_compact_results_keyboard_opens_selected_file_not_a_recent_file(self):
+    def test_full_composer_enables_send_and_enter_submits_the_followup(self):
         from PyQt6.QtTest import QTest
+        from rat.engine.assistant_runtime import AgentResponse
+        self.window._submit_chat_prompt("Find Networks")
+        self.window._on_assistant_response(self.window._assistant_handle, AgentResponse("Found.", [], 10, 0, 0))
+        self.assertFalse(self.window.full_chat_send.isEnabled())
+        self.window.full_chat_input.setText("Tóm tắt cái đó")
+        self.assertTrue(self.window.full_chat_send.isEnabled())
+        QTest.keyClick(self.window.full_chat_input, Qt.Key.Key_Return)
+        self.assertEqual(self.window._current_reasoner.query, "Tóm tắt cái đó")
+        self.assertEqual(self.window._current_reasoner.context["history"][-1]["content"], "Found.")
+
+    def test_enter_preserves_pending_full_draft_and_stop_button_cancels(self):
+        from PyQt6.QtTest import QTest
+        self.window._submit_chat_prompt("Find Networks")
+        worker = self.window._current_reasoner
+        self.window.full_chat_input.setText("Một yêu cầu khác")
+        QTest.keyClick(self.window.full_chat_input, Qt.Key.Key_Return)
+        self.assertIs(self.window._current_reasoner, worker)
+        self.assertEqual(self.window.full_chat_input.text(), "Một yêu cầu khác")
+        self.window.full_chat_send.click()
+        self.assertIsNone(self.window._current_reasoner)
+        self.assertEqual(self.window.full_chat_input.text(), "Một yêu cầu khác")
+
+    def test_observed_documents_are_actionable_before_final_answer_and_survive_stop(self):
+        from rat.engine.assistant_runtime import AgentStep
+        from rat.ui.chat_stream import InlineFileCard
+        self.window._submit_chat_prompt("Tìm và đọc tài liệu")
+        handle = self.window._assistant_handle
+        found = AgentStep(1, "", tool_name="search_documents", tool_result=[
+            {"path": "/tmp/fixture.txt", "filename": "fixture.txt", "snippet": "TCP"}])
+        self.window._on_assistant_step(handle, found)
+        self.assertIsNotNone(handle["card"].findChild(InlineFileCard))
+        self.assertEqual(handle["observed_sources"][0]["read"], False)
+        read = AgentStep(2, "", tool_name="read_document", tool_result={
+            "found": True, "path": "/tmp/fixture.txt", "filename": "fixture.txt", "content": "TCP retransmits."})
+        self.window._on_assistant_step(handle, read)
+        self.assertEqual(len(handle["observed_sources"]), 1)
+        self.assertTrue(handle["observed_sources"][0]["read"])
+        self.window._cancel_assistant()
+        self.assertTrue(self.window._assistant_sources[0]["read"])
+        self.assertIsNotNone(handle["card"].findChild(InlineFileCard))
+        self.assertEqual(self.window._conversation.messages(), [])
+
+    def test_inline_file_keyboard_activates_focused_result(self):
+        from PyQt6.QtTest import QTest
+        from rat.ui.chat_stream import InlineFileCard
         files = self._compact_files()
         self.window.show()
-        self.window._deliver_assistant_reply("4 tệp", inline_files=files)
+        self.window._deliver_assistant_reply('4 tệp', inline_files=files)
         app.processEvents()
-        self.window.chat_composer_input.setFocus()
-        QTest.keyClick(self.window.chat_composer_input, Qt.Key.Key_Down)
-        self.assertTrue(self.window.compact_file_list.hasFocus())
-        QTest.keyClick(self.window.compact_file_list, Qt.Key.Key_Down)
-        self.assertEqual(self.window.compact_file_list.currentRow(), 1)
-        with patch("rat.ui.omnibar.open_file_default") as open_file, patch("rat.ui.omnibar.trigger_quicklook") as preview:
-            QTest.keyClick(self.window.compact_file_list, Qt.Key.Key_Return)
-            QTest.keyClick(self.window.compact_file_list, Qt.Key.Key_Space)
-            open_file.assert_called_once_with(files[1].file_path)
+        row = self.window.chat_stream.findChildren(InlineFileCard)[1]
+        with patch('rat.ui.chat_stream.open_file_default') as opened, patch('rat.ui.chat_stream.trigger_quicklook') as preview:
+            row.btn_open.setFocus()
+            QTest.keyClick(row.btn_open, Qt.Key.Key_Space)
+            row.btn_preview.setFocus()
+            QTest.keyClick(row.btn_preview, Qt.Key.Key_Space)
+            opened.assert_called_once_with(files[1].file_path)
             preview.assert_called_once_with(files[1].file_path)
-        QTest.keyClick(self.window.compact_file_list, Qt.Key.Key_C, Qt.KeyboardModifier.ControlModifier)
-        self.assertEqual(QApplication.clipboard().text(), files[1].file_path)
 
-    def test_files_survive_hide_reopen_and_expanded_round_trip(self):
-        files = self._compact_files()
-        self.window._deliver_assistant_reply("4 tệp", inline_files=files)
-        with patch("rat.os.app.activate_macos_app"), patch("rat.ui.omnibar.configure_macos_fullscreen_overlay"):
+    def test_inline_files_keep_same_widgets_across_reopen_and_modes(self):
+        from rat.ui.chat_stream import InlineFileCard
+        self.window._deliver_assistant_reply('4 tệp', inline_files=self._compact_files())
+        rows = self.window.chat_stream.findChildren(InlineFileCard)
+        with patch('rat.os.app.activate_macos_app'), patch('rat.ui.omnibar.configure_macos_fullscreen_overlay'):
             self.window.show_omnibar()
             self.window.hide()
             self.window.show_omnibar()
-        self.window.set_expanded(True)
-        self.assertTrue(self.window.compact_file_list.isHidden())
-        self.window.set_expanded(False)
-        self.assertFalse(self.window.compact_file_list.isHidden())
-        self.assertEqual(self.window.compact_file_list.count(), 4)
+        for mode in (True, False):
+            self.window.set_expanded(mode)
+            self.assertEqual(self.window.chat_stream.findChildren(InlineFileCard), rows)
+            self.assertTrue(all(row.isVisible() for row in rows))
         self.assertTrue(self.window.quick_suggestions.isHidden())
-        self.assertTrue(self.window.speech_bubble.btn_hist.isHidden())
 
-    def test_reset_ignores_an_old_async_file_search_response(self):
-        self.window.search_requested.disconnect(self.window.worker.do_search)
-        self.window._submit_chat_prompt("tìm file slides")
-        request_id = self.window._chat_file_request["request_id"]
-        self.window._reset_chat()
-        self.window._on_search_completed(request_id, {"results": self._compact_files()})
-        self.assertEqual(self.window.compact_file_list.count(), 0)
-        self.assertFalse(self.window.speech_bubble.has_reply)
+    def test_cancel_ignores_late_response_and_keeps_draft(self):
+        from rat.engine.assistant_runtime import AgentResponse
+        self.window._submit_chat_prompt("Tìm giúp slide")
+        old = self.window._assistant_handle
+        self.window.chat_composer_input.setText("Yêu cầu mới đang viết")
+        self.window._cancel_assistant()
+        self.window._on_assistant_response(old, AgentResponse("Đáp án đến muộn", [], 0, 0, 0))
+        self.assertIn("Đã dừng", old["full_text"])
+        self.assertEqual(self.window.chat_composer_input.text(), "Yêu cầu mới đang viết")
         self.assertEqual(self.window._conversation.messages(), [])
 
     def test_next_prompt_clears_old_results_without_bringing_onboarding_back(self):
         self.window._deliver_assistant_reply("4 tệp", inline_files=self._compact_files())
-        with patch("rat.ui.omnibar.StreamReasoningWorker"):
-            self.window._submit_chat_prompt("Cùng nghĩ hướng mở bài")
+        self.window._submit_chat_prompt("Mình cần một ý tưởng")
         self.assertEqual(self.window.compact_file_list.count(), 0)
-        self.assertTrue(self.window.compact_file_list.isHidden())
         self.assertTrue(self.window.quick_suggestions.isHidden())
 
-    def test_starter_chips_prefill_actual_intent_instead_of_searching_an_unrelated_example(self):
-        with patch("rat.ui.omnibar.StreamReasoningWorker") as worker:
-            self.window.chip_buttons[1].click()
-            self.assertEqual(self.window.chat_composer_input.text(), "tìm file ")
-            self.assertIsNone(self.window._pending_chat_query)
-            self.window.chat_stream.prompt_clicked.emit("Phản biện giúp mình ý này: ")
-            self.assertEqual(self.window.chat_composer_input.text(), "Phản biện giúp mình ý này: ")
-            self.assertTrue(self.window.chat_composer_send.isEnabled())
-            worker.assert_not_called()
+    def test_starter_chips_prefill_user_goal_without_running_an_example(self):
+        self.window.chip_buttons[1].click()
+        self.assertEqual(self.window.chat_composer_input.text(), "Mình đang tìm tài liệu về ")
+        self.assertIsNone(self.window._pending_chat_query)
+        self.agent_start.assert_not_called()
 
-    def test_bare_file_prefix_asks_for_a_target_without_starting_search(self):
-        from PyQt6.QtTest import QSignalSpy
-        spy = QSignalSpy(self.window.search_requested)
+    def test_bare_file_prefix_can_receive_a_model_clarification(self):
+        from rat.engine.assistant_runtime import AgentResponse
         self.window._submit_chat_prompt("tìm file")
-        self.assertEqual(len(spy), 0)
-        self.assertIn("tệp nào", self.window.speech_bubble.text())
+        handle = self.window._assistant_handle
+        self.window._on_assistant_response(handle, AgentResponse("Bạn đang tìm tài liệu về chủ đề nào?", [], 0, 0, 0))
+        self.assertIn("chủ đề nào", handle["full_text"])
         self.assertIsNone(self.window._pending_chat_query)
 
-    def test_search_failure_is_not_reported_as_a_definitive_empty_result(self):
-        self.window.search_requested.disconnect(self.window.worker.do_search)
-        self.window._submit_chat_prompt("tìm file slides")
-        request_id = self.window._chat_file_request["request_id"]
-        self.window._on_search_completed(request_id, {"results": [], "error": True})
-        self.assertIn("chưa hoàn tất", self.window.speech_bubble.text())
-        self.assertIsNone(self.window._pending_chat_query)
+    def test_failure_preserves_observed_files_as_actionable_sources(self):
+        from rat.engine.assistant_runtime import AgentResponse
+        self.window._submit_chat_prompt("Tìm slide")
+        handle = self.window._assistant_handle
+        response = AgentResponse("", [], 10, 1, 0, error="step_budget_exhausted", sources=[
+            {"type": "document", "path": "/tmp/notes.txt", "filename": "notes.txt", "read": False}])
+        self.window._on_assistant_response(handle, response)
+        self.assertIn("chưa hoàn tất", handle["full_text"])
+        self.assertEqual(self.window.compact_file_list.count(), 1)
+        self.assertEqual(self.window._conversation.messages(), [])
 
-    def test_long_file_names_are_elided_without_widening_the_overlay(self):
+    def test_long_inline_file_names_fit_compact_width(self):
         from PyQt6.QtTest import QTest
+        from rat.ui.chat_stream import InlineFileCard
         files = self._compact_files(1)
-        files[0].file_name = "Tích_phân_" * 60 + ".pdf"
+        files[0].file_name = 'Tích_phân_' * 60 + '.pdf'
         self.window.show()
-        self.window._deliver_assistant_reply("Một tệp", inline_files=files)
-        QTest.qWait(200)
-        row = self.window.compact_file_list.itemWidget(self.window.compact_file_list.item(0))
-        self.assertEqual(self.window.width(), 652)
+        self.window._deliver_assistant_reply('Một tệp', inline_files=files)
+        QTest.qWait(300)
+        row = self.window.chat_stream.findChild(InlineFileCard)
+        self.assertEqual(self.window.width(), 620)
         self.assertEqual(row.name_label.full_text, files[0].file_name)
-        self.assertIn("…", row.name_label.text())
+        self.assertIn('…', row.name_label.text())
         self.assertLessEqual(row.name_label.fontMetrics().horizontalAdvance(row.name_label.text()), row.name_label.width())
 
-    def test_growing_reply_bubble_stays_above_the_composer(self):
+    def test_growing_reply_stays_below_composer_in_same_box(self):
         from PyQt6.QtTest import QTest
         self.window.show()
-        self.window._deliver_assistant_reply("Ừ.")
-        QTest.qWait(150)
-        self.window._deliver_assistant_reply("Một ý cần đọc cho rõ, không đè lên ô nhập. " * 100)
-        QTest.qWait(200)
-        bubble = self.window.speech_bubble
-        self.assertLessEqual(bubble.y() + bubble.height(), self.window.container.y())
+        self.window._deliver_assistant_reply('Ừ.')
+        QTest.qWait(250)
+        top = self.window.y()
+        self.window._deliver_assistant_reply('Một ý cần đọc cho rõ, không đè lên ô nhập. ' * 100)
+        QTest.qWait(250)
+        composer = self.window.chat_composer_input
+        stream = self.window.chat_stream
+        self.assertGreaterEqual(stream.mapTo(self.window, stream.rect().topLeft()).y(), composer.mapTo(self.window, composer.rect().bottomLeft()).y())
+        self.assertEqual(self.window.y(), top)
 
 
 class TestStreamReasoningWorker(unittest.TestCase):

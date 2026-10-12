@@ -1,0 +1,5 @@
+{
+  "pid": 99101,
+  "log": "/private/tmp/rat-one-box-launch-20261012-005721.log",
+  "command": "python3.12 -m rat.main spotlight"
+}
