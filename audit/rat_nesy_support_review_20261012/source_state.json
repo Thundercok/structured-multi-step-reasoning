@@ -1,0 +1,22 @@
+{
+  "date_local": "2026-10-12",
+  "timezone": "Asia/Saigon",
+  "scope": "source_review_and_offline_checker_counterexamples",
+  "git_head": "6501c51ba4645d7364585214c010c0bbcd49abb5",
+  "branch": "main",
+  "source_sha256": {
+    "rat/engine/assistant_runtime.py": "61eb0c294fd6baf3b27640be81c495a8f87e417fcd8d226e268b6ca28d68a043",
+    "rat/engine/controller.py": "79c0e84c6361bd443996e8f5644ffd31aefb02fd3c0b9617c27c6bd3025eb9c7",
+    "rat/engine/vgc.py": "9c4f93e2d119de44d502756254e0031becf732a980c0c17feda5a0df44fc2a8f",
+    "rat/engine/work_trace.py": "6598a3ed4d9f1f1081a321fff49fe6cb774cefc2a00041f526525f845c7319ac",
+    "rat/kernel/capabilities/__init__.py": "0ae586cefe727c548b9a3571705cd5256ad65c909740038cf8f4d239a346ed55",
+    "scripts/verifiers.py": "aa613f9402649b36233f6d8a4a134899fa0cd8f1eb25149e39efb840d0c04bb1",
+    "scripts/verified_pal_order.py": "2b6c4c89e17870a27d496a8f4cf1c1a73b49e0866ccf37701daa94697b7bc0d8",
+    "modules/docai/nesy_docai/system2_solver.py": "57e1f5f3ebc9f256e0be8c35b0a7b4959bb96951efb8436efaa1972dc629eb0e",
+    "audit/repository_migration_20261012/validation.json": "3d981fb419d6bf5090a57d05ae054a2d1f423a114b4b2318cb0dcae4009c7285"
+  },
+  "model_calls": 0,
+  "product_source_edited": false,
+  "research_scope_changed": false,
+  "implementation_status": "proposed_only"
+}

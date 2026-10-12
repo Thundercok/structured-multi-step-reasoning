@@ -1,14 +1,16 @@
 """
 rat.ui.turn_notes_preview — Interactive Stage 1 UX Preview for Turn Notes.
 Demonstrates:
-1. Turn-level notes embedded inside conversation turns (not an isolated pane)
-2. Preserving older revisions with clear forward links to newer revisions
+1. Turn-level notes rendered as lightweight text lines on chat background (frame only when editing)
+2. Preserving older revisions with legible text, replacement label, and forward links
 3. Backward links from replacement notes to older revisions
-4. Inline editing with draft preservation, keyboard shortcuts, and stale error warnings
-5. Mascot 'Chuột' standing on the left with gentle, playful motion
-6. Clicking Chuột emotes and highlights the latest active note in the chat
-7. Compact HUD vs Full expanded view with ⌘L toggle
-8. Clearly labeled as a test fixture, independent of real model capability
+4. Inline editing with draft preservation across compact toggle, keyboard shortcuts, and stale error warnings
+5. Separate navigation link vs "Sửa bản mới" action (opens replacement note editor)
+6. Predecessor forward link dynamically updates when successor is edited
+7. Mascot 'Chuột' standing on the left with gentle, playful motion (respects reduce motion)
+8. Clicking Chuột emotes and highlights latest active note with friendly natural phrasing
+9. Real ChatComposer shell and authentic compact HUD sizing
+10. Collapsible QA testing dock to keep primary review surface clean
 """
 from __future__ import annotations
 
@@ -32,9 +34,10 @@ from PyQt6.QtWidgets import (
 )
 
 from rat.ui.live_companion import LiveCompanion
+from rat.ui.surface_layout import ChatComposer, motion_enabled
 from rat.ui.turn_notes import InlineNoteRow, TurnNoteItem, TurnNotesPane
 from rat.ui.work_context import WorkTracePane
-from rat.engine.assistant_runtime import AgentStep, AgentResponse
+from rat.engine.assistant_runtime import AgentStep
 
 
 FIXTURE_TURNS = [
@@ -106,6 +109,7 @@ FIXTURE_TURNS = [
 class TurnWidget(QFrame):
     """Visual card for one conversation turn containing user prompt, assistant reply, turn notes, and trace."""
     navigate_turn_requested = pyqtSignal(int, str)
+    edit_replacement_requested = pyqtSignal(int, str)
 
     def __init__(self, turn_data: dict, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -121,29 +125,33 @@ class TurnWidget(QFrame):
         """)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(6, 6, 6, 10)
-        layout.setSpacing(6)
+        layout.setContentsMargins(4, 4, 4, 8)
+        layout.setSpacing(5)
 
-        # 1. User Message Row
+        # 1. User Message Row (PlainText)
         user_row = QHBoxLayout()
         user_row.setContentsMargins(0, 0, 0, 0)
         user_label = QLabel(f"Bạn: {turn_data['user_message']}")
+        user_label.setTextFormat(Qt.TextFormat.PlainText)
         user_label.setWordWrap(True)
         user_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        user_label.setStyleSheet("color: #8C7B65; font-size: 12px; font-weight: 500; padding: 2px 0;")
+        user_label.setStyleSheet("color: #8C7B65; font-size: 12px; font-weight: 500; padding: 1px 0;")
         user_row.addWidget(user_label, 1)
         layout.addLayout(user_row)
 
-        # 2. Assistant Response Bubble
-        self.reply_label = QLabel(turn_data["assistant_message"])
+        # 2. Assistant Response Bubble (Render Markdown)
+        self.reply_label = QLabel()
+        self.reply_label.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.reply_label.setText(turn_data["assistant_message"])
         self.reply_label.setWordWrap(True)
         self.reply_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.reply_label.setStyleSheet("color: #2F2920; font-size: 13px; line-height: 1.4; padding: 1px 0;")
         layout.addWidget(self.reply_label)
 
-        # 3. Inline Turn Notes Pane
+        # 3. Inline Turn Notes Pane (Lightweight line on chat surface)
         self.notes_pane = TurnNotesPane(self.turn_id, self)
         self.notes_pane.navigate_requested.connect(self.navigate_turn_requested.emit)
+        self.notes_pane.edit_replacement_requested.connect(self.edit_replacement_requested.emit)
         layout.addWidget(self.notes_pane)
 
         # 4. Work Trace Pane ("Cách Chuột làm")
@@ -159,7 +167,7 @@ class TurnWidget(QFrame):
 
 class TurnNotesPreviewWindow(QMainWindow):
     """
-    Interactive testbed for evaluating Turn-level notes UX.
+    Interactive Stage 1 UX testbed for evaluating Turn-level notes.
     Pure fixture data — completely decoupled from live AI models.
     """
 
@@ -175,8 +183,8 @@ class TurnNotesPreviewWindow(QMainWindow):
 
     def _init_window(self) -> None:
         self.setWindowTitle("RAT · Bản xem Giao diện Ghi chép theo Lượt (Fixture)")
-        self.setMinimumSize(880, 580)
-        self.resize(980, 720)
+        self.setMinimumSize(660, 360)
+        self.resize(740, 600)
         self.setStyleSheet("""
             QMainWindow {
                 background: #F3ECE1;
@@ -196,8 +204,8 @@ class TurnNotesPreviewWindow(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         main_vbox = QVBoxLayout(central_widget)
-        main_vbox.setContentsMargins(16, 12, 16, 12)
-        main_vbox.setSpacing(10)
+        main_vbox.setContentsMargins(12, 10, 12, 10)
+        main_vbox.setSpacing(8)
 
         # -------------------------------------------------------------
         # Header Disclaimer Banner
@@ -209,40 +217,53 @@ class TurnNotesPreviewWindow(QMainWindow):
                 background: #FFF7ED;
                 border: 1px solid #FED7AA;
                 border-radius: 8px;
-                padding: 6px 10px;
+                padding: 4px 8px;
             }
         """)
         b_layout = QHBoxLayout(banner)
         b_layout.setContentsMargins(4, 2, 4, 2)
-        b_layout.setSpacing(8)
+        b_layout.setSpacing(6)
 
         disclaimer_icon = QLabel("⚠️")
-        disclaimer_icon.setStyleSheet("font-size: 14px; background: transparent; border: none;")
+        disclaimer_icon.setStyleSheet("font-size: 13px; background: transparent; border: none;")
         b_layout.addWidget(disclaimer_icon, 0)
 
         disclaimer_text = QLabel(
             "<b>Bản xem giao diện Giai đoạn 1 (Dữ liệu mẫu / Fixture)</b> · "
-            "Ghi chú nằm trong từng lượt chat; bản cũ giữ nguyên và dẫn tới bản mới khi bị thay thế. "
+            "Ghi chú là dòng nhẹ liền với phản hồi. Bản cũ giữ nguyên & dẫn tới bản mới. "
             "Chưa nối live model AI."
         )
         disclaimer_text.setWordWrap(True)
         disclaimer_text.setStyleSheet("color: #9A3412; font-size: 11px; background: transparent; border: none;")
         b_layout.addWidget(disclaimer_text, 1)
 
-        self.btn_mode_toggle = QPushButton("Chế độ: Đầy đủ (⌘L)")
+        self.btn_toggle_qa = QPushButton("🛠 Công cụ thử nghiệm")
+        self.btn_toggle_qa.setStyleSheet("""
+            QPushButton {
+                background: #FFFFFF;
+                color: #8C6A43;
+                border: 1px solid #E2D3BE;
+                border-radius: 5px;
+                padding: 3px 8px;
+                font-size: 11px;
+            }
+            QPushButton:hover { background: #FAF5ED; }
+        """)
+        self.btn_toggle_qa.clicked.connect(self._toggle_qa_dock)
+        b_layout.addWidget(self.btn_toggle_qa, 0)
+
+        self.btn_mode_toggle = QPushButton("Đầy đủ (⌘L)")
         self.btn_mode_toggle.setStyleSheet("""
             QPushButton {
                 background: #FFFFFF;
                 color: #7A5B36;
                 border: 1px solid #E2D3BE;
-                border-radius: 6px;
-                padding: 4px 10px;
+                border-radius: 5px;
+                padding: 3px 8px;
                 font-size: 11px;
                 font-weight: 500;
             }
-            QPushButton:hover {
-                background: #FDF9F3;
-            }
+            QPushButton:hover { background: #FAF5ED; }
         """)
         self.btn_mode_toggle.clicked.connect(self.toggle_expanded)
         b_layout.addWidget(self.btn_mode_toggle, 0)
@@ -254,14 +275,14 @@ class TurnNotesPreviewWindow(QMainWindow):
         # -------------------------------------------------------------
         work_hbox = QHBoxLayout()
         work_hbox.setContentsMargins(0, 0, 0, 0)
-        work_hbox.setSpacing(14)
+        work_hbox.setSpacing(10)
 
         # LEFT: Chuột (LiveCompanion)
         left_stage = QWidget()
-        left_stage.setFixedWidth(164)
+        left_stage.setFixedWidth(148)
         left_layout = QVBoxLayout(left_stage)
         left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(6)
+        left_layout.setSpacing(4)
         left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.companion = LiveCompanion(self, left_stage)
@@ -269,32 +290,32 @@ class TurnNotesPreviewWindow(QMainWindow):
         self.companion.clicked.connect(self._on_companion_clicked)
         left_layout.addWidget(self.companion, 0, Qt.AlignmentFlag.AlignHCenter)
 
-        companion_hint = QLabel("Chạm Chuột để emote<br>& highlight ghi chú")
+        companion_hint = QLabel("Chạm Chuột để emote<br>& xem ghi chép")
         companion_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        companion_hint.setStyleSheet("color: #9E8E7A; font-size: 11px; background: transparent; border: none;")
+        companion_hint.setStyleSheet("color: #A3937F; font-size: 11px; background: transparent; border: none;")
         left_layout.addWidget(companion_hint, 0, Qt.AlignmentFlag.AlignHCenter)
 
         work_hbox.addWidget(left_stage, 0)
 
-        # CENTER: Chat Container (Warm Paper Card)
+        # CENTER: Chat Container (Warm Paper Card with authentic RAT styling)
         self.container = QFrame()
         self.container.setObjectName("SpotlightContainer")
         self.container.setStyleSheet("""
             QFrame#SpotlightContainer {
                 background: #FFFDFA;
                 border: 1px solid #DDD7CD;
-                border-radius: 16px;
+                border-radius: 14px;
             }
         """)
         shadow = QGraphicsDropShadowEffect(self.container)
-        shadow.setBlurRadius(16)
+        shadow.setBlurRadius(14)
         shadow.setOffset(0, 3)
-        shadow.setColor(QColor(42, 34, 25, 25))
+        shadow.setColor(QColor(42, 34, 25, 20))
         self.container.setGraphicsEffect(shadow)
 
         c_layout = QVBoxLayout(self.container)
-        c_layout.setContentsMargins(14, 12, 14, 12)
-        c_layout.setSpacing(8)
+        c_layout.setContentsMargins(12, 10, 12, 10)
+        c_layout.setSpacing(6)
 
         # Reveal banner for compact mode navigation
         self.compact_nav_banner = QFrame()
@@ -303,13 +324,13 @@ class TurnNotesPreviewWindow(QMainWindow):
                 background: #FAF3E8;
                 border: 1px solid #E5D5C1;
                 border-radius: 6px;
-                padding: 4px 8px;
+                padding: 3px 6px;
             }
         """)
         cnb_layout = QHBoxLayout(self.compact_nav_banner)
-        cnb_layout.setContentsMargins(4, 2, 4, 2)
-        cnb_layout.setSpacing(8)
-        self.cnb_label = QLabel("Đang xem lượt cũ được tham chiếu")
+        cnb_layout.setContentsMargins(2, 1, 2, 1)
+        cnb_layout.setSpacing(6)
+        self.cnb_label = QLabel("Đang xem chi tiết lượt cũ")
         self.cnb_label.setStyleSheet("color: #7A5B36; font-size: 11px; font-weight: 500;")
         cnb_layout.addWidget(self.cnb_label, 1)
 
@@ -320,7 +341,7 @@ class TurnNotesPreviewWindow(QMainWindow):
                 background: #8C6A43;
                 border: none;
                 border-radius: 4px;
-                padding: 2px 8px;
+                padding: 2px 7px;
                 font-size: 11px;
             }
             QPushButton:hover { background: #755532; }
@@ -334,77 +355,108 @@ class TurnNotesPreviewWindow(QMainWindow):
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.scroll_area.setStyleSheet("""
             QScrollArea {
                 background: transparent;
                 border: none;
             }
+            QScrollBar:horizontal {
+                height: 0px;
+            }
             QScrollBar:vertical {
                 background: transparent;
-                width: 6px;
+                width: 5px;
                 margin: 0px;
             }
             QScrollBar::handle:vertical {
-                background: rgba(0, 0, 0, 0.15);
+                background: rgba(0, 0, 0, 0.14);
                 min-height: 20px;
-                border-radius: 3px;
+                border-radius: 2px;
             }
             QScrollBar::handle:vertical:hover {
-                background: rgba(0, 0, 0, 0.28);
+                background: rgba(0, 0, 0, 0.25);
             }
         """)
 
         self.chat_content = QWidget()
         self.chat_content.setStyleSheet("background: transparent;")
         self.chat_layout = QVBoxLayout(self.chat_content)
-        self.chat_layout.setContentsMargins(4, 4, 4, 4)
-        self.chat_layout.setSpacing(14)
+        self.chat_layout.setContentsMargins(2, 2, 2, 2)
+        self.chat_layout.setSpacing(10)
         self.chat_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.scroll_area.setWidget(self.chat_content)
         c_layout.addWidget(self.scroll_area, 1)
 
-        # Interactive Composer / Status strip
-        self.bottom_strip = QFrame()
-        self.bottom_strip.setStyleSheet("""
+        # Authentic Chat Composer Shell
+        self.composer_container = QFrame()
+        self.composer_container.setStyleSheet("""
             QFrame {
                 background: #F8F4ED;
-                border-top: 1px solid #EAE2D5;
+                border: 1px solid #E6DED2;
                 border-radius: 8px;
-                padding: 6px 10px;
+                padding: 2px 4px;
             }
         """)
-        bs_layout = QHBoxLayout(self.bottom_strip)
-        bs_layout.setContentsMargins(4, 2, 4, 2)
-        bs_layout.setSpacing(8)
+        comp_layout = QHBoxLayout(self.composer_container)
+        comp_layout.setContentsMargins(4, 2, 4, 2)
+        comp_layout.setSpacing(6)
 
-        self.composer_hint = QLabel("💡 <i>Gợi ý: Nhấn vào các link 'Xem bản cũ/mới' hoặc 'Sửa' để thử nghiệm luồng liên kết ghi chép.</i>")
-        self.composer_hint.setStyleSheet("color: #8C7C66; font-size: 11px; border: none; background: transparent;")
-        bs_layout.addWidget(self.composer_hint, 1)
+        self.chat_composer = ChatComposer(self.composer_container)
+        self.chat_composer.setPlaceholderText("Hỏi một điều, tìm một tệp, hoặc dặn Chuột…")
+        self.chat_composer.setStyleSheet("""
+            QPlainTextEdit {
+                color: #302B24;
+                font-size: 12px;
+                background: transparent;
+                border: none;
+            }
+        """)
+        comp_layout.addWidget(self.chat_composer, 1)
 
-        c_layout.addWidget(self.bottom_strip, 0)
+        self.btn_send = QPushButton("Gửi")
+        self.btn_send.setStyleSheet("""
+            QPushButton {
+                background: #8C6A43;
+                color: #FFFFFF;
+                border: none;
+                border-radius: 5px;
+                padding: 4px 10px;
+                font-size: 11px;
+                font-weight: 500;
+            }
+            QPushButton:hover { background: #755532; }
+        """)
+        comp_layout.addWidget(self.btn_send, 0)
+        c_layout.addWidget(self.composer_container, 0)
+
+        # Subtle hint line
+        self.composer_hint = QLabel("💡 <i>Nhấn vào link 'Xem bản mới/cũ' hoặc 'Sửa' để thử nghiệm ghi chép theo lượt.</i>")
+        self.composer_hint.setStyleSheet("color: #948572; font-size: 11px; border: none; background: transparent; padding: 1px 4px;")
+        c_layout.addWidget(self.composer_hint, 0)
+
         work_hbox.addWidget(self.container, 1)
-
         main_vbox.addLayout(work_hbox, 1)
 
         # -------------------------------------------------------------
-        # Bottom Testing Dock: Easy buttons to test all Stage 1 cases
+        # QA Testing Dock (Collapsible to keep primary UX clean)
         # -------------------------------------------------------------
-        dock = QFrame()
-        dock.setObjectName("TestingDock")
-        dock.setStyleSheet("""
+        self.dock = QFrame()
+        self.dock.setObjectName("TestingDock")
+        self.dock.setStyleSheet("""
             QFrame#TestingDock {
                 background: #EBE3D7;
                 border: 1px solid #DCD0C0;
-                border-radius: 10px;
-                padding: 6px 12px;
+                border-radius: 8px;
+                padding: 4px 8px;
             }
             QPushButton {
                 background: #FFFFFF;
                 color: #5C4A33;
                 border: 1px solid #D1C2AF;
-                border-radius: 6px;
-                padding: 4px 9px;
+                border-radius: 5px;
+                padding: 3px 8px;
                 font-size: 11px;
                 font-weight: 500;
             }
@@ -413,11 +465,11 @@ class TurnNotesPreviewWindow(QMainWindow):
                 border-color: #BCA993;
             }
         """)
-        d_layout = QHBoxLayout(dock)
-        d_layout.setContentsMargins(4, 2, 4, 2)
-        d_layout.setSpacing(8)
+        d_layout = QHBoxLayout(self.dock)
+        d_layout.setContentsMargins(2, 2, 2, 2)
+        d_layout.setSpacing(6)
 
-        d_label = QLabel("<b>Kiểm tra tính năng:</b>")
+        d_label = QLabel("<b>Thử nghiệm:</b>")
         d_label.setStyleSheet("color: #5C4A33; font-size: 11px;")
         d_layout.addWidget(d_label, 0)
 
@@ -450,22 +502,26 @@ class TurnNotesPreviewWindow(QMainWindow):
         btn_reset.clicked.connect(self.reset_fixtures)
         d_layout.addWidget(btn_reset)
 
-        main_vbox.addWidget(dock, 0)
+        main_vbox.addWidget(self.dock, 0)
+
+    def _toggle_qa_dock(self) -> None:
+        self.dock.setVisible(not self.dock.isVisible())
+        self.btn_toggle_qa.setText("🛠 Đóng công cụ" if self.dock.isVisible() else "🛠 Công cụ thử nghiệm")
 
     def _populate_turns(self) -> None:
         """Create TurnWidgets and initialize note events."""
-        # Update Turn 1 note to be marked as replaced because Turn 2 exists
         t1_note = self.turns_data[0]["notes"][0]
         t2_note = self.turns_data[1]["notes"][0]
 
         t1_note.status = "replaced"
         t1_note.replaced_by_note_id = t2_note.id
         t1_note.replaced_by_turn_id = 2
-        t1_note.replaced_by_text = "20 → 30 phút"
+        t1_note.replaced_by_text = "Có 30 phút · Chỉ ôn TCP (Congestion Control)."
 
         for data in self.turns_data:
             turn_w = TurnWidget(data, self.chat_content)
             turn_w.navigate_turn_requested.connect(self.navigate_to_turn_note)
+            turn_w.edit_replacement_requested.connect(self.open_editor_on_note)
             turn_w.notes_pane.note_edit_saved.connect(self._on_note_edit_saved)
             turn_w.notes_pane.note_removed.connect(self._on_note_removed)
             turn_w.notes_pane.note_restored.connect(self._on_note_restored)
@@ -495,14 +551,38 @@ class TurnNotesPreviewWindow(QMainWindow):
             self.compact_nav_banner.hide()
 
     def toggle_expanded(self) -> None:
+        """Toggle between Compact HUD and Full Mode; preserves active editor, focus and selection."""
+        # Check if an editor is currently open anywhere
+        active_edit_turn = None
+        active_editor = None
+        for tid, tw in self.turn_widgets.items():
+            for row in tw.notes_pane.rows.values():
+                if row.editing:
+                    active_edit_turn = tid
+                    active_editor = row.editor
+                    break
+            if active_edit_turn is not None:
+                break
+
         self.is_expanded = not self.is_expanded
-        self._revealed_compact_turn = None
-        self.btn_mode_toggle.setText("Chế độ: Đầy đủ (⌘L)" if self.is_expanded else "Chế độ: Thu gọn HUD (⌘L)")
-        self._apply_mode_visibility()
+
         if not self.is_expanded:
-            self.resize(900, 520)
+            # Entering compact mode: if editing a turn, keep that turn revealed!
+            if active_edit_turn is not None:
+                self._revealed_compact_turn = active_edit_turn
+            else:
+                self._revealed_compact_turn = None
+            self.resize(680, 410)
         else:
-            self.resize(980, 720)
+            self._revealed_compact_turn = None
+            self.resize(740, 600)
+
+        self.btn_mode_toggle.setText("Đầy đủ (⌘L)" if self.is_expanded else "Thu gọn HUD (⌘L)")
+        self._apply_mode_visibility()
+
+        # Restore focus to editor if it was active
+        if active_editor is not None:
+            active_editor.setFocus()
 
     def _return_to_latest_compact_turn(self) -> None:
         self._revealed_compact_turn = None
@@ -518,33 +598,47 @@ class TurnNotesPreviewWindow(QMainWindow):
             self._apply_mode_visibility()
 
         target_widget = self.turn_widgets[target_turn_id]
-        # Scroll to target widget
         self.scroll_area.ensureWidgetVisible(target_widget)
-        # Highlight note
         target_widget.notes_pane.highlight_note(target_note_id)
 
+    def open_editor_on_note(self, target_turn_id: int, target_note_id: str) -> None:
+        """Navigate to note and immediately open its editor (used by 'Sửa bản mới')."""
+        if target_turn_id not in self.turn_widgets:
+            return
+
+        if not self.is_expanded:
+            self._revealed_compact_turn = target_turn_id
+            self._apply_mode_visibility()
+
+        target_widget = self.turn_widgets[target_turn_id]
+        self.scroll_area.ensureWidgetVisible(target_widget)
+        if target_note_id in target_widget.notes_pane.rows:
+            row = target_widget.notes_pane.rows[target_note_id]
+            row._start_edit()
+            row.editor.setFocus()
+            target_widget.notes_pane.highlight_note(target_note_id)
+
     def _on_companion_clicked(self) -> None:
-        """Clicking Chuột emotes and highlights the latest active note."""
+        """Clicking Chuột emotes and highlights the latest active note using natural language."""
         self.companion.react("happy")
-        # Find latest active note
-        latest_active = None
+        latest_active_note = None
         for turn_data in reversed(self.turns_data):
             for note in turn_data["notes"]:
                 if note.status == "active":
-                    latest_active = (note.turn_id, note.id)
+                    latest_active_note = note
                     break
-            if latest_active:
+            if latest_active_note:
                 break
 
-        if latest_active:
-            self.navigate_to_turn_note(latest_active[0], latest_active[1])
-            self.composer_hint.setText(f"🐭 Chuột: <i>'Mình đang giữ ghi chú: {latest_active[1]}'</i>")
+        if latest_active_note:
+            self.navigate_to_turn_note(latest_active_note.turn_id, latest_active_note.id)
+            snippet = latest_active_note.text[:35] + ("…" if len(latest_active_note.text) > 35 else "")
+            self.composer_hint.setText(f"🐭 Chuột: <i>'Ghi chép đang dùng: “{snippet}”'</i>")
         else:
             self.composer_hint.setText("🐭 Chuột: <i>'Hiện chưa có ghi chép nào đang mở.'</i>")
 
     def _toggle_test_navigation(self) -> None:
         """Test jumping from Turn 1 to Turn 2 or vice versa."""
-        # If currently at Turn 1, jump to Turn 2, else jump to Turn 1
         t2_note_id = "note-tcp-time-v2"
         t1_note_id = "note-tcp-time"
         if self._revealed_compact_turn == 1:
@@ -584,17 +678,33 @@ class TurnNotesPreviewWindow(QMainWindow):
                 self._on_note_restored(note.id)
 
     def _on_note_edit_saved(self, note_id: str, revision: int, new_text: str) -> None:
+        """Save edited note AND dynamically update forward link on any predecessor notes."""
+        saved_turn_id = None
         for turn_data in self.turns_data:
             for note in turn_data["notes"]:
                 if note.id == note_id:
                     note.text = new_text
                     note.revision += 1
                     note.error_message = None
-                    self.turn_widgets[note.turn_id].notes_pane.rows[note_id]._cancel_edit()
-                    self.turn_widgets[note.turn_id].set_notes(turn_data["notes"])
-                    self.companion.react("noting")
-                    self.composer_hint.setText(f"✓ Đã lưu thay đổi cho ghi chú: '{new_text}'")
-                    return
+                    saved_turn_id = note.turn_id
+                    break
+
+        if saved_turn_id is not None:
+            self.turn_widgets[saved_turn_id].notes_pane.rows[note_id]._cancel_edit()
+            self.turn_widgets[saved_turn_id].set_notes(self.turns_data[saved_turn_id - 1]["notes"])
+
+        # Dynamically update forward link text on predecessor notes pointing to this note
+        for turn_data in self.turns_data:
+            updated_pred = False
+            for p_note in turn_data["notes"]:
+                if p_note.replaced_by_note_id == note_id:
+                    p_note.replaced_by_text = new_text
+                    updated_pred = True
+            if updated_pred:
+                self.turn_widgets[turn_data["turn_id"]].set_notes(turn_data["notes"])
+
+        self.companion.react("noting")
+        self.composer_hint.setText(f"✓ Đã lưu thay đổi cho ghi chú: '{new_text}'")
 
     def _on_note_removed(self, note_id: str, revision: int) -> None:
         for turn_data in self.turns_data:
@@ -630,18 +740,15 @@ class TurnNotesPreviewWindow(QMainWindow):
 
     def reset_fixtures(self) -> None:
         self.turns_data = copy.deepcopy(FIXTURE_TURNS)
-        for turn_data in self.turns_data:
-            if turn_data["turn_id"] in self.turn_widgets:
-                self.turn_widgets[turn_data["turn_id"]].set_notes(turn_data["notes"])
         t1_note = self.turns_data[0]["notes"][0]
         t2_note = self.turns_data[1]["notes"][0]
         t1_note.status = "replaced"
         t1_note.replaced_by_note_id = t2_note.id
         t1_note.replaced_by_turn_id = 2
-        t1_note.replaced_by_text = "20 → 30 phút"
-        self.turn_widgets[1].set_notes(self.turns_data[0]["notes"])
-        self.turn_widgets[2].set_notes(self.turns_data[1]["notes"])
-        self.turn_widgets[3].set_notes(self.turns_data[2]["notes"])
+        t1_note.replaced_by_text = "Có 30 phút · Chỉ ôn TCP (Congestion Control)."
+        for turn_data in self.turns_data:
+            if turn_data["turn_id"] in self.turn_widgets:
+                self.turn_widgets[turn_data["turn_id"]].set_notes(turn_data["notes"])
         self._revealed_compact_turn = None
         self._apply_mode_visibility()
         self.companion.react("greet")

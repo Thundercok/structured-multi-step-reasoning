@@ -1,18 +1,19 @@
 """
 rat.ui.turn_notes — Turn-level inline notes and revision linking.
 Notes belong to specific conversation turns rather than an isolated pane.
-Old revisions are preserved with forward links to newer revisions.
+Rendered as lightweight, borderless text lines on the chat background;
+the editor frame appears only when actively editing.
+Old revisions remain legible with replacement labels and forward links.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, Qt, pyqtProperty, pyqtSignal
+from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, Qt, QTimer, pyqtProperty, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QKeyEvent, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QFrame,
-    QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
     QPlainTextEdit,
@@ -21,6 +22,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from rat.ui import surface_layout
 
 
 @dataclass
@@ -46,15 +49,15 @@ class TurnNoteItem:
 
 BUTTON_STYLE = """
 QPushButton {
-    color: #796347;
+    color: #856E52;
     background: transparent;
     border: none;
-    padding: 2px 7px;
+    padding: 2px 6px;
     font-size: 11px;
     border-radius: 4px;
 }
 QPushButton:hover {
-    background: #F0E6D8;
+    background: #EFE6D8;
     color: #4D3C28;
 }
 QPushButton:focus {
@@ -62,7 +65,7 @@ QPushButton:focus {
     outline: none;
 }
 QPushButton:disabled {
-    color: #BDB2A3;
+    color: #C2B6A6;
 }
 """
 
@@ -92,10 +95,10 @@ QPushButton:disabled {
 LINK_BUTTON_STYLE = """
 QPushButton {
     color: #8A5826;
-    background: #F5ECE0;
+    background: #F6EDE1;
     border: 1px solid #E2D3BE;
     border-radius: 4px;
-    padding: 1px 6px;
+    padding: 1px 7px;
     font-size: 11px;
     font-weight: 500;
 }
@@ -151,18 +154,19 @@ class NoteEditor(QPlainTextEdit):
 class InlineNoteRow(QFrame):
     """
     Renders one note item inside a turn:
-    - Active note with quick [Sửa] [Bỏ] controls
-    - Old replaced note with intact snapshot and forward link to newer note
-    - Replacement note with link back to predecessor
-    - Model proposal with [Xác nhận] / [Sửa]
-    - Tombstone with [Hoàn tác]
-    - In-place editor with draft preservation and stale conflict warning
+    - Default state: subtle, borderless text line seamlessly on chat background
+    - Old replaced note: legible text (not struck-through), labeled as replaced, linking to new version
+    - Replacement note: labeled with predecessor link
+    - Proposal: gentle dashed guide with confirm/edit actions
+    - Tombstone: removed notice with undo button
+    - Editing state: frame container appears only while editor is active
     """
-    edit_saved = pyqtSignal(str, int, str)  # note_id, revision, new_text
-    note_removed = pyqtSignal(str, int)     # note_id, revision
-    note_restored = pyqtSignal(str)         # note_id
-    note_confirmed = pyqtSignal(str)        # note_id
-    navigate_requested = pyqtSignal(int, str)  # target_turn_id, target_note_id
+    edit_saved = pyqtSignal(str, int, str)             # note_id, revision, new_text
+    note_removed = pyqtSignal(str, int)                # note_id, revision
+    note_restored = pyqtSignal(str)                    # note_id
+    note_confirmed = pyqtSignal(str)                   # note_id
+    navigate_requested = pyqtSignal(int, str)          # target_turn_id, target_note_id
+    edit_replacement_requested = pyqtSignal(int, str)  # target_turn_id, target_note_id
     highlight_changed = pyqtSignal()
 
     def __init__(self, note: TurnNoteItem, parent: Optional[QWidget] = None) -> None:
@@ -170,6 +174,7 @@ class InlineNoteRow(QFrame):
         self.note = note
         self.editing = False
         self._highlight_ratio = 0.0
+        self._static_timer: Optional[QTimer] = None
         self._init_ui()
         self.refresh(note)
 
@@ -177,8 +182,8 @@ class InlineNoteRow(QFrame):
         self.setObjectName("InlineNoteRow")
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(8, 6, 8, 6)
-        self.layout.setSpacing(4)
+        self.layout.setContentsMargins(4, 3, 4, 3)
+        self.layout.setSpacing(3)
 
         # Main row: Tag + Text + Inline Actions
         self.header_row = QWidget()
@@ -191,6 +196,7 @@ class InlineNoteRow(QFrame):
         h_layout.addWidget(self.tag_label, 0, Qt.AlignmentFlag.AlignTop)
 
         self.text_label = QLabel()
+        self.text_label.setTextFormat(Qt.TextFormat.PlainText)
         self.text_label.setWordWrap(True)
         self.text_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.text_label.setStyleSheet("color: #383025; font-size: 12px; border: none; background: transparent;")
@@ -233,10 +239,11 @@ class InlineNoteRow(QFrame):
         # Sub-row for revision linking / metadata
         self.sub_row = QWidget()
         s_layout = QHBoxLayout(self.sub_row)
-        s_layout.setContentsMargins(16, 0, 0, 0)
+        s_layout.setContentsMargins(14, 0, 0, 0)
         s_layout.setSpacing(6)
 
         self.sub_info_label = QLabel()
+        self.sub_info_label.setTextFormat(Qt.TextFormat.PlainText)
         self.sub_info_label.setStyleSheet("color: #8C7B65; font-size: 11px; border: none; background: transparent;")
         s_layout.addWidget(self.sub_info_label, 0)
 
@@ -249,10 +256,10 @@ class InlineNoteRow(QFrame):
         s_layout.addStretch()
         self.layout.addWidget(self.sub_row)
 
-        # Editor section (hidden by default)
+        # Editor section (hidden by default; frame appears only when editing)
         self.editor_section = QWidget()
         e_layout = QVBoxLayout(self.editor_section)
-        e_layout.setContentsMargins(0, 4, 0, 0)
+        e_layout.setContentsMargins(0, 4, 0, 2)
         e_layout.setSpacing(4)
 
         self.editor = NoteEditor()
@@ -306,9 +313,28 @@ class InlineNoteRow(QFrame):
 
     highlight_ratio = pyqtProperty(float, get_highlight_ratio, set_highlight_ratio)
 
+    def is_highlighted(self) -> bool:
+        """True if currently undergoing animated highlight or active static cue."""
+        return self._highlight_ratio > 0.05 or self.anim.state() == QPropertyAnimation.State.Running
+
+    def _clear_static_highlight(self) -> None:
+        self._highlight_ratio = 0.0
+        self.update()
+
     def trigger_highlight(self) -> None:
-        """Play a smooth amber glow to indicate this note is being referenced or selected by Chuột."""
+        """Indicate this note is being referenced or selected by Chuột."""
         self.anim.stop()
+        if not surface_layout.motion_enabled():
+            # Static indicator without running animation; auto-clears statically
+            self._highlight_ratio = 0.8
+            self.update()
+            if self._static_timer is None:
+                self._static_timer = QTimer(self)
+                self._static_timer.setSingleShot(True)
+                self._static_timer.timeout.connect(self._clear_static_highlight)
+            self._static_timer.start(1200)
+            return
+
         self.anim.setStartValue(1.0)
         self.anim.setEndValue(0.0)
         self.anim.start()
@@ -317,44 +343,32 @@ class InlineNoteRow(QFrame):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Base background: warm translucent paper tint
-        bg_color = QColor("#F8F3EA")
-        border_color = QColor("#E7DDD0")
-
-        if self.note.status == "replaced":
-            bg_color = QColor("#F6F2EA")
-            border_color = QColor("#EADFD0")
-        elif self.note.status == "proposed":
-            bg_color = QColor("#FEF8EE")
-            border_color = QColor("#F3DFB7")
-        elif self.note.status == "removed":
-            bg_color = QColor("#F5EFEB")
-            border_color = QColor("#E2D8CD")
-
-        if self._highlight_ratio > 0.001:
-            # Blend with radiant amber glow
-            glow = QColor("#FDE68A")
-            alpha = int(self._highlight_ratio * 180)
-            glow.setAlpha(alpha)
-            bg_color = QColor(
-                int(bg_color.red() * (1 - self._highlight_ratio) + 254 * self._highlight_ratio),
-                int(bg_color.green() * (1 - self._highlight_ratio) + 243 * self._highlight_ratio),
-                int(bg_color.blue() * (1 - self._highlight_ratio) + 199 * self._highlight_ratio),
-            )
-            border_color = QColor("#D97706")
-
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         path = QPainterPath()
-        path.addRoundedRect(rect, 7, 7)
+        path.addRoundedRect(rect, 6, 6)
 
-        painter.fillPath(path, bg_color)
-        pen = QPen(border_color, 1.2 if self._highlight_ratio > 0.1 else 1.0)
-        if self.note.status == "proposed":
-            pen.setStyle(Qt.PenStyle.DashLine)
-        painter.setPen(pen)
-        painter.drawPath(path)
+        # Normal note is a light, borderless line on chat background.
+        # Only render box when actively editing or highlighted.
+        if self.editing:
+            painter.fillPath(path, QColor("#FAF5ED"))
+            painter.setPen(QPen(QColor("#E2D5C3"), 1.0))
+            painter.drawPath(path)
+        elif self._highlight_ratio > 0.001:
+            glow = QColor("#FDE68A")
+            glow.setAlpha(int(self._highlight_ratio * 160))
+            painter.fillPath(path, glow)
+            border_col = QColor("#D97706")
+            border_col.setAlpha(int(self._highlight_ratio * 220))
+            painter.setPen(QPen(border_col, 1.2))
+            painter.drawPath(path)
+        elif self.note.status == "proposed":
+            # Subtle dashed outline for unconfirmed proposals
+            painter.fillPath(path, QColor("#FFFDF8"))
+            pen = QPen(QColor("#EADBC5"), 1.0, Qt.PenStyle.DashLine)
+            painter.setPen(pen)
+            painter.drawPath(path)
+
         painter.end()
-
         super().paintEvent(event)
 
     def refresh(self, note: TurnNoteItem) -> None:
@@ -368,7 +382,10 @@ class InlineNoteRow(QFrame):
                 self.tag_label.setText("Đã đổi:")
                 self.tag_label.setStyleSheet("color: #2563EB; font-size: 11px; font-weight: 600;")
                 self.sub_info_label.setText(f"Thay thế bản ở lượt {note.replaces_turn_id} ·")
-                self.btn_nav_link.setText(f"Xem bản cũ: {note.replaces_text or ''}")
+                disp_old = note.replaces_text or ""
+                if len(disp_old) > 36:
+                    disp_old = disp_old[:36] + "…"
+                self.btn_nav_link.setText(f"Xem bản cũ: {disp_old}")
                 self.btn_nav_link.show()
                 self.sub_row.show()
             else:
@@ -389,11 +406,15 @@ class InlineNoteRow(QFrame):
             self.btn_undo.hide()
 
         elif note.status == "replaced":
-            self.tag_label.setText("Bản cũ:")
-            self.tag_label.setStyleSheet("color: #968673; font-size: 11px; font-weight: 600;")
-            self.text_label.setStyleSheet("color: #756959; font-size: 12px; text-decoration: line-through;")
+            # Old version remains legible (no strikethrough), with replaced label & forward link
+            self.tag_label.setText("Đã thay thế:")
+            self.tag_label.setStyleSheet("color: #8C7B65; font-size: 11px; font-weight: 500;")
+            self.text_label.setStyleSheet("color: #5C5245; font-size: 12px;")
             self.sub_info_label.setText(f"Đã được thay thế ở lượt {note.replaced_by_turn_id or 'sau'} →")
-            self.btn_nav_link.setText(f"Xem bản mới ({note.replaced_by_text or 'chi tiết'})")
+            disp_new = note.replaced_by_text or "chi tiết"
+            if len(disp_new) > 36:
+                disp_new = disp_new[:36] + "…"
+            self.btn_nav_link.setText(f"Xem bản mới ({disp_new})")
             self.btn_nav_link.show()
             self.sub_row.show()
 
@@ -440,8 +461,8 @@ class InlineNoteRow(QFrame):
 
     def _start_edit(self) -> None:
         if self.note.status == "replaced" and self.note.replaced_by_turn_id:
-            # Sửa trên bản cũ dẫn tới bản mới đang dùng
-            self.navigate_requested.emit(self.note.replaced_by_turn_id, self.note.replaced_by_note_id or "")
+            # Sửa bản mới: điều hướng VÀ mở editor tại bản đang dùng
+            self.edit_replacement_requested.emit(self.note.replaced_by_turn_id, self.note.replaced_by_note_id or "")
             return
         if not self.editing:
             self.editing = True
@@ -449,6 +470,7 @@ class InlineNoteRow(QFrame):
         self.editor_section.show()
         self.actions_widget.hide()
         self.editor.setFocus()
+        self.update()
 
     def _cancel_edit(self) -> None:
         self.editing = False
@@ -456,6 +478,7 @@ class InlineNoteRow(QFrame):
         self.actions_widget.show()
         self.error_label.hide()
         self.btn_edit.setFocus()
+        self.update()
 
     def _save_edit(self) -> None:
         new_text = self.editor.toPlainText().strip()
@@ -483,7 +506,7 @@ class InlineNoteRow(QFrame):
 
 class TurnNotesPane(QWidget):
     """
-    Container for all notes recorded or referenced in a specific chat turn.
+    Container for notes belonging to a specific chat turn.
     Placed cleanly beneath the assistant's response text and above work trace.
     No internal scroll area — part of the main chat stream layout.
     """
@@ -491,7 +514,8 @@ class TurnNotesPane(QWidget):
     note_removed = pyqtSignal(str, int)
     note_restored = pyqtSignal(str)
     note_confirmed = pyqtSignal(str)
-    navigate_requested = pyqtSignal(int, str)  # target_turn_id, target_note_id
+    navigate_requested = pyqtSignal(int, str)
+    edit_replacement_requested = pyqtSignal(int, str)
 
     def __init__(self, turn_id: int, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -501,8 +525,8 @@ class TurnNotesPane(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 4, 0, 4)
-        self.layout.setSpacing(6)
+        self.layout.setContentsMargins(0, 2, 0, 4)
+        self.layout.setSpacing(4)
         self.hide()
 
     def set_notes(self, notes: List[TurnNoteItem]) -> None:
@@ -524,6 +548,7 @@ class TurnNotesPane(QWidget):
                 row.note_restored.connect(self.note_restored.emit)
                 row.note_confirmed.connect(self.note_confirmed.emit)
                 row.navigate_requested.connect(self.navigate_requested.emit)
+                row.edit_replacement_requested.connect(self.edit_replacement_requested.emit)
                 self.rows[note.id] = row
                 self.layout.addWidget(row)
 

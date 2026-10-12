@@ -1,7 +1,11 @@
 """
 Tests for RAT Stage 1 Turn Notes UX Preview.
 Verifies turn-level note rendering, revision linking, inline editing,
-companion mascot interaction, and compact/full disclosure.
+companion mascot interaction, compact/full disclosure, and fixes for the 4 review findings:
+1. Compact toggle preserves active editor, draft, and focus.
+2. 'Sửa bản mới' on predecessor note opens the active replacement note editor.
+3. Predecessor forward link text dynamically updates when successor is edited.
+4. Reduced motion setting is strictly respected (static cue, no QPropertyAnimation).
 """
 import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -40,12 +44,13 @@ def test_turn_notes_structure_and_revision_links(window):
     t2 = window.turn_widgets[2]
     t3 = window.turn_widgets[3]
 
-    # Turn 1 note is marked replaced and links to Turn 2
+    # Turn 1 note is marked replaced, legible text, and links to Turn 2
     row_t1 = t1.notes_pane.rows["note-tcp-time"]
     assert row_t1.note.status == "replaced"
     assert row_t1.note.replaced_by_turn_id == 2
     assert row_t1.btn_nav_link.isVisible()
-    assert "20 → 30 phút" in row_t1.btn_nav_link.text()
+    assert "30 phút" in row_t1.btn_nav_link.text()
+    assert "line-through" not in row_t1.text_label.styleSheet()  # Legible, not struck through
 
     # Turn 2 note is active and links back to Turn 1
     row_t2 = t2.notes_pane.rows["note-tcp-time-v2"]
@@ -60,19 +65,26 @@ def test_turn_notes_structure_and_revision_links(window):
     assert row_t3.btn_confirm.isVisible()
 
 
-def test_navigation_link_triggers_highlight(window):
+def test_navigation_link_triggers_highlight(window, monkeypatch):
     t1 = window.turn_widgets[1]
     row_t1 = t1.notes_pane.rows["note-tcp-time"]
-
     t2 = window.turn_widgets[2]
     row_t2 = t2.notes_pane.rows["note-tcp-time-v2"]
 
-    # Click forward link in Turn 1
+    # When motion is enabled
+    monkeypatch.setattr("rat.ui.surface_layout.motion_enabled", lambda: True)
     QTest.mouseClick(row_t1.btn_nav_link, Qt.MouseButton.LeftButton)
     QTest.qWait(20)
+    assert row_t2.anim.state() == row_t2.anim.State.Running
 
-    # Turn 2 note should have received highlight
-    assert row_t2.anim.state() == row_t2.anim.State.Running or row_t2.get_highlight_ratio() >= 0.0
+    # When motion is disabled
+    monkeypatch.setattr("rat.ui.surface_layout.motion_enabled", lambda: False)
+    row_t2.anim.stop()
+    row_t2.set_highlight_ratio(0.0)
+    QTest.mouseClick(row_t1.btn_nav_link, Qt.MouseButton.LeftButton)
+    QTest.qWait(20)
+    assert row_t2.anim.state() == row_t2.anim.State.Stopped
+    assert row_t2.is_highlighted() is True
 
 
 def test_inline_editor_lifecycle(window):
@@ -142,7 +154,7 @@ def test_confirm_proposed_note(window):
     assert row.btn_edit.isVisible()
 
 
-def test_companion_click_emotes_and_targets_active_note(window):
+def test_companion_click_emotes_and_targets_active_note_with_natural_text(window):
     companion = window.companion
     assert companion.isVisible()
 
@@ -152,14 +164,13 @@ def test_companion_click_emotes_and_targets_active_note(window):
     # Companion reacts
     assert companion.pose()["reaction"] == "happy"
 
-    # Active note is highlighted
-    t2 = window.turn_widgets[2]
-    row = t2.notes_pane.rows["note-tcp-time-v2"]
-    assert row.anim.state() == row.anim.State.Running or row.get_highlight_ratio() >= 0.0
+    # Hint text uses friendly text, not technical IDs
+    hint_text = window.composer_hint.text()
+    assert "note-tcp-time-v2" not in hint_text
+    assert "Ghi chép đang dùng" in hint_text
 
 
 def test_compact_and_full_mode_toggle_with_local_disclosure(window):
-    # Default is expanded/full
     assert window.is_expanded
     assert all(w.isVisible() for w in window.turn_widgets.values())
 
@@ -183,3 +194,85 @@ def test_compact_and_full_mode_toggle_with_local_disclosure(window):
     assert not window.turn_widgets[1].isVisible()
     assert window.turn_widgets[3].isVisible()
     assert not window.compact_nav_banner.isVisible()
+
+
+# ==============================================================================
+# Tests specifically targeting the 4 reviewer findings:
+# ==============================================================================
+
+def test_compact_toggle_preserves_active_editor_and_focus(window):
+    """Finding 1: Toggling compact preserves active editor in-place with its draft and focus."""
+    t2 = window.turn_widgets[2]
+    row = t2.notes_pane.rows["note-tcp-time-v2"]
+
+    row._start_edit()
+    row.editor.setPlainText("Bản nháp đang gõ tại lượt 2")
+    row.editor.setFocus()
+    assert QApplication.focusWidget() is row.editor
+
+    # Toggle to compact
+    window.toggle_expanded()
+    assert not window.is_expanded
+
+    # Turn 2 MUST stay visible because it has the active editor
+    assert t2.isVisible()
+    assert row.editing is True
+    assert row.editor_section.isVisible()
+    assert row.editor.toPlainText() == "Bản nháp đang gõ tại lượt 2"
+    assert QApplication.focusWidget() is row.editor
+
+
+def test_edit_replacement_opens_target_editor(window):
+    """Finding 2: Clicking 'Sửa bản mới' on old note navigates AND opens target editor."""
+    t1 = window.turn_widgets[1]
+    row_t1 = t1.notes_pane.rows["note-tcp-time"]
+
+    t2 = window.turn_widgets[2]
+    row_t2 = t2.notes_pane.rows["note-tcp-time-v2"]
+    assert not row_t2.editing
+
+    # Click 'Sửa bản mới' on Turn 1 note
+    QTest.mouseClick(row_t1.btn_edit, Qt.MouseButton.LeftButton)
+    QTest.qWait(20)
+
+    # Turn 2 note editor MUST now be open and focused
+    assert t2.isVisible()
+    assert row_t2.editing is True
+    assert row_t2.editor_section.isVisible()
+    assert QApplication.focusWidget() is row_t2.editor
+
+
+def test_predecessor_link_updates_when_successor_edited(window):
+    """Finding 3: When successor note is edited, predecessor forward link updates to match."""
+    t1 = window.turn_widgets[1]
+    row_t1 = t1.notes_pane.rows["note-tcp-time"]
+    assert "30 phút" in row_t1.btn_nav_link.text()
+
+    # Edit Turn 2 note to a new string
+    t2 = window.turn_widgets[2]
+    row_t2 = t2.notes_pane.rows["note-tcp-time-v2"]
+    row_t2._start_edit()
+    row_t2.editor.setPlainText("Có 45 phút · Ôn BGP.")
+    row_t2._save_edit()
+
+    # Turn 1 note forward link MUST dynamically update
+    row_t1_updated = t1.notes_pane.rows["note-tcp-time"]
+    assert "45 phút" in row_t1_updated.btn_nav_link.text()
+    assert "BGP" in row_t1_updated.btn_nav_link.text()
+
+
+def test_reduced_motion_avoids_animation(window, monkeypatch):
+    """Finding 4: When ratReduceMotion=True, highlight does NOT run QPropertyAnimation."""
+    monkeypatch.setattr("rat.ui.surface_layout.motion_enabled", lambda: False)
+    t2 = window.turn_widgets[2]
+    row = t2.notes_pane.rows["note-tcp-time-v2"]
+    row.anim.stop()
+    row.set_highlight_ratio(0.0)
+
+    row.trigger_highlight()
+
+    # Animation MUST NOT be running
+    assert row.anim.state() == row.anim.State.Stopped
+    # Static cue MUST be visible
+    assert row.is_highlighted() is True
+    assert row.get_highlight_ratio() >= 0.7
