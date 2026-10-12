@@ -5,3 +5,6 @@ __pycache__/
 .DS_Store
 *.xlsx
 .pytest_cache/
+
+local_state/
+vision_native_bin
