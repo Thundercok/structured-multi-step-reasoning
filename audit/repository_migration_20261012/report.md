@@ -23,8 +23,8 @@ Main catalog/agent navigation now points to `nesy-docai`. Existing symlinks,
 source checkout and shared worktrees are retained. Recovery material is in
 `.migration-backups/20261012/` and is not staged for public publication.
 
-All Git operations were local: no push, pull, reset, force, or GitHub repository
-deletion. Public publication and deletion remain pending explicit push
-authorization required by the repository's AGENTS.md.
+Pushed to GitHub `Thundercok/nesy-docai` (branch main). GitHub repository
+`Thundercok/structured-multi-step-reasoning` was deleted with user authorization.
+Local checkout and full bundle backup `.migration-backups/20261012/` are preserved.
 
 [Validation](validation.json) · [Preservation manifest](manifest.json) · [Recovery checks](recovery_checks.json)

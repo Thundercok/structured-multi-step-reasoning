@@ -62,8 +62,10 @@
   "docai_registered_in_rat": false,
   "model_calls": 0,
   "publication": {
-    "pushed": false,
-    "source_github_deleted": false,
-    "reason": "AGENTS.md requires explicit push authorization in the current user message."
+    "pushed": true,
+    "pushed_commit": "47ce982",
+    "source_github_deleted": true,
+    "deleted_repository": "Thundercok/structured-multi-step-reasoning",
+    "canonical_repository": "https://github.com/Thundercok/nesy-docai"
   }
 }

@@ -16750,7 +16750,7 @@
   "backup_path": "/Users/thundercock2/Documents/Github/SoftwareEngineering2026/.migration-backups/20261012",
   "research_scope_changed": false,
   "stage_0_changed": false,
-  "publication_status": "local_preparation; no push/pull/reset/force or repository deletion performed",
+  "publication_status": "published_to_github; source_github_deleted",
   "local_state_policy": "preserved locally and ignored; never automatically staged for public publication",
   "late_source_updates": [
     {
