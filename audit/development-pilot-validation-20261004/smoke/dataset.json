@@ -1,0 +1,489 @@
+{
+  "name": "synthetic-controller-smoke-pilot",
+  "version": "1",
+  "role": "development_tuning",
+  "source": "Generated category markers; no real reasoning questions",
+  "license": "Project-authored test fixture",
+  "items": [
+    {
+      "id": "pal_calibration_0",
+      "group_id": "pal_calibration_group_0",
+      "split": "calibration",
+      "query": "pal_calibration_0",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 1
+    },
+    {
+      "id": "pal_calibration_1",
+      "group_id": "pal_calibration_group_0",
+      "split": "calibration",
+      "query": "pal_calibration_1",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 1
+    },
+    {
+      "id": "pal_calibration_2",
+      "group_id": "pal_calibration_group_1",
+      "split": "calibration",
+      "query": "pal_calibration_2",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 2
+    },
+    {
+      "id": "pal_calibration_3",
+      "group_id": "pal_calibration_group_1",
+      "split": "calibration",
+      "query": "pal_calibration_3",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 2
+    },
+    {
+      "id": "pal_calibration_4",
+      "group_id": "pal_calibration_group_2",
+      "split": "calibration",
+      "query": "pal_calibration_4",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 3
+    },
+    {
+      "id": "pal_calibration_5",
+      "group_id": "pal_calibration_group_2",
+      "split": "calibration",
+      "query": "pal_calibration_5",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 3
+    },
+    {
+      "id": "pal_calibration_6",
+      "group_id": "pal_calibration_group_3",
+      "split": "calibration",
+      "query": "pal_calibration_6",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 4
+    },
+    {
+      "id": "pal_calibration_7",
+      "group_id": "pal_calibration_group_3",
+      "split": "calibration",
+      "query": "pal_calibration_7",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 4
+    },
+    {
+      "id": "pal_train_0",
+      "group_id": "pal_train_group_0",
+      "split": "train",
+      "query": "pal_train_0",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 1
+    },
+    {
+      "id": "pal_train_1",
+      "group_id": "pal_train_group_0",
+      "split": "train",
+      "query": "pal_train_1",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 1
+    },
+    {
+      "id": "pal_train_2",
+      "group_id": "pal_train_group_1",
+      "split": "train",
+      "query": "pal_train_2",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 2
+    },
+    {
+      "id": "pal_train_3",
+      "group_id": "pal_train_group_1",
+      "split": "train",
+      "query": "pal_train_3",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 2
+    },
+    {
+      "id": "pal_train_4",
+      "group_id": "pal_train_group_2",
+      "split": "train",
+      "query": "pal_train_4",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 3
+    },
+    {
+      "id": "pal_train_5",
+      "group_id": "pal_train_group_2",
+      "split": "train",
+      "query": "pal_train_5",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 3
+    },
+    {
+      "id": "pal_train_6",
+      "group_id": "pal_train_group_3",
+      "split": "train",
+      "query": "pal_train_6",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 4
+    },
+    {
+      "id": "pal_train_7",
+      "group_id": "pal_train_group_3",
+      "split": "train",
+      "query": "pal_train_7",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "pal",
+      "level": 4
+    },
+    {
+      "id": "plain_calibration_0",
+      "group_id": "plain_calibration_group_0",
+      "split": "calibration",
+      "query": "plain_calibration_0",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 1
+    },
+    {
+      "id": "plain_calibration_1",
+      "group_id": "plain_calibration_group_0",
+      "split": "calibration",
+      "query": "plain_calibration_1",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 1
+    },
+    {
+      "id": "plain_calibration_2",
+      "group_id": "plain_calibration_group_1",
+      "split": "calibration",
+      "query": "plain_calibration_2",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 2
+    },
+    {
+      "id": "plain_calibration_3",
+      "group_id": "plain_calibration_group_1",
+      "split": "calibration",
+      "query": "plain_calibration_3",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 2
+    },
+    {
+      "id": "plain_calibration_4",
+      "group_id": "plain_calibration_group_2",
+      "split": "calibration",
+      "query": "plain_calibration_4",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 3
+    },
+    {
+      "id": "plain_calibration_5",
+      "group_id": "plain_calibration_group_2",
+      "split": "calibration",
+      "query": "plain_calibration_5",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 3
+    },
+    {
+      "id": "plain_calibration_6",
+      "group_id": "plain_calibration_group_3",
+      "split": "calibration",
+      "query": "plain_calibration_6",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 4
+    },
+    {
+      "id": "plain_calibration_7",
+      "group_id": "plain_calibration_group_3",
+      "split": "calibration",
+      "query": "plain_calibration_7",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 4
+    },
+    {
+      "id": "plain_train_0",
+      "group_id": "plain_train_group_0",
+      "split": "train",
+      "query": "plain_train_0",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 1
+    },
+    {
+      "id": "plain_train_1",
+      "group_id": "plain_train_group_0",
+      "split": "train",
+      "query": "plain_train_1",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 1
+    },
+    {
+      "id": "plain_train_2",
+      "group_id": "plain_train_group_1",
+      "split": "train",
+      "query": "plain_train_2",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 2
+    },
+    {
+      "id": "plain_train_3",
+      "group_id": "plain_train_group_1",
+      "split": "train",
+      "query": "plain_train_3",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 2
+    },
+    {
+      "id": "plain_train_4",
+      "group_id": "plain_train_group_2",
+      "split": "train",
+      "query": "plain_train_4",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 3
+    },
+    {
+      "id": "plain_train_5",
+      "group_id": "plain_train_group_2",
+      "split": "train",
+      "query": "plain_train_5",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 3
+    },
+    {
+      "id": "plain_train_6",
+      "group_id": "plain_train_group_3",
+      "split": "train",
+      "query": "plain_train_6",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 4
+    },
+    {
+      "id": "plain_train_7",
+      "group_id": "plain_train_group_3",
+      "split": "train",
+      "query": "plain_train_7",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "plain",
+      "level": 4
+    },
+    {
+      "id": "react_calibration_0",
+      "group_id": "react_calibration_group_0",
+      "split": "calibration",
+      "query": "react_calibration_0",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 1
+    },
+    {
+      "id": "react_calibration_1",
+      "group_id": "react_calibration_group_0",
+      "split": "calibration",
+      "query": "react_calibration_1",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 1
+    },
+    {
+      "id": "react_calibration_2",
+      "group_id": "react_calibration_group_1",
+      "split": "calibration",
+      "query": "react_calibration_2",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 2
+    },
+    {
+      "id": "react_calibration_3",
+      "group_id": "react_calibration_group_1",
+      "split": "calibration",
+      "query": "react_calibration_3",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 2
+    },
+    {
+      "id": "react_calibration_4",
+      "group_id": "react_calibration_group_2",
+      "split": "calibration",
+      "query": "react_calibration_4",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 3
+    },
+    {
+      "id": "react_calibration_5",
+      "group_id": "react_calibration_group_2",
+      "split": "calibration",
+      "query": "react_calibration_5",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 3
+    },
+    {
+      "id": "react_calibration_6",
+      "group_id": "react_calibration_group_3",
+      "split": "calibration",
+      "query": "react_calibration_6",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 4
+    },
+    {
+      "id": "react_calibration_7",
+      "group_id": "react_calibration_group_3",
+      "split": "calibration",
+      "query": "react_calibration_7",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 4
+    },
+    {
+      "id": "react_train_0",
+      "group_id": "react_train_group_0",
+      "split": "train",
+      "query": "react_train_0",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 1
+    },
+    {
+      "id": "react_train_1",
+      "group_id": "react_train_group_0",
+      "split": "train",
+      "query": "react_train_1",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 1
+    },
+    {
+      "id": "react_train_2",
+      "group_id": "react_train_group_1",
+      "split": "train",
+      "query": "react_train_2",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 2
+    },
+    {
+      "id": "react_train_3",
+      "group_id": "react_train_group_1",
+      "split": "train",
+      "query": "react_train_3",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 2
+    },
+    {
+      "id": "react_train_4",
+      "group_id": "react_train_group_2",
+      "split": "train",
+      "query": "react_train_4",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 3
+    },
+    {
+      "id": "react_train_5",
+      "group_id": "react_train_group_2",
+      "split": "train",
+      "query": "react_train_5",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 3
+    },
+    {
+      "id": "react_train_6",
+      "group_id": "react_train_group_3",
+      "split": "train",
+      "query": "react_train_6",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 4
+    },
+    {
+      "id": "react_train_7",
+      "group_id": "react_train_group_3",
+      "split": "train",
+      "query": "react_train_7",
+      "answer": "OK",
+      "answer_type": "text",
+      "category": "react",
+      "level": 4
+    }
+  ]
+}

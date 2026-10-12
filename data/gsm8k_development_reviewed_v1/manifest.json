@@ -1,0 +1,22 @@
+{
+  "kind": "agent_reviewed_gsm8k_development_subset",
+  "candidate_manifest_sha256": "86c4c2f3af15d2eb98ebe5c8e01d97a441c4a4741344e5dcc60e384860bb0db7",
+  "candidate_dataset_sha256": "cdc763dbf1efa7859cd50338e20fbe9ec9d4e820396443f771079ed5a141e47b",
+  "dataset_sha256": "98fa5f9de358e373c44f4234855df5de9dc9969bbcce57a2ce27019e68d2b3db",
+  "agent_review_sha256": "99604e7dd3f0dabe1c70291640e64ef1b3cb3948f2bbd147eac3a93b1a77448d",
+  "source_revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+  "selected_before_review": 24,
+  "retained": 23,
+  "excluded_before_generation": [
+    {
+      "id": "gsm8k-dev-03628",
+      "reason": "whole cycles 330 versus first arrival 318; source wording does not resolve stopping point"
+    }
+  ],
+  "reviewer": "Codex agent; query-derived arithmetic checked with exact fractions",
+  "review_date": "2026-10-04",
+  "human_review_status": "pending",
+  "official_test_used": false,
+  "new_model_calls": 0,
+  "publication_ready": false
+}

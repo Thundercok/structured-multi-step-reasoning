@@ -1,0 +1,127 @@
+{
+  "nckh_reasoning_dataset_draft.json": {
+    "size_bytes": 31165,
+    "sha256": "4509141d669f044a0b873e731f116f1c64db137e7859ad0b2d641061eccb0d43"
+  },
+  "gen_v2.json": {
+    "size_bytes": 133547,
+    "sha256": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+    "generator": "gen_tasks.py 0.1",
+    "seed": 0,
+    "n_per_level": 15,
+    "n_items": 180,
+    "sha256_items": "1ce47ca2fd9d22e9b790424278dcac8a0f99b71e4511f21203cc0f6a3bcf4e2a"
+  },
+  "gen_tune.json": {
+    "size_bytes": 70541,
+    "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+    "generator": "gen_tasks.py 0.1",
+    "seed": 1000,
+    "n_per_level": 8,
+    "n_items": 94,
+    "sha256_items": "f1b4847273eb04f1420b7c2e1c9ab39cf74a4d9dd460a9e9a08c2e58a2e7ee1e",
+    "sha256_items_previous": "4b6b1c819fbfbed48ba1b85571d2e114cbd7b9feaad5160519c3b771bc78c736",
+    "dropped_ids": [
+      "g24_0007_en_orig",
+      "g24_0013_en_orig"
+    ]
+  },
+  "gen02_v2.json": {
+    "size_bytes": 159432,
+    "sha256": "98e8f41e55f77e1a321b23a7a746240a4e855c7f6150a4ef59cb66f6676eacf7",
+    "generator": "gen_tasks.py 0.2.1",
+    "seed": 0,
+    "n_per_level": 15,
+    "n_items": 195,
+    "sha256_items": "da682450329ed16c4898764c0849b5688acab839f9335038f8fd3d16cb0db453"
+  },
+  "gen02_tune.json": {
+    "size_bytes": 82570,
+    "sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+    "generator": "gen_tasks.py 0.2.1",
+    "seed": 1000,
+    "n_per_level": 8,
+    "n_items": 100,
+    "sha256_items": "6e9383b013552a2cf87dee15740a6ea3b87acb9a8b28cf27f9f80feae5dbfe91",
+    "sha256_items_previous": "338b33c78114e0dca8dd2cd597c492bf87acff1729fc01dc490a0ab607e40c59",
+    "dropped_ids": [
+      "order_0018_en_orig",
+      "g24_0017_en_orig",
+      "g24_0027_en_orig",
+      "g24_0030_en_orig"
+    ]
+  },
+  "audit/G_sweep_trace.jsonl": {
+    "size_bytes": 217952,
+    "sha256": "90452d146991d9669f314173a412f90eb00ea5a137d96931d7c4e40ec3ea2489",
+    "n_records": 188,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "76d311b",
+    "tag": "harness-v1-run3"
+  },
+  "audit/P_sweep_trace.jsonl": {
+    "size_bytes": 246734,
+    "sha256": "062f8083ab0b2ae944815cf66bf4f5d6949d642ac7e3a04e8d8d678b421f87dc",
+    "n_records": 171,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "a35391c",
+    "tag": "harness-v1-run7",
+    "note": "header dirty=False wrong; run_sweep_p.py was untracked; reproducible via scripts/legacy/run_sweep_p.py @ 9b65e45"
+  },
+  "gen02_tune_gapB.json": {
+    "size_bytes": 34501,
+    "sha256": "83ae6771e9394a166a01aa0c5edd557e14b78418e8d186e71bd871b59ea82e55",
+    "generator": "gen_tasks.py 0.2.2",
+    "n_items": 31,
+    "sha256_items": "4c36d1f9d5c8c5a815b313accef39b74c7e37f933d02031f40e9248084a6a41c",
+    "description": "31 order items of gen02_tune re-rendered in gap_style B (ids suffixed _gB)"
+  },
+  "audit/run11_sweep_trace.jsonl": {
+    "size_bytes": 3519729,
+    "sha256": "3d57df7f4e81c71513a30b46a190c2d848ea020dac78adf88776620b6e67e632",
+    "n_records": 571,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "d6f7d32",
+    "tag": "harness-v1-run11",
+    "note": "run11 sc_vote_share field was logged as share/5 due to double-division; use recomputation from sc_candidates"
+  },
+  "audit/ae_palv2_trace.jsonl": {
+    "size_bytes": 343387,
+    "sha256": "c3f2bb0de9e1d04356497911dfb0377597fa7862799cff6754bd8a412ac0d57c",
+    "n_records": 100,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "6986e6d",
+    "tag": "harness-v1-run12",
+    "description": "PAL-v2 benchmark sweep on gen02_tune (Prompt AE)"
+  },
+  "audit/af_palv3_trace.jsonl": {
+    "size_bytes": 139676,
+    "sha256": "496712b4250dbc2b18fd1d3592da92701d222c11a293a7e288a8f4bd65ceb12d",
+    "n_records": 29,
+    "model_id": "mlx-community/Qwen3-8B-4bit",
+    "commit": "171ec8e",
+    "tag": "harness-v1-run13",
+    "description": "PAL-v3 benchmark sweep on gen02_tune g24 items (Prompt AF1)"
+  },
+  "gen02_v2b.json": {
+    "size_bytes": 162021,
+    "sha256": "bd6633009310e4e4638adc102898feb5c236b2615f0bbecc736f1d2c8e5dde8c",
+    "generator": "gen_tasks.py 0.2.2",
+    "seed": 0,
+    "n_per_level": 15,
+    "n_items": 195,
+    "sha256_items": "d7ca98637f1d6c8d281fb9f2dc7220a7e96873c8e3686e121fb549b42b49c54d"
+  },
+  "order_confirmatory_gapB_100.json": {
+    "size_bytes": 114161,
+    "sha256": "beb7df75bd7e863fd7b40e901f5e10ba14998fb0d945ecebfa722d8f49391c9c",
+    "generator": "gen_tasks.py 0.2.2 / build_order_confirmatory.py",
+    "seed": 5000,
+    "n_per_level": 25,
+    "n_items": 100,
+    "family": "order",
+    "gap_style": "B",
+    "sha256_items": "dc50a9e4e2ada13ee463cdad6a9c0ed2a43fe89308f75be4c93500a1bcb9e6a1",
+    "description": "Fresh confirmatory ordering dataset (gapB wording, seed 5000, 100 items, 0% overlap with tune pool)"
+  }
+}

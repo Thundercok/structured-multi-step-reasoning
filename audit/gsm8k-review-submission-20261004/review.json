@@ -1,0 +1,177 @@
+{
+  "review_kind": "user_submitted_AI_labelled_review",
+  "reviewer_display_name": "AI Expert Auditor / Review Team",
+  "review_date": "2026-10-04",
+  "review_after_pilot_outputs": true,
+  "records": [
+    {
+      "ordinal": 1,
+      "id": "gsm8k-dev-05545",
+      "status": "pass",
+      "reviewed_source_answer": "9144",
+      "condition": null
+    },
+    {
+      "ordinal": 2,
+      "id": "gsm8k-dev-02161",
+      "status": "pass",
+      "reviewed_source_answer": "130",
+      "condition": null
+    },
+    {
+      "ordinal": 3,
+      "id": "gsm8k-dev-05507",
+      "status": "pass",
+      "reviewed_source_answer": "1250",
+      "condition": null
+    },
+    {
+      "ordinal": 4,
+      "id": "gsm8k-dev-00330",
+      "status": "pass",
+      "reviewed_source_answer": "6",
+      "condition": null
+    },
+    {
+      "ordinal": 5,
+      "id": "gsm8k-dev-05994",
+      "status": "pass",
+      "reviewed_source_answer": "80",
+      "condition": null
+    },
+    {
+      "ordinal": 6,
+      "id": "gsm8k-dev-01342",
+      "status": "pass",
+      "reviewed_source_answer": "30",
+      "condition": null
+    },
+    {
+      "ordinal": 7,
+      "id": "gsm8k-dev-05093",
+      "status": "pass",
+      "reviewed_source_answer": "25",
+      "condition": null
+    },
+    {
+      "ordinal": 8,
+      "id": "gsm8k-dev-00482",
+      "status": "pass",
+      "reviewed_source_answer": "66",
+      "condition": null
+    },
+    {
+      "ordinal": 9,
+      "id": "gsm8k-dev-00077",
+      "status": "pass",
+      "reviewed_source_answer": "768",
+      "condition": null
+    },
+    {
+      "ordinal": 10,
+      "id": "gsm8k-dev-05565",
+      "status": "qualified_pass",
+      "reviewed_source_answer": "27048",
+      "condition": "interpret \"8 times less\" as 1/8"
+    },
+    {
+      "ordinal": 11,
+      "id": "gsm8k-dev-05794",
+      "status": "pass",
+      "reviewed_source_answer": "36",
+      "condition": null
+    },
+    {
+      "ordinal": 12,
+      "id": "gsm8k-dev-04607",
+      "status": "pass",
+      "reviewed_source_answer": "320",
+      "condition": null
+    },
+    {
+      "ordinal": 13,
+      "id": "gsm8k-dev-01851",
+      "status": "pass",
+      "reviewed_source_answer": "208",
+      "condition": null
+    },
+    {
+      "ordinal": 14,
+      "id": "gsm8k-dev-02814",
+      "status": "pass",
+      "reviewed_source_answer": "450",
+      "condition": null
+    },
+    {
+      "ordinal": 15,
+      "id": "gsm8k-dev-03628",
+      "status": "excluded",
+      "reviewed_source_answer": "330",
+      "condition": null
+    },
+    {
+      "ordinal": 16,
+      "id": "gsm8k-dev-01628",
+      "status": "pass",
+      "reviewed_source_answer": "390",
+      "condition": null
+    },
+    {
+      "ordinal": 17,
+      "id": "gsm8k-dev-07294",
+      "status": "pass",
+      "reviewed_source_answer": "7",
+      "condition": null
+    },
+    {
+      "ordinal": 18,
+      "id": "gsm8k-dev-01492",
+      "status": "pass",
+      "reviewed_source_answer": "100",
+      "condition": null
+    },
+    {
+      "ordinal": 19,
+      "id": "gsm8k-dev-04765",
+      "status": "pass",
+      "reviewed_source_answer": "21",
+      "condition": null
+    },
+    {
+      "ordinal": 20,
+      "id": "gsm8k-dev-04625",
+      "status": "pass",
+      "reviewed_source_answer": "68",
+      "condition": null
+    },
+    {
+      "ordinal": 21,
+      "id": "gsm8k-dev-00196",
+      "status": "pass",
+      "reviewed_source_answer": "30",
+      "condition": null
+    },
+    {
+      "ordinal": 22,
+      "id": "gsm8k-dev-04046",
+      "status": "pass",
+      "reviewed_source_answer": "80",
+      "condition": null
+    },
+    {
+      "ordinal": 23,
+      "id": "gsm8k-dev-02834",
+      "status": "pass",
+      "reviewed_source_answer": "31",
+      "condition": null
+    },
+    {
+      "ordinal": 24,
+      "id": "gsm8k-dev-00083",
+      "status": "pass",
+      "reviewed_source_answer": "700",
+      "condition": null
+    }
+  ],
+  "human_review_status": "pending"
+}

@@ -1,0 +1,99 @@
+=== RUN HEADER ===
+branch: HEAD
+tag: harness-v1-run4
+commit: e6129d4
+dirty: False
+model_id: mlx-community/Qwen3-8B-4bit
+snapshot_hash: 545dc4251c05440727734bcd94334791f6ab0192
+safetensors_blobs: {'model.safetensors': 'f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8'}
+eos_ids: [151645]
+
+=== PER-ARM RESULTS: DIRECT-v2 ===
+| family | level | n | acc | %length | %repeat | mean tokens |
+| --- | --- | --- | --- | --- | --- | --- |
+| arith | 1 | 8 | 62.5% | 0.0% | 0.0% | 3.9 |
+| arith | 2 | 8 | 0.0% | 0.0% | 0.0% | 4.9 |
+| arith | 3 | 8 | 0.0% | 12.5% | 0.0% | 8.1 |
+| arith | 4 | 8 | 0.0% | 0.0% | 0.0% | 7.1 |
+| order | 1 | 8 | 0.0% | 0.0% | 0.0% | 6.8 |
+| order | 2 | 8 | 62.5% | 0.0% | 0.0% | 2.6 |
+| order | 3 | 8 | 0.0% | 0.0% | 0.0% | 4.0 |
+| order | 4 | 8 | 12.5% | 0.0% | 0.0% | 5.6 |
+| g24 | 1 | 7 | 0.0% | 0.0% | 0.0% | 17.1 |
+| g24 | 2 | 7 | 0.0% | 0.0% | 0.0% | 16.4 |
+| g24 | 3 | 8 | 0.0% | 0.0% | 0.0% | 16.2 |
+| g24 | 4 | 8 | 0.0% | 0.0% | 0.0% | 16.5 |
+
+=== PER-ARM RESULTS: COT ===
+| family | level | n | acc | %length | %repeat | mean tokens |
+| --- | --- | --- | --- | --- | --- | --- |
+| arith | 1 | 8 | 100.0% | 0.0% | 62.5% | 84.2 |
+| arith | 2 | 8 | 0.0% | 0.0% | 100.0% | 162.9 |
+| arith | 3 | 8 | 12.5% | 0.0% | 100.0% | 234.2 |
+| arith | 4 | 8 | 37.5% | 0.0% | 100.0% | 440.0 |
+| order | 1 | 8 | 0.0% | 0.0% | 100.0% | 376.6 |
+| order | 2 | 8 | 25.0% | 0.0% | 75.0% | 521.2 |
+| order | 3 | 8 | 0.0% | 37.5% | 87.5% | 801.6 |
+| order | 4 | 8 | 0.0% | 25.0% | 100.0% | 887.6 |
+| g24 | 1 | 7 | 0.0% | 71.4% | 71.4% | 838.6 |
+| g24 | 2 | 7 | 0.0% | 57.1% | 100.0% | 818.6 |
+| g24 | 3 | 8 | 0.0% | 100.0% | 87.5% | 1024.0 |
+| g24 | 4 | 8 | 0.0% | 100.0% | 100.0% | 1024.0 |
+
+=== PER-ARM RESULTS: g24-COT-sample ===
+| family | level | n | acc | %length | %repeat | mean tokens |
+| --- | --- | --- | --- | --- | --- | --- |
+| g24 | 1 | 7 | 0.0% | 14.3% | 100.0% | 557.7 |
+| g24 | 2 | 7 | 0.0% | 57.1% | 100.0% | 820.1 |
+| g24 | 3 | 8 | 0.0% | 62.5% | 100.0% | 926.9 |
+| g24 | 4 | 8 | 0.0% | 100.0% | 87.5% | 1024.0 |
+
+=== 2 WRONG ITEMS PER FAMILY (COT T=0) ===
+
+--- Family: arith (20 wrong in COT) ---
+  Wrong Sample 1:
+    id: arith_0008_en_orig
+    raw_tail: We start with the counter value of **933**.\n\n### Step 1: Add 751  \n$$\n933 + 751 = 1684\n$$\n\n### Step 2: Subtract 299  \n$$\n1684 - 299 = 1385\n$$\n\n### Step 3: Add 298  \n$$\n1385 + 298 = 1683\n$$\n\n### Step 4: Subtract 391  \n$$\n1683 - 391 = 1292\n$$\n\n### Final Answer:  \n**1292**
+    parsed: '**1292**'
+    gold: '1292'
+    parse_status: marker
+    repeat: True
+  Wrong Sample 2:
+    id: arith_0009_en_orig
+    raw_tail:  start with the counter value of **427**.\n\n### Step 1: Multiply the result by 5  \n$$\n427 \times 5 = 2135\n$$\n\n### Step 2: Subtract 635  \n$$\n2135 - 635 = 1500\n$$\n\n### Step 3: Divide the result by 2  \n$$\n1500 \div 2 = 750\n$$\n\n### Step 4: Subtract 386  \n$$\n750 - 386 = 364\n$$\n\n### Final Answer:  \n**364**
+    parsed: '**364**'
+    gold: '364'
+    parse_status: marker
+    repeat: True
+
+--- Family: order (30 wrong in COT) ---
+  Wrong Sample 1:
+    id: order_0000_en_orig
+    raw_tail: Bob\n4. Heidi\n\nThis satisfies all the clues:\n- Bob is immediately before Heidi → Bob = 3, Heidi = 4 ✅\n- Dave finished before Heidi → Dave = 2, Heidi = 4 ✅\n- Erin finished before Bob → Erin = 1, Bob = 3 ✅\n\nSo the final order is:\n1. Erin  \n2. Dave  \n3. Bob  \n4. Heidi\n\n---\n\n### Final Answer:\nAnswer: Bob
+    parsed: 'Answer: Bob'
+    gold: 'Bob'
+    parse_status: fail
+    repeat: True
+  Wrong Sample 2:
+    id: order_0001_en_orig
+    raw_tail: race\n\nThis satisfies all the clues:\n\n- Erin immediately before Frank ✅  \n- Frank before Bob ✅  \n- Bob before Grace ✅\n\nSo the order is:\n\n1. Erin  \n2. Frank  \n3. Bob  \n4. Grace\n\n---\n\n### Step 3: Determine who is in 3rd place\n\nFrom the above, **Bob** is in 3rd place.\n\n---\n\n### Final Answer:\nAnswer: Bob
+    parsed: 'Answer: Bob'
+    gold: 'Bob'
+    parse_status: fail
+    repeat: True
+
+--- Family: g24 (30 wrong in COT) ---
+  Wrong Sample 1:
+    id: g24_0000_en_orig
+    raw_tail: 20** → Not 24\n\nTry:\n\n**13 + (12 ÷ (3 - 2)) = 13 + 12 = 25** → Close\n\nTry:\n\n**12 + (13 - (3 + 2)) = 12 + 8 = 20** → Not 24\n\nTry:\n\n**12 × 2 = 24**\n\nNow we need to use 13 and 3 in a way that doesn't change the result.\n\nTry:\n\n**12 × 2 + (13 - 13) = 24** → Uses 13 twice\n\nTry:\n\n**12 × 2 + (3 - 3) = 24** →
+    parsed: '24'
+    gold: '((12+(13+2))-3)'
+    parse_status: truncated
+    repeat: True
+  Wrong Sample 2:
+    id: g24_0001_en_orig
+    raw_tail: ope.\n\nTry:\n\n- 8 × (9 − 3) = 48  \n- 48 − (4 + 3) = 41  \nNope.\n\nTry:\n\n- 8 × (9 − 3) = 48  \n- 48 − (4 × 3) = 36  \nNope.\n\nTry:\n\n- 8 × (9 − 3) = 48  \n- 48 − (4 + 3) = 41  \nNope.\n\nTry:\n\n- 8 × (9 − 3) = 48  \n- 48 − (4 × 3) = 36  \nNope.\n\nTry:\n\n- 8 × (9 − 3) = 48  \n- 48 − (4 + 3) = 41  \nNope.\n\nTry:\n\n- 8 × (9
+    parsed: '- 8 × (9'
+    gold: '((3-9)*(4-8))'
+    parse_status: truncated
+    repeat: True

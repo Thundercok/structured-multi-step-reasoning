@@ -1,0 +1,122 @@
+//! Dual-model multi-round automation example.
+//!
+//! Shows dual-model routing for multi-round browser automation (not just
+//! extraction). A vision model handles the first round and stagnation,
+//! while a cheaper text model drives mid-round actions via HTML context.
+//!
+//! Run with:
+//! ```bash
+//! OPEN_ROUTER=your-api-key cargo run --example remote_multimodal_dual_automation --features "spider/sync spider/chrome spider/agent_chrome"
+//! ```
+//!
+//! EXAMPLE output
+//! === Page Received ===
+//! URL: https://books.toscrape.com/
+//!
+//! === AI Results ===
+//! Result 1:
+//!   Content: {"extracted":{"title":"A Light in the Attic","price":"£51.77","availability":"In stock (22 available)"},"steps":[{"Click":{"selector":"article.product_pod h3 a"}}]}
+//!   Tokens: 3541 prompt + 296 completion = 3837 total (2 LLM calls)
+//!
+//! === Completed in 5.31s ===
+
+extern crate spider;
+
+use spider::features::automation::{ModelEndpoint, RemoteMultimodalConfigs, VisionRouteMode};
+use spider::tokio;
+use spider::website::Website;
+
+#[tokio::main]
+async fn main() {
+    env_logger::init();
+
+    let api_key =
+        std::env::var("OPEN_ROUTER").expect("OPEN_ROUTER environment variable must be set");
+
+    // A page that requires multi-round interaction
+    let url = "https://books.toscrape.com/";
+
+    // ── Dual-model routing for automation ─────────────────────────────
+    //
+    // VisionFirst: vision model for rounds 0-1 (screenshot), then text model
+    // for stable mid-rounds, upgrading back to vision on stagnation/stuck.
+    //
+    // You can also use different providers for each model by setting
+    // `api_url` and `api_key` on the ModelEndpoint:
+    //
+    //   ModelEndpoint::new("gpt-4o")
+    //       .with_api_url("https://api.openai.com/v1/chat/completions")
+    //       .with_api_key("sk-openai-...")
+    //
+    // Fields left as None inherit from the parent RemoteMultimodalConfigs.
+
+    let mm_config = RemoteMultimodalConfigs::new(
+        "https://openrouter.ai/api/v1/chat/completions",
+        "qwen/qwen-2.5-vl-72b-instruct",
+    )
+    .with_api_key(&api_key)
+    .with_dual_models(
+        ModelEndpoint::new("qwen/qwen-2.5-vl-72b-instruct"), // vision rounds
+        ModelEndpoint::new("qwen/qwen-2.5-72b-instruct"),    // text rounds
+    )
+    .with_vision_route_mode(VisionRouteMode::VisionFirst);
+
+    // ── Multi-round automation config ─────────────────────────────────
+    //
+    // All cfg fields are now available as `with_*` builders on
+    // RemoteMultimodalConfigs, so the entire config can be built
+    // in a single fluent chain.
+    let mm_config = mm_config
+        .with_extra_ai_data(true)
+        .with_include_html(true)
+        .with_include_title(true)
+        .with_include_url(true)
+        .with_max_rounds(4)
+        .with_request_json_object(true)
+        .with_extraction_prompt(
+            "Navigate to the first book in the catalog. Extract its title, price, and availability.",
+        )
+        .with_user_message_extra(
+            "Click on the first book link to navigate to its detail page, then extract the book data.",
+        );
+
+    // ── Run ───────────────────────────────────────────────────────────
+    let mut website: Website = Website::new(url)
+        .with_limit(1)
+        .with_remote_multimodal(Some(mm_config))
+        .build()
+        .unwrap();
+
+    let mut rx = website.subscribe(16);
+
+    let join_handle = tokio::spawn(async move {
+        while let Ok(page) = rx.recv().await {
+            println!("=== Page Received ===");
+            println!("URL: {}", page.get_url());
+
+            if let Some(ref ai_data) = page.extra_remote_multimodal_data {
+                println!("\n=== AI Results ===");
+                for (i, result) in ai_data.iter().enumerate() {
+                    println!("Result {}:", i + 1);
+                    println!("  Content: {}", result.content_output);
+                    if let Some(ref usage) = result.usage {
+                        println!(
+                            "  Tokens: {} prompt + {} completion = {} total ({} LLM calls)",
+                            usage.prompt_tokens,
+                            usage.completion_tokens,
+                            usage.total_tokens,
+                            usage.llm_calls,
+                        );
+                    }
+                }
+            }
+        }
+    });
+
+    let start = tokio::time::Instant::now();
+    website.crawl().await;
+    website.unsubscribe();
+    let _ = join_handle.await;
+
+    println!("\n=== Completed in {:?} ===", start.elapsed());
+}

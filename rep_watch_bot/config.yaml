@@ -1,0 +1,49 @@
+# Cấu hình Bot Cào Listing Đồng Hồ Rep Việt Nam
+
+# Cấu hình lọc giá & phát hiện bất thường
+filter:
+  min_price: 200000        # Giá tối thiểu (VND)
+  max_price: 25000000      # Nâng trần giá lên 25 triệu VND cho hàng chế tác/Clean/VSF/BVF cao cấp
+  min_confidence: 30       # Điểm tin cậy tối thiểu (%) để xác định là tin Rep/Pass
+
+# Cấu hình Telegram Notifier (Điền thông tin bot của bạn)
+telegram:
+  enabled: false          # Đổi thành true khi bạn đã cài đặt bot token
+  bot_token: "YOUR_TELEGRAM_BOT_TOKEN"
+  chat_id: "YOUR_TELEGRAM_CHAT_ID"
+
+# Từ khóa tìm kiếm sâu toàn mạng (Cartier, GMT, Tudor, Clean, VSF, BVF, ZF...)
+search_keywords:
+  - "cartier"
+  - "cartier tank"
+  - "cartier santos"
+  - "cartier bvf"
+  - "gmt"
+  - "gmt master"
+  - "gmt pepsi"
+  - "gmt batman"
+  - "gmt clean"
+  - "tudor"
+  - "tudor black bay"
+  - "tudor pelagos"
+  - "tudor zf"
+  - "clean factory"
+  - "vsf"
+  - "bvf"
+  - "zf factory"
+  - "3k factory"
+  - "đồng hồ rep 1:1"
+  - "đồng hồ chế tác"
+  - "đồng hồ pass"
+
+# Nguồn cào dữ liệu
+sources:
+  chotot: true
+  webrep: true
+  facebook: false
+
+# Tùy chỉnh hệ thống
+settings:
+  storage_db: "data/rep_watches.db"
+  request_timeout: 15
+  monitor_interval_minutes: 15

@@ -1,0 +1,3311 @@
+{
+  "manifest": {
+    "protocol": "stage0-v1",
+    "date": "2026-10-01T00:54:15.301277+00:00",
+    "n_files": 6941,
+    "n_chunks": 25053,
+    "n_embeddings": 25053,
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "embedding_model_provenance": "index does not persist model identity; assumed, not verified",
+    "git_sha": "546f13df93eedd6905a4f061d94872517b17cce0",
+    "git_status": "M rat.spec\n M rat/config.py\n M rat/crawler/db.py\n M rat/crawler/extractors.py\n M rat/engine/context_engine.py\n M rat/engine/context_parser.py\n M rat/engine/hybrid_search.py\n M rat/engine/multi_way_rrf.py\n M rat/engine/reranker.py\n M rat/engine/slm.py\n M rat/main.py\n M rat/os/app.py\n M rat/os/menu_bar.py\n M rat/timetable/compositor.py\n M rat/timetable/data.py\n M rat/timetable/model.py\n M rat/ui/__init__.py\n M rat/ui/action_menu.py\n M rat/ui/apple_item_delegate.py\n M rat/ui/finder_window.py\n M rat/ui/preview_panel.py\n M rat/ui/schedule_window.py\n M rat/ui/spotlight_window.py\n M rat/ui/theme.py\n M scripts/build_app.sh\n M scripts/club_free_slots.ics\n M tests/test_cot_ui.py\n M tests/test_spotlight_window.py\n M tests/test_timetable_compositor.py\n?? benchmark_dataset.py\n?? docs/reasoning_benchmark_results.md\n?? docs/reasoning_benchmark_table.tex\n?? docs/stage0_protocol.md\n?? entry_predictor.py\n?? experiments/\n?? meta_controller/\n?? optimal_stopping.py\n?? pipeline.py\n?? qwen_backend.py\n?? qwen_mlx_backend.py\n?? rat/assets/\n?? rat/engine/feedback_log.py\n?? rat/engine/meta_reasoner.py\n?? rat/ui/chat_stream.py\n?? rat/ui/claude_widget.py\n?? rat/ui/feedback.py\n?? rat/ui/omnibar.py\n?? reasoning_env.py\n?? reasoning_strategies.py\n?? scratch/\n?? scripts/benchmark_stage0.py\n?? scripts/download_mlx_05b.sh\n?? test_agent.py\n?? test_entry_predictor.py\n?? test_optimal_stopping.py\n?? test_qwen_mlx_backend_mocked.py\n?? test_reasoning_env.py\n?? test_reasoning_strategies.py\n?? tests/test_benchmark_reasoning.py\n?? tests/test_claude_widget.py\n?? tests/test_feedback_features.py\n?? tests/test_feedback_log.py\n?? tests/test_feedback_ui.py\n?? tests/test_meta_reasoner.py\n?? tests/test_omnibar.py",
+    "source_sha256": {
+      "rat/__init__.py": "261e1f861d3000ae8e98481680976ac88c7207020206147227c721578898d269",
+      "rat/cli.py": "ae49dff3d8499bf132bc0497a3f4989608cdb6ebbe50e3012ec88889f0cf75c9",
+      "rat/config.py": "7de5bee82231322db9de5c0968c554719f3db5ea895036b8b5dda6c40b68232e",
+      "rat/crawler/__init__.py": "c51176658e1585fb1a8aae274daa0f59da9d1f8e065a4053213d356e320c13a4",
+      "rat/crawler/apple_vision.py": "f5ee22a13bb9bc166d666e901e7374a6da78600ebcb2b6ac316c19bb8f2c35f9",
+      "rat/crawler/chunker.py": "9a3c143bfe5ccd49b8a49902c99710efc1815805d37268e376215bdb26304754",
+      "rat/crawler/db.py": "0d12e8f7ef4de3b76d9528a0865faeef3e4ffaa4d41f86d42eb407a8374b16e2",
+      "rat/crawler/dedup.py": "8f42172b3a64400acaa06424eb1a58fcb2c35ee7b6548dbff1cf0c3d510b24fa",
+      "rat/crawler/extractors.py": "94be70755a2b1785a80c74b801a7a9aea71e0703bc7e9fecd662413f317c8870",
+      "rat/crawler/indexer.py": "89457b09d04d66ba4d98331149949b4d9b408ba9f53bb7930043738d5ba7535e",
+      "rat/crawler/provenance.py": "7bf5f096ce6714191dbca1a0424e9859f1e97c7f80e88cc45042e3185ebee902",
+      "rat/crawler/vision_taxonomy.py": "71f74ea433d7883483a066f35c3f0b850840fa8224a4ebd42ede7ccc712815fa",
+      "rat/crawler/watcher.py": "64dad761da8771b8b2de216db10d4c536de27f6a1fefee365e796c7116930ef0",
+      "rat/engine/__init__.py": "62de935581656ed87c6eda194496a81b8a1afddd564fc136d74bdb793f1bbff5",
+      "rat/engine/context_engine.py": "8638bf1c032dafa0e96483f1028665bc860d45f4a7b0d88490264b8e1a6cf89f",
+      "rat/engine/context_parser.py": "f60ad6edbdefde3dd868f8ff82d0ccbee43c129f12b77ec6fc637c01495b0854",
+      "rat/engine/corrective_retriever.py": "046ef3528799797eab5763e2883e4891b7bf57956e362fe78935b1c67245d26f",
+      "rat/engine/embedder.py": "290704376e30d8b9a9d7a6005deee556db6aa3386a7b60799e61d350c29fea5a",
+      "rat/engine/feedback_log.py": "767cf05624e6badc9a187e2b74e50e289d4f663f250a41c8272882c0f18c297e",
+      "rat/engine/hybrid_search.py": "34512639e807090a6be9c7cd70182bcdc8df958dcd851c78a66bcfe520f44c07",
+      "rat/engine/hyde.py": "b9e074665a6124fe16d04441e331db71b99958a97578d1967b13dea48c0867a9",
+      "rat/engine/llm_client.py": "c82d9dba8b827ced7b5738733c7772148264b99f8baed71883eb80f4edd78f41",
+      "rat/engine/meta_reasoner.py": "becbbe5ad46463bf2485a9beddf16807ab74dee38563a999533703a3c5a0636a",
+      "rat/engine/multi_way_rrf.py": "e8a860f5590355910a55ec41c41dadef14861d7d8cad2020587c90ba6296cbe3",
+      "rat/engine/qa_engine.py": "5fca42aa242bf058d571c6e791b5dc0680e188aacea6bd679a7bb4bddc48e409",
+      "rat/engine/query_decomposer.py": "2e284bbd6dcded4989e206be36b5a0c62e778540382e0bfd39213c66f23b8980",
+      "rat/engine/reasoning_trace.py": "ab42c866707b950c2b057776d5c1ced1f7d1d29d272f87d9a1024eb048d6d2b6",
+      "rat/engine/reranker.py": "0aec1500abf94b39a95a52f5af1d8942ff1612ab1638983eb17bb279c1b2aa55",
+      "rat/engine/rrf.py": "2461c329a3eef808b62bc8b016dc9b90e33472341ba170440ae124d1667209b4",
+      "rat/engine/slm.py": "8e4802b896998feac1bce7ad6cf8ae9ec4b3f3010216931b5edcd2a491d4ebac",
+      "rat/engine/slm_prompts.py": "b887c820644d6e165c67df4e05da77e32320a930ae7909c2e5772ac698f9eaea",
+      "rat/engine/sufficiency_evaluator.py": "5597cd3842adf7f20f5ac6b88e60b9c3b6ffd89e5271abe242fa481a5fa62672",
+      "rat/engine/vector_cache.py": "2e2fc62cd32bf89b16c633f99348c9283e6ba45b2e913810e3e5daed46b836dd",
+      "rat/main.py": "781f19fd368cce849860fd9044ef6b981d4196e419c5858918fe200164f2d5b3",
+      "rat/os/__init__.py": "c8e4123bed57fb94e1d272be8b44c282117afbce8c71e38bdcefeef64ae5346a",
+      "rat/os/app.py": "5351e61272f6ec32bdbf3caaabbd7f1be2cab004b83210188e07efeb5b400725",
+      "rat/os/crash_shield.py": "ca6f41b1bd856fc5829494759592e551cfb8270053e7587a5fd6c651e9bb9568",
+      "rat/os/daemon.py": "8866bb6160467a09d69ad53fc4c703340ac767ae1f827f511013d82c0a9a12c0",
+      "rat/os/hotkey.py": "07345f64b429a71274f7ef3ba04cb4e0c8f1d62703e8453821afb89f4f31c56a",
+      "rat/os/memory_sentinel.py": "7534ae3886cee31b764d0e8f3fc1aa7dec7ac9903e61fe4b86318b53bcaf0703",
+      "rat/os/menu_bar.py": "8dd0102d607e3fcceee2de0f5f71e0dd63638a8a8fc3add4bf0dbd8e2e434158",
+      "rat/os/shell_integration.py": "bf3afac41e8366b5a71fe65226a87fb0e05c53aa26bd701951995342ddb5f306",
+      "rat/timetable/__init__.py": "4522e4a497453ad482b991fcb8eb020b299398fa57a5cbe5a37da0b49d309ba1",
+      "rat/timetable/compositor.py": "63f8d8022b3cee0469ab1a27d6c53937c48c2a95492594fff083c4c5f5f08493",
+      "rat/timetable/data.py": "638c64fa9a5512424fd5ff5e7bf7472d70ef9622d81acc22f338f34eec4f9643",
+      "rat/timetable/model.py": "20ab7b61066405d893ecb3682a634bf810d14443321e1f61bffc3942a632abd7",
+      "rat/ui/__init__.py": "6c83b141aa376bdef226a7853cea896c5dfaa4091166d853013170253bc3eeef",
+      "rat/ui/action_menu.py": "732a71997be22110e7e3944767864221ebf21be624eb214bc4b01a8879db4edb",
+      "rat/ui/apple_item_delegate.py": "fa3e8f083835e0f03c808ec0a8e22eff56e9d21296f018e1dc231c81ddf8e91f",
+      "rat/ui/chat_stream.py": "7f2d261ac19232b3dba3ee0c8b19554b1634e9fe553720be3976ff56872a9996",
+      "rat/ui/claude_widget.py": "f55cd58097a394c16306f49a049aa3449edd4b1904d3f2910ccce2c48ddba0b6",
+      "rat/ui/feedback.py": "a821b489b63f13df0af9a72921150d5c86e0a0586164ed4b6b7c250d82ba428f",
+      "rat/ui/finder_window.py": "08dbe1763b445d860e52be95c1a2edfad7bc90168b32e50f75eb3b8e9cfc911a",
+      "rat/ui/omnibar.py": "ca639d14c569dc9635f11eb6c14f39b32ae3f9a2428306150444ea982c6a96b3",
+      "rat/ui/onboarding_dialog.py": "a09dcbdc49c5f1d78e7f14c9f7cac2e6d5b0c25574584f5c63757954ef3417e8",
+      "rat/ui/preview_panel.py": "36cd21bd98d9a5ae59040a981ebd5ee8bb0de2ce51f837f8a3575a22c40c3103",
+      "rat/ui/schedule_window.py": "e66d5d795651fcdfb5411c46d8f59c6b440391091a9f78b4a4b60ee774f024c7",
+      "rat/ui/settings_dialog.py": "a7b44b309c63868351ff6979f4f5ac320eba95e57740ae0f29828509992338b5",
+      "rat/ui/spotlight_window.py": "6fbeb791f6a609a20f97bbed1c46629386f0ea6606714d6a9e3c3e979b616c72",
+      "rat/ui/theme.py": "bfaaf7f6cd857e57e10161634fe1aea1e6bd4df39b14680ffe48878548d4aef8",
+      "scripts/batch_embed_all.py": "f27d222b40dc78cbdcb08dbc40fa5b7679b65498c4ce94e0e97af57c8ed23850",
+      "scripts/benchmark_stage0.py": "369213c33c33fa426359ee0c4856d33e3d8af8e65e03f63f15be77a987f7102f",
+      "scripts/generate_icon.py": "51a3f741bb92df39043b03a6ed1cda5baf5ea24f11c5e0132f7c6aec71e8c7c6",
+      "scripts/generate_showcase_benchmarks.py": "accd0fa67633543573cbda855bd81bad7dfcd9d5278ddf4506c6ad9458bcb844",
+      "scripts/overnight_pipeline.py": "7c9ab4c5dd05d2c618cd3a63e971294df703151b4c848417e562e0cb951f4c6d",
+      "scripts/run_resource_profiler.py": "f86628d86ef35cd7aaed119fd9873ca5f67ac14e8f549f91bd1417e7e492a8f2",
+      "scripts/tdtu_schedule_merger.py": "320ebc0e44894b5cc6d74793076b06dcc2620de87aab9b48d1821be8c940309f"
+    },
+    "snapshot_sha256": "63c2a8402639f0dde225d96454dfb4c12a4512e70d997a542b32e023ec2be3c2",
+    "query_sha256": "15a18347dc1cc8df6f252519d33f6658d6eb143b0a0448038b9cee34a33205f7",
+    "queries": [
+      "quy chế đào tạo",
+      "lịch học",
+      "báo cáo pdf",
+      "machine learning",
+      "python",
+      "học phí",
+      "đồ án",
+      "tài liệu tháng 9",
+      "file tải từ Telegram",
+      "ảnh hóa đơn"
+    ],
+    "iterations": 3,
+    "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=23658595)\t100%; charged; 0:00 remaining present: true",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+    "packages": {
+      "numpy": "2.5.2",
+      "fastembed": "0.8.0",
+      "onnxruntime": "1.27.0"
+    },
+    "cold_definition": "first query per fresh worker; lazy model/vector load included; OS disk cache not flushed",
+    "warm_definition": "all queries warmed once; query embedding computed each time, no query-result cache",
+    "scope": "decompose + lexical/vector/4-way hybrid + fusion + heuristic rerank; no HyDE/correction/LLM",
+    "fts5_ms_scope": "bm25 method: SQLite FTS5 only; lexical/hybrid: production FTS5 + filename/LIKE fallback",
+    "mrrf_scale": "production rrf_score normalized 0..100"
+  },
+  "runs": [
+    {
+      "method": "bm25",
+      "samples": [
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "cold",
+          "total_ms": 21.107458975166082,
+          "stages": {
+            "decompose_ms": 5.166625021956861,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 15.871500014327466,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 94.3125
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 11.337000003550202,
+          "stages": {
+            "decompose_ms": 0.5449579912237823,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.735250019934028,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.515625
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 5.512291972991079,
+          "stages": {
+            "decompose_ms": 0.47516694758087397,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.995625000447035,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.53125
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 5.199833016376942,
+          "stages": {
+            "decompose_ms": 0.6487080245278776,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.501459014136344,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.640625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 10.258209018502384,
+          "stages": {
+            "decompose_ms": 0.5070830229669809,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 9.667875012382865,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.875
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 5.142042005900294,
+          "stages": {
+            "decompose_ms": 0.5796669865958393,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.516332992352545,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.875
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 5.696500011254102,
+          "stages": {
+            "decompose_ms": 0.5070000188425183,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.148041993379593,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.875
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 5.643833021167666,
+          "stages": {
+            "decompose_ms": 0.4725829930976033,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.130625038873404,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.96875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 3.6527080228552222,
+          "stages": {
+            "decompose_ms": 0.6275000050663948,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 2.9671660158783197,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 106.984375
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 21.997334028128535,
+          "stages": {
+            "decompose_ms": 2.02475005062297,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 19.827833981253207,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 107.1875
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 6.442999991122633,
+          "stages": {
+            "decompose_ms": 0.4907920374535024,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.903707991819829,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 107.203125
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 11.312958027701825,
+          "stages": {
+            "decompose_ms": 0.5369589780457318,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.722165985498577,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 107.328125
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 6.1120830359868705,
+          "stages": {
+            "decompose_ms": 0.519749999511987,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.547499982640147,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 108.234375
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 5.57466596364975,
+          "stages": {
+            "decompose_ms": 0.608125003054738,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.905125009827316,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 108.234375
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 10.363749985117465,
+          "stages": {
+            "decompose_ms": 0.5645829951390624,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 9.74508299259469,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 94.59375
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 4.922833992168307,
+          "stages": {
+            "decompose_ms": 0.4597500083036721,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.424166982062161,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 94.828125
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 6.218249967787415,
+          "stages": {
+            "decompose_ms": 0.4591670003719628,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.718666012398899,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.015625
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 5.619833013042808,
+          "stages": {
+            "decompose_ms": 0.4360000020824373,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.144833005033433,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.046875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 3.2495419727638364,
+          "stages": {
+            "decompose_ms": 0.5251249531283975,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 2.6718329754658043,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.046875
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 16.507874999661,
+          "stages": {
+            "decompose_ms": 0.5216659628786147,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 15.928083041217178,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.046875
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 6.621250009629875,
+          "stages": {
+            "decompose_ms": 0.5030000465922058,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 6.064915971364826,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.046875
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 12.140790990088135,
+          "stages": {
+            "decompose_ms": 0.5694580031558871,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 11.516458005644381,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.046875
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 33.65075000328943,
+          "stages": {
+            "decompose_ms": 0.8563750307075679,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 32.73804095806554,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.890625
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 5.155541992280632,
+          "stages": {
+            "decompose_ms": 0.624332984443754,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.479291965253651,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.890625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 6.30162499146536,
+          "stages": {
+            "decompose_ms": 0.5783340311609209,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.668041994795203,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 95.890625
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 5.192957993131131,
+          "stages": {
+            "decompose_ms": 0.5753329605795443,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.5769590069539845,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 96.125
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 6.7876250250265,
+          "stages": {
+            "decompose_ms": 0.5050000036135316,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 6.241041992325336,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 96.15625
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 9.097332949750125,
+          "stages": {
+            "decompose_ms": 0.48383401008322835,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 8.572124992497265,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 96.21875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 5.041374999564141,
+          "stages": {
+            "decompose_ms": 0.6112079718150198,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.3687919969670475,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 96.21875
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 23.1569170136936,
+          "stages": {
+            "decompose_ms": 1.6214579809457064,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 21.361666033044457,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 96.265625
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 6.889333017170429,
+          "stages": {
+            "decompose_ms": 0.521209032740444,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 6.303041998762637,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0,
+            "rerank_ms": 0.0
+          },
+          "results": 45,
+          "candidate_counts": {},
+          "rss_mb": 96.28125
+        }
+      ],
+      "summary": {
+        "cold": {
+          "n": 1,
+          "p50": 21.107458975166082,
+          "p90": 21.107458975166082,
+          "p95": 21.107458975166082,
+          "p99": 21.107458975166082,
+          "stages": {
+            "decompose_ms": {
+              "p50": 5.166625021956861,
+              "p90": 5.166625021956861,
+              "p95": 5.166625021956861,
+              "p99": 5.166625021956861
+            },
+            "embed_query_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "fts5_ms": {
+              "p50": 15.871500014327466,
+              "p90": 15.871500014327466,
+              "p95": 15.871500014327466,
+              "p99": 15.871500014327466
+            },
+            "vector_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rerank_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            }
+          }
+        },
+        "warm": {
+          "n": 30,
+          "p50": 6.259937479626387,
+          "p90": 17.05682090250776,
+          "p95": 22.635104670189317,
+          "p99": 30.607538436306648,
+          "stages": {
+            "decompose_ms": {
+              "p50": 0.5310419655870646,
+              "p90": 0.6694747251458469,
+              "p95": 1.2771706533385419,
+              "p99": 1.907795350416564
+            },
+            "embed_query_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "fts5_ms": {
+              "p50": 5.693354003597051,
+              "p90": 16.318058135220788,
+              "p95": 20.67144160973839,
+              "p99": 29.438892229809436
+            },
+            "vector_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rerank_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            }
+          }
+        }
+      },
+      "llm_calls": 0,
+      "peak_rss_mb": 108.234375
+    },
+    {
+      "method": "lexical",
+      "samples": [
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "cold",
+          "total_ms": 174.40991604235023,
+          "stages": {
+            "decompose_ms": 5.697374988812953,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 12.100166000891477,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.1259170239791274,
+            "rerank_ms": 156.40920802252367
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 101.546875
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 156.43062500748783,
+          "stages": {
+            "decompose_ms": 0.690957996994257,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 12.518249975983053,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0963329803198576,
+            "rerank_ms": 143.05324997985736
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 120.46875
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 131.150167027954,
+          "stages": {
+            "decompose_ms": 0.577332975808531,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.577416978776455,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09487499482929707,
+            "rerank_ms": 119.8500000173226
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 120.53125
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 172.02383396215737,
+          "stages": {
+            "decompose_ms": 0.593916978687048,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.844499984756112,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09858299745246768,
+            "rerank_ms": 166.4255840005353
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 121.109375
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 208.22970801964402,
+          "stages": {
+            "decompose_ms": 0.6636669859290123,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 9.516542020719498,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10387500515207648,
+            "rerank_ms": 197.88437499664724
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 122.28125
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 132.87929201032966,
+          "stages": {
+            "decompose_ms": 0.5310000269673765,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 6.601208995562047,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09658402996137738,
+            "rerank_ms": 125.60470902826637
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 122.28125
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 142.4049580236897,
+          "stages": {
+            "decompose_ms": 0.5812920280732214,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.665417008567601,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09466701885685325,
+            "rerank_ms": 131.01266702869907
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 122.296875
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 280.57458298280835,
+          "stages": {
+            "decompose_ms": 0.6802499992772937,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 20.749417017214,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.11645897757261992,
+            "rerank_ms": 258.97374999476597
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 121.609375
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 156.60279197618365,
+          "stages": {
+            "decompose_ms": 0.6597079918719828,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.702040973119438,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.25462498888373375,
+            "rerank_ms": 149.90975003456697
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 120.9375
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 184.29775000549853,
+          "stages": {
+            "decompose_ms": 0.5960830021649599,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 21.493166976142675,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09241601219400764,
+            "rerank_ms": 162.04875003313646
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 113.0625
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 207.04541698796675,
+          "stages": {
+            "decompose_ms": 0.6452920497395098,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 16.200375044718385,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10933401063084602,
+            "rerank_ms": 190.02279097912833
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 109.40625
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 174.5272499974817,
+          "stages": {
+            "decompose_ms": 0.6917079444974661,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 12.258542003110051,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09324995335191488,
+            "rerank_ms": 161.40275000361726
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 111.375
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 137.395917030517,
+          "stages": {
+            "decompose_ms": 0.6712920148856938,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 11.593665985856205,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10187498992308974,
+            "rerank_ms": 124.97129099210724
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 111.578125
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 171.40324995853007,
+          "stages": {
+            "decompose_ms": 0.6056249840185046,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.679541976656765,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09466701885685325,
+            "rerank_ms": 165.96679197391495
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 113.015625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 209.83991702087224,
+          "stages": {
+            "decompose_ms": 0.6535000284202397,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.599625005852431,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09529199451208115,
+            "rerank_ms": 198.42679100111127
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 114.046875
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 138.0917920032516,
+          "stages": {
+            "decompose_ms": 0.5271249683573842,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 5.982208007480949,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09179196786135435,
+            "rerank_ms": 131.44525000825524
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 109.875
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 162.79570799088106,
+          "stages": {
+            "decompose_ms": 0.5622089956887066,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.368500021286309,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0950000248849392,
+            "rerank_ms": 151.7119159689173
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 106.9375
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 251.0078750201501,
+          "stages": {
+            "decompose_ms": 0.538207998033613,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 13.687875005416572,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.1027089892886579,
+            "rerank_ms": 236.62320798030123
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 107.921875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 160.14337504748255,
+          "stages": {
+            "decompose_ms": 0.6848329794593155,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 3.8715420523658395,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09724998380988836,
+            "rerank_ms": 155.42566700605676
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 107.4375
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 162.83058404223993,
+          "stages": {
+            "decompose_ms": 0.5550420028157532,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 16.405291971750557,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.08970801718533039,
+            "rerank_ms": 145.71670797886327
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 107.578125
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 165.23341700667515,
+          "stages": {
+            "decompose_ms": 0.5463749985210598,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 15.272707969415933,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09541702456772327,
+            "rerank_ms": 149.25824996316805
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 107.546875
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 155.52820899756625,
+          "stages": {
+            "decompose_ms": 0.5756250466220081,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 12.09220802411437,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09158405009657145,
+            "rerank_ms": 142.6806669915095
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 109.046875
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 136.43220899393782,
+          "stages": {
+            "decompose_ms": 0.6181249627843499,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 10.938249994069338,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09579199831932783,
+            "rerank_ms": 124.73041604971513
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 109.171875
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 203.57895799679682,
+          "stages": {
+            "decompose_ms": 0.5557499825954437,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 4.71616699360311,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09345798753201962,
+            "rerank_ms": 198.14366701757535
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 112.15625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 246.57645798288286,
+          "stages": {
+            "decompose_ms": 0.7524579996243119,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 22.172000026330352,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.1715420512482524,
+            "rerank_ms": 223.40504196472466
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 112.515625
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 160.40266602067277,
+          "stages": {
+            "decompose_ms": 0.6388750043697655,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 11.037082993425429,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09745900752022862,
+            "rerank_ms": 148.57595798093826
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 112.21875
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 260.12216694653034,
+          "stages": {
+            "decompose_ms": 0.845499977003783,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 11.742624978069216,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10354199912399054,
+            "rerank_ms": 247.35891702584922
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 113.15625
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 314.4633750198409,
+          "stages": {
+            "decompose_ms": 0.5654999986290932,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 14.565290999598801,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10604201816022396,
+            "rerank_ms": 299.16858399519697
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 109.6875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 353.3461659681052,
+          "stages": {
+            "decompose_ms": 0.8037090301513672,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 13.29666597303003,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.17141702119261026,
+            "rerank_ms": 338.46362499753013
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 104.890625
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 405.44870897429064,
+          "stages": {
+            "decompose_ms": 0.9612910216674209,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 37.481874984223396,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.103541009593755,
+            "rerank_ms": 366.8207919690758
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 105.96875
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 378.1401669839397,
+          "stages": {
+            "decompose_ms": 0.6859999848529696,
+            "embed_query_ms": 0.0,
+            "fts5_ms": 26.510249997954816,
+            "vector_ms": 0.0,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10241701966151595,
+            "rerank_ms": 350.76683398801833
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45
+          },
+          "rss_mb": 106.0625
+        }
+      ],
+      "summary": {
+        "cold": {
+          "n": 1,
+          "p50": 174.40991604235023,
+          "p90": 174.40991604235023,
+          "p95": 174.40991604235023,
+          "p99": 174.40991604235023,
+          "stages": {
+            "decompose_ms": {
+              "p50": 5.697374988812953,
+              "p90": 5.697374988812953,
+              "p95": 5.697374988812953,
+              "p99": 5.697374988812953
+            },
+            "embed_query_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "fts5_ms": {
+              "p50": 12.100166000891477,
+              "p90": 12.100166000891477,
+              "p95": 12.100166000891477,
+              "p99": 12.100166000891477
+            },
+            "vector_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.1259170239791274,
+              "p90": 0.1259170239791274,
+              "p95": 0.1259170239791274,
+              "p99": 0.1259170239791274
+            },
+            "rerank_ms": {
+              "p50": 156.40920802252367,
+              "p90": 156.40920802252367,
+              "p95": 156.40920802252367,
+              "p99": 156.40920802252367
+            }
+          }
+        },
+        "warm": {
+          "n": 30,
+          "p50": 171.71354196034372,
+          "p90": 318.3516541146674,
+          "p95": 366.9828665268141,
+          "p99": 397.52923179708887,
+          "stages": {
+            "decompose_ms": {
+              "p50": 0.6284999835770577,
+              "p90": 0.7575831026770176,
+              "p95": 0.8266940509201958,
+              "p99": 0.927711618714966
+            },
+            "embed_query_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "fts5_ms": {
+              "p50": 11.66814548196271,
+              "p90": 21.561050281161442,
+              "p95": 24.558037510723793,
+              "p99": 34.300103738205515
+            },
+            "vector_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.09691700688563287,
+              "p90": 0.12195478193461903,
+              "p95": 0.17148578772321343,
+              "p99": 0.2305309369694442
+            },
+            "rerank_ms": {
+              "p50": 161.72575001837686,
+              "p90": 303.09808809543034,
+              "p95": 345.2303899422986,
+              "p99": 362.16514415456913
+            }
+          }
+        }
+      },
+      "llm_calls": 0,
+      "peak_rss_mb": 123.921875
+    },
+    {
+      "method": "vector",
+      "samples": [
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "cold",
+          "total_ms": 2045.350625005085,
+          "stages": {
+            "decompose_ms": 6.06608297675848,
+            "embed_query_ms": 1433.340791030787,
+            "fts5_ms": 0.0,
+            "vector_ms": 569.6419170126319,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10079098865389824,
+            "rerank_ms": 36.10237501561642
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 577.234375
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 46.270125021692365,
+          "stages": {
+            "decompose_ms": 0.6286249845288694,
+            "embed_query_ms": 3.2594999647699296,
+            "fts5_ms": 0.0,
+            "vector_ms": 14.746207976713777,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09229202987626195,
+            "rerank_ms": 27.470540953800082
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 524.15625
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 127.20583303598687,
+          "stages": {
+            "decompose_ms": 0.5459160311147571,
+            "embed_query_ms": 3.306249971501529,
+            "fts5_ms": 0.0,
+            "vector_ms": 14.967875031288713,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.06524997297674417,
+            "rerank_ms": 108.26624999754131
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 547.328125
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 32.070707995444536,
+          "stages": {
+            "decompose_ms": 0.6642499938607216,
+            "embed_query_ms": 4.5527080073952675,
+            "fts5_ms": 0.0,
+            "vector_ms": 3.884499950800091,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.3348340396769345,
+            "rerank_ms": 22.57425000425428
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 547.890625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 52.134124969597906,
+          "stages": {
+            "decompose_ms": 0.6836660322733223,
+            "embed_query_ms": 3.3517919946461916,
+            "fts5_ms": 0.0,
+            "vector_ms": 16.025083023123443,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.08541601710021496,
+            "rerank_ms": 31.92141599720344
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 547.890625
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 131.61204103380442,
+          "stages": {
+            "decompose_ms": 0.5971660139039159,
+            "embed_query_ms": 3.335959045216441,
+            "fts5_ms": 0.0,
+            "vector_ms": 17.121582990512252,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.11491699842736125,
+            "rerank_ms": 110.39120802888647
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 547.9375
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 66.09700003173202,
+          "stages": {
+            "decompose_ms": 0.5040840478613973,
+            "embed_query_ms": 4.800667054951191,
+            "fts5_ms": 0.0,
+            "vector_ms": 18.39858404127881,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.06279203807935119,
+            "rerank_ms": 42.270417034160346
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 547.9375
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 143.68866599397734,
+          "stages": {
+            "decompose_ms": 0.8927499875426292,
+            "embed_query_ms": 15.61512501211837,
+            "fts5_ms": 0.0,
+            "vector_ms": 5.923707969486713,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09554199641570449,
+            "rerank_ms": 121.10600003506988
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 550.21875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 115.09991600178182,
+          "stages": {
+            "decompose_ms": 0.6963339983485639,
+            "embed_query_ms": 6.065499968826771,
+            "fts5_ms": 0.0,
+            "vector_ms": 6.206749996636063,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.08537503890693188,
+            "rerank_ms": 101.96200001519173
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 550.25
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 270.99266700679436,
+          "stages": {
+            "decompose_ms": 0.5802090163342655,
+            "embed_query_ms": 13.878708996344358,
+            "fts5_ms": 0.0,
+            "vector_ms": 16.581374977249652,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.12308399891480803,
+            "rerank_ms": 239.75337500451133
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 535.234375
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 210.53374995244667,
+          "stages": {
+            "decompose_ms": 1.2749159941449761,
+            "embed_query_ms": 52.73366702022031,
+            "fts5_ms": 0.0,
+            "vector_ms": 19.765458011534065,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10854098945856094,
+            "rerank_ms": 136.56604196876287
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 537.546875
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 67.93008401291445,
+          "stages": {
+            "decompose_ms": 2.2195829660631716,
+            "embed_query_ms": 8.898416999727488,
+            "fts5_ms": 0.0,
+            "vector_ms": 25.41762503096834,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09604200022295117,
+            "rerank_ms": 30.96537501551211
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 536.03125
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 129.297542036511,
+          "stages": {
+            "decompose_ms": 0.7250829949043691,
+            "embed_query_ms": 6.678875011857599,
+            "fts5_ms": 0.0,
+            "vector_ms": 25.86087503004819,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.0903749605640769,
+            "rerank_ms": 95.87491600541398
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 535.640625
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 47.016541997436434,
+          "stages": {
+            "decompose_ms": 1.0045410017482936,
+            "embed_query_ms": 10.132166964467615,
+            "fts5_ms": 0.0,
+            "vector_ms": 10.334666993003339,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.1088329590857029,
+            "rerank_ms": 25.343500019516796
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 538.375
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 62.6326670171693,
+          "stages": {
+            "decompose_ms": 0.6598339532501996,
+            "embed_query_ms": 5.396875028964132,
+            "fts5_ms": 0.0,
+            "vector_ms": 22.131417004857212,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.08429097943007946,
+            "rerank_ms": 34.274250036105514
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 538.390625
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 201.21499995002523,
+          "stages": {
+            "decompose_ms": 0.8178749703802168,
+            "embed_query_ms": 12.21537496894598,
+            "fts5_ms": 0.0,
+            "vector_ms": 33.40158297214657,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.551624980289489,
+            "rerank_ms": 154.16758402716368
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 468.65625
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 118.38225001702085,
+          "stages": {
+            "decompose_ms": 0.5624160403385758,
+            "embed_query_ms": 6.467750004958361,
+            "fts5_ms": 0.0,
+            "vector_ms": 27.229207975324243,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.07149996235966682,
+            "rerank_ms": 83.93691695528105
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 466.640625
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 165.82574998028576,
+          "stages": {
+            "decompose_ms": 0.5997500265948474,
+            "embed_query_ms": 18.24358297744766,
+            "fts5_ms": 0.0,
+            "vector_ms": 8.92349996138364,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09724998380988836,
+            "rerank_ms": 137.9057500162162
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 471.703125
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 103.16191700985655,
+          "stages": {
+            "decompose_ms": 0.6958749727346003,
+            "embed_query_ms": 5.312749999575317,
+            "fts5_ms": 0.0,
+            "vector_ms": 7.18333397526294,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10145799024030566,
+            "rerank_ms": 89.78858299087733
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 461.609375
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 204.7096670139581,
+          "stages": {
+            "decompose_ms": 0.7009999826550484,
+            "embed_query_ms": 24.871208996046335,
+            "fts5_ms": 0.0,
+            "vector_ms": 26.515499979723245,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.13341603334993124,
+            "rerank_ms": 152.4048749706708
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 393.859375
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 92.0907499967143,
+          "stages": {
+            "decompose_ms": 0.5889590247534215,
+            "embed_query_ms": 19.52616701601073,
+            "fts5_ms": 0.0,
+            "vector_ms": 4.982166981790215,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.09887502528727055,
+            "rerank_ms": 66.81533303344622
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 394.890625
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 45.88574997615069,
+          "stages": {
+            "decompose_ms": 0.688833009917289,
+            "embed_query_ms": 3.214582975488156,
+            "fts5_ms": 0.0,
+            "vector_ms": 14.765583036933094,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.08270802209153771,
+            "rerank_ms": 27.05891599180177
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 393.8125
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 106.55604203930125,
+          "stages": {
+            "decompose_ms": 0.6219170172698796,
+            "embed_query_ms": 3.1137089827097952,
+            "fts5_ms": 0.0,
+            "vector_ms": 14.857749978546053,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.086083950009197,
+            "rerank_ms": 87.80983299948275
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 381.609375
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 34.169499995186925,
+          "stages": {
+            "decompose_ms": 0.6451249937526882,
+            "embed_query_ms": 4.372207971755415,
+            "fts5_ms": 0.0,
+            "vector_ms": 4.337582970038056,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.07354200351983309,
+            "rerank_ms": 24.679374997504056
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 383.9375
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 54.27558301016688,
+          "stages": {
+            "decompose_ms": 0.6267919670790434,
+            "embed_query_ms": 4.736166971269995,
+            "fts5_ms": 0.0,
+            "vector_ms": 18.937791988719255,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.08362502558156848,
+            "rerank_ms": 29.81295803328976
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 383.171875
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 180.84049999015406,
+          "stages": {
+            "decompose_ms": 2.2249160101637244,
+            "embed_query_ms": 8.096083998680115,
+            "fts5_ms": 0.0,
+            "vector_ms": 15.175124979577959,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.2121669822372496,
+            "rerank_ms": 154.70441698562354
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 397.421875
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 317.06129101803526,
+          "stages": {
+            "decompose_ms": 0.6683329702354968,
+            "embed_query_ms": 5.201041989494115,
+            "fts5_ms": 0.0,
+            "vector_ms": 28.06237497134134,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.06074999691918492,
+            "rerank_ms": 283.0039589898661
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 294.421875
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 238.47604199545458,
+          "stages": {
+            "decompose_ms": 2.9920829692855477,
+            "embed_query_ms": 20.58549999492243,
+            "fts5_ms": 0.0,
+            "vector_ms": 12.75779097341001,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10549998842179775,
+            "rerank_ms": 201.40012499177828
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 230.515625
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 132.49237497802824,
+          "stages": {
+            "decompose_ms": 0.7024579681456089,
+            "embed_query_ms": 4.970042034983635,
+            "fts5_ms": 0.0,
+            "vector_ms": 11.162250011693686,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.334500044118613,
+            "rerank_ms": 115.23670802125707
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 236.0
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 257.0839579566382,
+          "stages": {
+            "decompose_ms": 0.7240409613586962,
+            "embed_query_ms": 32.56645903456956,
+            "fts5_ms": 0.0,
+            "vector_ms": 41.9482080033049,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.12058299034833908,
+            "rerank_ms": 181.62462499458343
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 267.90625
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 128.62641597166657,
+          "stages": {
+            "decompose_ms": 1.560417003929615,
+            "embed_query_ms": 36.703958990983665,
+            "fts5_ms": 0.0,
+            "vector_ms": 6.596875027753413,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.10354199912399054,
+            "rerank_ms": 83.19570898311213
+          },
+          "results": 15,
+          "candidate_counts": {
+            "semantic": 45
+          },
+          "rss_mb": 269.578125
+        }
+      ],
+      "summary": {
+        "cold": {
+          "n": 1,
+          "p50": 2045.350625005085,
+          "p90": 2045.350625005085,
+          "p95": 2045.350625005085,
+          "p99": 2045.350625005085,
+          "stages": {
+            "decompose_ms": {
+              "p50": 6.06608297675848,
+              "p90": 6.06608297675848,
+              "p95": 6.06608297675848,
+              "p99": 6.06608297675848
+            },
+            "embed_query_ms": {
+              "p50": 1433.340791030787,
+              "p90": 1433.340791030787,
+              "p95": 1433.340791030787,
+              "p99": 1433.340791030787
+            },
+            "fts5_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "vector_ms": {
+              "p50": 569.6419170126319,
+              "p90": 569.6419170126319,
+              "p95": 569.6419170126319,
+              "p99": 569.6419170126319
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.10079098865389824,
+              "p90": 0.10079098865389824,
+              "p95": 0.10079098865389824,
+              "p99": 0.10079098865389824
+            },
+            "rerank_ms": {
+              "p50": 36.10237501561642,
+              "p90": 36.10237501561642,
+              "p95": 36.10237501561642,
+              "p99": 36.10237501561642
+            }
+          }
+        },
+        "warm": {
+          "n": 30,
+          "p50": 122.79404152650386,
+          "p90": 240.33683359157297,
+          "p95": 264.733747934224,
+          "p99": 303.70139005477546,
+          "stages": {
+            "decompose_ms": {
+              "p50": 0.6862495210953057,
+              "p90": 1.6263336001429716,
+              "p95": 2.2225161403184757,
+              "p99": 2.76960455114022
+            },
+            "embed_query_ms": {
+              "p50": 6.266624986892566,
+              "p90": 25.640733999898668,
+              "p95": 34.842084010597304,
+              "p99": 48.0850516917417
+            },
+            "fts5_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "vector_ms": {
+              "p50": 15.071500005433336,
+              "p90": 27.312524674925953,
+              "p95": 30.998939371784203,
+              "p99": 39.46968674426899
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.09664599201641977,
+              "p90": 0.22440028842538612,
+              "p95": 0.3346837416756898,
+              "p99": 0.4887556075118484
+            },
+            "rerank_ms": {
+              "p50": 92.83174949814565,
+              "p90": 183.60217499430294,
+              "p95": 222.49441249878134,
+              "p99": 270.46128963411326
+            }
+          }
+        }
+      },
+      "llm_calls": 0,
+      "peak_rss_mb": 661.75
+    },
+    {
+      "method": "hybrid",
+      "samples": [
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "cold",
+          "total_ms": 1066.1173749831505,
+          "stages": {
+            "decompose_ms": 4.45033295545727,
+            "embed_query_ms": 689.4315410172567,
+            "fts5_ms": 43.968791025690734,
+            "vector_ms": 286.8440829915926,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.2916249795816839,
+            "rerank_ms": 41.031125001609325
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 585.0
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 96.41604102216661,
+          "stages": {
+            "decompose_ms": 0.7546249544247985,
+            "embed_query_ms": 6.089333968702704,
+            "fts5_ms": 14.52495896955952,
+            "vector_ms": 33.86337502161041,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.22933300351724029,
+            "rerank_ms": 40.86829203879461
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 541.4375
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 295.7027919474058,
+          "stages": {
+            "decompose_ms": 0.6735000060871243,
+            "embed_query_ms": 9.112416999414563,
+            "fts5_ms": 13.673082983586937,
+            "vector_ms": 49.54541602637619,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.6169169791974127,
+            "rerank_ms": 221.9805410131812
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 532.6875
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 103.89287502039224,
+          "stages": {
+            "decompose_ms": 0.6176670431159437,
+            "embed_query_ms": 4.405624989885837,
+            "fts5_ms": 4.998665943276137,
+            "vector_ms": 4.338249971624464,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.16854098066687584,
+            "rerank_ms": 89.29916599299759
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 536.578125
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 138.443665986415,
+          "stages": {
+            "decompose_ms": 0.5958750261925161,
+            "embed_query_ms": 4.637375008314848,
+            "fts5_ms": 11.347500025294721,
+            "vector_ms": 16.69329102151096,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.17987500177696347,
+            "rerank_ms": 104.91112503223121
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 536.859375
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 171.94483301136643,
+          "stages": {
+            "decompose_ms": 0.6754999631084502,
+            "embed_query_ms": 6.18741603102535,
+            "fts5_ms": 6.407707987818867,
+            "vector_ms": 17.754958011209965,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.22241700207814574,
+            "rerank_ms": 140.5990410130471
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 536.84375
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 153.0058339703828,
+          "stages": {
+            "decompose_ms": 0.7450419943779707,
+            "embed_query_ms": 5.620541982352734,
+            "fts5_ms": 14.630083984229714,
+            "vector_ms": 32.14870800729841,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.18395797815173864,
+            "rerank_ms": 99.58629094762728
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 537.15625
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 225.52845801692456,
+          "stages": {
+            "decompose_ms": 0.7084999815560877,
+            "embed_query_ms": 18.51845800410956,
+            "fts5_ms": 15.418499999213964,
+            "vector_ms": 6.944708991795778,
+            "provenance_ms": 0.0,
+            "visual_ms": 5.268000008072704,
+            "rrf_fuse_ms": 0.20866701379418373,
+            "rerank_ms": 178.37012495147064
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "visual": 3
+          },
+          "rss_mb": 541.796875
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 134.78799996664748,
+          "stages": {
+            "decompose_ms": 0.6738340016454458,
+            "embed_query_ms": 5.393041996285319,
+            "fts5_ms": 5.7964170118793845,
+            "vector_ms": 6.359375023748726,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.710457970853895,
+            "rerank_ms": 115.77404197305441
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 541.796875
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 277.9902499751188,
+          "stages": {
+            "decompose_ms": 0.5577499978244305,
+            "embed_query_ms": 14.715083001647145,
+            "fts5_ms": 18.727291957475245,
+            "vector_ms": 20.467583963181823,
+            "provenance_ms": 85.54795797681436,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.2692500129342079,
+            "rerank_ms": 137.58487504674122
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "provenance": 18
+          },
+          "rss_mb": 541.828125
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 0,
+          "phase": "warm",
+          "total_ms": 205.33237501513213,
+          "stages": {
+            "decompose_ms": 0.6667079869657755,
+            "embed_query_ms": 22.117000014986843,
+            "fts5_ms": 20.37991600809619,
+            "vector_ms": 3.9530000067315996,
+            "provenance_ms": 0.0,
+            "visual_ms": 1.6454170108772814,
+            "rrf_fuse_ms": 0.17304200446233153,
+            "rerank_ms": 156.3153329771012
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "visual": 1
+          },
+          "rss_mb": 542.234375
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 127.83308402867988,
+          "stages": {
+            "decompose_ms": 0.7086669793352485,
+            "embed_query_ms": 4.0944580105133355,
+            "fts5_ms": 13.735042011830956,
+            "vector_ms": 23.154333990532905,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.1793749979697168,
+            "rerank_ms": 85.84945899201557
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.734375
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 148.7817500019446,
+          "stages": {
+            "decompose_ms": 0.8928340394049883,
+            "embed_query_ms": 8.689541020430624,
+            "fts5_ms": 14.901667018420994,
+            "vector_ms": 19.946667016483843,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.19691704073920846,
+            "rerank_ms": 104.07404199941084
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.859375
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 149.79041600599885,
+          "stages": {
+            "decompose_ms": 0.7189579773694277,
+            "embed_query_ms": 4.807292018085718,
+            "fts5_ms": 5.284958053380251,
+            "vector_ms": 4.194665991235524,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.6231669685803354,
+            "rerank_ms": 134.07458300935104
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.90625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 162.18195797409862,
+          "stages": {
+            "decompose_ms": 0.7460840279236436,
+            "embed_query_ms": 8.054167032241821,
+            "fts5_ms": 15.358333010226488,
+            "vector_ms": 28.555791010148823,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.4446659586392343,
+            "rerank_ms": 108.92854200210422
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 544.0625
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 178.51320799672976,
+          "stages": {
+            "decompose_ms": 0.5506250308826566,
+            "embed_query_ms": 4.058457969222218,
+            "fts5_ms": 6.706833024509251,
+            "vector_ms": 12.609750032424927,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.18595799338072538,
+            "rerank_ms": 154.33062496595085
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 544.0625
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 134.49387496802956,
+          "stages": {
+            "decompose_ms": 0.5824159597977996,
+            "embed_query_ms": 5.77262497972697,
+            "fts5_ms": 14.066416013520211,
+            "vector_ms": 22.052375017665327,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.19704096484929323,
+            "rerank_ms": 91.75049996702
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.25
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 209.6970829879865,
+          "stages": {
+            "decompose_ms": 0.6115830037742853,
+            "embed_query_ms": 12.626459007151425,
+            "fts5_ms": 13.924667029641569,
+            "vector_ms": 6.001750007271767,
+            "provenance_ms": 0.0,
+            "visual_ms": 6.643707980401814,
+            "rrf_fuse_ms": 0.21216704044491053,
+            "rerank_ms": 169.61212502792478
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "visual": 3
+          },
+          "rss_mb": 545.859375
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 139.04075004393235,
+          "stages": {
+            "decompose_ms": 0.6155419978313148,
+            "embed_query_ms": 4.1017080075107515,
+            "fts5_ms": 7.222792017273605,
+            "vector_ms": 4.605415975674987,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.15962502220645547,
+            "rerank_ms": 122.26520798867568
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 547.375
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 280.7827909709886,
+          "stages": {
+            "decompose_ms": 0.5745000089518726,
+            "embed_query_ms": 15.262417029589415,
+            "fts5_ms": 17.266957962419838,
+            "vector_ms": 15.92445798451081,
+            "provenance_ms": 101.72029200475663,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.2169169601984322,
+            "rerank_ms": 129.7281250008382
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "provenance": 18
+          },
+          "rss_mb": 547.59375
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 1,
+          "phase": "warm",
+          "total_ms": 184.83845802256837,
+          "stages": {
+            "decompose_ms": 0.6535419961437583,
+            "embed_query_ms": 15.455916989594698,
+            "fts5_ms": 21.51058299932629,
+            "vector_ms": 3.5251249792054296,
+            "provenance_ms": 0.0,
+            "visual_ms": 2.4829170433804393,
+            "rrf_fuse_ms": 0.18074997933581471,
+            "rerank_ms": 140.940832963679
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "visual": 1
+          },
+          "rss_mb": 546.28125
+        },
+        {
+          "query_id": 0,
+          "query": "quy chế đào tạo",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 90.58512502815574,
+          "stages": {
+            "decompose_ms": 0.6267499993555248,
+            "embed_query_ms": 4.219833994284272,
+            "fts5_ms": 12.184249993879348,
+            "vector_ms": 25.791666994336993,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.18620898481458426,
+            "rerank_ms": 47.494416998233646
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 544.296875
+        },
+        {
+          "query_id": 1,
+          "query": "lịch học",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 141.36495802085847,
+          "stages": {
+            "decompose_ms": 0.6037919665686786,
+            "embed_query_ms": 6.330083007924259,
+            "fts5_ms": 12.14495801832527,
+            "vector_ms": 19.452832988463342,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.1984169939532876,
+            "rerank_ms": 102.55833296105266
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 544.484375
+        },
+        {
+          "query_id": 2,
+          "query": "báo cáo pdf",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 146.22045803116634,
+          "stages": {
+            "decompose_ms": 0.5967500037513673,
+            "embed_query_ms": 8.637459017336369,
+            "fts5_ms": 6.249499972909689,
+            "vector_ms": 6.901457963977009,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.4166669677942991,
+            "rerank_ms": 123.3423330122605
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 544.625
+        },
+        {
+          "query_id": 3,
+          "query": "machine learning",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 184.86508401110768,
+          "stages": {
+            "decompose_ms": 1.4454159536398947,
+            "embed_query_ms": 10.340332984924316,
+            "fts5_ms": 27.79587497934699,
+            "vector_ms": 26.431292004417628,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.18016702961176634,
+            "rerank_ms": 118.57537500327453
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.8125
+        },
+        {
+          "query_id": 4,
+          "query": "python",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 143.52079201489687,
+          "stages": {
+            "decompose_ms": 0.5695000290870667,
+            "embed_query_ms": 4.283541988115758,
+            "fts5_ms": 7.790750009007752,
+            "vector_ms": 13.330832996871322,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.19387499196454883,
+            "rerank_ms": 117.28754203068092
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.8125
+        },
+        {
+          "query_id": 5,
+          "query": "học phí",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 143.758499994874,
+          "stages": {
+            "decompose_ms": 0.5887920269742608,
+            "embed_query_ms": 5.690124991815537,
+            "fts5_ms": 11.194915976375341,
+            "vector_ms": 22.352166997734457,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.16616698121652007,
+            "rerank_ms": 103.70183299528435
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 542.84375
+        },
+        {
+          "query_id": 6,
+          "query": "đồ án",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 351.0841660317965,
+          "stages": {
+            "decompose_ms": 0.6020829896442592,
+            "embed_query_ms": 23.26566696865484,
+            "fts5_ms": 30.411291983909905,
+            "vector_ms": 8.672749972902238,
+            "provenance_ms": 0.0,
+            "visual_ms": 8.336124999914318,
+            "rrf_fuse_ms": 0.7312500383704901,
+            "rerank_ms": 278.9795409771614
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "visual": 3
+          },
+          "rss_mb": 547.78125
+        },
+        {
+          "query_id": 7,
+          "query": "tài liệu tháng 9",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 224.61766697233543,
+          "stages": {
+            "decompose_ms": 1.3560839579440653,
+            "embed_query_ms": 9.078041999600828,
+            "fts5_ms": 7.809833972714841,
+            "vector_ms": 6.580375018529594,
+            "provenance_ms": 0.0,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.16624998534098268,
+            "rerank_ms": 199.5142080122605
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45
+          },
+          "rss_mb": 525.25
+        },
+        {
+          "query_id": 8,
+          "query": "file tải từ Telegram",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 352.46154200285673,
+          "stages": {
+            "decompose_ms": 0.5816660122945905,
+            "embed_query_ms": 17.617790959775448,
+            "fts5_ms": 20.206584013067186,
+            "vector_ms": 23.14629196189344,
+            "provenance_ms": 145.37883299635723,
+            "visual_ms": 0.0,
+            "rrf_fuse_ms": 0.2274170401506126,
+            "rerank_ms": 145.2091250102967
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "provenance": 18
+          },
+          "rss_mb": 480.421875
+        },
+        {
+          "query_id": 9,
+          "query": "ảnh hóa đơn",
+          "iteration": 2,
+          "phase": "warm",
+          "total_ms": 220.51337495213374,
+          "stages": {
+            "decompose_ms": 0.5896249786019325,
+            "embed_query_ms": 32.99433400388807,
+            "fts5_ms": 27.018583030439913,
+            "vector_ms": 7.937375048641115,
+            "provenance_ms": 0.0,
+            "visual_ms": 1.9830000237561762,
+            "rrf_fuse_ms": 0.17566699534654617,
+            "rerank_ms": 149.7342909569852
+          },
+          "results": 15,
+          "candidate_counts": {
+            "lexical": 45,
+            "semantic": 45,
+            "visual": 1
+          },
+          "rss_mb": 423.078125
+        }
+      ],
+      "summary": {
+        "cold": {
+          "n": 1,
+          "p50": 1066.1173749831505,
+          "p90": 1066.1173749831505,
+          "p95": 1066.1173749831505,
+          "p99": 1066.1173749831505,
+          "stages": {
+            "decompose_ms": {
+              "p50": 4.45033295545727,
+              "p90": 4.45033295545727,
+              "p95": 4.45033295545727,
+              "p99": 4.45033295545727
+            },
+            "embed_query_ms": {
+              "p50": 689.4315410172567,
+              "p90": 689.4315410172567,
+              "p95": 689.4315410172567,
+              "p99": 689.4315410172567
+            },
+            "fts5_ms": {
+              "p50": 43.968791025690734,
+              "p90": 43.968791025690734,
+              "p95": 43.968791025690734,
+              "p99": 43.968791025690734
+            },
+            "vector_ms": {
+              "p50": 286.8440829915926,
+              "p90": 286.8440829915926,
+              "p95": 286.8440829915926,
+              "p99": 286.8440829915926
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.2916249795816839,
+              "p90": 0.2916249795816839,
+              "p95": 0.2916249795816839,
+              "p99": 0.2916249795816839
+            },
+            "rerank_ms": {
+              "p50": 41.031125001609325,
+              "p90": 41.031125001609325,
+              "p95": 41.031125001609325,
+              "p99": 41.031125001609325
+            }
+          }
+        },
+        "warm": {
+          "n": 30,
+          "p50": 157.59389597224072,
+          "p90": 282.2747910686303,
+          "p95": 326.1625476938205,
+          "p99": 352.06210297124926,
+          "stages": {
+            "decompose_ms": {
+              "p50": 0.6222085212357342,
+              "p90": 0.7684458629228177,
+              "p95": 1.1476214946014793,
+              "p99": 1.4195096748881042
+            },
+            "embed_query_ms": {
+              "p50": 7.19212502008304,
+              "p90": 18.878312205197293,
+              "p95": 22.74876683950424,
+              "p99": 30.17302056367044
+            },
+            "fts5_ms": {
+              "p50": 13.829854520736262,
+              "p90": 22.06138300243766,
+              "p95": 27.446093602338802,
+              "p99": 29.652821052586663
+            },
+            "vector_ms": {
+              "p50": 16.308874503010884,
+              "p90": 28.915082709863785,
+              "p95": 33.09177486517,
+              "p99": 44.997624134994126
+            },
+            "provenance_ms": {
+              "p50": 0.0,
+              "p90": 8.554795797681557,
+              "p95": 94.44274169218257,
+              "p99": 132.7178561087931
+            },
+            "visual_ms": {
+              "p50": 0.0,
+              "p90": 2.7614253398496698,
+              "p95": 6.024639392853711,
+              "p99": 7.845324064255694
+            },
+            "rrf_fuse_ms": {
+              "p50": 0.19697900279425085,
+              "p90": 0.617541978135705,
+              "p95": 0.6711770198307929,
+              "p99": 0.7252203387906775
+            },
+            "rerank_ms": {
+              "p50": 122.80377050046809,
+              "p90": 180.48453325754966,
+              "p95": 211.87069116276683,
+              "p99": 262.4498309876072
+            }
+          }
+        }
+      },
+      "llm_calls": 0,
+      "peak_rss_mb": 787.875
+    }
+  ],
+  "status": "complete"
+}

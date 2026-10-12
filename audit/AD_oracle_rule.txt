@@ -1,0 +1,5 @@
+| Family | Best-Single Arm (Acc, Tok) | 6-Arm Oracle (Acc, Tok) | Gap (pp) | 95% Cluster-Bootstrap CI | Prereg Gate Decision |
+| :--- | :--- | :--- | :---: | :---: | :---: |
+| arith | PAL (100.0%, 194.1 tok) | 100.0% (40/40), 169.2 tok | +0.0 pp | [+0.0 pp; +0.0 pp] | **NO-GO** |
+| order | TOT (67.7%, 1894.0 tok) | 80.6% (25/31), 645.9 tok | +12.9 pp | [+3.2 pp; +25.8 pp] | **NO-GO** |
+| g24   | TOT (58.6%, 1446.8 tok) | 65.5% (19/29), 533.6 tok | +6.9 pp | [+0.0 pp; +17.2 pp] | **NO-GO** |

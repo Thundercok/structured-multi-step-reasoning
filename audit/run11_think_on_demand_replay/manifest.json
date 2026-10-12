@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "mode": "run11_think_on_demand_posthoc_replay",
+  "evidence": "exposed_development_posthoc_replay_only",
+  "model_calls": false,
+  "uses_held_out_data": false,
+  "policy_fitted_or_selected_after_outcome_inspection": true,
+  "source_trace": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/run11_sweep_trace.jsonl",
+  "source_trace_sha256": "3d57df7f4e81c71513a30b46a190c2d848ea020dac78adf88776620b6e67e632",
+  "source_dataset": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/data/gen02_tune.json",
+  "source_dataset_sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+  "cascade_prereg_sha256": "8b8cd86c19c6b843a80d643211761ea6afa5edf59b801236f105f6ccd60ed3c4",
+  "analysis_source_sha256": {
+    "experiments/think_on_demand_replay.py": "8a065d69cb576ec2e33b8c4c2015b393394013197028b8c1bc25e62e0c849c94",
+    "experiments/research_study.py": "416c00e5c120bcdc378b7349dfe3c02eb9f236d378588bd0532db6bfbe802b94",
+    "scripts/gen_tasks.py": "87612f2b7b678d01cf839c28ab162cee13342b4648f1d399a9845322a1d85ef7",
+    "scripts/verifiers.py": "aa613f9402649b36233f6d8a4a134899fa0cd8f1eb25149e39efb840d0c04bb1"
+  },
+  "token_scope": "recorded prompt_tokens + completion_tokens; undercounts multi-call prompts for SC/TOT/ReAct",
+  "latency_scope": "sum of replayed historical arm wall_ms; not online policy latency",
+  "lambda": 0.02,
+  "bootstrap_repetitions": 10000,
+  "git_sha": "79f0a0d9e377e497702c1fa2627b724007458122",
+  "git_status_before_output": "M docs/direct_cot_development_protocol.md\n M docs/empirical_findings_report.md\n M docs/research_plan.md\n M experiments/research_study.py\n M scripts/verifiers.py\n M tests/test_verifiers.py\n?? audit/AD_failure_modes.txt\n?? audit/AD_oracle_rule.txt\n?? audit/AD_pareto.png\n?? audit/AD_posthoc_tot.txt\n?? audit/AD_report_results.txt\n?? audit/AD_sc_consensus.txt\n?? docs/think_on_demand_replay_protocol.md\n?? experiments/think_on_demand_replay.py\n?? scripts/report_results.py\n?? tests/test_think_on_demand_replay.py",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "started_utc": "2026-10-06T06:24:56.329791+00:00",
+  "artifact_sha256": {
+    "policy.json": "6ba8edf9026f7b054192b1a8e63ff3be1654c172402921511f1984abadbda5e8",
+    "report.md": "9da38cb5bd613f899a7c15430c40a63aa9d59c5694ce446c45c722584412edd3",
+    "results.json": "acf46f872eb0fe563fee4fbc23903400215e0a4bc3471a3c042d4e8668c8e051",
+    "source_validation.json": "da58053f067f1ade1381f70996aa6fff582508e96f27d3502b25d8f49c35a40c",
+    "summary.json": "2b27112965701b83d65ee7adf1aef3269b04c1f19604cc9f08ea3d724ec60060"
+  },
+  "finished_utc": "2026-10-06T06:24:56.343301+00:00"
+}

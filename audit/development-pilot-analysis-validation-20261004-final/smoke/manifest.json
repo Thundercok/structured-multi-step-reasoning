@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "pilot": true,
+  "mode": "development_pilot",
+  "backend": "smoke",
+  "seed": 42,
+  "model": null,
+  "model_content_sha256": {},
+  "model_revision_verified": false,
+  "model_revision": null,
+  "model_repository": null,
+  "model_provenance_sha256": null,
+  "human_review_status": "pending",
+  "publication_ready": false,
+  "policy_fitted": false,
+  "evidence": "synthetic_pilot_smoke",
+  "token_scope": "synthetic token units",
+  "strategies": [
+    "DIRECT",
+    "COT"
+  ],
+  "strategy_labels": {
+    "COT": "CoT",
+    "SELF_CONSISTENCY": "Self-consistency",
+    "TOT": "Candidate selection (legacy TOT identifier)",
+    "REACT": "ReAct calculator",
+    "PAL": "PAL",
+    "DIRECT": "Direct"
+  },
+  "token_budgets": [
+    96,
+    1024
+  ],
+  "budget_scope": "per generation call; ReAct min(cap, 200)",
+  "input_dataset_sha256": null,
+  "source_sha256": {
+    "experiments/research_study.py": "5f1849c39fa202ad209bf1736585595bf493ba5d5f9eca9ff0f8cda3f9ab2956",
+    "optimal_stopping.py": "51e88d2661e34da3e6a5c27e5af572b3df0966709a4817e01145fadea967e3cf",
+    "entry_predictor.py": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03",
+    "reasoning_env.py": "51ca9b55327e5755b2a4094136e7fc51b159dd359631693fd900ae7fb5997b8b",
+    "reasoning_strategies.py": "55d315b2268c94b48860efa1aa4de16fc33291566ad80b94cd752d33b2b94147",
+    "pipeline.py": "a06335996eca15fd2d8a5838fd9577325284616c6c59412030e4b43d9b45bec6",
+    "qwen_mlx_backend.py": "d45e244e963455ffc64f948c0d5819376346b3cf78d674d9ec5d8c779795b871",
+    "scripts/gen_tasks.py": "d64bd1c2648ca52bd7ea568b5cc892bf387c7726239f35fec51028e280c3b475",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "research_identity.py": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "experiments/research_pilot.py": "97afaa80210aea3dc90f80ccc60b96daea06214d70fa6470022e052a47855917"
+  },
+  "git_sha": "495dec2ec921e8647d6a5df7305f1a3cb7a88fe8",
+  "git_status": "",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+    "numpy": "2.5.2",
+    "scikit-learn": "1.9.0",
+    "gymnasium": "1.3.0",
+    "mlx": "0.32.2",
+    "mlx-lm": "0.31.3"
+  },
+  "stage0_decision_sha256": "ddff59b640051b83af05cd3bd2d5be47f3274203aa10c2c96d731f8ec08b834c",
+  "stage0_reevaluated": false,
+  "status": "complete",
+  "started_utc": "2026-10-04T00:19:05.258083+00:00",
+  "backend_load_ms": 0.0010000003385357559,
+  "artifact_sha256": {
+    "attempts.jsonl": "f76ae1e9760e348d6c3c35d3c6ad1216f2dfd8eff0f70e91a87008aee4402df0",
+    "dataset.json": "60e7e6f58669392f1e5edebca45df60e59bb0f57e0e00ee0e740866ed530d463",
+    "records.json": "eeb6699471e608c1f8d32e6311a16b93469c5710be2f3c75ce1534e7ab66baed",
+    "report.md": "1882dd9a8bc251cdb55c25983c60544bbce4c87b9b1ff228511778f403c775f5",
+    "selection.json": "f567ab5088e83f9f938a73e5d1c6388517bc6674238ac3467ae1b61d6321f89b",
+    "summary.json": "612a2bcbf7532bf9c50672e6f69ca24ac432ce1f8b4ac662fead783539c29c39"
+  },
+  "finished_utc": "2026-10-04T00:19:05.274157+00:00"
+}

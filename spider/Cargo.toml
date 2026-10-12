@@ -1,0 +1,18 @@
+[workspace]
+members = [
+    "spider",
+    "spider_worker",
+    "spider_cli",
+    "spider_utils",
+    "spider_agent",
+    "spider_agent_types",
+    "spider_agent_html",
+    "spider_mcp",
+    [[example]]
+name = "cv_job_crawler"
+path = "cv_job_crawler.rs"
+    # internal
+    "examples",
+    "benches"]
+resolver = "2"
+

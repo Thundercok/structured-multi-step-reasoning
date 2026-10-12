@@ -1,0 +1,20 @@
+| Family | Signal | Baseline AUROC | Signal AUROC | Δ AUROC | 95% Paired-Bootstrap CI | Gate Passed (Δ≥0.05, CI_low>0) |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **arith (N=40)** | Baseline | N/A | N/A | N/A | N/A | N/A (Degenerate (100% acc, no negative class)) |
+| arith | + agree(PAL,COT) | N/A | N/A | N/A | N/A | Failed (Degenerate (100% acc, no negative class)) |
+| arith | + agree(PAL,TOT) | N/A | N/A | N/A | N/A | Failed (Degenerate (100% acc, no negative class)) |
+| arith | + n_agree (PAL) | N/A | N/A | N/A | N/A | Failed (Degenerate (100% acc, no negative class)) |
+| arith | + n_agree (plurality) | N/A | N/A | N/A | N/A | Failed (Degenerate (100% acc, no negative class)) |
+| order | + agree(PAL,COT) | 0.7175 | 0.7805 | +0.0630 | [-0.0667, +0.2143] | FAIL |
+| order | + agree(PAL,TOT) | 0.7175 | 0.8370 | +0.1195 | [-0.0570, +0.2917] | FAIL |
+| order | + n_agree (PAL) | 0.7175 | 0.8582 | +0.1407 | [+0.0151, +0.3067] | **PASS** |
+| order | + n_agree (plurality) | 0.7175 | 0.7905 | +0.0730 | [-0.0202, +0.2077] | FAIL |
+| **g24 (N=29)** | Baseline | N/A | N/A | N/A | N/A | N/A (Degenerate (0% acc, no positive class)) |
+| g24 | + agree(PAL,COT) | N/A | N/A | N/A | N/A | Failed (Degenerate (0% acc, no positive class)) |
+| g24 | + agree(PAL,TOT) | N/A | N/A | N/A | N/A | Failed (Degenerate (0% acc, no positive class)) |
+| g24 | + n_agree (PAL) | N/A | N/A | N/A | N/A | Failed (Degenerate (0% acc, no positive class)) |
+| g24 | + n_agree (plurality) | N/A | N/A | N/A | N/A | Failed (Degenerate (0% acc, no positive class)) |
+| pooled | + agree(PAL,COT) | 0.9767 | 0.9807 | +0.0040 | [-0.0102, +0.0200] | FAIL |
+| pooled | + agree(PAL,TOT) | 0.9767 | 0.9870 | +0.0104 | [-0.0057, +0.0307] | FAIL |
+| pooled | + n_agree (PAL) | 0.9767 | 0.9899 | +0.0132 | [-0.0000, +0.0321] | FAIL |
+| pooled | + n_agree (plurality) | 0.9767 | 0.9836 | +0.0070 | [-0.0034, +0.0210] | FAIL |

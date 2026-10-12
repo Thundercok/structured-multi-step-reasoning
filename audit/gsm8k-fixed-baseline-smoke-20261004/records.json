@@ -1,0 +1,6626 @@
+[
+  {
+    "id": "pal_calibration_0",
+    "group_id": "pal_calibration_group_0",
+    "split": "calibration",
+    "family": "pal",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 50720554,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.22165388570283212,
+    "tokens": 300,
+    "strategy_ms": 0.02779100032057613,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_0",
+    "group_id": "pal_calibration_group_0",
+    "split": "calibration",
+    "family": "pal",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 806086600,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7523130325420478,
+    "tokens": 300,
+    "strategy_ms": 0.008791997970547527,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_0",
+    "group_id": "pal_calibration_group_0",
+    "split": "calibration",
+    "family": "pal",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 630950118,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3418096764136081,
+    "tokens": 120,
+    "strategy_ms": 0.005125002644490451,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_1",
+    "group_id": "pal_calibration_group_0",
+    "split": "calibration",
+    "family": "pal",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2168817192,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3536386627622755,
+    "tokens": 300,
+    "strategy_ms": 0.004375004209578037,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_1",
+    "group_id": "pal_calibration_group_0",
+    "split": "calibration",
+    "family": "pal",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2306009880,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8119281662799271,
+    "tokens": 120,
+    "strategy_ms": 0.0040000013541430235,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_1",
+    "group_id": "pal_calibration_group_0",
+    "split": "calibration",
+    "family": "pal",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1103919406,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.4258739830625345,
+    "tokens": 300,
+    "strategy_ms": 0.0035420016502030194,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_2",
+    "group_id": "pal_calibration_group_1",
+    "split": "calibration",
+    "family": "pal",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1252975059,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.26736420677348066,
+    "tokens": 120,
+    "strategy_ms": 0.003458997525740415,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_2",
+    "group_id": "pal_calibration_group_1",
+    "split": "calibration",
+    "family": "pal",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3066895563,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7202389036369549,
+    "tokens": 300,
+    "strategy_ms": 0.003249995643272996,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_2",
+    "group_id": "pal_calibration_group_1",
+    "split": "calibration",
+    "family": "pal",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2208437481,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.4020153542842788,
+    "tokens": 300,
+    "strategy_ms": 0.0031249946914613247,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_3",
+    "group_id": "pal_calibration_group_1",
+    "split": "calibration",
+    "family": "pal",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1834473973,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.29544537924458275,
+    "tokens": 120,
+    "strategy_ms": 0.0032090028980746865,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_3",
+    "group_id": "pal_calibration_group_1",
+    "split": "calibration",
+    "family": "pal",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 78804787,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.6698904754922872,
+    "tokens": 300,
+    "strategy_ms": 0.003125001967418939,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_3",
+    "group_id": "pal_calibration_group_1",
+    "split": "calibration",
+    "family": "pal",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 156288145,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.84120729754737,
+    "tokens": 300,
+    "strategy_ms": 0.003291999746579677,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_4",
+    "group_id": "pal_calibration_group_2",
+    "split": "calibration",
+    "family": "pal",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2327788829,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6080779974026358,
+    "tokens": 300,
+    "strategy_ms": 0.0030000010156072676,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_4",
+    "group_id": "pal_calibration_group_2",
+    "split": "calibration",
+    "family": "pal",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 430315580,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.29122629284628404,
+    "tokens": 300,
+    "strategy_ms": 0.002958004188258201,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_4",
+    "group_id": "pal_calibration_group_2",
+    "split": "calibration",
+    "family": "pal",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2763365244,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.40229775859028455,
+    "tokens": 120,
+    "strategy_ms": 0.002958004188258201,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_5",
+    "group_id": "pal_calibration_group_2",
+    "split": "calibration",
+    "family": "pal",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2521245500,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8432463462554414,
+    "tokens": 300,
+    "strategy_ms": 0.0030410010367631912,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_5",
+    "group_id": "pal_calibration_group_2",
+    "split": "calibration",
+    "family": "pal",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2772820997,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.816709650397569,
+    "tokens": 120,
+    "strategy_ms": 0.0029170041671022773,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_5",
+    "group_id": "pal_calibration_group_2",
+    "split": "calibration",
+    "family": "pal",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 380350818,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.21997547998985684,
+    "tokens": 300,
+    "strategy_ms": 0.0029579969123005867,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_6",
+    "group_id": "pal_calibration_group_3",
+    "split": "calibration",
+    "family": "pal",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 304392506,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.4635662051610814,
+    "tokens": 300,
+    "strategy_ms": 0.0029579969123005867,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_6",
+    "group_id": "pal_calibration_group_3",
+    "split": "calibration",
+    "family": "pal",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1597093817,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.1409601417389248,
+    "tokens": 300,
+    "strategy_ms": 0.002958004188258201,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_6",
+    "group_id": "pal_calibration_group_3",
+    "split": "calibration",
+    "family": "pal",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2539190850,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8012548761313001,
+    "tokens": 120,
+    "strategy_ms": 0.0028750000637955964,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_7",
+    "group_id": "pal_calibration_group_3",
+    "split": "calibration",
+    "family": "pal",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3423958233,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7813298459241483,
+    "tokens": 300,
+    "strategy_ms": 0.0028750000637955964,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_7",
+    "group_id": "pal_calibration_group_3",
+    "split": "calibration",
+    "family": "pal",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3854345275,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.48865644416522386,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_calibration_7",
+    "group_id": "pal_calibration_group_3",
+    "split": "calibration",
+    "family": "pal",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1204833282,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.46790512200498874,
+    "tokens": 120,
+    "strategy_ms": 0.00291600008495152,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_0",
+    "group_id": "pal_train_group_0",
+    "split": "train",
+    "family": "pal",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3048574940,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7102134674897274,
+    "tokens": 300,
+    "strategy_ms": 0.0028750000637955964,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_0",
+    "group_id": "pal_train_group_0",
+    "split": "train",
+    "family": "pal",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2120367643,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5969257119858401,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_0",
+    "group_id": "pal_train_group_0",
+    "split": "train",
+    "family": "pal",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2769045163,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.6862038729192772,
+    "tokens": 120,
+    "strategy_ms": 0.0030840019462630153,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_1",
+    "group_id": "pal_train_group_0",
+    "split": "train",
+    "family": "pal",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 199257813,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.5006838189098186,
+    "tokens": 300,
+    "strategy_ms": 0.0029170041671022773,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_1",
+    "group_id": "pal_train_group_0",
+    "split": "train",
+    "family": "pal",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3353276623,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5511773184811466,
+    "tokens": 300,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_1",
+    "group_id": "pal_train_group_0",
+    "split": "train",
+    "family": "pal",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 833397464,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7639728287160434,
+    "tokens": 120,
+    "strategy_ms": 0.0028329959604889154,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_2",
+    "group_id": "pal_train_group_1",
+    "split": "train",
+    "family": "pal",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3716392782,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.11128768747707883,
+    "tokens": 300,
+    "strategy_ms": 0.0028340000426396728,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_2",
+    "group_id": "pal_train_group_1",
+    "split": "train",
+    "family": "pal",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 408489596,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.12282849225229492,
+    "tokens": 120,
+    "strategy_ms": 0.0028329959604889154,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_2",
+    "group_id": "pal_train_group_1",
+    "split": "train",
+    "family": "pal",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3527173662,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6081782142560087,
+    "tokens": 300,
+    "strategy_ms": 0.0028340000426396728,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_3",
+    "group_id": "pal_train_group_1",
+    "split": "train",
+    "family": "pal",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1643782169,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5302169916223697,
+    "tokens": 300,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_3",
+    "group_id": "pal_train_group_1",
+    "split": "train",
+    "family": "pal",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 104283786,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7871517302618314,
+    "tokens": 120,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_3",
+    "group_id": "pal_train_group_1",
+    "split": "train",
+    "family": "pal",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1876485755,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.32038173947065013,
+    "tokens": 300,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_4",
+    "group_id": "pal_train_group_2",
+    "split": "train",
+    "family": "pal",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2992132148,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.47473299251985995,
+    "tokens": 120,
+    "strategy_ms": 0.0028750000637955964,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_4",
+    "group_id": "pal_train_group_2",
+    "split": "train",
+    "family": "pal",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3914251137,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.11820048700604434,
+    "tokens": 300,
+    "strategy_ms": 0.0028340000426396728,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_4",
+    "group_id": "pal_train_group_2",
+    "split": "train",
+    "family": "pal",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2340560646,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.829564080885488,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_5",
+    "group_id": "pal_train_group_2",
+    "split": "train",
+    "family": "pal",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3954703173,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.47448672556042965,
+    "tokens": 120,
+    "strategy_ms": 0.0028330032364465296,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_5",
+    "group_id": "pal_train_group_2",
+    "split": "train",
+    "family": "pal",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2712186529,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8187997642080442,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_5",
+    "group_id": "pal_train_group_2",
+    "split": "train",
+    "family": "pal",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 476718837,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6976832776212114,
+    "tokens": 300,
+    "strategy_ms": 0.002791995939332992,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_6",
+    "group_id": "pal_train_group_3",
+    "split": "train",
+    "family": "pal",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2044250950,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6933526569303661,
+    "tokens": 300,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_6",
+    "group_id": "pal_train_group_3",
+    "split": "train",
+    "family": "pal",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1662717506,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.4951917287744985,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_6",
+    "group_id": "pal_train_group_3",
+    "split": "train",
+    "family": "pal",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2160942766,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.815803426288285,
+    "tokens": 120,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_7",
+    "group_id": "pal_train_group_3",
+    "split": "train",
+    "family": "pal",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1541419033,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7522176951299662,
+    "tokens": 120,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_7",
+    "group_id": "pal_train_group_3",
+    "split": "train",
+    "family": "pal",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1778151742,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5222707301786871,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pal_train_7",
+    "group_id": "pal_train_group_3",
+    "split": "train",
+    "family": "pal",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1040893363,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.4148044378058903,
+    "tokens": 300,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "pal_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_0",
+    "group_id": "plain_calibration_group_0",
+    "split": "calibration",
+    "family": "plain",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3117322168,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5188394662907923,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_0",
+    "group_id": "plain_calibration_group_0",
+    "split": "calibration",
+    "family": "plain",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3737311525,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.2118440367072875,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_0",
+    "group_id": "plain_calibration_group_0",
+    "split": "calibration",
+    "family": "plain",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2332602005,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.20578668401474787,
+    "tokens": 300,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_1",
+    "group_id": "plain_calibration_group_0",
+    "split": "calibration",
+    "family": "plain",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 983014155,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3225845294062826,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_1",
+    "group_id": "plain_calibration_group_0",
+    "split": "calibration",
+    "family": "plain",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2950713492,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.25225519280306097,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_1",
+    "group_id": "plain_calibration_group_0",
+    "split": "calibration",
+    "family": "plain",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2701506531,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.35751507734707455,
+    "tokens": 300,
+    "strategy_ms": 0.004499997885432094,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_2",
+    "group_id": "plain_calibration_group_1",
+    "split": "calibration",
+    "family": "plain",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 713212581,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7207693901904094,
+    "tokens": 300,
+    "strategy_ms": 0.0035420016502030194,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_2",
+    "group_id": "plain_calibration_group_1",
+    "split": "calibration",
+    "family": "plain",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1635696474,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.2992288084614092,
+    "tokens": 120,
+    "strategy_ms": 0.0033339965739287436,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_2",
+    "group_id": "plain_calibration_group_1",
+    "split": "calibration",
+    "family": "plain",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 638169289,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7482864331520553,
+    "tokens": 300,
+    "strategy_ms": 0.0030420051189139485,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_3",
+    "group_id": "plain_calibration_group_1",
+    "split": "calibration",
+    "family": "plain",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3040439602,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.518340290633304,
+    "tokens": 300,
+    "strategy_ms": 0.003416993422433734,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_3",
+    "group_id": "plain_calibration_group_1",
+    "split": "calibration",
+    "family": "plain",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2396095027,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.33681529708323943,
+    "tokens": 120,
+    "strategy_ms": 0.003207998815923929,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_3",
+    "group_id": "plain_calibration_group_1",
+    "split": "calibration",
+    "family": "plain",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3519658335,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.8200782378542001,
+    "tokens": 300,
+    "strategy_ms": 0.002916996891144663,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_4",
+    "group_id": "plain_calibration_group_2",
+    "split": "calibration",
+    "family": "plain",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 791452934,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.3807552947560755,
+    "tokens": 120,
+    "strategy_ms": 0.0030410010367631912,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_4",
+    "group_id": "plain_calibration_group_2",
+    "split": "calibration",
+    "family": "plain",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2759556369,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6402249744150388,
+    "tokens": 300,
+    "strategy_ms": 0.0028750000637955964,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_4",
+    "group_id": "plain_calibration_group_2",
+    "split": "calibration",
+    "family": "plain",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3667473217,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.2977438370998887,
+    "tokens": 300,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_5",
+    "group_id": "plain_calibration_group_2",
+    "split": "calibration",
+    "family": "plain",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3527117657,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.31619841891603473,
+    "tokens": 300,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_5",
+    "group_id": "plain_calibration_group_2",
+    "split": "calibration",
+    "family": "plain",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1214238998,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7218255112558701,
+    "tokens": 300,
+    "strategy_ms": 0.0029579969123005867,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_5",
+    "group_id": "plain_calibration_group_2",
+    "split": "calibration",
+    "family": "plain",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 928115197,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8894290132495055,
+    "tokens": 120,
+    "strategy_ms": 0.0030000010156072676,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_6",
+    "group_id": "plain_calibration_group_3",
+    "split": "calibration",
+    "family": "plain",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1300243471,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.1005549035524191,
+    "tokens": 300,
+    "strategy_ms": 0.00291600008495152,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_6",
+    "group_id": "plain_calibration_group_3",
+    "split": "calibration",
+    "family": "plain",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2879322079,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3110503967030632,
+    "tokens": 120,
+    "strategy_ms": 0.002792003215290606,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_6",
+    "group_id": "plain_calibration_group_3",
+    "split": "calibration",
+    "family": "plain",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 379170446,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.12042310756677442,
+    "tokens": 300,
+    "strategy_ms": 0.0026659981813281775,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_7",
+    "group_id": "plain_calibration_group_3",
+    "split": "calibration",
+    "family": "plain",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3082387231,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8536399531159755,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_7",
+    "group_id": "plain_calibration_group_3",
+    "split": "calibration",
+    "family": "plain",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3666146173,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.47999694978450064,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_calibration_7",
+    "group_id": "plain_calibration_group_3",
+    "split": "calibration",
+    "family": "plain",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2833482691,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.19627039682354877,
+    "tokens": 120,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_0",
+    "group_id": "plain_train_group_0",
+    "split": "train",
+    "family": "plain",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2159565008,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.39296472900290347,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_0",
+    "group_id": "plain_train_group_0",
+    "split": "train",
+    "family": "plain",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 162768858,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.11875767768596682,
+    "tokens": 120,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_0",
+    "group_id": "plain_train_group_0",
+    "split": "train",
+    "family": "plain",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 480427787,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.38591026269306417,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_1",
+    "group_id": "plain_train_group_0",
+    "split": "train",
+    "family": "plain",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1251359238,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.6982084099479358,
+    "tokens": 120,
+    "strategy_ms": 0.002792003215290606,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_1",
+    "group_id": "plain_train_group_0",
+    "split": "train",
+    "family": "plain",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 909675837,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.18351423455103602,
+    "tokens": 300,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_1",
+    "group_id": "plain_train_group_0",
+    "split": "train",
+    "family": "plain",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 4224278944,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5548491814712411,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_2",
+    "group_id": "plain_train_group_1",
+    "split": "train",
+    "family": "plain",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 319311996,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5966658061041613,
+    "tokens": 300,
+    "strategy_ms": 0.002707995008677244,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_2",
+    "group_id": "plain_train_group_1",
+    "split": "train",
+    "family": "plain",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3148437161,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5792305743490194,
+    "tokens": 120,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_2",
+    "group_id": "plain_train_group_1",
+    "split": "train",
+    "family": "plain",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3514627981,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3360778386107627,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_3",
+    "group_id": "plain_train_group_1",
+    "split": "train",
+    "family": "plain",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 425318663,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6422542937222266,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_3",
+    "group_id": "plain_train_group_1",
+    "split": "train",
+    "family": "plain",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 4257537965,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.22464217516905338,
+    "tokens": 120,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_3",
+    "group_id": "plain_train_group_1",
+    "split": "train",
+    "family": "plain",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 4000978183,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.1587690759319906,
+    "tokens": 300,
+    "strategy_ms": 0.002707995008677244,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_4",
+    "group_id": "plain_train_group_2",
+    "split": "train",
+    "family": "plain",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3986853828,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.1634457214457733,
+    "tokens": 120,
+    "strategy_ms": 0.0027500063879415393,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_4",
+    "group_id": "plain_train_group_2",
+    "split": "train",
+    "family": "plain",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 499295030,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8665674746719004,
+    "tokens": 300,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_4",
+    "group_id": "plain_train_group_2",
+    "split": "train",
+    "family": "plain",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1860911296,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.2324163020400933,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_5",
+    "group_id": "plain_train_group_2",
+    "split": "train",
+    "family": "plain",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 482048593,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7389101800660186,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_5",
+    "group_id": "plain_train_group_2",
+    "split": "train",
+    "family": "plain",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2193299681,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7919638133611095,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_5",
+    "group_id": "plain_train_group_2",
+    "split": "train",
+    "family": "plain",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2847036294,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.32874399889696754,
+    "tokens": 300,
+    "strategy_ms": 0.0025839981390163302,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_6",
+    "group_id": "plain_train_group_3",
+    "split": "train",
+    "family": "plain",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 964167137,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3114942136882293,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_6",
+    "group_id": "plain_train_group_3",
+    "split": "train",
+    "family": "plain",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 4119352828,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8537085504767121,
+    "tokens": 120,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_6",
+    "group_id": "plain_train_group_3",
+    "split": "train",
+    "family": "plain",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 9015494,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.5480941689315325,
+    "tokens": 300,
+    "strategy_ms": 0.0025839981390163302,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_7",
+    "group_id": "plain_train_group_3",
+    "split": "train",
+    "family": "plain",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 50894373,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.6195717066308388,
+    "tokens": 300,
+    "strategy_ms": 0.002625005436129868,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_7",
+    "group_id": "plain_train_group_3",
+    "split": "train",
+    "family": "plain",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3525653137,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.3328224889018578,
+    "tokens": 120,
+    "strategy_ms": 0.0026659981813281775,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "plain_train_7",
+    "group_id": "plain_train_group_3",
+    "split": "train",
+    "family": "plain",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1519389185,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.14809151078010796,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "plain_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_0",
+    "group_id": "react_calibration_group_0",
+    "split": "calibration",
+    "family": "react",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 4193059697,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8882280179021187,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_0",
+    "group_id": "react_calibration_group_0",
+    "split": "calibration",
+    "family": "react",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2562778132,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.2691746435580901,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_0",
+    "group_id": "react_calibration_group_0",
+    "split": "calibration",
+    "family": "react",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1105661612,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.8855715765983283,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_1",
+    "group_id": "react_calibration_group_0",
+    "split": "calibration",
+    "family": "react",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 673705085,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7656700123516442,
+    "tokens": 300,
+    "strategy_ms": 0.0026669949875213206,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_1",
+    "group_id": "react_calibration_group_0",
+    "split": "calibration",
+    "family": "react",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2133812748,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.3051697124578014,
+    "tokens": 300,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_1",
+    "group_id": "react_calibration_group_0",
+    "split": "calibration",
+    "family": "react",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 4086543706,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.6529027070361484,
+    "tokens": 120,
+    "strategy_ms": 0.002707995008677244,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_2",
+    "group_id": "react_calibration_group_1",
+    "split": "calibration",
+    "family": "react",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3807425874,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.2841967218488534,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_2",
+    "group_id": "react_calibration_group_1",
+    "split": "calibration",
+    "family": "react",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2823918287,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.4179511311846651,
+    "tokens": 300,
+    "strategy_ms": 0.0028329959604889154,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_2",
+    "group_id": "react_calibration_group_1",
+    "split": "calibration",
+    "family": "react",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3325512975,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.49486988480451527,
+    "tokens": 120,
+    "strategy_ms": 0.0028330032364465296,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_3",
+    "group_id": "react_calibration_group_1",
+    "split": "calibration",
+    "family": "react",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1485022668,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.48381169015987346,
+    "tokens": 300,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_3",
+    "group_id": "react_calibration_group_1",
+    "split": "calibration",
+    "family": "react",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3850012345,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7871943050467572,
+    "tokens": 120,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_3",
+    "group_id": "react_calibration_group_1",
+    "split": "calibration",
+    "family": "react",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 4142305852,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.36959465268068104,
+    "tokens": 300,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_4",
+    "group_id": "react_calibration_group_2",
+    "split": "calibration",
+    "family": "react",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1887941344,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.2753294110648598,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_4",
+    "group_id": "react_calibration_group_2",
+    "split": "calibration",
+    "family": "react",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2752934200,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3260681402420148,
+    "tokens": 120,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_4",
+    "group_id": "react_calibration_group_2",
+    "split": "calibration",
+    "family": "react",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1106977616,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3255820143513377,
+    "tokens": 300,
+    "strategy_ms": 0.002792003215290606,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_5",
+    "group_id": "react_calibration_group_2",
+    "split": "calibration",
+    "family": "react",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2195652798,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3387802706342658,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_5",
+    "group_id": "react_calibration_group_2",
+    "split": "calibration",
+    "family": "react",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2630222068,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.20660780628357067,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_5",
+    "group_id": "react_calibration_group_2",
+    "split": "calibration",
+    "family": "react",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 898089621,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.4540109676688219,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_6",
+    "group_id": "react_calibration_group_3",
+    "split": "calibration",
+    "family": "react",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1605927636,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.3445402710886268,
+    "tokens": 300,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_6",
+    "group_id": "react_calibration_group_3",
+    "split": "calibration",
+    "family": "react",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3017772535,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.12824612824438067,
+    "tokens": 300,
+    "strategy_ms": 0.0025839981390163302,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_6",
+    "group_id": "react_calibration_group_3",
+    "split": "calibration",
+    "family": "react",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2587179071,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7691604591994694,
+    "tokens": 120,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_7",
+    "group_id": "react_calibration_group_3",
+    "split": "calibration",
+    "family": "react",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 266972804,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.8577170778390817,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_7",
+    "group_id": "react_calibration_group_3",
+    "split": "calibration",
+    "family": "react",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2406159333,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3480088795312775,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_calibration_7",
+    "group_id": "react_calibration_group_3",
+    "split": "calibration",
+    "family": "react",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1461444875,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.6514832649348996,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_calibration_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_0",
+    "group_id": "react_train_group_0",
+    "split": "train",
+    "family": "react",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 865527709,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.23449016118700092,
+    "tokens": 120,
+    "strategy_ms": 0.003207998815923929,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_0",
+    "group_id": "react_train_group_0",
+    "split": "train",
+    "family": "react",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 300359413,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.578203040320213,
+    "tokens": 300,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_0",
+    "group_id": "react_train_group_0",
+    "split": "train",
+    "family": "react",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3427324878,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.19619832313384666,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_0"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_1",
+    "group_id": "react_train_group_0",
+    "split": "train",
+    "family": "react",
+    "level": "1",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1145818068,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8526355946458434,
+    "tokens": 300,
+    "strategy_ms": 0.0026669949875213206,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_1",
+    "group_id": "react_train_group_0",
+    "split": "train",
+    "family": "react",
+    "level": "1",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 242113471,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.19467209971001004,
+    "tokens": 120,
+    "strategy_ms": 0.0026659981813281775,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_1",
+    "group_id": "react_train_group_0",
+    "split": "train",
+    "family": "react",
+    "level": "1",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 173971589,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3872042939216453,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_1"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_2",
+    "group_id": "react_train_group_1",
+    "split": "train",
+    "family": "react",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1648872112,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.5109507444135647,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_2",
+    "group_id": "react_train_group_1",
+    "split": "train",
+    "family": "react",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2507606796,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.707422062958754,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_2",
+    "group_id": "react_train_group_1",
+    "split": "train",
+    "family": "react",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 644712149,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.13595513011790647,
+    "tokens": 120,
+    "strategy_ms": 0.0026659981813281775,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_2"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_3",
+    "group_id": "react_train_group_1",
+    "split": "train",
+    "family": "react",
+    "level": "2",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 338414843,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.2716288897005688,
+    "tokens": 120,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_3",
+    "group_id": "react_train_group_1",
+    "split": "train",
+    "family": "react",
+    "level": "2",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1868252613,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.44498315860711496,
+    "tokens": 300,
+    "strategy_ms": 0.002749999111983925,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_3",
+    "group_id": "react_train_group_1",
+    "split": "train",
+    "family": "react",
+    "level": "2",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 612048196,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.8602972851455704,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_3"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_4",
+    "group_id": "react_train_group_2",
+    "split": "train",
+    "family": "react",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 414537266,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.3628990537517073,
+    "tokens": 300,
+    "strategy_ms": 0.0026670022634789348,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_4",
+    "group_id": "react_train_group_2",
+    "split": "train",
+    "family": "react",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2496774526,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.23593620774772817,
+    "tokens": 120,
+    "strategy_ms": 0.0027500063879415393,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_4",
+    "group_id": "react_train_group_2",
+    "split": "train",
+    "family": "react",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2351986373,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.3967815321413548,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_4"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_5",
+    "group_id": "react_train_group_2",
+    "split": "train",
+    "family": "react",
+    "level": "3",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 52789041,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.4780886834394211,
+    "tokens": 300,
+    "strategy_ms": 0.0027080022846348584,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_5",
+    "group_id": "react_train_group_2",
+    "split": "train",
+    "family": "react",
+    "level": "3",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1750067873,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.25953454240382373,
+    "tokens": 300,
+    "strategy_ms": 0.0026669949875213206,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_5",
+    "group_id": "react_train_group_2",
+    "split": "train",
+    "family": "react",
+    "level": "3",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2749988299,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7937648901144689,
+    "tokens": 120,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_5"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_6",
+    "group_id": "react_train_group_3",
+    "split": "train",
+    "family": "react",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 930844190,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.3920255190228936,
+    "tokens": 120,
+    "strategy_ms": 0.0028340000426396728,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_6",
+    "group_id": "react_train_group_3",
+    "split": "train",
+    "family": "react",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3475137468,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.7992976410525752,
+    "tokens": 300,
+    "strategy_ms": 0.0027089990908280015,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_6",
+    "group_id": "react_train_group_3",
+    "split": "train",
+    "family": "react",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3772943557,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.8607350337867834,
+    "tokens": 300,
+    "strategy_ms": 0.002624998160172254,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_6"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_7",
+    "group_id": "react_train_group_3",
+    "split": "train",
+    "family": "react",
+    "level": "4",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1828837300,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.24729214420462828,
+    "tokens": 300,
+    "strategy_ms": 0.0026669949875213206,
+    "trace": {
+      "synthetic": true,
+      "strategy": "COT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_7",
+    "group_id": "react_train_group_3",
+    "split": "train",
+    "family": "react",
+    "level": "4",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 747706250,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "OK",
+    "correct": true,
+    "confidence": 0.7755875326722186,
+    "tokens": 120,
+    "strategy_ms": 0.0027909991331398487,
+    "trace": {
+      "synthetic": true,
+      "strategy": "DIRECT",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: OK",
+          "tokens": 120,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  },
+  {
+    "id": "react_train_7",
+    "group_id": "react_train_group_3",
+    "split": "train",
+    "family": "react",
+    "level": "4",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2455114379,
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    },
+    "answer": "wrong",
+    "correct": false,
+    "confidence": 0.255715632946401,
+    "tokens": 300,
+    "strategy_ms": 0.0027500063879415393,
+    "trace": {
+      "synthetic": true,
+      "strategy": "PAL",
+      "parse_status": "marker",
+      "answer_format": {
+        "answer_type": "text",
+        "decimal_separator": "."
+      },
+      "tools": [],
+      "generations": [
+        {
+          "output": "Answer: wrong",
+          "tokens": 300,
+          "prompt_tokens": 1,
+          "messages": [
+            {
+              "role": "user",
+              "content": "react_train_7"
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "finish_reason": "stop"
+        }
+      ]
+    }
+  }
+]

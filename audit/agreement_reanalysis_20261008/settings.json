@@ -1,0 +1,12 @@
+{
+  "n_splits": 5,
+  "n_repeats": 20,
+  "n_bootstrap": 2000,
+  "seed": 42,
+  "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+  "delta_threshold": 0.05,
+  "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+  "multiplicity": "four signal comparisons per evaluable family; individual unadjusted intervals; exploratory only",
+  "target": "retrospective PAL-v2 parsed-answer correctness; plurality is an auxiliary predictor of that same target",
+  "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost"
+}

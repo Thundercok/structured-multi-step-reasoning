@@ -1,0 +1,11 @@
+{
+  "kind": "fresh_checkout_bundle_reproduction",
+  "recorded_utc": "2026-10-04T02:15:30.196114+00:00",
+  "collection_commit": "05a93cfd352b56a693ab50050fa44fc212cb4702",
+  "bundle_prerequisite": "495dec2ec921e8647d6a5df7305f1a3cb7a88fe8",
+  "local_bundle_fetched_successfully": true,
+  "six_replay_artifacts_byte_identical": true,
+  "exported_analysis_summary_and_report_byte_identical": true,
+  "new_model_calls": 0,
+  "publication_ready": false
+}

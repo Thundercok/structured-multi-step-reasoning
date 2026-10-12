@@ -1,0 +1,47 @@
+{
+  "kind": "development_pilot_preflight",
+  "status": "complete",
+  "recorded_utc": "2026-10-03T23:55:41.676444+00:00",
+  "source_sha256": {
+    "experiments/research_study.py": "5f1849c39fa202ad209bf1736585595bf493ba5d5f9eca9ff0f8cda3f9ab2956",
+    "optimal_stopping.py": "51e88d2661e34da3e6a5c27e5af572b3df0966709a4817e01145fadea967e3cf",
+    "entry_predictor.py": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03",
+    "reasoning_env.py": "51ca9b55327e5755b2a4094136e7fc51b159dd359631693fd900ae7fb5997b8b",
+    "reasoning_strategies.py": "55d315b2268c94b48860efa1aa4de16fc33291566ad80b94cd752d33b2b94147",
+    "pipeline.py": "a06335996eca15fd2d8a5838fd9577325284616c6c59412030e4b43d9b45bec6",
+    "qwen_mlx_backend.py": "d45e244e963455ffc64f948c0d5819376346b3cf78d674d9ec5d8c779795b871",
+    "scripts/gen_tasks.py": "d64bd1c2648ca52bd7ea568b5cc892bf387c7726239f35fec51028e280c3b475",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "research_identity.py": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "experiments/research_pilot.py": "97afaa80210aea3dc90f80ccc60b96daea06214d70fa6470022e052a47855917"
+  },
+  "preparation_script_sha256": "a545f90e309a956f6a7a6ec0e7838423e5acad96a42a6cd780e6e7d508e7eef6",
+  "input_dataset_sha256": "069ca68a4d34d40a3c2f559dffadaa255e73e1e9719e8e488f171a091e002d95",
+  "seed": 42,
+  "selected_items": 24,
+  "selected_groups": 24,
+  "selected_strata": 24,
+  "planned_conditions": 96,
+  "maximum_generated_tokens": 53760,
+  "generator_git_history": [
+    "acfbd4be3d716b7861bb63688f5740c08733394c 2026-10-03 fix(runner): use -uno for dirty status check in sweep K runner",
+    "0047bb24e082f24d85a636d5853c7ef051349414 2026-10-03 feat(procedural): integrate procedural task generator, datasets v2 and tune, and gate C1"
+  ],
+  "procedural_ownership_confirmation": "pending",
+  "human_review_status": "pending",
+  "publication_ready": false,
+  "model_calls": 0,
+  "policy_fitted": false,
+  "stage0_decision_sha256": "ddff59b640051b83af05cd3bd2d5be47f3274203aa10c2c96d731f8ec08b834c",
+  "stage0_changed": false,
+  "artifact_sha256": {
+    "base_model_LICENSE": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+    "base_model_info.json": "2eb7e34b31a8d08b15b49aaf00beab017b8955ca348f0ce2006a413d3709fb4f",
+    "gold_verification.json": "6fdb7d5f3caf983bcb16600b07ee1a1a1d05d27e5d13f2c6f26718f52cce2af0",
+    "model_info.json": "c94ee56411ab0761d41785ef2d5ed375499e4cb144caddbedabfe71f1c5d179e",
+    "model_provenance.json": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+    "review.md": "aa13a2e25e3700e10236c4c6cd6d14e36127faaf670ac1956b6afb6a0e32cd70",
+    "selected_dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "selection.json": "58ec6d9a6dd8ae7ca8bb363dcfdbd504339ad4febeedaba7afd35173292caa95"
+  }
+}

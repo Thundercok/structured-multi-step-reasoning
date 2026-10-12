@@ -1,0 +1,142 @@
+{
+  "metrics": [
+    {
+      "strategy": "DIRECT",
+      "cap_per_call": 1024,
+      "questions": 23,
+      "correct": 20,
+      "mean_generated_tokens": 93.43478260869566,
+      "mean_prompt_tokens": 91.34782608695652,
+      "mean_strategy_ms": 9894.3625597828,
+      "mean_tool_ms": 0.0,
+      "parse_failures": 0,
+      "length_stops": 0,
+      "execution_successes": null
+    },
+    {
+      "strategy": "COT",
+      "cap_per_call": 1024,
+      "questions": 23,
+      "correct": 19,
+      "mean_generated_tokens": 96.82608695652173,
+      "mean_prompt_tokens": 96.34782608695652,
+      "mean_strategy_ms": 11812.054853304606,
+      "mean_tool_ms": 0.0,
+      "parse_failures": 0,
+      "length_stops": 0,
+      "execution_successes": null
+    },
+    {
+      "strategy": "PAL",
+      "cap_per_call": 1024,
+      "questions": 23,
+      "correct": 21,
+      "mean_generated_tokens": 87.04347826086956,
+      "mean_prompt_tokens": 104.34782608695652,
+      "mean_strategy_ms": 10223.189561651847,
+      "mean_tool_ms": 50.02922826046731,
+      "parse_failures": 0,
+      "length_stops": 0,
+      "execution_successes": 23
+    }
+  ],
+  "paired": [
+    {
+      "comparison": "COT minus DIRECT",
+      "cap_per_call": 1024,
+      "became_correct": 3,
+      "became_incorrect": 4,
+      "both_incorrect": 0
+    },
+    {
+      "comparison": "PAL minus DIRECT",
+      "cap_per_call": 1024,
+      "became_correct": 2,
+      "became_incorrect": 1,
+      "both_incorrect": 1
+    },
+    {
+      "comparison": "PAL minus COT",
+      "cap_per_call": 1024,
+      "became_correct": 4,
+      "became_incorrect": 2,
+      "both_incorrect": 0
+    }
+  ],
+  "gold_informed_bounds": [
+    {
+      "cap_per_call": 1024,
+      "gold_informed_best_of_three_correct": 23,
+      "uses_gold_labels": true,
+      "deployable": false
+    }
+  ],
+  "descriptive_only": true,
+  "controller_evaluated": false,
+  "publication_ready": false,
+  "failures": [
+    {
+      "id": "gsm8k-dev-00077",
+      "strategy": "COT",
+      "answer": "639",
+      "confidence": 0.9475684747794061,
+      "tokens": 64
+    },
+    {
+      "id": "gsm8k-dev-00482",
+      "strategy": "PAL",
+      "answer": "64",
+      "confidence": 0.951136406143853,
+      "tokens": 105
+    },
+    {
+      "id": "gsm8k-dev-00482",
+      "strategy": "DIRECT",
+      "answer": "78",
+      "confidence": 0.941588044772536,
+      "tokens": 131
+    },
+    {
+      "id": "gsm8k-dev-01342",
+      "strategy": "DIRECT",
+      "answer": "15",
+      "confidence": 0.9011478209622503,
+      "tokens": 6
+    },
+    {
+      "id": "gsm8k-dev-01628",
+      "strategy": "PAL",
+      "answer": "290",
+      "confidence": 0.9894755444443905,
+      "tokens": 89
+    },
+    {
+      "id": "gsm8k-dev-02161",
+      "strategy": "COT",
+      "answer": "140",
+      "confidence": 0.9589466523544031,
+      "tokens": 52
+    },
+    {
+      "id": "gsm8k-dev-02834",
+      "strategy": "DIRECT",
+      "answer": "29",
+      "confidence": 0.9488721371028704,
+      "tokens": 6
+    },
+    {
+      "id": "gsm8k-dev-04046",
+      "strategy": "COT",
+      "answer": "62.5",
+      "confidence": 0.9471221099411532,
+      "tokens": 76
+    },
+    {
+      "id": "gsm8k-dev-05545",
+      "strategy": "COT",
+      "answer": "936",
+      "confidence": 0.9691872204570037,
+      "tokens": 59
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+[package]
+name = "benches"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+criterion = { version = "0.8", features = ["html_reports", "async_tokio"] }
+spider = { path = "../spider" }
+spider_utils = { path = "../spider_utils" }
+
+[[bench]]
+name = "crawl"
+path = "crawl.rs"
+harness = false
+
+[[bench]]
+name = "core"
+path = "core.rs"
+harness = false
+
+[features]
+decentralized = ["spider/decentralized"]

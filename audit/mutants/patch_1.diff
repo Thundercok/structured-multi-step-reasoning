@@ -1,0 +1,32 @@
+--- a/qwen_mlx_backend.py
++++ b/qwen_mlx_backend.py
+@@ -160,20 +160,13 @@
+     # ---- shared generation ----
+ 
+     def _chat(self, messages: list[dict], temp: float = 0.0, max_tokens: int | None = None) -> tuple[str, float, int]:
+-        prompt = self.tokenizer.apply_chat_template(
+-            messages,
+-            enable_thinking=False,
+-            add_generation_prompt=True,
+-        )
++        prompt = self.tokenizer.apply_chat_template(messages, enable_thinking=False)
+         sampler = make_sampler(temp=temp)
+         text, n_tok = "", 0
+-        finish_reason = None
+         logps, margins, entropies = [], [], []
+         for r in stream_generate(self.model, self.tokenizer, prompt, max_tokens=max_tokens or self.max_tokens, sampler=sampler):
+             text += r.text
+             n_tok = r.generation_tokens
+-            if getattr(r, "finish_reason", None) is not None:
+-                finish_reason = r.finish_reason
+             if getattr(r, "logprobs", None) is not None:
+                 lp_arr = np.asarray(r.logprobs, dtype=np.float32)
+                 if len(lp_arr) > r.token:
+@@ -200,7 +193,6 @@
+             self.last_trace["generations"].append({
+                 "output": text,
+                 "tokens": n_tok,
+-                "finish_reason": finish_reason,
+                 "signals": dict(self.last_signals),
+             })
+         return text, conf, n_tok

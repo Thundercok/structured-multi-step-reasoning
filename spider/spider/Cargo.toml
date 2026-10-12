@@ -1,0 +1,476 @@
+[package]
+name = "spider"
+version = "2.52.0"
+authors = ["j-mendez <jeff@spider.cloud>"]
+description = "A web crawler and scraper, building blocks for data curation workloads."
+repository = "https://github.com/spider-rs/spider"
+readme = "README.md"
+keywords = ["crawler", "spider", "scraper"]
+categories = ["web-programming", "command-line-utilities"]
+license = "MIT"
+documentation = "https://docs.rs/spider"
+edition = "2021"
+
+[badges]
+maintenance = { status = "as-is" }
+
+[dependencies]
+url = "2"
+tokio-stream = "0.1"
+hashbrown = { version = "0.17", default-features = true }
+log = "0.4"
+percent-encoding = "2"
+regex = { version = "1" }
+ua_generator = { version = "^0.5", optional = true }
+string_concat = "0.0.1"
+lazy_static = "1"
+ahash = { version = "0.8", default-features = false, features = ["std"] }
+arc-swap = "1"
+# `dashmap` is no longer optional — used by the v2.51.170 host DNS cache
+# (`HostDnsCache`) which lives behind `host_resolves_locally_cached` on the
+# default code path. Sharded internally (no user-facing locks) and several
+# spider features (chrome, dns_cache, parallel_backends, etc.) already pulled
+# it transitively, so making it non-optional doesn't change the binary
+# footprint for those builds. Default builds gain ~50 KB.
+dashmap = "6"
+smallvec = "1"
+num_cpus = "1"
+bytes = { version = "1", features = ["serde"] }
+serde = { version = "1", optional = true, features = ["derive", "rc"] }
+flexbuffers = { version = "25", optional = true }
+itertools = { version = "0.14", optional = true }
+case_insensitive_string = { version = "0.2", features = ["compact", "serde"] }
+sitemap = { version = "0.4", optional = true }
+chrono = { version = "0.4", optional = true }
+cron = { version = "0.16", optional = true }
+async-trait = { version = "0.1" }
+strum = { version = "0.28", features = ["derive"] }
+async_job = { version = "0.1", optional = true }
+reqwest-middleware = { version = "0.5", optional = true, default-features = false }
+http-cache-reqwest = { package = "spider-http-cache-reqwest", version = "1.0.0-alpha.7", optional = true, default-features = false }
+const_format = { version = "0.2", optional = true }
+async-openai = { version = "0.35", optional = true, features = ["chat-completion"] }
+tiktoken-rs = { version = "0.11", optional = true }
+gemini-rust = { version = "1.7", optional = true }
+lol_html = { version = "2" }
+cookie = { version = "0.18", optional = true }
+serde_json = { version = "1", optional = true }
+quick-xml = { version = "0.39", features = [
+    "serde",
+    "serialize",
+    "async-tokio",
+] }
+moka = { version = "0.12", features = ["future"], optional = true }
+fastrand = { version = "2", optional = true }
+hickory-resolver = { version = "0.26", optional = true, default-features = false, features = ["tokio", "system-config"] }
+http-cache-semantics = { version = "3", optional = true }
+http-cache = { version = "1.0.0-alpha.5", optional = true, default-features = false, features = ["url-standard"] }
+http-global-cache = { version = "0.2.0", optional = true, default-features = false, features = ["cache_request"] }
+http = { version = "1", optional = true }
+phf = "0.13"
+auto_encoder = { version = "0.2" }
+simdutf8 = "0.1"
+base64 = { version = "0.22", optional = true }
+string-interner = { version = "0.19", default-features = false, features = [
+    "std",
+    "inline-more",
+    "backends",
+], optional = true }
+httpdate = { version = "1", optional = true }
+rand = { version = "0.9", optional = true }
+serde_regex = { version = "1", optional = true }
+llm_json = { version = "1", optional = true }
+thirtyfour = { version = "0.36", optional = true }
+statrs = { version = "0.18", optional = true }
+aho-corasick = { version = "1" }
+memchr = "2"
+tracing = { version = "0.1", default-features = false, features = [
+    "std",
+    "attributes",
+], optional = true }
+sysinfo = { version = "0.38", default-features = false, features = [
+    "system",
+], optional = true }
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "sqlite",
+], optional = true }
+h2 = "0.4"
+tower = { version = "0.5", features = ["limit"] }
+pin-project-lite = "0.2"
+sonic-rs = { version = "0.5", optional = true }
+wreq = { version = "5", optional = true, features = [
+    "json",
+    "stream",
+    "socks",
+    "gzip",
+    "brotli",
+    "zstd",
+    "deflate",
+    "cookies",
+    "apple-network-device-binding",
+] }
+wreq-util = { version = "2", optional = true, features = ["emulation-serde"] }
+which = { version = "8.0", optional = true }
+home = { version = "0.5", optional = true }
+zerocopy = { version = "0.8", features = ["derive"], optional = true }
+tempfile = { version = "3", optional = true }
+tikv-jemallocator = { version = "0.6", optional = true }
+mimalloc = { version = "0.1", optional = true, default-features = false }
+
+[dependencies.chromey]
+version = "2"
+optional = true
+default-features = false
+features = ["bytes", "stream"]
+
+[dependencies.spider_remote_cache]
+version = "0.4"
+optional = true
+default-features = false
+
+[dependencies.spider_firewall]
+version = "2"
+optional = true
+
+[dependencies.spider_fingerprint]
+version = "2"
+default-features = false
+features = ["serde", "headers", "dynamic-versions"]
+
+[dependencies.spider_agent_types]
+path = "../spider_agent_types"
+version = "2.51.130"
+
+[dependencies.spider_agent]
+path = "../spider_agent"
+version = "2.51.130"
+optional = true
+default-features = false
+
+[target.'cfg(target_os = "linux")'.dependencies]
+io-uring = { version = "0.7", optional = true }
+libc = "0.2"
+
+[target.'cfg(all(unix, not(target_os = "linux")))'.dependencies]
+libc = { version = "0.2", optional = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1", default-features = false, features = [
+    "macros",
+    "time",
+    "rt-multi-thread",
+] }
+fastrand = { version = "2", optional = true }
+reqwest = { version = "0.13", features = [
+    "brotli",
+    "gzip",
+    "deflate",
+    "zstd",
+    "stream",
+    "http2",
+    "query"
+] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+tokio = { version = "1", default-features = false, features = [
+    "macros",
+    "time",
+    "rt",
+] }
+fastrand = { version = "2", optional = true, features = ["js"] }
+reqwest = { version = "0.13", features = [
+    "brotli",
+    "gzip",
+    "deflate",
+    "stream",
+    "http2",
+    "query"
+] }
+
+[dev-dependencies]
+serde_json = "1"
+env_logger = "0.11"
+criterion = { version = "0.8", features = ["async_tokio", "html_reports"] }
+# Used by local (gitignored) integration probes under `spider/tests/_*.rs`
+# to classify observed network URLs and snapshot markdown. Neither crate
+# depends on `spider`, so they're safe as dev-deps (no circular resolution
+# at publish time).
+spider_network_blocker = "0.0"
+fast_html2md = "0"
+
+[[bench]]
+name = "allocator_bench"
+harness = false
+
+[[bench]]
+name = "streaming_link_extraction"
+harness = false
+
+[features]
+default = ["basic", "io_uring", "tcp_fastopen", "splice", "numa", "zero_copy"]
+__basic = [
+    "sync",
+    "cookies",
+    "ua_generator",
+    "encoding",
+    "string_interner_buffer_backend",
+    "balance",
+    "real_browser",
+    "disk_native_tls",
+    "time",
+    "adaptive_concurrency",
+    "priority_frontier",
+    "dns_cache",
+    "rate_limit",
+    "request_coalesce",
+    "auto_throttle",
+    "etag_cache",
+    "warc"
+]
+auto_throttle = ["time"]
+etag_cache = []
+warc = ["sync", "headers"]
+basic_tls = [
+    "reqwest_native_tls_native_roots",
+    "disk_native_tls",
+]
+basic = [
+    "__basic",
+    "basic_tls"
+]
+disk = ["dep:sqlx"]
+disk_native_tls = ["disk", "sqlx/runtime-tokio-native-tls"]
+disk_aws = ["disk", "sqlx/tls-rustls-aws-lc-rs"]
+adblock = ["chrome", "chromey/adblock"]
+adblock_easylist = ["chrome", "chromey/adblock_easylist"]
+balance = ["dep:sysinfo", "dep:tempfile"]
+regex = []
+glob = ["dep:itertools"]
+ua_generator = ["dep:ua_generator"]
+decentralized = ["serde", "flexbuffers"]
+control = []
+time = []
+cmd = ["tokio/process"]
+io_uring = ["dep:io-uring"]
+tcp_fastopen = []
+splice = []
+sync = ["tokio/sync"]
+flexbuffers = ["dep:flexbuffers"]
+serde = [
+    "dep:serde",
+    "dep:serde_json",
+    "hashbrown/serde",
+    "string-interner/serde",
+    "dep:serde_regex",
+    "smallvec/serde",
+    "reqwest_json",
+]
+fs = ["tokio/fs"]
+full_resources = []
+socks = ["reqwest/socks"]
+reqwest_json = ["reqwest/json"]
+sitemap = ["dep:sitemap"]
+cache_request = ["dep:http-global-cache","dep:reqwest-middleware", "dep:http-cache-reqwest", "dep:http", "dep:http-cache"]
+cache = ["cache_request", "http-global-cache/cache", "http-cache-reqwest/manager-cacache"]
+cache_mem = ["cache_request", "http-global-cache/cache_mem"]
+cache_openai = ["dep:moka"]
+cache_chrome_hybrid = [
+    "cache",
+    "chrome",
+    "dep:http-cache-semantics",
+    "dep:http-cache",
+    "dep:http",
+]
+cache_chrome_hybrid_mem = [
+    "cache_mem",
+    "chrome",
+    "dep:http-cache-semantics",
+    "dep:http-cache",
+    "dep:http",
+]
+chrome = ["dep:chromey", "dep:base64", "dep:rand", "serde", "dep:fastrand", "dep:which", "dep:home", "cookies", "reqwest_json"]
+chrome_headed = ["chrome"]
+chrome_cpu = ["chrome"]
+chrome_stealth = ["chrome"]
+chrome_screenshot = ["chrome"]
+chrome_store_page = ["chrome", "serde"]
+chrome_intercept = ["chrome"]
+chrome_headless_new = ["chrome"]
+chrome_simd = ["chrome", "chromey/simd", "simd"]
+chrome_tls_connection = ["chrome", "chromey/chrome_tls_connection"]
+chrome_serde_stacker = ["chrome", "chromey/serde_stacker"]
+chrome_remote_cache = ["chrome", "cache_mem", "chromey/_cache", "chromey/cache_mem", "dep:spider_remote_cache"]
+chrome_remote_cache_disk = ["chrome_remote_cache", "chromey/cache"]
+chrome_remote_cache_mem = ["chrome_remote_cache"]
+cookies = ["reqwest/cookies", "dep:cookie"]
+cron = ["dep:async_job", "dep:chrono", "dep:cron"]
+smart = ["chrome", "chrome_intercept"]
+encoding = []
+headers = ["dep:httpdate"]
+remote_addr = []
+real_browser = ["dep:statrs", "dep:rand", "dep:fastrand"]
+openai = [
+    "chrome",
+    "serde",
+    "chrome_intercept",
+    "dep:async-openai",
+    "dep:tiktoken-rs",
+    "dep:serde_json",
+]
+openai_slim_fit = []
+gemini = [
+    "chrome",
+    "serde",
+    "chrome_intercept",
+    "dep:gemini-rust",
+    "dep:serde_json",
+]
+cache_gemini = ["dep:moka"]
+decentralized_headers = ["dep:const_format", "dep:itertools"]
+spoof = ["dep:fastrand"]
+dns_cache = ["dep:fastrand", "dep:hickory-resolver"]
+reqwest_rustls_tls = ["reqwest/rustls"]
+reqwest_native_tls = ["reqwest/native-tls"]
+reqwest_native_tls_alpn = ["reqwest/native-tls"]
+reqwest_native_tls_vendored = ["reqwest/native-tls-vendored"]
+reqwest_native_tls_manual_roots = ["reqwest/rustls"]
+reqwest_native_tls_webpki_roots = ["reqwest/rustls"]
+reqwest_native_tls_native_roots = ["reqwest/rustls"]
+reqwest_hickory_dns = ["reqwest/hickory-dns"]
+reqwest_multipart = ["reqwest/multipart"]
+tokio_io_std = ["tokio/io-std"]
+tracing = ["tokio/tracing", "dep:tracing"]
+string_interner_buffer_backend = ["dep:string-interner"]
+string_interner_string_backend = ["dep:string-interner"]
+string_interner_bucket_backend = ["dep:string-interner"]
+page_error_status_details = []
+simd = ["dep:sonic-rs"]
+firewall = ["dep:spider_firewall", "chromey/firewall"]
+wreq = ["dep:wreq", "dep:wreq-util"]
+rquest_hickory_dns = ["wreq/hickory-dns"]
+extra_information = []
+llm_json = ["dep:llm_json"]
+webdriver = ["dep:thirtyfour", "serde", "dep:rand", "dep:fastrand"]
+webdriver_headed = ["webdriver"]
+webdriver_stealth = ["webdriver"]
+webdriver_chrome = ["webdriver"]
+webdriver_firefox = ["webdriver"]
+webdriver_edge = ["webdriver"]
+webdriver_screenshot = ["webdriver"]
+search = ["serde"]
+search_serper = ["search"]
+search_brave = ["search"]
+search_bing = ["search"]
+search_tavily = ["search"]
+
+# Spider Cloud integration - anti-bot, proxy, API modes
+spider_cloud = ["serde", "reqwest_json"]
+
+# Agent features - enables spider_agent with sub-features
+agent = ["dep:spider_agent"]
+agent_openai = ["agent", "spider_agent/openai"]
+agent_chrome = ["agent", "spider_agent/chrome", "chrome"]
+agent_webdriver = ["agent", "spider_agent/webdriver"]
+agent_skills = ["agent", "spider_agent/skills"]
+agent_skills_s3 = ["agent_skills", "spider_agent/skills_s3"]
+agent_fs = ["agent", "spider_agent/fs"]
+agent_search_serper = ["agent", "spider_agent/search_serper"]
+agent_search_brave = ["agent", "spider_agent/search_brave"]
+agent_search_bing = ["agent", "spider_agent/search_bing"]
+agent_search_tavily = ["agent", "spider_agent/search_tavily"]
+agent_full = ["agent", "agent_skills", "spider_agent/full"]
+
+# Adaptive wait-for timeout guard — tracks domains that repeatedly produce
+# empty / blocked results after wait-for and progressively reduces their
+# timeouts to free browser pages faster.
+wait_guard = []
+
+# Per-domain token bucket rate limiter.
+rate_limit = []
+# Request coalescing to dedup concurrent in-flight requests.
+request_coalesce = ["sync"]
+
+# AIMD-based adaptive concurrency control.
+adaptive_concurrency = []
+# Prioritized URL frontier with scoring and optional domain round-robin.
+priority_frontier = []
+
+# Work-stealing / hedged requests for slow crawls.
+hedge = []
+
+# Parallel crawl backends — race alternative engines alongside the primary crawl.
+parallel_backends = []
+# Servo remote (connect to a running Servo instance via WebDriver).
+servo = ["parallel_backends", "webdriver"]
+# Servo local (compile servo engine as a dependency).
+# servo_local = ["servo", "dep:servo"]
+# All remote backends (Chrome CDP + Servo WebDriver).
+parallel_backends_full = ["parallel_backends", "chrome", "servo"]
+
+# Allows full concurrency.
+cowboy = []
+
+# HTTP/2 multiplexing tracker for per-origin stream management.
+h2_multiplex = ["dep:http"]
+# Cross-crawl robots.txt cache with TTL-based expiry.
+robots_cache = []
+
+# mmap-backed bloom filter for URL deduplication with hugepage support.
+bloom = ["dep:libc"]
+
+# NUMA-aware thread pinning for multi-socket servers.
+# Uses libc (already a non-optional dep on Linux) for sched_setaffinity.
+# Compiles to no-ops on non-Linux platforms.
+numa = []
+# Zero-copy byte-level parsing for HTTP wire formats and protocol structures.
+zero_copy = ["dep:zerocopy"]
+
+# Enables usage of `#[inline]` on far more functions than by default in this
+# crate. This may lead to a performance increase but often comes at a compile
+# time cost.
+inline-more = []
+
+# Allocator selection for benchmarks (dev-dependencies only).
+bench_jemalloc = ["dep:tikv-jemallocator"]
+bench_mimalloc = ["dep:mimalloc"]
+
+[package.metadata.docs.rs]
+# NOTE: not `all-features` because `agent_full` pulls in memvid → candle-core →
+# metal → objc_exception which requires an Obj-C compiler unavailable on docs.rs.
+features = [
+    "basic",
+    "chrome", "chrome_intercept", "chrome_headless_new", "chrome_screenshot",
+    "chrome_store_page", "chrome_stealth", "chrome_headed", "chrome_cpu",
+    "chrome_simd", "chrome_serde_stacker",
+    "smart",
+    "serde", "cookies", "cron", "encoding", "headers",
+    "real_browser", "spoof", "dns_cache",
+    "openai", "openai_slim_fit", "gemini", "cache_gemini", "cache_openai",
+    "cache", "cache_mem", "cache_chrome_hybrid", "cache_chrome_hybrid_mem",
+    "control", "sync", "fs",
+    "tracing", "simd",
+    "webdriver", "webdriver_headed", "webdriver_stealth",
+    "webdriver_chrome", "webdriver_firefox", "webdriver_edge", "webdriver_screenshot",
+    "search", "search_serper", "search_brave", "search_bing", "search_tavily",
+    "agent", "agent_chrome", "agent_webdriver", "agent_openai",
+    "agent_skills", "agent_fs",
+    "agent_search_serper", "agent_search_brave", "agent_search_bing", "agent_search_tavily",
+    "socks", "regex", "glob", "ua_generator",
+    "decentralized", "decentralized_headers",
+    "sitemap", "full_resources", "remote_addr",
+    "reqwest_json", "reqwest_hickory_dns", "reqwest_multipart",
+    "string_interner_buffer_backend", "string_interner_string_backend", "string_interner_bucket_backend",
+    "page_error_status_details", "extra_information",
+    "rate_limit", "request_coalesce", "adaptive_concurrency",
+    "priority_frontier", "hedge",
+    "parallel_backends", "servo", "parallel_backends_full",
+    "cowboy", "h2_multiplex", "robots_cache",
+    "llm_json", "wreq",
+    "balance", "time", "cmd",
+    "auto_throttle", "etag_cache", "warc",
+    "inline-more", "zero_copy",
+    "spider_cloud",
+]
+rustdoc-args = ["--cfg", "docsrs"]
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]

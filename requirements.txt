@@ -1,0 +1,33 @@
+# ==============================================================================
+# rat (Retrieval Augmented Tool) — Python Dependencies
+# High-performance, offline semantic file finder & desktop assistant on macOS.
+# ==============================================================================
+
+# Core GUI & CLI Framework
+PyQt6>=6.6.0
+rich>=13.0.0
+
+# Global Hotkeys & Filesystem Monitoring
+pynput>=1.7.6
+watchdog>=4.0.0
+
+# Local Dense Embeddings & Vector Search (ONNX Runtime ARM64/x86_64)
+fastembed>=0.3.0
+numpy>=1.24.0
+
+# Document & Content Parsing
+pypdf>=4.0.0
+python-docx>=1.1.0
+python-pptx>=0.6.23
+openpyxl>=3.1.0
+pillow>=10.0.0
+
+# macOS Native Frameworks Bridge (Vision OCR, PDFKit, Events, Cocoa)
+pyobjc-core>=10.0; sys_platform == 'darwin'
+pyobjc-framework-Cocoa>=10.0; sys_platform == 'darwin'
+pyobjc-framework-Quartz>=10.0; sys_platform == 'darwin'
+pyobjc-framework-ApplicationServices>=10.0; sys_platform == 'darwin'
+
+# Optional Development & Packaging
+pyinstaller>=6.5.0; sys_platform == 'darwin'
+pytest>=8.0.0

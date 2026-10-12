@@ -1,0 +1,3461 @@
+use crate::compact_str::CompactString;
+use crate::features::chrome_common::RequestInterceptConfiguration;
+pub use crate::features::chrome_common::{
+    AuthChallengeResponse, AuthChallengeResponseResponse, AutomationScripts, AutomationScriptsMap,
+    CaptureScreenshotFormat, CaptureScreenshotParams, ClipViewport, ExecutionScripts,
+    ExecutionScriptsMap, ScreenShotConfig, ScreenshotParams, Viewport, WaitFor, WaitForDelay,
+    WaitForIdleNetwork, WaitForSelector, WebAutomation,
+};
+pub use crate::features::gemini_common::GeminiConfigs;
+pub use crate::features::openai_common::GPTConfigs;
+#[cfg(feature = "search")]
+pub use crate::features::search::{
+    SearchError, SearchOptions, SearchResult, SearchResults, TimeRange,
+};
+pub use crate::features::webdriver_common::{WebDriverBrowser, WebDriverConfig};
+use crate::utils::get_domain_from_url;
+use crate::utils::BasicCachePolicy;
+use crate::website::CronType;
+use reqwest::header::{AsHeaderName, HeaderMap, HeaderName, HeaderValue, IntoHeaderName};
+use std::net::IpAddr;
+use std::sync::Arc;
+use std::time::Duration;
+
+#[cfg(feature = "chrome")]
+pub use spider_fingerprint::Fingerprint;
+
+/// Check if an API key is a placeholder or empty.
+pub fn is_placeholder_api_key(key: &str) -> bool {
+    let trimmed = key.trim();
+    trimmed.is_empty()
+        || trimmed.eq_ignore_ascii_case("YOUR_API_KEY")
+        || trimmed.eq_ignore_ascii_case("YOUR-API-KEY")
+        || trimmed.eq_ignore_ascii_case("API_KEY")
+        || trimmed.eq_ignore_ascii_case("API-KEY")
+}
+
+/// Redirect policy configuration for request
+#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum RedirectPolicy {
+    #[default]
+    #[cfg_attr(
+        feature = "serde",
+        serde(alias = "Loose", alias = "loose", alias = "LOOSE",)
+    )]
+    /// A loose policy that allows all request up to the redirect limit.
+    Loose,
+    #[cfg_attr(
+        feature = "serde",
+        serde(alias = "Strict", alias = "strict", alias = "STRICT",)
+    )]
+    /// A strict policy only allowing request that match the domain set for crawling.
+    Strict,
+    #[cfg_attr(
+        feature = "serde",
+        serde(alias = "None", alias = "none", alias = "NONE",)
+    )]
+    /// Prevent all redirects.
+    None,
+}
+
+#[cfg(not(feature = "regex"))]
+/// Allow list normal matching paths.
+pub type AllowList = Vec<CompactString>;
+
+#[cfg(feature = "regex")]
+/// Allow list regex.
+pub type AllowList = Box<regex::RegexSet>;
+
+/// Whitelist or Blacklist
+#[derive(Debug, Default, Clone)]
+#[cfg_attr(not(feature = "regex"), derive(PartialEq, Eq))]
+pub struct AllowListSet(pub AllowList);
+
+#[cfg(feature = "chrome")]
+/// Track the events made via chrome.
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ChromeEventTracker {
+    /// Track the responses.
+    pub responses: bool,
+    /// Track the requests.
+    pub requests: bool,
+    /// Track the changes between web automation.
+    pub automation: bool,
+}
+
+#[cfg(feature = "chrome")]
+impl ChromeEventTracker {
+    /// Create a new chrome event tracker
+    pub fn new(requests: bool, responses: bool) -> Self {
+        ChromeEventTracker {
+            requests,
+            responses,
+            automation: true,
+        }
+    }
+}
+
+#[cfg(feature = "sitemap")]
+#[derive(Debug, Default)]
+/// Determine if the sitemap modified to the whitelist.
+pub struct SitemapWhitelistChanges {
+    /// Added the default sitemap.xml whitelist.
+    pub added_default: bool,
+    /// Added the custom whitelist path.
+    pub added_custom: bool,
+}
+
+#[cfg(feature = "sitemap")]
+impl SitemapWhitelistChanges {
+    /// Was the whitelist modified?
+    pub(crate) fn modified(&self) -> bool {
+        self.added_default || self.added_custom
+    }
+}
+
+/// Determine allow proxy
+#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum ProxyIgnore {
+    /// Chrome proxy.
+    Chrome,
+    /// HTTP proxy.
+    Http,
+    #[default]
+    /// Do not ignore
+    No,
+}
+
+/// The networking proxy to use.
+#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct RequestProxy {
+    /// The proxy address.
+    pub addr: String,
+    /// Ignore the proxy when running a request type.
+    pub ignore: ProxyIgnore,
+}
+
+/// Categorical "kind" a request can be routed under.
+///
+/// Carries no policy and no business semantics — what each kind *means*
+/// (when to route there, what proxies it should use) is entirely up to
+/// the consumer. Spider only stores the mapping and uses the kind as a
+/// lookup key.
+///
+/// Used in two places:
+/// * [`Configuration::proxies_by_kind`] — the optional sidecar map of
+///   `kind → Vec<RequestProxy>`, attached to the configuration without
+///   touching `RequestProxy` itself.
+/// * [`crate::proxy_strategy::ProxyStrategy::route`] — the per-request
+///   decision a strategy returns to pick which proxy list to use.
+///
+/// Returning [`ProxyKind::Default`] (or any kind not present in the
+/// sidecar map) keeps the existing fast path — no secondary client is
+/// built, no allocation, no behavior change.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum ProxyKind {
+    /// The default kind. Routes through the primary proxy list
+    /// ([`Configuration::proxies`]).
+    Default,
+    /// Media-asset request (image, video, audio, font, archive,
+    /// document). Pure technical classification — see
+    /// [`crate::utils::media_asset::is_media_asset_url`] for the helper
+    /// most strategies will pair with this kind.
+    MediaAsset,
+    /// Free-form, consumer-defined kind. Opaque to spider.
+    Custom(CompactString),
+}
+
+impl Default for ProxyKind {
+    #[inline]
+    fn default() -> Self {
+        ProxyKind::Default
+    }
+}
+
+/// The protocol used to communicate with a backend.
+#[cfg(feature = "parallel_backends")]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum BackendProtocol {
+    /// Chrome DevTools Protocol over WebSocket.
+    Cdp,
+    /// WebDriver (W3C) over HTTP.
+    WebDriver,
+}
+
+/// The engine type for a parallel crawl backend.
+#[cfg(feature = "parallel_backends")]
+#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum BackendEngine {
+    #[default]
+    /// CDP backend — communicates via the Chrome DevTools Protocol.
+    Cdp,
+    /// Servo — communicates via WebDriver protocol.
+    Servo,
+    /// A custom backend. Set `protocol` on [`BackendEndpoint`] to tell
+    /// spider whether to use CDP or WebDriver to communicate with it.
+    Custom,
+}
+
+/// A parallel crawl backend endpoint.
+///
+/// Each backend can run either **remotely** (connect to a running instance via
+/// `endpoint`) or **locally** (spider manages the engine process via
+/// `binary_path`). Set `endpoint` for remote mode, `binary_path` for local.
+#[cfg(feature = "parallel_backends")]
+#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
+pub struct BackendEndpoint {
+    /// The browser engine to use.
+    pub engine: BackendEngine,
+    /// Remote endpoint URL. For CDP backends: a WebSocket URL
+    /// (e.g. `"ws://127.0.0.1:9222"`). For Servo: a WebDriver HTTP URL
+    /// (e.g. `"http://localhost:4444"`). When set, the engine is assumed to
+    /// be already running at this address.
+    pub endpoint: Option<String>,
+    /// Path to the engine binary for local mode. When set (and `endpoint` is
+    /// `None`), spider will spawn and manage the engine process. Uses PATH
+    /// lookup if empty string.
+    pub binary_path: Option<String>,
+    /// Explicit protocol override. When `None`, inferred from `engine`:
+    /// `Cdp` → CDP, `Servo` → WebDriver, `Custom` → **required**.
+    /// For custom backends, set this to tell spider how to communicate.
+    pub protocol: Option<BackendProtocol>,
+    /// Per-backend proxy address. When set, this backend routes its outbound
+    /// requests through the given proxy (e.g. `"socks5://proxy1:1080"`,
+    /// `"http://proxy2:8080"`). Overrides the global `ProxyRotator` for this
+    /// backend. For CDP backends, creates an isolated browser context with
+    /// the proxy. For WebDriver backends, sets the proxy capability.
+    pub proxy: Option<String>,
+}
+
+/// Configuration for parallel crawl backends.
+///
+/// When enabled, races alternative browser engines (CDP, Servo) alongside
+/// the primary crawl path. The best HTML response wins.
+#[cfg(feature = "parallel_backends")]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
+pub struct ParallelBackendsConfig {
+    /// Alternative backends to race against the primary crawl.
+    pub backends: Vec<BackendEndpoint>,
+    /// Grace period (ms) after first response to wait for better results.
+    /// Allows slower backends to finish if they produce higher quality HTML.
+    /// Default: 500.
+    pub grace_period_ms: u64,
+    /// Master switch. Default: `true` (enabled when config is present).
+    pub enabled: bool,
+    /// Quality score threshold (0–100). If the first response scores at or
+    /// above this value, accept it immediately without waiting for the grace
+    /// period. Default: 80.
+    pub fast_accept_threshold: u16,
+    /// Maximum consecutive errors before auto-disabling a backend for
+    /// the remainder of the crawl. Default: 10.
+    pub max_consecutive_errors: u16,
+    /// Timeout (ms) for the initial TCP/WebSocket connection to a backend.
+    /// Separate from `request_timeout` so that down backends fail fast
+    /// without affecting navigation/fetch timeouts. Default: 5000 (5s).
+    pub connect_timeout_ms: u64,
+    /// Skip backend racing when the primary response has a binary
+    /// `Content-Type` (image/*, audio/*, video/*, font/*, application/pdf,
+    /// etc.). There is no HTML quality variance for binary resources.
+    /// Default: `true`.
+    pub skip_binary_content_types: bool,
+    /// Maximum concurrent backend sessions across all URLs. Prevents memory
+    /// spikes on large crawls. `0` means unlimited. Default: 8.
+    pub max_concurrent_sessions: usize,
+    /// Additional URL extensions to skip backend racing for, on top of the
+    /// built-in asset list (images, fonts, videos, etc.). Case-insensitive.
+    /// Example: `["xml", "rss"]`.
+    pub skip_extensions: Vec<CompactString>,
+    /// Maximum aggregate HTML bytes held by in-flight backend responses across
+    /// all concurrent races. When this cap is reached, new backend fetches are
+    /// skipped (primary-only) until existing responses are consumed or dropped.
+    /// Works without the `balance` feature. `0` means unlimited.
+    /// Default: 256 MiB (268_435_456).
+    pub max_backend_bytes_in_flight: usize,
+    /// Hard deadline (ms) for an entire backend fetch (connect + navigate +
+    /// extract). If a backend exceeds this, the task is cancelled and returns
+    /// `None`. Prevents a single stalled backend from blocking the primary
+    /// Chrome result during the grace window. `0` means no outer timeout
+    /// (individual phase timeouts still apply). Default: 30_000 (30s).
+    pub backend_timeout_ms: u64,
+}
+
+#[cfg(feature = "parallel_backends")]
+impl Default for ParallelBackendsConfig {
+    fn default() -> Self {
+        Self {
+            backends: Vec::new(),
+            grace_period_ms: 500,
+            enabled: true,
+            fast_accept_threshold: 80,
+            max_consecutive_errors: 10,
+            connect_timeout_ms: 5000,
+            skip_binary_content_types: true,
+            max_concurrent_sessions: 8,
+            skip_extensions: Vec::new(),
+            max_backend_bytes_in_flight: 256 * 1024 * 1024, // 256 MiB
+            backend_timeout_ms: 30_000,
+        }
+    }
+}
+
+/// User-configurable antibot detection patterns. Any match triggers `AntiBotTech::Custom`.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
+pub struct CustomAntibotPatterns {
+    /// Body substring patterns (matched against response bodies < 30KB).
+    pub body: Vec<CompactString>,
+    /// URL substring patterns.
+    pub url: Vec<CompactString>,
+    /// Header keys whose presence triggers antibot detection.
+    pub header_keys: Vec<CompactString>,
+}
+
+/// Structure to configure `Website` crawler
+/// ```rust
+/// use spider::website::Website;
+/// let mut website: Website = Website::new("https://choosealicense.com");
+/// website.configuration.blacklist_url.insert(Default::default()).push("https://choosealicense.com/licenses/".to_string().into());
+/// website.configuration.respect_robots_txt = true;
+/// website.configuration.subdomains = true;
+/// website.configuration.tld = true;
+/// ```
+#[derive(Debug, Default, Clone)]
+#[cfg_attr(
+    all(
+        not(feature = "regex"),
+        not(feature = "openai"),
+        not(feature = "cache_openai"),
+        not(feature = "gemini"),
+        not(feature = "cache_gemini")
+    ),
+    derive(PartialEq)
+)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
+pub struct Configuration {
+    /// Respect robots.txt file and not scrape not allowed files. This may slow down crawls if robots.txt file has a delay included.
+    pub respect_robots_txt: bool,
+    /// Allow sub-domains.
+    pub subdomains: bool,
+    /// Allow all tlds for domain.
+    pub tld: bool,
+    /// The max timeout for the crawl.
+    pub crawl_timeout: Option<Duration>,
+    /// Preserve the HTTP host header from being included.
+    pub preserve_host_header: bool,
+    /// List of pages to not crawl. [optional: regex pattern matching]
+    pub blacklist_url: Option<Vec<CompactString>>,
+    /// List of pages to only crawl. [optional: regex pattern matching]
+    pub whitelist_url: Option<Vec<CompactString>>,
+    /// User-Agent for request.
+    pub user_agent: Option<Box<CompactString>>,
+    /// Polite crawling delay in milli seconds.
+    pub delay: u64,
+    /// Request max timeout per page. By default the request times out in 15s. Set to None to disable.
+    pub request_timeout: Option<Duration>,
+    /// Use HTTP2 for connection. Enable if you know the website has http2 support.
+    pub http2_prior_knowledge: bool,
+    /// Use proxy list for performing network request.
+    pub proxies: Option<Vec<RequestProxy>>,
+    /// Optional sidecar map of alternative proxy lists keyed by
+    /// [`ProxyKind`].
+    ///
+    /// Lets a [`crate::proxy_strategy::ProxyStrategy`] route a request
+    /// through a non-default proxy set without touching `proxies` or
+    /// `RequestProxy` itself. When `None` (the default) or when the
+    /// strategy returns a kind that has no entry here, requests fall
+    /// through to `proxies` and the existing fast path — no behavior
+    /// change.
+    ///
+    /// Lookup is by enum equality / hash; the [`ProxyKind::Custom`]
+    /// variant lets consumers introduce their own kinds without an
+    /// upstream change. Spider never writes to this map after
+    /// configuration; runtime lazy state lives on the `Website`.
+    pub proxies_by_kind: Option<hashbrown::HashMap<ProxyKind, Vec<RequestProxy>>>,
+    /// Headers to include with request.
+    pub headers: Option<Box<SerializableHeaderMap>>,
+    #[cfg(feature = "sitemap")]
+    /// Include a sitemap in response of the crawl.
+    pub sitemap_url: Option<Box<CompactString>>,
+    #[cfg(feature = "sitemap")]
+    /// Prevent including the sitemap links with the crawl.
+    pub ignore_sitemap: bool,
+    /// The max redirections allowed for request.
+    pub redirect_limit: usize,
+    /// The redirect policy type to use.
+    pub redirect_policy: RedirectPolicy,
+    /// Whether `redirect_limit` was explicitly set by the caller.
+    ///
+    /// Set to `true` by `with_redirect_limit()` and by the external-config loader
+    /// when `redirect_limit` is provided. Chrome-path enforcement reads this flag
+    /// so it only caps redirects when the user opted in — preserving prior
+    /// behavior on pages whose navigation chains exceed the HTTP default of 7.
+    #[cfg_attr(feature = "serde", serde(skip))]
+    pub redirect_limit_set: bool,
+    /// Cap on main-frame cross-document navigations during a single Chrome
+    /// `goto` (requires the `chrome` feature — no effect on the HTTP path).
+    ///
+    /// Defends against JS / meta-refresh / HTTP-Refresh-header loops that
+    /// bypass the HTTP redirect cap because each hop is a fresh document
+    /// rather than a 3xx redirect. `None` disables the guard (default) so
+    /// prior behavior is preserved; `Some(n)` aborts the navigation with a
+    /// `net::ERR_TOO_MANY_NAVIGATIONS` error once the main frame has
+    /// navigated more than `n` times since `goto`.
+    pub max_main_frame_navigations: Option<u32>,
+    #[cfg(feature = "cookies")]
+    /// Cookie string to use for network requests ex: "foo=bar; Domain=blog.spider"
+    pub cookie_str: String,
+    #[cfg(feature = "wreq")]
+    /// The type of request emulation. This does nothing without the flag `sync` enabled.
+    pub emulation: Option<wreq_util::Emulation>,
+    #[cfg(feature = "cron")]
+    /// Cron string to perform crawls - use <https://crontab.guru/> to help generate a valid cron for needs.
+    pub cron_str: String,
+    #[cfg(feature = "cron")]
+    /// The type of cron to run either crawl or scrape.
+    pub cron_type: CronType,
+    /// The max depth to crawl for a website. Defaults to 25 to help prevent infinite recursion.
+    pub depth: usize,
+    /// The depth to crawl pertaining to the root.
+    pub depth_distance: usize,
+    /// Use stealth mode for requests.
+    pub stealth_mode: spider_fingerprint::configs::Tier,
+    /// Configure the viewport for chrome and viewport headers.
+    pub viewport: Option<Viewport>,
+    /// Crawl budget for the paths. This helps prevent crawling extra pages and limiting the amount.
+    pub budget: Option<hashbrown::HashMap<case_insensitive_string::CaseInsensitiveString, u32>>,
+    /// If wild card budgeting is found for the website.
+    pub wild_card_budgeting: bool,
+    /// External domains to include case-insensitive.
+    pub external_domains_caseless:
+        Arc<hashbrown::HashSet<case_insensitive_string::CaseInsensitiveString>>,
+    /// Collect all the resources found on the page.
+    pub full_resources: bool,
+    /// Dangerously accept invalid certficates.
+    pub accept_invalid_certs: bool,
+    /// The auth challenge response. The 'chrome_intercept' flag is also required in order to intercept the response.
+    pub auth_challenge_response: Option<AuthChallengeResponse>,
+    /// The OpenAI configs to use to help drive the chrome browser. This does nothing without the 'openai' flag.
+    pub openai_config: Option<Box<GPTConfigs>>,
+    /// The Gemini configs to use to help drive the chrome browser. This does nothing without the 'gemini' flag.
+    pub gemini_config: Option<Box<GeminiConfigs>>,
+    /// Remote multimodal automation config (vision + LLM-driven steps).
+    /// Requires the `agent` feature for full functionality, uses stub type otherwise.
+    pub remote_multimodal: Option<Box<crate::features::automation::RemoteMultimodalConfigs>>,
+    /// Use a shared queue strategy when crawling. This can scale workloads evenly that do not need priority.
+    pub shared_queue: bool,
+    /// Return the page links in the subscription channels. This does nothing without the flag `sync` enabled.
+    pub return_page_links: bool,
+    /// Retry count to attempt to swap proxies etc.
+    pub retry: u8,
+    /// Custom antibot detection patterns. When set, these are matched in addition
+    /// to the built-in patterns. Any match triggers `AntiBotTech::Custom`.
+    pub custom_antibot: Option<CustomAntibotPatterns>,
+    /// Skip spawning a control thread that can pause, start, and shutdown the crawl.
+    pub no_control_thread: bool,
+    /// The blacklist urls.
+    blacklist: AllowListSet,
+    /// The whitelist urls.
+    whitelist: AllowListSet,
+    /// Crawl budget for the paths. This helps prevent crawling extra pages and limiting the amount.
+    pub(crate) inner_budget:
+        Option<hashbrown::HashMap<case_insensitive_string::CaseInsensitiveString, u32>>,
+    /// Expect only to handle HTML to save on resources. This mainly only blocks the crawling and returning of resources from the server.
+    pub only_html: bool,
+    /// The concurrency limits to apply.
+    pub concurrency_limit: Option<usize>,
+    /// Normalize the html de-deplucating the content.
+    pub normalize: bool,
+    /// Share the state of the crawl requires the 'disk' feature flag.
+    pub shared: bool,
+    /// Modify the headers to act like a real-browser
+    pub modify_headers: bool,
+    /// Modify the HTTP client headers only to act like a real-browser
+    pub modify_http_client_headers: bool,
+    /// Cache the page following HTTP caching rules.
+    #[cfg(any(
+        feature = "cache_request",
+        feature = "chrome",
+        feature = "chrome_remote_cache"
+    ))]
+    pub cache: bool,
+    /// Skip browser rendering entirely if cached response exists.
+    /// When enabled, returns cached HTML directly without launching Chrome.
+    #[cfg(any(
+        feature = "cache_request",
+        feature = "chrome",
+        feature = "chrome_remote_cache"
+    ))]
+    pub cache_skip_browser: bool,
+    /// Namespace mixed into every cache key so logically distinct variants
+    /// (country, proxy pool, tenant, A/B bucket, device profile, …) never
+    /// collide on the same cached bytes. Free-form — spider treats it as an
+    /// opaque partition string. `None` uses the default (empty) namespace.
+    /// Always present (zero cost when unset); its effect is gated by whichever
+    /// cache feature is active.
+    pub cache_namespace: Option<Box<String>>,
+    /// Read-only mode for the remote Chrome cache. When enabled the local
+    /// cache + per-session cache still serve hits, but no responses are ever
+    /// uploaded to the remote `hybrid_cache_server` (neither via
+    /// `spider_remote_cache` enqueue nor via chromey's CDP listener). Intended
+    /// for deployments where an upstream proxy is the sole writer and spider
+    /// should only consume the cache. Default `false` preserves the existing
+    /// write-through behavior.
+    #[cfg(feature = "chrome_remote_cache")]
+    pub chrome_remote_cache_read_only: bool,
+    /// Publish fresh HTTP (skip_browser) responses to the shared remote
+    /// cache worker. When enabled, successful HTTP fetches made through
+    /// the skip_browser path are enqueued into `spider_remote_cache` so
+    /// they become available for later cache lookups. Independent of
+    /// chrome-path dumps — you can have chrome dumps off (via
+    /// `chrome_remote_cache_read_only = true`) while still publishing
+    /// from the HTTP path. Default `false` is a no-op.
+    #[cfg(feature = "chrome_remote_cache")]
+    pub remote_cache_skip_browser: bool,
+    /// Restrict chrome remote-cache dumps to the **main (initial)
+    /// document only**. When enabled, `cache_chrome_response` continues
+    /// to publish the navigated document body for each request
+    /// (whatever MIME type — HTML, JSON, XML, plain text, …), but the
+    /// per-response CDP listener (`spawn_cache_listener`) runs in
+    /// `dump_readonly` mode — populating the local + per-session cache
+    /// for sub-resources (CSS/JS/manifests) without uploading them to
+    /// the remote server. Orthogonal to `chrome_remote_cache_read_only`:
+    /// read-only suppresses *all* chrome dumps, this knob only
+    /// suppresses the asset/sub-resource path. Default `false`
+    /// preserves the existing dump-everything behavior.
+    #[cfg(feature = "chrome_remote_cache")]
+    pub chrome_remote_cache_main_doc_only: bool,
+    #[cfg(feature = "chrome")]
+    /// Enable or disable service workers. Enabled by default.
+    pub service_worker_enabled: bool,
+    #[cfg(feature = "chrome")]
+    /// Overrides default host system timezone with the specified one.
+    #[cfg(feature = "chrome")]
+    pub timezone_id: Option<Box<String>>,
+    /// Overrides default host system locale with the specified one.
+    #[cfg(feature = "chrome")]
+    pub locale: Option<Box<String>>,
+    /// Set a custom script to eval on each new document.
+    #[cfg(feature = "chrome")]
+    pub evaluate_on_new_document: Option<Box<String>>,
+    #[cfg(feature = "chrome")]
+    /// Dismiss dialogs.
+    pub dismiss_dialogs: Option<bool>,
+    #[cfg(feature = "chrome")]
+    /// Wait for options for the page.
+    pub wait_for: Option<WaitFor>,
+    #[cfg(feature = "chrome")]
+    /// Take a screenshot of the page.
+    pub screenshot: Option<ScreenShotConfig>,
+    #[cfg(feature = "chrome")]
+    /// Track the events made via chrome.
+    pub track_events: Option<ChromeEventTracker>,
+    #[cfg(feature = "chrome")]
+    /// Setup fingerprint ID on each document. This does nothing without the flag `chrome` enabled.
+    pub fingerprint: Fingerprint,
+    #[cfg(feature = "chrome")]
+    /// The chrome connection url. Useful for targeting different headless instances. Defaults to using the env CHROME_URL.
+    pub chrome_connection_url: Option<String>,
+    #[cfg(feature = "chrome")]
+    /// Multiple remote Chrome connection URLs for failover. When a connection
+    /// fails after retries, the next URL is tried automatically. Requires the
+    /// `chrome` feature. When set, takes priority over `chrome_connection_url`.
+    pub chrome_connection_urls: Option<Vec<String>>,
+    #[cfg(feature = "chrome")]
+    #[cfg_attr(feature = "serde", serde(skip))]
+    /// Lazy, lock-free chrome failover instance reused across every
+    /// `setup_browser_configuration` call. Built on first use, reset by
+    /// `with_chrome_connections`. Internal cache; not part of public API.
+    pub(crate) chrome_failover: crate::features::chrome::LazyChromeFailover,
+    #[cfg(feature = "chrome")]
+    /// First-byte watchdog for Chrome navigations. When set, fires if no
+    /// `Network.dataReceived` (or `Network.responseReceived`) event arrives
+    /// within this duration after the listener attaches. On fire the page
+    /// is force-stopped and (when a `browser_dead` flag is plumbed through
+    /// `ChromeFetchParams`) it is flipped so the website-level retry loop
+    /// can rotate the backend. `None` (default) disables the watchdog and
+    /// the legacy chunk-idle timeout (`SPIDER_CHUNK_IDLE_TIMEOUT_SECS`,
+    /// default 30s) is the only stall guard.
+    pub chrome_first_byte_timeout: Option<Duration>,
+    #[cfg(feature = "chrome")]
+    /// Per-fetch jitter window applied on top of `chrome_first_byte_timeout`.
+    /// When `Some(j)`, each fetch picks `actual_timeout = base + rand(0..j)`
+    /// so concurrent fetches don't all expire at exactly the same moment
+    /// (avoids thundering-herd backend rotation when a backend goes dark).
+    /// `None` (default) means no jitter — every fetch uses the configured
+    /// base timeout exactly. Ignored when `chrome_first_byte_timeout` is
+    /// `None` (no watchdog to jitter).
+    pub chrome_first_byte_timeout_jitter: Option<Duration>,
+    /// First-byte watchdog for HTTP fetches. When `Some(d)`, each
+    /// `client.get(url).send().await` is wrapped in
+    /// `tokio::time::timeout(base + rand(0..jitter))`. On timeout the
+    /// in-flight connect / TLS / header future is dropped (cancels the
+    /// request) and a synthetic `524 GATEWAY_TIMEOUT` response is built
+    /// so the existing retry path rotates to the next proxy. Covers the
+    /// gap between `connect_timeout` (TCP/TLS handshake) and
+    /// `chunk_idle_timeout` (per-chunk idle while streaming) where a
+    /// proxy can accept the connection but never produce headers.
+    /// `None` (default) disables the watchdog — `request_timeout` and
+    /// `chunk_idle_timeout` remain the only stall guards.
+    pub http_first_byte_timeout: Option<Duration>,
+    /// Per-fetch jitter window applied on top of
+    /// `http_first_byte_timeout`. Same semantics as
+    /// `chrome_first_byte_timeout_jitter`. `None` (default) means no
+    /// jitter; ignored when the base is `None`.
+    pub http_first_byte_timeout_jitter: Option<Duration>,
+    /// Scripts to execute for individual pages, the full path of the url is required for an exact match. This is useful for running one off JS on pages like performing custom login actions.
+    #[cfg(feature = "chrome")]
+    pub execution_scripts: Option<ExecutionScripts>,
+    /// Web automation scripts to run up to a duration of 60 seconds.
+    #[cfg(feature = "chrome")]
+    pub automation_scripts: Option<AutomationScripts>,
+    /// Setup network interception for request. This does nothing without the flag `chrome_intercept` enabled.
+    #[cfg(feature = "chrome")]
+    pub chrome_intercept: RequestInterceptConfiguration,
+    /// The referer to use.
+    pub referer: Option<String>,
+    /// Determine the max bytes per page.
+    pub max_page_bytes: Option<f64>,
+    /// Determine the max bytes per browser context.
+    pub max_bytes_allowed: Option<u64>,
+    #[cfg(feature = "chrome")]
+    /// Disables log domain, prevents further log entries from being reported to the client. This does nothing without the flag `chrome` enabled.
+    pub disable_log: bool,
+    #[cfg(feature = "chrome")]
+    /// Automatic locale and timezone handling via third party. This does nothing without the flag `chrome` enabled.
+    pub auto_geolocation: bool,
+    /// The cache policy to use.
+    pub cache_policy: Option<BasicCachePolicy>,
+    #[cfg(feature = "chrome")]
+    /// Enables bypassing CSP. This does nothing without the flag `chrome` enabled.
+    pub bypass_csp: bool,
+    #[cfg(feature = "chrome")]
+    /// Disables JavaScript execution on the page. This does nothing without the flag `chrome` enabled.
+    pub disable_javascript: bool,
+    /// Bind the connections only on the network interface.
+    pub network_interface: Option<String>,
+    /// Bind to a local IP Address.
+    pub local_address: Option<IpAddr>,
+    /// The default http connect timeout
+    pub default_http_connect_timeout: Option<Duration>,
+    /// The default http read timeout
+    pub default_http_read_timeout: Option<Duration>,
+    #[cfg(feature = "webdriver")]
+    /// WebDriver configuration for browser automation. This does nothing without the `webdriver` flag enabled.
+    pub webdriver_config: Option<Box<WebDriverConfig>>,
+    #[cfg(feature = "search")]
+    /// Search provider configuration for web search integration. This does nothing without the `search` flag enabled.
+    pub search_config: Option<Box<SearchConfig>>,
+    #[cfg(feature = "spider_cloud")]
+    /// Spider Cloud config. See <https://spider.cloud>.
+    pub spider_cloud: Option<Box<SpiderCloudConfig>>,
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    /// Spider Browser Cloud config for remote CDP via `wss://browser.spider.cloud`.
+    pub spider_browser: Option<Box<SpiderBrowserConfig>>,
+    #[cfg(feature = "hedge")]
+    /// Hedged request configuration for work-stealing on slow requests.
+    /// When enabled, fires a duplicate request on a different proxy after a delay.
+    pub hedge: Option<crate::utils::hedge::HedgeConfig>,
+    #[cfg(feature = "auto_throttle")]
+    /// Latency-based auto-throttle configuration. When enabled, dynamically
+    /// adjusts per-domain crawl delay based on measured server response time.
+    pub auto_throttle: Option<crate::utils::auto_throttle::AutoThrottleConfig>,
+    #[cfg(feature = "etag_cache")]
+    /// Enable ETag / conditional request caching. When true, stores ETag and
+    /// Last-Modified headers from responses and sends If-None-Match /
+    /// If-Modified-Since on subsequent requests to the same URL, allowing
+    /// servers to respond with lightweight 304 Not Modified.
+    pub etag_cache: bool,
+    #[cfg(feature = "warc")]
+    /// WARC output configuration. When set, the crawl writes a WARC 1.1 file
+    /// containing all fetched pages as `response` records.
+    pub warc: Option<crate::utils::warc::WarcConfig>,
+    #[cfg(feature = "parallel_backends")]
+    /// Parallel crawl backend configuration. Race CDP / Servo backends alongside
+    /// the primary crawl path. Requires the `parallel_backends` feature.
+    pub parallel_backends: Option<ParallelBackendsConfig>,
+    #[cfg(feature = "decentralized")]
+    /// Per-`Website` remote Spider worker URLs used for crawl requests. When
+    /// `None`, falls back to the process-wide `SPIDER_WORKER` env var (or its
+    /// default), preserving pre-2.51.x behavior. When `Some`, overrides the
+    /// global pool for this `Website` only.
+    pub worker_connection_urls: Option<Vec<String>>,
+    #[cfg(feature = "decentralized")]
+    /// Per-`Website` remote Spider worker URLs used for scrape requests. When
+    /// `None`, falls back to the process-wide `SPIDER_WORKER_SCRAPER` env var
+    /// (or its default), preserving pre-2.51.x behavior. When `Some`,
+    /// overrides the global pool for this `Website` only.
+    pub scraper_worker_connection_urls: Option<Vec<String>>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
+/// Serializable HTTP headers.
+pub struct SerializableHeaderMap(pub HeaderMap);
+
+impl SerializableHeaderMap {
+    /// Innter HeaderMap.
+    pub fn inner(&self) -> &HeaderMap {
+        &self.0
+    }
+    /// Returns true if the map contains a value for the specified key.
+    pub fn contains_key<K>(&self, key: K) -> bool
+    where
+        K: AsHeaderName,
+    {
+        self.0.contains_key(key)
+    }
+    /// Inserts a key-value pair into the map.
+    pub fn insert<K>(
+        &mut self,
+        key: K,
+        val: reqwest::header::HeaderValue,
+    ) -> Option<reqwest::header::HeaderValue>
+    where
+        K: IntoHeaderName,
+    {
+        self.0.insert(key, val)
+    }
+    /// Extend a `HeaderMap` with the contents of another `HeaderMap`.
+    pub fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = (Option<HeaderName>, HeaderValue)>,
+    {
+        self.0.extend(iter);
+    }
+}
+
+/// Get a cloned copy of the `Referer` header as a `String` (if it exists and is valid UTF-8).
+pub fn get_referer(header_map: &Option<Box<SerializableHeaderMap>>) -> Option<String> {
+    match header_map {
+        Some(header_map) => {
+            header_map
+                .0
+                .get(crate::client::header::REFERER) // Retrieves the "Referer" HeaderValue if it exists
+                .and_then(|value| value.to_str().ok()) // &str from HeaderValue
+                .map(String::from) // Convert &str to String (owned)
+        }
+        _ => None,
+    }
+}
+
+impl From<HeaderMap> for SerializableHeaderMap {
+    fn from(header_map: HeaderMap) -> Self {
+        SerializableHeaderMap(header_map)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for SerializableHeaderMap {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let map: std::collections::BTreeMap<String, String> = self
+            .0
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_str().unwrap_or("").to_string()))
+            .collect();
+        map.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for SerializableHeaderMap {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use reqwest::header::{HeaderName, HeaderValue};
+        use std::collections::BTreeMap;
+        let map: BTreeMap<String, String> = BTreeMap::deserialize(deserializer)?;
+        let mut headers = HeaderMap::with_capacity(map.len());
+        for (k, v) in map {
+            let key = HeaderName::from_bytes(k.as_bytes()).map_err(serde::de::Error::custom)?;
+            let value = HeaderValue::from_str(&v).map_err(serde::de::Error::custom)?;
+            headers.insert(key, value);
+        }
+        Ok(SerializableHeaderMap(headers))
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for AllowListSet {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        #[cfg(not(feature = "regex"))]
+        {
+            self.0.serialize(serializer)
+        }
+
+        #[cfg(feature = "regex")]
+        {
+            self.0
+                .patterns()
+                .iter()
+                .collect::<Vec<&String>>()
+                .serialize(serializer)
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for AllowListSet {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[cfg(not(feature = "regex"))]
+        {
+            let vec = Vec::<CompactString>::deserialize(deserializer)?;
+            Ok(AllowListSet(vec))
+        }
+
+        #[cfg(feature = "regex")]
+        {
+            let patterns = Vec::<String>::deserialize(deserializer)?;
+            let regex_set = regex::RegexSet::new(&patterns).map_err(serde::de::Error::custom)?;
+            Ok(AllowListSet(regex_set.into()))
+        }
+    }
+}
+
+/// Get the user agent from the top agent list randomly.
+#[cfg(feature = "ua_generator")]
+pub fn get_ua(chrome: bool) -> &'static str {
+    if chrome {
+        ua_generator::ua::spoof_chrome_ua()
+    } else {
+        ua_generator::ua::spoof_ua()
+    }
+}
+
+/// Get the user agent via cargo package + version.
+#[cfg(not(feature = "ua_generator"))]
+pub fn get_ua(_chrome: bool) -> &'static str {
+    use std::env;
+
+    lazy_static! {
+        static ref AGENT: &'static str =
+            concat!(env!("CARGO_PKG_NAME"), '/', env!("CARGO_PKG_VERSION"));
+    };
+
+    AGENT.as_ref()
+}
+
+impl Configuration {
+    /// Represents crawl configuration for a website.
+    #[cfg(not(feature = "chrome"))]
+    pub fn new() -> Self {
+        Self {
+            delay: 0,
+            depth: 25,
+            redirect_limit: 7,
+            request_timeout: Some(Duration::from_secs(120)),
+            only_html: true,
+            modify_headers: true,
+            ..Default::default()
+        }
+    }
+
+    /// Represents crawl configuration for a website.
+    #[cfg(feature = "chrome")]
+    pub fn new() -> Self {
+        Self {
+            delay: 0,
+            depth: 25,
+            redirect_limit: 7,
+            request_timeout: Some(Duration::from_secs(120)),
+            chrome_intercept: RequestInterceptConfiguration::new(cfg!(
+                feature = "chrome_intercept"
+            )),
+            user_agent: Some(Box::new(get_ua(true).into())),
+            only_html: true,
+            cache: true,
+            modify_headers: true,
+            service_worker_enabled: true,
+            fingerprint: Fingerprint::Basic,
+            auto_geolocation: false,
+            ..Default::default()
+        }
+    }
+
+    /// Build a `RemoteMultimodalEngine` from `RemoteMultimodalConfigs`.
+    /// Requires the `agent` feature.
+    #[cfg(feature = "agent")]
+    pub fn build_remote_multimodal_engine(
+        &self,
+    ) -> Option<crate::features::automation::RemoteMultimodalEngine> {
+        let cfgs = self.remote_multimodal.as_ref()?;
+        let sem = cfgs
+            .concurrency_limit
+            .filter(|&n| n > 0)
+            .map(|n| std::sync::Arc::new(tokio::sync::Semaphore::new(n)));
+
+        #[allow(unused_mut)]
+        let mut engine = crate::features::automation::RemoteMultimodalEngine::new(
+            cfgs.api_url.clone(),
+            cfgs.model_name.clone(),
+            cfgs.system_prompt.clone(),
+        )
+        .with_api_key(cfgs.api_key.as_deref())
+        .with_system_prompt_extra(cfgs.system_prompt_extra.as_deref())
+        .with_user_message_extra(cfgs.user_message_extra.as_deref())
+        .with_remote_multimodal_config(cfgs.cfg.clone())
+        .with_prompt_url_gate(cfgs.prompt_url_gate.clone())
+        .with_vision_model(cfgs.vision_model.clone())
+        .with_text_model(cfgs.text_model.clone())
+        .with_vision_route_mode(cfgs.vision_route_mode)
+        .with_chrome_ai(cfgs.use_chrome_ai)
+        .with_semaphore(sem)
+        .to_owned();
+
+        #[cfg(feature = "agent_skills")]
+        if let Some(ref registry) = cfgs.skill_registry {
+            engine.with_skill_registry(Some(registry.clone()));
+        }
+
+        // Build per-round complexity router from model pool (3+ models required)
+        let model_pool = cfgs.model_pool.clone();
+        if model_pool.len() >= 3 {
+            let model_names: Vec<&str> =
+                model_pool.iter().map(|ep| ep.model_name.as_str()).collect();
+            let policy = crate::features::automation::auto_policy(&model_names);
+            engine.model_router = Some(crate::features::automation::ModelRouter::with_policy(
+                policy,
+            ));
+        }
+        engine.model_pool = model_pool;
+
+        Some(engine)
+    }
+
+    /// Determine if the agent should be set to a Chrome Agent.
+    #[cfg(not(feature = "chrome"))]
+    pub(crate) fn only_chrome_agent(&self) -> bool {
+        false
+    }
+
+    /// Determine if the agent should be set to a Chrome Agent.
+    #[cfg(feature = "chrome")]
+    pub(crate) fn only_chrome_agent(&self) -> bool {
+        self.chrome_connection_url.is_some()
+            || self.wait_for.is_some()
+            || self.chrome_intercept.enabled
+            || self.stealth_mode.stealth()
+            || self.fingerprint.valid()
+    }
+
+    #[cfg(feature = "regex")]
+    /// Compile the regex for the blacklist.
+    pub fn get_blacklist(&self) -> Box<regex::RegexSet> {
+        match &self.blacklist_url {
+            Some(blacklist) => match regex::RegexSet::new(&**blacklist) {
+                Ok(s) => Box::new(s),
+                _ => Default::default(),
+            },
+            _ => Default::default(),
+        }
+    }
+
+    #[cfg(not(feature = "regex"))]
+    /// Handle the blacklist options.
+    pub fn get_blacklist(&self) -> AllowList {
+        match &self.blacklist_url {
+            Some(blacklist) => blacklist.to_owned(),
+            _ => Default::default(),
+        }
+    }
+
+    /// Set the blacklist
+    pub(crate) fn set_blacklist(&mut self) {
+        self.blacklist = AllowListSet(self.get_blacklist());
+    }
+
+    /// Set the whitelist
+    pub fn set_whitelist(&mut self) {
+        self.whitelist = AllowListSet(self.get_whitelist());
+    }
+
+    /// Configure the allow list.
+    pub fn configure_allowlist(&mut self) {
+        self.set_whitelist();
+        self.set_blacklist();
+    }
+
+    /// Get the blacklist compiled.
+    pub fn get_blacklist_compiled(&self) -> &AllowList {
+        &self.blacklist.0
+    }
+
+    /// Setup the budget for crawling.
+    pub fn configure_budget(&mut self) {
+        self.inner_budget.clone_from(&self.budget);
+    }
+
+    /// Get the whitelist compiled.
+    pub fn get_whitelist_compiled(&self) -> &AllowList {
+        &self.whitelist.0
+    }
+
+    #[cfg(feature = "regex")]
+    /// Compile the regex for the whitelist.
+    pub fn get_whitelist(&self) -> Box<regex::RegexSet> {
+        match &self.whitelist_url {
+            Some(whitelist) => match regex::RegexSet::new(&**whitelist) {
+                Ok(s) => Box::new(s),
+                _ => Default::default(),
+            },
+            _ => Default::default(),
+        }
+    }
+
+    #[cfg(not(feature = "regex"))]
+    /// Handle the whitelist options.
+    pub fn get_whitelist(&self) -> AllowList {
+        match &self.whitelist_url {
+            Some(whitelist) => whitelist.to_owned(),
+            _ => Default::default(),
+        }
+    }
+
+    #[cfg(feature = "sitemap")]
+    /// Add sitemap paths to the whitelist and track what was added.
+    pub fn add_sitemap_to_whitelist(&mut self) -> SitemapWhitelistChanges {
+        let mut changes = SitemapWhitelistChanges::default();
+
+        if self.ignore_sitemap && self.whitelist_url.is_none() {
+            return changes;
+        }
+
+        if let Some(list) = self.whitelist_url.as_mut() {
+            if list.is_empty() {
+                return changes;
+            }
+
+            let default = CompactString::from("sitemap.xml");
+
+            if !list.contains(&default) {
+                list.push(default);
+                changes.added_default = true;
+            }
+
+            if let Some(custom) = &self.sitemap_url {
+                if !list.contains(custom) {
+                    // Clone the inner CompactString directly; `*custom.clone()`
+                    // would allocate a new Box only to deref-move out of it.
+                    list.push((**custom).clone());
+                    changes.added_custom = true;
+                }
+            }
+        }
+
+        changes
+    }
+
+    #[cfg(feature = "sitemap")]
+    /// Revert any changes made to the whitelist by `add_sitemap_to_whitelist`.
+    pub fn remove_sitemap_from_whitelist(&mut self, changes: SitemapWhitelistChanges) {
+        if let Some(list) = self.whitelist_url.as_mut() {
+            if changes.added_default {
+                let default = CompactString::from("sitemap.xml");
+                if let Some(pos) = list.iter().position(|s| s == default) {
+                    list.remove(pos);
+                }
+            }
+            if changes.added_custom {
+                if let Some(custom) = &self.sitemap_url {
+                    if let Some(pos) = list.iter().position(|s| *s == **custom) {
+                        list.remove(pos);
+                    }
+                }
+            }
+            if list.is_empty() {
+                self.whitelist_url = None;
+            }
+        }
+    }
+
+    /// Respect robots.txt file.
+    pub fn with_respect_robots_txt(&mut self, respect_robots_txt: bool) -> &mut Self {
+        self.respect_robots_txt = respect_robots_txt;
+        self
+    }
+
+    /// Include subdomains detection.
+    pub fn with_subdomains(&mut self, subdomains: bool) -> &mut Self {
+        self.subdomains = subdomains;
+        self
+    }
+
+    /// Bypass CSP protection detection. This does nothing without the feat flag `chrome` enabled.
+    #[cfg(feature = "chrome")]
+    pub fn with_csp_bypass(&mut self, enabled: bool) -> &mut Self {
+        self.bypass_csp = enabled;
+        self
+    }
+
+    /// Bypass CSP protection detection. This does nothing without the feat flag `chrome` enabled.
+    #[cfg(not(feature = "chrome"))]
+    pub fn with_csp_bypass(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    /// Disable JavaScript execution on the page. This does nothing without the feat flag `chrome` enabled.
+    #[cfg(feature = "chrome")]
+    pub fn with_disable_javascript(&mut self, disabled: bool) -> &mut Self {
+        self.disable_javascript = disabled;
+        self
+    }
+
+    /// Disable JavaScript execution on the page. This does nothing without the feat flag `chrome` enabled.
+    #[cfg(not(feature = "chrome"))]
+    pub fn with_disable_javascript(&mut self, _disabled: bool) -> &mut Self {
+        self
+    }
+
+    /// Bind the connections only on the network interface.
+    pub fn with_network_interface(&mut self, network_interface: Option<String>) -> &mut Self {
+        self.network_interface = network_interface;
+        self
+    }
+
+    /// Bind to a local IP Address.
+    pub fn with_local_address(&mut self, local_address: Option<IpAddr>) -> &mut Self {
+        self.local_address = local_address;
+        self
+    }
+
+    /// Include tld detection.
+    pub fn with_tld(&mut self, tld: bool) -> &mut Self {
+        self.tld = tld;
+        self
+    }
+
+    /// The max duration for the crawl. This is useful when websites use a robots.txt with long durations and throttle the timeout removing the full concurrency.
+    pub fn with_crawl_timeout(&mut self, crawl_timeout: Option<Duration>) -> &mut Self {
+        self.crawl_timeout = crawl_timeout;
+        self
+    }
+
+    /// Delay between request as ms.
+    pub fn with_delay(&mut self, delay: u64) -> &mut Self {
+        self.delay = delay;
+        self
+    }
+
+    /// Only use HTTP/2.
+    pub fn with_http2_prior_knowledge(&mut self, http2_prior_knowledge: bool) -> &mut Self {
+        self.http2_prior_knowledge = http2_prior_knowledge;
+        self
+    }
+
+    /// Max time to wait for request. By default request times out in 15s. Set to None to disable.
+    pub fn with_request_timeout(&mut self, request_timeout: Option<Duration>) -> &mut Self {
+        match request_timeout {
+            Some(timeout) => self.request_timeout = Some(timeout),
+            _ => self.request_timeout = None,
+        };
+
+        self
+    }
+
+    #[cfg(feature = "sitemap")]
+    /// Set the sitemap url. This does nothing without the `sitemap` feature flag.
+    pub fn with_sitemap(&mut self, sitemap_url: Option<&str>) -> &mut Self {
+        match sitemap_url {
+            Some(sitemap_url) => {
+                self.sitemap_url = Some(CompactString::new(sitemap_url.to_string()).into())
+            }
+            _ => self.sitemap_url = None,
+        };
+        self
+    }
+
+    #[cfg(not(feature = "sitemap"))]
+    /// Set the sitemap url. This does nothing without the `sitemap` feature flag.
+    pub fn with_sitemap(&mut self, _sitemap_url: Option<&str>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "sitemap")]
+    /// Ignore the sitemap when crawling. This method does nothing if the `sitemap` is not enabled.
+    pub fn with_ignore_sitemap(&mut self, ignore_sitemap: bool) -> &mut Self {
+        self.ignore_sitemap = ignore_sitemap;
+        self
+    }
+
+    #[cfg(not(feature = "sitemap"))]
+    /// Ignore the sitemap when crawling. This method does nothing if the `sitemap` is not enabled.
+    pub fn with_ignore_sitemap(&mut self, _ignore_sitemap: bool) -> &mut Self {
+        self
+    }
+
+    /// Add user agent to request.
+    pub fn with_user_agent(&mut self, user_agent: Option<&str>) -> &mut Self {
+        match user_agent {
+            Some(agent) => self.user_agent = Some(CompactString::new(agent).into()),
+            _ => self.user_agent = None,
+        };
+        self
+    }
+
+    /// Preserve the HOST header.
+    pub fn with_preserve_host_header(&mut self, preserve: bool) -> &mut Self {
+        self.preserve_host_header = preserve;
+        self
+    }
+
+    /// Use a remote multimodal model to drive browser automation.
+    /// Requires the `agent` feature.
+    #[cfg(feature = "agent")]
+    pub fn with_remote_multimodal(
+        &mut self,
+        remote_multimodal: Option<crate::features::automation::RemoteMultimodalConfigs>,
+    ) -> &mut Self {
+        self.remote_multimodal = remote_multimodal.map(Box::new);
+        self
+    }
+
+    /// Use a remote multimodal model to drive browser automation.
+    /// When the `agent` feature is not enabled, this uses a stub type.
+    #[cfg(not(feature = "agent"))]
+    pub fn with_remote_multimodal(
+        &mut self,
+        remote_multimodal: Option<crate::features::automation::RemoteMultimodalConfigs>,
+    ) -> &mut Self {
+        self.remote_multimodal = remote_multimodal.map(Box::new);
+        self
+    }
+
+    #[cfg(not(feature = "openai"))]
+    /// The OpenAI configs to use to drive the browser. This method does nothing if the `openai` is not enabled.
+    pub fn with_openai(&mut self, _openai_config: Option<GPTConfigs>) -> &mut Self {
+        self
+    }
+
+    /// The OpenAI configs to use to drive the browser. This method does nothing if the `openai` is not enabled.
+    #[cfg(feature = "openai")]
+    pub fn with_openai(&mut self, openai_config: Option<GPTConfigs>) -> &mut Self {
+        match openai_config {
+            Some(openai_config) => self.openai_config = Some(Box::new(openai_config)),
+            _ => self.openai_config = None,
+        };
+        self
+    }
+
+    #[cfg(not(feature = "gemini"))]
+    /// The Gemini configs to use to drive the browser. This method does nothing if the `gemini` is not enabled.
+    pub fn with_gemini(&mut self, _gemini_config: Option<GeminiConfigs>) -> &mut Self {
+        self
+    }
+
+    /// The Gemini configs to use to drive the browser. This method does nothing if the `gemini` is not enabled.
+    #[cfg(feature = "gemini")]
+    pub fn with_gemini(&mut self, gemini_config: Option<GeminiConfigs>) -> &mut Self {
+        match gemini_config {
+            Some(gemini_config) => self.gemini_config = Some(Box::new(gemini_config)),
+            _ => self.gemini_config = None,
+        };
+        self
+    }
+
+    #[cfg(feature = "cookies")]
+    /// Cookie string to use in request. This does nothing without the `cookies` flag enabled.
+    pub fn with_cookies(&mut self, cookie_str: &str) -> &mut Self {
+        self.cookie_str = cookie_str.into();
+        self
+    }
+
+    #[cfg(not(feature = "cookies"))]
+    /// Cookie string to use in request. This does nothing without the `cookies` flag enabled.
+    pub fn with_cookies(&mut self, _cookie_str: &str) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set custom fingerprint ID for request. This does nothing without the `chrome` flag enabled.
+    pub fn with_fingerprint(&mut self, fingerprint: bool) -> &mut Self {
+        if fingerprint {
+            self.fingerprint = Fingerprint::Basic;
+        } else {
+            self.fingerprint = Fingerprint::None;
+        }
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set custom fingerprint ID for request. This does nothing without the `chrome` flag enabled.
+    pub fn with_fingerprint_advanced(&mut self, fingerprint: Fingerprint) -> &mut Self {
+        self.fingerprint = fingerprint;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set custom fingerprint ID for request. This does nothing without the `chrome` flag enabled.
+    pub fn with_fingerprint(&mut self, _fingerprint: bool) -> &mut Self {
+        self
+    }
+
+    /// Use proxies for request.
+    pub fn with_proxies(&mut self, proxies: Option<Vec<String>>) -> &mut Self {
+        self.proxies = proxies.map(|p| {
+            p.iter()
+                .map(|addr| RequestProxy {
+                    addr: addr.to_owned(),
+                    ..Default::default()
+                })
+                .collect::<Vec<RequestProxy>>()
+        });
+        self
+    }
+
+    /// Use proxies for request with control between chrome and http.
+    pub fn with_proxies_direct(&mut self, proxies: Option<Vec<RequestProxy>>) -> &mut Self {
+        self.proxies = proxies;
+        self
+    }
+
+    /// Set the proxy override list for a specific [`ProxyKind`].
+    ///
+    /// Lazily registers a sidecar mapping that a
+    /// [`crate::proxy_strategy::ProxyStrategy`] can route requests
+    /// through. Pass `None` for `proxies` to remove a previously-set
+    /// kind. Setting a kind to `Some(empty_vec)` is allowed and means
+    /// "route here but with no proxy" — the secondary client built for
+    /// this kind will be unproxied.
+    ///
+    /// Has no effect on the primary [`Configuration::proxies`] list or
+    /// on requests that route to [`ProxyKind::Default`].
+    pub fn with_proxies_for_kind(
+        &mut self,
+        kind: ProxyKind,
+        proxies: Option<Vec<RequestProxy>>,
+    ) -> &mut Self {
+        match (proxies, self.proxies_by_kind.as_mut()) {
+            (Some(p), Some(map)) => {
+                map.insert(kind, p);
+            }
+            (Some(p), None) => {
+                let mut map = hashbrown::HashMap::new();
+                map.insert(kind, p);
+                self.proxies_by_kind = Some(map);
+            }
+            (None, Some(map)) => {
+                map.remove(&kind);
+                if map.is_empty() {
+                    self.proxies_by_kind = None;
+                }
+            }
+            (None, None) => {}
+        }
+        self
+    }
+
+    /// Use a shared semaphore to evenly handle workloads. The default is false.
+    pub fn with_shared_queue(&mut self, shared_queue: bool) -> &mut Self {
+        self.shared_queue = shared_queue;
+        self
+    }
+
+    /// Add blacklist urls to ignore.
+    pub fn with_blacklist_url<T>(&mut self, blacklist_url: Option<Vec<T>>) -> &mut Self
+    where
+        Vec<CompactString>: From<Vec<T>>,
+    {
+        match blacklist_url {
+            Some(p) => self.blacklist_url = Some(p.into()),
+            _ => self.blacklist_url = None,
+        };
+        self
+    }
+
+    /// Add whitelist urls to allow.
+    pub fn with_whitelist_url<T>(&mut self, whitelist_url: Option<Vec<T>>) -> &mut Self
+    where
+        Vec<CompactString>: From<Vec<T>>,
+    {
+        match whitelist_url {
+            Some(p) => self.whitelist_url = Some(p.into()),
+            _ => self.whitelist_url = None,
+        };
+        self
+    }
+
+    /// Return the links found on the page in the channel subscriptions. This method does nothing if the `decentralized` is enabled.
+    pub fn with_return_page_links(&mut self, return_page_links: bool) -> &mut Self {
+        self.return_page_links = return_page_links;
+        self
+    }
+
+    /// Set HTTP headers for request using [reqwest::header::HeaderMap](https://docs.rs/reqwest/latest/reqwest/header/struct.HeaderMap.html).
+    pub fn with_headers(&mut self, headers: Option<reqwest::header::HeaderMap>) -> &mut Self {
+        match headers {
+            Some(m) => self.headers = Some(SerializableHeaderMap::from(m).into()),
+            _ => self.headers = None,
+        };
+        self
+    }
+
+    /// Set the max redirects allowed for request.
+    ///
+    /// Calling this method opts in to redirect-cap enforcement on both the HTTP
+    /// and Chrome paths. Without it, Chrome defers to Chromium's internal
+    /// ~20-hop cap to preserve prior behavior.
+    pub fn with_redirect_limit(&mut self, redirect_limit: usize) -> &mut Self {
+        self.redirect_limit = redirect_limit;
+        self.redirect_limit_set = true;
+        self
+    }
+
+    /// Cap the number of main-frame cross-document navigations per Chrome
+    /// `goto()` call. `None` disables the guard.
+    ///
+    /// This is the JS / meta-refresh counterpart to `with_redirect_limit` —
+    /// the HTTP redirect cap cannot catch loops implemented via
+    /// `location.href`, `<meta http-equiv="refresh">`, or `Refresh:` headers,
+    /// because each hop is a fresh document rather than a 3xx redirect.
+    pub fn with_max_main_frame_navigations(&mut self, cap: Option<u32>) -> &mut Self {
+        self.max_main_frame_navigations = cap;
+        self
+    }
+
+    /// Set the redirect policy to use.
+    pub fn with_redirect_policy(&mut self, policy: RedirectPolicy) -> &mut Self {
+        self.redirect_policy = policy;
+        self
+    }
+
+    /// Add a referer (mis-spelling) to the request.
+    pub fn with_referer(&mut self, referer: Option<String>) -> &mut Self {
+        self.referer = referer;
+        self
+    }
+
+    /// Add a referer to the request.
+    pub fn with_referrer(&mut self, referer: Option<String>) -> &mut Self {
+        self.referer = referer;
+        self
+    }
+
+    /// Determine whether to collect all the resources found on pages.
+    pub fn with_full_resources(&mut self, full_resources: bool) -> &mut Self {
+        self.full_resources = full_resources;
+        self
+    }
+
+    /// Determine whether to dismiss dialogs. This method does nothing if the `chrome` is enabled.
+    #[cfg(feature = "chrome")]
+    pub fn with_dismiss_dialogs(&mut self, dismiss_dialogs: bool) -> &mut Self {
+        self.dismiss_dialogs = Some(dismiss_dialogs);
+        self
+    }
+
+    /// Determine whether to dismiss dialogs. This method does nothing if the `chrome` is enabled.
+    #[cfg(not(feature = "chrome"))]
+    pub fn with_dismiss_dialogs(&mut self, _dismiss_dialogs: bool) -> &mut Self {
+        self
+    }
+
+    /// Set the request emuluation. This method does nothing if the `wreq` flag is not enabled.
+    #[cfg(feature = "wreq")]
+    pub fn with_emulation(&mut self, emulation: Option<wreq_util::Emulation>) -> &mut Self {
+        self.emulation = emulation;
+        self
+    }
+
+    #[cfg(feature = "cron")]
+    /// Setup cron jobs to run. This does nothing without the `cron` flag enabled.
+    pub fn with_cron(&mut self, cron_str: &str, cron_type: CronType) -> &mut Self {
+        self.cron_str = cron_str.into();
+        self.cron_type = cron_type;
+        self
+    }
+
+    #[cfg(not(feature = "cron"))]
+    /// Setup cron jobs to run. This does nothing without the `cron` flag enabled.
+    pub fn with_cron(&mut self, _cron_str: &str, _cron_type: CronType) -> &mut Self {
+        self
+    }
+
+    /// Set a crawl page limit. If the value is 0 there is no limit.
+    pub fn with_limit(&mut self, limit: u32) -> &mut Self {
+        self.with_budget(Some(hashbrown::HashMap::from([("*", limit)])));
+        self
+    }
+
+    /// Set the concurrency limits. If you set the value to None to use the default limits using the system CPU cors * n.
+    pub fn with_concurrency_limit(&mut self, limit: Option<usize>) -> &mut Self {
+        self.concurrency_limit = limit;
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set the authentiation challenge response. This does nothing without the feat flag `chrome` enabled.
+    pub fn with_auth_challenge_response(
+        &mut self,
+        auth_challenge_response: Option<AuthChallengeResponse>,
+    ) -> &mut Self {
+        self.auth_challenge_response = auth_challenge_response;
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set a custom script to evaluate on new document creation. This does nothing without the feat flag `chrome` enabled.
+    pub fn with_evaluate_on_new_document(
+        &mut self,
+        evaluate_on_new_document: Option<Box<String>>,
+    ) -> &mut Self {
+        self.evaluate_on_new_document = evaluate_on_new_document;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set a custom script to evaluate on new document creation. This does nothing without the feat flag `chrome` enabled.
+    pub fn with_evaluate_on_new_document(
+        &mut self,
+        _evaluate_on_new_document: Option<Box<String>>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set the authentiation challenge response. This does nothing without the feat flag `chrome` enabled.
+    pub fn with_auth_challenge_response(
+        &mut self,
+        _auth_challenge_response: Option<AuthChallengeResponse>,
+    ) -> &mut Self {
+        self
+    }
+
+    /// Set a crawl depth limit. If the value is 0 there is no limit.
+    pub fn with_depth(&mut self, depth: usize) -> &mut Self {
+        self.depth = depth;
+        self
+    }
+
+    #[cfg(any(feature = "cache_request", feature = "chrome_remote_cache"))]
+    /// Cache the page following HTTP rules. This method does nothing if the `cache` feature is not enabled.
+    pub fn with_caching(&mut self, cache: bool) -> &mut Self {
+        self.cache = cache;
+        self
+    }
+
+    #[cfg(not(any(feature = "cache_request", feature = "chrome_remote_cache")))]
+    /// Cache the page following HTTP rules. This method does nothing if the `cache` feature is not enabled.
+    pub fn with_caching(&mut self, _cache: bool) -> &mut Self {
+        self
+    }
+
+    #[cfg(any(feature = "cache_request", feature = "chrome_remote_cache"))]
+    /// Skip browser rendering entirely if cached response exists.
+    /// When enabled with caching, returns cached HTML directly without launching Chrome.
+    /// This is useful for performance when you only need the cached content.
+    pub fn with_cache_skip_browser(&mut self, skip: bool) -> &mut Self {
+        self.cache_skip_browser = skip;
+        self
+    }
+
+    #[cfg(not(any(feature = "cache_request", feature = "chrome_remote_cache")))]
+    /// Skip browser rendering entirely if cached response exists.
+    /// This method does nothing if the cache features are not enabled.
+    pub fn with_cache_skip_browser(&mut self, _skip: bool) -> &mut Self {
+        self
+    }
+
+    /// Partition the cache by an opaque namespace so logically distinct
+    /// variants of the same URL (country, proxy pool, tenant, A/B bucket,
+    /// device profile, …) never collide on the same cached bytes.
+    /// `None` uses the default (empty) namespace. Has no observable effect
+    /// when no cache feature is active, but the configuration is always
+    /// settable regardless of feature flags.
+    pub fn with_cache_namespace<S: Into<String>>(&mut self, namespace: Option<S>) -> &mut Self {
+        self.cache_namespace = namespace.map(|s| Box::new(s.into()));
+        self
+    }
+
+    /// Borrowed access to the cache namespace (`None` = default partition).
+    /// Used by chrome / cache feature paths; the lib build without those
+    /// flags has no callers, hence `#[allow(dead_code)]`.
+    #[inline]
+    #[allow(dead_code)]
+    pub(crate) fn cache_namespace_str(&self) -> Option<&str> {
+        self.cache_namespace.as_ref().map(|s| s.as_str())
+    }
+
+    /// Enable read-only mode for the remote Chrome cache. When `true`, the
+    /// local cache + per-session cache continue to serve hits but no
+    /// responses are uploaded to the remote `hybrid_cache_server`. Has no
+    /// observable effect without the `chrome_remote_cache` feature.
+    #[cfg(feature = "chrome_remote_cache")]
+    pub fn with_chrome_remote_cache_read_only(&mut self, read_only: bool) -> &mut Self {
+        self.chrome_remote_cache_read_only = read_only;
+        self
+    }
+
+    /// Enable read-only mode for the remote Chrome cache. This method does
+    /// nothing without the `chrome_remote_cache` feature.
+    #[cfg(not(feature = "chrome_remote_cache"))]
+    pub fn with_chrome_remote_cache_read_only(&mut self, _read_only: bool) -> &mut Self {
+        self
+    }
+
+    /// Whether the remote Chrome cache is in read-only mode. Always `false`
+    /// without the `chrome_remote_cache` feature. Only consumed by the
+    /// chrome-cache wiring at `Configuration::chrome_fetch_params`, so the
+    /// default lib build flags this as unused.
+    #[inline]
+    #[allow(dead_code)]
+    pub(crate) fn chrome_remote_cache_read_only_enabled(&self) -> bool {
+        #[cfg(feature = "chrome_remote_cache")]
+        {
+            self.chrome_remote_cache_read_only
+        }
+        #[cfg(not(feature = "chrome_remote_cache"))]
+        {
+            false
+        }
+    }
+
+    /// Enable publishing of fresh HTTP (skip_browser) responses to the
+    /// shared remote cache worker. Updates the process-global dump flag
+    /// on `spider_remote_cache` — the setter is wait-free (single atomic
+    /// store) and safe to call from any thread. Also opts into the
+    /// disk-backed overflow spool so bursty crawls don't drop under
+    /// memory pressure. Has no observable effect without the
+    /// `chrome_remote_cache` feature.
+    #[cfg(feature = "chrome_remote_cache")]
+    pub fn with_remote_cache_skip_browser(&mut self, enabled: bool) -> &mut Self {
+        self.remote_cache_skip_browser = enabled;
+        spider_remote_cache::set_skip_browser_dumps_enabled(enabled);
+        spider_remote_cache::set_spool_enabled(enabled);
+        self
+    }
+
+    /// Enable publishing of fresh HTTP (skip_browser) responses to the
+    /// shared remote cache worker. This method does nothing without the
+    /// `chrome_remote_cache` feature.
+    #[cfg(not(feature = "chrome_remote_cache"))]
+    pub fn with_remote_cache_skip_browser(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    /// Whether HTTP (skip_browser) responses should be enqueued to the
+    /// shared remote cache worker. Always `false` without the
+    /// `chrome_remote_cache` feature. Mirrors the process-global state
+    /// held in `spider_remote_cache::skip_browser_dumps_enabled()` —
+    /// callers that need the runtime toggle should read the global
+    /// directly for wait-free access from the hot path.
+    #[inline]
+    #[allow(dead_code)]
+    pub(crate) fn remote_cache_skip_browser_enabled(&self) -> bool {
+        #[cfg(feature = "chrome_remote_cache")]
+        {
+            self.remote_cache_skip_browser
+        }
+        #[cfg(not(feature = "chrome_remote_cache"))]
+        {
+            false
+        }
+    }
+
+    /// Restrict chrome remote-cache dumps to the main (initial)
+    /// document only. When `true`, the per-response listener runs in
+    /// `dump_readonly` mode (local + per-session cache only) so
+    /// CSS/JS/manifests are **not** uploaded to the remote
+    /// `hybrid_cache_server`; the navigated document body — whatever
+    /// MIME type it is — still goes through `cache_chrome_response`.
+    /// Has no observable effect without the `chrome_remote_cache`
+    /// feature.
+    #[cfg(feature = "chrome_remote_cache")]
+    pub fn with_chrome_remote_cache_main_doc_only(&mut self, enabled: bool) -> &mut Self {
+        self.chrome_remote_cache_main_doc_only = enabled;
+        self
+    }
+
+    /// Restrict chrome remote-cache dumps to the main document only.
+    /// This method does nothing without the `chrome_remote_cache`
+    /// feature.
+    #[cfg(not(feature = "chrome_remote_cache"))]
+    pub fn with_chrome_remote_cache_main_doc_only(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    /// Whether chrome remote-cache dumps should be restricted to the
+    /// main document. Always `false` without the `chrome_remote_cache`
+    /// feature. Only consumed by the chrome-cache wiring at
+    /// `Configuration::chrome_fetch_params`; default lib build is unused.
+    #[inline]
+    #[allow(dead_code)]
+    pub(crate) fn chrome_remote_cache_main_doc_only_enabled(&self) -> bool {
+        #[cfg(feature = "chrome_remote_cache")]
+        {
+            self.chrome_remote_cache_main_doc_only
+        }
+        #[cfg(not(feature = "chrome_remote_cache"))]
+        {
+            false
+        }
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Enable or disable Service Workers. This method does nothing if the `chrome` feature is not enabled.
+    pub fn with_service_worker_enabled(&mut self, enabled: bool) -> &mut Self {
+        self.service_worker_enabled = enabled;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Enable or disable Service Workers. This method does nothing if the `chrome` feature is not enabled.
+    pub fn with_service_worker_enabled(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    /// Automatically setup geo-location configurations when using a proxy. This method does nothing if the `chrome` feature is not enabled.
+    #[cfg(not(feature = "chrome"))]
+    pub fn with_auto_geolocation(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    /// Automatically setup geo-location configurations when using a proxy. This method does nothing if the `chrome` feature is not enabled.
+    #[cfg(feature = "chrome")]
+    pub fn with_auto_geolocation(&mut self, enabled: bool) -> &mut Self {
+        self.auto_geolocation = enabled;
+        self
+    }
+
+    /// Set the retry limit for request. Set the value to 0 for no retries. The default is 0.
+    pub fn with_retry(&mut self, retry: u8) -> &mut Self {
+        self.retry = retry;
+        self
+    }
+
+    /// The default http connect timeout.
+    pub fn with_default_http_connect_timeout(
+        &mut self,
+        default_http_connect_timeout: Option<Duration>,
+    ) -> &mut Self {
+        self.default_http_connect_timeout = default_http_connect_timeout;
+        self
+    }
+
+    /// The default http read timeout.
+    pub fn with_default_http_read_timeout(
+        &mut self,
+        default_http_read_timeout: Option<Duration>,
+    ) -> &mut Self {
+        self.default_http_read_timeout = default_http_read_timeout;
+        self
+    }
+
+    /// Skip setting up a control thread for pause, start, and shutdown programmatic handling. This does nothing without the 'control' flag enabled.
+    pub fn with_no_control_thread(&mut self, no_control_thread: bool) -> &mut Self {
+        self.no_control_thread = no_control_thread;
+        self
+    }
+
+    /// Configures the viewport of the browser, which defaults to 800x600. This method does nothing if the 'chrome' feature is not enabled.
+    pub fn with_viewport(&mut self, viewport: Option<crate::configuration::Viewport>) -> &mut Self {
+        self.viewport = viewport.map(|vp| vp);
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Use stealth mode for the request. This does nothing without the `chrome` flag enabled.
+    pub fn with_stealth(&mut self, stealth_mode: bool) -> &mut Self {
+        if stealth_mode {
+            self.stealth_mode = spider_fingerprint::configs::Tier::Basic;
+        } else {
+            self.stealth_mode = spider_fingerprint::configs::Tier::None;
+        }
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Use stealth mode for the request. This does nothing without the `chrome` flag enabled.
+    pub fn with_stealth_advanced(
+        &mut self,
+        stealth_mode: spider_fingerprint::configs::Tier,
+    ) -> &mut Self {
+        self.stealth_mode = stealth_mode;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Use stealth mode for the request. This does nothing without the `chrome` flag enabled.
+    pub fn with_stealth(&mut self, _stealth_mode: bool) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Wait for network request to be idle within a time frame period (500ms no network connections). This does nothing without the `chrome` flag enabled.
+    pub fn with_wait_for_idle_network(
+        &mut self,
+        wait_for_idle_network: Option<WaitForIdleNetwork>,
+    ) -> &mut Self {
+        match self.wait_for.as_mut() {
+            Some(wait_for) => wait_for.idle_network = wait_for_idle_network,
+            _ => {
+                let mut wait_for = WaitFor::default();
+                wait_for.idle_network = wait_for_idle_network;
+                self.wait_for = Some(wait_for);
+            }
+        }
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Wait for network request with a max timeout. This does nothing without the `chrome` flag enabled.
+    pub fn with_wait_for_idle_network0(
+        &mut self,
+        wait_for_idle_network0: Option<WaitForIdleNetwork>,
+    ) -> &mut Self {
+        match self.wait_for.as_mut() {
+            Some(wait_for) => wait_for.idle_network0 = wait_for_idle_network0,
+            _ => {
+                let mut wait_for = WaitFor::default();
+                wait_for.idle_network0 = wait_for_idle_network0;
+                self.wait_for = Some(wait_for);
+            }
+        }
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Wait for network to be almost idle with a max timeout. This does nothing without the `chrome` flag enabled.
+    pub fn with_wait_for_almost_idle_network0(
+        &mut self,
+        wait_for_almost_idle_network0: Option<WaitForIdleNetwork>,
+    ) -> &mut Self {
+        match self.wait_for.as_mut() {
+            Some(wait_for) => wait_for.almost_idle_network0 = wait_for_almost_idle_network0,
+            _ => {
+                let mut wait_for = WaitFor::default();
+                wait_for.almost_idle_network0 = wait_for_almost_idle_network0;
+                self.wait_for = Some(wait_for);
+            }
+        }
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Wait for network to be almost idle with a max timeout. This does nothing without the `chrome` flag enabled.
+    pub fn with_wait_for_almost_idle_network0(
+        &mut self,
+        _wait_for_almost_idle_network0: Option<WaitForIdleNetwork>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Wait for network request with a max timeout. This does nothing without the `chrome` flag enabled.
+    pub fn with_wait_for_idle_network0(
+        &mut self,
+        _wait_for_idle_network0: Option<WaitForIdleNetwork>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Wait for idle network request. This method does nothing if the `chrome` feature is not enabled.
+    pub fn with_wait_for_idle_network(
+        &mut self,
+        _wait_for_idle_network: Option<WaitForIdleNetwork>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Wait for idle dom mutations for target element. This method does nothing if the [chrome] feature is not enabled.
+    pub fn with_wait_for_idle_dom(
+        &mut self,
+        wait_for_idle_dom: Option<WaitForSelector>,
+    ) -> &mut Self {
+        match self.wait_for.as_mut() {
+            Some(wait_for) => wait_for.dom = wait_for_idle_dom,
+            _ => {
+                let mut wait_for = WaitFor::default();
+                wait_for.dom = wait_for_idle_dom;
+                self.wait_for = Some(wait_for);
+            }
+        }
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Wait for idle dom mutations for target element. This method does nothing if the `chrome` feature is not enabled.
+    pub fn with_wait_for_idle_dom(
+        &mut self,
+        _wait_for_idle_dom: Option<WaitForSelector>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Wait for a selector. This method does nothing if the `chrome` feature is not enabled.
+    pub fn with_wait_for_selector(
+        &mut self,
+        wait_for_selector: Option<WaitForSelector>,
+    ) -> &mut Self {
+        match self.wait_for.as_mut() {
+            Some(wait_for) => wait_for.selector = wait_for_selector,
+            _ => {
+                let mut wait_for = WaitFor::default();
+                wait_for.selector = wait_for_selector;
+                self.wait_for = Some(wait_for);
+            }
+        }
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Wait for a selector. This method does nothing if the `chrome` feature is not enabled.
+    pub fn with_wait_for_selector(
+        &mut self,
+        _wait_for_selector: Option<WaitForSelector>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Wait for with delay. Should only be used for testing. This method does nothing if the 'chrome' feature is not enabled.
+    pub fn with_wait_for_delay(&mut self, wait_for_delay: Option<WaitForDelay>) -> &mut Self {
+        match self.wait_for.as_mut() {
+            Some(wait_for) => wait_for.delay = wait_for_delay,
+            _ => {
+                let mut wait_for = WaitFor::default();
+                wait_for.delay = wait_for_delay;
+                self.wait_for = Some(wait_for);
+            }
+        }
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Wait for with delay. Should only be used for testing. This method does nothing if the 'chrome' feature is not enabled.
+    pub fn with_wait_for_delay(&mut self, _wait_for_delay: Option<WaitForDelay>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome_intercept")]
+    /// Use request intercept for the request to only allow content that matches the host. If the content is from a 3rd party it needs to be part of our include list. This method does nothing if the `chrome_intercept` is not enabled.
+    pub fn with_chrome_intercept(
+        &mut self,
+        chrome_intercept: RequestInterceptConfiguration,
+        url: &Option<Box<url::Url>>,
+    ) -> &mut Self {
+        self.chrome_intercept = chrome_intercept;
+        self.chrome_intercept.setup_intercept_manager(url);
+        self
+    }
+
+    #[cfg(not(feature = "chrome_intercept"))]
+    /// Use request intercept for the request to only allow content required for the page that matches the host. If the content is from a 3rd party it needs to be part of our include list. This method does nothing if the `chrome_intercept` is not enabled.
+    pub fn with_chrome_intercept(
+        &mut self,
+        _chrome_intercept: RequestInterceptConfiguration,
+        _url: &Option<Box<url::Url>>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome_intercept")]
+    /// Push the interception policy (the `chrome_intercept` flags + per-job
+    /// blacklist/whitelist + page url) to a capable remote rendering engine
+    /// once per navigation, so it resolves block/allow decisions locally
+    /// instead of round-tripping every paused request. Enables request
+    /// interception. No-op against a normal Chrome target (the vendor method is
+    /// ignored), so it only changes behavior for engines that implement it.
+    pub fn with_remote_local_policy(&mut self, enabled: bool) -> &mut Self {
+        if enabled {
+            self.chrome_intercept.enabled = true;
+        }
+        self.chrome_intercept.set_remote_local_policy(enabled);
+        self
+    }
+
+    #[cfg(not(feature = "chrome_intercept"))]
+    /// Push the interception policy to a capable remote rendering engine. This
+    /// method does nothing without the `chrome_intercept` flag.
+    pub fn with_remote_local_policy(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set the connection url for the chrome instance. This method does nothing if the `chrome` is not enabled.
+    pub fn with_chrome_connection(&mut self, chrome_connection_url: Option<String>) -> &mut Self {
+        self.chrome_connection_url = chrome_connection_url;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set the connection url for the chrome instance. This method does nothing if the `chrome` is not enabled.
+    pub fn with_chrome_connection(&mut self, _chrome_connection_url: Option<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set multiple remote Chrome connection URLs for failover. When a
+    /// connection fails after retries, the next URL is tried. Takes
+    /// priority over `chrome_connection_url` when set.
+    ///
+    /// A single-URL vec routes through `chrome_connection_url` so the
+    /// normal single-endpoint path (10 retries w/ backoff) is used
+    /// instead of the failover path (3 retries, no other endpoint to try).
+    pub fn with_chrome_connections(&mut self, urls: Vec<String>) -> &mut Self {
+        match urls.len() {
+            0 => {
+                self.chrome_connection_urls = None;
+            }
+            1 => {
+                self.chrome_connection_url = urls.into_iter().next();
+                self.chrome_connection_urls = None;
+            }
+            _ => {
+                self.chrome_connection_urls = Some(urls);
+            }
+        }
+        // Drop any previously-built failover so the next setup call reflects
+        // the new URL list. Outstanding readers keep the old Arc alive until
+        // they release it; no leak.
+        self.chrome_failover = crate::features::chrome::LazyChromeFailover::default();
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set multiple remote Chrome connection URLs. This method does nothing if the `chrome` is not enabled.
+    pub fn with_chrome_connections(&mut self, _urls: Vec<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "decentralized")]
+    /// Set the Spider worker URL for crawl requests. `None` clears the
+    /// per-website override so this `Website` falls back to the process-wide
+    /// `SPIDER_WORKER` env var (default `http://127.0.0.1:3030`). `Some` with
+    /// a non-empty URL routes crawl traffic through that worker; `Some` with
+    /// an empty/whitespace URL disables the crawl worker pool for this
+    /// `Website` without affecting any other `Website` in the process.
+    pub fn with_worker_connection(&mut self, worker_connection_url: Option<String>) -> &mut Self {
+        self.worker_connection_urls = worker_connection_url.map(|url| {
+            let url = url.trim();
+            if url.is_empty() {
+                Vec::new()
+            } else {
+                vec![url.to_string()]
+            }
+        });
+        self
+    }
+
+    #[cfg(not(feature = "decentralized"))]
+    /// Set the Spider worker URL for crawl requests. This method does nothing
+    /// if the `decentralized` feature is not enabled.
+    pub fn with_worker_connection(&mut self, _worker_connection_url: Option<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "decentralized")]
+    /// Set multiple Spider worker URLs for crawl requests. Empty/whitespace
+    /// entries are dropped. An empty resulting list disables the crawl worker
+    /// pool for this `Website` only.
+    pub fn with_worker_connections(&mut self, urls: Vec<String>) -> &mut Self {
+        self.worker_connection_urls = Some(
+            urls.into_iter()
+                .map(|url| url.trim().to_string())
+                .filter(|url| !url.is_empty())
+                .collect(),
+        );
+        self
+    }
+
+    #[cfg(not(feature = "decentralized"))]
+    /// Set multiple Spider worker URLs for crawl requests. This method does
+    /// nothing if the `decentralized` feature is not enabled.
+    pub fn with_worker_connections(&mut self, _urls: Vec<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "decentralized")]
+    /// Set the Spider scraper worker URL for scrape requests. `None` clears
+    /// the per-website override so this `Website` falls back to the
+    /// process-wide `SPIDER_WORKER_SCRAPER` env var (default
+    /// `http://127.0.0.1:3031`). `Some` with an empty/whitespace URL disables
+    /// the scraper worker pool for this `Website` only.
+    pub fn with_scraper_worker_connection(
+        &mut self,
+        scraper_worker_connection_url: Option<String>,
+    ) -> &mut Self {
+        self.scraper_worker_connection_urls = scraper_worker_connection_url.map(|url| {
+            let url = url.trim();
+            if url.is_empty() {
+                Vec::new()
+            } else {
+                vec![url.to_string()]
+            }
+        });
+        self
+    }
+
+    #[cfg(not(feature = "decentralized"))]
+    /// Set the Spider scraper worker URL for scrape requests. This method
+    /// does nothing if the `decentralized` feature is not enabled.
+    pub fn with_scraper_worker_connection(
+        &mut self,
+        _scraper_worker_connection_url: Option<String>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "decentralized")]
+    /// Set multiple Spider scraper worker URLs for scrape requests.
+    /// Empty/whitespace entries are dropped. An empty resulting list disables
+    /// the scraper worker pool for this `Website` only.
+    pub fn with_scraper_worker_connections(&mut self, urls: Vec<String>) -> &mut Self {
+        self.scraper_worker_connection_urls = Some(
+            urls.into_iter()
+                .map(|url| url.trim().to_string())
+                .filter(|url| !url.is_empty())
+                .collect(),
+        );
+        self
+    }
+
+    #[cfg(not(feature = "decentralized"))]
+    /// Set multiple Spider scraper worker URLs for scrape requests. This
+    /// method does nothing if the `decentralized` feature is not enabled.
+    pub fn with_scraper_worker_connections(&mut self, _urls: Vec<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set the first-byte watchdog timeout for Chrome navigations. `None`
+    /// disables it; `Some(d)` fires after `d` of silence on both
+    /// `Network.responseReceived` and `Network.dataReceived` and force-stops
+    /// the page so the caller can rotate to a different Chrome backend.
+    pub fn with_chrome_first_byte_timeout(&mut self, timeout: Option<Duration>) -> &mut Self {
+        self.chrome_first_byte_timeout = timeout;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set the first-byte watchdog timeout for Chrome navigations. This method does nothing if the `chrome` is not enabled.
+    pub fn with_chrome_first_byte_timeout(&mut self, _timeout: Option<Duration>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set the per-fetch jitter window for the first-byte watchdog. `None`
+    /// disables jitter; `Some(j)` randomizes each fetch's timeout uniformly
+    /// in `[base, base + j)`. Ignored when the base timeout is `None`.
+    pub fn with_chrome_first_byte_timeout_jitter(&mut self, jitter: Option<Duration>) -> &mut Self {
+        self.chrome_first_byte_timeout_jitter = jitter;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set the first-byte watchdog jitter window. This method does nothing if the `chrome` is not enabled.
+    pub fn with_chrome_first_byte_timeout_jitter(
+        &mut self,
+        _jitter: Option<Duration>,
+    ) -> &mut Self {
+        self
+    }
+
+    /// Set the first-byte watchdog timeout for HTTP fetches. `None`
+    /// disables it; `Some(d)` wraps each `client.get(url).send()` in
+    /// `tokio::time::timeout(d + rand(0..jitter))` and returns a
+    /// synthetic `524 GATEWAY_TIMEOUT` response on fire so the retry
+    /// path rotates the proxy. Covers stalls between TCP connect and
+    /// the first byte of the response — distinct from
+    /// `connect_timeout` (handshake-only) and `chunk_idle_timeout`
+    /// (body-streaming idle).
+    pub fn with_http_first_byte_timeout(&mut self, timeout: Option<Duration>) -> &mut Self {
+        self.http_first_byte_timeout = timeout;
+        self
+    }
+
+    /// Set the per-fetch jitter window for the HTTP first-byte
+    /// watchdog. Same semantics as
+    /// `with_chrome_first_byte_timeout_jitter`.
+    pub fn with_http_first_byte_timeout_jitter(&mut self, jitter: Option<Duration>) -> &mut Self {
+        self.http_first_byte_timeout_jitter = jitter;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Set JS to run on certain pages. This method does nothing if the `chrome` is not enabled.
+    pub fn with_execution_scripts(
+        &mut self,
+        _execution_scripts: Option<ExecutionScriptsMap>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Set JS to run on certain pages. This method does nothing if the `chrome` is not enabled.
+    pub fn with_execution_scripts(
+        &mut self,
+        execution_scripts: Option<ExecutionScriptsMap>,
+    ) -> &mut Self {
+        self.execution_scripts =
+            crate::features::chrome_common::convert_to_trie_execution_scripts(&execution_scripts);
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Run web automated actions on certain pages. This method does nothing if the `chrome` is not enabled.
+    pub fn with_automation_scripts(
+        &mut self,
+        _automation_scripts: Option<AutomationScriptsMap>,
+    ) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Run web automated actions on certain pages. This method does nothing if the `chrome` is not enabled.
+    pub fn with_automation_scripts(
+        &mut self,
+        automation_scripts: Option<AutomationScriptsMap>,
+    ) -> &mut Self {
+        self.automation_scripts =
+            crate::features::chrome_common::convert_to_trie_automation_scripts(&automation_scripts);
+        self
+    }
+
+    /// Set a crawl budget per path with levels support /a/b/c or for all paths with "*". This does nothing without the `budget` flag enabled.
+    pub fn with_budget(&mut self, budget: Option<hashbrown::HashMap<&str, u32>>) -> &mut Self {
+        self.budget = match budget {
+            Some(budget) => {
+                let mut crawl_budget: hashbrown::HashMap<
+                    case_insensitive_string::CaseInsensitiveString,
+                    u32,
+                > = hashbrown::HashMap::new();
+
+                for b in budget.into_iter() {
+                    crawl_budget.insert(
+                        case_insensitive_string::CaseInsensitiveString::from(b.0),
+                        b.1,
+                    );
+                }
+
+                Some(crawl_budget)
+            }
+            _ => None,
+        };
+        self
+    }
+
+    /// Group external domains to treat the crawl as one. If None is passed this will clear all prior domains.
+    pub fn with_external_domains<'a, 'b>(
+        &mut self,
+        external_domains: Option<impl Iterator<Item = String> + 'a>,
+    ) -> &mut Self {
+        match external_domains {
+            Some(external_domains) => {
+                self.external_domains_caseless = external_domains
+                    .into_iter()
+                    .filter_map(|d| {
+                        if d == "*" {
+                            Some("*".into())
+                        } else {
+                            let host = get_domain_from_url(&d);
+
+                            if !host.is_empty() {
+                                Some(host.into())
+                            } else {
+                                None
+                            }
+                        }
+                    })
+                    .collect::<hashbrown::HashSet<case_insensitive_string::CaseInsensitiveString>>()
+                    .into();
+            }
+            _ => self.external_domains_caseless = Default::default(),
+        }
+
+        self
+    }
+
+    /// Dangerously accept invalid certificates - this should be used as a last resort.
+    pub fn with_danger_accept_invalid_certs(&mut self, accept_invalid_certs: bool) -> &mut Self {
+        self.accept_invalid_certs = accept_invalid_certs;
+        self
+    }
+
+    /// Normalize the content de-duplicating trailing slash pages and other pages that can be duplicated. This may initially show the link in your links_visited or subscription calls but, the following links will not be crawled.
+    pub fn with_normalize(&mut self, normalize: bool) -> &mut Self {
+        self.normalize = normalize;
+        self
+    }
+
+    #[cfg(not(feature = "disk"))]
+    /// Store all the links found on the disk to share the state. This does nothing without the `disk` flag enabled.
+    pub fn with_shared_state(&mut self, _shared: bool) -> &mut Self {
+        self
+    }
+
+    /// Store all the links found on the disk to share the state. This does nothing without the `disk` flag enabled.
+    #[cfg(feature = "disk")]
+    pub fn with_shared_state(&mut self, shared: bool) -> &mut Self {
+        self.shared = shared;
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Overrides default host system timezone with the specified one. This does nothing without the `chrome` flag enabled.
+    pub fn with_timezone_id(&mut self, _timezone_id: Option<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Overrides default host system timezone with the specified one. This does nothing without the `chrome` flag enabled.
+    pub fn with_timezone_id(&mut self, timezone_id: Option<String>) -> &mut Self {
+        self.timezone_id = timezone_id.map(|timezone_id| timezone_id.into());
+        self
+    }
+
+    #[cfg(not(feature = "chrome"))]
+    /// Overrides default host system locale with the specified one. This does nothing without the `chrome` flag enabled.
+    pub fn with_locale(&mut self, _locale: Option<String>) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Overrides default host system locale with the specified one. This does nothing without the `chrome` flag enabled.
+    pub fn with_locale(&mut self, locale: Option<String>) -> &mut Self {
+        self.locale = locale.map(|locale| locale.into());
+        self
+    }
+
+    #[cfg(feature = "chrome")]
+    /// Track the events made via chrome.
+    pub fn with_event_tracker(&mut self, track_events: Option<ChromeEventTracker>) -> &mut Self {
+        self.track_events = track_events;
+        self
+    }
+
+    /// Set the chrome screenshot configuration. This does nothing without the `chrome` flag enabled.
+    #[cfg(not(feature = "chrome"))]
+    pub fn with_screenshot(&mut self, _screenshot_config: Option<ScreenShotConfig>) -> &mut Self {
+        self
+    }
+
+    /// Set the chrome screenshot configuration. This does nothing without the `chrome` flag enabled.
+    #[cfg(feature = "chrome")]
+    pub fn with_screenshot(&mut self, screenshot_config: Option<ScreenShotConfig>) -> &mut Self {
+        self.screenshot = screenshot_config;
+        self
+    }
+
+    /// Set the max amount of bytes to collect per page. This method does nothing if the `chrome` is not enabled.
+    pub fn with_max_page_bytes(&mut self, max_page_bytes: Option<f64>) -> &mut Self {
+        self.max_page_bytes = max_page_bytes;
+        self
+    }
+
+    /// Set the max amount of bytes to collected for the browser context. This method does nothing if the `chrome` is not enabled.
+    pub fn with_max_bytes_allowed(&mut self, max_bytes_allowed: Option<u64>) -> &mut Self {
+        self.max_bytes_allowed = max_bytes_allowed;
+        self
+    }
+
+    /// Block assets from loading from the network.
+    pub fn with_block_assets(&mut self, only_html: bool) -> &mut Self {
+        self.only_html = only_html;
+        self
+    }
+
+    /// Modify the headers to mimic a real browser.
+    pub fn with_modify_headers(&mut self, modify_headers: bool) -> &mut Self {
+        self.modify_headers = modify_headers;
+        self
+    }
+
+    /// Modify the HTTP client headers to mimic a real browser.
+    pub fn with_modify_http_client_headers(
+        &mut self,
+        modify_http_client_headers: bool,
+    ) -> &mut Self {
+        self.modify_http_client_headers = modify_http_client_headers;
+        self
+    }
+
+    /// Set the cache policy.
+    pub fn with_cache_policy(&mut self, cache_policy: Option<BasicCachePolicy>) -> &mut Self {
+        self.cache_policy = cache_policy;
+        self
+    }
+
+    #[cfg(feature = "webdriver")]
+    /// Set the WebDriver configuration. This does nothing without the `webdriver` flag enabled.
+    pub fn with_webdriver_config(
+        &mut self,
+        webdriver_config: Option<WebDriverConfig>,
+    ) -> &mut Self {
+        self.webdriver_config = webdriver_config.map(Box::new);
+        self
+    }
+
+    #[cfg(not(feature = "webdriver"))]
+    /// Set the WebDriver configuration. This does nothing without the `webdriver` flag enabled.
+    pub fn with_webdriver_config(
+        &mut self,
+        _webdriver_config: Option<WebDriverConfig>,
+    ) -> &mut Self {
+        self
+    }
+
+    /// Resolve the HTTP first-byte watchdog args.
+    ///
+    /// Returns the configured `http_first_byte_timeout` + `_jitter`
+    /// whenever the timeout field is `Some(_)` — caller opted in by
+    /// setting the field, so honor it regardless of proxy count.
+    ///
+    /// Previously this was gated on `balance` feature + ≥2 HTTP-eligible
+    /// proxies, on the premise that the watchdog firing without a
+    /// rotation target was wasted. That was wrong for the
+    /// proxy-shrouded NXDOMAIN case: a single proxy still returns an
+    /// upstream-DNS-shaped 5xx after ~15-22s, and reqwest's `.timeout()`
+    /// is not enforced through the proxy CONNECT tunnel for that phase.
+    /// The watchdog is the only knob that fires reliably, and a fast
+    /// 524 surfaced to the caller is strictly better than waiting for
+    /// the proxy's internal DNS deadline — even when no rotation
+    /// target exists.
+    ///
+    /// When the timeout field is `None`, returns `(None, None)` —
+    /// pure passthrough, no overhead. Setting the field on `Configuration`
+    /// is the opt-in.
+    #[inline]
+    pub fn auto_http_first_byte_args(&self) -> (Option<Duration>, Option<Duration>) {
+        match self.http_first_byte_timeout {
+            Some(_) => (
+                self.http_first_byte_timeout,
+                self.http_first_byte_timeout_jitter,
+            ),
+            None => (None, None),
+        }
+    }
+
+    /// Build the borrowed chrome fetch parameter bundle.
+    ///
+    /// Zero-copy: all fields borrow directly from `self`. Build once at
+    /// the top of a call chain and pass `&` through the layers to keep
+    /// the hot path inlineable.
+    #[cfg(feature = "chrome")]
+    #[inline]
+    pub fn chrome_fetch_params(&self) -> crate::utils::ChromeFetchParams<'_> {
+        crate::utils::ChromeFetchParams {
+            wait_for: &self.wait_for,
+            screenshot: &self.screenshot,
+            openai_config: &self.openai_config,
+            execution_scripts: &self.execution_scripts,
+            automation_scripts: &self.automation_scripts,
+            viewport: &self.viewport,
+            request_timeout: &self.request_timeout,
+            track_events: &self.track_events,
+            cache_policy: &self.cache_policy,
+            remote_multimodal: &self.remote_multimodal,
+            remote_cache_read_only: self.chrome_remote_cache_read_only_enabled(),
+            remote_cache_main_doc_only: self.chrome_remote_cache_main_doc_only_enabled(),
+            first_byte_timeout: &self.chrome_first_byte_timeout,
+            first_byte_timeout_jitter: &self.chrome_first_byte_timeout_jitter,
+            browser_dead: None,
+            chrome_failover: Some(&self.chrome_failover),
+            // Auto-populate the endpoint URL for every chrome / smart
+            // crawl path so the first-byte watchdog can mark the right
+            // backend bad without each call site having to thread a
+            // `BrowserController` through its signature. Multi-URL
+            // failover wins (the most recent successful URL); single-URL
+            // config is the fallback. `None` for local launches.
+            chrome_endpoint_url: self
+                .chrome_failover
+                .last_connected_url()
+                .or(self.chrome_connection_url.as_deref()),
+        }
+    }
+
+    /// Get the cache option to use for the run. This does nothing without the 'cache_request' feature.
+    #[cfg(any(feature = "cache_request", feature = "chrome_remote_cache"))]
+    pub(crate) fn get_cache_options(&self) -> Option<crate::utils::CacheOptions> {
+        use crate::utils::CacheOptions;
+        if !self.cache {
+            return None;
+        }
+        let auth_token = self
+            .headers
+            .as_ref()
+            .and_then(|headers| {
+                headers
+                    .0
+                    .get("authorization")
+                    .or_else(|| headers.0.get("Authorization"))
+            })
+            .map(|s| s.to_owned());
+
+        // When using in-memory cache (cache_mem), auto-enable skip_browser
+        // since the cached HTML was already rendered by a prior Chrome crawl
+        // and re-rendering through Chrome is redundant. The browser only
+        // launches when the cache has no hit for the requested page.
+        #[cfg(feature = "cache_mem")]
+        let skip_browser = true;
+        #[cfg(not(feature = "cache_mem"))]
+        let skip_browser = self.cache_skip_browser;
+
+        match auth_token {
+            Some(token) if !token.is_empty() => {
+                if let Ok(token_str) = token.to_str() {
+                    if skip_browser {
+                        Some(CacheOptions::SkipBrowserAuthorized(token_str.into()))
+                    } else {
+                        Some(CacheOptions::Authorized(token_str.into()))
+                    }
+                } else if skip_browser {
+                    Some(CacheOptions::SkipBrowser)
+                } else {
+                    Some(CacheOptions::Yes)
+                }
+            }
+            _ => {
+                if skip_browser {
+                    Some(CacheOptions::SkipBrowser)
+                } else {
+                    Some(CacheOptions::Yes)
+                }
+            }
+        }
+    }
+
+    /// Get the cache option to use for the run. This does nothing without the 'cache_request' feature.
+    #[cfg(all(
+        feature = "chrome",
+        not(any(feature = "cache_request", feature = "chrome_remote_cache"))
+    ))]
+    pub(crate) fn get_cache_options(&self) -> Option<crate::utils::CacheOptions> {
+        None
+    }
+
+    /// Get the cache option to use for the run when chrome/cache features are disabled.
+    #[cfg(not(any(
+        feature = "cache_request",
+        feature = "chrome_remote_cache",
+        feature = "chrome"
+    )))]
+    #[allow(dead_code)]
+    pub(crate) fn get_cache_options(&self) -> Option<crate::utils::CacheOptions> {
+        None
+    }
+
+    /// Build the website configuration when using with_builder.
+    pub fn build(&self) -> Self {
+        self.to_owned()
+    }
+
+    #[cfg(feature = "search")]
+    /// Configure web search integration. This does nothing without the `search` flag enabled.
+    pub fn with_search_config(&mut self, search_config: Option<SearchConfig>) -> &mut Self {
+        self.search_config = search_config.map(Box::new);
+        self
+    }
+
+    #[cfg(not(feature = "search"))]
+    /// Configure web search integration. This does nothing without the `search` flag enabled.
+    pub fn with_search_config(&mut self, _search_config: Option<()>) -> &mut Self {
+        self
+    }
+
+    /// Set a [spider.cloud](https://spider.cloud) API key (Proxy mode).
+    #[cfg(feature = "spider_cloud")]
+    pub fn with_spider_cloud(&mut self, api_key: &str) -> &mut Self {
+        if is_placeholder_api_key(api_key) {
+            log::warn!("Spider Cloud API key looks like a placeholder — skipping. Get a real key at https://spider.cloud");
+            return self;
+        }
+        self.spider_cloud = Some(Box::new(SpiderCloudConfig::new(api_key)));
+        self
+    }
+
+    /// Set a [spider.cloud](https://spider.cloud) API key (no-op without `spider_cloud` feature).
+    #[cfg(not(feature = "spider_cloud"))]
+    pub fn with_spider_cloud(&mut self, _api_key: &str) -> &mut Self {
+        self
+    }
+
+    /// Set a [spider.cloud](https://spider.cloud) config.
+    #[cfg(feature = "spider_cloud")]
+    pub fn with_spider_cloud_config(&mut self, config: SpiderCloudConfig) -> &mut Self {
+        self.spider_cloud = Some(Box::new(config));
+        self
+    }
+
+    /// Set a [spider.cloud](https://spider.cloud) config (no-op without `spider_cloud` feature).
+    #[cfg(not(feature = "spider_cloud"))]
+    pub fn with_spider_cloud_config(&mut self, _config: ()) -> &mut Self {
+        self
+    }
+
+    /// Connect to [Spider Browser Cloud](https://spider.cloud/docs/api#browser)
+    /// via CDP over WebSocket using an API key.
+    ///
+    /// Sets `chrome_connection_url` to `wss://browser.spider.cloud/v1/browser?token=API_KEY`.
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    pub fn with_spider_browser(&mut self, api_key: &str) -> &mut Self {
+        if is_placeholder_api_key(api_key) {
+            log::warn!("Spider Browser Cloud API key looks like a placeholder — skipping. Get a real key at https://spider.cloud");
+            return self;
+        }
+        let cfg = SpiderBrowserConfig::new(api_key);
+        self.chrome_connection_url = Some(cfg.connection_url());
+        self.spider_browser = Some(Box::new(cfg));
+        self
+    }
+
+    /// Connect to Spider Browser Cloud (no-op without `spider_cloud` + `chrome` features).
+    #[cfg(not(all(feature = "spider_cloud", feature = "chrome")))]
+    pub fn with_spider_browser(&mut self, _api_key: &str) -> &mut Self {
+        self
+    }
+
+    /// Connect to [Spider Browser Cloud](https://spider.cloud/docs/api#browser)
+    /// with full configuration (stealth, country, browser type, etc.).
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    pub fn with_spider_browser_config(&mut self, config: SpiderBrowserConfig) -> &mut Self {
+        self.chrome_connection_url = Some(config.connection_url());
+        self.spider_browser = Some(Box::new(config));
+        self
+    }
+
+    /// Connect to Spider Browser Cloud with config (no-op without features).
+    #[cfg(not(all(feature = "spider_cloud", feature = "chrome")))]
+    pub fn with_spider_browser_config(&mut self, _config: ()) -> &mut Self {
+        self
+    }
+
+    /// Set the hedged request (work-stealing) configuration.
+    #[cfg(feature = "hedge")]
+    pub fn with_hedge(&mut self, config: crate::utils::hedge::HedgeConfig) -> &mut Self {
+        self.hedge = Some(config);
+        self
+    }
+
+    /// Set the hedged request configuration (no-op without `hedge` feature).
+    #[cfg(not(feature = "hedge"))]
+    pub fn with_hedge(&mut self, _config: ()) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "auto_throttle")]
+    /// Set the auto-throttle configuration for latency-based adaptive delay.
+    pub fn with_auto_throttle(
+        &mut self,
+        config: crate::utils::auto_throttle::AutoThrottleConfig,
+    ) -> &mut Self {
+        self.auto_throttle = Some(config);
+        self
+    }
+
+    /// Set the auto-throttle configuration (no-op without `auto_throttle` feature).
+    #[cfg(not(feature = "auto_throttle"))]
+    pub fn with_auto_throttle(&mut self, _config: ()) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "etag_cache")]
+    /// Enable or disable ETag / conditional request caching for bandwidth-efficient re-crawls.
+    pub fn with_etag_cache(&mut self, enabled: bool) -> &mut Self {
+        self.etag_cache = enabled;
+        self
+    }
+
+    /// Enable or disable ETag caching (no-op without `etag_cache` feature).
+    #[cfg(not(feature = "etag_cache"))]
+    pub fn with_etag_cache(&mut self, _enabled: bool) -> &mut Self {
+        self
+    }
+
+    #[cfg(feature = "warc")]
+    /// Configure WARC output for writing a web archive file during crawl.
+    pub fn with_warc(&mut self, config: crate::utils::warc::WarcConfig) -> &mut Self {
+        self.warc = Some(config);
+        self
+    }
+
+    /// Configure WARC output (no-op without `warc` feature).
+    #[cfg(not(feature = "warc"))]
+    pub fn with_warc(&mut self, _config: ()) -> &mut Self {
+        self
+    }
+}
+
+/// Search provider configuration for web search integration.
+#[cfg(feature = "search")]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct SearchConfig {
+    /// The search provider to use.
+    pub provider: SearchProviderType,
+    /// API key for the search provider.
+    pub api_key: String,
+    /// Custom API URL (overrides default endpoint for the provider).
+    pub api_url: Option<String>,
+    /// Default search options.
+    pub default_options: Option<SearchOptions>,
+}
+
+#[cfg(feature = "search")]
+impl SearchConfig {
+    /// Create a new search configuration.
+    pub fn new(provider: SearchProviderType, api_key: impl Into<String>) -> Self {
+        Self {
+            provider,
+            api_key: api_key.into(),
+            api_url: None,
+            default_options: None,
+        }
+    }
+
+    /// Use a custom API endpoint for this provider.
+    pub fn with_api_url(mut self, url: impl Into<String>) -> Self {
+        self.api_url = Some(url.into());
+        self
+    }
+
+    /// Set default search options.
+    pub fn with_default_options(mut self, options: SearchOptions) -> Self {
+        self.default_options = Some(options);
+        self
+    }
+
+    /// Check if this configuration is valid and search is enabled.
+    ///
+    /// Returns true if an API key is set or a custom API URL is configured.
+    pub fn is_enabled(&self) -> bool {
+        !self.api_key.is_empty() || self.api_url.is_some()
+    }
+}
+
+/// Available search providers.
+#[cfg(feature = "search")]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum SearchProviderType {
+    /// Serper.dev - Google SERP API (high quality).
+    #[default]
+    Serper,
+    /// Brave Search API (privacy-focused).
+    Brave,
+    /// Microsoft Bing Web Search API.
+    Bing,
+    /// Tavily AI Search (optimized for LLMs).
+    Tavily,
+}
+
+// ─── Spider Cloud ───────────────────────────────────────────────────────────
+
+/// Integration mode for [spider.cloud](https://spider.cloud).
+#[cfg(feature = "spider_cloud")]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum SpiderCloudMode {
+    /// Route all HTTP requests through `proxy.spider.cloud`.
+    /// This is the simplest mode — the existing fetch pipeline works
+    /// unmodified, traffic goes through the proxy transparently.
+    #[default]
+    Proxy,
+    /// Use the spider.cloud `POST /crawl` API (with `limit: 1`) for each page.
+    /// Best for simple scraping needs.
+    Api,
+    /// Use the spider.cloud `POST /unblocker` API for anti-bot bypass.
+    /// Best for hard-to-get pages behind advanced bot protection.
+    Unblocker,
+    /// Direct fetch first; fall back to spider.cloud API on
+    /// 403 / 429 / 503 or connection errors.
+    Fallback,
+    /// Intelligent mode: proxy by default, automatically falls back to
+    /// `/unblocker` when it detects bot protection (403, 429, 503, CAPTCHA
+    /// pages, Cloudflare challenges, empty bodies on HTML pages, etc.).
+    /// This is the recommended mode for production use.
+    Smart,
+}
+
+/// Return format for Spider Cloud API responses.
+#[cfg(feature = "spider_cloud")]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum SpiderCloudReturnFormat {
+    /// Original HTML (default).
+    #[default]
+    #[cfg_attr(feature = "serde", serde(rename = "raw"))]
+    Raw,
+    /// Clean markdown — ideal for LLM pipelines.
+    #[cfg_attr(feature = "serde", serde(rename = "markdown"))]
+    Markdown,
+    /// CommonMark-flavored markdown.
+    #[cfg_attr(feature = "serde", serde(rename = "commonmark"))]
+    CommonMark,
+    /// Plain text with markup stripped.
+    #[cfg_attr(feature = "serde", serde(rename = "text"))]
+    Text,
+    /// Raw bytes (no encoding conversion).
+    #[cfg_attr(feature = "serde", serde(rename = "bytes"))]
+    Bytes,
+}
+
+#[cfg(feature = "spider_cloud")]
+impl SpiderCloudReturnFormat {
+    /// The API wire value sent to spider.cloud.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Raw => "raw",
+            Self::Markdown => "markdown",
+            Self::CommonMark => "commonmark",
+            Self::Text => "text",
+            Self::Bytes => "bytes",
+        }
+    }
+}
+
+#[cfg(feature = "spider_cloud")]
+impl std::fmt::Display for SpiderCloudReturnFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+#[cfg(feature = "spider_cloud")]
+impl From<&str> for SpiderCloudReturnFormat {
+    fn from(s: &str) -> Self {
+        match s {
+            "markdown" | "Markdown" | "MARKDOWN" => Self::Markdown,
+            "commonmark" | "CommonMark" | "COMMONMARK" => Self::CommonMark,
+            "text" | "Text" | "TEXT" => Self::Text,
+            "bytes" | "Bytes" | "BYTES" => Self::Bytes,
+            _ => Self::Raw,
+        }
+    }
+}
+
+/// Configuration for spider.cloud integration.
+///
+/// Spider Cloud provides anti-bot bypass, proxy rotation, and high-throughput
+/// data collection. Sign up at <https://spider.cloud> to obtain an API key.
+#[cfg(feature = "spider_cloud")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct SpiderCloudConfig {
+    /// API key / secret. Sign up at <https://spider.cloud> to get one.
+    pub api_key: String,
+    /// Integration mode.
+    #[cfg_attr(feature = "serde", serde(default))]
+    pub mode: SpiderCloudMode,
+    /// API base URL (default: `https://api.spider.cloud`).
+    #[cfg_attr(
+        feature = "serde",
+        serde(default = "SpiderCloudConfig::default_api_url")
+    )]
+    pub api_url: String,
+    /// Proxy URL (default: `https://proxy.spider.cloud`).
+    #[cfg_attr(
+        feature = "serde",
+        serde(default = "SpiderCloudConfig::default_proxy_url")
+    )]
+    pub proxy_url: String,
+    /// Return format for API responses (default: [`SpiderCloudReturnFormat::Raw`]).
+    #[cfg_attr(feature = "serde", serde(default))]
+    pub return_format: SpiderCloudReturnFormat,
+    /// Request multiple return formats in a single crawl.
+    ///
+    /// When set, the API returns `content` as an object keyed by format
+    /// (e.g. `{"markdown": "...", "raw": "..."}`). The primary `return_format`
+    /// is stored in [`Page::get_content`](crate::page::Page::get_content) and
+    /// the extras are accessible via [`Page::get_content_for`](crate::page::Page::get_content_for).
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, skip_serializing_if = "Option::is_none")
+    )]
+    pub return_formats: Option<Vec<SpiderCloudReturnFormat>>,
+    /// Extra params forwarded in API mode (e.g. `stealth`, `fingerprint`, `cache`).
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub extra_params: Option<hashbrown::HashMap<String, serde_json::Value>>,
+}
+
+#[cfg(feature = "spider_cloud")]
+impl Default for SpiderCloudConfig {
+    fn default() -> Self {
+        Self {
+            api_key: String::new(),
+            mode: SpiderCloudMode::default(),
+            api_url: Self::default_api_url(),
+            proxy_url: Self::default_proxy_url(),
+            return_format: SpiderCloudReturnFormat::default(),
+            return_formats: None,
+            extra_params: None,
+        }
+    }
+}
+
+#[cfg(feature = "spider_cloud")]
+impl SpiderCloudConfig {
+    /// Create a new config with defaults (Proxy mode).
+    pub fn new(api_key: impl Into<String>) -> Self {
+        Self {
+            api_key: api_key.into(),
+            ..Default::default()
+        }
+    }
+
+    /// Set the integration mode.
+    pub fn with_mode(mut self, mode: SpiderCloudMode) -> Self {
+        self.mode = mode;
+        self
+    }
+
+    /// Set a custom API base URL.
+    pub fn with_api_url(mut self, url: impl Into<String>) -> Self {
+        self.api_url = url.into();
+        self
+    }
+
+    /// Set a custom proxy URL.
+    pub fn with_proxy_url(mut self, url: impl Into<String>) -> Self {
+        self.proxy_url = url.into();
+        self
+    }
+
+    /// Set the return format for API responses.
+    ///
+    /// Accepts `SpiderCloudReturnFormat` directly or a string like `"markdown"`:
+    /// ```ignore
+    /// config.with_return_format(SpiderCloudReturnFormat::Markdown)
+    /// config.with_return_format("markdown")
+    /// ```
+    pub fn with_return_format(mut self, fmt: impl Into<SpiderCloudReturnFormat>) -> Self {
+        self.return_format = fmt.into();
+        self
+    }
+
+    /// Request multiple return formats in a single crawl.
+    ///
+    /// The first format becomes the primary content (accessible via
+    /// [`Page::get_content`](crate::page::Page::get_content)), and all formats are
+    /// accessible via [`Page::get_content_for`](crate::page::Page::get_content_for).
+    ///
+    /// ```ignore
+    /// config.with_return_formats(vec![
+    ///     SpiderCloudReturnFormat::Markdown,
+    ///     SpiderCloudReturnFormat::Raw,
+    /// ])
+    /// ```
+    pub fn with_return_formats(mut self, formats: Vec<SpiderCloudReturnFormat>) -> Self {
+        // Deduplicate while preserving order.
+        let mut seen = Vec::with_capacity(formats.len());
+        for f in formats {
+            if !seen.contains(&f) {
+                seen.push(f);
+            }
+        }
+        if let Some(first) = seen.first() {
+            self.return_format = first.clone();
+        }
+        self.return_formats = Some(seen);
+        self
+    }
+
+    /// Check if multiple return formats are requested.
+    pub fn has_multiple_formats(&self) -> bool {
+        self.return_formats.as_ref().is_some_and(|f| f.len() > 1)
+    }
+
+    /// Set extra params for API mode.
+    pub fn with_extra_params(
+        mut self,
+        params: hashbrown::HashMap<String, serde_json::Value>,
+    ) -> Self {
+        self.extra_params = Some(params);
+        self
+    }
+
+    /// Determine if a response should trigger a spider.cloud API fallback.
+    ///
+    /// This encapsulates the intelligence about which status codes and
+    /// content patterns indicate the page needs spider.cloud's help.
+    ///
+    /// Checks for:
+    /// - HTTP 403 (Forbidden) — typically bot protection
+    /// - HTTP 429 (Too Many Requests) — rate limiting
+    /// - HTTP 503 (Service Unavailable) — often Cloudflare/DDoS protection
+    /// - HTTP 520-530 (Cloudflare error range)
+    /// - HTTP 5xx (server errors)
+    /// - Empty body on what should be an HTML page
+    /// - Known CAPTCHA / challenge page markers in the response body
+    pub fn should_fallback(&self, status_code: u16, body: Option<&[u8]>) -> bool {
+        match self.mode {
+            SpiderCloudMode::Api | SpiderCloudMode::Unblocker => false, // already using API
+            SpiderCloudMode::Proxy => false,                            // proxy-only, no fallback
+            SpiderCloudMode::Fallback | SpiderCloudMode::Smart => {
+                // Status code triggers
+                if matches!(status_code, 403 | 429 | 503 | 520..=530) {
+                    return true;
+                }
+                if status_code >= 500 {
+                    return true;
+                }
+
+                // Content-based triggers (Smart mode only)
+                if self.mode == SpiderCloudMode::Smart {
+                    if let Some(body) = body {
+                        // Empty body when we expected HTML
+                        if body.is_empty() {
+                            return true;
+                        }
+
+                        // Check for bot protection / CAPTCHA markers in the body
+                        // (only check first 4KB for performance)
+                        let check_len = body.len().min(4096);
+                        let snippet = String::from_utf8_lossy(&body[..check_len]);
+                        let lower = snippet.to_lowercase();
+
+                        // Cloudflare challenge
+                        if lower.contains("cf-browser-verification")
+                            || lower.contains("cloudflare") && lower.contains("challenge-platform")
+                        {
+                            return true;
+                        }
+
+                        // Generic CAPTCHA / bot detection markers
+                        if lower.contains("captcha") && lower.contains("challenge")
+                            || lower.contains("please verify you are a human")
+                            || lower.contains("access denied") && lower.contains("automated")
+                            || lower.contains("bot detection")
+                        {
+                            return true;
+                        }
+
+                        // Distil Networks / Imperva / Akamai patterns
+                        if lower.contains("distil_r_captcha")
+                            || lower.contains("_imperva")
+                            || lower.contains("akamai") && lower.contains("bot manager")
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                false
+            }
+        }
+    }
+
+    /// Get the fallback API route for this config.
+    ///
+    /// - `Smart` mode → `/unblocker` (best for bot-protected pages)
+    /// - `Fallback` mode → `/crawl` (general purpose)
+    /// - Other modes → `/crawl` (default)
+    pub fn fallback_route(&self) -> &'static str {
+        match self.mode {
+            SpiderCloudMode::Smart | SpiderCloudMode::Unblocker => "unblocker",
+            _ => "crawl",
+        }
+    }
+
+    /// Whether this mode uses the proxy transport layer.
+    pub fn uses_proxy(&self) -> bool {
+        matches!(
+            self.mode,
+            SpiderCloudMode::Proxy | SpiderCloudMode::Fallback | SpiderCloudMode::Smart
+        )
+    }
+
+    fn default_api_url() -> String {
+        "https://api.spider.cloud".to_string()
+    }
+
+    fn default_proxy_url() -> String {
+        "https://proxy.spider.cloud".to_string()
+    }
+}
+
+// ─── Spider Browser Cloud ────────────────────────────────────────────────────
+
+/// Configuration for [Spider Browser Cloud](https://spider.cloud/docs/api#browser).
+///
+/// Connects to a remote Chromium instance via CDP over WebSocket at
+/// `wss://browser.spider.cloud/v1/browser`.  Authentication is via
+/// `?token=API_KEY` query parameter.
+///
+/// Optional query parameters: `stealth`, `browser`, `country`.
+#[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct SpiderBrowserConfig {
+    /// API key / secret. Sign up at <https://spider.cloud> to get one.
+    pub api_key: String,
+    /// WebSocket base URL (default: `wss://browser.spider.cloud/v1/browser`).
+    #[cfg_attr(
+        feature = "serde",
+        serde(default = "SpiderBrowserConfig::default_wss_url")
+    )]
+    pub wss_url: String,
+    /// Enable stealth mode (anti-fingerprinting). Sent as `stealth=true` query param.
+    #[cfg_attr(feature = "serde", serde(default))]
+    pub stealth: bool,
+    /// Browser type to request (e.g. `"chrome"`, `"firefox"`). Sent as `browser=<value>`.
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub browser: Option<String>,
+    /// Country code for geo-targeting (e.g. `"us"`, `"gb"`). Sent as `country=<value>`.
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub country: Option<String>,
+    /// Extra query parameters appended to the WSS URL.
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub extra_params: Option<Vec<(String, String)>>,
+}
+
+#[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+impl Default for SpiderBrowserConfig {
+    fn default() -> Self {
+        Self {
+            api_key: String::new(),
+            wss_url: Self::default_wss_url(),
+            stealth: false,
+            browser: None,
+            country: None,
+            extra_params: None,
+        }
+    }
+}
+
+#[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+impl SpiderBrowserConfig {
+    /// Create a new config with the given API key.
+    pub fn new(api_key: impl Into<String>) -> Self {
+        Self {
+            api_key: api_key.into(),
+            ..Default::default()
+        }
+    }
+
+    /// Set a custom WSS base URL.
+    pub fn with_wss_url(mut self, url: impl Into<String>) -> Self {
+        self.wss_url = url.into();
+        self
+    }
+
+    /// Enable or disable stealth mode.
+    pub fn with_stealth(mut self, stealth: bool) -> Self {
+        self.stealth = stealth;
+        self
+    }
+
+    /// Set the browser type to request.
+    pub fn with_browser(mut self, browser: impl Into<String>) -> Self {
+        self.browser = Some(browser.into());
+        self
+    }
+
+    /// Set the country code for geo-targeting.
+    pub fn with_country(mut self, country: impl Into<String>) -> Self {
+        self.country = Some(country.into());
+        self
+    }
+
+    /// Add extra query parameters.
+    pub fn with_extra_params(mut self, params: Vec<(String, String)>) -> Self {
+        self.extra_params = Some(params);
+        self
+    }
+
+    /// Build the full WSS connection URL with authentication and options.
+    ///
+    /// Returns a URL like:
+    /// `wss://browser.spider.cloud/v1/browser?token=KEY&stealth=true&country=us`
+    pub fn connection_url(&self) -> String {
+        let mut url = self.wss_url.clone();
+
+        // Start query string
+        if url.contains('?') {
+            url.push('&');
+        } else {
+            url.push('?');
+        }
+        url.push_str("token=");
+        url.push_str(&self.api_key);
+
+        if self.stealth {
+            url.push_str("&stealth=true");
+        }
+        if let Some(ref browser) = self.browser {
+            url.push_str("&browser=");
+            url.push_str(browser);
+        }
+        if let Some(ref country) = self.country {
+            url.push_str("&country=");
+            url.push_str(country);
+        }
+        if let Some(ref extra) = self.extra_params {
+            for (k, v) in extra {
+                url.push('&');
+                url.push_str(k);
+                url.push('=');
+                url.push_str(v);
+            }
+        }
+
+        url
+    }
+
+    fn default_wss_url() -> String {
+        "wss://browser.spider.cloud/v1/browser".to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_configuration_defaults() {
+        let config = Configuration::default();
+        assert!(!config.respect_robots_txt);
+        assert!(!config.subdomains);
+        assert!(!config.tld);
+        assert_eq!(config.delay, 0);
+        assert!(config.user_agent.is_none());
+        assert!(config.blacklist_url.is_none());
+        assert!(config.whitelist_url.is_none());
+        assert!(config.proxies.is_none());
+        assert!(!config.http2_prior_knowledge);
+    }
+
+    #[test]
+    fn test_redirect_policy_variants() {
+        assert_eq!(RedirectPolicy::default(), RedirectPolicy::Loose);
+        let strict = RedirectPolicy::Strict;
+        let none = RedirectPolicy::None;
+        assert_ne!(strict, RedirectPolicy::Loose);
+        assert_ne!(none, RedirectPolicy::Loose);
+        assert_ne!(strict, none);
+    }
+
+    #[test]
+    fn test_redirect_limit_is_opt_in_for_chrome_path() {
+        // Fresh config preserves prior behavior: no flag, no Chrome enforcement.
+        let fresh = Configuration::default();
+        assert!(
+            !fresh.redirect_limit_set,
+            "Configuration::default() must not claim the redirect_limit was set"
+        );
+
+        // Explicit opt-in flips the flag and records the cap.
+        let mut opt_in = Configuration::default();
+        opt_in.with_redirect_limit(3);
+        assert!(opt_in.redirect_limit_set);
+        assert_eq!(opt_in.redirect_limit, 3);
+    }
+
+    #[test]
+    fn test_proxy_ignore_variants() {
+        assert_eq!(ProxyIgnore::default(), ProxyIgnore::No);
+        let chrome = ProxyIgnore::Chrome;
+        let http = ProxyIgnore::Http;
+        assert_ne!(chrome, ProxyIgnore::No);
+        assert_ne!(http, ProxyIgnore::No);
+        assert_ne!(chrome, http);
+    }
+
+    #[test]
+    fn test_request_proxy_construction() {
+        let proxy = RequestProxy {
+            addr: "http://proxy.example.com:8080".to_string(),
+            ignore: ProxyIgnore::No,
+        };
+        assert_eq!(proxy.addr, "http://proxy.example.com:8080");
+        assert_eq!(proxy.ignore, ProxyIgnore::No);
+    }
+
+    #[test]
+    fn test_request_proxy_default() {
+        let proxy = RequestProxy::default();
+        assert!(proxy.addr.is_empty());
+        assert_eq!(proxy.ignore, ProxyIgnore::No);
+    }
+
+    #[test]
+    fn test_configuration_blacklist_setup() {
+        let mut config = Configuration::default();
+        config.blacklist_url = Some(vec![
+            "https://example.com/private".into(),
+            "https://example.com/admin".into(),
+        ]);
+        assert_eq!(config.blacklist_url.as_ref().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn test_configuration_whitelist_setup() {
+        let mut config = Configuration::default();
+        config.whitelist_url = Some(vec!["https://example.com/public".into()]);
+        assert_eq!(config.whitelist_url.as_ref().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_configuration_external_domains() {
+        let mut config = Configuration::default();
+        config.external_domains_caseless = Arc::new(
+            [
+                case_insensitive_string::CaseInsensitiveString::from("Example.Com"),
+                case_insensitive_string::CaseInsensitiveString::from("OTHER.org"),
+            ]
+            .into_iter()
+            .collect(),
+        );
+        assert_eq!(config.external_domains_caseless.len(), 2);
+        assert!(config.external_domains_caseless.contains(
+            &case_insensitive_string::CaseInsensitiveString::from("example.com")
+        ));
+    }
+
+    #[test]
+    fn test_configuration_budget() {
+        let mut config = Configuration::default();
+        let mut budget = hashbrown::HashMap::new();
+        budget.insert(
+            case_insensitive_string::CaseInsensitiveString::from("/path"),
+            100u32,
+        );
+        config.budget = Some(budget);
+        assert!(config.budget.is_some());
+        assert_eq!(
+            config.budget.as_ref().unwrap().get(
+                &case_insensitive_string::CaseInsensitiveString::from("/path")
+            ),
+            Some(&100u32)
+        );
+    }
+
+    #[cfg(not(feature = "regex"))]
+    #[test]
+    fn test_allow_list_set_default() {
+        let allow_list = AllowListSet::default();
+        assert!(allow_list.0.is_empty());
+    }
+
+    #[cfg(feature = "agent")]
+    #[test]
+    fn test_build_remote_multimodal_engine_preserves_dual_models() {
+        use crate::features::automation::{
+            ModelEndpoint, RemoteMultimodalConfigs, VisionRouteMode,
+        };
+
+        let mut config = Configuration::default();
+        let mm = RemoteMultimodalConfigs::new(
+            "https://api.example.com/v1/chat/completions",
+            "primary-model",
+        )
+        .with_vision_model(ModelEndpoint::new("vision-model").with_api_key("vision-key"))
+        .with_text_model(
+            ModelEndpoint::new("text-model")
+                .with_api_url("https://text.example.com/v1/chat/completions")
+                .with_api_key("text-key"),
+        )
+        .with_vision_route_mode(VisionRouteMode::TextFirst);
+        config.remote_multimodal = Some(Box::new(mm));
+
+        let engine = config
+            .build_remote_multimodal_engine()
+            .expect("engine should be built");
+
+        assert_eq!(
+            engine.vision_model.as_ref().map(|m| m.model_name.as_str()),
+            Some("vision-model")
+        );
+        assert_eq!(
+            engine.text_model.as_ref().map(|m| m.model_name.as_str()),
+            Some("text-model")
+        );
+        assert_eq!(engine.vision_route_mode, VisionRouteMode::TextFirst);
+    }
+
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    #[test]
+    fn test_spider_browser_config_defaults() {
+        let cfg = SpiderBrowserConfig::new("test-key");
+        assert_eq!(cfg.api_key, "test-key");
+        assert_eq!(cfg.wss_url, "wss://browser.spider.cloud/v1/browser");
+        assert!(!cfg.stealth);
+        assert!(cfg.browser.is_none());
+        assert!(cfg.country.is_none());
+        assert!(cfg.extra_params.is_none());
+    }
+
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    #[test]
+    fn test_spider_browser_connection_url_basic() {
+        let cfg = SpiderBrowserConfig::new("sk-abc123");
+        assert_eq!(
+            cfg.connection_url(),
+            "wss://browser.spider.cloud/v1/browser?token=sk-abc123"
+        );
+    }
+
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    #[test]
+    fn test_spider_browser_connection_url_full() {
+        let cfg = SpiderBrowserConfig::new("sk-abc123")
+            .with_stealth(true)
+            .with_browser("chrome")
+            .with_country("us")
+            .with_extra_params(vec![("timeout".into(), "30000".into())]);
+        assert_eq!(
+            cfg.connection_url(),
+            "wss://browser.spider.cloud/v1/browser?token=sk-abc123&stealth=true&browser=chrome&country=us&timeout=30000"
+        );
+    }
+
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    #[test]
+    fn test_spider_browser_connection_url_custom_wss() {
+        let cfg = SpiderBrowserConfig::new("key")
+            .with_wss_url("wss://custom.browser.example.com/v1/browser");
+        assert_eq!(
+            cfg.connection_url(),
+            "wss://custom.browser.example.com/v1/browser?token=key"
+        );
+    }
+
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    #[test]
+    fn test_with_spider_browser_sets_chrome_connection() {
+        let mut config = Configuration::default();
+        config.with_spider_browser("my-api-key");
+        assert_eq!(
+            config.chrome_connection_url.as_deref(),
+            Some("wss://browser.spider.cloud/v1/browser?token=my-api-key")
+        );
+        assert!(config.spider_browser.is_some());
+    }
+
+    #[cfg(all(feature = "spider_cloud", feature = "chrome"))]
+    #[test]
+    fn test_with_spider_browser_config_stealth() {
+        let mut config = Configuration::default();
+        let browser_cfg = SpiderBrowserConfig::new("key")
+            .with_stealth(true)
+            .with_country("gb");
+        config.with_spider_browser_config(browser_cfg);
+        assert_eq!(
+            config.chrome_connection_url.as_deref(),
+            Some("wss://browser.spider.cloud/v1/browser?token=key&stealth=true&country=gb")
+        );
+    }
+}

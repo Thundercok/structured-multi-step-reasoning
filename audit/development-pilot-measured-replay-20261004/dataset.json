@@ -1,0 +1,1404 @@
+{
+  "name": "procedural-tuning-v1",
+  "version": "1.0.0-candidate",
+  "role": "development_tuning",
+  "source": "Immutable procedural gen_tasks.py 0.1 input; see source_provenance and legacy_meta",
+  "license": "Project procedural generator; rights-holder/license confirmation pending",
+  "identity_version": "procedural-v1",
+  "legacy_meta": {
+    "generator": "gen_tasks.py 0.1",
+    "seed": 1000,
+    "n_per_level": 8,
+    "n_items": 94,
+    "sha256_items": "f1b4847273eb04f1420b7c2e1c9ab39cf74a4d9dd460a9e9a08c2e58a2e7ee1e"
+  },
+  "publication_ready": false,
+  "human_review_status": "pending",
+  "test_exposure_status": "Entire legacy tuning pool treated as exposed development",
+  "items": [
+    {
+      "id": "procedural-tuning-v1/arith_0000_en_orig",
+      "group_id": "problem_arith_2caf3c62bbf57df7a2150f1c891cd3954ed9bb76cb5972a42011af154b70f490",
+      "query": "A counter starts at 64. Apply these steps in order: (1) add 60; (2) subtract 9. What is the final value of the counter?",
+      "answer": "115",
+      "split": "train",
+      "category": "arith",
+      "family": "arith",
+      "level": 1,
+      "difficulty": {
+        "steps": 2,
+        "digits": 2,
+        "max_mult": 9
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 64,
+        "steps": [
+          [
+            "add",
+            60
+          ],
+          [
+            "sub",
+            9
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_2caf3c62bbf57df7a2150f1c891cd3954ed9bb76cb5972a42011af154b70f490",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0000_en_orig",
+        "original_group_id": "grp_arith_0000",
+        "original_split": "dev",
+        "original_row_sha256": "f049059964569224b9f76a58490f84d3831f7ae77d8d7926a2f0430dcba2b37a"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0002_en_orig",
+      "group_id": "problem_arith_eb29854a063ae8479c94036e78c682161d3360fe830c294c2d3c638482735cba",
+      "query": "A counter starts at 95. Apply these steps in order: (1) multiply the result by 7; (2) divide the result by 5. What is the final value of the counter?",
+      "answer": "133",
+      "split": "calibration",
+      "category": "arith",
+      "family": "arith",
+      "level": 1,
+      "difficulty": {
+        "steps": 2,
+        "digits": 2,
+        "max_mult": 9
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 95,
+        "steps": [
+          [
+            "mul",
+            7
+          ],
+          [
+            "div",
+            5
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_eb29854a063ae8479c94036e78c682161d3360fe830c294c2d3c638482735cba",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0002_en_orig",
+        "original_group_id": "grp_arith_0002",
+        "original_split": "calib",
+        "original_row_sha256": "adaee9c1348a672d82a4d997bf940bdc441198c855298eb9e8077fcac8d37bc0"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0009_en_orig",
+      "group_id": "problem_arith_f966842feea873c987cdedf90970da7a57291e33ff5559fa685348a892727dee",
+      "query": "A counter starts at 427. Apply these steps in order: (1) multiply the result by 5; (2) subtract 635; (3) divide the result by 2; (4) subtract 386. What is the final value of the counter?",
+      "answer": "364",
+      "split": "calibration",
+      "category": "arith",
+      "family": "arith",
+      "level": 2,
+      "difficulty": {
+        "steps": 4,
+        "digits": 3,
+        "max_mult": 9
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 427,
+        "steps": [
+          [
+            "mul",
+            5
+          ],
+          [
+            "sub",
+            635
+          ],
+          [
+            "div",
+            2
+          ],
+          [
+            "sub",
+            386
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_f966842feea873c987cdedf90970da7a57291e33ff5559fa685348a892727dee",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0009_en_orig",
+        "original_group_id": "grp_arith_0009",
+        "original_split": "dev",
+        "original_row_sha256": "afe36451c58786bd423cedef2f6afb10a92db806fd2dfed7b4412f6be57b96fa"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0011_en_orig",
+      "group_id": "problem_arith_6d2f018f0fb52202a0b9b836b43eff06c32e38981ac1ba9a344182cd029d4aff",
+      "query": "A counter starts at 246. Apply these steps in order: (1) divide the result by 6; (2) subtract 5; (3) multiply the result by 6; (4) add 980. What is the final value of the counter?",
+      "answer": "1196",
+      "split": "train",
+      "category": "arith",
+      "family": "arith",
+      "level": 2,
+      "difficulty": {
+        "steps": 4,
+        "digits": 3,
+        "max_mult": 9
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 246,
+        "steps": [
+          [
+            "div",
+            6
+          ],
+          [
+            "sub",
+            5
+          ],
+          [
+            "mul",
+            6
+          ],
+          [
+            "add",
+            980
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_6d2f018f0fb52202a0b9b836b43eff06c32e38981ac1ba9a344182cd029d4aff",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0011_en_orig",
+        "original_group_id": "grp_arith_0011",
+        "original_split": "calib",
+        "original_row_sha256": "2b4f77ff50e29d2878a771deb762b883287032b971cb40817a032e14d2aea35a"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0019_en_orig",
+      "group_id": "problem_arith_5046c477407365d70e1abc49147668292d95c7ecbb262ae615db55251b3f9fbd",
+      "query": "A counter starts at 2017. Apply these steps in order: (1) subtract 796; (2) add 8921; (3) subtract 3582; (4) add 7915; (5) add 5777; (6) multiply the result by 7. What is the final value of the counter?",
+      "answer": "141764",
+      "split": "train",
+      "category": "arith",
+      "family": "arith",
+      "level": 3,
+      "difficulty": {
+        "steps": 6,
+        "digits": 4,
+        "max_mult": 9
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 2017,
+        "steps": [
+          [
+            "sub",
+            796
+          ],
+          [
+            "add",
+            8921
+          ],
+          [
+            "sub",
+            3582
+          ],
+          [
+            "add",
+            7915
+          ],
+          [
+            "add",
+            5777
+          ],
+          [
+            "mul",
+            7
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_5046c477407365d70e1abc49147668292d95c7ecbb262ae615db55251b3f9fbd",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0019_en_orig",
+        "original_group_id": "grp_arith_0019",
+        "original_split": "calib",
+        "original_row_sha256": "6916eac885379f41a6fd65c0260063775e740670949e985119b9052b8abcde20"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0022_en_orig",
+      "group_id": "problem_arith_780a9357856d04344a343e1fe19e6691a05c4d03eb05e6db3cd40410e759d9c5",
+      "query": "A counter starts at 5755. Apply these steps in order: (1) divide the result by 5; (2) add 5285; (3) multiply the result by 9; (4) divide the result by 3; (5) divide the result by 3; (6) subtract 2133. What is the final value of the counter?",
+      "answer": "4303",
+      "split": "calibration",
+      "category": "arith",
+      "family": "arith",
+      "level": 3,
+      "difficulty": {
+        "steps": 6,
+        "digits": 4,
+        "max_mult": 9
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 5755,
+        "steps": [
+          [
+            "div",
+            5
+          ],
+          [
+            "add",
+            5285
+          ],
+          [
+            "mul",
+            9
+          ],
+          [
+            "div",
+            3
+          ],
+          [
+            "div",
+            3
+          ],
+          [
+            "sub",
+            2133
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_780a9357856d04344a343e1fe19e6691a05c4d03eb05e6db3cd40410e759d9c5",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0022_en_orig",
+        "original_group_id": "grp_arith_0022",
+        "original_split": "test",
+        "original_row_sha256": "c541773d0a69349c680adb6f370ade658554f8f598c76f694ed46e565837f5b1"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0028_en_orig",
+      "group_id": "problem_arith_a52b30a47a397879809ae8c705c0236f8c5453aa3899a245d98631de7692d7d5",
+      "query": "A counter starts at 30019. Apply these steps in order: (1) multiply the result by 83; (2) add 63095; (3) divide the result by 2; (4) multiply the result by 89; (5) subtract 11930; (6) add 68353; (7) subtract 63929; (8) add 56167. What is the final value of the counter?",
+      "answer": "113731565",
+      "split": "train",
+      "category": "arith",
+      "family": "arith",
+      "level": 4,
+      "difficulty": {
+        "steps": 8,
+        "digits": 5,
+        "max_mult": 99
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 30019,
+        "steps": [
+          [
+            "mul",
+            83
+          ],
+          [
+            "add",
+            63095
+          ],
+          [
+            "div",
+            2
+          ],
+          [
+            "mul",
+            89
+          ],
+          [
+            "sub",
+            11930
+          ],
+          [
+            "add",
+            68353
+          ],
+          [
+            "sub",
+            63929
+          ],
+          [
+            "add",
+            56167
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_a52b30a47a397879809ae8c705c0236f8c5453aa3899a245d98631de7692d7d5",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0028_en_orig",
+        "original_group_id": "grp_arith_0028",
+        "original_split": "calib",
+        "original_row_sha256": "9a469e1fda2b41e8c070d2972f9c8e3d4ba6f3526771e2791bf9f615c677b1f3"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/arith_0031_en_orig",
+      "group_id": "problem_arith_bc9bb616d10d16d8073f86a4e50d4987caec2b6edb1e27f6601a2f0427d85e4c",
+      "query": "A counter starts at 56955. Apply these steps in order: (1) multiply the result by 85; (2) multiply the result by 84; (3) subtract 22117; (4) multiply the result by 68; (5) add 54342; (6) multiply the result by 23; (7) multiply the result by 39; (8) multiply the result by 37. What is the final value of the counter?",
+      "answer": "917720389173354",
+      "split": "calibration",
+      "category": "arith",
+      "family": "arith",
+      "level": 4,
+      "difficulty": {
+        "steps": 8,
+        "digits": 5,
+        "max_mult": 99
+      },
+      "checker": "arith",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "start": 56955,
+        "steps": [
+          [
+            "mul",
+            85
+          ],
+          [
+            "mul",
+            84
+          ],
+          [
+            "sub",
+            22117
+          ],
+          [
+            "mul",
+            68
+          ],
+          [
+            "add",
+            54342
+          ],
+          [
+            "mul",
+            23
+          ],
+          [
+            "mul",
+            39
+          ],
+          [
+            "mul",
+            37
+          ]
+        ]
+      },
+      "problem_id": "problem_arith_bc9bb616d10d16d8073f86a4e50d4987caec2b6edb1e27f6601a2f0427d85e4c",
+      "answer_type": "number",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "arith_0031_en_orig",
+        "original_group_id": "grp_arith_0031",
+        "original_split": "test",
+        "original_row_sha256": "cb745954042dbd158b88d8391dc89ec5ebd255165027e3a366253d2fc9a97024"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0003_en_orig",
+      "group_id": "problem_g24_d99b8baba7c1ae5576a14a06d08f21802312a80e4a27eabda74d97ffac7de65e",
+      "query": "Using each of the numbers 5, 8, 4 and 7 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "((4+7)+(5+8))",
+      "split": "train",
+      "category": "g24",
+      "family": "g24",
+      "level": 1,
+      "difficulty": {
+        "n_solutions": 31
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          5,
+          8,
+          4,
+          7
+        ]
+      },
+      "problem_id": "problem_g24_d99b8baba7c1ae5576a14a06d08f21802312a80e4a27eabda74d97ffac7de65e",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0003_en_orig",
+        "original_group_id": "grp_g24_0003",
+        "original_split": "calib",
+        "original_row_sha256": "a125faee01d3f071a06e4a2eeaa2a39c96ad514e6d5fb3fe8c47cf290351f3bc"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0005_en_orig",
+      "group_id": "problem_g24_5f4a0af0af588ae50b4bbb9cc010d5cae31561c45cdac8cfe1f48b1af79b0c46",
+      "query": "Using each of the numbers 4, 6, 4 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "((4*3)*(6-4))",
+      "split": "calibration",
+      "category": "g24",
+      "family": "g24",
+      "level": 1,
+      "difficulty": {
+        "n_solutions": 21
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          4,
+          6,
+          4,
+          3
+        ]
+      },
+      "problem_id": "problem_g24_5f4a0af0af588ae50b4bbb9cc010d5cae31561c45cdac8cfe1f48b1af79b0c46",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0005_en_orig",
+        "original_group_id": "grp_g24_0005",
+        "original_split": "test",
+        "original_row_sha256": "86086dc06e4fc5f07e34880aab2f44e7a162ddd556687ec07e5c51eb668fdd81"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "group_id": "problem_g24_fd82477d08227a92c561dc3cd28c9f59a016586e427742f530edb5cb908a39dc",
+      "query": "Using each of the numbers 7, 2, 3 and 9 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "((3*(7+9))/2)",
+      "split": "train",
+      "category": "g24",
+      "family": "g24",
+      "level": 2,
+      "difficulty": {
+        "n_solutions": 9
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          7,
+          2,
+          3,
+          9
+        ]
+      },
+      "problem_id": "problem_g24_fd82477d08227a92c561dc3cd28c9f59a016586e427742f530edb5cb908a39dc",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0014_en_orig",
+        "original_group_id": "grp_g24_0014",
+        "original_split": "test",
+        "original_row_sha256": "e382e629dc47c655ddf49faec0fe3df5e1482e92fdc637e15585e5b4fad6d3d7"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "group_id": "problem_g24_466f407f10aefaff694c82fc6ba9b6f5dab106141a5412800828847fcdc45d4a",
+      "query": "Using each of the numbers 13, 2, 3 and 5 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "((13*(5-3))-2)",
+      "split": "calibration",
+      "category": "g24",
+      "family": "g24",
+      "level": 2,
+      "difficulty": {
+        "n_solutions": 11
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          13,
+          2,
+          3,
+          5
+        ]
+      },
+      "problem_id": "problem_g24_466f407f10aefaff694c82fc6ba9b6f5dab106141a5412800828847fcdc45d4a",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0015_en_orig",
+        "original_group_id": "grp_g24_0015",
+        "original_split": "test",
+        "original_row_sha256": "71b75b4819b62bfd1d80235f90ea90e7ec2c1673bc56c716a1e023e3cb342922"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0022_en_orig",
+      "group_id": "problem_g24_d12e53ce13c53b9d0d3a385ce05c7aac368ef613649f2f5bf0fccdde16f1defb",
+      "query": "Using each of the numbers 7, 9, 8 and 6 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "((8*6)/(9-7))",
+      "split": "train",
+      "category": "g24",
+      "family": "g24",
+      "level": 3,
+      "difficulty": {
+        "n_solutions": 5
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          7,
+          9,
+          8,
+          6
+        ]
+      },
+      "problem_id": "problem_g24_d12e53ce13c53b9d0d3a385ce05c7aac368ef613649f2f5bf0fccdde16f1defb",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0022_en_orig",
+        "original_group_id": "grp_g24_0022",
+        "original_split": "test",
+        "original_row_sha256": "b93c1075bd85ab9fe5f0c4a389905fd26b2260b616ffe3000c11665ea1bd766c"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "group_id": "problem_g24_30266fbc58e3f5d463f658babdac2e5014d6b0d94babbe179ab389a23b76ab4c",
+      "query": "Using each of the numbers 10, 4, 11 and 8 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "(8*((10+4)-11))",
+      "split": "calibration",
+      "category": "g24",
+      "family": "g24",
+      "level": 3,
+      "difficulty": {
+        "n_solutions": 5
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          10,
+          4,
+          11,
+          8
+        ]
+      },
+      "problem_id": "problem_g24_30266fbc58e3f5d463f658babdac2e5014d6b0d94babbe179ab389a23b76ab4c",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0023_en_orig",
+        "original_group_id": "grp_g24_0023",
+        "original_split": "test",
+        "original_row_sha256": "322d495679311c364ac1ed9aab0940756716a20a62b4cb2a1e949e8221f61518"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "group_id": "problem_g24_9eeb12c7cc8470e00becb7082af48dd1b8cb66413a905c6c4252291ae3be9fe7",
+      "query": "Using each of the numbers 8, 13, 5 and 1 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "((5*(13-8))-1)",
+      "split": "calibration",
+      "category": "g24",
+      "family": "g24",
+      "level": 4,
+      "difficulty": {
+        "n_solutions": 1
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          8,
+          13,
+          5,
+          1
+        ]
+      },
+      "problem_id": "problem_g24_9eeb12c7cc8470e00becb7082af48dd1b8cb66413a905c6c4252291ae3be9fe7",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0025_en_orig",
+        "original_group_id": "grp_g24_0025",
+        "original_split": "dev",
+        "original_row_sha256": "e04b9378ea86bde8adfa0eb6fa8b196a91f710eb497da2ad0214f3a2fcf2cdcd"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0029_en_orig",
+      "group_id": "problem_g24_197b52691f342362e2b7e0c6460336846564452a434b03a9c8198353b8cad3ae",
+      "query": "Using each of the numbers 4, 8, 4 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "answer": "(4+(4*(13-8)))",
+      "split": "train",
+      "category": "g24",
+      "family": "g24",
+      "level": 4,
+      "difficulty": {
+        "n_solutions": 3
+      },
+      "checker": "g24",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "numbers": [
+          4,
+          8,
+          4,
+          13
+        ]
+      },
+      "problem_id": "problem_g24_197b52691f342362e2b7e0c6460336846564452a434b03a9c8198353b8cad3ae",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "g24_0029_en_orig",
+        "original_group_id": "grp_g24_0029",
+        "original_split": "test",
+        "original_row_sha256": "2046e8bd43fe42d11a17c8ee11271a7041334938e2ecdff24dee7367bedd040c"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0003_en_orig",
+      "group_id": "problem_order_32230264192397169411929e43ef9f5e83633eaae25c52f2a14796a1cefcee32",
+      "query": "4 runners (Bob, Grace, Frank, Heidi) ran a race with no ties. Clues: Bob finished after Frank; Heidi finished before Frank; Grace finished immediately before Heidi. Who finished in 4th place?",
+      "answer": "Bob",
+      "split": "train",
+      "category": "order",
+      "family": "order",
+      "level": 1,
+      "difficulty": {
+        "runners": 4,
+        "clues": 3
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Bob",
+          "Grace",
+          "Frank",
+          "Heidi"
+        ],
+        "clues": [
+          [
+            "b",
+            2,
+            0
+          ],
+          [
+            "b",
+            3,
+            2
+          ],
+          [
+            "a",
+            1,
+            3
+          ]
+        ],
+        "ask": 3
+      },
+      "problem_id": "problem_order_32230264192397169411929e43ef9f5e83633eaae25c52f2a14796a1cefcee32",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0003_en_orig",
+        "original_group_id": "grp_order_0003",
+        "original_split": "calib",
+        "original_row_sha256": "f33b6e273fb04785d1cefdc7c93ab96c4354cb80ac53ebd0e249def05005871a"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0005_en_orig",
+      "group_id": "problem_order_e2005f8ff438a740aaffa1edbd4bf1e912f73b676f0fb5d2243693128a8b4119",
+      "query": "4 runners (Grace, Carol, Dave, Heidi) ran a race with no ties. Clues: Dave finished immediately before Heidi; Grace finished immediately before Dave; Carol finished immediately before Grace. Who finished in 4th place?",
+      "answer": "Heidi",
+      "split": "calibration",
+      "category": "order",
+      "family": "order",
+      "level": 1,
+      "difficulty": {
+        "runners": 4,
+        "clues": 3
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Grace",
+          "Carol",
+          "Dave",
+          "Heidi"
+        ],
+        "clues": [
+          [
+            "a",
+            2,
+            3
+          ],
+          [
+            "a",
+            0,
+            2
+          ],
+          [
+            "a",
+            1,
+            0
+          ]
+        ],
+        "ask": 3
+      },
+      "problem_id": "problem_order_e2005f8ff438a740aaffa1edbd4bf1e912f73b676f0fb5d2243693128a8b4119",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0005_en_orig",
+        "original_group_id": "grp_order_0005",
+        "original_split": "test",
+        "original_row_sha256": "7b2698dfd5c46ef91e87615f6ce626a2d77dc591e937e9d2062ab3f861d4f45d"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0009_en_orig",
+      "group_id": "problem_order_044cff87dd79000d39a07fc793fde0f0857e63001dfc7b59678a6f7da32dddd5",
+      "query": "5 runners (Erin, Heidi, Bob, Alice, Carol) ran a race with no ties. Clues: Alice finished immediately before Bob; Carol finished before Heidi; Erin finished after Bob; Heidi finished before Bob. Who finished in 4th place?",
+      "answer": "Bob",
+      "split": "train",
+      "category": "order",
+      "family": "order",
+      "level": 2,
+      "difficulty": {
+        "runners": 5,
+        "clues": 4
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Erin",
+          "Heidi",
+          "Bob",
+          "Alice",
+          "Carol"
+        ],
+        "clues": [
+          [
+            "a",
+            3,
+            2
+          ],
+          [
+            "b",
+            4,
+            1
+          ],
+          [
+            "b",
+            2,
+            0
+          ],
+          [
+            "b",
+            1,
+            2
+          ]
+        ],
+        "ask": 3
+      },
+      "problem_id": "problem_order_044cff87dd79000d39a07fc793fde0f0857e63001dfc7b59678a6f7da32dddd5",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0009_en_orig",
+        "original_group_id": "grp_order_0009",
+        "original_split": "dev",
+        "original_row_sha256": "6954acc7d3a324d32499422b653b746d9395ef567028fc3204c718303805fac7"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0010_en_orig",
+      "group_id": "problem_order_5b177b8791678072997dee83b07ad13d662e72fc25de16a2edf586a9dcb22b04",
+      "query": "5 runners (Dave, Bob, Heidi, Carol, Erin) ran a race with no ties. Clues: Bob finished immediately before Heidi; Carol finished after Bob; Erin finished before Bob; Dave finished after Heidi. Who finished in 1st place?",
+      "answer": "Erin",
+      "split": "calibration",
+      "category": "order",
+      "family": "order",
+      "level": 2,
+      "difficulty": {
+        "runners": 5,
+        "clues": 4
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Dave",
+          "Bob",
+          "Heidi",
+          "Carol",
+          "Erin"
+        ],
+        "clues": [
+          [
+            "a",
+            1,
+            2
+          ],
+          [
+            "b",
+            1,
+            3
+          ],
+          [
+            "b",
+            4,
+            1
+          ],
+          [
+            "b",
+            2,
+            0
+          ]
+        ],
+        "ask": 0
+      },
+      "problem_id": "problem_order_5b177b8791678072997dee83b07ad13d662e72fc25de16a2edf586a9dcb22b04",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0010_en_orig",
+        "original_group_id": "grp_order_0010",
+        "original_split": "calib",
+        "original_row_sha256": "f7ac33e58ca747ccfc0e6f9760add61e89aa36c3a12fa9f61875deb5341def59"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0019_en_orig",
+      "group_id": "problem_order_3b9e730265f4b560ffc9e200ff424d6b42c15127eb50f07a8186f1926108c60d",
+      "query": "6 runners (Grace, Dave, Bob, Erin, Carol, Frank) ran a race with no ties. Clues: Carol finished before Erin; Erin finished immediately before Grace; Carol finished immediately before Bob; Frank finished before Grace; Dave finished after Erin. Who finished in 5th place?",
+      "answer": "Grace",
+      "split": "calibration",
+      "category": "order",
+      "family": "order",
+      "level": 3,
+      "difficulty": {
+        "runners": 6,
+        "clues": 5
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Grace",
+          "Dave",
+          "Bob",
+          "Erin",
+          "Carol",
+          "Frank"
+        ],
+        "clues": [
+          [
+            "b",
+            4,
+            3
+          ],
+          [
+            "a",
+            3,
+            0
+          ],
+          [
+            "a",
+            4,
+            2
+          ],
+          [
+            "b",
+            5,
+            0
+          ],
+          [
+            "b",
+            3,
+            1
+          ]
+        ],
+        "ask": 4
+      },
+      "problem_id": "problem_order_3b9e730265f4b560ffc9e200ff424d6b42c15127eb50f07a8186f1926108c60d",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0019_en_orig",
+        "original_group_id": "grp_order_0019",
+        "original_split": "calib",
+        "original_row_sha256": "03457e8573d6db29396679ae3b48b8bfc93a379761291944a4eace4580a1c378"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0022_en_orig",
+      "group_id": "problem_order_ce36d981bc672066105590a989fb2d606fc0ef7fee89b76b6c6abe9e297fb502",
+      "query": "6 runners (Dave, Frank, Grace, Alice, Heidi, Bob) ran a race with no ties. Clues: Grace finished before Frank; Dave finished after Heidi; Dave finished before Alice; Dave finished immediately before Bob; Bob finished immediately before Frank. Who finished in 4th place?",
+      "answer": "Bob",
+      "split": "train",
+      "category": "order",
+      "family": "order",
+      "level": 3,
+      "difficulty": {
+        "runners": 6,
+        "clues": 5
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Dave",
+          "Frank",
+          "Grace",
+          "Alice",
+          "Heidi",
+          "Bob"
+        ],
+        "clues": [
+          [
+            "b",
+            2,
+            1
+          ],
+          [
+            "b",
+            4,
+            0
+          ],
+          [
+            "b",
+            0,
+            3
+          ],
+          [
+            "a",
+            0,
+            5
+          ],
+          [
+            "a",
+            5,
+            1
+          ]
+        ],
+        "ask": 3
+      },
+      "problem_id": "problem_order_ce36d981bc672066105590a989fb2d606fc0ef7fee89b76b6c6abe9e297fb502",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0022_en_orig",
+        "original_group_id": "grp_order_0022",
+        "original_split": "test",
+        "original_row_sha256": "b1bedb3b718148286b995a97470ff46d9f6d22ff934b6c4b66e1ef48540dabf7"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0025_en_orig",
+      "group_id": "problem_order_c848a3b12452287df08817cfd0f1fc5ac9d722573e33fe767116a25266685a7a",
+      "query": "7 runners (Bob, Carol, Alice, Erin, Grace, Frank, Dave) ran a race with no ties. Clues: Bob finished before Carol; Erin finished immediately before Carol; Bob finished immediately before Grace; Carol finished before Dave; Carol finished immediately before Alice; Alice finished before Frank. Who finished in 3rd place?",
+      "answer": "Erin",
+      "split": "calibration",
+      "category": "order",
+      "family": "order",
+      "level": 4,
+      "difficulty": {
+        "runners": 7,
+        "clues": 6
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Bob",
+          "Carol",
+          "Alice",
+          "Erin",
+          "Grace",
+          "Frank",
+          "Dave"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "a",
+            3,
+            1
+          ],
+          [
+            "a",
+            0,
+            4
+          ],
+          [
+            "b",
+            1,
+            6
+          ],
+          [
+            "a",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            5
+          ]
+        ],
+        "ask": 2
+      },
+      "problem_id": "problem_order_c848a3b12452287df08817cfd0f1fc5ac9d722573e33fe767116a25266685a7a",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0025_en_orig",
+        "original_group_id": "grp_order_0025",
+        "original_split": "dev",
+        "original_row_sha256": "d431491aff8e6eca03f3792e638d375c165996b6de72586e97ad957679396ebf"
+      },
+      "review_status": "agent_reviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": "audit/development-data-20261003-final/checks.json",
+        "scope": "Original development question and gold"
+      }
+    },
+    {
+      "id": "procedural-tuning-v1/order_0029_en_orig",
+      "group_id": "problem_order_ea047e189ea882611822f47fe21f517aa82b3cdc24cad5c8702732989b48099f",
+      "query": "7 runners (Erin, Heidi, Dave, Grace, Frank, Bob, Carol) ran a race with no ties. Clues: Heidi finished immediately before Grace; Erin finished immediately before Dave; Carol finished immediately before Bob; Heidi finished before Frank; Dave finished before Bob; Erin finished after Frank. Who finished in 6th place?",
+      "answer": "Carol",
+      "split": "train",
+      "category": "order",
+      "family": "order",
+      "level": 4,
+      "difficulty": {
+        "runners": 7,
+        "clues": 6
+      },
+      "checker": "order",
+      "source": "procedural:gen_tasks.py@0.1/seed=1000",
+      "meta": {
+        "names": [
+          "Erin",
+          "Heidi",
+          "Dave",
+          "Grace",
+          "Frank",
+          "Bob",
+          "Carol"
+        ],
+        "clues": [
+          [
+            "a",
+            1,
+            3
+          ],
+          [
+            "a",
+            0,
+            2
+          ],
+          [
+            "a",
+            6,
+            5
+          ],
+          [
+            "b",
+            1,
+            4
+          ],
+          [
+            "b",
+            2,
+            5
+          ],
+          [
+            "b",
+            4,
+            0
+          ]
+        ],
+        "ask": 5
+      },
+      "problem_id": "problem_order_ea047e189ea882611822f47fe21f517aa82b3cdc24cad5c8702732989b48099f",
+      "answer_type": "text",
+      "language": "en",
+      "source_provenance": {
+        "path": "data/gen_tune.json",
+        "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+        "development_review_artifact": "audit/development-data-20261003-final/checks.json",
+        "development_review_sha256": "2b90b08e8d61d6c69e0c368cdad1418c4097b05bbbd18d7dbf2266592e851c61",
+        "original_id": "order_0029_en_orig",
+        "original_group_id": "grp_order_0029",
+        "original_split": "test",
+        "original_row_sha256": "a444abaeec7129dc3b2f0c17a644a08ab1c29c48fdeba6c1f42d468d071dc7df"
+      },
+      "review_status": "unreviewed",
+      "review": {
+        "human_review_status": "pending",
+        "artifact": null,
+        "scope": "No semantic/gold review claimed"
+      }
+    }
+  ]
+}

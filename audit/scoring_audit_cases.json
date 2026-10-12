@@ -1,0 +1,99 @@
+{
+  "baseline_git_sha": "76d311b98e65ce86dd0cbfb24b9453591964481d",
+  "baseline_source_sha256": {
+    "scripts/gen_tasks.py": "08ad26facbaa84e384e5e10212faa8f78e41864a5c79625ea34171a01ac6d755",
+    "reasoning_strategies.py": "d261a278604f25aa472c6f125bb5c29568a8af742b75c5a566b505abe9c360ff",
+    "experiments/research_study.py": "3d2069789515cceb38e4498993ce58aa514037645ba0db54388784bdacf21411"
+  },
+  "kind": "software_scoring_probes_no_model_calls",
+  "cases": [
+    {
+      "kind": "checker",
+      "family": "arith",
+      "prediction": "52 is incorrect",
+      "before_accepted": true,
+      "after_accepted": false,
+      "expected_accepted": false
+    },
+    {
+      "kind": "checker",
+      "family": "order",
+      "prediction": "Heidi did not finish fourth",
+      "before_accepted": true,
+      "after_accepted": false,
+      "expected_accepted": false
+    },
+    {
+      "kind": "checker",
+      "family": "order",
+      "prediction": "Heidi or Zed",
+      "before_accepted": true,
+      "after_accepted": false,
+      "expected_accepted": false
+    },
+    {
+      "kind": "checker",
+      "family": "g24",
+      "prediction": "10+13+3-2 = 25",
+      "before_accepted": true,
+      "after_accepted": false,
+      "expected_accepted": false
+    },
+    {
+      "kind": "checker",
+      "family": "g24",
+      "prediction": "10+13+3-2 = 24 = 100",
+      "before_accepted": true,
+      "after_accepted": false,
+      "expected_accepted": false
+    },
+    {
+      "kind": "typed_parser",
+      "raw_output": "Answer: No, the answer is Yes",
+      "before_parsed": "No",
+      "after_parsed": "No, the answer is Yes",
+      "before_accepted": true,
+      "after_accepted": false,
+      "expected_accepted": false
+    },
+    {
+      "kind": "typed_parser",
+      "raw_output": "Answer: 129,6",
+      "before_parsed": "1296",
+      "after_parsed": "129.6",
+      "before_accepted": false,
+      "after_accepted": true,
+      "expected_accepted": true
+    },
+    {
+      "kind": "typed_parser",
+      "raw_output": "Answer: 10+13+3-2 = 24",
+      "before_parsed": "24",
+      "after_parsed": "10+13+3-2 = 24",
+      "before_accepted": false,
+      "after_accepted": true,
+      "expected_accepted": true
+    },
+    {
+      "kind": "declared_alias",
+      "prediction": "Thứ Năm",
+      "before_accepted": false,
+      "after_accepted": true,
+      "expected_accepted": true
+    },
+    {
+      "kind": "declared_alias",
+      "prediction": "Dê",
+      "before_accepted": false,
+      "after_accepted": true,
+      "expected_accepted": true
+    },
+    {
+      "kind": "declared_alias",
+      "prediction": "Bằng nhau",
+      "before_accepted": false,
+      "after_accepted": true,
+      "expected_accepted": true
+    }
+  ]
+}

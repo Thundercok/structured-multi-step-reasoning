@@ -1,0 +1,42 @@
+[
+  {
+    "path": "data/gen02_tune.json",
+    "sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/gen02_tune_gapB.json",
+    "sha256": "83ae6771e9394a166a01aa0c5edd557e14b78418e8d186e71bd871b59ea82e55",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/gen02_v2.json",
+    "sha256": "98e8f41e55f77e1a321b23a7a746240a4e855c7f6150a4ef59cb66f6676eacf7",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/gen02_v2b.json",
+    "sha256": "bd6633009310e4e4638adc102898feb5c236b2615f0bbecc736f1d2c8e5dde8c",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/gen_tune.json",
+    "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/gen_v2.json",
+    "sha256": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/procedural_research_v1/main.json",
+    "sha256": "fa5d09d9a1074de0e65ae544ff977b6c2751a1a36c60fd721d51234a9b2b3ddc",
+    "canonical_overlap": 0
+  },
+  {
+    "path": "data/procedural_research_v1/tuning.json",
+    "sha256": "069ca68a4d34d40a3c2f559dffadaa255e73e1e9719e8e488f171a091e002d95",
+    "canonical_overlap": 0
+  }
+]

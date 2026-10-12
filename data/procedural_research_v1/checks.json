@@ -1,0 +1,377 @@
+{
+  "kind": "procedural_dataset_migration",
+  "split_seed": 42,
+  "split_algorithm": "SHA256 rank of seed/role/family/level-set/canonical-ID; nearest one-third of development groups to train, remainder calibration; eligible original test groups retained",
+  "identity_version": "procedural-v1",
+  "main": {
+    "items": 179,
+    "canonical_groups": 177,
+    "items_by_split": {
+      "calibration": 72,
+      "test": 71,
+      "train": 36
+    },
+    "groups_by_split": {
+      "calibration": 71,
+      "test": 70,
+      "train": 36
+    },
+    "reviewed_items": 108,
+    "strata": [
+      {
+        "family": "arith",
+        "level": 1,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "arith",
+        "level": 2,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "arith",
+        "level": 3,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "arith",
+        "level": 4,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "g24",
+        "level": 1,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "g24",
+        "level": 2,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "g24",
+        "level": 3,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "g24",
+        "level": 4,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "order",
+        "level": 1,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 4
+        }
+      },
+      {
+        "family": "order",
+        "level": 2,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "order",
+        "level": 3,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      },
+      {
+        "family": "order",
+        "level": 4,
+        "items_by_split": {
+          "calibration": 6,
+          "test": 6,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 6,
+          "test": 6
+        }
+      }
+    ]
+  },
+  "tuning": {
+    "items": 94,
+    "canonical_groups": 91,
+    "items_by_split": {
+      "calibration": 62,
+      "train": 32
+    },
+    "groups_by_split": {
+      "calibration": 59,
+      "train": 32
+    },
+    "reviewed_items": 60,
+    "strata": [
+      {
+        "family": "arith",
+        "level": 1,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "arith",
+        "level": 2,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "arith",
+        "level": 3,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "arith",
+        "level": 4,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "g24",
+        "level": 1,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 2
+        },
+        "groups_by_split": {
+          "train": 2,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "g24",
+        "level": 2,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 2
+        },
+        "groups_by_split": {
+          "train": 2,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "g24",
+        "level": 3,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "g24",
+        "level": 4,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "order",
+        "level": 1,
+        "items_by_split": {
+          "calibration": 6,
+          "train": 2
+        },
+        "groups_by_split": {
+          "train": 2,
+          "calibration": 4,
+          "test": 0
+        }
+      },
+      {
+        "family": "order",
+        "level": 2,
+        "items_by_split": {
+          "calibration": 6,
+          "train": 2
+        },
+        "groups_by_split": {
+          "train": 2,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "order",
+        "level": 3,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      },
+      {
+        "family": "order",
+        "level": 4,
+        "items_by_split": {
+          "calibration": 5,
+          "train": 3
+        },
+        "groups_by_split": {
+          "train": 3,
+          "calibration": 5,
+          "test": 0
+        }
+      }
+    ]
+  },
+  "cross_release_problem_overlap": 0,
+  "cross_release_item_id_overlap": 0,
+  "excluded_main_items": [
+    {
+      "original_id": "order_0014_en_orig",
+      "original_split": "test",
+      "problem_id": "problem_order_4ca7196fb691d67ce85e7ca53a52d79435791d483e1222c30b1d58176ec37d9c",
+      "reason": "Canonical problem belongs to exposed tuning pool"
+    }
+  ],
+  "development_promoted_to_test": 0,
+  "original_content_preserved": true,
+  "model_calls": 0,
+  "publication_ready": false,
+  "demoted_original_test_items": 0
+}

@@ -1,0 +1,3843 @@
+[
+  {
+    "id": "gsm8k-dev-00077",
+    "group_id": "gsm8k-train-b763f9ab1c4ea4167f2c8f86f762906f4486477bcb10b342268948ee648e6dd0",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3156802264,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "768",
+    "correct": true,
+    "confidence": 0.9684071408083486,
+    "tokens": 93,
+    "strategy_ms": 9418.281833997753,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "A garden produced 237 potatoes, 60 fewer cucumbers and twice as many peppers than the cucumbers. How many vegetables did the garden produce?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 72,
+          "output": "To find the total number of vegetables produced, we calculate the number of each type:\n\n- Potatoes = 237  \n- Cucumbers = 237 - 60 = 177  \n- Peppers = 2 × 177 = 354  \n\nTotal vegetables = 237 + 177 + 354 = 768  \n\nAnswer: 768",
+          "tokens": 93,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9553295449960758,
+            "mean_margin": 16.662634408602152,
+            "mean_entropy": 0.046287921913401565,
+            "confidence": 0.9684071408083486
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00077",
+    "group_id": "gsm8k-train-b763f9ab1c4ea4167f2c8f86f762906f4486477bcb10b342268948ee648e6dd0",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2003876026,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "639",
+    "correct": false,
+    "confidence": 0.9475684747794061,
+    "tokens": 64,
+    "strategy_ms": 5886.136250002892,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "A garden produced 237 potatoes, 60 fewer cucumbers and twice as many peppers than the cucumbers. How many vegetables did the garden produce?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 77,
+          "output": "First, find the number of cucumbers by subtracting 60 from the number of potatoes.  \nThen, calculate the number of peppers by doubling the number of cucumbers.  \nAdd the number of potatoes, cucumbers, and peppers to get the total.  \nAnswer: 639",
+          "tokens": 64,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9212431693974745,
+            "mean_margin": 16.33203125,
+            "mean_entropy": 0.06526522038546048,
+            "confidence": 0.9475684747794061
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00077",
+    "group_id": "gsm8k-train-b763f9ab1c4ea4167f2c8f86f762906f4486477bcb10b342268948ee648e6dd0",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2852766009,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "768",
+    "correct": true,
+    "confidence": 0.9860036869905667,
+    "tokens": 44,
+    "strategy_ms": 4649.697875000129,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "A garden produced 237 potatoes, 60 fewer cucumbers and twice as many peppers than the cucumbers. How many vegetables did the garden produce?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 85,
+          "output": "```python\npotatoes = 237\ncucumbers = potatoes - 60\npeppers = 2 * cucumbers\nresult = potatoes + cucumbers + peppers\n```",
+          "tokens": 44,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9775290462529921,
+            "mean_margin": 24.52840909090909,
+            "mean_entropy": 0.013804180588899569,
+            "confidence": 0.9860036869905667
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "potatoes = 237\ncucumbers = potatoes - 60\npeppers = 2 * cucumbers\nresult = potatoes + cucumbers + peppers",
+          "ok": true,
+          "output": "768",
+          "duration_ms": 69.24949999665841
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00083",
+    "group_id": "gsm8k-train-295f13ff43ce95fa5be177fdaba8fac378d08cfe4d0bb14b31d66299be2f29bf",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1513857059,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "700",
+    "correct": true,
+    "confidence": 0.9855894317340667,
+    "tokens": 75,
+    "strategy_ms": 6716.256457999407,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Irene earns $500 if she works for 40 hours a week and gets an extra $20 for every hour of overtime. If she worked 50 hours last week, calculate her total income.\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 95,
+          "output": "```python\n# Regular hours and overtime rate\nregular_hours = 40\novertime_rate = 20\n\n# Hours worked last week\nhours_worked = 50\n\n# Calculate overtime hours\novertime_hours = hours_worked - regular_hours\n\n# Calculate total income\nresult = 500 + overtime_hours * overtime_rate\n```",
+          "tokens": 75,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9801986733067553,
+            "mean_margin": 19.69333333333333,
+            "mean_entropy": 0.02254951317619651,
+            "confidence": 0.9855894317340667
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Regular hours and overtime rate\nregular_hours = 40\novertime_rate = 20\n\n# Hours worked last week\nhours_worked = 50\n\n# Calculate overtime hours\novertime_hours = hours_worked - regular_hours\n\n# Calculate total income\nresult = 500 + overtime_hours * overtime_rate",
+          "ok": true,
+          "output": "700",
+          "duration_ms": 29.747624997980893
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00083",
+    "group_id": "gsm8k-train-295f13ff43ce95fa5be177fdaba8fac378d08cfe4d0bb14b31d66299be2f29bf",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1484010657,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "700",
+    "correct": true,
+    "confidence": 0.9855706218350955,
+    "tokens": 78,
+    "strategy_ms": 6882.977749999554,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Irene earns $500 if she works for 40 hours a week and gets an extra $20 for every hour of overtime. If she worked 50 hours last week, calculate her total income.\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 87,
+          "output": "Irene's regular pay for 40 hours is $500.  \nShe worked 10 hours of overtime, earning $20 per hour.  \nTotal overtime pay is 10 × $20 = $200.  \nTotal income is $500 + $200 = $700.  \nAnswer: 700",
+          "tokens": 78,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9809529623602027,
+            "mean_margin": 18.137820512820515,
+            "mean_entropy": 0.02452924262090624,
+            "confidence": 0.9855706218350955
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00083",
+    "group_id": "gsm8k-train-295f13ff43ce95fa5be177fdaba8fac378d08cfe4d0bb14b31d66299be2f29bf",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 547322218,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "700",
+    "correct": true,
+    "confidence": 0.9667201314896106,
+    "tokens": 77,
+    "strategy_ms": 6923.021707996668,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Irene earns $500 if she works for 40 hours a week and gets an extra $20 for every hour of overtime. If she worked 50 hours last week, calculate her total income.\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 82,
+          "output": "Irene's regular income for 40 hours is $500. She worked 10 hours of overtime, earning an additional $20 per hour. Total overtime income is 10 × $20 = $200. Total income is $500 + $200 = $700.  \nAnswer: 700",
+          "tokens": 77,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9524655899207486,
+            "mean_margin": 18.290584415584416,
+            "mean_entropy": 0.047563270914499675,
+            "confidence": 0.9667201314896106
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00196",
+    "group_id": "gsm8k-train-c2828a8d50a0a55c92d04c6a8f7391eeae5fc6ab0a861905d12e994698fb6f32",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2598540821,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "30",
+    "correct": true,
+    "confidence": 0.9849975875776388,
+    "tokens": 99,
+    "strategy_ms": 8528.016458003549,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Mary bought 5 boxes of drinks at $6 each box and 10 boxes of pizzas at $14 each box for her pizza party. She paid $200 for all the items. How much change did she get back?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 91,
+          "output": "First, calculate the total cost of the drinks: 5 boxes times $6 equals $30.  \nNext, calculate the total cost of the pizzas: 10 boxes times $14 equals $140.  \nAdd the two amounts together: $30 plus $140 equals $170.  \nSubtract the total cost from the amount paid: $200 minus $170 equals $30.  \nAnswer: 30",
+          "tokens": 99,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9775290462529921,
+            "mean_margin": 21.758838383838384,
+            "mean_entropy": 0.01883467629670709,
+            "confidence": 0.9849975875776388
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00196",
+    "group_id": "gsm8k-train-c2828a8d50a0a55c92d04c6a8f7391eeae5fc6ab0a861905d12e994698fb6f32",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1153091707,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "30",
+    "correct": true,
+    "confidence": 0.9669476306175457,
+    "tokens": 116,
+    "strategy_ms": 10642.88724999642,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Mary bought 5 boxes of drinks at $6 each box and 10 boxes of pizzas at $14 each box for her pizza party. She paid $200 for all the items. How much change did she get back?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 86,
+          "output": "To find the change Mary received, we first calculate the total cost of the items she bought:\n\n- 5 boxes of drinks at $6 each: $5 \\times 6 = 30$\n- 10 boxes of pizzas at $14 each: $10 \\times 14 = 140$\n\nTotal cost = $30 + 140 = 170$\n\nMary paid $200, so the change is $200 - 170 = 30$\n\nAnswer: 30",
+          "tokens": 116,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9516395255611882,
+            "mean_margin": 17.21228448275862,
+            "mean_entropy": 0.04436052429862121,
+            "confidence": 0.9669476306175457
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00196",
+    "group_id": "gsm8k-train-c2828a8d50a0a55c92d04c6a8f7391eeae5fc6ab0a861905d12e994698fb6f32",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1089212466,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "30",
+    "correct": true,
+    "confidence": 0.9763389746359313,
+    "tokens": 50,
+    "strategy_ms": 8291.198792001524,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Mary bought 5 boxes of drinks at $6 each box and 10 boxes of pizzas at $14 each box for her pizza party. She paid $200 for all the items. How much change did she get back?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 99,
+          "output": "```python\n# Calculate total cost of drinks and pizzas\ntotal_cost = 5 * 6 + 10 * 14\n# Calculate change from $200\nresult = 200 - total_cost\n```",
+          "tokens": 50,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9656054162575665,
+            "mean_margin": 21.3775,
+            "mean_entropy": 0.03231866534465177,
+            "confidence": 0.9763389746359313
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Calculate total cost of drinks and pizzas\ntotal_cost = 5 * 6 + 10 * 14\n# Calculate change from $200\nresult = 200 - total_cost",
+          "ok": true,
+          "output": "30",
+          "duration_ms": 37.89479199622292
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00330",
+    "group_id": "gsm8k-train-89fb6901d03c7631fe073f73875d815f6b6e7ad20e8f7782fc79225653ff9d3b",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1194578839,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "6",
+    "correct": true,
+    "confidence": 0.9790845354329565,
+    "tokens": 96,
+    "strategy_ms": 13299.614792005741,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Samuel bought 2 dozen doughnuts and Cathy bought 3 dozen doughnuts. They planned to share the doughnuts evenly with their 8 other friends. How many doughnuts will each of them receive?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 79,
+          "output": "Samuel bought 2 dozen doughnuts = 24 doughnuts  \nCathy bought 3 dozen doughnuts = 36 doughnuts  \nTotal doughnuts = 24 + 36 = 60  \nThey are sharing with 8 other friends, so total people = 2 (Samuel and Cathy) + 8 = 10  \nEach person gets = 60 ÷ 10 = 6  \nAnswer: 6",
+          "tokens": 96,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9692332344763441,
+            "mean_margin": 17.317708333333332,
+            "mean_entropy": 0.0276602861688991,
+            "confidence": 0.9790845354329565
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00330",
+    "group_id": "gsm8k-train-89fb6901d03c7631fe073f73875d815f6b6e7ad20e8f7782fc79225653ff9d3b",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2587794784,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "6",
+    "correct": true,
+    "confidence": 0.9845733757250779,
+    "tokens": 74,
+    "strategy_ms": 10422.145917000307,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Samuel bought 2 dozen doughnuts and Cathy bought 3 dozen doughnuts. They planned to share the doughnuts evenly with their 8 other friends. How many doughnuts will each of them receive?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 92,
+          "output": "```python\n# Total number of doughnuts\ntotal_doughnuts = 2 * 12 + 3 * 12\n\n# Total number of people (Samuel, Cathy, and their 8 friends)\ntotal_people = 2 + 8\n\n# Calculate doughnuts per person\nresult = total_doughnuts // total_people\n```",
+          "tokens": 74,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9766287893285438,
+            "mean_margin": 20.716216216216218,
+            "mean_entropy": 0.01870509058970131,
+            "confidence": 0.9845733757250779
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Total number of doughnuts\ntotal_doughnuts = 2 * 12 + 3 * 12\n\n# Total number of people (Samuel, Cathy, and their 8 friends)\ntotal_people = 2 + 8\n\n# Calculate doughnuts per person\nresult = total_doughnuts // total_people",
+          "ok": true,
+          "output": "6",
+          "duration_ms": 38.23795799689833
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00330",
+    "group_id": "gsm8k-train-89fb6901d03c7631fe073f73875d815f6b6e7ad20e8f7782fc79225653ff9d3b",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2467472,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "6",
+    "correct": true,
+    "confidence": 0.960815040370253,
+    "tokens": 47,
+    "strategy_ms": 7202.383584000927,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Samuel bought 2 dozen doughnuts and Cathy bought 3 dozen doughnuts. They planned to share the doughnuts evenly with their 8 other friends. How many doughnuts will each of them receive?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 84,
+          "output": "First, calculate the total number of doughnuts by adding 2 dozen and 3 dozen. Then divide the total by the number of people, including Samuel and Cathy, which is 10 people. \n\nAnswer: 6",
+          "tokens": 47,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9431682066419697,
+            "mean_margin": 13.39627659574468,
+            "mean_entropy": 0.053839113850598856,
+            "confidence": 0.960815040370253
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00482",
+    "group_id": "gsm8k-train-af83beffd686f9db2b33cf2c2d633ab4f5fcfd336bc362adcf10b086f3689356",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3563524894,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "64",
+    "correct": false,
+    "confidence": 0.951136406143853,
+    "tokens": 105,
+    "strategy_ms": 14612.831167003606,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Julia is performing in her high school musical this weekend and her family wants to come to the show. Tickets are $12 for adults and $10 for children. If her mom, dad, grandma, and three little sisters come to the show, how much will the total be for their tickets?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 112,
+          "output": "```python\n# Prices of tickets\nadult_price = 12\nchild_price = 10\n\n# Number of attendees\nnum_adults = 2  # mom and dad\nnum_children = 4  # grandma and three little sisters (assuming grandma is a child, or it's a mistake, but per problem statement, it's 4 children)\n\n# Calculate total cost\ntotal_cost = num_adults * adult_price + num_children * child_price\nresult = total_cost\n```",
+          "tokens": 105,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9288486005354548,
+            "mean_margin": 16.645238095238096,
+            "mean_entropy": 0.06643922993349047,
+            "confidence": 0.951136406143853
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Prices of tickets\nadult_price = 12\nchild_price = 10\n\n# Number of attendees\nnum_adults = 2  # mom and dad\nnum_children = 4  # grandma and three little sisters (assuming grandma is a child, or it's a mistake, but per problem statement, it's 4 children)\n\n# Calculate total cost\ntotal_cost = num_adults * adult_price + num_children * child_price\nresult = total_cost",
+          "ok": true,
+          "output": "64",
+          "duration_ms": 56.6370829983498
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00482",
+    "group_id": "gsm8k-train-af83beffd686f9db2b33cf2c2d633ab4f5fcfd336bc362adcf10b086f3689356",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2142369377,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "78",
+    "correct": false,
+    "confidence": 0.941588044772536,
+    "tokens": 131,
+    "strategy_ms": 17913.00833400601,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Julia is performing in her high school musical this weekend and her family wants to come to the show. Tickets are $12 for adults and $10 for children. If her mom, dad, grandma, and three little sisters come to the show, how much will the total be for their tickets?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 99,
+          "output": "To find the total cost of the tickets, we need to calculate the cost for adults and children separately and then add them together.\n\n- There are 2 adults (mom and dad) and 2 grandparents (grandma and grandpa), so that's 4 adults.  \n- There are 3 little sisters, so that's 3 children.\n\nTotal cost = (Number of adults × Adult ticket price) + (Number of children × Child ticket price)  \n= (4 × $12) + (3 × $10)  \n= $48 + $30  \n= $78\n\nAnswer: 78",
+          "tokens": 131,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9142102908379313,
+            "mean_margin": 11.248091603053435,
+            "mean_entropy": 0.0775323675523467,
+            "confidence": 0.941588044772536
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-00482",
+    "group_id": "gsm8k-train-af83beffd686f9db2b33cf2c2d633ab4f5fcfd336bc362adcf10b086f3689356",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2108496370,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "66",
+    "correct": true,
+    "confidence": 0.9825106230445374,
+    "tokens": 96,
+    "strategy_ms": 13321.560124997632,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Julia is performing in her high school musical this weekend and her family wants to come to the show. Tickets are $12 for adults and $10 for children. If her mom, dad, grandma, and three little sisters come to the show, how much will the total be for their tickets?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 104,
+          "output": "First, count the number of adults: mom, dad, and grandma make 3 adults.  \nNext, count the number of children: three little sisters.  \nCalculate the cost for adults: 3 adults × $12 = $36.  \nCalculate the cost for children: 3 children × $10 = $30.  \nAdd the two amounts together: $36 + $30 = $66.  \nAnswer: 66",
+          "tokens": 96,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9742944931591142,
+            "mean_margin": 19.701822916666668,
+            "mean_entropy": 0.023183106351283983,
+            "confidence": 0.9825106230445374
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01342",
+    "group_id": "gsm8k-train-0ad06009b66319059350b689704e0621bf4a0589168043097957b21b3fbf9a84",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2794283388,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "30",
+    "correct": true,
+    "confidence": 0.9832786472437103,
+    "tokens": 72,
+    "strategy_ms": 10260.163124999963,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Sasha can complete 15 questions an hour. If she has 60 questions to complete and she works for 2 hours, how many questions does she still need to complete?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 88,
+          "output": "```python\n# Sasha's rate of completing questions per hour\nrate = 15\n\n# Total questions to complete\ntotal_questions = 60\n\n# Time worked in hours\ntime_worked = 2\n\n# Questions completed\nquestions_completed = rate * time_worked\n\n# Questions remaining\nresult = total_questions - questions_completed\n```",
+          "tokens": 72,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9759874458059077,
+            "mean_margin": 20.89236111111111,
+            "mean_entropy": 0.023575374853125393,
+            "confidence": 0.9832786472437103
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Sasha's rate of completing questions per hour\nrate = 15\n\n# Total questions to complete\ntotal_questions = 60\n\n# Time worked in hours\ntime_worked = 2\n\n# Questions completed\nquestions_completed = rate * time_worked\n\n# Questions remaining\nresult = total_questions - questions_completed",
+          "ok": true,
+          "output": "30",
+          "duration_ms": 43.90441600116901
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01342",
+    "group_id": "gsm8k-train-0ad06009b66319059350b689704e0621bf4a0589168043097957b21b3fbf9a84",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3903813960,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "15",
+    "correct": false,
+    "confidence": 0.9011478209622503,
+    "tokens": 6,
+    "strategy_ms": 2394.1047499974957,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Sasha can complete 15 questions an hour. If she has 60 questions to complete and she works for 2 hours, how many questions does she still need to complete?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 75,
+          "output": "Answer: 15",
+          "tokens": 6,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.8464817248906141,
+            "mean_margin": 11.291666666666666,
+            "mean_entropy": 0.11041433732745176,
+            "confidence": 0.9011478209622503
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01342",
+    "group_id": "gsm8k-train-0ad06009b66319059350b689704e0621bf4a0589168043097957b21b3fbf9a84",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2095013819,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "30",
+    "correct": true,
+    "confidence": 0.9851521277205185,
+    "tokens": 61,
+    "strategy_ms": 8848.302124999464,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Sasha can complete 15 questions an hour. If she has 60 questions to complete and she works for 2 hours, how many questions does she still need to complete?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 80,
+          "output": "Sasha completes 15 questions per hour. In 2 hours, she completes 15 * 2 = 30 questions. She started with 60 questions, so she has 60 - 30 = 30 questions left.  \nAnswer: 30",
+          "tokens": 61,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9797167269065808,
+            "mean_margin": 21.854508196721312,
+            "mean_entropy": 0.023531177348351917,
+            "confidence": 0.9851521277205185
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01492",
+    "group_id": "gsm8k-train-9f6599c0178d24d6d249770878ee32a556b30ca1e60d6c46c55023b261f6ad0f",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2153534409,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "100",
+    "correct": true,
+    "confidence": 0.9920188385431157,
+    "tokens": 42,
+    "strategy_ms": 6613.84554200049,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Mr Julien's store has 400 marbles remaining after the previous day's sales. Twenty customers came into the store, and each bought 15 marbles. How many marbles remain in the store?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 94,
+          "output": "```python\ninitial_marbles = 400\ncustomers = 20\nmarbles_per_customer = 15\nresult = initial_marbles - customers * marbles_per_customer\n```",
+          "tokens": 42,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9881658194110152,
+            "mean_margin": 24.0625,
+            "mean_entropy": 0.010320355667357037,
+            "confidence": 0.9920188385431157
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "initial_marbles = 400\ncustomers = 20\nmarbles_per_customer = 15\nresult = initial_marbles - customers * marbles_per_customer",
+          "ok": true,
+          "output": "100",
+          "duration_ms": 38.26758400100516
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01492",
+    "group_id": "gsm8k-train-9f6599c0178d24d6d249770878ee32a556b30ca1e60d6c46c55023b261f6ad0f",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2708053739,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "100",
+    "correct": true,
+    "confidence": 0.981852908008517,
+    "tokens": 97,
+    "strategy_ms": 13065.227958002652,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Mr Julien's store has 400 marbles remaining after the previous day's sales. Twenty customers came into the store, and each bought 15 marbles. How many marbles remain in the store?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 86,
+          "output": "Start with the initial number of marbles, which is 400.  \nCalculate the total number of marbles sold by multiplying the number of customers by the number of marbles each bought: 20 customers × 15 marbles = 300 marbles.  \nSubtract the number of marbles sold from the initial amount: 400 - 300 = 100 marbles.  \nAnswer: 100",
+          "tokens": 97,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9745560978867963,
+            "mean_margin": 20.899484536082475,
+            "mean_entropy": 0.027125701255753486,
+            "confidence": 0.981852908008517
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01492",
+    "group_id": "gsm8k-train-9f6599c0178d24d6d249770878ee32a556b30ca1e60d6c46c55023b261f6ad0f",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 220503016,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "100",
+    "correct": true,
+    "confidence": 0.966648777395221,
+    "tokens": 69,
+    "strategy_ms": 9844.21341700363,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Mr Julien's store has 400 marbles remaining after the previous day's sales. Twenty customers came into the store, and each bought 15 marbles. How many marbles remain in the store?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 81,
+          "output": "The store started with 400 marbles.  \n20 customers each bought 15 marbles: $20 \\times 15 = 300$ marbles sold.  \n$400 - 300 = 100$ marbles remain.  \nAnswer: 100",
+          "tokens": 69,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9505403775011547,
+            "mean_margin": 21.39855072463768,
+            "mean_entropy": 0.04310705470132704,
+            "confidence": 0.966648777395221
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01628",
+    "group_id": "gsm8k-train-4ebfc675c67aa3d01ef733f8ecf817cf730ccc2ff40d5eb21d2837b05a01518a",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 251079425,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "390",
+    "correct": true,
+    "confidence": 0.9701167365106316,
+    "tokens": 102,
+    "strategy_ms": 14091.10891599994,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Grace is filling her pool in the backyard with a hose that sprays 50 gallons/hour. She waited for 3 hours but the pool wasn't full, so she decides to add another hose that sprays 70 gallons/hour, and after 2 more hours the pool is full. How much water can Grace’s pool contain?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 108,
+          "output": "Let's calculate the total amount of water added to the pool.\n\n- First hose: 50 gallons/hour × 3 hours = 150 gallons\n- Combined hoses: (50 + 70) gallons/hour × 2 hours = 120 gallons/hour × 2 hours = 240 gallons\n- Total water in the pool = 150 + 240 = 390 gallons\n\nAnswer: 390",
+          "tokens": 102,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9568413812767794,
+            "mean_margin": 18.443627450980394,
+            "mean_entropy": 0.04151973078954583,
+            "confidence": 0.9701167365106316
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01628",
+    "group_id": "gsm8k-train-4ebfc675c67aa3d01ef733f8ecf817cf730ccc2ff40d5eb21d2837b05a01518a",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 32219103,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "290",
+    "correct": false,
+    "confidence": 0.9894755444443905,
+    "tokens": 89,
+    "strategy_ms": 12849.87566700147,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Grace is filling her pool in the backyard with a hose that sprays 50 gallons/hour. She waited for 3 hours but the pool wasn't full, so she decides to add another hose that sprays 70 gallons/hour, and after 2 more hours the pool is full. How much water can Grace’s pool contain?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 121,
+          "output": "```python\n# First hose rate and time\nrate1 = 50  # gallons per hour\ntime1 = 3   # hours\n\n# Second hose rate and time\nrate2 = 70  # gallons per hour\ntime2 = 2   # hours\n\n# Total water added\ntotal_water = (rate1 * time1) + (rate2 * time2)\nresult = total_water\n```",
+          "tokens": 89,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9860532262680259,
+            "mean_margin": 21.921348314606742,
+            "mean_entropy": 0.01775534221765893,
+            "confidence": 0.9894755444443905
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# First hose rate and time\nrate1 = 50  # gallons per hour\ntime1 = 3   # hours\n\n# Second hose rate and time\nrate2 = 70  # gallons per hour\ntime2 = 2   # hours\n\n# Total water added\ntotal_water = (rate1 * time1) + (rate2 * time2)\nresult = total_water",
+          "ok": true,
+          "output": "290",
+          "duration_ms": 55.03912499989383
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01628",
+    "group_id": "gsm8k-train-4ebfc675c67aa3d01ef733f8ecf817cf730ccc2ff40d5eb21d2837b05a01518a",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 596016638,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "390",
+    "correct": true,
+    "confidence": 0.9859452324876824,
+    "tokens": 95,
+    "strategy_ms": 13482.879832998151,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Grace is filling her pool in the backyard with a hose that sprays 50 gallons/hour. She waited for 3 hours but the pool wasn't full, so she decides to add another hose that sprays 70 gallons/hour, and after 2 more hours the pool is full. How much water can Grace’s pool contain?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 113,
+          "output": "Grace's pool is being filled by two hoses. The first hose runs for 3 hours at 50 gallons per hour, adding 150 gallons. Then both hoses run for 2 hours. The combined rate is 50 + 70 = 120 gallons per hour, adding 240 gallons. Total water is 150 + 240 = 390 gallons.\n\nAnswer: 390",
+          "tokens": 95,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9843345265646903,
+            "mean_margin": 17.71184210526316,
+            "mean_entropy": 0.031110071135157017,
+            "confidence": 0.9859452324876824
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01851",
+    "group_id": "gsm8k-train-220b9797eff469960c5a99dae09a091dd5c046d444b45b6e44db858cfc66458e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2523714061,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "208",
+    "correct": true,
+    "confidence": 0.9469471786928375,
+    "tokens": 105,
+    "strategy_ms": 17118.041375004395,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Drew is reseeding his lawn with grass seed. One bag of grass seed covers 250 square feet of lawn. His lawn is 22 feet from the house to the curb and 36 feet from side to side. He bought four bags of seed. How many extra square feet could the leftover grass seed cover after Drew reseeds his lawn?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 113,
+          "output": "To find the extra square feet the leftover grass seed could cover, we first calculate the total area of Drew's lawn:\n\nArea = 22 feet × 36 feet = 792 square feet.\n\nEach bag covers 250 square feet, so 4 bags cover:\n\n4 × 250 = 1000 square feet.\n\nThe leftover grass seed can cover:\n\n1000 - 792 = 208 square feet.\n\nAnswer: 208",
+          "tokens": 105,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9222376064755027,
+            "mean_margin": 14.836904761904762,
+            "mean_entropy": 0.07085665447646311,
+            "confidence": 0.9469471786928375
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01851",
+    "group_id": "gsm8k-train-220b9797eff469960c5a99dae09a091dd5c046d444b45b6e44db858cfc66458e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3632722568,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "208",
+    "correct": true,
+    "confidence": 0.9846579967456403,
+    "tokens": 90,
+    "strategy_ms": 29566.5674999982,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Drew is reseeding his lawn with grass seed. One bag of grass seed covers 250 square feet of lawn. His lawn is 22 feet from the house to the curb and 36 feet from side to side. He bought four bags of seed. How many extra square feet could the leftover grass seed cover after Drew reseeds his lawn?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 126,
+          "output": "```python\n# Dimensions of the lawn\nlength = 22\nwidth = 36\n\n# Area of the lawn\narea = length * width\n\n# Seed coverage per bag and number of bags\ncoverage_per_bag = 250\nnum_bags = 4\n\n# Total seed coverage\ntotal_coverage = num_bags * coverage_per_bag\n\n# Leftover seed coverage\nresult = total_coverage - area\n```",
+          "tokens": 90,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9780228724846005,
+            "mean_margin": 19.729166666666668,
+            "mean_entropy": 0.021767186464925738,
+            "confidence": 0.9846579967456403
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Dimensions of the lawn\nlength = 22\nwidth = 36\n\n# Area of the lawn\narea = length * width\n\n# Seed coverage per bag and number of bags\ncoverage_per_bag = 250\nnum_bags = 4\n\n# Total seed coverage\ntotal_coverage = num_bags * coverage_per_bag\n\n# Leftover seed coverage\nresult = total_coverage - area",
+          "ok": true,
+          "output": "208",
+          "duration_ms": 59.300334003637545
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-01851",
+    "group_id": "gsm8k-train-220b9797eff469960c5a99dae09a091dd5c046d444b45b6e44db858cfc66458e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3497910255,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "208",
+    "correct": true,
+    "confidence": 0.9600404812698211,
+    "tokens": 109,
+    "strategy_ms": 56063.86454200401,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Drew is reseeding his lawn with grass seed. One bag of grass seed covers 250 square feet of lawn. His lawn is 22 feet from the house to the curb and 36 feet from side to side. He bought four bags of seed. How many extra square feet could the leftover grass seed cover after Drew reseeds his lawn?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 118,
+          "output": "1. Calculate the total area of the lawn by multiplying the length and width: 22 feet × 36 feet = 792 square feet.  \n2. Determine the total coverage of the four bags of seed: 4 bags × 250 square feet = 1000 square feet.  \n3. Subtract the area of the lawn from the total coverage to find the extra coverage: 1000 - 792 = 208.  \nAnswer: 208",
+          "tokens": 109,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9377984890557561,
+            "mean_margin": 17.672018348623855,
+            "mean_entropy": 0.044293730086633516,
+            "confidence": 0.9600404812698211
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02161",
+    "group_id": "gsm8k-train-2e4dd0a15a6387312d946803290512357891bcd088abeaab153d0c9ec3b292aa",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 877276688,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "130",
+    "correct": true,
+    "confidence": 0.9712611459254452,
+    "tokens": 79,
+    "strategy_ms": 11908.205750005436,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "John's shirt cost 60% more than his pants.  His pants cost $50.  How much was John's outfit?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 66,
+          "output": "The pants cost $50.  \nThe shirt cost 60% more than the pants, so the shirt cost $50 + (60% of $50) = $50 + $30 = $80.  \nThe total cost of the outfit is $50 + $80 = $130.  \nAnswer: 130",
+          "tokens": 79,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9566632814389918,
+            "mean_margin": 16.63132911392405,
+            "mean_entropy": 0.03535222991328664,
+            "confidence": 0.9712611459254452
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02161",
+    "group_id": "gsm8k-train-2e4dd0a15a6387312d946803290512357891bcd088abeaab153d0c9ec3b292aa",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 718324919,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "140",
+    "correct": false,
+    "confidence": 0.9589466523544031,
+    "tokens": 52,
+    "strategy_ms": 8013.217125000665,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "John's shirt cost 60% more than his pants.  His pants cost $50.  How much was John's outfit?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 71,
+          "output": "First, calculate 60% of $50.  \nThen add that amount to $50 to get the shirt's cost.  \nAdd the shirt cost to the pants cost to find the total outfit cost.  \n\nAnswer: 140",
+          "tokens": 52,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9394130628134758,
+            "mean_margin": 14.84375,
+            "mean_entropy": 0.053797937029745634,
+            "confidence": 0.9589466523544031
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02161",
+    "group_id": "gsm8k-train-2e4dd0a15a6387312d946803290512357891bcd088abeaab153d0c9ec3b292aa",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3150701564,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "130.0",
+    "correct": true,
+    "confidence": 0.9792796229029551,
+    "tokens": 54,
+    "strategy_ms": 7753.195333003532,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "John's shirt cost 60% more than his pants.  His pants cost $50.  How much was John's outfit?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 79,
+          "output": "```python\n# Cost of pants\npants_cost = 50\n\n# Shirt costs 60% more than pants\nshirt_cost = pants_cost * 1.6\n\n# Total cost of the outfit\nresult = pants_cost + shirt_cost\n```",
+          "tokens": 54,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.968112085689368,
+            "mean_margin": 22.060185185185187,
+            "mean_entropy": 0.023882098637695106,
+            "confidence": 0.9792796229029551
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Cost of pants\npants_cost = 50\n\n# Shirt costs 60% more than pants\nshirt_cost = pants_cost * 1.6\n\n# Total cost of the outfit\nresult = pants_cost + shirt_cost",
+          "ok": true,
+          "output": "130.0",
+          "duration_ms": 66.19245799811324
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02814",
+    "group_id": "gsm8k-train-1634d65fee849461cb87fba04e8e974cf1bf3683cf1bab00d751419e273d6792",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3081206728,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "450",
+    "correct": true,
+    "confidence": 0.9633069676113456,
+    "tokens": 166,
+    "strategy_ms": 16851.92208400258,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Leila went to the supermarket to get some groceries. Then she headed to her mechanic to get her automobile fixed. If fixing her automobile cost $350 which was $50 more than thrice the amount she spent at the supermarket, how much has she spent altogether?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 98,
+          "output": "Let's break it down step by step:\n\n1. Let the amount Leila spent at the supermarket be $ x $.\n2. The cost to fix her automobile was $350, which is $50 more than thrice the amount she spent at the supermarket.\n3. So, the equation is: $ 3x + 50 = 350 $.\n4. Subtract 50 from both sides: $ 3x = 300 $.\n5. Divide by 3: $ x = 100 $.\n6. She spent $100 at the supermarket and $350 on car repairs.\n7. Total amount spent is $ 100 + 350 = 450 $.\n\nAnswer: 450",
+          "tokens": 166,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.944377861736799,
+            "mean_margin": 17.658132530120483,
+            "mean_entropy": 0.04440972887626031,
+            "confidence": 0.9633069676113456
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02814",
+    "group_id": "gsm8k-train-1634d65fee849461cb87fba04e8e974cf1bf3683cf1bab00d751419e273d6792",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1593024799,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "450.0",
+    "correct": true,
+    "confidence": 0.9729653546167468,
+    "tokens": 140,
+    "strategy_ms": 13905.736124994291,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Leila went to the supermarket to get some groceries. Then she headed to her mechanic to get her automobile fixed. If fixing her automobile cost $350 which was $50 more than thrice the amount she spent at the supermarket, how much has she spent altogether?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 106,
+          "output": "```python\n# Let the amount spent at the supermarket be x\n# According to the problem: 350 = 3x + 50\n# Solving for x: 3x = 350 - 50 => 3x = 300 => x = 100\n# Total spent = 350 (mechanic) + 100 (supermarket) = 450\n\n# Calculate the amount spent at the supermarket\nsupermarket_cost = (350 - 50) / 3\n# Calculate total amount spent\nresult = 350 + supermarket_cost\n```",
+          "tokens": 140,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9597605731727166,
+            "mean_margin": 19.72232142857143,
+            "mean_entropy": 0.03457464875400071,
+            "confidence": 0.9729653546167468
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Let the amount spent at the supermarket be x\n# According to the problem: 350 = 3x + 50\n# Solving for x: 3x = 350 - 50 => 3x = 300 => x = 100\n# Total spent = 350 (mechanic) + 100 (supermarket) = 450\n\n# Calculate the amount spent at the supermarket\nsupermarket_cost = (350 - 50) / 3\n# Calculate total amount spent\nresult = 350 + supermarket_cost",
+          "ok": true,
+          "output": "450.0",
+          "duration_ms": 58.64729199674912
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02814",
+    "group_id": "gsm8k-train-1634d65fee849461cb87fba04e8e974cf1bf3683cf1bab00d751419e273d6792",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3757584227,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "450",
+    "correct": true,
+    "confidence": 0.9687925354650633,
+    "tokens": 85,
+    "strategy_ms": 7945.705041995097,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Leila went to the supermarket to get some groceries. Then she headed to her mechanic to get her automobile fixed. If fixing her automobile cost $350 which was $50 more than thrice the amount she spent at the supermarket, how much has she spent altogether?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 93,
+          "output": "Let the amount spent at the supermarket be $ x $.  \nThe cost of fixing the automobile is $ 3x + 50 = 350 $.  \nSolving: $ 3x = 300 $, so $ x = 100 $.  \nTotal spent: $ 100 + 350 = 450 $.  \nAnswer: 450",
+          "tokens": 85,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9540312764529154,
+            "mean_margin": 17.513235294117646,
+            "mean_entropy": 0.0411154127690829,
+            "confidence": 0.9687925354650633
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02834",
+    "group_id": "gsm8k-train-17e0f01156b871e9c07f26f7b6dab0297ce6e651ad1e22767325dab015b7e912",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3110679681,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "31",
+    "correct": true,
+    "confidence": 0.9781472589563942,
+    "tokens": 177,
+    "strategy_ms": 15040.248249999422,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Annie does a survey of the sixth-grade classes to see who prefers pretzels to goldfish. In Miss Johnson's class, 1/6 of the students preferred goldfish. In Mr. Feldstein's class, 2/3rds of the students preferred goldfish. In Ms. Henderson's class, 1/5 of the students prefer goldfish. If each class has 30 students, how many people total prefer goldfish?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 136,
+          "output": "To find the total number of students who prefer goldfish, calculate the number of students in each class who prefer goldfish and add them together.\n\n1. In Miss Johnson's class, 1/6 of 30 students prefer goldfish:  \n   $ \\frac{1}{6} \\times 30 = 5 $\n\n2. In Mr. Feldstein's class, 2/3 of 30 students prefer goldfish:  \n   $ \\frac{2}{3} \\times 30 = 20 $\n\n3. In Ms. Henderson's class, 1/5 of 30 students prefer goldfish:  \n   $ \\frac{1}{5} \\times 30 = 6 $\n\nAdd the numbers:  \n5 + 20 + 6 = 31\n\nAnswer: 31",
+          "tokens": 177,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9680361225613369,
+            "mean_margin": 21.069915254237287,
+            "mean_entropy": 0.029354008738416724,
+            "confidence": 0.9781472589563942
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02834",
+    "group_id": "gsm8k-train-17e0f01156b871e9c07f26f7b6dab0297ce6e651ad1e22767325dab015b7e912",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1056717198,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "31.0",
+    "correct": true,
+    "confidence": 0.991302759757777,
+    "tokens": 157,
+    "strategy_ms": 13693.158458001562,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Annie does a survey of the sixth-grade classes to see who prefers pretzels to goldfish. In Miss Johnson's class, 1/6 of the students preferred goldfish. In Mr. Feldstein's class, 2/3rds of the students preferred goldfish. In Ms. Henderson's class, 1/5 of the students prefer goldfish. If each class has 30 students, how many people total prefer goldfish?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 144,
+          "output": "```python\n# Number of students in each class\nstudents_per_class = 30\n\n# Fraction of students preferring goldfish in each class\nmiss_johnson = 1 / 6\nmr_feldstein = 2 / 3\nms_henderson = 1 / 5\n\n# Calculate number of students preferring goldfish in each class\ngoldfish_miss_johnson = students_per_class * miss_johnson\ngoldfish_mr_feldstein = students_per_class * mr_feldstein\ngoldfish_ms_henderson = students_per_class * ms_henderson\n\n# Total number of students preferring goldfish\nresult = goldfish_miss_johnson + goldfish_mr_feldstein + goldfish_ms_henderson\n```",
+          "tokens": 157,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9873419422454718,
+            "mean_margin": 21.98248407643312,
+            "mean_entropy": 0.011841055667312545,
+            "confidence": 0.991302759757777
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Number of students in each class\nstudents_per_class = 30\n\n# Fraction of students preferring goldfish in each class\nmiss_johnson = 1 / 6\nmr_feldstein = 2 / 3\nms_henderson = 1 / 5\n\n# Calculate number of students preferring goldfish in each class\ngoldfish_miss_johnson = students_per_class * miss_johnson\ngoldfish_mr_feldstein = students_per_class * mr_feldstein\ngoldfish_ms_henderson = students_per_class * ms_henderson\n\n# Total number of students preferring goldfish\nresult = goldfish_miss_johnson + goldfish_mr_feldstein + goldfish_ms_henderson",
+          "ok": true,
+          "output": "31.0",
+          "duration_ms": 52.447958005359396
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-02834",
+    "group_id": "gsm8k-train-17e0f01156b871e9c07f26f7b6dab0297ce6e651ad1e22767325dab015b7e912",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2372124038,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "29",
+    "correct": false,
+    "confidence": 0.9488721371028704,
+    "tokens": 6,
+    "strategy_ms": 2293.6400000035064,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Annie does a survey of the sixth-grade classes to see who prefers pretzels to goldfish. In Miss Johnson's class, 1/6 of the students preferred goldfish. In Mr. Feldstein's class, 2/3rds of the students preferred goldfish. In Ms. Henderson's class, 1/5 of the students prefer goldfish. If each class has 30 students, how many people total prefer goldfish?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 131,
+          "output": "Answer: 29",
+          "tokens": 6,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9200444146293233,
+            "mean_margin": 13.520833333333334,
+            "mean_entropy": 0.05574487635236841,
+            "confidence": 0.9488721371028704
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04046",
+    "group_id": "gsm8k-train-8e10ffb4946ccb6bf0efd3a567771f22a25be95a7b00bdbd6297845874b08ce8",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2377434848,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "62.5",
+    "correct": false,
+    "confidence": 0.9471221099411532,
+    "tokens": 76,
+    "strategy_ms": 7282.978957999148,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Laura took six trips to park.  On each trip, she spent 2 hours at the park and an additinal 30 minutes walking to and from the park.  What percentage of the total time she took for her trips to the park did Laura spend in the park?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 100,
+          "output": "First, calculate the total time spent on each trip by adding the time spent at the park and the time walking.  \nThen multiply by the number of trips to get the total time.  \nNext, calculate the percentage of time spent in the park by dividing the total park time by the total time and multiplying by 100.  \nAnswer: 62.5",
+          "tokens": 76,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9210537885430902,
+            "mean_margin": 12.34375,
+            "mean_entropy": 0.06700615694342062,
+            "confidence": 0.9471221099411532
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04046",
+    "group_id": "gsm8k-train-8e10ffb4946ccb6bf0efd3a567771f22a25be95a7b00bdbd6297845874b08ce8",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 619435597,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "80.0",
+    "correct": true,
+    "confidence": 0.9853564681674838,
+    "tokens": 125,
+    "strategy_ms": 10840.686749994347,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Laura took six trips to park.  On each trip, she spent 2 hours at the park and an additinal 30 minutes walking to and from the park.  What percentage of the total time she took for her trips to the park did Laura spend in the park?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 108,
+          "output": "```python\n# Time spent in the park per trip (in hours)\ntime_in_park = 2\n\n# Additional time walking per trip (in hours)\nwalking_time = 0.5\n\n# Number of trips\nnum_trips = 6\n\n# Total time in the park\ntotal_park_time = time_in_park * num_trips\n\n# Total time including walking\ntotal_time = (time_in_park + walking_time) * num_trips\n\n# Percentage of time spent in the park\nresult = (total_park_time / total_time) * 100\n```",
+          "tokens": 125,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.97824023505121,
+            "mean_margin": 20.843,
+            "mean_entropy": 0.01881824317329496,
+            "confidence": 0.9853564681674838
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Time spent in the park per trip (in hours)\ntime_in_park = 2\n\n# Additional time walking per trip (in hours)\nwalking_time = 0.5\n\n# Number of trips\nnum_trips = 6\n\n# Total time in the park\ntotal_park_time = time_in_park * num_trips\n\n# Total time including walking\ntotal_time = (time_in_park + walking_time) * num_trips\n\n# Percentage of time spent in the park\nresult = (total_park_time / total_time) * 100",
+          "ok": true,
+          "output": "80.0",
+          "duration_ms": 56.24674999853596
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04046",
+    "group_id": "gsm8k-train-8e10ffb4946ccb6bf0efd3a567771f22a25be95a7b00bdbd6297845874b08ce8",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 129103959,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "80",
+    "correct": true,
+    "confidence": 0.9578763868444777,
+    "tokens": 154,
+    "strategy_ms": 12758.267582998087,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Laura took six trips to park.  On each trip, she spent 2 hours at the park and an additinal 30 minutes walking to and from the park.  What percentage of the total time she took for her trips to the park did Laura spend in the park?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 95,
+          "output": "To find the percentage of time Laura spent in the park, we first calculate the total time for all trips and then the time spent in the park.\n\n- Time spent in the park per trip: 2 hours  \n- Time spent walking per trip: 30 minutes = 0.5 hours  \n- Total time per trip: 2 + 0.5 = 2.5 hours  \n- Total time for 6 trips: 6 × 2.5 = 15 hours  \n- Total time spent in the park: 6 × 2 = 12 hours  \n\nPercentage of time spent in the park:  \n(12 / 15) × 100 = 80%\n\nAnswer: 80",
+          "tokens": 154,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.937128313889631,
+            "mean_margin": 13.910714285714286,
+            "mean_entropy": 0.053435143368290625,
+            "confidence": 0.9578763868444777
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04607",
+    "group_id": "gsm8k-train-355aac2fbe39974feadc7af009d4f613a3e85e97c63ea0dc010c0fd0506f8401",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1894080854,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "320.0",
+    "correct": true,
+    "confidence": 0.9809927092480147,
+    "tokens": 44,
+    "strategy_ms": 4483.3748749952065,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Nate is reading a 400-page book. He finished reading 20% of the book. How many pages does he need to read to finish the book?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 86,
+          "output": "```python\ntotal_pages = 400\npercent_read = 20\npages_read = (percent_read / 100) * total_pages\nresult = total_pages - pages_read\n```",
+          "tokens": 44,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9719906529163967,
+            "mean_margin": 23.451704545454547,
+            "mean_entropy": 0.025013085784576315,
+            "confidence": 0.9809927092480147
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "total_pages = 400\npercent_read = 20\npages_read = (percent_read / 100) * total_pages\nresult = total_pages - pages_read",
+          "ok": true,
+          "output": "320.0",
+          "duration_ms": 59.1013329976704
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04607",
+    "group_id": "gsm8k-train-355aac2fbe39974feadc7af009d4f613a3e85e97c63ea0dc010c0fd0506f8401",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 3496175357,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "320",
+    "correct": true,
+    "confidence": 0.9737648511129124,
+    "tokens": 73,
+    "strategy_ms": 6534.914625000965,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Nate is reading a 400-page book. He finished reading 20% of the book. How many pages does he need to read to finish the book?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 78,
+          "output": "Nate has read 20% of a 400-page book, so he has read 80 pages. The total number of pages is 400, so he needs to read the remaining pages. Subtract the pages he has read from the total to find how many pages he still needs to read.\n\nAnswer: 320",
+          "tokens": 73,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9630295012898026,
+            "mean_margin": 17.48972602739726,
+            "mean_entropy": 0.03874939421858769,
+            "confidence": 0.9737648511129124
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04607",
+    "group_id": "gsm8k-train-355aac2fbe39974feadc7af009d4f613a3e85e97c63ea0dc010c0fd0506f8401",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2024411743,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "320",
+    "correct": true,
+    "confidence": 0.9758212106987194,
+    "tokens": 7,
+    "strategy_ms": 1682.4307090064394,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Nate is reading a 400-page book. He finished reading 20% of the book. How many pages does he need to read to finish the book?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 73,
+          "output": "Answer: 320",
+          "tokens": 7,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.96491594437237,
+            "mean_margin": 17.035714285714285,
+            "mean_entropy": 0.03318364455686897,
+            "confidence": 0.9758212106987194
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04625",
+    "group_id": "gsm8k-train-f2fb0fcd0600cac4885f2d8952f8895c3dda94a4dd73d49c5725aebff4109f8d",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 736840569,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "68",
+    "correct": true,
+    "confidence": 0.970451017499481,
+    "tokens": 124,
+    "strategy_ms": 10667.791749998287,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Farmer Randy has 1700 acres of cotton he needs to have planted in 5 days.  With a crew of 2 tractors working for 2 days and then a crew of 7 tractors working for another 3 days, how many acres of cotton per day does each tractor need to plant to meet their planting deadline?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 113,
+          "output": "First, calculate the total number of tractor-days by multiplying the number of tractors by the number of days they work: 2 tractors * 2 days = 4 tractor-days, and 7 tractors * 3 days = 21 tractor-days. Adding these together gives 4 + 21 = 25 tractor-days.\n\nNext, divide the total acres by the total tractor-days to find the number of acres each tractor needs to plant per day: 1700 acres / 25 tractor-days = 68 acres per day per tractor.\n\nAnswer: 68",
+          "tokens": 124,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9566144534037114,
+            "mean_margin": 16.566532258064516,
+            "mean_entropy": 0.03928078561718478,
+            "confidence": 0.970451017499481
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04625",
+    "group_id": "gsm8k-train-f2fb0fcd0600cac4885f2d8952f8895c3dda94a4dd73d49c5725aebff4109f8d",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3065997498,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "68.0",
+    "correct": true,
+    "confidence": 0.9678836354752272,
+    "tokens": 92,
+    "strategy_ms": 8558.977291999327,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Farmer Randy has 1700 acres of cotton he needs to have planted in 5 days.  With a crew of 2 tractors working for 2 days and then a crew of 7 tractors working for another 3 days, how many acres of cotton per day does each tractor need to plant to meet their planting deadline?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 121,
+          "output": "```python\n# Total acres to plant\ntotal_acres = 1700\n\n# Days available\ntotal_days = 5\n\n# Work done by tractors\n# 2 tractors work for 2 days\n# 7 tractors work for 3 days\ntractor_days = 2 * 2 + 7 * 3\n\n# Calculate acres per day per tractor\nresult = total_acres / tractor_days\n```",
+          "tokens": 92,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9522639316576421,
+            "mean_margin": 18.148097826086957,
+            "mean_entropy": 0.04124159821704333,
+            "confidence": 0.9678836354752272
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Total acres to plant\ntotal_acres = 1700\n\n# Days available\ntotal_days = 5\n\n# Work done by tractors\n# 2 tractors work for 2 days\n# 7 tractors work for 3 days\ntractor_days = 2 * 2 + 7 * 3\n\n# Calculate acres per day per tractor\nresult = total_acres / tractor_days",
+          "ok": true,
+          "output": "68.0",
+          "duration_ms": 56.10566699760966
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04625",
+    "group_id": "gsm8k-train-f2fb0fcd0600cac4885f2d8952f8895c3dda94a4dd73d49c5725aebff4109f8d",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 372637988,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "68",
+    "correct": true,
+    "confidence": 0.9694796587864868,
+    "tokens": 135,
+    "strategy_ms": 11850.432999999612,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Farmer Randy has 1700 acres of cotton he needs to have planted in 5 days.  With a crew of 2 tractors working for 2 days and then a crew of 7 tractors working for another 3 days, how many acres of cotton per day does each tractor need to plant to meet their planting deadline?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 108,
+          "output": "Let's calculate the total work done in terms of tractor-days:\n\n- 2 tractors working for 2 days = 4 tractor-days\n- 7 tractors working for 3 days = 21 tractor-days\n\nTotal tractor-days = 4 + 21 = 25 tractor-days\n\nFarmer Randy needs to plant 1700 acres in 5 days, so the total work required is 1700 acres.\n\nTo find the number of acres per day each tractor needs to plant:\n\n1700 acres ÷ 25 tractor-days = 68 acres per tractor per day\n\nAnswer: 68",
+          "tokens": 135,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9565287391030293,
+            "mean_margin": 16.391666666666666,
+            "mean_entropy": 0.04392324367265184,
+            "confidence": 0.9694796587864868
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04765",
+    "group_id": "gsm8k-train-2b20a9d3bc9e5273af132b9d3086dcecba1c88a3c0b4ac8244d7ae0f8cd345e4",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1624265992,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "21.0",
+    "correct": true,
+    "confidence": 0.986627830503928,
+    "tokens": 37,
+    "strategy_ms": 4533.990957999777,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "To increase her water intake to the recommended level by her doctor, Happy has to take 40% more cups of water than she takes now. If she is currently drinking 15 cups of water every week, what's the recommended number of cups per week?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 104,
+          "output": "```python\ncurrent_cups = 15\nincrease_percentage = 40\nresult = current_cups * (1 + increase_percentage / 100)\n```",
+          "tokens": 37,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9799337905429826,
+            "mean_margin": 21.83783783783784,
+            "mean_entropy": 0.016695322500194593,
+            "confidence": 0.986627830503928
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "current_cups = 15\nincrease_percentage = 40\nresult = current_cups * (1 + increase_percentage / 100)",
+          "ok": true,
+          "output": "21.0",
+          "duration_ms": 61.36954200337641
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04765",
+    "group_id": "gsm8k-train-2b20a9d3bc9e5273af132b9d3086dcecba1c88a3c0b4ac8244d7ae0f8cd345e4",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 97475258,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "21",
+    "correct": true,
+    "confidence": 0.9703076375841224,
+    "tokens": 79,
+    "strategy_ms": 7031.705334004073,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "To increase her water intake to the recommended level by her doctor, Happy has to take 40% more cups of water than she takes now. If she is currently drinking 15 cups of water every week, what's the recommended number of cups per week?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 96,
+          "output": "To find the recommended number of cups of water Happy should drink, first calculate 40% of her current intake.  \n40% of 15 cups is 0.4 * 15 = 6 cups.  \nAdd this to her current intake to get the recommended amount: 15 + 6 = 21 cups.  \nAnswer: 21",
+          "tokens": 79,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9566632814389918,
+            "mean_margin": 15.376582278481013,
+            "mean_entropy": 0.04011915978153327,
+            "confidence": 0.9703076375841224
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-04765",
+    "group_id": "gsm8k-train-2b20a9d3bc9e5273af132b9d3086dcecba1c88a3c0b4ac8244d7ae0f8cd345e4",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1519843949,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "21",
+    "correct": true,
+    "confidence": 0.999596630207036,
+    "tokens": 6,
+    "strategy_ms": 1661.567125003785,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "To increase her water intake to the recommended level by her doctor, Happy has to take 40% more cups of water than she takes now. If she is currently drinking 15 cups of water every week, what's the recommended number of cups per week?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 91,
+          "output": "Answer: 21",
+          "tokens": 6,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 1.0,
+            "mean_margin": 17.958333333333332,
+            "mean_entropy": 0.0020167842236340425,
+            "confidence": 0.999596630207036
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05093",
+    "group_id": "gsm8k-train-69af4d97251e9a49136929fd7197bd42da4639ce13b214aa78d3754f627eef30",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 208079064,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "25.0",
+    "correct": true,
+    "confidence": 0.9918685551249187,
+    "tokens": 90,
+    "strategy_ms": 7944.387499999721,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Kevin is taking a 600-mile trip, traveling at a rate of 50 miles per hour. How much faster must he travel to decrease his travel time by 4 hours?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 89,
+          "output": "```python\n# Original trip details\ndistance = 600\noriginal_speed = 50\n\n# Calculate original travel time\noriginal_time = distance / original_speed\n\n# Desired travel time (4 hours less)\ndesired_time = original_time - 4\n\n# Calculate required speed to achieve desired time\nrequired_speed = distance / desired_time\n\n# Calculate how much faster he must travel\nresult = required_speed - original_speed\n```",
+          "tokens": 90,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9889503892939223,
+            "mean_margin": 19.83888888888889,
+            "mean_entropy": 0.01303318773683391,
+            "confidence": 0.9918685551249187
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Original trip details\ndistance = 600\noriginal_speed = 50\n\n# Calculate original travel time\noriginal_time = distance / original_speed\n\n# Desired travel time (4 hours less)\ndesired_time = original_time - 4\n\n# Calculate required speed to achieve desired time\nrequired_speed = distance / desired_time\n\n# Calculate how much faster he must travel\nresult = required_speed - original_speed",
+          "ok": true,
+          "output": "25.0",
+          "duration_ms": 56.57716699352022
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05093",
+    "group_id": "gsm8k-train-69af4d97251e9a49136929fd7197bd42da4639ce13b214aa78d3754f627eef30",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2645304795,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "25",
+    "correct": true,
+    "confidence": 0.9700056335907669,
+    "tokens": 80,
+    "strategy_ms": 7392.45362499787,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Kevin is taking a 600-mile trip, traveling at a rate of 50 miles per hour. How much faster must he travel to decrease his travel time by 4 hours?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 81,
+          "output": "First, calculate the original travel time by dividing the distance by the original speed.  \nThen, determine the new travel time by subtracting 4 hours from the original time.  \nNext, calculate the new speed required to cover the same distance in the new time.  \nFinally, subtract the original speed from the new speed to find how much faster Kevin must travel.  \nAnswer: 25",
+          "tokens": 80,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9601891333679519,
+            "mean_margin": 14.3625,
+            "mean_entropy": 0.0504423059085652,
+            "confidence": 0.9700056335907669
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05093",
+    "group_id": "gsm8k-train-69af4d97251e9a49136929fd7197bd42da4639ce13b214aa78d3754f627eef30",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1299008077,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "25",
+    "correct": true,
+    "confidence": 0.9569348386915564,
+    "tokens": 129,
+    "strategy_ms": 10961.333207997086,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Kevin is taking a 600-mile trip, traveling at a rate of 50 miles per hour. How much faster must he travel to decrease his travel time by 4 hours?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 76,
+          "output": "To find how much faster Kevin must travel to decrease his travel time by 4 hours, we first calculate the original travel time:\n\nOriginal time = 600 miles / 50 mph = 12 hours\n\nTo decrease the travel time by 4 hours, the new travel time should be 12 - 4 = 8 hours.\n\nNow, we calculate the required speed for the new travel time:\n\nRequired speed = 600 miles / 8 hours = 75 mph\n\nThe difference in speed is 75 mph - 50 mph = 25 mph\n\nAnswer: 25",
+          "tokens": 129,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.939868315076346,
+            "mean_margin": 14.86531007751938,
+            "mean_entropy": 0.06499516710422122,
+            "confidence": 0.9569348386915564
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05507",
+    "group_id": "gsm8k-train-2153633aacc493a4fc7ed3760e32ef6429351b4de27d8ebbc8fba57fee81c72e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 806991681,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "1250",
+    "correct": true,
+    "confidence": 0.9738098417640071,
+    "tokens": 142,
+    "strategy_ms": 12130.469458003063,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "The first tank is 300 liters filled while the second tank is 450 liters filled. The second tank is only 45% filled. If the two tanks have the same capacity, how many more liters of water are needed to fill the two tanks?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 98,
+          "output": "The capacity of each tank is the same. Since the second tank is 45% filled and contains 450 liters, its total capacity is 450 divided by 0.45.\n\nCalculate the capacity: 450 / 0.45 = 1000 liters.\n\nThe first tank has 300 liters, so it needs 700 more liters to be full.\n\nThe second tank needs 1000 - 450 = 550 more liters to be full.\n\nAdd the two amounts: 700 + 550 = 1250.\n\nAnswer: 1250",
+          "tokens": 142,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9620081134943389,
+            "mean_margin": 20.141725352112676,
+            "mean_entropy": 0.035971067622150805,
+            "confidence": 0.9738098417640071
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05507",
+    "group_id": "gsm8k-train-2153633aacc493a4fc7ed3760e32ef6429351b4de27d8ebbc8fba57fee81c72e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 767200548,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "1250.0",
+    "correct": true,
+    "confidence": 0.9715778762026217,
+    "tokens": 126,
+    "strategy_ms": 11480.82583300129,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "The first tank is 300 liters filled while the second tank is 450 liters filled. The second tank is only 45% filled. If the two tanks have the same capacity, how many more liters of water are needed to fill the two tanks?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 106,
+          "output": "```python\n# Given data\ntank1_liters = 300\ntank2_liters = 450\ntank2_percentage = 45\n\n# Since both tanks have the same capacity, let's call it capacity\ncapacity = tank2_liters / tank2_percentage * 100\n\n# Calculate how much more water is needed for each tank\nmore_for_tank1 = capacity - tank1_liters\nmore_for_tank2 = capacity - tank2_liters\n\n# Total additional liters needed\nresult = more_for_tank1 + more_for_tank2\n```",
+          "tokens": 126,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9572881902255975,
+            "mean_margin": 18.490079365079364,
+            "mean_entropy": 0.03533105651037925,
+            "confidence": 0.9715778762026217
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Given data\ntank1_liters = 300\ntank2_liters = 450\ntank2_percentage = 45\n\n# Since both tanks have the same capacity, let's call it capacity\ncapacity = tank2_liters / tank2_percentage * 100\n\n# Calculate how much more water is needed for each tank\nmore_for_tank1 = capacity - tank1_liters\nmore_for_tank2 = capacity - tank2_liters\n\n# Total additional liters needed\nresult = more_for_tank1 + more_for_tank2",
+          "ok": true,
+          "output": "1250.0",
+          "duration_ms": 58.80099999922095
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05507",
+    "group_id": "gsm8k-train-2153633aacc493a4fc7ed3760e32ef6429351b4de27d8ebbc8fba57fee81c72e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 2336053476,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "1250",
+    "correct": true,
+    "confidence": 0.9620870939883863,
+    "tokens": 203,
+    "strategy_ms": 16011.252958000114,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "The first tank is 300 liters filled while the second tank is 450 liters filled. The second tank is only 45% filled. If the two tanks have the same capacity, how many more liters of water are needed to fill the two tanks?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 93,
+          "output": "Let the capacity of each tank be $ C $ liters.\n\nFor the second tank:\n- It is 45% filled, and contains 450 liters.\n- So, $ 0.45C = 450 $ → $ C = \\frac{450}{0.45} = 1000 $ liters.\n\nNow, for the first tank:\n- It contains 300 liters, and the capacity is 1000 liters.\n- So, the amount needed to fill it is $ 1000 - 300 = 700 $ liters.\n\nFor the second tank:\n- It already has 450 liters, so the amount needed is $ 1000 - 450 = 550 $ liters.\n\nTotal additional liters needed:\n- $ 700 + 550 = 1250 $ liters.\n\nAnswer: 1250",
+          "tokens": 203,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.944924502413885,
+            "mean_margin": 17.033866995073893,
+            "mean_entropy": 0.05187562291115651,
+            "confidence": 0.9620870939883863
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05545",
+    "group_id": "gsm8k-train-05e57a552cb900b031254eaaed7911ab6c7de1618db70303c26faf783cfb598e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3603751203,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "9144",
+    "correct": true,
+    "confidence": 0.9755544693314295,
+    "tokens": 115,
+    "strategy_ms": 9930.07241700252,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "An agricultural cooperative must ship 6500 kg of potatoes. During transport by truck, 150 kg are damaged and therefore cannot be sold. The potatoes are distributed in 50 kg bags, each bag being sold for $72. What will the sale of the potatoes bring?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 111,
+          "output": "```python\n# Total weight of potatoes\ntotal_weight = 6500\n\n# Weight damaged during transport\ndamaged_weight = 150\n\n# Weight of potatoes available for sale\navailable_weight = total_weight - damaged_weight\n\n# Weight of each bag\nbag_weight = 50\n\n# Price per bag\nprice_per_bag = 72\n\n# Number of bags that can be sold\nnum_bags = available_weight // bag_weight\n\n# Total revenue from selling the potatoes\nresult = num_bags * price_per_bag\n```",
+          "tokens": 115,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9637180352223201,
+            "mean_margin": 20.366304347826087,
+            "mean_entropy": 0.0315227355720938,
+            "confidence": 0.9755544693314295
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Total weight of potatoes\ntotal_weight = 6500\n\n# Weight damaged during transport\ndamaged_weight = 150\n\n# Weight of potatoes available for sale\navailable_weight = total_weight - damaged_weight\n\n# Weight of each bag\nbag_weight = 50\n\n# Price per bag\nprice_per_bag = 72\n\n# Number of bags that can be sold\nnum_bags = available_weight // bag_weight\n\n# Total revenue from selling the potatoes\nresult = num_bags * price_per_bag",
+          "ok": true,
+          "output": "9144",
+          "duration_ms": 41.64395800034981
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05545",
+    "group_id": "gsm8k-train-05e57a552cb900b031254eaaed7911ab6c7de1618db70303c26faf783cfb598e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 168851730,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "9144",
+    "correct": true,
+    "confidence": 0.9750083560860072,
+    "tokens": 90,
+    "strategy_ms": 8279.928416995972,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "An agricultural cooperative must ship 6500 kg of potatoes. During transport by truck, 150 kg are damaged and therefore cannot be sold. The potatoes are distributed in 50 kg bags, each bag being sold for $72. What will the sale of the potatoes bring?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 98,
+          "output": "The cooperative has 6500 kg of potatoes, but 150 kg are damaged, leaving 6350 kg sellable. Each bag is 50 kg, so there are 6350 / 50 = 127 bags. Each bag sells for $72, so 127 * 72 = 9144. Answer: 9144",
+          "tokens": 90,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9645331171826408,
+            "mean_margin": 18.541666666666668,
+            "mean_entropy": 0.03629097639870793,
+            "confidence": 0.9750083560860072
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05545",
+    "group_id": "gsm8k-train-05e57a552cb900b031254eaaed7911ab6c7de1618db70303c26faf783cfb598e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 763106176,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "936",
+    "correct": false,
+    "confidence": 0.9691872204570037,
+    "tokens": 59,
+    "strategy_ms": 6956.161750000319,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "An agricultural cooperative must ship 6500 kg of potatoes. During transport by truck, 150 kg are damaged and therefore cannot be sold. The potatoes are distributed in 50 kg bags, each bag being sold for $72. What will the sale of the potatoes bring?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 103,
+          "output": "Start with the total weight of potatoes, subtract the damaged amount to get the sellable weight. Divide the sellable weight by the bag size to find the number of bags. Multiply the number of bags by the price per bag to get the total sale amount.\n\nAnswer: 936",
+          "tokens": 59,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9544594024704177,
+            "mean_margin": 14.777542372881356,
+            "mean_entropy": 0.040210845845365176,
+            "confidence": 0.9691872204570037
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05565",
+    "group_id": "gsm8k-train-b203a1a489bd04f362413fd379aba5662eee0c7db8b20e6c865c6f97483f3899",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 547412390,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "27048.0",
+    "correct": true,
+    "confidence": 0.991927500623482,
+    "tokens": 125,
+    "strategy_ms": 12982.13479200058,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Tree Elementary School is raising money for a new playground. Mrs. Johnson’s class raised $2300, which is twice the amount that Mrs. Sutton’s class raised. Mrs. Sutton’s class raised 8 times less than Miss Rollin’s class. Miss Rollin’s class raised a third of the total amount raised by the school. How much money did the school raise for the playground if 2% will be deducted for administration fees?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 141,
+          "output": "```python\n# Amount raised by Mrs. Johnson's class\njohnson = 2300\n\n# Mrs. Johnson's class raised twice as much as Mrs. Sutton's class\nsutton = johnson / 2\n\n# Mrs. Sutton's class raised 8 times less than Miss Rollin's class\nrollin = sutton * 8\n\n# Miss Rollin's class raised a third of the total amount\ntotal_before_fees = rollin * 3\n\n# 2% is deducted for administration fees\nresult = total_before_fees * 0.98\n```",
+          "tokens": 125,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9900498337491681,
+            "mean_margin": 20.748,
+            "mean_entropy": 0.015487077277702014,
+            "confidence": 0.991927500623482
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Amount raised by Mrs. Johnson's class\njohnson = 2300\n\n# Mrs. Johnson's class raised twice as much as Mrs. Sutton's class\nsutton = johnson / 2\n\n# Mrs. Sutton's class raised 8 times less than Miss Rollin's class\nrollin = sutton * 8\n\n# Miss Rollin's class raised a third of the total amount\ntotal_before_fees = rollin * 3\n\n# 2% is deducted for administration fees\nresult = total_before_fees * 0.98",
+          "ok": true,
+          "output": "27048.0",
+          "duration_ms": 43.12945800484158
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05565",
+    "group_id": "gsm8k-train-b203a1a489bd04f362413fd379aba5662eee0c7db8b20e6c865c6f97483f3899",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3553465338,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "27048",
+    "correct": true,
+    "confidence": 0.9540282052146356,
+    "tokens": 178,
+    "strategy_ms": 15145.381457994517,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Tree Elementary School is raising money for a new playground. Mrs. Johnson’s class raised $2300, which is twice the amount that Mrs. Sutton’s class raised. Mrs. Sutton’s class raised 8 times less than Miss Rollin’s class. Miss Rollin’s class raised a third of the total amount raised by the school. How much money did the school raise for the playground if 2% will be deducted for administration fees?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 128,
+          "output": "Let's calculate the total amount raised by the school.\n\n- Mrs. Johnson’s class raised $2300.\n- Mrs. Sutton’s class raised half of that: $2300 ÷ 2 = $1150.\n- Miss Rollin’s class raised 8 times that: $1150 × 8 = $9200.\n- Miss Rollin’s class raised a third of the total amount:  \n  So total amount = $9200 × 3 = $27600.\n\nNow, 2% is deducted for administration fees:  \n$27600 × 0.02 = $552.\n\nTotal amount after deduction:  \n$27600 − $552 = $27048.\n\nAnswer: 27048",
+          "tokens": 178,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9321843167454084,
+            "mean_margin": 15.652387640449438,
+            "mean_entropy": 0.06031911619938319,
+            "confidence": 0.9540282052146356
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05565",
+    "group_id": "gsm8k-train-b203a1a489bd04f362413fd379aba5662eee0c7db8b20e6c865c6f97483f3899",
+    "split": "calibration",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 2255294851,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "27048",
+    "correct": true,
+    "confidence": 0.9771743888837379,
+    "tokens": 179,
+    "strategy_ms": 15226.47820799466,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Tree Elementary School is raising money for a new playground. Mrs. Johnson’s class raised $2300, which is twice the amount that Mrs. Sutton’s class raised. Mrs. Sutton’s class raised 8 times less than Miss Rollin’s class. Miss Rollin’s class raised a third of the total amount raised by the school. How much money did the school raise for the playground if 2% will be deducted for administration fees?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 133,
+          "output": "Start by finding the amount raised by each class.  \nMrs. Johnson’s class raised $2300, which is twice what Mrs. Sutton’s class raised, so Mrs. Sutton’s class raised $2300 ÷ 2 = $1150.  \n\nMrs. Sutton’s class raised 8 times less than Miss Rollin’s class, so Miss Rollin’s class raised $1150 × 8 = $9200.  \n\nMiss Rollin’s class raised a third of the total amount, so total amount raised is $9200 × 3 = $27600.  \n\nSince 2% is deducted for administration fees, the total amount after deduction is $27600 × 0.98 = $27048.  \n\nAnswer: 27048",
+          "tokens": 179,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9683875550653329,
+            "mean_margin": 18.148743016759777,
+            "mean_entropy": 0.03509688972825607,
+            "confidence": 0.9771743888837379
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05794",
+    "group_id": "gsm8k-train-49040e457ff69e29d4e293b198ab4738061a1d59ed2f718c0a2506b57f5e080b",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 953448159,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "36",
+    "correct": true,
+    "confidence": 0.9661760573870262,
+    "tokens": 85,
+    "strategy_ms": 7541.228374997445,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "The dog toys Samantha buys for her dog are \"buy one get one half off\" and all cost $12.00 each. She buys 4 toys.  How much does she spend on dog toys?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 86,
+          "output": "Samantha buys 4 toys. With the \"buy one get one half off\" deal, every pair of toys costs 1 full price + 1 half price. So for 2 toys, she pays $12 + $6 = $18. Since she buys 4 toys, that's 2 pairs. So 2 × $18 = $36.\n\nAnswer: 36",
+          "tokens": 85,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.951229424500714,
+            "mean_margin": 14.101470588235294,
+            "mean_entropy": 0.04719021098519596,
+            "confidence": 0.9661760573870262
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05794",
+    "group_id": "gsm8k-train-49040e457ff69e29d4e293b198ab4738061a1d59ed2f718c0a2506b57f5e080b",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 1739605225,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "36",
+    "correct": true,
+    "confidence": 0.9251512941563218,
+    "tokens": 96,
+    "strategy_ms": 8395.513665993349,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "The dog toys Samantha buys for her dog are \"buy one get one half off\" and all cost $12.00 each. She buys 4 toys.  How much does she spend on dog toys?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 81,
+          "output": "When buying 4 toys with a \"buy one get one half off\" deal, the pattern is:  \n- Buy 1, get 1 half off.  \n- So for every pair of toys, the cost is: $12 + ($12 / 2) = $18.  \n- There are 2 pairs in 4 toys, so total cost = 2 × $18 = $36.  \n\nAnswer: 36",
+          "tokens": 96,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.8940628836164098,
+            "mean_margin": 10.087239583333334,
+            "mean_entropy": 0.1092311076835573,
+            "confidence": 0.9251512941563218
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05794",
+    "group_id": "gsm8k-train-49040e457ff69e29d4e293b198ab4738061a1d59ed2f718c0a2506b57f5e080b",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 3370917496,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "36.0",
+    "correct": true,
+    "confidence": 0.9599003780664426,
+    "tokens": 105,
+    "strategy_ms": 9321.856291993754,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "The dog toys Samantha buys for her dog are \"buy one get one half off\" and all cost $12.00 each. She buys 4 toys.  How much does she spend on dog toys?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 94,
+          "output": "```python\n# Price per toy\nprice_per_toy = 12.00\n\n# Samantha buys 4 toys with \"buy one get one half off\"\n# So, for every two toys, she pays for one and gets the second at half price\n# That means for 4 toys, she pays full price for 2 and half price for 2\nresult = (price_per_toy * 2) + (price_per_toy * 0.5 * 2)\n```",
+          "tokens": 105,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9399724037096165,
+            "mean_margin": 15.553571428571429,
+            "mean_entropy": 0.05042840188217375,
+            "confidence": 0.9599003780664426
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Price per toy\nprice_per_toy = 12.00\n\n# Samantha buys 4 toys with \"buy one get one half off\"\n# So, for every two toys, she pays for one and gets the second at half price\n# That means for 4 toys, she pays full price for 2 and half price for 2\nresult = (price_per_toy * 2) + (price_per_toy * 0.5 * 2)",
+          "ok": true,
+          "output": "36.0",
+          "duration_ms": 37.82916699856287
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05994",
+    "group_id": "gsm8k-train-a651d2aa0935c5c2920d282b81b65d91e96c8614bd037b87ce2e82d1966cc1d2",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 2083328473,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "80.0",
+    "correct": true,
+    "confidence": 0.9775111289454935,
+    "tokens": 85,
+    "strategy_ms": 8314.890875000856,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "John wants to lose weight.  He eats 1800 calories a day and burns 2300 a day.  If he needs to burn 4000 calories to lose 1 pound how many days will it take to lose 10 pounds?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 107,
+          "output": "```python\n# Calculate the daily calorie deficit\ndaily_deficit = 2300 - 1800\n\n# Calculate calories burned per day compared to consumed\n# To lose 1 pound, he needs to burn 4000 calories\n# So, days needed to lose 10 pounds\nresult = (10 * 4000) / daily_deficit\n```",
+          "tokens": 85,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9710165517924372,
+            "mean_margin": 17.54264705882353,
+            "mean_entropy": 0.03998563664416304,
+            "confidence": 0.9775111289454935
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Calculate the daily calorie deficit\ndaily_deficit = 2300 - 1800\n\n# Calculate calories burned per day compared to consumed\n# To lose 1 pound, he needs to burn 4000 calories\n# So, days needed to lose 10 pounds\nresult = (10 * 4000) / daily_deficit",
+          "ok": true,
+          "output": "80.0",
+          "duration_ms": 28.49054200487444
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05994",
+    "group_id": "gsm8k-train-a651d2aa0935c5c2920d282b81b65d91e96c8614bd037b87ce2e82d1966cc1d2",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 1522638413,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "80",
+    "correct": true,
+    "confidence": 0.9898457277802719,
+    "tokens": 91,
+    "strategy_ms": 8452.794709002774,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "John wants to lose weight.  He eats 1800 calories a day and burns 2300 a day.  If he needs to burn 4000 calories to lose 1 pound how many days will it take to lose 10 pounds?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 99,
+          "output": "John creates a calorie deficit of 500 calories per day (2300 - 1800). To lose 1 pound, he needs a deficit of 4000 calories. For 10 pounds, he needs a total deficit of 40,000 calories. Dividing 40,000 by 500 gives the number of days required.\n\nAnswer: 80",
+          "tokens": 91,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9863576482427836,
+            "mean_margin": 23.218406593406595,
+            "mean_entropy": 0.016665481369274038,
+            "confidence": 0.9898457277802719
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-05994",
+    "group_id": "gsm8k-train-a651d2aa0935c5c2920d282b81b65d91e96c8614bd037b87ce2e82d1966cc1d2",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 3985746335,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "80",
+    "correct": true,
+    "confidence": 0.9839052982406893,
+    "tokens": 107,
+    "strategy_ms": 9384.999500005506,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "John wants to lose weight.  He eats 1800 calories a day and burns 2300 a day.  If he needs to burn 4000 calories to lose 1 pound how many days will it take to lose 10 pounds?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 94,
+          "output": "To lose 1 pound, John needs to create a calorie deficit of 4000 calories.  \nHis daily deficit is 2300 - 1800 = 500 calories.  \nTo lose 10 pounds, he needs a total deficit of 10 × 4000 = 40,000 calories.  \nNumber of days = 40,000 ÷ 500 = 80.  \nAnswer: 80",
+          "tokens": 107,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9769063502046724,
+            "mean_margin": 20.845794392523363,
+            "mean_entropy": 0.022739380701018434,
+            "confidence": 0.9839052982406893
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-07294",
+    "group_id": "gsm8k-train-9f3efe6cac2eacac4686fe5c3729c5309689e854527cb318a76e247a864db56e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "DIRECT",
+    "token_budget": 1024,
+    "seed": 302828620,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "7",
+    "correct": true,
+    "confidence": 0.9677324665626703,
+    "tokens": 79,
+    "strategy_ms": 7647.3980829978245,
+    "trace": {
+      "strategy": "DIRECT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Brenda is a vet who needs to spay some cats and twice as many dogs. If she needs to spay 21 animals total today, how many cats does she need to spay?\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 79,
+          "output": "Let the number of cats be $ c $. Then the number of dogs is $ 2c $. The total number of animals is $ c + 2c = 3c $. We are told that the total is 21, so $ 3c = 21 $. Solving for $ c $, we get $ c = 7 $.\n\nAnswer: 7",
+          "tokens": 79,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9536406511567423,
+            "mean_margin": 18.180379746835442,
+            "mean_entropy": 0.04543924322870032,
+            "confidence": 0.9677324665626703
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-07294",
+    "group_id": "gsm8k-train-9f3efe6cac2eacac4686fe5c3729c5309689e854527cb318a76e247a864db56e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "COT",
+    "token_budget": 1024,
+    "seed": 428358851,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "7",
+    "correct": true,
+    "confidence": 0.977021363149511,
+    "tokens": 98,
+    "strategy_ms": 9273.548749995825,
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Brenda is a vet who needs to spay some cats and twice as many dogs. If she needs to spay 21 animals total today, how many cats does she need to spay?\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 84,
+          "output": "Let the number of cats Brenda needs to spay be **C**.  \nShe needs to spay twice as many dogs, so the number of dogs is **2C**.  \nThe total number of animals is **C + 2C = 3C**.  \nWe know the total is 21, so **3C = 21**.  \nSolving for **C**, we get **C = 7**.  \n\nAnswer: 7",
+          "tokens": 98,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9673806070043548,
+            "mean_margin": 17.8125,
+            "mean_entropy": 0.03334462685756328,
+            "confidence": 0.977021363149511
+          }
+        }
+      ],
+      "tools": [],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  },
+  {
+    "id": "gsm8k-dev-07294",
+    "group_id": "gsm8k-train-9f3efe6cac2eacac4686fe5c3729c5309689e854527cb318a76e247a864db56e",
+    "split": "train",
+    "family": "gsm8k",
+    "level": "unspecified",
+    "strategy": "PAL",
+    "token_budget": 1024,
+    "seed": 1314407649,
+    "answer_format": {
+      "answer_type": "number",
+      "decimal_separator": "."
+    },
+    "answer": "7",
+    "correct": true,
+    "confidence": 0.9816459183962359,
+    "tokens": 66,
+    "strategy_ms": 7407.490375000634,
+    "trace": {
+      "strategy": "PAL",
+      "prompt_profile": "english-math-v1",
+      "generations": [
+        {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Brenda is a vet who needs to spay some cats and twice as many dogs. If she needs to spay 21 animals total today, how many cats does she need to spay?\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block."
+            }
+          ],
+          "max_tokens": 1024,
+          "temperature": 0.0,
+          "enable_thinking": false,
+          "prompt_tokens": 92,
+          "output": "```python\n# Let the number of cats be c\n# Then the number of dogs is 2 * c\n# Total animals = c + 2 * c = 3 * c = 21\n# So c = 21 / 3\nresult = 21 // 3\n```",
+          "tokens": 66,
+          "finish_reason": "stop",
+          "signals": {
+            "p_seq": 0.9738332886739254,
+            "mean_margin": 22.106060606060606,
+            "mean_entropy": 0.02635362868070384,
+            "confidence": 0.9816459183962359
+          }
+        }
+      ],
+      "tools": [
+        {
+          "name": "python",
+          "input": "# Let the number of cats be c\n# Then the number of dogs is 2 * c\n# Total animals = c + 2 * c = 3 * c = 21\n# So c = 21 / 3\nresult = 21 // 3",
+          "ok": true,
+          "output": "7",
+          "duration_ms": 45.81154100014828
+        }
+      ],
+      "answer_format": {
+        "answer_type": "number",
+        "decimal_separator": "."
+      },
+      "parse_status": "marker",
+      "wordy": false
+    }
+  }
+]

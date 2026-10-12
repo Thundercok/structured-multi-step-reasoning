@@ -1,0 +1,10 @@
+{
+  "kind": "offline_audit_software_fixture",
+  "script_sha256": "fb8883c91667b38993df3d846960ac0d9356ab674b316d6ba13f7ac5fe684a8f",
+  "known_correct_three_strategy_fixture": "pass",
+  "corrupted_correctness_rejected": true,
+  "corrupted_prompt_rejected": true,
+  "corrupted_pal_output_rejected": true,
+  "new_model_calls": 0,
+  "model_quality_evidence": false
+}

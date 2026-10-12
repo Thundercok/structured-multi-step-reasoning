@@ -1,0 +1,436 @@
+\documentclass[11pt,a4paper]{article}
+
+% Standalone UTF-8 research note. Use TeX font files, not system font discovery.
+\usepackage{fontspec}
+\setmainfont{texgyrepagella-regular.otf}[
+  BoldFont=texgyrepagella-bold.otf,ItalicFont=texgyrepagella-italic.otf,
+  BoldItalicFont=texgyrepagella-bolditalic.otf]
+\setsansfont{lmsans10-regular.otf}[BoldFont=lmsans10-bold.otf,
+  ItalicFont=lmsans10-oblique.otf,BoldItalicFont=lmsans10-boldoblique.otf]
+\setmonofont{lmmono10-regular.otf}[Scale=0.85]
+\usepackage[left=22mm,right=22mm,top=25mm,bottom=24mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage{xcolor,enumitem,titlesec,fancyhdr,needspace,hyperref}
+\definecolor{ink}{RGB}{32,36,40}
+\definecolor{muted}{RGB}{100,106,112}
+\definecolor{accent}{RGB}{49,71,83}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent,
+  bookmarksdepth=1,
+  pdftitle={Tổng quan nghiên cứu: Verifier-Gated Cascades},
+  pdfsubject={Exploratory development evidence; revised 2026-10-09}}
+\urlstyle{tt}
+\Urlmuskip=0mu plus 1mu\relax
+\color{ink}
+\linespread{1.07}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{15pt}
+\fancyhead[L]{\sffamily\scriptsize\textcolor{muted}{Multi-Step Structured Reasoning}}
+\fancyhead[R]{\sffamily\scriptsize\textcolor{muted}{Research note / 09.10.2026}}
+\fancyfoot[L]{\sffamily\scriptsize\textcolor{muted}{Development / chưa confirmatory}}
+\fancyfoot[R]{\sffamily\scriptsize\textcolor{muted}{\thepage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{opening}{\fancyhf{}\fancyfoot[R]{\sffamily\scriptsize\textcolor{muted}{\thepage}}}
+\titleformat{\section}{\sffamily\large\bfseries\color{ink}}
+  {\textcolor{muted}{\thesection}}{0.8em}{}
+\titleformat{\subsection}{\sffamily\normalsize\bfseries\color{ink}}
+  {\textcolor{muted}{\thesubsection}}{0.8em}{}
+\titlespacing*{\section}{0pt}{19pt}{8pt}
+\titlespacing*{\subsection}{0pt}{12pt}{5pt}
+\setcounter{tocdepth}{1}
+\renewcommand{\contentsname}{Nội dung}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4.5pt}
+\setlength{\emergencystretch}{3em}
+\raggedbottom
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\setlist[itemize]{leftmargin=5mm,itemsep=1.5pt,topsep=3pt,
+  label=\textcolor{muted}{\textbullet}}
+\setlist[enumerate]{leftmargin=6mm,itemsep=2pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{4.5pt}
+\setlength{\heavyrulewidth}{0.6pt}
+\setlength{\lightrulewidth}{0.3pt}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{Z}{>{\centering\arraybackslash}X}
+% Plain, breakable notes replace the original colored boxes.
+\newenvironment{researchnote}[1]
+  {\par\addvspace{7pt}\Needspace{4\baselineskip}\begingroup\small
+   \noindent{\sffamily\bfseries #1}\par\nobreak\noindent}
+  {\par\endgroup\addvspace{5pt}}
+\newenvironment{intuitionbox}[1]{\begin{researchnote}{#1}}{\end{researchnote}}
+\newenvironment{examplebox}[1]{\begin{researchnote}{#1}}{\end{researchnote}}
+\newenvironment{cautionbox}[1]{\begin{researchnote}{#1}}{\end{researchnote}}
+\newcommand{\src}[1]{\hyperlink{src-#1}{\textcolor{muted}{\textsuperscript{[S#1]}}}}
+\newcommand{\exploratory}{\textit{Exploratory}}
+\newcommand{\tabletitle}[1]{\par\addvspace{5pt}\Needspace{6\baselineskip}
+  {\sffamily\small\bfseries #1}\par\nobreak}
+
+\begin{document}
+\thispagestyle{opening}
+{\sffamily\small\textcolor{muted}{NCKH / MULTI-STEP STRUCTURED REASONING}}\par
+\vspace{8pt}
+{\fontsize{27}{31}\selectfont Tổng quan nghiên cứu}\par
+\vspace{3pt}
+{\large Verifier-Gated Cascades cho suy luận nhiều bước}\par
+\vspace{8pt}
+{\sffamily\small\textcolor{muted}{Bằng chứng development, phân tích lỗi và giới hạn}}\par
+{\sffamily\small\textcolor{muted}{09.10.2026 / Qwen3-8B-4bit / MLX}}\par
+\vspace{12pt}
+{\sffamily\small\bfseries Tóm tắt}\par
+\noindent Đề tài nghiên cứu \emph{khi nào} việc chọn chiến lược, kiểm tra lời giải và leo thang suy luận tạo ra đánh đổi độ chính xác--chi phí tốt hơn chiến lược cố định. VGC là khung policy được đề xuất, không phải mô hình nền mới. Tài liệu tách kết quả model thật theo contract đã đóng băng, phân tích lại offline trên dữ liệu đã lộ, và sửa đổi còn ở mức prototype. Pilot ordering mới nhất có tám câu train, một seed: Verified-certificate và W-certificate cùng đúng 4/8, nhưng Verified dùng khoảng 3,058 lần model token. Shadow hậu nghiệm đạt 6/8 cho Verified, chưa phải kết quả triển khai v3. Baseline symbolic đạt 8/8 với không model token nhưng có chi phí CPU. Chưa có bằng chứng VGC vượt trội, noninferiority hay Stage 0 đã qua.\src{1}\src{8}\src{10}
+
+\begin{intuitionbox}{Ba điểm chính}
+\begin{enumerate}
+  \item \textbf{Verifier tốt chưa đủ:} nếu fallback không cứu được câu bị từ chối, kiểm tra chặt hơn có thể chỉ làm tăng chi phí.
+  \item \textbf{Đáp án, witness và định dạng khác nhau:} code chạy được không bảo đảm logic đúng; witness sai cũng không nhất thiết làm đáp án cuối sai.
+  \item \textbf{Chưa nên claim chiến thắng:} kết quả đo thật v2, shadow A/B và đề xuất v3 phải trình bày riêng; symbolic solver là đối thủ bắt buộc.
+\end{enumerate}
+\end{intuitionbox}
+\tableofcontents
+\newpage
+
+\section{Phạm vi nghiên cứu}
+\subsection{Câu hỏi nghiên cứu}
+LLM có thể trả lời trực tiếp, sinh lời giải từng bước, viết chương trình, hoặc tạo nhiều ứng viên rồi chọn. Mỗi lựa chọn tiêu thụ lượng tính toán khác nhau; nhiều token hơn \emph{không tự động} dẫn đến đáp án tốt hơn. Câu hỏi chính: \textbf{với ngân sách xác định, khi nào routing và stopping cải thiện đánh đổi độ chính xác--chi phí so với baseline cố định?}\src{1}\src{2}
+
+Đích chính là bài nghiên cứu NCKH với pipeline tái lập và phân tích lỗi; trình diễn RAT là thứ yếu. Chưa đủ bằng chứng để gọi đây là thuật toán routing mới hoặc hệ thống đã thắng trên test độc lập.
+
+\subsection{Mô hình đề xuất: một policy, không phải LLM mới}
+Tên làm việc là \textbf{VGC --- Verifier-Gated Cascade}: policy bao quanh mô hình nền, quyết định khi nào accept hoặc gọi thêm chiến lược. Nó không thay kiến trúc hay huấn luyện lại trọng số LLM.
+
+Khung tổng quát có thể gồm entry router dự đoán xác suất đúng và chi phí từng arm, chọn theo utility $\hat p-\lambda\hat c$. Nhưng \textbf{pilot ordering không fit router này}; nó so sánh gate trên cùng output PAL và fallback. Kết quả pilot không kiểm chứng router liên họ hay optimal stopping tổng quát.\src{8}
+
+Đường thực thi của pilot: PAL sinh code và output; gate kiểm output theo contract.
+Nếu accept, policy dừng và trả đáp án. Nếu reject, policy tạo ba ứng viên,
+dùng selector và chấm output cuối.
+Sơ đồ không cam kết một tỷ lệ tiết kiệm. Verifier chỉ xác nhận những điều kiện nó kiểm, không bảo đảm mọi lời giải ngôn ngữ đều đúng.
+
+\subsection{Các chiến lược cần phân biệt}
+\begin{tabularx}{\textwidth}{@{}p{34mm}Y@{}}
+\toprule
+\textbf{Tên} & \textbf{Cách hiểu trong nghiên cứu}\\
+\midrule
+CoT & LLM sinh lời giải từng bước; văn bản này không chứng minh toàn bộ quá trình suy luận nội tại.\\
+PAL-answer & LLM viết code trả tên người được hỏi. Dịch đề sai, lỗi runtime và sai output contract đều có thể xảy ra.\\
+PAL-certificate & Code trả đáp án và witness thứ tự. Decode được dict không bảo đảm certificate hợp lệ.\\
+Candidate-selection & Ba ứng viên và một selector trong pilot mới. Nhãn legacy \texttt{ToT} không chứng minh có tìm kiếm cây Tree of Thoughts thật.\\
+SC / agreement & SC tổng hợp nhiều mẫu của một chiến lược; agreement so sánh output giữa các arm. Hai khái niệm khác nhau.\\
+Native-thinking & Chế độ thinking của mô hình nền với cap cụ thể; cần báo termination.\\
+Symbolic solver & Chương trình giải trực tiếp từ query, không gọi LLM. Baseline triển khai được, không phải oracle biết gold.\\
+\bottomrule
+\end{tabularx}
+\src{6}\src{8}
+
+\section{Gate và kế toán chi phí}
+\subsection{Vì sao “exec ok” chưa đủ?}
+\textbf{W-certificate} dùng gate thực thi/output; \textbf{Verified-certificate} kiểm thêm certificate theo query. So sánh giữ nguyên output PAL, fallback và accounting, chỉ đổi gate. W-answer dùng prompt/output khác, nên phải báo riêng.\src{8}
+
+Code có thể chạy dù dịch nhầm quan hệ, sai dấu hoặc offset. Ngược lại, code có thể trả đúng tên nhưng witness sai. Cần chấm riêng:
+\begin{itemize}
+  \item \textbf{Đáp án:} tên cuối có đúng theo gold và scoring contract không?
+  \item \textbf{Certificate:} cấu trúc, người tham gia, clue và điều kiện duy nhất có hợp lệ không?
+  \item \textbf{Output:} parser có đọc được output hoàn tất theo contract không?
+\end{itemize}
+Checker lấy query text, không dùng gold để chọn đáp án. Verifier generic hiện còn giải chính xác tính duy nhất, dùng chung parser với symbolic solver. Chưa thể gọi nó là checker witness-only hoặc verifier tổng quát cho ngôn ngữ tự do.\src{3}\src{8}
+
+\subsection{Công thức chi phí đúng}
+Đặt $C_1$ là chi phí stage đầu, $R$ là sự kiện reject, $e=P(R)$ và $C_2$ là chi phí fallback:
+\[
+\mathbb E[C_{\mathrm{cascade}}]=\mathbb E[C_1]+e\,\mathbb E[C_2\mid R].
+\]
+Muốn rẻ hơn always-fallback, cần
+\[
+\mathbb E[C_1]+e\,\mathbb E[C_2\mid R]<\mathbb E[C_2].
+\]
+Chỉ với mô hình chi phí hằng $c_1,c_2$ mới rút gọn thành $e<1-c_1/c_2$. Khi câu bị reject đắt hơn trung bình, dùng mean fallback toàn bộ để dự đoán sẽ thiếu chi phí.
+
+\begin{examplebox}{Đối chiếu trực tiếp pilot v2}
+Verified reject $5/8$, mean first stage $410{,}625$, mean fallback \emph{trong năm câu bị reject} $5\,145{,}6$:
+\[
+410{,}625+\tfrac58\times5\,145{,}6=3\,626{,}625.
+\]
+W-certificate reject $1/8$, conditional fallback $6\,202$:
+\[
+410{,}625+\tfrac18\times6\,202=1\,185{,}875.
+\]
+Cùng output nhưng khác tập câu đi vào fallback.\src{8}
+\end{examplebox}
+
+\subsection{Token không phải toàn bộ inference cost}
+Pilot mới cộng \textbf{prompt + completion của mọi call trên đường policy}, gồm mọi nhánh và selector, kể cả call sai/bị cắt. Không gồm CPU verifier, chạy code, bộ nhớ, FLOPs hay năng lượng. Tổng generation time khi replay không phải online end-to-end latency.\src{8}
+
+Trace legacy thiếu một phần prompt candidate-selection; bảng cũ chỉ là \textbf{legacy token proxy}. Không so trực tiếp proxy đó với full-path token mới để claim tiết kiệm triển khai.\src{6}
+
+\section{Dữ liệu development}
+\begin{tabularx}{\textwidth}{@{}p{33mm}Yp{38mm}@{}}
+\toprule
+\textbf{Giai đoạn} & \textbf{Trạng thái} & \textbf{Loại bằng chứng}\\
+\midrule
+Trace legacy & Gen02-tune: 100 câu đã lộ, arith 40 / order 31 / g24 29; không phải held-out dù nhãn cũ có thể ghi test. & Output model cũ, development\\
+Confidence & Exploratory logprob analysis; chưa thực thi đầy đủ confidence prereg. & Chưa chấm PASS/FAIL\\
+Agreement correction & CV/CI dùng cùng thống kê; giữ raw trace cũ. & Reanalysis hậu nghiệm\\
+Pilot ordering N=2 & Raw evidence và review riêng; một câu escalation-harmed. & Development, một seed\\
+Pilot ordering v2 & Tám câu train/tám nhóm, seed 42; collection complete, replay khớp. & Model thật, exploratory\\
+Shadow A/B & Format/selection prototype trên output v2; không generation mới. & What-if hậu nghiệm\\
+Contract v3 & Chưa integrated; đang tạm dừng theo yêu cầu người dùng. & Đề xuất, chưa run v3\\
+\bottomrule
+\end{tabularx}
+\src{1}\src{5}\src{7}\src{8}\src{10}
+
+Certificate candidate gồm 31 câu development đã lộ (8 train, 23 calibration) và 100 câu prospective test candidate. Audit solver trên development không phải test evaluation. Bộ test cần human review và freeze; tài liệu này không mở/chấm nó. Giữ train, calibration và test disjoint.\src{3}\src{12}
+
+\section{Tín hiệu confidence và agreement}
+\subsection{Logprob: chưa thể tuyên bố đã thất bại prereg}
+Logprob là likelihood token, không trực tiếp là xác suất đáp án đúng. Nhưng chưa đủ bằng chứng để nói “logprob vô dụng”. Analyzer lịch sử mới có exploratory AUROC và một 5-fold CV seed 0; chưa tái lập repeated 5-fold $\times20$, thiếu completion length trong baseline CV và \texttt{answer\_first\_lp}. \textbf{Confidence gate chưa được chấm đúng prereg}. Agreement reanalysis không thay thế bước này.\src{1}
+
+\subsection{Agreement: có tín hiệu, chưa thành policy-cost win}
+Các arm có thể cùng trả một đáp án sai: ở một ví dụ order đã lưu, PAL, CoT và candidate-selection cùng trả Alice, gold là Grace. Đây là shared error; chưa có causal review xác nhận một cụm từ cụ thể là nguyên nhân.\src{4}
+
+Target của bảng là \emph{PAL-v2 answer correctness}, không phải plurality correctness. AUROC trong $[0,1]$, $0{,}5$ là mức phân biệt ngẫu nhiên. Point/CI cùng dùng mean-repeat OOF AUROC của 5 grouped folds $\times20$ repetitions.\src{6}
+\tabletitle{Bảng 1. Tín hiệu agreement trên order (N=31)}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}Yrrrp{37mm}@{}}
+\toprule
+\textbf{Tín hiệu order, N=31} & \textbf{Baseline} & \textbf{Signal} & \textbf{$\Delta$} & \textbf{CI 95\% của $\Delta$}\\
+\midrule
+PAL--CoT agreement & 0,7175 & 0,7805 & 0,0630 & $[-0{,}0629;\ 0{,}1928]$\\
+PAL--candidate agreement & 0,7175 & 0,8370 & 0,1195 & $[-0{,}0253;\ 0{,}2758]$\\
+PAL agreement count & 0,7175 & 0,8582 & 0,1407 & $[0{,}0221;\ 0{,}2775]$\\
+Plurality agreement count & 0,7175 & 0,7905 & 0,0730 & $[-0{,}0235;\ 0{,}1855]$\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\exploratory; corrected report và independent validation.\src{4}\src{5}
+
+PAL-count đạt diagnostic riêng lẻ $\Delta\ge0{,}05$ và lower CI $>0$, \textbf{không phải global preregistration PASS}. Bốn CI chưa hiệu chỉnh multiple comparisons; bootstrap giữ fixed OOF predictions, không refit model. Arith/g24 có target PAL đơn lớp: AUROC N/A, không phải 0. Mâu thuẫn arith-and-order / verdict order-only trong prereg còn pending.\src{6}
+
+Count bốn arm cần output PAL, CoT, candidate-selection và SC: không phải gate sớm miễn phí. Agreement key g24 dùng \texttt{check24}, nên là validity-assisted, không hoàn toàn verifier-free.
+
+\subsection{Legacy order replay: ứng viên W}
+G1/G2 dùng cặp PAL--CoT, \emph{không triển khai} PAL-count bốn arm. Trên cùng 31 câu order:
+\tabletitle{Bảng 2. Legacy order replay}
+\begin{center}\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Policy} & \textbf{Đúng /31} & \textbf{Mean legacy token proxy} & \textbf{Leo /31}\\
+\midrule
+Fixed PAL-v2 & 20 & 474,3 & 0\\
+Fixed candidate-selection & 21 & 1\,894,0 & 0\\
+W: exec gate & 23 & 916,0 & 6\\
+G1: pair agreement & 22 & 2\,406,1 & 17\\
+G2: pair agreement & 22 & 2\,228,5 & 17\\
+\bottomrule
+\end{tabular}
+\end{center}
+\exploratory: retrospective parsed-answer scoring, chi phí proxy, không phải full inference cost hoặc latency.\src{4}\src{5}
+
+W đáng khảo sát trong replay này. Chưa chứng minh mọi agreement thất bại, verifier là giải pháp duy nhất hoặc ưu thế tái lập ở pilot mới. AUROC tốt và policy hiệu quả là hai câu hỏi khác nhau.
+
+\section{Pilot ordering: contract v2}
+\subsection{Phạm vi và tính toàn vẹn}
+Tám câu train đã lộ, seed 42, \texttt{order-contract-v2}, native cap 2\,048. Có \textbf{56 generation calls, 16 executions, 32 arm records}, tạo 104 journal entries; replay khớp 64 evaluation rows. Tám artifact hashes và tám source hashes khớp, journal chain hợp lệ. Collection mọi arm tiêu thụ 64\,424 model tokens, không phải chi phí một policy triển khai.\src{8}\src{9}
+
+Hash xác nhận file nhất quán, không tự xác thực trọng số/gold. Manifest vẫn ghi \texttt{model\_revision\_verified=false}. Timing CPU mới có thể khác khi replay.
+
+\subsection{Bảng chính: frozen contract v2}
+Mọi phương pháp chấm trên cùng tám câu; abstain/empty vẫn tính mẫu và chấm sai. Token là mean prompt + completion trên mọi call của đường policy.
+\tabletitle{Bảng 3. Kết quả theo frozen contract v2}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}Yrrrrr@{}}
+\toprule
+\textbf{Phương pháp} & \textbf{Đúng /8} & \textbf{Prompt} & \textbf{Completion} & \textbf{Tổng token} & \textbf{Leo /8}\\
+\midrule
+Fixed PAL-answer & 4 & 124,375 & 142,000 & 266,375 & 0\\
+Fixed PAL-certificate & 4 & 126,375 & 284,250 & 410,625 & 0\\
+Fixed candidate-selection & 3 & 2\,860,125 & 2\,365,500 & 5\,225,625 & 0\\
+Fixed native-thinking & 0 & 102,375 & 2\,048,000 & 2\,150,375 & 0\\
+W-answer & 4 & 542,375 & 493,000 & 1\,035,375 & 1\\
+W-certificate & 4 & 546,375 & 639,500 & 1\,185,875 & 1\\
+Verified-certificate & 4 & 1\,885,375 & 1\,741,250 & 3\,626,625 & 5\\
+Query-only symbolic solver & 8 & 0 & 0 & 0 & 0\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\exploratory, N=8, một seed; offline replay đã đối chiếu.\src{8}
+
+Verified và W-certificate đúng \emph{chính xác cùng bốn câu}, paired rescue/harm 0/0. Verified đắt hơn $3{,}058\times$, thêm $2\,440{,}750$ token/câu. Cả ba cascade không tăng số đúng so với first stage. Fixed PAL cùng aggregate accuracy và rẻ hơn trên mẫu này.
+
+Verified dùng $0{,}694\times$ token fixed candidate-selection, nhưng baseline này đúng ít hơn và không mạnh nhất. Comparator yếu không đủ chứng minh ưu thế phương pháp. Equal observed accuracy trên tám câu không chứng minh population noninferiority.
+
+\subsection{Gate confusion và answer--witness mismatch}
+Nhãn dựa trên \textbf{đáp án first stage theo contract}, không phải fallback correctness hoặc witness validity.
+\tabletitle{Bảng 4. Gate confusion theo first-stage answer}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}Yrrrr@{}}
+\toprule
+\textbf{Gate} & \textbf{True accept} & \textbf{False accept} & \textbf{True reject} & \textbf{False reject}\\
+\midrule
+W-answer & 4 & 3 & 1 & 0\\
+W-certificate & 4 & 3 & 1 & 0\\
+Verified-certificate & 3 & 0 & 4 & 1\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Certificate: 3 valid, 2 invalid, 3 unverifiable. Năm payload decode dict; decode không bảo đảm validity. Reject năm câu không phải phát hiện năm lỗi logic. Zero false accepts trong ba accept không chứng minh rate bằng zero ngoài mẫu.\src{8}
+
+\begin{examplebox}{Frank: đáp án đúng, witness sai}
+\texttt{order\_0001\_en\_orig}: đáp án Frank đúng, witness gap 3 thay vì 2. Reject đúng theo witness contract; false reject theo \emph{answer correctness} không đồng nghĩa verifier bug.
+
+Pilot N=2 cũ có một harm: selector \texttt{Answer: 2} sai format, nhưng đổi thành \texttt{Best: 2} vẫn chọn Grace sai. Không chỉ là lỗi parser. Trong v2 N=8, fallback chọn Frank đúng, không harm. Hai run cần được báo riêng.\src{7}\src{8}
+\end{examplebox}
+
+\texttt{order\_0009\_en\_orig} có prose \texttt{answer: Grace} đúng tên nhưng không phải dict: frozen answer empty. Đây là schema/format failure, không chứng minh model không biết tên đúng.
+
+\subsection{Format, selector và truncation}
+Selector v2 có syntax hợp lệ 8/8; index hợp lệ không bảo đảm nhánh hoàn tất/đúng. Trong 24 candidate branches, 8 length ở cap 1\,024; 4 stopped branches khác không có final line parser nhận. Cần tách lỗi lập luận, format, selection và truncation.\src{8}
+
+Native 0/8: cả tám call length ở cap 2\,048, không \texttt{Answer:} marker hoặc closing \texttt{</think>}. Đây là quan sát theo budget/contract cụ thể, không phải kết luận native luôn kém hay tăng cap sẽ đủ.
+
+\section{Phân tích shadow A/B}
+\subsection{Hai can thiệp offline}
+\textbf{A --- format-only:} giữ index selector, nhận terminal answer block với plain/bold/heading aliases giới hạn; tên phải thuộc query-derived runner list. Reject truncation, tên lạ, wrappers lỗi và repeated answers mâu thuẫn.
+
+\textbf{B --- A + unique-admissible selection:} giữ chọn nếu stopped và parsable; nếu chọn inadmissible, chuyển nhánh chỉ khi có \emph{đúng một} branch stopped, parsable; ngược lại abstain. Invalid/truncated selector vẫn abstain. Parsable không bảo đảm đúng.\src{10}
+
+Chọn output trước gold scoring; giữ nguyên initial PAL, gate/path và mọi call cost. B là đổi \emph{policy selection}, không được giấu thành “sửa scorer”. Prototype có 28 regression assertions, không chứng minh model quality/production contract.
+
+\subsection{What-if hậu nghiệm, không thay bảng đo thật}
+\tabletitle{Bảng 5. Shadow replay trên output v2}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}YZZZ@{}}
+\toprule
+\textbf{Phương pháp} & \textbf{v2 thật: đúng /8} & \textbf{Shadow A: đúng /8} & \textbf{Shadow B: đúng /8}\\
+\midrule
+Fixed candidate-selection & 3 & 4 & 5\\
+W-answer & 4 & 4 & 5\\
+W-certificate & 4 & 5 & 5\\
+Verified-certificate & 4 & 5 & 6\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\exploratory, retrospective what-if trên train output cũ. Model token không đổi; A/B CPU overhead chưa đo. Không generation mới.\src{10}\src{11}
+
+Hai câu giải thích phần tăng đúng:
+\begin{itemize}
+  \item \texttt{order\_0025\_en\_orig}: chọn đã đúng nhánh stopped với \texttt{**Answer: Grace**}. A đọc được; W-certificate và Verified cùng lợi. Format repair riêng không tạo Verified advantage.
+  \item \texttt{order\_0016\_en\_orig}: chọn nhánh truncated; B chuyển sang nhánh duy nhất stopped, parsable, trả Heidi. W-answer/Verified đã escalate nên được cứu; W-certificate accept first stage nên không tới fallback. Chênh một câu là gate \emph{cùng} admissibility policy, không phải verifier đơn lẻ thắng.
+\end{itemize}
+
+\begin{cautionbox}{Trạng thái v3}
+6/8 là shadow B, \textbf{không phải run v3}. V3 chưa tích hợp harness, đang tạm dừng theo yêu cầu người dùng. Hoàn thiện overview không đổi parser/prompt/settings production, tăng cap hoặc chạy GPU. Muốn kết quả v3 phải review, version hóa, test và xin phép prospective pilot.
+\end{cautionbox}
+
+\section{Baseline symbolic và giới hạn}
+Symbolic đạt 8/8 với zero \emph{model} tokens nhưng có CPU cost. Report gốc: mean offline solver khoảng 5,512 ms, verifier khoảng 2,649 ms; không phải online end-to-end latency. Timing 3,14 ms lịch sử trên 31 câu thiếu raw artifact nên không dùng làm measurement tái lập.\src{3}\src{8}
+
+Điều này đổi câu hỏi khoa học: \textbf{với parser chính xác và solver trực tiếp, LLM/cascade thêm lợi ích gì?} Chưa trả lời được thì không claim reasoning-router vượt trội trên họ đó. Verifier/solver chung strict parser: 8/8 hay 31/31 development không xác thực độc lập parser/generator/gold.
+
+Họ program-resistant hoặc language variation là hướng \emph{cần đo}, không được giả định solver thất bại trong khi verifier/LLM tổng quát hóa.
+\begin{itemize}
+  \item N=8, một seed, dữ liệu đã lộ: không suy ra significance, safety, noninferiority.
+  \item Format/selection điều chỉnh sau xem output: tách shadow để tránh cherry-picking.
+  \item Arm budget khác nhau: chưa tách prompting khỏi compute.
+  \item Completion là backend-saved counts, chưa khôi phục độc lập từ generated token IDs.
+  \item Human generator/gold review, checkpoint authentication, power/statistics và confirmatory freeze chưa xong.
+  \item Stage 0 Qwen/Meta-Reasoner chưa pass; software tests không thay model evidence.
+\end{itemize}
+\src{1}\src{2}\src{8}\src{10}
+
+\section{Kế hoạch và khung bài báo}
+\subsection{Thứ tự làm việc đề xuất}
+\begin{enumerate}
+  \item \textbf{Khi được cho tiếp tục v3:} review/freeze aliases và unique-admissible policy riêng; test ambiguity, wrong name, truncation, abstention; tích hợp version mới. Giữ run cũ/source hashes lịch sử.
+  \item \textbf{Lấp khoảng trống trước confirmatory:} đồng bộ confidence analyzer--prereg, human gold/group review, model authentication, cost scope, sample size/margin và uncertainty. Không chọn margin chỉ để gate pass.
+  \item \textbf{Chốt đối thủ có ý nghĩa:} fixed PAL, W, Verified, candidate-selection, native với budget rõ, query-only symbolic. Nếu mở họ/ngôn ngữ mới, review parser/checker riêng; không tự mở rộng router liên họ.
+  \item \textbf{Xin phép compute mới với phạm vi cụ thể:} prospective development pilot, caps/seeds đã duyệt; calibration/test chỉ sau review/freeze. 100 test candidate không tự động đủ power hay confirmatory.
+\end{enumerate}
+Đây là kế hoạch, không phải việc đã chạy khi sửa overview.\src{1}\src{2}\src{10}\src{12}
+
+\subsection{Đóng góp dự kiến, chưa phải claim đã chứng minh}
+\begin{tabularx}{\textwidth}{@{}p{12mm}Y@{}}
+\toprule
+\textbf{Mục} & \textbf{Cách diễn đạt ở bản hiện tại}\\
+\midrule
+C1 & Kiểm confidence/agreement: confidence prereg chưa chấm đủ; agreement có tín hiệu exploratory, chưa thành policy-cost win.\\
+C2 & Verifier-Gated Cascade và conditional fallback cost; verifier chặt hơn chưa chắc policy tốt hơn.\\
+C3 & Strategy--task structure cần kiểm tiếp; legacy order có ứng viên W, không phải định luật PAL/ToT tối ưu theo họ.\\
+C4 & Pitfalls đã thấy: schema/format, truncation, selector chọn nhánh không hoàn tất, answer--witness mismatch, thiếu multi-call cost.\\
+\bottomrule
+\end{tabularx}
+
+Tên làm việc trung tính: \emph{Verifier-Gated Cascades for Adaptive Reasoning in Small Language Models: Development Evidence and Evaluation Pitfalls}. Chưa dùng “Cheap Checks Beat Confidence” như kết luận đã chứng minh.
+
+Khung manuscript: Introduction/RQ; Related Work được kiểm nguồn; Method; Data/contract; Experiments/baselines; Error Analysis; Limitations; Reproducibility. Overview chưa thay literature review hoặc bài submit-ready.
+
+\begin{intuitionbox}{Kết luận}
+Giá trị rõ nhất là pipeline có raw evidence, QA và failure diagnosis. Claim lợi ích reasoning thích ứng cần fallback cứu được lỗi, prospective contract và đối thủ meaningful như symbolic solver. Kết quả âm vẫn hữu ích nếu báo đúng phạm vi.
+\end{intuitionbox}
+
+\appendix
+\section{Nguồn và tái lập}
+Mã [S\emph{n}] trỏ tới nguồn dưới. Đường dẫn liên kết tính từ \texttt{audit/}, nơi chứa overview; các nguồn nội bộ không thay prior-art bên ngoài.
+\begingroup\small
+\begin{description}[leftmargin=0pt,style=nextline,itemsep=6pt,
+  font=\normalfont\sffamily\bfseries]
+\item[\hypertarget{src-1}{S1. Research plan và gate}]
+\href{../docs/research_plan.md}{\nolinkurl{docs/research_plan.md}}
+\item[\hypertarget{src-2}{S2. Research protocol}]
+\href{../docs/research_protocol.md}{\nolinkurl{docs/research_protocol.md}}
+\item[\hypertarget{src-3}{S3. Ordering development audit đã đính chính}]
+\href{ordering_development_audit_20261008.md}{\nolinkurl{audit/ordering_development_audit_20261008.md}}
+(Phần telemetry thiếu raw của audit sớm không thay review N=2/N=8 về sau.)
+\item[\hypertarget{src-4}{S4. Agreement corrected report}]
+\href{agreement_reanalysis_20261008/report.md}{\nolinkurl{audit/agreement_reanalysis_20261008/report.md}}
+\item[\hypertarget{src-5}{S5. Agreement independent validation}]
+\href{agreement_reanalysis_validation_20261008.md}{\nolinkurl{audit/agreement_reanalysis_validation_20261008.md}}
+\item[\hypertarget{src-6}{S6. Agreement correction protocol}]
+\href{../docs/agreement_reanalysis_protocol_20261008.md}{\nolinkurl{docs/agreement_reanalysis_protocol_20261008.md}}
+\item[\hypertarget{src-7}{S7. Review model thật N=2}]
+\href{order_certificate_real_pilot_review_20261008.md}{\nolinkurl{audit/order_certificate_real_pilot_review_20261008.md}}
+\item[\hypertarget{src-8}{S8. Review model thật contract-v2 N=8}]
+\href{order_dev8_contract_v2_review_20261008.md}{\nolinkurl{audit/order_dev8_contract_v2_review_20261008.md}}
+Có token/gate/format tables và lệnh QA read-only.
+\item[\hypertarget{src-9}{S9. Run v2 raw evidence}]
+\href{order_certificate_pilot_dev8_contract_v2_real_20261008/manifest.json}{\nolinkurl{audit/order_certificate_pilot_dev8_contract_v2_real_20261008/manifest.json}}
+Cùng thư mục: \texttt{report.md}, \texttt{records.json}, \texttt{calls.jsonl}, dataset train.
+\item[\hypertarget{src-10}{S10. Shadow A/B report}]
+\href{order_dev8_format_selector_shadow_20261008.md}{\nolinkurl{audit/order_dev8_format_selector_shadow_20261008.md}}
+\item[\hypertarget{src-11}{S11. Shadow prototype/regression checks}]
+\href{order_dev8_format_selector_shadow_20261008.py}{\nolinkurl{audit/order_dev8_format_selector_shadow_20261008.py}}
+\item[\hypertarget{src-12}{S12. Ordering certificate protocol}]
+\href{../docs/order_certificate_study_protocol.md}{\nolinkurl{docs/order_certificate_study_protocol.md}}
+\end{description}
+\endgroup
+
+\subsection*{Hai lệnh QA offline, không gọi model}
+Từ repo root, lệnh đầu kiểm hashes/journal, 64 replay rows và accounting. Lệnh sau kiểm lại QA đó và shadow. Chúng không sửa run gốc, tải model hoặc mở calibration/test.
+\begin{quote}\small\ttfamily
+python3.12 -B
+\nolinkurl{audit/order_dev8_contract_v2_replay_review_20261008.py}
+\end{quote}
+\begin{quote}\small\ttfamily
+python3.12 -B
+\nolinkurl{audit/order_dev8_format_selector_shadow_20261008.py}
+\end{quote}
+Mỗi block là \textbf{một lệnh trên một dòng}; xuống dòng chỉ để dàn trang. Supported entry point: \texttt{python -m experiments.research\_study}. Run mới vẫn cần protocol/quyền compute. Passing software tests không phải measured model-quality evidence.
+
+\subsection*{Từ vựng ngắn}
+\begin{tabularx}{\textwidth}{@{}p{30mm}Y@{}}
+\toprule
+\textbf{Thuật ngữ} & \textbf{Ý nghĩa}\\
+\midrule
+Contract & Quy tắc version hóa: prompt, output, parser, budget, scoring.\\
+Witness & Cấu trúc lời giải để checker kiểm; không phải gold.\\
+Escalation & Gọi stage sau vì gate không accept stage đầu.\\
+Rescue / harm & First stage sai thành đúng / đúng thành sai sau escalation.\\
+Abstain & Không đáp án hợp lệ; vẫn tính mẫu/chi phí, chấm sai trong pilot.\\
+Shadow & What-if offline trên output cũ, không generation mới.\\
+Exploratory & Phát triển giả thuyết, không thay confirmatory độc lập.\\
+\bottomrule
+\end{tabularx}
+\end{document}

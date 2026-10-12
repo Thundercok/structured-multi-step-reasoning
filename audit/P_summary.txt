@@ -1,0 +1,63 @@
+=== RUN HEADER ===
+branch: HEAD
+tag: harness-v1-run7
+commit: a35391c
+dirty: False
+model_id: mlx-community/Qwen3-8B-4bit
+snapshot_hash: 545dc4251c05440727734bcd94334791f6ab0192
+
+=== BẢNG FAMILY × LEVEL ===
+| family | level | n | DIRECT | COT | %length | %parsed rỗng | mean tokens |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| arith | 1 | 8 | 62.5% | 100.0% | 0.0% | 0.0% | 46.8 |
+| arith | 2 | 8 | 0.0% | 100.0% | 0.0% | 0.0% | 101.8 |
+| arith | 3 | 8 | 0.0% | 100.0% | 0.0% | 0.0% | 162.5 |
+| arith | 4 | 8 | 0.0% | 37.5% | 0.0% | 0.0% | 252.8 |
+| arith | 5 | 8 | 0.0% | 37.5% | 0.0% | 0.0% | 336.4 |
+| order | 1 | 8 | 25.0% | 62.5% | 25.0% | 0.0% | 476.9 |
+| order | 2 | 8 | 12.5% | 50.0% | 0.0% | 0.0% | 345.4 |
+| order | 3 | 7 | 28.6% | 28.6% | 42.9% | 0.0% | 659.4 |
+| order | 4 | 8 | 25.0% | 37.5% | 62.5% | 0.0% | 906.9 |
+| g24 | 1 | 8 | n/a | 50.0% | 50.0% | 0.0% | 575.4 |
+| g24 | 2 | 8 | n/a | 62.5% | 37.5% | 0.0% | 504.8 |
+| g24 | 3 | 7 | n/a | 57.1% | 42.9% | 0.0% | 530.1 |
+| g24 | 4 | 6 | n/a | 16.7% | 50.0% | 0.0% | 598.7 |
+| **Total** | - | **100** | **16.9%** | **58.0%** | **23.0%** | **0.0%** | **415.9** |
+
+=== 2 ITEM SAI MỖI FAMILY (COT T=0) ===
+
+--- Family: arith (10 wrong in COT) ---
+Sample 1:
+  id: arith_0024_en_orig
+  raw_tail: Start with 11314.  \nSubtract 11147 to get 1767.  \nAdd 21566 to get 23333.  \nMultiply by 86 to get 2007558.  \nMultiply by 60 to get 120453480.  \nSubtract 50388 to get 120403092.  \nDivide by 6 to get 20067182.  \nAdd 92170 to get 20076449.  \nDivide by 4 to get 5019112.25.  \n\nAnswer: 5019112.25
+  parsed: '5019112.25'
+  gold: '4693538'
+Sample 2:
+  id: arith_0025_en_orig
+  raw_tail:  by 98: 43936 × 98 = 4305632  \nAdd 85871: 4305632 + 85871 = 4391503  \nSubtract 4324: 4391503 - 4324 = 4387179  \nAdd 44671: 4387179 + 44671 = 4431850  \nMultiply by 5: 4431850 × 5 = 22159250  \nAdd 40660: 22159250 + 40660 = 22199910  \nDivide by 9: 22199910 ÷ 9 = 2466656.666...  \n\nAnswer: 2466656.666...
+  parsed: '2466656.666...'
+  gold: '2466710'
+
+--- Family: order (17 wrong in COT) ---
+Sample 1:
+  id: order_0003_en_orig
+  raw_tail: rol = 5 (positions 2 and 5 with 2 runners in between: 3 and 4).\n\nHeidi = 3, Carol = 5 (positions 3 and 5 with 1 runner in between: 4).\n\nFrank must be before Heidi (position 3), so Frank = 1.\n\nNow assign:\n\n- Frank = 1\n- Alice = 2\n- Heidi = 3\n- Carol = 5\n- Grace = 4 (remaining position)\n\nAnswer: Grace
+  parsed: 'Grace'
+  gold: 'Heidi'
+Sample 2:
+  id: order_0004_en_orig
+  raw_tail:  be in 4+3=7, invalid.  \nTry Frank in 2, Alice in 5.  \nCarol must be in 5+3=8, invalid.  \nTry Frank in 1, Alice in 4.  \nCarol must be in 4+3=7, invalid.  \nTry Frank in 2, Alice in 5.  \nCarol must be in 5+3=8, invalid.  \nTry Frank in 1, Alice in 4.  \nCarol must be in 4+3=7, invalid.  \nTry Frank in 2,
+  parsed: 'Try Frank in 2,'
+  gold: 'Heidi'
+
+--- Family: g24 (15 wrong in COT) ---
+Sample 1:
+  id: g24_0000_en_orig
+  raw_tail: 60. 60 / 3 = 20, not helpful.\n\nTry 12 * (8 / (13 - 3)) = 12 * (8 / 10) = 9.6, not helpful.\n\nTry 12 * (13 - 8) = 60. 60 / 3 = 20, not helpful.\n\nTry 12 * (8 / (13 - 3)) = 12 * (8 / 10) = 9.6, not helpful.\n\nTry 12 * (13 - 8) = 60. 60 / 3 = 20, not helpful.\n\nTry 12 * (8 / (13 - 3)) = 12 * (8 / 10) = 9.6
+  parsed: '9.6'
+  gold: '((12*(3+13))/8)'
+Sample 2:
+  id: g24_0004_en_orig
+  raw_tail: ng number is 4.  \nTry (8 * (6 ÷ 2)) + (4 - 4) = 24. But 4 is used twice.\n\nTry (8 * (6 ÷ 2)) = 24.  \nUsed numbers: 8, 6, 2. Remaining number is 4.  \nTry (8 * (6 ÷ 2)) + 4 - 4 = 24. But 4 is used twice.\n\nTry (8 * (6 ÷ 2)) = 24.  \nUsed numbers: 8, 6, 2. Remaining number is 4.  \nTry (8 * (6 ÷ 2)) + (4 ÷
+  parsed: 'Try (8 * (6 ÷ 2)) + (4 ÷'
+  gold: '(((4*8)-2)-6)'

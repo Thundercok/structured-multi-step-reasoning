@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "pilot": true,
+  "mode": "development_pilot",
+  "backend": "mlx",
+  "seed": 42,
+  "model": "/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192",
+  "model_content_sha256": {
+    "README.md": "a0cd248b30da7a23710c9290fe42ca83a84dc06593978877b1e5b32f9bd33aaf",
+    "added_tokens.json": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+    "config.json": "e5485285fd7e289e76e9cffa112f6dc2e3426519082f7db9b69041589f81a218",
+    "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+    "model.safetensors": "f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8",
+    "model.safetensors.index.json": "3fb25463b4078b1fc27159daa605190029c2e965f533bf0b1b594f96cbfceb8a",
+    "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config.json": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+    "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+  },
+  "model_revision_verified": true,
+  "model_revision": "545dc4251c05440727734bcd94334791f6ab0192",
+  "model_repository": "mlx-community/Qwen3-8B-4bit",
+  "model_provenance_sha256": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+  "human_review_status": "pending",
+  "publication_ready": false,
+  "policy_fitted": false,
+  "evidence": "measured_development_pilot",
+  "token_scope": "generated tokens summed over all calls; prompt tokens recorded separately",
+  "strategies": [
+    "DIRECT",
+    "COT",
+    "PAL"
+  ],
+  "strategy_labels": {
+    "COT": "CoT",
+    "SELF_CONSISTENCY": "Self-consistency",
+    "TOT": "Candidate selection (legacy TOT identifier)",
+    "REACT": "ReAct calculator",
+    "PAL": "PAL",
+    "DIRECT": "Direct"
+  },
+  "prompt_profile": "english-math-v1",
+  "token_budgets": [
+    1024
+  ],
+  "budget_scope": "per generation call; ReAct min(cap, 200)",
+  "input_dataset_sha256": "98fa5f9de358e373c44f4234855df5de9dc9969bbcce57a2ce27019e68d2b3db",
+  "source_sha256": {
+    "experiments/research_study.py": "e5278c9787da5d7cc12ad13f1d9807437aeaecdd6df8aab386363b484c9e3ba8",
+    "optimal_stopping.py": "51e88d2661e34da3e6a5c27e5af572b3df0966709a4817e01145fadea967e3cf",
+    "entry_predictor.py": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03",
+    "reasoning_env.py": "51ca9b55327e5755b2a4094136e7fc51b159dd359631693fd900ae7fb5997b8b",
+    "reasoning_strategies.py": "55d315b2268c94b48860efa1aa4de16fc33291566ad80b94cd752d33b2b94147",
+    "pipeline.py": "a06335996eca15fd2d8a5838fd9577325284616c6c59412030e4b43d9b45bec6",
+    "qwen_mlx_backend.py": "99a3940ead1253139624f4c8a99ff0f1c40bb43f5c005bac61bdd24064f70bd2",
+    "scripts/gen_tasks.py": "5ab0aa7883c627b42dee1fe94329960c5313f948df32639ae7ce0d6a704c271a",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "research_identity.py": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "experiments/research_pilot.py": "56fe38f3273e0a11541726b5e3cfb9d504c7f5012cc3954dc41ef6dc14d83e42"
+  },
+  "git_sha": "3dcd2c9bf17c7a451463c3fe4835bd70f8ae14a2",
+  "git_status": "",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+    "numpy": "2.5.2",
+    "scikit-learn": "1.9.0",
+    "gymnasium": "1.3.0",
+    "mlx": "0.32.2",
+    "mlx-lm": "0.31.3"
+  },
+  "stage0_decision_sha256": "ddff59b640051b83af05cd3bd2d5be47f3274203aa10c2c96d731f8ec08b834c",
+  "stage0_reevaluated": false,
+  "status": "complete",
+  "started_utc": "2026-10-04T11:25:53.512002+00:00",
+  "backend_load_ms": 10315.950874995906,
+  "artifact_sha256": {
+    "attempts.jsonl": "224d9137c645bdc12ddfea82573feba3540aeb31b137648da5432b37ca324bee",
+    "dataset.json": "ad5bdf47a85127ce4eb604d9fdbd7e01c79700e88fcc6e95e2fc06043cb8cd2a",
+    "model_provenance.json": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+    "records.json": "858af874dc7ba0393e0aef6a4d7ba39fc3fa2a6e67347b1bc09708ed38ddee54",
+    "report.md": "0d5cd6bd0f968ba5de6549c75403d413dd8c1fa5c9860baa8c06564692d760d2",
+    "selection.json": "82b9817a867963078327e8d49364bf54ad462d9fe26020e165d90b5f97f65019",
+    "summary.json": "932b5922f4527a140a21129cfd3d1cbf9f249ef6d1f28a00c5d72e5a968c9392"
+  },
+  "finished_utc": "2026-10-04T11:38:18.324842+00:00"
+}

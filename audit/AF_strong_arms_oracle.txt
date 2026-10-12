@@ -1,0 +1,20 @@
+# AF2: Oracle Analysis Restricted to Strong Arms (Exploratory)
+> Label: **exploratory; arms added after seeing 6-arm results**
+
+### Subset: {COT, TOT, PAL-v2}
+| Family | Best-Single Arm (Acc, Tok) | Oracle(Arms) (Acc, Tok) | Gap vs Best-Single (pp) | 95% Cluster-Bootstrap CI |
+| :--- | :--- | :--- | :---: | :---: |
+| order | TOT (67.7%, 1894.0 tok) | 83.9% (26/31), 695.5 tok | +16.1 pp | [+3.2 pp; +29.0 pp] |
+| g24   | TOT (58.6%, 1446.8 tok) | 62.1% (18/29), 561.2 tok | +3.4 pp | [+0.0 pp; +10.3 pp] |
+
+### Subset: {TOT, PAL-v2}
+| Family | Best-Single Arm (Acc, Tok) | Oracle(Arms) (Acc, Tok) | Gap vs Best-Single (pp) | 95% Cluster-Bootstrap CI |
+| :--- | :--- | :--- | :---: | :---: |
+| order | TOT (67.7%, 1894.0 tok) | 80.6% (25/31), 703.0 tok | +12.9 pp | [+3.2 pp; +25.8 pp] |
+| g24   | TOT (58.6%, 1446.8 tok) | 58.6% (17/29), 859.3 tok | +0.0 pp | [+0.0 pp; +0.0 pp] |
+
+### Contingency Table: PAL-v2 vs TOT (Item-Level Agreement)
+| Family | n | Both Right | Only PAL-v2 Right | Only TOT Right | Neither Right | Discordant Rate |
+| :--- | ---: | :---: | :---: | :---: | :---: | :---: |
+| order | 31 | 16 (51.6%) | 4 (12.9%) | 5 (16.1%) | 6 (19.4%) | 29.0% |
+| g24   | 29 | 0 (0.0%) | 0 (0.0%) | 17 (58.6%) | 12 (41.4%) | 58.6% |

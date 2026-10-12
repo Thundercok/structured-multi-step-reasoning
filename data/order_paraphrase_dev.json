@@ -1,0 +1,195 @@
+{
+  "name": "order_paraphrase_dev_v1",
+  "version": "1.0.0",
+  "split_description": "Tuning Dev (Groups 1-3, 9 items) vs Held-out Dev (Groups 4-6, 9 items)",
+  "groups": [
+    {
+      "group_id": "problem_order_d55fe093fb5e862021c69552eac5d92e35ca9c778626bca7f0155a22a6c17f60",
+      "canonical_id": "order_0000_en_orig",
+      "split": "tuning_dev",
+      "runners": ["Carol", "Grace", "Alice", "Heidi", "Frank"],
+      "ask_rank": 1,
+      "answer": "Carol",
+      "canonical_clues": [
+        ["immediately_before", "Frank", "Grace", 1],
+        ["gap", "Carol", "Frank", 2],
+        ["immediately_before", "Grace", "Heidi", 1]
+      ],
+      "items": [
+        {
+          "id": "order_0000_dev_baseline",
+          "variant_type": "baseline",
+          "query": "5 runners (Carol, Grace, Alice, Heidi, Frank) ran a race with no ties. Clues: Frank finished immediately before Grace; Carol finished exactly 2 places ahead of Frank, with exactly 1 runner between them; Grace finished immediately before Heidi. Who finished in 1st place?"
+        },
+        {
+          "id": "order_0000_dev_lexical",
+          "variant_type": "lexical_permutation",
+          "query": "5 runners (Carol, Grace, Alice, Heidi, Frank) ran a race with no ties. Clues: Carol crossed the finish line 2 spots ahead of Frank, with 1 runner between them; Grace arrived directly ahead of Heidi; Frank placed immediately before Grace. Which runner finished in 1st place?"
+        },
+        {
+          "id": "order_0000_dev_prose",
+          "variant_type": "natural_prose",
+          "query": "A race was contested by 5 runners (Carol, Grace, Alice, Heidi, Frank) without any ties. Frank crossed the finish line right before Grace, while Grace finished immediately before Heidi. Furthermore, Carol placed exactly 2 positions ahead of Frank, leaving 1 runner between them. Who took 1st place?"
+        }
+      ]
+    },
+    {
+      "group_id": "problem_order_3a16792a782d8dbcbfb99bd4bbc1b665244081b821bc1bebdb42e8e4e82b2601",
+      "canonical_id": "order_0001_en_orig",
+      "split": "tuning_dev",
+      "runners": ["Erin", "Alice", "Grace", "Dave", "Frank"],
+      "ask_rank": 4,
+      "answer": "Frank",
+      "canonical_clues": [
+        ["before", "Grace", "Frank", null],
+        ["immediately_before", "Erin", "Dave", 1],
+        ["gap", "Erin", "Frank", 2],
+        ["before", "Frank", "Alice", null]
+      ],
+      "items": [
+        {
+          "id": "order_0001_dev_baseline",
+          "variant_type": "baseline",
+          "query": "5 runners (Erin, Alice, Grace, Dave, Frank) ran a race with no ties. Clues: Frank finished after Grace; Erin finished immediately before Dave; Erin finished exactly 2 places ahead of Frank, with exactly 1 runner between them; Frank finished before Alice. Who finished in 4th place?"
+        },
+        {
+          "id": "order_0001_dev_lexical",
+          "variant_type": "lexical_permutation",
+          "query": "5 runners (Erin, Alice, Grace, Dave, Frank) ran a race with no ties. Clues: Erin arrived 2 spots ahead of Frank, with 1 runner between them; Grace crossed the finish line ahead of Frank; Frank placed ahead of Alice; Erin finished right before Dave. Which competitor ended in 4th place?"
+        },
+        {
+          "id": "order_0001_dev_prose",
+          "variant_type": "natural_prose",
+          "query": "In a 5-runner race between Erin, Alice, Grace, Dave, and Frank with no ties, Erin crossed the finish line directly ahead of Dave, but also placed 2 spots ahead of Frank with 1 runner separating them. Meanwhile, Frank came in after Grace and crossed the line before Alice. Which participant took 4th place?"
+        }
+      ]
+    },
+    {
+      "group_id": "problem_order_00e9952e1fe5156d1c8576729ed01b982282d691f146ec4a78a411016186d707",
+      "canonical_id": "order_0008_en_orig",
+      "split": "tuning_dev",
+      "runners": ["Dave", "Grace", "Heidi", "Carol", "Erin", "Bob"],
+      "ask_rank": 5,
+      "answer": "Dave",
+      "canonical_clues": [
+        ["before", "Dave", "Grace", null],
+        ["before", "Bob", "Erin", null],
+        ["before", "Heidi", "Erin", null],
+        ["gap", "Erin", "Dave", 2]
+      ],
+      "items": [
+        {
+          "id": "order_0008_dev_baseline",
+          "variant_type": "baseline",
+          "query": "6 runners (Dave, Grace, Heidi, Carol, Erin, Bob) ran a race with no ties. Clues: Dave finished before Grace; Bob finished before Erin; Erin finished after Heidi; Erin finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 5th place?"
+        },
+        {
+          "id": "order_0008_dev_lexical",
+          "variant_type": "lexical_permutation",
+          "query": "6 runners (Dave, Grace, Heidi, Carol, Erin, Bob) ran a race with no ties. Clues: Erin crossed the line 2 spots ahead of Dave, with 1 runner between them; Bob arrived ahead of Erin; Dave finished ahead of Grace; Heidi crossed the finish line ahead of Erin. Which runner came in 5th place?"
+        },
+        {
+          "id": "order_0008_dev_prose",
+          "variant_type": "natural_prose",
+          "query": "During a tie-free race among 6 runners (Dave, Grace, Heidi, Carol, Erin, Bob), Erin finished behind both Bob and Heidi. At the same time, Erin arrived 2 positions ahead of Dave with 1 runner between them, and Dave finished ahead of Grace. Who secured 5th place in the race?"
+        }
+      ]
+    },
+    {
+      "group_id": "problem_order_f801c1ed49c5925ae44c490ce104ded968204c16e3a660ea830087134f6f0712",
+      "canonical_id": "order_0009_en_orig",
+      "split": "heldout_dev",
+      "runners": ["Grace", "Dave", "Bob", "Erin", "Carol", "Frank"],
+      "ask_rank": 5,
+      "answer": "Grace",
+      "canonical_clues": [
+        ["immediately_before", "Erin", "Grace", 1],
+        ["before", "Erin", "Dave", null],
+        ["before", "Frank", "Carol", null],
+        ["gap", "Carol", "Erin", 2]
+      ],
+      "items": [
+        {
+          "id": "order_0009_dev_baseline",
+          "variant_type": "baseline",
+          "query": "6 runners (Grace, Dave, Bob, Erin, Carol, Frank) ran a race with no ties. Clues: Erin finished immediately before Grace; Dave finished after Erin; Frank finished before Carol; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them. Who finished in 5th place?"
+        },
+        {
+          "id": "order_0009_dev_lexical",
+          "variant_type": "lexical_permutation",
+          "query": "6 runners (Grace, Dave, Bob, Erin, Carol, Frank) ran a race with no ties. Clues: Frank arrived ahead of Carol; Carol crossed the line 2 spots ahead of Erin, with 1 runner between them; Erin finished right before Grace; Dave placed behind Erin. Which runner ended up in 5th place?"
+        },
+        {
+          "id": "order_0009_dev_prose",
+          "variant_type": "natural_prose",
+          "query": "A race with no ties featured 6 runners (Grace, Dave, Bob, Erin, Carol, Frank). Frank crossed the finish line ahead of Carol, whereas Carol finished exactly 2 places ahead of Erin, with 1 runner in between. Additionally, Erin came in immediately before Grace, while Dave arrived behind Erin. Who took 5th place?"
+        }
+      ]
+    },
+    {
+      "group_id": "problem_order_3fb693e01a1d59861fe1be72bdbace261b58786fecc89af4192d07b0d24a416a",
+      "canonical_id": "order_0016_en_orig",
+      "split": "heldout_dev",
+      "runners": ["Dave", "Alice", "Heidi", "Erin", "Bob", "Frank", "Carol"],
+      "ask_rank": 4,
+      "answer": "Heidi",
+      "canonical_clues": [
+        ["before", "Dave", "Frank", null],
+        ["immediately_before", "Dave", "Alice", 1],
+        ["gap", "Heidi", "Carol", 2],
+        ["gap", "Alice", "Bob", 3],
+        ["before", "Frank", "Erin", null]
+      ],
+      "items": [
+        {
+          "id": "order_0016_dev_baseline",
+          "variant_type": "baseline",
+          "query": "7 runners (Dave, Alice, Heidi, Erin, Bob, Frank, Carol) ran a race with no ties. Clues: Dave finished before Frank; Dave finished immediately before Alice; Heidi finished exactly 2 places ahead of Carol, with exactly 1 runner between them; Alice finished exactly 3 places ahead of Bob, with exactly 2 runners between them; Erin finished after Frank. Who finished in 4th place?"
+        },
+        {
+          "id": "order_0016_dev_lexical",
+          "variant_type": "lexical_permutation",
+          "query": "7 runners (Dave, Alice, Heidi, Erin, Bob, Frank, Carol) ran a race with no ties. Clues: Dave crossed the line directly ahead of Alice; Alice arrived 3 spots ahead of Bob, with 2 runners between them; Dave finished ahead of Frank; Erin placed behind Frank; Heidi finished 2 positions ahead of Carol, with 1 runner between them. Which competitor claimed 4th place?"
+        },
+        {
+          "id": "order_0016_dev_prose",
+          "variant_type": "natural_prose",
+          "query": "Seven runners (Dave, Alice, Heidi, Erin, Bob, Frank, Carol) competed in a race with no ties. Dave finished right before Alice and also finished ahead of Frank, while Frank arrived ahead of Erin. Furthermore, Alice placed 3 spots ahead of Bob with 2 runners in between, and Heidi finished 2 positions ahead of Carol with 1 runner separating them. Who came in 4th place?"
+        }
+      ]
+    },
+    {
+      "group_id": "problem_order_a20d2b7f92712df84de4616fe294a208e2f3d06a22ac686191699347d01be0c8",
+      "canonical_id": "order_0024_en_orig",
+      "split": "heldout_dev",
+      "runners": ["Dave", "Frank", "Carol", "Heidi", "Grace", "Erin", "Alice", "Bob"],
+      "ask_rank": 1,
+      "answer": "Carol",
+      "canonical_clues": [
+        ["before", "Carol", "Frank", null],
+        ["before", "Alice", "Dave", null],
+        ["immediately_before", "Grace", "Alice", 1],
+        ["before", "Dave", "Bob", null],
+        ["gap", "Carol", "Grace", 2],
+        ["immediately_before", "Erin", "Frank", 1]
+      ],
+      "items": [
+        {
+          "id": "order_0024_dev_baseline",
+          "variant_type": "baseline",
+          "query": "8 runners (Dave, Frank, Carol, Heidi, Grace, Erin, Alice, Bob) ran a race with no ties. Clues: Carol finished before Frank; Dave finished after Alice; Grace finished immediately before Alice; Dave finished before Bob; Carol finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Erin finished immediately before Frank. Who finished in 1st place?"
+        },
+        {
+          "id": "order_0024_dev_lexical",
+          "variant_type": "lexical_permutation",
+          "query": "8 runners (Dave, Frank, Carol, Heidi, Grace, Erin, Alice, Bob) ran a race with no ties. Clues: Grace crossed the line right before Alice; Carol arrived 2 spots ahead of Grace, with 1 runner between them; Erin placed directly ahead of Frank; Carol finished ahead of Frank; Alice arrived ahead of Dave; Dave finished ahead of Bob. Which runner secured 1st place?"
+        },
+        {
+          "id": "order_0024_dev_prose",
+          "variant_type": "natural_prose",
+          "query": "In an 8-runner race with no ties involving Dave, Frank, Carol, Heidi, Grace, Erin, Alice, and Bob, Grace finished right before Alice, who in turn crossed the finish line ahead of Dave, while Dave finished ahead of Bob. In addition, Carol finished 2 places ahead of Grace with 1 runner between them and finished ahead of Frank, while Erin came in immediately before Frank. Which runner took 1st place?"
+        }
+      ]
+    }
+  ]
+}

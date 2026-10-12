@@ -1,0 +1,10 @@
+# AF1: Verdict vs prereg/decision_rule_palv3.md
+
+- **G24 PAL-v3 Accuracy**: 0.0% (0/29) vs ToT 58.6% (17/29) [Threshold: >= 58.6%]
+  Acc condition: **FAIL**
+- **G24 PAL-v3 Tokens**: 526.9 vs ToT 1446.8 (ratio 0.36x) [Threshold: <= 0.50x = 723.4 tok]
+  Token condition: **PASS** (526.9 <= 723.4)
+
+**VERDICT: REJECTED / CODE-SOLVABLE NOT SATISFIED on Game-of-24.**
+ToT stays best on Game-of-24 (17/29, 58.6%).
+PAL limits documented: Qwen3-8B strongly defaults to `eval(expr)` for symbolic arithmetic search; even with explicit instructions to carry `(val, expr)` pairs and avoid eval, 29/29 items generated `eval`, triggering the sandbox security boundary.

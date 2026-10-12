@@ -1,0 +1,22 @@
+{
+  "kind": "shared_index_commit_scope_record",
+  "commit": "1d1de1be9c60e45acc18dad343c91d6043f4060b",
+  "intended_contribution": "Offline paired pilot analysis, its six tests and synthetic validation artifacts.",
+  "concurrent_paths_included_by_shared_index_race": [
+    "STATE.md",
+    "data/MANIFEST.json",
+    "data/gen02_tune.json",
+    "data/gen02_v2.json",
+    "qwen_mlx_backend.py",
+    "scripts/gen_tasks.py",
+    "test_qwen_mlx_backend_mocked.py",
+    "tests/test_gen_tasks.py"
+  ],
+  "concurrent_paths_reviewed_by_this_task": false,
+  "concurrent_content_preserved": true,
+  "measured_pilot_collection_commit": "495dec2ec921e8647d6a5df7305f1a3cb7a88fe8",
+  "measured_pilot_uses_concurrent_changes_from_this_commit": false,
+  "future_commit_method": "git commit --only with explicit task-owned paths",
+  "new_model_calls": 0,
+  "publication_ready": false
+}

@@ -1,0 +1,107 @@
+{
+  "conditions": [
+    {
+      "cap_per_call": 96,
+      "strategy": "DIRECT",
+      "questions": 24,
+      "correct": 5,
+      "mean_generated_tokens": 38.708333333333336,
+      "mean_confidence_correct": 0.9831310028268593,
+      "mean_confidence_wrong": 0.9561355415546416,
+      "wrong_with_confidence_at_least_0_8": 19,
+      "correct_wrong_pairs": 95,
+      "ranking_auc": {
+        "confidence": 0.7789473684210526,
+        "sequence_probability": 0.7736842105263158,
+        "token_margin": 0.6421052631578947,
+        "negative_token_entropy": 0.7473684210526316,
+        "not_length_stopped": 0.6842105263157895,
+        "has_parseable_answer": 0.631578947368421
+      },
+      "brier_if_heuristic_interpreted_as_probability": 0.7250056053374054
+    },
+    {
+      "cap_per_call": 96,
+      "strategy": "COT",
+      "questions": 24,
+      "correct": 5,
+      "mean_generated_tokens": 90.33333333333333,
+      "mean_confidence_correct": 0.9656794883418769,
+      "mean_confidence_wrong": 0.9465754279196263,
+      "wrong_with_confidence_at_least_0_8": 19,
+      "correct_wrong_pairs": 95,
+      "ranking_auc": {
+        "confidence": 0.6526315789473685,
+        "sequence_probability": 0.6526315789473685,
+        "token_margin": 0.6421052631578947,
+        "negative_token_entropy": 0.6631578947368421,
+        "not_length_stopped": 1.0,
+        "has_parseable_answer": 0.8157894736842105
+      },
+      "brier_if_heuristic_interpreted_as_probability": 0.7106160648633778
+    },
+    {
+      "cap_per_call": 1024,
+      "strategy": "DIRECT",
+      "questions": 24,
+      "correct": 10,
+      "mean_generated_tokens": 116.79166666666667,
+      "mean_confidence_correct": 0.9747658094445155,
+      "mean_confidence_wrong": 0.956860815840671,
+      "wrong_with_confidence_at_least_0_8": 14,
+      "correct_wrong_pairs": 140,
+      "ranking_auc": {
+        "confidence": 0.7357142857142858,
+        "sequence_probability": 0.7321428571428571,
+        "token_margin": 0.8142857142857143,
+        "negative_token_entropy": 0.7357142857142858,
+        "not_length_stopped": 0.5357142857142857,
+        "has_parseable_answer": 0.5
+      },
+      "brier_if_heuristic_interpreted_as_probability": 0.5356104243452962
+    },
+    {
+      "cap_per_call": 1024,
+      "strategy": "COT",
+      "questions": 24,
+      "correct": 15,
+      "mean_generated_tokens": 324.875,
+      "mean_confidence_correct": 0.9499480341449275,
+      "mean_confidence_wrong": 0.94629252340287,
+      "wrong_with_confidence_at_least_0_8": 9,
+      "correct_wrong_pairs": 135,
+      "ranking_auc": {
+        "confidence": 0.5185185185185185,
+        "sequence_probability": 0.5185185185185185,
+        "token_margin": 0.7111111111111111,
+        "negative_token_entropy": 0.5185185185185185,
+        "not_length_stopped": 0.7222222222222222,
+        "has_parseable_answer": 0.7222222222222222
+      },
+      "brier_if_heuristic_interpreted_as_probability": 0.3388844254926748
+    }
+  ],
+  "accuracy_bounds": [
+    {
+      "cap_per_call": 96,
+      "questions": 24,
+      "gold_informed_best_of_two_correct": 7,
+      "both_wrong": 17,
+      "uses_gold_labels": true,
+      "deployable_method": false
+    },
+    {
+      "cap_per_call": 1024,
+      "questions": 24,
+      "gold_informed_best_of_two_correct": 16,
+      "both_wrong": 8,
+      "uses_gold_labels": true,
+      "deployable_method": false
+    }
+  ],
+  "descriptive_only": true,
+  "post_hoc_feature_inspection": true,
+  "ranking_pairs_are_not_independent_questions": true,
+  "calibrator_fitted": false,
+  "controller_evaluated": false
+}

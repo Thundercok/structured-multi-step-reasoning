@@ -1,0 +1,31 @@
+{
+  "mode": "order_candidate_preparation",
+  "evidence": "schema_and_isolation_only",
+  "input_sha256": {
+    "data/order_confirmatory_gapB_100.json": "beb7df75bd7e863fd7b40e901f5e10ba14998fb0d945ecebfa722d8f49391c9c",
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/data/gen02_tune.json": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c"
+  },
+  "status": "complete",
+  "source_sha256": {
+    "experiments/order_certificate_study.py": "38a7a9c5d4e86f0411d36f13b6645e5d9a81e1116e041f665d472575b66642fe",
+    "experiments/research_study.py": "e11690b69270c3451484a1f250145d858cc894efaa234d63c3c7e3ac614bc790",
+    "scripts/verified_pal_order.py": "2b6c4c89e17870a27d496a8f4cf1c1a73b49e0866ccf37701daa94697b7bc0d8",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0"
+  },
+  "started_utc": "2026-10-08T02:13:39.385511+00:00",
+  "git_head": "2d6faef80799ad15839490d23d42928ee0f974c7",
+  "git_status": "M docs/research_plan.md\n M docs/research_protocol.md\n M experiments/research_study.py\n M research_identity.py\n M scripts/verified_pal_order.py\n M tests/test_procedural_research_data.py\n M tests/test_verified_pal_order.py\n?? audit/_aborted_AG3/\n?? audit/order_certificate_smoke_20261008/\n?? data/gen02_v2b.json\n?? docs/order_certificate_study_protocol.md\n?? experiments/order_certificate_study.py\n?? prereg/decision_rule_verified_pal_order_v2.md\n?? scripts/report_ag.py\n?? tests/test_order_certificate_study.py",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "numpy": "2.5.2",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "model_calls": false,
+  "publication_review_required": true,
+  "artifact_sha256": {
+    "dataset.json": "3273c37930a2ddf65a59d4021b73ca07daf2a0962cf8f431a0a97528183c3734",
+    "plan.json": "2973c66eeba7663dbdff710076bea13a5191d67b2740209cca7ab8e73721994d",
+    "isolation.json": "59738ff31d12c6972aeccfdcce10a73bfa03242516a8f63ced4e195f9c6a0709",
+    "report.md": "c402526bd9d63a31bf4028beccb4e0caaa1f1d4ecd9fb1c5c50af5a55881d65b"
+  },
+  "finished_utc": "2026-10-08T02:13:39.551482+00:00"
+}

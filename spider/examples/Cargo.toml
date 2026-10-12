@@ -1,0 +1,394 @@
+[package]
+name = "spider_examples"
+version = "2.37.105"
+authors = ["j-mendez <jeff@spider.cloud>"]
+description = "Multithreaded web crawler written in Rust."
+repository = "https://github.com/spider-rs/spider"
+readme = "README.md"
+keywords = ["crawler", "spider"]
+categories = ["web-programming"]
+license = "MIT"
+documentation = "https://docs.rs/spider"
+publish = false
+edition = "2021"
+
+[badges]
+maintenance = { status = "as-is" }
+
+[dev-dependencies]
+convert_case = "0.6.0"
+env_logger = "0.11.3"
+htr = "0.5.27"
+flexbuffers = "25"
+console-subscriber = { version = "0.5" }
+serde_json = "1"
+
+[dependencies.spider]
+version = "2"
+path = "../spider"
+features = ["serde"]
+
+[dependencies.spider_utils]
+version = "2"
+
+[dependencies.spider_transformations]
+version = "2"
+
+[[example]]
+name = "example"
+path = "example.rs"
+
+[[example]]
+name = "scrape"
+path = "scrape.rs"
+
+[[example]]
+name = "debug"
+path = "debug.rs"
+
+[[example]]
+name = "download"
+path = "download.rs"
+
+[[example]]
+name = "download_to_react"
+path = "download_to_react.rs"
+
+[[example]]
+name = "serde"
+path = "serde.rs"
+
+[[example]]
+name = "subscribe"
+path = "subscribe.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "subscribe_multiple"
+path = "subscribe_multiple.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "loop"
+path = "loop.rs"
+required-features = ["spider/sync", "spider/smart"]
+
+[[example]]
+name = "cache"
+path = "cache.rs"
+required-features = ["spider/sync", "spider/cache"]
+
+[[example]]
+name = "cache_chrome_hybrid"
+path = "cache_chrome_hybrid.rs"
+required-features = [
+    "spider/sync",
+    "spider/chrome",
+    "spider/cache_chrome_hybrid",
+]
+
+[[example]]
+name = "cache_remote_skip_browser"
+path = "cache_remote_skip_browser.rs"
+required-features = [
+    "spider/sync",
+    "spider/chrome",
+    "spider/chrome_remote_cache",
+]
+
+[[example]]
+name = "rss"
+path = "rss.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "callback"
+path = "callback.rs"
+
+[[example]]
+name = "sitemap"
+path = "sitemap.rs"
+required-features = ["spider/sitemap"]
+
+[[example]]
+name = "sitemap_only"
+path = "sitemap_only.rs"
+required-features = ["spider/sitemap"]
+
+[[example]]
+name = "configuration"
+path = "configuration.rs"
+
+[[example]]
+name = "blacklist"
+path = "blacklist.rs"
+
+[[example]]
+name = "whitelist"
+path = "whitelist.rs"
+
+[[example]]
+name = "budget"
+path = "budget.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "depth"
+path = "depth.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "cron"
+path = "cron.rs"
+required-features = ["spider/sync", "spider/cron"]
+
+[[example]]
+name = "chrome"
+path = "chrome.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_nxdomain_test"
+path = "chrome_nxdomain_test.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_remote"
+path = "chrome_remote.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "concurrent_profiles"
+path = "concurrent_profiles.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/disk"]
+
+[[example]]
+name = "anti_bots"
+path = "anti_bots.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_remote_tls"
+path = "chrome_remote_tls.rs"
+required-features = [
+    "spider/sync",
+    "spider/chrome",
+    "spider/chrome_tls_connection",
+]
+
+[[example]]
+name = "chrome_sendable"
+path = "chrome_sendable.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "real_world"
+path = "real_world.rs"
+required-features = [
+    "spider/sync",
+    "spider/chrome"
+]
+
+[[example]]
+name = "chrome_single_page"
+path = "chrome_single_page.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_viewport"
+path = "chrome_viewport.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_screenshot"
+path = "chrome_screenshot.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_screenshot_with_config"
+path = "chrome_screenshot_with_config.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "chrome_web_automation"
+path = "chrome_web_automation.rs"
+required-features = ["spider/sync", "spider/chrome"]
+
+[[example]]
+name = "smart"
+path = "smart.rs"
+required-features = ["spider/sync", "spider/smart"]
+
+[[example]]
+name = "openai"
+path = "openai.rs"
+required-features = ["spider/sync", "spider/openai"]
+
+[[example]]
+name = "openai_multi"
+path = "openai_multi.rs"
+required-features = ["spider/sync", "spider/openai"]
+
+[[example]]
+name = "openai_extra"
+path = "openai_extra.rs"
+required-features = ["spider/sync", "spider/openai"]
+
+[[example]]
+name = "openai_cache"
+path = "openai_cache.rs"
+required-features = ["spider/sync", "spider/openai", "spider/cache_openai"]
+
+[[example]]
+name = "gemini"
+path = "gemini.rs"
+required-features = ["spider/sync", "spider/gemini"]
+
+[[example]]
+name = "encoding"
+path = "encoding.rs"
+required-features = ["spider/sync", "spider/encoding"]
+
+[[example]]
+name = "auto_encoding"
+path = "auto_encoding.rs"
+required-features = ["spider/sync", "spider/encoding"]
+
+[[example]]
+name = "advanced_configuration"
+path = "advanced_configuration.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "url_glob"
+path = "url_glob.rs"
+required-features = ["spider/sync", "spider/glob"]
+
+[[example]]
+name = "url_glob_subdomains"
+path = "url_glob_subdomains.rs"
+required-features = ["spider/sync", "spider/glob"]
+
+[[example]]
+name = "subscribe_download"
+path = "subscribe_download.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "queue"
+path = "queue.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "css_scrape"
+path = "css_scrape.rs"
+required-features = ["spider/sync"]
+
+[[example]]
+name = "webdriver"
+path = "webdriver.rs"
+required-features = ["spider/sync", "spider/webdriver", "spider/webdriver_stealth"]
+
+[[example]]
+name = "webdriver_remote"
+path = "webdriver_remote.rs"
+required-features = ["spider/sync", "spider/webdriver", "spider/webdriver_stealth"]
+
+[[example]]
+name = "webdriver_screenshot"
+path = "webdriver_screenshot.rs"
+required-features = ["spider/sync", "spider/webdriver", "spider/webdriver_screenshot"]
+
+[[example]]
+name = "remote_multimodal"
+path = "remote_multimodal.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_scrape"
+path = "remote_multimodal_scrape.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_benchmark"
+path = "remote_multimodal_benchmark.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_multi"
+path = "remote_multimodal_multi.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_dual"
+path = "remote_multimodal_dual.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_dual_automation"
+path = "remote_multimodal_dual_automation.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_quotes"
+path = "remote_multimodal_quotes.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "remote_multimodal_listing"
+path = "remote_multimodal_listing.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/agent_chrome"]
+
+[[example]]
+name = "not_a_robot"
+path = "not_a_robot.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/chrome_headed", "spider/agent_chrome", "spider/agent_skills"]
+
+[[example]]
+name = "not_a_robot_haiku"
+path = "not_a_robot_haiku.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/chrome_headed", "spider/agent_chrome", "spider/agent_skills"]
+
+[[example]]
+name = "not_a_robot_chrome_ai"
+path = "not_a_robot_chrome_ai.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/chrome_headed", "spider/agent_chrome", "spider/agent_skills"]
+
+[[example]]
+name = "spider_cloud_markdown"
+path = "spider_cloud_markdown.rs"
+required-features = ["spider/sync", "spider/spider_cloud"]
+
+[[example]]
+name = "spider_browser_cloud"
+path = "spider_browser_cloud.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/spider_cloud"]
+
+[[example]]
+name = "warc"
+path = "warc.rs"
+required-features = ["spider/sync", "spider/warc"]
+
+[[example]]
+name = "warc_chrome"
+path = "warc_chrome.rs"
+required-features = ["spider/sync", "spider/warc", "spider/chrome"]
+
+[[example]]
+name = "parallel_backends"
+path = "parallel_backends.rs"
+required-features = ["spider/parallel_backends", "spider/sync"]
+
+[[example]]
+name = "parallel_backends_chrome"
+path = "parallel_backends_chrome.rs"
+required-features = ["spider/parallel_backends", "spider/sync", "spider/chrome"]
+
+[[example]]
+name = "dns_nxdomain_test"
+path = "dns_nxdomain_test.rs"
+
+[[example]]
+name = "chrome_remote_logrocket"
+path = "chrome_remote_logrocket.rs"
+required-features = ["spider/sync", "spider/chrome", "spider/chrome_intercept"]

@@ -1,0 +1,13 @@
+....F                                                                    [100%]
+=================================== FAILURES ===================================
+_____________ test_regression_tot_selects_correct_candidate_branch _____________
+tests/test_harness_regressions.py:192: in test_regression_tot_selects_correct_candidate_branch
+    assert ans == "1167", f"ToT must select candidate 1 ('1167'), got {ans!r}"
+E   AssertionError: ToT must select candidate 1 ('1167'), got '422'
+E   assert '422' == '1167'
+E     
+E     - 1167
+E     + 422
+=========================== short test summary info ============================
+FAILED tests/test_harness_regressions.py::test_regression_tot_selects_correct_candidate_branch
+1 failed, 4 passed in 6.62s

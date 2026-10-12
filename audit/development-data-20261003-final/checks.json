@@ -1,0 +1,2330 @@
+{
+  "assessment": "Needs revision before main-study release: structural split overlap and publication provenance",
+  "reviewer": "Codex AI agent",
+  "human_review_status": "pending",
+  "review_sha256": "c653aa25e71f2172bb167292e1e1de4a74b2e3e720a6f47f17bf4e7021c65843",
+  "datasets": [
+    {
+      "path": "data/nckh_reasoning_dataset_draft.json",
+      "sha256": "d72f1be48a1fdec9c5d0942561dc73908a9745753775604be7d8ffda16dabe5a",
+      "items": 66,
+      "groups": 22,
+      "development_items_verified": 54,
+      "group_counts_by_split": {
+        "test": 4,
+        "calibration": 6,
+        "train": 12
+      },
+      "held_out_rows_sha256": "1d1db6a6c62606a160ff1ab57d65f7f8ceed074c5129b44932d7f0626042d763",
+      "blind_problem_isolation": {
+        "canonical_problem_classes": 22,
+        "problem_classes_crossing_splits": 0,
+        "items_in_crossing_problem_classes": 0,
+        "crossing_families": {},
+        "method": "Arithmetic start/steps; g24 number multiset; order clue graph under all name permutations plus asked rank. No test labels used."
+      },
+      "development_outcomes": [
+        {
+          "id": "pal_003_en_orig",
+          "group_id": "grp_pal_003",
+          "split": "calibration",
+          "query_sha256": "0b963df87504a99cf723cacc702bd389d1ba5306e1b5de2b02162a38bb197876",
+          "verified_answer": "5",
+          "proof": "100 - 100/2 - 15 - 2*15"
+        },
+        {
+          "id": "pal_003_en_para",
+          "group_id": "grp_pal_003",
+          "split": "calibration",
+          "query_sha256": "22ffc2998b130c4d464f1c02ec1f714699877670066bd8825e8acece7487303e",
+          "verified_answer": "5",
+          "proof": "100 - 100/2 - 15 - 2*15"
+        },
+        {
+          "id": "pal_003_vi_trans",
+          "group_id": "grp_pal_003",
+          "split": "calibration",
+          "query_sha256": "a92490804913905980f119f37b5f327b15e530094bd2e4fb735c39c4165552af",
+          "verified_answer": "5",
+          "proof": "100 - 100/2 - 15 - 2*15"
+        },
+        {
+          "id": "pal_004_en_orig",
+          "group_id": "grp_pal_004",
+          "split": "train",
+          "query_sha256": "4975c731a2022fae62e22c287c31697d8181e994e4930f16b120599fb3cd0e56",
+          "verified_answer": "192",
+          "proof": "(2*16 + 2*8)*4"
+        },
+        {
+          "id": "pal_004_en_para",
+          "group_id": "grp_pal_004",
+          "split": "train",
+          "query_sha256": "16e7a78cc05850bd9c5728754eef8d9fe55701d624fee7d767a608840c9b2ed7",
+          "verified_answer": "192",
+          "proof": "(2*16 + 2*8)*4"
+        },
+        {
+          "id": "pal_004_vi_trans",
+          "group_id": "grp_pal_004",
+          "split": "train",
+          "query_sha256": "f9113cc02f7bf5f61deb5048825c0aab2890902c63ae5ea939703f9d530a43c5",
+          "verified_answer": "192",
+          "proof": "(2*16 + 2*8)*4"
+        },
+        {
+          "id": "pal_005_en_orig",
+          "group_id": "grp_pal_005",
+          "split": "train",
+          "query_sha256": "1997a719cc519d5931f3da10931b7f430866429720a5d69cb44a6e8d8af36aeb",
+          "verified_answer": "129.6",
+          "proof": "150 * 80/100 * 108/100"
+        },
+        {
+          "id": "pal_005_en_para",
+          "group_id": "grp_pal_005",
+          "split": "train",
+          "query_sha256": "52108f5c9561be9418e944121c147b7d5e1d3733387d64e885306b1dd42b72fb",
+          "verified_answer": "129.6",
+          "proof": "150 * 80/100 * 108/100"
+        },
+        {
+          "id": "pal_005_vi_trans",
+          "group_id": "grp_pal_005",
+          "split": "train",
+          "query_sha256": "aac0b855f2a02a168c8db690464ec0cde67c0da0c83ec9f6be2f5769f3d0b31b",
+          "verified_answer": "129.6",
+          "proof": "150 * 80/100 * 108/100"
+        },
+        {
+          "id": "pal_006_en_orig",
+          "group_id": "grp_pal_006",
+          "split": "calibration",
+          "query_sha256": "fd33a90dacf6fa9906a624fa299d28d1169a6a03c6d27bcf5dec7acf55accc61",
+          "verified_answer": "285",
+          "proof": "75*2 + 90*3/2"
+        },
+        {
+          "id": "pal_006_en_para",
+          "group_id": "grp_pal_006",
+          "split": "calibration",
+          "query_sha256": "ae7899ac5ad4cc2f553121176b4489f0b4ee85b7989e9f8213d4a04076ab2a50",
+          "verified_answer": "285",
+          "proof": "75*2 + 90*3/2"
+        },
+        {
+          "id": "pal_006_vi_trans",
+          "group_id": "grp_pal_006",
+          "split": "calibration",
+          "query_sha256": "63c149b1fc833677269435d45a80be114d83d398cfb4d4c8e4252a059665bffe",
+          "verified_answer": "285",
+          "proof": "75*2 + 90*3/2"
+        },
+        {
+          "id": "pal_007_en_orig",
+          "group_id": "grp_pal_007",
+          "split": "train",
+          "query_sha256": "04ded8211575ec43e105a3a26f7c9f9b75b64425e70c6831f7363ba6ce624f0f",
+          "verified_answer": "84",
+          "proof": "2*(24+18)"
+        },
+        {
+          "id": "pal_007_en_para",
+          "group_id": "grp_pal_007",
+          "split": "train",
+          "query_sha256": "57065989d5cde88faef285cea7d6c7c3c1b55e7181706b7524ed0fd6acbdc5cf",
+          "verified_answer": "84",
+          "proof": "2*(24+18)"
+        },
+        {
+          "id": "pal_007_vi_trans",
+          "group_id": "grp_pal_007",
+          "split": "train",
+          "query_sha256": "3082a32228dc682ca9ed1e1ab48ea6124fd733401ec15048ed3d5faa4bbf52cf",
+          "verified_answer": "84",
+          "proof": "2*(24+18)"
+        },
+        {
+          "id": "pal_008_en_orig",
+          "group_id": "grp_pal_008",
+          "split": "train",
+          "query_sha256": "c4b3cccf2088ef5d5af1b3f5c7f0678be887df65b8cce52b4df58cb23e79781a",
+          "verified_answer": "40",
+          "proof": "(320 - 2*120)/(4-2)"
+        },
+        {
+          "id": "pal_008_en_para",
+          "group_id": "grp_pal_008",
+          "split": "train",
+          "query_sha256": "75c32776207b36c53889d1eb010ee8dc8b7c04255286130c1ccfa2818ec3ff93",
+          "verified_answer": "40",
+          "proof": "(320 - 2*120)/(4-2)"
+        },
+        {
+          "id": "pal_008_vi_trans",
+          "group_id": "grp_pal_008",
+          "split": "train",
+          "query_sha256": "bc556bc613885ac7ffeaed5d050abf7786755855a3fc792ad403ff12f095283d",
+          "verified_answer": "40",
+          "proof": "(320 - 2*120)/(4-2)"
+        },
+        {
+          "id": "react_001_en_orig",
+          "group_id": "grp_react_001",
+          "split": "calibration",
+          "query_sha256": "4234aa2cb85dc2b1e56af3a343cc473fa67a1508cb123c4526a4b2a773e376ca",
+          "verified_answer": "9501",
+          "proof": "345*28 - 1240/5 + 89"
+        },
+        {
+          "id": "react_001_en_para",
+          "group_id": "grp_react_001",
+          "split": "calibration",
+          "query_sha256": "92f230457a348be0405458ae1bf1e242a05d4b94100ee75990eb3a85c68a7936",
+          "verified_answer": "9501",
+          "proof": "345*28 - 1240/5 + 89"
+        },
+        {
+          "id": "react_001_vi_trans",
+          "group_id": "grp_react_001",
+          "split": "calibration",
+          "query_sha256": "9e188cb67b01d1bc7e8c0af8777af91588eccd6e396f7a674e06ee72e98a7628",
+          "verified_answer": "9501",
+          "proof": "345*28 - 1240/5 + 89"
+        },
+        {
+          "id": "react_002_en_orig",
+          "group_id": "grp_react_002",
+          "split": "train",
+          "query_sha256": "360ea71ab4823ad72819d7649cda0520fd3b491ab757045cfacf51defed14b13",
+          "verified_answer": "1167",
+          "proof": "24*18 + 15*25 + 30*12"
+        },
+        {
+          "id": "react_002_en_para",
+          "group_id": "grp_react_002",
+          "split": "train",
+          "query_sha256": "a37cd42307e40c029a8de8b93a20d8c031568280f5f9f39012848332b825c428",
+          "verified_answer": "1167",
+          "proof": "24*18 + 15*25 + 30*12"
+        },
+        {
+          "id": "react_002_vi_trans",
+          "group_id": "grp_react_002",
+          "split": "train",
+          "query_sha256": "7a7b4bdc0b7a7940a5a73aabf292bd9fdfc0ad5ef0d358673791b808f92961fc",
+          "verified_answer": "1167",
+          "proof": "24*18 + 15*25 + 30*12"
+        },
+        {
+          "id": "react_003_en_orig",
+          "group_id": "grp_react_003",
+          "split": "train",
+          "query_sha256": "828e627e774d335e894894535b93c7f21147740ad2df11010dc12391e1055eff",
+          "verified_answer": "146",
+          "proof": "15/100*840 + 25/100*620 - 30/100*450"
+        },
+        {
+          "id": "react_003_en_para",
+          "group_id": "grp_react_003",
+          "split": "train",
+          "query_sha256": "b7bdfda283a2b1c7c8fd19e34a7a24ed2d6cbafb2902585822c2ac976134f9e4",
+          "verified_answer": "146",
+          "proof": "15/100*840 + 25/100*620 - 30/100*450"
+        },
+        {
+          "id": "react_003_vi_trans",
+          "group_id": "grp_react_003",
+          "split": "train",
+          "query_sha256": "290065aad6ab95fd2f57823024b359f1b3db8202848a1577e22a27994ee371d5",
+          "verified_answer": "146",
+          "proof": "15/100*840 + 25/100*620 - 30/100*450"
+        },
+        {
+          "id": "react_004_en_orig",
+          "group_id": "grp_react_004",
+          "split": "train",
+          "query_sha256": "6f023ad45679b22a9b56970d17301a9ccb61aa27defd05ac458d5e3cc653ff1c",
+          "verified_answer": "440",
+          "proof": "145+210+85"
+        },
+        {
+          "id": "react_004_en_para",
+          "group_id": "grp_react_004",
+          "split": "train",
+          "query_sha256": "f8adee36952445e96136f7a2157eb7f97bbaf100ad3830b3c7ca06e79a8cef6a",
+          "verified_answer": "440",
+          "proof": "145+210+85"
+        },
+        {
+          "id": "react_004_vi_trans",
+          "group_id": "grp_react_004",
+          "split": "train",
+          "query_sha256": "bfa963bd1e3d8a2cd1ebc52cde54d3de0a7cd20b87a932fd02164d8b4bb511f3",
+          "verified_answer": "440",
+          "proof": "145+210+85"
+        },
+        {
+          "id": "react_005_en_orig",
+          "group_id": "grp_react_005",
+          "split": "calibration",
+          "query_sha256": "2de000f24135d39c43190bcf924fb252406f520b6114e71b01961ff7f037f87b",
+          "verified_answer": "1500",
+          "proof": "450+520+610-80"
+        },
+        {
+          "id": "react_005_en_para",
+          "group_id": "grp_react_005",
+          "split": "calibration",
+          "query_sha256": "2f4dd2ed3c8488363b73b08ca79f6578bc3f0bdd42a0fcf25d6a9b139356cb11",
+          "verified_answer": "1500",
+          "proof": "450+520+610-80"
+        },
+        {
+          "id": "react_005_vi_trans",
+          "group_id": "grp_react_005",
+          "split": "calibration",
+          "query_sha256": "0f7f3d9ad05eafcca230c1e018821582d8709b3ba273c6ea8544937f331759a4",
+          "verified_answer": "1500",
+          "proof": "450+520+610-80"
+        },
+        {
+          "id": "react_007_en_orig",
+          "group_id": "grp_react_007",
+          "split": "train",
+          "query_sha256": "5e4be88d0108262e94923ee8e55fd4aefe740454502381189d3aeae40e18d10c",
+          "verified_answer": "210",
+          "proof": "3*(45+55) - 4*(120-85) + 250/5"
+        },
+        {
+          "id": "react_007_en_para",
+          "group_id": "grp_react_007",
+          "split": "train",
+          "query_sha256": "95c6adae8a4f3cda541172e39be931de3d91395680560e4db09d964600cbf18c",
+          "verified_answer": "210",
+          "proof": "3*(45+55) - 4*(120-85) + 250/5"
+        },
+        {
+          "id": "react_007_vi_trans",
+          "group_id": "grp_react_007",
+          "split": "train",
+          "query_sha256": "efd8fb4ca7e34776c22f04ea0e15791bb4d8f35f21aefe4e68453d477ee094e9",
+          "verified_answer": "210",
+          "proof": "3*(45+55) - 4*(120-85) + 250/5"
+        },
+        {
+          "id": "plain_002_en_orig",
+          "group_id": "grp_plain_002",
+          "split": "train",
+          "query_sha256": "b28354ab9232478938e29a8e26179931b389501c3f52d41a7e2f619bb425a94e",
+          "verified_answer": "No",
+          "proof": "Countermodel: rose is a flower that fades slowly; lily is a flower that fades quickly."
+        },
+        {
+          "id": "plain_002_en_para",
+          "group_id": "grp_plain_002",
+          "split": "train",
+          "query_sha256": "31b03d90283130ac7083289b11960b57b630d2332bfb92be96c0981603552e69",
+          "verified_answer": "No",
+          "proof": "Countermodel: rose is a flower that fades slowly; lily is a flower that fades quickly."
+        },
+        {
+          "id": "plain_002_vi_trans",
+          "group_id": "grp_plain_002",
+          "split": "train",
+          "query_sha256": "9d5da3aebfd5840e22d150320e5216dcec151ef50202ab342454631c10f9068d",
+          "verified_answer": "No",
+          "proof": "Countermodel: rose is a flower that fades slowly; lily is a flower that fades quickly."
+        },
+        {
+          "id": "plain_003_en_orig",
+          "group_id": "grp_plain_003",
+          "split": "train",
+          "query_sha256": "a49823f57aa7a7a1d9fe1cd82d08ba7d70be0e8502a14fcae8e40418b7a1288b",
+          "verified_answer": "E",
+          "proof": "Exhaustive ordering: 1 consistent order, E-D-C-A-B."
+        },
+        {
+          "id": "plain_003_en_para",
+          "group_id": "grp_plain_003",
+          "split": "train",
+          "query_sha256": "ef41d2b065eda350a7a4ef6e1f0c93a7063a5abd64066450231056fcbecc16d5",
+          "verified_answer": "E",
+          "proof": "Exhaustive ordering: 1 consistent order, E-D-C-A-B."
+        },
+        {
+          "id": "plain_003_vi_trans",
+          "group_id": "grp_plain_003",
+          "split": "train",
+          "query_sha256": "86793a7bac9368b8ab8765f9df4251000696b0ac207c5332921f40242c9e1fec",
+          "verified_answer": "E",
+          "proof": "Exhaustive ordering: 1 consistent order, E-D-C-A-B."
+        },
+        {
+          "id": "plain_004_en_orig",
+          "group_id": "grp_plain_004",
+          "split": "train",
+          "query_sha256": "c7c5b06cafc298e600644ba0c6b6bd7bf97e32f930e1830bcbdc4c6a564b843e",
+          "verified_answer": "Thursday",
+          "proof": "Tuesday index 1 + 100 days modulo 7 = Thursday index 3."
+        },
+        {
+          "id": "plain_004_en_para",
+          "group_id": "grp_plain_004",
+          "split": "train",
+          "query_sha256": "c40cda0080bf03151d8fdf182eef3f43706ea6b9941855a3b34aa300000b482a",
+          "verified_answer": "Thursday",
+          "proof": "Tuesday index 1 + 100 days modulo 7 = Thursday index 3."
+        },
+        {
+          "id": "plain_004_vi_trans",
+          "group_id": "grp_plain_004",
+          "split": "train",
+          "query_sha256": "2c1ecfcafcd1f0529dc6c23f0aaedb501ceb17aaa7c1d56e334a7b4b48d6d4bf",
+          "verified_answer": "Thursday",
+          "proof": "Tuesday index 1 + 100 days modulo 7 = Thursday index 3."
+        },
+        {
+          "id": "plain_005_en_orig",
+          "group_id": "grp_plain_005",
+          "split": "train",
+          "query_sha256": "ff2863f9522c3583f896da0af9f7ce5b53342fcb77322980dfaa9e83d9560cbd",
+          "verified_answer": "Yes",
+          "proof": "All consistent strict age orderings put Tom before Tyke."
+        },
+        {
+          "id": "plain_005_en_para",
+          "group_id": "grp_plain_005",
+          "split": "train",
+          "query_sha256": "a7efcac0e06073bf0b27396c05b80b0d87cda471fbca84c67542538d95b592ab",
+          "verified_answer": "Yes",
+          "proof": "All consistent strict age orderings put Tom before Tyke."
+        },
+        {
+          "id": "plain_005_vi_trans",
+          "group_id": "grp_plain_005",
+          "split": "train",
+          "query_sha256": "5765c6b7b33a6893b5e9c6a4bb7253f7a26613c8af51f4269a909f9180f0d7ae",
+          "verified_answer": "Yes",
+          "proof": "All consistent strict age orderings put Tom before Tyke."
+        },
+        {
+          "id": "plain_006_en_orig",
+          "group_id": "grp_plain_006",
+          "split": "calibration",
+          "query_sha256": "f5cfb9d1da54decbc7f8fbe830b82715e2ed85b3f0f55a7041cd3fec2c04cfa9",
+          "verified_answer": "Goat",
+          "proof": "Boat carries farmer plus one item; only removing Goat leaves a safe unattended starting bank."
+        },
+        {
+          "id": "plain_006_en_para",
+          "group_id": "grp_plain_006",
+          "split": "calibration",
+          "query_sha256": "b484d311e10be782583a73efd1e62b411215b6856e31141f8fdb0bc2d5dcf9cd",
+          "verified_answer": "Goat",
+          "proof": "Boat carries farmer plus one item; only removing Goat leaves a safe unattended starting bank."
+        },
+        {
+          "id": "plain_006_vi_trans",
+          "group_id": "grp_plain_006",
+          "split": "calibration",
+          "query_sha256": "f329c8bb87cd2c743be2dc9e71571b0a20c19d516bc9187be1d5832fc57b08ff",
+          "verified_answer": "Goat",
+          "proof": "Boat carries farmer plus one item; only removing Goat leaves a safe unattended starting bank."
+        },
+        {
+          "id": "plain_007_en_orig",
+          "group_id": "grp_plain_007",
+          "split": "calibration",
+          "query_sha256": "18fa9beddecb11c03bed8b329b201c2044520e7c374e5d6b4c733082114a9664",
+          "verified_answer": "Equal",
+          "proof": "Both masses are exactly 1 kg, using the ordinary mass interpretation."
+        },
+        {
+          "id": "plain_007_en_para",
+          "group_id": "grp_plain_007",
+          "split": "calibration",
+          "query_sha256": "120cc55ac3581365e5ba9959832bce5338ff7340d277b670774fd47c5724587e",
+          "verified_answer": "Equal",
+          "proof": "Both masses are exactly 1 kg, using the ordinary mass interpretation."
+        },
+        {
+          "id": "plain_007_vi_trans",
+          "group_id": "grp_plain_007",
+          "split": "calibration",
+          "query_sha256": "a1f5b916771702e1832243c50f44fcc68a3ce91474e808102b6de753868b9080",
+          "verified_answer": "Equal",
+          "proof": "Both masses are exactly 1 kg, using the ordinary mass interpretation."
+        }
+      ]
+    },
+    {
+      "path": "data/gen_v2.json",
+      "sha256": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+      "items": 180,
+      "groups": 180,
+      "development_items_verified": 108,
+      "group_counts_by_split": {
+        "dev": 36,
+        "calib": 72,
+        "test": 72
+      },
+      "held_out_rows_sha256": "b97893bde328033355bf4c5f7d03b152b36541d4a9dabec05608f5f1efa9aed1",
+      "blind_problem_isolation": {
+        "canonical_problem_classes": 178,
+        "problem_classes_crossing_splits": 1,
+        "items_in_crossing_problem_classes": 2,
+        "crossing_families": {
+          "order": 1
+        },
+        "method": "Arithmetic start/steps; g24 number multiset; order clue graph under all name permutations plus asked rank. No test labels used."
+      },
+      "development_outcomes": [
+        {
+          "id": "arith_0000_en_orig",
+          "group_id": "grp_arith_0000",
+          "split": "dev",
+          "query_sha256": "e8727bb56d734c6c034da01a11da8f9461c6d96fba2308937b76c919dcfc866a",
+          "verified_answer": "52",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0001_en_orig",
+          "group_id": "grp_arith_0001",
+          "split": "dev",
+          "query_sha256": "fe4f70e8ac09bad839bf36f368aece2c87ff274c022b17c888c6d38f0a708642",
+          "verified_answer": "3",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0002_en_orig",
+          "group_id": "grp_arith_0002",
+          "split": "dev",
+          "query_sha256": "fe658230f7fd549f0547247b8f21c81d39903a97d2aa280e75580ef6b9ae2b34",
+          "verified_answer": "318",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0003_en_orig",
+          "group_id": "grp_arith_0003",
+          "split": "calib",
+          "query_sha256": "b77f7b9a4d6dd8b679b58a310769ac1c0a9806630e893ca05093d0578c03a56e",
+          "verified_answer": "24",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0004_en_orig",
+          "group_id": "grp_arith_0004",
+          "split": "calib",
+          "query_sha256": "3f472008d1e6d9e3805a3399d1c86a8c9026456dc96f65764f7bb78f6b2b7f3a",
+          "verified_answer": "58",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0005_en_orig",
+          "group_id": "grp_arith_0005",
+          "split": "calib",
+          "query_sha256": "fdaf19aaf69841f17f05e890f499213d3505fd275d75462f68ad0d1dbbd56418",
+          "verified_answer": "34",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0006_en_orig",
+          "group_id": "grp_arith_0006",
+          "split": "calib",
+          "query_sha256": "c4d967b830be4014318efc2af996ebda73a0647d5826e9ceea161152edeefb01",
+          "verified_answer": "99",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0007_en_orig",
+          "group_id": "grp_arith_0007",
+          "split": "calib",
+          "query_sha256": "f800de9655bc457eda914e6cacc87faf058b875500f672a2bda07ea2b85584a7",
+          "verified_answer": "144",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0008_en_orig",
+          "group_id": "grp_arith_0008",
+          "split": "calib",
+          "query_sha256": "c41d6746609b4138b68bb9e4257189479655e5addee1552575c865a189faaf71",
+          "verified_answer": "96",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0015_en_orig",
+          "group_id": "grp_arith_0015",
+          "split": "dev",
+          "query_sha256": "fcdd8a29d47629f415fffda3bf5f7521973e6316801484c1e2d640f5d94473ec",
+          "verified_answer": "180",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0016_en_orig",
+          "group_id": "grp_arith_0016",
+          "split": "dev",
+          "query_sha256": "2d743b110f880132d42627240e554d5f9d02d9577a5efa2d0e0dbe421e7ecf2c",
+          "verified_answer": "1770",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0017_en_orig",
+          "group_id": "grp_arith_0017",
+          "split": "dev",
+          "query_sha256": "1f5741caf071831f62a63bb755a09f80a6249e75dfd3f057c9419f3054f612e5",
+          "verified_answer": "13",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0018_en_orig",
+          "group_id": "grp_arith_0018",
+          "split": "calib",
+          "query_sha256": "b06a2a7db4ac27d431e15730266ef9854262735c69bb11c8ad6176023e16d12c",
+          "verified_answer": "1039",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0019_en_orig",
+          "group_id": "grp_arith_0019",
+          "split": "calib",
+          "query_sha256": "464b56a66b4cd228ea8b7d6292b308bdd59915a8723f138044e4d02a0298c07f",
+          "verified_answer": "22",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0020_en_orig",
+          "group_id": "grp_arith_0020",
+          "split": "calib",
+          "query_sha256": "894e8819efbf535921c309dfbd19dfdedb5645c0355858a2451f2a1f32d01b36",
+          "verified_answer": "6753",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0021_en_orig",
+          "group_id": "grp_arith_0021",
+          "split": "calib",
+          "query_sha256": "5c2a33ae47d15c6c8b28d26efbf7cb4888b0c08286a4ba433d9f3edbeac543f3",
+          "verified_answer": "1294",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0022_en_orig",
+          "group_id": "grp_arith_0022",
+          "split": "calib",
+          "query_sha256": "a7bb5624c5c2fed72677033a66cc96e645c2f7bcc1a70264cb38b2498274ab97",
+          "verified_answer": "4888",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0023_en_orig",
+          "group_id": "grp_arith_0023",
+          "split": "calib",
+          "query_sha256": "fc178e2bbce26aa17c11c098e80d6df266877d0c6c058f26b24403b8b369afa7",
+          "verified_answer": "1962",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0030_en_orig",
+          "group_id": "grp_arith_0030",
+          "split": "dev",
+          "query_sha256": "32751bfd247117553b2d5ae77f0a2939e5a7482f7a3fee867c3a3d2bda60cfb0",
+          "verified_answer": "3168",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0031_en_orig",
+          "group_id": "grp_arith_0031",
+          "split": "dev",
+          "query_sha256": "ea4a4ce0301cddcaeca59641288741d9fa188c093dab1c75440a1b1ea39ec5c9",
+          "verified_answer": "2639",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0032_en_orig",
+          "group_id": "grp_arith_0032",
+          "split": "dev",
+          "query_sha256": "82566c877e5113b71a5433f152cdcdcd369348c9292f2f0ff791846a709c163e",
+          "verified_answer": "32885",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0033_en_orig",
+          "group_id": "grp_arith_0033",
+          "split": "calib",
+          "query_sha256": "450fea43238de9e86903958eb5539b4aafcdb76affe5b7bbd73b11fa6b8d9932",
+          "verified_answer": "14833",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0034_en_orig",
+          "group_id": "grp_arith_0034",
+          "split": "calib",
+          "query_sha256": "0c1e1d0d7bfa6727f82282905b77cb2c5d7c6b7fdee08b3fa9583eef0f2dcb16",
+          "verified_answer": "5749",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0035_en_orig",
+          "group_id": "grp_arith_0035",
+          "split": "calib",
+          "query_sha256": "2e0a967df7dd9e6c16cc952ace838b6c7e9edc4383eb57d347d99368ac082108",
+          "verified_answer": "241818",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0036_en_orig",
+          "group_id": "grp_arith_0036",
+          "split": "calib",
+          "query_sha256": "98c26fe571a9661b03c23866b96629c49cb8321cb6ab7aee477072ac830f0a43",
+          "verified_answer": "197",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0037_en_orig",
+          "group_id": "grp_arith_0037",
+          "split": "calib",
+          "query_sha256": "625f90f91d00e7bc271b925d61f074338e505d0cf8a88bfad0d0f175555eda9a",
+          "verified_answer": "69496",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0038_en_orig",
+          "group_id": "grp_arith_0038",
+          "split": "calib",
+          "query_sha256": "f2493627186ad45ae12bb89d8a8ec325e561dac2cc43cbd2040bdcb7d86a99ab",
+          "verified_answer": "572007",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0045_en_orig",
+          "group_id": "grp_arith_0045",
+          "split": "dev",
+          "query_sha256": "5da8590bf988608ee83e1ae08a1da660ed75df6283baad0e79cf521daf86b72e",
+          "verified_answer": "9686203",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0046_en_orig",
+          "group_id": "grp_arith_0046",
+          "split": "dev",
+          "query_sha256": "c7dbb5b227a1ccda809a6245dfd06dd2d38daed37cff182a2a6f6827800bf003",
+          "verified_answer": "73369",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0047_en_orig",
+          "group_id": "grp_arith_0047",
+          "split": "dev",
+          "query_sha256": "a967f5b7cce2d7152317d4c3f38881658a0df36b60ebfecf957831fc8c7c67a0",
+          "verified_answer": "42613",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0048_en_orig",
+          "group_id": "grp_arith_0048",
+          "split": "calib",
+          "query_sha256": "266f593e35317fc07a78923b00b1c43b2f08e1c8d6ebcdcbee4b5345aea8e7a8",
+          "verified_answer": "5757558",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0049_en_orig",
+          "group_id": "grp_arith_0049",
+          "split": "calib",
+          "query_sha256": "7b329b2f8048de46a63a857f7cb66810e53947f6ed11ed2be3efff9564366404",
+          "verified_answer": "419072199",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0050_en_orig",
+          "group_id": "grp_arith_0050",
+          "split": "calib",
+          "query_sha256": "0db1b225c5b87d89aa9d362ef027a0c01e71829ddc6ff067a1cac1d2d24ce555",
+          "verified_answer": "33353",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0051_en_orig",
+          "group_id": "grp_arith_0051",
+          "split": "calib",
+          "query_sha256": "0ce7e903628e7520118d6ea54594f26cd9a3193d2dc395c431d00645c7b7c4aa",
+          "verified_answer": "499651680",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0052_en_orig",
+          "group_id": "grp_arith_0052",
+          "split": "calib",
+          "query_sha256": "b3ecfe0c61979ee8bc34477656c0dea0769bb5266603dfacaf086831c1c83a44",
+          "verified_answer": "243880",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0053_en_orig",
+          "group_id": "grp_arith_0053",
+          "split": "calib",
+          "query_sha256": "696585f7f56c3931991ace8e8552ec2dbdcdefedf800fcd91c8d86edffe36af1",
+          "verified_answer": "3378305165",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "order_0000_en_orig",
+          "group_id": "grp_order_0000",
+          "split": "dev",
+          "query_sha256": "51f9b88ae5de241e4eabd5f2e72b462c849551bfdf52531ba3086555a00a7fa9",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0001_en_orig",
+          "group_id": "grp_order_0001",
+          "split": "dev",
+          "query_sha256": "1640f6429be9d447032907e4bdab1d22bddfcee8360e4073b64cb6954ef27483",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0002_en_orig",
+          "group_id": "grp_order_0002",
+          "split": "dev",
+          "query_sha256": "6c48668a149a951dca10bf9db4a8e80f656ce7ff0516e1d2250586ba3535f3d4",
+          "verified_answer": "Carol",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0003_en_orig",
+          "group_id": "grp_order_0003",
+          "split": "calib",
+          "query_sha256": "c2140a0d26999d69e0f2b012742195798adf3fccd3145a583c80fa274a4dc786",
+          "verified_answer": "Carol",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0004_en_orig",
+          "group_id": "grp_order_0004",
+          "split": "calib",
+          "query_sha256": "9868c0f22143347b6d2e056468cc9a49b1a6a284e6e0c9170f27ec4119fb73c9",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0005_en_orig",
+          "group_id": "grp_order_0005",
+          "split": "calib",
+          "query_sha256": "c7d50736ae7f4d8f9d2291fd85a289a9fb968b97e38ffbedd715e04b77b05722",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0006_en_orig",
+          "group_id": "grp_order_0006",
+          "split": "calib",
+          "query_sha256": "be74c3a7c5b0421444b2253c63909c32ffabde037f2b6c9dd1393274bc15026a",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0007_en_orig",
+          "group_id": "grp_order_0007",
+          "split": "calib",
+          "query_sha256": "2d683f887eae1a1adb9181d4c2af03da477bb21f142e311e26db0bd00dae7d4d",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0008_en_orig",
+          "group_id": "grp_order_0008",
+          "split": "calib",
+          "query_sha256": "4e657076397a244b21d541628c00d215fe5baf1b98f7d115c303f5b1a1b70667",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0015_en_orig",
+          "group_id": "grp_order_0015",
+          "split": "dev",
+          "query_sha256": "4155f6a780ba7b9594d838b37adf84608e2cde1ae96a4a6fdd09528b64c9fbf0",
+          "verified_answer": "Dave",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0016_en_orig",
+          "group_id": "grp_order_0016",
+          "split": "dev",
+          "query_sha256": "7cc0ccc9ccc520c30213ba44cf91c056c7f2a9390bc7c1fa6626679d7d390de9",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0017_en_orig",
+          "group_id": "grp_order_0017",
+          "split": "dev",
+          "query_sha256": "b01b16bda1fe2163e167f93aefc48cb40f09f356aa9a3ca54b110854da1edfc9",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0018_en_orig",
+          "group_id": "grp_order_0018",
+          "split": "calib",
+          "query_sha256": "acb9c67bc391b3050ca3a9a97c9b049d5b87dbb246df9a9fdc08dbaf5090d917",
+          "verified_answer": "Dave",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0019_en_orig",
+          "group_id": "grp_order_0019",
+          "split": "calib",
+          "query_sha256": "75ca92dff084f9717d05bb0a95de1008e0f3525e2375c5ee7f701619b3a8ab99",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0020_en_orig",
+          "group_id": "grp_order_0020",
+          "split": "calib",
+          "query_sha256": "971ada92d765e9399335645ae95c4752b38a3ebfa043de4f4458ec45c88f2863",
+          "verified_answer": "Alice",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0021_en_orig",
+          "group_id": "grp_order_0021",
+          "split": "calib",
+          "query_sha256": "1e8b663d391ddb69ecd35a117d7d056e1a22e86cc75cec20423de4a2ee2ce15b",
+          "verified_answer": "Dave",
+          "proof": {
+            "consistent_orders": 6,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0022_en_orig",
+          "group_id": "grp_order_0022",
+          "split": "calib",
+          "query_sha256": "3ef52f8205853c6bd4ac32bc1d3e74b0a9b6ba0e7c24af9acd7b55e2bf56d4fc",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0023_en_orig",
+          "group_id": "grp_order_0023",
+          "split": "calib",
+          "query_sha256": "57aeeca84d3016f17220dcfe4ad7de407a10cf46f4aafd8fbed90eb119b17322",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 6,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0030_en_orig",
+          "group_id": "grp_order_0030",
+          "split": "dev",
+          "query_sha256": "62b9be611018c9a569c7e4b1ff88b7c71c6c1e741ca93af6ce72148ee1cd2c9d",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0031_en_orig",
+          "group_id": "grp_order_0031",
+          "split": "dev",
+          "query_sha256": "c8b201afe33016eba5c525823271360749f747f8cfddd3ebb445c42b39088e0f",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0032_en_orig",
+          "group_id": "grp_order_0032",
+          "split": "dev",
+          "query_sha256": "44939f2575ab3167ce46c6f85ab05517e54c358a03551862b7245655312dd826",
+          "verified_answer": "Dave",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0033_en_orig",
+          "group_id": "grp_order_0033",
+          "split": "calib",
+          "query_sha256": "55dc40a6969ee2bb6381b5f05f632d849c7583716614cff304a2e8ecb7c4a23d",
+          "verified_answer": "Alice",
+          "proof": {
+            "consistent_orders": 3,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0034_en_orig",
+          "group_id": "grp_order_0034",
+          "split": "calib",
+          "query_sha256": "3338c4bf5a6c240aab15ba08214ad4c3e4a724cba80f7e30a5be45b24cb09477",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0035_en_orig",
+          "group_id": "grp_order_0035",
+          "split": "calib",
+          "query_sha256": "f829f7d439ec9e331f7059bc830f4e164ffca74c5fd516b5a401d0f7faae71c2",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0036_en_orig",
+          "group_id": "grp_order_0036",
+          "split": "calib",
+          "query_sha256": "e8873ba8d9b9c5abcf46dfba2166625b2abae6f18ac5b407b028dd8c0953fb6c",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 12,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0037_en_orig",
+          "group_id": "grp_order_0037",
+          "split": "calib",
+          "query_sha256": "8e4e062961fc06433c8d81a566b3a4ffdef5b34f7d0c2a365f6a75a991c3cce9",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0038_en_orig",
+          "group_id": "grp_order_0038",
+          "split": "calib",
+          "query_sha256": "e1b7febd2e3f9f247b3a5d8f88acc7d166e114e1c8bdc6ccf32c74b8c05ef665",
+          "verified_answer": "Alice",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0045_en_orig",
+          "group_id": "grp_order_0045",
+          "split": "dev",
+          "query_sha256": "d86cd8724a261cf8bdc85b83010e6fe609351c16f86f817bd9422a34ed2c9d23",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 6,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0046_en_orig",
+          "group_id": "grp_order_0046",
+          "split": "dev",
+          "query_sha256": "9b562fd022fac5c5988bdd612906cabb3d189b650b18ce7d7180f9ca1cc69b2f",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 12,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0047_en_orig",
+          "group_id": "grp_order_0047",
+          "split": "dev",
+          "query_sha256": "7aa1bcbdeb6e08148a9631179b4fb0f4c53c5063cf30d30988775fecf1342a2b",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 3,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0048_en_orig",
+          "group_id": "grp_order_0048",
+          "split": "calib",
+          "query_sha256": "4dbebe23813725df12ca8a53decb7da508b17fdeec106190878d4a8415aa4cc9",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 18,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0049_en_orig",
+          "group_id": "grp_order_0049",
+          "split": "calib",
+          "query_sha256": "f74f27951f23ceb5e3d412ee843b3675bbfdc8f3d6b0594ec6bad7ce1ddff68f",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 4,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0050_en_orig",
+          "group_id": "grp_order_0050",
+          "split": "calib",
+          "query_sha256": "7fca82617cb5c23070acec0c342a98b40e7c540760656b60e9ba08e84fcdc833",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 3,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0051_en_orig",
+          "group_id": "grp_order_0051",
+          "split": "calib",
+          "query_sha256": "11f18f78b3d4a6ff34daf22c9108cc5046294f5cb9bc49aa0fe0f45b4c46d1ea",
+          "verified_answer": "Alice",
+          "proof": {
+            "consistent_orders": 6,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0052_en_orig",
+          "group_id": "grp_order_0052",
+          "split": "calib",
+          "query_sha256": "450ad9b836291726bf297c8648981fa06932135915be91f2b12bc7213b210c81",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0053_en_orig",
+          "group_id": "grp_order_0053",
+          "split": "calib",
+          "query_sha256": "df7907485e5d3b259a3032c91d7a354f210b8c04730025628a6bfd733e64e892",
+          "verified_answer": "Alice",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "g24_0000_en_orig",
+          "group_id": "grp_g24_0000",
+          "split": "dev",
+          "query_sha256": "ef7491999aba994eb55ec75e7cb77ffb1216b66c27431e253f1c002c8c825e76",
+          "verified_answer": "((10+(13+3))-2)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0001_en_orig",
+          "group_id": "grp_g24_0001",
+          "split": "dev",
+          "query_sha256": "da28c875c9e5c82f0f0a554c68e03465c6b682cccaaa557d73529b0b99264f16",
+          "verified_answer": "(((11*6)/2)-9)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0002_en_orig",
+          "group_id": "grp_g24_0002",
+          "split": "dev",
+          "query_sha256": "6571d5ece05e6a07acedfcaa544c359cd0abd528a0c5608c6dd4280a0456316d",
+          "verified_answer": "((13*1)+(9+2))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0003_en_orig",
+          "group_id": "grp_g24_0003",
+          "split": "calib",
+          "query_sha256": "8653c6b8dc4eda79e6d4e6769907fca691d0e37769efe467dc3100709200e8c9",
+          "verified_answer": "((1*1)+(10+13))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0004_en_orig",
+          "group_id": "grp_g24_0004",
+          "split": "calib",
+          "query_sha256": "b2e399a5ee574e8cd67d20955d6e30b95877863870d8b32141b533e421cea134",
+          "verified_answer": "((11+(3+12))-2)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0005_en_orig",
+          "group_id": "grp_g24_0005",
+          "split": "calib",
+          "query_sha256": "b151d402c773919958d63f173129c40e3f00235b47f7a75abf9950fe8ff7e3de",
+          "verified_answer": "(((4*7)-4)/1)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0006_en_orig",
+          "group_id": "grp_g24_0006",
+          "split": "calib",
+          "query_sha256": "a716f8df4413d95b9531930fbfc4d11aab69bb9f9069b885037076fb05ef662c",
+          "verified_answer": "((1*8)*(12-9))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0007_en_orig",
+          "group_id": "grp_g24_0007",
+          "split": "calib",
+          "query_sha256": "842eeba7a8297a11a50f7a329f222c7c36267f95700d1135319e1c618b829f16",
+          "verified_answer": "(((9*9)/3)-3)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0008_en_orig",
+          "group_id": "grp_g24_0008",
+          "split": "calib",
+          "query_sha256": "bf3d3c04b68b0837353dfab34d1a1478ce41b8913b67bca1d3fab4dae44a9529",
+          "verified_answer": "((2*6)*(3-1))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0015_en_orig",
+          "group_id": "grp_g24_0015",
+          "split": "dev",
+          "query_sha256": "bb5eae4847ba70607c45dc9cb590358ad7fe75fe5712081fb9852ec2b6d9e8b3",
+          "verified_answer": "((10-4)*(9-5))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0016_en_orig",
+          "group_id": "grp_g24_0016",
+          "split": "dev",
+          "query_sha256": "8aaed93bfcb5bc89969abad221b82d09e44a32f9b9c95affb5aab93c6349e4b7",
+          "verified_answer": "((3-9)*(5-9))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0017_en_orig",
+          "group_id": "grp_g24_0017",
+          "split": "dev",
+          "query_sha256": "e9a3231c31d409d0f88dfa82d2582ee561be87424d892ef062681facb0270112",
+          "verified_answer": "(((9*4)-5)-7)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0018_en_orig",
+          "group_id": "grp_g24_0018",
+          "split": "calib",
+          "query_sha256": "f494f86356a0c8fb4e577ab4d90453c6b7d0f81ad15de01799219a5fd4d2d58e",
+          "verified_answer": "((2*5)+(5+9))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0019_en_orig",
+          "group_id": "grp_g24_0019",
+          "split": "calib",
+          "query_sha256": "4e5c4c32236b687fdbed83b1de9f3cf4a26deba352452a64395032aaef503d92",
+          "verified_answer": "((11+12)+(12/12))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0020_en_orig",
+          "group_id": "grp_g24_0020",
+          "split": "calib",
+          "query_sha256": "243e09695a60af4eee6b2986ddf880cf99938d59651c81ae5423ce8c2279a96f",
+          "verified_answer": "((10+8)*(12/9))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0021_en_orig",
+          "group_id": "grp_g24_0021",
+          "split": "calib",
+          "query_sha256": "59b50ef7c51d70e80d9f9439921d68d88c40f26367e2eb39c6812dfdc46e861e",
+          "verified_answer": "(((5*8)-7)-9)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0022_en_orig",
+          "group_id": "grp_g24_0022",
+          "split": "calib",
+          "query_sha256": "da1be560a4e38a04001779389a9663f7c280ae8878e1ba3a62f09f1e8372ab21",
+          "verified_answer": "((11*2)+(6-4))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0023_en_orig",
+          "group_id": "grp_g24_0023",
+          "split": "calib",
+          "query_sha256": "8137b207a3f29e5f314acde206902bbf3dca768bc35c8aaca47d2d88de67e43f",
+          "verified_answer": "((12*(13-7))/3)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0030_en_orig",
+          "group_id": "grp_g24_0030",
+          "split": "dev",
+          "query_sha256": "fb56b6a78b3095745da499bc2dca39f35fa83019833830291a44446c33932c79",
+          "verified_answer": "(((4*9)-4)-8)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0031_en_orig",
+          "group_id": "grp_g24_0031",
+          "split": "dev",
+          "query_sha256": "c0a872680a2930722aa026402505234d557707f7d9b3ce1dc3d6606e6e0b5c81",
+          "verified_answer": "((10+(5*5))-11)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0032_en_orig",
+          "group_id": "grp_g24_0032",
+          "split": "dev",
+          "query_sha256": "9e07898c1f8379667e3b8dd10db9d691208170561d28416e973ab6e62d3b8df4",
+          "verified_answer": "((12+12)*(7-6))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0033_en_orig",
+          "group_id": "grp_g24_0033",
+          "split": "calib",
+          "query_sha256": "161b030acf7d75b015cd8e76da794a2dff420332452a562fe4d5de543aae311c",
+          "verified_answer": "((1+5)*(8-4))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0034_en_orig",
+          "group_id": "grp_g24_0034",
+          "split": "calib",
+          "query_sha256": "d3788c216b890f5500aab86834255e033b7e922499737e6da4f08675d3ad0687",
+          "verified_answer": "((11-9)*(6+6))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0035_en_orig",
+          "group_id": "grp_g24_0035",
+          "split": "calib",
+          "query_sha256": "996ef76c4235ea6eca8258e34006eb03f61e6015f00434251d3dbb3079894e2f",
+          "verified_answer": "(((12*13)/6)-2)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0036_en_orig",
+          "group_id": "grp_g24_0036",
+          "split": "calib",
+          "query_sha256": "39288b946dad0702d3c69f2399f371499b6d3e654705dceae549d41a79c47e92",
+          "verified_answer": "((3+5)+(8*2))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0037_en_orig",
+          "group_id": "grp_g24_0037",
+          "split": "calib",
+          "query_sha256": "9bf8d2519f0c3ffa655ac9605e883f4680aaf889b16b0a2ea0e5a2ea283a4bf9",
+          "verified_answer": "(4+(10*(8-6)))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0038_en_orig",
+          "group_id": "grp_g24_0038",
+          "split": "calib",
+          "query_sha256": "f94bea522615dd59199a8664b9f02f8b4e9578516ea7d866d3e28f18b56dff69",
+          "verified_answer": "((7+1)*(9/3))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0045_en_orig",
+          "group_id": "grp_g24_0045",
+          "split": "dev",
+          "query_sha256": "0449566ce1d47dbb245bda5a4c418869308170acfc83c41a15cbeb3d412db4c0",
+          "verified_answer": "(8*((13-4)-6))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0046_en_orig",
+          "group_id": "grp_g24_0046",
+          "split": "dev",
+          "query_sha256": "3b293f7c41b25d8bd0b5e1e4d566c45e122aa0751efb72c19ff1894f4bb41f0e",
+          "verified_answer": "(2*(2+(2*5)))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0047_en_orig",
+          "group_id": "grp_g24_0047",
+          "split": "dev",
+          "query_sha256": "094713a3ab76b0346ba5b7e0e410e9dc339b8d2931941eac5037c49c5c9bde2c",
+          "verified_answer": "(((11*4)-13)-7)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0048_en_orig",
+          "group_id": "grp_g24_0048",
+          "split": "calib",
+          "query_sha256": "d1dba43eca06a1858258f0c5f7b3fc95247038f0f5020c41347a3703535925e9",
+          "verified_answer": "(4+(10*(7-5)))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0049_en_orig",
+          "group_id": "grp_g24_0049",
+          "split": "calib",
+          "query_sha256": "33051e3ede66592f92f04b2b3665cbd90f07de7db93a81fecd5944ad51774097",
+          "verified_answer": "((10*(4-1))-6)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0050_en_orig",
+          "group_id": "grp_g24_0050",
+          "split": "calib",
+          "query_sha256": "2904fbccf15acbf1a94d55e000fd26c9365b51eff5c7be7c6dc5691b387af24c",
+          "verified_answer": "((12*12)/(12-6))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0051_en_orig",
+          "group_id": "grp_g24_0051",
+          "split": "calib",
+          "query_sha256": "e24d91a96aa0c66352bfadf30c9dfe5f7bd846db194dcedf8086c3399736a973",
+          "verified_answer": "(((7*7)-1)/2)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0052_en_orig",
+          "group_id": "grp_g24_0052",
+          "split": "calib",
+          "query_sha256": "a6438a9153dd2a844856a55ba7f90c1202eac6d72fc46cf5b01d886d768c9d7a",
+          "verified_answer": "(12+(2*(13-7)))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0053_en_orig",
+          "group_id": "grp_g24_0053",
+          "split": "calib",
+          "query_sha256": "6686fab508a2a8cbec118b583768de7458e550e50e9d3651e034de1f298ca247",
+          "verified_answer": "((1+3)*(1+5))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        }
+      ]
+    },
+    {
+      "path": "data/gen_tune.json",
+      "sha256": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+      "items": 94,
+      "groups": 94,
+      "development_items_verified": 60,
+      "group_counts_by_split": {
+        "dev": 24,
+        "calib": 36,
+        "test": 34
+      },
+      "held_out_rows_sha256": "9b831723150b42bed05e1ca753a67d7a8f0362fe38b757c665cbebab9cd193e9",
+      "blind_problem_isolation": {
+        "canonical_problem_classes": 91,
+        "problem_classes_crossing_splits": 2,
+        "items_in_crossing_problem_classes": 5,
+        "crossing_families": {
+          "order": 2
+        },
+        "method": "Arithmetic start/steps; g24 number multiset; order clue graph under all name permutations plus asked rank. No test labels used."
+      },
+      "development_outcomes": [
+        {
+          "id": "arith_0000_en_orig",
+          "group_id": "grp_arith_0000",
+          "split": "dev",
+          "query_sha256": "4f1973c70aaa5c65ec18354a2421bf09bc3cac0ed45aa24b63bc97fe3ee17185",
+          "verified_answer": "115",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0001_en_orig",
+          "group_id": "grp_arith_0001",
+          "split": "dev",
+          "query_sha256": "7552729ca3f37a5ffbfc58e8f96bf08bb792cb1b81abfe7bb7db1e4e51e6eed5",
+          "verified_answer": "2760",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0002_en_orig",
+          "group_id": "grp_arith_0002",
+          "split": "calib",
+          "query_sha256": "ef1d30de5463c553f8d3709f7bd69a915426accc25e463edfe8cfe79af277414",
+          "verified_answer": "133",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0003_en_orig",
+          "group_id": "grp_arith_0003",
+          "split": "calib",
+          "query_sha256": "911cc71a4ef3f422b9146d57ce4982c85a6b63ffeb55c7e29fb6521f24d1212a",
+          "verified_answer": "450",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0004_en_orig",
+          "group_id": "grp_arith_0004",
+          "split": "calib",
+          "query_sha256": "1b8680d01f2cab8c4864c2463358659c83cbd48de6f1e3f97685cf64830b35bd",
+          "verified_answer": "43",
+          "proof": {
+            "parsed_steps": 2
+          }
+        },
+        {
+          "id": "arith_0008_en_orig",
+          "group_id": "grp_arith_0008",
+          "split": "dev",
+          "query_sha256": "9b85b79cbf00a1c41a449ae65ae5e17261d405655f623e8bf4434e33ac06ff1c",
+          "verified_answer": "1292",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0009_en_orig",
+          "group_id": "grp_arith_0009",
+          "split": "dev",
+          "query_sha256": "b0fcb5803fd35ac7bdc12053997be42632696cee1f6d3f7c81832c150bf90980",
+          "verified_answer": "364",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0010_en_orig",
+          "group_id": "grp_arith_0010",
+          "split": "calib",
+          "query_sha256": "6b13c180fcaebbdb9415b91af9682a724629561d4f5fb19ba8b764028c8ac346",
+          "verified_answer": "3821",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0011_en_orig",
+          "group_id": "grp_arith_0011",
+          "split": "calib",
+          "query_sha256": "bf439ac0269ff25c2fdac5cc8eba98c6afe93d61990d02d8d17994db1508356c",
+          "verified_answer": "1196",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0012_en_orig",
+          "group_id": "grp_arith_0012",
+          "split": "calib",
+          "query_sha256": "ec11aa03d6ee163662f1e90f4716ebb163de2685708174836aa436ec6cd0bed2",
+          "verified_answer": "46593",
+          "proof": {
+            "parsed_steps": 4
+          }
+        },
+        {
+          "id": "arith_0016_en_orig",
+          "group_id": "grp_arith_0016",
+          "split": "dev",
+          "query_sha256": "03fe58138fcd97fee8419676d8b0fa16af9c34f2c4628981db7625f78769f819",
+          "verified_answer": "26981",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0017_en_orig",
+          "group_id": "grp_arith_0017",
+          "split": "dev",
+          "query_sha256": "a3ed2527a0992366ef458d16c1d378b33bc5e593be5a067450588103eedd702c",
+          "verified_answer": "56150",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0018_en_orig",
+          "group_id": "grp_arith_0018",
+          "split": "calib",
+          "query_sha256": "f118c2ef8778e90e5afd204f8e1e87b86851157f36e3a289735b1766e6cf8d90",
+          "verified_answer": "9028",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0019_en_orig",
+          "group_id": "grp_arith_0019",
+          "split": "calib",
+          "query_sha256": "c31ef847f76a6b006615127e7f9d371217f9d938354c4c5b2468fa2b4f5ff60e",
+          "verified_answer": "141764",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0020_en_orig",
+          "group_id": "grp_arith_0020",
+          "split": "calib",
+          "query_sha256": "da8a53fc5a86d88737267ead5dddff68dcac8d55596c8f46ca722c167262c6a8",
+          "verified_answer": "1826",
+          "proof": {
+            "parsed_steps": 6
+          }
+        },
+        {
+          "id": "arith_0024_en_orig",
+          "group_id": "grp_arith_0024",
+          "split": "dev",
+          "query_sha256": "dfa9930b83f5009e6bdafb92cfe744f05da4d2d16604d107d020c5bb3ebb773b",
+          "verified_answer": "4693538",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0025_en_orig",
+          "group_id": "grp_arith_0025",
+          "split": "dev",
+          "query_sha256": "b96ed331e3632d8a7f38777d5d59c8e8d49c6aad40b015ed1401d5480b7c05e9",
+          "verified_answer": "2466710",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0026_en_orig",
+          "group_id": "grp_arith_0026",
+          "split": "calib",
+          "query_sha256": "f2c3033639ae2d384c70d16a2edb586f9b26aa66294aa18ecc1ba0f05d7481fe",
+          "verified_answer": "25842332",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0027_en_orig",
+          "group_id": "grp_arith_0027",
+          "split": "calib",
+          "query_sha256": "d23c003793e5694eb492a4da9f12038cc50e91aea4cac342ffa973113510c12e",
+          "verified_answer": "230037",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "arith_0028_en_orig",
+          "group_id": "grp_arith_0028",
+          "split": "calib",
+          "query_sha256": "7a2408f5f32320276e1786d90d066e3c5e8fe103a003de5cd7011b238153666c",
+          "verified_answer": "113731565",
+          "proof": {
+            "parsed_steps": 8
+          }
+        },
+        {
+          "id": "order_0000_en_orig",
+          "group_id": "grp_order_0000",
+          "split": "dev",
+          "query_sha256": "a3bcd0dcf6864a563a087189c5c7f7c2e253bab51ff1d480557dc35afb50ae38",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0001_en_orig",
+          "group_id": "grp_order_0001",
+          "split": "dev",
+          "query_sha256": "f1f8bdb125505d1bc3de10640070e9587a5da3783d9199af12a71b6ab3158dce",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0002_en_orig",
+          "group_id": "grp_order_0002",
+          "split": "calib",
+          "query_sha256": "bc54ef8666f82bf6e8ffae9fa51602e1f7b902f163cac02748da1888bbd82c66",
+          "verified_answer": "Dave",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0003_en_orig",
+          "group_id": "grp_order_0003",
+          "split": "calib",
+          "query_sha256": "fa77ed7aefe8d4508315d93347477d5469cf3247c30b41089d8b9e4d58d15c11",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0004_en_orig",
+          "group_id": "grp_order_0004",
+          "split": "calib",
+          "query_sha256": "5ba7fcce4f7097e72e1ff186a7eed7a289aa33b4aa53e5f2e77abf33fafa0659",
+          "verified_answer": "Carol",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 3
+          }
+        },
+        {
+          "id": "order_0008_en_orig",
+          "group_id": "grp_order_0008",
+          "split": "dev",
+          "query_sha256": "73b7dc57768104a895b358a88e728b207a691702d4caccdebb876ee04da398bf",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0009_en_orig",
+          "group_id": "grp_order_0009",
+          "split": "dev",
+          "query_sha256": "51542149c5897988ce6d5268edecd781a431a3a4115f19b26cd77d6b55a00c6c",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0010_en_orig",
+          "group_id": "grp_order_0010",
+          "split": "calib",
+          "query_sha256": "e9dabba2b5aff5078aeae944d6485c4e4e7c77f0be089d1d09d2b41f9bb5806a",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0011_en_orig",
+          "group_id": "grp_order_0011",
+          "split": "calib",
+          "query_sha256": "3e2f92f12cafeeae5c800f0091ace3486f024ece4d1fb65bc20f5981d0dbe00c",
+          "verified_answer": "Bob",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0012_en_orig",
+          "group_id": "grp_order_0012",
+          "split": "calib",
+          "query_sha256": "e09165c459623f2d85b92c4265f4e95cc992aa472f4adebc60f15a5336d13c1a",
+          "verified_answer": "Dave",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 4
+          }
+        },
+        {
+          "id": "order_0016_en_orig",
+          "group_id": "grp_order_0016",
+          "split": "dev",
+          "query_sha256": "979bb53922acc73528a20a5bd502e8915091cb796ac8caa645ea30a71f74215b",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 1,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0017_en_orig",
+          "group_id": "grp_order_0017",
+          "split": "dev",
+          "query_sha256": "412bbedb2e0e246e3024a82cc9dcfb5b0f4c063cab5b015193dd6b4a45c73f08",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 6,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0018_en_orig",
+          "group_id": "grp_order_0018",
+          "split": "calib",
+          "query_sha256": "d51779365f962cea6c58538cb46a03a33fb6a8e4204f9ab9552e66382e697368",
+          "verified_answer": "Frank",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0019_en_orig",
+          "group_id": "grp_order_0019",
+          "split": "calib",
+          "query_sha256": "31d0c6d00e116840cb326bf509e524c6ed7f7e66c74f9a481f23905ff9a42b32",
+          "verified_answer": "Grace",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0020_en_orig",
+          "group_id": "grp_order_0020",
+          "split": "calib",
+          "query_sha256": "cd9ef78f87b0fcef2d74dc6af7ec2abc4cde777698ed2b5750eee248821d5742",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 4,
+            "parsed_clues": 5
+          }
+        },
+        {
+          "id": "order_0024_en_orig",
+          "group_id": "grp_order_0024",
+          "split": "dev",
+          "query_sha256": "84a9a63d7605d1aea1ca25da74e94dc7ff615bc557fc7303116fc0a601c28e65",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0025_en_orig",
+          "group_id": "grp_order_0025",
+          "split": "dev",
+          "query_sha256": "74c400e47fbd2b91b07ac4279037fc4971cc7e9d7199afae4ff0cba6c4437eb2",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 2,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0026_en_orig",
+          "group_id": "grp_order_0026",
+          "split": "calib",
+          "query_sha256": "479e6de928424434ac4d806885baa4c3e9f0cbd1ff068d32510e45f9d8a8d2aa",
+          "verified_answer": "Alice",
+          "proof": {
+            "consistent_orders": 8,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0027_en_orig",
+          "group_id": "grp_order_0027",
+          "split": "calib",
+          "query_sha256": "0bee38687c270ab04ebffc50455c957a21d8e34c4f6ca6dbd6e3b73517691c62",
+          "verified_answer": "Erin",
+          "proof": {
+            "consistent_orders": 6,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "order_0028_en_orig",
+          "group_id": "grp_order_0028",
+          "split": "calib",
+          "query_sha256": "cfe4b06ccac57e46d85d0b70427567a19caf5cfae70bb8293dc4cd23331ed2ea",
+          "verified_answer": "Heidi",
+          "proof": {
+            "consistent_orders": 60,
+            "parsed_clues": 6
+          }
+        },
+        {
+          "id": "g24_0000_en_orig",
+          "group_id": "grp_g24_0000",
+          "split": "dev",
+          "query_sha256": "410440c41c7d5744ba3bef274b374f436ad3cb693fdd6271deca151a67f72b1e",
+          "verified_answer": "((12+(13+2))-3)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0001_en_orig",
+          "group_id": "grp_g24_0001",
+          "split": "dev",
+          "query_sha256": "2af7b0cec88c73eb54de624451de29af80bbe870f6377c3f2dd32899cc70f139",
+          "verified_answer": "((3-9)*(4-8))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0002_en_orig",
+          "group_id": "grp_g24_0002",
+          "split": "calib",
+          "query_sha256": "51141596f835588c925783f8ff73ba8301fb685ab49369aedc8ec839e9cc0e66",
+          "verified_answer": "((10+(7+8))-1)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0003_en_orig",
+          "group_id": "grp_g24_0003",
+          "split": "calib",
+          "query_sha256": "6015e140947ffcc325de56dd6d5c7b90911a0748d65016f6370fe1cc6315b4e6",
+          "verified_answer": "((4+7)+(5+8))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0004_en_orig",
+          "group_id": "grp_g24_0004",
+          "split": "calib",
+          "query_sha256": "10a547025fb070107596d982420417ef6ff1570d3a02ee49121beed68fa2b96b",
+          "verified_answer": "((1*12)*(8-6))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0008_en_orig",
+          "group_id": "grp_g24_0008",
+          "split": "dev",
+          "query_sha256": "99cf32f138e9359852721cb14aef5b55f2c23dede9ac3abc16242f2be74e815b",
+          "verified_answer": "((13+(2*7))-3)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0009_en_orig",
+          "group_id": "grp_g24_0009",
+          "split": "dev",
+          "query_sha256": "abcc03dbe75f941fbd5f847ffad7c901587ad5757bb586b5b1d749c33d726c00",
+          "verified_answer": "(((5*6)-2)-4)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0010_en_orig",
+          "group_id": "grp_g24_0010",
+          "split": "calib",
+          "query_sha256": "b4887d7c4b7afe31528bad1e4cd162baa519a9fa9e7fd2295fb7d2add3182bf3",
+          "verified_answer": "((12*(13-11))/1)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0011_en_orig",
+          "group_id": "grp_g24_0011",
+          "split": "calib",
+          "query_sha256": "dbd7b4c5175650c9ef822cd62004668d4db96721d14799e383538d214dc142c5",
+          "verified_answer": "((2*(3+11))-4)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0012_en_orig",
+          "group_id": "grp_g24_0012",
+          "split": "calib",
+          "query_sha256": "930da9dc51457e033f16bb467879be6ec7db6f54aa850c5ce092d26dd2f05745",
+          "verified_answer": "((11+(4*5))-7)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0016_en_orig",
+          "group_id": "grp_g24_0016",
+          "split": "dev",
+          "query_sha256": "4ae7560badaec226dc8bf205060b237bdb031820ff42c6a8bf19078a1182b19f",
+          "verified_answer": "(12*((1+12)-11))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0017_en_orig",
+          "group_id": "grp_g24_0017",
+          "split": "dev",
+          "query_sha256": "47a3e914eb237e4d82bce83cbef43b64febb89ece836353dfdf57fc3b8ba970d",
+          "verified_answer": "(4*((5+9)-8))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0018_en_orig",
+          "group_id": "grp_g24_0018",
+          "split": "calib",
+          "query_sha256": "8e7b47fc258132b6b69d41803ec60e21de4e1e705ea7ebba36b841a727faedcf",
+          "verified_answer": "(3*((4+13)-9))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0019_en_orig",
+          "group_id": "grp_g24_0019",
+          "split": "calib",
+          "query_sha256": "86cf47ba2ec91457ec8c48d56b07746e10d132a52ea26f7f18814e239bed533e",
+          "verified_answer": "((1-13)*(11-13))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0020_en_orig",
+          "group_id": "grp_g24_0020",
+          "split": "calib",
+          "query_sha256": "2626d86ea30581e6eb8c250036680e971d78948e813ef8a182c832fa8358b8a7",
+          "verified_answer": "((12*12)/(4+2))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0024_en_orig",
+          "group_id": "grp_g24_0024",
+          "split": "dev",
+          "query_sha256": "3315001b29c23d0e59fd06a5ef30e3582fee321a84442f66f368c69d393cada6",
+          "verified_answer": "(((9*5)-10)-11)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0025_en_orig",
+          "group_id": "grp_g24_0025",
+          "split": "dev",
+          "query_sha256": "ee370f799bae177e4dabb79361cf565fcc8608bceb61ebebbf1663b07aac0546",
+          "verified_answer": "((5*(13-8))-1)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0026_en_orig",
+          "group_id": "grp_g24_0026",
+          "split": "calib",
+          "query_sha256": "c48ef31f3ca0b314a7e5a4403e05fae2436249433558ee3afe6a17b75a94f04e",
+          "verified_answer": "(4+(10*(1+1)))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0027_en_orig",
+          "group_id": "grp_g24_0027",
+          "split": "calib",
+          "query_sha256": "f5047f1f34e1a3b9270c3a1d0b94f140f18d9edf281d6bc8291e257464ba8344",
+          "verified_answer": "(7*(5-(11/7)))",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        },
+        {
+          "id": "g24_0028_en_orig",
+          "group_id": "grp_g24_0028",
+          "split": "calib",
+          "query_sha256": "5571dbda2b6f35a5782b8b9800be89f807077b5e636c4f286236d12b82a60f80",
+          "verified_answer": "((8*(13-9))-8)",
+          "proof": {
+            "exact_value": "24",
+            "numbers_used_exactly_once": true
+          }
+        }
+      ]
+    }
+  ],
+  "held_out_rows_unchanged": true,
+  "cross_dataset_identity": [
+    {
+      "datasets": [
+        "data/nckh_reasoning_dataset_draft.json",
+        "data/gen_v2.json"
+      ],
+      "shared_group_names": 0,
+      "shared_problem_fingerprints": 0
+    },
+    {
+      "datasets": [
+        "data/nckh_reasoning_dataset_draft.json",
+        "data/gen_tune.json"
+      ],
+      "shared_group_names": 0,
+      "shared_problem_fingerprints": 0
+    },
+    {
+      "datasets": [
+        "data/gen_v2.json",
+        "data/gen_tune.json"
+      ],
+      "shared_group_names": 94,
+      "shared_problem_fingerprints": 1
+    }
+  ],
+  "scope": "Development-only semantic/gold review; test rows used only for blinded isolation fingerprints"
+}

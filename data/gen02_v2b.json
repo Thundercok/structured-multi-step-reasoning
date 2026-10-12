@@ -1,0 +1,8303 @@
+{
+ "meta": {
+  "generator": "gen_tasks.py 0.2.2",
+  "seed": 0,
+  "n_per_level": 15,
+  "n_items": 195,
+  "sha256_items": "d7ca98637f1d6c8d281fb9f2dc7220a7e96873c8e3686e121fb549b42b49c54d"
+ },
+ "items": [
+  {
+   "id": "arith_0000_en_orig",
+   "group_id": "grp_arith_0000",
+   "query": "A counter starts at 59. Apply these steps in order: (1) multiply the result by 2; (2) subtract 66. What is the final value of the counter?",
+   "answer": "52",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 59,
+    "steps": [
+     [
+      "mul",
+      2
+     ],
+     [
+      "sub",
+      66
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0001_en_orig",
+   "group_id": "grp_arith_0001",
+   "query": "A counter starts at 72. Apply these steps in order: (1) divide the result by 4; (2) divide the result by 6. What is the final value of the counter?",
+   "answer": "3",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 72,
+    "steps": [
+     [
+      "div",
+      4
+     ],
+     [
+      "div",
+      6
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0002_en_orig",
+   "group_id": "grp_arith_0002",
+   "query": "A counter starts at 84. Apply these steps in order: (1) multiply the result by 4; (2) subtract 18. What is the final value of the counter?",
+   "answer": "318",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 84,
+    "steps": [
+     [
+      "mul",
+      4
+     ],
+     [
+      "sub",
+      18
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0003_en_orig",
+   "group_id": "grp_arith_0003",
+   "query": "A counter starts at 22. Apply these steps in order: (1) subtract 18; (2) multiply the result by 6. What is the final value of the counter?",
+   "answer": "24",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 22,
+    "steps": [
+     [
+      "sub",
+      18
+     ],
+     [
+      "mul",
+      6
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0004_en_orig",
+   "group_id": "grp_arith_0004",
+   "query": "A counter starts at 22. Apply these steps in order: (1) add 97; (2) subtract 61. What is the final value of the counter?",
+   "answer": "58",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 22,
+    "steps": [
+     [
+      "add",
+      97
+     ],
+     [
+      "sub",
+      61
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0005_en_orig",
+   "group_id": "grp_arith_0005",
+   "query": "A counter starts at 81. Apply these steps in order: (1) add 55; (2) divide the result by 4. What is the final value of the counter?",
+   "answer": "34",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 81,
+    "steps": [
+     [
+      "add",
+      55
+     ],
+     [
+      "div",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0006_en_orig",
+   "group_id": "grp_arith_0006",
+   "query": "A counter starts at 88. Apply these steps in order: (1) multiply the result by 9; (2) divide the result by 8. What is the final value of the counter?",
+   "answer": "99",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 88,
+    "steps": [
+     [
+      "mul",
+      9
+     ],
+     [
+      "div",
+      8
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0007_en_orig",
+   "group_id": "grp_arith_0007",
+   "query": "A counter starts at 43. Apply these steps in order: (1) add 80; (2) add 21. What is the final value of the counter?",
+   "answer": "144",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 43,
+    "steps": [
+     [
+      "add",
+      80
+     ],
+     [
+      "add",
+      21
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0008_en_orig",
+   "group_id": "grp_arith_0008",
+   "query": "A counter starts at 61. Apply these steps in order: (1) subtract 53; (2) add 88. What is the final value of the counter?",
+   "answer": "96",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 61,
+    "steps": [
+     [
+      "sub",
+      53
+     ],
+     [
+      "add",
+      88
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0009_en_orig",
+   "group_id": "grp_arith_0009",
+   "query": "A counter starts at 73. Apply these steps in order: (1) multiply the result by 5; (2) subtract 91. What is the final value of the counter?",
+   "answer": "274",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 73,
+    "steps": [
+     [
+      "mul",
+      5
+     ],
+     [
+      "sub",
+      91
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0010_en_orig",
+   "group_id": "grp_arith_0010",
+   "query": "A counter starts at 18. Apply these steps in order: (1) multiply the result by 5; (2) multiply the result by 4. What is the final value of the counter?",
+   "answer": "360",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 18,
+    "steps": [
+     [
+      "mul",
+      5
+     ],
+     [
+      "mul",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0011_en_orig",
+   "group_id": "grp_arith_0011",
+   "query": "A counter starts at 79. Apply these steps in order: (1) multiply the result by 3; (2) add 50. What is the final value of the counter?",
+   "answer": "287",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 79,
+    "steps": [
+     [
+      "mul",
+      3
+     ],
+     [
+      "add",
+      50
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0012_en_orig",
+   "group_id": "grp_arith_0012",
+   "query": "A counter starts at 75. Apply these steps in order: (1) divide the result by 3; (2) subtract 18. What is the final value of the counter?",
+   "answer": "7",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 75,
+    "steps": [
+     [
+      "div",
+      3
+     ],
+     [
+      "sub",
+      18
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0013_en_orig",
+   "group_id": "grp_arith_0013",
+   "query": "A counter starts at 47. Apply these steps in order: (1) subtract 8; (2) subtract 35. What is the final value of the counter?",
+   "answer": "4",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 47,
+    "steps": [
+     [
+      "sub",
+      8
+     ],
+     [
+      "sub",
+      35
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0014_en_orig",
+   "group_id": "grp_arith_0014",
+   "query": "A counter starts at 36. Apply these steps in order: (1) subtract 29; (2) add 86. What is the final value of the counter?",
+   "answer": "93",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 1,
+   "difficulty": {
+    "steps": 2,
+    "digits": 2,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 36,
+    "steps": [
+     [
+      "sub",
+      29
+     ],
+     [
+      "add",
+      86
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0015_en_orig",
+   "group_id": "grp_arith_0015",
+   "query": "A counter starts at 917. Apply these steps in order: (1) divide the result by 7; (2) subtract 62; (3) subtract 24; (4) multiply the result by 4. What is the final value of the counter?",
+   "answer": "180",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 917,
+    "steps": [
+     [
+      "div",
+      7
+     ],
+     [
+      "sub",
+      62
+     ],
+     [
+      "sub",
+      24
+     ],
+     [
+      "mul",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0016_en_orig",
+   "group_id": "grp_arith_0016",
+   "query": "A counter starts at 133. Apply these steps in order: (1) subtract 122; (2) add 191; (3) multiply the result by 4; (4) add 962. What is the final value of the counter?",
+   "answer": "1770",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 133,
+    "steps": [
+     [
+      "sub",
+      122
+     ],
+     [
+      "add",
+      191
+     ],
+     [
+      "mul",
+      4
+     ],
+     [
+      "add",
+      962
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0017_en_orig",
+   "group_id": "grp_arith_0017",
+   "query": "A counter starts at 182. Apply these steps in order: (1) divide the result by 7; (2) multiply the result by 5; (3) divide the result by 5; (4) divide the result by 2. What is the final value of the counter?",
+   "answer": "13",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 182,
+    "steps": [
+     [
+      "div",
+      7
+     ],
+     [
+      "mul",
+      5
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "div",
+      2
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0018_en_orig",
+   "group_id": "grp_arith_0018",
+   "query": "A counter starts at 776. Apply these steps in order: (1) subtract 85; (2) multiply the result by 3; (3) divide the result by 3; (4) add 348. What is the final value of the counter?",
+   "answer": "1039",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 776,
+    "steps": [
+     [
+      "sub",
+      85
+     ],
+     [
+      "mul",
+      3
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      348
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0019_en_orig",
+   "group_id": "grp_arith_0019",
+   "query": "A counter starts at 116. Apply these steps in order: (1) subtract 15; (2) subtract 29; (3) subtract 22; (4) subtract 28. What is the final value of the counter?",
+   "answer": "22",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 116,
+    "steps": [
+     [
+      "sub",
+      15
+     ],
+     [
+      "sub",
+      29
+     ],
+     [
+      "sub",
+      22
+     ],
+     [
+      "sub",
+      28
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0020_en_orig",
+   "group_id": "grp_arith_0020",
+   "query": "A counter starts at 935. Apply these steps in order: (1) add 203; (2) multiply the result by 5; (3) add 936; (4) add 127. What is the final value of the counter?",
+   "answer": "6753",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 935,
+    "steps": [
+     [
+      "add",
+      203
+     ],
+     [
+      "mul",
+      5
+     ],
+     [
+      "add",
+      936
+     ],
+     [
+      "add",
+      127
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0021_en_orig",
+   "group_id": "grp_arith_0021",
+   "query": "A counter starts at 227. Apply these steps in order: (1) subtract 49; (2) add 500; (3) add 479; (4) add 137. What is the final value of the counter?",
+   "answer": "1294",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 227,
+    "steps": [
+     [
+      "sub",
+      49
+     ],
+     [
+      "add",
+      500
+     ],
+     [
+      "add",
+      479
+     ],
+     [
+      "add",
+      137
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0022_en_orig",
+   "group_id": "grp_arith_0022",
+   "query": "A counter starts at 720. Apply these steps in order: (1) add 299; (2) add 835; (3) add 590; (4) multiply the result by 2. What is the final value of the counter?",
+   "answer": "4888",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 720,
+    "steps": [
+     [
+      "add",
+      299
+     ],
+     [
+      "add",
+      835
+     ],
+     [
+      "add",
+      590
+     ],
+     [
+      "mul",
+      2
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0023_en_orig",
+   "group_id": "grp_arith_0023",
+   "query": "A counter starts at 795. Apply these steps in order: (1) add 657; (2) divide the result by 2; (3) subtract 72; (4) multiply the result by 3. What is the final value of the counter?",
+   "answer": "1962",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 795,
+    "steps": [
+     [
+      "add",
+      657
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      72
+     ],
+     [
+      "mul",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0024_en_orig",
+   "group_id": "grp_arith_0024",
+   "query": "A counter starts at 762. Apply these steps in order: (1) subtract 359; (2) multiply the result by 4; (3) add 615; (4) multiply the result by 2. What is the final value of the counter?",
+   "answer": "4454",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 762,
+    "steps": [
+     [
+      "sub",
+      359
+     ],
+     [
+      "mul",
+      4
+     ],
+     [
+      "add",
+      615
+     ],
+     [
+      "mul",
+      2
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0025_en_orig",
+   "group_id": "grp_arith_0025",
+   "query": "A counter starts at 710. Apply these steps in order: (1) add 816; (2) divide the result by 2; (3) subtract 368; (4) divide the result by 5. What is the final value of the counter?",
+   "answer": "79",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 710,
+    "steps": [
+     [
+      "add",
+      816
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      368
+     ],
+     [
+      "div",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0026_en_orig",
+   "group_id": "grp_arith_0026",
+   "query": "A counter starts at 814. Apply these steps in order: (1) multiply the result by 2; (2) multiply the result by 4; (3) subtract 543; (4) multiply the result by 3. What is the final value of the counter?",
+   "answer": "17907",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 814,
+    "steps": [
+     [
+      "mul",
+      2
+     ],
+     [
+      "mul",
+      4
+     ],
+     [
+      "sub",
+      543
+     ],
+     [
+      "mul",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0027_en_orig",
+   "group_id": "grp_arith_0027",
+   "query": "A counter starts at 711. Apply these steps in order: (1) divide the result by 3; (2) add 582; (3) divide the result by 9; (4) subtract 84. What is the final value of the counter?",
+   "answer": "7",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 711,
+    "steps": [
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      582
+     ],
+     [
+      "div",
+      9
+     ],
+     [
+      "sub",
+      84
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0028_en_orig",
+   "group_id": "grp_arith_0028",
+   "query": "A counter starts at 465. Apply these steps in order: (1) divide the result by 5; (2) multiply the result by 2; (3) divide the result by 6; (4) add 443. What is the final value of the counter?",
+   "answer": "474",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 465,
+    "steps": [
+     [
+      "div",
+      5
+     ],
+     [
+      "mul",
+      2
+     ],
+     [
+      "div",
+      6
+     ],
+     [
+      "add",
+      443
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0029_en_orig",
+   "group_id": "grp_arith_0029",
+   "query": "A counter starts at 856. Apply these steps in order: (1) add 657; (2) multiply the result by 4; (3) multiply the result by 9; (4) subtract 625. What is the final value of the counter?",
+   "answer": "53843",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 2,
+   "difficulty": {
+    "steps": 4,
+    "digits": 3,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 856,
+    "steps": [
+     [
+      "add",
+      657
+     ],
+     [
+      "mul",
+      4
+     ],
+     [
+      "mul",
+      9
+     ],
+     [
+      "sub",
+      625
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0030_en_orig",
+   "group_id": "grp_arith_0030",
+   "query": "A counter starts at 5716. Apply these steps in order: (1) subtract 4836; (2) multiply the result by 6; (3) divide the result by 8; (4) divide the result by 2; (5) add 4150; (6) subtract 1312. What is the final value of the counter?",
+   "answer": "3168",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 5716,
+    "steps": [
+     [
+      "sub",
+      4836
+     ],
+     [
+      "mul",
+      6
+     ],
+     [
+      "div",
+      8
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "add",
+      4150
+     ],
+     [
+      "sub",
+      1312
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0031_en_orig",
+   "group_id": "grp_arith_0031",
+   "query": "A counter starts at 4922. Apply these steps in order: (1) multiply the result by 9; (2) divide the result by 9; (3) add 7590; (4) divide the result by 8; (5) add 3714; (6) divide the result by 2. What is the final value of the counter?",
+   "answer": "2639",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 4922,
+    "steps": [
+     [
+      "mul",
+      9
+     ],
+     [
+      "div",
+      9
+     ],
+     [
+      "add",
+      7590
+     ],
+     [
+      "div",
+      8
+     ],
+     [
+      "add",
+      3714
+     ],
+     [
+      "div",
+      2
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0032_en_orig",
+   "group_id": "grp_arith_0032",
+   "query": "A counter starts at 5247. Apply these steps in order: (1) multiply the result by 9; (2) divide the result by 3; (3) add 9103; (4) subtract 5113; (5) divide the result by 3; (6) multiply the result by 5. What is the final value of the counter?",
+   "answer": "32885",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 5247,
+    "steps": [
+     [
+      "mul",
+      9
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      9103
+     ],
+     [
+      "sub",
+      5113
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "mul",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0033_en_orig",
+   "group_id": "grp_arith_0033",
+   "query": "A counter starts at 9987. Apply these steps in order: (1) add 3138; (2) add 7583; (3) divide the result by 4; (4) add 4498; (5) add 1038; (6) add 4120. What is the final value of the counter?",
+   "answer": "14833",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 9987,
+    "steps": [
+     [
+      "add",
+      3138
+     ],
+     [
+      "add",
+      7583
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "add",
+      4498
+     ],
+     [
+      "add",
+      1038
+     ],
+     [
+      "add",
+      4120
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0034_en_orig",
+   "group_id": "grp_arith_0034",
+   "query": "A counter starts at 2948. Apply these steps in order: (1) multiply the result by 6; (2) subtract 2986; (3) add 8792; (4) divide the result by 2; (5) add 5500; (6) divide the result by 3. What is the final value of the counter?",
+   "answer": "5749",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 2948,
+    "steps": [
+     [
+      "mul",
+      6
+     ],
+     [
+      "sub",
+      2986
+     ],
+     [
+      "add",
+      8792
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "add",
+      5500
+     ],
+     [
+      "div",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0035_en_orig",
+   "group_id": "grp_arith_0035",
+   "query": "A counter starts at 5202. Apply these steps in order: (1) multiply the result by 7; (2) add 3530; (3) subtract 305; (4) add 1666; (5) multiply the result by 6; (6) subtract 6012. What is the final value of the counter?",
+   "answer": "241818",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 5202,
+    "steps": [
+     [
+      "mul",
+      7
+     ],
+     [
+      "add",
+      3530
+     ],
+     [
+      "sub",
+      305
+     ],
+     [
+      "add",
+      1666
+     ],
+     [
+      "mul",
+      6
+     ],
+     [
+      "sub",
+      6012
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0036_en_orig",
+   "group_id": "grp_arith_0036",
+   "query": "A counter starts at 1688. Apply these steps in order: (1) divide the result by 8; (2) subtract 118; (3) divide the result by 3; (4) subtract 6; (5) multiply the result by 8; (6) subtract 3. What is the final value of the counter?",
+   "answer": "197",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 1688,
+    "steps": [
+     [
+      "div",
+      8
+     ],
+     [
+      "sub",
+      118
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "sub",
+      6
+     ],
+     [
+      "mul",
+      8
+     ],
+     [
+      "sub",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0037_en_orig",
+   "group_id": "grp_arith_0037",
+   "query": "A counter starts at 3268. Apply these steps in order: (1) multiply the result by 6; (2) subtract 5530; (3) subtract 1536; (4) subtract 585; (5) add 5417; (6) multiply the result by 4. What is the final value of the counter?",
+   "answer": "69496",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 3268,
+    "steps": [
+     [
+      "mul",
+      6
+     ],
+     [
+      "sub",
+      5530
+     ],
+     [
+      "sub",
+      1536
+     ],
+     [
+      "sub",
+      585
+     ],
+     [
+      "add",
+      5417
+     ],
+     [
+      "mul",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0038_en_orig",
+   "group_id": "grp_arith_0038",
+   "query": "A counter starts at 5743. Apply these steps in order: (1) multiply the result by 8; (2) multiply the result by 6; (3) add 8832; (4) multiply the result by 2; (5) subtract 2943; (6) add 5958. What is the final value of the counter?",
+   "answer": "572007",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 5743,
+    "steps": [
+     [
+      "mul",
+      8
+     ],
+     [
+      "mul",
+      6
+     ],
+     [
+      "add",
+      8832
+     ],
+     [
+      "mul",
+      2
+     ],
+     [
+      "sub",
+      2943
+     ],
+     [
+      "add",
+      5958
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0039_en_orig",
+   "group_id": "grp_arith_0039",
+   "query": "A counter starts at 7605. Apply these steps in order: (1) subtract 2452; (2) multiply the result by 3; (3) add 8883; (4) divide the result by 3; (5) subtract 1019; (6) divide the result by 3. What is the final value of the counter?",
+   "answer": "2365",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 7605,
+    "steps": [
+     [
+      "sub",
+      2452
+     ],
+     [
+      "mul",
+      3
+     ],
+     [
+      "add",
+      8883
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "sub",
+      1019
+     ],
+     [
+      "div",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0040_en_orig",
+   "group_id": "grp_arith_0040",
+   "query": "A counter starts at 9154. Apply these steps in order: (1) divide the result by 2; (2) multiply the result by 7; (3) multiply the result by 4; (4) divide the result by 7; (5) add 2078; (6) add 4244. What is the final value of the counter?",
+   "answer": "24630",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 9154,
+    "steps": [
+     [
+      "div",
+      2
+     ],
+     [
+      "mul",
+      7
+     ],
+     [
+      "mul",
+      4
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "add",
+      2078
+     ],
+     [
+      "add",
+      4244
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0041_en_orig",
+   "group_id": "grp_arith_0041",
+   "query": "A counter starts at 4621. Apply these steps in order: (1) add 7304; (2) add 2606; (3) multiply the result by 6; (4) divide the result by 3; (5) multiply the result by 8; (6) add 7034. What is the final value of the counter?",
+   "answer": "239530",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 4621,
+    "steps": [
+     [
+      "add",
+      7304
+     ],
+     [
+      "add",
+      2606
+     ],
+     [
+      "mul",
+      6
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "mul",
+      8
+     ],
+     [
+      "add",
+      7034
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0042_en_orig",
+   "group_id": "grp_arith_0042",
+   "query": "A counter starts at 4606. Apply these steps in order: (1) subtract 1365; (2) divide the result by 7; (3) multiply the result by 3; (4) add 1452; (5) divide the result by 3; (6) add 9144. What is the final value of the counter?",
+   "answer": "10091",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 4606,
+    "steps": [
+     [
+      "sub",
+      1365
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "mul",
+      3
+     ],
+     [
+      "add",
+      1452
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      9144
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0043_en_orig",
+   "group_id": "grp_arith_0043",
+   "query": "A counter starts at 7520. Apply these steps in order: (1) subtract 1698; (2) add 4537; (3) multiply the result by 3; (4) multiply the result by 9; (5) divide the result by 9; (6) multiply the result by 3. What is the final value of the counter?",
+   "answer": "93231",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 7520,
+    "steps": [
+     [
+      "sub",
+      1698
+     ],
+     [
+      "add",
+      4537
+     ],
+     [
+      "mul",
+      3
+     ],
+     [
+      "mul",
+      9
+     ],
+     [
+      "div",
+      9
+     ],
+     [
+      "mul",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0044_en_orig",
+   "group_id": "grp_arith_0044",
+   "query": "A counter starts at 8993. Apply these steps in order: (1) add 7650; (2) subtract 6935; (3) divide the result by 4; (4) divide the result by 3; (5) subtract 687; (6) multiply the result by 5. What is the final value of the counter?",
+   "answer": "610",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 3,
+   "difficulty": {
+    "steps": 6,
+    "digits": 4,
+    "max_mult": 9
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 8993,
+    "steps": [
+     [
+      "add",
+      7650
+     ],
+     [
+      "sub",
+      6935
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "sub",
+      687
+     ],
+     [
+      "mul",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0045_en_orig",
+   "group_id": "grp_arith_0045",
+   "query": "A counter starts at 11272. Apply these steps in order: (1) subtract 5215; (2) subtract 291; (3) multiply the result by 34; (4) multiply the result by 50; (5) subtract 94127; (6) subtract 61661; (7) add 21094; (8) add 18697. What is the final value of the counter?",
+   "answer": "9686203",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 11272,
+    "steps": [
+     [
+      "sub",
+      5215
+     ],
+     [
+      "sub",
+      291
+     ],
+     [
+      "mul",
+      34
+     ],
+     [
+      "mul",
+      50
+     ],
+     [
+      "sub",
+      94127
+     ],
+     [
+      "sub",
+      61661
+     ],
+     [
+      "add",
+      21094
+     ],
+     [
+      "add",
+      18697
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0046_en_orig",
+   "group_id": "grp_arith_0046",
+   "query": "A counter starts at 39503. Apply these steps in order: (1) add 15325; (2) subtract 1002; (3) divide the result by 3; (4) multiply the result by 21; (5) divide the result by 6; (6) divide the result by 7; (7) subtract 1486; (8) add 65884. What is the final value of the counter?",
+   "answer": "73369",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 39503,
+    "steps": [
+     [
+      "add",
+      15325
+     ],
+     [
+      "sub",
+      1002
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "mul",
+      21
+     ],
+     [
+      "div",
+      6
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "sub",
+      1486
+     ],
+     [
+      "add",
+      65884
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0047_en_orig",
+   "group_id": "grp_arith_0047",
+   "query": "A counter starts at 37014. Apply these steps in order: (1) subtract 35090; (2) divide the result by 4; (3) multiply the result by 79; (4) subtract 15308; (5) add 96112; (6) add 33851; (7) subtract 66435; (8) subtract 43606. What is the final value of the counter?",
+   "answer": "42613",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 37014,
+    "steps": [
+     [
+      "sub",
+      35090
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "mul",
+      79
+     ],
+     [
+      "sub",
+      15308
+     ],
+     [
+      "add",
+      96112
+     ],
+     [
+      "add",
+      33851
+     ],
+     [
+      "sub",
+      66435
+     ],
+     [
+      "sub",
+      43606
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0048_en_orig",
+   "group_id": "grp_arith_0048",
+   "query": "A counter starts at 18601. Apply these steps in order: (1) multiply the result by 35; (2) subtract 53487; (3) divide the result by 4; (4) add 31468; (5) multiply the result by 32; (6) subtract 95611; (7) subtract 7279; (8) add 73088. What is the final value of the counter?",
+   "answer": "5757558",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 18601,
+    "steps": [
+     [
+      "mul",
+      35
+     ],
+     [
+      "sub",
+      53487
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "add",
+      31468
+     ],
+     [
+      "mul",
+      32
+     ],
+     [
+      "sub",
+      95611
+     ],
+     [
+      "sub",
+      7279
+     ],
+     [
+      "add",
+      73088
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0049_en_orig",
+   "group_id": "grp_arith_0049",
+   "query": "A counter starts at 64770. Apply these steps in order: (1) multiply the result by 64; (2) add 98282; (3) multiply the result by 47; (4) divide the result by 2; (5) subtract 61117; (6) divide the result by 5; (7) add 23301; (8) multiply the result by 21. What is the final value of the counter?",
+   "answer": "419072199",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 64770,
+    "steps": [
+     [
+      "mul",
+      64
+     ],
+     [
+      "add",
+      98282
+     ],
+     [
+      "mul",
+      47
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      61117
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "add",
+      23301
+     ],
+     [
+      "mul",
+      21
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0050_en_orig",
+   "group_id": "grp_arith_0050",
+   "query": "A counter starts at 12651. Apply these steps in order: (1) add 88420; (2) subtract 17394; (3) subtract 42456; (4) add 81977; (5) subtract 25556; (6) divide the result by 2; (7) add 17885; (8) divide the result by 2. What is the final value of the counter?",
+   "answer": "33353",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 12651,
+    "steps": [
+     [
+      "add",
+      88420
+     ],
+     [
+      "sub",
+      17394
+     ],
+     [
+      "sub",
+      42456
+     ],
+     [
+      "add",
+      81977
+     ],
+     [
+      "sub",
+      25556
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "add",
+      17885
+     ],
+     [
+      "div",
+      2
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0051_en_orig",
+   "group_id": "grp_arith_0051",
+   "query": "A counter starts at 95258. Apply these steps in order: (1) add 99460; (2) subtract 16661; (3) multiply the result by 39; (4) add 78027; (5) multiply the result by 6; (6) divide the result by 5; (7) subtract 99172; (8) multiply the result by 60. What is the final value of the counter?",
+   "answer": "499651680",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 95258,
+    "steps": [
+     [
+      "add",
+      99460
+     ],
+     [
+      "sub",
+      16661
+     ],
+     [
+      "mul",
+      39
+     ],
+     [
+      "add",
+      78027
+     ],
+     [
+      "mul",
+      6
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "sub",
+      99172
+     ],
+     [
+      "mul",
+      60
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0052_en_orig",
+   "group_id": "grp_arith_0052",
+   "query": "A counter starts at 56734. Apply these steps in order: (1) add 15851; (2) add 73722; (3) subtract 3494; (4) subtract 87361; (5) multiply the result by 31; (6) add 92238; (7) divide the result by 7; (8) subtract 14870. What is the final value of the counter?",
+   "answer": "243880",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 56734,
+    "steps": [
+     [
+      "add",
+      15851
+     ],
+     [
+      "add",
+      73722
+     ],
+     [
+      "sub",
+      3494
+     ],
+     [
+      "sub",
+      87361
+     ],
+     [
+      "mul",
+      31
+     ],
+     [
+      "add",
+      92238
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "sub",
+      14870
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0053_en_orig",
+   "group_id": "grp_arith_0053",
+   "query": "A counter starts at 29095. Apply these steps in order: (1) divide the result by 5; (2) add 23731; (3) divide the result by 2; (4) add 64416; (5) multiply the result by 95; (6) add 68552; (7) multiply the result by 89; (8) multiply the result by 5. What is the final value of the counter?",
+   "answer": "3378305165",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 29095,
+    "steps": [
+     [
+      "div",
+      5
+     ],
+     [
+      "add",
+      23731
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "add",
+      64416
+     ],
+     [
+      "mul",
+      95
+     ],
+     [
+      "add",
+      68552
+     ],
+     [
+      "mul",
+      89
+     ],
+     [
+      "mul",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0054_en_orig",
+   "group_id": "grp_arith_0054",
+   "query": "A counter starts at 75093. Apply these steps in order: (1) subtract 33107; (2) add 56203; (3) add 25909; (4) subtract 90673; (5) add 55278; (6) multiply the result by 24; (7) add 40211; (8) subtract 9243. What is the final value of the counter?",
+   "answer": "2159840",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 75093,
+    "steps": [
+     [
+      "sub",
+      33107
+     ],
+     [
+      "add",
+      56203
+     ],
+     [
+      "add",
+      25909
+     ],
+     [
+      "sub",
+      90673
+     ],
+     [
+      "add",
+      55278
+     ],
+     [
+      "mul",
+      24
+     ],
+     [
+      "add",
+      40211
+     ],
+     [
+      "sub",
+      9243
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0055_en_orig",
+   "group_id": "grp_arith_0055",
+   "query": "A counter starts at 88196. Apply these steps in order: (1) multiply the result by 28; (2) add 36842; (3) add 10941; (4) multiply the result by 49; (5) add 89278; (6) multiply the result by 20; (7) multiply the result by 60; (8) add 72481. What is the final value of the counter?",
+   "answer": "148122740881",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 88196,
+    "steps": [
+     [
+      "mul",
+      28
+     ],
+     [
+      "add",
+      36842
+     ],
+     [
+      "add",
+      10941
+     ],
+     [
+      "mul",
+      49
+     ],
+     [
+      "add",
+      89278
+     ],
+     [
+      "mul",
+      20
+     ],
+     [
+      "mul",
+      60
+     ],
+     [
+      "add",
+      72481
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0056_en_orig",
+   "group_id": "grp_arith_0056",
+   "query": "A counter starts at 55147. Apply these steps in order: (1) subtract 16923; (2) multiply the result by 5; (3) multiply the result by 48; (4) subtract 62046; (5) subtract 38843; (6) subtract 83351; (7) subtract 24124; (8) add 23445. What is the final value of the counter?",
+   "answer": "8988841",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 55147,
+    "steps": [
+     [
+      "sub",
+      16923
+     ],
+     [
+      "mul",
+      5
+     ],
+     [
+      "mul",
+      48
+     ],
+     [
+      "sub",
+      62046
+     ],
+     [
+      "sub",
+      38843
+     ],
+     [
+      "sub",
+      83351
+     ],
+     [
+      "sub",
+      24124
+     ],
+     [
+      "add",
+      23445
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0057_en_orig",
+   "group_id": "grp_arith_0057",
+   "query": "A counter starts at 79891. Apply these steps in order: (1) subtract 20501; (2) divide the result by 2; (3) multiply the result by 30; (4) subtract 66629; (5) add 41019; (6) multiply the result by 39; (7) subtract 55023; (8) add 27332. What is the final value of the counter?",
+   "answer": "33716669",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 79891,
+    "steps": [
+     [
+      "sub",
+      20501
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "mul",
+      30
+     ],
+     [
+      "sub",
+      66629
+     ],
+     [
+      "add",
+      41019
+     ],
+     [
+      "mul",
+      39
+     ],
+     [
+      "sub",
+      55023
+     ],
+     [
+      "add",
+      27332
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0058_en_orig",
+   "group_id": "grp_arith_0058",
+   "query": "A counter starts at 88801. Apply these steps in order: (1) add 61616; (2) add 19595; (3) multiply the result by 55; (4) subtract 72192; (5) divide the result by 2; (6) divide the result by 2; (7) subtract 46474; (8) add 42513. What is the final value of the counter?",
+   "answer": "2315656",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 88801,
+    "steps": [
+     [
+      "add",
+      61616
+     ],
+     [
+      "add",
+      19595
+     ],
+     [
+      "mul",
+      55
+     ],
+     [
+      "sub",
+      72192
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      46474
+     ],
+     [
+      "add",
+      42513
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0059_en_orig",
+   "group_id": "grp_arith_0059",
+   "query": "A counter starts at 68302. Apply these steps in order: (1) subtract 7584; (2) divide the result by 7; (3) add 64686; (4) subtract 57842; (5) multiply the result by 49; (6) subtract 61721; (7) add 34308; (8) add 46303. What is the final value of the counter?",
+   "answer": "779272",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 4,
+   "difficulty": {
+    "steps": 8,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 68302,
+    "steps": [
+     [
+      "sub",
+      7584
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "add",
+      64686
+     ],
+     [
+      "sub",
+      57842
+     ],
+     [
+      "mul",
+      49
+     ],
+     [
+      "sub",
+      61721
+     ],
+     [
+      "add",
+      34308
+     ],
+     [
+      "add",
+      46303
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0060_en_orig",
+   "group_id": "grp_arith_0060",
+   "query": "A counter starts at 24700. Apply these steps in order: (1) multiply the result by 91; (2) divide the result by 7; (3) multiply the result by 55; (4) divide the result by 2; (5) multiply the result by 60; (6) subtract 68597; (7) add 56578; (8) multiply the result by 82; (9) add 73345; (10) multiply the result by 39. What is the final value of the counter?",
+   "answer": "1694312793693",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 24700,
+    "steps": [
+     [
+      "mul",
+      91
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "mul",
+      55
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "mul",
+      60
+     ],
+     [
+      "sub",
+      68597
+     ],
+     [
+      "add",
+      56578
+     ],
+     [
+      "mul",
+      82
+     ],
+     [
+      "add",
+      73345
+     ],
+     [
+      "mul",
+      39
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0061_en_orig",
+   "group_id": "grp_arith_0061",
+   "query": "A counter starts at 10241. Apply these steps in order: (1) divide the result by 7; (2) add 38669; (3) subtract 7502; (4) subtract 17866; (5) multiply the result by 56; (6) divide the result by 2; (7) divide the result by 4; (8) divide the result by 4; (9) add 25837; (10) subtract 43811. What is the final value of the counter?",
+   "answer": "7863",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 10241,
+    "steps": [
+     [
+      "div",
+      7
+     ],
+     [
+      "add",
+      38669
+     ],
+     [
+      "sub",
+      7502
+     ],
+     [
+      "sub",
+      17866
+     ],
+     [
+      "mul",
+      56
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "add",
+      25837
+     ],
+     [
+      "sub",
+      43811
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0062_en_orig",
+   "group_id": "grp_arith_0062",
+   "query": "A counter starts at 15314. Apply these steps in order: (1) add 43629; (2) multiply the result by 69; (3) divide the result by 3; (4) add 43109; (5) subtract 37146; (6) multiply the result by 78; (7) add 14646; (8) add 44404; (9) subtract 69946; (10) subtract 15491. What is the final value of the counter?",
+   "answer": "106182469",
+   "split": "dev",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 15314,
+    "steps": [
+     [
+      "add",
+      43629
+     ],
+     [
+      "mul",
+      69
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      43109
+     ],
+     [
+      "sub",
+      37146
+     ],
+     [
+      "mul",
+      78
+     ],
+     [
+      "add",
+      14646
+     ],
+     [
+      "add",
+      44404
+     ],
+     [
+      "sub",
+      69946
+     ],
+     [
+      "sub",
+      15491
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0063_en_orig",
+   "group_id": "grp_arith_0063",
+   "query": "A counter starts at 79492. Apply these steps in order: (1) multiply the result by 99; (2) multiply the result by 10; (3) divide the result by 6; (4) subtract 68136; (5) multiply the result by 75; (6) multiply the result by 70; (7) add 63844; (8) divide the result by 4; (9) multiply the result by 58; (10) subtract 74480. What is the final value of the counter?",
+   "answer": "993283200758",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 79492,
+    "steps": [
+     [
+      "mul",
+      99
+     ],
+     [
+      "mul",
+      10
+     ],
+     [
+      "div",
+      6
+     ],
+     [
+      "sub",
+      68136
+     ],
+     [
+      "mul",
+      75
+     ],
+     [
+      "mul",
+      70
+     ],
+     [
+      "add",
+      63844
+     ],
+     [
+      "div",
+      4
+     ],
+     [
+      "mul",
+      58
+     ],
+     [
+      "sub",
+      74480
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0064_en_orig",
+   "group_id": "grp_arith_0064",
+   "query": "A counter starts at 92419. Apply these steps in order: (1) add 30587; (2) add 25796; (3) divide the result by 2; (4) subtract 61335; (5) multiply the result by 73; (6) subtract 46408; (7) divide the result by 6; (8) multiply the result by 63; (9) divide the result by 7; (10) divide the result by 3. What is the final value of the counter?",
+   "answer": "453705",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 92419,
+    "steps": [
+     [
+      "add",
+      30587
+     ],
+     [
+      "add",
+      25796
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      61335
+     ],
+     [
+      "mul",
+      73
+     ],
+     [
+      "sub",
+      46408
+     ],
+     [
+      "div",
+      6
+     ],
+     [
+      "mul",
+      63
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "div",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0065_en_orig",
+   "group_id": "grp_arith_0065",
+   "query": "A counter starts at 68193. Apply these steps in order: (1) subtract 18719; (2) divide the result by 2; (3) subtract 7069; (4) add 56583; (5) multiply the result by 52; (6) add 79052; (7) add 20665; (8) subtract 97250; (9) subtract 51789; (10) add 57353. What is the final value of the counter?",
+   "answer": "3869083",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 68193,
+    "steps": [
+     [
+      "sub",
+      18719
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      7069
+     ],
+     [
+      "add",
+      56583
+     ],
+     [
+      "mul",
+      52
+     ],
+     [
+      "add",
+      79052
+     ],
+     [
+      "add",
+      20665
+     ],
+     [
+      "sub",
+      97250
+     ],
+     [
+      "sub",
+      51789
+     ],
+     [
+      "add",
+      57353
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0066_en_orig",
+   "group_id": "grp_arith_0066",
+   "query": "A counter starts at 15397. Apply these steps in order: (1) add 91379; (2) add 45432; (3) subtract 95303; (4) multiply the result by 20; (5) subtract 25062; (6) add 66887; (7) divide the result by 5; (8) divide the result by 5; (9) multiply the result by 55; (10) divide the result by 5. What is the final value of the counter?",
+   "answer": "519167",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 15397,
+    "steps": [
+     [
+      "add",
+      91379
+     ],
+     [
+      "add",
+      45432
+     ],
+     [
+      "sub",
+      95303
+     ],
+     [
+      "mul",
+      20
+     ],
+     [
+      "sub",
+      25062
+     ],
+     [
+      "add",
+      66887
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "mul",
+      55
+     ],
+     [
+      "div",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0067_en_orig",
+   "group_id": "grp_arith_0067",
+   "query": "A counter starts at 68627. Apply these steps in order: (1) subtract 19334; (2) subtract 8469; (3) multiply the result by 25; (4) divide the result by 7; (5) divide the result by 5; (6) divide the result by 5; (7) multiply the result by 27; (8) divide the result by 3; (9) add 60901; (10) add 40674. What is the final value of the counter?",
+   "answer": "154063",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 68627,
+    "steps": [
+     [
+      "sub",
+      19334
+     ],
+     [
+      "sub",
+      8469
+     ],
+     [
+      "mul",
+      25
+     ],
+     [
+      "div",
+      7
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "mul",
+      27
+     ],
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      60901
+     ],
+     [
+      "add",
+      40674
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0068_en_orig",
+   "group_id": "grp_arith_0068",
+   "query": "A counter starts at 92991. Apply these steps in order: (1) add 34478; (2) multiply the result by 9; (3) multiply the result by 31; (4) subtract 80283; (5) add 77124; (6) subtract 46278; (7) divide the result by 9; (8) add 92821; (9) divide the result by 9; (10) divide the result by 7. What is the final value of the counter?",
+   "answer": "64109",
+   "split": "calib",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 92991,
+    "steps": [
+     [
+      "add",
+      34478
+     ],
+     [
+      "mul",
+      9
+     ],
+     [
+      "mul",
+      31
+     ],
+     [
+      "sub",
+      80283
+     ],
+     [
+      "add",
+      77124
+     ],
+     [
+      "sub",
+      46278
+     ],
+     [
+      "div",
+      9
+     ],
+     [
+      "add",
+      92821
+     ],
+     [
+      "div",
+      9
+     ],
+     [
+      "div",
+      7
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0069_en_orig",
+   "group_id": "grp_arith_0069",
+   "query": "A counter starts at 43390. Apply these steps in order: (1) divide the result by 2; (2) subtract 8713; (3) add 15741; (4) add 31346; (5) subtract 254; (6) subtract 42902; (7) add 28403; (8) add 66065; (9) multiply the result by 79; (10) divide the result by 3. What is the final value of the counter?",
+   "answer": "2933033",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 43390,
+    "steps": [
+     [
+      "div",
+      2
+     ],
+     [
+      "sub",
+      8713
+     ],
+     [
+      "add",
+      15741
+     ],
+     [
+      "add",
+      31346
+     ],
+     [
+      "sub",
+      254
+     ],
+     [
+      "sub",
+      42902
+     ],
+     [
+      "add",
+      28403
+     ],
+     [
+      "add",
+      66065
+     ],
+     [
+      "mul",
+      79
+     ],
+     [
+      "div",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0070_en_orig",
+   "group_id": "grp_arith_0070",
+   "query": "A counter starts at 69467. Apply these steps in order: (1) add 54499; (2) add 89476; (3) add 51815; (4) subtract 70242; (5) divide the result by 5; (6) subtract 1890; (7) add 34920; (8) subtract 10501; (9) multiply the result by 69; (10) subtract 24614. What is the final value of the counter?",
+   "answer": "4221094",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 69467,
+    "steps": [
+     [
+      "add",
+      54499
+     ],
+     [
+      "add",
+      89476
+     ],
+     [
+      "add",
+      51815
+     ],
+     [
+      "sub",
+      70242
+     ],
+     [
+      "div",
+      5
+     ],
+     [
+      "sub",
+      1890
+     ],
+     [
+      "add",
+      34920
+     ],
+     [
+      "sub",
+      10501
+     ],
+     [
+      "mul",
+      69
+     ],
+     [
+      "sub",
+      24614
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0071_en_orig",
+   "group_id": "grp_arith_0071",
+   "query": "A counter starts at 36426. Apply these steps in order: (1) subtract 19748; (2) subtract 12605; (3) multiply the result by 63; (4) subtract 93387; (5) multiply the result by 7; (6) subtract 72349; (7) add 11206; (8) divide the result by 9; (9) subtract 57436; (10) add 64017. What is the final value of the counter?",
+   "answer": "126730",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 36426,
+    "steps": [
+     [
+      "sub",
+      19748
+     ],
+     [
+      "sub",
+      12605
+     ],
+     [
+      "mul",
+      63
+     ],
+     [
+      "sub",
+      93387
+     ],
+     [
+      "mul",
+      7
+     ],
+     [
+      "sub",
+      72349
+     ],
+     [
+      "add",
+      11206
+     ],
+     [
+      "div",
+      9
+     ],
+     [
+      "sub",
+      57436
+     ],
+     [
+      "add",
+      64017
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0072_en_orig",
+   "group_id": "grp_arith_0072",
+   "query": "A counter starts at 74694. Apply these steps in order: (1) divide the result by 3; (2) add 21221; (3) add 41607; (4) add 30158; (5) divide the result by 2; (6) divide the result by 2; (7) multiply the result by 73; (8) multiply the result by 7; (9) multiply the result by 33; (10) divide the result by 3. What is the final value of the counter?",
+   "answer": "165656491",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 74694,
+    "steps": [
+     [
+      "div",
+      3
+     ],
+     [
+      "add",
+      21221
+     ],
+     [
+      "add",
+      41607
+     ],
+     [
+      "add",
+      30158
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "mul",
+      73
+     ],
+     [
+      "mul",
+      7
+     ],
+     [
+      "mul",
+      33
+     ],
+     [
+      "div",
+      3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0073_en_orig",
+   "group_id": "grp_arith_0073",
+   "query": "A counter starts at 26788. Apply these steps in order: (1) subtract 11538; (2) subtract 7125; (3) add 83014; (4) multiply the result by 80; (5) multiply the result by 93; (6) subtract 57906; (7) divide the result by 6; (8) subtract 34209; (9) subtract 30381; (10) add 25562. What is the final value of the counter?",
+   "answer": "112963681",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 26788,
+    "steps": [
+     [
+      "sub",
+      11538
+     ],
+     [
+      "sub",
+      7125
+     ],
+     [
+      "add",
+      83014
+     ],
+     [
+      "mul",
+      80
+     ],
+     [
+      "mul",
+      93
+     ],
+     [
+      "sub",
+      57906
+     ],
+     [
+      "div",
+      6
+     ],
+     [
+      "sub",
+      34209
+     ],
+     [
+      "sub",
+      30381
+     ],
+     [
+      "add",
+      25562
+     ]
+    ]
+   }
+  },
+  {
+   "id": "arith_0074_en_orig",
+   "group_id": "grp_arith_0074",
+   "query": "A counter starts at 90592. Apply these steps in order: (1) add 32619; (2) subtract 54351; (3) multiply the result by 29; (4) subtract 96480; (5) add 80192; (6) divide the result by 2; (7) add 60422; (8) subtract 15499; (9) subtract 30090; (10) subtract 29041. What is the final value of the counter?",
+   "answer": "976118",
+   "split": "test",
+   "category": "arith",
+   "family": "arith",
+   "level": 5,
+   "difficulty": {
+    "steps": 10,
+    "digits": 5,
+    "max_mult": 99
+   },
+   "checker": "arith",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "start": 90592,
+    "steps": [
+     [
+      "add",
+      32619
+     ],
+     [
+      "sub",
+      54351
+     ],
+     [
+      "mul",
+      29
+     ],
+     [
+      "sub",
+      96480
+     ],
+     [
+      "add",
+      80192
+     ],
+     [
+      "div",
+      2
+     ],
+     [
+      "add",
+      60422
+     ],
+     [
+      "sub",
+      15499
+     ],
+     [
+      "sub",
+      30090
+     ],
+     [
+      "sub",
+      29041
+     ]
+    ]
+   }
+  },
+  {
+   "id": "order_0000_en_orig",
+   "group_id": "grp_order_0000",
+   "query": "5 runners (Dave, Alice, Erin, Carol, Frank) ran a race with no ties. Clues: Frank finished 2 places ahead of Erin: if Frank is in position p, then Erin is in position p+2; Erin finished immediately before Alice; Dave finished immediately before Frank. Who finished in 3rd place?",
+   "answer": "Carol",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Alice",
+     "Erin",
+     "Carol",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      2,
+      2
+     ],
+     [
+      "a",
+      2,
+      1,
+      1
+     ],
+     [
+      "a",
+      0,
+      4,
+      1
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0001_en_orig",
+   "group_id": "grp_order_0001",
+   "query": "5 runners (Dave, Frank, Bob, Grace, Heidi) ran a race with no ties. Clues: Grace finished before Bob; Dave finished 3 places ahead of Frank: if Dave is in position p, then Frank is in position p+3; Grace finished immediately before Heidi. Who finished in 1st place?",
+   "answer": "Dave",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Frank",
+     "Bob",
+     "Grace",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "g",
+      0,
+      1,
+      3
+     ],
+     [
+      "a",
+      3,
+      4,
+      1
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0002_en_orig",
+   "group_id": "grp_order_0002",
+   "query": "5 runners (Frank, Grace, Carol, Dave, Alice) ran a race with no ties. Clues: Alice finished immediately before Frank; Dave finished 3 places ahead of Grace: if Dave is in position p, then Grace is in position p+3; Carol finished after Frank. Who finished in 3rd place?",
+   "answer": "Frank",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Frank",
+     "Grace",
+     "Carol",
+     "Dave",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "a",
+      4,
+      0,
+      1
+     ],
+     [
+      "g",
+      3,
+      1,
+      3
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0003_en_orig",
+   "group_id": "grp_order_0003",
+   "query": "5 runners (Alice, Bob, Heidi, Frank, Grace) ran a race with no ties. Clues: Heidi finished after Grace; Frank finished immediately before Bob; Frank finished before Grace; Heidi finished immediately before Alice. Who finished in 4th place?",
+   "answer": "Heidi",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Bob",
+     "Heidi",
+     "Frank",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "a",
+      3,
+      1,
+      1
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "a",
+      2,
+      0,
+      1
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0004_en_orig",
+   "group_id": "grp_order_0004",
+   "query": "5 runners (Alice, Erin, Bob, Grace, Frank) ran a race with no ties. Clues: Frank finished 2 places ahead of Grace: if Frank is in position p, then Grace is in position p+2; Erin finished immediately before Bob; Erin finished after Grace. Who finished in 2nd place?",
+   "answer": "Alice",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Erin",
+     "Bob",
+     "Grace",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      3,
+      2
+     ],
+     [
+      "a",
+      1,
+      2,
+      1
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0005_en_orig",
+   "group_id": "grp_order_0005",
+   "query": "5 runners (Frank, Carol, Heidi, Bob, Dave) ran a race with no ties. Clues: Carol finished after Bob; Heidi finished before Bob; Frank finished immediately before Carol; Dave finished before Bob. Who finished in 3rd place?",
+   "answer": "Bob",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Frank",
+     "Carol",
+     "Heidi",
+     "Bob",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "a",
+      0,
+      1,
+      1
+     ],
+     [
+      "b",
+      4,
+      3,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0006_en_orig",
+   "group_id": "grp_order_0006",
+   "query": "5 runners (Alice, Heidi, Carol, Grace, Frank) ran a race with no ties. Clues: Heidi finished before Frank; Alice finished 3 places ahead of Frank: if Alice is in position p, then Frank is in position p+3; Grace finished immediately before Carol. Who finished in 5th place?",
+   "answer": "Frank",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Heidi",
+     "Carol",
+     "Grace",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "g",
+      0,
+      4,
+      3
+     ],
+     [
+      "a",
+      3,
+      2,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0007_en_orig",
+   "group_id": "grp_order_0007",
+   "query": "5 runners (Frank, Carol, Grace, Heidi, Erin) ran a race with no ties. Clues: Grace finished immediately before Erin; Frank finished immediately before Carol; Carol finished before Erin; Erin finished immediately before Heidi. Who finished in 2nd place?",
+   "answer": "Carol",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Frank",
+     "Carol",
+     "Grace",
+     "Heidi",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "a",
+      2,
+      4,
+      1
+     ],
+     [
+      "a",
+      0,
+      1,
+      1
+     ],
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "a",
+      4,
+      3,
+      1
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0008_en_orig",
+   "group_id": "grp_order_0008",
+   "query": "5 runners (Bob, Erin, Frank, Grace, Dave) ran a race with no ties. Clues: Frank finished 3 places ahead of Erin: if Frank is in position p, then Erin is in position p+3; Frank finished after Bob. Who finished in 1st place?",
+   "answer": "Bob",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Bob",
+     "Erin",
+     "Frank",
+     "Grace",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      1,
+      3
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0009_en_orig",
+   "group_id": "grp_order_0009",
+   "query": "5 runners (Grace, Frank, Erin, Bob, Alice) ran a race with no ties. Clues: Frank finished 2 places ahead of Alice: if Frank is in position p, then Alice is in position p+2; Grace finished immediately before Erin; Alice finished immediately before Grace. Who finished in 3rd place?",
+   "answer": "Alice",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Frank",
+     "Erin",
+     "Bob",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      4,
+      2
+     ],
+     [
+      "a",
+      0,
+      2,
+      1
+     ],
+     [
+      "a",
+      4,
+      0,
+      1
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0010_en_orig",
+   "group_id": "grp_order_0010",
+   "query": "5 runners (Grace, Frank, Dave, Carol, Erin) ran a race with no ties. Clues: Grace finished 2 places ahead of Carol: if Grace is in position p, then Carol is in position p+2; Carol finished before Dave; Carol finished before Erin. Who finished in 1st place?",
+   "answer": "Grace",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Frank",
+     "Dave",
+     "Carol",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      3,
+      2
+     ],
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0011_en_orig",
+   "group_id": "grp_order_0011",
+   "query": "5 runners (Grace, Dave, Erin, Bob, Alice) ran a race with no ties. Clues: Alice finished before Bob; Bob finished immediately before Grace; Erin finished 3 places ahead of Dave: if Erin is in position p, then Dave is in position p+3. Who finished in 1st place?",
+   "answer": "Alice",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Dave",
+     "Erin",
+     "Bob",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      3,
+      0
+     ],
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "g",
+      2,
+      1,
+      3
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0012_en_orig",
+   "group_id": "grp_order_0012",
+   "query": "5 runners (Carol, Bob, Grace, Dave, Alice) ran a race with no ties. Clues: Dave finished 2 places ahead of Grace: if Dave is in position p, then Grace is in position p+2; Carol finished immediately before Alice; Dave finished before Carol. Who finished in 2nd place?",
+   "answer": "Bob",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Bob",
+     "Grace",
+     "Dave",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      2,
+      2
+     ],
+     [
+      "a",
+      0,
+      4,
+      1
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0013_en_orig",
+   "group_id": "grp_order_0013",
+   "query": "5 runners (Frank, Grace, Alice, Bob, Dave) ran a race with no ties. Clues: Bob finished before Dave; Grace finished immediately before Bob; Frank finished 2 places ahead of Dave: if Frank is in position p, then Dave is in position p+2. Who finished in 3rd place?",
+   "answer": "Frank",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Frank",
+     "Grace",
+     "Alice",
+     "Bob",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "a",
+      1,
+      3,
+      1
+     ],
+     [
+      "g",
+      0,
+      4,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0014_en_orig",
+   "group_id": "grp_order_0014",
+   "query": "5 runners (Carol, Heidi, Alice, Bob, Erin) ran a race with no ties. Clues: Carol finished immediately before Bob; Alice finished after Erin; Bob finished 2 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+2; Alice finished before Heidi. Who finished in 1st place?",
+   "answer": "Erin",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 1,
+   "difficulty": {
+    "runners": 5,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Alice",
+     "Bob",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "a",
+      0,
+      3,
+      1
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "g",
+      3,
+      1,
+      2
+     ],
+     [
+      "b",
+      2,
+      1,
+      0
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0015_en_orig",
+   "group_id": "grp_order_0015",
+   "query": "6 runners (Alice, Dave, Carol, Bob, Grace, Heidi) ran a race with no ties. Clues: Grace finished before Heidi; Carol finished immediately before Bob; Grace finished 3 places ahead of Carol: if Grace is in position p, then Carol is in position p+3; Heidi finished 3 places ahead of Alice: if Heidi is in position p, then Alice is in position p+3. Who finished in 1st place?",
+   "answer": "Grace",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Dave",
+     "Carol",
+     "Bob",
+     "Grace",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "a",
+      2,
+      3,
+      1
+     ],
+     [
+      "g",
+      4,
+      2,
+      3
+     ],
+     [
+      "g",
+      5,
+      0,
+      3
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0016_en_orig",
+   "group_id": "grp_order_0016",
+   "query": "6 runners (Alice, Heidi, Dave, Carol, Bob, Erin) ran a race with no ties. Clues: Erin finished after Heidi; Bob finished after Dave; Carol finished immediately before Erin; Bob finished 2 places ahead of Alice: if Bob is in position p, then Alice is in position p+2. Who finished in 6th place?",
+   "answer": "Erin",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Heidi",
+     "Dave",
+     "Carol",
+     "Bob",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      5,
+      0
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ],
+     [
+      "a",
+      3,
+      5,
+      1
+     ],
+     [
+      "g",
+      4,
+      0,
+      2
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0017_en_orig",
+   "group_id": "grp_order_0017",
+   "query": "6 runners (Grace, Frank, Bob, Heidi, Alice, Dave) ran a race with no ties. Clues: Heidi finished 2 places ahead of Dave: if Heidi is in position p, then Dave is in position p+2; Grace finished 2 places ahead of Bob: if Grace is in position p, then Bob is in position p+2; Alice finished before Frank; Bob finished immediately before Alice. Who finished in 1st place?",
+   "answer": "Heidi",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Frank",
+     "Bob",
+     "Heidi",
+     "Alice",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      5,
+      2
+     ],
+     [
+      "g",
+      0,
+      2,
+      2
+     ],
+     [
+      "b",
+      4,
+      1,
+      0
+     ],
+     [
+      "a",
+      2,
+      4,
+      1
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0018_en_orig",
+   "group_id": "grp_order_0018",
+   "query": "6 runners (Dave, Heidi, Bob, Grace, Erin, Carol) ran a race with no ties. Clues: Grace finished after Carol; Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2; Dave finished after Bob; Bob finished immediately before Grace. Who finished in 5th place?",
+   "answer": "Grace",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Heidi",
+     "Bob",
+     "Grace",
+     "Erin",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      5,
+      3,
+      0
+     ],
+     [
+      "g",
+      5,
+      4,
+      2
+     ],
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "a",
+      2,
+      3,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0019_en_orig",
+   "group_id": "grp_order_0019",
+   "query": "6 runners (Carol, Erin, Heidi, Grace, Alice, Bob) ran a race with no ties. Clues: Carol finished immediately before Heidi; Erin finished 3 places ahead of Carol: if Erin is in position p, then Carol is in position p+3; Alice finished before Bob; Heidi finished before Grace. Who finished in 2nd place?",
+   "answer": "Alice",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Erin",
+     "Heidi",
+     "Grace",
+     "Alice",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "a",
+      0,
+      2,
+      1
+     ],
+     [
+      "g",
+      1,
+      0,
+      3
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0020_en_orig",
+   "group_id": "grp_order_0020",
+   "query": "6 runners (Bob, Grace, Dave, Erin, Heidi, Alice) ran a race with no ties. Clues: Dave finished 3 places ahead of Bob: if Dave is in position p, then Bob is in position p+3; Bob finished 2 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+2; Alice finished 2 places ahead of Bob: if Alice is in position p, then Bob is in position p+2; Dave finished 2 places ahead of Grace: if Dave is in position p, then Grace is in position p+2. Who finished in 5th place?",
+   "answer": "Erin",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Bob",
+     "Grace",
+     "Dave",
+     "Erin",
+     "Heidi",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      0,
+      3
+     ],
+     [
+      "g",
+      0,
+      4,
+      2
+     ],
+     [
+      "g",
+      5,
+      0,
+      2
+     ],
+     [
+      "g",
+      2,
+      1,
+      2
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0021_en_orig",
+   "group_id": "grp_order_0021",
+   "query": "6 runners (Carol, Alice, Erin, Frank, Grace, Heidi) ran a race with no ties. Clues: Heidi finished after Alice; Grace finished 2 places ahead of Alice: if Grace is in position p, then Alice is in position p+2; Frank finished before Carol; Carol finished 3 places ahead of Heidi: if Carol is in position p, then Heidi is in position p+3. Who finished in 4th place?",
+   "answer": "Alice",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Alice",
+     "Erin",
+     "Frank",
+     "Grace",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      5,
+      0
+     ],
+     [
+      "g",
+      4,
+      1,
+      2
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "g",
+      0,
+      5,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0022_en_orig",
+   "group_id": "grp_order_0022",
+   "query": "6 runners (Heidi, Frank, Grace, Dave, Carol, Alice) ran a race with no ties. Clues: Dave finished immediately before Alice; Grace finished 2 places ahead of Heidi: if Grace is in position p, then Heidi is in position p+2; Heidi finished 3 places ahead of Frank: if Heidi is in position p, then Frank is in position p+3. Who finished in 5th place?",
+   "answer": "Alice",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Frank",
+     "Grace",
+     "Dave",
+     "Carol",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "a",
+      3,
+      5,
+      1
+     ],
+     [
+      "g",
+      2,
+      0,
+      2
+     ],
+     [
+      "g",
+      0,
+      1,
+      3
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0023_en_orig",
+   "group_id": "grp_order_0023",
+   "query": "6 runners (Heidi, Alice, Grace, Dave, Erin, Carol) ran a race with no ties. Clues: Carol finished before Erin; Carol finished after Alice; Dave finished 2 places ahead of Alice: if Dave is in position p, then Alice is in position p+2; Heidi finished after Erin. Who finished in 2nd place?",
+   "answer": "Grace",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Alice",
+     "Grace",
+     "Dave",
+     "Erin",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      5,
+      4,
+      0
+     ],
+     [
+      "b",
+      1,
+      5,
+      0
+     ],
+     [
+      "g",
+      3,
+      1,
+      2
+     ],
+     [
+      "b",
+      4,
+      0,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0024_en_orig",
+   "group_id": "grp_order_0024",
+   "query": "6 runners (Erin, Carol, Bob, Alice, Dave, Frank) ran a race with no ties. Clues: Frank finished after Carol; Dave finished 3 places ahead of Erin: if Dave is in position p, then Erin is in position p+3; Bob finished 2 places ahead of Erin: if Bob is in position p, then Erin is in position p+2; Alice finished 2 places ahead of Dave: if Alice is in position p, then Dave is in position p+2. Who finished in 5th place?",
+   "answer": "Frank",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Carol",
+     "Bob",
+     "Alice",
+     "Dave",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      5,
+      0
+     ],
+     [
+      "g",
+      4,
+      0,
+      3
+     ],
+     [
+      "g",
+      2,
+      0,
+      2
+     ],
+     [
+      "g",
+      3,
+      4,
+      2
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0025_en_orig",
+   "group_id": "grp_order_0025",
+   "query": "6 runners (Bob, Dave, Carol, Alice, Grace, Erin) ran a race with no ties. Clues: Alice finished immediately before Dave; Erin finished before Carol; Bob finished immediately before Grace; Carol finished before Alice; Grace finished before Erin. Who finished in 2nd place?",
+   "answer": "Grace",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Bob",
+     "Dave",
+     "Carol",
+     "Alice",
+     "Grace",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "a",
+      3,
+      1,
+      1
+     ],
+     [
+      "b",
+      5,
+      2,
+      0
+     ],
+     [
+      "a",
+      0,
+      4,
+      1
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0026_en_orig",
+   "group_id": "grp_order_0026",
+   "query": "6 runners (Frank, Bob, Alice, Grace, Carol, Heidi) ran a race with no ties. Clues: Frank finished immediately before Bob; Grace finished after Bob; Alice finished after Carol; Bob finished after Heidi; Carol finished immediately before Heidi. Who finished in 2nd place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Frank",
+     "Bob",
+     "Alice",
+     "Grace",
+     "Carol",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "a",
+      0,
+      1,
+      1
+     ],
+     [
+      "b",
+      1,
+      3,
+      0
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "b",
+      5,
+      1,
+      0
+     ],
+     [
+      "a",
+      4,
+      5,
+      1
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0027_en_orig",
+   "group_id": "grp_order_0027",
+   "query": "6 runners (Carol, Erin, Grace, Alice, Heidi, Frank) ran a race with no ties. Clues: Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2; Alice finished 3 places ahead of Frank: if Alice is in position p, then Frank is in position p+3; Heidi finished 2 places ahead of Alice: if Heidi is in position p, then Alice is in position p+2. Who finished in 5th place?",
+   "answer": "Grace",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 3
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Erin",
+     "Grace",
+     "Alice",
+     "Heidi",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      1,
+      2
+     ],
+     [
+      "g",
+      3,
+      5,
+      3
+     ],
+     [
+      "g",
+      4,
+      3,
+      2
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0028_en_orig",
+   "group_id": "grp_order_0028",
+   "query": "6 runners (Bob, Erin, Grace, Carol, Heidi, Dave) ran a race with no ties. Clues: Erin finished before Bob; Grace finished after Heidi; Dave finished 3 places ahead of Bob: if Dave is in position p, then Bob is in position p+3; Heidi finished 2 places ahead of Bob: if Heidi is in position p, then Bob is in position p+2; Heidi finished immediately before Carol. Who finished in 4th place?",
+   "answer": "Carol",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Bob",
+     "Erin",
+     "Grace",
+     "Carol",
+     "Heidi",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      1,
+      0,
+      0
+     ],
+     [
+      "b",
+      4,
+      2,
+      0
+     ],
+     [
+      "g",
+      5,
+      0,
+      3
+     ],
+     [
+      "g",
+      4,
+      0,
+      2
+     ],
+     [
+      "a",
+      4,
+      3,
+      1
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0029_en_orig",
+   "group_id": "grp_order_0029",
+   "query": "6 runners (Heidi, Dave, Frank, Bob, Grace, Erin) ran a race with no ties. Clues: Frank finished 2 places ahead of Heidi: if Frank is in position p, then Heidi is in position p+2; Heidi finished 3 places ahead of Grace: if Heidi is in position p, then Grace is in position p+3. Who finished in 6th place?",
+   "answer": "Grace",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 2,
+   "difficulty": {
+    "runners": 6,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Dave",
+     "Frank",
+     "Bob",
+     "Grace",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      0,
+      2
+     ],
+     [
+      "g",
+      0,
+      4,
+      3
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0030_en_orig",
+   "group_id": "grp_order_0030",
+   "query": "7 runners (Carol, Bob, Dave, Erin, Grace, Heidi, Alice) ran a race with no ties. Clues: Heidi finished before Dave; Bob finished 3 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+3; Heidi finished before Alice; Grace finished immediately before Heidi; Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2. Who finished in 4th place?",
+   "answer": "Grace",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Bob",
+     "Dave",
+     "Erin",
+     "Grace",
+     "Heidi",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      5,
+      2,
+      0
+     ],
+     [
+      "g",
+      1,
+      5,
+      3
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ],
+     [
+      "a",
+      4,
+      5,
+      1
+     ],
+     [
+      "g",
+      0,
+      3,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0031_en_orig",
+   "group_id": "grp_order_0031",
+   "query": "7 runners (Alice, Bob, Dave, Erin, Carol, Grace, Heidi) ran a race with no ties. Clues: Grace finished 2 places ahead of Dave: if Grace is in position p, then Dave is in position p+2; Grace finished before Alice; Heidi finished after Carol; Carol finished immediately before Dave; Erin finished after Bob; Alice finished before Bob. Who finished in 2nd place?",
+   "answer": "Carol",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Bob",
+     "Dave",
+     "Erin",
+     "Carol",
+     "Grace",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "g",
+      5,
+      2,
+      2
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ],
+     [
+      "b",
+      4,
+      6,
+      0
+     ],
+     [
+      "a",
+      4,
+      2,
+      1
+     ],
+     [
+      "b",
+      1,
+      3,
+      0
+     ],
+     [
+      "b",
+      0,
+      1,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0032_en_orig",
+   "group_id": "grp_order_0032",
+   "query": "7 runners (Erin, Dave, Alice, Carol, Heidi, Bob, Frank) ran a race with no ties. Clues: Erin finished before Dave; Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2; Heidi finished after Alice; Carol finished before Alice; Dave finished before Frank; Alice finished before Bob. Who finished in 2nd place?",
+   "answer": "Alice",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Dave",
+     "Alice",
+     "Carol",
+     "Heidi",
+     "Bob",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "g",
+      3,
+      0,
+      2
+     ],
+     [
+      "b",
+      2,
+      4,
+      0
+     ],
+     [
+      "b",
+      3,
+      2,
+      0
+     ],
+     [
+      "b",
+      1,
+      6,
+      0
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0033_en_orig",
+   "group_id": "grp_order_0033",
+   "query": "7 runners (Dave, Bob, Heidi, Carol, Grace, Frank, Alice) ran a race with no ties. Clues: Alice finished 3 places ahead of Heidi: if Alice is in position p, then Heidi is in position p+3; Bob finished 3 places ahead of Carol: if Bob is in position p, then Carol is in position p+3; Frank finished after Carol; Frank finished immediately before Dave; Bob finished immediately before Grace. Who finished in 1st place?",
+   "answer": "Alice",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Bob",
+     "Heidi",
+     "Carol",
+     "Grace",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      6,
+      2,
+      3
+     ],
+     [
+      "g",
+      1,
+      3,
+      3
+     ],
+     [
+      "b",
+      3,
+      5,
+      0
+     ],
+     [
+      "a",
+      5,
+      0,
+      1
+     ],
+     [
+      "a",
+      1,
+      4,
+      1
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0034_en_orig",
+   "group_id": "grp_order_0034",
+   "query": "7 runners (Carol, Heidi, Erin, Alice, Dave, Bob, Grace) ran a race with no ties. Clues: Carol finished 3 places ahead of Erin: if Carol is in position p, then Erin is in position p+3; Erin finished 3 places ahead of Alice: if Erin is in position p, then Alice is in position p+3. Who finished in 4th place?",
+   "answer": "Erin",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Erin",
+     "Alice",
+     "Dave",
+     "Bob",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      2,
+      3
+     ],
+     [
+      "g",
+      2,
+      3,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0035_en_orig",
+   "group_id": "grp_order_0035",
+   "query": "7 runners (Dave, Bob, Grace, Carol, Frank, Alice, Heidi) ran a race with no ties. Clues: Bob finished 3 places ahead of Carol: if Bob is in position p, then Carol is in position p+3; Heidi finished immediately before Dave; Alice finished before Heidi; Dave finished after Grace; Frank finished 2 places ahead of Bob: if Frank is in position p, then Bob is in position p+2. Who finished in 6th place?",
+   "answer": "Dave",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Bob",
+     "Grace",
+     "Carol",
+     "Frank",
+     "Alice",
+     "Heidi"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      3,
+      3
+     ],
+     [
+      "a",
+      6,
+      0,
+      1
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ],
+     [
+      "b",
+      2,
+      0,
+      0
+     ],
+     [
+      "g",
+      4,
+      1,
+      2
+     ]
+    ],
+    "ask": 5,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0036_en_orig",
+   "group_id": "grp_order_0036",
+   "query": "7 runners (Grace, Carol, Frank, Dave, Heidi, Erin, Alice) ran a race with no ties. Clues: Heidi finished 2 places ahead of Alice: if Heidi is in position p, then Alice is in position p+2; Frank finished 3 places ahead of Dave: if Frank is in position p, then Dave is in position p+3; Erin finished 2 places ahead of Grace: if Erin is in position p, then Grace is in position p+2; Carol finished before Heidi; Heidi finished after Grace. Who finished in 7th place?",
+   "answer": "Alice",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Carol",
+     "Frank",
+     "Dave",
+     "Heidi",
+     "Erin",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      6,
+      2
+     ],
+     [
+      "g",
+      2,
+      3,
+      3
+     ],
+     [
+      "g",
+      5,
+      0,
+      2
+     ],
+     [
+      "b",
+      1,
+      4,
+      0
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0037_en_orig",
+   "group_id": "grp_order_0037",
+   "query": "7 runners (Erin, Grace, Frank, Carol, Heidi, Dave, Bob) ran a race with no ties. Clues: Grace finished 2 places ahead of Carol: if Grace is in position p, then Carol is in position p+2; Bob finished 3 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+3; Heidi finished after Erin; Grace finished immediately before Erin. Who finished in 2nd place?",
+   "answer": "Erin",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Grace",
+     "Frank",
+     "Carol",
+     "Heidi",
+     "Dave",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      3,
+      2
+     ],
+     [
+      "g",
+      6,
+      4,
+      3
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "a",
+      1,
+      0,
+      1
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0038_en_orig",
+   "group_id": "grp_order_0038",
+   "query": "7 runners (Erin, Alice, Frank, Grace, Heidi, Carol, Dave) ran a race with no ties. Clues: Erin finished 3 places ahead of Grace: if Erin is in position p, then Grace is in position p+3; Grace finished 3 places ahead of Dave: if Grace is in position p, then Dave is in position p+3. Who finished in 7th place?",
+   "answer": "Dave",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 2
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Alice",
+     "Frank",
+     "Grace",
+     "Heidi",
+     "Carol",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      3,
+      3
+     ],
+     [
+      "g",
+      3,
+      6,
+      3
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0039_en_orig",
+   "group_id": "grp_order_0039",
+   "query": "7 runners (Erin, Carol, Frank, Heidi, Bob, Grace, Alice) ran a race with no ties. Clues: Erin finished 2 places ahead of Alice: if Erin is in position p, then Alice is in position p+2; Erin finished before Carol; Alice finished 2 places ahead of Heidi: if Alice is in position p, then Heidi is in position p+2; Bob finished after Alice; Heidi finished immediately before Frank; Grace finished immediately before Alice. Who finished in 5th place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Carol",
+     "Frank",
+     "Heidi",
+     "Bob",
+     "Grace",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      6,
+      2
+     ],
+     [
+      "b",
+      0,
+      1,
+      0
+     ],
+     [
+      "g",
+      6,
+      3,
+      2
+     ],
+     [
+      "b",
+      6,
+      4,
+      0
+     ],
+     [
+      "a",
+      3,
+      2,
+      1
+     ],
+     [
+      "a",
+      5,
+      6,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0040_en_orig",
+   "group_id": "grp_order_0040",
+   "query": "7 runners (Grace, Heidi, Dave, Alice, Carol, Frank, Erin) ran a race with no ties. Clues: Alice finished 3 places ahead of Grace: if Alice is in position p, then Grace is in position p+3; Erin finished before Heidi; Dave finished after Grace; Heidi finished 3 places ahead of Frank: if Heidi is in position p, then Frank is in position p+3; Alice finished 2 places ahead of Carol: if Alice is in position p, then Carol is in position p+2. Who finished in 4th place?",
+   "answer": "Carol",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Heidi",
+     "Dave",
+     "Alice",
+     "Carol",
+     "Frank",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      3,
+      0,
+      3
+     ],
+     [
+      "b",
+      6,
+      1,
+      0
+     ],
+     [
+      "b",
+      0,
+      2,
+      0
+     ],
+     [
+      "g",
+      1,
+      5,
+      3
+     ],
+     [
+      "g",
+      3,
+      4,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0041_en_orig",
+   "group_id": "grp_order_0041",
+   "query": "7 runners (Carol, Heidi, Erin, Alice, Frank, Bob, Dave) ran a race with no ties. Clues: Carol finished before Alice; Dave finished immediately before Bob; Heidi finished before Erin; Frank finished after Dave; Erin finished 2 places ahead of Bob: if Erin is in position p, then Bob is in position p+2; Dave finished 2 places ahead of Carol: if Dave is in position p, then Carol is in position p+2. Who finished in 1st place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Heidi",
+     "Erin",
+     "Alice",
+     "Frank",
+     "Bob",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "b",
+      0,
+      3,
+      0
+     ],
+     [
+      "a",
+      6,
+      5,
+      1
+     ],
+     [
+      "b",
+      1,
+      2,
+      0
+     ],
+     [
+      "b",
+      6,
+      4,
+      0
+     ],
+     [
+      "g",
+      2,
+      5,
+      2
+     ],
+     [
+      "g",
+      6,
+      0,
+      2
+     ]
+    ],
+    "ask": 0,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0042_en_orig",
+   "group_id": "grp_order_0042",
+   "query": "7 runners (Dave, Grace, Erin, Alice, Heidi, Bob, Carol) ran a race with no ties. Clues: Erin finished 2 places ahead of Bob: if Erin is in position p, then Bob is in position p+2; Alice finished immediately before Erin; Grace finished after Alice; Heidi finished before Bob; Alice finished before Carol; Alice finished 2 places ahead of Dave: if Alice is in position p, then Dave is in position p+2. Who finished in 4th place?",
+   "answer": "Dave",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Grace",
+     "Erin",
+     "Alice",
+     "Heidi",
+     "Bob",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "g",
+      2,
+      5,
+      2
+     ],
+     [
+      "a",
+      3,
+      2,
+      1
+     ],
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ],
+     [
+      "b",
+      3,
+      6,
+      0
+     ],
+     [
+      "g",
+      3,
+      0,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0043_en_orig",
+   "group_id": "grp_order_0043",
+   "query": "7 runners (Heidi, Erin, Grace, Bob, Dave, Frank, Carol) ran a race with no ties. Clues: Heidi finished 2 places ahead of Frank: if Heidi is in position p, then Frank is in position p+2; Heidi finished 3 places ahead of Grace: if Heidi is in position p, then Grace is in position p+3; Heidi finished before Bob; Erin finished 2 places ahead of Heidi: if Erin is in position p, then Heidi is in position p+2; Carol finished after Heidi. Who finished in 3rd place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Erin",
+     "Grace",
+     "Bob",
+     "Dave",
+     "Frank",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      5,
+      2
+     ],
+     [
+      "g",
+      0,
+      2,
+      3
+     ],
+     [
+      "b",
+      0,
+      3,
+      0
+     ],
+     [
+      "g",
+      1,
+      0,
+      2
+     ],
+     [
+      "b",
+      0,
+      6,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0044_en_orig",
+   "group_id": "grp_order_0044",
+   "query": "7 runners (Grace, Carol, Erin, Bob, Heidi, Frank, Dave) ran a race with no ties. Clues: Carol finished 2 places ahead of Erin: if Carol is in position p, then Erin is in position p+2; Frank finished before Grace; Frank finished 2 places ahead of Carol: if Frank is in position p, then Carol is in position p+2; Grace finished 3 places ahead of Heidi: if Grace is in position p, then Heidi is in position p+3. Who finished in 7th place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 3,
+   "difficulty": {
+    "runners": 7,
+    "clues": 4
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Carol",
+     "Erin",
+     "Bob",
+     "Heidi",
+     "Frank",
+     "Dave"
+    ],
+    "clues": [
+     [
+      "g",
+      1,
+      2,
+      2
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ],
+     [
+      "g",
+      5,
+      1,
+      2
+     ],
+     [
+      "g",
+      0,
+      4,
+      3
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0045_en_orig",
+   "group_id": "grp_order_0045",
+   "query": "8 runners (Bob, Erin, Heidi, Alice, Grace, Dave, Frank, Carol) ran a race with no ties. Clues: Erin finished immediately before Heidi; Erin finished before Frank; Carol finished immediately before Alice; Heidi finished before Alice; Dave finished before Grace; Bob finished immediately before Dave; Dave finished 2 places ahead of Heidi: if Dave is in position p, then Heidi is in position p+2. Who finished in 3rd place?",
+   "answer": "Erin",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Bob",
+     "Erin",
+     "Heidi",
+     "Alice",
+     "Grace",
+     "Dave",
+     "Frank",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "a",
+      1,
+      2,
+      1
+     ],
+     [
+      "b",
+      1,
+      6,
+      0
+     ],
+     [
+      "a",
+      7,
+      3,
+      1
+     ],
+     [
+      "b",
+      2,
+      3,
+      0
+     ],
+     [
+      "b",
+      5,
+      4,
+      0
+     ],
+     [
+      "a",
+      0,
+      5,
+      1
+     ],
+     [
+      "g",
+      5,
+      2,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0046_en_orig",
+   "group_id": "grp_order_0046",
+   "query": "8 runners (Dave, Frank, Grace, Carol, Bob, Alice, Heidi, Erin) ran a race with no ties. Clues: Erin finished 2 places ahead of Carol: if Erin is in position p, then Carol is in position p+2; Grace finished 3 places ahead of Dave: if Grace is in position p, then Dave is in position p+3; Dave finished before Erin; Erin finished before Bob; Bob finished before Alice. Who finished in 7th place?",
+   "answer": "Carol",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Frank",
+     "Grace",
+     "Carol",
+     "Bob",
+     "Alice",
+     "Heidi",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      7,
+      3,
+      2
+     ],
+     [
+      "g",
+      2,
+      0,
+      3
+     ],
+     [
+      "b",
+      0,
+      7,
+      0
+     ],
+     [
+      "b",
+      7,
+      4,
+      0
+     ],
+     [
+      "b",
+      4,
+      5,
+      0
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0047_en_orig",
+   "group_id": "grp_order_0047",
+   "query": "8 runners (Dave, Alice, Erin, Heidi, Frank, Grace, Carol, Bob) ran a race with no ties. Clues: Frank finished 3 places ahead of Dave: if Frank is in position p, then Dave is in position p+3; Frank finished immediately before Erin; Dave finished 3 places ahead of Carol: if Dave is in position p, then Carol is in position p+3; Grace finished before Erin; Bob finished 3 places ahead of Alice: if Bob is in position p, then Alice is in position p+3. Who finished in 4th place?",
+   "answer": "Bob",
+   "split": "dev",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Dave",
+     "Alice",
+     "Erin",
+     "Heidi",
+     "Frank",
+     "Grace",
+     "Carol",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      4,
+      0,
+      3
+     ],
+     [
+      "a",
+      4,
+      2,
+      1
+     ],
+     [
+      "g",
+      0,
+      6,
+      3
+     ],
+     [
+      "b",
+      5,
+      2,
+      0
+     ],
+     [
+      "g",
+      7,
+      1,
+      3
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0048_en_orig",
+   "group_id": "grp_order_0048",
+   "query": "8 runners (Erin, Bob, Heidi, Carol, Grace, Alice, Dave, Frank) ran a race with no ties. Clues: Heidi finished immediately before Bob; Bob finished immediately before Grace; Alice finished after Frank; Bob finished 2 places ahead of Carol: if Bob is in position p, then Carol is in position p+2; Frank finished 3 places ahead of Bob: if Frank is in position p, then Bob is in position p+3; Erin finished 2 places ahead of Dave: if Erin is in position p, then Dave is in position p+2. Who finished in 7th place?",
+   "answer": "Carol",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Bob",
+     "Heidi",
+     "Carol",
+     "Grace",
+     "Alice",
+     "Dave",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "a",
+      2,
+      1,
+      1
+     ],
+     [
+      "a",
+      1,
+      4,
+      1
+     ],
+     [
+      "b",
+      7,
+      5,
+      0
+     ],
+     [
+      "g",
+      1,
+      3,
+      2
+     ],
+     [
+      "g",
+      7,
+      1,
+      3
+     ],
+     [
+      "g",
+      0,
+      6,
+      2
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0049_en_orig",
+   "group_id": "grp_order_0049",
+   "query": "8 runners (Heidi, Frank, Grace, Bob, Alice, Dave, Carol, Erin) ran a race with no ties. Clues: Dave finished 3 places ahead of Frank: if Dave is in position p, then Frank is in position p+3; Erin finished before Alice; Bob finished immediately before Erin; Alice finished after Heidi; Carol finished immediately before Frank; Alice finished immediately before Carol; Grace finished before Erin. Who finished in 5th place?",
+   "answer": "Dave",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Frank",
+     "Grace",
+     "Bob",
+     "Alice",
+     "Dave",
+     "Carol",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "g",
+      5,
+      1,
+      3
+     ],
+     [
+      "b",
+      7,
+      4,
+      0
+     ],
+     [
+      "a",
+      3,
+      7,
+      1
+     ],
+     [
+      "b",
+      0,
+      4,
+      0
+     ],
+     [
+      "a",
+      6,
+      1,
+      1
+     ],
+     [
+      "a",
+      4,
+      6,
+      1
+     ],
+     [
+      "b",
+      2,
+      7,
+      0
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0050_en_orig",
+   "group_id": "grp_order_0050",
+   "query": "8 runners (Erin, Alice, Carol, Bob, Dave, Grace, Heidi, Frank) ran a race with no ties. Clues: Heidi finished immediately before Erin; Grace finished before Erin; Dave finished 2 places ahead of Erin: if Dave is in position p, then Erin is in position p+2; Frank finished before Carol; Bob finished 2 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+2; Carol finished before Grace; Alice finished after Grace. Who finished in 3rd place?",
+   "answer": "Grace",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Erin",
+     "Alice",
+     "Carol",
+     "Bob",
+     "Dave",
+     "Grace",
+     "Heidi",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "a",
+      6,
+      0,
+      1
+     ],
+     [
+      "b",
+      5,
+      0,
+      0
+     ],
+     [
+      "g",
+      4,
+      0,
+      2
+     ],
+     [
+      "b",
+      7,
+      2,
+      0
+     ],
+     [
+      "g",
+      3,
+      6,
+      2
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "b",
+      5,
+      1,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0051_en_orig",
+   "group_id": "grp_order_0051",
+   "query": "8 runners (Carol, Alice, Grace, Erin, Dave, Heidi, Bob, Frank) ran a race with no ties. Clues: Heidi finished after Frank; Alice finished 3 places ahead of Grace: if Alice is in position p, then Grace is in position p+3; Erin finished 2 places ahead of Bob: if Erin is in position p, then Bob is in position p+2; Grace finished before Frank; Alice finished immediately before Carol; Grace finished immediately before Bob; Bob finished after Dave. Who finished in 3rd place?",
+   "answer": "Carol",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Alice",
+     "Grace",
+     "Erin",
+     "Dave",
+     "Heidi",
+     "Bob",
+     "Frank"
+    ],
+    "clues": [
+     [
+      "b",
+      7,
+      5,
+      0
+     ],
+     [
+      "g",
+      1,
+      2,
+      3
+     ],
+     [
+      "g",
+      3,
+      6,
+      2
+     ],
+     [
+      "b",
+      2,
+      7,
+      0
+     ],
+     [
+      "a",
+      1,
+      0,
+      1
+     ],
+     [
+      "a",
+      2,
+      6,
+      1
+     ],
+     [
+      "b",
+      4,
+      6,
+      0
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0052_en_orig",
+   "group_id": "grp_order_0052",
+   "query": "8 runners (Heidi, Frank, Erin, Alice, Dave, Grace, Carol, Bob) ran a race with no ties. Clues: Carol finished before Alice; Bob finished 3 places ahead of Erin: if Bob is in position p, then Erin is in position p+3; Alice finished before Dave; Grace finished after Frank; Bob finished immediately before Grace; Dave finished 2 places ahead of Grace: if Dave is in position p, then Grace is in position p+2. Who finished in 4th place?",
+   "answer": "Dave",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Heidi",
+     "Frank",
+     "Erin",
+     "Alice",
+     "Dave",
+     "Grace",
+     "Carol",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      3,
+      0
+     ],
+     [
+      "g",
+      7,
+      2,
+      3
+     ],
+     [
+      "b",
+      3,
+      4,
+      0
+     ],
+     [
+      "b",
+      1,
+      5,
+      0
+     ],
+     [
+      "a",
+      7,
+      5,
+      1
+     ],
+     [
+      "g",
+      4,
+      5,
+      2
+     ]
+    ],
+    "ask": 3,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0053_en_orig",
+   "group_id": "grp_order_0053",
+   "query": "8 runners (Alice, Dave, Grace, Frank, Erin, Bob, Heidi, Carol) ran a race with no ties. Clues: Grace finished after Heidi; Carol finished 2 places ahead of Alice: if Carol is in position p, then Alice is in position p+2; Grace finished before Bob; Dave finished 3 places ahead of Bob: if Dave is in position p, then Bob is in position p+3; Heidi finished 3 places ahead of Carol: if Heidi is in position p, then Carol is in position p+3; Heidi finished immediately before Erin. Who finished in 5th place?",
+   "answer": "Dave",
+   "split": "calib",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Dave",
+     "Grace",
+     "Frank",
+     "Erin",
+     "Bob",
+     "Heidi",
+     "Carol"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      2,
+      0
+     ],
+     [
+      "g",
+      7,
+      0,
+      2
+     ],
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "g",
+      1,
+      5,
+      3
+     ],
+     [
+      "g",
+      6,
+      7,
+      3
+     ],
+     [
+      "a",
+      6,
+      4,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0054_en_orig",
+   "group_id": "grp_order_0054",
+   "query": "8 runners (Grace, Dave, Heidi, Carol, Alice, Erin, Frank, Bob) ran a race with no ties. Clues: Grace finished 3 places ahead of Alice: if Grace is in position p, then Alice is in position p+3; Carol finished 2 places ahead of Alice: if Carol is in position p, then Alice is in position p+2; Bob finished 3 places ahead of Dave: if Bob is in position p, then Dave is in position p+3; Erin finished before Frank; Erin finished 3 places ahead of Bob: if Erin is in position p, then Bob is in position p+3; Bob finished 2 places ahead of Heidi: if Bob is in position p, then Heidi is in position p+2. Who finished in 8th place?",
+   "answer": "Frank",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Grace",
+     "Dave",
+     "Heidi",
+     "Carol",
+     "Alice",
+     "Erin",
+     "Frank",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "g",
+      0,
+      4,
+      3
+     ],
+     [
+      "g",
+      3,
+      4,
+      2
+     ],
+     [
+      "g",
+      7,
+      1,
+      3
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ],
+     [
+      "g",
+      5,
+      7,
+      3
+     ],
+     [
+      "g",
+      7,
+      2,
+      2
+     ]
+    ],
+    "ask": 7,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0055_en_orig",
+   "group_id": "grp_order_0055",
+   "query": "8 runners (Alice, Carol, Grace, Heidi, Erin, Dave, Frank, Bob) ran a race with no ties. Clues: Alice finished after Frank; Bob finished after Heidi; Carol finished after Dave; Grace finished after Frank; Erin finished 3 places ahead of Frank: if Erin is in position p, then Frank is in position p+3; Frank finished before Dave. Who finished in 2nd place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Carol",
+     "Grace",
+     "Heidi",
+     "Erin",
+     "Dave",
+     "Frank",
+     "Bob"
+    ],
+    "clues": [
+     [
+      "b",
+      6,
+      0,
+      0
+     ],
+     [
+      "b",
+      3,
+      7,
+      0
+     ],
+     [
+      "b",
+      5,
+      1,
+      0
+     ],
+     [
+      "b",
+      6,
+      2,
+      0
+     ],
+     [
+      "g",
+      4,
+      6,
+      3
+     ],
+     [
+      "b",
+      6,
+      5,
+      0
+     ]
+    ],
+    "ask": 1,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0056_en_orig",
+   "group_id": "grp_order_0056",
+   "query": "8 runners (Alice, Heidi, Grace, Bob, Carol, Dave, Frank, Erin) ran a race with no ties. Clues: Heidi finished after Bob; Grace finished after Frank; Frank finished before Dave; Erin finished before Carol; Frank finished before Bob; Grace finished 2 places ahead of Alice: if Grace is in position p, then Alice is in position p+2; Frank finished 2 places ahead of Erin: if Frank is in position p, then Erin is in position p+2. Who finished in 3rd place?",
+   "answer": "Erin",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Alice",
+     "Heidi",
+     "Grace",
+     "Bob",
+     "Carol",
+     "Dave",
+     "Frank",
+     "Erin"
+    ],
+    "clues": [
+     [
+      "b",
+      3,
+      1,
+      0
+     ],
+     [
+      "b",
+      6,
+      2,
+      0
+     ],
+     [
+      "b",
+      6,
+      5,
+      0
+     ],
+     [
+      "b",
+      7,
+      4,
+      0
+     ],
+     [
+      "b",
+      6,
+      3,
+      0
+     ],
+     [
+      "g",
+      2,
+      0,
+      2
+     ],
+     [
+      "g",
+      6,
+      7,
+      2
+     ]
+    ],
+    "ask": 2,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0057_en_orig",
+   "group_id": "grp_order_0057",
+   "query": "8 runners (Carol, Dave, Bob, Erin, Alice, Frank, Heidi, Grace) ran a race with no ties. Clues: Erin finished immediately before Carol; Grace finished 3 places ahead of Alice: if Grace is in position p, then Alice is in position p+3; Grace finished after Erin; Dave finished 2 places ahead of Alice: if Dave is in position p, then Alice is in position p+2; Carol finished after Heidi; Bob finished before Grace. Who finished in 7th place?",
+   "answer": "Frank",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 6
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Dave",
+     "Bob",
+     "Erin",
+     "Alice",
+     "Frank",
+     "Heidi",
+     "Grace"
+    ],
+    "clues": [
+     [
+      "a",
+      3,
+      0,
+      1
+     ],
+     [
+      "g",
+      7,
+      4,
+      3
+     ],
+     [
+      "b",
+      3,
+      7,
+      0
+     ],
+     [
+      "g",
+      1,
+      4,
+      2
+     ],
+     [
+      "b",
+      6,
+      0,
+      0
+     ],
+     [
+      "b",
+      2,
+      7,
+      0
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0058_en_orig",
+   "group_id": "grp_order_0058",
+   "query": "8 runners (Bob, Heidi, Carol, Grace, Dave, Erin, Frank, Alice) ran a race with no ties. Clues: Carol finished before Erin; Dave finished 3 places ahead of Frank: if Dave is in position p, then Frank is in position p+3; Carol finished immediately before Alice; Bob finished after Frank; Bob finished immediately before Carol. Who finished in 5th place?",
+   "answer": "Bob",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 5
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Bob",
+     "Heidi",
+     "Carol",
+     "Grace",
+     "Dave",
+     "Erin",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      2,
+      5,
+      0
+     ],
+     [
+      "g",
+      4,
+      6,
+      3
+     ],
+     [
+      "a",
+      2,
+      7,
+      1
+     ],
+     [
+      "b",
+      6,
+      0,
+      0
+     ],
+     [
+      "a",
+      0,
+      2,
+      1
+     ]
+    ],
+    "ask": 4,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "order_0059_en_orig",
+   "group_id": "grp_order_0059",
+   "query": "8 runners (Carol, Dave, Heidi, Grace, Bob, Erin, Frank, Alice) ran a race with no ties. Clues: Alice finished before Frank; Carol finished before Alice; Heidi finished immediately before Frank; Grace finished before Carol; Bob finished 3 places ahead of Erin: if Bob is in position p, then Erin is in position p+3; Dave finished 3 places ahead of Alice: if Dave is in position p, then Alice is in position p+3; Erin finished before Frank. Who finished in 7th place?",
+   "answer": "Heidi",
+   "split": "test",
+   "category": "order",
+   "family": "order",
+   "level": 4,
+   "difficulty": {
+    "runners": 8,
+    "clues": 7
+   },
+   "checker": "order",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "names": [
+     "Carol",
+     "Dave",
+     "Heidi",
+     "Grace",
+     "Bob",
+     "Erin",
+     "Frank",
+     "Alice"
+    ],
+    "clues": [
+     [
+      "b",
+      7,
+      6,
+      0
+     ],
+     [
+      "b",
+      0,
+      7,
+      0
+     ],
+     [
+      "a",
+      2,
+      6,
+      1
+     ],
+     [
+      "b",
+      3,
+      0,
+      0
+     ],
+     [
+      "g",
+      4,
+      5,
+      3
+     ],
+     [
+      "g",
+      1,
+      7,
+      3
+     ],
+     [
+      "b",
+      5,
+      6,
+      0
+     ]
+    ],
+    "ask": 6,
+    "gap_style": "B"
+   }
+  },
+  {
+   "id": "g24_0000_en_orig",
+   "group_id": "grp_g24_0000",
+   "query": "Using each of the numbers 4, 5, 2 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((2+13)+(4+5))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 26
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     5,
+     2,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0001_en_orig",
+   "group_id": "grp_g24_0001",
+   "query": "Using each of the numbers 3, 8, 6 and 6 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((3*(8*6))/6)",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 53
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     3,
+     8,
+     6,
+     6
+    ]
+   }
+  },
+  {
+   "id": "g24_0002_en_orig",
+   "group_id": "grp_g24_0002",
+   "query": "Using each of the numbers 12, 6, 3 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12*3)-(6*2))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 26
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     12,
+     6,
+     3,
+     2
+    ]
+   }
+  },
+  {
+   "id": "g24_0003_en_orig",
+   "group_id": "grp_g24_0003",
+   "query": "Using each of the numbers 2, 7, 6 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((13+(7+6))-2)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 48
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     7,
+     6,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0004_en_orig",
+   "group_id": "grp_g24_0004",
+   "query": "Using each of the numbers 9, 3, 8 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((3+4)+(9+8))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 29
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     9,
+     3,
+     8,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0005_en_orig",
+   "group_id": "grp_g24_0005",
+   "query": "Using each of the numbers 2, 12, 9 and 5 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12*(9-5))/2)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 46
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     12,
+     9,
+     5
+    ]
+   }
+  },
+  {
+   "id": "g24_0006_en_orig",
+   "group_id": "grp_g24_0006",
+   "query": "Using each of the numbers 10, 2, 4 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((10+(4+12))-2)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 50
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     10,
+     2,
+     4,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0007_en_orig",
+   "group_id": "grp_g24_0007",
+   "query": "Using each of the numbers 5, 7, 3 and 9 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((3+9)*(7-5))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 22
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     5,
+     7,
+     3,
+     9
+    ]
+   }
+  },
+  {
+   "id": "g24_0008_en_orig",
+   "group_id": "grp_g24_0008",
+   "query": "Using each of the numbers 3, 12, 2 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12*(2+4))/3)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 24
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     3,
+     12,
+     2,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0009_en_orig",
+   "group_id": "grp_g24_0009",
+   "query": "Using each of the numbers 2, 6, 9 and 7 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((2*6)*(9-7))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 28
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     6,
+     9,
+     7
+    ]
+   }
+  },
+  {
+   "id": "g24_0010_en_orig",
+   "group_id": "grp_g24_0010",
+   "query": "Using each of the numbers 3, 8, 4 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((3*(8*4))/4)",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 59
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     3,
+     8,
+     4,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0011_en_orig",
+   "group_id": "grp_g24_0011",
+   "query": "Using each of the numbers 4, 2, 6 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((2*6)+(4*3))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 28
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     2,
+     6,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0012_en_orig",
+   "group_id": "grp_g24_0012",
+   "query": "Using each of the numbers 11, 5, 13 and 5 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11+(13+5))-5)",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 59
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     11,
+     5,
+     13,
+     5
+    ]
+   }
+  },
+  {
+   "id": "g24_0013_en_orig",
+   "group_id": "grp_g24_0013",
+   "query": "Using each of the numbers 8, 13, 3 and 1 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((13*1)+(8+3))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 36
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     8,
+     13,
+     3,
+     1
+    ]
+   }
+  },
+  {
+   "id": "g24_0014_en_orig",
+   "group_id": "grp_g24_0014",
+   "query": "Using each of the numbers 2, 9, 1 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(((9*3)-1)-2)",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 1,
+   "difficulty": {
+    "n_solutions": 23
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     9,
+     1,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0015_en_orig",
+   "group_id": "grp_g24_0015",
+   "query": "Using each of the numbers 5, 11, 4 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11+13)*(5-4))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 11
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     5,
+     11,
+     4,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0016_en_orig",
+   "group_id": "grp_g24_0016",
+   "query": "Using each of the numbers 2, 11, 1 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11+13)*(2-1))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 11
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     11,
+     1,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0017_en_orig",
+   "group_id": "grp_g24_0017",
+   "query": "Using each of the numbers 4, 12, 8 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12/4)+(8+13))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 9
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     12,
+     8,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0018_en_orig",
+   "group_id": "grp_g24_0018",
+   "query": "Using each of the numbers 12, 11, 3 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11*3)+(3-12))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 11
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     12,
+     11,
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0019_en_orig",
+   "group_id": "grp_g24_0019",
+   "query": "Using each of the numbers 8, 4, 3 and 10 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((10-8)*(4*3))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 14
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     8,
+     4,
+     3,
+     10
+    ]
+   }
+  },
+  {
+   "id": "g24_0020_en_orig",
+   "group_id": "grp_g24_0020",
+   "query": "Using each of the numbers 4, 2, 5 and 9 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((2*(5+9))-4)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 8
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     2,
+     5,
+     9
+    ]
+   }
+  },
+  {
+   "id": "g24_0021_en_orig",
+   "group_id": "grp_g24_0021",
+   "query": "Using each of the numbers 9, 3, 10 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((10*3)+(3-9))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 12
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     9,
+     3,
+     10,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0022_en_orig",
+   "group_id": "grp_g24_0022",
+   "query": "Using each of the numbers 4, 7, 3 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((4+2)*(7-3))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 8
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     7,
+     3,
+     2
+    ]
+   }
+  },
+  {
+   "id": "g24_0023_en_orig",
+   "group_id": "grp_g24_0023",
+   "query": "Using each of the numbers 12, 2, 13 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12*2)*(13-12))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 13
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     12,
+     2,
+     13,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0024_en_orig",
+   "group_id": "grp_g24_0024",
+   "query": "Using each of the numbers 12, 2, 10 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(((12*3)-10)-2)",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 14
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     12,
+     2,
+     10,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0025_en_orig",
+   "group_id": "grp_g24_0025",
+   "query": "Using each of the numbers 4, 12, 3 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12*3)-(4*3))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 9
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     12,
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0026_en_orig",
+   "group_id": "grp_g24_0026",
+   "query": "Using each of the numbers 12, 5, 5 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12+(5*5))-13)",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 11
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     12,
+     5,
+     5,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0027_en_orig",
+   "group_id": "grp_g24_0027",
+   "query": "Using each of the numbers 12, 6, 9 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((12+(9*2))-6)",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 14
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     12,
+     6,
+     9,
+     2
+    ]
+   }
+  },
+  {
+   "id": "g24_0028_en_orig",
+   "group_id": "grp_g24_0028",
+   "query": "Using each of the numbers 8, 10, 8 and 5 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(8*((8+5)-10))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 11
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     8,
+     10,
+     8,
+     5
+    ]
+   }
+  },
+  {
+   "id": "g24_0029_en_orig",
+   "group_id": "grp_g24_0029",
+   "query": "Using each of the numbers 9, 5, 8 and 1 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((1-9)*(5-8))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 2,
+   "difficulty": {
+    "n_solutions": 8
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     9,
+     5,
+     8,
+     1
+    ]
+   }
+  },
+  {
+   "id": "g24_0030_en_orig",
+   "group_id": "grp_g24_0030",
+   "query": "Using each of the numbers 10, 6, 11 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((10*12)/(11-6))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 5
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     10,
+     6,
+     11,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0031_en_orig",
+   "group_id": "grp_g24_0031",
+   "query": "Using each of the numbers 8, 12, 2 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(8*((2+13)-12))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 5
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     8,
+     12,
+     2,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0032_en_orig",
+   "group_id": "grp_g24_0032",
+   "query": "Using each of the numbers 2, 4, 2 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(2*(4+(2*4)))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 4
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     4,
+     2,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0033_en_orig",
+   "group_id": "grp_g24_0033",
+   "query": "Using each of the numbers 1, 9, 10 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(12*((1+10)-9))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 5
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     1,
+     9,
+     10,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0034_en_orig",
+   "group_id": "grp_g24_0034",
+   "query": "Using each of the numbers 13, 2, 6 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(((13*12)/6)-2)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 7
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     13,
+     2,
+     6,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0035_en_orig",
+   "group_id": "grp_g24_0035",
+   "query": "Using each of the numbers 7, 1, 11 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11+(7*2))-1)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 6
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     7,
+     1,
+     11,
+     2
+    ]
+   }
+  },
+  {
+   "id": "g24_0036_en_orig",
+   "group_id": "grp_g24_0036",
+   "query": "Using each of the numbers 3, 7, 7 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((3+7)+(7*2))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 4
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     3,
+     7,
+     7,
+     2
+    ]
+   }
+  },
+  {
+   "id": "g24_0037_en_orig",
+   "group_id": "grp_g24_0037",
+   "query": "Using each of the numbers 2, 11, 10 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11*4)-(2*10))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 4
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     11,
+     10,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0038_en_orig",
+   "group_id": "grp_g24_0038",
+   "query": "Using each of the numbers 8, 13, 5 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((4*(13-5))-8)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 7
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     8,
+     13,
+     5,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0039_en_orig",
+   "group_id": "grp_g24_0039",
+   "query": "Using each of the numbers 4, 3, 8 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((13-4)*(8/3))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 7
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     3,
+     8,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0040_en_orig",
+   "group_id": "grp_g24_0040",
+   "query": "Using each of the numbers 13, 1, 10 and 6 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(6*((13+1)-10))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 5
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     13,
+     1,
+     10,
+     6
+    ]
+   }
+  },
+  {
+   "id": "g24_0041_en_orig",
+   "group_id": "grp_g24_0041",
+   "query": "Using each of the numbers 11, 5, 9 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11-5)*(13-9))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 4
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     11,
+     5,
+     9,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0042_en_orig",
+   "group_id": "grp_g24_0042",
+   "query": "Using each of the numbers 2, 5, 10 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((2+10)*(5-3))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 7
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     2,
+     5,
+     10,
+     3
+    ]
+   }
+  },
+  {
+   "id": "g24_0043_en_orig",
+   "group_id": "grp_g24_0043",
+   "query": "Using each of the numbers 1, 4, 2 and 5 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((4+2)*(5-1))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 7
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     1,
+     4,
+     2,
+     5
+    ]
+   }
+  },
+  {
+   "id": "g24_0044_en_orig",
+   "group_id": "grp_g24_0044",
+   "query": "Using each of the numbers 13, 6, 6 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((13+12)-(6/6))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 3,
+   "difficulty": {
+    "n_solutions": 5
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     13,
+     6,
+     6,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0045_en_orig",
+   "group_id": "grp_g24_0045",
+   "query": "Using each of the numbers 1, 7, 13 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(((13*13)-1)/7)",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 1
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     1,
+     7,
+     13,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0046_en_orig",
+   "group_id": "grp_g24_0046",
+   "query": "Using each of the numbers 13, 4, 7 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(4*(7-(13/13)))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 1
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     13,
+     4,
+     7,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0047_en_orig",
+   "group_id": "grp_g24_0047",
+   "query": "Using each of the numbers 5, 1, 5 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(12*(1+(5/5)))",
+   "split": "dev",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 1
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     5,
+     1,
+     5,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0048_en_orig",
+   "group_id": "grp_g24_0048",
+   "query": "Using each of the numbers 6, 7, 1 and 9 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((7+1)*(9-6))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     6,
+     7,
+     1,
+     9
+    ]
+   }
+  },
+  {
+   "id": "g24_0049_en_orig",
+   "group_id": "grp_g24_0049",
+   "query": "Using each of the numbers 11, 1, 9 and 7 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((11+1)*(9-7))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     11,
+     1,
+     9,
+     7
+    ]
+   }
+  },
+  {
+   "id": "g24_0050_en_orig",
+   "group_id": "grp_g24_0050",
+   "query": "Using each of the numbers 13, 5, 3 and 8 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(((5*8)-13)-3)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 3
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     13,
+     5,
+     3,
+     8
+    ]
+   }
+  },
+  {
+   "id": "g24_0051_en_orig",
+   "group_id": "grp_g24_0051",
+   "query": "Using each of the numbers 4, 1, 7 and 11 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((7*(4+1))-11)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 1
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     4,
+     1,
+     7,
+     11
+    ]
+   }
+  },
+  {
+   "id": "g24_0052_en_orig",
+   "group_id": "grp_g24_0052",
+   "query": "Using each of the numbers 10, 9, 5 and 7 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(9+(5*(10-7)))",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     10,
+     9,
+     5,
+     7
+    ]
+   }
+  },
+  {
+   "id": "g24_0053_en_orig",
+   "group_id": "grp_g24_0053",
+   "query": "Using each of the numbers 11, 7, 6 and 11 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "((7*(11-6))-11)",
+   "split": "calib",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 1
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     11,
+     7,
+     6,
+     11
+    ]
+   }
+  },
+  {
+   "id": "g24_0054_en_orig",
+   "group_id": "grp_g24_0054",
+   "query": "Using each of the numbers 1, 11, 4 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(4*((11-1)-4))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 3
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     1,
+     11,
+     4,
+     4
+    ]
+   }
+  },
+  {
+   "id": "g24_0055_en_orig",
+   "group_id": "grp_g24_0055",
+   "query": "Using each of the numbers 13, 6, 12 and 11 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(12+(6*(13-11)))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     13,
+     6,
+     12,
+     11
+    ]
+   }
+  },
+  {
+   "id": "g24_0056_en_orig",
+   "group_id": "grp_g24_0056",
+   "query": "Using each of the numbers 9, 6, 11 and 13 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(6+(9*(13-11)))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     9,
+     6,
+     11,
+     13
+    ]
+   }
+  },
+  {
+   "id": "g24_0057_en_orig",
+   "group_id": "grp_g24_0057",
+   "query": "Using each of the numbers 9, 11, 6 and 12 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(12+(6*(11-9)))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     9,
+     11,
+     6,
+     12
+    ]
+   }
+  },
+  {
+   "id": "g24_0058_en_orig",
+   "group_id": "grp_g24_0058",
+   "query": "Using each of the numbers 11, 5, 12 and 2 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(12+(2*(11-5)))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 3
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     11,
+     5,
+     12,
+     2
+    ]
+   }
+  },
+  {
+   "id": "g24_0059_en_orig",
+   "group_id": "grp_g24_0059",
+   "query": "Using each of the numbers 10, 3, 6 and 10 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+   "answer": "(10*(3-(6/10)))",
+   "split": "test",
+   "category": "g24",
+   "family": "g24",
+   "level": 4,
+   "difficulty": {
+    "n_solutions": 2
+   },
+   "checker": "g24",
+   "source": "procedural:gen_tasks.py@0.2.2/seed=0",
+   "meta": {
+    "numbers": [
+     10,
+     3,
+     6,
+     10
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+  "kind": "data_and_software_validation_only",
+  "recorded_utc": "2026-10-03T09:24:07.272049+00:00",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "test_command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_research_study.py tests/test_research_aggregate.py tests/test_research_scoring.py tests/test_development_data_audit.py test_optimal_stopping.py test_entry_predictor.py tests/test_gen_tasks.py test_reasoning_strategies.py test_qwen_mlx_backend_mocked.py -q",
+  "observed_test_result": "107 passed in 6.79s",
+  "test_sources_sha256": {
+    "tests/test_research_study.py": "4dbc27b08b30431b2afd00e318f6712050d10701919ce60cf33cdf267ad16675",
+    "tests/test_research_aggregate.py": "2b5b5d41d176fcc118bf199105e9d52977b0d729d4f5763e88f1ec9b8dfb8ded",
+    "tests/test_research_scoring.py": "133c9fd2a1a1ab2eb29378dcb895a03889f808f7a6bae6255d04b2adee0a6531",
+    "tests/test_development_data_audit.py": "27c288bccda3160b7b440e1bdfb301312846da177954d7091cccd4513956a931",
+    "test_optimal_stopping.py": "51e6f8686990bedc849154f4d0ebd5c8971403efe2f579842c3c36971e5e9a4a",
+    "test_entry_predictor.py": "963f3a49cb3167d53c487407b60d8e1ce07f037d3d8ec56145c0becb190a10ee",
+    "tests/test_gen_tasks.py": "db34aed86e94932dc294cda3a4c7d43fdc14025b1e78fed67e42b6b5d2ca9207",
+    "test_reasoning_strategies.py": "5f162550830e17d857df67c5d630cdb10d18e0fa3b3f1d47c0f054b9be037a6f",
+    "test_qwen_mlx_backend_mocked.py": "b9eac222ba15081ce94e3a08fd7d25ba8c83e5ecfd809a09ba487678c3fa964f"
+  },
+  "development_items_verified": 222,
+  "development_counts": [
+    54,
+    108,
+    60
+  ],
+  "held_out_rows_unchanged": true,
+  "procedural_dataset_bytes_unchanged": true,
+  "scoring_regression_cases": 11,
+  "scoring_cases_sha256": "f3ee951154e71f1b122ffbe78c699a6ab70e49420950a06da538f6e99d0db2cb",
+  "fresh_smoke_run_root": "runs/development-scoring-validation-20261003",
+  "smoke_evidence": "synthetic_smoke",
+  "smoke_manifest_sha256": "3f70e3def81f95344a88f7bcd357cee88243c005d38781ed07e485cb2f7f2090",
+  "smoke_source_hashes_match": true,
+  "replay_results_and_summary_identical": true,
+  "real_model_runs": 0,
+  "stage_0_gate_changed": false,
+  "main_study_release_ready": false,
+  "limitations": "Agent data/scoring review; human/source review and disjoint canonical splits pending. Smoke costs/timings are synthetic/Python only, not model-quality or online-latency evidence."
+}

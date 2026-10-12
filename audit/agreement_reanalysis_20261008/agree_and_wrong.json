@@ -1,0 +1,332 @@
+[
+  {
+    "id": "arith_0026_en_orig",
+    "family": "arith",
+    "level": 4,
+    "signal": "plurality_agree>=2",
+    "accepted": "25767632",
+    "gold": "25842332",
+    "arms": {
+      "PAL-v2": "25842332",
+      "COT": "25767632",
+      "TOT": "25767632",
+      "SC": "25767632"
+    },
+    "query": "A counter starts at 38705. Apply these steps in order: (1) divide the result by 5; (2) subtract 2558; (3) add 19951; (4) divide the result by 6; (5) multiply the result by 82; (6) subtract 32593; (7) multiply the result by 83; (8) add 37217. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0028_en_orig",
+    "family": "arith",
+    "level": 4,
+    "signal": "plurality_agree>=2",
+    "accepted": "114176565",
+    "gold": "113731565",
+    "arms": {
+      "PAL-v2": "113731565",
+      "COT": "114176565",
+      "TOT": "114176565",
+      "SC": "114176565"
+    },
+    "query": "A counter starts at 30019. Apply these steps in order: (1) multiply the result by 83; (2) add 63095; (3) divide the result by 2; (4) multiply the result by 89; (5) subtract 11930; (6) add 68353; (7) subtract 63929; (8) add 56167. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0031_en_orig",
+    "family": "arith",
+    "level": 4,
+    "signal": "plurality_agree>=2",
+    "accepted": "920440658069354",
+    "gold": "917720389173354",
+    "arms": {
+      "PAL-v2": "917720389173354",
+      "COT": "920440658069354",
+      "TOT": "920440658070354",
+      "SC": "920440658069354"
+    },
+    "query": "A counter starts at 56955. Apply these steps in order: (1) multiply the result by 85; (2) multiply the result by 84; (3) subtract 22117; (4) multiply the result by 68; (5) add 54342; (6) multiply the result by 23; (7) multiply the result by 39; (8) multiply the result by 37. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0032_en_orig",
+    "family": "arith",
+    "level": 5,
+    "signal": "plurality_agree>=2",
+    "accepted": "49518909",
+    "gold": "49835709",
+    "arms": {
+      "PAL-v2": "49835709",
+      "COT": "49518909",
+      "TOT": "49569464.666...",
+      "SC": "49518909"
+    },
+    "query": "A counter starts at 40083. Apply these steps in order: (1) divide the result by 3; (2) subtract 3632; (3) subtract 5868; (4) subtract 3198; (5) multiply the result by 81; (6) divide the result by 3; (7) subtract 12155; (8) multiply the result by 96; (9) subtract 48225; (10) multiply the result by 99. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0034_en_orig",
+    "family": "arith",
+    "level": 5,
+    "signal": "plurality_agree>=2",
+    "accepted": "96472785662",
+    "gold": "96376801762",
+    "arms": {
+      "PAL-v2": "96376801762",
+      "COT": "96472785662",
+      "TOT": "96472785662",
+      "SC": "96431624762"
+    },
+    "query": "A counter starts at 85625. Apply these steps in order: (1) subtract 25274; (2) subtract 36477; (3) multiply the result by 81; (4) multiply the result by 40; (5) multiply the result by 14; (6) subtract 14971; (7) subtract 24927; (8) multiply the result by 89; (9) add 62554; (10) subtract 2830. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0036_en_orig",
+    "family": "arith",
+    "level": 5,
+    "signal": "plurality_agree>=2",
+    "accepted": "686316062652668",
+    "gold": "687726209109668",
+    "arms": {
+      "PAL-v2": "687726209109668",
+      "COT": "686316062652668",
+      "TOT": "687316061772668",
+      "SC": "686316062652668"
+    },
+    "query": "A counter starts at 13495. Apply these steps in order: (1) divide the result by 5; (2) multiply the result by 44; (3) divide the result by 4; (4) multiply the result by 95; (5) multiply the result by 59; (6) multiply the result by 90; (7) multiply the result by 8; (8) multiply the result by 70; (9) multiply the result by 82; (10) add 93668. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0039_en_orig",
+    "family": "arith",
+    "level": 5,
+    "signal": "plurality_agree>=2",
+    "accepted": "2812328",
+    "gold": "2822328",
+    "arms": {
+      "PAL-v2": "2822328",
+      "COT": "2812328",
+      "TOT": "2812328",
+      "SC": "2812328"
+    },
+    "query": "A counter starts at 22311. Apply these steps in order: (1) add 16252; (2) add 22603; (3) add 50689; (4) subtract 26926; (5) add 70397; (6) add 10546; (7) subtract 82083; (8) add 33808; (9) divide the result by 3; (10) multiply the result by 72. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0026_en_orig",
+    "family": "arith",
+    "level": 4,
+    "signal": "plurality_agree>=3",
+    "accepted": "25767632",
+    "gold": "25842332",
+    "arms": {
+      "PAL-v2": "25842332",
+      "COT": "25767632",
+      "TOT": "25767632",
+      "SC": "25767632"
+    },
+    "query": "A counter starts at 38705. Apply these steps in order: (1) divide the result by 5; (2) subtract 2558; (3) add 19951; (4) divide the result by 6; (5) multiply the result by 82; (6) subtract 32593; (7) multiply the result by 83; (8) add 37217. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0028_en_orig",
+    "family": "arith",
+    "level": 4,
+    "signal": "plurality_agree>=3",
+    "accepted": "114176565",
+    "gold": "113731565",
+    "arms": {
+      "PAL-v2": "113731565",
+      "COT": "114176565",
+      "TOT": "114176565",
+      "SC": "114176565"
+    },
+    "query": "A counter starts at 30019. Apply these steps in order: (1) multiply the result by 83; (2) add 63095; (3) divide the result by 2; (4) multiply the result by 89; (5) subtract 11930; (6) add 68353; (7) subtract 63929; (8) add 56167. What is the final value of the counter?"
+  },
+  {
+    "id": "arith_0039_en_orig",
+    "family": "arith",
+    "level": 5,
+    "signal": "plurality_agree>=3",
+    "accepted": "2812328",
+    "gold": "2822328",
+    "arms": {
+      "PAL-v2": "2822328",
+      "COT": "2812328",
+      "TOT": "2812328",
+      "SC": "2812328"
+    },
+    "query": "A counter starts at 22311. Apply these steps in order: (1) add 16252; (2) add 22603; (3) add 50689; (4) subtract 26926; (5) add 70397; (6) add 10546; (7) subtract 82083; (8) add 33808; (9) divide the result by 3; (10) multiply the result by 72. What is the final value of the counter?"
+  },
+  {
+    "id": "order_0010_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "agree(PAL-v2,COT)",
+    "accepted": "alice",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "alice",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "bob"
+    },
+    "query": "6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?"
+  },
+  {
+    "id": "order_0010_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "agree(PAL-v2,ToT)",
+    "accepted": "alice",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "alice",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "bob"
+    },
+    "query": "6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?"
+  },
+  {
+    "id": "order_0010_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "pal_agree>=2",
+    "accepted": "alice",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "alice",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "bob"
+    },
+    "query": "6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?"
+  },
+  {
+    "id": "order_0010_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "pal_agree>=3",
+    "accepted": "alice",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "alice",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "bob"
+    },
+    "query": "6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?"
+  },
+  {
+    "id": "order_0008_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "plurality_agree>=2",
+    "accepted": "carol",
+    "gold": "dave",
+    "arms": {
+      "PAL-v2": "grace",
+      "COT": "carol",
+      "TOT": "carol",
+      "SC": "carol"
+    },
+    "query": "6 runners (Dave, Grace, Heidi, Carol, Erin, Bob) ran a race with no ties. Clues: Dave finished before Grace; Bob finished before Erin; Erin finished after Heidi; Erin finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 5th place?"
+  },
+  {
+    "id": "order_0009_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "plurality_agree>=2",
+    "accepted": "dave",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "grace",
+      "COT": "dave",
+      "TOT": "bob",
+      "SC": "dave"
+    },
+    "query": "6 runners (Grace, Dave, Bob, Erin, Carol, Frank) ran a race with no ties. Clues: Erin finished immediately before Grace; Dave finished after Erin; Frank finished before Carol; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them. Who finished in 5th place?"
+  },
+  {
+    "id": "order_0010_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "plurality_agree>=2",
+    "accepted": "alice",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "alice",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "bob"
+    },
+    "query": "6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?"
+  },
+  {
+    "id": "order_0019_en_orig",
+    "family": "order",
+    "level": 3,
+    "signal": "plurality_agree>=2",
+    "accepted": "alice",
+    "gold": "heidi",
+    "arms": {
+      "PAL-v2": "break",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "alice"
+    },
+    "query": "7 runners (Grace, Bob, Frank, Alice, Heidi, Carol, Erin) ran a race with no ties. Clues: Erin finished immediately before Heidi; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Heidi finished before Bob; Erin finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Frank finished after Grace. Who finished in 4th place?"
+  },
+  {
+    "id": "order_0008_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "plurality_agree>=3",
+    "accepted": "carol",
+    "gold": "dave",
+    "arms": {
+      "PAL-v2": "grace",
+      "COT": "carol",
+      "TOT": "carol",
+      "SC": "carol"
+    },
+    "query": "6 runners (Dave, Grace, Heidi, Carol, Erin, Bob) ran a race with no ties. Clues: Dave finished before Grace; Bob finished before Erin; Erin finished after Heidi; Erin finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 5th place?"
+  },
+  {
+    "id": "order_0010_en_orig",
+    "family": "order",
+    "level": 2,
+    "signal": "plurality_agree>=3",
+    "accepted": "alice",
+    "gold": "grace",
+    "arms": {
+      "PAL-v2": "alice",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "bob"
+    },
+    "query": "6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?"
+  },
+  {
+    "id": "order_0019_en_orig",
+    "family": "order",
+    "level": 3,
+    "signal": "plurality_agree>=3",
+    "accepted": "alice",
+    "gold": "heidi",
+    "arms": {
+      "PAL-v2": "break",
+      "COT": "alice",
+      "TOT": "alice",
+      "SC": "alice"
+    },
+    "query": "7 runners (Grace, Bob, Frank, Alice, Heidi, Carol, Erin) ran a race with no ties. Clues: Erin finished immediately before Heidi; Carol finished exactly 2 places ahead of Erin, with exactly 1 runner between them; Heidi finished before Bob; Erin finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Frank finished after Grace. Who finished in 4th place?"
+  },
+  {
+    "id": "g24_0031_en_orig",
+    "family": "g24",
+    "level": 4,
+    "signal": "plurality_agree>=2",
+    "accepted": "(11+1)*(3-1)",
+    "gold": "__VALID_24__",
+    "arms": {
+      "PAL-v2": "break",
+      "COT": "20.",
+      "TOT": "(11+1)*(3-1)",
+      "SC": "(11+1)*(3-1)"
+    },
+    "query": "Using each of the numbers 11, 1, 8 and 3 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24."
+  }
+]

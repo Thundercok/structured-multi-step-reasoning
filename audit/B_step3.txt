@@ -1,0 +1,13 @@
+=== STEP 3: PAL SUBPROCESS ISOLATION IN LOADED MLX PROCESS ===
+Loading mlx-community/Qwen2.5-0.5B-Instruct-4bit into process memory...
+Model loaded. MLX Metal device initialized.
+
+--- 1. Testing valid PAL code ---
+Valid Code Result: ok=True, result='1167'
+Valid Code Elapsed Time: 39.22 ms
+
+--- 2. Testing infinite loop (timeout=2.0s) ---
+Loop Code Result: ok=False, result='timeout'
+Loop Code Elapsed Time: 2.010 s (timeout limit: 2.0s)
+
+=== STEP 3 VERIFICATION PASSED: No hang between MLX and PAL subprocess ===

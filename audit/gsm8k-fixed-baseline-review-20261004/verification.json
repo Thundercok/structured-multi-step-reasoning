@@ -1,0 +1,25 @@
+{
+  "kind": "fixed_math_pilot_evidence_verification",
+  "records": 69,
+  "questions": 23,
+  "attempts_equal_records": true,
+  "replay_byte_identical": {
+    "dataset.json": true,
+    "selection.json": true,
+    "records.json": true,
+    "summary.json": true,
+    "report.md": true,
+    "model_provenance.json": true
+  },
+  "new_model_calls_for_audit_and_replay": 0,
+  "collection_source_commit": "3dcd2c9bf17c7a451463c3fe4835bd70f8ae14a2",
+  "collection_git_status": "",
+  "source_implementation_verified": true,
+  "raw_prompts_answers_scores_costs_and_pal_events_verified": true,
+  "direct_outputs_with_text_before_final_answer": 19,
+  "generated_tokens": 6378,
+  "prompt_tokens": 6717,
+  "summed_measured_strategy_ms": 734380.9604190028,
+  "human_review_status": "pending",
+  "publication_ready": false
+}

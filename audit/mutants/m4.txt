@@ -1,0 +1,23 @@
+.F.F.                                                                    [100%]
+=================================== FAILURES ===================================
+_________________ test_regression_react_placeholder_rejection __________________
+tests/test_harness_regressions.py:93: in test_regression_react_placeholder_rejection
+    assert "<kết quả>" not in parsed, f"Parsed answer leaked prompt placeholder: {parsed!r}"
+E   AssertionError: Parsed answer leaked prompt placeholder: '<kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'
+E   assert '<kết quả>' not in '<kết quả> =... boxes total'
+E     
+E     '<kết quả>' is contained here:
+E       <kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total
+E     ? +++++++++
+______ test_regression_parser_does_not_pick_wrong_trailing_token_or_unit _______
+tests/test_harness_regressions.py:160: in test_regression_parser_does_not_pick_wrong_trailing_token_or_unit
+    assert ans1 == "192", f"Expected '192', got {ans1!r}"
+E   AssertionError: Expected '192', got 'Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.'
+E   assert 'Therefore, t...s 192 slices.' == '192'
+E     
+E     - 192
+E     + Therefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.
+=========================== short test summary info ============================
+FAILED tests/test_harness_regressions.py::test_regression_react_placeholder_rejection
+FAILED tests/test_harness_regressions.py::test_regression_parser_does_not_pick_wrong_trailing_token_or_unit
+2 failed, 3 passed in 5.80s

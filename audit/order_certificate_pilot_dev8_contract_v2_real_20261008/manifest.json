@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "mode": "order_certificate_development_pilot",
+  "identity": {
+    "schema_version": 1,
+    "mock": false,
+    "evidence": "measured_development_pilot",
+    "settings_sha256": "a61e3e79f30f41ca772dc01bd4fc9ed2273da27322112293937685031abe6d12",
+    "dataset_sha256": "31c382a80eb10ff049793cea2d6c823f5ffa2ed6d8f64d0b23107123a0c19ee1",
+    "source_sha256": {
+      "scripts/pilot_order_certificate.py": "4854283ef6e4fe62685f741c27a2bf93a2eaf766ed6bcb6134dee52c6cc973d3",
+      "experiments/order_pilot_checkpoint.py": "8b656549812c2584668cabd010dbc5f50df4a2320b215e986c9414fdffc3ab32",
+      "experiments/order_certificate_study.py": "96e253000bd7de935e4a9972764542526b5f19d0100c304ec08df2502cc794a1",
+      "experiments/research_study.py": "154227e9dd11e91b524a20eae208fa1fbe4e3bedd01c0df86e46732dacc24c81",
+      "scripts/verified_pal_order.py": "2b6c4c89e17870a27d496a8f4cf1c1a73b49e0866ccf37701daa94697b7bc0d8",
+      "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+      "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+      "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410"
+    },
+    "runtime": {
+      "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "platform": "macOS-26.5.2-arm64-arm-64bit",
+      "mlx": "0.32.2",
+      "mlx-lm": "0.31.3"
+    }
+  },
+  "evidence": "measured_development_pilot",
+  "model_calls": true,
+  "status": "complete",
+  "publication_review_required": true,
+  "confirmatory": false,
+  "model_revision_verified": false,
+  "journal_head": "9b607b6ffe0337df78e0253dc32c91fc9d111c0318aaf5547e63093fb10152f3",
+  "journal_entries": 104,
+  "artifact_sha256": {
+    "dataset.json": "dde4a78c2b4b8c9e654445b859e3c23ae245bec9f2c92ab8b5c8cefeb36b76e5",
+    "settings.json": "bf60ab1cda6b17e0518ce8bcc4f8ba41bca5f5f8cc46f597e15cf849f18fda47",
+    "calls.jsonl": "ce36034f2a8d31d6cc1a44c27ea3bbfa1a44ffe2c10790509301e53919ef63b4",
+    "records.json": "d3d16b7e7671b16150d1a907ed4cfa2b49f09c84cc299afd63191e1ff6161996",
+    "records.jsonl": "1232472dc0952cc2ec6c07498035b1df3c6219354d6c267f544074195b058127",
+    "summary.json": "8d7b0c9057512413521b5760854e67ace21b650f4eac7fd138c8ace8f7dcf018",
+    "eval_rows.json": "3acc2186e779e15eb1306231906a2487ce038772b8184fea350f4f3cafddad2b",
+    "report.md": "65454376c4bb2b1a204688a8e896e2afe712a497087e5bf6de9c8e89b0b6060b"
+  }
+}

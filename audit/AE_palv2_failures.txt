@@ -1,0 +1,189 @@
+Total PAL-v2 incorrect items: 40 / 100
+
+### PAL-v2 Failure Mode Breakdown:
+- **exception (blocked/import disallowed)**: 29 items (29.0%)
+  Families: {'g24': 29}
+- **wrong value**: 6 items (6.0%)
+  Families: {'order': 6}
+- **exception (ValueError: code produced no r)**: 5 items (5.0%)
+  Families: {'order': 5}
+
+### Raw Failure Examples (up to 3):
+
+#### Example 1: ID `order_0003_en_orig` (Family: `order`, Level: `1`)
+- **Query**: 5 runners (Frank, Grace, Alice, Heidi, Carol) ran a race with no ties. Clues: Alice finished exactly 3 places ahead of Carol, with exactly 2 runners between them; Frank finished before Heidi; Heidi finished exactly 2 places ahead of Carol, with exactly 1 runner between them. Who finished in 3rd place?
+- **Gold Answer**: `Heidi`
+- **Parsed**: `break`
+- **Finish Reason**: `stop`
+- **Sandbox Exec ok**: `False`
+- **Sandbox Output**: ```
+ValueError: code produced no result
+```
+- **Raw Code Output**: ```python
+```python
+from itertools import permutations
+
+# Define the runners
+runners = ['Frank', 'Grace', 'Alice', 'Heidi', 'Carol']
+
+# Function to check if a permutation satisfies all the constraints
+def is_valid_permutation(perm):
+    # Get positions (0-based index)
+    positions = {runner: idx for idx, runner in enumerate(perm)}
+    
+    # Alice is exactly 3 places ahead of Carol, with exactly 2 runners between them
+    if abs(positions['Alice'] - positions['Carol']) != 3:
+        return False
+    if abs(positions['Alice'] - positions['Carol']) == 3:
+        if positions['Alice'] < positions['Carol']:
+            if positions['Alice'] + 3 == positions['Carol']:
+                if all(positions[r] not in range(positions['Alice'] + 1, positions['Carol']) for r in runners if r not in ['Alice', 'Carol']):
+                    pass
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    
+    # Heidi is exactly 2 places ahead of Carol, with exactly 1 runner between them
+    if abs(positions['Heidi'] - positions['Carol']) != 2:
+        return False
+    if positions['Heidi'] < positions['Carol']:
+        if positions['Heidi'] + 2 == positions['Carol']:
+            if positions['Heidi'] + 1 == positions['Carol'] - 1:
+                pass
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
+    
+    # Frank finished before Heidi
+    if positions['Frank'] >= positions['Heidi']:
+        return False
+    
+    return True
+
+# Generate all permutations and check for valid one
+for perm in permutations(runners):
+    if is_valid_permutation(perm):
+        result = perm[2]  # 3rd place (0-based index)
+        break
+```
+```
+
+#### Example 2: ID `order_0008_en_orig` (Family: `order`, Level: `2`)
+- **Query**: 6 runners (Dave, Grace, Heidi, Carol, Erin, Bob) ran a race with no ties. Clues: Dave finished before Grace; Bob finished before Erin; Erin finished after Heidi; Erin finished exactly 2 places ahead of Dave, with exactly 1 runner between them. Who finished in 5th place?
+- **Gold Answer**: `Dave`
+- **Parsed**: `Grace`
+- **Finish Reason**: `stop`
+- **Sandbox Exec ok**: `True`
+- **Sandbox Output**: ```
+Grace
+```
+- **Raw Code Output**: ```python
+```python
+import itertools
+
+# Define the runners
+runners = ['Dave', 'Grace', 'Heidi', 'Carol', 'Erin', 'Bob']
+
+# Generate all permutations of the runners
+all_perms = itertools.permutations(runners)
+
+# Function to check if a permutation satisfies the clues
+def is_valid(perm):
+    # Dave before Grace
+    dave_idx = perm.index('Dave')
+    grace_idx = perm.index('Grace')
+    if dave_idx >= grace_idx:
+        return False
+    
+    # Bob before Erin
+    bob_idx = perm.index('Bob')
+    erin_idx = perm.index('Erin')
+    if bob_idx >= erin_idx:
+        return False
+    
+    # Erin after Heidi
+    heidi_idx = perm.index('Heidi')
+    if erin_idx <= heidi_idx:
+        return False
+    
+    # Erin is exactly 2 places ahead of Dave, with exactly 1 runner between them
+    dave_idx = perm.index('Dave')
+    erin_idx = perm.index('Erin')
+    if erin_idx - dave_idx == 3:
+        return True
+    
+    return False
+
+# Find the valid permutation
+for perm in all_perms:
+    if is_valid(perm):
+        result = perm[4]  # 5th place (index 4)
+        break
+```
+```
+
+#### Example 3: ID `order_0010_en_orig` (Family: `order`, Level: `2`)
+- **Query**: 6 runners (Carol, Bob, Erin, Grace, Alice, Frank) ran a race with no ties. Clues: Frank finished before Alice; Alice finished after Erin; Carol finished immediately before Grace; Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them; Bob finished before Carol. Who finished in 6th place?
+- **Gold Answer**: `Grace`
+- **Parsed**: `Alice`
+- **Finish Reason**: `stop`
+- **Sandbox Exec ok**: `True`
+- **Sandbox Output**: ```
+Alice
+```
+- **Raw Code Output**: ```python
+```python
+import itertools
+
+# Define the runners
+runners = ['Carol', 'Bob', 'Erin', 'Grace', 'Alice', 'Frank']
+
+# Generate all permutations of the runners
+all_perms = itertools.permutations(runners)
+
+# Function to check if a permutation satisfies all the clues
+def is_valid(perm):
+    # Frank finished before Alice
+    frank_idx = perm.index('Frank')
+    alice_idx = perm.index('Alice')
+    if frank_idx >= alice_idx:
+        return False
+
+    # Alice finished after Erin
+    erin_idx = perm.index('Erin')
+    if alice_idx <= erin_idx:
+        return False
+
+    # Carol finished immediately before Grace
+    carol_idx = perm.index('Carol')
+    grace_idx = perm.index('Grace')
+    if carol_idx + 1 != grace_idx:
+        return False
+
+    # Alice finished exactly 2 places ahead of Grace, with exactly 1 runner between them
+    if abs(alice_idx - grace_idx) != 3:
+        return False
+    if (alice_idx < grace_idx and alice_idx + 3 != grace_idx) or (grace_idx < alice_idx and grace_idx + 3 != alice_idx):
+        return False
+
+    # Bob finished before Carol
+    bob_idx = perm.index('Bob')
+    carol_idx = perm.index('Carol')
+    if bob_idx >= carol_idx:
+        return False
+
+    return True
+
+# Find the valid permutation
+for perm in all_perms:
+    if is_valid(perm):
+        result = perm[-1]
+        break
+```
+```

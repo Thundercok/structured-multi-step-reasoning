@@ -1,0 +1,482 @@
+[
+  {
+    "id": "gsm8k-dev-07140",
+    "source_solution": "Rick starts with 400 books and divides them into two categories of equal size, meaning there are two categories of 400/2= <<400/2=200>>200 books.\nRick repeats this process again, dividing the 200 book categories into equal halves, leaving him with 200/2=<<200/2=100>>100 books in each.\nRick repeats this process again, dividing the 100 book categories into equal halves, leaving him with 100/2=<<100/2=50>>50 books in each.\nRick repeats this process again, dividing the 50 book categories into equal halves, leaving him with 50/2=<<50/2=25>>25 books in each.\nSince Rick is looking for categories with 25 books in each, he accomplishes this by the 4th step.\n#### 4",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01408",
+    "source_solution": "The second pair of shoes was 50/100 * 22 = $<<50/100*22=11>>11 more expensive.\nThat means that the second pair's price was 22 + 11 = $<<22+11=33>>33.\nSo for both pairs of shoes, Nina paid 33 + 22 = $<<33+22=55>>55.\n#### 55",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01585",
+    "source_solution": "If the third segment is half as long as the second, then the second segment is twice as long as the third, or 10*2=<<10*2=20>>20 minutes long.\nThe first segment is twice as long as the other two combined, or 2*(10+20)=<<2*(10+20)=60>>60 minutes.\nThus, in total, the show is 10+20+60=<<10+20+60=90>>90 minutes long.\n#### 90",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00900",
+    "source_solution": "He works 8 hours a day for 10 days means he works 8*10 = <<8*10=80>>80 hours\nIt takes him 5 hours to build one rocking chair so over 80 hours he builds 80/5 = <<80/5=16>>16 rocking chairs\n#### 16",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06257",
+    "source_solution": "The old team per round record is 1,148 because 287 x 4 = <<1148=1148>>1,148\nThe team season record is 11,480 because 10 x 1,248 = 11,480\nThey need 1,040 points in the final round to tie the record because 11,480 - 10,440 = <<11480-10440=1040>>1,040\nThey need to average 260 points each because 1,040 / 4 = <<1040/4=260>>260\nThis is 27 points less than the current record average because 287 - 260 = <<27=27>>27\n#### 27",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05676",
+    "source_solution": "The Heat won 5 more games than the Bulls so they won 70 + 5 = <<5+70=75>>75 games.\nThe total games won together is 70+75 = <<70+75=145>>145 games.\n#### 145",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03438",
+    "source_solution": "When John gives his sister 1/4 of his money, he parts with 1/4*100 = <<1/4*100=25>>25 dollars\nJohns remains with 100-25 = <<100-25=75>>75 dollars.\nWhen he buys groceries worth $40, he remains with 75-40 = <<75-40=35>>35 dollars\n#### 35",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01439",
+    "source_solution": "On the first day, the soup reduces down to 80/2=<<80/2=40>>40 kg.\nOn the second day, it reduces down to 40/2=<<40/2=20>>20 kg.\nOn the third day, it is reduced to 20/2=<<20/2=10>>10 kg.\nAnd on the fourth day, it is finally down to 10/2=<<10/2=5>>5 kg.\n#### 5",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01658",
+    "source_solution": "Purity will pay a third of Rose's share, which translates to 1800/3 = <<1800/3=600>>600 dollars.\nSheila has offered to pay 5 * 600 = <<5*600=3000>>3000 dollars\nCombining everyone’s share of the rent will give a total of 600 + 3000 + 1800 = <<600+3000+1800=5400>>5400 dollars\n#### 5400",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06274",
+    "source_solution": "Stacy grew 6+1=<<6+1=7>>7 inches.\nStacy is 50+7=<<50+7=57>>57 inches tall.\n#### 57",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04757",
+    "source_solution": "The temperature dropped 1.8 degrees because 80 -78.2 = <<80-78.2=1.8>>1.8\nShe planted 18 trees because 1.8 / .1 = <<1.8/.1=18>>18\nIt cost $108 to plant the trees because 18 x 6 = <<18*6=108>>108\n#### 108",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04489",
+    "source_solution": "First find how long it takes Janet to cross the lake: 60 miles / 30 miles/hour = <<60/30=2>>2 hours\nThen find how long it takes her sister to cross the lake: 60 miles / 12 miles/hour = <<60/12=5>>5 hours\nThen subtract Janet's travel time from her sister's travel time to find the difference: 5 hours - 2 hours = <<5-2=3>>3 hours\n#### 3",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01064",
+    "source_solution": "Nina made 2 cake layers which were equal to 2 x 12 = <<2*12=24>>24 cupcakes.\nShe made the equivalent of 24 + 12 = <<24+12=36>>36 cupcakes in all.\nThus, there are 720 / 36 = <<720/36=20>>20 grams of sugar in a cupcake.\n#### 20",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00429",
+    "source_solution": "Day 1:50\nDay 2:50(2)=100\nDay 3:100+20=<<100+20=120>>120\nDay 4:2(50+100+120)=540\nTotal:50+100+120+540=<<50+100+120+540=810>>810 eggs\n#### 810",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06487",
+    "source_solution": "First find the total distance she drives to get to the dermatologist and back to her house: 30 miles * 2 = <<30*2=60>>60 miles\nThen find the total distance she drives to get to the gynecologist and back to her house: 50 miles * 2 = <<50*2=100>>100 miles\nThen add those two amounts to find how far she drives total: 60 miles + 100 miles = <<60+100=160>>160 miles\nThen divide that distance by her car's gas mileage to find how many gallons of gas she needs: 160 miles / 20 miles/gallon = <<160/20=8>>8 gallons\n#### 8",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00937",
+    "source_solution": "Bobbie has 18 * 3 = <<18*3=54>>54 crayons.\nLizzie has 54 / 2 = <<54/2=27>>27 crayons.\n#### 27",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06412",
+    "source_solution": "Four sets of earrings is 2*4=<<2*4=8>>8 earrings.\nSince for one earring, she uses two magnets, for eight earrings she uses 2*8=<<2*8=16>>16 magnets.\nSince she uses half as many buttons as magnets, then for 8 earrings she would use 16/2=8 buttons.\nSince she uses three times as many gemstones as buttons, then in 8 earrings, she will use 8*3=<<24=24>>24 gemstones.\n#### 24",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05200",
+    "source_solution": "The number of vets that recommend Puppy Kibble is 1000*.2=<<1000*.2=200>>200.\nThe number of vets that recommend Yummy Dog Kibble is 1000*.3=<<1000*.3=300>>300 vets.\nThus, 300-200=<<300-200=100>>100 more vets recommend Yummy Dog Kibble than Puppy Kibble.\n#### 100",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01853",
+    "source_solution": "If Kameron has 100 kangaroos, he has 100-20= <<100-20=80>>80 more kangaroos than Bert.\nBuying 2 kangaroos every day, it will take Bert 80/2=40 days to have the same number of kangaroos as Kameron has now.\n#### 40",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00748",
+    "source_solution": "The second rocket goes 500*2=<<500*2=1000>>1000 feet\nSo the total height is 500+1000=<<500+1000=1500>>1500 feet\n#### 1500",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07160",
+    "source_solution": "Since Ponce weighs 10 pounds lighter than Jalen, he weighs 160-10 = 150 pounds.\nThe sum of Jalen and Ponce's weight is 150+160 = <<150+160=310>>310 pounds.\nIshmael is 20 pounds heavier than Ponce, meaning he weighs 150+20 = <<20+150=170>>170 pounds.\nThe total weight of the three is 310+170 = <<310+170=480>>480 pounds.\nThe average weight of the three is the total weight divided by their number, which totals 480/3 = <<480/3=160>>160 pounds.\n#### 160",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06852",
+    "source_solution": "He spent $49 on glasses because 50-49=<<50-49=1>>1\nHe spent $24 on small glasses because 8x3=<<8*3=24>>24\nHe spent $25 on large glasses because 49-24=<<49-24=25>>25\nHe bought 5 large glasses because 25/5=<<25/5=5>>5\n#### 5",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06318",
+    "source_solution": "April = 6 * 30 = <<6*30=180>>180 hours\nJune = 5 * 30 = <<5*30=150>>150 hours\nSeptember = 8 * 30 = <<8*30=240>>240 hours\nTotal hours = 180 + 150 + 240 = <<180+150+240=570>>570 hours\n570 hours/3 = <<570/3=190>>190 hours\nHe averaged working 190 hours per month.\n#### 190",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02612",
+    "source_solution": "When Trevor is 11, his older brother will be 11 x 3 = <<11*3=33>>33 years old.\nTrevor’s older brother is 20 - 11 = <<20-11=9>>9 years older than Trevor.\nSince Trevor is 9 years younger, Trevor will be 33 - 9 = <<33-9=24>>24 years old.\n#### 24",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02343",
+    "source_solution": "The 5% discount amounts to $50 x 5/100 = $<<50*5/100=2.50>>2.50.\nSo the total discount given to the customer for 4 months was $2.50 x 4 = $<<2.5*4=10>>10.\nThe customer was supposed to pay $50 x 4 = $<<50*4=200>>200 in all for 4 months without discount.\nSince the customer is entitled to the discount, then he only paid a total of $200 - $10 = $<<200-10=190>>190 for 4 months.\n#### 190",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01723",
+    "source_solution": "Since time is obtained by dividing distance and speed, then Skye took 3 km/150 km per hr. = 1/50 of an hour to finish the first 3 kilometers of the race.\nHis speed on the next 2 kilometers was 150 + 50 = <<150+50=200>>200 kilometers per hour.\nHence, it took him 2 km/200 km per hr. = 1/100 of an hour to finish the next 2 kilometers.\nHis speed on the remaining 1 kilometer is 150 x 2 = <<150*2=300>>300 kilometers per hour.\nHence, it took him 1/300 of an hour to finish the 1 kilometer.\nSo, the total time it took for Skye to complete the race was 1/50 + 1/100 + 1/300 = 1/30 of an hour.\nTherefore, his average speed for the entire race was 6 km/ 1/30 hour = 180 kilometers per hour.\n#### 180",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05981",
+    "source_solution": "He has 3*4=<<3*4=12>>12 puppies\nSo they need 12*2=<<12*2=24>>24 shots\nThat means the vaccines cost 24*5=$<<24*5=120>>120\n#### 120",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01130",
+    "source_solution": "First find the size of the second bell: 50 pounds * 2 = <<50*2=100>>100 pounds\nThen find the size of the third bell: 100 pounds * 4 = <<100*4=400>>400 pounds\nThen add the amount of bronze used for each bell to find the total: 100 pounds + 400 pounds + 50 pounds = <<100+400+50=550>>550 pounds\n#### 550",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01101",
+    "source_solution": "Mary added a total of 7 stickers/page * 6 pages= <<7*6=42>>42 stickers to the 6 other pages.\nIn total, Mary added 3 large stickers + 42 stickers = <<3+42=45>>45 stickers to her journal.\nSince she started with 89 stickers, she now has 89 - 45 = <<89-45=44>>44 stickers left.\n#### 44",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06140",
+    "source_solution": "The total cost of the paintbrush, the paints, and the easel was $2.40 + $9.20 + $6.50 = $<<2.4+9.2+6.5=18.10>>18.10.\nRose needs $18.10 - $7.10 = $<<18.10-7.10=11>>11 more.\n#### 11",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04852",
+    "source_solution": "Stephanie wants to get 5 each of each type of silverware for herself. 5 spoons + 5 butter knives + 5 steak knives + 5 forks = <<5+5+5+5=20>>20 pieces of silverware\nShe wants 10 extra of each type for guests, 10 x 4 = <<10*4=40>>40\nShe decides to purchase less of each type. She was originally purchasing 15 of each type. 15 spoons - 4 less spoons = 11 spoons. 15 butter knives - 4 less = 11. 15 steak knives - 5 = 10. 15 forks - 3 less forks = 12.\nStephanie is going to purchase 11 spoons, 11 butter knives, 10 steak knives, and 12 forks.\n11 + 11 + 10 + 12 = <<11+11+10+12=44>>44.\nStephanie is going to purchase 44 pieces of silverware.\n#### 44",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00115",
+    "source_solution": "If Ed has 2 dogs and 3 cats he has in total 2+3 = <<2+3=5>>5 pets that are not fish\nIf Ed has twice as many cats and dogs combined he has 2*5 = <<2*5=10>>10 fish\nTherefore, in total Ed has 5+10 = <<5+10=15>>15 pets\n#### 15",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05514",
+    "source_solution": "After a year, scheme A will yield 30% of his capital which is (30/100)*$300 = $<<30/100*300=90>>90\nIn addition to his capital, he will have $90+$300 = $<<90+300=390>>390 in scheme A\nAfter a year, scheme B will yield 50% of his capital which is (50/100)*$200 = $<<50*.01*200=100>>100\nIn addition to his capital, he will have $100+$200 = $<<100+200=300>>300 in scheme B\nAfter a year, he will have $390-$300 = $<<390-300=90>>90 in scheme A more than in scheme B\n#### 90",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02789",
+    "source_solution": "Dr. Jones pays $6000 / 4 =$ <<6000/4=1500>>1500 for his electric and water bill.\nHe pays $6000 / 5 = $<<6000/5=1200>>1200 for his insurances.\nThe total amount he pays for the bills and insurances is $1500 + $1200 = $<<1500+1200=2700>>2700.\nThe remaining money from his earning after paying off the bills and insurance is $6000 - $2700 = $<<6000-2700=3300>>3300.\nThe total amount he needs to pay for the rent and food expenses is $640 + $380 = $<<640+380=1020>>1020.\nSo, Dr. Jones has $3300 - $1020 = $<<3300-1020=2280>>2280 left\n#### 2280",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00549",
+    "source_solution": "First find how many packages the second center processes per day: 10000 packages/day * 3 = <<10000*3=30000>>30000 packages/day\nThen add the packages the first center processes: 30000 packages/day + 10000 packages/day = <<30000+10000=40000>>40000 packages/day\nThen multiply the number of packages by Amazon's profit per package to find Amazon's daily profit: 40000 packages/day * $0.05/package = $2000/day\nThen multiply the daily profits by the number of days in a week to find the weekly profits: $2000/day * 7 days/week = $<<2000*7=14000>>14000/week\n#### 14000",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00981",
+    "source_solution": "In the first field, there are 13 rows * 4 corn cobs/row = <<13*4=52>>52 corn cobs.\nIn the second field, there are 16 rows * 4 corn cobs/row = <<16*4=64>>64 corn cobs.\nSo the farm has grown a total of 52 corn cobs + 64 corn cobs = <<52+64=116>>116 corn cobs.\n#### 116",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03897",
+    "source_solution": "Edith has already organized 60 files / 2 = <<60/2=30>>30 files in the morning.\nShe has files left to organize so she must still have 30 + 15 = <<30+15=45>>45 files in the office.\nThis means there are 60 total files – 45 organized files = <<60-45=15>>15 missing files.\n#### 15",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05340",
+    "source_solution": "If she uses the coupon, she will pay 2*0.5 = $<<2*0.5=1>>1 for each 4oz package.\nThus, she will pay 4 + 2*1 = $<<4+2*1=6>>6 in total for the 8oz package and the two 4oz packages she needs to reach 16 oz of butter when using the coupon.\nTherefore, the lowest amount she can pay is $6, as this is cheaper than the $7 price for a 16 oz package.\n#### 6",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07316",
+    "source_solution": "Bella receives 2 x 12 = <<2*12=24>>24 roses from her parents.\nShe receives 2 x 10 = <<2*10=20>>20 roses from her friends.\nShe receives a total of 24 + 20 = <<24+20=44>>44 roses.\n#### 44",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05269",
+    "source_solution": "Since Pat's Ark & Athletic Wear store has 200 pools, Pat's Pool Supply has 3*200 = <<3*200=600>>600 swimming pools.\nTogether, they have 600+200 = <<600+200=800>>800 swimming pools.\n#### 800",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01762",
+    "source_solution": "Between grapes and mangoes, we have 13+20 =<<13+20=33>>33 crates.\nThe remaining crates are passion fruits, so we have 50-33=<<50-33=17>>17 crates of passion fruit\n#### 17",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04954",
+    "source_solution": "There are 50 - 40 = <<50-40=10>>10 cartons of canned juice that are left to be loaded on the truck.\nThis is equal to 10 x 20 = <<10*20=200>>200 cans of juice.\n#### 200",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06641",
+    "source_solution": "A year has 52 weeks, so if he talks for 30 minutes every week, the total number of call hours is 52*30 = <<52*30=1560>>1560 minutes.\nSince he is charged 0.05 cents per call, the total cost is 1560*.05 = <<1560*.05=78>>78 dollars\n#### 78",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05243",
+    "source_solution": "After his mom gives him stuffed animals, Willy has 10 + 2 = <<10+2=12>>12 stuffed animals\nHis dad gives him 12 * 3 = <<12*3=36>>36 stuffed animals\nIn total, Willy has 12 + 36 = <<12+36=48>>48 stuffed animals\n#### 48",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02277",
+    "source_solution": "First find the total number of cups of juice: 6 quarts * 4 cups/quart = <<6*4=24>>24 cups\nThen find the reduced volume of the juice: 24 cups * 1/12 = <<24*1/12=2>>2 cups\nThen add the volume of the sugar to find the total volume of the syrup: 2 cups + 1 cups = <<2+1=3>>3 cups\n#### 3",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01985",
+    "source_solution": "First add up the calories from all three meals: 900 + 400 + 1100 = <<900+400+1100=2400>>2400\nThen subtract Jacob's goal from the number of calories he actually ate: 2400 - 1800 = <<2400-1800=600>>600\n#### 600",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04248",
+    "source_solution": "The total movie is 600 seconds long because 130 + 145 + 85 + 60 + 180 = <<130+145+85+60+180=600>>600\nThe total movie is 10 minutes long because 600 / 60 = <<600/60=10>>10\nOn average each player gets 2 minutes because 10 / 5 = <<10/5=2>>2\n#### 2",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04491",
+    "source_solution": "She plays 480 notes because 8 x 60 = <<8*60=480>>480\nThis is 12 blocks of 40 notes because 480/40=<<480/40=12>>12\nShe makes 36 mistakes because 12 x 3 = <<12*3=36>>36\n#### 36",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05821",
+    "source_solution": "She made 10 x 2 = <<10*2=20>>20 bonnets on Tuesday and Wednesday.\nWhile on Thursday she made 10 + 5 = <<10+5=15>>15 bonnets.\nOn Friday she made 15 - 5 = <<15-5=10>>10 bonnets.\nMrs. Young made a total of 10 + 20 + 15 + 10 = <<10+20+15+10=55>>55 bonnets for the orphanage.\nTherefore, Mrs. Young sends 55 / 5 = <<55/5=11>>11 bonnets to each orphanage.\n#### 11",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02272",
+    "source_solution": "There were 200 - 40 = <<200-40=160>>160 runners last year.\nTherefore, there will be 2 x 160 = <<2*160=320>>320 runners this year.\n#### 320",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00484",
+    "source_solution": "Andy weighed 156 + 36 = <<156+36=192>>192 pounds after growing taller.\nAn eighth of his weight is 1/8 x 192 = <<1/8*192=24>>24 pounds.\nOver the next 3 months, Andy lost 24 x 3 = <<24*3=72>>72 pounds.\nHe now weighs 192 - 72 = <<192-72=120>>120 pounds.\nAndy weighs 156 - 120 = <<156-120=36>>36 pounds less than at the beginning of the year.\n#### 36",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04196",
+    "source_solution": "Katy read twice as many books in July as she did in June, so she read 2 * 8 = <<2*8=16>>16 books in July.\nShe read three fewer books in August than she did in July, so she read 16 - 3 = <<16-3=13>>13 books in August.\nSo, including June, she read 8 + 16 + 13 = <<8+16+13=37>>37 books total\n#### 37",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07149",
+    "source_solution": "The total number of days in 3 weeks is 3 * 7 = <<3*7=21>>21 days.\nIf 2 koi fish are added every day, the total after 21 days is 21 * 2 = <<21*2=42>>42 koi fish.\nif 5 goldfish are added every day, the total after 21 days is 5 * 21 = <<5*21=105>>105 goldfish.\nThe total number of fish in the tank after 3 weeks is 280 + 42 + 105 = <<280+42+105=427>>427 fish.\nIf there were a total of 200 goldfish in the tank after 3 weeks, then the number of koi in the tank is 427 - 200 = 227 koi fish.\n#### 227",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00548",
+    "source_solution": "The kitchen took 4 * .5 = <<4*.5=2>>2 hours longer than the bedrooms\nSo the kitchen took 4 + 2 = <<4+2=6>>6 hours\nThe bedrooms took 3 * 4 = <<3*4=12>>12 hours\nSo the kitchen and bedrooms combined took 12 + 6 = <<12+6=18>>18 hours\nThe living room took 18 * 2 = <<18*2=36>>36 hours\nSo everything took a total of 18 + 36 = <<18+36=54>>54 hours\n#### 54",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04294",
+    "source_solution": "The number of CDs selling at $10 each at the store is 40/100*200 = <<40/100*200=80>>80\nThis means the store sells 200-80 = <<200-80=120>>120 CDs at $5 each.\nPrince bought 1/2*80 = <<1/2*80=40>>40 of the CDs selling at $10 each.\nThe total amount of money Prince paid for the 40 CDs selling at $10 each is $40*10 = $<<40*10=400>>400\nIf he bought all the CDs selling at $5 each, he paid a total of $5*120 = $<<5*120=600>>600\nFor all the CDs he bought, Prince spent $600+$400= $<<600+400=1000>>1000\n#### 1000",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07334",
+    "source_solution": "The lightsaber cost 1000*2=$<<1000*2=2000>>2000\nSo he has spent 2000+1000=$<<2000+1000=3000>>3000\n#### 3000",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03479",
+    "source_solution": "They are making 24 S'mores because 8 x 3 = <<8*3=24>>24\nEach S'more costs $.75 to make because 3 / 4 = <<3/4=.75>>.75\nIt will cost $18 to make them all because 24 x .75 = <<24*.75=18>>18\n#### 18",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04093",
+    "source_solution": "She will read 20 pages / 4 = <<20/4=5>>5 pages for English.\nShe will read 16 pages / 4 = <<16/4=4>>4 pages for Science.\nShe will read 8 pages / 4 = <<8/4=2>>2 pages for Civics.\nShe will read 12 pages / 4 = <<12/4=3>>3 pages for Chinese.\nMelody will read a total of 5 pages + 4 pages + 2 pages + 3 pages = <<5+4+2+3=14>>14 pages tomorrow.\n#### 14",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05220",
+    "source_solution": "First find the number of pieces left after Anne sweeps up: 60 pieces / 2 = <<60/2=30>>30 pieces\nThen subtract the number her cat takes: 30 pieces - 3 pieces = <<30-3=27>>27 pieces\nDivide that number by 3 to find how many pieces her boyfriend picks up: 27 pieces / 3 = <<27/3=9>>9 pieces\n#### 9",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00383",
+    "source_solution": "It takes 10 minutes to wash 4 windows and he has 64 windows so that breaks down to 64/4 = 16 units\nIt takes 10 minutes to wash a unit of windows and he has 16 units so 10*16 = <<10*16=160>>160 minutes\n#### 160",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02630",
+    "source_solution": "If the difference in scores between Farah and Hajar in the game is 21 points, and Hajar's score is 24, then Farah has a score of 21+24 = <<21+24=45>>45 points.\nThe overall score in the game is 45+24 = <<45+24=69>>69\n#### 69",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02385",
+    "source_solution": "First convert the number of farthings Gerald has to pfennigs by dividing by the exchange rate: 54 farthings / 6 farthings/pfennig = <<54/6=9>>9 pfennigs\nThen subtract the cost of the meat pie to find how many pfennigs Gerald has left: 9 pfennigs - 2 pfennigs = <<9-2=7>>7 pfennigs\n#### 7",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06770",
+    "source_solution": "Ken caught 30*2=<<30*2=60>>60 fish.\nKen brought home 60-3=<<60-3=57>>57 fish.\nKen and Kendra brought home 57+30=<<57+30=87>>87 fish.\n#### 87",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01320",
+    "source_solution": "They ordered 3 dozen oysters at $15.00 a dozen so that's 3*15 = $<<3*15=45.00>>45.00\nThey ordered 2 pounds of shrimp for $14.00 a pound so that's 2*14 = $<<2*14=28.00>>28.00\nThey ordered 2 pounds of fried clams for $13.50 a pound so that's 2*13.50 = $<<2*13.50=27.00>>27.00\nAll total their bill comes to 45+28+27 = $<<45+28+27=100.00>>100.00\nTheir bill was $100.00 and they are splitting it equally amongst 4 people so they each owe 100/4 = $<<100/4=25.00>>25.00\n#### 25",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03705",
+    "source_solution": "The electronics store sold 327 televisions this Black Friday and might sell 50 more televisions the next year, for a total of 327 + 50 = <<327+50=377>>377 televisions.\nThe second year they might sell 377 + 50 = <<377+50=427>>427 televisions.\nThe third year, if they continue to sell 50 more televisions than they did the previous year, they will sell 427 + 50 televisions = <<427+50=477>>477 televisions on the Black Friday three years from now.\n#### 477",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02476",
+    "source_solution": "Since one dollar is 100 cents, then 3 dollars is 3*100=<<3*100=300>>300 cents.\nThe cost for one lollipop is 300/12=<<300/12=25>>25 cents.\nOne-quarter of the lollipops is 12/4=<<12/4=3>>3 lollipops.\nAt 25 cents per lollypop, 3 lolly’s cost 3*25=<<3*25=75>>75 cents.\n#### 75",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01543",
+    "source_solution": "First find the total number of inches of nylon used for the dog collars: 18 inches/dog collar * 9 dog collars = 162 inches\nThen find the total number of inches of nylon used for the cat collars: 10 inches/cat collar * 3 cat collars = 30 inches\nThen add the nylon needed for the cat and dog collars to find the total amount needed: 162 inches + 30 inches = <<162+30=192>>192 inches\n#### 192",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-00862",
+    "source_solution": "Each day he does 8/.5=<<8/.5=16>>16 visits\nSo he does 16*5=<<16*5=80>>80 visits a week\nThat means he gives away 80*2=<<80*2=160>>160 toothbrushes a week\n#### 160",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07180",
+    "source_solution": "In basket A the number difference between differently colored marbles is 4-2 = <<4-2=2>>2\nIn basket B the difference is 6-1 = <<6-1=5>>5\nIn basket C the difference is 9-3 = <<9-3=6>>6\nComparing 2, 5 and 6 shows that 6 is the greatest difference\n#### 6",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07151",
+    "source_solution": "Lindsey owns 4 + 5 = <<4+5=9>>9 cars.\nCarol owns 2 * 5 =<<2*5=10>>10 cars.\nSusan owns 10 - 2 = <<10-2=8>>8 cars.\nThey all own 5 + 9 + 10 + 8 = <<5+9+10+8=32>>32 cars.\n#### 32",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02069",
+    "source_solution": "Janessa starts with 4 cards + 13 cards = <<4+13=17>>17 cards.\nShe adds 17 cards + 36 cards = <<17+36=53>>53 cards from the eBay purchase.\nJanessa decides to throw away 53 cards - 4 cards = <<53-4=49>>49 cards due to damage.\nAfter giving Dexter the present we know that Janessa kept 49 cards - 29 cards = <<49-29=20>>20 cards for herself.\n#### 20",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03485",
+    "source_solution": "The blue light bulb comes on every 2 seconds so it will be on after 2, 4, 6, 8, 10, 12, 14... seconds (multiples of 2)\nThe red light bulb comes on every 3 seconds so it will be on after 3, 6, 9, 12, 15, 18... seconds (multiples of 3)\nThe blue light bulb comes on every 4 seconds so it will be on after 4, 8, 12, 16, 20... seconds (multiples of 4)\nThe shortest time after which all three will be on is 12 seconds which is the least common multiple of the set of multiples.\n#### 12",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03106",
+    "source_solution": "13 rows, with 2 sections per row would contain 13*2=<<13*2=26>>26 sections.\nIf two students sat per section, there would be capacity for 26*2=<<26*2=52>>52 students.\n#### 52",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07429",
+    "source_solution": "Gerald gave away 20 x 1/4 = <<20*1/4=5>>5 of his toy cars.\nTherefore, he is left with 20 - 5 = <<20-5=15>>15 toy cars.\n#### 15",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01241",
+    "source_solution": "They have $126 for helium because 200 - 42 - 18 - 14 = <<200-42-18-14=126>>126.\nThey can buy 84 ounces of helium because 126 / 1.5 = <<126/1.5=84>>84\nThey can fly 9,492 feet up because 84 x 113 = <<84*113=9492>>9,492\n#### 9,492",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02082",
+    "source_solution": "First find how many days Cassidy is grounded for the low grades: 4 grades * 3 days/grade = <<4*3=12>>12 days\nThen add that time to the 14 days she's grounded for lying to find the total grounding length: 12 days + 14 days = <<12+14=26>>26 days\n#### 26",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06782",
+    "source_solution": "Let’s first calculate the number of plants that Papi had planned: 7 rows * 18 plants/row = <<7*18=126>>126 plants\nNow let’s add the other plants: 126 plants + 15 plants = <<126+15=141>>141 plants. So Papi has to buy 141 plants.\n#### 141",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06840",
+    "source_solution": "Rachel spent 1/4*200 = $<<200*1/4=50>>50 on lunch.\nRachel spent 1/2*200 = $<<200*1/2=100>>100 on a DVD.\nRachel has 200-50-100 = $<<200-50-100=50>>50 left.\n#### 50",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03314",
+    "source_solution": "Marco gets 28 / 1/5 = 28 * 5 = 140 cups of tea from a box.\nAt 7 days a week, Marco gets 140 / 7 = <<140/7=20>>20 weeks of daily tea from a box.\n#### 20",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02527",
+    "source_solution": "In the 8 seconds, Nate ran 4*168 = 672 meters.\nThe total distance Nate ran is 672+500 = <<672+500=1172>>1172 meters.\n#### 1172",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-02975",
+    "source_solution": "It takes him 2*49=<<2*49=98>>98 hours to go from knowing how to play to proficient\nSo he spends 98+2=<<98+2=100>>100 hours combined on those\nSo it takes him 100*100=<<100*100=10000>>10,000 hours to become a master from proficient\nSo the total time was 100+10000=<<100+10000=10100>>10,100 hours\n#### 10,100",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03627",
+    "source_solution": "There are 4 quarters in a dollar so in quarters, each machine holds 80 quarters / 4 = $<<80/4=20>>20.\nThere are 10 dimes in a dollar so in dimes, each machine holds 100 dimes / 10 = $10.\nEach machine therefore holds $20 in quarters + $10 in dimes = $<<20+10=30>>30.\nSo Erin must therefore have $90 total income / $30 income per machine = <<90/30=3>>3 machines.\n#### 3",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03041",
+    "source_solution": "Rommel is 5 x 3 = <<5*3=15>>15 years old.\nJenny is 15 + 2 = <<15+2=17>>17 years old.\nSo, Tim is 17 - 5 = <<17-5=12>>12 years younger than Jenny.\n#### 12",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04396",
+    "source_solution": "If in six years Xavier will be 30 years old, he is 30-6 = <<30-6=24>>24 years old now.\nIf Xavier is twice as old as Yasmin, Yasmin is 24/2 = <<24/2=12>>12 years old.\nThe total of their ages now is 12+24 = <<12+24=36>>36 years\n#### 36",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-07122",
+    "source_solution": "Each pan costs $10.00 to make so for 20 pans, it will cost 10*20 = $<<10*20=200.00>>200.00\nShe sells each of the 20 pans for $25.00 each so she will make 20*25 = $<<20*25=500.00>>500.00\nShe makes $500.00 and spent $200.00 on ingredients so she makes 500-200 = $<<500-200=300.00>>300.00\n#### 300",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01689",
+    "source_solution": "Total drunk: 8.5 + 9.5 = <<8.5+9.5=18>>18 pints\n18 pints * 2 = <<18*2=36>>36 cups\nThe two boys drank a total of 36 cups of liquid yesterday.\n#### 36",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06111",
+    "source_solution": "She drank 2 cups of water every hour for 8 hours so 2*8=<<2*8=16>>16 cups\nShe poured 5 bottles of waters on her plants and each holds 2 cups so 5*2 = <<5*2=10>>10 cups of water\nShe drank 16 cups of water and used 10 cups of water so she had 16+10 = <<16+10=26>>26 cups of water\n#### 26",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03109",
+    "source_solution": "Annie spends 4*8=<<4*8=32>>32 dollars on hamburgers.\nAnnie spends 3*6=<<3*6=18>>18 dollars on milkshakes.\nAnnie spends 32+18=<<32+18=50>>50 dollars on hamburgers and milkshakes.\nAnnie has 120-50=<<120-50=70>>70 dollars left.\n#### 70",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01175",
+    "source_solution": "Martha has 11-5=<<11-5=6>>6 blue and yellow butterflies.\nMartha has 6/3=<<6/3=2>>2 yellow butterflies.\nMartha has 2*2=<<2*2=4>>4 blue butterflies.\n#### 4",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06100",
+    "source_solution": "If the grandmother has 50 dolls, Rene's sister, who has 2 more dolls than their grandmother, has 50+2 = <<50+2=52>>52 dolls.\nTogether, Rene's sister and the grandmother have 52+50 = <<52+50=102>>102 dolls.\nSince Rene has three times as many dolls as her sister, she has 52*3 = <<52*3=156>>156 dolls.\nAltogether, they have 156+102 = <<156+102=258>>258 dolls.\n#### 258",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-06323",
+    "source_solution": "Mr. Connell harvested 60 x 3 = <<60*3=180>>180 peaches.\nThe difference between the number of the two fruits is 180 - 60 = <<180-60=120>>120\n#### 120",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04317",
+    "source_solution": "Cloud 9 earned $12,000 + $16,000 = $<<12000+16000=28000>>28,000 from bookings.\nAfter returning money due to cancellations, they had a final total of $28,000 - $1600 = $<<28000-1600=26400>>26,400.\n#### 26400",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-03823",
+    "source_solution": "To calculate Alec's goal number of votes, we need to know that 60 students / 4 = <<60/4=15>>15 students is equal to one-quarter of the class students.\nAlec's goal is therefore 15 students * 3 quarters = <<15*3=45>>45 votes.\nHalf of the class said they will vote for him, so there are already 60 students / 2 = <<60/2=30>>30 votes.\nAnother 5 students are thinking about voting for him which leaves a total so far of 30 + 5 = <<30+5=35>>35 votes.\nThis means there are 60 students - 35 voting for Alec = <<60-35=25>>25 students not voting for Alec.\nA fifth of these decided to vote, so this is a further 25 students / 5 = <<25/5=5>>5 votes.\nAlec is therefore receiving a total of 35 + 5 = <<35+5=40>>40 votes.\nSo he has missed his goal by 45 goal votes - 40 actual votes = <<45-40=5>>5 votes.\n#### 5",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-04007",
+    "source_solution": "The cost of the keyboard was 3 * $16 = $<<3*16=48>>48.\nThat means Fabian had to pay $48 + $16 = $<<48+16=64>>64 in total for his accessories.\n#### 64",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-01483",
+    "source_solution": "Donna can finish a total of 8 x 5 = <<8*5=40>>40 episodes during the weekdays.\nMeanwhile, she can finish 8 x 3 = <<8*3=24>>24 episodes each day during the weekend.\nThe total number of episodes she can watch every weekend is 24 x 2 = <<24*2=48>>48\nTherefore, Donna can watch 40 + 48 = <<40+48=88>>88 episodes every week.\n#### 88",
+    "human_review_status": "pending"
+  },
+  {
+    "id": "gsm8k-dev-05581",
+    "source_solution": "The trucks cost 60 bottle caps because 10 x 6 = <<10*6=60>>60\nHe has 40 bottle caps left because 100 - 60 = <<100-60=40>>40\nHe spends 30 bottle caps on cars because 40 x .75 = <<40*.75=30>>30\nHe gets 6 cars with this because 30 / 5 = <<30/5=6>>6\nHe gets 16 vehicles in total because 10 + 6 = <<10+6=16>>16\n#### 16",
+    "human_review_status": "pending"
+  }
+]

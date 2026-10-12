@@ -1,0 +1,220 @@
+=== INITIALIZING MODEL mlx-community/Qwen2.5-0.5B-Instruct-4bit ===
+Model initialized successfully on Apple Silicon.
+
+Selected 3 groups (seed=0): ['grp_pal_004', 'grp_plain_004', 'grp_react_007']
+Total smoke items: 9 items across 3 groups (3 variants each).
+  [grp_pal_004] pal_004_en_orig (type: number, gold: 192)
+  [grp_pal_004] pal_004_en_para (type: number, gold: 192)
+  [grp_pal_004] pal_004_vi_trans (type: number, gold: 192)
+  [grp_plain_004] plain_004_en_orig (type: text, gold: Thursday)
+  [grp_plain_004] plain_004_en_para (type: text, gold: Thursday)
+  [grp_plain_004] plain_004_vi_trans (type: text, gold: Thursday)
+  [grp_react_007] react_007_en_orig (type: number, gold: 210)
+  [grp_react_007] react_007_en_para (type: number, gold: 210)
+  [grp_react_007] react_007_vi_trans (type: number, gold: 210)
+
+=== RUNNING SMOKE INFERENCE (6 ARMS × 9 ITEMS = 54 EVALUATIONS) ===
+
+--- Arm: DIRECT ---
+  [1/9] pal_004_en_orig -> parsed: '96' | gold: '192' | correct: False (879.7ms, 93 tok, calls: 1)
+  [2/9] pal_004_en_para -> parsed: '192' | gold: '192' | correct: True (212.4ms, 11 tok, calls: 1)
+  [3/9] pal_004_vi_trans -> parsed: '112' | gold: '192' | correct: False (225.3ms, 11 tok, calls: 1)
+  [4/9] plain_004_en_orig -> parsed: 'The day of the week will be the same as today, which is Tuesday' | gold: 'Thursday' | correct: False (266.9ms, 19 tok, calls: 1)
+  [5/9] plain_004_en_para -> parsed: '100' | gold: 'Thursday' | correct: False (297.9ms, 24 tok, calls: 1)
+  [6/9] plain_004_vi_trans -> parsed: '101' | gold: 'Thursday' | correct: False (255.6ms, 17 tok, calls: 1)
+  [7/9] react_007_en_orig -> parsed: '1000' | gold: '210' | correct: False (192.5ms, 8 tok, calls: 1)
+  [8/9] react_007_en_para -> parsed: '1000' | gold: '210' | correct: False (195.9ms, 8 tok, calls: 1)
+  [9/9] react_007_vi_trans -> parsed: '1000' | gold: '210' | correct: False (192.7ms, 8 tok, calls: 1)
+
+--- Arm: COT ---
+  [1/9] pal_004_en_orig -> parsed: '192' | gold: '192' | correct: True (1942.8ms, 259 tok, calls: 1)
+  [2/9] pal_004_en_para -> parsed: '48' | gold: '192' | correct: False (465.8ms, 45 tok, calls: 1)
+  [3/9] pal_004_vi_trans -> parsed: '160 miếng pizza trong 4 tuần' | gold: '192' | correct: False (270.1ms, 16 tok, calls: 1)
+  [4/9] plain_004_en_orig -> parsed: '100' | gold: 'Thursday' | correct: False (3767.1ms, 512 tok, calls: 1)
+  [5/9] plain_004_en_para -> parsed: 'Wednesday' | gold: 'Thursday' | correct: False (1847.1ms, 248 tok, calls: 1)
+  [6/9] plain_004_vi_trans -> parsed: '100' | gold: 'Thursday' | correct: False (329.3ms, 26 tok, calls: 1)
+  [7/9] react_007_en_orig -> parsed: '1000' | gold: '210' | correct: False (211.8ms, 8 tok, calls: 1)
+  [8/9] react_007_en_para -> parsed: '290' | gold: '210' | correct: False (635.0ms, 74 tok, calls: 1)
+  [9/9] react_007_vi_trans -> parsed: '230' | gold: '210' | correct: False (529.1ms, 58 tok, calls: 1)
+
+--- Arm: SC ---
+  [1/9] pal_004_en_orig -> parsed: '192' | gold: '192' | correct: True (10458.1ms, 1362 tok, calls: 5)
+  [2/9] pal_004_en_para -> parsed: 'Albert has 104 slices of pizza after 4 weeks' | gold: '192' | correct: False (12037.1ms, 1252 tok, calls: 5)
+  [3/9] pal_004_vi_trans -> parsed: '64' | gold: '192' | correct: False (4392.8ms, 408 tok, calls: 5)
+  [4/9] plain_004_en_orig -> parsed: 'Wednesday' | gold: 'Thursday' | correct: False (5986.1ms, 641 tok, calls: 5)
+  [5/9] plain_004_en_para -> parsed: '10' | gold: 'Thursday' | correct: False (12656.4ms, 1381 tok, calls: 5)
+  [6/9] plain_004_vi_trans -> parsed: '101' | gold: 'Thursday' | correct: False (2783.8ms, 229 tok, calls: 5)
+  [7/9] react_007_en_orig -> parsed: 'The result is 255' | gold: '210' | correct: False (1991.0ms, 134 tok, calls: 5)
+  [8/9] react_007_en_para -> parsed: '5500' | gold: '210' | correct: False (1462.4ms, 73 tok, calls: 5)
+  [9/9] react_007_vi_trans -> parsed: '110' | gold: '210' | correct: False (2602.3ms, 206 tok, calls: 5)
+
+--- Arm: TOT ---
+  [1/9] pal_004_en_orig -> parsed: '48' | gold: '192' | correct: False (5109.9ms, 511 tok, calls: 4)
+  [2/9] pal_004_en_para -> parsed: '96' | gold: '192' | correct: False (3459.2ms, 352 tok, calls: 4)
+  [3/9] pal_004_vi_trans -> parsed: '20' | gold: '192' | correct: False (3207.8ms, 274 tok, calls: 4)
+  [4/9] plain_004_en_orig -> parsed: 'Wednesday' | gold: 'Thursday' | correct: False (5212.5ms, 519 tok, calls: 4)
+  [5/9] plain_004_en_para -> parsed: '\\text{First day} = \\text{1st day} - 100 \\text{ days} + 6 \\text{ days' | gold: 'Thursday' | correct: False (12477.0ms, 1192 tok, calls: 4)
+  [6/9] plain_004_vi_trans -> parsed: '' | gold: 'Thursday' | correct: False (1675.4ms, 61 tok, calls: 4)
+  [7/9] react_007_en_orig -> parsed: '210' | gold: '210' | correct: True (3253.3ms, 277 tok, calls: 4)
+  [8/9] react_007_en_para -> parsed: '-80' | gold: '210' | correct: False (8312.0ms, 801 tok, calls: 4)
+  [9/9] react_007_vi_trans -> parsed: '190' | gold: '210' | correct: False (3616.3ms, 320 tok, calls: 4)
+
+--- Arm: REACT ---
+  [1/9] pal_004_en_orig -> parsed: '192' | gold: '192' | correct: True (893.8ms, 45 tok, calls: 2)
+  [2/9] pal_004_en_para -> parsed: '48' | gold: '192' | correct: False (925.4ms, 44 tok, calls: 2)
+  [3/9] pal_004_vi_trans -> parsed: '48' | gold: '192' | correct: False (983.6ms, 45 tok, calls: 2)
+  [4/9] plain_004_en_orig -> parsed: '1' | gold: 'Thursday' | correct: False (762.2ms, 40 tok, calls: 2)
+  [5/9] plain_004_en_para -> parsed: '17.285714285714285' | gold: 'Thursday' | correct: False (1788.4ms, 114 tok, calls: 4)
+  [6/9] plain_004_vi_trans -> parsed: '14 + 0.285714285714286' | gold: 'Thursday' | correct: False (851.2ms, 60 tok, calls: 2)
+  [7/9] react_007_en_orig -> parsed: '210' | gold: '210' | correct: True (777.4ms, 54 tok, calls: 2)
+  [8/9] react_007_en_para -> parsed: '210.0' | gold: '210' | correct: True (825.9ms, 60 tok, calls: 2)
+  [9/9] react_007_vi_trans -> parsed: '210' | gold: '210' | correct: True (808.2ms, 54 tok, calls: 2)
+
+--- Arm: PAL ---
+  [1/9] pal_004_en_orig -> parsed: '192' | gold: '192' | correct: True (1090.6ms, 125 tok, calls: 1)
+  [2/9] pal_004_en_para -> parsed: '192' | gold: '192' | correct: True (976.0ms, 105 tok, calls: 1)
+  [3/9] pal_004_vi_trans -> parsed: '128' | gold: '192' | correct: False (1276.5ms, 156 tok, calls: 1)
+  [4/9] plain_004_en_orig -> parsed: '0' | gold: 'Thursday' | correct: False (2903.0ms, 377 tok, calls: 1)
+  [5/9] plain_004_en_para -> parsed: 'This code will calculate the date 100 days from today and determine the day of the week for that date. The `timedelta` object allows us to specify the number of days and the number of days in the future, which we can use to determine the day of the week.' | gold: 'Thursday' | correct: False (1554.2ms, 172 tok, calls: 1)
+  [6/9] plain_004_vi_trans -> parsed: '2' | gold: 'Thursday' | correct: False (1115.1ms, 119 tok, calls: 1)
+  [7/9] react_007_en_orig -> parsed: '210.0' | gold: '210' | correct: True (850.7ms, 55 tok, calls: 1)
+  [8/9] react_007_en_para -> parsed: '210.0' | gold: '210' | correct: True (561.6ms, 52 tok, calls: 1)
+  [9/9] react_007_vi_trans -> parsed: '315.0' | gold: '210' | correct: False (767.6ms, 76 tok, calls: 1)
+
+Saved 54 trace records to /Users/thundercock2/Documents/Github/reasoning-run/audit/B_smoke_trace.jsonl
+
+================================================================================
+=== SMOKE BENCHMARK RESULTS TABLE ===
+================================================================================
+| arm | acc strict | #parse fail | % max_tokens | tokens | wall_ms |
+| --- | --- | --- | --- | --- | --- |
+| DIRECT | 11.1% (1/9) | 0 | 0.0% | 22.1 | 302.1 |
+| COT | 11.1% (1/9) | 0 | 11.1% | 138.4 | 1110.9 |
+| SC | 11.1% (1/9) | 0 | 22.2% | 631.8 | 6041.1 |
+| TOT | 11.1% (1/9) | 1 | 0.0% | 478.6 | 5147.0 |
+| REACT | 44.4% (4/9) | 0 | 0.0% | 57.3 | 957.4 |
+| PAL | 44.4% (4/9) | 0 | 0.0% | 137.4 | 1232.8 |
+
+================================================================================
+=== 3 RAW SAMPLES PER ARM (RANDOM SEED = 0) ===
+================================================================================
+
+--- Arm: DIRECT (3 samples) ---
+  Sample 1:
+    id: react_007_en_orig
+    raw_tail (last 300 chars): Answer: 1000
+    parsed: '1000'
+    gold: '210'
+    correct: False
+  Sample 2:
+    id: react_007_vi_trans
+    raw_tail (last 300 chars): Answer: 1000
+    parsed: '1000'
+    gold: '210'
+    correct: False
+  Sample 3:
+    id: pal_004_en_orig
+    raw_tail (last 300 chars): eks, Albert buys 2 large pizzas and 2 small pizzas per week, which totals 4 pizzas. Each large pizza has 16 slices and each small pizza has 8 slices. Therefore, the total number of slices of pizza Albert eats in 4 weeks is 4 pizzas * 16 slices/pizza + 4 pizzas * 8 slices/pizza = 64 + 32 = 96 slices.
+    parsed: '96'
+    gold: '192'
+    correct: False
+
+--- Arm: COT (3 samples) ---
+  Sample 1:
+    id: react_007_en_orig
+    raw_tail (last 300 chars): Answer: 1000
+    parsed: '1000'
+    gold: '210'
+    correct: False
+  Sample 2:
+    id: react_007_vi_trans
+    raw_tail (last 300 chars): Answer: <kết quả> = 3 * 90 - 4 * 35 + 250 / 5 = 270 - 140 + 50 = 180 + 50 = 230
+    parsed: '230'
+    gold: '210'
+    correct: False
+  Sample 3:
+    id: pal_004_en_orig
+    raw_tail (last 300 chars):  4 = 8\) small pizzas.\n   - Total slices from small pizzas = \(8 \times 8 = 64\) slices.\n\n3. Sum the slices from large and small pizzas to get the total number of slices:\n   - Total slices = \(128 + 64 = 192\) slices.\n\nTherefore, the total number of pizza slices Albert eats in 4 weeks is 192 slices.
+    parsed: '192'
+    gold: '192'
+    correct: True
+
+--- Arm: SC (3 samples) ---
+  Sample 1:
+    id: react_007_en_orig
+    raw_tail (last 300 chars): Answer: The result is 255.\n---\nAnswer: 750.\n---\nAnswer: 4500\n---\nAnswer: <kết quả> = 3 * 100 - 4 * 35 + 250 / 5 = 300 - 140 + 50 = 210\n---\nAnswer: <kết quả> = 3 * 100 - 4 * 25 + 250 / 5 = 300 - 100 + 50 = 250 / 5 = 50
+    parsed: 'The result is 255'
+    gold: '210'
+    correct: False
+  Sample 2:
+    id: react_007_vi_trans
+    raw_tail (last 300 chars):  + 50 = 60 + 50 = 110\n---\nAnswer: <kết quả>.\n---\nAnswer: 8100\n---\nAnswer: 650.\n---\nAnswer: After calculating step by step, we have:\n\n3 * (45 + 55) = 3 * 100 = 300\n- 4 * (120 - 85) = - 4 * 35 = - 140\n250 / 5 = 50\n\nAdding these values together: 300 - 140 + 50 = 310. Therefore, the final answer is 310.
+    parsed: '110'
+    gold: '210'
+    correct: False
+  Sample 3:
+    id: pal_004_en_orig
+    raw_tail (last 300 chars): ek * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks = 192 slices per week * 4 weeks
+    parsed: '192'
+    gold: '192'
+    correct: True
+
+--- Arm: TOT (3 samples) ---
+  Sample 1:
+    id: react_007_en_orig
+    raw_tail (last 300 chars): 5\n\n3. Perform multiplication:\n   3 * 100 = 300\n   4 * 35 = 140\n   250 / 5 = 50\n\n4. Substitute back into the expression:\n   300 - 140 + 50\n\n5. Perform subtraction:\n   300 - 140 = 160\n   160 + 50 = 210\n\nTherefore, the final result is 210.\n\nAnswer: 210\n---\nAnswer: 550\n---\nAnswer: <kết quả>.\n---\nBest: 0
+    parsed: '210'
+    gold: '210'
+    correct: True
+  Sample 2:
+    id: react_007_vi_trans
+    raw_tail (last 300 chars):  \[\n   250 \div 5 = 50\n   \]\n\n2. **Subtract the results:** \n    \[\n    400 - 50 = 350\n    \]\n\n3. **Add the other results:** \n    \[\n    350 + 250 = 600\n    \]\n\n4. **Divide the result:** \n    \[\n    \frac{600}{5} = 120\n    \]\n\nTherefore, the final value of the expression is: \nAnswer: 120.\n---\nBest: 0
+    parsed: '190'
+    gold: '210'
+    correct: False
+  Sample 3:
+    id: pal_004_en_orig
+    raw_tail (last 300 chars):    - Total slices for large pizzas = 8 × 16 slices\n   - Total slices for small pizzas = 8 × 8 slices\n   - Total slices for one pizza = 16 + 8 = 24\n   - Total slices for 4 pizzas = 4 × 24 = 96\n   - Total slices for 4 weeks = 96 slices\n\nTherefore, the answer is: Answer: 96 slices of pizza.\n---\nBest: 0
+    parsed: '48'
+    gold: '192'
+    correct: False
+
+--- Arm: REACT (3 samples) ---
+  Sample 1:
+    id: react_007_en_orig
+    raw_tail (last 300 chars): Thought: I should calculate the expression.\nAction: calculate[3*(45+55)-4*(120-85)+250/5]\n---\nThought: The calculation gives the final answer.\nAction: finish[210]
+    parsed: '210'
+    gold: '210'
+    correct: True
+  Sample 2:
+    id: react_007_vi_trans
+    raw_tail (last 300 chars): Thought: I should calculate the expression.\nAction: calculate[3*(45+55)-4*(120-85)+250/5]\n---\nThought: The calculation gives the final answer.\nAction: finish[210]
+    parsed: '210'
+    gold: '210'
+    correct: True
+  Sample 3:
+    id: pal_004_en_orig
+    raw_tail (last 300 chars): Thought: I should calculate the total number of slices of pizza.\nAction: calculate[2*(16+8)*4]\n---\nThought: The calculation gives the final answer.\nAction: finish[192]
+    parsed: '192'
+    gold: '192'
+    correct: True
+
+--- Arm: PAL (3 samples) ---
+  Sample 1:
+    id: react_007_en_orig
+    raw_tail (last 300 chars): ```python\nresult = 3 * (45 + 55) - 4 * (120 - 85) + 250 / 5\n```\n\nĐoanh đoạn code Python sẽ được viết dưới dạng mã trên.
+    parsed: '210.0'
+    gold: '210'
+    correct: True
+  Sample 2:
+    id: react_007_vi_trans
+    raw_tail (last 300 chars): ```python\n# Define the values\na = 3\nb = 45 + 55\nc = 120 - 85\nd = 4 * c\ne = 250 / 5\n\n# Calculate the result\nresult = a * b - c + e\n\n# Output the result\nprint(result)\n```
+    parsed: '315.0'
+    gold: '210'
+    correct: False
+  Sample 3:
+    id: pal_004_en_orig
+    raw_tail (last 300 chars): al_slices = (2 * large_pizza_slices) + (2 * small_pizza_slices)\n\n# Calculate the total number of slices eaten in 4 weeks\nresult = total_slices * weeks\n\n# Print the result\nprint(result)\n```\n\nThis code will calculate the total number of slices of pizza that Albert eats in 4 weeks and print the result.
+    parsed: '192'
+    gold: '192'
+    correct: True

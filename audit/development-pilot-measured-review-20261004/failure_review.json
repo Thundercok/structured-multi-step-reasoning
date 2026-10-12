@@ -1,0 +1,64 @@
+{
+  "kind": "descriptive_pilot_failure_review",
+  "collection_manifest_sha256": "f91b24d08eb7a988b3a3f8bcac727eec9a129f1f80e52198610f3316fcd7597c",
+  "analysis_manifest_sha256": "f63b8f0acb6e5ceaf55cc7aceb7f57bd2afec43fe663dce75af1e50a759808b1",
+  "conditions": [
+    {
+      "strategy": "DIRECT",
+      "cap_per_call": 96,
+      "incorrect_evaluations": 19,
+      "incorrect_with_confidence_at_least_0_8": 19,
+      "incorrect_confidence_min": 0.8620600411784612,
+      "incorrect_confidence_max": 0.9966289047949692
+    },
+    {
+      "strategy": "COT",
+      "cap_per_call": 96,
+      "incorrect_evaluations": 19,
+      "incorrect_with_confidence_at_least_0_8": 19,
+      "incorrect_confidence_min": 0.9036422592324382,
+      "incorrect_confidence_max": 0.9990792174555135
+    },
+    {
+      "strategy": "DIRECT",
+      "cap_per_call": 1024,
+      "incorrect_evaluations": 14,
+      "incorrect_with_confidence_at_least_0_8": 14,
+      "incorrect_confidence_min": 0.8829833365298354,
+      "incorrect_confidence_max": 0.9966289047949692
+    },
+    {
+      "strategy": "COT",
+      "cap_per_call": 1024,
+      "incorrect_evaluations": 9,
+      "incorrect_with_confidence_at_least_0_8": 9,
+      "incorrect_confidence_min": 0.8861409041291195,
+      "incorrect_confidence_max": 0.9979920008004335
+    }
+  ],
+  "interpretation": "Confidence is an uncalibrated heuristic. The fixed threshold 0.8 does not reject any incorrect evaluation in this pilot; this does not prove that all possible confidence-based controllers fail.",
+  "examples": [
+    {
+      "id": "procedural-tuning-v1/arith_0028_en_orig",
+      "cap_per_call": 1024,
+      "strategies": [
+        "DIRECT",
+        "COT"
+      ],
+      "diagnosis": "Both outputs first compute 30019 * 83 as 2501577; the exact product is 2491577. They then return 114176565 instead of the verified 113731565."
+    },
+    {
+      "id": "procedural-tuning-v1/order_0022_en_orig",
+      "cap_per_call": 1024,
+      "strategies": [
+        "DIRECT",
+        "COT"
+      ],
+      "diagnosis": "DIRECT returns Bob correctly. CoT enumerates Bob in fourth place but returns Answer: Alice, so the final answer is incorrect. Scoring does not recover a gold name from reasoning text."
+    }
+  ],
+  "new_model_calls": 0,
+  "policy_fitted": false,
+  "human_review_status": "pending",
+  "publication_ready": false
+}

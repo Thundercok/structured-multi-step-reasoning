@@ -1,0 +1,17 @@
+{
+  "kind": "prepared_development_validation_comparison",
+  "candidate_dataset_sha256": "7b717b2c742da32ed4b34549fb0e5c39fdf6b3d7d5820332fa0144d9fb321721",
+  "candidate_manifest_sha256": "d6c51e03bd88c9b1724ab646f448f8ff8504c96229f45f65f771560cf7599874",
+  "prior_candidate_dataset_sha256": "cdc763dbf1efa7859cd50338e20fbe9ec9d4e820396443f771079ed5a141e47b",
+  "source_manifest_sha256": "66874286c7c5167e26fa23c91c701fdef4d46b52bbe869564595e66125ac7906",
+  "prospective_protocol_sha256": "20d8b508858fd45ce2ab3443a630645910905af2706aa5f2cc053e45edb61912",
+  "builder_sha256": "7cc9d11fe649be8772558e5487eb76505613ce89dbeacb426d6290d112d64f1b",
+  "artifact_sha256": {
+    "roles.json": "1d94a08a9d161c2252f4d4f069bc80601bc9413817f2aa6318080b67c7dcb2b4",
+    "validation.json": "c87b833e4491627c5d310b03ce2a8b0b455e387205ff7b2fab1475b481db73ab"
+  },
+  "new_model_calls": 0,
+  "rule_fitted": false,
+  "human_review_status": "pending",
+  "publication_ready": false
+}

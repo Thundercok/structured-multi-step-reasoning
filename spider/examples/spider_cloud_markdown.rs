@@ -1,0 +1,41 @@
+//! Spider Cloud crawl → clean LLM-ready markdown.
+//!
+//! ```bash
+//! SPIDER_CLOUD_API_KEY=sk-... cargo run --example spider_cloud_markdown --features="spider/sync spider/spider_cloud"
+//! ```
+
+extern crate spider;
+
+use spider::configuration::{SpiderCloudConfig, SpiderCloudMode, SpiderCloudReturnFormat};
+use spider::tokio;
+use spider::website::Website;
+
+#[tokio::main]
+async fn main() {
+    let api_key = std::env::var("SPIDER_CLOUD_API_KEY").expect("set SPIDER_CLOUD_API_KEY");
+
+    let config = SpiderCloudConfig::new(&api_key)
+        .with_mode(SpiderCloudMode::Smart)
+        .with_return_format(SpiderCloudReturnFormat::Markdown);
+
+    let mut website = Website::new("https://choosealicense.com")
+        .with_limit(10)
+        .with_spider_cloud_config(config)
+        .build()
+        .unwrap();
+
+    let mut rx = website.subscribe(16);
+
+    tokio::spawn(async move {
+        while let Ok(page) = rx.recv().await {
+            let url = page.get_url();
+            let markdown = page.get_content();
+            let status = page.status_code;
+
+            println!("[{status}] {url}\n---\n{markdown}\n");
+        }
+    });
+
+    website.crawl().await;
+    website.unsubscribe();
+}

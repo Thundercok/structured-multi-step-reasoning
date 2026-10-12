@@ -1,0 +1,42 @@
+{
+  "kind": "software_validation_only",
+  "evidence": "synthetic_smoke",
+  "recorded_utc": "2026-10-03T08:43:07.482591+00:00",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "base_git_sha": "76d311b98e65ce86dd0cbfb24b9453591964481d",
+  "test_command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_research_study.py tests/test_research_aggregate.py test_optimal_stopping.py test_entry_predictor.py -q",
+  "observed_test_result": "50 passed in 2.76s",
+  "sources_sha256": {
+    "experiments/research_study.py": "a178e51cae459887471eb87698be5bd78e42948d040cc3de7a48690abd32d92b",
+    "experiments/research_aggregate.py": "2b35db95ae450b4df8728b72db52ee7757d25a3fcbf5be1331ade72cc3b0d3e7",
+    "tests/test_research_study.py": "4dbc27b08b30431b2afd00e318f6712050d10701919ce60cf33cdf267ad16675",
+    "tests/test_research_aggregate.py": "2b5b5d41d176fcc118bf199105e9d52977b0d729d4f5763e88f1ec9b8dfb8ded",
+    "test_optimal_stopping.py": "51e6f8686990bedc849154f4d0ebd5c8971403efe2f579842c3c36971e5e9a4a",
+    "test_entry_predictor.py": "963f3a49cb3167d53c487407b60d8e1ce07f037d3d8ec56145c0becb190a10ee"
+  },
+  "smoke_run_root": "runs/aggregate-validation-20261003-final",
+  "generation_seeds": [
+    11,
+    22,
+    33
+  ],
+  "aggregate_manifest_sha256": "84c2d961d3ce55ed74599215629ede9e5974e0dfac1e41d64fc3fb71ecd97bc5",
+  "aggregate_artifact_sha256": {
+    "summary.json": "010874362da761bb158adda67955eabcef0e0017c0192f03e746d70572076912",
+    "report.md": "1b1c6e9198c6137301dad0af2b5b16e4ceaf269084a6eb54fc0417a7e3f1c3d2"
+  },
+  "checks": {
+    "all_declared_input_artifact_hashes_verified": true,
+    "input_generation_sources_match_current_sources": true,
+    "aggregate_analysis_sources_match_current_sources": true,
+    "seed_11_replay_results_and_summary_match_exactly": true,
+    "unique_test_queries": 24,
+    "original_test_groups": 24,
+    "all_method_means_checked_independently": true,
+    "raw_attempt_answers_and_path_costs_checked": true,
+    "publication_review_required": true,
+    "new_measured_model_runs": false,
+    "stage_0_gate_changed": false
+  },
+  "limitations": "Synthetic token costs and Python execution times only; no measured model-quality evidence, no online policy latency, no new data/model review."
+}

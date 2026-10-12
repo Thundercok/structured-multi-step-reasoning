@@ -1,0 +1,165 @@
+[package]
+name = "spider_agent"
+version = "2.51.208"
+authors = ["j-mendez <jeff@spider.cloud>"]
+description = "A concurrent-safe multimodal agent for web automation and research."
+repository = "https://github.com/spider-rs/spider"
+readme = "README.md"
+keywords = ["agent", "llm", "automation", "web", "search"]
+categories = ["web-programming", "asynchronous"]
+license = "MIT"
+documentation = "https://docs.rs/spider_agent"
+edition = "2021"
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+# Core
+tokio = { version = "1", features = ["sync", "rt"] }
+async-trait = "0.1"
+reqwest = { version = "0.13", features = ["json", "query"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+thiserror = "2"
+dashmap = "6"
+parking_lot = "0.12"
+base64 = "0.22"
+
+# Extracted types and HTML processing
+spider_agent_types = { version = "2.51.208", path = "../spider_agent_types" }
+spider_agent_html = { version = "2.51.208", path = "../spider_agent_html" }
+
+# HTML processing (still needed for engine internals)
+lol_html = "2"
+aho-corasick = "1"
+
+# Model capabilities detection
+llm_models_spider = "0.1"
+
+# LLM Providers (optional)
+async-openai = { version = "0.35", optional = true, features = ["chat-completion"] }
+tiktoken-rs = { version = "0.11", optional = true }
+
+# Browser (optional) - uses chromey (spider's chrome library)
+chromey = { version = "2", optional = true, default-features = false, features = [
+    "bytes",
+    "stream",
+] }
+
+# WebDriver (optional) - uses thirtyfour
+thirtyfour = { version = "0.36", optional = true }
+
+# Temp filesystem for large operations
+tempfile = { version = "3", optional = true }
+
+# Stream utilities for event handling
+futures = { version = "0.3", optional = true }
+
+# Long-term experience memory via semantic search
+memvid-rs = { version = "1.2", optional = true }
+
+# Skill definitions (optional)
+spider_skills = { version = "0.1.7", optional = true, default-features = false, features = ["web_challenges"] }
+
+# S3 skill loading (optional)
+# default-features = false to drop the `rustls` (legacy rustls 0.21 via
+# aws-smithy-runtime/tls-rustls) feature that pulls rustls-webpki 0.101.7
+# (RUSTSEC-2026-0104). `default-https-client` gives us the modern
+# rustls-aws-lc chain. SSO is also dropped for S3 skill loading — env/instance
+# metadata creds are sufficient.
+aws-sdk-s3 = { version = "1", optional = true, default-features = false, features = ["default-https-client", "rt-tokio", "sigv4a"] }
+aws-config = { version = "1", optional = true, default-features = false, features = ["default-https-client", "rt-tokio", "credentials-process"] }
+
+# Scripting (pure-Rust embedded interpreters)
+# Worker pool runs on dedicated std::thread, channel-bridged to async caller.
+# No spawn_blocking, no shared HTTP stack — workers use Handle::block_on for the existing reqwest client.
+rustpython-vm = { version = "0.4", optional = true, default-features = false, features = ["freeze-stdlib", "compiler", "importlib"] }
+rustpython-pylib = { version = "0.4", optional = true, default-features = false, features = ["freeze-stdlib"] }
+boa_engine = { version = "0.20", optional = true }
+boa_runtime = { version = "0.20", optional = true }
+flume = { version = "0.11", optional = true, default-features = false, features = ["async"] }
+cap-std = { version = "3", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+env_logger = "0.11"
+fastrand = "2"
+futures = "0.3"
+dotenvy = "0.15"
+
+[features]
+default = []
+
+# LLM Providers
+openai = ["dep:async-openai", "dep:tiktoken-rs"]
+
+# Browser automation
+chrome = ["dep:chromey", "dep:futures"]
+
+# WebDriver automation
+webdriver = ["dep:thirtyfour"]
+
+# Temp filesystem support
+fs = ["dep:tempfile", "tokio/fs"]
+
+# Skills - dynamic skill loading for web challenge solving
+skills = ["dep:spider_skills"]
+
+# Long-term experience memory
+memvid = ["dep:memvid-rs"]
+
+# S3 skill loading
+skills_s3 = ["skills", "dep:aws-sdk-s3", "dep:aws-config"]
+
+# Scripting - pure-Rust embedded Python (rustpython-vm) + JS (boa_engine) interpreters.
+# Workers run on dedicated std::thread, async caller bridges via flume + tokio::oneshot.
+# `fs` is pulled in for per-call tmpdir creation; cap-std sandboxes filesystem access.
+scripting = [
+    "fs",
+    "dep:rustpython-vm",
+    "dep:rustpython-pylib",
+    "dep:boa_engine",
+    "dep:boa_runtime",
+    "dep:flume",
+    "dep:cap-std",
+]
+
+# Search providers
+search = []
+search_serper = ["search"]
+search_brave = ["search"]
+search_bing = ["search"]
+search_tavily = ["search"]
+
+# Full feature set
+full = ["openai", "chrome", "webdriver", "fs", "skills", "memvid", "scripting", "search_serper", "search_brave", "search_bing", "search_tavily", "skills_s3"]
+
+[[example]]
+name = "basic_search"
+required-features = ["search_serper"]
+
+[[example]]
+name = "research"
+required-features = ["openai", "search_serper"]
+
+[[example]]
+name = "extract"
+required-features = ["openai"]
+
+[[example]]
+name = "concurrent"
+required-features = ["openai", "search_serper"]
+
+[[example]]
+name = "multimodal"
+required-features = ["openai", "search_serper"]
+
+[[example]]
+name = "open_page_concurrent"
+required-features = ["chrome"]
+
+[[example]]
+name = "scripting"
+required-features = ["scripting"]

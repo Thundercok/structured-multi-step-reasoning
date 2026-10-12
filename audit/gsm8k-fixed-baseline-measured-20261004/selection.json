@@ -1,0 +1,45 @@
+{
+  "seed": 42,
+  "groups_per_stratum": 12,
+  "strata": [
+    {
+      "split": "calibration",
+      "family": "gsm8k",
+      "level": "unspecified",
+      "available_groups": 12,
+      "selected_groups": 12
+    },
+    {
+      "split": "train",
+      "family": "gsm8k",
+      "level": "unspecified",
+      "available_groups": 11,
+      "selected_groups": 11
+    }
+  ],
+  "selected_group_ids": [
+    "gsm8k-train-05e57a552cb900b031254eaaed7911ab6c7de1618db70303c26faf783cfb598e",
+    "gsm8k-train-0ad06009b66319059350b689704e0621bf4a0589168043097957b21b3fbf9a84",
+    "gsm8k-train-1634d65fee849461cb87fba04e8e974cf1bf3683cf1bab00d751419e273d6792",
+    "gsm8k-train-17e0f01156b871e9c07f26f7b6dab0297ce6e651ad1e22767325dab015b7e912",
+    "gsm8k-train-2153633aacc493a4fc7ed3760e32ef6429351b4de27d8ebbc8fba57fee81c72e",
+    "gsm8k-train-220b9797eff469960c5a99dae09a091dd5c046d444b45b6e44db858cfc66458e",
+    "gsm8k-train-295f13ff43ce95fa5be177fdaba8fac378d08cfe4d0bb14b31d66299be2f29bf",
+    "gsm8k-train-2b20a9d3bc9e5273af132b9d3086dcecba1c88a3c0b4ac8244d7ae0f8cd345e4",
+    "gsm8k-train-2e4dd0a15a6387312d946803290512357891bcd088abeaab153d0c9ec3b292aa",
+    "gsm8k-train-355aac2fbe39974feadc7af009d4f613a3e85e97c63ea0dc010c0fd0506f8401",
+    "gsm8k-train-49040e457ff69e29d4e293b198ab4738061a1d59ed2f718c0a2506b57f5e080b",
+    "gsm8k-train-4ebfc675c67aa3d01ef733f8ecf817cf730ccc2ff40d5eb21d2837b05a01518a",
+    "gsm8k-train-69af4d97251e9a49136929fd7197bd42da4639ce13b214aa78d3754f627eef30",
+    "gsm8k-train-89fb6901d03c7631fe073f73875d815f6b6e7ad20e8f7782fc79225653ff9d3b",
+    "gsm8k-train-8e10ffb4946ccb6bf0efd3a567771f22a25be95a7b00bdbd6297845874b08ce8",
+    "gsm8k-train-9f3efe6cac2eacac4686fe5c3729c5309689e854527cb318a76e247a864db56e",
+    "gsm8k-train-9f6599c0178d24d6d249770878ee32a556b30ca1e60d6c46c55023b261f6ad0f",
+    "gsm8k-train-a651d2aa0935c5c2920d282b81b65d91e96c8614bd037b87ce2e82d1966cc1d2",
+    "gsm8k-train-af83beffd686f9db2b33cf2c2d633ab4f5fcfd336bc362adcf10b086f3689356",
+    "gsm8k-train-b203a1a489bd04f362413fd379aba5662eee0c7db8b20e6c865c6f97483f3899",
+    "gsm8k-train-b763f9ab1c4ea4167f2c8f86f762906f4486477bcb10b342268948ee648e6dd0",
+    "gsm8k-train-c2828a8d50a0a55c92d04c6a8f7391eeae5fc6ab0a861905d12e994698fb6f32",
+    "gsm8k-train-f2fb0fcd0600cac4885f2d8952f8895c3dda94a4dd73d49c5725aebff4109f8d"
+  ]
+}

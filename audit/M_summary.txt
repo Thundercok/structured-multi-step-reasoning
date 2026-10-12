@@ -1,0 +1,27 @@
+=== RUN HEADER ===
+branch: HEAD
+tag: harness-v1-run5
+commit: d3ac47a
+dirty: False
+model_id: mlx-community/Qwen3-8B-4bit
+snapshot_hash: 545dc4251c05440727734bcd94334791f6ab0192
+safetensors_blobs: {'model.safetensors': 'f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8'}
+eos_ids: [151645]
+
+=== COMPARISON TABLE: COT on gen_tune (M vs K-rescored) ===
+| family | level | n | K-rescored acc | M acc | %length | mean tokens |
+| --- | --- | --- | --- | --- | --- | --- |
+| arith | 1 | 8 | 100.0% | 100.0% | 0.0% | 46.8 |
+| arith | 2 | 8 | 50.0% | 100.0% | 0.0% | 101.8 |
+| arith | 3 | 8 | 75.0% | 100.0% | 0.0% | 162.5 |
+| arith | 4 | 8 | 50.0% | 37.5% | 0.0% | 252.8 |
+| order | 1 | 8 | 100.0% | 100.0% | 0.0% | 146.2 |
+| order | 2 | 8 | 100.0% | 87.5% | 0.0% | 182.4 |
+| order | 3 | 8 | 62.5% | 75.0% | 0.0% | 250.5 |
+| order | 4 | 8 | 62.5% | 50.0% | 0.0% | 331.6 |
+| g24 | 1 | 7 | 28.6% | 71.4% | 28.6% | 398.4 |
+| g24 | 2 | 7 | 14.3% | 28.6% | 57.1% | 784.7 |
+| g24 | 3 | 8 | 0.0% | 25.0% | 50.0% | 648.9 |
+| g24 | 4 | 8 | 0.0% | 50.0% | 50.0% | 618.4 |
+
+**Total**: n=94 | K-rescored acc=54.3% | M acc=69.1% | %length=14.9% | mean tokens=321.4

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "generation_seeds": [
+    42,
+    43,
+    44
+  ],
+  "pal_max_tokens": 512,
+  "candidate_max_tokens": 1024,
+  "candidate_branches": 3,
+  "candidate_temperature": 0.7,
+  "selector_max_tokens": 64,
+  "thinking_max_tokens": 3136,
+  "thinking_temperature": 0.6,
+  "verifier_mode": "generic_with_uniqueness_check",
+  "bootstrap_repetitions": 5000,
+  "bootstrap_seed": 20261008,
+  "accuracy_margin": -0.02,
+  "max_token_ratio": 0.6,
+  "model_repository": "mlx-community/Qwen3-8B-4bit",
+  "model_revision": "545dc4251c05440727734bcd94334791f6ab0192",
+  "prompts": {
+    "pal_answer": "Write Python using itertools if needed. Assign the runner name to result. Return only Python code.",
+    "pal_certificate": "Write Python using itertools if needed. Assign a dict to result with exactly \"order\" (all runners in rank order) and \"answer\" (the requested runner). Return only Python code.",
+    "candidate": "Write concise reasoning steps. End with exactly one line Answer: followed by the requested runner.",
+    "selector": "Choose one complete candidate. Return only Best: 0, Best: 1, or Best: 2.",
+    "thinking_native": "Solve the question. End your final response with Answer: followed by the requested runner."
+  }
+}

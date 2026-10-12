@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "evidence": "historical_measured_development_reanalysis",
+  "created_at_utc": "2026-10-08T11:19:29.888935+00:00",
+  "new_model_calls": 0,
+  "confirmatory": false,
+  "prospective_test_evaluated": false,
+  "publication_review_required": true,
+  "preregistration_pass": false,
+  "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost",
+  "settings": {
+    "n_splits": 5,
+    "n_repeats": 20,
+    "n_bootstrap": 2000,
+    "seed": 42,
+    "estimand": "mean of item-pooled OOF AUROC across recorded CV repetitions",
+    "delta_threshold": 0.05,
+    "ci_scope": "paired group bootstrap of fixed OOF predictions; conditional on fitted folds and historical generations; no refitting",
+    "multiplicity": "four signal comparisons per evaluable family; individual unadjusted intervals; exploratory only",
+    "target": "retrospective PAL-v2 parsed-answer correctness; plurality is an auxiliary predictor of that same target",
+    "token_scope": "legacy prompt_tokens + completion_tokens proxy, summed across invoked arms; NOT full per-call input cost or full inference cost"
+  },
+  "inputs_sha256": {
+    "audit/run11_sweep_trace.jsonl": "3d57df7f4e81c71513a30b46a190c2d848ea020dac78adf88776620b6e67e632",
+    "audit/ae_palv2_trace.jsonl": "c3f2bb0de9e1d04356497911dfb0377597fa7862799cff6754bd8a412ac0d57c",
+    "data/gen02_tune.json": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c"
+  },
+  "source_sha256": {
+    "scripts/agreement.py": "7b57d6c53264bf6a03b8d6a6abc4a068ba0e80897dcfb5545cce58e58ba6473a",
+    "experiments/research_study.py": "154227e9dd11e91b524a20eae208fa1fbe4e3bedd01c0df86e46732dacc24c81",
+    "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "docs/agreement_reanalysis_protocol_20261008.md": "f815feb37888d61d17950659e7ee275436671cb6aec3844d08a1dc11c55c4c1d"
+  },
+  "preserved_historical_sha256": {
+    "prereg/decision_rule_agree.md": "38397f94ba7744937be37c8938847afc2e2a88c363b279f0ecd9e77ce9c0d312",
+    "audit/AJ_gate_tables.txt": "53d1f179f021961c239c31e5cbea25f5be0c4ec02036aa5f147128a95b3276cd",
+    "audit/AJ_precision_table.txt": "45cf04f9872b7a4f9c82cbe3e34cc8cba2bfbcd076ce685f0d906ec35495c4c6",
+    "audit/AJ_agree_and_wrong.txt": "9a53f8e79e1aaa7bc3df65983055af77990cf111b41d75fd4af1a453d527453d",
+    "audit/AJ_policy_table.txt": "35b8a8ae16acd859f62a158528ab5fda1ba16e07ffc894e5d65c6c5db57b0835",
+    "audit/AJ_summary.txt": "09e07105fea80a0941b18c0880863649073bbd9676d3bc55cde15c9effdeeb76"
+  },
+  "n_items": 100,
+  "n_groups": 100,
+  "family_counts": {
+    "arith": 40,
+    "order": 31,
+    "g24": 29
+  },
+  "runtime": {
+    "python": "3.12.6",
+    "numpy": "2.5.2",
+    "scikit_learn": "1.9.0",
+    "platform": "macOS-26.5.2-arm64-arm-64bit"
+  },
+  "git_head": "9ce4118ba04bb44e89fec2226de4633f56bc17e9",
+  "git_status": "M docs/research_artifact_index.md\n M docs/research_plan.md\n M docs/research_protocol.md\n M experiments/research_study.py\n M rat/crawler/db.py\n M rat/crawler/indexer.py\n M rat/crawler/watcher.py\n M rat/engine/vector_cache.py\n M research_identity.py\n M scripts/agreement.py\n M scripts/verified_pal_order.py\n M tests/test_agreement.py\n M tests/test_procedural_research_data.py\n M tests/test_verified_pal_order.py\n?? audit/_aborted_AG3/\n?? audit/order_certificate_pilot_fix_validation_20261008.md\n?? audit/order_certificate_pilot_mock_fix_20261008/\n?? audit/order_certificate_smoke_20261008/\n?? audit/order_certificate_smoke_replay_20261008/\n?? audit/order_certificate_validation_20261008.md\n?? audit/ordering_development_audit_20261008.md\n?? data/gen02_v2b.json\n?? data/order_certificate_candidate_v1/\n?? docs/agreement_reanalysis_protocol_20261008.md\n?? docs/order_certificate_study_protocol.md\n?? docs/verifier_vs_exec_gate_rationale.md\n?? experiments/order_certificate_study.py\n?? experiments/order_pilot_checkpoint.py\n?? prereg/decision_rule_verified_pal_order_v2.md\n?? scripts/pilot_order_certificate.py\n?? scripts/report_ag.py\n?? tests/test_indexer_consistency.py\n?? tests/test_order_certificate_pilot.py\n?? tests/test_order_certificate_study.py\n?? tests/test_vector_cache_freshness.py\n?? tests/test_watcher_lifecycle.py",
+  "artifacts_sha256": {
+    "agree_and_wrong.json": "c94f08a0e6e7194855978edef59cf200cffd209e87736569565ae4ea0fc1b552",
+    "agree_wrong_table.md": "b934e5e87c3ad0e2cb7057879931bbeebb83cc7a124f63c924b70ba4bb024ca9",
+    "cv.json": "37c43f297f2d85b153209a5217b0f4dbbf698ad1b13f962ab1cfa83ca03665ea",
+    "gate_table.md": "c1c3e35febc4da9e6bb48cedf13fae774b705e6a7979c8907cd7945b23b275a3",
+    "policy_rows.json": "316cccaaf35eb66b03a15c0b7199980e15c4f184f8e11e6835756738967a8c0a",
+    "precision_table.md": "68523fae8ebc3bb2ff35bf960f8df814c33dc39f1f6d8bc9923fa80c34c3f7bb",
+    "replay_table.md": "b0f11ad118e1b8d5f93c912b6c7d41f1c7ac8c6e7e1b5e91f8f10326f422a67a",
+    "report.md": "1034487f8555477c4ee998775091c4b27a4abf41900e6d3a505c1b57d7bb82f8",
+    "settings.json": "0cc33dbefccfbc609be705457d4438d565ccb48028c89f3e7ef0a166ab955a3d",
+    "summary.json": "b5431d651d8f30e751f704e0e5f865a449167cffebef3dac73896dad921e4573"
+  }
+}

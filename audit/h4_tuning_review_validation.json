@@ -1,0 +1,41 @@
+{
+  "status": "complete",
+  "kind": "offline_h4_review_validation",
+  "verified_at_utc": "2026-10-03T14:28:39.069545+00:00",
+  "full_test_command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_research_study.py tests/test_research_aggregate.py tests/test_research_scoring.py tests/test_development_data_audit.py tests/test_procedural_research_data.py tests/test_tuning_sweep_review.py test_optimal_stopping.py test_entry_predictor.py tests/test_gen_tasks.py test_reasoning_strategies.py test_qwen_mlx_backend_mocked.py -q",
+  "full_tests_passed": 132,
+  "final_review_refinement_tests_passed": 8,
+  "refinement_tests_are_subset_of_full_suite": true,
+  "legacy_records_reproduced": 188,
+  "independent_tuning_gold_checks": 94,
+  "human_review_status": "pending",
+  "review_bundle": "audit/qwen3-8b-tuning-review-20261003",
+  "review_manifest_sha256": "37577ebb112aab079cbc7d2fe96044ad7f5666449a0a2ad34dd9e4c5918a8579",
+  "input_source_output_hashes_verified": true,
+  "review_bundle_reproduces_byte_identically": true,
+  "raw_sweep_artifacts_unchanged": true,
+  "synthetic_smoke_run": "runs/h4-tuning-review-validation-20261003/smoke",
+  "synthetic_replay_run": "runs/h4-tuning-review-validation-20261003/replay",
+  "synthetic_results_and_summary_byte_identical": true,
+  "smoke_manifest_sha256": "9f1215f69ea230929cbf441111af66d094bf0d725df927ad847363b6d4dbdb63",
+  "typed_scores": {
+    "DIRECT": {
+      "correct": 21,
+      "n": 94
+    },
+    "COT": {
+      "correct": 63,
+      "n": 94
+    }
+  },
+  "scoring_criteria": "Retrospective current typed parsing with presentation normalization; legacy scores separately retained",
+  "presentation_recoveries": 6,
+  "legacy_to_typed_correctness_changes": 1,
+  "new_model_calls": 0,
+  "policy_fits": 0,
+  "main_study_test_content_reviewed": false,
+  "parameters_frozen": false,
+  "stage0_changed": false,
+  "publication_ready": false,
+  "assessment": "Share with caveats as development diagnostics; unequal caps, single greedy draw, limited source/runtime provenance and difficulty floors/ceilings prevent main-study claims"
+}

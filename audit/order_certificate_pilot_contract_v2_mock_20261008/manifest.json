@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "mode": "order_certificate_development_pilot",
+  "identity": {
+    "schema_version": 1,
+    "mock": true,
+    "evidence": "synthetic_smoke",
+    "settings_sha256": "a61e3e79f30f41ca772dc01bd4fc9ed2273da27322112293937685031abe6d12",
+    "dataset_sha256": "46c687d2fb74d88c3ec6461db44b96ac35907016c684984ae733bd09a5f5b2ac",
+    "source_sha256": {
+      "scripts/pilot_order_certificate.py": "4854283ef6e4fe62685f741c27a2bf93a2eaf766ed6bcb6134dee52c6cc973d3",
+      "experiments/order_pilot_checkpoint.py": "8b656549812c2584668cabd010dbc5f50df4a2320b215e986c9414fdffc3ab32",
+      "experiments/order_certificate_study.py": "96e253000bd7de935e4a9972764542526b5f19d0100c304ec08df2502cc794a1",
+      "experiments/research_study.py": "154227e9dd11e91b524a20eae208fa1fbe4e3bedd01c0df86e46732dacc24c81",
+      "scripts/verified_pal_order.py": "2b6c4c89e17870a27d496a8f4cf1c1a73b49e0866ccf37701daa94697b7bc0d8",
+      "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+      "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+      "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410"
+    },
+    "runtime": {
+      "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "platform": "macOS-26.5.2-arm64-arm-64bit"
+    }
+  },
+  "evidence": "synthetic_smoke",
+  "model_calls": false,
+  "status": "complete",
+  "publication_review_required": true,
+  "confirmatory": false,
+  "model_revision_verified": false,
+  "journal_head": "2fe33b016b1d1679b07486eac7b05d848666cbbec2ebe076aa525d94430702d2",
+  "journal_entries": 26,
+  "artifact_sha256": {
+    "dataset.json": "60e34ae0615538b3a2cb4b87cdcb764d66975b35f8fb76b91887c0ebf0346140",
+    "settings.json": "bf60ab1cda6b17e0518ce8bcc4f8ba41bca5f5f8cc46f597e15cf849f18fda47",
+    "calls.jsonl": "858cc0b379f0e18a502683d358f59e4e7c626c200e59f807f80a1e2a16ef96fd",
+    "records.json": "82f6d75ba2c650442cdf41e39f58f10ca634bd97b6b2ed135b07c0099814ece4",
+    "records.jsonl": "ab2c0fd94949da73007fbb4a906f7a6c49275ea4aacfa9f711ef4c6bfb1cf1bc",
+    "summary.json": "9b3c61f05904cac0dc4a395c6f0c47189968a0785eaf376431ed2087f95c955f",
+    "eval_rows.json": "c960a73c3ab4a6dd9220ff46d4e002a59ce99a38c5c27ccb0156c41a4a84a37d",
+    "report.md": "d89fedf3fb9da671406938bf68c5883d6d8a00b2b2a49397ed8bdd6609c8792a"
+  }
+}

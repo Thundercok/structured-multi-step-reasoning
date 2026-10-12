@@ -1,0 +1,30 @@
+[package]
+name = "spider_utils"
+version = "2.51.208"
+authors = ["j-mendez <jeff@spider.cloud>"]
+description = "Utilities to use for Spider Web Crawler."
+repository = "https://github.com/spider-rs/spider"
+readme = "README.md"
+keywords = ["crawler", "spider"]
+categories = ["web-programming", "command-line-utilities"]
+license = "MIT"
+documentation = "https://docs.rs/spider_utils"
+edition = "2021"
+
+[dependencies]
+indexmap = { version = "2", optional = true }
+sxd-document = "0.3"
+sxd-xpath = "0.4"
+serde = { version = "1", optional = true, features = ["derive"] }
+spider_scraper = "0.1"
+lazy_static = "1"
+hashbrown = { version = "0.17", default-features = true }
+log = "0.4"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[features]
+default = []
+indexset = ["indexmap"]
+serde = ["dep:serde", "indexmap/serde", "spider_scraper/serde"]

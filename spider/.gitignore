@@ -1,0 +1,22 @@
+target
+**/*.rs.bk
+.env
+.DS_Store
+.tools
+_temp_spider_downloads
+storage
+http-cacache
+release.sh
+spider_transformations/example.pdf
+spider_fingerprint/notes.txt
+result
+result-*
+example.png
+.idea
+scripts/
+# Local-only integration probes (network-map experiments, fixtures, etc.)
+spider/tests/_*.rs
+spider/tests/fixtures/
+
+# Local Claude Code tooling
+.claude/

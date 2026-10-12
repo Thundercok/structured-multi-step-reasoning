@@ -1,0 +1,353 @@
+use hashbrown::HashMap;
+use std::fmt::Debug;
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// TrieNode structure to handle clean url path mappings.
+pub struct TrieNode<V: Debug> {
+    /// The children for the trie.
+    pub children: HashMap<Box<str>, TrieNode<V>>,
+    /// The value for the trie.
+    pub value: Option<V>,
+}
+
+impl<V: Debug> TrieNode<V> {
+    /// A new trie node.
+    pub fn new() -> Self {
+        TrieNode {
+            children: HashMap::new(),
+            value: None,
+        }
+    }
+}
+
+impl<V: Debug> Default for TrieNode<V> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// Trie value.
+pub struct Trie<V: Debug> {
+    /// A new trie node.
+    pub root: TrieNode<V>,
+    /// Contains a match all segment to default to.
+    pub match_all: bool,
+}
+
+impl<V: Debug> Default for Trie<V> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<V: Debug> Trie<V> {
+    /// A new trie node.
+    pub fn new() -> Self {
+        Self {
+            root: TrieNode::new(),
+            match_all: false,
+        }
+    }
+
+    /// Scan a segment starting at `haystack[0]`, returning the offset of the
+    /// next `/` (or `haystack.len()` if none) and whether a `.` was seen
+    /// before that terminator.
+    ///
+    /// Uses `memchr2` to find the first `/` or `.` in a single SIMD pass,
+    /// replacing the previous two-pass `memchr(b'/')` + `memchr(b'.')`.
+    /// Typical URL path segments have no `.`, so the common hot path returns
+    /// on the first match.
+    #[inline(always)]
+    fn scan_segment(haystack: &[u8]) -> (usize, bool) {
+        match memchr::memchr2(b'/', b'.', haystack) {
+            None => (haystack.len(), false),
+            Some(pos) => {
+                // Safe: `memchr2` only returns an in-bounds index.
+                if haystack[pos] == b'/' {
+                    (pos, false)
+                } else {
+                    // Saw a dot — scan the remainder for the slash.
+                    let after_dot = pos + 1;
+                    let slash = memchr::memchr(b'/', &haystack[after_dot..])
+                        .map_or(haystack.len(), |p| after_dot + p);
+                    (slash, true)
+                }
+            }
+        }
+    }
+
+    /// Get the byte offset where the path portion starts, stripping scheme+host.
+    #[inline]
+    fn path_start(path: &str) -> usize {
+        // Fast path for common protocols (avoids generic find("://") scan)
+        let after_scheme = if path.starts_with("https://") {
+            8
+        } else if path.starts_with("http://") {
+            7
+        } else if let Some(pos) = path.find("://") {
+            pos + 3
+        } else {
+            return 0;
+        };
+
+        if after_scheme < path.len() {
+            // SIMD-accelerated byte scan for first '/' after scheme+host.
+            memchr::memchr(
+                b'/',
+                path.as_bytes().get(after_scheme..).unwrap_or_default(),
+            )
+            .map_or(path.len(), |p| after_scheme + p)
+        } else {
+            0
+        }
+    }
+
+    /// Insert a path and its associated value into the trie.
+    #[cfg_attr(feature = "inline-more", inline)]
+    pub fn insert(&mut self, path: &str, value: V) {
+        let mut node = &mut self.root;
+
+        let start = Self::path_start(path);
+        let bytes = path.as_bytes();
+        let len = bytes.len();
+        let mut i = start;
+
+        while i < len {
+            if bytes[i] == b'/' {
+                i += 1;
+                continue;
+            }
+
+            let seg_start = i;
+            let (rel_end, saw_dot) = Self::scan_segment(&bytes[i..]);
+            let seg_end = i + rel_end;
+            let segment = &path[seg_start..seg_end];
+
+            if !saw_dot {
+                // hashbrown 0.17 requires `Q: ToOwned<Owned = K>` for
+                // `entry_ref` shortcuts like `or_default`, and `str::to_owned`
+                // returns `String` — which breaks for `Box<str>` keys. Use
+                // `insert_with_key` (bound: `Q: Equivalent<K>`, satisfied via
+                // `Box<str>: Borrow<str>`) so the key stays `Box<str>` with
+                // no allocation on hits and exactly one `Box::from` on miss.
+                use hashbrown::hash_map::EntryRef;
+                node = match node.children.entry_ref(segment) {
+                    EntryRef::Occupied(entry) => entry.into_mut(),
+                    EntryRef::Vacant(entry) => {
+                        entry.insert_with_key(Box::<str>::from(segment), TrieNode::new())
+                    }
+                };
+            }
+
+            i = seg_end;
+        }
+
+        if path == "/" {
+            self.match_all = true;
+        }
+
+        node.value = Some(value);
+    }
+
+    /// Search for a path in the trie.
+    #[inline]
+    pub fn search(&self, input: &str) -> Option<&V> {
+        let mut node = &self.root;
+
+        if node.children.is_empty() && node.value.is_none() {
+            return None;
+        }
+
+        let start = Self::path_start(input);
+        let bytes = input.as_bytes();
+        let len = bytes.len();
+        let mut i = start;
+
+        while i < len {
+            if bytes[i] == b'/' {
+                i += 1;
+                continue;
+            }
+
+            let seg_start = i;
+            let (rel_end, saw_dot) = Self::scan_segment(&bytes[i..]);
+            let seg_end = i + rel_end;
+
+            if !saw_dot {
+                let segment = &input[seg_start..seg_end];
+                if let Some(child) = node.children.get(segment) {
+                    node = child;
+                } else if !self.match_all {
+                    return None;
+                }
+            }
+
+            i = seg_end;
+        }
+
+        node.value.as_ref()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_trie_node_new() {
+        let node: TrieNode<usize> = TrieNode::new();
+        assert!(node.children.is_empty());
+        assert!(node.value.is_none());
+    }
+
+    #[test]
+    fn test_trie_new() {
+        let trie: Trie<usize> = Trie::new();
+        assert!(trie.root.children.is_empty());
+        assert!(trie.root.value.is_none());
+    }
+
+    #[test]
+    fn test_insert_and_search() {
+        let mut trie: Trie<usize> = Trie::new();
+        trie.insert("/path/to/node", 42);
+        trie.insert("https://mywebsite/path/to/node", 22);
+
+        assert_eq!(trie.search("https://mywebsite/path/to/node"), Some(&22));
+        assert_eq!(trie.search("/path/to/node"), Some(&22));
+        assert_eq!(trie.search("/path"), None);
+        assert_eq!(trie.search("/path/to"), None);
+        assert_eq!(trie.search("/path/to/node/extra"), None);
+
+        // insert match all context
+        trie.insert("/", 11);
+        assert_eq!(trie.search("/random"), Some(&11));
+    }
+
+    #[test]
+    fn test_insert_multiple_nodes() {
+        let mut trie: Trie<usize> = Trie::new();
+        trie.insert("/path/to/node1", 1);
+        trie.insert("/path/to/node2", 2);
+        trie.insert("/path/to/node3", 3);
+
+        assert_eq!(trie.search("/path/to/node1"), Some(&1));
+        assert_eq!(trie.search("/path/to/node2"), Some(&2));
+        assert_eq!(trie.search("/path/to/node3"), Some(&3));
+    }
+
+    #[test]
+    fn test_insert_overwrite() {
+        let mut trie: Trie<usize> = Trie::new();
+        trie.insert("/path/to/node", 42);
+        trie.insert("/path/to/node", 84);
+
+        assert_eq!(trie.search("/path/to/node"), Some(&84));
+    }
+
+    #[test]
+    fn test_search_nonexistent_path() {
+        let mut trie: Trie<usize> = Trie::new();
+        trie.insert("/path/to/node", 42);
+
+        assert!(trie.search("/nonexistent").is_none());
+        assert!(trie.search("/path/to/wrongnode").is_none());
+    }
+
+    #[test]
+    fn test_trie_empty_path() {
+        let mut trie: Trie<usize> = Trie::new();
+        trie.insert("", 1);
+        // Empty path normalizes to "/" which sets match_all
+        assert!(trie.search("").is_some() || trie.search("/anything").is_some());
+    }
+
+    #[test]
+    fn test_trie_unicode_paths() {
+        let mut trie: Trie<&str> = Trie::new();
+        trie.insert("/café/menü", "unicode");
+        assert_eq!(trie.search("/café/menü"), Some(&"unicode"));
+    }
+
+    #[test]
+    fn test_trie_many_entries() {
+        let mut trie: Trie<usize> = Trie::new();
+        for i in 0..1000 {
+            trie.insert(&format!("/path/{}", i), i);
+        }
+        assert_eq!(trie.search("/path/0"), Some(&0));
+        assert_eq!(trie.search("/path/999"), Some(&999));
+        assert!(trie.search("/path/1000").is_none());
+    }
+
+    #[test]
+    fn test_trie_default() {
+        let trie: Trie<usize> = Trie::default();
+        assert!(trie.root.children.is_empty());
+        assert!(!trie.match_all);
+    }
+
+    #[test]
+    fn test_trie_shared_prefix_insert() {
+        let mut trie: Trie<usize> = Trie::new();
+        for i in 0..100 {
+            trie.insert(&format!("/api/v1/resource/{}", i), i);
+        }
+        for i in 0..100 {
+            assert_eq!(
+                trie.search(&format!("/api/v1/resource/{}", i)),
+                Some(&i),
+                "shared prefix path {} not found",
+                i
+            );
+        }
+        // Intermediate nodes should not have values
+        assert!(trie.search("/api").is_none());
+        assert!(trie.search("/api/v1").is_none());
+        assert!(trie.search("/api/v1/resource").is_none());
+    }
+
+    #[test]
+    fn test_trie_overwrite_preserves_others() {
+        let mut trie: Trie<usize> = Trie::new();
+        trie.insert("/a/b/c", 1);
+        trie.insert("/a/b/d", 2);
+        trie.insert("/a/b/e", 3);
+        // Overwrite /a/b/c
+        trie.insert("/a/b/c", 99);
+
+        assert_eq!(trie.search("/a/b/c"), Some(&99));
+        assert_eq!(trie.search("/a/b/d"), Some(&2));
+        assert_eq!(trie.search("/a/b/e"), Some(&3));
+    }
+
+    #[test]
+    fn test_trie_insert_search_full_urls() {
+        let mut trie: Trie<&str> = Trie::new();
+        // Different leaf segments so they don't overwrite each other
+        trie.insert("https://example.com/users/profile", "profile");
+        trie.insert("/users/settings", "settings");
+        trie.insert("http://other.com/api/data", "data");
+
+        // Full URL and bare path resolve to same trie node (host stripped)
+        assert_eq!(
+            trie.search("https://example.com/users/profile"),
+            Some(&"profile")
+        );
+        assert_eq!(trie.search("/users/profile"), Some(&"profile"));
+        assert_eq!(
+            trie.search("https://any.com/users/settings"),
+            Some(&"settings")
+        );
+        assert_eq!(trie.search("/api/data"), Some(&"data"));
+        assert_eq!(
+            trie.search("http://cdn.example.com/api/data"),
+            Some(&"data")
+        );
+        // Non-existent path
+        assert!(trie.search("/users/unknown").is_none());
+    }
+}

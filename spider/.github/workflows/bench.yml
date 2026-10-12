@@ -1,0 +1,55 @@
+name: Benches
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_LOG: "off"
+  SPIDER_BENCH_URL: http://localhost:3000
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup Local Web server
+        id: server
+        run: |
+          set +e
+          git clone https://github.com/tailwindlabs/tailwindcss.com || exit 0
+          cd tailwindcss.com || exit 0
+          npm i --force || exit 0
+          npm run build
+          if [ $? -eq 0 ]; then
+            echo "status=ok" >> $GITHUB_OUTPUT
+            npm run start &
+          else
+            echo "Server build failed"
+            echo "status=failed" >> $GITHUB_OUTPUT
+          fi
+      - name: Run Benchmark Compare OSS
+        if: steps.server.outputs.status == 'ok'
+        run: cargo bench --bench crawl
+      - name: Install spider_worker (decentralized bench prereq)
+        if: steps.server.outputs.status == 'ok'
+        run: cargo install --path spider_worker --locked --debug
+      - name: Run Benchmark Compare OSS - Features[decentralized]
+        if: steps.server.outputs.status == 'ok'
+        run: cargo bench --bench crawl --features decentralized
