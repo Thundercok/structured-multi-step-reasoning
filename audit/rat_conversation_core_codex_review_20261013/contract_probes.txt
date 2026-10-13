@@ -1,0 +1,136 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+______ test_reset_rejects_completion_from_previous_conversation_execution ______
+
+    def test_reset_rejects_completion_from_previous_conversation_execution():
+        history = ConversationHistory()
+        old = history.begin_turn('Old conversation request')
+        history.clear()
+        current = history.begin_turn('New conversation request')
+        assert old.turn_id == current.turn_id  # IDs are reused across conversation namespaces.
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:25: Failed
+____________________ test_repeated_completion_is_idempotent ____________________
+
+    def test_repeated_completion_is_idempotent():
+        history = ConversationHistory()
+        turn = history.begin_turn('One request')
+        history.complete_turn(turn.turn_id, 'One answer', execution_id=turn.execution_id)
+        try:
+            history.complete_turn(turn.turn_id, 'One answer', execution_id=turn.execution_id)
+        except ValueError:
+            pass  # Explicit rejection also prevents duplicate context.
+>       assert len(history.context_messages()) == 2
+E       AssertionError: assert 4 == 2
+E        +  where 4 = len([{'content': 'One request', 'role': 'user'}, {'content': 'One answer', 'role': 'assistant'}, {'content': 'One request', 'role': 'user'}, {'content': 'One answer', 'role': 'assistant'}])
+E        +    where [{'content': 'One request', 'role': 'user'}, {'content': 'One answer', 'role': 'assistant'}, {'content': 'One request', 'role': 'user'}, {'content': 'One answer', 'role': 'assistant'}] = context_messages()
+E        +      where context_messages = <rat.ui.chat_session.ConversationHistory object at 0x109eab6e0>.context_messages
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:38: AssertionError
+_______________ test_late_failure_does_not_reopen_cancelled_turn _______________
+
+    def test_late_failure_does_not_reopen_cancelled_turn():
+        history = ConversationHistory()
+        turn = history.begin_turn('Request to stop')
+        history.cancel_turn(turn.turn_id, execution_id=turn.execution_id)
+        try:
+            history.fail_turn(turn.turn_id, 'failed', execution_id=turn.execution_id)
+        except ValueError:
+            pass
+>       assert history.get_turn(turn.turn_id).status == 'cancelled'
+E       AssertionError: assert 'failed' == 'cancelled'
+E         
+E         - cancelled
+E         + failed
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:49: AssertionError
+_______ test_cancelled_ambiguous_operation_does_not_create_pending_input _______
+
+    def test_cancelled_ambiguous_operation_does_not_create_pending_input():
+        dispatcher, store = ambiguity_fixture()
+        dispatcher.cancel_execution('exec-stopped')
+        result = dispatcher.execute_operation('update_sample', {}, context={
+            'turn_id': 'turn-stopped', 'execution_id': 'exec-stopped',
+        })
+>       assert result.status == 'cancelled'
+E       AssertionError: assert 'needs_input' == 'cancelled'
+E         
+E         - cancelled
+E         + needs_input
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:71: AssertionError
+___________ test_ambiguity_request_and_event_preserve_owner_identity ___________
+
+    def test_ambiguity_request_and_event_preserve_owner_identity():
+        dispatcher, _ = ambiguity_fixture()
+        result = dispatcher.execute_operation('update_sample', {}, context={
+            'turn_id': 'turn-active', 'execution_id': 'exec-active',
+        })
+        assert result.status == 'needs_input'
+>       assert result.artifact.provenance.get('owner_turn_id') == 'turn-active'
+E       AssertionError: assert None == 'turn-active'
+E        +  where None = <built-in method get of dict object at 0x109f1a5c0>('owner_turn_id')
+E        +    where <built-in method get of dict object at 0x109f1a5c0> = {}.get
+E        +      where {} = Artifact(id='input-aa7d1fe598b24271ad8f2c6a3253fca1', kind='input_request', revision=1, payload={'operation_name': 'up...3253fca1'}, inputs={}, provenance={}, title='Cần thêm thông tin', status='waiting_input', created_at=1791866707.199372).provenance
+E        +        where Artifact(id='input-aa7d1fe598b24271ad8f2c6a3253fca1', kind='input_request', revision=1, payload={'operation_name': 'up...3253fca1'}, inputs={}, provenance={}, title='Cần thêm thông tin', status='waiting_input', created_at=1791866707.199372) = DispatchResult(status='needs_input', artifact=Artifact(id='input-aa7d1fe598b24271ad8f2c6a3253fca1', kind='input_reques...prompt': 'Bạn muốn thay đổi kết quả nào?', 'id': 'input-aa7d1fe598b24271ad8f2c6a3253fca1'}, error=None, action_id=None).artifact
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:82: AssertionError
+___ test_runtime_does_not_commit_artifact_when_cancel_requested_during_tool ____
+
+    def test_runtime_does_not_commit_artifact_when_cancel_requested_during_tool():
+        cancelled = {'value': False}
+    
+        def handler(args, **context):
+            # Deterministically model a stop request arriving while the handler runs.
+            cancelled['value'] = True
+            return {'value': 'late result'}
+    
+        registry = CapabilityRegistry()
+        registry.register_operation(OperationDefinition(
+            'produce_sample', 'Produce a result',
+            {'type': 'object', 'properties': {}, 'additionalProperties': False},
+            handler, artifact_kind='sample',
+        ))
+        runtime = AssistantRuntime(
+            db=MagicMock(), compositor=TimetableCompositor([]), registry=registry,
+            use_live_model=False, plan_tasks=False,
+            model_callable=lambda goal, steps: ModelDecision('', tool_name='produce_sample', tool_args={}),
+        )
+        response = runtime.run('Produce a result', max_steps=2, should_cancel=lambda: cancelled['value'])
+        assert response.error == 'cancelled'
+>       assert runtime.artifact_store.list() == []
+E       AssertionError: assert [Artifact(id=...66707.212513)] == []
+E         
+E         Left contains one more item: Artifact(id='art-7f7aaa7d4074460d9830b587fca0e770', kind='sample', revision=1, payload={'value': 'late result'}, input...'turn-1', 'execution_id': 'exec-430b27be3ebb'}, title='Produce a result', status='ready', created_at=1791866707.212513)
+E         Use -v to get more diff
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:108: AssertionError
+______ test_historical_context_matches_latest_snapshot_owned_by_old_turn _______
+
+    def test_historical_context_matches_latest_snapshot_owned_by_old_turn():
+        notes = WorkNotebook(conversation_id='conv-review')
+        notes.begin_request('Có 20 phút', turn_ref=TurnRef('conv-review', 'turn-1'))
+        first = notes.record('Có 20 phút', 'Có 20 phút')
+        edit_ctx = notes.make_interaction_context(target_turn_id='turn-1')
+        edited = notes.user_edit(first['id'], first['revision'], 'Có 30 phút', context=edit_ctx)
+        notes.begin_request('Có 40 phút', turn_ref=TurnRef('conv-review', 'turn-2'))
+        notes.record('Có 40 phút', 'Có 40 phút', replace_id=first['id'], revision=edited['revision'])
+        old_display = notes.notes_for_turn('turn-1')[0]
+        old_context = notes.historical_context()[0]
+        assert old_display['text'] == 'Có 30 phút'
+>       assert old_context['revision'] == old_display['revision']
+E       assert 1 == 2
+
+audit/rat_conversation_core_codex_review_20261013/contract_probes.py:122: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_reset_rejects_completion_from_previous_conversation_execution
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_repeated_completion_is_idempotent
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_late_failure_does_not_reopen_cancelled_turn
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_cancelled_ambiguous_operation_does_not_create_pending_input
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_ambiguity_request_and_event_preserve_owner_identity
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_runtime_does_not_commit_artifact_when_cancel_requested_during_tool
+FAILED audit/rat_conversation_core_codex_review_20261013/contract_probes.py::test_historical_context_matches_latest_snapshot_owned_by_old_turn
+7 failed in 0.26s

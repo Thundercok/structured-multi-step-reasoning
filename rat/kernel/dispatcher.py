@@ -20,14 +20,37 @@ class ActionDispatcher:
     def __init__(self, registry: CapabilityRegistry, store):
         self.registry, self.store = registry, store
         self.state = ExecutionState()
+        self._cancelled_executions: set[str] = set()
 
     def reset(self):
         self.store.clear()
         self.state = ExecutionState()
+        self._cancelled_executions.clear()
 
-    def _event(self, kind, name, generation, artifact=None, payload=None, error=None):
+    def cancel_execution(self, execution_id: str):
+        if execution_id:
+            self._cancelled_executions.add(execution_id)
+
+    @staticmethod
+    def _execution_context(context):
+        ctx = dict(context or {})
+        turn_ref = ctx.get("turn_ref")
+        if not ctx.get("turn_id") and turn_ref is not None:
+            ctx["turn_id"] = (turn_ref.get("turn_id") if isinstance(turn_ref, dict)
+                              else getattr(turn_ref, "turn_id", None))
+        return ctx
+
+    def _is_cancelled(self, context):
+        callback = context.get("should_cancel")
+        return (context.get("execution_id") in self._cancelled_executions
+                or (callable(callback) and callback()))
+
+    def _event(self, kind, name, generation, artifact=None, payload=None, error=None, *, turn_id=None, execution_id=None):
         if self.store.generation == generation:
-            self.state.record_event(ExecutionEvent(kind, name, artifact.id if artifact else None, payload, error=error))
+            self.state.record_event(ExecutionEvent(
+                kind, name, artifact.id if artifact else None, payload,
+                error=error, turn_id=turn_id, execution_id=execution_id,
+            ))
             self.state.events[:] = self.state.events[-100:]
 
     def resolve_target_artifact(self, kind, target_artifact_id=None):
@@ -45,20 +68,35 @@ class ActionDispatcher:
             prompt="Bạn muốn thay đổi kết quả nào?",
         )
 
-    def _waiting(self, request, generation):
+    def _waiting(self, request, generation, *, turn_id=None, execution_id=None):
         previous = self.store.get(request.id)
+        provenance = {}
+        if turn_id:
+            provenance["owner_turn_id"] = turn_id
+        if execution_id:
+            provenance["execution_id"] = execution_id
         art = Artifact(request.id, "input_request", (previous.revision + 1) if previous else 1,
-                       request.to_dict(), title="Cần thêm thông tin", status="waiting_input")
+                       request.to_dict(), provenance=provenance, title="Cần thêm thông tin", status="waiting_input")
         self.store.put(art, expected_generation=generation)
-        self._event("waiting_input", request.operation_name, generation, art, request)
+        self._event("waiting_input", request.operation_name, generation, art, request, turn_id=turn_id, execution_id=execution_id)
         return DispatchResult("needs_input", input_request=request, artifact=art, result=request.to_dict())
 
     def _run(self, op, args, context, target=None, request_id=None):
         generation = self.store.generation
-        self._event("operation_started", op.name, generation)
+        context = self._execution_context(context)
+        turn_id = context.get("turn_id")
+        execution_id = context.get("execution_id")
+
+        if self._is_cancelled(context):
+            self._event("operation_failed", op.name, generation, error="cancelled:execution_cancelled", turn_id=turn_id, execution_id=execution_id)
+            return DispatchResult("cancelled", error="cancelled:execution_cancelled", artifact=target)
+
+        self._event("operation_started", op.name, generation, turn_id=turn_id, execution_id=execution_id)
         try:
             context.setdefault("artifact_store", self.store)
             result = self.registry.execute(op.name, args, context=context)
+            if self._is_cancelled(context):
+                raise ValueError("cancelled:execution_cancelled")
             if isinstance(result, dict) and (result.get("error") or result.get("found") is False):
                 raise ValueError(result.get("error") or "Thao tác chưa tạo được kết quả.")
             if isinstance(result, InputRequest):
@@ -67,7 +105,7 @@ class ActionDispatcher:
                 result.operation_name = op.name
                 if target:
                     result.target_artifact_id, result.target_revision = target.id, target.revision
-                return self._waiting(result, generation)
+                return self._waiting(result, generation, turn_id=turn_id, execution_id=execution_id)
             if op.result_contract is not None:
                 from rat.engine.task_state import validate_schema
                 validate_schema(result, op.result_contract, path="result")
@@ -76,13 +114,24 @@ class ActionDispatcher:
             artifact = None
             if isinstance(result, Artifact):
                 artifact = result
+                if turn_id:
+                    artifact.provenance.setdefault("owner_turn_id", turn_id)
+                if execution_id:
+                    artifact.provenance.setdefault("execution_id", execution_id)
             elif op.artifact_kind is not None:
                 update = target is not None and op.updates_target and op.artifact_kind == target.kind
                 payload = copy.deepcopy(result) if isinstance(result, dict) else {"items": copy.deepcopy(result)}
+                prov = {"operation_name": op.name, **({"parent_revision": target.revision} if update else {})}
+                if turn_id:
+                    prov["owner_turn_id"] = turn_id
+                if execution_id:
+                    prov["execution_id"] = execution_id
+                if update and target.provenance.get("owner_turn_id"):
+                    prov["replaces_turn_id"] = target.provenance["owner_turn_id"]
                 artifact = Artifact(
                     target.id if update else "art-" + uuid4().hex, op.artifact_kind,
                     target.revision + 1 if update else 1, payload, copy.deepcopy(args),
-                    {"operation_name": op.name, **({"parent_revision": target.revision} if update else {})},
+                    prov,
                     payload.get("title") or (target.title if update else op.description.split('.')[0]),
                 )
                 # Store resolved birth data, including geocoded values, rather than partial invocation inputs.
@@ -95,19 +144,19 @@ class ActionDispatcher:
                 update = target and artifact.id == target.id
                 self.store.put(artifact, expected_revision=target.revision if update else None,
                                expected_generation=generation)
-                self._event("artifact_updated" if update else "artifact_created", op.name, generation, artifact)
+                self._event("artifact_updated" if update else "artifact_created", op.name, generation, artifact, turn_id=turn_id, execution_id=execution_id)
             if request_id:
                 self.store.delete(request_id)
             pending = self.state.pending_input_request
             if pending and pending.operation_name == op.name:
                 self.store.delete(pending.id)
                 self.state.pending_input_request = None
-            self._event("operation_completed", op.name, generation, artifact)
+            self._event("operation_completed", op.name, generation, artifact, turn_id=turn_id, execution_id=execution_id)
             return DispatchResult("success", artifact=artifact, result=result)
         except Exception as exc:
             error = str(exc)
             status = "cancelled" if error.startswith("cancelled:") else "stale_revision" if error == "stale_revision" else "error"
-            self._event("operation_failed", op.name, generation, error=error)
+            self._event("operation_failed", op.name, generation, error=error, turn_id=turn_id, execution_id=execution_id)
             return DispatchResult(status, error=error, artifact=target)
 
     def dispatch(self, action: ArtifactAction, user_inputs=None, context=None):
@@ -132,6 +181,12 @@ class ActionDispatcher:
         op = self.registry.get_operation(operation_name)
         if op is None:
             return DispatchResult("error", error=f"Công cụ không xác định: {operation_name}")
+        context = self._execution_context(context)
+        if self._is_cancelled(context):
+            self._event("operation_failed", op.name, self.store.generation,
+                        error="cancelled:execution_cancelled", turn_id=context.get("turn_id"),
+                        execution_id=context.get("execution_id"))
+            return DispatchResult("cancelled", error="cancelled:execution_cancelled")
         args = copy.deepcopy(args)
         target_id = (args.pop("artifact_id", None) if op.target_kind else None) or target_artifact_id
         revision = args.pop("revision", None) if op.target_kind or target_id else None
@@ -141,7 +196,9 @@ class ActionDispatcher:
                 if clarification:
                     clarification.operation_name = operation_name
                     clarification.supplied_inputs = args
-                    return self._waiting(clarification, self.store.generation)
+                    return self._waiting(clarification, self.store.generation,
+                                         turn_id=context.get("turn_id"),
+                                         execution_id=context.get("execution_id"))
                 if target is None:
                     return DispatchResult("error", error="Chưa có kết quả để thao tác. Hãy tạo hoặc chọn kết quả trước.")
                 action = ArtifactAction("native-" + op.name, op.name, target.id,

@@ -63,6 +63,8 @@ def build_default_registry(
         },
         handler=handle_calculate,
     ))
+    from rat.engine.verification import CalculationVerifier
+    util_cap.operations["calculate"].verifier = CalculationVerifier()
     def inspect_artifact(args, **context):
         artifact = context["artifact_store"].get(args["artifact_id"], args.get("revision"))
         if artifact is None:

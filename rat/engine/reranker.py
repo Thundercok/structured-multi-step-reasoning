@@ -486,8 +486,9 @@ class Reranker:
                             "claim": cert.claim,
                             "witness": cert.witness,
                             "verification_ms": v_res.verification_ms,
+                            "scope": v_res.scope,
                         }
-                        reasons.append("✓ Xác thực VGC")
+                        reasons.append("Trích đoạn khớp nguồn")
                 except Exception as e:
                     logger.debug(f"VGC document verification error: {e}")
 

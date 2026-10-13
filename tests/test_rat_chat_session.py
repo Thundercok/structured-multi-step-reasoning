@@ -92,3 +92,39 @@ def test_failed_request_survives_followup_without_becoming_a_successful_answer()
     assert history.context_messages()[0]['content'] == query
     history.clear()
     assert history.context_messages() == []
+
+
+def test_turn_snapshots_keep_full_unclipped_history_while_model_window_stays_bounded():
+    history = ConversationHistory()
+    for idx in range(1, 10):
+        t = history.begin_turn(f"Câu hỏi dài lượt {idx}: " + ("x" * 900))
+        history.complete_turn(t.turn_id, f"Trả lời đầy đủ lượt {idx}: " + ("y" * 900))
+
+    # Full unclipped UI/session snapshots remain intact for all 9 turns
+    all_turns = history.turns()
+    assert len(all_turns) == 9
+    assert all_turns[0].turn_id == "turn-1"
+    assert len(all_turns[0].answer) > 900
+    assert all_turns[-1].turn_id == "turn-9"
+
+    # Model context window remains bounded by MAX_TURNS and MAX_CHARS
+    bounded = history.messages()
+    assert len(bounded) <= history.MAX_TURNS * 2
+    assert sum(len(m["content"]) for m in bounded) <= history.MAX_CHARS
+
+    # Explicit cancel and interaction turns preserve lineage and turn_references
+    t10 = history.begin_turn("Viết bảng trace đầy đủ")
+    cancelled = history.cancel_turn(t10.turn_id, execution_id=t10.execution_id)
+    assert cancelled.status == "cancelled"
+
+    inter = history.record_interaction(
+        "Cập nhật mục tiêu thành tìm 6",
+        target_turn_id="turn-2",
+        target_artifact_id="art-1",
+        target_revision=1,
+        note_ids=["note-1"],
+    )
+    assert inter.kind == "interaction" and inter.target_turn_id == "turn-2"
+    refs = history.turn_references()
+    assert any(r["turn_id"] == t10.turn_id and r["status"] == "cancelled" for r in refs)
+    assert any(r["turn_id"] == inter.turn_id and r["target_turn_id"] == "turn-2" for r in refs)

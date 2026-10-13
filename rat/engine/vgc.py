@@ -1,23 +1,14 @@
-"""
-rat.engine.vgc — Verified Generation Cascade (VGC) Engine for Desktop Runtime.
+"""Legacy cascade adapters for input-bound arithmetic and exact source excerpts.
 
-Brings the academic multi-step reasoning findings into the user-facing product:
-1. Fast Generation Stage (W-Stage): High-speed, zero/low-token generation (AST, PAL, Extractive).
-2. Verifier Gating Stage: Pure fail-closed verification of witness certificates against formal
-   proofs, mathematical execution, or grounded document facts.
-3. Escalated Fallback Stage: Dynamic escalation to deep local SLM (Qwen2.5 Metal) or CoT
-   only when the fast witness is invalid or unverifiable.
-4. Grounded Citation Tracking: Preserves exact file paths, page numbers, and snippets for instant
-   macOS QuickLook preview.
+These deterministic helpers do not call a model or establish measured research
+quality. The live assistant uses operation verifier contracts in its own loop.
 """
 
 from __future__ import annotations
 
-import ast
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
-import math
 import re
 import time
 from typing import Any, Dict, List, Optional, Tuple
@@ -53,6 +44,7 @@ class VGCVerificationResult:
     reason: str
     certificate: Optional[VGCCertificate] = None
     verification_ms: float = 0.0
+    scope: str = "source_excerpt"
 
 
 @dataclass
@@ -62,7 +54,7 @@ class VGCCascadeResult:
     answer: str
     strategy: str
     badge: str
-    confidence: float
+    confidence: Optional[float]
     tokens: int
     latency_ms: float
     escalated: bool
@@ -73,98 +65,34 @@ class VGCCascadeResult:
 
 class VGCVerifier:
     """
-    Independent Fail-Closed Verifier.
-    Does NOT trust the generative model's confidence or prose explanations.
-    Audits the candidate witness strictly against execution results or source text.
+    Compatibility verifier with explicitly limited calculation/excerpt scopes.
     """
 
     @staticmethod
     def verify_calculation(certificate: VGCCertificate, target_expr: str) -> VGCVerificationResult:
-        """
-        Verify that a mathematical claim matches deterministic AST calculation or sandboxed Python.
-        """
+        """Compatibility adapter to the shared, input-bound arithmetic checker."""
+        from rat.engine.verification import CalculationVerifier, ExecutionEvidence, VerificationStatus
         t0 = time.perf_counter()
         if not certificate or certificate.witness is None:
-            ms = (time.perf_counter() - t0) * 1000.0
-            return VGCVerificationResult(
-                status=VGCVerificationStatus.INVALID,
-                reason="Certificate contains no witness payload",
-                certificate=certificate,
-                verification_ms=ms,
-            )
-
-        # 1. If Python code was supplied, execute in sandbox
+            return VGCVerificationResult(VGCVerificationStatus.UNVERIFIABLE,
+                "No numeric witness to check", certificate, scope="calculation")
         if certificate.raw_code:
-            ok, py_out = run_python_sandboxed(certificate.raw_code)
-            ms = (time.perf_counter() - t0) * 1000.0
-            if not ok:
-                return VGCVerificationResult(
-                    status=VGCVerificationStatus.INVALID,
-                    reason=f"Sandboxed Python execution crashed: {py_out}",
-                    certificate=certificate,
-                    verification_ms=ms,
-                )
-            # Compare output with claimed witness
-            if str(py_out).strip() != str(certificate.witness).strip():
-                return VGCVerificationResult(
-                    status=VGCVerificationStatus.INVALID,
-                    reason=f"Witness mismatch: claimed '{certificate.witness}' vs Python executed '{py_out}'",
-                    certificate=certificate,
-                    verification_ms=ms,
-                )
-            return VGCVerificationResult(
-                status=VGCVerificationStatus.VALID,
-                reason="Sandboxed Python witness reproduced claim exactly",
-                certificate=certificate,
-                verification_ms=ms,
-            )
-
-        # 2. Pure AST calculation verification
-        try:
-            expected_str = safe_calculate(target_expr)
-            ms = (time.perf_counter() - t0) * 1000.0
-            if expected_str.lower().startswith(("error:", "lỗi", "none")):
-                return VGCVerificationResult(
-                    status=VGCVerificationStatus.INVALID,
-                    reason=f"AST evaluator failed on expression: {expected_str}",
-                    certificate=certificate,
-                    verification_ms=ms,
-                )
-
-            # Numerical tolerance check
-            try:
-                claimed_num = float(certificate.witness)
-                expected_num = float(expected_str)
-                if math.isclose(claimed_num, expected_num, rel_tol=1e-4, abs_tol=1e-4):
-                    return VGCVerificationResult(
-                        status=VGCVerificationStatus.VALID,
-                        reason=f"AST calculation verified: {target_expr} = {expected_num}",
-                        certificate=certificate,
-                        verification_ms=ms,
-                    )
-            except (ValueError, TypeError):
-                if str(certificate.witness).strip() == expected_str.strip():
-                    return VGCVerificationResult(
-                        status=VGCVerificationStatus.VALID,
-                        reason=f"Symbolic AST match: {expected_str}",
-                        certificate=certificate,
-                        verification_ms=ms,
-                    )
-
-            return VGCVerificationResult(
-                status=VGCVerificationStatus.INVALID,
-                reason=f"Numerical mismatch: claimed {certificate.witness} vs AST {expected_str}",
-                certificate=certificate,
-                verification_ms=ms,
-            )
-        except Exception as e:
-            ms = (time.perf_counter() - t0) * 1000.0
-            return VGCVerificationResult(
-                status=VGCVerificationStatus.INVALID,
-                reason=f"Verification exception: {e}",
-                certificate=certificate,
-                verification_ms=ms,
-            )
+            ok, output = run_python_sandboxed(certificate.raw_code)
+            if not ok or str(output).strip() != str(certificate.witness).strip():
+                return VGCVerificationResult(VGCVerificationStatus.INVALID,
+                    "Program output does not reproduce the witness", certificate,
+                    (time.perf_counter() - t0) * 1000, scope="calculation")
+        evidence = ExecutionEvidence("legacy:calculation", "calculate", {"expression": target_expr},
+            {"expression": target_expr, "result": certificate.witness}, "")
+        checker = CalculationVerifier()
+        execution = checker.check_execution(evidence)
+        answer = checker.check_answer(target_expr, certificate.claim, (evidence,))
+        reports = [execution, *([answer] if answer else [])]
+        status = (VGCVerificationStatus.INVALID if any(r.status == VerificationStatus.FAIL for r in reports)
+                  else VGCVerificationStatus.UNVERIFIABLE if answer is None or any(r.status == VerificationStatus.UNKNOWN for r in reports)
+                  else VGCVerificationStatus.VALID)
+        return VGCVerificationResult(status, "; ".join(r.reason for r in reports), certificate,
+            (time.perf_counter() - t0) * 1000, scope="calculation")
 
     @staticmethod
     def verify_document_fact(
@@ -173,8 +101,7 @@ class VGCVerifier:
         required_entities: Optional[List[str]] = None
     ) -> VGCVerificationResult:
         """
-        Anti-hallucination verifier: Checks that extracted facts and numbers in the
-        certificate claim are genuinely present in the source document text.
+        Check an exact source excerpt. Semantic entailment is not supported.
         """
         t0 = time.perf_counter()
         if not source_text or not source_text.strip():
@@ -222,7 +149,7 @@ class VGCVerifier:
         # 3. Check witness snippet exactness
         if certificate.source_snippet:
             snippet_norm = remove_accents(certificate.source_snippet).lower()
-            if snippet_norm[:40] not in doc_norm:
+            if certificate.source_snippet not in source_text:
                 ms = (time.perf_counter() - t0) * 1000.0
                 return VGCVerificationResult(
                     status=VGCVerificationStatus.INVALID,
@@ -231,10 +158,17 @@ class VGCVerifier:
                     verification_ms=ms,
                 )
 
+        if not certificate.claim.strip() or certificate.claim not in source_text:
+            return VGCVerificationResult(
+                status=VGCVerificationStatus.UNVERIFIABLE,
+                reason="Only exact source excerpts are supported; semantic relations remain unchecked",
+                certificate=certificate,
+                verification_ms=(time.perf_counter() - t0) * 1000,
+            )
         ms = (time.perf_counter() - t0) * 1000.0
         return VGCVerificationResult(
             status=VGCVerificationStatus.VALID,
-            reason="All asserted numbers, entities, and citations verified against source document",
+            reason="Excerpt matches the supplied source text; relevance and source authenticity are unchecked",
             certificate=certificate,
             verification_ms=ms,
         )
@@ -242,11 +176,7 @@ class VGCVerifier:
 
 class VGCCascadeEngine:
     """
-    Production Verified Generation Cascade (VGC) Router.
-    Implements:
-    Stage 1: Fast deterministic generation (AST / PAL / Heuristic)
-    Stage 2: Verifier Gate (rejects false witnesses / hallucinations)
-    Stage 3: Escalated Fallback to Deep Reasoning (SLM / CoT)
+    Deterministic compatibility cascade; AST rechecking is not model escalation.
     """
 
     def __init__(self, verifier: Optional[VGCVerifier] = None) -> None:
@@ -263,7 +193,7 @@ class VGCCascadeEngine:
         """
         t0 = time.perf_counter()
         steps = [
-            f"Giai đoạn 1 (Fast-W): Trích xuất biểu thức định lượng: '{expr}'",
+            f"Đầu vào phép tính: '{expr}'",
         ]
 
         # Stage 1: Generate fast witness
@@ -283,22 +213,21 @@ class VGCCascadeEngine:
         )
 
         # Stage 2: Verifier Gate
-        steps.append("Giai đoạn 2 (Verifier Gate): Kiểm chứng chứng chỉ hình thức.")
+        steps.append("Đối chiếu đầu vào và kết luận bằng checker số học.")
         v_res = self.verifier.verify_calculation(certificate, expr)
 
         lat_ms = (time.perf_counter() - t0) * 1000.0
 
         if v_res.status == VGCVerificationStatus.VALID:
-            steps.append(f"✓ Chứng chỉ HỢP LỆ ({v_res.verification_ms:.1f}ms): {v_res.reason}")
-            steps.append("Chấp nhận lời giải ngay lập tức (Không cần leo thang mô hình lớn).")
+            steps.append(f"Phép tính khớp ({v_res.verification_ms:.1f}ms): {v_res.reason}")
             ans = f"Kết quả: **{raw_val}**"
             return VGCCascadeResult(
                 query=query,
                 answer=ans,
                 strategy="VGC-Fast (Verified)",
-                badge="✓ Verified (PAL)",
-                confidence=0.99,
-                tokens=45,
+                badge="Đã đối chiếu phép tính",
+                confidence=None,
+                tokens=0,
                 latency_ms=lat_ms,
                 escalated=False,
                 verification=v_res,
@@ -307,19 +236,24 @@ class VGCCascadeEngine:
 
         # Stage 3: Escalated Fallback
         steps.append(f"⚠️ Chứng chỉ BỊ TỪ CHỐI: {v_res.reason}")
-        steps.append("Giai đoạn 3 (Escalation): Kích hoạt suy luận sâu đa bước để sửa lỗi.")
-        # Attempt fallback computation or deep explanation
+        steps.append("Tính lại bằng AST và đối chiếu kết quả; bước này không gọi model.")
         corrected_val = safe_calculate(expr)
-        ans = f"Sau khi kiểm chứng và sửa lỗi, kết quả là: **{corrected_val}**"
+        corrected = VGCCertificate(str(corrected_val), corrected_val, metadata={"expr": expr})
+        corrected_check = self.verifier.verify_calculation(corrected, expr)
+        if corrected_check.status == VGCVerificationStatus.VALID:
+            v_res = corrected_check
+            ans = f"Đã tính lại và đối chiếu phép tính: **{corrected_val}**"
+        else:
+            ans = "Chưa thể kiểm chứng phép tính này trong phạm vi hiện tại."
         return VGCCascadeResult(
             query=query,
             answer=ans,
-            strategy="VGC-Deep (Escalated)",
-            badge="⚡ Escalated (Fallback)",
-            confidence=0.88,
-            tokens=380,
+            strategy="VGC-AST (Recheck)",
+            badge="Đã đối chiếu phép tính" if v_res.status == VGCVerificationStatus.VALID else "Chưa kiểm chứng",
+            confidence=None,
+            tokens=0,
             latency_ms=(time.perf_counter() - t0) * 1000.0,
-            escalated=True,
+            escalated=False,
             verification=v_res,
             reasoning_steps=steps,
         )
@@ -384,15 +318,15 @@ class VGCCascadeEngine:
             ans = (
                 f"Dựa trên nội dung trong tệp **`{file_name}`**:\n\n"
                 f"> \"{best_para}\"\n\n"
-                f"*(Thông tin đã được xác thực đối chiếu độc lập)*"
+                f"*(Đoạn trích khớp nguồn đã cung cấp)*"
             )
             return VGCCascadeResult(
                 query=query,
                 answer=ans,
                 strategy="VGC-Fast (Grounded)",
-                badge="✓ Verified (File)",
-                confidence=0.96,
-                tokens=60,
+                badge="Trích đoạn khớp nguồn",
+                confidence=None,
+                tokens=0,
                 latency_ms=lat_ms,
                 escalated=False,
                 verification=v_res,
@@ -401,7 +335,7 @@ class VGCCascadeEngine:
             )
 
         # Escalation if unverifiable or hallucination detected
-        steps.append(f"⚠️ Cảnh báo xác thực: {v_res.reason}. Kích hoạt leo thang SLM.")
+        steps.append(f"Chưa đối chiếu được đoạn trích: {v_res.reason}. Bước này không gọi model.")
         ans = (
             f"Trích đoạn liên quan từ **`{file_name}`**:\n\n"
             f"> \"{best_para}\"\n\n"
@@ -410,12 +344,12 @@ class VGCCascadeEngine:
         return VGCCascadeResult(
             query=query,
             answer=ans,
-            strategy="VGC-Deep (Escalated)",
-            badge="⚡ Escalated (RAG)",
-            confidence=0.82,
-            tokens=320,
+            strategy="VGC-Excerpt (Unchecked)",
+            badge="Chưa đối chiếu nguồn",
+            confidence=None,
+            tokens=0,
             latency_ms=(time.perf_counter() - t0) * 1000.0,
-            escalated=True,
+            escalated=False,
             verification=v_res,
             reasoning_steps=steps,
             citations=citations,

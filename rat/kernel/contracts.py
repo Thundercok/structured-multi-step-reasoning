@@ -285,6 +285,8 @@ class ExecutionEvent:
     payload: Any = None
     timestamp: float = field(default_factory=time.time)
     error: Optional[str] = None
+    turn_id: Optional[str] = None
+    execution_id: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -294,6 +296,8 @@ class ExecutionEvent:
             "payload": copy.deepcopy(self.payload) if isinstance(self.payload, dict) else self.payload,
             "timestamp": self.timestamp,
             "error": self.error,
+            "turn_id": self.turn_id,
+            "execution_id": self.execution_id,
         }
 
 

@@ -28,6 +28,10 @@ def summarize_step(step):
     result = step.tool_result
     result = result if isinstance(result, dict) else {'items': result} if isinstance(result, list) else {}
     name = step.tool_name
+    checks = getattr(step, 'verification', [])
+    if checks and not name:
+        status = 'error' if any(c['status'] == 'FAIL' for c in checks) else 'unchecked' if any(c['status'] == 'UNKNOWN' for c in checks) else 'done'
+        return TraceEntry(step.step_number, 'Đối chiếu kết luận', '\n'.join(c['reason'] for c in checks), status)
     if step.error:
         return TraceEntry(step.step_number, 'Chưa thực hiện được bước này', str(step.error)[:300], 'error')
     if result.get('error') == 'duplicate_action':
@@ -59,6 +63,12 @@ def summarize_step(step):
         detail = f"Có {len(result['items'])} kết quả từ công cụ."
     elif name == 'calculate':
         detail = f"{result.get('expression', '')} = {result.get('result', '')}"
+        if checks:
+            detail += '\n' + '\n'.join(c['reason'] for c in checks)
+            if any(c['status'] == 'FAIL' for c in checks):
+                status = 'error'
+            elif any(c['status'] == 'UNKNOWN' for c in checks):
+                status = 'unchecked'
     elif 'result_refs' in result:
         detail = f"Giữ {len(result['result_refs'])} kết quả để tiếp tục làm việc."
     for artifact in getattr(step, 'artifacts', []):

@@ -39,6 +39,8 @@ class OperationDefinition:
     updates_target: bool = False
     view_factory: Optional[Callable] = None
     resource_bindings: Dict[str, str] = field(default_factory=dict)
+    # A headless checker used automatically by the shared runtime, not a tool.
+    verifier: Optional[Any] = None
 
     def to_tool_definition(self) -> ToolDefinitionContract:
         parameters = copy.deepcopy(self.parameters)
