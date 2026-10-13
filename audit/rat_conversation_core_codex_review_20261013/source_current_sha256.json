@@ -1,0 +1,10 @@
+{
+  "rat/ui/chat_session.py": "366056822407c3438a492c97d943dbd7bb09de674b914d46e6861eec95059271",
+  "rat/engine/work_notes.py": "b9fb0bd6987a215f1119ce2d4e711353bbffa18aa712e03b4e91943c1bb11f09",
+  "rat/engine/assistant_runtime.py": "ed349eb746708786b7df0756d20d2845a432b4665471e433191cb20104258977",
+  "rat/kernel/contracts.py": "41c94885a983cc004cbf65641076d845cfeff800dbbed24ff5651384468fc912",
+  "rat/kernel/dispatcher.py": "c5146ddddc8c1e72feee6cf42c42501b94bb3d569154ad54aa25121ebd9ae03e",
+  "tests/test_work_context.py": "2e9b48d3916919c343966d3cb96b3703eebd94d3fb481cda6623f527af10f07d",
+  "tests/test_rat_chat_session.py": "f8fd4388c7cdce7011343a67d6bfa2c1f57aa89bb4e89a01d7b24831d213d520",
+  "tests/test_rat_conversation_lifecycle.py": "4a674866cc1944c09dd1c15025afae463fc14a7134a183076dfd2f7490a4661d"
+}

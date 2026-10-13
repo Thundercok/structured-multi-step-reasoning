@@ -1,0 +1,227 @@
+--- initial/rat/ui/chat_session.py
++++ after_changes/rat/ui/chat_session.py
+@@ -224,10 +224,12 @@
+             raise ValueError("cancelled:turn_cancelled")
+         if snap.execution_id in self._cancelled_executions or snap.status == "cancelled":
+             raise ValueError("cancelled:turn_cancelled")
+-        if execution_id is not None and snap.status != "in_progress" and snap.execution_id != execution_id:
++        if execution_id is not None and snap.execution_id != execution_id:
+             raise ValueError("cancelled:execution_mismatch")
+-        if execution_id is not None:
+-            snap.execution_id = execution_id
++        if snap.status == "completed" and snap.answer == answer.strip():
++            return copy.deepcopy(snap)
++        if snap.status not in ("in_progress", "needs_input"):
++            raise ValueError("turn_already_finalized")
+ 
+         snap.answer = answer.strip()
+         snap.status = "completed"
+@@ -269,14 +271,16 @@
+         snap = self._turn_snapshots.get(turn_id)
+         if snap is None:
+             raise ValueError(f"Unknown turn_id: {turn_id}")
+-        if execution_id is not None and snap.status != "in_progress" and snap.execution_id != execution_id:
++        if execution_id is not None and snap.execution_id != execution_id:
+             raise ValueError("cancelled:execution_mismatch")
++        if snap.status == status:
++            return copy.deepcopy(snap)
++        if snap.status not in ("in_progress", "needs_input"):
++            raise ValueError("turn_already_finalized")
+         if status == "cancelled":
+             self._cancelled_executions.add(snap.execution_id)
+             if execution_id is not None:
+                 self._cancelled_executions.add(execution_id)
+-        if execution_id is not None:
+-            snap.execution_id = execution_id
+         snap.status = status
+         if partial_answer:
+             snap.answer = partial_answer.strip()
+--- initial/rat/engine/work_notes.py
++++ after_changes/rat/engine/work_notes.py
+@@ -771,7 +771,7 @@
+                     continue
+                 latest = versions[-1]
+                 seen_turns = set()
+-                for v in versions[:-1]:
++                for v in reversed(versions[:-1]):
+                     if v.owner_turn_id and v.owner_turn_id != latest.owner_turn_id and v.owner_turn_id not in seen_turns:
+                         seen_turns.add(v.owner_turn_id)
+                         history_items.append({
+--- initial/rat/engine/assistant_runtime.py
++++ after_changes/rat/engine/assistant_runtime.py
+@@ -449,6 +449,7 @@
+         turn_id=None,
+         execution_id=None,
+         note_context=None,
++        should_cancel=None,
+     ) -> Any:
+         ctx = {
+             "db": self.db,
+@@ -460,6 +461,7 @@
+             "turn_id": turn_id,
+             "execution_id": execution_id,
+             "note_context": note_context,
++            "should_cancel": should_cancel,
+         }
+         op = self.registry.get_operation(name)
+         if op is not None:
+@@ -937,6 +939,7 @@
+                     turn_id=active_turn_id,
+                     execution_id=active_exec_id,
+                     note_context=note_ctx,
++                    should_cancel=should_cancel,
+                 )
+             except Exception as exc:
+                 result = {"error": str(exc)}
+--- initial/rat/kernel/dispatcher.py
++++ after_changes/rat/kernel/dispatcher.py
+@@ -30,6 +30,20 @@
+     def cancel_execution(self, execution_id: str):
+         if execution_id:
+             self._cancelled_executions.add(execution_id)
++
++    @staticmethod
++    def _execution_context(context):
++        ctx = dict(context or {})
++        turn_ref = ctx.get("turn_ref")
++        if not ctx.get("turn_id") and turn_ref is not None:
++            ctx["turn_id"] = (turn_ref.get("turn_id") if isinstance(turn_ref, dict)
++                              else getattr(turn_ref, "turn_id", None))
++        return ctx
++
++    def _is_cancelled(self, context):
++        callback = context.get("should_cancel")
++        return (context.get("execution_id") in self._cancelled_executions
++                or (callable(callback) and callback()))
+ 
+     def _event(self, kind, name, generation, artifact=None, payload=None, error=None, *, turn_id=None, execution_id=None):
+         if self.store.generation == generation:
+@@ -69,14 +83,11 @@
+ 
+     def _run(self, op, args, context, target=None, request_id=None):
+         generation = self.store.generation
+-        turn_ref = context.get("turn_ref")
+-        turn_id = context.get("turn_id") or (getattr(turn_ref, "turn_id", None) if turn_ref is not None else None)
+-        if turn_id is None and isinstance(turn_ref, dict):
+-            turn_id = turn_ref.get("turn_id")
++        context = self._execution_context(context)
++        turn_id = context.get("turn_id")
+         execution_id = context.get("execution_id")
+-        should_cancel = context.get("should_cancel")
+-
+-        if (execution_id and execution_id in self._cancelled_executions) or (callable(should_cancel) and should_cancel()):
++
++        if self._is_cancelled(context):
+             self._event("operation_failed", op.name, generation, error="cancelled:execution_cancelled", turn_id=turn_id, execution_id=execution_id)
+             return DispatchResult("cancelled", error="cancelled:execution_cancelled", artifact=target)
+ 
+@@ -84,7 +95,7 @@
+         try:
+             context.setdefault("artifact_store", self.store)
+             result = self.registry.execute(op.name, args, context=context)
+-            if (execution_id and execution_id in self._cancelled_executions) or (callable(should_cancel) and should_cancel()):
++            if self._is_cancelled(context):
+                 raise ValueError("cancelled:execution_cancelled")
+             if isinstance(result, dict) and (result.get("error") or result.get("found") is False):
+                 raise ValueError(result.get("error") or "Thao tác chưa tạo được kết quả.")
+@@ -170,6 +181,12 @@
+         op = self.registry.get_operation(operation_name)
+         if op is None:
+             return DispatchResult("error", error=f"Công cụ không xác định: {operation_name}")
++        context = self._execution_context(context)
++        if self._is_cancelled(context):
++            self._event("operation_failed", op.name, self.store.generation,
++                        error="cancelled:execution_cancelled", turn_id=context.get("turn_id"),
++                        execution_id=context.get("execution_id"))
++            return DispatchResult("cancelled", error="cancelled:execution_cancelled")
+         args = copy.deepcopy(args)
+         target_id = (args.pop("artifact_id", None) if op.target_kind else None) or target_artifact_id
+         revision = args.pop("revision", None) if op.target_kind or target_id else None
+@@ -179,7 +196,9 @@
+                 if clarification:
+                     clarification.operation_name = operation_name
+                     clarification.supplied_inputs = args
+-                    return self._waiting(clarification, self.store.generation)
++                    return self._waiting(clarification, self.store.generation,
++                                         turn_id=context.get("turn_id"),
++                                         execution_id=context.get("execution_id"))
+                 if target is None:
+                     return DispatchResult("error", error="Chưa có kết quả để thao tác. Hãy tạo hoặc chọn kết quả trước.")
+                 action = ArtifactAction("native-" + op.name, op.name, target.id,
+--- initial/tests/test_work_context.py
++++ after_changes/tests/test_work_context.py
+@@ -254,6 +254,7 @@
+         q1,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t1.to_turn_ref(history.conversation_id),
++        execution_id=t1.execution_id,
+         turn_references=history.turn_references()[:-1],
+     )
+     history.complete_turn(t1.turn_id, r1.answer, execution_id=r1.execution_id)
+@@ -278,6 +279,7 @@
+         q2,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t2.to_turn_ref(history.conversation_id),
++        execution_id=t2.execution_id,
+         turn_references=history.turn_references()[:-1],
+     )
+     note_v1 = runtime.notebook.snapshot()[0]
+@@ -300,6 +302,7 @@
+         q3,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t3.to_turn_ref(history.conversation_id),
++        execution_id=t3.execution_id,
+         turn_references=history.turn_references()[:-1],
+     )
+     history.complete_turn(t3.turn_id, r3.answer, execution_id=r3.execution_id)
+@@ -329,6 +332,7 @@
+         q4,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t4.to_turn_ref(history.conversation_id),
++        execution_id=t4.execution_id,
+         turn_references=history.turn_references()[:-1],
+     )
+     note_v2 = runtime.notebook.snapshot()[0]
+@@ -371,6 +375,7 @@
+         q5,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t5.to_turn_ref(history.conversation_id),
++        execution_id=t5.execution_id,
+         turn_references=history.turn_references()[:-1],
+     )
+     history.complete_turn(t5.turn_id, r5.answer, execution_id=r5.execution_id)
+@@ -382,6 +387,7 @@
+         q6,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t6.to_turn_ref(history.conversation_id),
++        execution_id=t6.execution_id,
+         turn_references=history.turn_references()[:-1],
+         should_cancel=lambda: True,
+     )
+@@ -407,9 +413,9 @@
+         q7,
+         history=history.messages_with_turn_ids()[:-1],
+         turn_ref=t7.to_turn_ref(history.conversation_id),
++        execution_id=t7.execution_id,
+         turn_references=history.turn_references()[:-1],
+     )
+     history.complete_turn(t7.turn_id, r7.answer, execution_id=r7.execution_id)
+     assert not r7.error and r7.answer == 'Chỉ số kết quả là mid = 2.'
+     assert runtime.notebook.snapshot()[0]['text'] == 'Mảng [2, 4, 6, 8, 10], tìm 6'
+-
+--- initial/tests/test_rat_chat_session.py
++++ after_changes/tests/test_rat_chat_session.py
+@@ -114,7 +114,7 @@
+ 
+     # Explicit cancel and interaction turns preserve lineage and turn_references
+     t10 = history.begin_turn("Viết bảng trace đầy đủ")
+-    cancelled = history.cancel_turn(t10.turn_id, execution_id="exec-cancel-10")
++    cancelled = history.cancel_turn(t10.turn_id, execution_id=t10.execution_id)
+     assert cancelled.status == "cancelled"
+ 
+     inter = history.record_interaction(
+@@ -128,4 +128,3 @@
+     refs = history.turn_references()
+     assert any(r["turn_id"] == t10.turn_id and r["status"] == "cancelled" for r in refs)
+     assert any(r["turn_id"] == inter.turn_id and r["target_turn_id"] == "turn-2" for r in refs)
+-
