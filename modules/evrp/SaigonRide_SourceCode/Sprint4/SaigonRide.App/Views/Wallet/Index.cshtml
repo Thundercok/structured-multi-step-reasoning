@@ -1,0 +1,232 @@
+@using SaigonRide.App.Models.Entities
+@{
+    ViewData["Title"] = "Ví RideCard";
+    var balance  = (decimal)ViewBag.Balance;
+    var txns     = ViewBag.Transactions as List<RideCardTransaction> ?? new();
+    (string type, string msg)? flash = null;
+    if (ViewBag.Flash != null)
+    {
+        var f = ((string, string))ViewBag.Flash;
+        flash = (f.Item1, f.Item2);
+    }
+    var qrUrl    = ViewBag.SePayQrUrl   as string;
+    var qrAmount = ViewBag.SePayAmount  as string;
+    var qrRef    = ViewBag.SePayRef     as string;
+}
+
+
+<style>
+    .wallet-wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #555; margin: 32px 0 12px; }
+
+    .balance-card {
+        background: linear-gradient(135deg, #2A5C43 0%, #1a3a2a 100%);
+        color: #fff; border-radius: 16px; padding: 32px;
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 32px;
+    }
+    .balance-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .7; }
+    .balance-amount { font-size: 42px; font-weight: 700; margin-top: 6px; }
+    .balance-sub { font-size: 13px; opacity: .6; margin-top: 4px; }
+
+    .topup-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 28px; margin-bottom: 32px; }
+    .provider-toggle { display: flex; gap: 12px; margin-bottom: 20px; }
+    .provider-btn {
+        flex: 1; padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px;
+        background: #fff; cursor: pointer; font-size: 14px; font-weight: 600;
+        transition: all .15s; text-align: center;
+    }
+    .provider-btn.active { border-color: #2A5C43; background: #f0f7f3; color: #2A5C43; }
+    .provider-btn:hover:not(.active) { border-color: #999; }
+
+    .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .amount-chip {
+        padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;
+        background: #fff; cursor: pointer; font-size: 14px; font-weight: 600;
+        text-align: center; transition: all .15s;
+    }
+    .amount-chip:hover { border-color: #2A5C43; color: #2A5C43; }
+    .amount-chip.active { border-color: #2A5C43; background: #f0f7f3; color: #2A5C43; }
+
+    .amount-input-wrap { position: relative; margin-bottom: 20px; }
+    .amount-input {
+        width: 100%; padding: 14px 60px 14px 16px;
+        border: 2px solid #e0e0e0; border-radius: 8px;
+        font-size: 18px; font-weight: 700; outline: none; box-sizing: border-box;
+        transition: border-color .15s;
+    }
+    .amount-input:focus { border-color: #2A5C43; }
+    .amount-suffix { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #999; font-size: 14px; }
+
+    .btn-topup {
+        width: 100%; padding: 16px; background: #2A5C43; color: #fff;
+        border: none; border-radius: 8px; font-size: 16px; font-weight: 700;
+        cursor: pointer; transition: background .15s;
+    }
+    .btn-topup:hover { background: #1a3a2a; }
+    .btn-topup:disabled { background: #ccc; cursor: not-allowed; }
+
+    .qr-panel {
+        border: 2px solid #2A5C43; border-radius: 12px; padding: 28px;
+        text-align: center; margin-bottom: 32px; background: #f0f7f3;
+    }
+    .qr-panel img { width: 220px; height: 220px; border-radius: 8px; margin: 16px auto; display: block; }
+    .qr-ref { font-family: monospace; background: #fff; border: 1px solid #ccc; padding: 8px 16px; border-radius: 6px; font-size: 14px; }
+
+    .flash { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; }
+    .flash-success { background: #d4edda; color: #155724; }
+    .flash-error   { background: #fde8e8; color: #c0392b; }
+
+    .data-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
+    .data-table th, .data-table td { padding: 13px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+    .data-table th { font-size: 11px; text-transform: uppercase; color: #999; background: #fafafa; }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .pill-in  { background: #d4edda; color: #155724; }
+    .pill-out { background: #fde8e8; color: #c0392b; }
+</style>
+
+<div class="wallet-wrap">
+
+    @if (flash.HasValue)
+    {
+        <div class="flash flash-@flash.Value.type">@flash.Value.msg</div>
+    }
+
+    <!-- Balance -->
+    <div class="balance-card">
+        <div>
+            <div class="balance-label">Số dư RideCard</div>
+            <div class="balance-amount">@string.Format("{0:N0}", balance) ₫</div>
+            <div class="balance-sub">Dùng để thuê xe và thanh toán phí</div>
+        </div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" opacity=".4">
+            <rect x="4" y="14" width="56" height="36" rx="6" stroke="white" stroke-width="3"/>
+            <path d="M4 24h56" stroke="white" stroke-width="3"/>
+            <rect x="10" y="32" width="12" height="8" rx="2" fill="white"/>
+        </svg>
+    </div>
+
+    <!-- SePay QR (if pending) -->
+    @if (qrUrl != null)
+    {
+        <div class="qr-panel">
+            <div style="font-size:18px;font-weight:700;color:#2A5C43;">Quét để nạp @qrAmount ₫</div>
+            <p style="color:#555;margin:8px 0 0;">Mở app ngân hàng và quét mã QR bên dưới</p>
+            <img src="@qrUrl" alt="VietQR" />
+            <div style="margin-top:8px;color:#666;font-size:13px;">Nội dung chuyển khoản:</div>
+            <div class="qr-ref">@qrRef</div>
+            <p style="color:#999;font-size:12px;margin-top:12px;">Số dư sẽ tự động cập nhật sau khi nhận được thanh toán.</p>
+        </div>
+    }
+
+    <!-- Top-up Form -->
+    <h2>Nạp Tiền</h2>
+    <div class="topup-card">
+        <form method="post" action="/Wallet/TopUp" id="topupForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="provider" id="providerInput" value="SePay" />
+            <input type="hidden" name="amount"   id="amountInput"   value="50000" />
+
+            <div class="provider-toggle">
+                <button type="button" class="provider-btn active" data-provider="SePay" onclick="setProvider(this)">
+                    🇻🇳 VietQR (Nội địa)
+                </button>
+                <button type="button" class="provider-btn" data-provider="Stripe" onclick="setProvider(this)">
+                    💳 Thẻ quốc tế
+                </button>
+            </div>
+
+            <div class="amount-grid">
+                @foreach (var amt in new[] { 50000, 100000, 200000, 500000, 1000000, 2000000 })
+                {
+                    <button type="button" class="amount-chip @(amt == 50000 ? "active" : "")"
+                            data-amount="@amt" onclick="setAmount(this)">
+                        @string.Format("{0:N0}", amt) ₫
+                    </button>
+                }
+            </div>
+
+            <div class="amount-input-wrap">
+                <input id="amountDisplay" class="amount-input" type="number"
+                       min="10000" step="1000" value="50000"
+                       oninput="syncAmount(this.value)" />
+                <span class="amount-suffix">VNĐ</span>
+            </div>
+
+            <button type="submit" class="btn-topup" id="btnTopup">
+                NẠP TIỀN →
+            </button>
+        </form>
+    </div>
+
+    <!-- Transaction History -->
+    <h2>Lịch Sử Giao Dịch</h2>
+    @if (!txns.Any())
+    {
+        <p style="color:#999;">Chưa có giao dịch nào.</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Loại</th>
+                    <th>Phương thức</th>
+                    <th>Số tiền</th>
+                    <th>Số dư sau</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var t in txns)
+            {
+                var isIn = t.Amount >= 0;
+                <tr>
+                    <td style="color:#999;">@t.CreatedAt.ToString("dd/MM/yy HH:mm")</td>
+                    <td>@t.Type</td>
+                    <td style="color:#666;">@t.Provider</td>
+                    <td>
+                        <span class="pill @(isIn ? "pill-in" : "pill-out")">
+                            @(isIn ? "+" : "")@t.Amount.ToString("N0") ₫
+                        </span>
+                    </td>
+                    <td>@t.BalanceAfter.ToString("N0") ₫</td>
+                    <td style="color:@(t.Status.ToString() == "Completed" ? "#155724" : "#856404");">
+                        @t.Status
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>
+
+<script>
+function setProvider(btn) {
+    document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('providerInput').value = btn.dataset.provider;
+}
+
+function setAmount(chip) {
+    document.querySelectorAll('.amount-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const val = parseInt(chip.dataset.amount);
+    document.getElementById('amountInput').value   = val;
+    document.getElementById('amountDisplay').value = val;
+}
+
+function syncAmount(val) {
+    document.getElementById('amountInput').value = val;
+    document.querySelectorAll('.amount-chip').forEach(c => {
+        c.classList.toggle('active', parseInt(c.dataset.amount) === parseInt(val));
+    });
+}
+
+document.getElementById('topupForm').addEventListener('submit', () => {
+    document.getElementById('btnTopup').disabled    = true;
+    document.getElementById('btnTopup').textContent = 'ĐANG XỬ LÝ...';
+});
+</script>

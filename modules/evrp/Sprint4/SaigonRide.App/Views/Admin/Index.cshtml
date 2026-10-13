@@ -1,0 +1,289 @@
+@{
+Layout = "_Layout";
+ViewData["Title"] = "Admin Command Center";
+}
+
+<style>
+    .admin-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    h1 { border-bottom: 3px solid #111; padding-bottom: 10px; margin-bottom: 28px; }
+    h3 { margin: 36px 0 14px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 8px; }
+    .metric-card { background: #111; color: #fff; padding: 20px 24px; border-radius: 8px; }
+    .metric-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
+    .metric-value { font-size: 34px; font-weight: 700; margin-top: 8px; }
+
+    .data-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e0e0e0; margin-bottom: 8px; }
+    .data-table th, .data-table td { padding: 13px 16px; text-align: left; border-bottom: 1px solid #e0e0e0; font-size: 13px; }
+    .data-table th { background: #f8f9fa; font-size: 11px; text-transform: uppercase; color: #666; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .badge-high   { background: #fde8e8; color: #c0392b; }
+    .badge-medium { background: #fef3cd; color: #856404; }
+    .badge-low    { background: #d4edda; color: #155724; }
+    .badge-ok     { background: #e2e3e5; color: #383d41; }
+
+    .btn-sm { padding: 7px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; }
+    .btn-danger  { background: #D32F2F; color: #fff; }
+    .btn-warning { background: #F57C00; color: #fff; }
+
+    .chart-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 8px; }
+
+    .util-bar-wrap { background: #eee; border-radius: 4px; height: 8px; width: 100%; }
+    .util-bar      { background: #2A5C43; border-radius: 4px; height: 8px; transition: width .3s; }
+    .flash-green   { animation: flash-green 1.6s ease-out; }
+    @@keyframes flash-green {
+        0%   { background: #d4edda; }
+        100% { background: #fff; }
+    }
+</style>
+
+<div class="admin-wrap">
+    <h1>Command Center</h1>
+
+    <!-- METRICS -->
+    <div class="metric-grid">
+        <div class="metric-card">
+            <div class="metric-title">Daily Fare Revenue</div>
+            <div class="metric-value">@string.Format("{0:N0} ₫", ViewBag.DailyRevenue)</div>
+        </div>
+        <div class="metric-card" style="background:#2A5C43;">
+            <div class="metric-title">Active Rentals</div>
+            <div class="metric-value">@((ViewBag.ActiveRentals as IEnumerable<dynamic>).Count())</div>
+        </div>
+        <div class="metric-card" style="background:#1a3a5c;">
+            <div class="metric-title">Total Stations</div>
+            <div class="metric-value">@((ViewBag.Stations as IEnumerable<dynamic>).Count())</div>
+        </div>
+        <div class="metric-card" style="background:#5c1a1a;">
+            <div class="metric-title">Empty Stations</div>
+            <div class="metric-value">@((ViewBag.Stations as IEnumerable<dynamic>).Count(s => s.AvailableBikes == 0))</div>
+        </div>
+    </div>
+
+    <!-- UTILISATION CHART -->
+    <h3>Station Utilisation — Last 24h</h3>
+    <div class="chart-box">
+        <canvas id="utilisationChart" height="90"></canvas>
+    </div>
+
+    <!-- REBALANCING RECOMMENDATIONS -->
+    <h3>Fleet Rebalancing Recommendations</h3>
+    <table class="data-table">
+        <thead>
+        <tr>
+            <th>Station</th>
+            <th>Available</th>
+            <th>Capacity</th>
+            <th>Utilisation</th>
+            <th>Action</th>
+            <th>Priority</th>
+        </tr>
+        </thead>
+        <tbody id="rebalancingBody">
+        <tr><td colspan="6" style="color:#999;">Loading...</td></tr>
+        </tbody>
+    </table>
+
+    <!-- STATION FLEET -->
+    <h3>Station Fleet Status</h3>
+    <table class="data-table">
+        <thead>
+        <tr><th>ID</th><th>Name</th><th>Available</th><th>Capacity</th><th>Fill</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var s in ViewBag.Stations)
+        {
+        var pct = s.Capacity > 0 ? (int)((double)s.AvailableBikes / s.Capacity * 100) : 0;
+        <tr data-station-id="@s.Id">
+            <td>@s.Id</td>
+            <td><strong>@s.Name</strong></td>
+            <td class="station-available">@s.AvailableBikes</td>
+            <td>@s.Capacity</td>
+            <td style="width:120px;">
+                <div class="util-bar-wrap">
+                    <div class="util-bar" style="width:@pct%"></div>
+                </div>
+            </td>
+            <td class="station-status">
+                @if (s.AvailableBikes == 0)          { <span style="color:#c0392b;font-weight:700;">Empty</span> }
+                else if (s.AvailableBikes == s.Capacity) { <span style="color:#856404;font-weight:700;">Full</span> }
+                else                                  { <span style="color:#2A5C43;font-weight:700;">Optimal</span> }
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table>
+
+    <!-- LIVE RENTALS -->
+    <h3>Live Rentals</h3>
+    <table class="data-table">
+        <thead>
+        <tr><th>ID</th><th>User</th><th>Vehicle</th><th>Started</th><th>Station</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="liveRentalsBody">
+        @foreach (var r in ViewBag.ActiveRentals)
+        {
+        <tr id="rental-row-@r.Id">
+            <td>#@r.Id</td>
+            <td>@r.UserId</td>
+            <td>@r.Vehicle.LicensePlate</td>
+            <td>@r.StartTime?.ToString("HH:mm:ss")</td>
+            <td>@r.StartStation.Name</td>
+            <td>
+                <button class="btn-sm btn-danger" onclick="forceEndRental(@r.Id)">Force End</button>
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    // ── Rebalancing table ─────────────────────────────────────────────────────────
+    (async () => {
+        try {
+            const res  = await fetch('/Admin/RebalancingRecommendations');
+            const data = await res.json();
+            const tbody = document.getElementById('rebalancingBody');
+            tbody.innerHTML = data.map(s => {
+                const badgeClass = s.priority === 'HIGH' ? 'badge-high'
+                    : s.priority === 'MEDIUM' ? 'badge-medium' : 'badge-low';
+                const actionClass = s.action === 'OK' ? 'badge-ok'
+                    : s.action === 'RESTOCK' ? 'badge-high' : 'badge-medium';
+                return `<tr>
+                <td><strong>${s.name}</strong></td>
+                <td>${s.available}</td>
+                <td>${s.capacity}</td>
+                <td>${s.utilisationPct}%</td>
+                <td><span class="badge ${actionClass}">${s.action}</span></td>
+                <td><span class="badge ${badgeClass}">${s.priority}</span></td>
+            </tr>`;
+            }).join('');
+        } catch (e) {
+            document.getElementById('rebalancingBody').innerHTML =
+                '<tr><td colspan="6" style="color:#999;">No data yet — utilisation worker logs every hour.</td></tr>';
+        }
+})();
+
+    // ── Utilisation chart ─────────────────────────────────────────────────────────
+    (async () => {
+        try {
+            const res  = await fetch('/Admin/UtilisationData');
+            const data = await res.json();
+
+            if (!data.length) {
+                document.querySelector('.chart-box').innerHTML =
+                    '<p style="color:#999;text-align:center;padding:40px 0">No utilisation data yet — worker logs every hour.</p>';
+                return;
+            }
+
+            // Group by station
+            const stations = [...new Set(data.map(d => d.station))];
+            const hours    = [...new Set(data.map(d => d.hour))];
+            const palette  = ['#2A5C43','#1a3a5c','#5c1a1a','#856404','#6a1b9a','#00838f'];
+
+            const datasets = stations.map((name, i) => ({
+                label: name,
+                data: hours.map(h => {
+                    const pt = data.find(d => d.station === name && d.hour === h);
+                    return pt ? pt.utilisation : null;
+                }),
+                borderColor: palette[i % palette.length],
+                backgroundColor: palette[i % palette.length] + '22',
+                tension: 0.3,
+                fill: false,
+                spanGaps: true
+            }));
+
+            new Chart(document.getElementById('utilisationChart'), {
+                type: 'line',
+                data: { labels: hours, datasets },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+                    }
+                }
+            });
+        } catch { /* chart fails silently if no data */ }
+})();
+
+    // ── Force end rental ──────────────────────────────────────────────────────────
+    async function forceEndRental(id) {
+        if (!confirm('Force-end rental #' + id + '?')) return;
+        const res = await fetch(`/Admin/ForceEndRental/${id}`, { method: 'POST' });
+        if (res.ok) document.getElementById(`rental-row-${id}`)?.remove();
+        else alert('Failed.');
+    }
+
+    // ── Admin SignalR updates ────────────────────────────────────────────────────
+    (() => {
+        if (!window.signalR) return;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/admin')
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('NewActiveRental', rental => {
+            const tbody = document.getElementById('liveRentalsBody');
+            if (!tbody) return;
+
+            const id = rental.rentalId ?? rental.RentalId;
+            if (document.getElementById(`rental-row-${id}`)) return;
+
+            const started = rental.startTime
+                ? new Date(rental.startTime).toLocaleTimeString('vi-VN', { hour12: false })
+                : '';
+
+            const row = document.createElement('tr');
+            row.id = `rental-row-${id}`;
+            row.className = 'flash-green';
+            row.innerHTML = `
+                <td>#${id}</td>
+                <td>Realtime</td>
+                <td>${rental.vehicleCode ?? ''}</td>
+                <td>${started}</td>
+                <td>${rental.stationName ?? ''}</td>
+                <td>
+                    <button class="btn-sm btn-danger" onclick="forceEndRental(${id})">Force End</button>
+                </td>
+            `;
+
+            tbody.prepend(row);
+        });
+
+        connection.on('StationUpdated', station => {
+            const stationId = station.stationId ?? station.StationId;
+            const available = station.availableBikes ?? station.AvailableBikes;
+            const capacity = station.capacity ?? station.Capacity;
+            const row = document.querySelector(`tr[data-station-id="${stationId}"]`);
+            if (!row) return;
+
+            row.querySelector('.station-available').textContent = available;
+            const pct = capacity > 0 ? Math.round((available / capacity) * 100) : 0;
+            row.querySelector('.util-bar').style.width = `${pct}%`;
+
+            const status = row.querySelector('.station-status');
+            if (available === 0) {
+                status.innerHTML = '<span style="color:#c0392b;font-weight:700;">Empty</span>';
+            } else if (available === capacity) {
+                status.innerHTML = '<span style="color:#856404;font-weight:700;">Full</span>';
+            } else {
+                status.innerHTML = '<span style="color:#2A5C43;font-weight:700;">Optimal</span>';
+            }
+
+            row.classList.remove('flash-green');
+            void row.offsetWidth;
+            row.classList.add('flash-green');
+        });
+
+        connection.start().catch(() => {});
+    })();
+</script>
+}

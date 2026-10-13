@@ -1,0 +1,120 @@
+<!-- ══ 5. VEHICLE SELECT ══════════════════════════════════════════ -->
+<div id="paymentState_VehicleSelect" class="state-container" style="display:none;">
+    <h2 class="section-title">Chọn Loại Xe</h2>
+    <p class="section-subtitle">Chọn loại xe phù hợp với hành trình của bạn</p>
+    <div class="vehicle-option-list">
+        <button class="vehicle-option-btn" data-vehicle-id="1">
+            <span class="vehicle-icon">🚲</span>
+            <div class="vehicle-option-info">
+                <span class="vehicle-option-name">Standard Bike</span>
+                <span class="vehicle-option-desc">Grade C — Phí cọc: 200.000 VNĐ</span>
+            </div>
+            <span class="vehicle-option-arrow">→</span>
+        </button>
+        <button class="vehicle-option-btn" data-vehicle-id="2">
+            <span class="vehicle-icon">⚡</span>
+            <div class="vehicle-option-info">
+                <span class="vehicle-option-name">E-Scooter</span>
+                <span class="vehicle-option-desc">Grade B — Phí cọc: 500.000 VNĐ</span>
+            </div>
+            <span class="vehicle-option-arrow">→</span>
+        </button>
+        <button class="vehicle-option-btn" data-vehicle-id="3">
+            <span class="vehicle-icon">🛵</span>
+            <div class="vehicle-option-info">
+                <span class="vehicle-option-name">VinFast Klara S</span>
+                <span class="vehicle-option-desc">Grade A — Phí cọc: 2.000.000 VNĐ</span>
+            </div>
+            <span class="vehicle-option-arrow">→</span>
+        </button>
+    </div>
+</div>
+
+<!-- ══ 6. DEPOSIT INFO ════════════════════════════════════════════ -->
+<div id="paymentState_DepositInfo" class="state-container" style="display:none;">
+    <h2 class="section-title">Thông Tin Đặt Cọc</h2>
+    <div class="deposit-summary">
+        <div class="deposit-row">
+            <span class="deposit-label">Phí thuê xe / giờ</span>
+            <span class="deposit-value">50.000 VNĐ</span>
+        </div>
+        <div class="deposit-row">
+            <span class="deposit-label">Phí đặt cọc (20%)</span>
+            <span class="deposit-value highlight">2.000.000 VNĐ</span>
+        </div>
+        <div class="deposit-divider"></div>
+        <div class="deposit-row deposit-row--note">
+            <span class="deposit-note">
+                Tiền cọc sẽ được hoàn trả sau khi trả xe thành công, 
+                trừ đi phí thuê thực tế.
+            </span>
+        </div>
+    </div>
+    <button id="btnConfirmDeposit" class="action-btn btn-primary">
+        TIẾP THEO — THANH TOÁN CỌC →
+    </button>
+</div>
+
+<!-- ══ 7. IDLE (Payment Method Select) ══════════════════════════════════════ -->
+<div id="paymentState_Idle" class="state-container" style="display:none;">
+    <h2 class="section-title">Chọn Phương Thức Thanh Toán</h2>
+    <p class="section-subtitle">Thanh toán cọc để mở khóa xe</p>
+    
+    <!-- JS will inject the VietQR and Stripe buttons here -->
+    <div id="idleActionArea" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
+        <!-- Inside paymentState_VehicleSelect, at the bottom after the vehicle-option-list -->
+        <button class="action-btn btn-secondary" data-back-to="Splash" style="margin-top:24px;">
+            ⬅ HỦY & VỀ TRANG CHỦ
+        </button>
+
+        <!-- Inside paymentState_DepositInfo, under btnConfirmDeposit -->
+        <button class="action-btn btn-secondary" data-back-to="VehicleSelect" style="margin-top:12px;">
+            ⬅ CHỌN XE KHÁC
+        </button>
+
+        <!-- Inside paymentState_Idle, inside the idleActionArea -->
+        <!-- Update your idleActionArea in state-manager.js to include it: -->
+    </div>
+    
+    <p id="systemMessage" class="system-msg"></p>
+</div>
+
+<!-- ══ 8. ACTIVE (QR Display) ═════════════════════════════════════ -->
+<div id="paymentState_Active" class="state-container" style="display:none;">
+    <h2 class="section-title">Quét Mã Để Đặt Cọc</h2>
+    <div class="qr-wrapper">
+        <img id="qrImage" src="" alt="Mã VietQR" />
+    </div>
+    <div class="timer-box">
+        <span>Mã hết hạn sau: </span>
+        <span id="countdownTimer" class="timer-text">15:00</span>
+    </div>
+    <button id="btnCancelRental" class="action-btn btn-secondary">Hủy Giao Dịch</button>
+</div>
+
+<!-- ══ 9. SUCCESS (Payment + Unlock) ═════════════════════════════ -->
+<div id="paymentState_Success" class="state-container" style="display:none">
+    <div class="success-icon-wrapper">
+        <svg class="success-svg" viewBox="0 0 52 52">
+            <circle class="success-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="success-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
+    <h2 class="success-title">Thanh toán thành công!</h2>
+    <p class="success-subtitle">Xe đã được mở khóa</p>
+    <div class="assignment-cards">
+        <div class="data-card">
+            <span class="card-label">XE ĐƯỢC CHỈ ĐỊNH</span>
+            <span class="card-value" id="assignedVehicleId">Bike #042</span>
+        </div>
+        <div class="data-card alert-card">
+            <span class="card-label">VỊ TRÍ DOCK</span>
+            <span class="card-value" id="assignedDockId">Dock 3</span>
+            <span class="card-subtext">Kéo mạnh tay lái về sau để lấy xe</span>
+        </div>
+    </div>
+    <button id="btnDone" class="action-btn btn-primary" style="margin-top:40px;">
+        HOÀN TẤT
+    </button>
+    
+</div>

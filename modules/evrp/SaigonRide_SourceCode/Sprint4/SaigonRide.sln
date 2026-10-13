@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaigonRide.App", "SaigonRide.App\SaigonRide.App.csproj", "{EC9DB1D6-F982-4969-B33A-34AFB7449743}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaigonRide.Tests", "SaigonRide.Tests\SaigonRide.Tests.csproj", "{F041B164-810D-4BF1-8544-ECDD207B0072}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaigonRide.UITests", "SaigonRide.UITests\SaigonRide.UITests.csproj", "{E2F2908C-942D-41F4-92BE-0B0FEE9454D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC9DB1D6-F982-4969-B33A-34AFB7449743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC9DB1D6-F982-4969-B33A-34AFB7449743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC9DB1D6-F982-4969-B33A-34AFB7449743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC9DB1D6-F982-4969-B33A-34AFB7449743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F041B164-810D-4BF1-8544-ECDD207B0072}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F041B164-810D-4BF1-8544-ECDD207B0072}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F041B164-810D-4BF1-8544-ECDD207B0072}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F041B164-810D-4BF1-8544-ECDD207B0072}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2F2908C-942D-41F4-92BE-0B0FEE9454D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2F2908C-942D-41F4-92BE-0B0FEE9454D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2F2908C-942D-41F4-92BE-0B0FEE9454D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2F2908C-942D-41F4-92BE-0B0FEE9454D9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

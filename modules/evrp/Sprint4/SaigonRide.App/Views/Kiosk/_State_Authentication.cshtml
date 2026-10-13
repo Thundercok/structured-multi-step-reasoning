@@ -1,0 +1,67 @@
+<!-- ══ 2. EMAIL INPUT ═════════════════════════════════════════════ -->
+<div id="paymentState_EmailInput" class="state-container" style="display:none;">
+    <h2 class="section-title">Nhập Email</h2>
+    <p class="section-subtitle">Chúng tôi sẽ gửi mã OTP tới email của bạn</p>
+    <div class="input-group">
+        <!-- NEW -->
+        <div class="email-input-wrap">
+            <input id="emailInput" class="kiosk-input-email" type="email"
+                   placeholder="your@email.com" autocomplete="off" spellcheck="false" />
+        </div>
+        <p class="email-hint">Dùng bàn phím để nhập địa chỉ email đã đăng ký</p>
+        <p id="emailError" class="error-msg"></p> wh
+    </div>
+    <button id="btnSubmitEmail" class="action-btn btn-primary" style="margin-top:24px;">
+        GỬI MÃ OTP →
+    </button>
+    <button class="action-btn btn-secondary" data-back-to="Splash" style="margin-top:12px;">
+        ⬅ HỦY & QUAY LẠI
+    </button>
+</div>
+
+<!-- ══ 3. OTP INPUT ════════════════════════════════════════════════ -->
+<div id="paymentState_OtpInput" class="state-container" style="display:none;">
+    <h2 class="section-title">Nhập Mã OTP</h2>
+    <p class="section-subtitle">Mã 6 chữ số đã được gửi tới email của bạn</p>
+    <div class="input-group">
+        <input id="otpInput" class="kiosk-input kiosk-input--otp" type="text"
+               placeholder="_ _ _ _ _ _" maxlength="6" inputmode="numeric" />
+        <p id="otpError" class="error-msg"></p>
+    </div>
+    <partial name="_Numpad" model='"otpInput"' />
+    <button id="btnSubmitOtp" class="action-btn btn-primary" style="margin-top:24px;">
+        XÁC NHẬN →
+    </button>
+    <button class="action-btn btn-secondary" data-back-to="EmailInput" style="margin-top:12px;">
+        ⬅ QUAY LẠI
+    </button>
+</div>
+<!-- ══ 4. TOTP INPUT ═══════════════════════════════════════════════ -->
+<div id="paymentState_TotpInput" class="state-container" style="display:none;">
+    <h2 class="section-title">Xác Thực 2 Lớp</h2>
+    <p class="section-subtitle">Nhập mã 6 chữ số từ ứng dụng Authenticator</p>
+    <div class="input-group">
+        <input id="totpKioskInput" class="kiosk-input kiosk-input--otp" type="text"
+               placeholder="_ _ _ _ _ _" maxlength="6" inputmode="numeric" />
+        <p id="totpKioskError" class="error-msg"></p>
+    </div>
+    <partial name="_Numpad" model='"totpKioskInput"' />
+    <button id="btnSubmitTotp" class="action-btn btn-primary" style="margin-top:24px;">
+        XÁC NHẬN →
+    </button>
+    <button class="action-btn btn-secondary" data-back-to="Splash" style="margin-top:12px;">
+        ⬅ HỦY & QUAY LẠI
+    </button>
+</div>
+<!-- ══ 5. AUTH SUCCESS ════════════════════════════════════════════ -->
+<div id="paymentState_AuthSuccess" class="state-container" style="display:none;">
+    <div class="success-icon-wrapper">
+        <svg class="success-svg" viewBox="0 0 52 52">
+            <circle class="success-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="success-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
+    <h2 class="success-title">Xác Thực Thành Công!</h2>
+    <p class="success-subtitle">Chào mừng, <span id="authUserName" class="highlight-name"></span></p>
+    <p class="auto-advance-hint">Đang chuyển hướng...</p>
+</div>

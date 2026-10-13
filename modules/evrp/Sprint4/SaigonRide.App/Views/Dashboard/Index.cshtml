@@ -1,0 +1,315 @@
+@using SaigonRide.App.Models.Entities
+@{
+    ViewData["Title"] = "Dashboard";
+    var balance      = (decimal)ViewBag.WalletBalance;
+    var activeRental = ViewBag.ActiveRental as Rental;
+    var rentals      = ViewBag.RecentRentals      as List<Rental>              ?? new();
+    var txns         = ViewBag.RecentTransactions  as List<RideCardTransaction> ?? new();
+    var totalRentals = (int)ViewBag.TotalRentals;
+    var totalSpent   = (decimal)ViewBag.TotalSpent;
+    var totalMins    = (int)ViewBag.TotalMinutes;
+    var favVehicle   = (string)ViewBag.FavVehicle;
+    var userName     = User.Identity?.Name ?? "Rider";
+}
+
+<style>
+    .dash { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; font-family: 'Inter', sans-serif; }
+
+    /* ── Header ── */
+    .dash-header { margin-bottom: 32px; }
+    .dash-greeting { font-size: 13px; color: #999; font-weight: 500; margin-bottom: 4px; }
+    .dash-name { font-size: 28px; font-weight: 900; color: #111; }
+
+    /* ── Top row ── */
+    .top-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+    /* ── Balance card ── */
+    .balance-card {
+        background: linear-gradient(135deg, #0f2419 0%, #2A5C43 100%);
+        border-radius: 16px; padding: 32px; color: #fff; position: relative; overflow: hidden;
+    }
+    .balance-card::after {
+        content: ''; position: absolute; right: -40px; top: -40px;
+        width: 200px; height: 200px; border-radius: 50%;
+        background: rgba(255,255,255,.05);
+    }
+    .balance-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; opacity: .6; margin-bottom: 8px; }
+    .balance-amount { font-size: 40px; font-weight: 900; letter-spacing: -1px; }
+    .balance-sub { font-size: 12px; opacity: .5; margin-top: 6px; }
+    .balance-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .balance-btn {
+        padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+        text-decoration: none; transition: .15s;
+    }
+    .balance-btn-primary { background: #5ddb8a; color: #0f2419; }
+    .balance-btn-primary:hover { background: #4ac97a; color: #0f2419; }
+    .balance-btn-ghost { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+    .balance-btn-ghost:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── Active rental card ── */
+    .rental-card { border-radius: 16px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; }
+    .rental-card.active {
+        background: #fff; border: 2px solid #2A5C43;
+        box-shadow: 0 0 0 4px rgba(42,92,67,.08);
+    }
+    .rental-card.empty { background: #f8f8f8; border: 2px dashed #e0e0e0; align-items: center; justify-content: center; text-align: center; }
+    .rental-live-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px;
+        font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        margin-bottom: 16px; width: fit-content;
+    }
+    .rental-live-dot { width: 6px; height: 6px; background: #2A5C43; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+    .rental-vehicle { font-size: 22px; font-weight: 800; color: #111; margin-bottom: 4px; }
+    .rental-info { font-size: 13px; color: #666; }
+    .rental-timer { font-size: 32px; font-weight: 900; color: #2A5C43; font-variant-numeric: tabular-nums; margin: 12px 0; }
+    .rental-empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .rental-empty-text { font-size: 14px; color: #999; margin-bottom: 16px; }
+
+    /* ── Stats row ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
+    .stat-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px 22px; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 8px; }
+    .stat-value { font-size: 26px; font-weight: 900; color: #111; }
+    .stat-sub { font-size: 12px; color: #bbb; margin-top: 2px; }
+
+    /* ── Section headers ── */
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+    .section-link { font-size: 12px; color: #2A5C43; font-weight: 600; text-decoration: none; }
+    .section-link:hover { text-decoration: underline; }
+
+    /* ── Tables ── */
+    .sg-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #efefef; border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+    .sg-table th { padding: 11px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #aaa; background: #fafafa; font-weight: 700; border-bottom: 1px solid #efefef; text-align: left; }
+    .sg-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+    .sg-table tbody tr:last-child td { border-bottom: none; }
+    .sg-table tbody tr:hover td { background: #fafcfa; }
+
+    /* ── Pills ── */
+    .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .pill-active    { background: #d4edda; color: #155724; }
+    .pill-completed { background: #e9ecef; color: #495057; }
+    .pill-cancelled { background: #fde8e8; color: #c0392b; }
+    .pill-pending   { background: #fff3cd; color: #856404; }
+    .pill-in        { background: #d4edda; color: #155724; }
+    .pill-out       { background: #fde8e8; color: #c0392b; }
+
+    /* ── Empty states ── */
+    .empty-state { text-align: center; padding: 48px 20px; color: #bbb; }
+    .empty-state-icon { font-size: 36px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 14px; }
+
+    @@media (max-width: 768px) {
+        .top-row { grid-template-columns: 1fr; }
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
+        .dash { padding: 24px 16px 60px; }
+    }
+</style>
+
+<div class="dash">
+
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-greeting">Good @(DateTime.Now.Hour < 12 ? "morning" : DateTime.Now.Hour < 18 ? "afternoon" : "evening"),</div>
+        <div class="dash-name">@userName.Split('@')[0] 👋</div>
+    </div>
+
+    <!-- Top Row: Balance + Active Rental -->
+    <div class="top-row">
+
+        <!-- Balance -->
+        <div class="balance-card">
+            <div class="balance-label">RideCard Balance</div>
+            <div class="balance-amount">@string.Format("{0:N0}", balance) ₫</div>
+            <div class="balance-sub">Available for rentals and fees</div>
+            <div class="balance-actions">
+                <a asp-controller="Wallet" asp-action="Index" class="balance-btn balance-btn-primary">+ Top Up</a>
+                <a asp-controller="Kiosk"  asp-action="Index" class="balance-btn balance-btn-ghost">Rent a Bike →</a>
+            </div>
+        </div>
+
+        <!-- Active Rental -->
+        @if (activeRental != null)
+        {
+            var elapsed = DateTime.UtcNow - activeRental.StartTime!.Value;
+            <div class="rental-card active">
+                <div>
+                    <div class="rental-live-badge">
+                        <div class="rental-live-dot"></div>
+                        Active Ride
+                    </div>
+                    <div class="rental-vehicle">
+                        @(activeRental.Vehicle?.Name ?? "Vehicle")
+                    </div>
+                    <div class="rental-info">
+                        From @(activeRental.StartStation?.Name ?? "—")
+                        · Started @activeRental.StartTime?.ToString("HH:mm")
+                    </div>
+                    <div class="rental-timer" id="elapsedTimer">
+                        @($"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}")
+                    </div>
+                </div>
+                <div style="font-size:12px;color:#999;">
+                    Return at any active station to end your ride.
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="rental-card empty">
+                <div class="rental-empty-icon">🚲</div>
+                <div class="rental-empty-text">No active ride right now</div>
+                <a asp-controller="Kiosk" asp-action="Index"
+                   style="padding:10px 22px;background:#2A5C43;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;">
+                    Find a Kiosk →
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Total Rides</div>
+            <div class="stat-value">@totalRentals</div>
+            <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value">@string.Format("{0:N0}", totalSpent) ₫</div>
+            <div class="stat-sub">fare only</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Time Riding</div>
+            <div class="stat-value">@(totalMins >= 60 ? $"{totalMins / 60}h {totalMins % 60}m" : $"{totalMins}m")</div>
+            <div class="stat-sub">total duration</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Favourite Ride</div>
+            <div class="stat-value" style="font-size:16px;padding-top:4px;">@favVehicle</div>
+            <div class="stat-sub">most rented</div>
+        </div>
+    </div>
+
+    <!-- Recent Rentals -->
+    <div class="section-head">
+        <div class="section-title">Recent Rides</div>
+    </div>
+
+    @if (!rentals.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">🛵</div>
+            <div class="empty-state-text">No rides yet — find a kiosk and get rolling!</div>
+        </div>
+    }
+    else
+    {
+        <table class="sg-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Vehicle</th>
+                    <th>From → To</th>
+                    <th>Duration</th>
+                    <th>Fare</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var r in rentals)
+            {
+                var dur = r.StartTime.HasValue && r.EndTime.HasValue
+                    ? $"{(int)(r.EndTime.Value - r.StartTime.Value).TotalMinutes} min"
+                    : r.Status == RentalStatus.Active ? "Ongoing" : "—";
+
+                var pillClass = r.Status switch {
+                    RentalStatus.Active    => "pill-active",
+                    RentalStatus.Completed => "pill-completed",
+                    RentalStatus.Cancelled => "pill-cancelled",
+                    _                      => "pill-pending"
+                };
+
+                var icon = r.Vehicle?.Name?.Contains("Klara") == true ? "🛵"
+                         : r.Vehicle?.Name?.Contains("Scooter") == true ? "⚡"
+                         : "🚲";
+                <tr>
+                    <td style="color:#ccc;font-size:12px;">#@r.Id</td>
+                    <td>
+                        <span style="margin-right:6px;">@icon</span>
+                        <strong>@(r.Vehicle?.Name ?? "—")</strong>
+                    </td>
+                    <td style="color:#666;">
+                        @(r.StartStation?.Name ?? "—")
+                        @if (r.EndStation != null) { <span> → @r.EndStation.Name</span> }
+                    </td>
+                    <td style="color:#555;">@dur</td>
+                    <td style="font-weight:600;">
+                        @(r.TotalCost > 0 ? $"{r.TotalCost:N0} ₫" : "—")
+                    </td>
+                    <td><span class="pill @pillClass">@r.Status</span></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <!-- Recent Wallet Activity -->
+    @if (txns.Any())
+    {
+        <div class="section-head">
+            <div class="section-title">Wallet Activity</div>
+            <a asp-controller="Wallet" asp-action="Index" class="section-link">View all →</a>
+        </div>
+        <table class="sg-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Via</th>
+                    <th>Amount</th>
+                    <th>Balance After</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var t in txns)
+            {
+                var isIn = t.Amount >= 0;
+                <tr>
+                    <td style="color:#aaa;font-size:12px;">@t.CreatedAt.ToString("dd MMM, HH:mm")</td>
+                    <td>@t.Type</td>
+                    <td style="color:#999;">@t.Provider</td>
+                    <td>
+                        <span class="pill @(isIn ? "pill-in" : "pill-out")">
+                            @(isIn ? "+" : "")@t.Amount.ToString("N0") ₫
+                        </span>
+                    </td>
+                    <td style="font-weight:600;color:#111;">@t.BalanceAfter.ToString("N0") ₫</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+</div>
+
+@if (activeRental != null)
+{
+    var startUtc = activeRental.StartTime!.Value;
+    <script>
+        const startTime = new Date('@startUtc.ToString("o")');
+        function tick() {
+            const el = document.getElementById('elapsedTimer');
+            if (!el) return;
+            const diff = Math.floor((Date.now() - startTime.getTime()) / 1000);
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            const s = diff % 60;
+            el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+        tick();
+        setInterval(tick, 1000);
+    </script>
+}

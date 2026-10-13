@@ -1,0 +1,38 @@
+@model SaigonRide.App.Models.Entities.Station
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1280" />
+    <title>SaigonRide Kiosk</title>
+    <link rel="stylesheet" href="~/css/swiss-design.css" />
+</head>
+<body>
+
+<div id="kioskRoot" data-station-id="@Model.Id" class="kiosk-container">
+
+    <!-- Left Panel -->
+    @await Html.PartialAsync("_VehicleInfoPanel", Model)
+
+    <!-- Right Panel: All States -->
+    <div class="payment-panel">
+        <partial name="_State_Welcome" />
+        <partial name="_State_Authentication" />
+        <partial name="_State_RentalSetup" />
+        <partial name="_State_Return" />
+        <partial name="_State_System" />
+    </div>
+
+</div>
+
+@* Load order matters: api-client → ui-interactions → signalr-client → state-manager *@
+<script src="~/js/kiosk/api-client.js"></script>
+<script src="~/js/kiosk/ui-interactions.js"></script>
+<script src="~/js/kiosk/signalr-client.js"></script>
+<script src="~/js/kiosk/state-manager.js"></script>
+
+</body>
+</html>

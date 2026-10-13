@@ -1,0 +1,39 @@
+﻿@{ Layout = "_Layout"; ViewData["Title"] = "Privacy Policy"; }
+
+<style>
+    .privacy-wrap { max-width: 720px; margin: 60px auto; padding: 0 20px 80px; }
+    .privacy-wrap h1 { font-size: 36px; font-weight: 900; margin-bottom: 8px; }
+    .privacy-wrap h2 { font-size: 18px; font-weight: 800; margin-top: 36px; margin-bottom: 8px; }
+    .privacy-wrap p, .privacy-wrap li { font-size: 15px; color: #444; line-height: 1.7; }
+    .privacy-badge { display: inline-block; background: #f0f7f3; color: #2A5C43; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 24px; }
+</style>
+
+<div class="privacy-wrap">
+    <div class="privacy-badge">Last updated @DateTime.Now.ToString("MMMM yyyy")</div>
+    <h1>Privacy Policy</h1>
+    <p>SaigonRide is committed to protecting your personal data. This policy explains what we collect, how we use it, and your rights.</p>
+
+    <h2>What We Collect</h2>
+    <ul>
+        <li>Email address — for OTP verification and account management</li>
+        <li>Rental history — to calculate fares and process refunds</li>
+        <li>Payment records — processed securely via Stripe and SePay; we never store card details</li>
+    </ul>
+
+    <h2>How We Use It</h2>
+    <ul>
+        <li>Authenticating kiosk sessions via one-time passwords</li>
+        <li>Processing and refunding security deposits</li>
+        <li>Calculating rental fares</li>
+        <li>Improving fleet availability through anonymised utilisation data</li>
+    </ul>
+
+    <h2>Data Retention</h2>
+    <p>Rental records are retained for 12 months for dispute resolution. Payment records are retained as required by Vietnamese financial regulations.</p>
+
+    <h2>Your Rights</h2>
+    <p>You may request deletion of your account and associated data at any time by contacting us. Completed rental records required for accounting are exempt from deletion requests.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy enquiries: <a href="mailto:privacy@saigonride.com" style="color:#2A5C43;">privacy@saigonride.com</a></p>
+</div>

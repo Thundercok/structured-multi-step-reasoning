@@ -1,0 +1,7 @@
+Step 1 → Class Diagram + ERD        (data model = nền tảng cho mọi thứ)
+Step 2 → UC1 Use Case Specification  (H's deliverable)
+Step 3 → UC2 Use Case Specification  (Student B's deliverable)  
+Step 4 → CRC Cards                   (từ class diagram)
+Step 5 → Sequence Diagrams           (UC1 + UC2 main flows)
+Step 6 → Figma Screen Spec           (layout guide cho H)
+Step 7 → Compile Part 2 .docx        (tất cả vào doc)

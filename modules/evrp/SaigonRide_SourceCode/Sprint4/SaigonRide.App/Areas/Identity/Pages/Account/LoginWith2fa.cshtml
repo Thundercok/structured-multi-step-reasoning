@@ -1,0 +1,40 @@
+@page
+@model SaigonRide.Areas.Identity.Pages.Account.LoginWith2faModel
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+}
+
+<div style="max-width:420px;margin:64px auto;padding:0 24px;font-family:'Inter',sans-serif;">
+    <h1 style="font-size:22px;font-weight:900;margin-bottom:8px;">Two-Factor Authentication</h1>
+    <p style="color:#999;font-size:13px;margin-bottom:32px;">
+        Enter the 6-digit code from your authenticator app.
+    </p>
+
+    <form method="post">
+        <input type="hidden" asp-for="PendingToken" />
+
+        <div asp-validation-summary="ModelOnly"
+             style="color:#c0392b;font-size:13px;margin-bottom:16px;"></div>
+
+        <div style="margin-bottom:20px;">
+            <input asp-for="Input.TotpCode"
+                   maxlength="6"
+                   placeholder="000000"
+                   autocomplete="one-time-code"
+                   style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;
+                          font-size:24px;letter-spacing:10px;text-align:center;box-sizing:border-box;" />
+            <span asp-validation-for="Input.TotpCode"
+                  style="color:#c0392b;font-size:12px;"></span>
+        </div>
+
+        <button type="submit"
+                style="width:100%;padding:13px;background:#2A5C43;color:#fff;border:none;
+                       border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;">
+            Verify
+        </button>
+
+        <div style="margin-top:16px;text-align:center;">
+            <a asp-page="./Login" style="font-size:13px;color:#999;">← Back to login</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,39 @@
+@{ Layout = "_Layout"; ViewData["Title"] = "Error"; }
+
+<style>
+    .error-page {
+        min-height: calc(100vh - 60px);
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column; text-align: center; padding: 40px 20px;
+    }
+    .error-code { font-size: 96px; font-weight: 900; color: #e8e8e8; line-height: 1; margin-bottom: 16px; }
+    .error-title { font-size: 24px; font-weight: 800; color: #111; margin-bottom: 8px; }
+    .error-desc { font-size: 15px; color: #999; margin-bottom: 32px; max-width: 400px; }
+    .error-btn {
+        display: inline-block; padding: 12px 28px; background: #2A5C43; color: #fff;
+        border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 15px;
+        transition: background .15s;
+    }
+    .error-btn:hover { background: #1a3a2a; color: #fff; }
+</style>
+
+<div class="error-page">
+    <div class="error-code">
+        @(ViewBag.Reason switch {
+            "invalid_signature" => "401",
+            "payment_failed"    => "402",
+            "no_data"           => "400",
+            _                   => "500"
+        })
+    </div>
+    <div class="error-title">Something went wrong</div>
+    <div class="error-desc">
+        @(ViewBag.Reason switch {
+            "invalid_signature" => "Payment signature validation failed. Please try again.",
+            "payment_failed"    => "Your payment was not completed. No charge was made.",
+            "no_data"           => "No payment data received.",
+            _                   => ViewBag.Message ?? "An unexpected error occurred."
+        })
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="error-btn">← Back to Home</a>
+</div>

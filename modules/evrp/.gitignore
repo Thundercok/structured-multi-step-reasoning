@@ -1,0 +1,19 @@
+# === .NET Core ===
+bin/
+obj/
+
+# === SQLite ===
+*.db-journal
+*.db-shm
+*.db-wal
+# Lưu ý: Cố tình KHÔNG ignore file saigonride.db để 
+# đồng đội clone về có sẵn database để chạy test luôn.
+
+# === IDE & OS ===
+.vscode/
+.idea/
+*.user
+.DS_Store
+
+# === Môi trường / Secret ===
+appsettings.Development.json

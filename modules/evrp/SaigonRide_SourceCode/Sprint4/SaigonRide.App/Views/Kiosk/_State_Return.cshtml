@@ -1,0 +1,61 @@
+<!-- ══ 10. RETURN SCAN ════════════════════════════════════════════ -->
+<div id="paymentState_ReturnScan" class="state-container" style="display:none;">
+    <h2 class="section-title">Trả Xe</h2>
+    <p class="section-subtitle">Nhập mã xe hoặc quét barcode trên xe</p>
+    <div class="input-group">
+        <input id="bikeIdInput" class="kiosk-input" type="text"
+               placeholder="VD: BK-042" maxlength="10" />
+        <p id="returnError" class="error-msg"></p>
+    </div>
+    
+    <partial name="_Numpad" model=' "bikeIdInput" ' />
+
+    <button id="btnSubmitReturn" class="action-btn btn-primary" style="margin-top:24px;">
+        XÁC NHẬN TRẢ XE →
+    </button>
+    <!-- Inside paymentState_ReturnScan, under btnSubmitReturn -->
+    <button class="action-btn btn-secondary" data-back-to="Splash" style="margin-top:12px;">
+        ⬅ HỦY & QUAY LẠI
+    </button>
+</div>
+
+<!-- ══ 11. RETURN PROCESSING ══════════════════════════════════════ -->
+<div id="paymentState_ReturnProcessing" class="state-container" style="display:none;">
+    <div class="spinner-wrapper">
+        <div class="kiosk-spinner"></div>
+    </div>
+    <h2 class="section-title">Đang Xử Lý Trả Xe...</h2>
+    <p class="section-subtitle">Đang kiểm tra tình trạng xe và tính phí.<br>Vui lòng chờ trong giây lát.</p>
+</div>
+
+<!-- ══ 12. RETURN RECEIPT ═════════════════════════════════════════ -->
+<div id="paymentState_ReturnReceipt" class="state-container" style="display:none;">
+    <div class="success-icon-wrapper">
+        <svg class="success-svg" viewBox="0 0 52 52">
+            <circle class="success-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="success-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
+    <h2 class="success-title">Ride Completed!</h2>
+    <div class="receipt-card">
+        <div class="receipt-row">
+            <span class="receipt-label">Phí cơ bản</span>
+            <span class="receipt-value" id="receiptBaseFare">—</span>
+        </div>
+        <div class="receipt-row receipt-row--discount">
+            <span class="receipt-label">Giảm giá thành viên</span>
+            <span class="receipt-value" id="receiptDiscount">—</span>
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-row receipt-row--total">
+            <span class="receipt-label">Phí thực tế</span>
+            <span class="receipt-value" id="receiptFinalFare">—</span>
+        </div>
+        <div class="receipt-row receipt-row--note">
+            <span id="receiptDepositNote" class="receipt-note"></span>
+        </div>
+    </div>
+    <button id="btnReceiptDone" class="action-btn btn-primary" style="margin-top:32px;">
+        HOÀN TẤT →
+    </button>
+</div>

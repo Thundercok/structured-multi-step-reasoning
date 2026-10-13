@@ -1,0 +1,96 @@
+﻿@page
+@model LoginModel
+@{ ViewData["Title"] = "Sign In"; Layout = "/Views/Shared/_Layout.cshtml"; }
+
+<style>
+    .auth-wrap {
+        min-height: calc(100vh - 60px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 40px 20px; background: #fafafa;
+    }
+    .auth-card {
+        background: #fff; border: 1px solid #e0e0e0; border-radius: 16px;
+        padding: 48px; width: 100%; max-width: 420px;
+        box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    }
+    .auth-logo { font-size: 13px; font-weight: 700; color: #2A5C43; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .auth-title { font-size: 28px; font-weight: 800; color: #111; margin-bottom: 4px; }
+    .auth-sub { font-size: 14px; color: #999; margin-bottom: 32px; }
+    .auth-label { display: block; font-size: 12px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .auth-input {
+        width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 8px;
+        font-size: 15px; outline: none; transition: border-color .15s; margin-bottom: 4px;
+        font-family: 'Inter', sans-serif;
+    }
+    .auth-input:focus { border-color: #2A5C43; }
+    .auth-input.input-validation-error { border-color: #c0392b; }
+    .field-validation-error { font-size: 12px; color: #c0392b; display: block; margin-bottom: 12px; }
+    .auth-field { margin-bottom: 16px; }
+    .auth-btn {
+        width: 100%; padding: 14px; background: #2A5C43; color: #fff;
+        border: none; border-radius: 8px; font-size: 16px; font-weight: 700;
+        cursor: pointer; transition: background .15s; margin-top: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+    .auth-btn:hover { background: #1a3a2a; }
+    .auth-divider { text-align: center; color: #ccc; font-size: 12px; margin: 20px 0; position: relative; }
+    .auth-divider::before, .auth-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: #e8e8e8; }
+    .auth-divider::before { left: 0; } .auth-divider::after { right: 0; }
+    .auth-link { color: #2A5C43; font-weight: 600; text-decoration: none; }
+    .auth-link:hover { text-decoration: underline; }
+    .auth-footer { text-align: center; font-size: 14px; color: #666; margin-top: 24px; }
+    .alert-danger { background: #fde8e8; color: #c0392b; border-radius: 8px; padding: 12px 16px; font-size: 14px; margin-bottom: 20px; }
+</style>
+
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-logo">⚡ SaigonRide</div>
+        <div class="auth-title">Welcome back</div>
+        <div class="auth-sub">Sign in to your account</div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert-danger">
+                <asp-validation-summary asp-validation-summary="All" />
+            </div>
+        }
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert-danger" style="display:none;"></div>
+
+            <div class="auth-field">
+                <label asp-for="Input.Email" class="auth-label">Email</label>
+                <input asp-for="Input.Email" class="auth-input" autocomplete="email"
+                       placeholder="you@example.com" />
+                <span asp-validation-for="Input.Email" class="field-validation-error"></span>
+            </div>
+
+            <div class="auth-field">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <label asp-for="Input.Password" class="auth-label">Password</label>
+                    <a asp-page="./ForgotPassword" class="auth-link" style="font-size:12px;">Forgot?</a>
+                </div>
+                <input asp-for="Input.Password" class="auth-input" autocomplete="current-password"
+                       placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="field-validation-error"></span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <input asp-for="Input.RememberMe" type="checkbox"
+                       style="width:16px;height:16px;accent-color:#2A5C43;" />
+                <label asp-for="Input.RememberMe" style="font-size:13px;color:#666;cursor:pointer;">
+                    Remember me
+                </label>
+            </div>
+
+            <button id="login-submit" type="submit" class="auth-btn">Sign In →</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account?
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Create one</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

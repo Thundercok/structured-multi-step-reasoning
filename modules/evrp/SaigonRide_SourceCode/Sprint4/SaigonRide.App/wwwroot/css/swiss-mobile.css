@@ -1,0 +1,98 @@
+/* wwwroot/css/swiss-mobile.css */
+:root {
+    --bg: #F8F9FA;
+    --text: #111111;
+    --primary: #2A5C43;
+    --primary-hover: #1f4532;
+    --danger: #D32F2F;
+    --surface: #FFFFFF;
+    --border: #E0E0E0;
+    --radius: 8px;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+    max-width: 480px; /* Mobile constraint */
+    margin: 0 auto;
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+.brand-header {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 10px;
+}
+
+/* Swiss Cards */
+.swiss-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.swiss-card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+/* Wallet Specifics */
+.balance-display {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-outline { background: transparent; border: 2px solid var(--text); color: var(--text); }
+
+/* Station List */
+.station-list { list-style: none; padding: 0; margin: 0; }
+.station-item {
+    border-bottom: 1px solid var(--border);
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.station-item:last-child { border-bottom: none; }
+.station-info h3 { margin: 0 0 5px 0; font-size: 18px; }
+.station-info p { margin: 0; color: #666; font-size: 14px; }
+
+/* Utilities */
+.hidden { display: none !important; }
+.mb-10 { margin-bottom: 10px; }

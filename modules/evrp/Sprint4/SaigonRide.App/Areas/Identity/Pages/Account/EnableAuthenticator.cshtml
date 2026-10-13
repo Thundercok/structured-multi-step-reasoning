@@ -1,0 +1,34 @@
+@page
+@model EnableAuthenticatorModel
+@{
+    ViewData["Title"] = "Setup Authenticator";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>Scan the QR code below with your authenticator app (Google Authenticator, Microsoft Authenticator, etc.), then enter the 6-digit code to verify.</p>
+
+<div id="qrCode" data-uri="@Model.AuthenticatorUri"></div>
+<p>Can't scan? Enter this key manually: <strong>@Model.SharedKey</strong></p>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div>
+        <label asp-for="Input.Code"></label>
+        <input asp-for="Input.Code" autocomplete="one-time-code" id="totpCode" />
+        <span asp-validation-for="Input.Code" class="text-danger"></span>
+    </div>
+    <button type="submit">Verify</button>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        new QRCode(document.getElementById("qrCode"), {
+            text: "@Html.Raw(Model.AuthenticatorUri)",
+            width: 200,
+            height: 200
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

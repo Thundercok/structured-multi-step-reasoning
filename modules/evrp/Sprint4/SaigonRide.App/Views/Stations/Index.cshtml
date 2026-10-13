@@ -1,0 +1,188 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Stations";
+}
+
+<style>
+    .stations-wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+    .stations-header { margin-bottom: 32px; }
+    .stations-title { font-size: 36px; font-weight: 900; color: #111; margin-bottom: 6px; }
+    .stations-sub { font-size: 15px; color: #999; }
+
+    .stations-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; align-items: start; }
+
+    /* ── Map ── */
+    #stationMap { height: 560px; border-radius: 16px; border: 1px solid #e0e0e0; z-index: 0; }
+
+    /* ── Station list ── */
+    .station-list { display: flex; flex-direction: column; gap: 12px; max-height: 560px; overflow-y: auto; padding-right: 4px; }
+    .station-card {
+        background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+        padding: 18px 20px; cursor: pointer; transition: border-color .15s, box-shadow .15s;
+    }
+    .station-card:hover  { border-color: #2A5C43; box-shadow: 0 4px 16px rgba(42,92,67,.08); }
+    .station-card.active { border-color: #2A5C43; background: #f0f7f3; }
+
+    .sc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .sc-name   { font-size: 15px; font-weight: 800; color: #111; }
+    .sc-addr   { font-size: 12px; color: #999; margin-top: 2px; }
+    .sc-badge  { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .badge-good   { background: #d4edda; color: #155724; }
+    .badge-low    { background: #fff3cd; color: #856404; }
+    .badge-empty  { background: #fde8e8; color: #c0392b; }
+
+    .sc-bar-wrap { background: #f0f0f0; border-radius: 4px; height: 6px; }
+    .sc-bar      { height: 6px; border-radius: 4px; transition: width .4s ease; }
+    .sc-meta     { display: flex; justify-content: space-between; font-size: 11px; color: #999; margin-top: 5px; }
+
+    /* ── Scrollbar ── */
+    .station-list::-webkit-scrollbar { width: 4px; }
+    .station-list::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
+    .station-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+    @@media (max-width: 768px) { .stations-grid { grid-template-columns: 1fr; } #stationMap { height: 360px; } }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<div class="stations-wrap">
+    <div class="stations-header">
+        <div class="stations-title">⚡ Station Network</div>
+        <div class="stations-sub">Real-time availability across all SaigonRide stations in District 1</div>
+    </div>
+
+    <div class="stations-grid">
+        <!-- List -->
+        <div class="station-list" id="stationList">
+            @for (int i = 0; i < 6; i++)
+            {
+                <div class="station-card">
+                    <div class="shimmer" style="height:16px;width:60%;margin-bottom:8px;"></div>
+                    <div class="shimmer" style="height:10px;width:80%;margin-bottom:12px;"></div>
+                    <div class="shimmer" style="height:6px;width:100%;"></div>
+                </div>
+            }
+        </div>
+
+        <!-- Map -->
+        <div id="stationMap"></div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('stationMap', { zoomControl: true, scrollWheelZoom: true });
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    maxZoom: 19
+}).addTo(map);
+
+const markers = {};
+let activeCard = null;
+
+function getBadge(avail, cap) {
+    const pct = cap > 0 ? avail / cap : 0;
+    if (avail === 0) return ['badge-empty', '⚠ Empty'];
+    if (pct < 0.3)   return ['badge-low',   `⚡ ${avail} left`];
+    return               ['badge-good',  `✓ ${avail} available`];
+}
+
+function getBarColor(avail, cap) {
+    const pct = cap > 0 ? avail / cap : 0;
+    return pct === 0 ? '#c0392b' : pct < 0.3 ? '#e67e22' : '#2A5C43';
+}
+
+function buildCard(s) {
+    const [badgeClass, badgeText] = getBadge(s.available, s.capacity);
+    const pct = s.capacity > 0 ? Math.round(s.available / s.capacity * 100) : 0;
+    const barColor = getBarColor(s.available, s.capacity);
+
+    const card = document.createElement('div');
+    card.className = 'station-card';
+    card.dataset.id = s.id;
+    card.innerHTML = `
+        <div class="sc-header">
+            <div>
+                <div class="sc-name">${s.name}</div>
+                <div class="sc-addr">${s.address ?? ''}</div>
+            </div>
+            <span class="sc-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="sc-bar-wrap">
+            <div class="sc-bar" style="width:${pct}%;background:${barColor};"></div>
+        </div>
+        <div class="sc-meta">
+            <span>${s.available} / ${s.capacity} bikes</span>
+            <span>${pct}% fill</span>
+        </div>`;
+
+    card.addEventListener('click', () => {
+        document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        if (markers[s.id]) {
+            map.flyTo([s.latitude, s.longitude], 16, { duration: 0.8 });
+            markers[s.id].openPopup();
+        }
+    });
+    return card;
+}
+
+function buildMarker(s) {
+    const [badgeClass, ] = getBadge(s.available, s.capacity);
+    const color = badgeClass === 'badge-good' ? '#2A5C43'
+                : badgeClass === 'badge-low'  ? '#e67e22'
+                : '#c0392b';
+
+    const icon = L.divIcon({
+        className: '',
+        html: `<div style="
+            background:${color};color:#fff;font-weight:800;font-size:12px;
+            padding:6px 10px;border-radius:20px;white-space:nowrap;
+            box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff;
+            font-family:'Inter',sans-serif;
+        ">${s.available} 🚲</div>`,
+        iconAnchor: [30, 12]
+    });
+
+    const marker = L.marker([s.latitude, s.longitude], { icon }).addTo(map);
+    marker.bindPopup(`
+        <div style="font-family:'Inter',sans-serif;min-width:160px;">
+            <div style="font-weight:800;font-size:14px;margin-bottom:4px;">${s.name}</div>
+            <div style="font-size:12px;color:#666;margin-bottom:8px;">${s.address ?? ''}</div>
+            <div style="font-size:13px;font-weight:700;color:${color};">
+                ${s.available} / ${s.capacity} available
+            </div>
+        </div>
+    `, { maxWidth: 220 });
+
+    marker.on('click', () => {
+        document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
+        const card = document.querySelector(`.station-card[data-id="${s.id}"]`);
+        if (card) { card.classList.add('active'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    });
+
+    return marker;
+}
+
+async function loadStations() {
+    const res  = await fetch('/api/stations');
+    const data = await res.json();
+
+    const list = document.getElementById('stationList');
+    list.innerHTML = '';
+
+    const bounds = [];
+
+    data.forEach(s => {
+        list.appendChild(buildCard(s));
+        markers[s.id] = buildMarker(s);
+        bounds.push([s.latitude, s.longitude]);
+    });
+
+    if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
+}
+
+loadStations();
+setInterval(loadStations, 30000); // refresh every 30s
+</script>

@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Set Up Authenticator";
+}
+
+<div style="max-width:480px;margin:48px auto;padding:0 24px;font-family:'Inter',sans-serif;">
+    <h1 style="font-size:22px;font-weight:900;margin-bottom:8px;">Set Up Authenticator</h1>
+    <p style="color:#999;font-size:13px;margin-bottom:32px;">
+        Scan the QR code with Google Authenticator or Microsoft Authenticator, then enter the 6-digit code to confirm.
+    </p>
+
+    <div id="qrSection" style="text-align:center;margin-bottom:32px;">
+        <div style="color:#999;font-size:13px;">Loading QR code…</div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:8px;">Verification Code</label>
+        <input id="totpCode" maxlength="6" placeholder="000000"
+               style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:20px;letter-spacing:8px;text-align:center;" />
+    </div>
+
+    <div id="totpError" style="color:#c0392b;font-size:13px;margin-bottom:12px;display:none;"></div>
+
+    <button id="btnEnable" onclick="enableTotp()"
+            style="width:100%;padding:13px;background:#2A5C43;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;">
+        Confirm & Enable
+    </button>
+</div>
+
+<script>
+    const jwt = localStorage.getItem('saigonride_token');
+
+    async function loadQr() {
+        const res  = await fetch('/api/auth/totp/setup', {
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${jwt}` }
+        });
+        const data = await res.json();
+        document.getElementById('qrSection').innerHTML =
+            `<img src="${data.qrDataUrl}" style="width:220px;height:220px;border-radius:8px;" />
+             <div style="margin-top:12px;font-size:11px;color:#bbb;word-break:break-all;">Manual key: ${data.secret}</div>`;
+    }
+
+    async function enableTotp() {
+        const code = document.getElementById('totpCode').value.trim();
+        const err  = document.getElementById('totpError');
+        err.style.display = 'none';
+
+        const res  = await fetch('/api/auth/totp/enable', {
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${jwt}`, 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ code })
+        });
+
+        if (res.ok) {
+            window.location.href = '/Security';
+        } else {
+            const data = await res.json();
+            err.textContent    = data.message ?? 'Invalid code.';
+            err.style.display  = 'block';
+        }
+    }
+
+    loadQr();
+</script>

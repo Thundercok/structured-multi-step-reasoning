@@ -1,0 +1,12 @@
+{
+  "name": "SaigonRide",
+  "short_name": "SaigonRide",
+  "description": "Electric vehicle rental in Ho Chi Minh City",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f2419",
+  "theme_color": "#2A5C43",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "any", "type": "image/x-icon" }
+  ]
+}

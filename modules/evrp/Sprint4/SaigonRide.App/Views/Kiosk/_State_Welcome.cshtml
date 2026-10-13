@@ -1,0 +1,72 @@
+<!-- ══ 1. SPLASH ════════════════════════════════════════════════════ -->
+<div id="paymentState_Splash" class="state-container">
+
+    <div class="splash-logo" style="margin-bottom: 8px;">
+        <span class="logo-icon-lg">⚡</span>
+        <h1 class="splash-brand">SAIGONRIDE</h1>
+    </div>
+
+    <div id="splashTime" class="splash-time">--:--</div>
+    <div id="splashDate" class="splash-date">Loading...</div>
+
+    <div class="splash-ticker">
+        <span class="ticker-label">🟢 Live</span>
+        <span class="ticker-text" id="tickerText">Đang kiểm tra trạng thái hệ thống...</span>
+    </div>
+
+    <div class="splash-cta-row">
+        <button id="btnTouchToStart" class="action-btn btn-primary btn-xl">
+            🚲 THUÊ XE
+        </button>
+        <button id="btnGoToReturn" class="action-btn btn-secondary btn-xl">
+            📥 TRẢ XE
+        </button>
+    </div>
+
+    <p class="splash-hint">Hỗ trợ kỹ thuật: 1800 000 000</p>
+</div>
+
+<script>
+(function() {
+    const DAYS_VI = ['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'];
+    const MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function updateClock() {
+        const now = new Date();
+        const h   = String(now.getHours()).padStart(2,'0');
+        const m   = String(now.getMinutes()).padStart(2,'0');
+        const el  = document.getElementById('splashTime');
+        const de  = document.getElementById('splashDate');
+        if (el) el.textContent = `${h}:${m}`;
+        if (de) de.textContent = `${DAYS_VI[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+    }
+
+    const TICKER_MSGS = [
+        '8 trạm hoạt động tại Quận 1',
+        'Xe đạp · E-Scooter · VinFast Klara S',
+        'Thanh toán VietQR hoặc thẻ quốc tế',
+        'Đặt cọc hoàn trả ngay khi trả xe',
+        'Mở khóa nhanh trong 60 giây',
+    ];
+    let tickerIdx = 0;
+    function rotateTicker() {
+        const el = document.getElementById('tickerText');
+        if (!el) return;
+        el.style.opacity = '0';
+        setTimeout(() => {
+            el.textContent = TICKER_MSGS[tickerIdx % TICKER_MSGS.length];
+            el.style.opacity = '1';
+            tickerIdx++;
+        }, 300);
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+    rotateTicker();
+    setInterval(rotateTicker, 4000);
+
+    // Smooth ticker fade transition
+    const tickerEl = document.getElementById('tickerText');
+    if (tickerEl) tickerEl.style.transition = 'opacity 0.3s ease';
+})();
+</script>
