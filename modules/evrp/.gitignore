@@ -17,3 +17,9 @@ obj/
 
 # === Môi trường / Secret ===
 appsettings.Development.json
+
+# Standalone Python experiments
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/

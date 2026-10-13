@@ -1,2 +1,11 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Preserve byte hashes of imported local snapshots.
+/data/vietnam_charging_stations.csv -text
+/data/vietnam_charging_stations.json -text
+/data/vietnam_charging_stations_raw.json -text
+/results/benchmark_results.json -text
+/results/benchmark_table.md -text
+/scripts/fetch_charging_stations.py -text
+/scripts/run_benchmark.py -text
