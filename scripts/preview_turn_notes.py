@@ -4,9 +4,10 @@ scripts/preview_turn_notes.py — Launch or export interactive Qt turn notes pre
 Usage:
     # Run interactively:
     python scripts/preview_turn_notes.py
+    python scripts/preview_turn_notes.py --compact
 
-    # Headless export of screenshots to iteration 2 audit:
-    python scripts/preview_turn_notes.py --save-screenshots audit/rat_turn_notes_stage1_iteration2_20261012
+    # Headless export to a fresh directory (preserve reviewed audit captures):
+    python scripts/preview_turn_notes.py --save-screenshots /tmp/rat-turn-notes-preview
 """
 from __future__ import annotations
 
@@ -33,6 +34,7 @@ def main() -> None:
         type=Path,
         help="Directory to save preview screenshots headlessly and exit.",
     )
+    parser.add_argument('--compact', action='store_true', help='Open the interactive preview as a compact desktop chat.')
     args = parser.parse_args()
 
     if args.save_screenshots:
@@ -48,7 +50,7 @@ def main() -> None:
         # Hide QA dock by default to capture clean user surface
         window.dock.hide()
         window.show()
-        QTest.qWait(120)
+        QTest.qWait(240)
 
         # 1. Full view: lightweight note lines, legible replaced text, links, real composer
         window.grab().save(str(out_dir / "01_full_turns_overview.png"))
@@ -99,12 +101,29 @@ def main() -> None:
         QTest.qWait(120)
         window.grab().save(str(out_dir / "09_qa_dock_visible.png"))
 
-        print(f"All 9 preview screenshots saved successfully to {out_dir}")
+        # Metadata disclosure is inline, with no separate note panel.
+        window.dock.hide()
+        row_t2.btn_details.setChecked(True)
+        QTest.qWait(240)
+        window.grab().save(str(out_dir / "10_note_details_inline.png"))
+
+        # Composer selection survives a compact/full transition.
+        window.chat_composer.setText("Giữ hộ 30 phút, mình quay lại ngay.")
+        window.chat_composer.setSelection(8, 7)
+        window.chat_composer.setFocus()
+        window.toggle_expanded()
+        QTest.qWait(240)
+        window.grab().save(str(out_dir / "11_compact_composer_draft.png"))
+
+        print(f"All 11 preview screenshots saved successfully to {out_dir}")
         window.close()
         window.deleteLater()
         return
 
     # Interactive mode
+    if args.compact:
+        window.toggle_expanded()
+        window._fit_surface()
     window.show()
     sys.exit(app.exec())
 

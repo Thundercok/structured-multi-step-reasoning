@@ -1,0 +1,109 @@
+{
+  "client_date": "2026-10-12",
+  "timezone": "Asia/Saigon",
+  "scope": "RAT Stage 1 turn notes UI iteration 3; pending user review",
+  "head": "953200c61b47beb8e9ca6bf29d095df3149abc61",
+  "before_source_sha256": {
+    "rat/ui/turn_notes.py": "9965f1fd4823ddd7f9f2aa51cd75d2ac89c756b7ef56ec5aa590c6eff59ea5ac",
+    "rat/ui/turn_notes_preview.py": "47b0d485e07f2891beafd840730988ad93cf288e964cfb476d308bc27cc71629",
+    "scripts/preview_turn_notes.py": "79da0db62a63f4050be2fef52ce33cca7e36c59d5c6429cce5c23244e8d13999",
+    "tests/test_turn_notes_preview.py": "acf8740d4c432947f3631f667d6e9265f546d9321f00ebdbb112b6ded5b007c0"
+  },
+  "before_snapshots_verified": {
+    "rat/ui/turn_notes.py": true,
+    "rat/ui/turn_notes_preview.py": true,
+    "scripts/preview_turn_notes.py": true,
+    "tests/test_turn_notes_preview.py": true
+  },
+  "source_sha256": {
+    "rat/ui/turn_notes.py": "2290b2aa508dceffcff8c73c9a46d2a7a5f36d42f1d3e4203da6aa5e54e6401d",
+    "rat/ui/turn_notes_preview.py": "ff580f5f4eb7858e23dd5ab9c733c3830eba75c64959fbce8b79c1bb4570d81a",
+    "scripts/preview_turn_notes.py": "2034bd6bb1f4b706c661d9e01a6e922e361c22751d592a9223ba22a82c3d866d",
+    "tests/test_turn_notes_preview.py": "55821385f6577cd70339094de4f3c63958814ae7603d5707bfa181d0142166fa",
+    "docs/rat_turn_notes_plan.md": "ea9948cf4d15e24e85cdbd81342e4bc0d4edc205772a2febe5e5b63d9dfb2c0e"
+  },
+  "artifact_sha256": {
+    "report.md": "9b819796e7361c57114d23b83d8ae4d753edee2120fe651c561dd5f9b084d870",
+    "ui_tests.txt": "e30b81b8aadf17fe832c1396348e6abddeeda868e6a6e7694d31d85e963afbed",
+    "before_sha256.json": "d8b242c72477456d78eaa6412bc1bfd59b27e33f669cb4043039194d2ea7f20c"
+  },
+  "screenshots": {
+    "01_full_turns_overview.png": {
+      "sha256": "af7ba80eec2a356987a685a5c18a8bcab2fa8a5c612aa12f894973e6bdef2a79",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "02_companion_clicked_highlight.png": {
+      "sha256": "1383e8b38baec8ea0d3221782daebccecaa96b458a9d44a07cf5fd8dc803dab9",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "03_inline_editor_open.png": {
+      "sha256": "fb1f7559bd9b6cc7e64f37555cb8cc21d989c76355a9ee5fd2c4c006716e88ce",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "04_stale_conflict_warning.png": {
+      "sha256": "b6d2c902f9dbdbba7e38d88fec68a01d3afd4d505e5aa37334ec0f11a5c48ad2",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "05_predecessor_link_updated.png": {
+      "sha256": "a0313da4e4f145558795d0a64714992968e7d1a3973d391efe7cb4aa1ccbdb12",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "06_removed_tombstone_undo.png": {
+      "sha256": "7a6d8f638d9c19a97edb6e0523c650d497e535da407ffc7c16202d76af9853fd",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "07_compact_hud_mode.png": {
+      "sha256": "c736350b3062709bca4bec08260e1ec5c61464465fc913dca9ee4138889c2d8d",
+      "width_px": 680,
+      "height_px": 346
+    },
+    "08_compact_revealed_old_turn.png": {
+      "sha256": "8eeaaf5dd5d01a8de0fcd410aec55af2cab58b1a5be69e40ef7989afd564a90e",
+      "width_px": 680,
+      "height_px": 381
+    },
+    "09_qa_dock_visible.png": {
+      "sha256": "95a6576b82537d2806f06162260881010beca1445157a4ae8363084ff8ae8b6d",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "10_note_details_inline.png": {
+      "sha256": "5c56166f5ffe6d6ffd2db94afe05fcdf21fa0124d0cb5b7a37068f39ac01fbf4",
+      "width_px": 820,
+      "height_px": 620
+    },
+    "11_compact_composer_draft.png": {
+      "sha256": "4f6b0b9c33cc9941f8eb631aa8b112604ff52210950e46aaa87e6d388d9c4b80",
+      "width_px": 680,
+      "height_px": 346
+    }
+  },
+  "tests": {
+    "command": "QT_QPA_PLATFORM=offscreen /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_turn_notes_preview.py tests/test_work_context_ui.py -q",
+    "passed": 28,
+    "preview_tests": 19,
+    "work_context_ui_tests": 9,
+    "elapsed_seconds": 24.56,
+    "raw_log": "ui_tests.txt",
+    "source_changes_after_tests": "Documentation only: preview CLI docstring and plan/report/manifest. No behavior changed."
+  },
+  "capture": {
+    "qt_offscreen": true,
+    "window_grab": true,
+    "reduced_motion": true,
+    "native_window_checked": false
+  },
+  "runtime": {
+    "data": "FIXTURE_TURNS",
+    "model_inference": false,
+    "real_rat_notes_backend_connected": false
+  },
+  "stage_2": "Not started; user chose UI refinement first",
+  "separate_core_followup": "audit/rat_symbolic_core_20261012/request_identity_regressions.txt: 76 passed, UUID request identity only"
+}

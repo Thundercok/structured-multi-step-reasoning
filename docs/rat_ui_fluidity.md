@@ -3,6 +3,13 @@
 Date: 2026-10-12. Status: đã triển khai trong source RAT; kiểm tra bằng Qt fixtures và cửa sổ macOS thật. Review trải nghiệm của người dùng còn mở.
 Tracking: [RAT-UX-01 / 02 / 03 / 04 / 05](rat_backlog.md).
 
+Quyết định cập nhật 2026-10-13: minor UI chỉ chỉnh cách đọc code, notes và
+khoảng cách; Chuột là nhân vật trang trí, chạm chỉ giãy/emote. Notes nằm trong
+lượt chat, không có panel riêng hoặc đường mở notes qua nhân vật. Đây là phạm
+vi đã chọn cho đợt tiếp theo; source hiện tại vẫn có wiring mở `NotebookPane`
+cũ và chưa được đổi theo quyết định này. Core chung đang được bàn bằng
+[ví dụ hội thoại DSA](rat_conversation_dsa_example_plan.md).
+
 ## Persona đã xác nhận: người bạn nhận việc và ghi chép
 
 Người dùng xác nhận ngày 2026-10-12: Chuột là một người bạn nhận điều người
@@ -20,8 +27,9 @@ Chuột toàn thân đứng bên trái khung chat, giọng chung, ghi chép củ
   giữ nhân vật/emote và bỏ chuyển động. Emote là phản ứng giao diện, không
   chứng minh model thực hiện được yêu cầu. Các giai đoạn thiết kế sau cần hỏi
   người dùng trước khi tự đổi vị trí/phong cách đã chọn.
-- Giai đoạn tương tác cũng đã chốt: chạm Chuột emote và mở ghi chép. Không gửi
-  thêm câu chat hoặc thực thi operation khi chơi với nhân vật.
+- Quyết định tương tác mới ngày 2026-10-13: chạm Chuột chỉ giãy/emote; giữ
+  composer/editor focus và viewport. Ghi chép truy cập tại dòng của từng lượt.
+  Tương tác trang trí không gửi câu chat hoặc thực thi operation.
 - Giọng thân thiện, bình tĩnh, trực tiếp. Hài hước tùy hoàn cảnh; không đặt
   yêu cầu mỉa mai làm tính cách mặc định. Câu hỏi bổ sung nêu đúng điều còn
   thiếu để tiếp tục việc người dùng đang làm.
@@ -51,7 +59,9 @@ Chuột toàn thân đứng bên trái khung chat, giọng chung, ghi chép củ
 Nền tảng đã có: `WorkNotebook` dùng chung cho mọi operation, ghi chép có nguồn
 và revision; model có thể ghi/sửa qua `record_work_note`, chọn nhiều kết quả thật
 qua `select_work_results`; lượt hỏi tiếp giữ cùng widget kết quả và lựa chọn.
-Nhấn Chuột mở ghi chép, xem nguồn, thêm/sửa/xóa tại chỗ. Ghi chép chỉ thuộc
+Source ngày 2026-10-12 còn mở ghi chép riêng khi nhấn Chuột; wiring này cần bỏ
+theo quyết định 2026-10-13. Nguồn và thêm/sửa/xóa sẽ ở chính dòng ghi chú của
+lượt chat. Ghi chép chỉ thuộc
 hội thoại đang mở, không tự lưu thành hồ sơ cá nhân hoặc qua lần khởi động sau.
 Kế hoạch model không tự tạo ghi chép. Diễn giải từ lời người dùng mang nhãn
 đề xuất cho đến khi người dùng xác nhận. Dữ liệu điều khiển được ghi sau khi

@@ -11,7 +11,7 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication
 
@@ -56,6 +56,8 @@ def test_turn_notes_structure_and_revision_links(window):
     row_t2 = t2.notes_pane.rows["note-tcp-time-v2"]
     assert row_t2.note.status == "active"
     assert row_t2.note.replaces_turn_id == 1
+    assert not row_t2.btn_nav_link.isVisible()
+    row_t2.btn_details.setChecked(True)
     assert row_t2.btn_nav_link.isVisible()
     assert "Có 20 phút" in row_t2.btn_nav_link.text()
 
@@ -154,20 +156,24 @@ def test_confirm_proposed_note(window):
     assert row.btn_edit.isVisible()
 
 
-def test_companion_click_emotes_and_targets_active_note_with_natural_text(window):
+def test_companion_click_is_purely_decorative_and_preserves_draft_and_focus(window):
     companion = window.companion
     assert companion.isVisible()
+    window.chat_composer.setText("Mình đang gõ câu hỏi về mid + 1")
+    window.chat_composer.setFocus()
 
     QTest.mouseClick(companion, Qt.MouseButton.LeftButton)
     QTest.qWait(20)
 
-    # Companion reacts
+    # Companion reacts with happy emote in place
     assert companion.pose()["reaction"] == "happy"
-
-    # Hint text uses friendly text, not technical IDs
-    hint_text = window.composer_hint.text()
-    assert "note-tcp-time-v2" not in hint_text
-    assert "Ghi chép đang dùng" in hint_text
+    # Does NOT navigate, open notes, show navigation hint, or steal focus/draft
+    assert window.composer_hint.isHidden()
+    assert window.chat_composer.text() == "Mình đang gõ câu hỏi về mid + 1"
+    assert QApplication.focusWidget() is window.chat_composer
+    for tw in window.turn_widgets.values():
+        for row in tw.notes_pane.rows.values():
+            assert not row.is_highlighted()
 
 
 def test_compact_and_full_mode_toggle_with_local_disclosure(window):
@@ -276,3 +282,146 @@ def test_reduced_motion_avoids_animation(window, monkeypatch):
     # Static cue MUST be visible
     assert row.is_highlighted() is True
     assert row.get_highlight_ratio() >= 0.7
+
+
+def test_note_details_are_disclosed_without_another_panel(window):
+    row = window.turn_widgets[2].notes_pane.rows['note-tcp-time-v2']
+    assert row.sub_info_label.isHidden()
+    assert not row.btn_nav_link.isVisible()
+    row.btn_details.setFocus()
+    QTest.keyClick(row.btn_details, Qt.Key.Key_Space)
+    assert row.sub_info_label.isVisible()
+    assert row.btn_nav_link.isVisible()
+    QTest.keyClick(row.btn_details, Qt.Key.Key_Space)
+    assert row.sub_info_label.isHidden()
+
+
+def test_qa_dock_is_hidden_when_preview_is_opened_normally(window):
+    assert window.dock.isHidden()
+    QTest.mouseClick(window.btn_toggle_qa, Qt.MouseButton.LeftButton)
+    assert window.dock.isVisible()
+    QTest.mouseClick(window.btn_toggle_qa, Qt.MouseButton.LeftButton)
+    assert window.dock.isHidden()
+
+
+def test_composer_draft_selection_survives_mode_and_local_navigation(window):
+    composer = window.chat_composer
+    composer.setText('Cậu giữ hộ 30 phút nhé')
+    composer.setSelection(13, 7)
+    composer.setFocus()
+    selection = composer.selectedText()
+    window.toggle_expanded()
+    QTest.qWait(30)
+    assert composer.text() == 'Cậu giữ hộ 30 phút nhé'
+    assert composer.selectedText() == selection
+    window.navigate_to_turn_note(1, 'note-tcp-time')
+    window._return_to_latest_compact_turn()
+    assert composer.selectedText() == selection
+    assert QApplication.focusWidget() is composer
+
+
+def test_preview_send_keeps_draft_and_truthful_offline_status(window):
+    window.chat_composer.setText('Học hộ tôi với')
+    QTest.mouseClick(window.btn_send, Qt.MouseButton.LeftButton)
+    assert window.chat_composer.text() == 'Học hộ tôi với'
+    assert 'chưa gửi tin nhắn thật' in window.composer_hint.text()
+
+
+def test_animated_mode_transition_preserves_editor_selection(window, monkeypatch):
+    monkeypatch.setattr('rat.ui.turn_notes_preview.motion_enabled', lambda: True)
+    row = window.turn_widgets[2].notes_pane.rows['note-tcp-time-v2']
+    row._start_edit()
+    row.editor.setPlainText('Bản nháp của bạn vẫn ở đây')
+    cursor = row.editor.textCursor()
+    cursor.setPosition(4)
+    cursor.setPosition(12, cursor.MoveMode.KeepAnchor)
+    row.editor.setTextCursor(cursor)
+    selected = cursor.selectedText()
+    window.toggle_expanded()
+    QTest.qWait(30)
+    assert window._resize_motion.state() == window._resize_motion.State.Running
+    QTest.qWait(450)
+    assert row.editor.textCursor().selectedText() == selected
+    assert row.editor.toPlainText() == 'Bản nháp của bạn vẫn ở đây'
+    assert QApplication.focusWidget() is row.editor
+    assert window.width() == 680
+
+
+def test_reduced_motion_skips_window_animation(window, monkeypatch):
+    monkeypatch.setattr('rat.ui.turn_notes_preview.motion_enabled', lambda: False)
+    window.toggle_expanded()
+    QTest.qWait(60)
+    assert window._resize_motion.state() == window._resize_motion.State.Stopped
+    assert window.width() == 680
+    assert window.turn_widgets[3].user_label.width() > 250
+
+
+def test_saved_multiline_note_is_not_clipped_to_previous_one_line_height(window):
+    row = window.turn_widgets[2].notes_pane.rows['note-tcp-time-v2']
+    text = '\n'.join(f'Ý ôn tập thứ {index}' for index in range(8))
+    row._start_edit()
+    row.editor.setPlainText(text)
+    row._save_edit()
+    QTest.qWait(60)
+    assert row.text_label.text() == text
+    assert row.text_label.height() >= row.text_label.fontMetrics().lineSpacing() * 8
+
+
+def test_desktop_canvas_is_transparent_and_companion_stays_anchored(window):
+    """The area outside the chat really renders alpha, including after a mode switch."""
+    anchor = window.companion.mapToGlobal(QPoint(0, 0))
+    for compact in (False, True):
+        if compact:
+            window.toggle_expanded()
+        QTest.qWait(70)
+        image = window.grab().toImage()
+        assert image.pixelColor(8, window.height() - 8).alpha() == 0
+        assert image.pixelColor(window.container.x() + 40, window.container.y() + 40).alpha() == 255
+        sprite = window.companion.geometry()
+        visible_pixels = sum(
+            image.pixelColor(x, y).alpha() > 0
+            for x in range(sprite.left(), sprite.right())
+            for y in range(sprite.top(), sprite.bottom())
+        )
+        assert visible_pixels > 2000
+        assert sprite.right() < window.container.x()
+        assert window.companion.mapToGlobal(QPoint(0, 0)) == anchor
+
+
+def test_dragging_surface_preserves_composer_draft_selection_and_focus(window):
+    window.chat_composer.setText('Chuột đi đâu tôi theo đó')
+    window.chat_composer.setSelection(6, 7)
+    window.chat_composer.setFocus()
+    selected = window.chat_composer.selectedText()
+    original = window.pos()
+    grip = window.surface_grip
+    start = QPoint(grip.width() // 2, grip.height() // 2)
+    QTest.mousePress(grip, Qt.MouseButton.LeftButton, pos=start)
+    QTest.mouseMove(grip, start + QPoint(30, 20))
+    QTest.mouseRelease(grip, Qt.MouseButton.LeftButton, pos=start + QPoint(30, 20))
+    assert window.pos() != original
+    assert window.chat_composer.text() == 'Chuột đi đâu tôi theo đó'
+    assert window.chat_composer.selectedText() == selected
+    assert QApplication.focusWidget() is window.chat_composer
+
+
+def test_frameless_preview_can_be_closed_from_its_visible_control(window):
+    assert window.btn_close.isVisible()
+    QTest.mouseClick(window.btn_close, Qt.MouseButton.LeftButton)
+    assert not window.isVisible()
+
+
+def test_drag_during_mode_animation_does_not_snap_surface_back(window, monkeypatch):
+    monkeypatch.setattr('rat.ui.turn_notes_preview.motion_enabled', lambda: True)
+    window.toggle_expanded()
+    QTest.qWait(30)
+    assert window._resize_motion.state() == window._resize_motion.State.Running
+    grip = window.surface_grip
+    start = QPoint(grip.width() // 2, grip.height() // 2)
+    QTest.mousePress(grip, Qt.MouseButton.LeftButton, pos=start)
+    QTest.mouseMove(grip, start + QPoint(40, 30))
+    QTest.mouseRelease(grip, Qt.MouseButton.LeftButton, pos=start + QPoint(40, 30))
+    moved = window.pos()
+    QTest.qWait(450)
+    assert window.pos() == moved
+    assert window.width() == 680

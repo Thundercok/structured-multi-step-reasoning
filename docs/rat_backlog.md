@@ -1,13 +1,16 @@
 # RAT backlog
 
-Updated: 2026-10-12, Asia/Ho_Chi_Minh.
+Updated: 2026-10-13, Asia/Ho_Chi_Minh.
 
-Theo yêu cầu người dùng, hướng kiến trúc trong ADR-002 được đưa vào backlog.
-Phản hồi cần ưu tiên tiếp theo trong nhánh RAT là **UI cứng nhắc cả về bố cục
-lẫn cách chuyển trạng thái**. Người dùng đã xác nhận **mọi chức năng trong một
-box chat; full và compact là hai mức không gian của cùng một trải nghiệm**.
-Đây là thứ tự ưu tiên phát triển RAT, không thay
-ưu tiên bài báo NCKH, research protocol hoặc Stage 0.
+Theo yêu cầu ngày 2026-10-13, bước RAT đang được bàn là **hoàn thiện một luồng
+core xuyên suốt bằng ví dụ hội thoại DSA**, với minor UI chỉ chỉnh cách đọc
+code, notes và khoảng cách. Chuột là nhân vật trang trí; chạm chỉ giãy/emote.
+Notes thuộc từng lượt chat và không có panel riêng hoặc entry point qua Chuột.
+Xem [kế hoạch hội thoại](rat_conversation_dsa_example_plan.md).
+Baseline core/UI đã triển khai trong source và có regression phần mềm. Smoke
+DSA development còn timeout và lỗi nội dung; chưa đạt chấp nhận toàn bộ luồng
+bằng model thật. Một box chat và cùng trải nghiệm compact/full tiếp tục áp dụng.
+Ưu tiên bài báo NCKH, research protocol và Stage 0 giữ nguyên.
 
 ## Ưu tiên hiện tại trong RAT
 
@@ -16,7 +19,7 @@ box chat; full và compact là hai mức không gian của cùng một trải ng
 | RAT-UX-01 | Một box chat cho mọi chức năng, co giãn theo nội dung; compact/full dùng cùng bề mặt và cách thao tác. | Đã triển khai trong source và app chạy từ source | [Brief UI](rat_ui_fluidity.md). Bỏ khung lồng nhau và màn hình chức năng riêng; cần thử nội dung ngắn, hình và chi tiết ở cả hai mức. |
 | RAT-UX-02 | Chuyển trạng thái và compact ↔ full liên tục, giữ draft/caret, focus, vị trí đọc, lựa chọn và task đang chạy. | Đã triển khai; có kiểm tra trạng thái Qt | Cùng brief; một nguồn trạng thái/composer. Toggle không submit, gọi model hoặc thực thi lại. |
 | RAT-UX-03 | Kiểm tra trải nghiệm hai mục trên với người dùng qua một prototype tương tác. | Có prototype Qt và kiểm tra native; chờ phản hồi người dùng | Prototype ghi rõ dữ liệu mẫu; thử sửa/hủy/lỗi, toggle khi đang gõ/stream và reduced motion trước rollout. |
-| RAT-UX-04 | Chuột là người bạn nhận việc, ghi chép và đưa kết quả; personality xuyên suốt một box chat. | Đã triển khai trong source; chờ phản hồi trải nghiệm | [Hướng companion trong brief](rat_ui_fluidity.md). Chuột lớn bên trái, chuyển động vui vừa được người dùng chọn, trạng thái thực, ghi chép có nguồn/sửa/xóa; khả năng model ghi/sửa đúng còn hạn chế. |
+| RAT-UX-04 | Personality xuyên suốt một box chat; nhân vật Chuột bên trái là trang trí, chạm chỉ giãy/emote. | Đã tách click → notes trong source và có regression Qt; chờ native acceptance | [Hướng companion trong brief](rat_ui_fluidity.md). Giữ chuyển động vui vừa; notes có nguồn và thao tác trong từng lượt chat. |
 | RAT-UX-05 | Thể hiện luồng suy luận và thực thi bên cạnh kết quả, có thể mở chi tiết. | Đã triển khai trong source | [Ngữ cảnh và trace](rat_companion_work_context.md). Phân biệt dự định với thao tác đã chạy, lỗi/dừng/thiếu dữ kiện; không hiển thị raw/private reasoning. |
 
 Không gán deadline hoặc effort chưa được ước lượng. Source đã cập nhật ngày 2026-10-12; chưa build lại bản đóng gói. Bằng chứng và giới hạn: [audit UI](../audit/rat_one_box_ui_20261012/REPORT.md) và [audit companion](../audit/rat_companion_reasoning_20261012/REPORT.md).
@@ -32,11 +35,11 @@ Không gán deadline hoặc effort chưa được ước lượng. Source đã c
 
 ## Thay đổi ưu tiên
 
-Trước cập nhật này, ADR-002 đề xuất điều phối hội thoại và presentation do model
-làm bước phát triển gần. Người dùng cho biết hướng đó phần nào phù hợp nhưng
-muốn backlog và nhấn mạnh UI hiện tại cứng nhắc. Vì vậy, công việc thiết kế RAT
-tiếp theo tập trung vào bố cục và tính liên tục của tương tác. Cải thiện này
-không tự chứng minh RAT có năng lực AI mới.
+Ngày 2026-10-12, ADR-002 được đưa vào backlog để ưu tiên UI. Ngày 2026-10-13,
+người dùng yêu cầu chuyển sang hoàn thiện công việc thật, dùng DSA làm ví dụ
+cho luồng chung. Minor UI và tương tác trang trí đã chốt; baseline core/UI đã
+kiểm tra phần mềm, không thêm một chức năng DSA riêng. Smoke model đã lưu còn
+lỗi; kết quả phần mềm hoặc UI không tự chứng minh RAT có năng lực AI mới.
 
 Các bộ tính, artifact store, dispatcher và bằng chứng review hiện có giữ vai
 trò nền tảng. Đợt UI đã cập nhật app chạy từ source. Cấu hình model, các mục RAT-AI và pipeline nghiên cứu chưa thay đổi.

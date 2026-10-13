@@ -1,8 +1,17 @@
 # RAT: ghi chép thuộc từng lượt hội thoại
 
-Ngày: 2026-10-12, Asia/Saigon. Trạng thái: kế hoạch thiết kế, chưa triển khai.
-Turn này chỉ đọc source và viết kế hoạch; app, model, dữ liệu phiên và các
-kiểm tra cũ chưa được thay đổi hoặc chạy lại.
+Ngày lập kế hoạch: 2026-10-12, Asia/Saigon.
+Trạng thái hiện tại: bản xem UI giai đoạn 1, iteration 4, chờ người dùng duyệt.
+Iteration 3 chưa được duyệt: người dùng muốn Chuột thuộc màn hình như bản cũ,
+với nền ngoài ô chat trong suốt và không có cột giới thiệu riêng.
+Quyết định mới ngày 2026-10-13: ưu tiên luồng core chung dùng ví dụ DSA,
+minor UI chỉ chỉnh cách đọc; Chuột là trang trí, chạm chỉ giãy/emote.
+Giai đoạn 2 (ID lượt, lịch sử phiên bản và bỏ/hoàn tác trong core) chưa bắt đầu.
+Xem [kế hoạch hội thoại](rat_conversation_dsa_example_plan.md)
+và bản xem trước quyết định này:
+[báo cáo iteration 4](../audit/rat_turn_notes_stage1_iteration4_20261012/report.md)
+và ảnh Qt trong cùng thư mục. Bản xem dùng dữ liệu mẫu, chưa nối vào phiên RAT
+thật. Các phần bên dưới giữ thiết kế và phạm vi của kế hoạch gốc.
 
 ## Quyết định sản phẩm
 
@@ -11,8 +20,9 @@ Người dùng đã xác nhận:
 - Ghi chú xuất hiện trong lượt chat nơi nó được ghi hoặc thay đổi.
 - Khi thay đổi ở lượt sau, lượt cũ giữ bản cũ, có nhãn đã được thay thế và
   dẫn tới bản mới. Không đổi lời ghi cũ thành lời mới một cách âm thầm.
-- Chuột lớn đứng bên trái, chuyển động vui vừa; chạm Chuột emote và mở ghi
-  chép. Những lựa chọn này tiếp tục áp dụng.
+- Chuột lớn đứng bên trái, chuyển động vui vừa. Quyết định 2026-10-13 thay
+  hành vi chạm/mở notes trước đó: chạm chỉ giãy/emote trang trí; notes truy cập
+  tại dòng của lượt chat.
 - Hỏi người dùng ở từng giai đoạn thiết kế trước khi triển khai phần đó.
 
 Mục tiêu: người dùng đọc kết quả, thấy điều Chuột đã ghi trong chính lượt đó,
@@ -68,10 +78,11 @@ dụng/Hủy; Enter xuống dòng, Tab đi tới điều khiển, Escape hủy e
 không chỉ xuất hiện khi hover. Bản xem cần chốt mật độ 1–2 dòng đầu và cách
 mở thêm nếu một lượt có nhiều ghi chú.
 
-Chạm Chuột vẫn emote, rồi mở/highlight ghi chú đang dùng gần nhất trong chat.
-Nếu nó ở lượt cũ, mở lượt đó ngay trong cùng viewport. Khi chưa có ghi chép,
-hiện lời nhắc ngắn tại chat hiện tại và giữ ô nhập sẵn sàng. Hành vi điều hướng
-này là đề xuất cần duyệt trong bản xem; không dựng lại một notebook tổng.
+Link nguồn/phiên bản tại dòng note mở đúng lượt cũ trong cùng viewport, giữ
+composer và có đường quay lại. Chạm Chuột chỉ tạo phản ứng trang trí tại chỗ;
+không mở/highlight note, cuộn chat, gọi model hoặc đổi dữ liệu/focus. Không
+dựng lại một notebook tổng. Hành vi này thay đề xuất dùng nhân vật để reveal
+note ở các bản xem ngày 2026-10-12.
 
 ## Dữ liệu và đường thực hiện
 
@@ -192,7 +203,7 @@ thật; việc highlight/edit không thay đổi vị trí nhân vật đã đư
 
 | Giai đoạn | Công việc cụ thể | Sản phẩm để duyệt / điều kiện sang bước sau |
 | --- | --- | --- |
-| 1. Bản xem UX | Dựng fixture Qt có note dưới từng reply: tạo, đề xuất, sửa ở lượt sau, sửa trực tiếp, bản cũ/link, lỗi, compact/full. Chưa nối live model. | Người dùng chốt mật độ, thứ tự, editor, cách chạm Chuột và mở lượt cũ trên bản xem tương tác. Fixture phải ghi rõ là minh họa. |
+| 1. Bản xem UX | Dựng fixture Qt có note dưới từng reply: tạo, đề xuất, sửa ở lượt sau, sửa trực tiếp, bản cũ/link, lỗi, compact/full. Chưa nối live model. | Chạm Chuột chỉ trang trí theo quyết định 2026-10-13; duyệt mật độ/editor và mở lượt cũ bằng link tại note. Fixture phải ghi rõ là minh họa. |
 | 2. Hợp đồng dữ liệu | Thêm TurnRef, context, lịch sử version/event, active projection, tombstone/undo; giữ validation nguồn và generation. | Kiểm tra backend đảm bảo owner/source đúng, lịch sử không đổi, context mới đúng, stale writes bị chặn. Không phụ thuộc Qt. |
 | 3. Nối một luồng thực | Truyền ID/context qua worker/runtime/direct action; renderer theo event; nguồn artifact rõ ràng; bỏ NotebookPane và wiring ngoài chat khi luồng mới hoàn chỉnh. | Ghi/sửa/bỏ/undo diễn ra trong đúng lượt bằng operation thực; không để hai nơi quản lý note song song. Trình bày cho người dùng duyệt thao tác. |
 | 4. Kiểm tra và bàn giao | Chạy regression phù hợp, thử native, rồi development smoke model thật trên dữ liệu fixture riêng; lưu raw calls và kiểm tra thao tác thật. | Công khai những ca pass/fail và giới hạn model; hỏi phản hồi trước thay đổi thiết kế tiếp. Chỉ kết luận software/UX đúng với evidence đã có. |
@@ -209,8 +220,9 @@ Mapping file dự kiến:
   editor, link/reveal lượt cũ, giữ reading position và bỏ scroll vùng riêng.
 - `rat/ui/omnibar.py`: tạo/route TurnRef, direct actions, reset/stop, bỏ wiring
   NotebookPane và tính chiều cao của pane.
-- `rat/ui/live_companion.py`: thay hành động mở pane bằng reveal trong chat;
-  giữ vị trí/chuyển động đã chọn.
+- `rat/ui/live_companion.py`: bỏ đường mở pane/reveal note; click chỉ giãy/emote,
+  giữ vị trí, draft/caret/focus và chuyển động đã chọn. Cập nhật tooltip,
+  accessible name và callback tương ứng trong preview.
 - Registry/view metadata nếu cần: field/source binding cho input note, dùng
   schema/action đã đăng ký; không thêm branch theo từng chức năng.
 - Tests và docs: cập nhật contract/UX đã thay, giữ các kiểm tra cũ có giá trị.
@@ -235,7 +247,8 @@ restart. Note cũ chưa có origin không được tự gán nguồn/lượt b�
 | Stop / reset / callback trễ | Event cũ không vào lượt mới; thay đổi đã nhận trước Stop vẫn có thể xem. |
 | Callback step và response lặp | Event chỉ xuất hiện một lần, giữ đúng thứ tự commit. |
 | Compact/full/⌘L khi sửa hoặc chạy | Cùng note/editor, focus/selection/draft; không gọi lại model/operation. |
-| Mở note ở lượt cũ bằng Chuột/link | Giữ composer, hiện đúng note trong viewport, không ép full. |
+| Mở note ở lượt cũ bằng link tại note | Giữ composer, hiện đúng note trong viewport, không ép full. |
+| Chạm Chuột trong khi nhập/sửa | Chỉ giãy/emote; không mở notes, đổi viewport, mất draft/caret/focus hoặc gọi model/operation. |
 | Nhiều note, câu dài, màn hình hẹp | Cuộn trong chat, không che kết quả, không vùng cuộn note riêng. |
 | Model chỉ nói “đã ghi” | Không có note đã lưu nếu không có commit; failure giữ evidence thực. |
 

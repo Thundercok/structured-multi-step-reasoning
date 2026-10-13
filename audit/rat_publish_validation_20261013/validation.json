@@ -1,0 +1,63 @@
+{
+  "client_date": "2026-10-13",
+  "timezone": "Asia/Saigon",
+  "scope": "software regressions and Git publication; no new model calls or research quality measurement",
+  "base_commit": "c1a8110db4506108fe7ff931245ab96a1905a141",
+  "resolved_github_repository": "Thundercok/structured-multi-step-reasoning",
+  "github_repository_id": 1088184029,
+  "nesy_docai_name_redirects_to_same_repository": true,
+  "original_evrp_commits_preserved": 104,
+  "history_rewritten": false,
+  "headless_checks": {
+    "passed": 156,
+    "regular_tests": 149,
+    "independent_audit_probes": 7,
+    "elapsed_seconds": 2.78,
+    "log": "headless_tests.txt"
+  },
+  "ui_checks": {
+    "passed": 42,
+    "elapsed_seconds": 7.61,
+    "qt_platform": "offscreen",
+    "log": "ui_tests.txt"
+  },
+  "fixed_review_failures": [
+    "Reject execution mismatch before completion/failure, including after conversation reset",
+    "Keep repeated terminal callbacks idempotent and preserve cancelled terminal state",
+    "Reject cancelled ambiguity handling before creating pending input",
+    "Keep owner turn and execution identity on pending-input artifacts/events",
+    "Propagate runtime cancellation callback to dispatcher before artifact commit",
+    "Use latest snapshot for each old owner turn in historical note context"
+  ],
+  "source_sha256": {
+    "rat/engine/assistant_runtime.py": "ed349eb746708786b7df0756d20d2845a432b4665471e433191cb20104258977",
+    "rat/engine/reranker.py": "e8721d618c853fed0e67b11051ca196199548ce4348a940a6efd1d9732cbb3c0",
+    "rat/engine/verification.py": "c04e07b52e795867679af661a54a2781f2ca046c16719d7648a957837d0b59da",
+    "rat/engine/vgc.py": "016b1113c00ad058bd0fa08f1786d8ff5cd67ed2f6fa37e289e1e5cbe1089f9b",
+    "rat/engine/work_notes.py": "b9fb0bd6987a215f1119ce2d4e711353bbffa18aa712e03b4e91943c1bb11f09",
+    "rat/engine/work_trace.py": "a49e91527da77377ae812cd87aec15855d3137d8a20241c1fcea2b6a03c56580",
+    "rat/kernel/capabilities/__init__.py": "6e7b2cec87e4c66a54dcd1762cb6bd7bf7f818e214bfbc9753568e5578ed5cbc",
+    "rat/kernel/contracts.py": "41c94885a983cc004cbf65641076d845cfeff800dbbed24ff5651384468fc912",
+    "rat/kernel/dispatcher.py": "c5146ddddc8c1e72feee6cf42c42501b94bb3d569154ad54aa25121ebd9ae03e",
+    "rat/kernel/registry.py": "2732be0edd3a53c06dffc2d2b779e3dce13ad06ce22162cb96bd1ec306116875",
+    "rat/ui/assistant_worker.py": "096227d9a2bf863370348104ddaffb80cf7b42a02b10682f9604607d9087b3f9",
+    "rat/ui/chat_session.py": "366056822407c3438a492c97d943dbd7bb09de674b914d46e6861eec95059271",
+    "rat/ui/chat_stream.py": "b870b9934db8dfbbf15155ab766de6e2248691d452872f87affea4e291fe4b48",
+    "rat/ui/live_companion.py": "bcc18fe718935bf2e5dcb0fa45d2fa34d943ed4bd1f4461ef3eeaf927a8b8f13",
+    "rat/ui/omnibar.py": "f02bfc8061c97646e63b27ff7593a174ab13d18d8bbd058f91678685a0c01671",
+    "rat/ui/turn_notes.py": "93d8706a27c15f8f0be5664bf80586cfb8109b38da9689f32aeefd8f50e1b59c",
+    "rat/ui/turn_notes_preview.py": "1830e229c2d5e2a9a0aa6ff7407ea430d84f0fa8428fd0850d249bab93d3c786",
+    "rat/ui/work_context.py": "39c9406c6aba07fba31cca96f3278a1c40f8830ae6a5a95ed54bdc3f7a09a249",
+    "scripts/preview_turn_notes.py": "eb64bbc1840b311b439b9a78c78b7d4ce862c4d68cb77a34270704151785c206",
+    "tests/test_rat_chat_session.py": "f8fd4388c7cdce7011343a67d6bfa2c1f57aa89bb4e89a01d7b24831d213d520",
+    "tests/test_rat_conversation_lifecycle.py": "4a674866cc1944c09dd1c15025afae463fc14a7134a183076dfd2f7490a4661d",
+    "tests/test_rat_verification.py": "7f578aa063f4ecc379bdd51b7b2eeea6a5805663b7a084e24dd6549422e8d50b",
+    "tests/test_rat_verification_ui.py": "7af48efb1215aa0ec87979449c2597b0f096f1e48f26920e065b1c8d61884ed2",
+    "tests/test_turn_notes_preview.py": "97495a6dbc3a754e19d35c69b254531528c28c736984cf45758b65a5c32d5153",
+    "tests/test_vgc_verification.py": "5dd16e6eed68b23cc45ba4f9789956435f18bae0f4164a0d13c4ec6c7ff1b1f9",
+    "tests/test_work_context.py": "2e9b48d3916919c343966d3cb96b3703eebd94d3fb481cda6623f527af10f07d",
+    "tests/test_work_context_ui.py": "f1fc837f2a9d330b92738d22b7c19312c58863e65a50a7536fef8ec10e415cea"
+  },
+  "qt_sandbox_limitation": "Qt CPU feature detection fails with NEON in sandbox; offscreen UI regressions passed outside sandbox",
+  "publication_status": "prepared; remote push verification is reported after committing"
+}

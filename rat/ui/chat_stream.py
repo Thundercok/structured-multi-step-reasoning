@@ -532,6 +532,12 @@ class ChatStreamWidget(QScrollArea):
     """
     prompt_clicked = pyqtSignal(str)
     content_changed = pyqtSignal()
+    note_edit_saved = pyqtSignal(str, int, str)
+    note_removed = pyqtSignal(str, int)
+    note_restored = pyqtSignal(str)
+    note_confirmed = pyqtSignal(str)
+    navigate_turn_requested = pyqtSignal(int, str)
+    edit_replacement_requested = pyqtSignal(int, str)
 
     def __init__(self, user_name: str = "Huy", parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -539,6 +545,8 @@ class ChatStreamWidget(QScrollArea):
         self._message_count = 0
         self._compact = True
         self._turn_widgets = []
+        self._turn_handles: Dict[int, Dict[str, Any]] = {}
+        self._revealed_compact_turn: Optional[int] = None
         self._turn_id = 0
         self._mascot_pixmap = QPixmap(str(MASCOT_PATH)) if MASCOT_PATH.exists() else QPixmap()
         self._show_watermark = False
@@ -622,7 +630,7 @@ class ChatStreamWidget(QScrollArea):
         self.layout = QVBoxLayout(self.container)
         self.layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
         self.layout.setContentsMargins(4, 8, 4, 8)
-        self.layout.setSpacing(16)
+        self.layout.setSpacing(14)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.setWidget(self.container)
@@ -646,8 +654,22 @@ class ChatStreamWidget(QScrollArea):
         if hasattr(self, 'container'):
             self._fit_content_height()
 
-    def _track_message(self, widget, kind):
-        if kind == 'user' or not self._turn_widgets or self._turn_widgets[-1][1] != 'user':
+    @staticmethod
+    def _parse_turn_int(turn_id) -> int:
+        if isinstance(turn_id, int):
+            return turn_id
+        s = str(turn_id).strip()
+        if s.startswith("turn-"):
+            s = s[5:]
+        try:
+            return int(s)
+        except ValueError:
+            return 1
+
+    def _track_message(self, widget, kind, turn_id=None):
+        if turn_id is not None:
+            self._turn_id = self._parse_turn_int(turn_id)
+        elif kind == 'user' or not self._turn_widgets or self._turn_widgets[-1][1] != 'user':
             self._turn_id += 1
         self._turn_widgets.append((widget, kind, self._turn_id))
         self.set_compact(self._compact)
@@ -656,8 +678,19 @@ class ChatStreamWidget(QScrollArea):
     def set_compact(self, compact):
         from rat.ui.view_renderer import QtViewRenderer
         self._compact = bool(compact)
+        active_edit_turn = None
+        for tid, handle in self._turn_handles.items():
+            pane = handle.get("turn_notes")
+            if pane is not None and any(r.editing for r in pane.rows.values()):
+                active_edit_turn = tid
+                break
+        if not self._compact:
+            self._revealed_compact_turn = None
+        elif active_edit_turn is not None:
+            self._revealed_compact_turn = active_edit_turn
+        target_compact_turn = self._revealed_compact_turn if self._revealed_compact_turn is not None else self._turn_id
         for widget, kind, turn in self._turn_widgets:
-            widget.setVisible(not compact or turn == self._turn_id)
+            widget.setVisible(not compact or turn == target_compact_turn)
         for renderer in self.findChildren(QtViewRenderer):
             renderer.set_compact(compact)
         self.content_changed.emit()
@@ -708,6 +741,8 @@ class ChatStreamWidget(QScrollArea):
         self._follow_latest = True
         self._message_count = 0
         self._turn_widgets.clear()
+        self._turn_handles.clear()
+        self._revealed_compact_turn = None
         self._turn_id = 0
         self._show_watermark = False
         while self.layout.count():
@@ -717,7 +752,7 @@ class ChatStreamWidget(QScrollArea):
         self._render_welcome_state()
         self.viewport().update()
 
-    def add_user_message(self, text):
+    def add_user_message(self, text, turn_id=None):
         self.welcome_widget.hide()
         self._message_count += 1
         row = QLabel(text)
@@ -728,16 +763,16 @@ class ChatStreamWidget(QScrollArea):
         row.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Maximum)
         row.setStyleSheet('color: #998D7B; font-size: 12px; border: none; background: transparent; padding: 3px 0;')
         self.layout.addWidget(row)
-        self._track_message(row, 'user')
+        self._track_message(row, 'user', turn_id=turn_id)
         self._scroll_to_bottom(force=True)
 
     def add_assistant_message(
         self, answer: str, reasoning_steps=None, latency_ms=0.0,
         strategy="Assistant", confidence=1.0, inline_files=None,
-        custom_widget=None, citations=None,
+        custom_widget=None, citations=None, turn_id=None,
     ):
         """Completed and streaming replies share the same rendering path."""
-        handle = self.create_streaming_message(strategy=strategy)
+        handle = self.create_streaming_message(strategy=strategy, turn_id=turn_id)
         handle['full_text'] = answer
         self.finalize_stream(handle, reasoning_steps=reasoning_steps,
             latency_ms=latency_ms, citations=citations, inline_files=inline_files,
@@ -751,7 +786,7 @@ class ChatStreamWidget(QScrollArea):
         if self._follow_latest:
             self._scroll_timer.start(0)
 
-    def create_streaming_message(self, strategy='Assistant', badge='Đang xử lý'):
+    def create_streaming_message(self, strategy='Assistant', badge='Đang xử lý', turn_id=None):
         self.welcome_widget.hide()
         self._message_count += 1
         card = QFrame()
@@ -759,8 +794,8 @@ class ChatStreamWidget(QScrollArea):
         card.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Maximum)
         card.setStyleSheet('QFrame#AssistantCard { background: transparent; border: none; } QLabel { border: none; background: transparent; color: #302B24; }')
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setContentsMargins(0, 2, 0, 4)
+        layout.setSpacing(7)
         badge_label = QLabel(badge, card)
         badge_label.hide()  # Trace metadata stays available without becoming a card header.
         status = QLabel('Đang xử lý…')
@@ -771,18 +806,71 @@ class ChatStreamWidget(QScrollArea):
         answer.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         answer.setWordWrap(True)
         answer.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Maximum)
-        answer.setStyleSheet('color: #302B24; font-size: 13px;')
+        answer.setStyleSheet('color: #302B24; font-size: 13.5px; padding: 2px 0;')
         answer.hide()
         layout.addWidget(answer)
+        from rat.ui.turn_notes import TurnNotesPane
         from rat.ui.work_context import WorkTracePane
+        resolved_turn_id = self._parse_turn_int(turn_id) if turn_id is not None else max(1, self._turn_id)
+        notes_pane = TurnNotesPane(resolved_turn_id, card)
+        notes_pane.changed.connect(self.content_changed)
+        notes_pane.note_edit_saved.connect(self.note_edit_saved.emit)
+        notes_pane.note_removed.connect(self.note_removed.emit)
+        notes_pane.note_restored.connect(self.note_restored.emit)
+        notes_pane.note_confirmed.connect(self.note_confirmed.emit)
+        notes_pane.navigate_requested.connect(self.navigate_turn_requested.emit)
+        notes_pane.edit_replacement_requested.connect(self.edit_replacement_requested.emit)
+        layout.addWidget(notes_pane)
         trace = WorkTracePane(card)
         trace.changed.connect(self.content_changed)
         layout.addWidget(trace)
         self.layout.addWidget(card)
-        self._track_message(card, 'assistant')
+        self._track_message(card, 'assistant', turn_id=resolved_turn_id)
         self._scroll_to_bottom(force=True)
-        return dict(card=card, c_layout=layout, status_lbl=status, badge_lbl=badge_label,
-            ans_lbl=answer, tokens=[], full_text='', accordion_added=False, work_trace=trace)
+        handle = dict(card=card, c_layout=layout, status_lbl=status, badge_lbl=badge_label,
+            ans_lbl=answer, tokens=[], full_text='', accordion_added=False,
+            turn_id=resolved_turn_id, turn_notes=notes_pane, work_trace=trace)
+        self._turn_handles[resolved_turn_id] = handle
+        return handle
+
+    def refresh_turn_notes(self, notebook, turn_ids=None) -> None:
+        """Synchronize per-turn inline notes with WorkNotebook state."""
+        from rat.ui.turn_notes import TurnNoteItem
+        targets = list(turn_ids) if turn_ids is not None else list(self._turn_handles.keys())
+        for tid in targets:
+            handle = self._turn_handles.get(int(tid))
+            if not handle or "turn_notes" not in handle:
+                continue
+            items = [TurnNoteItem.from_dict(d) for d in notebook.notes_for_turn(int(tid))]
+            handle["turn_notes"].set_notes(items)
+
+    def navigate_to_turn_note(self, target_turn_id: int, target_note_id: str) -> None:
+        handle = self._turn_handles.get(int(target_turn_id))
+        if not handle:
+            return
+        if self._compact:
+            self._revealed_compact_turn = int(target_turn_id)
+            self.set_compact(True)
+        pane = handle.get("turn_notes")
+        row = pane.rows.get(target_note_id) if pane else None
+        self.ensureWidgetVisible(row or handle["card"], 8, 12)
+        if pane:
+            pane.highlight_note(target_note_id)
+
+    def open_editor_on_note(self, target_turn_id: int, target_note_id: str) -> None:
+        handle = self._turn_handles.get(int(target_turn_id))
+        if not handle:
+            return
+        if self._compact:
+            self._revealed_compact_turn = int(target_turn_id)
+            self.set_compact(True)
+        pane = handle.get("turn_notes")
+        if pane and target_note_id in pane.rows:
+            row = pane.rows[target_note_id]
+            row._start_edit()
+            row.editor.setFocus()
+            self.ensureWidgetVisible(row.editor, 8, 12)
+            pane.highlight_note(target_note_id)
 
     def update_source_cards(self, handle, *, inline_files=None, custom_widget=None):
         """Show observed sources while the model is still working."""
@@ -820,7 +908,8 @@ class ChatStreamWidget(QScrollArea):
             for item in inline_files[:4]:
                 layout.addWidget(InlineFileCard(item))
         handle["sources_widget"] = host
-        handle["c_layout"].insertWidget(handle["c_layout"].indexOf(handle["work_trace"]), host)
+        anchor = handle.get("turn_notes") or handle["work_trace"]
+        handle["c_layout"].insertWidget(handle["c_layout"].indexOf(anchor), host)
         self.set_compact(self._compact)
         self.content_changed.emit()
         self._show_result_start(handle)

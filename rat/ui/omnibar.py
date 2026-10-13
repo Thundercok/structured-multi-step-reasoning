@@ -2103,6 +2103,12 @@ class OmnibarWindow(QMainWindow):
 
         self._on_chat_prompt_action = _on_chat_prompt_action
         self.chat_stream.prompt_clicked.connect(_on_chat_prompt_action)
+        self.chat_stream.note_edit_saved.connect(self._on_turn_note_edited)
+        self.chat_stream.note_removed.connect(self._on_turn_note_removed)
+        self.chat_stream.note_restored.connect(self._on_turn_note_restored)
+        self.chat_stream.note_confirmed.connect(self._on_turn_note_confirmed)
+        self.chat_stream.navigate_turn_requested.connect(self.chat_stream.navigate_to_turn_note)
+        self.chat_stream.edit_replacement_requested.connect(self.chat_stream.open_editor_on_note)
         root_layout.addWidget(self.chat_stream, 1)
 
         self.full_chat_input = self.chat_composer_input
@@ -3415,9 +3421,80 @@ class OmnibarWindow(QMainWindow):
     # -------------------------------------------------------------
     # CHATBOT & QUICK HELPERS
     # -------------------------------------------------------------
-    def _complete_chat_turn(self, answer: str) -> None:
+    def _refresh_notes_surface(self) -> None:
+        self.notebook_pane.refresh()
+        if hasattr(self, "chat_stream"):
+            self.chat_stream.refresh_turn_notes(self.assistant_runtime.notebook)
+
+    def _on_turn_note_edited(self, note_id: str, revision: int, new_text: str) -> None:
+        try:
+            self.assistant_runtime.notebook.user_edit(note_id, revision, new_text)
+        except ValueError as exc:
+            if hasattr(self, "chat_stream"):
+                for handle in self.chat_stream._turn_handles.values():
+                    pane = handle.get("turn_notes")
+                    if pane and note_id in pane.rows:
+                        row = pane.rows[note_id]
+                        row.error_label.setText(str(exc))
+                        row.error_label.show()
+            return
+        if hasattr(self, "chat_stream"):
+            for handle in self.chat_stream._turn_handles.values():
+                pane = handle.get("turn_notes")
+                if pane and note_id in pane.rows:
+                    pane.rows[note_id]._cancel_edit()
+        self._refresh_notes_surface()
+        self.companion_avatar_btn.react("noting")
+
+    def _on_turn_note_removed(self, note_id: str, revision: int) -> None:
+        try:
+            self.assistant_runtime.notebook.remove(note_id, revision)
+        except ValueError as exc:
+            self.show_toast(str(exc), 6000)
+            return
+        self._refresh_notes_surface()
+
+    def _on_turn_note_restored(self, note_id: str) -> None:
+        try:
+            self.assistant_runtime.notebook.restore(note_id)
+        except ValueError as exc:
+            self.show_toast(str(exc), 6000)
+            return
+        self._refresh_notes_surface()
+        self.companion_avatar_btn.react("happy")
+
+    def _on_turn_note_confirmed(self, note_id: str) -> None:
+        try:
+            self.assistant_runtime.notebook.confirm(note_id)
+        except ValueError as exc:
+            self.show_toast(str(exc), 6000)
+            return
+        self._refresh_notes_surface()
+        self.companion_avatar_btn.react("done")
+
+    def _complete_chat_turn(self, answer: str, *, handle=None, response=None) -> None:
         if self._pending_chat_query is not None:
-            self._conversation.add_turn(self._pending_chat_query, answer)
+            turn_ref = handle.get("turn_ref") if isinstance(handle, dict) else None
+            exec_id = handle.get("execution_id") if isinstance(handle, dict) else None
+            art_refs = [
+                {"id": a.id, "kind": a.kind, "revision": a.revision, "title": a.title}
+                for a in (getattr(response, "artifacts", []) or [])
+            ] if response else []
+            note_ids = [
+                e.get("note_id")
+                for e in (getattr(response, "note_events", []) or [])
+                if isinstance(e, dict) and e.get("note_id")
+            ] if response else []
+            if turn_ref is not None:
+                self._conversation.complete_turn(
+                    turn_ref.turn_id,
+                    answer,
+                    execution_id=exec_id,
+                    artifact_refs=art_refs,
+                    note_ids=note_ids,
+                )
+            else:
+                self._conversation.add_turn(self._pending_chat_query, answer)
             self._pending_chat_query = None
 
     def _deliver_assistant_reply(
@@ -3538,7 +3615,13 @@ class OmnibarWindow(QMainWindow):
         if hasattr(self, "compact_cot"):
             self.compact_cot.clear()
 
-        self.chat_stream.add_user_message(q)
+        history_messages = self._conversation.context_messages()
+        turn_references = self._conversation.turn_references()
+        turn_snap = self._conversation.begin_turn(q)
+        turn_ref = turn_snap.turn_ref
+        execution_id = turn_snap.execution_id
+
+        self.chat_stream.add_user_message(q, turn_id=turn_ref.turn_id)
         self.search_input.clear()
         if hasattr(self, "chat_composer_input"):
             self.chat_composer_input.clear()
@@ -3548,17 +3631,22 @@ class OmnibarWindow(QMainWindow):
             self.return_keycap.style().unpolish(self.return_keycap)
             self.return_keycap.style().polish(self.return_keycap)
         self._show_interaction_surface()
-        handle = self.chat_stream.create_streaming_message(strategy="Assistant", badge="Đang xử lý")
+        handle = self.chat_stream.create_streaming_message(
+            strategy="Assistant", badge="Đang xử lý", turn_id=turn_ref.turn_id
+        )
         handle["generation"] = self._chat_generation
+        handle["turn_ref"] = turn_ref
+        handle["execution_id"] = execution_id
         handle["observed_sources"] = list(self._assistant_sources)
         self._carry_work_results(handle)
         handle["work_trace"].set_status("Đã nhận việc")
         self._assistant_handle = handle
         from rat.ui.assistant_worker import AssistantWorker
         worker = AssistantWorker(
-            self.assistant_runtime, q, history=self._conversation.context_messages(),
+            self.assistant_runtime, q, history=history_messages,
             previous_sources=list(self._assistant_sources), member_id=self.current_member.id,
             task_state=dict(self._assistant_task_state),
+            turn_ref=turn_ref, execution_id=execution_id, turn_references=turn_references,
             parent=QApplication.instance(),
         )
         self._current_reasoner = worker
@@ -3583,7 +3671,7 @@ class OmnibarWindow(QMainWindow):
         if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
             return
         handle["work_trace"].add_step(step)
-        self.notebook_pane.refresh()
+        self._refresh_notes_surface()
         if isinstance(step.tool_result, dict) and step.tool_result.get('notes_updated'):
             self.companion_avatar_btn.set_state('noting')
         from rat.engine.assistant_runtime import observed_sources
@@ -3621,27 +3709,42 @@ class OmnibarWindow(QMainWindow):
             return
         failed = bool(response.error)
         handle["work_trace"].finish(response)
-        self.notebook_pane.refresh()
+        self._refresh_notes_surface()
+        turn_ref = handle.get("turn_ref")
+        exec_id = handle.get("execution_id")
         if failed:
-            self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query,
-                                           'cancelled' if response.error == 'cancelled' else 'failed')
+            if turn_ref is not None:
+                if response.error == "cancelled":
+                    self._conversation.cancel_turn(turn_ref.turn_id, execution_id=exec_id)
+                else:
+                    self._conversation.fail_turn(turn_ref.turn_id, error=response.error or "failed", execution_id=exec_id)
+            else:
+                self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query,
+                                               'cancelled' if response.error == 'cancelled' else 'failed')
             self._pending_chat_query = None
             if response.error == "cancelled":
                 answer = "Đã dừng. Bạn có thể đổi yêu cầu hoặc hỏi tiếp."
             elif response.error in {"token_budget_exhausted", "step_budget_exhausted", "controller_finish_refused"}:
                 answer = ("Mình chưa hoàn tất yêu cầu trong lượt này. Các nguồn đã tìm được vẫn ở bên dưới; bạn có thể hỏi tiếp về một nguồn."
                           if response.sources else "Mình chưa hoàn tất yêu cầu trong lượt này. Bạn có thể thu hẹp yêu cầu hoặc thử lại.")
+            elif response.error == "verification_failed":
+                answer = "Mình phát hiện kết luận chưa khớp khi đối chiếu và chưa sửa xong trong lượt này. Bạn có thể xem các bước kiểm tra hoặc thử lại."
+            elif response.error in {"verification_unresolved", "invalid_verified_answer_format"}:
+                answer = "Mình chưa đối chiếu được kết luận trong lượt này. Bạn có thể ghi rõ biểu thức cần tính hoặc xem các bước kiểm tra."
             else:
                 answer = "Mình chưa trả lời được lượt này. Bạn có thể thử lại hoặc kiểm tra Ollama trong Cài đặt."
             self.footer_status.setText("Chưa hoàn tất")
         elif response.pending_input_request is not None:
             answer = ''  # The grounded question is displayed once with its inputs.
-            self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query, 'needs_input')
+            if turn_ref is not None:
+                self._conversation.fail_turn(turn_ref.turn_id, "needs_input", execution_id=exec_id)
+            else:
+                self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query, 'needs_input')
             self._pending_chat_query = None
             self.footer_status.setText("Cần thêm thông tin")
         else:
             answer = response.answer
-            self._complete_chat_turn(answer)
+            self._complete_chat_turn(answer, handle=handle, response=response)
             self.footer_status.setText("Đã trả lời · có thể hỏi tiếp")
         self._current_reasoner = None
         self._assistant_handle = None
@@ -3682,14 +3785,23 @@ class OmnibarWindow(QMainWindow):
         if worker is None:
             return
         worker.requestInterruption()
-        self.assistant_runtime.notebook.invalidate_pending()
-        self.notebook_pane.refresh()
+        handle = self._assistant_handle
+        if handle and handle.get("execution_id"):
+            self.assistant_runtime.cancel_execution(handle["execution_id"])
+        else:
+            self.assistant_runtime.notebook.invalidate_pending()
+        self._refresh_notes_surface()
         self._chat_generation += 1
         self._current_reasoner = None
         if self._pending_chat_query:
-            self._conversation.add_attempt(self._pending_chat_query, 'cancelled')
+            if handle and handle.get("turn_ref") is not None:
+                self._conversation.cancel_turn(
+                    handle["turn_ref"].turn_id,
+                    execution_id=handle.get("execution_id"),
+                )
+            else:
+                self._conversation.add_attempt(self._pending_chat_query, 'cancelled')
         self._pending_chat_query = None
-        handle = self._assistant_handle
         self._assistant_handle = None
         if handle:
             handle["work_trace"].set_status("Đã dừng")
@@ -3810,16 +3922,21 @@ class OmnibarWindow(QMainWindow):
         if note_inputs and result.status in ('success', 'needs_input'):
             key, labels, values = note_inputs
             target = result.artifact.id if result.artifact else key
+            handle = getattr(self, "_latest_assistant_handle", None)
+            turn_ref = handle.get("turn_ref") if isinstance(handle, dict) else None
+            if turn_ref is None and isinstance(handle, dict) and handle.get("turn_id"):
+                from rat.engine.work_notes import TurnRef
+                turn_ref = TurnRef(conversation_id=self._conversation.conversation_id, turn_id=int(handle["turn_id"]), kind="interaction")
             for field, label in labels.items():
                 if field in values and values[field] is not None and values[field] != '':
                     value = values[field]
                     value = ('Có' if value else 'Không') if isinstance(value, bool) else str(value)
                     try:
                         self.assistant_runtime.notebook.record_input('input:' + target + ':' + field,
-                            label + ': ' + value, source='control:' + target)
+                            label + ': ' + value, source='control:' + target, turn_ref=turn_ref)
                     except ValueError as exc:
                         self.show_toast('Kết quả đã cập nhật. ' + str(exc), 8000)
-            self.notebook_pane.refresh()
+            self._refresh_notes_surface()
             self.companion_avatar_btn.react('noting')
 
     def _refresh_latest_assistant_panel(self, changed=None):

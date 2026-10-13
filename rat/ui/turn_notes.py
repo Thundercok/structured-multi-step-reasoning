@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRectF, Qt, QTimer, pyqtProperty, pyqtSignal
+from PyQt6.QtCore import QEvent, QEasingCurve, QPropertyAnimation, QRectF, Qt, QTimer, pyqtProperty, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QKeyEvent, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QFrame,
@@ -45,6 +45,41 @@ class TurnNoteItem:
     replaces_turn_id: Optional[int] = None
     replaces_text: Optional[str] = None
     error_message: Optional[str] = None
+
+    @staticmethod
+    def _parse_turn_int(val: object) -> Optional[int]:
+        if val is None or val == "":
+            return None
+        if isinstance(val, int):
+            return val
+        s = str(val).strip()
+        if s.startswith("turn-"):
+            s = s[5:]
+        try:
+            return int(s)
+        except ValueError:
+            return 1
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TurnNoteItem":
+        tid = cls._parse_turn_int(data.get("turn_id") or data.get("owner_turn_id")) or 1
+        return cls(
+            id=str(data["id"]),
+            turn_id=tid,
+            text=str(data.get("text", "")),
+            status=str(data.get("status", "active")),
+            source=str(data.get("source", "user_note")),
+            quote=data.get("quote"),
+            confirmed=bool(data.get("confirmed", True)),
+            revision=int(data.get("revision", 1)),
+            replaced_by_note_id=data.get("replaced_by_note_id"),
+            replaced_by_turn_id=cls._parse_turn_int(data.get("replaced_by_turn_id")),
+            replaced_by_text=data.get("replaced_by_text"),
+            replaces_note_id=data.get("replaces_note_id"),
+            replaces_turn_id=cls._parse_turn_int(data.get("replaces_turn_id")),
+            replaces_text=data.get("replaces_text"),
+            error_message=data.get("error_message"),
+        )
 
 
 BUTTON_STYLE = """
@@ -94,22 +129,19 @@ QPushButton:disabled {
 
 LINK_BUTTON_STYLE = """
 QPushButton {
-    color: #8A5826;
-    background: #F6EDE1;
-    border: 1px solid #E2D3BE;
+    color: #79766C;
+    background: transparent;
+    border: none;
     border-radius: 4px;
-    padding: 1px 7px;
+    padding: 2px 0;
     font-size: 11px;
-    font-weight: 500;
+    text-align: left;
 }
 QPushButton:hover {
-    background: #EDDFC8;
-    color: #6E431B;
-    border-color: #D4BE9F;
+    color: #3F5142;
 }
 QPushButton:focus {
-    background: #E5D3B8;
-    outline: none;
+    background: #ECEDE5;
 }
 """
 
@@ -168,11 +200,13 @@ class InlineNoteRow(QFrame):
     navigate_requested = pyqtSignal(int, str)          # target_turn_id, target_note_id
     edit_replacement_requested = pyqtSignal(int, str)  # target_turn_id, target_note_id
     highlight_changed = pyqtSignal()
+    layout_changed = pyqtSignal()
 
     def __init__(self, note: TurnNoteItem, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.note = note
         self.editing = False
+        self.details_open = False
         self._highlight_ratio = 0.0
         self._static_timer: Optional[QTimer] = None
         self._init_ui()
@@ -182,8 +216,8 @@ class InlineNoteRow(QFrame):
         self.setObjectName("InlineNoteRow")
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(4, 3, 4, 3)
-        self.layout.setSpacing(3)
+        self.layout.setContentsMargins(0, 3, 0, 1)
+        self.layout.setSpacing(2)
 
         # Main row: Tag + Text + Inline Actions
         self.header_row = QWidget()
@@ -198,6 +232,8 @@ class InlineNoteRow(QFrame):
         self.text_label = QLabel()
         self.text_label.setTextFormat(Qt.TextFormat.PlainText)
         self.text_label.setWordWrap(True)
+        self.text_label.setMinimumWidth(0)
+        self.text_label.installEventFilter(self)
         self.text_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.text_label.setStyleSheet("color: #383025; font-size: 12px; border: none; background: transparent;")
         h_layout.addWidget(self.text_label, 1, Qt.AlignmentFlag.AlignTop)
@@ -212,6 +248,9 @@ class InlineNoteRow(QFrame):
         self.btn_confirm.setStyleSheet(PRIMARY_BUTTON_STYLE)
         self.btn_confirm.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_confirm.clicked.connect(self._on_confirm_clicked)
+        self.btn_confirm.setText("Ghi lại")
+        self.btn_confirm.setAccessibleName("Xác nhận ghi chú được đề xuất")
+        self.btn_confirm.setStyleSheet(PRIMARY_BUTTON_STYLE.replace('#8C6A43', '#59644F').replace('#755532', '#44503C'))
         a_layout.addWidget(self.btn_confirm)
 
         self.btn_edit = QPushButton("Sửa")
@@ -233,19 +272,27 @@ class InlineNoteRow(QFrame):
         self.btn_undo.clicked.connect(self._on_undo_clicked)
         a_layout.addWidget(self.btn_undo)
 
+        self.btn_details = QPushButton("⋯")
+        self.btn_details.setStyleSheet(BUTTON_STYLE)
+        self.btn_details.setCheckable(True)
+        self.btn_details.setAccessibleName("Nguồn và lịch sử ghi chú")
+        self.btn_details.setToolTip("Nguồn và lịch sử ghi chú")
+        self.btn_details.toggled.connect(self._toggle_details)
+        a_layout.addWidget(self.btn_details)
+
         h_layout.addWidget(self.actions_widget, 0, Qt.AlignmentFlag.AlignTop)
         self.layout.addWidget(self.header_row)
 
         # Sub-row for revision linking / metadata
         self.sub_row = QWidget()
         s_layout = QHBoxLayout(self.sub_row)
-        s_layout.setContentsMargins(14, 0, 0, 0)
+        s_layout.setContentsMargins(0, 0, 0, 0)
         s_layout.setSpacing(6)
 
         self.sub_info_label = QLabel()
         self.sub_info_label.setTextFormat(Qt.TextFormat.PlainText)
         self.sub_info_label.setStyleSheet("color: #8C7B65; font-size: 11px; border: none; background: transparent;")
-        s_layout.addWidget(self.sub_info_label, 0)
+        self.sub_info_label.setWordWrap(True)
 
         self.btn_nav_link = QPushButton()
         self.btn_nav_link.setStyleSheet(LINK_BUTTON_STYLE)
@@ -255,9 +302,11 @@ class InlineNoteRow(QFrame):
 
         s_layout.addStretch()
         self.layout.addWidget(self.sub_row)
+        self.layout.addWidget(self.sub_info_label)
 
         # Editor section (hidden by default; frame appears only when editing)
         self.editor_section = QWidget()
+        self.editor_section.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         e_layout = QVBoxLayout(self.editor_section)
         e_layout.setContentsMargins(0, 4, 0, 2)
         e_layout.setSpacing(4)
@@ -306,6 +355,24 @@ class InlineNoteRow(QFrame):
 
     def get_highlight_ratio(self) -> float:
         return self._highlight_ratio
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fit_note_text()
+
+    def eventFilter(self, watched, event):
+        if watched is getattr(self, 'text_label', None) and event.type() == QEvent.Type.Resize:
+            self._fit_note_text()
+        return super().eventFilter(watched, event)
+
+    def _fit_note_text(self):
+        if hasattr(self, 'text_label') and self.text_label.width() > 0:
+            rect = self.text_label.fontMetrics().boundingRect(
+                QRectF(0, 0, self.text_label.width(), 5000).toRect(),
+                Qt.TextFlag.TextWordWrap, self.text_label.text())
+            if self.text_label.height() != rect.height() + 2:
+                self.text_label.setFixedHeight(rect.height() + 2)
+                self.layout_changed.emit()
 
     def set_highlight_ratio(self, val: float) -> None:
         self._highlight_ratio = val
@@ -360,12 +427,6 @@ class InlineNoteRow(QFrame):
             border_col = QColor("#D97706")
             border_col.setAlpha(int(self._highlight_ratio * 220))
             painter.setPen(QPen(border_col, 1.2))
-            painter.drawPath(path)
-        elif self.note.status == "proposed":
-            # Subtle dashed outline for unconfirmed proposals
-            painter.fillPath(path, QColor("#FFFDF8"))
-            pen = QPen(QColor("#EADBC5"), 1.0, Qt.PenStyle.DashLine)
-            painter.setPen(pen)
             painter.drawPath(path)
 
         painter.end()
@@ -456,8 +517,24 @@ class InlineNoteRow(QFrame):
             self.error_label.show()
         else:
             self.error_label.hide()
-
+        self.tag_label.setStyleSheet("color: #897D6A; font-size: 11px; border: none; background: transparent;")
+        if note.status == 'proposed':
+            self.tag_label.setStyleSheet("color: #9B703D; font-size: 11px; border: none; background: transparent;")
+        elif note.status == 'active':
+            self.tag_label.setStyleSheet("color: #627058; font-size: 11px; border: none; background: transparent;")
+        self.text_label.setStyleSheet("color: #70685B; font-size: 12px; border: none; background: transparent;")
+        self.btn_nav_link.setToolTip(note.replaced_by_text or note.replaces_text or '')
+        self.sub_info_label.setVisible(self.details_open)
+        self.sub_row.setVisible(not self.btn_nav_link.isHidden() and (note.status == 'replaced' or self.details_open))
+        self._fit_note_text()
+        self.layout_changed.emit()
         self.update()
+
+    def _toggle_details(self, opened):
+        self.details_open = bool(opened)
+        self.sub_info_label.setVisible(self.details_open)
+        self.sub_row.setVisible(not self.btn_nav_link.isHidden() and (self.note.status == 'replaced' or self.details_open))
+        self.layout_changed.emit()
 
     def _start_edit(self) -> None:
         if self.note.status == "replaced" and self.note.replaced_by_turn_id:
@@ -470,6 +547,7 @@ class InlineNoteRow(QFrame):
         self.editor_section.show()
         self.actions_widget.hide()
         self.editor.setFocus()
+        self.layout_changed.emit()
         self.update()
 
     def _cancel_edit(self) -> None:
@@ -478,6 +556,7 @@ class InlineNoteRow(QFrame):
         self.actions_widget.show()
         self.error_label.hide()
         self.btn_edit.setFocus()
+        self.layout_changed.emit()
         self.update()
 
     def _save_edit(self) -> None:
@@ -516,6 +595,7 @@ class TurnNotesPane(QWidget):
     note_confirmed = pyqtSignal(str)
     navigate_requested = pyqtSignal(int, str)
     edit_replacement_requested = pyqtSignal(int, str)
+    changed = pyqtSignal()
 
     def __init__(self, turn_id: int, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -525,7 +605,7 @@ class TurnNotesPane(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 2, 0, 4)
+        self.layout.setContentsMargins(0, 1, 0, 1)
         self.layout.setSpacing(4)
         self.hide()
 
@@ -549,10 +629,12 @@ class TurnNotesPane(QWidget):
                 row.note_confirmed.connect(self.note_confirmed.emit)
                 row.navigate_requested.connect(self.navigate_requested.emit)
                 row.edit_replacement_requested.connect(self.edit_replacement_requested.emit)
+                row.layout_changed.connect(self.changed.emit)
                 self.rows[note.id] = row
                 self.layout.addWidget(row)
 
         self.setVisible(bool(self.rows))
+        self.changed.emit()
 
     def highlight_note(self, note_id: str) -> None:
         if note_id in self.rows:

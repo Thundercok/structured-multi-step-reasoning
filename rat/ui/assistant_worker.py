@@ -12,12 +12,20 @@ class AssistantWorker(QThread):
     response_ready = pyqtSignal(object)
 
     def __init__(self, runtime: AssistantRuntime, query: str, *, history=None,
-                 previous_sources=None, member_id=None, task_state=None, parent=None):
+                 previous_sources=None, member_id=None, task_state=None,
+                 turn_ref=None, execution_id=None, turn_references=None, parent=None):
         super().__init__(parent)
         self.runtime = runtime
         self.query = query
-        self.context = dict(history=history or [], previous_sources=previous_sources or [], member_id=member_id,
-                            task_state=task_state or {})
+        self.context = dict(
+            history=history or [],
+            previous_sources=previous_sources or [],
+            member_id=member_id,
+            task_state=task_state or {},
+            turn_ref=turn_ref,
+            execution_id=execution_id,
+            turn_references=turn_references,
+        )
 
     def run(self):
         try:

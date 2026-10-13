@@ -249,7 +249,7 @@ class WorkTracePane(Disclosure):
         label.setTextFormat(Qt.TextFormat.PlainText)
         label.setWordWrap(True)
         label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        suffix = {'proposed': ' · dự định', 'error': ' · chưa xong', 'waiting': ' · cần thêm dữ kiện', 'stopped': ' · đã dừng'}.get(entry.status, '')
+        suffix = {'proposed': ' · dự định', 'error': ' · chưa xong', 'waiting': ' · cần thêm dữ kiện', 'stopped': ' · đã dừng', 'unchecked': ' · chưa kiểm chứng'}.get(entry.status, '')
         label.setText(f'{entry.number}. {entry.title}{suffix}' + ('\n' + entry.detail if entry.detail else ''))
         label.setStyleSheet('color: #806B50; font-size: 12px; border: none; padding: 2px 0;')
         self.flow.addWidget(label)

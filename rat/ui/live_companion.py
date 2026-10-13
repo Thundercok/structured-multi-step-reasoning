@@ -28,7 +28,8 @@ class LiveCompanion(QPushButton):
         self._sprite = get_mascot_pixmap(124, 124, bust_only=False)
         self.setObjectName('LiveCompanion')
         self.setFixedSize(160, 184)
-        self.setAccessibleName('Chuột · chạm để chơi và mở ghi chép')
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setAccessibleName('Chuột · chạm để vẫy chào')
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet('QPushButton#LiveCompanion { background: transparent; border: none; }')
         self.timer = QTimer(self)
@@ -39,9 +40,6 @@ class LiveCompanion(QPushButton):
 
     def _on_clicked(self):
         self.react('happy')
-        pane = self.window.notebook_pane
-        pane.set_open(not pane.opened)
-        self.window._schedule_surface_fit()
 
     def react(self, reaction):
         self.reaction = reaction
@@ -53,7 +51,7 @@ class LiveCompanion(QPushButton):
         if state != self.current_state:
             self.current_state = state
             self.react('hop' if state in ('thinking', 'searching') else state)
-        self.setToolTip(self.LABELS.get(state, self.LABELS['idle']) + ' · chạm để chơi và xem ghi chép')
+        self.setToolTip(self.LABELS.get(state, self.LABELS['idle']) + ' · Chạm Chuột để vẫy chào')
         self._sync_timer()
         self.update()
 

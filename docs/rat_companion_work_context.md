@@ -4,6 +4,12 @@
 người dùng xác nhận: người bạn nhận việc, ghi chép, làm rồi đưa kết quả; một
 box chat với compact/full, có thể xem luồng suy luận. NCKH vẫn là ưu tiên dự án.
 
+Quyết định 2026-10-13 thay tương tác chạm nhân vật: Chuột là trang trí,
+chạm chỉ giãy/emote; notes nằm trong từng lượt chat. Phạm vi và luồng core
+tiếp theo ở [kế hoạch hội thoại DSA](rat_conversation_dsa_example_plan.md).
+Source/wiring mô tả bên dưới là bản đã triển khai ngày 2026-10-12, chưa được
+cập nhật trong lượt bàn kế hoạch này.
+
 ## Contract và đường dữ liệu
 
 ```mermaid
@@ -48,8 +54,9 @@ Artifact store vẫn giữ kết quả cũ để tham chiếu; chat giữ phần
 thân lớn đứng bên trái khung chat theo lựa chọn người dùng, dùng tài sản RAT
 hiện có. Trạng thái gắn với worker/pending/result/error thực. Người dùng đã
 chọn chuyển động vui vừa: idle thở/đung đưa, nhảy ngắn khi nhận việc, prop
-ghi chép và emote khi chạm/có phản hồi. Click phản ứng vui và mở ghi chép,
-không submit câu canned hoặc làm trò theo số click. Timer chỉ chạy khi hiện,
+ghi chép và emote khi chạm/có phản hồi. Source ngày 2026-10-12 còn click mở
+ghi chép; hành vi đó cần bỏ theo quyết định 2026-10-13. Click mới chỉ phản ứng
+trang trí, không submit câu chat, mở note hoặc đổi focus/viewport. Timer chỉ chạy khi hiện,
 reduced motion giữ emote tĩnh. Không đổi geometry/focus của editor khi nhảy.
 
 ## Luồng suy luận công khai

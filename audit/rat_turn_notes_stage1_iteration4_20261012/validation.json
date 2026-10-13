@@ -1,0 +1,135 @@
+{
+  "client_date": "2026-10-12",
+  "timezone": "Asia/Saigon",
+  "scope": "RAT Stage 1 UI iteration 4; transparent desktop companion; pending user review",
+  "head": "953200c61b47beb8e9ca6bf29d095df3149abc61",
+  "before_source_sha256": {
+    "rat/ui/turn_notes_preview.py": "ff580f5f4eb7858e23dd5ab9c733c3830eba75c64959fbce8b79c1bb4570d81a",
+    "tests/test_turn_notes_preview.py": "55821385f6577cd70339094de4f3c63958814ae7603d5707bfa181d0142166fa",
+    "scripts/preview_turn_notes.py": "2034bd6bb1f4b706c661d9e01a6e922e361c22751d592a9223ba22a82c3d866d",
+    "docs/rat_turn_notes_plan.md": "ea9948cf4d15e24e85cdbd81342e4bc0d4edc205772a2febe5e5b63d9dfb2c0e"
+  },
+  "before_snapshots_verified": true,
+  "iteration_3_artifacts_unchanged": true,
+  "iteration_4_before_matches_iteration_3_source": true,
+  "source_sha256": {
+    "rat/ui/turn_notes_preview.py": "444bd1f018bf5ebe158a2a786c0b84894841a4464e57156fb63406fa2688bf9b",
+    "tests/test_turn_notes_preview.py": "9a2b4d4049fae84e3e02889b1029a3c227e1b78b4797fe190b85b8b9058e36a8",
+    "scripts/preview_turn_notes.py": "eb64bbc1840b311b439b9a78c78b7d4ce862c4d68cb77a34270704151785c206",
+    "docs/rat_turn_notes_plan.md": "e801385ebe0b9df716e0dd20755dfb2fd2f78240a5bdee05502b14842057fc24",
+    "rat/ui/turn_notes.py": "2290b2aa508dceffcff8c73c9a46d2a7a5f36d42f1d3e4203da6aa5e54e6401d"
+  },
+  "artifact_sha256": {
+    "report.md": "8d712db172096491dd7b3a1fd42aef3188e9b5312f5f9df8e2343b69496045f1",
+    "ui_tests.txt": "d683e01fda9579c4163310500626a4f180b921fffb702ee126d80576d2730359",
+    "before_sha256.json": "a752ae6fbb82f2472939b78851038a934793cba6d800da6cee02bbde588c1b24",
+    "drag_animation_reproduction.txt": "80a2cb06ce88376fb4e471d55f01c9260ba6721bc02b2e064372716190bcb9f5",
+    "native_preview_log.txt": "e0bc352e7ef10f7e0df2402a3d4bf7c0edfa8d1dee0fadde483760b9b31b51a3"
+  },
+  "screenshots": {
+    "01_full_turns_overview.png": {
+      "sha256": "4bf5a31ea1ea6c2bcdc46eae4c6494478d75963923f07e519ba4436183e4a354",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "02_companion_clicked_highlight.png": {
+      "sha256": "0a4962e7df7ab7761af6815e44c589d663e6d93bbc0fc688cb426de478eff932",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "03_inline_editor_open.png": {
+      "sha256": "34491e695bb50b3b73fe6d15ad139211977dd9402777872f695c55b70d2b3765",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "04_stale_conflict_warning.png": {
+      "sha256": "22a6f70fc7d3389ca274a03ebe138953883210cf76da2158d044a35248bd52af",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "05_predecessor_link_updated.png": {
+      "sha256": "33db7f5a10a3e11e2a0c31e64b66c6dbd617d2c14bef0ed93eda65a1e9a71102",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "06_removed_tombstone_undo.png": {
+      "sha256": "f22e13175370fd33214efc998135a2d92a4a87f17256f90d7aa6eb5ef5fbb32b",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "07_compact_hud_mode.png": {
+      "sha256": "a3341d746ba1dc0b40c58894e11e43b8713ed8f6c4ce5e39e6f29baea655fd42",
+      "width_px": 680,
+      "height_px": 327,
+      "png_color_type": 6
+    },
+    "08_compact_revealed_old_turn.png": {
+      "sha256": "27ec8579c312c41f34b34127e2073e83b9c4063bd8090f58b8aeea76daef7551",
+      "width_px": 680,
+      "height_px": 358,
+      "png_color_type": 6
+    },
+    "09_qa_dock_visible.png": {
+      "sha256": "3cca479a0d3b9fd6151bf2cef87495fafb6f2072d852e34e282b721770b97247",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "10_note_details_inline.png": {
+      "sha256": "7fb30710b4da177156e7c62baea5f2c37c33744e1c6a88a0652f6e29104b1f24",
+      "width_px": 820,
+      "height_px": 620,
+      "png_color_type": 6
+    },
+    "11_compact_composer_draft.png": {
+      "sha256": "ddd6737909d977775dd98120c4dda70806a302cf3995c8b96a38c5c8d76d72cc",
+      "width_px": 680,
+      "height_px": 327,
+      "png_color_type": 6
+    }
+  },
+  "tests": {
+    "command": "QT_QPA_PLATFORM=offscreen /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_turn_notes_preview.py tests/test_work_context_ui.py -q",
+    "passed": 32,
+    "preview_tests": 23,
+    "work_context_ui_tests": 9,
+    "elapsed_seconds": 32.86,
+    "raw_log": "ui_tests.txt",
+    "source_changes_after_tests": "Documentation and audit metadata only."
+  },
+  "regression_reproduction": {
+    "issue": "Dragging during geometry animation snapped the window back to its old position",
+    "failed_before_fix": true,
+    "raw_log": "drag_animation_reproduction.txt",
+    "fix": "Animate QWidget size instead of geometry",
+    "covered_in_passing_suite": true
+  },
+  "capture": {
+    "qt_offscreen": true,
+    "window_grab": true,
+    "reduced_motion": true,
+    "transparent_alpha_checked_in_tests": true
+  },
+  "native_attempt": {
+    "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 scripts/preview_turn_notes.py --compact",
+    "pid": 94525,
+    "qt_event_loop_reached": true,
+    "ui_tool_observed_window": "rat (preexisting OmnibarWindow with NotebookPane)",
+    "correct_preview_window_verified": false,
+    "interaction_performed_on_existing_rat": false,
+    "own_preview_closed": true,
+    "own_preview_exit_code": 143
+  },
+  "runtime": {
+    "data": "FIXTURE_TURNS",
+    "model_inference": false,
+    "real_rat_notes_backend_connected": false
+  },
+  "stage_2": "Not started; user requested further Stage 1 design refinement"
+}

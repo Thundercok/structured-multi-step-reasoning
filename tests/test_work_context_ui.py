@@ -46,15 +46,19 @@ def create_chart(window):
     return result.artifact
 
 
-def test_companion_is_present_and_opens_notes_without_mocking_or_submitting(window):
+def test_companion_is_present_and_emotes_decoratively_without_opening_notes_or_submitting(window):
     avatar = window.companion_avatar_btn
     assert avatar.isVisible()
+    window.chat_composer_input.setText('Đang gõ dở câu hỏi DSA')
+    window.chat_composer_input.setFocus()
     for _ in range(3):
         QTest.mouseClick(avatar, Qt.MouseButton.LeftButton)
-    assert window.notebook_pane.opened
+    assert not window.notebook_pane.opened
+    assert avatar.pose()['reaction'] == 'happy'
     assert avatar.current_state != 'angry'
     assert window._pending_chat_query is None
-    assert window.chat_composer_input.text() == ''
+    assert window.chat_composer_input.text() == 'Đang gõ dở câu hỏi DSA'
+    assert QApplication.focusWidget() is window.chat_composer_input
 
 
 def test_live_companion_motion_keeps_editor_stable_and_sleeps_when_hidden(window, monkeypatch):
@@ -196,3 +200,59 @@ def test_reset_clears_notes_and_rejects_late_steps(window):
     assert window.assistant_runtime.notebook.snapshot() == []
     assert window.chat_stream.is_empty()
     assert window.companion_avatar_btn.current_state == 'idle'
+
+
+def test_turn_notes_render_inline_per_turn_and_support_replacement_and_editing(window):
+    from rat.engine.work_notes import NoteWriteContext
+    window.set_expanded(True)
+    # Turn 1: user sets initial DSA array + target
+    q1 = 'Dùng mảng [2, 4, 6, 8, 10], tìm 8 đi.'
+    window._submit_chat_prompt(q1)
+    h1 = window._assistant_handle
+    t1_ref = h1['turn_ref']
+    gen1 = window.assistant_runtime.notebook.begin_request(q1, turn_ref=t1_ref, execution_id=h1['execution_id'])
+    ctx1 = NoteWriteContext(turn_ref=t1_ref, execution_id=h1['execution_id'], generation=gen1)
+    res1 = window.assistant_runtime.execute_tool(
+        'record_work_note',
+        {'text': 'Dùng mảng [2, 4, 6, 8, 10], tìm 8 đi.', 'source_quote': q1},
+        note_context=ctx1,
+    )
+    note_id = res1['note']['id']
+    step1 = AgentStep(1, '', 'record_work_note', tool_result=res1)
+    window._on_assistant_step(h1, step1)
+    window._on_assistant_response(h1, AgentResponse('Bước 1: mid=2 (6 < 8) -> l=3; Bước 2: mid=3 -> tìm thấy 8.', [step1], 10, 1, 0))
+
+    pane1 = h1['turn_notes']
+    assert pane1.isVisible()
+    assert pane1.rows[note_id].note.status == 'active'
+
+    # Turn 2: user updates target to 6
+    q2 = 'Đổi sang tìm 6 nhé.'
+    window._submit_chat_prompt(q2)
+    h2 = window._assistant_handle
+    t2_ref = h2['turn_ref']
+    gen2 = window.assistant_runtime.notebook.begin_request(q2, turn_ref=t2_ref, execution_id=h2['execution_id'])
+    ctx2 = NoteWriteContext(turn_ref=t2_ref, execution_id=h2['execution_id'], generation=gen2)
+    res2 = window.assistant_runtime.execute_tool(
+        'record_work_note',
+        {'text': 'Đổi sang tìm 6 nhé.', 'source_quote': q2, 'replace_note_id': note_id, 'revision': 1},
+        note_context=ctx2,
+    )
+    step2 = AgentStep(1, '', 'record_work_note', tool_result=res2)
+    window._on_assistant_step(h2, step2)
+    window._on_assistant_response(h2, AgentResponse('Với target=6, dừng ngay ở mid=2.', [step2], 8, 1, 0))
+
+    # Turn 1 keeps replaced snapshot with forward link to Turn 2; Turn 2 shows active note
+    assert pane1.rows[note_id].note.status == 'replaced'
+    assert pane1.rows[note_id].note.replaced_by_turn_id == 2
+    pane2 = h2['turn_notes']
+    assert pane2.isVisible()
+    assert pane2.rows[note_id].note.status == 'active'
+
+    # Inline edit on Turn 2 updates model context and Turn 1 forward link
+    row2 = pane2.rows[note_id]
+    row2._start_edit()
+    row2.editor.setPlainText('Mảng [2, 4, 6, 8, 10] · tìm 10')
+    row2._save_edit()
+    assert window.assistant_runtime.notebook.model_context()[0]['text'] == 'Mảng [2, 4, 6, 8, 10] · tìm 10'
+    assert 'tìm 10' in pane1.rows[note_id].btn_nav_link.text()

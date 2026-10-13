@@ -1,0 +1,18 @@
+2026-10-12 23:16:32.296 Python[94525:27201568] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(NoModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ControlModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|ControlModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(AltModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|AltModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ControlModifier|AltModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|ControlModifier|AltModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ControlModifier|MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|ControlModifier|MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(AltModifier|MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|AltModifier|MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ControlModifier|AltModifier|MetaModifier)
+qt.qpa.keymapper: Mismatch between Cocoa '\x1b' and Carbon '\x0' for virtual key 53 with QFlags<Qt::KeyboardModifier>(ShiftModifier|ControlModifier|AltModifier|MetaModifier)
+2026-10-12 23:18:05.584 Python[94525:27201568] ERROR: getApplicationProperty: called with invalid property
