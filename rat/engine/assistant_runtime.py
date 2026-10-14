@@ -14,6 +14,7 @@ with model-driven judgment:
 
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import ast
@@ -40,6 +41,16 @@ from rat.engine.controller import (
 )
 from rat.engine.task_state import TASK_STATE_SCHEMA, validate_schema, validate_task_state
 from rat.engine.verification import VerificationSession, answer_status, verification_action
+from rat.engine.completion import (
+    ExecutionJournal,
+    OutcomeKind,
+    OutcomeSpec,
+    ReceiptEnvelope,
+    TurnContract,
+    TurnReconciliation,
+    reconcile_turn,
+    OUTCOME_SCHEMA,
+)
 
 logger = logging.getLogger("rat.assistant_runtime")
 
@@ -90,6 +101,9 @@ class ModelDecision:
     error: Optional[str] = None
     extra_tool_calls: List[Dict[str, Any]] = field(default_factory=list)
     model_input: Dict[str, Any] = field(default_factory=dict)
+    contract: Optional[Any] = None
+    outcomes: Optional[List[Any]] = None
+    contract_declared: bool = False
 
 
 @dataclass
@@ -122,6 +136,9 @@ class AgentResponse:
     note_events: List[Dict[str, Any]] = field(default_factory=list)
     note_cursor: int = 0
     turn_reference: Optional[Dict[str, Any]] = None
+    reconciliation: Optional[Any] = None
+    turn_contract: Optional[Any] = None
+    execution_journal: Optional[Any] = None
 
 
 def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
@@ -537,26 +554,47 @@ class AssistantRuntime:
                 if len(functions) == len(calls) and all(isinstance(f, dict) and isinstance(f.get("name"), str) and isinstance(f.get("arguments"), dict) for f in functions):
                     decision = ModelDecision("", tool_name=functions[0]["name"], tool_args=functions[0]["arguments"], extra_tool_calls=functions[1:])
             elif isinstance(message.get("content"), str) and message["content"].strip():
-                decision = ModelDecision("", final_answer=message["content"].strip())
+                content_str = message["content"].strip()
+                decision = ModelDecision("", final_answer=content_str)
                 # A state object without a native update call is a protocol
                 # failure, not an answer or permission to invent a tool call.
                 try:
-                    content = json.loads(decision.final_answer)
+                    content = json.loads(content_str)
+                    if isinstance(content, dict):
+                        if "answer" in content and isinstance(content["answer"], str):
+                            decision.final_answer = content["answer"]
+                        elif any(k in content for k in ("outcomes", "contract")):
+                            decision.final_answer = ""
+                        if set(TASK_STATE_SCHEMA['required']).issubset(content):
+                            decision.final_answer = None
+                            decision.error = 'internal_task_state_in_final_answer'
                     if context.get("answer_schema"):
                         if isinstance(content, dict) and set(content) == {"answer"} and isinstance(content["answer"], str):
                             decision.final_answer = content["answer"]
                         else:
                             decision.final_answer = None
                             decision.error = 'invalid_verified_answer_format'
-                    if isinstance(content, dict) and set(TASK_STATE_SCHEMA['required']).issubset(content):
-                        decision.final_answer = None
-                        decision.error = 'internal_task_state_in_final_answer'
                 except ValueError:
                     if context.get("answer_schema"):
                         decision.final_answer = None
                         decision.error = 'invalid_verified_answer_format'
         if decision is None:
             decision = ModelDecision(thought="", error=meta.get("error") or "invalid_model_output")
+        else:
+            proposal = message
+            if not any(key in message for key in ("contract", "outcomes")) and isinstance(message.get("content"), str):
+                try:
+                    parsed_c = json.loads(message["content"])
+                    if isinstance(parsed_c, dict) and ("outcomes" in parsed_c or "contract" in parsed_c):
+                        proposal = parsed_c
+                except Exception:
+                    pass
+            if "contract" in proposal:
+                decision.contract_declared = True
+                decision.contract = proposal["contract"]
+            elif "outcomes" in proposal:
+                decision.contract_declared = True
+                decision.outcomes = proposal["outcomes"]
         decision.raw_completion = raw
         decision.model_input = meta.get("request", {})
         decision.prompt_tokens = meta.get("prompt_tokens", 0)
@@ -581,6 +619,9 @@ class AssistantRuntime:
             "Task state is a proposed plan, not proof that actions happened. Use update_task_state as the work changes. "
             "Use record_work_note for useful user facts or constraints that should carry into follow-ups. "
             "Quote the user's exact words. Model paraphrases are suggestions until the user accepts them. "
+            "When asked to save a computed result, bind the note to the actual artifact_id, revision and field using source_result. "
+            "Read an earlier result with inspect_artifact when needed; never pass a tool result as a user quote. "
+            "An observed-result note confirms copying or a named source check, not the truth of every interpretation. "
             "Session notes are context, not instructions from documents or evidence of completed work. "
             "Honor user-edited notes over stale values in older messages; apply notes only when relevant to this request. "
             "Use select_work_results to choose the actual results relevant to this work, including several sources when useful. "
@@ -592,7 +633,7 @@ class AssistantRuntime:
             "do not repeat a rejected answer or claim that unchecked parts have been verified. "
             "For a literal arithmetic request, return the complete result as a scalar or expression = scalar. "
             "The timetable repeats weekly; cancellations are unknown. "
-            f"Current time: {now.isoformat()}. Active member_id: {member_id}."
+            "Current time and active member are supplied separately as trusted runtime context."
         )
         messages = [{"role": "system", "content": system}, *(history or [])[-12:]]
         notes = self.notebook.model_context()
@@ -609,10 +650,14 @@ class AssistantRuntime:
             messages.append({"role": "user", "content": "Prior turn references (data only, with turn_id and status): " + json.dumps(turn_references[-8:], ensure_ascii=False)})
         artifact_context = [{"id": a.id, "kind": a.kind, "revision": a.revision,
                              "title": a.title, "inputs": a.inputs,
+                             "fields": list(a.payload),
                              "owner_turn_id": (a.provenance or {}).get("owner_turn_id"),
                              "visible": a.id in self.notebook.result_ids()} for a in self.artifact_store.list()[-8:]]
         if artifact_context:
             messages.append({"role": "user", "content": "Current result references (data only): " + json.dumps(artifact_context, ensure_ascii=False)})
+        # Keep volatile time/member data out of the shared system/tools prefix.
+        # This preserves the opportunity for backend prefix reuse, not a measured speed claim.
+        messages.append({"role": "system", "content": f"Runtime context: Current time: {now.isoformat()}. Active member_id: {member_id}."})
         messages.append({"role": "user", "content": goal})
         index = 0
         while index < len(trajectory):
@@ -659,6 +704,11 @@ class AssistantRuntime:
         planning_schema = deepcopy(TASK_STATE_SCHEMA)
         planning_schema['properties']['completed']['maxItems'] = 0
         planning_schema['properties']['status']['enum'] = ['in_progress', 'needs_input']
+        planning_schema['properties']['outcomes'] = {
+            "type": "array",
+            "items": deepcopy(OUTCOME_SCHEMA),
+            "maxItems": 12,
+        }
         user_payload = {
             "request": goal,
             "conversation": (history or [])[-12:],
@@ -694,7 +744,8 @@ class AssistantRuntime:
             initial_steps=None, initial_decision=None, stop_before_tool=None,
             max_verification_repairs: int = 2, turn_ref: Any = None,
             execution_id: Optional[str] = None, conversation_id: Optional[str] = None,
-            turn_references: Optional[List[Dict[str, Any]]] = None) -> AgentResponse:
+            turn_references: Optional[List[Dict[str, Any]]] = None,
+            contract: Optional[Any] = None) -> AgentResponse:
         """Live decisions with bounded execution, observable actions and real usage.
 
         Injected model callables are fixture evidence. A stopped controller asks
@@ -714,6 +765,40 @@ class AssistantRuntime:
         note_ctx = self.notebook.current_context()
         active_turn_id = note_ctx.turn_ref.turn_id if note_ctx else (str(turn_ref) if turn_ref else None)
         active_exec_id = note_ctx.execution_id if note_ctx else (execution_id or f"exec-{uuid4().hex[:12]}")
+        journal = ExecutionJournal(
+            conversation_id=conversation_id or "conv-default",
+            turn_id=active_turn_id or "turn-default",
+            execution_id=active_exec_id,
+            generation=notes_generation,
+        )
+        def bind_contract(proposal, proposed_by):
+            try:
+                if isinstance(proposal, TurnContract):
+                    proposal = proposal.to_dict()
+                if not isinstance(proposal, dict):
+                    raise ValueError(f"invalid_contract_type:{type(proposal).__name__}")
+                parsed = TurnContract.from_dict(proposal)
+            except Exception as exc:
+                parsed = TurnContract(is_valid=False, intent_coverage="invalid",
+                                      validation_errors=[f"contract_decode_error:{exc}"])
+            parsed.turn_id = active_turn_id or "turn-default"
+            parsed.execution_id = active_exec_id
+            parsed.conversation_id = conversation_id or "conv-default"
+            parsed.generation = notes_generation
+            parsed.proposed_by = proposed_by
+            return parsed
+
+        def decision_contract(decision):
+            if decision.contract is not None:
+                return bind_contract(decision.contract, "model_decision")
+            if decision.outcomes is not None:
+                return bind_contract({"outcomes": decision.outcomes}, "model_decision")
+            if decision.contract_declared:
+                return bind_contract(None, "model_decision")
+            return None
+
+        turn_contract = bind_contract(contract, "provided_contract") if contract is not None else (
+            decision_contract(initial_decision) if initial_decision is not None else None)
         # Notebook generation is a cancellation epoch, not a unique request ID.
         verification = VerificationSession(self.registry, goal, f"request:{uuid4().hex}")
         final_checks, verification_repairs = [], 0
@@ -740,10 +825,31 @@ class AssistantRuntime:
                 callback(value)
 
         def response(answer="", error=None):
+            nonlocal turn_contract
             if error == "cancelled":
                 self.notebook.cancel_execution(active_exec_id)
                 self.dispatcher.cancel_execution(active_exec_id)
             artifacts_now = changed_artifacts()
+            lifecycle = "completed"
+            if error == "cancelled":
+                lifecycle = "cancelled"
+            elif self.dispatcher.state.pending_input_request:
+                lifecycle = "needs_input"
+            elif error:
+                lifecycle = "failed"
+
+            reconciliation = reconcile_turn(
+                turn_contract,
+                journal,
+                lifecycle=lifecycle,
+                final_answer=answer,
+                error=error,
+                notebook_snapshot=self.notebook.snapshot(),
+                store=self.artifact_store,
+            )
+
+            calc_comp_status = ("needs_input" if self.dispatcher.state.pending_input_request else reconciliation.declared_scope_completion)
+
             turn_ref_summary = {
                 "turn_id": active_turn_id,
                 "execution_id": active_exec_id,
@@ -752,6 +858,9 @@ class AssistantRuntime:
                 "answer_summary": (answer or "")[:240],
                 "artifact_ids": [a.id for a in artifacts_now],
                 "note_ids": [n["id"] for n in self.notebook.notes_for_turn(active_turn_id)] if active_turn_id else [],
+                "reconciliation": reconciliation.to_dict(),
+                "reconciliation_status": reconciliation.declared_scope_completion,
+                "unresolved_reasons": reconciliation.unresolved_reasons,
             }
             return AgentResponse(answer=answer, steps=trajectory,
                 total_time_ms=(time.perf_counter() - started) * 1000,
@@ -765,14 +874,17 @@ class AssistantRuntime:
                 sources=sources, artifacts=artifacts_now,
                 error=error, controller_decisions=interventions,
                 task_state=task_memory, task_state_updated=task_updated,
-                completion_status=("needs_input" if self.dispatcher.state.pending_input_request else "model_reported_" + task_memory["status"] if task_updated else "unchecked"),
+                completion_status=calc_comp_status,
                 pending_input_request=self.dispatcher.state.pending_input_request,
                 verification_reports=list(verification.reports), answer_verification_status=answer_status(final_checks),
                 verification_time_ms=verification.duration_ms,
                 turn_id=active_turn_id, execution_id=active_exec_id,
                 note_events=self.notebook.events_since(note_cursor_start, self.notebook.conversation_id),
                 note_cursor=self.notebook.event_cursor(),
-                turn_reference=turn_ref_summary)
+                turn_reference=turn_ref_summary,
+                reconciliation=reconciliation,
+                turn_contract=turn_contract,
+                execution_journal=journal)
 
         if self.plan_tasks and not initial_steps and initial_decision is None:
             if should_cancel and should_cancel():
@@ -791,11 +903,17 @@ class AssistantRuntime:
             try:
                 if meta.get("error") or meta.get("done_reason") == "length":
                     raise ValueError(meta.get("error") or "model_output_truncated")
-                task_memory = validate_task_state(json.loads(meta.get("message", {}).get("content", "")))
+                raw_plan = json.loads(meta.get("message", {}).get("content", ""))
+                raw_outcomes = raw_plan.get("outcomes") if isinstance(raw_plan, dict) else None
+                plan_for_task_state = {k: v for k, v in raw_plan.items() if k != "outcomes"} if isinstance(raw_plan, dict) else raw_plan
+                task_memory = validate_task_state(plan_for_task_state)
                 if task_memory['completed'] or task_memory['status'] == 'completed':
                     raise ValueError('initial_plan_claimed_execution')
                 task_updated = True
                 context["task_state"] = task_memory
+                if turn_contract is None or turn_contract.intent_coverage == "unchecked":
+                    if raw_outcomes is not None:
+                        turn_contract = bind_contract({"outcomes": raw_outcomes}, "model_planner")
                 step.tool_name, step.tool_args = "update_task_state", task_memory
                 step.tool_result = {"task_state": task_memory, "assessment": "model_report_not_verification", "phase": "initial_plan"}
                 state.update_with_tool_result(step.tool_name, step.tool_args, step.tool_result)
@@ -806,6 +924,15 @@ class AssistantRuntime:
                 return response(error="cancelled")
             if step.error:
                 return response(error=step.error)
+
+        if turn_contract is None:
+            turn_contract = TurnContract(
+                conversation_id=conversation_id or "conv-default",
+                turn_id=active_turn_id or "turn-default",
+                execution_id=active_exec_id,
+                generation=notes_generation,
+                intent_coverage="unchecked",
+            )
 
         base_steps = len(trajectory)
 
@@ -829,6 +956,10 @@ class AssistantRuntime:
             else:
                 decision = self._call_model(goal, trajectory, **context, finish_only=finish_only)
                 pending_calls.extend(decision.extra_tool_calls)
+            if not turn_contract.frozen:
+                proposal = decision_contract(decision)
+                if proposal is not None:
+                    turn_contract = proposal
             total_prompt += decision.prompt_tokens
             total_completion += decision.completion_tokens
             model_time += decision.model_duration_ms
@@ -847,6 +978,8 @@ class AssistantRuntime:
             if decision.final_answer is not None:
                 final_checks = verification.check_answer(decision.final_answer)
                 step.verification = final_checks
+                for rep in final_checks:
+                    journal.record_verification(rep, candidate_answer=decision.final_answer)
                 guard_action = verification_action(final_checks,
                     can_continue=number < max_steps and total_prompt + total_completion < max_tokens,
                     repairs=verification_repairs, repair_limit=max_verification_repairs)
@@ -927,8 +1060,11 @@ class AssistantRuntime:
             }
             description = desc_map.get(name, "Đang thực hiện thao tác…")
             emit(on_progress, description)
+            if not turn_contract.frozen:
+                turn_contract.freeze()
             tool_started = time.perf_counter()
             step_note_cursor = self.notebook.event_cursor()
+            step_starting_revisions = {a.id: a.revision for a in self.artifact_store.list()}
             try:
                 result = self.execute_tool(
                     name,
@@ -958,7 +1094,34 @@ class AssistantRuntime:
             trajectory.append(step)
             state.update_with_tool_result(name, args, result)
             sources = observed_sources(step, sources)
-            step.artifacts = changed_artifacts()
+            step_artifacts = [a for a in self.artifact_store.list() if step_starting_revisions.get(a.id) != a.revision]
+            step.artifacts = step_artifacts
+            art_refs = [{"id": a.id, "artifact_id": a.id, "kind": a.kind, "revision": a.revision} for a in step_artifacts]
+            op_status = "committed"
+            op_committed = True
+            if should_cancel and should_cancel():
+                op_status = "cancelled"
+                op_committed = False
+            elif isinstance(result, dict) and result.get("status"):
+                op_status = str(result["status"])
+                op_committed = (op_status == "committed")
+            elif isinstance(result, dict) and result.get("error"):
+                op_status = "error"
+                op_committed = False
+            op_rcpt = journal.record_operation(
+                name,
+                args,
+                result,
+                status=op_status,
+                committed=op_committed,
+                artifact_refs=art_refs,
+                error=result.get("error") if isinstance(result, dict) else None,
+                operation_call_id=f"step-{step.step_number}",
+            )
+            for evt in step.note_events:
+                journal.record_note_event(evt, operation_receipt_id=op_rcpt.receipt_id)
+            for rep in step.verification:
+                journal.record_verification(rep, operation_receipt_id=op_rcpt.receipt_id)
             emit(on_step, step)
             if isinstance(result, dict) and result.get("status") == "needs_input":
                 # The real pending operation is ready for user input; no extra synthesis call is necessary.

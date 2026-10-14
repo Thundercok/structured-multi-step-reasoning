@@ -88,8 +88,9 @@ def test_context_includes_followup_and_selected_member(runtime):
     assert messages[-1]['content'] == 'Tóm tắt cái đó'
     assert messages[1]['content'] == 'Found Networks notes'
     assert '/notes/networks.txt' in messages[2]['content']
-    assert 'student' in messages[0]['content']
-    assert '2026-10-11' in messages[0]['content']
+    runtime_context = next(message for message in messages if message['content'].startswith('Runtime context:'))
+    assert runtime_context['role'] == 'system' and 'student' in runtime_context['content']
+    assert '2026-10-11' in runtime_context['content']
 
 
 def test_duplicate_action_requests_model_finish_without_canned_plan(runtime):

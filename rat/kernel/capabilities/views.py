@@ -61,6 +61,36 @@ def view_document_content(artifact, context) -> ViewSpec:
     blocks = [ViewBlock(type='summary', data={'title': f'Nội dung tệp · {filename}', 'text': f'Đã đọc {len(content)} / {chars} ký tự.'}), ViewBlock(type='details', data={'title': 'Trích xuất văn bản', 'content': content})]
     return ViewSpec(schema_version=1, artifact_id=artifact.id, revision=artifact.revision, title=f'Đọc tệp · {filename}', blocks=blocks)
 
+def view_book_page_search(artifact, context) -> ViewSpec:
+    data = artifact.payload
+    title = f"Trang sách · {data['filename']}"
+    start, end = data['searched_range']
+    text = f"Tìm thấy {data['matched_pages']} trang khớp trong phạm vi PDF {start}–{end}."
+    if data['results_truncated']:
+        text += f" Đang hiển thị {len(data['items'])} trang."
+    if data['next_start_page']:
+        text += f" Còn trang chưa tìm từ {data['next_start_page']}."
+    if data['textless_pages'] or data['unreadable_pages']:
+        text += f" {len(data['textless_pages'])} trang không có văn bản; {len(data['unreadable_pages'])} trang lỗi đọc."
+    return ViewSpec(1, artifact.id, artifact.revision, title=title, blocks=[
+        ViewBlock('summary', {'title': title, 'text': text}),
+        ViewBlock('table', {'headers': ['Trang PDF', 'Nhãn PDF', 'Đoạn khớp'],
+                           'rows': [[p['page'], p['page_label'], p['snippet']] for p in data['items']]}),
+        ViewBlock('details', {'title': 'Phạm vi và nguồn', 'content': data['path'] + '\n' + data['notice']}),
+    ])
+
+def view_book_page_content(artifact, context) -> ViewSpec:
+    data = artifact.payload
+    title = f"{data['filename']} · Trang PDF {data['page']} · Nhãn {data['page_label']}"
+    text = f"Đã đọc {len(data['content'])}/{data['total_chars']} ký tự."
+    if data['truncated']:
+        text += ' Nội dung đã cắt ngắn.'
+    return ViewSpec(1, artifact.id, artifact.revision, title=title, blocks=[
+        ViewBlock('summary', {'title': title, 'text': text}),
+        ViewBlock('details', {'title': 'Nội dung trang', 'content': data['content']}),
+        ViewBlock('details', {'title': 'Nguồn trích dẫn', 'content': data['path'] + '\n' + data['notice']}),
+    ])
+
 def view_input_request(artifact, context) -> ViewSpec:
     req_data = artifact.payload
     prompt = req_data.get('prompt', 'Vui lòng nhập thêm thông tin.')

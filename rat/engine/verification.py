@@ -252,6 +252,19 @@ class CalculationVerifier:
         schema['properties']['answer']['enum'] = [str(expected)]
         return schema
 
+    def check_note(self, evidence: ExecutionEvidence, field: str, text: str):
+        """Optionally verify a whole numeric/equation note against its source.
+
+        This confirms only the calculation statement, not prose or user intent.
+        """
+        if field != "result":
+            return None
+        execution = self.check_execution(evidence)
+        if execution.status != VerificationStatus.PASS:
+            return replace(execution, scope="source_calculation_note")
+        report = self.check_answer("", text, (evidence,))
+        return replace(report, scope="source_calculation_note") if report else None
+
     def check_execution(self, evidence):
         ids = (evidence.id,)
         expression = evidence.args.get("expression", "")
@@ -311,6 +324,13 @@ class CalculationVerifier:
                                           f"Kết luận dùng biểu thức khác yêu cầu {expression}; đối chiếu được {expected}.",
                                           retryable=True, answer_schema=self.checked_answer_schema(expected))
         except (ValueError, SyntaxError, ZeroDivisionError, OverflowError):
+            if bound_to_request:
+                # The request is within our scope; malformed candidate syntax
+                # must not turn the obligation into an unchecked ACCEPT.
+                expected = evaluate_expression(expression)
+                return VerificationReport(VerificationStatus.UNKNOWN, "literal_arithmetic_answer",
+                                          f"Yêu cầu {expression} có kết quả {expected}; chưa đối chiếu được biểu thức trong kết luận.",
+                                          retryable=True, answer_schema=self.checked_answer_schema(expected))
             return VerificationReport(VerificationStatus.UNKNOWN, "calculation_answer",
                                       "Chưa thể kiểm chứng biểu thức trong kết luận.")
         status = VerificationStatus.PASS if _same_number(candidate, expected) else VerificationStatus.FAIL

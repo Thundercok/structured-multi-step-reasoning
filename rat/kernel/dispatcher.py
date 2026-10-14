@@ -69,13 +69,13 @@ class ActionDispatcher:
         )
 
     def _waiting(self, request, generation, *, turn_id=None, execution_id=None):
-        previous = self.store.get(request.id)
+        revision = self.store.next_revision(request.id, expected_generation=generation)
         provenance = {}
         if turn_id:
             provenance["owner_turn_id"] = turn_id
         if execution_id:
             provenance["execution_id"] = execution_id
-        art = Artifact(request.id, "input_request", (previous.revision + 1) if previous else 1,
+        art = Artifact(request.id, "input_request", revision,
                        request.to_dict(), provenance=provenance, title="Cần thêm thông tin", status="waiting_input")
         self.store.put(art, expected_generation=generation)
         self._event("waiting_input", request.operation_name, generation, art, request, turn_id=turn_id, execution_id=execution_id)
@@ -141,6 +141,8 @@ class ActionDispatcher:
                     artifact.provenance["source_artifact_id"] = target.id
                     artifact.provenance["source_revision"] = target.revision
             if artifact:
+                if not op.present_result:
+                    artifact.provenance["presentation"] = "trace"
                 update = target and artifact.id == target.id
                 self.store.put(artifact, expected_revision=target.revision if update else None,
                                expected_generation=generation)

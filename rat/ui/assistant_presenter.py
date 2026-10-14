@@ -77,7 +77,7 @@ class ArtifactPanel(QWidget):
 
     def update_artifacts(self, artifacts):
         self.artifacts = list(artifacts)
-        self.covers_documents = any(a.kind in ("document_search", "document_content") for a in artifacts)
+        self.covers_documents = any(a.kind in ("document_search", "document_content", "book_page_search", "book_page_content") for a in artifacts)
         ids = {a.id for a in artifacts}
         for key in list(self.renderers):
             if key not in ids:
@@ -121,7 +121,8 @@ def source_panel(sources, open_natal=None, task_state=None, *, artifacts=None,
                  on_action=None, on_input=None, view_provider=None, registry=None):
     provider = view_provider or StandardViewProvider(registry)
     registry = registry or getattr(provider, "registry", None)
-    active = list(artifacts or [])
+    active = [artifact for artifact in (artifacts or [])
+              if artifact.provenance.get("presentation") != "trace"]
     if active:
         return ArtifactPanel(active, provider, registry, on_action, on_input)
     # Old recorded observations can still be viewed; live execution publishes artifacts.

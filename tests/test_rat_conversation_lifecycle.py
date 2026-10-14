@@ -117,3 +117,39 @@ def test_historical_context_matches_latest_snapshot_owned_by_old_turn():
     assert old_display['text'] == 'Có 30 phút'
     assert old_context['revision'] == old_display['revision']
     assert old_context['text'] == old_display['text']
+
+
+def test_messages_with_turn_ids_preserves_prior_assistant_reply_without_slicing():
+    history = ConversationHistory()
+    t1 = history.begin_turn('Giải thích binary search')
+    history.complete_turn(t1.turn_id, 'Trả lời lượt 1 của Chuột', execution_id=t1.execution_id)
+
+    prior_messages = history.messages_with_turn_ids()
+    prior_refs = history.turn_references()
+    t2 = history.begin_turn('Câu hỏi tiếp theo')
+
+    # messages_with_turn_ids() only contains finalized turns; slicing [:-1] would drop t1's assistant reply.
+    assert prior_messages == [
+        {'role': 'user', 'content': 'Giải thích binary search', 'turn_id': 'turn-1'},
+        {'role': 'assistant', 'content': 'Trả lời lượt 1 của Chuột', 'turn_id': 'turn-1'},
+    ]
+    assert history.messages_with_turn_ids() == prior_messages
+    assert len(prior_refs) == 1 and prior_refs[0]['turn_id'] == 'turn-1'
+    assert not any(r['turn_id'] == t2.turn_id for r in prior_refs)
+
+
+def test_smoke_runner_turn4_evaluator_distinguishes_correct_from_broken_traces():
+    from scripts.run_dsa_core_smoke import evaluate_turn4_binary_search
+
+    good = evaluate_turn4_binary_search('Bước 1: low=0, high=4, mid=2, a[2]=6 khớp ngay ở bước đầu.')
+    assert good['verdict'] == 'candidate_requires_review' and good['heuristic_match'] is True
+    assert good['semantic_correctness_verified'] is False
+
+    broken_ineq = evaluate_turn4_binary_search('mid = 2, giá trị 6 > 6 nên giảm high, tiếp tục mid = 3.')
+    assert broken_ineq['verdict'] == 'flagged_requires_review'
+    assert broken_ineq['heuristic_match'] is False
+
+    wrong_array = evaluate_turn4_binary_search('Tìm số 6 trong danh sách từ 1 đến 100 ở vị trí thứ 7.')
+    assert wrong_array['verdict'] == 'flagged_requires_review'
+    assert wrong_array['heuristic_match'] is False
+

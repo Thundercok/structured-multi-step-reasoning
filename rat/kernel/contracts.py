@@ -150,6 +150,8 @@ class ArtifactStore:
         self._max_history = max_history_per_artifact
         self._artifacts: Dict[str, Artifact] = {}
         self._history: Dict[str, List[Artifact]] = {}
+        # Retain committed revisions after delete/eviction until this epoch ends.
+        self._revision_high_water: Dict[str, int] = {}
         self._lock = threading.RLock()
         self._generation = 0
 
@@ -158,6 +160,16 @@ class ArtifactStore:
         with self._lock:
             return self._generation
 
+    def next_revision(self, artifact_id: str, *, expected_generation=None) -> int:
+        """Suggest the next revision; put still validates it under the lock."""
+        with self._lock:
+            if expected_generation is not None and expected_generation != self._generation:
+                raise ValueError("cancelled:conversation_reset")
+            previous = self._artifacts.get(artifact_id)
+            last_revision = max(self._revision_high_water.get(artifact_id, 0),
+                                previous.revision if previous is not None else 0)
+            return last_revision + 1
+
     def put(self, artifact: Artifact, *, expected_revision=None, expected_generation=None) -> Artifact:
         with self._lock:
             if expected_generation is not None and expected_generation != self._generation:
@@ -165,24 +177,31 @@ class ArtifactStore:
             previous = self._artifacts.get(artifact.id)
             if expected_revision is not None and (previous is None or previous.revision != expected_revision):
                 raise ValueError("stale_revision")
-            if previous is not None and artifact.revision <= previous.revision:
+            last_revision = max(self._revision_high_water.get(artifact.id, 0),
+                                previous.revision if previous is not None else 0)
+            if artifact.revision <= last_revision:
                 raise ValueError("non_monotonic_revision")
+            # Complete fallible copying before eviction or ledger mutation.
+            stored = copy.deepcopy(artifact)
+            history_entry = copy.deepcopy(stored)
+            returned = copy.deepcopy(stored)
             # Bound total active artifacts
             if artifact.id not in self._artifacts and len(self._artifacts) >= self._max_artifacts:
                 # Evict oldest
                 oldest_id = min(self._artifacts.keys(), key=lambda k: self._artifacts[k].created_at)
                 self.delete(oldest_id)
 
-            self._artifacts[artifact.id] = copy.deepcopy(artifact)
+            self._artifacts[artifact.id] = stored
             if artifact.id not in self._history:
                 self._history[artifact.id] = []
 
             # Append revision to history, bounding history size
-            self._history[artifact.id].append(copy.deepcopy(artifact))
+            self._history[artifact.id].append(history_entry)
             if len(self._history[artifact.id]) > self._max_history:
                 self._history[artifact.id].pop(0)
 
-            return copy.deepcopy(artifact)
+            self._revision_high_water[artifact.id] = artifact.revision
+            return returned
 
     def get(self, artifact_id: str, revision: Optional[int] = None) -> Optional[Artifact]:
         with self._lock:
@@ -222,6 +241,7 @@ class ArtifactStore:
             self._generation += 1
             self._artifacts.clear()
             self._history.clear()
+            self._revision_high_water.clear()
 
 
 @dataclass

@@ -77,6 +77,8 @@ class TurnSnapshot:
     note_ids: List[str] = field(default_factory=list)
     note_event_ids: List[str] = field(default_factory=list)
     task_state: Dict[str, Any] = field(default_factory=dict)
+    reconciliation: Optional[Dict[str, Any]] = None
+    reconciliation_status: str = "unchecked"
 
     @property
     def turn_id(self) -> str:
@@ -133,6 +135,8 @@ class TurnSnapshot:
             "note_ids": list(self.note_ids),
             "note_event_ids": list(self.note_event_ids),
             "task_state": copy.deepcopy(self.task_state),
+            "reconciliation": copy.deepcopy(self.reconciliation) if self.reconciliation is not None else None,
+            "reconciliation_status": self.reconciliation_status,
         }
 
 
@@ -215,6 +219,7 @@ class ConversationHistory:
         note_ids: Optional[List[str]] = None,
         note_event_ids: Optional[List[str]] = None,
         task_state: Optional[Dict[str, Any]] = None,
+        reconciliation: Optional[Any] = None,
     ) -> TurnSnapshot:
         """Commit a completed turn; reject late callbacks from cancelled executions."""
         snap = self._turn_snapshots.get(turn_id)
@@ -241,6 +246,9 @@ class ConversationHistory:
             snap.note_event_ids = list(dict.fromkeys([*snap.note_event_ids, *note_event_ids]))
         if task_state is not None:
             snap.task_state = copy.deepcopy(task_state)
+        if reconciliation is not None:
+            snap.reconciliation = reconciliation.to_dict() if hasattr(reconciliation, "to_dict") else copy.deepcopy(reconciliation)
+            snap.reconciliation_status = snap.reconciliation.get("declared_scope_completion", "completed") if isinstance(snap.reconciliation, dict) else "completed"
 
         if snap.kind == "chat" and snap.query and snap.answer:
             limit = self.MAX_CHARS // 2
@@ -265,6 +273,7 @@ class ConversationHistory:
         note_ids: Optional[List[str]] = None,
         note_event_ids: Optional[List[str]] = None,
         task_state: Optional[Dict[str, Any]] = None,
+        reconciliation: Optional[Any] = None,
     ) -> TurnSnapshot:
         if status not in ("failed", "cancelled", "needs_input"):
             raise ValueError("Unknown incomplete execution status")
@@ -292,6 +301,9 @@ class ConversationHistory:
             snap.note_event_ids = list(dict.fromkeys([*snap.note_event_ids, *note_event_ids]))
         if task_state is not None:
             snap.task_state = copy.deepcopy(task_state)
+        if reconciliation is not None:
+            snap.reconciliation = reconciliation.to_dict() if hasattr(reconciliation, "to_dict") else copy.deepcopy(reconciliation)
+            snap.reconciliation_status = snap.reconciliation.get("declared_scope_completion", status) if isinstance(snap.reconciliation, dict) else status
 
         if snap.kind == "chat" and snap.query:
             event = json.dumps({
@@ -314,6 +326,7 @@ class ConversationHistory:
         note_ids: Optional[List[str]] = None,
         note_event_ids: Optional[List[str]] = None,
         task_state: Optional[Dict[str, Any]] = None,
+        reconciliation: Optional[Any] = None,
     ) -> TurnSnapshot:
         return self.fail_turn(
             turn_id,
@@ -323,6 +336,7 @@ class ConversationHistory:
             note_ids=note_ids,
             note_event_ids=note_event_ids,
             task_state=task_state,
+            reconciliation=reconciliation,
         )
 
     def record_interaction(
@@ -464,6 +478,9 @@ class ConversationHistory:
                 "note_ids": list(snap.note_ids),
                 "note_event_ids": list(snap.note_event_ids),
                 "task_goal": snap.task_state.get("goal", "") if isinstance(snap.task_state, dict) else "",
+                "reconciliation_status": snap.reconciliation_status,
+                "reconciliation": copy.deepcopy(snap.reconciliation) if snap.reconciliation is not None else None,
+                "unresolved_reasons": (snap.reconciliation or {}).get("unresolved_reasons", []),
             })
         return refs
 

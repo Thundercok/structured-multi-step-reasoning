@@ -1,0 +1,709 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Proposed RAT context projection, transport shape only",
+  "description": "Runtime-only output. Semantic closure, scope, authority, exact values, canonical contract validity and typed projection slots require additional validation. Not a model output schema. Revised proposed progress: only global match evidence; no invented outcome-to-receipt map. Store epochs are distinct.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "rat.context/1"
+    },
+    "view": {
+      "enum": [
+        "planner",
+        "actor",
+        "repair",
+        "finish"
+      ]
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "snapshot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conversation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "turn_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "note_event_cursor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coherence": {
+          "const": "validated_copies"
+        },
+        "artifact_pins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact_ref"
+          }
+        },
+        "note_pins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/note_ref"
+          }
+        },
+        "candidate_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "artifact_store_generation": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "conversation_id",
+        "turn_id",
+        "execution_id",
+        "generation",
+        "note_event_cursor",
+        "coherence",
+        "artifact_pins",
+        "note_pins",
+        "candidate_hash",
+        "artifact_store_generation"
+      ]
+    },
+    "current_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "message_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "history_message_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "message_ref",
+        "history_message_refs"
+      ]
+    },
+    "continuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "turn_refs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "confirmed_constraint_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity_ref"
+          }
+        }
+      },
+      "required": [
+        "turn_refs",
+        "confirmed_constraint_refs"
+      ]
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "const": "model_proposed"
+        },
+        "state": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "authority",
+        "state"
+      ]
+    },
+    "runtime_obligations": {
+      "$ref": "#/$defs/obligations"
+    },
+    "observed_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lifecycle": {
+          "type": "object"
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "proof_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proof_ref"
+          }
+        },
+        "progress": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "assessment": {
+              "const": "provisional"
+            },
+            "matcher": {
+              "type": "string",
+              "minLength": 1
+            },
+            "outcomes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "outcome_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "enum": [
+                      "met",
+                      "pending",
+                      "pending_response",
+                      "unresolved"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "outcome_id",
+                  "status",
+                  "reason"
+                ]
+              }
+            },
+            "evidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "intent_coverage": {
+                  "type": "string"
+                },
+                "scoped_quality": {
+                  "type": "string"
+                },
+                "matched_receipts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "unmet_outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "unresolved_reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "intent_coverage",
+                "scoped_quality",
+                "matched_receipts",
+                "unmet_outcomes",
+                "unresolved_reasons"
+              ]
+            },
+            "final_response_pending": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "assessment",
+            "matcher",
+            "outcomes",
+            "evidence",
+            "final_response_pending"
+          ]
+        }
+      },
+      "required": [
+        "lifecycle",
+        "receipts",
+        "proof_refs",
+        "progress"
+      ]
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entity"
+      }
+    },
+    "indexes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "active_notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/note_ref"
+          }
+        },
+        "historical_notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/note_ref"
+          }
+        },
+        "previous_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity_ref"
+          }
+        },
+        "current_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact_ref"
+          }
+        },
+        "selected_results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity_ref"
+          }
+        },
+        "selection_set": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "active_notes",
+        "historical_notes",
+        "previous_sources",
+        "current_results",
+        "selected_results",
+        "selection_set"
+      ]
+    },
+    "unavailable_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unavailable"
+      }
+    },
+    "unmodeled_observations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "view",
+    "boundary",
+    "current_request",
+    "continuity",
+    "proposal",
+    "runtime_obligations",
+    "observed_state",
+    "entities",
+    "indexes",
+    "unavailable_refs",
+    "unmodeled_observations"
+  ],
+  "$defs": {
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "artifact"
+        },
+        "conversation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "kind",
+        "conversation_id",
+        "artifact_id",
+        "revision"
+      ]
+    },
+    "note_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "note_version"
+        },
+        "conversation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "kind",
+        "conversation_id",
+        "note_id",
+        "revision"
+      ]
+    },
+    "result_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "operation_result"
+        },
+        "execution_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "receipt_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "execution_id",
+        "receipt_id"
+      ]
+    },
+    "event_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "note_event"
+        },
+        "conversation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "event_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "conversation_id",
+        "event_id"
+      ]
+    },
+    "proof_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "verification_report"
+        },
+        "execution_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "receipt_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "execution_id",
+        "receipt_id"
+      ]
+    },
+    "entity_ref": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/artifact_ref"
+        },
+        {
+          "$ref": "#/$defs/note_ref"
+        },
+        {
+          "$ref": "#/$defs/result_ref"
+        },
+        {
+          "$ref": "#/$defs/event_ref"
+        },
+        {
+          "$ref": "#/$defs/proof_ref"
+        }
+      ]
+    },
+    "value_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "$value_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "entity_ref": {
+              "$ref": "#/$defs/entity_ref"
+            },
+            "pointer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "entity_ref",
+            "pointer"
+          ]
+        }
+      },
+      "required": [
+        "$value_ref"
+      ]
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/entity_ref"
+        },
+        "authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "issuer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_turn_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projection_status": {
+          "enum": [
+            "lossless",
+            "raw_fallback"
+          ]
+        },
+        "body": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "ref",
+        "authority",
+        "issuer",
+        "owner_turn_id",
+        "projection_status",
+        "body"
+      ]
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contract_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conversation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "turn_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generation": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "proposed_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_message_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outcomes": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "intent_coverage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "frozen": {
+          "type": "boolean"
+        },
+        "is_valid": {
+          "type": "boolean"
+        },
+        "validation_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "contract_id",
+        "conversation_id",
+        "turn_id",
+        "execution_id",
+        "generation",
+        "proposed_by",
+        "source_message_refs",
+        "outcomes",
+        "intent_coverage",
+        "frozen",
+        "is_valid",
+        "validation_errors"
+      ]
+    },
+    "obligations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "bound",
+            "not_declared"
+          ]
+        },
+        "authority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contract": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/contract"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "authority",
+        "contract"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "bound"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "contract": {
+                "$ref": "#/$defs/contract"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "contract": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "unavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/entity_ref"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mandatory": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ref",
+        "reason",
+        "mandatory"
+      ]
+    }
+  }
+}

@@ -5,6 +5,7 @@ Distinguishes finding a file from reading it.
 Registers:
 - search_documents: full-text search and candidates retrieval -> produces document_search artifact
 - read_document: deep text extraction from indexed document -> produces document_content artifact
+- search_book_pages / read_book_page: on-demand indexed PDF pages with source metadata
 """
 from __future__ import annotations
 
@@ -104,6 +105,69 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
             raise ValueError("Tệp không tồn tại hoặc chưa có trong chỉ mục RAT.")
         subprocess.run(["/usr/bin/open", str(path)], check=True, capture_output=True)
         return {"opened": True, "path": str(path)}
+
+    def indexed_pdf(file_path, context):
+        path = Path(file_path).absolute()
+        if path.suffix.lower() != ".pdf" or not path.is_file():
+            raise ValueError("Cần đường dẫn tới tệp PDF đang tồn tại.")
+        if not get_db(context).get_document_by_path(str(path)):
+            raise ValueError("PDF chưa có trong chỉ mục RAT. Tìm sách bằng search_documents trước; không đoán đường dẫn.")
+        return path
+
+    def handle_page_search(args, **context):
+        from rat.engine.book_pages import search_pages
+        return search_pages(indexed_pdf(args["file_path"], context), args["query"],
+                            start_page=args.get("start_page", 1), max_pages=args.get("max_pages", 400),
+                            limit=args.get("limit", 5), context=context)
+
+    def handle_page_read(args, **context):
+        from rat.engine.book_pages import read_page
+        return read_page(indexed_pdf(args["file_path"], context), args["page"],
+                         max_chars=args.get("max_chars", 8000), context=context)
+
+    def page_actions(artifact):
+        actions = [ArtifactAction(
+            id=f"act_read_page_{artifact.id}_{artifact.revision}_{item['page']}",
+            label=f"Đọc trang PDF {item['page']}", target_artifact_id=artifact.id,
+            target_revision=artifact.revision, operation_name="read_book_page",
+            params={"file_path": item["path"], "page": item["page"]})
+            for item in artifact.payload.get("items", [])]
+        next_page = artifact.payload.get("next_start_page")
+        if next_page:
+            actions.append(ArtifactAction(
+                id=f"act_next_pages_{artifact.id}_{artifact.revision}",
+                label=f"Tìm tiếp từ trang PDF {next_page}", target_artifact_id=artifact.id,
+                target_revision=artifact.revision, operation_name="search_book_pages",
+                params={"file_path": artifact.payload["path"], "query": artifact.payload["query"],
+                        "start_page": next_page, "limit": artifact.inputs.get("limit", 5),
+                        "max_pages": artifact.inputs.get("max_pages", 400)}))
+        return actions
+
+    path_schema = {"type": "string", "description": "Exact indexed PDF path returned by search_documents."}
+    capability.register_operation(OperationDefinition(
+        "search_book_pages",
+        "Find topic words or a passage on actual pages of a local indexed PDF. "
+        "Search_documents first to choose the book; never guess paths. "
+        "All query words must occur on a page (accent/case insensitive); use concise content keywords. "
+        "Returns excerpts, 1-based PDF page numbers and PDF page labels. Labels may differ from printed numbers. "
+        "Searches up to max_pages per call; continue at next_start_page for remaining pages. "
+        "Textless/scanned pages require OCR and are reported separately.",
+        {"type": "object", "properties": {
+            "file_path": path_schema, "query": {"type": "string", "maxLength": 300},
+            "limit": {"type": "integer", "minimum": 1, "maximum": 12, "default": 5},
+            "start_page": {"type": "integer", "minimum": 1, "default": 1},
+            "max_pages": {"type": "integer", "minimum": 1, "maximum": 400, "default": 400},
+        }, "required": ["file_path", "query"]}, handle_page_search,
+        artifact_kind="book_page_search", available_actions=page_actions))
+    capability.register_operation(OperationDefinition(
+        "read_book_page",
+        "Read one exact 1-based PDF page from an indexed book, with citation metadata. "
+        "Use a page returned by search_book_pages or explicitly requested by the user. "
+        "Report truncation/textless pages honestly. To save a quotation, bind record_work_note to the actual result field.",
+        {"type": "object", "properties": {
+            "file_path": path_schema, "page": {"type": "integer", "minimum": 1},
+            "max_chars": {"type": "integer", "minimum": 1, "maximum": 12000, "default": 8000},
+        }, "required": ["file_path", "page"]}, handle_page_read, artifact_kind="book_page_content"))
 
     capability.register_operation(OperationDefinition("open_document",
         "Open an exact indexed file in its default application only when the user explicitly requests opening it.",

@@ -28,7 +28,11 @@ def test_only_model_authored_updates_change_memory(runtime):
     runtime.model_callable = lambda goal, steps: next(decisions)
     response = runtime.run('Please prepare')
     assert response.task_state == STATE and response.task_state_updated
-    assert response.completion_status == 'model_reported_in_progress'
+    # Migrated per ADR-003: completion_status is derived solely from TurnReconciliation,
+    # separating authoritative execution status from model-reported plan progress (preserved in task_state).
+    assert response.completion_status == 'unchecked'
+    assert response.task_state['status'] == 'in_progress'
+    assert response.reconciliation.intent_coverage == 'unchecked'
     runtime.model_callable = lambda goal, steps: ModelDecision('', final_answer='A follow-up')
     followup = runtime.run('Three points', task_state=response.task_state)
     assert followup.task_state['constraints'] == ['20 minutes', 'Skip IP routing']

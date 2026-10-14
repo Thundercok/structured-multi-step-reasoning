@@ -3492,6 +3492,7 @@ class OmnibarWindow(QMainWindow):
                     execution_id=exec_id,
                     artifact_refs=art_refs,
                     note_ids=note_ids,
+                    reconciliation=getattr(response, "reconciliation", None),
                 )
             else:
                 self._conversation.add_turn(self._pending_chat_query, answer)
@@ -3615,7 +3616,7 @@ class OmnibarWindow(QMainWindow):
         if hasattr(self, "compact_cot"):
             self.compact_cot.clear()
 
-        history_messages = self._conversation.context_messages()
+        history_messages = self._conversation.messages_with_turn_ids()
         turn_references = self._conversation.turn_references()
         turn_snap = self._conversation.begin_turn(q)
         turn_ref = turn_snap.turn_ref
@@ -3712,12 +3713,32 @@ class OmnibarWindow(QMainWindow):
         self._refresh_notes_surface()
         turn_ref = handle.get("turn_ref")
         exec_id = handle.get("execution_id")
+        art_refs = [{"artifact_id": a.id, "revision": a.revision} for a in getattr(response, "artifacts", [])]
+        note_ids = [
+            e["note_id"]
+            for e in (getattr(response, "note_events", []) or [])
+            if isinstance(e, dict) and e.get("note_id")
+        ]
+        rec = getattr(response, "reconciliation", None)
         if failed:
             if turn_ref is not None:
                 if response.error == "cancelled":
-                    self._conversation.cancel_turn(turn_ref.turn_id, execution_id=exec_id)
+                    self._conversation.cancel_turn(
+                        turn_ref.turn_id,
+                        execution_id=exec_id,
+                        artifact_refs=art_refs,
+                        note_ids=note_ids,
+                        reconciliation=rec,
+                    )
                 else:
-                    self._conversation.fail_turn(turn_ref.turn_id, error=response.error or "failed", execution_id=exec_id)
+                    self._conversation.fail_turn(
+                        turn_ref.turn_id,
+                        error=response.error or "failed",
+                        execution_id=exec_id,
+                        artifact_refs=art_refs,
+                        note_ids=note_ids,
+                        reconciliation=rec,
+                    )
             else:
                 self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query,
                                                'cancelled' if response.error == 'cancelled' else 'failed')
@@ -3737,7 +3758,14 @@ class OmnibarWindow(QMainWindow):
         elif response.pending_input_request is not None:
             answer = ''  # The grounded question is displayed once with its inputs.
             if turn_ref is not None:
-                self._conversation.fail_turn(turn_ref.turn_id, "needs_input", execution_id=exec_id)
+                self._conversation.fail_turn(
+                    turn_ref.turn_id,
+                    "needs_input",
+                    execution_id=exec_id,
+                    artifact_refs=art_refs,
+                    note_ids=note_ids,
+                    reconciliation=rec,
+                )
             else:
                 self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query, 'needs_input')
             self._pending_chat_query = None

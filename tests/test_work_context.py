@@ -246,22 +246,27 @@ def test_dsa_six_turn_shared_conversation_core_contract():
 
     # Turn 1: Explain binary search with a small example
     q1 = 'Giải thích binary search bằng ví dụ nhỏ'
+    m1 = history.messages_with_turn_ids()
+    refs1 = history.turn_references()
     t1 = history.begin_turn(q1)
     runtime.model_callable = lambda goal, steps: ModelDecision(
         '', final_answer='Binary search chia đôi mảng đã sắp xếp ở chỉ số mid.'
     )
     r1 = runtime.run(
         q1,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m1,
         turn_ref=t1.to_turn_ref(history.conversation_id),
         execution_id=t1.execution_id,
-        turn_references=history.turn_references()[:-1],
+        turn_references=refs1,
     )
     history.complete_turn(t1.turn_id, r1.answer, execution_id=r1.execution_id)
-    assert r1.turn_id == 'turn-1' and not r1.error
+    assert r1.turn_id == 'turn-1' and r1.execution_id == t1.execution_id and not r1.error
 
     # Turn 2: Array [2, 4, 6, 8, 10], find 8 step-by-step (records work note)
     q2 = 'Dùng mảng [2, 4, 6, 8, 10], tìm 8 từng bước'
+    m2 = history.messages_with_turn_ids()
+    refs2 = history.turn_references()
+    assert m2[-1] == {'role': 'assistant', 'content': r1.answer, 'turn_id': 'turn-1'}
     t2 = history.begin_turn(q2)
     t2_decisions = iter([
         ModelDecision(
@@ -277,10 +282,10 @@ def test_dsa_six_turn_shared_conversation_core_contract():
     runtime.model_callable = lambda goal, steps: next(t2_decisions)
     r2 = runtime.run(
         q2,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m2,
         turn_ref=t2.to_turn_ref(history.conversation_id),
         execution_id=t2.execution_id,
-        turn_references=history.turn_references()[:-1],
+        turn_references=refs2,
     )
     note_v1 = runtime.notebook.snapshot()[0]
     history.complete_turn(
@@ -294,22 +299,28 @@ def test_dsa_six_turn_shared_conversation_core_contract():
 
     # Turn 3: Follow-up on mid + 1 without repeating the array
     q3 = 'Vì sao bước đó dùng mid + 1 mà không giữ mid?'
+    m3 = history.messages_with_turn_ids()
+    refs3 = history.turn_references()
+    assert m3[-1] == {'role': 'assistant', 'content': r2.answer, 'turn_id': 'turn-2'}
     t3 = history.begin_turn(q3)
     runtime.model_callable = lambda goal, steps: ModelDecision(
         '', final_answer='Vì a[mid] = 6 đã nhỏ hơn 8 nên chỉ số mid đã kiểm tra xong, cần xét từ mid + 1.'
     )
     r3 = runtime.run(
         q3,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m3,
         turn_ref=t3.to_turn_ref(history.conversation_id),
         execution_id=t3.execution_id,
-        turn_references=history.turn_references()[:-1],
+        turn_references=refs3,
     )
     history.complete_turn(t3.turn_id, r3.answer, execution_id=r3.execution_id)
     assert r3.turn_id == 'turn-3'
 
     # Turn 4: Change target from 8 to 6 (replaces note revision 1 -> revision 2)
     q4 = 'Đổi thành tìm 6 thì các bước đổi thế nào?'
+    m4 = history.messages_with_turn_ids()
+    refs4 = history.turn_references()
+    assert m4[-1] == {'role': 'assistant', 'content': r3.answer, 'turn_id': 'turn-3'}
     t4 = history.begin_turn(q4)
     t4_decisions = iter([
         ModelDecision(
@@ -330,10 +341,10 @@ def test_dsa_six_turn_shared_conversation_core_contract():
     runtime.model_callable = lambda goal, steps: next(t4_decisions)
     r4 = runtime.run(
         q4,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m4,
         turn_ref=t4.to_turn_ref(history.conversation_id),
         execution_id=t4.execution_id,
-        turn_references=history.turn_references()[:-1],
+        turn_references=refs4,
     )
     note_v2 = runtime.notebook.snapshot()[0]
     history.complete_turn(
@@ -355,14 +366,18 @@ def test_dsa_six_turn_shared_conversation_core_contract():
 
     # Turn 5: Look back at mid + 1 in the earlier example while keeping Turn 4 as active note
     q5 = 'Quay lại câu hỏi mid + 1 ở ví dụ trước, viết gọn thành 3 ý để tôi chép bài'
+    m5 = history.messages_with_turn_ids()
+    refs5 = history.turn_references()
+    assert m5[-1] == {'role': 'assistant', 'content': r4.answer, 'turn_id': 'turn-4'}
     t5 = history.begin_turn(q5)
     t5_messages = runtime._native_messages(
         q5,
         [],
-        history=history.messages_with_turn_ids()[:-1],
-        turn_references=history.turn_references()[:-1],
+        history=m5,
+        turn_references=refs5,
     )
     joined_context = '\n'.join(m['content'] for m in t5_messages)
+    assert r4.answer in joined_context
     assert 'Prior replaced note versions' in joined_context
     assert 'Mảng [2, 4, 6, 8, 10], tìm 8' in joined_context
     assert 'Mảng [2, 4, 6, 8, 10], tìm 6' in joined_context
@@ -373,27 +388,39 @@ def test_dsa_six_turn_shared_conversation_core_contract():
     )
     r5 = runtime.run(
         q5,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m5,
         turn_ref=t5.to_turn_ref(history.conversation_id),
         execution_id=t5.execution_id,
-        turn_references=history.turn_references()[:-1],
+        turn_references=refs5,
     )
     history.complete_turn(t5.turn_id, r5.answer, execution_id=r5.execution_id)
 
-    # Turn 6: Start long trace request, cancel mid-execution, block late writes, then continue
+    # Turn 6: Start long trace request, cancel in-flight during inference, block late writes, then continue
     q6 = 'Viết bảng trace đầy đủ cho mọi trường hợp'
+    m6 = history.messages_with_turn_ids()
+    refs6 = history.turn_references()
+    assert m6[-1] == {'role': 'assistant', 'content': r5.answer, 'turn_id': 'turn-5'}
     t6 = history.begin_turn(q6)
+    cancel_state = {'in_flight': False, 'cancelled': False}
+
+    def cancel_mid_inference(goal, steps):
+        cancel_state['in_flight'] = True
+        cancel_state['cancelled'] = True
+        return ModelDecision('', final_answer='Bảng trace không được phép hoàn tất sau khi hủy')
+
+    runtime.model_callable = cancel_mid_inference
     r6 = runtime.run(
         q6,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m6,
         turn_ref=t6.to_turn_ref(history.conversation_id),
         execution_id=t6.execution_id,
-        turn_references=history.turn_references()[:-1],
-        should_cancel=lambda: True,
+        turn_references=refs6,
+        should_cancel=lambda: cancel_state['cancelled'],
     )
     cancelled_ctx = runtime.notebook.current_context()
     history.cancel_turn(t6.turn_id, execution_id=r6.execution_id)
-    assert r6.error == 'cancelled'
+    assert cancel_state['in_flight'] is True
+    assert r6.error == 'cancelled' and r6.answer == ''
 
     # Any late note write or dispatcher action from the cancelled execution must be rejected
     with pytest.raises(ValueError, match='cancelled'):
@@ -407,15 +434,20 @@ def test_dsa_six_turn_shared_conversation_core_contract():
 
     # Follow-up Turn 7 continues cleanly with Turn 4's active note preserved
     q7 = 'Tiếp tục với tìm 6 ở trên, chỉ số kết quả là mấy?'
+    m7 = history.messages_with_turn_ids()
+    refs7 = history.turn_references()
+    assert any(m['role'] == 'assistant' and m['content'] == r5.answer and m['turn_id'] == 'turn-5' for m in m7)
+    assert m7[-1]['turn_id'] == 'turn-6' and '"status": "cancelled"' in m7[-1]['content']
     t7 = history.begin_turn(q7)
     runtime.model_callable = lambda goal, steps: ModelDecision('', final_answer='Chỉ số kết quả là mid = 2.')
     r7 = runtime.run(
         q7,
-        history=history.messages_with_turn_ids()[:-1],
+        history=m7,
         turn_ref=t7.to_turn_ref(history.conversation_id),
         execution_id=t7.execution_id,
-        turn_references=history.turn_references()[:-1],
+        turn_references=refs7,
     )
     history.complete_turn(t7.turn_id, r7.answer, execution_id=r7.execution_id)
     assert not r7.error and r7.answer == 'Chỉ số kết quả là mid = 2.'
     assert runtime.notebook.snapshot()[0]['text'] == 'Mảng [2, 4, 6, 8, 10], tìm 6'
+

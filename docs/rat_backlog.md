@@ -1,6 +1,6 @@
 # RAT backlog
 
-Updated: 2026-10-13, Asia/Ho_Chi_Minh.
+Updated: 2026-10-14, Asia/Ho_Chi_Minh.
 
 Theo yêu cầu ngày 2026-10-13, bước RAT đang được bàn là **hoàn thiện một luồng
 core xuyên suốt bằng ví dụ hội thoại DSA**, với minor UI chỉ chỉnh cách đọc
@@ -29,11 +29,18 @@ Không gán deadline hoặc effort chưa được ước lượng. Source đã c
 | ID | Hướng phát triển | Trạng thái | Phụ thuộc / bằng chứng cần có |
 | --- | --- | --- | --- |
 | RAT-AI-01 | Model điều khiển làm rõ, tiếp tục, đổi ý và tham chiếu công việc. | Backlog | [ADR-002](adr-002-rat-adaptive-interaction.md); cần kiểm tra model thật, không chỉ scripted tool calls. |
-| RAT-AI-02 | Model ghép phần kết quả và UI khai báo theo yêu cầu, hỗ trợ nhiều artifact/revision. | Backlog | Contract/validator và review nội dung; cần phân biệt độ đúng quyết định với độ đẹp UI. |
+| RAT-AI-02 | Model ghép phần kết quả và UI khai báo theo yêu cầu, hỗ trợ nhiều artifact/revision. | Có lát cắt bảng tham chiếu nguồn trong source; phần rộng hơn vẫn backlog | `compose_result_table` ghép các ô từ artifact/revision thật; có regression phần mềm. Chưa review model thật, chưa sinh UI phong phú hoặc xác nhận độ đúng diễn giải. [Phạm vi triển khai](rat_book_features.md). |
 | RAT-AI-03 | Phối hợp lịch, tài liệu và phép biến đổi dữ liệu để xử lý yêu cầu chưa có workflow riêng. | Backlog | Dữ liệu và thao tác thực, đánh giá yêu cầu mới; tránh thêm một màn hình riêng cho mỗi ví dụ. |
 | RAT-AI-04 | Model đề xuất recipe, thành phần hoặc logic mới trong môi trường tách biệt. | Xa hơn | Sau nền tảng và evidence phù hợp; chưa chọn runtime/SDK hoặc triển khai code tùy ý. |
 
 ## Thay đổi ưu tiên
+
+Ngày 2026-10-14, người dùng yêu cầu thêm tìm nội dung/số trang trong PDF trên
+máy, một chức năng được đề xuất và một mục từ backlog. Source đã có tìm từng
+trang PDF, đọc đúng trang kèm nguồn trích dẫn, và bảng ghép dữ liệu có tham
+chiếu nguồn từ RAT-AI-02. Cả ba dùng cùng ô chat. Đây là bổ sung ứng dụng;
+không coi software tests là bằng chứng model đã điều phối được luồng mới.
+Chi tiết, cách thử và giới hạn ở [tài liệu chức năng](rat_book_features.md).
 
 Ngày 2026-10-12, ADR-002 được đưa vào backlog để ưu tiên UI. Ngày 2026-10-13,
 người dùng yêu cầu chuyển sang hoàn thiện công việc thật, dùng DSA làm ví dụ

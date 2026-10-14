@@ -41,6 +41,8 @@ class OperationDefinition:
     resource_bindings: Dict[str, str] = field(default_factory=dict)
     # A headless checker used automatically by the shared runtime, not a tool.
     verifier: Optional[Any] = None
+    # Some observations are shown through the answer/trace and kept as references.
+    present_result: bool = True
 
     def to_tool_definition(self) -> ToolDefinitionContract:
         parameters = copy.deepcopy(self.parameters)

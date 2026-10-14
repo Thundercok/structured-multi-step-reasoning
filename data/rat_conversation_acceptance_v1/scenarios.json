@@ -1,0 +1,392 @@
+{
+  "schema_version": "1.0",
+  "name": "rat_conversation_acceptance_v1",
+  "status": "prepared_design_examples_not_executed",
+  "scope": "RAT application development acceptance; independent of NCKH",
+  "exposure": "exposed_development_design_examples",
+  "authorship": "Original synthetic sources and authored illustrative dialogues prepared in this session",
+  "live_model_budget_authorized": false,
+  "assets": [
+    {
+      "id": "doc_basic",
+      "path": "sources/binary-search-basics.md",
+      "topic": "binary_search_any_occurrence",
+      "read_result_field": "content"
+    },
+    {
+      "id": "doc_recursive",
+      "path": "sources/binary-search-recursion.md",
+      "topic": "binary_search_recursive_any_occurrence",
+      "read_result_field": "content"
+    },
+    {
+      "id": "doc_long",
+      "path": "sources/search-long-notes.md",
+      "topic": "binary_search_first_occurrence",
+      "read_result_field": "content"
+    }
+  ],
+  "data": {
+    "array": [
+      1,
+      4,
+      7,
+      9,
+      12,
+      16,
+      20
+    ],
+    "targets": [
+      {
+        "value": 16,
+        "index": 5,
+        "trace": [
+          {
+            "left": 0,
+            "right": 6,
+            "mid": 3,
+            "value": 9,
+            "action": "left=4"
+          },
+          {
+            "left": 4,
+            "right": 6,
+            "mid": 5,
+            "value": 16,
+            "action": "found"
+          }
+        ]
+      },
+      {
+        "value": 9,
+        "index": 3,
+        "trace": [
+          {
+            "left": 0,
+            "right": 6,
+            "mid": 3,
+            "value": 9,
+            "action": "found"
+          }
+        ]
+      }
+    ]
+  },
+  "specimen_notes": {
+    "v1": "Mảng cần được sắp xếp trước khi tìm.\nMỗi bước xét phần tử giữa rồi loại nửa không thể chứa đích; phần tử giữa đã xét cũng được loại.\nGặp đúng đích thì dừng; đoạn tìm kiếm rỗng thì không tìm thấy.",
+    "v2": "Mảng cần được sắp xếp trước khi tìm.\nXét giữa, rồi giữ nửa có thể chứa đích.\nGặp đúng đích thì dừng; đoạn tìm kiếm rỗng thì không tìm thấy.",
+    "authority": "unconfirmed_model_suggestion",
+    "status": "proposed"
+  },
+  "grading": {
+    "do_not_match_reply_examples_verbatim": true,
+    "human_semantic_review_required": true,
+    "inspect_runtime_receipts_and_terminal_versions": true,
+    "finding_file_is_not_reading_file": true,
+    "document_prose_is_not_formally_verified": true,
+    "proposed_note_can_satisfy_explicit_draft_storage": true,
+    "no_verbatim_keyword_router_or_injected_model_decisions_for_live_runs": true
+  },
+  "scenarios": [
+    {
+      "id": "C01_main",
+      "purpose": "Read, explain, retain context, save/edit/version/look back in one conversation",
+      "setup": {
+        "notebook": "empty",
+        "sources": [
+          "doc_basic",
+          "doc_recursive"
+        ],
+        "index_scope": "fixture sources only; no personal index",
+        "search_results_order": [
+          "doc_basic",
+          "doc_recursive"
+        ],
+        "runtime_assigns_ids": true
+      },
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Tìm tài liệu binary search ngắn giúp tôi.",
+          "reply_example": "Mình tìm thấy hai tài liệu này; bạn có thể đọc ngay trong cuộc trò chuyện.",
+          "criteria": [
+            "Return real fixture paths and titles from search observations.",
+            "Do not claim to have read full content from a search hit.",
+            "Keep result references and ordering for 'tài liệu đầu'."
+          ],
+          "note_effect": "none"
+        },
+        {
+          "id": "t2",
+          "user": "Đọc tài liệu đầu rồi giải thích cách tìm 16 bằng ví dụ trong đó. Đừng đưa code vội.",
+          "reply_example": "Xét giữa mảng trước: index 3 có giá trị 9, nhỏ hơn 16 nên giữ đoạn từ index 4. Lần tiếp theo, index 5 có giá trị 16. Tìm được ở index 5, sau hai lần xét.",
+          "criteria": [
+            "Read doc_basic before making content claims.",
+            "Use the source array and target16; return index5 in two iterations.",
+            "Explain the range update and stop at equality.",
+            "Retain the no-code preference without saving a new note unless asked."
+          ],
+          "semantic_reference": "data.targets[0]",
+          "note_effect": "none"
+        },
+        {
+          "id": "t3",
+          "user": "Sao phải cộng 1, giữ nguyên mid được không?",
+          "reply_example": "Ở bước đó, phần tử giữa là 9 và đã nhỏ hơn 16. Nó đã được xét nên không còn là ứng viên; mình bắt đầu đoạn mới ngay sau nó. Giữ mid có thể khiến đoạn tìm kiếm không thu nhỏ.",
+          "criteria": [
+            "Resolve 'bước đó' to the first iteration in t2.",
+            "Explain the sorted-range invariant and exclusion of already-checked mid.",
+            "Do not claim mid+1 is for an unsorted array.",
+            "Do not ask the user to repeat the array."
+          ],
+          "note_effect": "none"
+        },
+        {
+          "id": "t4",
+          "user": "Ghi lại ba ý quan trọng, ngắn thôi.",
+          "reply_example": "Đã ghi bản nháp ba ý bên dưới. Gọn đủ để đỡ đánh nhau với mid.",
+          "criteria": [
+            "Produce a committed note event in t4 with a valid document_content artifact/revision/content field source.",
+            "Keep model paraphrase proposed unless a supported checker or user action establishes its stated authority.",
+            "Use three concise, semantically correct points; specimen wording is an illustration.",
+            "Say 'đã ghi' only after the note event exists; say it is a draft."
+          ],
+          "expected_note": {
+            "logical_id": "note_summary",
+            "revision": 1,
+            "status": "proposed",
+            "authority": "unconfirmed_model_suggestion",
+            "source_asset": "doc_basic"
+          },
+          "note_effect": "create_draft"
+        },
+        {
+          "id": "t5",
+          "user": "Ý thứ hai dài quá, sửa ngắn lại.",
+          "reply_example": "Đã rút gọn ý thứ hai: “Xét giữa, rồi giữ nửa có thể chứa đích.”",
+          "criteria": [
+            "Update note_summary using its observed ID and revision1.",
+            "Create revision2 in t5; preserve points1/3 and the original source.",
+            "Keep revision1 immutable, marked replaced and linked to revision2.",
+            "Keep paraphrase status truthful; do not create a second unrelated note."
+          ],
+          "expected_note": {
+            "logical_id": "note_summary",
+            "revision": 2,
+            "replaces_revision": 1,
+            "status": "proposed"
+          },
+          "note_effect": "update_draft"
+        },
+        {
+          "id": "t6",
+          "user": "Cho tôi xem bản trước.",
+          "reply_example": "Bản trước ghi: “Mỗi bước xét phần tử giữa rồi loại nửa không thể chứa đích; phần tử giữa đã xét cũng được loại.” Đây là bản đã được thay ở lượt sửa vừa rồi.",
+          "criteria": [
+            "Show the actual recorded revision1, not regenerate an approximate older text.",
+            "Keep active revision2 and create no note mutation.",
+            "Link to the owning turn and newer version when the native view supports it."
+          ],
+          "note_effect": "none"
+        },
+        {
+          "id": "t7",
+          "user": "Tìm 9 trên mảng đó thì sao?",
+          "reply_example": "Gặp ngay ở lần xét đầu: mid = 3, giá trị cũng là 9. Dừng tại đây, kết quả là index 3.",
+          "criteria": [
+            "Reuse the source array without requesting it again.",
+            "Return index3 in one iteration; no loop after equality.",
+            "Keep note_summary revision2 unchanged because no save/update was requested."
+          ],
+          "semantic_reference": "data.targets[1]",
+          "note_effect": "none"
+        }
+      ],
+      "surface_checks": [
+        "One composer in full/compact, same conversation and draft.",
+        "Notes are light lines at their owning turns; edit frame appears during edit only.",
+        "No file/DSA app opens without an explicit open request.",
+        "Click Chuột only emotes; zero model/actions/scroll/focus/data changes.",
+        "The model may phrase replies differently; effects/content/provenance matter."
+      ]
+    },
+    {
+      "id": "C02_save_failure",
+      "purpose": "Separate useful prose from an unsuccessful requested save",
+      "setup": {
+        "context_checkpoint": "C01_main after t3",
+        "fault": "record_work_note attempts fail before commit in the first turn; runner controlled fixture only",
+        "fault_clears_before": "t2"
+      },
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Ghi ba ý vừa giải thích lại giúp tôi.",
+          "reply_example": "Ba ý mình đã viết ở đây; phần ghi chú chưa lưu được.",
+          "criteria": [
+            "Keep the explanation visible and zero committed note mutations.",
+            "Do not say 'đã ghi', 'đã lưu', or confirmed observation when no receipt exists.",
+            "Mark the requested save unresolved and keep the current source/context."
+          ],
+          "note_effect": "none_due_to_failure"
+        },
+        {
+          "id": "t2",
+          "user": "Thử ghi lại phần đó đi.",
+          "reply_example": "Đã ghi bản nháp ba ý.",
+          "criteria": [
+            "Use a new execution and the existing source/context.",
+            "Create one valid note revision1 after the fault clears.",
+            "Do not replace an invented earlier successful note or create duplicates."
+          ],
+          "note_effect": "create_draft"
+        }
+      ]
+    },
+    {
+      "id": "C03_ambiguous_reference",
+      "purpose": "Ask only when the target cannot be resolved",
+      "setup": {
+        "notes": [
+          "note_basic",
+          "note_recursive"
+        ],
+        "selected_note": null,
+        "eligible_targets": 2,
+        "runtime_assigns_ids": true
+      },
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Rút gọn ghi chú đi.",
+          "reply_example": "Bạn muốn rút gọn ghi chú về ví dụ mảng, hay ghi chú về đệ quy?",
+          "criteria": [
+            "Ask one concise target question with grounded choices.",
+            "Do not change either note before the answer.",
+            "Do not ask for already-known source data."
+          ],
+          "note_effect": "none"
+        },
+        {
+          "id": "t2",
+          "user": "Ghi chú về ví dụ mảng.",
+          "reply_example": "Đã rút gọn ghi chú về ví dụ mảng.",
+          "criteria": [
+            "Update only the selected existing note using the observed revision.",
+            "Keep the other note and old versions unchanged.",
+            "Use current context; do not restart search/read as a new feature workflow."
+          ],
+          "note_effect": "update_selected_note"
+        }
+      ]
+    },
+    {
+      "id": "C04_cancel_resume",
+      "purpose": "Cancel an execution and retain accepted state",
+      "setup": {
+        "context_checkpoint": "C01_main after t5",
+        "stop_trigger": "user presses existing Stop control after an accepted read and before a note update commits",
+        "server_abort_verified": false
+      },
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Viết lại cả ghi chú chi tiết hơn.",
+          "interaction": "Stop during execution",
+          "reply_example": "Đã dừng. Bản ngắn vẫn còn ở lượt trước.",
+          "criteria": [
+            "Keep cancelled lifecycle and any accepted read result.",
+            "Keep note_summary revision2 if the write had not committed.",
+            "Reject late writes from the cancelled execution.",
+            "Do not claim backend inference stopped unless separately verified."
+          ],
+          "note_effect": "none_before_cancel"
+        },
+        {
+          "id": "t2",
+          "user": "Giữ bản ngắn nhé. Tìm 9 trong mảng lúc nãy thôi.",
+          "reply_example": "Giữ bản ngắn nhé. Tìm 9 thì gặp ngay ở index 3, sau một lần xét.",
+          "criteria": [
+            "Run a new execution; old turn remains cancelled.",
+            "Keep note_summary revision2 unchanged.",
+            "Reuse the prior source array and return index3 in one iteration."
+          ],
+          "semantic_reference": "data.targets[1]",
+          "note_effect": "none"
+        }
+      ]
+    },
+    {
+      "id": "C05_read_failure",
+      "purpose": "Finding a source does not prove that it has been read",
+      "setup": {
+        "context_checkpoint": "C01_main after t1",
+        "fault": "doc_basic cannot be read in the controlled fixture",
+        "observed_search_hits": [
+          "doc_basic",
+          "doc_recursive"
+        ]
+      },
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Đọc tài liệu đầu rồi giải thích ví dụ trong đó.",
+          "reply_example": "Mình tìm thấy tệp nhưng chưa đọc được nội dung. Mình chưa thể giải thích ví dụ trong tệp này.",
+          "criteria": [
+            "Preserve found-file references and failed read observations.",
+            "Do not fabricate its full contents from a filename/snippet.",
+            "Leave the requested source-specific explanation unresolved or ask for an accessible source."
+          ],
+          "note_effect": "none"
+        }
+      ]
+    },
+    {
+      "id": "C06_long_source_boundary",
+      "purpose": "Diagnostic for truncation and the current note source binding limit",
+      "setup": {
+        "sources": [
+          "doc_long"
+        ],
+        "source_over_3000_characters": true,
+        "current_note_scalar_source_limit": 500,
+        "expected_status": "diagnostic_capability_gap_or_explicitly_scoped_partial_result"
+      },
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Tóm tắt toàn bộ tài liệu dài này rồi ghi lại, gồm cả điều kiện ở cuối.",
+          "reply_example": "Mình chưa có đủ phần nguồn để lưu bản tóm tắt toàn bộ tài liệu này. Phần đã đọc vẫn ở đây.",
+          "criteria": [
+            "Record read extent and truncated flag honestly; end condition asks for first occurrence among duplicates.",
+            "Do not claim a full-document summary from a truncated read.",
+            "Do not silently truncate a >500-character source_result field merely to satisfy the notebook validator.",
+            "If a full source-to-note binding is unsupported, report a capability gap with partial content; do not label it a model reasoning failure.",
+            "No new DocAI integration or excerpt operation is authorized by this case."
+          ],
+          "note_effect": "must_follow_actual_supported_source_binding"
+        }
+      ]
+    }
+  ],
+  "paraphrases": [
+    {
+      "scenario": "C01_main",
+      "turn": "t3",
+      "user": "Bỏ phần tử ở giữa rồi thì đoạn còn lại bắt đầu ở đâu?",
+      "exposure": "development_variant"
+    },
+    {
+      "scenario": "C01_main",
+      "turn": "t5",
+      "user": "Bớt chữ ở gạch thứ hai thôi, giữ hai gạch còn lại.",
+      "exposure": "development_variant"
+    },
+    {
+      "scenario": "C02_save_failure",
+      "turn": "t2",
+      "user": "Lưu lại phần tóm tắt lúc nãy giúp mình nhé.",
+      "exposure": "development_variant"
+    }
+  ]
+}

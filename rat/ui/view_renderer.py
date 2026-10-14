@@ -172,6 +172,7 @@ class QtViewRenderer(QFrame):
             h_row.setSpacing(8)
             for h in headers:
                 hl = QLabel(h)
+                hl.setTextFormat(Qt.TextFormat.PlainText)
                 hl.setStyleSheet("color: #7A7267; font-size: 10px; font-weight: 700;")
                 h_row.addWidget(hl, 1)
             t_layout.addLayout(h_row)
