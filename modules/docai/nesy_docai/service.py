@@ -173,12 +173,12 @@ def inspect_invoice_file(file_path: str | Path, *, timeout_ms: int = 1000, max_p
         source["engine"] = "xml_tag_parser"
     else:
         if path.suffix.lower() == ".pdf":
-            from pypdf import PdfReader
+            from document_intake.pdf import read_pdf
 
-            reader = PdfReader(str(path))
-            source["extraction_truncated"] = len(reader.pages) > max_pages
+            extracted = read_pdf(path, max_pages=max_pages)
+            source["extraction_truncated"] = extracted["extraction_truncated"]
             source["engine"] = "pypdf_text"
-            text = "\n".join(page.extract_text() or "" for page in reader.pages[:max_pages])
+            text = extracted["full_text"]
         else:
             from nesy_docai.intake.vision_ocr import MacOSVisionEngine
             from nesy_docai.intake.tesseract_ocr import TesseractOCREngine

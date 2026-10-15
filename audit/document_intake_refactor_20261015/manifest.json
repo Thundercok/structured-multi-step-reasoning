@@ -1,0 +1,34 @@
+{
+  "changed_files": {
+    "rat/crawler/extractors.py": "eb25f634abfe82920a57e6a5d250fb86d686889a2370db3c613099f3847841ad",
+    "rat/crawler/apple_vision.py": "ab4218128537ba441d0cc1e2e9a09db3073caf44292cbc5890864e19bda3eddf",
+    "modules/docai/nesy_docai/intake/pdf_reader.py": "4331da4646ff8e67d6756631e063e3469196aba716925d3cd0b2e09f3f2e6e94",
+    "modules/docai/nesy_docai/intake/vision_ocr.py": "d19e3d6f73c3243fafe81155fedd74c877e1e5c0de2ae2eff581360c3285c071",
+    "modules/docai/nesy_docai/intake/tesseract_ocr.py": "58bfbc059caa866cfa1a288f74e43d4d7aa587d7811c0b4c938c843d824d6ad2",
+    "modules/docai/nesy_docai/intake/vision_native.swift": null,
+    "modules/docai/nesy_docai/service.py": "f8a45e2d4a9a0b02aeb71d8992820b898a00360cdc44a9b1937690e352600354",
+    "document_intake/tesseract.py": "7bab3b00f55d2f55aec77e85819c06cf5dcd2fe0014a40181050ca8af583b4e0",
+    "document_intake/vision.py": "eb5fdbe1cbc80809ae4bece77dc198b7ef80438e2aa54532e878b368940de418",
+    "document_intake/__init__.py": "1ec935f7f9ef338b45e4b678ca0883513d5bfe6c82d5f59a65237dccfd83a0b8",
+    "document_intake/pdf.py": "264e9f3bb980d8036a9c535b48fdf7f72526a46595742f6c9f674a26016f8a6b",
+    "requirements.txt": "a6d5e7f1f053900fdc84b6ccf2d6f4371def697e0f9ab3ba54fa8be2029c9371",
+    "modules/docai/pyproject.toml": "1d3329d6f0e546ac47b2236436548852536fc240f5fce5c16865351dce326850",
+    "modules/docai/requirements.txt": "cc545a40225e3ed952d351abade054cb3f3f4941cda8481e1e991133a61401d5",
+    "modules/docai/README.md": "eea1316f947d0e515662fa1d2e59530a40e4a2dcd636a73e6a3f889851368d6c",
+    "document_intake/pyproject.toml": "e18a97fe58eb727919da39ec057109b746f15fe22ec00ca4132657471c5754f6",
+    "document_intake/README.md": "e8e39ee559d66d953579488ac865cb23e8fdd8b1b6e312ebaa3baf0b901d69a3",
+    "tests/test_document_intake.py": "18c300346779aa6ea60dbf44aa6211aede13d91ffbf3329de5a7ea471a3211ad"
+  },
+  "tests": {
+    "passed": 120,
+    "skipped": 1,
+    "logs": [
+      "tests.log",
+      "index_tests.log"
+    ]
+  },
+  "live_smoke": "Synthetic image, image bytes and scanned PDF; not model or corpus quality evidence",
+  "wheels": "Both libraries built; extracted wheel imports and real Z3 check pass outside source checkout",
+  "research_harness_changed": false,
+  "invoice_registry_added": false
+}

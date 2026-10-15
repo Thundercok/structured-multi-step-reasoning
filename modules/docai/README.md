@@ -16,8 +16,9 @@ python -m nesy_docai /path/to/invoice.png --output /path/to/NEW_review.csv --for
 python -m pytest tests -q
 ```
 
-Có thể cài module riêng bằng `python -m pip install ./modules/docai` trong một
-environment dành cho DocAI. Swift source được đóng gói cùng thư viện. API/UI cũ
+Từ repo root, cài bằng `python -m pip install "./document_intake[vision]" ./modules/docai`
+trong environment dành cho DocAI. `document_intake` là thư viện PDF/OCR dùng chung,
+không import RAT hoặc solver. Apple Vision dùng PyObjC, không còn biên dịch Swift. API/UI cũ
 ở `compatibility/` cần `requirements-ui.txt`; chúng là tài nguyên compatibility
 chưa được xác nhận phù hợp để dùng thật.
 
@@ -28,7 +29,7 @@ có nghiệm SAT cho mọi bản ghi; 2 là có bản ghi thiếu/không khớp/
 lỗi dependency hoặc output. SAT xác nhận một bộ số nhất quán với cấu hình
 prototype, chưa xác nhận OCR đúng, nghiệm duy nhất hay hóa đơn xác thực.
 
-Ảnh dùng Apple Vision/Swift hoặc Tesseract `vie+eng`. PDF scan chưa có renderer
+Ảnh dùng Apple Vision/PyObjC hoặc Tesseract `vie+eng`. PDF scan chưa có renderer
 độc lập trong module này; parser bảo toàn trường thiếu. Không gọi RAT, model
 server, tạo persistent ledger hoặc tự duyệt hóa đơn trong luồng `service.py`.
 Các mức thuế và dung sai là cấu hình prototype, chưa là xác nhận pháp lý.

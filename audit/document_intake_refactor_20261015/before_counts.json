@@ -1,0 +1,30 @@
+{
+  "rat/crawler/extractors.py": {
+    "physical": 400,
+    "nonblank": 347
+  },
+  "rat/crawler/apple_vision.py": {
+    "physical": 258,
+    "nonblank": 208
+  },
+  "modules/docai/nesy_docai/intake/pdf_reader.py": {
+    "physical": 39,
+    "nonblank": 32
+  },
+  "modules/docai/nesy_docai/intake/vision_ocr.py": {
+    "physical": 71,
+    "nonblank": 60
+  },
+  "modules/docai/nesy_docai/intake/tesseract_ocr.py": {
+    "physical": 100,
+    "nonblank": 83
+  },
+  "modules/docai/nesy_docai/intake/vision_native.swift": {
+    "physical": 57,
+    "nonblank": 47
+  },
+  "modules/docai/nesy_docai/service.py": {
+    "physical": 202,
+    "nonblank": 181
+  }
+}

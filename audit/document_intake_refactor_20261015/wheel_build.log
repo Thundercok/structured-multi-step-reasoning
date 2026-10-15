@@ -1,0 +1,17 @@
+WARNING: The directory '/Users/thundercock2/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing ./document_intake
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Processing ./modules/docai
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: nesy-document-intake, nesy-docai-prototype
+  Building wheel for nesy-document-intake (pyproject.toml): started
+  Building wheel for nesy-document-intake (pyproject.toml): finished with status 'done'
+  Created wheel for nesy-document-intake: filename=nesy_document_intake-0.1.0-py3-none-any.whl size=5753 sha256=c8e759063921d49256976d7c0dc4fdede01c7c65419f35187f3c8ced17a0b638
+  Stored in directory: /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pip-ephem-wheel-cache-p2weerxs/wheels/1d/9c/d3/bdc4083a04939fdd77f0db1495c3a096ef64a1634eafd06396
+  Building wheel for nesy-docai-prototype (pyproject.toml): started
+  Building wheel for nesy-docai-prototype (pyproject.toml): finished with status 'done'
+  Created wheel for nesy-docai-prototype: filename=nesy_docai_prototype-1.1.0-py3-none-any.whl size=59204 sha256=60b80b796aeb25f3af69ad21121b8231ac3a04a95dd267f94ca7c92c56abece1
+  Stored in directory: /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pip-ephem-wheel-cache-p2weerxs/wheels/9b/74/df/cae441a3a279056f87b40b0d4adf5fd4c6f6fd1bf05c08e686
+Successfully built nesy-document-intake nesy-docai-prototype

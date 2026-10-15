@@ -1,0 +1,5 @@
+{
+  "returncode": 0,
+  "stdout": "Extracted wheels work independently, including Z3; no RAT or source checkout imports\n",
+  "stderr": ""
+}

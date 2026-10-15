@@ -19,119 +19,26 @@ MAX_CHARS_PER_DOC = 100_000  # Cap content length to keep search snappy
 
 
 def extract_text_from_pdf_native(file_path: str, max_pages: int = 25) -> Optional[str]:
-    """Extract text and metadata from PDF using macOS native PDFKit + Apple Vision OCR for scanned pages."""
-    try:
-        import objc
-        from Foundation import NSURL, NSSize
-
-        framework_path = "/System/Library/Frameworks/PDFKit.framework"
-        if not os.path.exists(framework_path):
-            return None
-
-        objc.loadBundle("PDFKit", globals(), bundle_path=framework_path)
-        PDFDocument = objc.lookUpClass("PDFDocument")
-        if not PDFDocument:
-            return None
-
-        file_url = NSURL.fileURLWithPath_(str(Path(file_path).resolve()))
-        pdf_doc = PDFDocument.alloc().initWithURL_(file_url)
-        if not pdf_doc:
-            return None
-
-        texts = []
-        # Metadata
-        attr = pdf_doc.documentAttributes()
-        if attr:
-            title = attr.get("Title")
-            author = attr.get("Author")
-            subject = attr.get("Subject")
-            if title:
-                texts.append(f"Title: {title}")
-            if author:
-                texts.append(f"Author: {author}")
-            if subject:
-                texts.append(f"Subject: {subject}")
-
-        page_count = min(pdf_doc.pageCount(), max_pages)
-
-        # Lazy load Vision classes for scanned pages
-        VNRecognizeTextRequest = objc.lookUpClass("VNRecognizeTextRequest")
-        VNImageRequestHandler = objc.lookUpClass("VNImageRequestHandler")
-
-        for idx in range(page_count):
-            page = pdf_doc.pageAtIndex_(idx)
-            if not page:
-                continue
-
-            page_str = page.string()
-            if page_str and len(page_str.strip()) >= 20:
-                texts.append(f"--- Page {idx + 1} ---\n{page_str.strip()}")
-            else:
-                # Scanned / Image page: render high-res thumbnail & run Apple Vision OCR
-                try:
-                    ns_image = page.thumbnailWithSize_forBox_(NSSize(2000, 2600), 0)
-                    if ns_image and VNRecognizeTextRequest and VNImageRequestHandler:
-                        tiff_data = ns_image.TIFFRepresentation()
-                        if tiff_data:
-                            req = VNRecognizeTextRequest.alloc().init()
-                            req.setRecognitionLevel_(1)
-                            req.setUsesLanguageCorrection_(True)
-                            try:
-                                req.setRecognitionLanguages_(["vi-VN", "en-US"])
-                            except Exception:
-                                pass
-                            handler = VNImageRequestHandler.alloc().initWithData_options_(tiff_data, {})
-                            if handler.performRequests_error_([req], None):
-                                lines = []
-                                for obs in req.results() or []:
-                                    top = obs.topCandidates_(1)
-                                    if top and len(top) > 0:
-                                        lines.append(top[0].string())
-                                if lines:
-                                    texts.append(f"--- Page {idx + 1} (Scanned OCR) ---\n" + "\n".join(lines))
-                except Exception as e:
-                    logger.debug(f"Failed to OCR scanned PDF page {idx+1} in {file_path}: {e}")
-
-            if sum(len(t) for t in texts) > MAX_CHARS_PER_DOC:
-                break
-
-        return "\n\n".join(texts)
-    except Exception as e:
-        logger.debug(f"Native PDFKit extraction failed for {file_path}: {e}")
-        return None
+    from document_intake.pdf import read_pdf_native
+    return read_pdf_native(file_path, max_pages=max_pages, max_chars=MAX_CHARS_PER_DOC)
 
 
 def extract_text_from_pdf(file_path: str) -> str:
-    """Extract text and metadata from a PDF file (supporting native PDFKit and scanned OCR)."""
-    # 1. Try Native macOS PDFKit + Apple Vision Scanned OCR
     if platform.system() == "Darwin":
         native_text = extract_text_from_pdf_native(file_path)
-        if native_text and len(native_text.strip()) > 0:
+        if native_text and native_text.strip():
             return native_text
-
-    # 2. Fallback to pypdf for non-macOS or corrupted native handles
     try:
-        from pypdf import PdfReader
-        reader = PdfReader(file_path)
-        texts = []
-        meta = reader.metadata
-        if meta:
-            if meta.title:
-                texts.append(f"Title: {meta.title}")
-            if meta.author:
-                texts.append(f"Author: {meta.author}")
-            if meta.subject:
-                texts.append(f"Subject: {meta.subject}")
-
-        for idx, page in enumerate(reader.pages):
-            page_text = page.extract_text()
-            if page_text and page_text.strip():
-                texts.append(f"--- Page {idx + 1} ---\n{page_text.strip()}")
-            if sum(len(t) for t in texts) > MAX_CHARS_PER_DOC:
-                break
+        from document_intake.pdf import read_pdf
+        result = read_pdf(file_path, max_chars=MAX_CHARS_PER_DOC)
+        texts = [f"{label}: {result['metadata'][key]}" for key, label in
+                 (("title", "Title"), ("author", "Author"), ("subject", "Subject"))
+                 if result["metadata"].get(key)]
+        texts.extend(f"--- Page {p['page_num']} ---\n{p['text_content'].strip()}"
+                     for p in result["pages"] if p["text_content"].strip())
         return "\n\n".join(texts)
-    except Exception as e:
-        logger.debug(f"Failed to extract PDF {file_path}: {e}")
+    except Exception as exc:
+        logger.debug("Failed to extract PDF %s: %s", file_path, exc)
         return ""
 
 
@@ -360,8 +267,8 @@ def extract_text_from_image(file_path: str) -> str:
 
             if img.width <= 4000 and img.height <= 4000:
                 try:
-                    import pytesseract
-                    ocr_text = pytesseract.image_to_string(img, timeout=2)
+                    from document_intake.tesseract import TesseractOCREngine
+                    ocr_text = TesseractOCREngine(timeout=2).run_ocr(file_path)["full_text"]
                     if ocr_text.strip():
                         texts.append("OCR Content:\n" + ocr_text.strip())
                 except Exception:

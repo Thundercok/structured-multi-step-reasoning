@@ -20,7 +20,6 @@ _VISION_LOADED = False
 _VISION_LOCK = threading.Lock()
 
 # Global objective-c class handles
-VNRecognizeTextRequest = None
 VNClassifyImageRequest = None
 VNImageRequestHandler = None
 NSURL = None
@@ -28,7 +27,7 @@ NSURL = None
 
 def _init_apple_vision() -> bool:
     """Initialize and load Apple Vision Framework dynamically via PyObjC."""
-    global _VISION_LOADED, VNRecognizeTextRequest, VNClassifyImageRequest, VNImageRequestHandler, NSURL
+    global _VISION_LOADED, VNClassifyImageRequest, VNImageRequestHandler, NSURL
 
     if _VISION_LOADED:
         return True
@@ -52,7 +51,6 @@ def _init_apple_vision() -> bool:
             vision_bundle = NSBundle.bundleWithPath_(framework_path)
             objc.loadBundle("Vision", globals(), bundle_path=framework_path)
 
-            VNRecognizeTextRequest = objc.lookUpClass("VNRecognizeTextRequest")
             VNClassifyImageRequest = objc.lookUpClass("VNClassifyImageRequest")
             VNImageRequestHandler = objc.lookUpClass("VNImageRequestHandler")
             NSURL = _NSURL
@@ -72,86 +70,16 @@ class AppleVisionEngine:
         self.available = _init_apple_vision()
 
     def recognize_text(self, image_path: str) -> str:
-        """
-        Extract text from an image using Apple Vision VNRecognizeTextRequest.
-        Supports Vietnamese, English, and accurate handwriting/printed text on Apple Neural Engine.
-        """
-        if not self.available or not os.path.exists(image_path):
-            return ""
-
-        try:
-            file_url = NSURL.fileURLWithPath_(str(Path(image_path).resolve()))
-            request = VNRecognizeTextRequest.alloc().init()
-            # Set accurate recognition level
-            request.setRecognitionLevel_(1)  # 1 = VNRequestTextRecognitionLevelAccurate
-            request.setUsesLanguageCorrection_(True)
-            # Support multiple languages including English, Vietnamese, etc.
-            try:
-                request.setRecognitionLanguages_(["vi-VN", "en-US"])
-            except Exception:
-                pass
-
-            handler = VNImageRequestHandler.alloc().initWithURL_options_(file_url, {})
-            success = handler.performRequests_error_([request], None)
-
-            if not success:
-                return ""
-
-            results = request.results()
-            if not results:
-                return ""
-
-            extracted_lines = []
-            for observation in results:
-                top_candidates = observation.topCandidates_(1)
-                if top_candidates and len(top_candidates) > 0:
-                    text = top_candidates[0].string()
-                    if text and text.strip():
-                        extracted_lines.append(text.strip())
-
-            return "\n".join(extracted_lines)
-        except Exception as e:
-            logger.debug(f"Apple Vision OCR failed on {image_path}: {e}")
-            return ""
+        return self._recognize_text(image_path)
 
     def recognize_text_from_bytes(self, image_bytes: bytes) -> str:
-        """
-        Extract text from raw image bytes (e.g. embedded PPTX/DOCX images) using Apple Vision OCR.
-        """
-        if not self.available or not image_bytes:
+        return self._recognize_text(image_bytes)
+
+    def _recognize_text(self, source) -> str:
+        if not self.available:
             return ""
-
-        try:
-            request = VNRecognizeTextRequest.alloc().init()
-            request.setRecognitionLevel_(1)
-            request.setUsesLanguageCorrection_(True)
-            try:
-                request.setRecognitionLanguages_(["vi-VN", "en-US"])
-            except Exception:
-                pass
-
-            handler = VNImageRequestHandler.alloc().initWithData_options_(image_bytes, {})
-            success = handler.performRequests_error_([request], None)
-
-            if not success:
-                return ""
-
-            results = request.results()
-            if not results:
-                return ""
-
-            extracted_lines: List[str] = []
-            for observation in results:
-                candidates = observation.topCandidates_(1)
-                if candidates and len(candidates) > 0:
-                    text = str(candidates[0].string())
-                    if text and len(text.strip()) > 0:
-                        extracted_lines.append(text.strip())
-
-            return "\n".join(extracted_lines)
-        except Exception as e:
-            logger.debug(f"Apple Vision OCR on bytes failed: {e}")
-            return ""
+        from document_intake.vision import recognize_tokens
+        return "\n".join(token["text"] for token in recognize_tokens(source))
 
     def classify_image(
         self,
