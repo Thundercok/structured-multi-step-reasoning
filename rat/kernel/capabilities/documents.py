@@ -13,7 +13,7 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
 
-from rat.crawler.db import Database
+from rat.crawler.db import Database, remove_vietnamese_accents
 from rat.crawler.extractors import extract_document_content
 from rat.kernel.contracts import Artifact, ArtifactAction
 from rat.kernel.registry import Capability, OperationDefinition
@@ -41,18 +41,49 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
             return []
 
         database = get_db(context)
-        clean_tokens = [t.lower() for t in re.split(r"[\s\-_,.:]+", query) if len(t) >= 2]
-        candidates = database.search_candidates(keywords=clean_tokens, limit=limit * 2)
+        literal_name = query.strip(' \"\'')
+        candidates = []
+        filename_query = Path(literal_name).suffix.casefold() in {'.pdf', '.txt', '.md', '.docx', '.pptx', '.xlsx', '.csv'}
+        if filename_query:
+            # Filename punctuation and one-digit assignment numbers are data,
+            # not generic content terms. Search the complete indexed name before
+            # an OR-style FTS query where "pdf" can overwhelm every other word.
+            def name_key(value):
+                return ' '.join(re.findall(r'[^\W_]+', remove_vietnamese_accents(Path(value or '').stem)))
+            key = name_key(literal_name)
+            if key:
+                connection = database.get_connection()
+                connection.create_function('rat_filename_key', 1, name_key, deterministic=True)
+                rows = connection.execute('''
+                    SELECT file_path, file_name, file_ext, file_size, modified_at, summary, -100.0 AS rank
+                    FROM documents
+                    WHERE LOWER(file_ext) = ? AND
+                          (rat_filename_key(file_name) = ? OR rat_filename_key(file_name) LIKE ?)
+                    ORDER BY CASE WHEN rat_filename_key(file_name) = ? THEN 0 ELSE 1 END, modified_at DESC
+                    LIMIT ?''', (Path(literal_name).suffix.casefold(), key, '%' + key + '%', key, limit * 4)).fetchall()
+                candidates = [dict(row) for row in rows if Path(row['file_path']).is_file()]
+        if not candidates and not filename_query:
+            clean_tokens = [t.lower() for t in re.findall(r'[^\W_]+', query) if len(t) >= 2 or t.isdigit()]
+            candidates = database.search_candidates(keywords=clean_tokens, limit=limit * 4)
 
         results = []
-        for c in candidates[:limit]:
+        seen = set()
+        for c in candidates:
+            path = c.get('file_path', '')
+            if path in seen or not Path(path).is_file():
+                continue
+            seen.add(path)
             results.append({
                 "filename": c.get("file_name", ""),
                 "path": c.get("file_path", ""),
                 "extension": c.get("file_ext", ""),
                 "snippet": (c.get("summary") or c.get("file_name") or "")[:200],
                 "score": round(float(c.get("rank", 1.0)), 2),
+                "read": False,
+                "content_status": "search_metadata_only",
             })
+            if len(results) >= limit:
+                break
         return results
 
     def handle_read(args: Dict[str, Any], **context) -> Dict[str, Any]:
@@ -105,6 +136,30 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
             raise ValueError("Tệp không tồn tại hoặc chưa có trong chỉ mục RAT.")
         subprocess.run(["/usr/bin/open", str(path)], check=True, capture_output=True)
         return {"opened": True, "path": str(path)}
+
+    def handle_deliver(args, **context):
+        """Publish a reference to the original file; never copy or upload its bytes."""
+        import hashlib
+        path = Path(args["file_path"]).absolute()
+        if not path.is_file() or not get_db(context).get_document_by_path(str(path)):
+            raise ValueError("Tệp không tồn tại hoặc chưa có trong chỉ mục RAT; cần tìm lại tệp trước.")
+        before = path.stat()
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                cancel = context.get("should_cancel")
+                if callable(cancel) and cancel():
+                    raise ValueError("cancelled:execution_cancelled")
+                digest.update(chunk)
+        after = path.stat()
+        if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) != (
+                after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns):
+            raise ValueError("Tệp vừa thay đổi trong lúc chuẩn bị; hãy thử đưa tệp lại.")
+        return {"found": True, "delivered": True, "delivery": "local_reference",
+                "title": path.name, "path": str(path), "filename": path.name,
+                "extension": path.suffix.lower(), "file_size": after.st_size,
+                "size_bytes": after.st_size, "modified_at": after.st_mtime,
+                "sha256": digest.hexdigest()}
 
     def indexed_pdf(file_path, context):
         path = Path(file_path).absolute()
@@ -173,6 +228,15 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         "Open an exact indexed file in its default application only when the user explicitly requests opening it.",
         {"type": "object", "properties": {"file_path": {"type": "string"}}, "required": ["file_path"]}, handle_open))
 
+    capability.register_operation(OperationDefinition(
+        "deliver_document",
+        "Give the user an original indexed file as an openable local conversation attachment. "
+        "Use this when the user asks for the file itself, including a file found earlier. "
+        "Requires the exact observed indexed path; search_documents first if unknown. "
+        "Creates an attachment reference with the file's actual metadata and hash; does not open, copy or upload it.",
+        {"type": "object", "properties": {"file_path": {"type": "string"}},
+         "required": ["file_path"]}, handle_deliver, artifact_kind="document_file"))
+
     def search_actions(artifact: Artifact) -> List[ArtifactAction]:
         results = artifact.payload.get("items", artifact.payload.get("results", []))
         actions = []
@@ -199,6 +263,7 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         description=(
             "Search local indexed documents (slides, lecture notes, syllabus, lab guides) "
             "by filename, subject or content keywords. Try another query when results are irrelevant."
+            " Returns file metadata only. Use read_document or read_book_page to read contents."
         ),
         parameters={
             "type": "object",

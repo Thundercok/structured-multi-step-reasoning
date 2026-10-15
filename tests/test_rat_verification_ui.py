@@ -8,7 +8,8 @@ from rat.timetable.compositor import TimetableCompositor
 from rat.ui.work_context import WorkTracePane
 
 
-def test_rejected_and_repaired_answer_share_existing_work_trace():
+def test_rejected_and_repaired_answer_share_existing_work_trace(monkeypatch):
+    monkeypatch.setenv('RAT_DEBUG_UI', '1')
     app = QApplication.instance() or QApplication([])
     runtime = AssistantRuntime(db=MagicMock(), compositor=TimetableCompositor([]), use_live_model=False)
     decisions = iter([ModelDecision('PRIVATE THOUGHT', final_answer='999', raw_completion='PRIVATE RAW'),

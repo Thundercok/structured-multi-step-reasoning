@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 )
 from rat.engine.work_trace import summarize_step
 from rat.ui.surface_layout import Disclosure
+from rat.ui.experience import debug_ui_enabled
 
 
 BUTTON = 'QPushButton { color: #796347; background: transparent; border: none; padding: 4px 6px; font-size: 11px; } QPushButton:hover, QPushButton:focus { background: #F2EADD; border-radius: 5px; } QPushButton:disabled { color: #B6ADA0; }'
@@ -219,6 +220,7 @@ class WorkTracePane(Disclosure):
         self.caption.setStyleSheet('color: #978974; font-size: 11px;')
         self.flow.addWidget(self.caption)
         self.entries = {}
+        self.debug_ui = debug_ui_enabled()
         self.status = ''
         super().__init__('Cách Chuột làm', body, parent)
         self.button.setToolTip('Luồng suy luận và thao tác: dự định, công cụ đã chạy và dữ kiện nhận được.')
@@ -233,7 +235,7 @@ class WorkTracePane(Disclosure):
     def set_status(self, status):
         self.status = status
         self._title()
-        self.show()
+        self.setVisible(self.debug_ui)
 
     def _title(self):
         detail = f'{len(self.entries)} bước' if self.entries else self.status
@@ -257,7 +259,7 @@ class WorkTracePane(Disclosure):
         self.preview.setText(' → '.join(item.title for item in list(self.entries.values())[-3:]))
         self.preview.show()
         self._title()
-        self.show()
+        self.setVisible(self.debug_ui)
 
     def finish(self, response):
         for step in response.steps:

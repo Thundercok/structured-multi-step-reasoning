@@ -20,7 +20,8 @@ def app():
 
 
 @pytest.fixture
-def window(app):
+def window(app, monkeypatch):
+    monkeypatch.setenv('RAT_DEBUG_UI', '1')
     with patch('rat.ui.omnibar.Database') as db, patch('rat.ui.omnibar.SearchEngine'), \
             patch('rat.ui.feedback.FeedbackLog'), patch('rat.ui.assistant_worker.AssistantWorker.start'):
         db.return_value.get_stats.return_value = {'total_files': 0}

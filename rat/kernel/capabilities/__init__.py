@@ -81,10 +81,11 @@ def build_default_registry(
         inspect_artifact))
     registry.register_capability(util_cap)
 
-    from rat.kernel.capabilities.views import view_natal_chart, view_schedule, view_document_search, view_document_content, view_file_export, view_book_page_search, view_book_page_content
+    from rat.kernel.capabilities.views import view_natal_chart, view_schedule, view_document_search, view_document_content, view_file_export, view_book_page_search, view_book_page_content, view_document_file
     factories = {"natal_chart": view_natal_chart, "schedule": view_schedule,
                  "document_search": view_document_search, "document_content": view_document_content, "file_export": view_file_export,
-                 "book_page_search": view_book_page_search, "book_page_content": view_book_page_content}
+                 "book_page_search": view_book_page_search, "book_page_content": view_book_page_content,
+                 "document_file": view_document_file}
     for op in registry.list_operations():
         op.view_factory = factories.get(op.artifact_kind, op.view_factory)
     return registry

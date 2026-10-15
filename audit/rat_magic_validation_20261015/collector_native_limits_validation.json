@@ -1,0 +1,30 @@
+{
+  "scope": "delta after round2: explicit GUI-limit opt-in in private smoke collector; app runtime unchanged",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "tests/test_rat_local_file_smoke.py",
+    "-q",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "exit_code": 0,
+  "summary": "16 passed in 1.51s",
+  "overlaps_round2_core_tests": true,
+  "tested_source_sha256": {
+    "scripts/run_rat_local_file_smoke.py": "88fe76948124c9945e74c7fa79d4e8d3996fcbfcb8632eceede9f6bc75f9dcf0",
+    "tests/test_rat_local_file_smoke.py": "2e98a8b7449de21c10825cb0484bd3c5e78ccbc7bf8cd7118c2ee6d19090ec92"
+  },
+  "default_limits_unchanged": {
+    "steps": 5,
+    "timeout_s": 60,
+    "global_calls": 15
+  },
+  "explicit_native_limit_caps": {
+    "steps": 8,
+    "timeout_s": 90,
+    "global_calls": 15
+  },
+  "does_not_assert_native_gui_equivalence": true
+}

@@ -1,0 +1,12 @@
+{
+  "unchanged_from_pre_edit_checkpoint": {
+    "rat/engine/meta_reasoner.py": true,
+    "rat/engine/vgc.py": true,
+    "tests/test_vgc_ui_integration.py": true,
+    "entry_predictor.py": true,
+    "optimal_stopping.py": true,
+    "reasoning_strategies.py": true,
+    "reasoning_env.py": true
+  },
+  "known_failure": "test_meta_reasoner_delivers_vgc_certificates_and_citations expects valid for incomplete arithmetic; actual status unverifiable. Round1 retains the failure. This legacy engine is outside the changed AssistantRuntime execution path."
+}

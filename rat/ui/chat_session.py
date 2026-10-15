@@ -79,6 +79,8 @@ class TurnSnapshot:
     task_state: Dict[str, Any] = field(default_factory=dict)
     reconciliation: Optional[Dict[str, Any]] = None
     reconciliation_status: str = "unchecked"
+    # Historical declaration for continuity, never a journal or proof for a new execution.
+    turn_contract: Optional[Dict[str, Any]] = None
 
     @property
     def turn_id(self) -> str:
@@ -137,6 +139,7 @@ class TurnSnapshot:
             "task_state": copy.deepcopy(self.task_state),
             "reconciliation": copy.deepcopy(self.reconciliation) if self.reconciliation is not None else None,
             "reconciliation_status": self.reconciliation_status,
+            "turn_contract": copy.deepcopy(self.turn_contract),
         }
 
 
@@ -220,6 +223,7 @@ class ConversationHistory:
         note_event_ids: Optional[List[str]] = None,
         task_state: Optional[Dict[str, Any]] = None,
         reconciliation: Optional[Any] = None,
+        turn_contract: Optional[Any] = None,
     ) -> TurnSnapshot:
         """Commit a completed turn; reject late callbacks from cancelled executions."""
         snap = self._turn_snapshots.get(turn_id)
@@ -246,6 +250,8 @@ class ConversationHistory:
             snap.note_event_ids = list(dict.fromkeys([*snap.note_event_ids, *note_event_ids]))
         if task_state is not None:
             snap.task_state = copy.deepcopy(task_state)
+        if turn_contract is not None:
+            snap.turn_contract = copy.deepcopy(turn_contract.to_dict() if hasattr(turn_contract, 'to_dict') else turn_contract)
         if reconciliation is not None:
             snap.reconciliation = reconciliation.to_dict() if hasattr(reconciliation, "to_dict") else copy.deepcopy(reconciliation)
             snap.reconciliation_status = snap.reconciliation.get("declared_scope_completion", "completed") if isinstance(snap.reconciliation, dict) else "completed"
@@ -274,6 +280,7 @@ class ConversationHistory:
         note_event_ids: Optional[List[str]] = None,
         task_state: Optional[Dict[str, Any]] = None,
         reconciliation: Optional[Any] = None,
+        turn_contract: Optional[Any] = None,
     ) -> TurnSnapshot:
         if status not in ("failed", "cancelled", "needs_input"):
             raise ValueError("Unknown incomplete execution status")
@@ -301,6 +308,8 @@ class ConversationHistory:
             snap.note_event_ids = list(dict.fromkeys([*snap.note_event_ids, *note_event_ids]))
         if task_state is not None:
             snap.task_state = copy.deepcopy(task_state)
+        if turn_contract is not None:
+            snap.turn_contract = copy.deepcopy(turn_contract.to_dict() if hasattr(turn_contract, 'to_dict') else turn_contract)
         if reconciliation is not None:
             snap.reconciliation = reconciliation.to_dict() if hasattr(reconciliation, "to_dict") else copy.deepcopy(reconciliation)
             snap.reconciliation_status = snap.reconciliation.get("declared_scope_completion", status) if isinstance(snap.reconciliation, dict) else status
@@ -311,7 +320,11 @@ class ConversationHistory:
                 "status": status,
                 "successful_answer_produced": False,
             })
-            self._context_turns.append((self._clip(snap.query, self.MAX_CHARS // 2), event))
+            # A clarification is part of the actual dialogue, while completion remains false.
+            context_answer = event
+            if status == 'needs_input' and snap.answer:
+                context_answer = self._clip(snap.answer, self.MAX_CHARS // 2 - len(event) - 2) + '\n\n' + event
+            self._context_turns.append((self._clip(snap.query, self.MAX_CHARS // 2), context_answer))
             self._context_turns = self._context_turns[-self.MAX_TURNS:]
             self._context_turn_ids.append(snap.turn_id)
             self._context_turn_ids = self._context_turn_ids[-self.MAX_TURNS:]
@@ -327,6 +340,7 @@ class ConversationHistory:
         note_event_ids: Optional[List[str]] = None,
         task_state: Optional[Dict[str, Any]] = None,
         reconciliation: Optional[Any] = None,
+        turn_contract: Optional[Any] = None,
     ) -> TurnSnapshot:
         return self.fail_turn(
             turn_id,
@@ -337,6 +351,7 @@ class ConversationHistory:
             note_event_ids=note_event_ids,
             task_state=task_state,
             reconciliation=reconciliation,
+            turn_contract=turn_contract,
         )
 
     def record_interaction(
@@ -481,6 +496,8 @@ class ConversationHistory:
                 "reconciliation_status": snap.reconciliation_status,
                 "reconciliation": copy.deepcopy(snap.reconciliation) if snap.reconciliation is not None else None,
                 "unresolved_reasons": (snap.reconciliation or {}).get("unresolved_reasons", []),
+                "turn_contract": copy.deepcopy(snap.turn_contract),
+                "turn_contract_context": "historical_declaration_not_current_proof" if snap.turn_contract else None,
             })
         return refs
 
@@ -498,11 +515,19 @@ class ConversationHistory:
         return self._bounded_messages(self._context_turns)
 
     def messages_with_turn_ids(self) -> List[Dict[str, Any]]:
-        """Context messages carrying turn_id for provenance validation and lookback."""
+        """Actual dialogue only; execution status belongs in turn references.
+
+        An empty failed turn has no assistant utterance. In particular, its
+        runtime status JSON must not become something the companion said.
+        """
         turns: list[tuple[str, str, str]] = []
         used = 0
         paired = list(zip(self._context_turn_ids, self._context_turns))
         for tid, (query, answer) in reversed(paired):
+            snap = self._turn_snapshots.get(tid)
+            if snap and snap.status != 'completed':
+                answer = (self._clip(snap.answer, self.MAX_CHARS // 2)
+                          if snap.status == 'needs_input' and snap.answer else '')
             size = len(query) + len(answer)
             if used + size > self.MAX_CHARS:
                 break
@@ -512,6 +537,7 @@ class ConversationHistory:
             {"role": role, "content": content, "turn_id": tid}
             for tid, query, answer in reversed(turns)
             for role, content in (("user", query), ("assistant", answer))
+            if content
         ]
 
     def _bounded_messages(self, records) -> list[dict[str, str]]:

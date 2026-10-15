@@ -61,6 +61,12 @@ def view_document_content(artifact, context) -> ViewSpec:
     blocks = [ViewBlock(type='summary', data={'title': f'Nội dung tệp · {filename}', 'text': f'Đã đọc {len(content)} / {chars} ký tự.'}), ViewBlock(type='details', data={'title': 'Trích xuất văn bản', 'content': content})]
     return ViewSpec(schema_version=1, artifact_id=artifact.id, revision=artifact.revision, title=f'Đọc tệp · {filename}', blocks=blocks)
 
+def view_document_file(artifact, context) -> ViewSpec:
+    data = artifact.payload
+    return ViewSpec(1, artifact.id, artifact.revision, title=data['filename'], blocks=[
+        ViewBlock('summary', {'title': 'Tệp của bạn', 'text': data['filename']}),
+    ])
+
 def view_book_page_search(artifact, context) -> ViewSpec:
     data = artifact.payload
     title = f"Trang sách · {data['filename']}"

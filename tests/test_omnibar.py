@@ -25,6 +25,10 @@ from rat.ui.omnibar import OmnibarWindow, StreamReasoningWorker, lower_overlay_g
 
 class TestOmnibarWindow(unittest.TestCase):
     def setUp(self):
+        # Legacy capability controls remain available in the explicit developer UI.
+        debug = patch.dict(os.environ, {'RAT_DEBUG_UI': '1'})
+        debug.start()
+        self.addCleanup(debug.stop)
         patcher = patch("rat.ui.assistant_worker.AssistantWorker.start")
         self.agent_start = patcher.start()
         self.addCleanup(patcher.stop)
@@ -439,7 +443,8 @@ class TestOmnibarWindow(unittest.TestCase):
         self.window._on_assistant_response(self.window._assistant_handle, AgentResponse(answer, [], 10, 0, 0, sources=sources))
         self.window._submit_chat_prompt("Tóm tắt cái đó")
         context = self.window._current_reasoner.context
-        self.assertEqual(context["history"], [{"role": "user", "content": query}, {"role": "assistant", "content": answer}])
+        self.assertEqual(context["history"], [{"role": "user", "content": query, "turn_id": "turn-1"},
+                                             {"role": "assistant", "content": answer, "turn_id": "turn-1"}])
         self.assertEqual(context["previous_sources"], sources)
 
     def test_natal_interpretation_passes_chart_as_source_not_chat_json(self):
@@ -522,19 +527,19 @@ class TestOmnibarWindow(unittest.TestCase):
         available = QRect(-300, 100, 600, 500)
         self.assertTrue(available.contains(lower_overlay_geometry(available, 652, 580)))
 
-    def test_expand_collapse_respects_screen_and_keeps_composer_top(self):
+    def test_expand_collapse_respects_screen_and_keeps_composer_bottom(self):
         from PyQt6.QtTest import QTest
         self.window.show()
         app.processEvents()
-        top = self.window.y()
+        bottom = self.window.geometry().bottom()
         for expanded in (True, False):
             self.window.set_expanded(expanded)
             QTest.qWait(250)
-            self.assertEqual(self.window.y(), top)
+            self.assertEqual(self.window.geometry().bottom(), bottom)
             self.assertTrue(self.window.screen().availableGeometry().contains(self.window.geometry()))
         self.assertLess(self.window.height(), 260)
 
-    def test_hidden_summon_places_composer_with_room_below_on_selected_screen(self):
+    def test_hidden_summon_places_composer_low_with_room_above_on_selected_screen(self):
         screen = MagicMock()
         available = QRect(-1440, 40, 1440, 860)
         screen.availableGeometry.return_value = available
@@ -542,7 +547,7 @@ class TestOmnibarWindow(unittest.TestCase):
             self.window._resize_overlay(620, 128)
         actual = self.window.geometry()
         self.assertTrue(available.contains(actual))
-        self.assertEqual(actual.y(), available.y() + 120)
+        self.assertEqual(actual, lower_overlay_geometry(available, actual.width(), actual.height()))
         self.assertEqual(actual.center().x(), available.center().x())
 
     @staticmethod
@@ -710,18 +715,18 @@ class TestOmnibarWindow(unittest.TestCase):
         self.assertIn('…', row.name_label.text())
         self.assertLessEqual(row.name_label.fontMetrics().horizontalAdvance(row.name_label.text()), row.name_label.width())
 
-    def test_growing_reply_stays_below_composer_in_same_box(self):
+    def test_growing_reply_stays_above_bottom_composer_in_same_box(self):
         from PyQt6.QtTest import QTest
         self.window.show()
         self.window._deliver_assistant_reply('Ừ.')
         QTest.qWait(250)
-        top = self.window.y()
+        bottom = self.window.geometry().bottom()
         self.window._deliver_assistant_reply('Một ý cần đọc cho rõ, không đè lên ô nhập. ' * 100)
         QTest.qWait(250)
         composer = self.window.chat_composer_input
         stream = self.window.chat_stream
-        self.assertGreaterEqual(stream.mapTo(self.window, stream.rect().topLeft()).y(), composer.mapTo(self.window, composer.rect().bottomLeft()).y())
-        self.assertEqual(self.window.y(), top)
+        self.assertLessEqual(stream.mapTo(self.window, stream.rect().bottomLeft()).y(), composer.mapTo(self.window, composer.rect().topLeft()).y())
+        self.assertEqual(self.window.geometry().bottom(), bottom)
 
 
 class TestStreamReasoningWorker(unittest.TestCase):

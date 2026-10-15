@@ -22,6 +22,13 @@ def app():
     instance.setProperty('ratReduceMotion', False)
 
 
+@pytest.fixture(autouse=True)
+def debug_controls(monkeypatch):
+    # These regressions exercise optional forms/actions and their draft state.
+    # Default button-free interaction is covered by test_rat_magic_ui.py.
+    monkeypatch.setenv('RAT_DEBUG_UI', '1')
+
+
 @pytest.fixture
 def window(app):
     with patch('rat.ui.omnibar.Database') as db, patch('rat.ui.omnibar.SearchEngine'), \

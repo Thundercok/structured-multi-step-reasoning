@@ -1,6 +1,7 @@
 # ADR-004: Một projection context chung cho RAT
 
-**Status:** Proposed — thiết kế để duyệt trước implementation B.
+**Status:** Implemented locally — compiler và wiring đã có kiểm thử phần mềm;
+nghiệm thu model thật còn pending.
 
 **Date:** 2026-10-14, Asia/Saigon.
 
@@ -9,6 +10,38 @@
 **Related:** [ADR-003](adr-003-rat-completion-reconciliation.md),
 [audit A](../audit/rat_context_audit_20261014/report.md),
 [review handoff A](../audit/rat_context_handoff_review_20261014/review.md).
+
+**Implementation update 2026-10-14:** `runtime_context.py` thu bản sao coherent
+và gọi cùng compiler tại planner/actor/repair/finish. `snapshot.schema.json`
+được đặt trong package engine để runtime không phụ thuộc audit directory.
+Typed-origin/proof-scope regression probes đã được chạy lại trước wiring.
+Xem [ghi nhận triển khai app](rat_magic_implementation_20261014.md) để phân
+biệt validation phần mềm, diagnostic latency và nghiệm thu model thật.
+
+**Runtime update 2026-10-15:** Đường chính của app dùng native actor trực tiếp
+(`plan_tasks=False`, `discover_tools=True`). Model nhận facts gọn được render
+từ snapshot đã validate và tool observations thật; boundary canonical được
+lưu riêng trong trace. Context trống không tạo block mặc định dài. Full typed
+snapshot là tùy chọn chẩn đoán `structured_context=True`. Không tạo store hay
+bộ chọn feature theo keyword mới. Native history giữ các utterance thật;
+turn lỗi không được biến runtime status JSON thành lời assistant. Failure
+metadata giữ trong turn references, pending question vẫn là lời assistant thật.
+
+Công cụ tài liệu cốt lõi (tìm, đọc, tìm trang, đọc trang, đưa tệp gốc) có schema
+ngay từ đầu. Các domain khác lấy schema qua `request_operation_tools`, chỉ từ
+receipt dispatcher thành công trong execution hiện tại. Tìm tên file trả
+metadata; inspect kết quả tìm không đồng nghĩa đọc nội dung file.
+
+Planner là tùy chọn: API mặc định giữ typed outcomes và task state. Diagnostic
+opt-in `planner_operations_only=True` có wire `operations` và `respond`, chuyển cơ học thành các
+registered effects và response; request/constraints/facts giữ trong context
+chung. Contract API vẫn hỗ trợ expected args/source/target/proof có kiểu,
+giữ freeze và matching. Khai operation chỉ kiểm tra nghĩa vụ đã khai, không
+chứng minh phủ đủ ý định hoặc đúng nội dung. Với contract đã khai hợp lệ,
+runtime có bounded continuation cho nghĩa vụ còn thiếu. Đường trực tiếp giữ
+intent/completion coverage `unchecked`; không lấy sự vắng lỗi làm bằng chứng
+hoàn thành toàn bộ yêu cầu. Đây là bước sau thiết kế B chỉ projection ban đầu,
+không phải quality verifier mới.
 
 ## Context
 

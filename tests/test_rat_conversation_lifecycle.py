@@ -152,4 +152,3 @@ def test_smoke_runner_turn4_evaluator_distinguishes_correct_from_broken_traces()
     wrong_array = evaluate_turn4_binary_search('Tìm số 6 trong danh sách từ 1 đến 100 ở vị trí thứ 7.')
     assert wrong_array['verdict'] == 'flagged_requires_review'
     assert wrong_array['heuristic_match'] is False
-

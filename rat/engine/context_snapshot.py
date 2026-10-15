@@ -88,9 +88,9 @@ _VALIDATOR_CACHE: Optional[Draft202012Validator] = None
 
 def _find_schema_path() -> Path:
     candidates = [
+        Path(__file__).resolve().parent / "snapshot.schema.json",
         Path(__file__).resolve().parent.parent.parent / "audit/rat_context_B_assignment_20261014/snapshot.schema.json",
         Path(__file__).resolve().parent.parent.parent / "audit/rat_context_snapshot_design_20261014/snapshot.schema.json",
-        Path(__file__).resolve().parent / "snapshot.schema.json",
     ]
     for c in candidates:
         if c.is_file():
@@ -215,9 +215,21 @@ def iter_projector_edges(snapshot: Dict[str, Any]) -> List[Tuple[Tuple[str, str,
     # 1. Receipts in observed_state.receipts
     for rcpt in snapshot.get("observed_state", {}).get("receipts", []):
         rcpt_id = str(rcpt.get("receipt_id", ""))
+        projected_slots = rcpt.get("projected_slots")
         for slot in ("operation_result", "note_event", "verification_report"):
+            if projected_slots is not None and slot not in projected_slots:
+                continue
             val = rcpt.get(slot)
             if is_value_ref(val):
+                if projected_slots is None:
+                    eref = val.get("$value_ref", {}).get("entity_ref", {})
+                    ekind = eref.get("kind")
+                    if slot == "operation_result" and ekind not in ("operation_result", "artifact"):
+                        continue
+                    if slot == "note_event" and ekind != "note_event":
+                        continue
+                    if slot == "verification_report" and ekind != "verification_report":
+                        continue
                 edges.append((("receipt", rcpt_id, slot), val))
 
     # 2. Entities in snapshot.entities
@@ -263,6 +275,14 @@ def _resolve_deref_chain(snapshot: Dict[str, Any], vref_obj: Dict[str, Any], see
     """Resolve a chain of $value_ref pointers, stopping when reaching raw data or terminal value."""
     curr = vref_obj
     current_chain = set(seen_refs)
+    # Only links emitted at exact typed entity slots can extend a chain. A
+    # trusted receipt link may resolve to raw plugin JSON whose root merely
+    # looks like a wrapper; that body has no projector edge at pointer "".
+    entity_edges = {
+        (location[1], "/" + "/".join(escape_json_pointer_token(part) for part in location[2].split(".")))
+        for location, _ in iter_projector_edges(snapshot)
+        if location[0] == "entity"
+    }
     while is_value_ref(curr):
         vref = curr["$value_ref"]
         eref = vref.get("entity_ref", {})
@@ -275,7 +295,7 @@ def _resolve_deref_chain(snapshot: Dict[str, Any], vref_obj: Dict[str, Any], see
         if target_ent is None:
             raise ValueError(f"Entity reference {eref} not found in snapshot entities")
         curr = resolve_json_pointer(target_ent.get("body", {}), ptr)
-        if target_ent.get("ref", {}).get("kind") in ("artifact", "verification_report"):
+        if (json.dumps(eref, sort_keys=True), ptr) not in entity_edges:
             break
     return curr
 
@@ -327,20 +347,55 @@ def _expand_operation_result_body(
 def _expand_receipt(rcpt: Dict[str, Any], snapshot: Dict[str, Any], seen_refs: Set[Tuple[str, str]]) -> Dict[str, Any]:
     res = copy.deepcopy(rcpt)
     op_name = rcpt.get("operation_name")
+    projected_slots = rcpt.get("projected_slots")
+
+    # 1. operation_result
     if is_value_ref(res.get("operation_result")):
-        resolved_op = _resolve_deref_chain(snapshot, res["operation_result"], seen_refs)
-        if isinstance(resolved_op, dict):
-            res["operation_result"] = _expand_operation_result_body(resolved_op, snapshot, op_name, seen_refs)
+        should_expand = False
+        if projected_slots is not None:
+            should_expand = "operation_result" in projected_slots
         else:
-            res["operation_result"] = copy.deepcopy(resolved_op)
+            eref = res["operation_result"].get("$value_ref", {}).get("entity_ref", {})
+            ekind = eref.get("kind")
+            should_expand = ekind in ("operation_result", "artifact")
+
+        if should_expand:
+            resolved_op = _resolve_deref_chain(snapshot, res["operation_result"], seen_refs)
+            if isinstance(resolved_op, dict):
+                res["operation_result"] = _expand_operation_result_body(resolved_op, snapshot, op_name, seen_refs)
+            else:
+                res["operation_result"] = copy.deepcopy(resolved_op)
+
+    # 2. note_event
     if is_value_ref(res.get("note_event")):
-        resolved_evt = _resolve_deref_chain(snapshot, res["note_event"], seen_refs)
-        if isinstance(resolved_evt, dict):
-            res["note_event"] = _expand_note_event_body(resolved_evt, snapshot, seen_refs)
+        should_expand = False
+        if projected_slots is not None:
+            should_expand = "note_event" in projected_slots
         else:
-            res["note_event"] = copy.deepcopy(resolved_evt)
+            eref = res["note_event"].get("$value_ref", {}).get("entity_ref", {})
+            ekind = eref.get("kind")
+            should_expand = ekind == "note_event"
+
+        if should_expand:
+            resolved_evt = _resolve_deref_chain(snapshot, res["note_event"], seen_refs)
+            if isinstance(resolved_evt, dict):
+                res["note_event"] = _expand_note_event_body(resolved_evt, snapshot, seen_refs)
+            else:
+                res["note_event"] = copy.deepcopy(resolved_evt)
+
+    # 3. verification_report
     if is_value_ref(res.get("verification_report")):
-        res["verification_report"] = copy.deepcopy(_resolve_deref_chain(snapshot, res["verification_report"], seen_refs))
+        should_expand = False
+        if projected_slots is not None:
+            should_expand = "verification_report" in projected_slots
+        else:
+            eref = res["verification_report"].get("$value_ref", {}).get("entity_ref", {})
+            ekind = eref.get("kind")
+            should_expand = ekind == "verification_report"
+
+        if should_expand:
+            res["verification_report"] = copy.deepcopy(_resolve_deref_chain(snapshot, res["verification_report"], seen_refs))
+
     return res
 
 
@@ -366,7 +421,7 @@ def expand_value_refs(
         return copy.deepcopy(target)
 
     # 1. Whole snapshot expansion
-    if target.get("schema_version") == SCHEMA_VERSION and "entities" in target:
+    if target is snapshot or root_context == "snapshot":
         snap_copy = copy.deepcopy(target)
         if "observed_state" in snap_copy and "receipts" in snap_copy["observed_state"]:
             snap_copy["observed_state"]["receipts"] = [
@@ -377,9 +432,9 @@ def expand_value_refs(
         for e in snap_copy.get("entities", []):
             e_copy = copy.deepcopy(e)
             kind = e_copy.get("ref", {}).get("kind")
-            if kind == "note_version":
+            if kind == "note_version" and e_copy.get("issuer") == "notebook":
                 e_copy["body"] = _expand_note_version_body(e_copy.get("body", {}), snapshot, current_seen)
-            elif kind == "note_event":
+            elif kind == "note_event" and e_copy.get("issuer") == "notebook":
                 e_copy["body"] = _expand_note_event_body(e_copy.get("body", {}), snapshot, current_seen)
             elif kind == "operation_result":
                 rcpt_id = e_copy.get("ref", {}).get("receipt_id")
@@ -400,16 +455,17 @@ def expand_value_refs(
         return copy.deepcopy(target)
 
     # 2. Receipt
-    if "receipt_id" in target and ("operation_name" in target or "operation_result" in target or "issuer" in target):
+    if root_context == "receipt" or any(
+            target is receipt for receipt in snapshot.get("observed_state", {}).get("receipts", [])):
         return _expand_receipt(target, snapshot, current_seen)
 
     # 3. Entity envelope
-    if "ref" in target and "body" in target and isinstance(target.get("ref"), dict) and "kind" in target["ref"]:
+    if root_context == "entity" or any(target is entity for entity in snapshot.get("entities", [])):
         res_ent = copy.deepcopy(target)
         kind = target["ref"]["kind"]
-        if kind == "note_version":
+        if kind == "note_version" and target.get("issuer") == "notebook":
             res_ent["body"] = _expand_note_version_body(target["body"], snapshot, current_seen)
-        elif kind == "note_event":
+        elif kind == "note_event" and target.get("issuer") == "notebook":
             res_ent["body"] = _expand_note_event_body(target["body"], snapshot, current_seen)
         elif kind == "operation_result":
             rcpt_id = target["ref"].get("receipt_id")
@@ -421,19 +477,16 @@ def expand_value_refs(
             res_ent["body"] = _expand_operation_result_body(target["body"], snapshot, op_name, current_seen)
         return res_ent
 
-    # 4. Explicit root_context or auto-detected entity body
+    # 4. A body inherits its canonical envelope's typed origin only by object
+    # identity. Equal values or familiar raw keys never authorize decoding.
+    # A caller restoring a serialized typed root can pass root_context explicitly.
     ctx = root_context
     if ctx is None:
         for ent in snapshot.get("entities", []):
-            if ent.get("body") is target or exact_json_equal(ent.get("body"), target):
-                ctx = ent.get("ref", {}).get("kind")
+            if ent.get("body") is target:
+                kind = ent.get("ref", {}).get("kind")
+                ctx = kind if ent.get("issuer") == "notebook" else "raw"
                 break
-
-    if ctx is None:
-        if "id" in target and "revision" in target and "text" in target and "owner_turn_id" in target:
-            ctx = "note_version"
-        elif "event_id" in target and "kind" in target and ("note_id" in target or "after_revision" in target):
-            ctx = "note_event"
 
     if ctx == "note_version":
         return _expand_note_version_body(target, snapshot, current_seen)
@@ -479,33 +532,15 @@ def validate_value_refs(snapshot: Dict[str, Any]) -> List[str]:
             except Exception as exc:
                 errors.append(f"Broken pointer '{ptr}' at '{slot}': {exc}")
 
-    # 2. Cycle detection in authorized projector graph
-    for loc, vref_obj in edges:
-        vref = vref_obj.get("$value_ref", {})
-        eref = vref.get("entity_ref", {})
-        ptr = vref.get("pointer", "")
-        chain = [(json.dumps(eref, sort_keys=True), ptr)]
-
-        target_ent = find_entity(entities, eref)
-        if target_ent:
-            if target_ent.get("ref", {}).get("kind") not in ("artifact", "verification_report"):
-                try:
-                    curr = resolve_json_pointer(target_ent.get("body", {}), ptr)
-                    while is_value_ref(curr):
-                        c_vref = curr["$value_ref"]
-                        c_eref = c_vref.get("entity_ref", {})
-                        c_ptr = c_vref.get("pointer", "")
-                        step = (json.dumps(c_eref, sort_keys=True), c_ptr)
-                        if step in chain:
-                            errors.append(f"Cycle detected in value_ref graph: {chain} -> {step}")
-                            break
-                        chain.append(step)
-                        c_ent = find_entity(entities, c_eref)
-                        if not c_ent or c_ent.get("ref", {}).get("kind") in ("artifact", "verification_report"):
-                            break
-                        curr = resolve_json_pointer(c_ent.get("body", {}), c_ptr)
-                except Exception:
-                    pass
+    # 2. Follow exactly the same typed edges as the decoder. Structural
+    # resolution above permits explicit unavailable refs; those are unresolved
+    # data, while only an actual typed cycle is a cycle validation failure.
+    for _, vref_obj in edges:
+        try:
+            _resolve_deref_chain(snapshot, vref_obj, set())
+        except ValueError as exc:
+            if "Dereference cycle detected" in str(exc):
+                errors.append(f"Cycle detected in value_ref graph: {exc}")
 
     return errors
 
@@ -866,6 +901,7 @@ def _build_journal_entities_and_receipts(
     generation: int,
     note_entities: Sequence[Dict[str, Any]],
     event_entities: Sequence[Dict[str, Any]],
+    artifact_entities: Sequence[Dict[str, Any]] = (),
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     entities: List[Dict[str, Any]] = []
     projected_receipts: List[Dict[str, Any]] = []
@@ -987,6 +1023,7 @@ def _build_journal_entities_and_receipts(
             "error": receipt.error,
             "timestamp": receipt.timestamp,
         }
+        projected_slots: List[str] = []
 
         if has_result_entity:
             header["operation_result"] = {
@@ -999,8 +1036,29 @@ def _build_journal_entities_and_receipts(
                     "pointer": result_pointer,
                 }
             }
+            projected_slots.append("operation_result")
         elif receipt.operation_result is not None:
             header["operation_result"] = copy.deepcopy(receipt.operation_result)
+            # A dispatcher receipt can point to its exact committed artifact
+            # payload once. Equal text without the explicit version pin is
+            # never sufficient to merge observations or provenance.
+            if len(receipt.artifact_refs) == 1:
+                pin = receipt.artifact_refs[0]
+                art_ref = {'kind': 'artifact', 'conversation_id': rcpt_conv,
+                           'artifact_id': pin.get('artifact_id', pin.get('id')),
+                           'revision': pin.get('revision')}
+                target = find_entity(artifact_entities, art_ref)
+                payload = target.get('body', {}).get('payload') if target else None
+                pointer = None
+                if target and exact_json_equal(payload, receipt.operation_result):
+                    pointer = '/payload'
+                elif (target and not isinstance(receipt.operation_result, dict)
+                      and isinstance(payload, dict) and set(payload) == {'items'}
+                      and exact_json_equal(payload['items'], receipt.operation_result)):
+                    pointer = '/payload/items'
+                if pointer is not None:
+                    header['operation_result'] = {'$value_ref': {'entity_ref': art_ref, 'pointer': pointer}}
+                    projected_slots.append("operation_result")
 
         if receipt.note_event and isinstance(receipt.note_event, dict) and receipt.note_event.get("event_id"):
             evt_ref = {
@@ -1011,6 +1069,7 @@ def _build_journal_entities_and_receipts(
             target_evt = find_entity(event_entities, evt_ref)
             if target_evt is not None and exact_json_equal(target_evt.get("body"), receipt.note_event):
                 header["note_event"] = {"$value_ref": {"entity_ref": evt_ref, "pointer": ""}}
+                projected_slots.append("note_event")
             else:
                 header["note_event"] = copy.deepcopy(receipt.note_event)
         elif receipt.note_event is not None:
@@ -1027,9 +1086,11 @@ def _build_journal_entities_and_receipts(
                     "pointer": "",
                 }
             }
+            projected_slots.append("verification_report")
         elif receipt.verification_report is not None:
             header["verification_report"] = copy.deepcopy(receipt.verification_report)
 
+        header["projected_slots"] = projected_slots
         projected_receipts.append(header)
 
     return entities, projected_receipts, proof_refs
@@ -1059,6 +1120,7 @@ def compile_context_snapshot(
     execution_journal: Optional[ExecutionJournal] = None,
     lifecycle_state: Optional[Dict[str, Any]] = None,
     artifact_store_items: Optional[Sequence[Any]] = None,
+    current_artifact_refs: Optional[Sequence[Dict[str, Any]]] = None,
     selected_artifact_ids: Optional[Sequence[str]] = None,
     selection_set: bool = False,
     notebook_notes: Optional[Sequence[Dict[str, Any]]] = None,
@@ -1089,7 +1151,7 @@ def compile_context_snapshot(
     )
     event_entities, event_pins = _build_event_entities(raw_events, conversation_id, turn_id, note_entities)
     journal_entities, projected_receipts, proof_refs = _build_journal_entities_and_receipts(
-        execution_journal, execution_id, conversation_id, turn_id, generation, note_entities, event_entities
+        execution_journal, execution_id, conversation_id, turn_id, generation, note_entities, event_entities, artifact_entities
     )
 
     all_entities = artifact_entities + note_entities + event_entities + journal_entities
@@ -1180,12 +1242,15 @@ def compile_context_snapshot(
         "progress": progress,
     }
 
-    # 8. Indexes
+    # 8. Indexes. Items can include historical revisions for reference closure;
+    # only caller-declared current pins belong to current/selected results.
+    current_pins = (copy.deepcopy(list(current_artifact_refs))
+                    if current_artifact_refs is not None else copy.deepcopy(artifact_pins))
     # Selected results preserve selection_set boolean flag
     selected_refs: List[Dict[str, Any]] = []
     if selection_set and selected_artifact_ids:
         for sid in selected_artifact_ids:
-            for art_pin in artifact_pins:
+            for art_pin in current_pins:
                 if art_pin.get("artifact_id") == sid:
                     selected_refs.append(copy.deepcopy(art_pin))
                     break
@@ -1200,7 +1265,7 @@ def compile_context_snapshot(
         "active_notes": active_note_pins,
         "historical_notes": historical_note_pins,
         "previous_sources": prev_sources,
-        "current_results": artifact_pins,
+        "current_results": current_pins,
         "selected_results": selected_refs,
         "selection_set": bool(selection_set),
     }
@@ -1295,6 +1360,34 @@ def validate_context_snapshot(snapshot: Dict[str, Any]) -> Tuple[bool, List[str]
             rk = json.dumps(ref, sort_keys=True)
             if rk not in known_ref_keys:
                 errors.append(f"Typed reference in observed_state.proof_refs not found in entities or unavailable_refs: {ref}")
+                continue
+            entity = find_entity(entities, ref)
+            if entity is None:
+                # An explicit unavailable ref does not claim an inline proof.
+                continue
+            proof_receipts = [
+                receipt for receipt in observed_state.get("receipts", [])
+                if receipt.get("receipt_id") == ref.get("receipt_id")
+                and receipt.get("execution_id") == ref.get("execution_id")
+            ]
+            current_receipts = [
+                receipt for receipt in proof_receipts
+                if receipt.get("issuer") == "verification"
+                and receipt.get("committed") is True
+                and receipt.get("status") == "committed"
+                and all(receipt.get(key) == boundary.get(key)
+                        for key in ("conversation_id", "turn_id", "execution_id", "generation"))
+                and is_value_ref(receipt.get("verification_report"))
+                and exact_json_equal(receipt["verification_report"]["$value_ref"].get("entity_ref"), ref)
+                and receipt["verification_report"]["$value_ref"].get("pointer") == ""
+            ]
+            if (ref.get("kind") != "verification_report"
+                    or ref.get("execution_id") != boundary.get("execution_id")
+                    or entity.get("issuer") != "verifier"
+                    or entity.get("authority") != "scoped_verification_proof"
+                    or entity.get("owner_turn_id") != boundary.get("turn_id")
+                    or len(current_receipts) != 1):
+                errors.append(f"Current proof ref lacks one committed verification receipt in boundary scope: {ref}")
 
     # 4. Value ref pointer integrity & cycle detection
     vref_errors = validate_value_refs(snapshot)

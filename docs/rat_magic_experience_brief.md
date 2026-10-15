@@ -2,9 +2,10 @@
 
 Ngày: 2026-10-14, Asia/Ho_Chi_Minh. Đây là yêu cầu sản phẩm mới nhất của người
 dùng, bổ sung cho [nghiên cứu tính liền mạch](rat_cohesion_research_20261014.md).
-Trạng thái: đích trải nghiệm và brief cho prototype; chưa phải hành vi đã có
-đầy đủ trong app. Tài liệu này không thay model, backend hoặc pipeline NCKH;
-không chạy thử nghiệm model hay thay Stage 0. DocAI tiếp tục độc lập.
+Trạng thái: đích trải nghiệm; phần đầu đang được triển khai trong app local.
+Kết quả phần mềm và thử PDF thật ở [ghi nhận triển khai](rat_magic_implementation_20261014.md).
+Chưa nghiệm thu toàn bộ trải nghiệm bằng model thật. Không thay pipeline
+NCKH, mặc định model hay Stage 0. DocAI tiếp tục độc lập.
 
 Người dùng muốn cảm giác như có phép màu: chỉ gõ điều mình muốn, Chuột hiểu
 công việc, tự tìm cách làm và mang kết quả trở lại. Họ không phải biết tên
@@ -17,6 +18,11 @@ dễ sửa và trung thực về việc đã thực sự làm.
 - Đường chính chỉ có ô nhập yêu cầu, Chuột và kết quả đang làm. Không cần bấm
   nút gửi: Enter gửi, Shift+Enter xuống dòng. Không đặt tab, menu công cụ,
   form điền trường hay bộ nút chức năng trên đường hoàn thành công việc.
+- Ô nhập nằm ở đáy. Khung ở phần dưới màn hình, kết quả nở lên trên; giữ
+  nguyên editor, bản nháp, vùng chọn và điểm neo khi compact/full thay đổi.
+- Khi nhờ đưa tệp, Chuột mang đính kèm của tệp thật vào cuộc trò chuyện.
+  Tên tệp có thể nhấn hoặc mở bằng Enter. Không nhận đường dẫn bịa trong
+  lời model làm tệp đã tạo. Tệp mất trên máy phải được nói rõ.
 - Mọi câu hỏi tiếp, sửa nguồn, đổi ý và yêu cầu dừng đều gõ ở cùng ô đó.
   Có thể dùng Escape để dừng nhanh; đây là lối tắt tùy chọn, không phải bước
   bắt buộc. Gõ yêu cầu mới trong lúc đang làm vẫn phải có cách tiếp nhận rõ.
@@ -89,10 +95,12 @@ thành công. Đề xuất ôn tập không được hiển thị như sự ki�
 
 ## Phân biệt hiện tại, đích và prototype
 
-Source hiện tại đã có ô chat chung, compact/full giữ trạng thái, artifact có
-phiên bản và kiểm tra thao tác. Hỏi bổ sung còn có form; kết quả vẫn chủ yếu
-theo từng operation; khi đang chạy cần Stop rồi mới gửi sửa đổi. Vì vậy yêu
-cầu chỉ gõ, kể cả dừng bằng lời trong lúc chạy, vẫn là đích cần triển khai.
+Source local đã chuyển composer xuống đáy, giấu điều khiển kỹ thuật mặc định,
+nhận dừng bằng lời/Escape và đưa tệp từ artifact thật. `RAT_DEBUG_UI=1` hiện
+lại điều khiển phát triển. Hỏi bổ sung đi qua câu trả lời và pending operation;
+form chỉ hiện ở debug. Khi đang chạy, câu sửa khác được giữ làm bản nháp;
+chưa tự ngắt và lập lại toàn bộ công việc. Kết quả vẫn dùng renderer đã đăng
+ký; canvas ghép hoàn toàn và animation do họa sĩ cung cấp vẫn là đích sau.
 
 Prototype trong hội thoại chỉ minh họa cảm giác một ô nhập, Chuột và một kết
 quả biến đổi. Dữ liệu, thời gian và phản ứng mẫu phải được ghi rõ là mô phỏng;

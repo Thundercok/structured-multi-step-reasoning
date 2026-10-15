@@ -40,6 +40,7 @@ from PyQt6.QtWidgets import (
 )
 
 from rat.ui.surface_layout import Disclosure, ResponsiveFields
+from rat.ui.experience import debug_ui_enabled
 
 from rat.kernel.contracts import Artifact, ArtifactAction, InputRequest
 from rat.kernel.view_spec import ViewBlock, ViewSpec
@@ -78,6 +79,7 @@ class QtViewRenderer(QFrame):
     ) -> None:
         super().__init__(parent)
         self.spec = spec
+        self.debug_ui = debug_ui_enabled()
         self.artifact = artifact
         self.is_latest = is_latest
         self.input_fields: Dict[str, QWidget] = {}
@@ -111,9 +113,11 @@ class QtViewRenderer(QFrame):
         elif b_type == "resource":
             self._render_resource(data)
         elif b_type == "input_form":
-            self._render_input_form(data)
+            if self.debug_ui:
+                self._render_input_form(data)
         elif b_type == "actions":
-            self._render_actions(data)
+            if self.debug_ui:
+                self._render_actions(data)
         elif b_type == "details":
             self._render_details(data)
 
@@ -475,4 +479,7 @@ class QtViewRenderer(QFrame):
         disclosure = Disclosure(title, body)
         disclosure.changed.connect(self._notify_layout)
         self.disclosures[title] = disclosure
+        if not self.debug_ui:
+            disclosure.set_open(True, animate=False)
+            disclosure.button.hide()
         self.layout.addWidget(disclosure)

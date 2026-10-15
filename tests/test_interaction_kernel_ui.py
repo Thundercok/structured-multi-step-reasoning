@@ -14,6 +14,11 @@ from rat.ui.assistant_presenter import source_panel
 from rat.ui.chat_stream import ChatStreamWidget
 
 
+@pytest.fixture(autouse=True)
+def developer_controls(monkeypatch):
+    monkeypatch.setenv('RAT_DEBUG_UI', '1')
+
+
 @pytest.fixture(scope='module')
 def app():
     return QApplication.instance() or QApplication([])

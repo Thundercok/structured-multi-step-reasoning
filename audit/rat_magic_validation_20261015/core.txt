@@ -1,0 +1,60 @@
+........................................................................ [ 15%]
+........................................................................ [ 30%]
+......................................................................FF [ 45%]
+...............................................F..F..F..F............... [ 60%]
+......................................................................F. [ 75%]
+........................................................................ [ 90%]
+................................................                         [100%]
+=================================== FAILURES ===================================
+_______________ test_native_planner_schema_can_express_outcomes ________________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:46: in test_native_planner_schema_can_express_outcomes
+    assert "outcomes" in schema["properties"], "Native planning schema excludes the declared contract"
+E   AssertionError: Native planning schema excludes the declared contract
+E   assert 'outcomes' in {'operations': {'items': {'enum': ['search_book_pages', 'read_book_page', 'open_document', 'deliver_document', 'search_documents', 'read_document', ...], 'type': 'string'}, 'maxItems': 12, 'type': 'array'}, 'respond': {'type': 'boolean'}}
+_________ test_native_planner_outcomes_are_not_rejected_as_task_state __________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:61: in test_native_planner_outcomes_are_not_rejected_as_task_state
+    assert result.error is None, result.error
+E   AssertionError: StopIteration
+E   assert 'StopIteration' is None
+E    +  where 'StopIteration' = AgentResponse(answer='', steps=[AgentStep(step_number=1, thought='', tool_name='update_task_state', tool_args={'goal':...rsation_id='conv-5b8a8c88b19e', turn_id='turn-1', execution_id='exec-3c6e0d43f76a', generation=0, receipts=[], _seq=0)).error
+______________ test_planner_schema_advertises_typed_expected_args ______________
+tests/test_rat_completion_boundaries.py:140: in test_planner_schema_advertises_typed_expected_args
+    assert schema["properties"]["outcomes"]["items"]["properties"]["expected_args"]["type"] == "object"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'outcomes'
+_ test_malformed_nested_fields_are_invalid_at_all_contract_ingress[source_ref-bad-planner] _
+tests/test_rat_completion_boundaries.py:162: in test_malformed_nested_fields_are_invalid_at_all_contract_ingress
+    assert response.reconciliation.intent_coverage == "invalid"
+E   AssertionError: assert 'unchecked' == 'invalid'
+E
+E     - invalid
+E     + unchecked
+_ test_malformed_nested_fields_are_invalid_at_all_contract_ingress[target_ref-value1-planner] _
+tests/test_rat_completion_boundaries.py:162: in test_malformed_nested_fields_are_invalid_at_all_contract_ingress
+    assert response.reconciliation.intent_coverage == "invalid"
+E   AssertionError: assert 'unchecked' == 'invalid'
+E
+E     - invalid
+E     + unchecked
+_ test_malformed_nested_fields_are_invalid_at_all_contract_ingress[expected_args-bad-planner] _
+tests/test_rat_completion_boundaries.py:162: in test_malformed_nested_fields_are_invalid_at_all_contract_ingress
+    assert response.reconciliation.intent_coverage == "invalid"
+E   AssertionError: assert 'unchecked' == 'invalid'
+E
+E     - invalid
+E     + unchecked
+_____________ test_dsa_six_turn_shared_conversation_core_contract ______________
+tests/test_work_context.py:440: in test_dsa_six_turn_shared_conversation_core_contract
+    assert m7[-1]['turn_id'] == 'turn-6' and '"status": "cancelled"' in m7[-1]['content']
+E   assert ('turn-6' == 'turn-6'
+E
+E       turn-6 and '"status": "cancelled"' in 'Viết bảng trace đầy đủ cho mọi trường hợp')
+=========================== short test summary info ============================
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_native_planner_schema_can_express_outcomes
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_native_planner_outcomes_are_not_rejected_as_task_state
+FAILED tests/test_rat_completion_boundaries.py::test_planner_schema_advertises_typed_expected_args
+FAILED tests/test_rat_completion_boundaries.py::test_malformed_nested_fields_are_invalid_at_all_contract_ingress[source_ref-bad-planner]
+FAILED tests/test_rat_completion_boundaries.py::test_malformed_nested_fields_are_invalid_at_all_contract_ingress[target_ref-value1-planner]
+FAILED tests/test_rat_completion_boundaries.py::test_malformed_nested_fields_are_invalid_at_all_contract_ingress[expected_args-bad-planner]
+FAILED tests/test_work_context.py::test_dsa_six_turn_shared_conversation_core_contract
+7 failed, 473 passed in 7.76s

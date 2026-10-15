@@ -6,6 +6,7 @@
 # Core GUI & CLI Framework
 PyQt6>=6.6.0
 rich>=13.0.0
+jsonschema>=4.18.0
 
 # Global Hotkeys & Filesystem Monitoring
 pynput>=1.7.6

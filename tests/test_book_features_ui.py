@@ -10,6 +10,11 @@ from rat.ui.assistant_presenter import source_panel
 from tests.test_book_pages import env, search
 
 
+@pytest.fixture(autouse=True)
+def developer_controls(monkeypatch):
+    monkeypatch.setenv('RAT_DEBUG_UI', '1')
+
+
 @pytest.fixture(scope='session')
 def app():
     return QApplication.instance() or QApplication([])

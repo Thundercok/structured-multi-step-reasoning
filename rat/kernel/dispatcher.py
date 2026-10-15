@@ -31,6 +31,24 @@ class ActionDispatcher:
         if execution_id:
             self._cancelled_executions.add(execution_id)
 
+    def dismiss_input(self, request_id, context=None):
+        """Dismiss the exact observed pending request; retain completed artifacts."""
+        context = self._execution_context(context)
+        if self._is_cancelled(context):
+            raise ValueError('cancelled:execution_cancelled')
+        request = self.state.pending_input_request
+        if request is None or request.id != request_id:
+            raise ValueError('pending_request_not_current')
+        artifact = self.store.get(request_id)
+        if artifact is None or artifact.kind != 'input_request':
+            raise ValueError('pending_request_not_current')
+        if self._is_cancelled(context) or self.state.pending_input_request is not request:
+            raise ValueError('cancelled:pending_request_changed')
+        self.store.delete(request_id)
+        if self.state.pending_input_request is request:
+            self.state.pending_input_request = None
+        return {'dismissed': True, 'request_id': request_id, 'operation_name': request.operation_name}
+
     @staticmethod
     def _execution_context(context):
         ctx = dict(context or {})

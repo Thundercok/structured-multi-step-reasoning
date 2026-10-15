@@ -94,6 +94,20 @@ def test_failed_request_survives_followup_without_becoming_a_successful_answer()
     assert history.context_messages() == []
 
 
+def test_native_history_keeps_failure_status_out_of_assistant_dialogue():
+    history = ConversationHistory()
+    failed = history.begin_turn('Read the document.')
+    history.fail_turn(failed.turn_id, error='timed out')
+    assert history.messages_with_turn_ids() == [
+        {'role': 'user', 'content': 'Read the document.', 'turn_id': failed.turn_id}]
+    assert history.turn_references()[0]['status'] == 'failed'
+    pending = history.begin_turn('Prepare my chart.')
+    history.fail_turn(pending.turn_id, 'needs_input', partial_answer='What time were you born?')
+    messages = history.messages_with_turn_ids()
+    assert messages[-1] == {'role': 'assistant', 'content': 'What time were you born?', 'turn_id': pending.turn_id}
+    assert all('runtime_execution_status' not in m['content'] for m in messages)
+
+
 def test_turn_snapshots_keep_full_unclipped_history_while_model_window_stays_bounded():
     history = ConversationHistory()
     for idx in range(1, 10):

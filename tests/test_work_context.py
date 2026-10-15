@@ -437,7 +437,9 @@ def test_dsa_six_turn_shared_conversation_core_contract():
     m7 = history.messages_with_turn_ids()
     refs7 = history.turn_references()
     assert any(m['role'] == 'assistant' and m['content'] == r5.answer and m['turn_id'] == 'turn-5' for m in m7)
-    assert m7[-1]['turn_id'] == 'turn-6' and '"status": "cancelled"' in m7[-1]['content']
+    assert m7[-1]['turn_id'] == 'turn-6' and m7[-1]['role'] == 'user'
+    assert m7[-1]['content'] == q6
+    assert next(ref for ref in refs7 if ref['turn_id'] == 'turn-6')['status'] == 'cancelled'
     t7 = history.begin_turn(q7)
     runtime.model_callable = lambda goal, steps: ModelDecision('', final_answer='Chỉ số kết quả là mid = 2.')
     r7 = runtime.run(
@@ -450,4 +452,3 @@ def test_dsa_six_turn_shared_conversation_core_contract():
     history.complete_turn(t7.turn_id, r7.answer, execution_id=r7.execution_id)
     assert not r7.error and r7.answer == 'Chỉ số kết quả là mid = 2.'
     assert runtime.notebook.snapshot()[0]['text'] == 'Mảng [2, 4, 6, 8, 10], tìm 6'
-

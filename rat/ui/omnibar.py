@@ -71,6 +71,7 @@ from PyQt6.QtWidgets import (
 )
 
 from rat.ui.surface_layout import ChatComposer, CurrentPageStack, motion_enabled
+from rat.ui.experience import debug_ui_enabled
 from rat.ui.live_companion import LiveCompanion
 
 from rat.config import config
@@ -303,6 +304,11 @@ class OmnibarModeFilter(QObject):
     def eventFilter(self, watched, event):
         if event.type() in (QEvent.Type.KeyPress, QEvent.Type.ShortcutOverride) and isinstance(
             watched, QWidget) and watched.window() is self.window:
+            if event.key() == Qt.Key.Key_Escape and self.window._pending_chat_query is not None:
+                if event.type() == QEvent.Type.KeyPress:
+                    self.window._cancel_assistant()
+                event.accept()
+                return True
             if event.key() == Qt.Key.Key_L and event.modifiers() & (
                 Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier):
                 if event.type() == QEvent.Type.KeyPress:
@@ -1118,6 +1124,7 @@ class OmnibarWindow(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
+        self.debug_ui = debug_ui_enabled()
         self.db = Database(config.db_path)
         self.engine = SearchEngine(self.db)
         self.compositor = TimetableCompositor(load_club_members())
@@ -1125,7 +1132,8 @@ class OmnibarWindow(QMainWindow):
         from rat.engine.assistant_runtime import AssistantRuntime
         from rat.engine.slm import SLMEngine
         self.assistant_runtime = AssistantRuntime(db=self.db, compositor=self.compositor, use_live_model=True,
-            plan_tasks=True, model_client=SLMEngine(model=config.assistant_model or config.ollama_model))
+            plan_tasks=False, discover_tools=True, structured_context=False,
+            model_client=SLMEngine(model=config.assistant_model or config.ollama_model))
         self._assistant_sources = []
         self._assistant_task_state = {}
         self._assistant_handle = None
@@ -1191,7 +1199,7 @@ class OmnibarWindow(QMainWindow):
         configure_macos_fullscreen_overlay(self)
 
     def _resize_overlay(self, new_width: int, new_height: int, animated: bool = False) -> None:
-        """Keep the composer's position stable while the conversation grows below."""
+        """Keep the bottom composer anchored while the result grows upward."""
         minimum = self.minimumSizeHint()
         new_width = int(max(new_width, minimum.width()))
         new_height = int(max(new_height, minimum.height()))
@@ -1204,12 +1212,11 @@ class OmnibarWindow(QMainWindow):
                 new_height = min(new_height, geo.height() - 24)
                 if self.isVisible():
                     left = max(geo.left() + 12, min(self.x(), geo.right() - new_width - 11))
-                    top = max(geo.top() + 12, min(self.y(), geo.bottom() - new_height - 11))
+                    bottom = min(self.geometry().bottom(), geo.bottom() - 12)
+                    top = max(geo.top() + 12, min(bottom - new_height + 1, geo.bottom() - new_height - 11))
                     target_rect = QRect(left, top, int(new_width), int(new_height))
                 else:
-                    # Leave room below the stable composer for a compact result to grow.
-                    target_rect = QRect(geo.left() + (geo.width() - int(new_width)) // 2,
-                        geo.top() + min(120, geo.height() // 6), int(new_width), int(new_height))
+                    target_rect = lower_overlay_geometry(geo, int(new_width), int(new_height))
 
                 if hasattr(self, "_geom_anim"):
                     if self._geom_anim.state() == QPropertyAnimation.State.Running and self._geom_anim.endValue() == target_rect:
@@ -1323,7 +1330,7 @@ class OmnibarWindow(QMainWindow):
         self._interaction_surface_active = True
         self.main_layout.setContentsMargins(12, 12, 12, 12)
         self.quick_bar.show()
-        self.btn_expand.show()
+        self.btn_expand.setVisible(self.debug_ui)
         self.btn_expand.setText('−' if expanded else '+')
         self.btn_expand.setAccessibleName('Thu gọn hội thoại' if expanded else 'Mở rộng hội thoại')
         self.btn_expand.setToolTip(('Thu gọn' if expanded else 'Mở rộng') + ' (⌘L)')
@@ -1406,7 +1413,7 @@ class OmnibarWindow(QMainWindow):
         self.rat_tail = None
 
         # -------------------------------------------------------------
-        # 1. INPUT ROW (QuickBar) - TOP OF CONTAINER
+        # One persistent composer; inserted below the result viewport.
         # -------------------------------------------------------------
         quick_bar = QFrame()
         quick_bar.setObjectName("QuickBar")
@@ -1419,7 +1426,7 @@ class OmnibarWindow(QMainWindow):
         # Companion stands beside the chat, sharing its window and lifecycle.
         self.companion_avatar_btn = CompanionAvatarButton(self, main_widget)
         self.companion_avatar_btn.show()
-        self.main_layout.addWidget(self.companion_avatar_btn, 0, Qt.AlignmentFlag.AlignTop)
+        self.main_layout.addWidget(self.companion_avatar_btn, 0, Qt.AlignmentFlag.AlignBottom)
 
         self.chat_composer_input = ChatComposer()
         self.chat_composer_input.setObjectName("ChatComposerInput")
@@ -1474,7 +1481,7 @@ class OmnibarWindow(QMainWindow):
                 color: #1F1A16;
             }
         """)
-        self.btn_expand.show()
+        self.btn_expand.setVisible(self.debug_ui)
         qb_layout.addWidget(self.btn_expand)
 
         self.btn_surface_menu = QPushButton("⋯", quick_bar)
@@ -1540,9 +1547,10 @@ class OmnibarWindow(QMainWindow):
         """)
         self.chat_composer_send.clicked.connect(self._submit_chat_or_stop)
         qb_layout.addWidget(self.chat_composer_send)
+        self.chat_composer_send.setVisible(self.debug_ui)
+        self.btn_surface_menu.setVisible(self.debug_ui)
 
         self.quick_bar = quick_bar
-        self.container_layout.addWidget(quick_bar, 0)
 
         from rat.ui.work_context import NotebookPane
         self.notebook_pane = NotebookPane(self.assistant_runtime.notebook, container)
@@ -1615,7 +1623,7 @@ class OmnibarWindow(QMainWindow):
             self.chip_buttons.append(chip_btn)
 
         self.container_layout.addWidget(self.quick_suggestions, 0)
-        self.quick_suggestions.show()
+        self.quick_suggestions.setVisible(self.debug_ui)
 
         # File results stay actionable in quick mode rather than behind a chat toggle.
         self.compact_file_list = QListWidget(container)
@@ -1806,6 +1814,7 @@ class OmnibarWindow(QMainWindow):
         self.action_footer = footer
         self.action_footer.hide()
         self.container_layout.addWidget(self.action_footer)
+        self.container_layout.addWidget(quick_bar, 0)
 
         # Hidden Compatibility Buttons
         self.btn_new_chat = QPushButton("⌘N", container)
@@ -1824,7 +1833,7 @@ class OmnibarWindow(QMainWindow):
         screen = self.screen() or QGuiApplication.primaryScreen()
         available = screen.availableGeometry().height() if screen else 900
         if self.is_expanded:
-            room = screen.availableGeometry().bottom() - self.y() - 12 if screen and self.isVisible() else available - 72
+            room = self.geometry().bottom() - screen.availableGeometry().top() - 12 if screen and self.isVisible() else available - 72
             return min(760, max(300, room))
         chrome = self.quick_bar.sizeHint().height() + 50
         minimum = self.companion_avatar_btn.height() + 24 if not self.companion_avatar_btn.isHidden() else 128
@@ -1951,7 +1960,7 @@ class OmnibarWindow(QMainWindow):
         busy = self._pending_chat_query is not None
         updating = self._artifact_worker is not None
         started = not self.chat_stream.is_empty()
-        self.quick_suggestions.setVisible(not started and not busy and not updating and self.current_section_idx == 0)
+        self.quick_suggestions.setVisible(self.debug_ui and not started and not busy and not updating and self.current_section_idx == 0)
         for widget in (self.speech_bubble, self.mascot_peeking, self.compact_cot,
                        self.compact_file_list, self.compact_footer, self.section_bar,
                        self.action_footer, self.hairline_divider):
@@ -1963,6 +1972,9 @@ class OmnibarWindow(QMainWindow):
         self.chat_composer_send.setToolTip('Dừng xử lý' if busy else 'Đang cập nhật kết quả' if updating else 'Gửi · Enter (Shift+Enter xuống dòng)')
         self.chat_composer_send.setAccessibleName('Dừng xử lý' if busy else 'Đang cập nhật kết quả' if updating else 'Gửi yêu cầu')
         self.chat_composer_send.setEnabled(not updating and (busy or bool(self.chat_composer_input.text().strip())))
+        self.chat_composer_send.setVisible(self.debug_ui)
+        self.btn_surface_menu.setVisible(self.debug_ui)
+        self.btn_expand.setVisible(self.debug_ui)
         self.notebook_pane.set_busy(busy or updating)
         self.companion_avatar_btn.setVisible(self.current_section_idx == 0)
         if busy or updating:
@@ -3493,6 +3505,7 @@ class OmnibarWindow(QMainWindow):
                     artifact_refs=art_refs,
                     note_ids=note_ids,
                     reconciliation=getattr(response, "reconciliation", None),
+                    turn_contract=getattr(response, "turn_contract", None),
                 )
             else:
                 self._conversation.add_turn(self._pending_chat_query, answer)
@@ -3596,6 +3609,14 @@ class OmnibarWindow(QMainWindow):
     def _submit_chat_prompt(self, query: str) -> None:
         q = query.strip()
         if not q:
+            return
+        # Control of an active execution is independent of model/domain routing.
+        if self._pending_chat_query is not None and q.casefold().rstrip('.!') in {
+            'dừng', 'dừng lại', 'hủy', 'huỷ', 'stop', 'cancel',
+        }:
+            self._cancel_assistant()
+            if self.chat_composer_input.text().strip() == q:
+                self.chat_composer_input.clear()
             return
         if self._pending_chat_query is not None or self._artifact_worker is not None:
             # Keep a second draft intact rather than interleaving unfinished turns.
@@ -3729,6 +3750,7 @@ class OmnibarWindow(QMainWindow):
                         artifact_refs=art_refs,
                         note_ids=note_ids,
                         reconciliation=rec,
+                        turn_contract=getattr(response, 'turn_contract', None),
                     )
                 else:
                     self._conversation.fail_turn(
@@ -3738,6 +3760,7 @@ class OmnibarWindow(QMainWindow):
                         artifact_refs=art_refs,
                         note_ids=note_ids,
                         reconciliation=rec,
+                        turn_contract=getattr(response, 'turn_contract', None),
                     )
             else:
                 self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query,
@@ -3745,7 +3768,7 @@ class OmnibarWindow(QMainWindow):
             self._pending_chat_query = None
             if response.error == "cancelled":
                 answer = "Đã dừng. Bạn có thể đổi yêu cầu hoặc hỏi tiếp."
-            elif response.error in {"token_budget_exhausted", "step_budget_exhausted", "controller_finish_refused"}:
+            elif response.error in {"token_budget_exhausted", "step_budget_exhausted", "controller_finish_refused", "completion_unresolved"}:
                 answer = ("Mình chưa hoàn tất yêu cầu trong lượt này. Các nguồn đã tìm được vẫn ở bên dưới; bạn có thể hỏi tiếp về một nguồn."
                           if response.sources else "Mình chưa hoàn tất yêu cầu trong lượt này. Bạn có thể thu hẹp yêu cầu hoặc thử lại.")
             elif response.error == "verification_failed":
@@ -3754,9 +3777,12 @@ class OmnibarWindow(QMainWindow):
                 answer = "Mình chưa đối chiếu được kết luận trong lượt này. Bạn có thể ghi rõ biểu thức cần tính hoặc xem các bước kiểm tra."
             else:
                 answer = "Mình chưa trả lời được lượt này. Bạn có thể thử lại hoặc kiểm tra Ollama trong Cài đặt."
+            if response.pending_input_request is not None and not self.debug_ui:
+                answer = response.pending_input_request.prompt
             self.footer_status.setText("Chưa hoàn tất")
         elif response.pending_input_request is not None:
-            answer = ''  # The grounded question is displayed once with its inputs.
+            # The primary path answers in the composer; developer forms are optional.
+            answer = '' if self.debug_ui else (response.answer or response.pending_input_request.prompt)
             if turn_ref is not None:
                 self._conversation.fail_turn(
                     turn_ref.turn_id,
@@ -3765,6 +3791,9 @@ class OmnibarWindow(QMainWindow):
                     artifact_refs=art_refs,
                     note_ids=note_ids,
                     reconciliation=rec,
+                    partial_answer=response.answer or response.pending_input_request.prompt,
+                    task_state=response.task_state if response.task_state_updated else None,
+                    turn_contract=getattr(response, 'turn_contract', None),
                 )
             else:
                 self._conversation.add_attempt(self._pending_chat_query or self._last_assistant_query, 'needs_input')

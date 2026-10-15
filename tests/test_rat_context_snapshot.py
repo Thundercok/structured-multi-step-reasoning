@@ -715,10 +715,10 @@ def test_adversarial_real_typed_cycle_in_notes_is_detected():
         _review_note(id="n1", revision=1, text="Text 1"),
         _review_note(id="n1", revision=2, text="Text 2"),
     ])
-    note1 = next(e for e in snap["entities"] if e["ref"]["revision"] == 1)
-    note2 = next(e for e in snap["entities"] if e["ref"]["revision"] == 2)
-    note1["body"]["replaced_by_text"] = _review_value_ref(note2["ref"], "/text")
-    note2["body"]["replaced_by_text"] = _review_value_ref(note1["ref"], "/text")
+    note1 = next(e for e in snap["entities"] if e["ref"].get("revision") == 1)
+    note2 = next(e for e in snap["entities"] if e["ref"].get("revision") == 2)
+    note1["body"]["replaced_by_text"] = _review_value_ref(note2["ref"], "/replaced_by_text")
+    note2["body"]["replaced_by_text"] = _review_value_ref(note1["ref"], "/replaced_by_text")
 
     valid, errors = validate_context_snapshot(snap)
     assert not valid
@@ -767,12 +767,12 @@ def test_adversarial_independent_source_quote_and_note_quote_exactness():
     valid, errors = validate_context_snapshot(snap)
     assert valid, errors
 
-    ent1 = next(e for e in snap["entities"] if e["ref"]["note_id"] == "n-diff1")
+    ent1 = next(e for e in snap["entities"] if e["ref"].get("note_id") == "n-diff1")
     assert is_value_ref(ent1["body"]["quote"])
     assert not is_value_ref(ent1["body"]["source_ref"]["quote"])
     assert ent1["body"]["source_ref"]["quote"] == "DIFFERING_LITERAL"
 
-    ent2 = next(e for e in snap["entities"] if e["ref"]["note_id"] == "n-diff2")
+    ent2 = next(e for e in snap["entities"] if e["ref"].get("note_id") == "n-diff2")
     assert not is_value_ref(ent2["body"]["quote"])
     assert ent2["body"]["quote"] == "DIFFERING_NOTE_QUOTE"
     assert is_value_ref(ent2["body"]["source_ref"]["quote"])
@@ -883,4 +883,308 @@ def test_adversarial_input_immutability_across_lifecycle():
     assert exact_json_equal(art.to_dict(), orig_art)
     assert exact_json_equal(note_dict, orig_note)
     assert exact_json_equal(task_state, orig_task_state)
+
+
+
+# Independent R3 origin/scope regressions. Wrapper shape in raw output does not
+# grant a second dereference, and current proof eligibility is more than closure.
+@pytest.mark.parametrize("target_present", [True, False])
+@pytest.mark.parametrize("raw_container", ["wrapper", "list"])
+def test_raw_operation_result_root_wrapper_never_extends_typed_chain(target_present, raw_container):
+    ref = {"kind": "artifact", "conversation_id": "review-conv",
+           "artifact_id": "a" if target_present else "missing", "revision": 1}
+    literal = _review_value_ref(ref, "/payload/value")
+    if raw_container == "list":
+        literal = [literal]
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    journal.record_operation("unknown_plugin", {}, literal)
+    snap = _review_snapshot(execution_journal=journal,
+        artifact_store_items=[Artifact("a", "fixture", payload={"value": "RAW_WAS_DECODED"})] if target_present else [])
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+    restored = expand_value_refs(snap["observed_state"]["receipts"][0], snap)
+    assert type(restored["operation_result"]) is type(literal)
+    assert restored["operation_result"] == literal
+
+
+def test_raw_operation_result_root_literal_self_cycle_is_not_a_typed_cycle():
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    receipt = journal.record_operation("unknown_plugin", {}, {})
+    literal = _review_value_ref({"kind": "operation_result", "execution_id": "review-exec",
+                                "receipt_id": receipt.receipt_id}, "")
+    receipt.operation_result = literal
+    snap = _review_snapshot(execution_journal=journal)
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+    restored = expand_value_refs(snap["observed_state"]["receipts"][0], snap)
+    assert restored["operation_result"] == literal
+
+
+def _snapshot_with_current_proof():
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    journal.receipts.append(ReceiptEnvelope(issuer="verification", conversation_id="review-conv",
+        turn_id="review-turn", execution_id="review-exec", generation=0,
+        verification_report={"status": "PASS", "scope": "fixture"}))
+    return _review_snapshot(execution_journal=journal)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("conversation_id", "foreign-conversation"), ("turn_id", "foreign-turn"),
+    ("execution_id", "foreign-execution"), ("generation", 1), ("generation", None),
+    ("committed", False), ("status", "rejected"), ("issuer", "dispatcher"),
+])
+def test_resolving_proof_ref_requires_committed_receipt_in_every_boundary_dimension(field, value):
+    snap = _snapshot_with_current_proof()
+    assert snap["observed_state"]["proof_refs"]
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+    snap["observed_state"]["receipts"][0][field] = value
+    valid, errors = validate_context_snapshot(snap)
+    assert not valid, errors
+    assert any("Current proof ref" in error for error in errors)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("issuer", "unknown_plugin"), ("authority", "observed_operation_result"),
+    ("owner_turn_id", "foreign-turn"),
+])
+def test_resolving_proof_ref_requires_scoped_verifier_entity_authority(field, value):
+    snap = _snapshot_with_current_proof()
+    entity = next(e for e in snap["entities"] if e["ref"]["kind"] == "verification_report")
+    entity[field] = value
+    valid, errors = validate_context_snapshot(snap)
+    assert not valid, errors
+
+
+def test_foreign_proof_entity_cannot_be_promoted_by_adding_its_resolving_ref():
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    journal.receipts.append(ReceiptEnvelope(issuer="verification", conversation_id="review-conv",
+        turn_id="old-turn", execution_id="old-exec", generation=0,
+        verification_report={"status": "PASS", "scope": "fixture"}))
+    snap = _review_snapshot(execution_journal=journal)
+    assert snap["observed_state"]["proof_refs"] == []
+    entity = next(e for e in snap["entities"] if e["ref"]["kind"] == "verification_report")
+    snap["observed_state"]["proof_refs"] = [copy.deepcopy(entity["ref"])]
+    valid, errors = validate_context_snapshot(snap)
+    assert not valid, errors
+
+
+@pytest.mark.parametrize("root_kind", ["note_body", "note_envelope", "receipt", "snapshot"])
+def test_decoder_root_authority_requires_canonical_identity_or_explicit_context(root_kind):
+    art = Artifact("a", "fixture", payload={"value": "CANONICAL_VALUE"})
+    note = _review_note(quote="CANONICAL_VALUE", source="artifact_result", source_ref={
+        "artifact_id": "a", "artifact_revision": 1, "field": "value", "quote": "CANONICAL_VALUE"})
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    journal.record_operation("unknown_plugin", {}, {"value": "OPERATION_VALUE"})
+    snap = _review_snapshot(artifact_store_items=[art], notebook_notes=[note], execution_journal=journal)
+    entity = next(e for e in snap["entities"] if e["ref"]["kind"] == "note_version")
+    roots = {"note_body": (entity["body"], "note_version"), "note_envelope": (entity, "entity"),
+             "receipt": (snap["observed_state"]["receipts"][0], "receipt"), "snapshot": (snap, "snapshot")}
+    canonical, context = roots[root_kind]
+    raw_equal_copy = copy.deepcopy(canonical)
+    # Equal bytes, a root schema label and familiar keys are still raw data.
+    assert expand_value_refs(raw_equal_copy, snap) == raw_equal_copy
+    canonical_restored = expand_value_refs(canonical, snap)
+    explicit_restored = expand_value_refs(raw_equal_copy, snap, root_context=context)
+    assert canonical_restored == explicit_restored
+    assert canonical_restored != raw_equal_copy
+
+
+def test_current_artifact_refs_keep_historical_closure_out_of_current_selection():
+    old = Artifact("a", "fixture", revision=1, payload={"value": "old"})
+    current = Artifact("a", "fixture", revision=2, payload={"value": "current"})
+    current_ref = {"kind": "artifact", "conversation_id": "review-conv", "artifact_id": "a", "revision": 2}
+    snap = _review_snapshot(artifact_store_items=[old, current], current_artifact_refs=[current_ref],
+                           selected_artifact_ids=["a"], selection_set=True)
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+    assert snap["indexes"]["current_results"] == [current_ref]
+    assert snap["indexes"]["selected_results"] == [current_ref]
+    historical_ref = {**current_ref, "revision": 1}
+    assert historical_ref in snap["boundary"]["artifact_pins"]
+    assert historical_ref in snap["indexes"]["previous_sources"]
+    assert any(e["ref"] == historical_ref and e["body"]["payload"]["value"] == "old" for e in snap["entities"])
+
+
+def test_explicit_empty_current_artifact_refs_preserves_history_without_current_results():
+    art = Artifact("a", "fixture", payload={"value": "historical"})
+    snap = _review_snapshot(artifact_store_items=[art], current_artifact_refs=[],
+                           selected_artifact_ids=["a"], selection_set=True)
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+    assert snap["indexes"]["current_results"] == []
+    assert snap["indexes"]["selected_results"] == []
+    assert snap["boundary"]["artifact_pins"]
+
+
+# ---------------------------------------------------------------------------
+# B1 Round 4 Regressions: Strict Typed Origin, Exact Types, and JSON Roundtrips
+# ---------------------------------------------------------------------------
+
+
+def _assert_strict_equal(actual: Any, expected: Any, path: str = "root") -> None:
+    """Recursively assert exact equality including strict Python type equality (e.g. bool != int)."""
+    assert type(actual) is type(expected), f"Type mismatch at {path}: {type(actual)} vs {type(expected)}"
+    if isinstance(actual, dict):
+        assert set(actual.keys()) == set(expected.keys()), f"Key mismatch at {path}: {set(actual.keys())} vs {set(expected.keys())}"
+        for k in actual:
+            _assert_strict_equal(actual[k], expected[k], f"{path}.{k}")
+    elif isinstance(actual, (list, tuple)):
+        assert len(actual) == len(expected), f"Length mismatch at {path}: {len(actual)} vs {len(expected)}"
+        for idx, (a, e) in enumerate(zip(actual, expected)):
+            _assert_strict_equal(a, e, f"{path}[{idx}]")
+    else:
+        assert actual == expected, f"Value mismatch at {path}: {actual!r} vs {expected!r}"
+
+
+@pytest.mark.parametrize("slot", ["operation_result", "note_event", "verification_report"])
+@pytest.mark.parametrize("mode", ["available", "missing", "self_referencing"])
+def test_regression_unprojected_receipt_slots_with_arbitrary_wrappers_stay_literal(slot, mode):
+    """Available, missing, and self-referencing literal wrappers in unprojected slots stay literal without fake cycles."""
+    if mode == "available":
+        target_ref = {"kind": "artifact", "conversation_id": "review-conv", "artifact_id": "avail-art", "revision": 1}
+        literal = {"$value_ref": {"entity_ref": target_ref, "pointer": "/payload/val"}}
+        artifacts = [Artifact("avail-art", "fixture", payload={"val": "CANONICAL_TARGET"})]
+    elif mode == "missing":
+        target_ref = {"kind": "artifact", "conversation_id": "review-conv", "artifact_id": "missing-art", "revision": 1}
+        literal = {"$value_ref": {"entity_ref": target_ref, "pointer": "/payload/val"}}
+        artifacts = []
+    else:  # self_referencing
+        target_ref = {"kind": "operation_result", "execution_id": "review-exec", "receipt_id": "rcpt-self"}
+        literal = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+        artifacts = []
+
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    receipt = journal.record_operation(
+        "custom_op", {}, literal if slot == "operation_result" else {"ok": True},
+        artifact_refs=[{"artifact_id": "unrelated", "revision": 1}] if slot == "operation_result" else None,
+    )
+    if slot != "operation_result":
+        setattr(receipt, slot, copy.deepcopy(literal))
+
+    snap = _review_snapshot(execution_journal=journal, artifact_store_items=artifacts)
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, f"Snapshot must validate cleanly even with raw wrapper in unprojected slot: {errors}"
+
+    rcpt_snap = snap["observed_state"]["receipts"][0]
+    assert slot not in rcpt_snap.get("projected_slots", [])
+    _assert_strict_equal(rcpt_snap[slot], literal)
+
+    # Restored via expand_value_refs on receipt or snapshot remains strictly literal
+    restored_rcpt = expand_value_refs(rcpt_snap, snap)
+    _assert_strict_equal(restored_rcpt[slot], literal)
+
+    restored_snap = expand_value_refs(snap, snap)
+    _assert_strict_equal(restored_snap["observed_state"]["receipts"][0][slot], literal)
+
+
+@pytest.mark.parametrize("value", [
+    True,
+    False,
+    1,
+    0,
+    0.0,
+    3.14159,
+    "",
+    "string value",
+    [],
+    [True, 1, False, 0, None, "nested"],
+    None,
+    {"bool": True, "int": 1, "float": 2.5, "null": None, "sublist": [False, 0]},
+])
+def test_regression_exact_json_types_roundtrip_through_json_serialization(value):
+    """Preserve exact types (bool != int, list, null) across serialization and expansion."""
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    journal.record_operation("type_test_op", {}, copy.deepcopy(value))
+
+    snap = _review_snapshot(execution_journal=journal)
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+
+    # JSON serialization roundtrip
+    serialized = json.dumps(snap)
+    deserialized = json.loads(serialized)
+    valid, errors = validate_context_snapshot(deserialized)
+    assert valid, f"Deserialized snapshot failed validation: {errors}"
+
+    # Expand whole deserialized snapshot
+    expanded_snap = expand_value_refs(deserialized, deserialized, root_context="snapshot")
+    restored_val = expanded_snap["observed_state"]["receipts"][0]["operation_result"]
+    _assert_strict_equal(restored_val, value)
+
+    # Expand individual receipt with explicit root_context
+    deserialized_rcpt = deserialized["observed_state"]["receipts"][0]
+    expanded_rcpt = expand_value_refs(deserialized_rcpt, deserialized, root_context="receipt")
+    _assert_strict_equal(expanded_rcpt["operation_result"], value)
+
+
+def test_regression_pinned_matching_vs_nonmatching_artifact_payload():
+    """Operation result with single artifact pin projects only when payload matches strictly."""
+    art = Artifact("p-art", "fixture", payload={"field": "exact_match", "flag": True})
+    diff_payload = {"field": "different_payload", "flag": True}
+
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    # 1. Matching receipt
+    journal.record_operation("matching_op", {}, copy.deepcopy(art.payload),
+                             artifact_refs=[{"artifact_id": "p-art", "revision": 1}])
+    # 2. Non-matching receipt
+    journal.record_operation("nonmatching_op", {}, copy.deepcopy(diff_payload),
+                             artifact_refs=[{"artifact_id": "p-art", "revision": 1}])
+
+    snap = _review_snapshot(execution_journal=journal, artifact_store_items=[art])
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, errors
+
+    r0 = snap["observed_state"]["receipts"][0]
+    r1 = snap["observed_state"]["receipts"][1]
+
+    # r0 projected to value_ref
+    assert "operation_result" in r0.get("projected_slots", [])
+    assert is_value_ref(r0["operation_result"])
+    assert r0["operation_result"]["$value_ref"]["pointer"] == "/payload"
+
+    # r1 stays raw literal
+    assert "operation_result" not in r1.get("projected_slots", [])
+    _assert_strict_equal(r1["operation_result"], diff_payload)
+
+    # Restored
+    restored0 = expand_value_refs(r0, snap)
+    _assert_strict_equal(restored0["operation_result"], art.payload)
+
+    restored1 = expand_value_refs(r1, snap)
+    _assert_strict_equal(restored1["operation_result"], diff_payload)
+
+
+def test_regression_input_immutability_with_arbitrary_unprojected_receipt_literals():
+    """Ensure caller inputs remain untouched when unprojected slots contain raw wrapper shapes."""
+    literal = {"$value_ref": {"entity_ref": {"kind": "artifact", "conversation_id": "c", "artifact_id": "a", "revision": 1}, "pointer": "/p"}}
+    contract = TurnContract(
+        contract_id="c-immut2", conversation_id="review-conv", turn_id="review-turn", execution_id="review-exec",
+        generation=0, outcomes=[OutcomeSpec("out-1", "registered_effect", "fixture")],
+    )
+    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
+    rcpt = journal.record_operation("custom_op", {"arg": "val"}, copy.deepcopy(literal))
+    rcpt.note_event = copy.deepcopy(literal)
+    rcpt.verification_report = copy.deepcopy(literal)
+    art = Artifact("a", "fixture", payload={"data": "test"})
+    note = _review_note()
+
+    orig_contract = copy.deepcopy(contract.to_dict())
+    orig_receipts = [copy.deepcopy(r.__dict__) for r in journal.receipts]
+    orig_art = copy.deepcopy(art.to_dict())
+    orig_note = copy.deepcopy(note)
+
+    snap = _review_snapshot(
+        turn_contract=contract,
+        execution_journal=journal,
+        artifact_store_items=[art],
+        notebook_notes=[note],
+    )
+    validate_context_snapshot(snap)
+    expand_value_refs(snap, snap)
+
+    _assert_strict_equal(contract.to_dict(), orig_contract)
+    _assert_strict_equal([r.__dict__ for r in journal.receipts], orig_receipts)
+    _assert_strict_equal(art.to_dict(), orig_art)
+    _assert_strict_equal(note, orig_note)
 

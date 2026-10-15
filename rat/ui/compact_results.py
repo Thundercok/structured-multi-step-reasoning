@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QSizePolic
 
 from rat.engine.reranker import SearchResultItem
 from rat.ui.theme import get_ext_badge_info
+from rat.ui.experience import debug_ui_enabled
 
 
 class ElidedLabel(QLabel):
@@ -42,6 +43,7 @@ class CompactFileRow(QFrame):
     def __init__(self, item: SearchResultItem, parent=None):
         super().__init__(parent)
         self.item = item
+        self.debug_ui = debug_ui_enabled()
         self.setObjectName("CompactFileRow")
         self.setFixedHeight(self.ROW_HEIGHT)
         self.setStyleSheet("""
@@ -115,3 +117,22 @@ class CompactFileRow(QFrame):
         for button in (self.btn_preview, self.btn_open, self.btn_reveal):
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             layout.addWidget(button)
+            button.setVisible(self.debug_ui)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setAccessibleName(f"Tệp {item.file_name}")
+        self.setToolTip(f"{item.file_path}\nEnter hoặc nhấn tên tệp để mở")
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(event.position().toPoint()):
+            self.open_requested.emit(self.item)
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Space):
+            self.open_requested.emit(self.item)
+            event.accept()
+            return
+        super().keyPressEvent(event)

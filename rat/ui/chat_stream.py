@@ -38,9 +38,25 @@ from rat.engine.reasoning_trace import ReasoningTrace
 from rat.engine.reranker import SearchResultItem
 from rat.ui.compact_results import CompactFileRow
 from rat.ui.preview_panel import trigger_quicklook
+from rat.ui.experience import debug_ui_enabled
 
 MASCOT_PATH = Path(__file__).resolve().parent.parent / "assets" / "rat_mascot_cutout.png"
 MASCOT_BUST_PATH = Path(__file__).resolve().parent.parent / "assets" / "rat_mascot_bust.png"
+
+
+def _restore_button_label_later(button, text):
+    """A pending copy toast must not touch a destroyed conversation widget."""
+    from PyQt6 import sip
+    timer = QTimer(button)
+    timer.setSingleShot(True)
+
+    def restore():
+        if not sip.isdeleted(button):
+            button.setText(text)
+
+    timer.timeout.connect(restore)
+    timer.timeout.connect(timer.deleteLater)
+    timer.start(1500)
 
 
 def get_mascot_pixmap(w: int, h: int, bust_only: bool = True) -> Optional[QPixmap]:
@@ -251,11 +267,23 @@ class InlineFileCard(CompactFileRow):
 
     def __init__(self, item: SearchResultItem, parent: Optional[QWidget] = None) -> None:
         super().__init__(item, parent)
-        if item.explanation in {"Đã đọc", "Đã tìm thấy"}:
-            self.detail_label.set_full_text(f"{item.explanation} · {Path(item.file_path).parent.name} · {item.file_size_formatted}")
-        self.open_requested.connect(lambda result: open_file_default(result.file_path))
+        self.refresh_item(item)
+        self.open_requested.connect(self._open_file)
         self.reveal_requested.connect(lambda result: reveal_in_finder(result.file_path))
         self.preview_requested.connect(lambda result: trigger_quicklook(result.file_path))
+
+    def refresh_item(self, item):
+        self.item = item
+        self.name_label.set_full_text(item.file_name)
+        self.setAccessibleName(f'Tệp {item.file_name}')
+        self.detail_label.set_full_text(f"{item.explanation} · {Path(item.file_path).parent.name} · {item.file_size_formatted}")
+
+    def _open_file(self, result):
+        # A file can disappear after it was observed. Rendering never opens it.
+        if not Path(result.file_path).is_file() and not self.debug_ui:
+            self.detail_label.set_full_text('Tệp không còn trên máy · yêu cầu Chuột tìm lại')
+            return
+        open_file_default(result.file_path)
 
 
 class TimetableSessionCard(QFrame):
@@ -417,10 +445,13 @@ class TimetableSessionCard(QFrame):
             QApplication.clipboard().setText(copy_text)
             self.btn_copy.setText("✓ Đã chép")
             from PyQt6.QtCore import QTimer
-            QTimer.singleShot(1500, lambda: self.btn_copy.setText("📋 Chép"))
+            _restore_button_label_later(self.btn_copy, "📋 Chép")
 
         self.btn_copy.clicked.connect(_copy_info)
         btn_row.addWidget(self.btn_copy)
+        for button in (self.btn_files, self.btn_copy, getattr(self, 'btn_room', None)):
+            if button is not None:
+                button.setVisible(debug_ui_enabled())
 
         btn_row.addStretch()
         layout.addLayout(btn_row)
@@ -507,6 +538,7 @@ class TimetableDeckWidget(QWidget):
             chip.clicked.connect(lambda _, p=prompt: self.prompt_requested.emit(p))
             self.follow_up_chips.append(chip)
             chips_row.addWidget(chip)
+            chip.setVisible(debug_ui_enabled())
 
         chips_row.addStretch()
         chips_box.addLayout(chips_row)
@@ -542,6 +574,7 @@ class ChatStreamWidget(QScrollArea):
     def __init__(self, user_name: str = "Huy", parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.user_name = user_name
+        self.debug_ui = debug_ui_enabled()
         self._message_count = 0
         self._compact = True
         self._turn_widgets = []
@@ -843,6 +876,10 @@ class ChatStreamWidget(QScrollArea):
                 continue
             items = [TurnNoteItem.from_dict(d) for d in notebook.notes_for_turn(int(tid))]
             handle["turn_notes"].set_notes(items)
+            if not self.debug_ui:
+                # Notes remain readable; edits are requested through the same composer.
+                for button in handle["turn_notes"].findChildren(QPushButton):
+                    button.hide()
 
     def navigate_to_turn_note(self, target_turn_id: int, target_note_id: str) -> None:
         handle = self._turn_handles.get(int(target_turn_id))
@@ -956,14 +993,14 @@ class ChatStreamWidget(QScrollArea):
         status_lbl.hide()
 
         self.update_source_cards(handle, inline_files=inline_files, custom_widget=custom_widget)
-        if retry_prompt:
+        if retry_prompt and self.debug_ui:
             retry = QPushButton("Thử lại")
             retry.setCursor(Qt.CursorShape.PointingHandCursor)
             retry.clicked.connect(lambda: self.prompt_clicked.emit(retry_prompt))
             c_layout.addWidget(retry)
 
         # Insert ThinkingAccordion above ans_lbl if steps provided
-        if reasoning_steps and len(reasoning_steps) > 0 and not handle.get("accordion_added"):
+        if self.debug_ui and reasoning_steps and len(reasoning_steps) > 0 and not handle.get("accordion_added"):
             accordion = ThinkingAccordion(reasoning_steps, latency_ms=latency_ms)
             idx = c_layout.indexOf(ans_lbl)
             c_layout.insertWidget(idx, accordion)
@@ -987,7 +1024,12 @@ class ChatStreamWidget(QScrollArea):
             c_layout.addLayout(c_box)
             handle["citations_added"] = True
 
-        # Copy button footer
+        # Text remains selectable without adding a row of controls to every turn.
+        if not self.debug_ui:
+            self._scroll_to_bottom()
+            return
+
+        # Copy button footer (development UI)
         btn_row = QHBoxLayout()
         btn_row.setSpacing(6)
 
@@ -1015,12 +1057,7 @@ class ChatStreamWidget(QScrollArea):
         def _do_copy():
             QApplication.clipboard().setText(full_text)
             btn_copy.setText("✓ Đã sao chép")
-            from PyQt6.QtCore import QTimer
-            timer = QTimer(btn_copy)
-            timer.setSingleShot(True)
-            timer.timeout.connect(lambda: btn_copy.setText("Sao chép"))
-            timer.timeout.connect(timer.deleteLater)
-            timer.start(1500)
+            _restore_button_label_later(btn_copy, "Sao chép")
 
         btn_copy.clicked.connect(_do_copy)
         btn_row.addWidget(btn_copy)
