@@ -1,0 +1,1 @@
+{"diagnostic_session": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/source-sessions/20261020T073545Z-3bb2dd37", "identity": {"pid": 99554, "executable": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python", "mode": "source", "bundle_id": null, "bundle_path": null, "version": null}}

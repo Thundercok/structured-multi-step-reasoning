@@ -1,0 +1,92 @@
+"""scripts/export_reconciliation_transcripts.py — Export structured test transcripts for Codex review."""
+import json
+import os
+import sys
+
+# Ensure current directory is on PYTHONPATH
+sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, "/tmp/rat_deps")
+
+from tests import test_rat_completion_reconciliation as t
+
+def run_all_fixtures():
+    results = []
+    
+    test_funcs = [
+        ("test_omitted_outcome_model_claims_saved_without_tool_execution", t.test_omitted_outcome_model_claims_saved_without_tool_execution),
+        ("test_wrong_source_producer_consumer_calculate_324_save_126_fails", t.test_wrong_source_producer_consumer_calculate_324_save_126_fails),
+        ("test_cross_execution_receipt_cannot_satisfy_new_mutation", t.test_cross_execution_receipt_cannot_satisfy_new_mutation),
+        ("test_contract_freeze_prevents_downgrade_or_obligation_deletion", t.test_contract_freeze_prevents_downgrade_or_obligation_deletion),
+        ("test_pending_input_reconciles_to_needs_input_and_unresolved", t.test_pending_input_reconciles_to_needs_input_and_unresolved),
+        ("test_cancel_after_calculate_commit_preserves_artifact_and_resumes_in_new_exec", t.test_cancel_after_calculate_commit_preserves_artifact_and_resumes_in_new_exec),
+        ("test_cancel_during_waiting_probe_has_zero_artifacts", t.test_cancel_during_waiting_probe_has_zero_artifacts),
+        ("test_conversational_response_without_tools", t.test_conversational_response_without_tools),
+        ("test_proposed_note_does_not_satisfy_confirmed_obligation", t.test_proposed_note_does_not_satisfy_confirmed_obligation),
+        ("test_note_created_then_removed_in_same_execution_fails_boundary_check", t.test_note_created_then_removed_in_same_execution_fails_boundary_check),
+        ("test_stale_revision_update_is_unmet", t.test_stale_revision_update_is_unmet),
+    ]
+
+    orig_run_turn = t.run_turn
+    orig_reconcile = t.reconcile_turn
+
+    for name, func in test_funcs:
+        captured_turns = []
+        captured_reconciles = []
+
+        def wrapped_run_turn(*args, **kwargs):
+            snap, resp = orig_run_turn(*args, **kwargs)
+            captured_turns.append({
+                "turn_id": snap.turn_id,
+                "execution_id": snap.execution_id,
+                "query": snap.query,
+                "answer": snap.answer,
+                "status": snap.status,
+                "reconciliation_status": snap.reconciliation_status,
+                "reconciliation": resp.reconciliation.to_dict() if resp.reconciliation else None,
+                "unresolved_reasons": (resp.reconciliation.to_dict() if resp.reconciliation else {}).get("unresolved_reasons", []),
+                "artifacts": [
+                    {"id": a.id, "kind": a.kind, "revision": a.revision, "payload": a.payload}
+                    for a in resp.artifacts
+                ],
+                "error": resp.error,
+            })
+            return snap, resp
+
+        def wrapped_reconcile(*args, **kwargs):
+            rec = orig_reconcile(*args, **kwargs)
+            captured_reconciles.append(rec.to_dict())
+            return rec
+
+        t.run_turn = wrapped_run_turn
+        t.reconcile_turn = wrapped_reconcile
+
+        try:
+            func()
+            passed = True
+            error_msg = None
+        except Exception as e:
+            passed = False
+            error_msg = str(e)
+
+        results.append({
+            "fixture_id": name,
+            "passed": passed,
+            "error": error_msg,
+            "turns": captured_turns,
+            "standalone_reconciliations": captured_reconciles,
+        })
+
+    # Restore originals
+    t.run_turn = orig_run_turn
+    t.reconcile_turn = orig_reconcile
+
+    os.makedirs("audit/rat_core_reconciliation_20261013/transcripts", exist_ok=True)
+    out_path = "audit/rat_core_reconciliation_20261013/transcripts/fixture_transcripts.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+    print(f"Exported {len(results)} fixture transcripts to {out_path}")
+    all_passed = all(r["passed"] for r in results)
+    print(f"All fixtures passed assertions: {all_passed}")
+
+if __name__ == "__main__":
+    run_all_fixtures()

@@ -56,7 +56,8 @@ class SettingsDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None, on_settings_changed=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Cài đặt 'rat' — Trợ lý Tìm kiếm Tệp tin")
-        self.setFixedSize(560, 700)
+        self.resize(560, 760)
+        self.setMinimumWidth(500)
         self.on_settings_changed = on_settings_changed
         self.indexer = Indexer()
         self._init_ui()
@@ -246,6 +247,32 @@ class SettingsDialog(QDialog):
 
         layout.addWidget(slm_group)
 
+        # 4.5 Native Document Model Group (Offline MLX)
+        native_group = QGroupBox("📄 Mô hình Hỏi tệp Native (MLX offline)")
+        native_layout = QVBoxLayout(native_group)
+        native_layout.setSpacing(6)
+
+        path_row = QHBoxLayout()
+        self.input_doc_model_path = QLineEdit()
+        self.input_doc_model_path.setPlaceholderText("Đường dẫn thư mục model MLX cục bộ")
+        self.input_doc_model_path.setText(config.document_model_path or "")
+        path_row.addWidget(self.input_doc_model_path)
+
+        self.btn_browse_doc_model = QPushButton("Chọn…")
+        self.btn_browse_doc_model.clicked.connect(self._browse_doc_model)
+        path_row.addWidget(self.btn_browse_doc_model)
+        native_layout.addLayout(path_row)
+
+        self.chk_doc_model_preload = QCheckBox("Tải trước mô hình khi khởi động (Preload weights)")
+        self.chk_doc_model_preload.setChecked(config.document_model_preload)
+        native_layout.addWidget(self.chk_doc_model_preload)
+
+        native_note = QLabel("ℹ️ Áp dụng từ lần khởi động tiếp theo. Yêu cầu thư mục model MLX chứa config.json, tokenizer.json và safetensors.")
+        native_note.setStyleSheet("color: #71717a; font-size: 11px;")
+        native_layout.addWidget(native_note)
+
+        layout.addWidget(native_group)
+
         # 5. LLM API Keys Group (Optional Cloud)
         llm_group = QGroupBox("☁️ Cloud AI / LLM (Tùy chọn)")
         llm_layout = QFormLayout(llm_group)
@@ -297,6 +324,11 @@ class SettingsDialog(QDialog):
         if folder and folder not in [self.folder_list.item(i).text() for i in range(self.folder_list.count())]:
             self.folder_list.addItem(folder)
 
+    def _browse_doc_model(self) -> None:
+        folder = QFileDialog.getExistingDirectory(self, "Chọn thư mục model MLX cục bộ")
+        if folder:
+            self.input_doc_model_path.setText(folder)
+
     def _remove_folder(self) -> None:
         row = self.folder_list.currentRow()
         if row >= 0:
@@ -338,6 +370,8 @@ class SettingsDialog(QDialog):
         config.auto_watch = self.chk_autowatch.isChecked()
         config.use_slm = self.chk_slm.isChecked()
         config.assistant_model = self.combo_assistant.currentData() or ""
+        config.document_model_path = self.input_doc_model_path.text().strip()
+        config.document_model_preload = self.chk_doc_model_preload.isChecked()
 
         # Update global hotkey if changed
         chosen_hotkey = self.combo_hotkey.currentData()

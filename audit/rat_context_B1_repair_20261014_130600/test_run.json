@@ -1,0 +1,112 @@
+{
+  "timestamp": "2026-10-14T13:06:00+07:00",
+  "all_passed": true,
+  "changed_during_tests": [],
+  "suites": [
+    {
+      "suite": "test_rat_context_snapshot",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "tests/test_rat_context_snapshot.py",
+        "-p",
+        "no:cacheprovider",
+        "-v"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.738,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3\nrootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, timeout-2.4.0\ncollecting ... collected 29 items\n\ntests/test_rat_context_snapshot.py::test_schema_loads_and_design_fixtures_validate_cleanly PASSED [  3%]\ntests/test_rat_context_snapshot.py::test_lossless_reconstruction_of_after_fixture_entities PASSED [  6%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_eligible_contract_evaluation PASSED [ 10%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[empty] PASSED [ 13%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[invalid_coverage] PASSED [ 17%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[dependency_cycle] PASSED [ 20%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[none_contract] PASSED [ 24%]\ntests/test_rat_context_snapshot.py::test_distinct_authority_and_provenance PASSED [ 27%]\ntests/test_rat_context_snapshot.py::test_operation_without_artifact_does_not_invent_fake_artifact_id PASSED [ 31%]\ntests/test_rat_context_snapshot.py::test_security_guard_untrusted_fake_value_ref_is_not_expanded PASSED [ 34%]\ntests/test_rat_context_snapshot.py::test_coherence_epochs_and_selection_set_distinction PASSED [ 37%]\ntests/test_rat_context_snapshot.py::test_full_note_text_retention_across_revisions PASSED [ 41%]\ntests/test_rat_context_snapshot.py::test_view_planner_and_repair_semantics PASSED [ 44%]\ntests/test_rat_context_snapshot.py::test_rfc6901_pointer_edge_cases PASSED [ 48%]\ntests/test_rat_context_snapshot.py::test_raw_nested_quote_key_never_authorizes_value_ref_decode[proposal] PASSED [ 51%]\ntests/test_rat_context_snapshot.py::test_raw_nested_quote_key_never_authorizes_value_ref_decode[runtime_obligations] PASSED [ 55%]\ntests/test_rat_context_snapshot.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[42] PASSED [ 58%]\ntests/test_rat_context_snapshot.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[result1] PASSED [ 62%]\ntests/test_rat_context_snapshot.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[False] PASSED [ 65%]\ntests/test_rat_context_snapshot.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[scalar] PASSED [ 68%]\ntests/test_rat_context_snapshot.py::test_unknown_result_note_shaped_payload_is_preserved_verbatim PASSED [ 72%]\ntests/test_rat_context_snapshot.py::test_quote_projection_preserves_exact_string_and_type[42-42] PASSED [ 75%]\ntests/test_rat_context_snapshot.py::test_quote_projection_preserves_exact_string_and_type[ source text -source text] PASSED [ 79%]\ntests/test_rat_context_snapshot.py::test_artifact_projection_retains_status_provenance_and_timestamp PASSED [ 82%]\ntests/test_rat_context_snapshot.py::test_canonical_invalid_dict_cannot_be_reparsed_into_met_progress PASSED [ 86%]\ntests/test_rat_context_snapshot.py::test_foreign_execution_proof_is_not_current_proof PASSED [ 89%]\ntests/test_rat_context_snapshot.py::test_missing_typed_index_ref_requires_explicit_unavailable PASSED [ 93%]\ntests/test_rat_context_snapshot.py::test_duplicate_entity_identity_with_conflicting_bodies_is_rejected PASSED [ 96%]\ntests/test_rat_context_snapshot.py::test_cycle_in_projection_quote_refs_is_rejected_before_expansion PASSED [100%]\n\n============================== 29 passed in 1.82s ==============================",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "test_rat_context_audit",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "tests/test_rat_context_audit.py",
+        "-p",
+        "no:cacheprovider",
+        "-v"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.766,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3\nrootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, timeout-2.4.0\ncollecting ... collected 6 items\n\ntests/test_rat_context_audit.py::test_request_partition_accounts_for_multibyte_json_and_overhead PASSED [ 16%]\ntests/test_rat_context_audit.py::test_task_state_duplicate_requires_equal_structured_value[True] PASSED [ 33%]\ntests/test_rat_context_audit.py::test_task_state_duplicate_requires_equal_structured_value[False] PASSED [ 50%]\ntests/test_rat_context_audit.py::test_same_note_text_at_distinct_locations_is_not_marked_safe_to_remove PASSED [ 66%]\ntests/test_rat_context_audit.py::test_cli_rejects_existing_output_before_running_fixtures PASSED [ 83%]\ntests/test_rat_context_audit.py::test_native_mock_capture_restores_runtime_and_keeps_unmeasured_metrics_unknown PASSED [100%]\n\n============================== 6 passed in 0.29s ===============================",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "codex_review_probes",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py",
+        "-p",
+        "no:cacheprovider",
+        "-v"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.972,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3\nrootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, timeout-2.4.0\ncollecting ... collected 15 items\n\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_raw_nested_quote_key_never_authorizes_value_ref_decode[proposal] PASSED [  6%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_raw_nested_quote_key_never_authorizes_value_ref_decode[runtime_obligations] PASSED [ 13%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[42] PASSED [ 20%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[result1] PASSED [ 26%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[False] PASSED [ 33%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_no_artifact_operation_result_roundtrip_preserves_json_type[scalar] PASSED [ 40%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_unknown_result_note_shaped_payload_is_preserved_verbatim PASSED [ 46%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_quote_projection_preserves_exact_string_and_type[42-42] PASSED [ 53%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_quote_projection_preserves_exact_string_and_type[ source text -source text] PASSED [ 60%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_artifact_projection_retains_status_provenance_and_timestamp PASSED [ 66%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_canonical_invalid_dict_cannot_be_reparsed_into_met_progress PASSED [ 73%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_foreign_execution_proof_is_not_current_proof PASSED [ 80%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_missing_typed_index_ref_requires_explicit_unavailable PASSED [ 86%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_duplicate_entity_identity_with_conflicting_bodies_is_rejected PASSED [ 93%]\naudit/rat_context_B1_codex_review_20261014_123157/review_probes.py::test_cycle_in_projection_quote_refs_is_rejected_before_expansion PASSED [100%]\n\n============================== 15 passed in 1.28s ==============================",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "test_artifact_store_lifecycle",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "tests/test_artifact_store_lifecycle.py",
+        "-p",
+        "no:cacheprovider",
+        "-v"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.634,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3\nrootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, timeout-2.4.0\ncollecting ... collected 19 items\n\ntests/test_artifact_store_lifecycle.py::test_deleted_revision_cannot_alias_recreated_body PASSED [  5%]\ntests/test_artifact_store_lifecycle.py::test_stale_update_cannot_resurrect_or_overwrite_deleted_target[False] PASSED [ 10%]\ntests/test_artifact_store_lifecycle.py::test_stale_update_cannot_resurrect_or_overwrite_deleted_target[True] PASSED [ 15%]\ntests/test_artifact_store_lifecycle.py::test_generation_then_target_revision_then_high_water_error_priority[1-1-cancelled:conversation_reset] PASSED [ 21%]\ntests/test_artifact_store_lifecycle.py::test_generation_then_target_revision_then_high_water_error_priority[0-1-stale_revision] PASSED [ 26%]\ntests/test_artifact_store_lifecycle.py::test_generation_then_target_revision_then_high_water_error_priority[0-2-non_monotonic_revision] PASSED [ 31%]\ntests/test_artifact_store_lifecycle.py::test_rejected_put_does_not_evict_live_body_or_consume_revision[9-guards0-cancelled:conversation_reset] PASSED [ 36%]\ntests/test_artifact_store_lifecycle.py::test_rejected_put_does_not_evict_live_body_or_consume_revision[9-guards1-stale_revision] PASSED [ 42%]\ntests/test_artifact_store_lifecycle.py::test_rejected_put_does_not_evict_live_body_or_consume_revision[1-guards2-non_monotonic_revision] PASSED [ 47%]\ntests/test_artifact_store_lifecycle.py::test_copy_failure_happens_before_eviction_or_high_water_mutation PASSED [ 52%]\ntests/test_artifact_store_lifecycle.py::test_capacity_eviction_preserves_revision_high_water PASSED [ 57%]\ntests/test_artifact_store_lifecycle.py::test_clear_starts_fresh_revisions_but_rejects_old_generation_guards PASSED [ 63%]\ntests/test_artifact_store_lifecycle.py::test_revision_suggestions_do_not_reserve_or_silently_bump_conflicting_writes PASSED [ 68%]\ntests/test_artifact_store_lifecycle.py::test_default_input_request_continues_then_closes_and_new_request_is_fresh PASSED [ 73%]\ntests/test_artifact_store_lifecycle.py::test_explicit_input_request_id_recreate_uses_next_committed_revision PASSED [ 78%]\ntests/test_artifact_store_lifecycle.py::test_waiting_request_eviction_does_not_reset_its_revision PASSED [ 84%]\ntests/test_artifact_store_lifecycle.py::test_clear_between_waiting_allocation_and_put_rejects_old_epoch PASSED [ 89%]\ntests/test_artifact_store_lifecycle.py::test_old_versioned_action_cannot_target_recreated_artifact PASSED [ 94%]\ntests/test_artifact_store_lifecycle.py::test_history_trimming_and_copy_isolation_preserve_lifecycle_identity PASSED [100%]\n\n============================== 19 passed in 0.19s ==============================",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "core_reconciliation_regressions",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "audit/rat_reconciliation_codex_review_20261013/contract_probes.py",
+        "audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py",
+        "tests/test_rat_completion_boundaries.py",
+        "tests/test_rat_completion_reconciliation.py",
+        "tests/test_rat_note_source_verification.py",
+        "tests/test_rat_smoke_harness.py",
+        "tests/test_rat_verification_literal_guard.py",
+        "tests/test_rat_conversation_lifecycle.py",
+        "tests/test_rat_calculation_conversation.py",
+        "tests/test_work_context.py",
+        "tests/test_rat_chat_session.py",
+        "tests/test_assistant_runtime.py",
+        "tests/test_rat_task_memory.py",
+        "tests/test_research_study.py",
+        "test_optimal_stopping.py",
+        "test_entry_predictor.py",
+        "tests/test_interaction_kernel.py",
+        "tests/test_interaction_kernel_regressions.py",
+        "tests/test_rat_verification.py",
+        "tests/test_vgc_verification.py",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "--tb=short"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 7.908,
+      "stdout": "........................................................................ [ 24%]\n........................................................................ [ 49%]\n........................................................................ [ 73%]\n........................................................................ [ 98%]\n....                                                                     [100%]\n292 passed in 6.72s",
+      "stderr": "",
+      "passed": true
+    }
+  ]
+}

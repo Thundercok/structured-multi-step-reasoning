@@ -16,6 +16,11 @@ watchdog>=4.0.0
 fastembed>=0.3.0
 numpy>=1.24.0
 
+# Shared reasoning imports used by the desktop runtime as well as research.
+scikit-learn>=1.3
+gymnasium>=0.29
+scipy>=1.10
+
 # Document & Content Parsing
 ./document_intake
 pypdf>=4.0.0

@@ -1,0 +1,149 @@
+Command:
+PYTHONDONTWRITEBYTECODE=1 /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest audit/rat_reconciliation_codex_review_20261013/contract_probes.py -p no:cacheprovider -q --tb=short
+
+Exit code: 1
+FFFFFFFFFFFFFFFFFFF                                                      [100%]
+=================================== FAILURES ===================================
+_______________ test_native_planner_schema_can_express_outcomes ________________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:46: in test_native_planner_schema_can_express_outcomes
+    assert "outcomes" in schema["properties"], "Native planning schema excludes the declared contract"
+E   AssertionError: Native planning schema excludes the declared contract
+E   assert 'outcomes' in {'completed': {'items': {'maxLength': 300, 'type': 'string'}, 'maxItems': 0, 'type': 'array'}, 'constraints': {'items'...type': 'string'}, 'known_facts': {'items': {'maxLength': 500, 'type': 'string'}, 'maxItems': 12, 'type': 'array'}, ...}
+_________ test_native_planner_outcomes_are_not_rejected_as_task_state __________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:61: in test_native_planner_outcomes_are_not_rejected_as_task_state
+    assert result.error is None, result.error
+E   AssertionError: task_plan_failed:invalid_object:arguments
+E   assert 'task_plan_failed:invalid_object:arguments' is None
+E    +  where 'task_plan_failed:invalid_object:arguments' = AgentResponse(answer='', steps=[AgentStep(step_number=1, thought='', tool_name=None, tool_args=None, tool_result=None,...t does not prove unverified prose assertions.', summary='Thực thi gặp lỗi: task_plan_failed:invalid_object:arguments')).error
+___________ test_correct_producer_consumer_source_satisfies_contract ___________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:80: in test_correct_producer_consumer_source_satisfies_contract
+    assert result.reconciliation.declared_scope_completion == "satisfied", result.reconciliation.to_dict()
+E   AssertionError: {'contract_id': 'contract-febd58233b15', 'declared_scope_completion': 'partial', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'partial' == 'satisfied'
+E     
+E     - satisfied
+E     + partial
+________________ test_freeze_prevents_mutating_existing_outcome ________________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:87: in test_freeze_prevents_mutating_existing_outcome
+    with pytest.raises((RuntimeError, AttributeError, TypeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'AttributeError'>, <class 'TypeError'>)
+__________________ test_freeze_prevents_deleting_obligations ___________________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:95: in test_freeze_prevents_deleting_obligations
+    with pytest.raises((RuntimeError, AttributeError, TypeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'AttributeError'>, <class 'TypeError'>)
+_______________ test_journal_snapshots_args_and_result_at_commit _______________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:104: in test_journal_snapshots_args_and_result_at_commit
+    assert receipt.operation_args == {"expression": "18 * 7"}
+E   AssertionError: assert {'expression': '18 * 9'} == {'expression': '18 * 7'}
+E     
+E     Differing items:
+E     {'expression': '18 * 9'} != {'expression': '18 * 7'}
+E     Use -v to get more diff
+___________ test_empty_or_invalid_contract_cannot_be_satisfied[raw0] ___________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:116: in test_empty_or_invalid_contract_cannot_be_satisfied
+    assert result.reconciliation.declared_scope_completion != "satisfied", result.reconciliation.to_dict()
+E   AssertionError: {'contract_id': 'contract-fcc8f0f86729', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-fcc8f0f86729', lifecycle='completed', intent_coverage='model_proposed', decla...fects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-fcc8f0f86729', lifecycle='completed', intent_coverage='model_proposed', decla...fects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.') = AgentResponse(answer='Đã làm', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thông tin hiện có', tool_n...ects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.')).reconciliation
+___________ test_empty_or_invalid_contract_cannot_be_satisfied[raw1] ___________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:116: in test_empty_or_invalid_contract_cannot_be_satisfied
+    assert result.reconciliation.declared_scope_completion != "satisfied", result.reconciliation.to_dict()
+E   AssertionError: {'contract_id': 'contract-59a30493a239', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-59a30493a239', lifecycle='completed', intent_coverage='model_proposed', decla...fects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-59a30493a239', lifecycle='completed', intent_coverage='model_proposed', decla...fects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.') = AgentResponse(answer='Đã làm', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thông tin hiện có', tool_n...ects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.')).reconciliation
+___________ test_empty_or_invalid_contract_cannot_be_satisfied[raw2] ___________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:116: in test_empty_or_invalid_contract_cannot_be_satisfied
+    assert result.reconciliation.declared_scope_completion != "satisfied", result.reconciliation.to_dict()
+E   AssertionError: {'contract_id': 'contract-9bd0a64be331', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-9bd0a64be331', lifecycle='completed', intent_coverage='model_proposed', decla...fects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-9bd0a64be331', lifecycle='completed', intent_coverage='model_proposed', decla...fects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.') = AgentResponse(answer='Đã làm', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thông tin hiện có', tool_n...ects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.')).reconciliation
+__ test_missing_declared_response_cannot_be_satisfied_with_successful_effect ___
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:127: in test_missing_declared_response_cannot_be_satisfied_with_successful_effect
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-02503e327a5b', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-02503e327a5b', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+________________ test_generic_effect_must_match_target_revision ________________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:137: in test_generic_effect_must_match_target_revision
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-0bb32e217990', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-0bb32e217990', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+_______________ test_generic_effect_cannot_skip_a_required_proof _______________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:147: in test_generic_effect_cannot_skip_a_required_proof
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-961e6b7deda0', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-961e6b7deda0', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+__________ test_one_calculation_cannot_satisfy_two_distinct_producers __________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:158: in test_one_calculation_cannot_satisfy_two_distinct_producers
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-84e5bc6e0896', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-84e5bc6e0896', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+____________ test_calculation_proof_must_belong_to_matched_receipt _____________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:172: in test_calculation_proof_must_belong_to_matched_receipt
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-618bd8659beb', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-618bd8659beb', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+_____________ test_unknown_dependency_cannot_be_silently_satisfied _____________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:182: in test_unknown_dependency_cannot_be_silently_satisfied
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-513a7c64bc84', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-513a7c64bc84', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+________ test_receipt_scope_must_match_conversation_turn_and_generation ________
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:192: in test_receipt_scope_must_match_conversation_turn_and_generation
+    assert result.declared_scope_completion != "satisfied", result.to_dict()
+E   AssertionError: {'contract_id': 'contract-b83bc4c64c18', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-b83bc4c64c18', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+____ test_terminal_note_revision_cannot_reuse_an_earlier_confirmed_version _____
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:210: in test_terminal_note_revision_cannot_reuse_an_earlier_confirmed_version
+    assert result.reconciliation.declared_scope_completion != "satisfied", result.reconciliation.to_dict()
+E   AssertionError: {'contract_id': 'contract-0a639faa7569', 'declared_scope_completion': 'satisfied', 'intent_coverage': 'model_proposed', 'lifecycle': 'completed', ...}
+E   assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-0a639faa7569', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-0a639faa7569', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.') = AgentResponse(answer='Đã ghi', steps=[AgentStep(step_number=1, thought='Đang ghi lại điều bạn dặn', tool_name='record_...not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.')).reconciliation
+______ test_cancel_after_commit_retains_matched_effect_in_reconciliation _______
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:227: in test_cancel_after_commit_retains_matched_effect_in_reconciliation
+    assert result.reconciliation.matched_receipts, result.reconciliation.to_dict()
+E   AssertionError: {'contract_id': 'contract-bb1cc98e48c8', 'declared_scope_completion': 'unresolved', 'intent_coverage': 'model_proposed', 'lifecycle': 'cancelled', ...}
+E   assert []
+E    +  where [] = TurnReconciliation(contract_id='contract-bb1cc98e48c8', lifecycle='cancelled', intent_coverage='model_proposed', decla...oofs, but does not prove unverified prose assertions.', summary='Lượt bị dừng; các công việc đã khai chưa hoàn thành.').matched_receipts
+E    +    where TurnReconciliation(contract_id='contract-bb1cc98e48c8', lifecycle='cancelled', intent_coverage='model_proposed', decla...oofs, but does not prove unverified prose assertions.', summary='Lượt bị dừng; các công việc đã khai chưa hoàn thành.') = AgentResponse(answer='', steps=[AgentStep(step_number=1, thought='Đang tính', tool_name='calculate', tool_args={'expre...ofs, but does not prove unverified prose assertions.', summary='Lượt bị dừng; các công việc đã khai chưa hoàn thành.')).reconciliation
+_ test_returned_response_preserves_authoritative_journal_and_contract_for_audit _
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py:235: in test_returned_response_preserves_authoritative_journal_and_contract_for_audit
+    assert getattr(result, "execution_journal", None) is not None
+E   AssertionError: assert None is not None
+E    +  where None = getattr(AgentResponse(answer='Xin chào', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thông tin hiện có', tool...ects and scoped proofs, but does not prove unverified prose assertions.', summary='Đã hoàn thành phản hồi hội thoại.')), 'execution_journal', None)
+=========================== short test summary info ============================
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_native_planner_schema_can_express_outcomes
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_native_planner_outcomes_are_not_rejected_as_task_state
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_correct_producer_consumer_source_satisfies_contract
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_freeze_prevents_mutating_existing_outcome
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_freeze_prevents_deleting_obligations
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_journal_snapshots_args_and_result_at_commit
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_empty_or_invalid_contract_cannot_be_satisfied[raw0]
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_empty_or_invalid_contract_cannot_be_satisfied[raw1]
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_empty_or_invalid_contract_cannot_be_satisfied[raw2]
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_missing_declared_response_cannot_be_satisfied_with_successful_effect
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_generic_effect_must_match_target_revision
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_generic_effect_cannot_skip_a_required_proof
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_one_calculation_cannot_satisfy_two_distinct_producers
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_calculation_proof_must_belong_to_matched_receipt
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_unknown_dependency_cannot_be_silently_satisfied
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_receipt_scope_must_match_conversation_turn_and_generation
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_terminal_note_revision_cannot_reuse_an_earlier_confirmed_version
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_cancel_after_commit_retains_matched_effect_in_reconciliation
+FAILED audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_returned_response_preserves_authoritative_journal_and_contract_for_audit
+19 failed in 1.25s
+
+These expected failures reproduce unmet reviewed contract requirements with injected/fake decisions.
+They are not nineteen independent model-quality measurements.

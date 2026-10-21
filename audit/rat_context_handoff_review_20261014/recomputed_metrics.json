@@ -1,0 +1,106 @@
+{
+  "counts": [
+    12,
+    20,
+    41
+  ],
+  "mean_tools_percent_per_call": 58.71641038795405,
+  "ratio_tools_chars_to_total_chars_percent": 53.25603213070409,
+  "range_tools_percent": [
+    25.23772363363103,
+    75.06232270265623
+  ],
+  "C01_actor_calls": [
+    {
+      "turn": "turn-1",
+      "actor_calls": [
+        {
+          "call_index": 25,
+          "chars": 12509,
+          "utf8_bytes": 12583
+        },
+        {
+          "call_index": 26,
+          "chars": 13666,
+          "utf8_bytes": 13754
+        }
+      ]
+    },
+    {
+      "turn": "turn-2",
+      "actor_calls": [
+        {
+          "call_index": 28,
+          "chars": 15313,
+          "utf8_bytes": 15589
+        },
+        {
+          "call_index": 29,
+          "chars": 16704,
+          "utf8_bytes": 17061
+        }
+      ]
+    },
+    {
+      "turn": "turn-3",
+      "actor_calls": [
+        {
+          "call_index": 31,
+          "chars": 17745,
+          "utf8_bytes": 18177
+        }
+      ]
+    },
+    {
+      "turn": "turn-4",
+      "actor_calls": [
+        {
+          "call_index": 33,
+          "chars": 19216,
+          "utf8_bytes": 19802
+        },
+        {
+          "call_index": 34,
+          "chars": 24903,
+          "utf8_bytes": 26291
+        }
+      ]
+    },
+    {
+      "turn": "turn-5",
+      "actor_calls": [
+        {
+          "call_index": 36,
+          "chars": 25840,
+          "utf8_bytes": 27263
+        },
+        {
+          "call_index": 37,
+          "chars": 32171,
+          "utf8_bytes": 34587
+        }
+      ]
+    },
+    {
+      "turn": "turn-6",
+      "actor_calls": [
+        {
+          "call_index": 39,
+          "chars": 33051,
+          "utf8_bytes": 35502
+        }
+      ]
+    },
+    {
+      "turn": "turn-7",
+      "actor_calls": [
+        {
+          "call_index": 41,
+          "chars": 34599,
+          "utf8_bytes": 37253
+        }
+      ]
+    }
+  ],
+  "scope": "existing_mock_port_capture_only; no re-collection or inference"
+}

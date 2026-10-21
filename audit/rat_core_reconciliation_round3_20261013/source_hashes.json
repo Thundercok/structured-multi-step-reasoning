@@ -1,0 +1,30 @@
+{
+  "source_sha256_start": {
+    "rat/engine/completion.py": "0514a0b9384cfa596b5e1fbf6b2799838c5d8476216dd853e8bf18f5843af556",
+    "rat/engine/assistant_runtime.py": "725e77037d6791401c2299071b973af6cebaacbc8dba916d3114a0d145eb1be2",
+    "rat/ui/chat_session.py": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "rat/ui/omnibar.py": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "tests/test_rat_completion_reconciliation.py": "2a95d69e2ed527f6c8f493b150053b3712e4707d3f56280cb72f788c053c00d9",
+    "tests/test_rat_calculation_conversation.py": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "tests/test_rat_task_memory.py": "f5745e4309f95dd8e9c3c071d953d7f4728450da1a276d90e21c6f648eac34b0",
+    "scripts/export_reconciliation_transcripts.py": "2da1a0e186240efbc41ba855ca740d455bbee8a9108dc225719de52dd90f979c"
+  },
+  "source_sha256_finish": {
+    "rat/engine/completion.py": "0514a0b9384cfa596b5e1fbf6b2799838c5d8476216dd853e8bf18f5843af556",
+    "rat/engine/assistant_runtime.py": "725e77037d6791401c2299071b973af6cebaacbc8dba916d3114a0d145eb1be2",
+    "rat/ui/chat_session.py": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "rat/ui/omnibar.py": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "tests/test_rat_completion_reconciliation.py": "2a95d69e2ed527f6c8f493b150053b3712e4707d3f56280cb72f788c053c00d9",
+    "tests/test_rat_calculation_conversation.py": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "tests/test_rat_task_memory.py": "f5745e4309f95dd8e9c3c071d953d7f4728450da1a276d90e21c6f648eac34b0",
+    "scripts/export_reconciliation_transcripts.py": "2da1a0e186240efbc41ba855ca740d455bbee8a9108dc225719de52dd90f979c"
+  },
+  "source_changed_during_tests": [],
+  "round2_manifest_discrepancy_resolved": {
+    "path": "scripts/export_reconciliation_transcripts.py",
+    "round2_claimed_sha256": "7d929b9f71c4c81048a1c8b36873c33379ec885c30b200b2cb9e8674516ff25d",
+    "round2_observed_sha256": "2836566812303f91ee6da8c9ccd03d151557f620e9ade07b17377b9802f32f32",
+    "current_sha256": "2da1a0e186240efbc41ba855ca740d455bbee8a9108dc225719de52dd90f979c",
+    "resolution_note": "In Round 2, the manifest claimed hash was recorded from a dirty draft while the actual file was at 28365... In Round 3, scripts/export_reconciliation_transcripts.py was updated with pre-fixture exists guard and both claimed/observed hashes are now aligned at 2da1a..."
+  }
+}

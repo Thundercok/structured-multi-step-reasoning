@@ -2,37 +2,58 @@
 # ==============================================================================
 # scripts/build_app.sh — 1-Click Standalone Build Script for rat.app & rat.dmg
 # ==============================================================================
-set -e
+set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_DIR"
+
+BUILD_MODE="${1:-}"
+case "$BUILD_MODE" in
+    ""|--check|--dmg-only) ;;
+    --help|-h) echo "Usage: scripts/build_app.sh [--check|--dmg-only]"; exit 0 ;;
+    *) echo "Unknown option: $BUILD_MODE" >&2; exit 2 ;;
+esac
+
+# Choose an interpreter and check prerequisites before touching previous outputs.
+if [ -z "${PYTHON_BIN:-}" ]; then
+    if [ -x "$PROJECT_DIR/.venv/bin/python" ]; then
+        PYTHON_BIN="$PROJECT_DIR/.venv/bin/python"
+    else
+        PYTHON_BIN="python3"
+    fi
+fi
+if [ "$BUILD_MODE" == "--check" ]; then
+    exec "$PYTHON_BIN" scripts/check_packaging.py --probe-qt
+fi
+if [ "$(uname -s)" != "Darwin" ]; then
+    echo "The app/DMG build requires macOS. Use --check for offline preflight." >&2
+    exit 1
+fi
+if [ "$BUILD_MODE" == "--dmg-only" ]; then
+    if [ ! -d "dist/rat.app" ]; then
+        echo "--dmg-only requires an existing dist/rat.app." >&2
+        exit 1
+    fi
+else
+    "$PYTHON_BIN" scripts/check_packaging.py --probe-qt
+fi
 
 echo "================================================================="
 echo "  🚀 Starting 1-Click Standalone Build for rat on macOS"
 echo "================================================================="
 
 # 1. Clean previous build artifacts (unless --dmg-only is specified)
-if [ "$1" == "--dmg-only" ] && [ -d "dist/rat.app" ]; then
+if [ "$BUILD_MODE" == "--dmg-only" ]; then
     echo "⏩ --dmg-only specified and dist/rat.app exists. Skipping rebuild, creating DMG directly..."
-    rm -rf dmg_temp dist/*.dmg
+    rm -rf dmg_temp dist/rat.dmg
 else
     echo "🧹 Cleaning previous build artifacts..."
-    rm -rf build dist dmg_temp *.dmg
+    rm -rf build/rat dist/rat dist/rat.app dmg_temp dist/rat.dmg
 fi
 
-# Detect Python environment with PyInstaller installed
-if [ -z "$PYTHON_BIN" ]; then
-    if /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m PyInstaller --version &> /dev/null; then
-        PYTHON_BIN="/Library/Frameworks/Python.framework/Versions/3.12/bin/python3"
-    elif python3 -m PyInstaller --version &> /dev/null; then
-        PYTHON_BIN="python3"
-    else
-        PYTHON_BIN="python3"
-    fi
-fi
 echo "🐍 Using Python: $PYTHON_BIN"
 
-if [ "$1" != "--dmg-only" ]; then
+if [ "$BUILD_MODE" != "--dmg-only" ]; then
     # 2. Ensure rat.icns icon exists
     if [ ! -f "rat.icns" ]; then
         echo "🎨 Generating high-resolution rat.icns icon..."
@@ -41,12 +62,7 @@ if [ "$1" != "--dmg-only" ]; then
 
     # 3. Build rat.app using PyInstaller
     echo "📦 Packaging rat.app with PyInstaller..."
-    if ! "$PYTHON_BIN" -m PyInstaller --version &> /dev/null; then
-        echo "⚙️ PyInstaller not found, installing via pip..."
-        "$PYTHON_BIN" -m pip install pyinstaller
-    fi
-
-    "$PYTHON_BIN" -m PyInstaller rat.spec --noconfirm
+    "$PYTHON_BIN" -m PyInstaller rat.spec --clean --noconfirm
 
     if [ ! -d "dist/rat.app" ]; then
         echo "❌ Error: dist/rat.app was not created!"
@@ -55,12 +71,10 @@ if [ "$1" != "--dmg-only" ]; then
 
     echo "✅ rat.app created successfully in dist/rat.app"
 
-    # 4. Ad-hoc codesign rat.app for macOS Gatekeeper compatibility
-    echo "🔏 Performing ad-hoc codesigning with hardened entitlements..."
-    if [ -f "entitlements.plist" ]; then
-        codesign --force --deep --entitlements entitlements.plist -s - dist/rat.app || echo "⚠️ Warning: codesign with entitlements failed, fallback to basic codesign..."
-    fi
-    codesign --force --deep -s - dist/rat.app || echo "⚠️ Warning: basic codesign failed, continuing..."
+    # PyInstaller signs with the configured identity/entitlements. Do not replace
+    # that signature with a second plain ad-hoc signing pass.
+    echo "🔏 Verifying the final app signature..."
+    codesign --verify --deep --strict --verbose=2 dist/rat.app
 fi
 
 # 5. Create DMG Installer with Applications drag-and-drop symlink & Gatekeeper Helper

@@ -1,0 +1,248 @@
+--- audit/rat_overnight_sweep_codex_review_20261019/reviewed_source/rat/ui/omnibar.py	2026-10-19 11:50:17
++++ rat/ui/omnibar.py	2026-10-19 12:38:49
+@@ -2445,6 +2445,19 @@
+                 has_details=True,
+                 is_error=(snap.phase == "error"),
+             )
++            if hasattr(self.workbench_scene, "result_card"):
++                has_vis = any(not r.isHidden() for r in self.workbench_scene.artifact_panel.renderers.values())
++                bubble_txt = getattr(self.workbench_speech_bubble, "_copy_text", "") or self.workbench_speech_bubble.dialogue.text()
++                ans_txt = (snap.result_node.answer_text if snap.result_node else "") or ""
++                bubble_has_full = bool(ans_txt and ans_txt.strip() in bubble_txt and not self.workbench_speech_bubble._truncated)
++                self.workbench_scene.result_card.update_result(
++                    snap.result_node,
++                    has_rendered_artifacts=has_vis,
++                    has_interactive_artifacts=getattr(self.workbench_scene, "_has_interactive_artifacts", False),
++                    is_truncated=self.workbench_speech_bubble._truncated,
++                    is_streaming=(snap.phase == "streaming" or (snap.result_node is not None and snap.result_node.status == "working")),
++                    bubble_has_full_answer=bubble_has_full,
++                )
+ 
+         lane_phase = {
+             "empty": "idle",
+@@ -5045,6 +5058,21 @@
+         if hasattr(self, "workbench_speech_bubble"):
+             self.workbench_speech_bubble.set_reply(clean_text, status,
+                 copy_text=answer, has_details=has_details, file_summary=file_summary)
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                scene = self.workbench_scene
++                if hasattr(scene, "result_card") and scene.current_snapshot is not None:
++                    has_vis = any(not r.isHidden() for r in scene.artifact_panel.renderers.values())
++                    bubble_txt = getattr(self.workbench_speech_bubble, "_copy_text", "") or self.workbench_speech_bubble.dialogue.text()
++                    ans_txt = (scene.current_snapshot.result_node.answer_text if scene.current_snapshot.result_node else "") or ""
++                    bubble_has_full = bool(ans_txt and ans_txt.strip() in bubble_txt and not self.workbench_speech_bubble._truncated)
++                    scene.result_card.update_result(
++                        scene.current_snapshot.result_node,
++                        has_rendered_artifacts=has_vis,
++                        has_interactive_artifacts=getattr(scene, "_has_interactive_artifacts", False),
++                        is_truncated=self.workbench_speech_bubble._truncated,
++                        is_streaming=False,
++                        bubble_has_full_answer=bubble_has_full,
++                    )
+ 
+     def _on_reasoning_token(self, handle: Dict[str, Any], token: str) -> None:
+         if handle.get("generation", self._chat_generation) != self._chat_generation:
+--- audit/rat_overnight_sweep_codex_review_20261019/reviewed_source/rat/ui/view_renderer.py	2026-10-19 11:50:17
++++ rat/ui/view_renderer.py	2026-10-19 12:15:18
+@@ -267,22 +267,48 @@
+ 
+             c_flow = QVBoxLayout()
+             c_flow.setSpacing(6)
++            all_paths = [str(c.get("path") or "") for c in candidates if c.get("path")]
++            has_paths = len(all_paths) > 1
++
+             for index, c in enumerate(candidates):
+                 name = c.get("name", "")
+-                extra_parts = []
++                p = str(c.get("path") or "")
++
++                full_tooltip_parts = [name]
+                 if c.get("admin") or c.get("country"):
+-                    extra_parts.append(c.get("admin", c.get("country", "")))
+-                if c.get("path"):
+-                    extra_parts.append(str(c.get("path")))
+-                if c.get("bundle_id"):
+-                    extra_parts.append(str(c.get("bundle_id")))
++                    full_tooltip_parts.append(c.get("admin", c.get("country", "")))
++                if p:
++                    full_tooltip_parts.append(p)
++                if c.get("bundle_id"):
++                    full_tooltip_parts.append(str(c.get("bundle_id")))
+                 if c.get("version"):
+-                    extra_parts.append(f"v{c.get('version')}")
+-                btn_text = name + (" · " + " · ".join(extra_parts) if extra_parts else "")
++                    full_tooltip_parts.append(f"v{c.get('version')}")
++                full_tooltip = " · ".join(part for part in full_tooltip_parts if part)
++
++                if p and has_paths:
++                    import os
++                    from pathlib import Path
++                    try:
++                        common = os.path.commonpath(all_paths)
++                        rel = os.path.relpath(p, common)
++                        parent_folder = Path(p).parent.name
++                        diff_label = parent_folder if parent_folder else rel
++                    except Exception:
++                        diff_label = Path(p).parent.name
++                    label_parts = [f"{diff_label} · {name}"]
++                elif c.get("admin") or c.get("country"):
++                    label_parts = [f"{name} ({c.get('admin', c.get('country', ''))})"]
++                else:
++                    label_parts = [name]
++
++                if c.get("version"):
++                    label_parts.append(f"v{c.get('version')}")
++
++                btn_text = " · ".join(label_parts)
+                 btn = QPushButton(btn_text)
+                 btn.setObjectName("CandidateBtn")
+                 btn.setProperty("class", "CandidateBtn")
+-                btn.setToolTip(btn_text)
++                btn.setToolTip(full_tooltip)
+                 btn.setMinimumWidth(0)
+                 btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+                 btn.setCursor(Qt.CursorShape.PointingHandCursor)
+--- audit/rat_overnight_sweep_codex_review_20261019/reviewed_source/rat/ui/workbench_scene.py	2026-10-19 11:50:17
++++ rat/ui/workbench_scene.py	2026-10-19 12:35:53
+@@ -1992,6 +1992,7 @@
+         has_interactive_artifacts: bool = False,
+         is_truncated: bool = False,
+         is_streaming: bool = False,
++        bubble_has_full_answer: bool = False,
+     ) -> None:
+         self.result_node = node
+         if node is None and not has_rendered_artifacts and not has_interactive_artifacts:
+@@ -2039,14 +2040,30 @@
+             ans = (node.answer_text or node.summary or "").strip()
+             self.answer_lbl.setText(ans)
+             self.answer_lbl.setVisible(bool(ans))
+-            should_show_card = True
++
++            is_revision_transition = bool(
++                node.previous_revision is not None
++                or (node.revision is not None and not has_rendered_artifacts)
++            )
++            if bubble_has_full_answer:
++                should_show_card = bool(
++                    is_streaming
++                    or is_truncated
++                    or has_interactive_artifacts
++                    or has_rendered_artifacts
++                    or is_revision_transition
++                    or notices
++                    or node.kind == "input_request"
++                )
++            else:
++                should_show_card = True
+         else:
+             self.title_lbl.setText("Kết quả trên bàn")
+             self.rev_badge.hide()
+             self.header_row.hide()
+             self.ref_notice_lbl.hide()
+             self.answer_lbl.hide()
+-            should_show_card = bool(has_interactive_artifacts)
++            should_show_card = bool(has_interactive_artifacts or has_rendered_artifacts)
+ 
+         self.artifact_host.setVisible(has_rendered_artifacts)
+         self.setStyleSheet(
+@@ -2857,6 +2874,7 @@
+         # Secondary quiet trace disclosure (never primary)
+         self.trace_box = QWidget(self.overview_body)
+         self.trace_box.setObjectName("SceneTraceBox")
++        self.trace_box.setMinimumWidth(0)
+         tb_layout = QVBoxLayout(self.trace_box)
+         tb_layout.setContentsMargins(0, 2, 0, 0)
+         tb_layout.setSpacing(3)
+@@ -2865,8 +2883,10 @@
+         self.btn_trace_toggle.setObjectName("SceneTraceToggle")
+         self.btn_trace_toggle.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+         self.btn_trace_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
++        self.btn_trace_toggle.setMinimumWidth(0)
++        self.btn_trace_toggle.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+         self.btn_trace_toggle.clicked.connect(self.toggle_trace_details)
+-        tb_layout.addWidget(self.btn_trace_toggle, 0, Qt.AlignmentFlag.AlignLeft)
++        tb_layout.addWidget(self.btn_trace_toggle)
+ 
+         self.trace_detail_lbl = QLabel(self.trace_box)
+         self.trace_detail_lbl.setObjectName("SceneTraceDetail")
+@@ -3239,11 +3259,7 @@
+         qa_telemetry: Optional[Dict[str, Any]] = None,
+     ) -> None:
+         display_entries = list(reasoning_flow) if reasoning_flow else list(entries)
+-        if not display_entries or (
+-            self.current_snapshot.phase == "empty"
+-            and hasattr(self, "finder_box")
+-            and self.finder_box.isVisible()
+-        ):
++        if not display_entries:
+             self.trace_box.hide()
+             return
+         prefix = "▾" if self.trace_expanded else "▸"
+@@ -3649,10 +3665,26 @@
+                 ren.show()
+ 
+         has_visible_rendered = any(not r.isHidden() for r in self.artifact_panel.renderers.values())
++        self._has_interactive_artifacts = has_interactive_artifacts
++        win = self.window()
++        is_truncated = False
++        bubble_has_full_answer = False
++        if win is not None and hasattr(win, "workbench_speech_bubble"):
++            bubble = win.workbench_speech_bubble
++            is_truncated = bool(getattr(bubble, "_truncated", False))
++            bubble_txt = getattr(bubble, "_copy_text", "") or bubble.dialogue.text()
++            ans_txt = (snapshot.result_node.answer_text if snapshot.result_node else "") or ""
++            if ans_txt and ans_txt.strip() in bubble_txt and not is_truncated:
++                bubble_has_full_answer = True
++        is_streaming = (snapshot.phase == "streaming" or (snapshot.result_node is not None and snapshot.result_node.status == "working"))
++
+         self.result_card.update_result(
+             snapshot.result_node,
+             has_rendered_artifacts=has_visible_rendered,
+             has_interactive_artifacts=has_interactive_artifacts,
++            is_truncated=is_truncated,
++            is_streaming=is_streaming,
++            bubble_has_full_answer=bubble_has_full_answer,
+         )
+         self._sync_trace_ui(
+             snapshot.trace_entries,
+--- audit/rat_overnight_sweep_codex_review_20261019/reviewed_source/tests/test_workbench_scene.py	2026-10-19 11:50:17
++++ tests/test_workbench_scene.py	2026-10-19 12:32:25
+@@ -522,7 +522,11 @@
+     assert snap_done.result_node is not None
+     assert snap_done.result_node.status == "ready"
+     assert snap_done.primary_sources[0].is_compact_ref
+-    assert_not_clipped(scene.result_card, scene, label="result_card")
++    # Under Spec V2, full short bubble does not duplicate the answer on the desk
++    assert scene.result_card.isHidden(), "ResultDeskCard should be collapsed when speech bubble displays the full short answer"
++    assert scene.result_card.answer_lbl.text() == resp.answer
++    assert win.workbench_speech_bubble._copy_text.strip() == resp.answer
++    assert not win.workbench_speech_bubble._truncated
+ 
+     # Explicit 'Mở tệp' in source_detail opens the exact observed path
+     scene.select_source(src_node.node_id)
+@@ -819,13 +823,14 @@
+     )
+     win.workbench_scene.on_step(step1, generation=win._chat_generation, execution_id=turn_snap.execution_id)
+     resp = AgentResponse(
+-        answer="Kết quả hiển thị trên màn hình hẹp 420px với đầy đủ các thao tác cần thiết.",
++        answer="Kết quả hiển thị trên màn hình hẹp 420px với đầy đủ các thao tác cần thiết. " * 15,
+         steps=[step1],
+         total_time_ms=60.0,
+         tool_call_count=1,
+         token_estimate=20,
+         sources=[{"path": "/tmp/tai_lieu_hep.pdf"}],
+     )
++    win.workbench_speech_bubble.set_reply(resp.answer, "Đã xong", copy_text=resp.answer)
+     win.workbench_scene.on_response(resp, generation=win._chat_generation, execution_id=turn_snap.execution_id)
+     _pump(4)
+ 
+@@ -1543,7 +1548,8 @@
+             if b.objectName() == "CandidateBtn" and b.isVisible()
+         ]
+         assert len(cand_btns) == 2
+-        target_btn = next(b for b in cand_btns if str(lol_secondary.resolve()) in b.text())
++        assert len(set(b.text() for b in cand_btns)) == 2
++        target_btn = next(b for b in cand_btns if str(lol_secondary.resolve()) in b.toolTip())
+         target_btn.click()
+ 
+         for _ in range(40):

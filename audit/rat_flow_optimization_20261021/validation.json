@@ -1,0 +1,109 @@
+{
+  "status": "passed_with_scope_limits",
+  "tests": {
+    "cases": 186,
+    "unique_cases": 186,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "by_module": {
+      "tests.test_execution_flow": 10,
+      "tests.test_flow_interaction": 10,
+      "tests.test_workbench_scene": 15,
+      "tests.test_work_context_ui": 10,
+      "tests.test_native_startup_contract": 2,
+      "tests.test_selected_document_ui": 6,
+      "tests.test_document_model_startup": 9,
+      "tests.test_selected_document_qa": 11,
+      "tests.test_progressive_search": 17,
+      "tests.test_online_reasoning": 14,
+      "tests.test_online_reasoning_execution": 8,
+      "tests.test_native_acceptance_readiness": 8,
+      "tests.test_policy_bundle": 11,
+      "tests.test_assistant_runtime": 26,
+      "tests.test_research_study": 12,
+      "test_optimal_stopping": 12,
+      "test_entry_predictor": 5
+    },
+    "raw": "delivery-final.xml",
+    "command": "delivery-final.command.json"
+  },
+  "final_command_exit_codes": {
+    "delivery-final": 0,
+    "candidate-build-final": 0,
+    "candidate-inspection-final": 0,
+    "candidate-inspection-composition": 0,
+    "candidate-help-final": 0,
+    "native-delivery": 0,
+    "startup-probe-final": 0
+  },
+  "bundle": {
+    "bundle": "/private/tmp/rat-flow-20261021-dist/rat.app",
+    "status": "passed",
+    "checks": {
+      "rat.main": true,
+      "rat.config": true,
+      "rat.os.permissions": true,
+      "rat.os.hotkey": true,
+      "rat.os.diagnostics": true,
+      "rat.os.crash_shield": true,
+      "rat.os.menu_bar": true,
+      "rat.ui.onboarding_dialog": true,
+      "rat.ui.omnibar": true,
+      "rat.timetable.data": true,
+      "rat.engine.execution": true,
+      "rat.ui.assistant_worker": true,
+      "rat.ui.workbench_scene": true,
+      "rat.ui.surface_layout": true,
+      "reasoning.runtime": true,
+      "reasoning.bundle": true,
+      "signature_valid": true,
+      "entitlements_preserved": true,
+      "bundle_id": true,
+      "uri_grammar_resource": true
+    },
+    "executable_sha256": "a65148e481606f84e51e01a1b8684dc9799690a5e1315a8eb00b5be49734a830"
+  },
+  "native_fixture": {
+    "path": "native-sessions/20261021T041439Z-6c2634cd",
+    "status": "exited",
+    "exit_code": 0,
+    "guards": {
+      "blocked_operations": [],
+      "real_model_calls": 0,
+      "real_file_or_app_launches": 0,
+      "scope": "Cocoa fixture interaction; opening and preview are doubles; hotkey disabled"
+    }
+  },
+  "startup_probe": "startup_final/startup_probe.json",
+  "concurrent_source_changes": [
+    "reasoning/runtime.py",
+    "reasoning/bundle.py"
+  ],
+  "existing_app": {
+    "executable": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/MacOS/rat",
+    "sha256": "5d0edef5e53464b14fcee902e71496998d6d145fde86c9e270cb5163cb75a847",
+    "prior_audit_sha256": "5d0edef5e53464b14fcee902e71496998d6d145fde86c9e270cb5163cb75a847",
+    "matches_prior_audit": true
+  },
+  "whitespace": {
+    "all": {
+      "exit_code": 2,
+      "output": "git_diff_check_all.txt"
+    },
+    "scoped": {
+      "exit_code": 0,
+      "output": "git_diff_check_scoped.txt"
+    }
+  },
+  "scope_limits": [
+    "No real model inference, download or quality claim",
+    "No production policy activated; reviewed compatible host composition required",
+    "Native source Cocoa fixture; frozen candidate inspected and CLI-smoked, not GUI-accepted",
+    "Hotkey disabled in native fixture; Accessibility not re-tested or changed",
+    "Open/preview are doubles; no personal-file indexing or real app launches",
+    "Fixture startup measurements do not establish native hotkey or online latency",
+    "Global diff whitespace findings are outside this delivery; scoped check passes",
+    "General streaming, document continuation and recovery polish remain later work"
+  ]
+}

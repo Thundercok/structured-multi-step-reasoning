@@ -1,0 +1,157 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+____________ test_partial_name_requires_selection_before_app_launch ____________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_partial_name_requires_sel0')
+
+    def test_partial_name_requires_selection_before_app_launch(tmp_path):
+        make_app(tmp_path, 'League of Legends')
+        catalog = ApplicationCatalog.scan([tmp_path])
+        launches = []
+        result = dispatcher().execute_operation('open_application', {'query': 'mở League'},
+            context={'platform': 'darwin', 'catalog': catalog,
+                     'app_launcher': lambda app: launches.append(app.path) or (True, None)})
+>       assert not launches, f'Prefix-only query launched {launches}'
+E       AssertionError: Prefix-only query launched ['/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_partial_name_requires_sel0/League of Legends.app']
+E       assert not ['/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_partial_name_requires_sel0/League of Legends.app']
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:67: AssertionError
+_______ test_filler_removal_preserves_whole_keyword[slide format-format] _______
+
+query = 'slide format', expected = 'format'
+
+    @pytest.mark.parametrize('query,expected', [
+        ('slide format', 'format'), ('slide money', 'money'),
+        ('báo cáo banking mới nhất', 'banking'),
+    ])
+    def test_filler_removal_preserves_whole_keyword(query, expected):
+>       assert parse_finder_intent(query, now=NOW).query_terms == expected
+E       AssertionError: assert 'mat' == 'format'
+E         
+E         - format
+E         + mat
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:76: AssertionError
+________ test_filler_removal_preserves_whole_keyword[slide money-money] ________
+
+query = 'slide money', expected = 'money'
+
+    @pytest.mark.parametrize('query,expected', [
+        ('slide format', 'format'), ('slide money', 'money'),
+        ('báo cáo banking mới nhất', 'banking'),
+    ])
+    def test_filler_removal_preserves_whole_keyword(query, expected):
+>       assert parse_finder_intent(query, now=NOW).query_terms == expected
+E       AssertionError: assert 'ey' == 'money'
+E         
+E         - money
+E         + ey
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:76: AssertionError
+_ test_filler_removal_preserves_whole_keyword[b\xe1o c\xe1o banking m\u1edbi nh\u1ea5t-banking] _
+
+query = 'báo cáo banking mới nhất', expected = 'banking'
+
+    @pytest.mark.parametrize('query,expected', [
+        ('slide format', 'format'), ('slide money', 'money'),
+        ('báo cáo banking mới nhất', 'banking'),
+    ])
+    def test_filler_removal_preserves_whole_keyword(query, expected):
+>       assert parse_finder_intent(query, now=NOW).query_terms == expected
+E       AssertionError: assert 'king' == 'banking'
+E         
+E         - banking
+E         + king
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:76: AssertionError
+___________ test_content_matched_report_survives_metadata_projection ___________
+
+search = (<rat.crawler.db.Database object at 0x109a4bf50>, <rat.engine.progressive_search.ProgressiveSearch object at 0x109a4bd40>)
+
+    def test_content_matched_report_survives_metadata_projection(search):
+        db, engine = search
+        # A pytest directory containing the test name would itself contain "report"
+        # and mask this bug, because is_report_row searches the whole file_path.
+        with TemporaryDirectory(prefix='rat-review-', dir='/tmp') as folder:
+            path = Path(folder).resolve() / 'Q3.pdf'
+            index(db, path, content='Quarterly report DSA', summary='Quarterly results')
+            rows = db.search_metadata('', report_rule=True, sort='modified_desc')
+            assert [r['file_path'] for r in rows] == [str(path)]
+            snap = engine.initial(SearchRequest(1, 'bản báo cáo mới nhất'))
+>           assert [h.path for h in snap.hits] == [str(path)]
+E           AssertionError: assert [] == ['/private/tm...snv0e/Q3.pdf']
+E             
+E             Right contains one more item: '/private/tmp/rat-review-y_osnv0e/Q3.pdf'
+E             Use -v to get more diff
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:89: AssertionError
+_________________ test_slide_parent_rule_is_consistent_in_sql __________________
+
+search = (<rat.crawler.db.Database object at 0x109a8df10>, <rat.engine.progressive_search.ProgressiveSearch object at 0x109a8e960>)
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_slide_parent_rule_is_cons0')
+
+    def test_slide_parent_rule_is_consistent_in_sql(search, tmp_path):
+        db, engine = search
+        path = tmp_path / 'slides' / 'DSA.pdf'
+        index(db, path, content='DSA trees', summary='Trees and graphs')
+        row = dict(file_path=str(path), file_name=path.name, file_ext='.pdf',
+                   summary='Trees and graphs')
+        assert is_slide_row(row), 'The documented metadata rule accepts parent folder slides.'
+        snap = engine.initial(SearchRequest(1, 'slide DSA'))
+>       assert [h.path for h in snap.hits] == [str(path)]
+E       AssertionError: assert [] == ['/private/va...ides/DSA.pdf']
+E         
+E         Right contains one more item: '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_slide_parent_rule_is_cons0/slides/DSA.pdf'
+E         Use -v to get more diff
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:100: AssertionError
+______ test_creation_time_is_not_silently_replaced_with_modification_time ______
+
+search = (<rat.crawler.db.Database object at 0x109a8e510>, <rat.engine.progressive_search.ProgressiveSearch object at 0x109a8c290>)
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_creation_time_is_not_sile0')
+
+    def test_creation_time_is_not_silently_replaced_with_modification_time(search, tmp_path):
+        db, engine = search
+        path = tmp_path / 'DSA.pptx'
+        created = datetime(2026, 10, 7, 12, tzinfo=TZ).timestamp()
+        index(db, path, created=created, modified=NOW.timestamp())
+        snap = engine.initial(SearchRequest(1, 'Slide DSA tạo tuần trước'))
+>       assert (snap.intent.needs_clarification
+                or [h.path for h in snap.hits] == [str(path)])
+E       AssertionError: assert (False or [] == ['/private/va...le0/DSA.pptx']
+E        +  where False = FinderIntentPlan(raw_query='Slide DSA tạo tuần trước', action='search', query_terms='DSA', resource_kind='slide', exte... scope_note='Quy tắc Slide: ưu tiên .pptx/.ppt/.key; chỉ nhận .pdf có tên hoặc tóm tắt chứa dấu hiệu slide/bài giảng.').needs_clarification
+E        +    where FinderIntentPlan(raw_query='Slide DSA tạo tuần trước', action='search', query_terms='DSA', resource_kind='slide', exte... scope_note='Quy tắc Slide: ưu tiên .pptx/.ppt/.key; chỉ nhận .pdf có tên hoặc tóm tắt chứa dấu hiệu slide/bài giảng.') = SearchSnapshot(query_id=1, query='Slide DSA tạo tuần trước', phase='lexical', hits=(), selected_id=None, complete=True...scope_note='Quy tắc Slide: ưu tiên .pptx/.ppt/.key; chỉ nhận .pdf có tên hoặc tóm tắt chứa dấu hiệu slide/bài giảng.')).intent
+E         
+E         Right contains one more item: '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_creation_time_is_not_sile0/DSA.pptx'
+E         Use -v to get more diff)
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:109: AssertionError
+________ test_last_week_half_open_range_includes_fractional_last_second ________
+
+search = (<rat.crawler.db.Database object at 0x109a8c260>, <rat.engine.progressive_search.ProgressiveSearch object at 0x109a8cfe0>)
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_last_week_half_open_range0')
+
+    def test_last_week_half_open_range_includes_fractional_last_second(search, tmp_path):
+        db, engine = search
+        path = tmp_path / 'DSA.pptx'
+        modified = datetime(2026, 10, 11, 23, 59, 59, 500000, tzinfo=TZ).timestamp()
+        index(db, path, modified=modified)
+        snap = engine.initial(SearchRequest(1, 'Slide DSA sửa tuần trước'))
+        assert snap.intent.date_min <= modified < snap.intent.date_max_exclusive
+>       assert [h.path for h in snap.hits] == [str(path)]
+E       AssertionError: assert [] == ['/private/va...ge0/DSA.pptx']
+E         
+E         Right contains one more item: '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-669/test_last_week_half_open_range0/DSA.pptx'
+E         Use -v to get more diff
+
+audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py:120: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_partial_name_requires_selection_before_app_launch
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_filler_removal_preserves_whole_keyword[slide format-format]
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_filler_removal_preserves_whole_keyword[slide money-money]
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_filler_removal_preserves_whole_keyword[b\xe1o c\xe1o banking m\u1edbi nh\u1ea5t-banking]
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_content_matched_report_survives_metadata_projection
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_slide_parent_rule_is_consistent_in_sql
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_creation_time_is_not_silently_replaced_with_modification_time
+FAILED audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py::test_last_week_half_open_range_includes_fractional_last_second
+8 failed in 0.29s

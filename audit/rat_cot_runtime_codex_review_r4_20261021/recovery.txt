@@ -1,0 +1,12 @@
+{
+  "verified_original_copies": 8,
+  "total": 8,
+  "original_assertion_outcomes": {
+    "caller-unsupported": "original assertion failure reproduced",
+    "caller-ceiling": "original assertion failure reproduced",
+    "decode-error": "original assertion failure reproduced",
+    "cancel-tokens": "original assertion failure reproduced",
+    "cancel-outcome": "original assertion failure reproduced",
+    "between-sc": "original assertion failure reproduced"
+  }
+}

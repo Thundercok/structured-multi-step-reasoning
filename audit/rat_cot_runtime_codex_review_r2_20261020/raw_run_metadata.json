@@ -1,0 +1,29 @@
+{
+  "power_artifact_recomputed_byte_identical": true,
+  "original_sha256": "91c7d08f0127e191ad54332224f10e65bacf74ebed7fc86af3e4698eff49dfe5",
+  "recomputed_sha256": "91c7d08f0127e191ad54332224f10e65bacf74ebed7fc86af3e4698eff49dfe5",
+  "regression.xml": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "372",
+      "time": "79.897",
+      "timestamp": "2026-10-20T14:42:28.530787+07:00",
+      "hostname": "thien-than-bong-em.local"
+    }
+  ],
+  "parser_affected.xml": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "44",
+      "time": "4.160",
+      "timestamp": "2026-10-20T14:03:18.762909+07:00",
+      "hostname": "thien-than-bong-em.local"
+    }
+  ]
+}

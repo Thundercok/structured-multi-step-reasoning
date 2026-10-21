@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "target_url": "https://example.com",
+  "http_status": 200,
+  "content_length_chars": 171,
+  "content_hash": "cbf3f738cc4646f250e5964ab74741b434912a67e1cce86c798bf71af1cf85c8",
+  "engine": "spider",
+  "engine_version": "spider_cli 2.51.208",
+  "artifact_stored": true,
+  "view_spec_blocks": 3
+}

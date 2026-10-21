@@ -1,0 +1,39 @@
+{
+  "status": "authored_synthetic_design_examples_not_implementation",
+  "before": "Adapted from exposed scripted mock port capture 37; identity strings rewritten. Not wire bytes.",
+  "after": "Hand-authored projection; receipt IDs, receipt links, progress, pinned coherence and artifact payload assembly are design assumptions, not captured journal/store evidence.",
+  "declared_args": "Separate stronger hypothetical declaration. A had null expected_args/target_ref; B must not invent or strengthen them.",
+  "measurement": "No live inference, token cost, latency, speed-up or model quality is measured or implied.",
+  "source_capture": "audit/rat_context_audit_20261014/captures.json",
+  "source_capture_sha256": "64aa2d03a8919ea97077378d82e32cc921cad2894a19b8a7c97588a8a2fcdcba",
+  "source_call_index": 37,
+  "identity_rewrite": {
+    "art-8a78294bbb814dc1889439eb94b2fa25": "example-art-1",
+    "art-e4660e1021c2437ebf7fa1fe306cf269": "example-art-2",
+    "contract-3355916bf32e": "example-contract-3",
+    "contract-42ec34140bf3": "example-contract-4",
+    "contract-a2bc87e2d62e": "example-contract-5",
+    "contract-f0b0001564a9": "example-contract-6",
+    "exec-4b663e04b67e": "example-exec-7",
+    "exec-83e627cc0bc8": "example-exec-8",
+    "exec-937ffcf52e5d": "example-exec-9",
+    "exec-a600256e7f7c": "example-exec-10",
+    "exec-d7d703685e8a": "example-exec-11",
+    "nevt-1-97b5574d": "example-nevt-12",
+    "nevt-2-9f0bdd13": "example-nevt-13",
+    "note-428724a4f57f49559e7df60caa41c7dc": "example-note-14",
+    "conv-context-audit-document": "example-conversation"
+  },
+  "projection_slots": [
+    "note.quote",
+    "note.source_ref.quote",
+    "note.replaces_text",
+    "note.replaced_by_text",
+    "note_event.snapshot",
+    "operation_result.note",
+    "operation_result.note_event",
+    "receipt.operation_result",
+    "receipt.note_event"
+  ],
+  "tools_sha256": "73407b213029b998d9f5a1fca77306233d09f9f514b11121608cc7063ad94899"
+}

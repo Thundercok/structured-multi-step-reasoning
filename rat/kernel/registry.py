@@ -100,6 +100,13 @@ class CapabilityRegistry:
     def get_operation(self, name: str) -> Optional[OperationDefinition]:
         return self._operations.get(name)
 
+    def has_operation(self, name: str) -> bool:
+        return name in self._operations
+
+    def get_capability(self, name: str) -> Optional[Capability]:
+        return self._capabilities.get(name)
+
+
     def get_capability_for_operation(self, name: str) -> Optional[Capability]:
         cap_name = self._op_to_cap.get(name)
         return self._capabilities.get(cap_name) if cap_name else None

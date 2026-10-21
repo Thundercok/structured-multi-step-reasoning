@@ -81,7 +81,8 @@ def run_pipeline(deadline_str: str = "06:15"):
     t3_start = time.time()
     res3 = subprocess.run(
         ["/bin/bash", str(PROJECT_ROOT / "scripts" / "build_app.sh")],
-        cwd=str(PROJECT_ROOT)
+        cwd=str(PROJECT_ROOT),
+        env={**os.environ, "PYTHON_BIN": sys.executable}
     )
     t3_elapsed = time.time() - t3_start
     log(f"✅ STEP 3 Finished in {t3_elapsed/60.0:.2f} mins (Return code: {res3.returncode})")

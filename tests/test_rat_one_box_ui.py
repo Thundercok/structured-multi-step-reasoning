@@ -27,6 +27,8 @@ def debug_controls(monkeypatch):
     # These regressions exercise optional forms/actions and their draft state.
     # Default button-free interaction is covered by test_rat_magic_ui.py.
     monkeypatch.setenv('RAT_DEBUG_UI', '1')
+    monkeypatch.setenv('RAT_WORKBENCH_SCENE', '0')
+    monkeypatch.setenv('RAT_WORKBENCH_FINDER', '0')
 
 
 @pytest.fixture

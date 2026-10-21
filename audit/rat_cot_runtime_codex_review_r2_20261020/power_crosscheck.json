@@ -1,0 +1,12 @@
+{
+  "0.1": {
+    "claimed_n": 125,
+    "power_at_claimed_n": 0.5323893535988167,
+    "first_n_reaching_0.8_in_submitted_approximation": 236
+  },
+  "0.05": {
+    "claimed_n": 498,
+    "power_at_claimed_n": 0.5307641572974441,
+    "first_n_reaching_0.8_in_submitted_approximation": 942
+  }
+}

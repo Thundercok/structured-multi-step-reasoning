@@ -1,0 +1,38 @@
+{
+  "hashes_start": {
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/assistant_runtime.py": "f8a48ad4fb3cb93288d0ed538c07ba08d2701deafb8bf958a77ad351c9dfa5d0",
+    "tests/test_rat_completion_boundaries.py": "8123e6b704edefd3fccafd4af1d48940e437e9a132624382c2ec21f28dcb1286",
+    "rat/engine/context_snapshot.py": "8dea28d860d5cb207afb952dfef727628c963442ffc3eaf0d1513aa0d86ab598",
+    "tests/test_rat_context_snapshot.py": "d1903fdfb891dfcc3c5246fe6f7e3f9355466845f299b968ba52884face5f666",
+    "tests/test_rat_context_audit.py": "39439434c66c64ac3afbdfa71ebb5751c0b345b97da329542a6006ec336afef6",
+    "tests/test_artifact_store_lifecycle.py": "f38847182e18158504c086e34c47f5492dd3f3dba60ef1d9cea8b94b726e7ecf",
+    "audit/rat_context_B_assignment_20261014/snapshot.schema.json": "8a168a7aaff57e41d43eca956e49e583702bb6ff9285b2f75bcdc135a47da667",
+    "audit/rat_context_B_assignment_20261014/after.snapshot.json": "19eaedd349194fc139b65121fabdf5ceaf13a79d37d1da22491d9c0fd4edf0e1",
+    "audit/rat_context_B_assignment_20261014/declared_args.snapshot.json": "6215f2c78defe0b8b22ff5d0fe97324559e892c34d3197645e03ad3551e39e1b",
+    "docs/adr-004-rat-context-snapshot.md": "17ab81dd1248de03858158b9f769f936f834316b05140d4778aca09db88af711",
+    "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py": "6efea8afad295d0e692ff0199469ff26573c7e28cc082324a675527ac206eab8",
+    "audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py": "26fd2f957c0a3129917994dbaf6af864ff1c268571192fa08217b9af1515a61f"
+  },
+  "hashes_finish": {
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/assistant_runtime.py": "f8a48ad4fb3cb93288d0ed538c07ba08d2701deafb8bf958a77ad351c9dfa5d0",
+    "tests/test_rat_completion_boundaries.py": "8123e6b704edefd3fccafd4af1d48940e437e9a132624382c2ec21f28dcb1286",
+    "rat/engine/context_snapshot.py": "301476a7d6eeb8e0a0c21da378affaa29f513a8259f9e6af8e96781a389e309e",
+    "tests/test_rat_context_snapshot.py": "a0f32c8b5f78e5d447b2ddd75380c88ad38bf07066ee95bc135d0172641591cf",
+    "tests/test_rat_context_audit.py": "39439434c66c64ac3afbdfa71ebb5751c0b345b97da329542a6006ec336afef6",
+    "tests/test_artifact_store_lifecycle.py": "f38847182e18158504c086e34c47f5492dd3f3dba60ef1d9cea8b94b726e7ecf",
+    "audit/rat_context_B_assignment_20261014/snapshot.schema.json": "8a168a7aaff57e41d43eca956e49e583702bb6ff9285b2f75bcdc135a47da667",
+    "audit/rat_context_B_assignment_20261014/after.snapshot.json": "19eaedd349194fc139b65121fabdf5ceaf13a79d37d1da22491d9c0fd4edf0e1",
+    "audit/rat_context_B_assignment_20261014/declared_args.snapshot.json": "6215f2c78defe0b8b22ff5d0fe97324559e892c34d3197645e03ad3551e39e1b",
+    "docs/adr-004-rat-context-snapshot.md": "17ab81dd1248de03858158b9f769f936f834316b05140d4778aca09db88af711",
+    "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py": "6efea8afad295d0e692ff0199469ff26573c7e28cc082324a675527ac206eab8",
+    "audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py": "26fd2f957c0a3129917994dbaf6af864ff1c268571192fa08217b9af1515a61f"
+  },
+  "changed_during_turn": [
+    "rat/engine/context_snapshot.py",
+    "tests/test_rat_context_snapshot.py"
+  ],
+  "unauthorized_drift": [],
+  "changed_during_tests": []
+}

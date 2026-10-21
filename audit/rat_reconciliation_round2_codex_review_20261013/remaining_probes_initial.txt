@@ -1,0 +1,102 @@
+Initial run before improving the nested dependency mutation fixture to remove a real declared dependency.
+FFF.FFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+_____ test_note_cannot_satisfy_required_source_proof_when_no_proof_exists ______
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:44: in test_note_cannot_satisfy_required_source_proof_when_no_proof_exists
+    assert response.reconciliation.declared_scope_completion != "satisfied"
+E   AssertionError: assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-623e43a71966', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-623e43a71966', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.') = AgentResponse(answer='Đã ghi', steps=[AgentStep(step_number=1, thought='Đang ghi lại điều bạn dặn', tool_name='record_...n=1, parent_receipt_ids=['rcpt-ffce0baacc7d'], evidence_hash=None, error=None, timestamp=1791894849.2335129)], _seq=2)).reconciliation
+________ test_terminal_confirmed_note_must_still_match_required_source _________
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:67: in test_terminal_confirmed_note_must_still_match_required_source
+    assert response.reconciliation.declared_scope_completion != "satisfied"
+E   AssertionError: assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-09d30c0cc6b5', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-09d30c0cc6b5', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.') = AgentResponse(answer='Đã ghi', steps=[AgentStep(step_number=1, thought='Đang ghi lại điều bạn dặn', tool_name='record_...on=2, parent_receipt_ids=['rcpt-e51bb90db660'], evidence_hash=None, error=None, timestamp=1791894849.404756)], _seq=4)).reconciliation
+_______________ test_wrong_expression_cannot_match_by_substring ________________
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:79: in test_wrong_expression_cannot_match_by_substring
+    assert response.reconciliation.declared_scope_completion != "satisfied"
+E   AssertionError: assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-3e9de0357fb6', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+E    +    where TurnReconciliation(contract_id='contract-3e9de0357fb6', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.') = AgentResponse(answer='Đã tính', steps=[AgentStep(step_number=1, thought='Đang tính', tool_name='calculate', tool_args=...None, parent_receipt_ids=['rcpt-59d73afbaa52'], evidence_hash=None, error=None, timestamp=1791894849.425249)], _seq=2)).reconciliation
+_ test_valid_producer_consumer_matching_is_independent_of_declaration_order[consumer_first] _
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:96: in test_valid_producer_consumer_matching_is_independent_of_declaration_order
+    assert response.reconciliation.declared_scope_completion == "satisfied"
+E   AssertionError: assert 'partial' == 'satisfied'
+E     
+E     - satisfied
+E     + partial
+_________________ test_cyclic_dependencies_cannot_be_satisfied _________________
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:108: in test_cyclic_dependencies_cannot_be_satisfied
+    assert result.declared_scope_completion != "satisfied"
+E   AssertionError: assert 'satisfied' != 'satisfied'
+E    +  where 'satisfied' = TurnReconciliation(contract_id='contract-4d7de218baa6', lifecycle='completed', intent_coverage='model_proposed', decla... not prove unverified prose assertions.', summary='Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận.').declared_scope_completion
+______ test_freeze_also_protects_nested_refs_and_dependencies[source_ref] ______
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:121: in test_freeze_also_protects_nested_refs_and_dependencies
+    with pytest.raises((RuntimeError, AttributeError, TypeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'AttributeError'>, <class 'TypeError'>)
+______ test_freeze_also_protects_nested_refs_and_dependencies[target_ref] ______
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:121: in test_freeze_also_protects_nested_refs_and_dependencies
+    with pytest.raises((RuntimeError, AttributeError, TypeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'AttributeError'>, <class 'TypeError'>)
+____ test_freeze_also_protects_nested_refs_and_dependencies[dependency_ids] ____
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:121: in test_freeze_also_protects_nested_refs_and_dependencies
+    with pytest.raises((RuntimeError, AttributeError, TypeError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'AttributeError'>, <class 'TypeError'>)
+_________ test_native_off_contract_envelope_is_not_user_facing_answer __________
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:138: in test_native_off_contract_envelope_is_not_user_facing_answer
+    assert response.answer == "Xin chào"
+E   assert '{"outcomes":... ch\\u00e0o"}' == 'Xin chào'
+E     
+E     - Xin chào
+E     + {"outcomes": [{"outcome_id": "response", "kind": "response"}], "answer": "Xin ch\u00e0o"}
+___ test_malformed_native_outcomes_return_invalid_result_instead_of_crashing ___
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:143: in test_malformed_native_outcomes_return_invalid_result_instead_of_crashing
+    response = rt.run("Làm giúp tôi")
+               ^^^^^^^^^^^^^^^^^^^^^^
+rat/engine/assistant_runtime.py:982: in run
+    turn_contract = TurnContract(
+<string>:16: in __init__
+    ???
+rat/engine/completion.py:130: in __post_init__
+    if o.outcome_id in outcome_ids:
+       ^^^^^^^^^^^^
+E   AttributeError: 'str' object has no attribute 'outcome_id'
+________ test_untrusted_frozen_contract_metadata_does_not_crash_runtime ________
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:153: in test_untrusted_frozen_contract_metadata_does_not_crash_runtime
+    response = rt.run("Chào bạn")
+               ^^^^^^^^^^^^^^^^^^
+rat/engine/assistant_runtime.py:976: in run
+    turn_contract = decision.contract if isinstance(decision.contract, TurnContract) else TurnContract.from_dict(decision.contract)
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+rat/engine/completion.py:208: in from_dict
+    contract = cls(
+<string>:14: in __init__
+    ???
+rat/engine/completion.py:155: in __setattr__
+    raise RuntimeError(f"Cannot mutate frozen TurnContract attribute '{name}'")
+E   RuntimeError: Cannot mutate frozen TurnContract attribute 'is_valid'
+________ test_completion_status_does_not_fall_back_to_model_task_report ________
+audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py:169: in test_completion_status_does_not_fall_back_to_model_task_report
+    assert response.completion_status == response.reconciliation.declared_scope_completion
+E   AssertionError: assert 'model_reported_in_progress' == 'unchecked'
+E     
+E     - unchecked
+E     + model_reported_in_progress
+=========================== short test summary info ============================
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_note_cannot_satisfy_required_source_proof_when_no_proof_exists
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_terminal_confirmed_note_must_still_match_required_source
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_wrong_expression_cannot_match_by_substring
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_valid_producer_consumer_matching_is_independent_of_declaration_order[consumer_first]
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_cyclic_dependencies_cannot_be_satisfied
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_freeze_also_protects_nested_refs_and_dependencies[source_ref]
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_freeze_also_protects_nested_refs_and_dependencies[target_ref]
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_freeze_also_protects_nested_refs_and_dependencies[dependency_ids]
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_native_off_contract_envelope_is_not_user_facing_answer
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_malformed_native_outcomes_return_invalid_result_instead_of_crashing
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_untrusted_frozen_contract_metadata_does_not_crash_runtime
+FAILED audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py::test_completion_status_does_not_fall_back_to_model_task_report
+12 failed, 1 passed in 1.50s

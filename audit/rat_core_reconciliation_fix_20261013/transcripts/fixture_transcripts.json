@@ -1,0 +1,2564 @@
+[
+  {
+    "fixture_id": "test_omitted_outcome_model_claims_saved_without_tool_execution",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-9b0d812de505",
+        "query": "Ghi lại kết quả giúp tôi.",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-cf96abadce2d",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [
+            "response:turn-1"
+          ],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-save",
+              "reason": "omitted_action",
+              "description": "Ghi lại kết quả"
+            }
+          ],
+          "unresolved_reasons": [
+            "omitted_action"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
+        },
+        "unresolved_reasons": [
+          "omitted_action"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-cf96abadce2d",
+          "conversation_id": "conv-e54785d3196b",
+          "turn_id": "turn-1",
+          "execution_id": "exec-9b0d812de505",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-save",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "Ghi lại kết quả",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-resp",
+              "kind": "response",
+              "effect_type": null,
+              "description": "Trả lời xác nhận",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": false,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-e54785d3196b",
+          "turn_id": "turn-1",
+          "execution_id": "exec-9b0d812de505",
+          "generation": 0,
+          "receipts": []
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_wrong_source_producer_consumer_calculate_324_save_126_fails",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-e2ac829991e9",
+        "query": "Tính 18 * 7",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-5e94ca46d8a5",
+          "lifecycle": "completed",
+          "intent_coverage": "unchecked",
+          "declared_scope_completion": "unchecked",
+          "scoped_quality": "PASS",
+          "matched_receipts": [],
+          "unmet_outcomes": [],
+          "unresolved_reasons": [],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Câu trả lời hội thoại (chưa khai hợp đồng công việc cụ thể)."
+        },
+        "unresolved_reasons": [],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-5e94ca46d8a5",
+          "conversation_id": "conv-1b27f3e0663c",
+          "turn_id": "turn-1",
+          "execution_id": "exec-e2ac829991e9",
+          "generation": 0,
+          "proposed_by": "model",
+          "source_message_refs": [],
+          "outcomes": [],
+          "intent_coverage": "unchecked",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-1b27f3e0663c",
+          "turn_id": "turn-1",
+          "execution_id": "exec-e2ac829991e9",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-e9e791274142",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-1",
+              "execution_id": "exec-e2ac829991e9",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "calculate",
+              "operation_args": {
+                "expression": "18 * 7"
+              },
+              "operation_result": {
+                "expression": "18 * 7",
+                "result": "126"
+              },
+              "artifact_refs": [
+                {
+                  "id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+                  "artifact_id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+                  "kind": "calculation",
+                  "revision": 1
+                }
+              ],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "855e8a940e049e018c400ace3b03b7edb72b47f7251430d72930e23b2d5024ce",
+              "error": null,
+              "timestamp": 1791908261.242771
+            },
+            {
+              "receipt_id": "rcpt-627a95dc422f",
+              "issuer": "verification",
+              "sequence": 2,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-1",
+              "execution_id": "exec-e2ac829991e9",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 18 * 7: công cụ trả 126; tính độc lập được 126.",
+                "evidence_ids": [
+                  "request:68f91be3278c4adb8d40e4cfc2a4dff2:step:1:7c0c079a5089"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.12279092334210873,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [
+                "rcpt-e9e791274142"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.242789
+            },
+            {
+              "receipt_id": "rcpt-1a03c070b540",
+              "issuer": "verification",
+              "sequence": 3,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-1",
+              "execution_id": "exec-e2ac829991e9",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "literal_arithmetic_answer",
+                "reason": "Kết luận 126; đối chiếu 18 * 7 được 126.",
+                "evidence_ids": [],
+                "checked": [
+                  "whole_scalar_answer",
+                  "independent_arithmetic",
+                  "request_expression"
+                ],
+                "retryable": false,
+                "duration_ms": 0.06791600026190281,
+                "answer_schema": null,
+                "phase": "answer",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "65a699905c02619370bcf9207f5a477c3d67130ca71ec6f750e07fe8d510b084",
+              "error": null,
+              "timestamp": 1791908261.2428968
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "18 * 7",
+              "result": "126"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "turn_id": "turn-2",
+        "execution_id": "exec-7272cbc61f27",
+        "query": "Tính 162 * 2 rồi ghi lại kết quả vừa tính.",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-eb0b48c58a7e",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "partial",
+          "scoped_quality": "PASS",
+          "matched_receipts": [
+            "rcpt-aba908c1207d",
+            "response:turn-2"
+          ],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-note",
+              "reason": "wrong_source_consumer",
+              "description": "Ghi kết quả vừa tính"
+            }
+          ],
+          "unresolved_reasons": [
+            "wrong_source_consumer"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Chỉ hoàn thành một phần công việc; còn thiếu một số thao tác/ràng buộc."
+        },
+        "unresolved_reasons": [
+          "wrong_source_consumer"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-eb0b48c58a7e",
+          "conversation_id": "conv-1b27f3e0663c",
+          "turn_id": "turn-2",
+          "execution_id": "exec-7272cbc61f27",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-calc",
+              "kind": "registered_effect",
+              "effect_type": "calculate",
+              "description": "Tính 162 * 2",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-note",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "Ghi kết quả vừa tính",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": {
+                "producer_outcome_id": "out-calc"
+              },
+              "dependency_ids": [
+                "out-calc"
+              ],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-ans",
+              "kind": "response",
+              "effect_type": null,
+              "description": "Trả lời",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-1b27f3e0663c",
+          "turn_id": "turn-2",
+          "execution_id": "exec-7272cbc61f27",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-aba908c1207d",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-2",
+              "execution_id": "exec-7272cbc61f27",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "calculate",
+              "operation_args": {
+                "expression": "162 * 2"
+              },
+              "operation_result": {
+                "expression": "162 * 2",
+                "result": "324"
+              },
+              "artifact_refs": [
+                {
+                  "id": "art-88a2176f6f6540c687391a0abfc578ae",
+                  "artifact_id": "art-88a2176f6f6540c687391a0abfc578ae",
+                  "kind": "calculation",
+                  "revision": 1
+                }
+              ],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "0bdde928fea842d208da5392b6338086161dad08c821014914e2c9224ba523d2",
+              "error": null,
+              "timestamp": 1791908261.243805
+            },
+            {
+              "receipt_id": "rcpt-f1cbbdb29876",
+              "issuer": "verification",
+              "sequence": 2,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-2",
+              "execution_id": "exec-7272cbc61f27",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 162 * 2: công cụ trả 324; tính độc lập được 324.",
+                "evidence_ids": [
+                  "request:693cd2525615409ea1488453ccb07fc5:step:1:05f6ae0d8e87"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.0439169816672802,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [
+                "rcpt-aba908c1207d"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.243818
+            },
+            {
+              "receipt_id": "rcpt-58f064f8a1c1",
+              "issuer": "dispatcher",
+              "sequence": 3,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-2",
+              "execution_id": "exec-7272cbc61f27",
+              "generation": 0,
+              "operation_call_id": "step-2",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": {
+                "text": "126",
+                "source_result": {
+                  "artifact_id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+                  "revision": 1,
+                  "field": "result"
+                }
+              },
+              "operation_result": {
+                "note": {
+                  "id": "note-ea50a5d3d7194434bdaf6796bc0ff268",
+                  "text": "126",
+                  "source": "artifact_result",
+                  "quote": "126",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-2",
+                  "execution_id": "exec-7272cbc61f27",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "126",
+                    "artifact_id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "notes_updated": true,
+                "note_event": {
+                  "event_id": "nevt-1-912b403d",
+                  "sequence": 1,
+                  "conversation_id": "conv-1b27f3e0663c",
+                  "kind": "create",
+                  "note_id": "note-ea50a5d3d7194434bdaf6796bc0ff268",
+                  "owner_turn_id": "turn-2",
+                  "source_turn_id": "turn-1",
+                  "before_revision": null,
+                  "after_revision": 1,
+                  "snapshot": {
+                    "id": "note-ea50a5d3d7194434bdaf6796bc0ff268",
+                    "text": "126",
+                    "source": "artifact_result",
+                    "quote": "126",
+                    "confirmed": true,
+                    "revision": 1,
+                    "status": "active",
+                    "owner_turn_id": "turn-2",
+                    "execution_id": "exec-7272cbc61f27",
+                    "source_ref": {
+                      "kind": "artifact_result",
+                      "quote_source_turn_id": "turn-1",
+                      "quote": "126",
+                      "artifact_id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+                      "artifact_revision": 1,
+                      "field": "result"
+                    },
+                    "replaces_note_id": null,
+                    "replaces_revision": null,
+                    "replaces_turn_id": null,
+                    "replaces_text": null
+                  },
+                  "context": {
+                    "turn_ref": {
+                      "conversation_id": "conv-1b27f3e0663c",
+                      "turn_id": "turn-2",
+                      "kind": "chat",
+                      "turn_number": 2,
+                      "target_turn_id": null,
+                      "target_artifact_id": null,
+                      "target_revision": null
+                    },
+                    "turn_id": "turn-2",
+                    "conversation_id": "conv-1b27f3e0663c",
+                    "kind": "chat",
+                    "execution_id": "exec-7272cbc61f27",
+                    "generation": 0
+                  }
+                }
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "396445eb9b777b4042aefdaf21b916ff49e58d871393a10496c71da66dde9cbe",
+              "error": null,
+              "timestamp": 1791908261.244375
+            },
+            {
+              "receipt_id": "rcpt-facfd8ab692f",
+              "issuer": "notebook",
+              "sequence": 4,
+              "conversation_id": "conv-1b27f3e0663c",
+              "turn_id": "turn-2",
+              "execution_id": "exec-7272cbc61f27",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": {
+                "event_id": "nevt-1-912b403d",
+                "sequence": 1,
+                "conversation_id": "conv-1b27f3e0663c",
+                "kind": "create",
+                "note_id": "note-ea50a5d3d7194434bdaf6796bc0ff268",
+                "owner_turn_id": "turn-2",
+                "source_turn_id": "turn-1",
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-ea50a5d3d7194434bdaf6796bc0ff268",
+                  "text": "126",
+                  "source": "artifact_result",
+                  "quote": "126",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-2",
+                  "execution_id": "exec-7272cbc61f27",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "126",
+                    "artifact_id": "art-89b498ad96b343cf8dd8801c4b0503f2",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-1b27f3e0663c",
+                    "turn_id": "turn-2",
+                    "kind": "chat",
+                    "turn_number": 2,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-2",
+                  "conversation_id": "conv-1b27f3e0663c",
+                  "kind": "chat",
+                  "execution_id": "exec-7272cbc61f27",
+                  "generation": 0
+                }
+              },
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": 1,
+              "parent_receipt_ids": [
+                "rcpt-58f064f8a1c1"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.244398
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "id": "art-88a2176f6f6540c687391a0abfc578ae",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "162 * 2",
+              "result": "324"
+            }
+          }
+        ],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_cross_execution_receipt_cannot_satisfy_new_mutation",
+    "passed": true,
+    "error": null,
+    "turns": [],
+    "standalone_reconciliations": [
+      {
+        "contract_id": "contract-5bcfebd68fd9",
+        "lifecycle": "completed",
+        "intent_coverage": "model_proposed",
+        "declared_scope_completion": "unresolved",
+        "scoped_quality": "not_checked",
+        "matched_receipts": [],
+        "unmet_outcomes": [
+          {
+            "outcome_id": "out-note",
+            "reason": "omitted_action",
+            "description": "Chưa hoàn tất thao tác record_work_note"
+          }
+        ],
+        "unresolved_reasons": [
+          "omitted_action"
+        ],
+        "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+        "summary": "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
+      }
+    ]
+  },
+  {
+    "fixture_id": "test_contract_freeze_prevents_downgrade_or_obligation_deletion",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-1750133572f7",
+        "query": "Tính và ghi",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-4cc5c0fe45b5",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "partial",
+          "scoped_quality": "PASS",
+          "matched_receipts": [
+            "rcpt-51063bb2f483"
+          ],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-note",
+              "reason": "omitted_action",
+              "description": "Chưa hoàn tất thao tác record_work_note"
+            }
+          ],
+          "unresolved_reasons": [
+            "omitted_action"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Chỉ hoàn thành một phần công việc; còn thiếu một số thao tác/ràng buộc."
+        },
+        "unresolved_reasons": [
+          "omitted_action"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-4cc5c0fe45b5",
+          "conversation_id": "conv-d5d16bdc4b5a",
+          "turn_id": "turn-1",
+          "execution_id": "exec-1750133572f7",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-calc",
+              "kind": "registered_effect",
+              "effect_type": "calculate",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-note",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-d5d16bdc4b5a",
+          "turn_id": "turn-1",
+          "execution_id": "exec-1750133572f7",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-51063bb2f483",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-d5d16bdc4b5a",
+              "turn_id": "turn-1",
+              "execution_id": "exec-1750133572f7",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "calculate",
+              "operation_args": {
+                "expression": "10 + 5"
+              },
+              "operation_result": {
+                "expression": "10 + 5",
+                "result": "15"
+              },
+              "artifact_refs": [
+                {
+                  "id": "art-2a65c824f78c4fa999f0389a104de32d",
+                  "artifact_id": "art-2a65c824f78c4fa999f0389a104de32d",
+                  "kind": "calculation",
+                  "revision": 1
+                }
+              ],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "0e3b2eb4cf8f2524f5de278b8a291f91a496d78ddd32cccfec100ac1ffda3cf5",
+              "error": null,
+              "timestamp": 1791908261.245493
+            },
+            {
+              "receipt_id": "rcpt-dbaa5e00bd22",
+              "issuer": "verification",
+              "sequence": 2,
+              "conversation_id": "conv-d5d16bdc4b5a",
+              "turn_id": "turn-1",
+              "execution_id": "exec-1750133572f7",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 10 + 5: công cụ trả 15; tính độc lập được 15.",
+                "evidence_ids": [
+                  "request:f07cf1a8fa7048ecb0ac3d46d4e3e629:step:1:4820545da978"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.040041981264948845,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [
+                "rcpt-51063bb2f483"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.245505
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "id": "art-2a65c824f78c4fa999f0389a104de32d",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "10 + 5",
+              "result": "15"
+            }
+          }
+        ],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_pending_input_reconciles_to_needs_input_and_unresolved",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-1c4aaa941bc4",
+        "query": "Thao tác cần hỏi ý kiến",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-43ae030ee014",
+          "lifecycle": "needs_input",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-1",
+              "reason": "omitted_action",
+              "description": "Chưa hoàn tất thao tác custom_input_op"
+            }
+          ],
+          "unresolved_reasons": [
+            "pending_input_required",
+            "omitted_action"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Đang chờ thông tin bổ sung; các công việc giữ trạng thái chờ."
+        },
+        "unresolved_reasons": [
+          "pending_input_required",
+          "omitted_action"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-43ae030ee014",
+          "conversation_id": "conv-c38316aea457",
+          "turn_id": "turn-1",
+          "execution_id": "exec-1c4aaa941bc4",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-1",
+              "kind": "registered_effect",
+              "effect_type": "custom_input_op",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": false,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-c38316aea457",
+          "turn_id": "turn-1",
+          "execution_id": "exec-1c4aaa941bc4",
+          "generation": 0,
+          "receipts": []
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_cancel_after_calculate_commit_preserves_artifact_and_resumes_in_new_exec",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-bc1a90b6848a",
+        "query": "Tính 18 * 9",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-45bbd60aa320",
+          "lifecycle": "completed",
+          "intent_coverage": "unchecked",
+          "declared_scope_completion": "unchecked",
+          "scoped_quality": "PASS",
+          "matched_receipts": [],
+          "unmet_outcomes": [],
+          "unresolved_reasons": [],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Câu trả lời hội thoại (chưa khai hợp đồng công việc cụ thể)."
+        },
+        "unresolved_reasons": [],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-45bbd60aa320",
+          "conversation_id": "conv-072ea3e3821f",
+          "turn_id": "turn-1",
+          "execution_id": "exec-bc1a90b6848a",
+          "generation": 0,
+          "proposed_by": "model",
+          "source_message_refs": [],
+          "outcomes": [],
+          "intent_coverage": "unchecked",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-072ea3e3821f",
+          "turn_id": "turn-1",
+          "execution_id": "exec-bc1a90b6848a",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-827a827cb8f0",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-1",
+              "execution_id": "exec-bc1a90b6848a",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "calculate",
+              "operation_args": {
+                "expression": "18 * 9"
+              },
+              "operation_result": {
+                "expression": "18 * 9",
+                "result": "162"
+              },
+              "artifact_refs": [
+                {
+                  "id": "art-0e7d7199649c4deab53ece9407fc408a",
+                  "artifact_id": "art-0e7d7199649c4deab53ece9407fc408a",
+                  "kind": "calculation",
+                  "revision": 1
+                }
+              ],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "62f6d97906db0436605a78e06460e96aa724c412fd9c2eb076488a2fe547d99f",
+              "error": null,
+              "timestamp": 1791908261.246322
+            },
+            {
+              "receipt_id": "rcpt-116fa0f4a777",
+              "issuer": "verification",
+              "sequence": 2,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-1",
+              "execution_id": "exec-bc1a90b6848a",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 18 * 9: công cụ trả 162; tính độc lập được 162.",
+                "evidence_ids": [
+                  "request:281480dbc64e4fb68385f31998b64cae:step:1:31740fdf5ab3"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.03416708204895258,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [
+                "rcpt-827a827cb8f0"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.2463338
+            },
+            {
+              "receipt_id": "rcpt-2890fd89f440",
+              "issuer": "dispatcher",
+              "sequence": 3,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-1",
+              "execution_id": "exec-bc1a90b6848a",
+              "generation": 0,
+              "operation_call_id": "step-2",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": {
+                "text": "162",
+                "source_result": {
+                  "artifact_id": "art-0e7d7199649c4deab53ece9407fc408a",
+                  "revision": 1,
+                  "field": "result"
+                }
+              },
+              "operation_result": {
+                "note": {
+                  "id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "text": "162",
+                  "source": "artifact_result",
+                  "quote": "162",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-bc1a90b6848a",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "162",
+                    "artifact_id": "art-0e7d7199649c4deab53ece9407fc408a",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "notes_updated": true,
+                "note_event": {
+                  "event_id": "nevt-1-db72c8f6",
+                  "sequence": 1,
+                  "conversation_id": "conv-072ea3e3821f",
+                  "kind": "create",
+                  "note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "owner_turn_id": "turn-1",
+                  "source_turn_id": "turn-1",
+                  "before_revision": null,
+                  "after_revision": 1,
+                  "snapshot": {
+                    "id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                    "text": "162",
+                    "source": "artifact_result",
+                    "quote": "162",
+                    "confirmed": true,
+                    "revision": 1,
+                    "status": "active",
+                    "owner_turn_id": "turn-1",
+                    "execution_id": "exec-bc1a90b6848a",
+                    "source_ref": {
+                      "kind": "artifact_result",
+                      "quote_source_turn_id": "turn-1",
+                      "quote": "162",
+                      "artifact_id": "art-0e7d7199649c4deab53ece9407fc408a",
+                      "artifact_revision": 1,
+                      "field": "result"
+                    },
+                    "replaces_note_id": null,
+                    "replaces_revision": null,
+                    "replaces_turn_id": null,
+                    "replaces_text": null
+                  },
+                  "context": {
+                    "turn_ref": {
+                      "conversation_id": "conv-072ea3e3821f",
+                      "turn_id": "turn-1",
+                      "kind": "chat",
+                      "turn_number": 1,
+                      "target_turn_id": null,
+                      "target_artifact_id": null,
+                      "target_revision": null
+                    },
+                    "turn_id": "turn-1",
+                    "conversation_id": "conv-072ea3e3821f",
+                    "kind": "chat",
+                    "execution_id": "exec-bc1a90b6848a",
+                    "generation": 0
+                  }
+                }
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "5ff01fae6d11b66418a416cebad1097911eb0ce591f8f070a5067d3fa0d6d9bf",
+              "error": null,
+              "timestamp": 1791908261.2466712
+            },
+            {
+              "receipt_id": "rcpt-a5b72280d059",
+              "issuer": "notebook",
+              "sequence": 4,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-1",
+              "execution_id": "exec-bc1a90b6848a",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": {
+                "event_id": "nevt-1-db72c8f6",
+                "sequence": 1,
+                "conversation_id": "conv-072ea3e3821f",
+                "kind": "create",
+                "note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                "owner_turn_id": "turn-1",
+                "source_turn_id": "turn-1",
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "text": "162",
+                  "source": "artifact_result",
+                  "quote": "162",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-bc1a90b6848a",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "162",
+                    "artifact_id": "art-0e7d7199649c4deab53ece9407fc408a",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-072ea3e3821f",
+                    "turn_id": "turn-1",
+                    "kind": "chat",
+                    "turn_number": 1,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-1",
+                  "conversation_id": "conv-072ea3e3821f",
+                  "kind": "chat",
+                  "execution_id": "exec-bc1a90b6848a",
+                  "generation": 0
+                }
+              },
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": 1,
+              "parent_receipt_ids": [
+                "rcpt-2890fd89f440"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.2466931
+            },
+            {
+              "receipt_id": "rcpt-bbf868cbe4ce",
+              "issuer": "verification",
+              "sequence": 5,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-1",
+              "execution_id": "exec-bc1a90b6848a",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "literal_arithmetic_answer",
+                "reason": "Kết luận 162; đối chiếu 18 * 9 được 162.",
+                "evidence_ids": [],
+                "checked": [
+                  "whole_scalar_answer",
+                  "independent_arithmetic",
+                  "request_expression"
+                ],
+                "retryable": false,
+                "duration_ms": 0.05945900920778513,
+                "answer_schema": null,
+                "phase": "answer",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "79d6eaa2676189eb927f2e16a70091474078e2117c3fc607d35cdc6b591ef355",
+              "error": null,
+              "timestamp": 1791908261.246787
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "id": "art-0e7d7199649c4deab53ece9407fc408a",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "18 * 9",
+              "result": "162"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "turn_id": "turn-2",
+        "execution_id": "exec-4f91c2baf301",
+        "query": "Tính gấp đôi rồi ghi lại.",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-85bc743572f9",
+          "lifecycle": "cancelled",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "PASS",
+          "matched_receipts": [
+            "rcpt-5438a95f9bfa"
+          ],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-note",
+              "reason": "omitted_action",
+              "description": "Chưa hoàn tất thao tác record_work_note"
+            }
+          ],
+          "unresolved_reasons": [
+            "cancelled_in_flight",
+            "omitted_action"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Lượt bị dừng; các công việc đã khai chưa hoàn thành."
+        },
+        "unresolved_reasons": [
+          "cancelled_in_flight",
+          "omitted_action"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-85bc743572f9",
+          "conversation_id": "conv-072ea3e3821f",
+          "turn_id": "turn-2",
+          "execution_id": "exec-4f91c2baf301",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-calc",
+              "kind": "registered_effect",
+              "effect_type": "calculate",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-note",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-072ea3e3821f",
+          "turn_id": "turn-2",
+          "execution_id": "exec-4f91c2baf301",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-5438a95f9bfa",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-2",
+              "execution_id": "exec-4f91c2baf301",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "calculate",
+              "operation_args": {
+                "expression": "162 * 2"
+              },
+              "operation_result": {
+                "expression": "162 * 2",
+                "result": "324"
+              },
+              "artifact_refs": [
+                {
+                  "id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                  "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                  "kind": "calculation",
+                  "revision": 1
+                }
+              ],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "0bdde928fea842d208da5392b6338086161dad08c821014914e2c9224ba523d2",
+              "error": null,
+              "timestamp": 1791908261.2473059
+            },
+            {
+              "receipt_id": "rcpt-82e32a488257",
+              "issuer": "verification",
+              "sequence": 2,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-2",
+              "execution_id": "exec-4f91c2baf301",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": null,
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 162 * 2: công cụ trả 324; tính độc lập được 324.",
+                "evidence_ids": [
+                  "request:8836b216a19a49d19a7fa02c5f597227:step:1:05f6ae0d8e87"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.030916999094188213,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              },
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [
+                "rcpt-5438a95f9bfa"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.247319
+            }
+          ]
+        },
+        "artifacts": [
+          {
+            "id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "162 * 2",
+              "result": "324"
+            }
+          }
+        ],
+        "error": "cancelled"
+      },
+      {
+        "turn_id": "turn-3",
+        "execution_id": "exec-7e1d7e621a9e",
+        "query": "Tiếp tục, ghi kết quả vừa tính.",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-44c231c6d10c",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "satisfied",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [
+            "rcpt-462f59dc226d",
+            "rcpt-9908830f7475",
+            "response:turn-3"
+          ],
+          "unmet_outcomes": [],
+          "unresolved_reasons": [],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận."
+        },
+        "unresolved_reasons": [],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-44c231c6d10c",
+          "conversation_id": "conv-072ea3e3821f",
+          "turn_id": "turn-3",
+          "execution_id": "exec-7e1d7e621a9e",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-inspect",
+              "kind": "registered_effect",
+              "effect_type": "inspect_artifact",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-save",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            },
+            {
+              "outcome_id": "out-resp",
+              "kind": "response",
+              "effect_type": null,
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-072ea3e3821f",
+          "turn_id": "turn-3",
+          "execution_id": "exec-7e1d7e621a9e",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-462f59dc226d",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-3",
+              "execution_id": "exec-7e1d7e621a9e",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "inspect_artifact",
+              "operation_args": {
+                "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                "revision": 1
+              },
+              "operation_result": {
+                "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                "revision": 1,
+                "expression": "162 * 2",
+                "result": "324"
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "f9bab0bbd2bf1953e95b754dc06b79ee3ceae36005ceae6a5a28a634c0f0765e",
+              "error": null,
+              "timestamp": 1791908261.248013
+            },
+            {
+              "receipt_id": "rcpt-be22d5335055",
+              "issuer": "dispatcher",
+              "sequence": 2,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-3",
+              "execution_id": "exec-7e1d7e621a9e",
+              "generation": 0,
+              "operation_call_id": "step-2",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": {
+                "text": "324",
+                "source_result": {
+                  "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                  "revision": 1,
+                  "field": "result"
+                },
+                "replace_note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                "revision": 1
+              },
+              "operation_result": {
+                "note": {
+                  "id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "text": "324",
+                  "source": "artifact_result",
+                  "quote": "324",
+                  "confirmed": true,
+                  "revision": 2,
+                  "status": "active",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-7e1d7e621a9e",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-2",
+                    "quote": "324",
+                    "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "replaces_revision": 1,
+                  "replaces_turn_id": "turn-1",
+                  "replaces_text": "162"
+                },
+                "notes_updated": true,
+                "note_event": {
+                  "event_id": "nevt-2-2c065787",
+                  "sequence": 2,
+                  "conversation_id": "conv-072ea3e3821f",
+                  "kind": "update",
+                  "note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "owner_turn_id": "turn-3",
+                  "source_turn_id": "turn-2",
+                  "before_revision": 1,
+                  "after_revision": 2,
+                  "snapshot": {
+                    "id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                    "text": "324",
+                    "source": "artifact_result",
+                    "quote": "324",
+                    "confirmed": true,
+                    "revision": 2,
+                    "status": "active",
+                    "owner_turn_id": "turn-3",
+                    "execution_id": "exec-7e1d7e621a9e",
+                    "source_ref": {
+                      "kind": "artifact_result",
+                      "quote_source_turn_id": "turn-2",
+                      "quote": "324",
+                      "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                      "artifact_revision": 1,
+                      "field": "result"
+                    },
+                    "replaces_note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                    "replaces_revision": 1,
+                    "replaces_turn_id": "turn-1",
+                    "replaces_text": "162"
+                  },
+                  "context": {
+                    "turn_ref": {
+                      "conversation_id": "conv-072ea3e3821f",
+                      "turn_id": "turn-3",
+                      "kind": "chat",
+                      "turn_number": 3,
+                      "target_turn_id": null,
+                      "target_artifact_id": null,
+                      "target_revision": null
+                    },
+                    "turn_id": "turn-3",
+                    "conversation_id": "conv-072ea3e3821f",
+                    "kind": "chat",
+                    "execution_id": "exec-7e1d7e621a9e",
+                    "generation": 0
+                  }
+                }
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "24423eed8550d7e006ed71e1ecac9999795b3952339596dbb856cf2c705d7e8a",
+              "error": null,
+              "timestamp": 1791908261.248395
+            },
+            {
+              "receipt_id": "rcpt-9908830f7475",
+              "issuer": "notebook",
+              "sequence": 3,
+              "conversation_id": "conv-072ea3e3821f",
+              "turn_id": "turn-3",
+              "execution_id": "exec-7e1d7e621a9e",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": {
+                "event_id": "nevt-2-2c065787",
+                "sequence": 2,
+                "conversation_id": "conv-072ea3e3821f",
+                "kind": "update",
+                "note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                "owner_turn_id": "turn-3",
+                "source_turn_id": "turn-2",
+                "before_revision": 1,
+                "after_revision": 2,
+                "snapshot": {
+                  "id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "text": "324",
+                  "source": "artifact_result",
+                  "quote": "324",
+                  "confirmed": true,
+                  "revision": 2,
+                  "status": "active",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-7e1d7e621a9e",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-2",
+                    "quote": "324",
+                    "artifact_id": "art-ac65b1ed7aec42ee9f3942ec03a5d80c",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-4f85f2eb63904c69aa5d5144855e5b63",
+                  "replaces_revision": 1,
+                  "replaces_turn_id": "turn-1",
+                  "replaces_text": "162"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-072ea3e3821f",
+                    "turn_id": "turn-3",
+                    "kind": "chat",
+                    "turn_number": 3,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-3",
+                  "conversation_id": "conv-072ea3e3821f",
+                  "kind": "chat",
+                  "execution_id": "exec-7e1d7e621a9e",
+                  "generation": 0
+                }
+              },
+              "verification_report": null,
+              "before_revision": 1,
+              "after_revision": 2,
+              "parent_receipt_ids": [
+                "rcpt-be22d5335055"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.248419
+            }
+          ]
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_cancel_during_waiting_probe_has_zero_artifacts",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-dac7c60657f3",
+        "query": "Tính phép toán lớn",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-78eaf99c86bf",
+          "lifecycle": "cancelled",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-calc",
+              "reason": "omitted_action",
+              "description": "Chưa hoàn tất thao tác calculate"
+            }
+          ],
+          "unresolved_reasons": [
+            "cancelled_in_flight",
+            "omitted_action"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Lượt bị dừng; các công việc đã khai chưa hoàn thành."
+        },
+        "unresolved_reasons": [
+          "cancelled_in_flight",
+          "omitted_action"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-78eaf99c86bf",
+          "conversation_id": "conv-f3bd5115af2e",
+          "turn_id": "turn-1",
+          "execution_id": "exec-dac7c60657f3",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-calc",
+              "kind": "registered_effect",
+              "effect_type": "calculate",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": false,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-f3bd5115af2e",
+          "turn_id": "turn-1",
+          "execution_id": "exec-dac7c60657f3",
+          "generation": 0,
+          "receipts": []
+        },
+        "artifacts": [],
+        "error": "cancelled"
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_conversational_response_without_tools",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-ae0a6134b57b",
+        "query": "Giải thích binary search bằng ví dụ nhỏ",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-7559b62fe2be",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "satisfied",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [
+            "response:turn-1"
+          ],
+          "unmet_outcomes": [],
+          "unresolved_reasons": [],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Đã hoàn thành phản hồi hội thoại."
+        },
+        "unresolved_reasons": [],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-7559b62fe2be",
+          "conversation_id": "conv-9a3539928aad",
+          "turn_id": "turn-1",
+          "execution_id": "exec-ae0a6134b57b",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-explain",
+              "kind": "response",
+              "effect_type": null,
+              "description": "Giải thích thuật toán",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": false,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-9a3539928aad",
+          "turn_id": "turn-1",
+          "execution_id": "exec-ae0a6134b57b",
+          "generation": 0,
+          "receipts": []
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_proposed_note_does_not_satisfy_confirmed_obligation",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-65d47ee40b70",
+        "query": "Ghi lại kết quả",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-6c9c8b1ec800",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-note",
+              "reason": "unconfirmed_proposal",
+              "description": "Ghi kết quả đã kiểm chứng"
+            }
+          ],
+          "unresolved_reasons": [
+            "unconfirmed_proposal"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
+        },
+        "unresolved_reasons": [
+          "unconfirmed_proposal"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-6c9c8b1ec800",
+          "conversation_id": "conv-eda15a64e06e",
+          "turn_id": "turn-1",
+          "execution_id": "exec-65d47ee40b70",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-note",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "Ghi kết quả đã kiểm chứng",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-eda15a64e06e",
+          "turn_id": "turn-1",
+          "execution_id": "exec-65d47ee40b70",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-0a9f6ee1a016",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-eda15a64e06e",
+              "turn_id": "turn-1",
+              "execution_id": "exec-65d47ee40b70",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": {
+                "text": "Kết quả đo đạc khoảng bốn mươi hai",
+                "source_result": {
+                  "artifact_id": "sample",
+                  "revision": 1,
+                  "field": "result"
+                }
+              },
+              "operation_result": {
+                "note": {
+                  "id": "note-ae6e48b158a34ff586860bf29482460e",
+                  "text": "Kết quả đo đạc khoảng bốn mươi hai",
+                  "source": "artifact_result",
+                  "quote": "42",
+                  "confirmed": false,
+                  "revision": 1,
+                  "status": "proposed",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-65d47ee40b70",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": null,
+                    "quote": "42",
+                    "artifact_id": "sample",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "notes_updated": true,
+                "note_event": {
+                  "event_id": "nevt-1-bc1365e3",
+                  "sequence": 1,
+                  "conversation_id": "conv-eda15a64e06e",
+                  "kind": "create",
+                  "note_id": "note-ae6e48b158a34ff586860bf29482460e",
+                  "owner_turn_id": "turn-1",
+                  "source_turn_id": null,
+                  "before_revision": null,
+                  "after_revision": 1,
+                  "snapshot": {
+                    "id": "note-ae6e48b158a34ff586860bf29482460e",
+                    "text": "Kết quả đo đạc khoảng bốn mươi hai",
+                    "source": "artifact_result",
+                    "quote": "42",
+                    "confirmed": false,
+                    "revision": 1,
+                    "status": "proposed",
+                    "owner_turn_id": "turn-1",
+                    "execution_id": "exec-65d47ee40b70",
+                    "source_ref": {
+                      "kind": "artifact_result",
+                      "quote_source_turn_id": null,
+                      "quote": "42",
+                      "artifact_id": "sample",
+                      "artifact_revision": 1,
+                      "field": "result"
+                    },
+                    "replaces_note_id": null,
+                    "replaces_revision": null,
+                    "replaces_turn_id": null,
+                    "replaces_text": null
+                  },
+                  "context": {
+                    "turn_ref": {
+                      "conversation_id": "conv-eda15a64e06e",
+                      "turn_id": "turn-1",
+                      "kind": "chat",
+                      "turn_number": 1,
+                      "target_turn_id": null,
+                      "target_artifact_id": null,
+                      "target_revision": null
+                    },
+                    "turn_id": "turn-1",
+                    "conversation_id": "conv-eda15a64e06e",
+                    "kind": "chat",
+                    "execution_id": "exec-65d47ee40b70",
+                    "generation": 0
+                  }
+                }
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "022b2bc83755e15261340b49adb7f77356ed52e40f5224ce4089b525373eec30",
+              "error": null,
+              "timestamp": 1791908261.250873
+            },
+            {
+              "receipt_id": "rcpt-3f1e5ba6dd18",
+              "issuer": "notebook",
+              "sequence": 2,
+              "conversation_id": "conv-eda15a64e06e",
+              "turn_id": "turn-1",
+              "execution_id": "exec-65d47ee40b70",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": {
+                "event_id": "nevt-1-bc1365e3",
+                "sequence": 1,
+                "conversation_id": "conv-eda15a64e06e",
+                "kind": "create",
+                "note_id": "note-ae6e48b158a34ff586860bf29482460e",
+                "owner_turn_id": "turn-1",
+                "source_turn_id": null,
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-ae6e48b158a34ff586860bf29482460e",
+                  "text": "Kết quả đo đạc khoảng bốn mươi hai",
+                  "source": "artifact_result",
+                  "quote": "42",
+                  "confirmed": false,
+                  "revision": 1,
+                  "status": "proposed",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-65d47ee40b70",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": null,
+                    "quote": "42",
+                    "artifact_id": "sample",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-eda15a64e06e",
+                    "turn_id": "turn-1",
+                    "kind": "chat",
+                    "turn_number": 1,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-1",
+                  "conversation_id": "conv-eda15a64e06e",
+                  "kind": "chat",
+                  "execution_id": "exec-65d47ee40b70",
+                  "generation": 0
+                }
+              },
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": 1,
+              "parent_receipt_ids": [
+                "rcpt-0a9f6ee1a016"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.250894
+            }
+          ]
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_note_created_then_removed_in_same_execution_fails_boundary_check",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-209d71e923a2",
+        "query": "Ghi rồi xóa",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-e62ef3147cec",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-note",
+              "reason": "note_removed",
+              "description": "Chưa hoàn tất thao tác record_work_note"
+            }
+          ],
+          "unresolved_reasons": [
+            "note_removed"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
+        },
+        "unresolved_reasons": [
+          "note_removed"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-e62ef3147cec",
+          "conversation_id": "conv-afb988669b92",
+          "turn_id": "turn-1",
+          "execution_id": "exec-209d71e923a2",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-note",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "",
+              "expected_args": null,
+              "target_ref": null,
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-afb988669b92",
+          "turn_id": "turn-1",
+          "execution_id": "exec-209d71e923a2",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-bdeaab737b62",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-afb988669b92",
+              "turn_id": "turn-1",
+              "execution_id": "exec-209d71e923a2",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": {
+                "text": "42",
+                "source_result": {
+                  "artifact_id": "sample",
+                  "revision": 1,
+                  "field": "result"
+                }
+              },
+              "operation_result": {
+                "note": {
+                  "id": "note-dcf8d8fae1b34be9b2921c8732dfb84b",
+                  "text": "42",
+                  "source": "artifact_result",
+                  "quote": "42",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-209d71e923a2",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": null,
+                    "quote": "42",
+                    "artifact_id": "sample",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "notes_updated": true,
+                "note_event": {
+                  "event_id": "nevt-1-b94150e9",
+                  "sequence": 1,
+                  "conversation_id": "conv-afb988669b92",
+                  "kind": "create",
+                  "note_id": "note-dcf8d8fae1b34be9b2921c8732dfb84b",
+                  "owner_turn_id": "turn-1",
+                  "source_turn_id": null,
+                  "before_revision": null,
+                  "after_revision": 1,
+                  "snapshot": {
+                    "id": "note-dcf8d8fae1b34be9b2921c8732dfb84b",
+                    "text": "42",
+                    "source": "artifact_result",
+                    "quote": "42",
+                    "confirmed": true,
+                    "revision": 1,
+                    "status": "active",
+                    "owner_turn_id": "turn-1",
+                    "execution_id": "exec-209d71e923a2",
+                    "source_ref": {
+                      "kind": "artifact_result",
+                      "quote_source_turn_id": null,
+                      "quote": "42",
+                      "artifact_id": "sample",
+                      "artifact_revision": 1,
+                      "field": "result"
+                    },
+                    "replaces_note_id": null,
+                    "replaces_revision": null,
+                    "replaces_turn_id": null,
+                    "replaces_text": null
+                  },
+                  "context": {
+                    "turn_ref": {
+                      "conversation_id": "conv-afb988669b92",
+                      "turn_id": "turn-1",
+                      "kind": "chat",
+                      "turn_number": 1,
+                      "target_turn_id": null,
+                      "target_artifact_id": null,
+                      "target_revision": null
+                    },
+                    "turn_id": "turn-1",
+                    "conversation_id": "conv-afb988669b92",
+                    "kind": "chat",
+                    "execution_id": "exec-209d71e923a2",
+                    "generation": 0
+                  }
+                }
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "379989d9a24910f2bbe91f87d6dd5723207cb103b062281a2e7d2904d7003cb5",
+              "error": null,
+              "timestamp": 1791908261.2525089
+            },
+            {
+              "receipt_id": "rcpt-f11bd56a2bbe",
+              "issuer": "notebook",
+              "sequence": 2,
+              "conversation_id": "conv-afb988669b92",
+              "turn_id": "turn-1",
+              "execution_id": "exec-209d71e923a2",
+              "generation": 0,
+              "operation_call_id": null,
+              "status": "committed",
+              "committed": true,
+              "operation_name": "record_work_note",
+              "operation_args": null,
+              "operation_result": null,
+              "artifact_refs": [],
+              "note_event": {
+                "event_id": "nevt-1-b94150e9",
+                "sequence": 1,
+                "conversation_id": "conv-afb988669b92",
+                "kind": "create",
+                "note_id": "note-dcf8d8fae1b34be9b2921c8732dfb84b",
+                "owner_turn_id": "turn-1",
+                "source_turn_id": null,
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-dcf8d8fae1b34be9b2921c8732dfb84b",
+                  "text": "42",
+                  "source": "artifact_result",
+                  "quote": "42",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-209d71e923a2",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": null,
+                    "quote": "42",
+                    "artifact_id": "sample",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-afb988669b92",
+                    "turn_id": "turn-1",
+                    "kind": "chat",
+                    "turn_number": 1,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-1",
+                  "conversation_id": "conv-afb988669b92",
+                  "kind": "chat",
+                  "execution_id": "exec-209d71e923a2",
+                  "generation": 0
+                }
+              },
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": 1,
+              "parent_receipt_ids": [
+                "rcpt-bdeaab737b62"
+              ],
+              "evidence_hash": null,
+              "error": null,
+              "timestamp": 1791908261.252531
+            }
+          ]
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  },
+  {
+    "fixture_id": "test_stale_revision_update_is_unmet",
+    "passed": true,
+    "error": null,
+    "turns": [
+      {
+        "turn_id": "turn-1",
+        "execution_id": "exec-2f9805bdb3a2",
+        "query": "Sửa ghi chú",
+        "answer": "",
+        "status": "in_progress",
+        "reconciliation_status": "unchecked",
+        "reconciliation": {
+          "contract_id": "contract-ae7f2dd8a39b",
+          "lifecycle": "completed",
+          "intent_coverage": "model_proposed",
+          "declared_scope_completion": "unresolved",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "out-update",
+              "reason": "omitted_action",
+              "description": "Chưa hoàn tất thao tác record_work_note"
+            }
+          ],
+          "unresolved_reasons": [
+            "omitted_action"
+          ],
+          "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+          "summary": "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
+        },
+        "unresolved_reasons": [
+          "omitted_action"
+        ],
+        "turn_contract": {
+          "schema_version": "1.0",
+          "contract_id": "contract-ae7f2dd8a39b",
+          "conversation_id": "conv-500326f3fff3",
+          "turn_id": "turn-1",
+          "execution_id": "exec-2f9805bdb3a2",
+          "generation": 0,
+          "proposed_by": "provided_contract",
+          "source_message_refs": [],
+          "outcomes": [
+            {
+              "outcome_id": "out-update",
+              "kind": "registered_effect",
+              "effect_type": "record_work_note",
+              "description": "",
+              "expected_args": null,
+              "target_ref": {
+                "note_id": "note-cfc7f47d82104947b89458a0d91625a4",
+                "expected_revision": 2
+              },
+              "source_ref": null,
+              "dependency_ids": [],
+              "allow_proposal": false,
+              "required_proof_scope": null,
+              "required_authority": null
+            }
+          ],
+          "intent_coverage": "model_proposed",
+          "frozen": true,
+          "is_valid": true,
+          "validation_errors": []
+        },
+        "execution_journal": {
+          "conversation_id": "conv-500326f3fff3",
+          "turn_id": "turn-1",
+          "execution_id": "exec-2f9805bdb3a2",
+          "generation": 0,
+          "receipts": [
+            {
+              "receipt_id": "rcpt-a03fb8be0dbd",
+              "issuer": "dispatcher",
+              "sequence": 1,
+              "conversation_id": "conv-500326f3fff3",
+              "turn_id": "turn-1",
+              "execution_id": "exec-2f9805bdb3a2",
+              "generation": 0,
+              "operation_call_id": "step-1",
+              "status": "error",
+              "committed": false,
+              "operation_name": "record_work_note",
+              "operation_args": {
+                "text": "44",
+                "source_result": {
+                  "artifact_id": "sample",
+                  "revision": 1,
+                  "field": "result"
+                },
+                "replace_note_id": "note-cfc7f47d82104947b89458a0d91625a4",
+                "revision": 1
+              },
+              "operation_result": {
+                "error": "Ghi chú đã đổi. Dùng đúng ghi chú và phiên bản mới nhất để cập nhật."
+              },
+              "artifact_refs": [],
+              "note_event": null,
+              "verification_report": null,
+              "before_revision": null,
+              "after_revision": null,
+              "parent_receipt_ids": [],
+              "evidence_hash": "4c0bfb6b0c4e3f6e4cd61c0f7a7c94aa2930b5efbbd584942f04eaeaa3787258",
+              "error": "Ghi chú đã đổi. Dùng đúng ghi chú và phiên bản mới nhất để cập nhật.",
+              "timestamp": 1791908261.2549388
+            }
+          ]
+        },
+        "artifacts": [],
+        "error": null
+      }
+    ],
+    "standalone_reconciliations": []
+  }
+]

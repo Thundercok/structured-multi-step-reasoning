@@ -1,0 +1,9 @@
+{
+  "summary_chars": 306,
+  "indicator_offset": 301,
+  "full_row_passes_slide_rule": true,
+  "sql_candidates": 1,
+  "projected_summary_chars": 200,
+  "projected_row_passes_slide_rule": false,
+  "final_hits": 0
+}

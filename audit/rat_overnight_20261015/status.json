@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "pid": 86567,
+  "started_utc": "2026-10-15T16:09:45.418719+00:00",
+  "trials_planned": 54,
+  "trials_completed": 54,
+  "calls_started": 90,
+  "deadline": "2026-10-16T06:00:00+07:00",
+  "plan_sha256": "588b723a41c293cb8d22935fc6fb90ce038658ed9abc52d27d60dd25aecc0b98",
+  "updated_utc": "2026-10-15T16:46:34.653379+00:00",
+  "current_trial": "medium-2-resident-rat_prompt",
+  "current_call": 90,
+  "finished_utc": "2026-10-15T16:46:34.653365+00:00"
+}

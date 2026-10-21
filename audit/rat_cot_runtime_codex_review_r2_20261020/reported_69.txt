@@ -1,0 +1,22 @@
+
+==================================== ERRORS ====================================
+______________ ERROR collecting tests/test_harness_regressions.py ______________
+ImportError while importing test module '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_harness_regressions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_harness_regressions.py:12: in <module>
+    import qwen_mlx_backend
+qwen_mlx_backend.py:11: in <module>
+    from mlx_lm import load, stream_generate
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/__init__.py:9: in <module>
+    from .convert import convert
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/convert.py:7: in <module>
+    import mlx.core as mx
+E   ImportError: [metal::load_device] No Metal device available. This typically occurs in headless, sandboxed, or virtualized macOS sessions where the GPU is not accessible.
+=========================== short test summary info ============================
+ERROR tests/test_harness_regressions.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 3.80s

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/test_spider_adapter.py",
+    "tests/test_assistant_runtime.py",
+    "tests/test_work_context.py",
+    "-q",
+    "--junitxml=audit/rat_cot_structural_consolidation_review_r2_20261020/runtime.xml"
+  ],
+  "env": {
+    "QT_QPA_PLATFORM": "offscreen"
+  },
+  "exit_code": 0
+}

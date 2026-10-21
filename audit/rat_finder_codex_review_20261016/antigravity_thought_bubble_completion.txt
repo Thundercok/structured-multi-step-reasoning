@@ -1,0 +1,279 @@
+Viewed omnibar.py:1580-1640
+Ran command: Search workbench_canvas in omnibar.py (`grep -n "workbench_canvas" rat/ui/omnibar.py`)
+Viewed omnibar.py:1520-1575
+Viewed workbench.py:520-600
+Viewed workbench.py:700-850
+Viewed workbench.py:850-1100
+Viewed workbench.py:1120-1250
+Viewed workbench.py:1320-1434
+Ran command: Find _fit_surface in omnibar.py (`grep -n -C 15 "def _fit_surface" rat/ui/omnibar.py`)
+Viewed omnibar.py:1730-1800
+Ran command: Check is_empty definition (`grep -n -C 10 "def is_empty" rat/ui/workbench_scene.py`)
+Ran command: Check preferred_height definition (`grep -n -C 15 "def preferred_height" rat/ui/workbench_scene.py`)
+Viewed omnibar.py:1900-1940
+Ran command: Check sizeHint in workbench.py (`grep -n -C 5 "def sizeHint" rat/ui/workbench.py`)
+Checked task Check sizeHint in workbench.py
+Viewed workbench.py:270-300
+Viewed workbench_scene.py:1910-1950
+Viewed test_workbench_scene.py:1110-1165
+Viewed workbench.py:480-545
+Viewed workbench.py:1-100
+Viewed workbench.py:450-560
+Viewed workbench.py:620-750
+Viewed workbench.py:751-900
+Viewed workbench.py:901-1050
+Viewed omnibar.py:80-160
+Viewed omnibar.py:350-450
+Viewed omnibar.py:600-750
+Ran command: Grep workbench_canvas (`grep -n "workbench_canvas" rat/ui/omnibar.py`)
+Viewed omnibar.py:1520-1600
+Viewed workbench.py:1100-1250
+Viewed workbench.py:1320-1434
+Ran command: Grep FinderSuggestionsWidget (`grep -n "FinderSuggestionsWidget" rat/ui/workbench_scene.py`)
+Viewed workbench_scene.py:2050-2160
+Viewed workbench_scene.py:1970-2050
+Ran command: Grep is_empty (`grep -n -C 5 "def is_empty" rat/ui/workbench_scene.py`)
+Viewed workbench_scene.py:2470-2530
+Ran command: Grep _surface_height (`grep -n -C 10 "def _surface_height" rat/ui/omnibar.py`)
+Viewed omnibar.py:1746-1830
+Ran command: Grep preferred_height (`grep -n -C 15 "def preferred_height" rat/ui/workbench_scene.py`)
+Viewed workbench_scene.py:2305-2330
+Viewed workbench_scene.py:1930-1970
+Viewed workbench_scene.py:1910-1935
+Viewed reproduce_native_workbench_scene.py:150-250
+Viewed reproduce_native_workbench_scene.py:251-320
+Ran command: Grep workbench_canvas.set (`grep -n -C 5 "workbench_canvas.set" rat/ui/omnibar.py`)
+Ran command: Run test_workbench_scene.py (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_workbench_scene.py -q`)
+
+I have launched the pytest run on `tests/test_workbench_scene.py` to check the baseline test status and will proceed as soon as it completes.
+
+Checked task Run test_workbench_scene.py
+Viewed test_workbench_scene.py:1296-1296
+Viewed test_workbench_scene.py:1200-1296
+Ran command: Grep thought in tests (`grep -n "thought" tests/test_workbench_scene.py`)
+Viewed test_workbench_scene.py:1110-1170
+Viewed workbench.py:380-449
+Ran command: Grep set_mascot_ in omnibar.py (`grep -n -C 5 "def set_mascot_" rat/ui/omnibar.py`)
+Viewed omnibar.py:1435-1470
+Ran command: Grep shutdown in omnibar.py (`grep -n -C 10 "def shutdown" rat/ui/omnibar.py`)
+Ran command: Grep __all__ (`grep -n "__all__" rat/ui/workbench.py`)
+Checked task Grep __all__
+Viewed reproduce_native_workbench_scene.py:1-60
+Viewed workbench.py:490-545
+Edited workbench.py
+Viewed workbench.py:980-1030
+Viewed workbench.py:1070-1105
+Edited workbench.py
+Viewed workbench_scene.py:1910-1935
+Viewed workbench_scene.py:2080-2145
+Viewed workbench_scene.py:2470-2485
+Viewed workbench_scene.py:3245-3254
+Edited workbench_scene.py
+Viewed workbench_scene.py:2470-2490
+Edited workbench_scene.py
+Viewed workbench_scene.py:3245-3265
+Edited workbench_scene.py
+Viewed omnibar.py:75-90
+Viewed omnibar.py:1565-1580
+Viewed omnibar.py:1780-1800
+Viewed omnibar.py:1315-1335
+Viewed omnibar.py:1385-1405
+Viewed omnibar.py:1475-1490
+Viewed omnibar.py:2240-2255
+Viewed omnibar.py:4745-4760
+Viewed omnibar.py:2145-2165
+Ran command: Grep _sync_compact_surface (`grep -n -C 5 "def _sync_compact_surface" rat/ui/omnibar.py`)
+Viewed omnibar.py:1900-1940
+Viewed omnibar.py:75-88
+Edited omnibar.py
+Viewed omnibar.py:1570-1578
+Viewed omnibar.py:1515-1525
+Viewed omnibar.py:1570-1577
+Edited omnibar.py
+Viewed omnibar.py:1785-1805
+Edited omnibar.py
+Viewed omnibar.py:1920-1940
+Viewed omnibar.py:2240-2255
+Edited omnibar.py
+Edited omnibar.py
+Viewed omnibar.py:1420-1455
+Edited omnibar.py
+Viewed omnibar.py:1475-1495
+Edited omnibar.py
+Viewed omnibar.py:1930-1945
+Edited omnibar.py
+Viewed omnibar.py:2250-2265
+Edited omnibar.py
+Viewed omnibar.py:4745-4765
+Viewed omnibar.py:4766-4780
+Edited omnibar.py
+Viewed test_workbench_scene.py:1110-1165
+Viewed test_workbench_scene.py:1-60
+Viewed test_workbench_scene.py:1110-1165
+Edited test_workbench_scene.py
+Edited test_workbench_scene.py
+Ran command: Run test_workbench_scene.py (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_workbench_scene.py -q`)
+
+I have started the pytest verification on `tests/test_workbench_scene.py` to ensure all tests pass with the thought trail and updated Workbench thought bubble layout.
+
+Checked task Run test_workbench_scene.py
+Checked task Run test_workbench_scene.py
+Ran command: Run UI tests (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_chat_composer.py tests/test_chat_stream.py tests/test_compact_results.py tests/test_live_companion.py tests/test_omnibar_smoke.py tests/test_omnibar_window.py tests/test_surface_layout.py tests/test_workbench.py tests/test_workbench_scene.py -q`)
+Ran command: List test files (`ls tests/test_*.py`)
+Ran command: Run UI tests (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_workbench_scene.py tests/test_omnibar.py tests/test_progressive_search.py tests/test_interaction_kernel_ui.py tests/test_rat_one_box_ui.py tests/test_selected_document_ui.py -q`)
+
+I have launched the UI test suite covering `test_workbench_scene.py`, `test_omnibar.py`, `test_progressive_search.py`, `test_interaction_kernel_ui.py`, `test_rat_one_box_ui.py`, and `test_selected_document_ui.py`.
+
+Checked task Run UI tests
+Checked task Run UI tests
+Checked task Run UI tests
+Checked task Run UI tests
+Checked task Run UI tests
+
+I am waiting for the UI test suite to finish.
+
+Checked task Run UI tests
+Checked task Run UI tests
+Checked task Run UI tests
+Checked task Run UI tests
+Viewed test_omnibar.py:515-550
+Viewed omnibar.py:1300-1340
+Ran command: Grep showEvent in omnibar.py (`grep -n -C 15 "def showEvent" rat/ui/omnibar.py`)
+Viewed omnibar.py:1455-1475
+Viewed omnibar.py:1490-1515
+Viewed omnibar.py:1515-1540
+Ran command: Run single test (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_omnibar.py -k test_expand_collapse_respects_screen_and_keeps_composer_bottom -vv --tb=long`)
+Viewed workbench.py:1130-1155
+Viewed workbench.py:1175-1195
+Viewed workbench.py:1205-1235
+Ran command: Print height components (`.venv/bin/python -c "
+import os
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+from PyQt6.QtWidgets import QApplication
+app = QApplication.instance() or QApplication([])
+from rat.ui.omnibar import OmnibarWindow
+win = OmnibarWindow()
+win.show()
+app.processEvents()
+print('height:', win.height())
+print('_surface_height:', win._surface_height())
+print('dialogue_h:', win.workbench_dialogue.sizeHint().height())
+print('canvas_chrome:', win.workbench_canvas.chrome_height())
+print('thought_trail visible:', win.thought_trail.isVisible(), win.thought_trail.sizeHint().height())
+"`)
+Checked task Print height components
+Viewed test_omnibar.py:1-60
+Killed task Print height components
+Viewed workbench.py:500-620
+Viewed workbench.py:1070-1095
+Edited workbench.py
+Viewed workbench.py:595-615
+Edited workbench.py
+Viewed workbench.py:1075-1090
+Viewed workbench.py:1210-1235
+Edited workbench.py
+Edited workbench.py
+Viewed omnibar.py:1760-1805
+Viewed omnibar.py:1800-1815
+Edited omnibar.py
+Edited omnibar.py
+Ran command: Run test_expand_collapse (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_omnibar.py -k test_expand_collapse_respects_screen_and_keeps_composer_bottom -vv`)
+Ran command: Run test_omnibar.py (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_omnibar.py -q`)
+
+I have started the full test run on `tests/test_omnibar.py` to ensure all 62 tests pass.
+
+Checked task Run test_omnibar.py
+Checked task Run test_omnibar.py
+Checked task Run test_omnibar.py
+Checked task Run test_omnibar.py
+Checked task Run test_omnibar.py
+Checked task Run test_omnibar.py
+Checked task Run test_omnibar.py
+Ran command: Run test_workbench_scene.py (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_workbench_scene.py -q`)
+Checked task Run test_workbench_scene.py
+Checked task Run test_workbench_scene.py
+Viewed reproduce_native_workbench_scene.py:290-320
+Edited reproduce_native_workbench_scene.py
+Ran command: Run reproduce script (`PYTHONPATH=. .venv/bin/python scripts/reproduce_native_workbench_scene.py`)
+
+I have run `scripts/reproduce_native_workbench_scene.py` to regenerate all native screenshots and session metadata.
+
+Checked task Run reproduce script
+Checked task Run reproduce script
+Viewed workbench.py:570-595
+Edited workbench.py
+Ran command: Run reproduce script (`PYTHONPATH=. .venv/bin/python scripts/reproduce_native_workbench_scene.py`)
+Checked task Run reproduce script
+Checked task Run reproduce script
+Viewed native_scene_overview.png:1-800
+Viewed native_scene_source_detail.png:1-800
+Ran command: Grep overview_layout.addWidget (`grep -n "overview_layout.addWidget" rat/ui/workbench_scene.py`)
+Ran command: Grep SceneResultCard (`grep -n "class SceneResultCard" rat/ui/workbench_scene.py`)
+Checked task Grep SceneResultCard
+Ran command: Grep result_card (`grep -n "self.result_card =" rat/ui/workbench_scene.py`)
+Viewed workbench_scene.py:1700-1750
+Ran command: Grep overview in reproduce script (`grep -n -C 5 "overview" scripts/reproduce_native_workbench_scene.py`)
+Viewed native_scene_revision_update.png:1-800
+Viewed reproduce_native_workbench_scene.py:120-150
+Viewed reproduce_native_workbench_scene.py:95-118
+Viewed omnibar.py:1530-1545
+Ran command: Grep chat_stream in omnibar.py (`grep -n "self.chat_stream =" rat/ui/omnibar.py`)
+Ran command: Grep classes in view_renderer.py (`grep -n "class " rat/ui/view_renderer.py`)
+Ran command: Grep render_document (`grep -n -C 10 "render_document" rat/ui/view_renderer.py`)
+Checked task Grep render_document
+Viewed native_scene_stopped.png:1-800
+Viewed native_scene_narrow.png:1-800
+Viewed native_scene_dark.png:1-800
+Viewed native_scene_finder_suggestions.png:1-800
+Ran command: Git status check (`git status -s`)
+Ran command: Git diff stat (`git diff --stat`)
+Ran command: Check omnibar.py git diff (`git diff -U3 rat/ui/omnibar.py | head -n 80`)
+Viewed native_scene_session.json:1-67
+Ran command: Run research tests (`.venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`)
+Ran command: Run integrated tests (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests/test_progressive_search.py tests/test_workbench_scene.py tests/test_omnibar.py -q`)
+Checked task Run integrated tests
+Checked task Run integrated tests
+Checked task Run integrated tests
+Checked task Run integrated tests
+
+Đã hoàn tất đính chính thiết kế và hoàn thiện bố cục **Thought Bubble của Workbench**:
+
+---
+
+### 1. Bản chất thiết kế đã triển khai
+
+Đúng theo chỉ đạo trực tiếp của bạn:
+- **Toàn bộ khung Workbench phía trên chính là bong bóng suy nghĩ lớn của Chuột**:
+  - Khung `WorkbenchCanvas` được bo góc mềm mại, hữu cơ (`border-radius: 24px` compact, `26px` expanded, `20px` narrow) kết hợp đổ bóng mềm (`blurRadius: 20px`), giữ màu `tokens.paper` và viền `tokens.line` đồng nhất.
+  - Toàn bộ nguồn quan sát, trích đoạn, quan hệ grounded, kết quả, thẻ chi tiết và gợi ý tìm kiếm (finder) đều nằm trọn bên trong khung suy nghĩ này. Không sinh thêm panel hay bản sao renderer.
+- **Đường nối 3 chấm tròn chuyển lên cấp layout (`WorkbenchThoughtTrail`)**:
+  - Đã loại bỏ hoàn toàn mini-bubble cũ vẽ trong `WorkbenchActorWidget.paintEvent`.
+  - Tạo widget `WorkbenchThoughtTrail` ở giữa `workbench_canvas` và `workbench_dialogue` trong `OmnibarWindow.main_layout`.
+  - Ba chấm tròn tăng dần kích thước từ đầu Chuột (`r = 1.8px`, `2.8px`, `4.2px`) chếch dần lên mép dưới của khung Workbench.
+  - Vị trí neo ngang được tính toán động từ tọa độ đầu của Chuột (`actor.mapToGlobal` $\to$ `mapFromGlobal`), đảm bảo luôn thẳng hàng dù ở chế độ compact (620px), expanded (820px) hay narrow (420px).
+- **Tính bền vững của bố cục (Persistence & Motion lifecycle)**:
+  - Khung Workbench và đường nối là cấu trúc layout tự nhiên của Workbench; tồn tại xuyên suốt các trạng thái `idle`, `working`, `done`, `stopped/cancelled`, `error`.
+  - Hiệu ứng nhấp nhô nhẹ chỉ kích hoạt khi Chuột ở trạng thái xử lý (`thinking`, `working`, `searching`) và `motion_enabled()` cho phép. Khi chuyển sang `done`, `idle` hoặc bật `ratReduceMotion`, timer dừng hoàn toàn, 3 chấm và khung vẫn hiển thị tĩnh, sắc nét và không bị co lại.
+- **Nới vùng làm việc & chống cắt hàng gợi ý finder**:
+  - `WorkbenchScene.is_empty()` nhận biết khi `finder_box` đang có kết quả (không còn bị coi là rỗng).
+  - `preferred_height()` và `FinderSuggestionsWidget.sizeHint()` cấp đủ chiều cao (~42px/hàng + caption) để danh sách gợi ý hiển thị trọn vẹn, không còn tình trạng hàng đầu bị cắt xén.
+  - Khung tự nới rộng theo nội dung lên tới 75% chiều cao màn hình; khi vượt quá sẽ cuộn bên trong qua `QScrollArea`. Ô composer ở dưới luôn cố định và truy cập được.
+
+---
+
+### 2. Bằng chứng kiểm thử và thị giác
+
+1. **Kiểm thử tự động**:
+   - `tests/test_workbench_scene.py`: **12/12 passed**.
+   - `tests/test_omnibar.py`: **62/62 passed** (bao gồm kiểm tra neo đáy composer và giới hạn kích thước).
+   - Bộ test tích hợp (`test_progressive_search.py`, `test_workbench_scene.py`, `test_omnibar.py`): **87 passed, 3 subtests passed** trong 28.27s.
+   - Bộ test nghiên cứu theo `AGENTS.md` (`test_research_study.py`, `test_optimal_stopping.py`, `test_entry_predictor.py`): **29 passed**.
+
+2. **Ảnh chụp nghiệm thu Cocoa (đã trực tiếp kiểm tra)** trong `docs/evidence/rat_workbench_native/`:
+   - [native_scene_overview.png](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/evidence/rat_workbench_native/native_scene_overview.png): Chuột ở góc dưới bên trái, 3 chấm tròn nối mượt mà từ đầu Chuột lên khung Workbench suy nghĩ phía trên.
+   - [native_scene_finder_suggestions.png](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/evidence/rat_workbench_native/native_scene_finder_suggestions.png): Khung mở rộng chuẩn (620x376), hàng tệp `so_tay_sinh_vien_2026.txt` cùng các nút thao tác `Hỏi`, `Mở` hiển thị nguyên vẹn, không bị cắt.
+   - [native_scene_stopped.png](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/evidence/rat_workbench_native/native_scene_stopped.png): Sau khi dừng (`cancelled`), các phần đã làm vẫn lưu giữ đầy đủ trên bàn làm việc, đường nối 3 chấm đứng yên.
+   - [native_scene_narrow.png](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/evidence/rat_workbench_native/native_scene_narrow.png) & [native_scene_dark.png](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/evidence/rat_workbench_native/native_scene_dark.png): Thích ứng hoàn hảo trong màn hẹp (420px) và nền tối (dark mode).
+   - Session metadata và mã băm SHA256 tương ứng đã được ghi nhận tại [native_scene_session.json](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/evidence/rat_workbench_native/native_scene_session.json).
+
+*(Các cờ `RAT_WORKBENCH_SCENE` và `RAT_WORKBENCH_FINDER` vẫn giữ mặc định tắt `0`; branch `main` và toàn bộ recovery material được bảo toàn.)*

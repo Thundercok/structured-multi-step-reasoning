@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="14" time="1.706" timestamp="2026-10-14T15:15:35.496672+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_raw_unknown_result_familiar_key_does_not_authorize_decode[quote]" time="0.043"><failure message="AssertionError: assert {'quote': 'RESOLVED_TARGET'} == {'quote': {'$...load/value'}}}&#10;  &#10;  Differing items:&#10;  {'quote': 'RESOLVED_TARGET'} != {'quote': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}&#10;  Use -v to get more diff">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:48: in test_raw_unknown_result_familiar_key_does_not_authorize_decode
+    assert restored["operation_result"] == result
+E   AssertionError: assert {'quote': 'RESOLVED_TARGET'} == {'quote': {'$...load/value'}}}
+E     
+E     Differing items:
+E     {'quote': 'RESOLVED_TARGET'} != {'quote': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}
+E     Use -v to get more diff</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_raw_unknown_result_familiar_key_does_not_authorize_decode[note]" time="0.003"><failure message="AssertionError: assert {'note': 'RESOLVED_TARGET'} == {'note': {'$v...load/value'}}}&#10;  &#10;  Differing items:&#10;  {'note': 'RESOLVED_TARGET'} != {'note': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}&#10;  Use -v to get more diff">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:48: in test_raw_unknown_result_familiar_key_does_not_authorize_decode
+    assert restored["operation_result"] == result
+E   AssertionError: assert {'note': 'RESOLVED_TARGET'} == {'note': {'$v...load/value'}}}
+E     
+E     Differing items:
+E     {'note': 'RESOLVED_TARGET'} != {'note': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}
+E     Use -v to get more diff</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_raw_unknown_result_familiar_key_does_not_authorize_decode[snapshot]" time="0.003"><failure message="AssertionError: assert {'snapshot': ...OLVED_TARGET'} == {'snapshot': ...load/value'}}}&#10;  &#10;  Differing items:&#10;  {'snapshot': 'RESOLVED_TARGET'} != {'snapshot': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}&#10;  Use -v to get more diff">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:48: in test_raw_unknown_result_familiar_key_does_not_authorize_decode
+    assert restored["operation_result"] == result
+E   AssertionError: assert {'snapshot': ...OLVED_TARGET'} == {'snapshot': ...load/value'}}}
+E     
+E     Differing items:
+E     {'snapshot': 'RESOLVED_TARGET'} != {'snapshot': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}
+E     Use -v to get more diff</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_raw_unknown_result_familiar_key_does_not_authorize_decode[verification_report]" time="0.002"><failure message="AssertionError: assert {'verificatio...OLVED_TARGET'} == {'verificatio...load/value'}}}&#10;  &#10;  Differing items:&#10;  {'verification_report': 'RESOLVED_TARGET'} != {'verification_report': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}&#10;  Use -v to get more diff">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:48: in test_raw_unknown_result_familiar_key_does_not_authorize_decode
+    assert restored["operation_result"] == result
+E   AssertionError: assert {'verificatio...OLVED_TARGET'} == {'verificatio...load/value'}}}
+E     
+E     Differing items:
+E     {'verification_report': 'RESOLVED_TARGET'} != {'verification_report': {'$value_ref': {'entity_ref': {'artifact_id': 'a', 'conversation_id': 'review-conv', 'kind': 'artifact', 'revision': 1}, 'pointer': '/payload/value'}}}
+E     Use -v to get more diff</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_raw_unknown_result_dangling_literal_ref_is_not_structural_reference" time="0.002"><failure message="AssertionError: [&quot;Broken value_ref at 'quote': entity {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'missing', 'revision': 1} not found in entities or unavailable_refs&quot;]&#10;assert False">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:55: in test_raw_unknown_result_dangling_literal_ref_is_not_structural_reference
+    assert valid, errors
+E   AssertionError: ["Broken value_ref at 'quote': entity {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'missing', 'revision': 1} not found in entities or unavailable_refs"]
+E   assert False</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_raw_artifact_literal_cycle_is_not_projector_graph_edge" time="0.002"><failure message="AssertionError: ['Cycle detected in value_ref graph: [(\'{&quot;artifact_id&quot;: &quot;a&quot;, &quot;conversation_id&quot;: &quot;review-conv&quot;, &quot;kind&quot;: &quot;artifact&quot;, &quot;r...&gt; (\'{&quot;artifact_id&quot;: &quot;a&quot;, &quot;conversation_id&quot;: &quot;review-conv&quot;, &quot;kind&quot;: &quot;artifact&quot;, &quot;revision&quot;: 1}\', \'/payload/quote\')']&#10;assert False">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:64: in test_raw_artifact_literal_cycle_is_not_projector_graph_edge
+    assert valid, errors
+E   AssertionError: ['Cycle detected in value_ref graph: [(\'{"artifact_id": "a", "conversation_id": "review-conv", "kind": "artifact", "r...&gt; (\'{"artifact_id": "a", "conversation_id": "review-conv", "kind": "artifact", "revision": 1}\', \'/payload/quote\')']
+E   assert False</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_note_and_source_ref_quote_preserve_independent_exact_values" time="0.001"><failure message="AssertionError: assert 'Canonical source' == 'Different li... source quote'&#10;  &#10;  - Different literal source quote&#10;  + Canonical source">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:76: in test_note_and_source_ref_quote_preserve_independent_exact_values
+    assert restored["source_ref"]["quote"] == raw["source_ref"]["quote"]
+E   AssertionError: assert 'Canonical source' == 'Different li... source quote'
+E     
+E     - Different literal source quote
+E     + Canonical source</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_replacement_text_is_not_rewritten_without_exact_value_match" time="0.001"><failure message="AssertionError: assert 'Canonical prior text' == 'Different literal prior text'&#10;  &#10;  - Different literal prior text&#10;  + Canonical prior text">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:85: in test_replacement_text_is_not_rewritten_without_exact_value_match
+    assert restored["replaces_text"] == current["replaces_text"]
+E   AssertionError: assert 'Canonical prior text' == 'Different literal prior text'
+E     
+E     - Different literal prior text
+E     + Canonical prior text</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_trusted_note_result_equality_must_distinguish_bool_from_number" time="0.001"><failure message="AssertionError: assert &lt;class 'bool'&gt; is int&#10; +  where &lt;class 'bool'&gt; = type(True)">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:93: in test_trusted_note_result_equality_must_distinguish_bool_from_number
+    assert type(restored["operation_result"]["note"]["confirmed"]) is int
+E   AssertionError: assert &lt;class 'bool'&gt; is int
+E    +  where &lt;class 'bool'&gt; = type(True)</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_receipt_event_same_id_different_body_is_not_silently_replaced" time="0.002"><failure message="AssertionError: assert {'after_revis...ote_id': 'n1'} == {'after_revis...al kind', ...}&#10;  &#10;  Omitting 3 identical items, use -vv to show&#10;  Differing items:&#10;  {'kind': 'created'} != {'kind': 'different literal kind'}&#10;  Right contains 1 more item:&#10;  {'extra': 'keep'}&#10;  Use -v to get more diff">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:108: in test_receipt_event_same_id_different_body_is_not_silently_replaced
+    assert restored["note_event"] == literal
+E   AssertionError: assert {'after_revis...ote_id': 'n1'} == {'after_revis...al kind', ...}
+E     
+E     Omitting 3 identical items, use -vv to show
+E     Differing items:
+E     {'kind': 'created'} != {'kind': 'different literal kind'}
+E     Right contains 1 more item:
+E     {'extra': 'keep'}
+E     Use -v to get more diff</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_proof_without_generation_is_not_current_generation_proof" time="0.002"><failure message="AssertionError: assert (not True or [{'execution_...85a22429658'}] == []&#10;  &#10;  Left contains one more item: {'execution_id': 'review-exec', 'kind': 'verification_report', 'receipt_id': 'rcpt-285a22429658'}&#10;  Use -v to get more diff)">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:119: in test_proof_without_generation_is_not_current_generation_proof
+    assert not valid or snap["observed_state"]["proof_refs"] == []
+E   AssertionError: assert (not True or [{'execution_...85a22429658'}] == []
+E     
+E     Left contains one more item: {'execution_id': 'review-exec', 'kind': 'verification_report', 'receipt_id': 'rcpt-285a22429658'}
+E     Use -v to get more diff)</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_missing_typed_proof_ref_requires_explicit_unavailable" time="0.001"><failure message="AssertionError: []&#10;assert not True">audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py:126: in test_missing_typed_proof_ref_requires_explicit_unavailable
+    assert not valid, errors
+E   AssertionError: []
+E   assert not True</failure></testcase><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_unknown_result_equal_canonical_note_remains_raw_control" time="0.001" /><testcase classname="audit.rat_context_B1_codex_review_round2_20261014_151324.provenance_probes" name="test_same_id_revision_in_distinct_conversations_is_distinct_identity_control" time="0.003" /></testsuite></testsuites>

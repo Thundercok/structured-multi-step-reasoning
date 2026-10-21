@@ -11,39 +11,11 @@ import threading
 from typing import Callable, Optional
 
 from rat.config import config
+from rat.os.permissions import (
+    is_accessibility_trusted, request_accessibility_permission, open_accessibility_settings,
+)
 
 logger = logging.getLogger("rat.os.hotkey")
-
-
-def is_accessibility_trusted() -> bool:
-    """Check if the process has macOS Accessibility (AX) permission."""
-    if sys.platform != "darwin":
-        return True
-    try:
-        from ApplicationServices import AXIsProcessTrusted
-        return bool(AXIsProcessTrusted())
-    except Exception:
-        return False
-
-
-def request_accessibility_permission() -> None:
-    """Trigger the native macOS accessibility permission prompt."""
-    if sys.platform == "darwin":
-        try:
-            from ApplicationServices import AXIsProcessTrustedWithOptions
-            from Foundation import NSDictionary
-            options = NSDictionary.dictionaryWithObject_forKey_(True, "AXTrustedCheckOptionPrompt")
-            AXIsProcessTrustedWithOptions(options)
-        except Exception:
-            pass
-
-
-def open_accessibility_settings() -> None:
-    """Open macOS System Settings directly to the Accessibility pane."""
-    request_accessibility_permission()
-    if sys.platform == "darwin":
-        import subprocess
-        subprocess.run(["open", "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"])
 
 
 _active_hotkey_manager: Optional[GlobalHotkeyManager] = None
@@ -70,24 +42,28 @@ class GlobalHotkeyManager:
         self.on_trigger = on_trigger
         self._listener = None
         self._running = False
+        self.status = "stopped"
+        self.last_error: Optional[str] = None
         self._monitor_thread: Optional[threading.Thread] = None
         self._stop_monitor_event = threading.Event()
 
     def _start_permission_monitor(self) -> None:
         """Start a background monitor that auto-rebinds hotkeys once Accessibility is granted."""
-        if self._monitor_thread and self._monitor_thread.is_alive():
+        if self._monitor_thread and self._monitor_thread.is_alive() and not self._stop_monitor_event.is_set():
             return
-        self._stop_monitor_event.clear()
+        # A stopped monitor keeps its own event while a replacement starts.
+        self._stop_monitor_event = threading.Event()
         self._monitor_thread = threading.Thread(
             target=self._monitor_permission_loop,
+            args=(self._stop_monitor_event,),
             daemon=True,
             name="rat-hotkey-permission-monitor",
         )
         self._monitor_thread.start()
 
-    def _monitor_permission_loop(self) -> None:
+    def _monitor_permission_loop(self, stop_event) -> None:
         """Polls every 3s to detect when user grants Accessibility permission in System Settings."""
-        while not self._stop_monitor_event.wait(3.0):
+        while not stop_event.wait(3.0):
             if is_accessibility_trusted():
                 logger.info("Accessibility permission newly granted! Auto-reconnecting Global Hotkey Manager...")
                 self.restart()
@@ -99,12 +75,20 @@ class GlobalHotkeyManager:
             return True
 
         if not is_accessibility_trusted():
+            if self._listener is not None:
+                self._listener.stop()
+                self._listener = None
+            self._running = False
             logger.warning(
                 "macOS Accessibility permission not granted! "
                 "Global hotkeys require Accessibility in System Settings -> Privacy & Security -> Accessibility."
             )
-            request_accessibility_permission()
+            outcome = request_accessibility_permission()
+            self.status = "permission_error" if outcome.error else "waiting_permission"
+            self.last_error = outcome.error
             self._start_permission_monitor()
+            # Do not claim a working listener or start an event tap without trust.
+            return False
         else:
             self._stop_monitor_event.set()
 
@@ -132,12 +116,23 @@ class GlobalHotkeyManager:
             self._listener = keyboard.GlobalHotKeys(hotkeys)
             self._listener.start()
             self._running = True
+            self.status = "listener_started"
+            self.last_error = None
             logger.info(
-                f"Global Hotkey Manager active with shortcuts: {list(hotkeys.keys())} "
+                f"Global hotkey listener thread started with shortcuts: {list(hotkeys.keys())} "
                 f"(Accessibility trusted: {is_accessibility_trusted()})"
             )
             return True
         except Exception as e:
+            if self._listener is not None:
+                try:
+                    self._listener.stop()
+                except Exception:
+                    pass
+                self._listener = None
+            self._running = False
+            self.status = "listener_error"
+            self.last_error = f"{type(e).__name__}: {e}"
             logger.warning(f"Failed to start GlobalHotKeys listener: {e}")
             self._start_permission_monitor()
             return False
@@ -152,6 +147,7 @@ class GlobalHotkeyManager:
                 pass
             self._listener = None
         self._running = False
+        self.status = "stopped"
         logger.info("Global Hotkey Manager stopped.")
 
     def restart(self) -> bool:

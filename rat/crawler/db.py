@@ -12,9 +12,10 @@ import threading
 import unicodedata
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-import numpy as np
+if TYPE_CHECKING:
+    import numpy as np
 
 logger = logging.getLogger("rat.db")
 
@@ -107,6 +108,15 @@ class Database:
                 conn.execute("PRAGMA synchronous=NORMAL;")
             conn.row_factory = sqlite3.Row
             conn.execute("PRAGMA busy_timeout=60000;")
+            def _is_slide_doc_sql(file_name: Any, file_path: Any, summary: Any) -> int:
+                from rat.engine.finder_intent import is_slide_row
+                return 1 if is_slide_row({
+                    "file_ext": ".pdf",
+                    "file_name": file_name or "",
+                    "file_path": file_path or "",
+                    "summary": summary or "",
+                }) else 0
+            conn.create_function("is_slide_doc", 3, _is_slide_doc_sql)
             self._local.conn = conn
         return self._local.conn
 
@@ -520,6 +530,107 @@ class Database:
         self.query_cache.set(cache_key, res)
         return res
 
+    def search_metadata(
+        self,
+        query: str,
+        *,
+        extensions=(),
+        excluded_extensions=(),
+        date_min=None,
+        date_max=None,
+        date_max_exclusive=None,
+        date_field: str = 'modified',
+        slide_rule: bool = False,
+        report_rule: bool = False,
+        sort: str = 'relevance',
+        limit: int = 30,
+        should_cancel=None,
+    ):
+        """Small FTS/metadata projection for the finder; never return full document text.
+
+        Terms are literal ANDed prefixes. Filters are explicit, not inferred by a
+        model. No LIKE content scan or stale query cache. Use a worker-owned DB
+        connection when supplying cancellation (SQLite progress handler).
+        """
+        if type(limit) is not int or not 1 <= limit <= 100:
+            raise ValueError('invalid_finder_limit')
+        if sort not in ('relevance', 'modified_desc'):
+            raise ValueError('invalid_finder_sort')
+        terms = re.findall(r'[^\W_]+', query)
+        if query.strip() and not terms:
+            return []
+        clauses, args = [], []
+        for column, values, operator in (
+            ('file_ext', extensions, 'IN'), ('file_ext', excluded_extensions, 'NOT IN')):
+            if values:
+                clauses.append(f"lower(d.{column}) {operator} ({','.join('?' for _ in values)})")
+                args.extend(value.lower() for value in values)
+        col = 'd.created_at' if date_field == 'created' else 'd.modified_at'
+        if date_min is not None:
+            clauses.append(f'{col} >= ?')
+            args.append(date_min)
+        if date_max_exclusive is not None:
+            clauses.append(f'{col} < ?')
+            args.append(date_max_exclusive)
+        elif date_max is not None:
+            clauses.append(f'{col} <= ?')
+            args.append(date_max)
+        if slide_rule:
+            pres_exts = ('.pptx', '.ppt', '.key', '.odp')
+            clauses.append(
+                f"(lower(d.file_ext) IN ({','.join('?' for _ in pres_exts)}) "
+                f"OR (lower(d.file_ext) = '.pdf' AND is_slide_doc(d.file_name, d.file_path, d.summary) = 1))"
+            )
+            args.extend(pres_exts)
+        fts_parts = []
+        if terms:
+            fts_parts.extend('(' + build_fts_query([term]) + ')' for term in terms)
+        if report_rule:
+            fts_parts.append('(' + build_fts_query(['báo cáo', 'baocao', 'report']) + ')')
+        fields = ('d.file_path, d.file_name, d.file_ext, d.file_size, d.modified_at, d.created_at, '
+                  "substr(coalesce(d.summary, ''), 1, 200) AS summary")
+        if fts_parts:
+            clauses.append('documents_fts MATCH ?')
+            args.append(' AND '.join(fts_parts))
+            source = 'documents_fts JOIN documents d ON d.id = documents_fts.rowid'
+            rank = 'bm25(documents_fts, 15.0, 1.0, 1.0)'
+        else:
+            source, rank = 'documents d', '0.0'
+        where = ' WHERE ' + ' AND '.join(clauses) if clauses else ''
+        order_by = (
+            'ORDER BY d.modified_at DESC, rank ASC, d.file_path'
+            if sort == 'modified_desc'
+            else 'ORDER BY rank ASC, d.modified_at DESC, d.file_path'
+        )
+        conn = self.get_connection()
+        if should_cancel and should_cancel():
+            raise InterruptedError('finder_cancelled')
+        previous_timeout = conn.execute('PRAGMA busy_timeout').fetchone()[0]
+        conn.execute('PRAGMA busy_timeout=50')
+        if should_cancel:
+            conn.set_progress_handler(lambda: int(should_cancel()), 1000)
+        try:
+            rows = conn.execute(
+                f'SELECT {fields}, {rank} AS rank FROM {source}{where} {order_by} LIMIT ?',
+                [*args, limit],
+            ).fetchall()
+            results = [dict(row) for row in rows]
+            if slide_rule:
+                for r in results:
+                    r['_slide_rule_matched'] = True
+            if report_rule:
+                for r in results:
+                    r['_report_rule_matched'] = True
+            return results
+        except sqlite3.OperationalError:
+            if should_cancel and should_cancel():
+                raise InterruptedError('finder_cancelled') from None
+            raise
+        finally:
+            if should_cancel:
+                conn.set_progress_handler(None, 0)
+            conn.execute(f'PRAGMA busy_timeout={previous_timeout}')
+
     def save_document_chunks(
         self,
         doc_id: int,
@@ -539,6 +650,7 @@ class Database:
         chunks: List[Any], embeddings: np.ndarray,
     ) -> None:
         """Validate and replace chunks inside the caller's write transaction."""
+        import numpy as np
         if embeddings.ndim != 2 or len(embeddings) != len(chunks):
             raise ValueError("Each chunk must have one embedding row")
 
@@ -572,6 +684,7 @@ class Database:
         """
         Execute Cosine Similarity search over chunk embeddings matrix in RAM.
         """
+        import numpy as np
         if query_vector.size == 0:
             return []
 

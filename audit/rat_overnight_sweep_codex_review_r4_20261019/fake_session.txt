@@ -1,0 +1,18 @@
+=== Starting Native Performance & Document QA Session ===
+Output directory: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_review_r4_20261019/fake_session
+Backend mode: Fake Backend (Offline)
+Fake model directory created at: /var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_b8ei78ev
+psutil 7.2.2 imported from /Users/thundercock2/Library/Python/3.12/lib/python/site-packages/psutil/__init__.py
+Default font resolved: '.AppleSystemUIFont', Mono font resolved: 'Menlo'
+Append-only ledger: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_review_r4_20261019/fake_session/calls.jsonl (Existing recorded attempts: 0/1)
+Loading session from /var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_b8ei78ev...
+Session loaded in 0.00s (session report: 0.00s)
+Dispatching requests (Remaining budget: 1)...
+[01/1] Query: 'Sinh viên được đăng ký tối đa bao nhiêu tín chỉ trong một học kỳ chính?'
+      -> Status: success | Latency: 44.5ms
+Budget limit reached (1/1). Halting loop.
+Measuring host CPU for 1 second...
+Current Runner RSS: 97.12 MB, Peak RSS: 97.12 MB, Host CPU: 52.6%
+Saved native performance artifact to /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_review_r4_20261019/fake_session/native_performance.json
+=== Native Performance Session Complete ===
+[Qt] Populating font family aliases took 111 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 

@@ -1,0 +1,838 @@
+"""rat.engine.completion — Headless completion reconciliation and contract validation.
+
+Implements ADR-003:
+- Declared outcome contracts (frozen before first effect, immutable afterwards)
+- Strict validation: empty/unknown schema/kind/invalid dependencies marked invalid/unresolved
+- Trusted execution journal with structured, deepcopied receipt envelopes
+- Producer-consumer dependency matching across artifacts and notes
+- Registered effect matching with target_ref, proof lineage, and terminal note verification
+- Separation of lifecycle, declared-scope completion, intent coverage, and scoped proof quality
+- Zero Qt dependencies. Pure functional reconciler.
+"""
+from __future__ import annotations
+
+import copy
+from dataclasses import asdict, dataclass, field
+import hashlib
+import json
+import time
+from typing import Any, Dict, List, Optional, Set, Tuple
+from uuid import uuid4
+
+
+class OutcomeKind:
+    RESPONSE = "response"
+    REGISTERED_EFFECT = "registered_effect"
+    VALID_KINDS = (RESPONSE, REGISTERED_EFFECT)
+
+
+@dataclass
+class OutcomeSpec:
+    """Declared expectation for a turn."""
+
+    outcome_id: str
+    kind: str = OutcomeKind.RESPONSE  # "response" | "registered_effect"
+    effect_type: Optional[str] = None  # e.g. "calculate", "record_work_note", "select_work_results"
+    description: str = ""
+    target_ref: Optional[Dict[str, Any]] = None  # e.g. {"note_id": ..., "expected_revision": ...}
+    source_ref: Optional[Dict[str, Any]] = None  # e.g. {"producer_outcome_id": ...} or {"artifact_id": ...}
+    dependency_ids: List[str] = field(default_factory=list)
+    allow_proposal: bool = False
+    required_proof_scope: Optional[str] = None  # e.g. "source_calculation_note", "literal_arithmetic_answer"
+    required_authority: Optional[str] = None
+    is_valid: bool = True
+    validation_error: Optional[str] = None
+
+    def __post_init__(self):
+        object.__setattr__(self, "_frozen", False)
+        if self.kind not in OutcomeKind.VALID_KINDS:
+            self.is_valid = False
+            self.validation_error = f"invalid_outcome_kind:{self.kind}"
+
+    def freeze(self) -> None:
+        object.__setattr__(self, "_frozen", True)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if getattr(self, "_frozen", False) and not name.startswith("_"):
+            raise RuntimeError(f"Cannot mutate frozen OutcomeSpec attribute '{name}'")
+        super().__setattr__(name, value)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "outcome_id": self.outcome_id,
+            "kind": self.kind,
+            "effect_type": self.effect_type,
+            "description": self.description,
+            "target_ref": copy.deepcopy(self.target_ref) if self.target_ref is not None else None,
+            "source_ref": copy.deepcopy(self.source_ref) if self.source_ref is not None else None,
+            "dependency_ids": list(self.dependency_ids),
+            "allow_proposal": self.allow_proposal,
+            "required_proof_scope": self.required_proof_scope,
+            "required_authority": self.required_authority,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> OutcomeSpec:
+        raw_allow = data.get("allow_proposal", False)
+        if isinstance(raw_allow, str):
+            allow_prop = raw_allow.lower() in ("true", "1")
+        else:
+            allow_prop = bool(raw_allow)
+
+        raw_kind = str(data.get("kind") or OutcomeKind.RESPONSE)
+        spec = cls(
+            outcome_id=str(data.get("outcome_id") or "out-" + uuid4().hex[:8]),
+            kind=raw_kind,
+            effect_type=data.get("effect_type"),
+            description=str(data.get("description") or ""),
+            target_ref=copy.deepcopy(data.get("target_ref")),
+            source_ref=copy.deepcopy(data.get("source_ref")),
+            dependency_ids=list(data.get("dependency_ids") or []),
+            allow_proposal=allow_prop,
+            required_proof_scope=data.get("required_proof_scope"),
+            required_authority=data.get("required_authority"),
+        )
+        return spec
+
+
+@dataclass
+class TurnContract:
+    """Pre-execution obligations. Frozen before the first side-effect and immutable thereafter."""
+
+    schema_version: str = "1.0"
+    contract_id: str = field(default_factory=lambda: "contract-" + uuid4().hex[:12])
+    conversation_id: str = "conv-default"
+    turn_id: str = "turn-default"
+    execution_id: str = "exec-default"
+    generation: Optional[int] = None
+    proposed_by: str = "model"  # "model_planner" | "model_decision" | "fixture" | "unspecified"
+    source_message_refs: List[str] = field(default_factory=list)
+    outcomes: Any = field(default_factory=list)
+    intent_coverage: str = "model_proposed"  # "model_proposed" | "ambiguous" | "invalid" | "unchecked"
+    frozen: bool = False
+    is_valid: bool = True
+    validation_errors: List[str] = field(default_factory=list)
+
+    def __post_init__(self):
+        # Validate schema_version
+        if self.schema_version != "1.0":
+            self.is_valid = False
+            self.validation_errors.append(f"unsupported_schema_version:{self.schema_version}")
+            self.intent_coverage = "invalid"
+
+        # Validate outcomes
+        outcome_ids = set()
+        for o in self.outcomes:
+            if not getattr(o, "is_valid", True):
+                self.is_valid = False
+                self.validation_errors.append(getattr(o, "validation_error", "invalid_outcome"))
+                self.intent_coverage = "invalid"
+            if o.outcome_id in outcome_ids:
+                self.is_valid = False
+                self.validation_errors.append(f"duplicate_outcome_id:{o.outcome_id}")
+                self.intent_coverage = "invalid"
+            outcome_ids.add(o.outcome_id)
+
+        # Validate dependencies
+        for o in self.outcomes:
+            for dep in o.dependency_ids:
+                if dep not in outcome_ids:
+                    self.is_valid = False
+                    self.validation_errors.append(f"unknown_dependency:{dep}")
+                    self.intent_coverage = "invalid"
+
+    def freeze(self) -> None:
+        for o in self.outcomes:
+            if hasattr(o, "freeze"):
+                o.freeze()
+            else:
+                object.__setattr__(o, "_frozen", True)
+        object.__setattr__(self, "outcomes", tuple(self.outcomes))
+        object.__setattr__(self, "frozen", True)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if getattr(self, "frozen", False) and name not in ("frozen", "_frozen"):
+            raise RuntimeError(f"Cannot mutate frozen TurnContract attribute '{name}'")
+        super().__setattr__(name, value)
+
+    def is_empty(self) -> bool:
+        return len(self.outcomes) == 0
+
+    def add_outcome(self, outcome: OutcomeSpec) -> None:
+        if self.frozen:
+            raise RuntimeError("Cannot add outcome to frozen contract")
+        outcomes_list = list(self.outcomes)
+        outcomes_list.append(outcome)
+        self.outcomes = outcomes_list
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "contract_id": self.contract_id,
+            "conversation_id": self.conversation_id,
+            "turn_id": self.turn_id,
+            "execution_id": self.execution_id,
+            "generation": self.generation,
+            "proposed_by": self.proposed_by,
+            "source_message_refs": list(self.source_message_refs),
+            "outcomes": [o.to_dict() for o in self.outcomes],
+            "intent_coverage": self.intent_coverage,
+            "frozen": self.frozen,
+            "is_valid": self.is_valid,
+            "validation_errors": list(self.validation_errors),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> TurnContract:
+        schema_version = str(data.get("schema_version") or "1.0")
+        outcomes_raw = data.get("outcomes")
+        if outcomes_raw is None:
+            outcomes_raw = []
+        outcomes = [OutcomeSpec.from_dict(o) if isinstance(o, dict) else o for o in outcomes_raw]
+
+        is_valid = True
+        val_errors: List[str] = []
+        intent_cov = str(data.get("intent_coverage") or ("model_proposed" if outcomes else "unchecked"))
+
+        if schema_version != "1.0":
+            is_valid = False
+            val_errors.append(f"unsupported_schema_version:{schema_version}")
+            intent_cov = "invalid"
+
+        for o in outcomes:
+            if not getattr(o, "is_valid", True):
+                is_valid = False
+                val_errors.append(getattr(o, "validation_error", "invalid_outcome"))
+                intent_cov = "invalid"
+
+        contract = cls(
+            schema_version=schema_version,
+            contract_id=str(data.get("contract_id") or "contract-" + uuid4().hex[:12]),
+            conversation_id=str(data.get("conversation_id") or "conv-default"),
+            turn_id=str(data.get("turn_id") or "turn-default"),
+            execution_id=str(data.get("execution_id") or "exec-default"),
+            generation=data.get("generation"),
+            proposed_by=str(data.get("proposed_by") or "model"),
+            source_message_refs=list(data.get("source_message_refs") or []),
+            outcomes=outcomes,
+            intent_coverage=intent_cov,
+            frozen=bool(data.get("frozen", False)),
+            is_valid=is_valid,
+            validation_errors=val_errors,
+        )
+        if bool(data.get("frozen", False)):
+            contract.freeze()
+        return contract
+
+
+@dataclass
+class ReceiptEnvelope:
+    """Authoritative execution receipt emitted by runtime components."""
+
+    receipt_id: str = field(default_factory=lambda: "rcpt-" + uuid4().hex[:12])
+    issuer: str = "runtime"  # "dispatcher" | "notebook" | "verification" | "artifact_store"
+    sequence: int = 0
+    conversation_id: str = ""
+    turn_id: str = ""
+    execution_id: str = ""
+    generation: Optional[int] = None
+    operation_call_id: Optional[str] = None
+    status: str = "committed"  # "committed" | "error" | "cancelled" | "needs_input"
+    committed: bool = True
+    operation_name: Optional[str] = None
+    operation_args: Optional[Dict[str, Any]] = None
+    operation_result: Any = None
+    artifact_refs: List[Dict[str, Any]] = field(default_factory=list)
+    note_event: Optional[Dict[str, Any]] = None
+    verification_report: Optional[Dict[str, Any]] = None
+    before_revision: Optional[int] = None
+    after_revision: Optional[int] = None
+    parent_receipt_ids: List[str] = field(default_factory=list)
+    evidence_hash: Optional[str] = None
+    error: Optional[str] = None
+    timestamp: float = field(default_factory=time.time)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "receipt_id": self.receipt_id,
+            "issuer": self.issuer,
+            "sequence": self.sequence,
+            "conversation_id": self.conversation_id,
+            "turn_id": self.turn_id,
+            "execution_id": self.execution_id,
+            "generation": self.generation,
+            "operation_call_id": self.operation_call_id,
+            "status": self.status,
+            "committed": self.committed,
+            "operation_name": self.operation_name,
+            "operation_args": copy.deepcopy(self.operation_args) if isinstance(self.operation_args, dict) else self.operation_args,
+            "operation_result": copy.deepcopy(self.operation_result) if isinstance(self.operation_result, (dict, list)) else self.operation_result,
+            "artifact_refs": copy.deepcopy(self.artifact_refs),
+            "note_event": copy.deepcopy(self.note_event) if self.note_event is not None else None,
+            "verification_report": copy.deepcopy(self.verification_report) if self.verification_report is not None else None,
+            "before_revision": self.before_revision,
+            "after_revision": self.after_revision,
+            "parent_receipt_ids": list(self.parent_receipt_ids),
+            "evidence_hash": self.evidence_hash,
+            "error": self.error,
+            "timestamp": self.timestamp,
+        }
+
+
+@dataclass
+class ExecutionJournal:
+    """Request-scoped trusted journal recording all runtime events and receipts."""
+
+    conversation_id: str
+    turn_id: str
+    execution_id: str
+    generation: Optional[int] = None
+    receipts: List[ReceiptEnvelope] = field(default_factory=list)
+    _seq: int = 0
+
+    def record_operation(
+        self,
+        operation_name: str,
+        args: Dict[str, Any],
+        result: Any,
+        *,
+        status: str = "committed",
+        committed: bool = True,
+        artifact_refs: Optional[List[Dict[str, Any]]] = None,
+        error: Optional[str] = None,
+        operation_call_id: Optional[str] = None,
+    ) -> ReceiptEnvelope:
+        self._seq += 1
+        args_copy = copy.deepcopy(args) if isinstance(args, dict) else args
+        result_copy = copy.deepcopy(result) if isinstance(result, (dict, list)) else result
+        refs_copy = copy.deepcopy(artifact_refs) if artifact_refs else []
+
+        digest = None
+        try:
+            raw = json.dumps({"op": operation_name, "args": args_copy, "result": result_copy}, sort_keys=True, default=str)
+            digest = hashlib.sha256(raw.encode()).hexdigest()
+        except Exception:
+            pass
+
+        rcpt = ReceiptEnvelope(
+            issuer="dispatcher",
+            sequence=self._seq,
+            conversation_id=self.conversation_id,
+            turn_id=self.turn_id,
+            execution_id=self.execution_id,
+            generation=self.generation,
+            operation_call_id=operation_call_id or f"call-{self._seq}",
+            status=status,
+            committed=committed,
+            operation_name=operation_name,
+            operation_args=args_copy,
+            operation_result=result_copy,
+            artifact_refs=refs_copy,
+            evidence_hash=digest,
+            error=error,
+        )
+        self.receipts.append(rcpt)
+        return rcpt
+
+    def record_note_event(self, event_dict: Dict[str, Any], *, operation_receipt_id: Optional[str] = None) -> ReceiptEnvelope:
+        self._seq += 1
+        rcpt = ReceiptEnvelope(
+            issuer="notebook",
+            sequence=self._seq,
+            conversation_id=self.conversation_id,
+            turn_id=self.turn_id,
+            execution_id=self.execution_id,
+            generation=self.generation,
+            status="committed",
+            committed=True,
+            operation_name="record_work_note",
+            note_event=copy.deepcopy(event_dict),
+            before_revision=event_dict.get("before_revision"),
+            after_revision=event_dict.get("after_revision"),
+            parent_receipt_ids=[operation_receipt_id] if operation_receipt_id else [],
+        )
+        self.receipts.append(rcpt)
+        return rcpt
+
+    def record_verification(self, report_dict: Dict[str, Any], *, operation_receipt_id: Optional[str] = None) -> ReceiptEnvelope:
+        self._seq += 1
+        rcpt = ReceiptEnvelope(
+            issuer="verification",
+            sequence=self._seq,
+            conversation_id=self.conversation_id,
+            turn_id=self.turn_id,
+            execution_id=self.execution_id,
+            generation=self.generation,
+            status="committed",
+            committed=True,
+            verification_report=copy.deepcopy(report_dict),
+            parent_receipt_ids=[operation_receipt_id] if operation_receipt_id else [],
+        )
+        self.receipts.append(rcpt)
+        return rcpt
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "conversation_id": self.conversation_id,
+            "turn_id": self.turn_id,
+            "execution_id": self.execution_id,
+            "generation": self.generation,
+            "receipts": [r.to_dict() for r in self.receipts],
+        }
+
+
+@dataclass
+class TurnReconciliation:
+    """The honest truth of turn completion based on actual receipts."""
+
+    contract_id: Optional[str] = None
+    lifecycle: str = "completed"  # "completed" | "in_progress" | "needs_input" | "failed" | "cancelled"
+    intent_coverage: str = "model_proposed"  # "model_proposed" | "ambiguous" | "invalid" | "unchecked"
+    declared_scope_completion: str = "satisfied"  # "satisfied" | "partial" | "unresolved" | "unchecked"
+    scoped_quality: str = "not_checked"  # "PASS" | "FAIL" | "UNKNOWN" | "not_checked"
+    matched_receipts: List[str] = field(default_factory=list)
+    unmet_outcomes: List[Dict[str, Any]] = field(default_factory=list)
+    unresolved_reasons: List[str] = field(default_factory=list)
+    semantic_limitation: str = "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions."
+    summary: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "contract_id": self.contract_id,
+            "lifecycle": self.lifecycle,
+            "intent_coverage": self.intent_coverage,
+            "declared_scope_completion": self.declared_scope_completion,
+            "scoped_quality": self.scoped_quality,
+            "matched_receipts": list(self.matched_receipts),
+            "unmet_outcomes": copy.deepcopy(self.unmet_outcomes),
+            "unresolved_reasons": list(self.unresolved_reasons),
+            "semantic_limitation": self.semantic_limitation,
+            "summary": self.summary,
+        }
+
+
+def _match_calculate(
+    outcome: OutcomeSpec,
+    receipts: List[ReceiptEnvelope],
+    used_ids: Set[str],
+    producer_artifacts: Dict[str, Dict[str, Any]],
+    verif_reports: List[Dict[str, Any]],
+) -> Tuple[Optional[ReceiptEnvelope], Optional[str]]:
+    matched_rcpt = None
+    for r in receipts:
+        if r.receipt_id in used_ids:
+            continue
+        if r.operation_name == "calculate" and r.committed and r.status == "committed":
+            op_args = r.operation_args or {}
+            expr = op_args.get("expression")
+
+            # Expression binding check if description specifies a mathematical expression
+            if outcome.description and expr:
+                import re
+                desc_clean = re.sub(r"\s+", "", outcome.description)
+                expr_clean = re.sub(r"\s+", "", str(expr))
+                if any(op in outcome.description for op in ("*", "+", "-", "/")):
+                    if expr_clean not in desc_clean and desc_clean not in expr_clean:
+                        continue
+
+            # Proof lineage check: must belong to THIS receipt
+            if outcome.required_proof_scope:
+                receipt_reports = [
+                    rep for rep in verif_reports
+                    if rep.get("operation_receipt_id") == r.receipt_id
+                    or r.receipt_id in (rep.get("parent_receipt_ids") or [])
+                ]
+                if not receipt_reports and r.artifact_refs:
+                    art_ids = {a.get("id") or a.get("artifact_id") for a in r.artifact_refs}
+                    receipt_reports = [
+                        rep for rep in verif_reports
+                        if any(e in art_ids for e in rep.get("evidence_ids", []))
+                    ]
+                matching_scope = [
+                    rep for rep in receipt_reports
+                    if rep.get("scope") == outcome.required_proof_scope
+                ]
+                if not matching_scope or any(rep.get("status") != "PASS" for rep in matching_scope):
+                    continue
+
+            matched_rcpt = r
+            break
+
+    if matched_rcpt is not None:
+        used_ids.add(matched_rcpt.receipt_id)
+        if matched_rcpt.artifact_refs:
+            producer_artifacts[outcome.outcome_id] = matched_rcpt.artifact_refs[0]
+        return matched_rcpt, None
+    return None, "omitted_action"
+
+
+def _match_note(
+    outcome: OutcomeSpec,
+    receipts: List[ReceiptEnvelope],
+    used_ids: Set[str],
+    producer_artifacts: Dict[str, Dict[str, Any]],
+    notebook_snapshot: Optional[List[Dict[str, Any]]],
+    journal: ExecutionJournal,
+) -> Tuple[Optional[ReceiptEnvelope], Optional[str]]:
+    note_receipts = [
+        r for r in receipts
+        if r.issuer == "notebook" and r.committed and r.note_event and r.receipt_id not in used_ids
+    ]
+    if not note_receipts:
+        return None, "omitted_action"
+
+    unmet_reason = "omitted_action"
+    matched_rcpt = None
+
+    for r in note_receipts:
+        evt = r.note_event or {}
+        snap = evt.get("snapshot") or {}
+        source_ref = snap.get("source_ref") or {}
+        note_id = evt.get("note_id")
+
+        # 1. Terminal note verification
+        terminal_note = None
+        if notebook_snapshot is not None:
+            for n in notebook_snapshot:
+                if n.get("id") == note_id:
+                    terminal_note = n
+                    break
+        else:
+            all_evts = [
+                rec.note_event for rec in journal.receipts
+                if rec.issuer == "notebook" and rec.note_event and rec.note_event.get("note_id") == note_id
+            ]
+            if all_evts:
+                terminal_note = all_evts[-1].get("snapshot")
+
+        if terminal_note is None or terminal_note.get("status") == "removed":
+            unmet_reason = "note_removed"
+            continue
+
+        # Proposal check on terminal note
+        if not outcome.allow_proposal:
+            if not terminal_note.get("confirmed", False) or terminal_note.get("status") == "proposed":
+                unmet_reason = "unconfirmed_proposal"
+                continue
+
+        # 2. Source linkage check
+        if outcome.source_ref:
+            prod_id = outcome.source_ref.get("producer_outcome_id")
+            if prod_id:
+                expected_prod = producer_artifacts.get(prod_id)
+                if not expected_prod:
+                    unmet_reason = "wrong_source_consumer"
+                    continue
+                expected_art_id = expected_prod.get("artifact_id") or expected_prod.get("id")
+                expected_rev = expected_prod.get("revision") or expected_prod.get("artifact_revision")
+                consumer_art_id = source_ref.get("artifact_id") or source_ref.get("id")
+                consumer_rev = source_ref.get("artifact_revision") or source_ref.get("revision")
+                if consumer_art_id != expected_art_id or consumer_rev != expected_rev:
+                    unmet_reason = "wrong_source_consumer"
+                    continue
+
+            if "artifact_id" in outcome.source_ref:
+                consumer_art_id = source_ref.get("artifact_id") or source_ref.get("id")
+                if consumer_art_id != outcome.source_ref["artifact_id"]:
+                    unmet_reason = "wrong_source_consumer"
+                    continue
+            if "revision" in outcome.source_ref:
+                consumer_rev = source_ref.get("artifact_revision") or source_ref.get("revision")
+                if consumer_rev != outcome.source_ref["revision"]:
+                    unmet_reason = "wrong_source_consumer"
+                    continue
+            if "field" in outcome.source_ref:
+                if source_ref.get("field") != outcome.source_ref["field"]:
+                    unmet_reason = "wrong_source_consumer"
+                    continue
+
+        # 3. Target note check
+        if outcome.target_ref:
+            target_id = outcome.target_ref.get("note_id")
+            if target_id and note_id != target_id:
+                unmet_reason = "target_mismatch"
+                continue
+            expected_rev = outcome.target_ref.get("expected_revision")
+            if expected_rev is not None:
+                before_rev = evt.get("before_revision")
+                if before_rev is not None and before_rev != expected_rev:
+                    unmet_reason = "target_revision_mismatch"
+                    continue
+
+        matched_rcpt = r
+        break
+
+    if matched_rcpt is not None:
+        used_ids.add(matched_rcpt.receipt_id)
+        return matched_rcpt, None
+    return None, unmet_reason
+
+
+def _match_generic(
+    outcome: OutcomeSpec,
+    receipts: List[ReceiptEnvelope],
+    used_ids: Set[str],
+    verif_reports: List[Dict[str, Any]],
+) -> Tuple[Optional[ReceiptEnvelope], Optional[str]]:
+    matched_rcpt = None
+    unmet_reason = "omitted_action"
+
+    for r in receipts:
+        if r.receipt_id in used_ids:
+            continue
+        if r.operation_name == outcome.effect_type and r.committed and r.status == "committed":
+            op_args = r.operation_args or {}
+            op_res = r.operation_result or {}
+
+            # Target ref check
+            if outcome.target_ref:
+                mismatch = False
+                for k, v in outcome.target_ref.items():
+                    val = op_args.get(k)
+                    if val is None and isinstance(op_res, dict):
+                        val = op_res.get(k)
+                    if val != v:
+                        mismatch = True
+                        break
+                if mismatch:
+                    unmet_reason = "target_mismatch"
+                    continue
+
+            # Proof scope check
+            if outcome.required_proof_scope:
+                receipt_reports = [
+                    rep for rep in verif_reports
+                    if rep.get("operation_receipt_id") == r.receipt_id
+                ]
+                matching_scope = [
+                    rep for rep in receipt_reports
+                    if rep.get("scope") == outcome.required_proof_scope
+                ]
+                if not matching_scope or any(rep.get("status") != "PASS" for rep in matching_scope):
+                    unmet_reason = "missing_proof"
+                    continue
+
+            matched_rcpt = r
+            break
+
+    if matched_rcpt is not None:
+        used_ids.add(matched_rcpt.receipt_id)
+        return matched_rcpt, None
+    return None, unmet_reason
+
+
+def reconcile_turn(
+    contract: Optional[TurnContract],
+    journal: ExecutionJournal,
+    *,
+    execution_id: Optional[str] = None,
+    lifecycle: str = "completed",
+    final_answer: str = "",
+    error: Optional[str] = None,
+    notebook_snapshot: Optional[List[Dict[str, Any]]] = None,
+    store: Optional[Any] = None,
+) -> TurnReconciliation:
+    """Pure functional reconciliation matching frozen obligations against trusted journal receipts."""
+    # 1. Determine scoped quality from verification reports in journal
+    scoped_quality = "not_checked"
+    verif_reports = [r.verification_report for r in journal.receipts if r.verification_report]
+    if verif_reports:
+        if any(rep.get("status") == "FAIL" for rep in verif_reports):
+            scoped_quality = "FAIL"
+        elif any(rep.get("status") == "UNKNOWN" for rep in verif_reports):
+            scoped_quality = "UNKNOWN"
+        elif all(rep.get("status") == "PASS" for rep in verif_reports):
+            scoped_quality = "PASS"
+
+    # 2. Handle missing or unchecked/invalid contract
+    if contract is None or contract.intent_coverage in ("unchecked", "invalid") or not getattr(contract, "is_valid", True):
+        intent_cov = "invalid" if (contract and (not contract.is_valid or contract.intent_coverage == "invalid")) else "unchecked"
+        c_id = contract.contract_id if contract else None
+        if lifecycle == "cancelled":
+            return TurnReconciliation(
+                contract_id=c_id,
+                lifecycle="cancelled",
+                intent_coverage=intent_cov,
+                declared_scope_completion="unresolved",
+                scoped_quality=scoped_quality,
+                unresolved_reasons=["cancelled_in_flight"],
+                summary="Lượt bị dừng trước khi hoàn tất.",
+            )
+        if lifecycle == "needs_input":
+            return TurnReconciliation(
+                contract_id=c_id,
+                lifecycle="needs_input",
+                intent_coverage=intent_cov,
+                declared_scope_completion="unresolved",
+                scoped_quality=scoped_quality,
+                unresolved_reasons=["pending_input_required"],
+                summary="Đang chờ thông tin bổ sung từ người dùng.",
+            )
+        if lifecycle == "failed" or error:
+            return TurnReconciliation(
+                contract_id=c_id,
+                lifecycle="failed",
+                intent_coverage=intent_cov,
+                declared_scope_completion="unresolved",
+                scoped_quality=scoped_quality,
+                unresolved_reasons=[error or "execution_failed"],
+                summary=f"Thực thi gặp lỗi: {error}",
+            )
+        # Normal conversational reply with no declared contract or invalid contract
+        return TurnReconciliation(
+            contract_id=c_id,
+            lifecycle="completed",
+            intent_coverage=intent_cov,
+            declared_scope_completion="unresolved" if intent_cov == "invalid" else "unchecked",
+            scoped_quality=scoped_quality,
+            summary="Hợp đồng không hợp lệ." if intent_cov == "invalid" else "Câu trả lời hội thoại (chưa khai hợp đồng công việc cụ thể).",
+        )
+
+    # 3. Empty contract check
+    if not contract.outcomes:
+        return TurnReconciliation(
+            contract_id=contract.contract_id,
+            lifecycle=lifecycle,
+            intent_coverage=contract.intent_coverage,
+            declared_scope_completion="unresolved",
+            scoped_quality=scoped_quality,
+            unmet_outcomes=[],
+            unresolved_reasons=["empty_contract"],
+            summary="Hợp đồng rỗng; không có mục tiêu để xác nhận hoàn thành.",
+        )
+
+    # 4. Filter receipts belonging strictly to the current execution, turn, and generation
+    current_receipts = [
+        r for r in journal.receipts
+        if r.conversation_id == contract.conversation_id
+        and r.turn_id == contract.turn_id
+        and r.execution_id == contract.execution_id
+        and (contract.generation is None or r.generation is None or r.generation == contract.generation)
+    ]
+
+    # 5. Dependency pre-check and topological outcome matching
+    matched_receipts: List[str] = []
+    unmet_outcomes: List[Dict[str, Any]] = []
+    used_receipt_ids: Set[str] = set()
+    producer_artifacts: Dict[str, Dict[str, Any]] = {}
+
+    contract_outcome_ids = {o.outcome_id for o in contract.outcomes}
+    satisfied_outcome_ids: Set[str] = set()
+
+    for outcome in contract.outcomes:
+        # Check unknown dependencies
+        unknown_deps = [dep for dep in outcome.dependency_ids if dep not in contract_outcome_ids]
+        if unknown_deps:
+            unmet_outcomes.append({
+                "outcome_id": outcome.outcome_id,
+                "reason": "unknown_dependency",
+                "description": f"Phụ thuộc {unknown_deps} không tồn tại trong hợp đồng",
+            })
+            continue
+
+        # Check unmet dependencies
+        unmet_deps = [dep for dep in outcome.dependency_ids if any(u["outcome_id"] == dep for u in unmet_outcomes)]
+        if unmet_deps:
+            unmet_outcomes.append({
+                "outcome_id": outcome.outcome_id,
+                "reason": "dependency_unmet",
+                "description": f"Phụ thuộc {unmet_deps} chưa hoàn thành",
+            })
+            continue
+
+        if outcome.kind == OutcomeKind.RESPONSE:
+            if final_answer.strip():
+                matched_receipts.append(f"response:{contract.turn_id}")
+                satisfied_outcome_ids.add(outcome.outcome_id)
+            else:
+                unmet_outcomes.append({
+                    "outcome_id": outcome.outcome_id,
+                    "reason": "missing_response",
+                    "description": outcome.description or "Chưa có phản hồi văn bản",
+                })
+            continue
+
+        if outcome.kind == OutcomeKind.REGISTERED_EFFECT:
+            matched_rcpt = None
+            unmet_reason = "omitted_action"
+
+            if outcome.effect_type == "calculate":
+                matched_rcpt, unmet_reason = _match_calculate(
+                    outcome, current_receipts, used_receipt_ids, producer_artifacts, verif_reports
+                )
+            elif outcome.effect_type == "record_work_note":
+                matched_rcpt, unmet_reason = _match_note(
+                    outcome, current_receipts, used_receipt_ids, producer_artifacts, notebook_snapshot, journal
+                )
+            else:
+                matched_rcpt, unmet_reason = _match_generic(
+                    outcome, current_receipts, used_receipt_ids, verif_reports
+                )
+
+            if matched_rcpt is not None:
+                matched_receipts.append(matched_rcpt.receipt_id)
+                satisfied_outcome_ids.add(outcome.outcome_id)
+            else:
+                unmet_outcomes.append({
+                    "outcome_id": outcome.outcome_id,
+                    "reason": unmet_reason,
+                    "description": outcome.description or f"Chưa hoàn tất thao tác {outcome.effect_type}",
+                })
+
+    # 6. Final reconciliation status
+    unresolved_reasons = [u["reason"] for u in unmet_outcomes]
+
+    if lifecycle == "cancelled":
+        completion = "unresolved"
+        summary = "Lượt bị dừng; các công việc đã khai chưa hoàn thành."
+        if "cancelled_in_flight" not in unresolved_reasons:
+            unresolved_reasons.insert(0, "cancelled_in_flight")
+    elif lifecycle == "needs_input":
+        completion = "unresolved"
+        summary = "Đang chờ thông tin bổ sung; các công việc giữ trạng thái chờ."
+        if "pending_input_required" not in unresolved_reasons:
+            unresolved_reasons.insert(0, "pending_input_required")
+    elif lifecycle == "failed" or error:
+        completion = "unresolved"
+        summary = f"Lỗi thực thi: {error}"
+        if (error or "execution_failed") not in unresolved_reasons:
+            unresolved_reasons.insert(0, error or "execution_failed")
+    else:
+        # lifecycle == "completed"
+        if unmet_outcomes:
+            effect_outcomes = [o for o in contract.outcomes if o.kind == OutcomeKind.REGISTERED_EFFECT]
+            unmet_effect_ids = {u["outcome_id"] for u in unmet_outcomes}
+            met_effect_count = sum(1 for o in effect_outcomes if o.outcome_id not in unmet_effect_ids)
+
+            if not effect_outcomes:
+                completion = "unresolved"
+                summary = "Chưa hoàn tất công việc yêu cầu; thiếu phản hồi phù hợp."
+            else:
+                if met_effect_count == len(effect_outcomes):
+                    completion = "partial"
+                    summary = "Đã hoàn thành các thao tác nhưng thiếu phản hồi."
+                elif met_effect_count > 0:
+                    completion = "partial"
+                    summary = "Chỉ hoàn thành một phần công việc; còn thiếu một số thao tác/ràng buộc."
+                else:
+                    completion = "unresolved"
+                    summary = "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
+        else:
+            completion = "satisfied"
+            effect_outcomes = [o for o in contract.outcomes if o.kind == OutcomeKind.REGISTERED_EFFECT]
+            if effect_outcomes:
+                summary = "Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận."
+            else:
+                summary = "Đã hoàn thành phản hồi hội thoại."
+
+    return TurnReconciliation(
+        contract_id=contract.contract_id,
+        lifecycle=lifecycle,
+        intent_coverage=contract.intent_coverage,
+        declared_scope_completion=completion,
+        scoped_quality=scoped_quality,
+        matched_receipts=matched_receipts,
+        unmet_outcomes=unmet_outcomes,
+        unresolved_reasons=unresolved_reasons,
+        summary=summary,
+    )

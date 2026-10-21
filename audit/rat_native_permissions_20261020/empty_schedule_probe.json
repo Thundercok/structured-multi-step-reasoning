@@ -1,0 +1,12 @@
+{
+  "before": {
+    "status": "error",
+    "error_type": "IndexError",
+    "error": "list index out of range"
+  },
+  "after": {
+    "status": "ok",
+    "member_id": "local",
+    "schedule": {}
+  }
+}

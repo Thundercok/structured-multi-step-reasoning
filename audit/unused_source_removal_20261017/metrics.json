@@ -1,0 +1,107 @@
+{
+  "removed": [
+    "legacy/V1",
+    "legacy/V2",
+    "qwen_backend.py",
+    "generate_history.py"
+  ],
+  "files": 13,
+  "bytes": 844945,
+  "nonblank_python": 2650,
+  "archive": "scratch/unused_source_removal_20261017.tar.gz",
+  "archive_sha256": "c4e6e29eb1141efdd1fee6819982083c6f0e75081a5d95393a6fee83db652090",
+  "parity": "all regular file bytes and modes verified",
+  "manifest": [
+    {
+      "path": "legacy/V1/emhuy/crawler.py",
+      "bytes": 18260,
+      "sha256": "13266cb8d62360cb3373593cecfd0b4decb4b440d38d57808c3de46ede19f47f",
+      "mode": 420,
+      "nonblank_source": 467
+    },
+    {
+      "path": "legacy/V1/emhuy/crawler_results.db",
+      "bytes": 16384,
+      "sha256": "f9f915071c3a7c5ed73f04c83fc80fc0cd1a2681f88d7747b9b7d6f35bab36b8",
+      "mode": 420,
+      "nonblank_source": 0
+    },
+    {
+      "path": "legacy/V1/emhuy/main.py",
+      "bytes": 83,
+      "sha256": "81f69f92822671e09bc82fcf3b4df4dbf1a3515c7856a213677f0d5ff52f506e",
+      "mode": 420,
+      "nonblank_source": 4
+    },
+    {
+      "path": "legacy/V2/523c0012.pdf",
+      "bytes": 710342,
+      "sha256": "0c71601279ed974b5af6b64488f64dab154c077c2d86b0c54798cae9e55b4f2d",
+      "mode": 420,
+      "nonblank_source": 0
+    },
+    {
+      "path": "legacy/V2/crawler/app.py",
+      "bytes": 19182,
+      "sha256": "551ee5d0579a6fe085afc5f08d251f8e81cc62c5dc805efb51641ac3eebd499a",
+      "mode": 420,
+      "nonblank_source": 357
+    },
+    {
+      "path": "legacy/V2/crawler/db.py",
+      "bytes": 2683,
+      "sha256": "bb7e21eefc954287c556aff4ce95cea0e025372624520567c3bb57e5720f7a2c",
+      "mode": 420,
+      "nonblank_source": 68
+    },
+    {
+      "path": "legacy/V2/crawler/spider.py",
+      "bytes": 11976,
+      "sha256": "0e411b897f2522eafbdcc242493dec3c97c0444f747dab7945e2f0239368ae4f",
+      "mode": 420,
+      "nonblank_source": 263
+    },
+    {
+      "path": "legacy/V2/crawler/style.py",
+      "bytes": 5430,
+      "sha256": "d754f9a68d1a680cdb64f38ba375e4bafa9b29803ae8693c8fd9e7486a89b7d9",
+      "mode": 420,
+      "nonblank_source": 165
+    },
+    {
+      "path": "legacy/V2/crawler/utils.py",
+      "bytes": 2424,
+      "sha256": "2b33df1136c75681bb4c99a3493994b0183205cd4873954b01c49442d36c2085",
+      "mode": 420,
+      "nonblank_source": 60
+    },
+    {
+      "path": "legacy/V2/crawler.py",
+      "bytes": 40108,
+      "sha256": "8b537c5e265173346c635535f60d0c81fe335ac957ba0fab719194cd5b643c6b",
+      "mode": 420,
+      "nonblank_source": 887
+    },
+    {
+      "path": "legacy/V2/main.py",
+      "bytes": 483,
+      "sha256": "110307cf63f1bd558677839331347b3a8504c9f0885ddd0bf108ebb6665f7603",
+      "mode": 420,
+      "nonblank_source": 18
+    },
+    {
+      "path": "qwen_backend.py",
+      "bytes": 14075,
+      "sha256": "c304d83a23354272b225ebb6133e17d3a79988cc483dba8a8afe23a6a2a818df",
+      "mode": 420,
+      "nonblank_source": 290
+    },
+    {
+      "path": "generate_history.py",
+      "bytes": 3515,
+      "sha256": "dd516b3d3b55f6ba0840327d94a47926501035f8e7dc70df659459d0ad10375d",
+      "mode": 420,
+      "nonblank_source": 71
+    }
+  ]
+}

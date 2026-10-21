@@ -1,0 +1,71 @@
+{
+  "date_local": "2026-10-19",
+  "status": "pass",
+  "evidence": "synthetic_software_validation",
+  "test_command": "python3.12 -m pytest tests/test_cot_restart_fresh.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_cot_restart_matched.py -q",
+  "passed": 54,
+  "fresh_acceptance_cases": 20,
+  "required_regressions": 29,
+  "legacy_matched_cases": 5,
+  "official_smoke_command": "python3.12 -m experiments.research_study --cot-restart-fresh-smoke --output audit/cot_restart_entrypoint_20261019/smoke",
+  "mock_calls": 12,
+  "real_model_calls": 0,
+  "synthetic_groups": 3,
+  "synthetic_collection_tokens": 1405,
+  "completed_official_cli_resume_byte_identical": true,
+  "canonical_reasoning_fingerprinted": true,
+  "protected_artifacts_unchanged": 30,
+  "historical_source_status": [
+    {
+      "plan": "audit/cot_restart_matched_plan_20261013",
+      "plan_sha256": "9816139847b89f26508e3858430afd9fa806a4ff426e09cd2709b5fcd4117157",
+      "source_drift_files": [
+        "experiments/research_study.py",
+        "reasoning_strategies.py"
+      ],
+      "strict_source_guard": "rejects unchanged",
+      "drift_existed_before_this_change": true
+    },
+    {
+      "plan": "audit/cot_restart_replication_plan_20261013",
+      "plan_sha256": "132f850d304de9e7026a5cc42ac65691ac3249e3d4eb4315f9c1a28436925bd6",
+      "source_drift_files": [
+        "experiments/research_study.py",
+        "reasoning_strategies.py"
+      ],
+      "strict_source_guard": "rejects unchanged",
+      "drift_existed_before_this_change": true
+    }
+  ],
+  "candidate_data_status": {
+    "items": 71,
+    "groups": 70,
+    "human_review": "pending in review packet",
+    "candidate_generation_calls": 0
+  },
+  "real_collection_enabled": false,
+  "decision_states_enabled": false,
+  "stage_0_changed": false,
+  "source_sha256": {
+    "experiments/cot_restart_fresh.py": "2918a2cee6a76a71be557a44f12426c3e5f84ca4e9c85bc19437681e2461d221",
+    "experiments/cot_restart_pilot.py": "5b9b95e5d6028b29578e314b584cf76e8c76ab85b650e9bcc857055e45db9347",
+    "experiments/cot_restart_replay.py": "d7e02d6aeff8a5f67a40caf5f286e32837197da6a69c6424586cf7fd61434ca9",
+    "experiments/order_pilot_checkpoint.py": "8b656549812c2584668cabd010dbc5f50df4a2320b215e986c9414fdffc3ab32",
+    "experiments/research_study.py": "3759513bb6809aa6549a5c5d0824c6a9d167b9b6470ddb508766df6ba1f4225d",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "research_prompt_profiles.py": "49873e4d541dcae5c9c836d9d9e4946122f1bb3354f45c957acfe23a0ce0b867",
+    "reasoning_strategies.py": "fd77403c24b67dd5d7c777bd174aec158ecc9d90f1d6fa8d79f0e704aff8975b",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "reasoning/__init__.py": "3a489ee38de54a23e09c638e06980f34b086f27b385933e8248ff6f24f09efaa",
+    "reasoning/reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "reasoning/reasoning_env.py": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54",
+    "reasoning/entry_predictor.py": "113c1f32ac4e319fd8b52a05d7e4ee05e19bdca0c2fe1698df7728be0f1a0920",
+    "reasoning/optimal_stopping.py": "4e4dc6a1cc60d87a71e6f31cdb41d149bd6d351173b23686cb17510f965d9d0c"
+  },
+  "documentation_sha256": {
+    "docs/cot_restart_entrypoint_20261019.md": "8bc02c4a54bb18f214a5693d394b17611a2ab962542dcacc4196f7c77223955c",
+    "docs/research_protocol.md": "f2c0247b593dfb1220ec32e3cf4d3a8a1450af823653aaf973ac305f1b30bf14",
+    "docs/research_artifact_index.md": "ef7768023aeaf837d87c9dea3586d93482c3c95dfda546d3636536f567023b93"
+  },
+  "implementation_patch_sha256": "0b7ca66749f3c5cc4f62d24fa4611e241444423c09b58b4aef1425bf72546045"
+}

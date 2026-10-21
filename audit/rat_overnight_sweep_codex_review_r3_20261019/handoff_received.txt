@@ -1,0 +1,235 @@
+Viewed generate_fresh_specimens.py:35-45
+Edited generate_fresh_specimens.py
+Ran command: Run generate_fresh_specimens.py (`QT_QPA_PLATFORM=offscreen .venv/bin/python scripts/generate_fresh_specimens.py`)
+Ran command: List visual specimens (`ls -la audit/rat_overnight_sweep_repair_codex_repair_20261019/visual_specimens/`)
+Ran command: Execute consolidated test suite (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest \
+  tests/test_progressive_search.py \
+  tests/test_mlx_document_session.py \
+  tests/test_selected_document_qa.py \
+  tests/test_selected_document_ui.py \
+  tests/test_workbench_scene.py \
+  tests/test_rat_completion_reconciliation.py \
+  tests/test_rat_completion_boundaries.py \
+  tests/test_document_model_startup.py \
+  tests/test_rat_magic_ui.py \
+  tests/test_research_study.py \
+  test_optimal_stopping.py \
+  test_entry_predictor.py \
+  tests/test_assistant_runtime.py \
+  tests/test_rat_headless_cli.py \
+  tests/test_resident_warmup.py \
+  audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py \
+  audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py \
+  audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py \
+  audit/rat_milestones_abc_independent_review_20261018/test_ui_review_probes.py \
+  audit/rat_milestones_abc_review_r2_20261018/test_additional_headless.py \
+  audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py \
+  audit/rat_milestones_abc_review_r3_20261019/test_slide_summary_projection.py \
+  audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py \
+  audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py \
+  tests/test_crash_shield.py \
+  tests/test_harness_regressions.py \
+  -q \
+  --junitxml=audit/rat_overnight_sweep_repair_codex_repair_20261019/regression_and_visual.xml`)
+Ran command: Copy baseline source_start.json (`cp audit/rat_overnight_sweep_repair_codex_review_20261019/source_start.json audit/rat_overnight_sweep_repair_codex_repair_20261019/source_start.json`)
+Checked task Execute consolidated test suite
+Ran command: List reviewed_source files (`ls -la audit/rat_overnight_sweep_repair_codex_review_20261019/reviewed_source/`)
+Ran command: Find all reviewed_source files (`find audit/rat_overnight_sweep_repair_codex_review_20261019/reviewed_source -type f`)
+Ran command: Check menu_bar diff (`diff -u audit/rat_overnight_sweep_repair_codex_review_20261019/reviewed_source/rat/os/menu_bar.py rat/os/menu_bar.py`)
+Checked task Execute consolidated test suite
+Ran command: Check JUnit XML file (`ls -lh audit/rat_overnight_sweep_repair_codex_repair_20261019/regression_and_visual.xml`)
+Ran command: Check XML test suite header (`head -n 5 audit/rat_overnight_sweep_repair_codex_repair_20261019/regression_and_visual.xml`)
+Ran command: Parse test suite attributes (`python3 -c '
+import xml.etree.ElementTree as ET
+tree = ET.parse("audit/rat_overnight_sweep_repair_codex_repair_20261019/regression_and_visual.xml")
+root = tree.getroot()
+for suite in root.iter("testsuite"):
+    print("Suite:", suite.attrib.get("name"), "tests:", suite.attrib.get("tests"), "failures:", suite.attrib.get("failures"), "errors:", suite.attrib.get("errors"), "skipped:", suite.attrib.get("skipped"))
+'`)
+Ran command: Run mandatory research checks (`.venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`)
+Ran command: Generate repair_diff.patch (`python3 -c '
+import os, subprocess
+from pathlib import Path
+
+reviewed = Path("audit/rat_overnight_sweep_repair_codex_review_20261019/reviewed_source")
+patch_file = Path("audit/rat_overnight_sweep_repair_codex_repair_20261019/repair_diff.patch")
+
+diffs = []
+for root, _, files in os.walk(reviewed):
+    for f in files:
+        if f.startswith("."): continue
+        rev_path = Path(root) / f
+        rel_path = rev_path.relative_to(reviewed)
+        cur_path = Path(rel_path)
+        if not cur_path.exists(): continue
+        
+        proc = subprocess.run(["diff", "-u", str(rev_path), str(cur_path)], capture_output=True, text=True)
+        if proc.returncode != 0 and proc.stdout:
+            # format diff header as standard a/ and b/
+            lines = proc.stdout.splitlines(keepends=True)
+            if len(lines) >= 2:
+                lines[0] = f"--- a/{rel_path}\n"
+                lines[1] = f"+++ b/{rel_path}\n"
+            diffs.append("".join(lines))
+
+patch_content = "\n".join(diffs)
+patch_file.write_text(patch_content, encoding="utf-8")
+print(f"Wrote patch to {patch_file} ({len(patch_content)} bytes)")
+print("Modified files in patch:")
+for d in diffs:
+    print(" ", d.splitlines()[0], d.splitlines()[1])
+'`)
+Ran command: Generate source_end.json (`python3 -c '
+import json, hashlib
+from pathlib import Path
+from datetime import datetime, timezone
+
+with open("audit/rat_overnight_sweep_repair_codex_repair_20261019/source_start.json") as f:
+    start_data = json.load(f)
+
+start_files = start_data["files"]
+all_target_files = sorted(set(list(start_files.keys()) + ["reasoning/reasoning_strategies.py"]))
+
+end_files = {}
+for rel_path in all_target_files:
+    p = Path(rel_path)
+    if p.exists():
+        end_files[rel_path] = hashlib.sha256(p.read_bytes()).hexdigest()
+    else:
+        print(f"WARNING: {rel_path} does not exist!")
+
+out_data = {
+    "time_utc": datetime.now(timezone.utc).isoformat(),
+    "files": end_files,
+    "delta_from_start": {
+        p: {"start": start_files.get(p), "end": end_files[p]}
+        for p in all_target_files
+        if start_files.get(p) != end_files.get(p)
+    }
+}
+
+out_path = Path("audit/rat_overnight_sweep_repair_codex_repair_20261019/source_end.json")
+out_path.write_text(json.dumps(out_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+print(f"Wrote {len(end_files)} files to {out_path}")
+print(f"Changed files from start: {len(out_data[\"delta_from_start\"])}")
+for k, v in out_data["delta_from_start"].items():
+    print(f"  {k}: {v['start'][:8] if v['start'] else 'NEW'} -> {v['end'][:8]}")
+'`)
+Ran command: Generate source_end.json (`python3 -c '
+import json, hashlib
+from pathlib import Path
+from datetime import datetime, timezone
+
+with open("audit/rat_overnight_sweep_repair_codex_repair_20261019/source_start.json") as f:
+    start_data = json.load(f)
+
+start_files = start_data["files"]
+all_target_files = sorted(set(list(start_files.keys()) + ["reasoning/reasoning_strategies.py"]))
+
+end_files = {}
+for rel_path in all_target_files:
+    p = Path(rel_path)
+    if p.exists():
+        end_files[rel_path] = hashlib.sha256(p.read_bytes()).hexdigest()
+    else:
+        print(f"WARNING: {rel_path} does not exist!")
+
+delta = {}
+for p in all_target_files:
+    if start_files.get(p) != end_files.get(p):
+        delta[p] = {"start": start_files.get(p), "end": end_files[p]}
+
+out_data = {
+    "time_utc": datetime.now(timezone.utc).isoformat(),
+    "files": end_files,
+    "delta_from_start": delta
+}
+
+out_path = Path("audit/rat_overnight_sweep_repair_codex_repair_20261019/source_end.json")
+out_path.write_text(json.dumps(out_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+print(f"Wrote {len(end_files)} files to {out_path}")
+print(f"Changed files from start: {len(delta)}")
+for k, v in delta.items():
+    s = v["start"][:8] if v["start"] else "NEW"
+    e = v["end"][:8]
+    print(f"  {k}: {s} -> {e}")
+'`)
+Viewed validation.json:1-59
+Created validation.json
+Created command.json
+Ran command: List repair directory contents (`ls -la audit/rat_overnight_sweep_repair_codex_repair_20261019`)
+Created handoff.md
+Ran command: List final audit files (`ls -la audit/rat_overnight_sweep_repair_codex_repair_20261019`)
+
+Đợt sửa lỗi và nghiệm thu độc lập theo review `audit/rat_overnight_sweep_repair_codex_review_20261019/review.md` đã hoàn tất trọn vẹn trong một lượt duy nhất. Toàn bộ bằng chứng, manifest, diff, telemetry và bộ kiểm thử đã được lưu trữ tập trung tại thư mục [`audit/rat_overnight_sweep_repair_codex_repair_20261019/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/).
+
+---
+
+### 1. Kết quả kiểm thử & xác minh
+
+- **Consolidated Regression & Visual Acceptance Suite**: **289 / 289 PASSED** (0 failures, 0 errors, 0 skipped) trong 37.26s.
+  - 245 regression cốt lõi + 20 probes các vòng review trước
+  - 6 visual acceptance probes (`test_visual_acceptance.py`, V2/V3/V4)
+  - 5 follow-up acceptance probes (`test_followup_acceptance.py`, R2/R3)
+  - 8 crash shield & resident tray tests (`test_crash_shield.py`, R1)
+  - 5 parser & harness regression tests (`test_harness_regressions.py`)
+  - XML báo cáo lưu tại [`regression_and_visual.xml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/regression_and_visual.xml), đối số chạy lưu tại [`command.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/command.json).
+- **Mandatory Research Protocol Checks**: **29 / 29 PASSED** trong 3.00s (`pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`).
+- **Ngân sách mô hình**: **0 lượt gọi mô hình thật mới** (giữ nguyên trần ngân sách 12 lượt; toàn bộ 12 bản ghi cũ được bảo lưu nguyên vẹn trong [`calls.jsonl`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/calls.jsonl)).
+
+---
+
+### 2. Chi tiết khắc phục các phát hiện R1–R6
+
+1. **R1 (Startup Blocker — System Tray QSS F-String)**:
+   - Trong [`rat/os/menu_bar.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/os/menu_bar.py), các khối stylesheet `QMenu::item`, `QMenu::item:selected`, `QMenu::separator` đã được escape thành brace đôi `{{ ... }}`, loại bỏ hoàn toàn lỗi `NameError: name 'padding' is not defined`.
+   - [`tests/test_crash_shield.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_crash_shield.py) đạt 8/8 pass.
+2. **R2 (V2 — Reconcile Visibility của Card và Bubble)**:
+   - Trong [`rat/ui/omnibar.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py) và [`rat/ui/workbench_scene.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/workbench_scene.py), điều kiện ẩn [`ResultDeskCard`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/workbench_scene.py) chuyển từ đọc internal buffer `_copy_text` sang đọc nội dung đang render thực tế `dialogue.text()`.
+   - Khi chuyển mode (như xem chi tiết nguồn rồi bấm quay lại overview), logic điều hòa tự động hiển thị lại card nếu bubble không chứa câu trả lời.
+   - Toàn bộ 5 ca trong `test_followup_acceptance.py` pass.
+3. **R3 (V3 — Phân biệt bản cài trùng tên thư mục cha)**:
+   - Trong [`rat/ui/view_renderer.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/view_renderer.py), triển khai thuật toán tìm đường dẫn hậu tố/thư mục ngắn nhất còn phân biệt được (minimal distinguishing path suffix) trên toàn bộ danh sách candidate trước khi cắt ngắn nhãn hiển thị.
+   - Cặp `/Applications/League of Legends.app` và `~/Applications/League of Legends.app` hiển thị rõ ràng `Applications · ...` và `fixture/Applications · ...`, trong khi tooltip và payload vẫn giữ full path.
+4. **R4 (Runner Instrumentation & Append-Only Ledger)**:
+   - [`scripts/run_native_performance_session.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py) được bổ sung cờ `--fake-backend` dùng mock tokenizer/backend để kiểm tra toàn bộ vòng đời runner offline.
+   - Ledger mở ở chế độ nối tiếp (`"a"`). Trước mỗi lượt gọi, ghi checkpoint `{"event": "request_start", ...}` và flush ngay lập tức. Sau khi hoàn tất (hoặc lỗi), ghi `{"event": "request_complete", ...}` và flush.
+   - Cơ chế Global Budget Guard đếm toàn bộ attempts đã có trong file: nếu đạt trần (`--max-budget`, mặc định 12), runner dừng ngay, không gửi thêm request.
+5. **R5 (Phân định ranh giới đo lường Telemetry)**:
+   - [`native_performance.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/native_performance.json) ghi nhận chính xác `host_cpu_percent: 57.8%` (CPU toàn hệ thống qua `psutil.cpu_percent(interval=1.0)`). Trường `process_idle_cpu_percent` để `null` vì chưa đo tách biệt cho resident app.
+   - Phân biệt rõ RSS runner backend (2.221,72 MB hiện tại, 2.503,25 MB peak) với resident GUI app RSS (`null`).
+   - Phân biệt rõ `document_prefix_prefill_ms` (10.605,94 ms khi nạp tài liệu) và `question_suffix_prefill_ms` (`null`, tính gộp trong generation wall time). Ghi nhận phân phối thời gian phản hồi warm: 4.635,92–47.359,53 ms (trung vị 6.364,26 ms, call 8 ở 31.830,36 ms).
+   - Làm rõ cảnh báo font 203 ms phát sinh từ probe khởi tạo `QApplication` offscreen trước khi dựng bất kỳ cửa sổ RAT nào; không gán cho thời gian render stylesheet của app.
+6. **R6 (Hiệu chỉnh AST Evidence Map)**:
+   - [`rat_cot_evidence_map.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/rat_cot_evidence_map.md) ánh xạ chính xác 100% symbol: dùng [`ActionDispatcher`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/dispatcher.py) (thay vì `UnifiedDispatcher`), mô tả candidate button qua [`QtViewRenderer`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/view_renderer.py) (thay vì class `CandidateChoiceButton` không tồn tại), và callable [`create_applications_capability`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/capabilities/applications.py) (thay vì `_execute_launch_app`).
+   - Ghi rõ các module nghiên cứu (`EntryPredictor`, `OptimalStoppingPolicy`) là headless pipeline, không can thiệp trực tiếp vào live GUI dispatch hay token streaming decode của MLX.
+
+---
+
+### 3. Triage 19 active full-sweep test failures
+
+Đã đối chiếu contract và callers của 19 ca thất bại ghi nhận từ vòng kiểm kê 132 file:
+1. **`test_crash_shield.py::test_system_tray_manager_shutdown` (1 ca)**: **Code Bug (R1)**. Đã sửa trong `rat/os/menu_bar.py`. Hiện **PASS**.
+2. **`test_harness_regressions.py` (2 ca)**: **Code Bug**. Lỗi regex rò rỉ placeholder prompt `<kết quả>` và lấy nhầm chuỗi biểu thức thay vì số kết luận cuối phương trình. Đã sửa trong [`reasoning/reasoning_strategies.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/reasoning/reasoning_strategies.py) (`_clean_cand` & `extract_number`). Hiện **PASS** (5/5).
+3. **`test_reranker_golden.py` (1 ca)**: **Stale Expectation**. Reranker sản xuất được mở rộng thêm 5 đặc trưng học phần/giáo trình (`study_doc`, `sem_dir`, `course_code_dir`, `slide_lecture`, `acronym_match`), nâng vector đặc trưng từ 20 lên 25 chiều. Toàn bộ 20 điểm số golden, biên độ và tính chất bảo toàn tổng đặc trưng (`5.0 + sum(feats) == expected_raw`) đều khớp 100%. Assertion cũ cứng nhắc `len == 20` đã lạc hậu so với schema sản xuất 25 đặc trưng.
+4. **`test_query_compounds.py` (8 ca)**: **Stale Expectation**. `ContextParser.parse_query` được tích hợp với `curriculum_mapper` để mở rộng mã học phần (ví dụ `501011`, `CALC1`, `GT1`) vào `clean_keywords`. Cụm từ ghép "giai tich" vẫn được trích xuất nguyên vẹn không rò rỉ từ đơn, nhưng test cũ kiểm tra đẳng thức danh sách cứng trước khi có tính năng ánh xạ học trình.
+5. **`test_vgc_cascade.py` & `test_vgc_ui_integration.py` (7 ca)**: **Stale Expectation / Deprecated Legacy Adapter**. Các test cũ này kiểm tra chuỗi tiếng Anh (`"verified"`, `"mismatch"`) trong khi `CalculationVerifier` trong core đã được bản địa hoá tiếng Việt (`"đối chiếu ..."`). Module `rat/engine/vgc.py` là adapter legacy hỗ trợ chuyển tiếp, trợ lý RAT chính thức trong sản xuất sử dụng `answer_selected_document`, `ReconciliationReport` và `WorkTrace`.
+
+---
+
+### 4. Visual Specimens & Artifact Manifest
+
+Đã tái tạo bộ mẫu hình ảnh offscreen hoàn chỉnh tại [`visual_specimens/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/visual_specimens/):
+- `specimen_1_desktop_light_finder_offscreen.png`: Compact Desktop Finder (620x600, Light).
+- `specimen_2_narrow_420px_light_offscreen.png`: Narrow 420px Finder hiển thị nút tác vụ tối ưu.
+- `specimen_3a_desktop_light_sources_top_offscreen.png` & `specimen_3b_desktop_light_trace_bottom_offscreen.png`: Desktop Light QA với ResultDeskCard thu gọn khi câu trả lời ngắn đã hiển thị đủ trong bubble, reasoning trace đối chiếu đầy đủ.
+- `specimen_4_desktop_dark_disambiguation_offscreen.png`: Desktop Dark App Disambiguation với tiền tố phân biệt bản cài đặt (`Applications · ...` vs `Riot Games · ...`).
+- `specimens_metadata.json`: Metadata chi tiết về kích thước, platform offscreen và cấu trúc widget.
+
+### 5. Hồ sơ bàn giao & Source Hashes
+
+- [`source_start.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/source_start.json): 40 file đối chiếu từ baseline review.
+- [`source_end.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/source_end.json): 41 file tracked (gồm 7 file thay đổi thực tế với sha256 đã kiểm chứng).
+- [`repair_diff.patch`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/repair_diff.patch): Unified diff 35.6 KB trên 7 file mã nguồn (`rat/os/menu_bar.py`, `rat/ui/omnibar.py`, `rat/ui/workbench_scene.py`, `rat/ui/view_renderer.py`, `reasoning/reasoning_strategies.py`, `scripts/generate_fresh_specimens.py`, `scripts/run_native_performance_session.py`).
+- [`validation.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/validation.json): Báo cáo nghiệm thu tự động.
+- [`handoff.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_codex_repair_20261019/handoff.md): Báo cáo bàn giao hợp nhất toàn diện.

@@ -1,0 +1,23 @@
+[
+  {
+    "case": "large_valid_output",
+    "outcome": "accepted",
+    "content": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "final_url": "https://example.com",
+    "status_code": 200,
+    "engine_version": "spider_cli 2.51.208",
+    "elapsed_seconds": 0.538
+  },
+  {
+    "case": "wrong_version",
+    "outcome": "SpiderVersionMismatchError",
+    "error": "Spider version mismatch: kỳ vọng version '2.51.208', nhưng backend trả về 'spider_cli 99.0.0'. Từ chối sử dụng binary không khớp version được pin.",
+    "elapsed_seconds": 0.616
+  },
+  {
+    "case": "invalid_schema",
+    "outcome": "SpiderVersionMismatchError",
+    "error": "Spider version mismatch: kỳ vọng version '2.51.208', nhưng backend trả về 'broken-version'. Từ chối sử dụng binary không khớp version được pin.",
+    "elapsed_seconds": 0.405
+  }
+]

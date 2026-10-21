@@ -1,0 +1,68 @@
+{
+  "timestamp_utc": "2026-10-19T15:16:11.378653+00:00",
+  "qpa_platform": "offscreen",
+  "model_id": "mock/FakeMLXDocumentSession",
+  "model_path": "/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model__l6m87jr",
+  "scope_classification": {
+    "type": "offline_fake_backend_simulation",
+    "status": "offline_fake_backend_completed_1_calls",
+    "unverified_native_scenarios": [
+      "native_gui_token_streaming",
+      "user_cancel_during_prefill_or_decode",
+      "query_after_cancel",
+      "changed_file_invalidation",
+      "changed_document_invalidation",
+      "outside_excerpt_unresolved_case"
+    ],
+    "note": "Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed."
+  },
+  "real_model_calls_executed": 0,
+  "fake_model_calls_executed": 1,
+  "model_load_time_s": 0.0,
+  "default_font_family_resolved": ".AppleSystemUIFont",
+  "mono_font_family_resolved": "Menlo",
+  "font_alias_warning_count": 1,
+  "font_alias_population_cost_ms": 107.0,
+  "font_alias_warning_scope": "Captured during offscreen QApplication probe before creating any RAT window. Does not reflect RAT window first paint or stylesheet rendering time.",
+  "raw_qt_warnings_count": 1,
+  "raw_qt_warnings": [
+    "Populating font family aliases took 107 ms. Replace uses of missing font family \"Sans Serif\" with one that exists to avoid this cost. "
+  ],
+  "backend_runner_rss_mb": 97.25,
+  "backend_runner_peak_rss_mb": 97.25,
+  "host_cpu_percent": 46.0,
+  "calls_ledger_file": "calls.jsonl",
+  "warm_generation_latency_ms": null,
+  "gates": {
+    "all_12_requests_succeeded": false,
+    "token_budget_leq_640": true,
+    "latency_leq_90s_per_request": true,
+    "font_alias_status": "warning_present"
+  },
+  "unmeasured_fields": {
+    "process_idle_cpu_percent": {
+      "value": null,
+      "reason": "Host CPU measured via psutil.cpu_percent(); per-process idle CPU of resident app was not isolated in an idle state."
+    },
+    "resident_gui_app_rss_mb": {
+      "value": null,
+      "reason": "Current process is headless backend runner; resident Workbench GUI app memory footprint was not measured."
+    },
+    "question_suffix_prefill_ms": {
+      "value": null,
+      "reason": "MLXDocumentSession processes question tokens together with generation; question-suffix prefill is not separately timed."
+    },
+    "displayed_ui_token_ms": {
+      "value": null,
+      "reason": "Session runner was headless; live UI token streaming to Omnibar speech bubble was not hosted."
+    },
+    "cocoa_native_window_frame_sync_ms": {
+      "value": null,
+      "reason": "Offscreen QPA platform used; native NSWindow Cocoa compositor frame sync requires interactive display server."
+    },
+    "gpu_hardware_thermal_throttle": {
+      "value": null,
+      "reason": "Requires root / IOKit hardware sensor query."
+    }
+  }
+}

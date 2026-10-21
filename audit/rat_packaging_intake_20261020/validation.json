@@ -1,0 +1,83 @@
+{
+  "status": "complete",
+  "tests": {
+    "scoped": {
+      "total": 75,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 75
+    },
+    "research": {
+      "total": 29,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 29
+    }
+  },
+  "unique_tests_across_final_suites": 104,
+  "command_exit_codes": {
+    "native-pdf-fixtures": 0,
+    "environment-pip-check": 1,
+    "frozen-bundle-release": 1,
+    "scoped-final": 0,
+    "frozen-calculator": -6,
+    "isolated-wheel-install-release": 0,
+    "preflight": 0,
+    "app-build-verified": 0,
+    "isolated-wheel-smoke": 0,
+    "isolated-wheel-install-final": 0,
+    "frozen-bundle-verified": 0,
+    "intake-packaging-initial": 0,
+    "intake-wheel-final": 0,
+    "shell-syntax-final": 0,
+    "qt-sandbox-preflight": 1,
+    "regression-complete": 0,
+    "isolated-wheel-smoke-final": 0,
+    "app-build-release": 0,
+    "intake-wheel-release": 0,
+    "app-build": 0,
+    "intake-packaging-final": 0,
+    "isolated-wheel-install": 0,
+    "render-fixture": 0,
+    "qt-native-preflight": 0,
+    "isolated-wheel-smoke-release": 0,
+    "regression-delivery": 0,
+    "research": 0,
+    "frozen-help": -6,
+    "fixtures": 1,
+    "regression-release": 0,
+    "app-build-native": 0,
+    "fixtures-retry": 0,
+    "shell-syntax": 0,
+    "intake-wheel": 0
+  },
+  "bundle_status": "passed",
+  "wheel_sources_match": true,
+  "wheel_sha256": "b293834dc9cf34a689e603528766bd70d66c28a80e15589dcd92eeb89f8c81d8",
+  "preexisting_selected_document_qa_import_preserved": true,
+  "source_files_changed_from_start": [
+    "rat.spec",
+    "requirements.txt",
+    "scripts/build_app.sh",
+    "document_intake/pdf.py",
+    "document_intake/vision.py",
+    "document_intake/tesseract.py",
+    "document_intake/README.md",
+    "rat/crawler/extractors.py",
+    "scripts/check_packaging.py",
+    "tests/test_packaging_contract.py",
+    "tests/test_document_intake_robustness.py",
+    "docs/rat_packaging.md"
+  ],
+  "model_calls": 0,
+  "gui_acceptance": "not performed",
+  "research_gate_changes": false,
+  "environment_limitations": [
+    "Existing source environment pip check has unrelated dependency conflicts.",
+    "Qt/frozen CLI sandbox attempts failed; native preflight/build/CLI are recorded separately.",
+    "Full desktop dependency installation into a clean environment was not tested offline."
+  ],
+  "scope": "Packaging, shared PDF/OCR readers and RAT PDF indexing adapter only; Antigravity runtime/research files were not edited."
+}

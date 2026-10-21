@@ -1,0 +1,23 @@
+{
+  "state": {
+    "dispatched": 1,
+    "generated_tokens": 2,
+    "cancelled": false
+  },
+  "ledger": {
+    "strategy_invocations": 1,
+    "underlying_requests_dispatched": 1,
+    "underlying_requests_succeeded": 0,
+    "underlying_requests_failed": 1,
+    "generated_tokens": 0,
+    "prompt_tokens": null,
+    "full_inference_cost_estimated": false,
+    "status": "failed"
+  },
+  "trace": {
+    "strategy": "COT",
+    "prompt_profile": "legacy",
+    "generations": [],
+    "tools": []
+  }
+}

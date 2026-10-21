@@ -15,18 +15,14 @@ from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
-from rat.config import config
-from rat.crawler.db import Database
-from rat.crawler.indexer import Indexer
-from rat.engine.hybrid_search import SearchEngine
-from rat.engine.reranker import format_file_size, format_relative_time
-from rat.ui.preview_panel import open_file_default, reveal_in_finder
-
 console = Console()
 
 
 def cmd_index(directories: Optional[List[str]] = None) -> None:
     """Index files from directories."""
+    from rat.config import config
+    from rat.crawler.db import Database
+    from rat.crawler.indexer import Indexer
     target_dirs = directories if directories else config.indexed_directories
     console.print(Panel.fit(f"[bold cyan]🐀 'rat' File Indexer[/bold cyan]\nQuét các thư mục: {', '.join(target_dirs)}", border_style="cyan"))
 
@@ -67,6 +63,7 @@ def cmd_search(
     show_trace: bool = False
 ) -> None:
     """Search files using natural language query with optional FR-CoT reasoning trace."""
+    from rat.engine.hybrid_search import SearchEngine
     engine = SearchEngine()
     response = engine.search(query, limit=limit)
 
@@ -127,10 +124,12 @@ def cmd_search(
         console.print(Panel(trace.render_markdown(), title="🧠 FR-CoT Multi-Step Reasoning Trace", border_style="cyan"))
 
     if open_first and results:
+        from rat.ui.preview_panel import open_file_default
         first = results[0]
         console.print(f"[bold green]⚡ Đang mở tệp:[/bold green] {first.file_path}")
         open_file_default(first.file_path)
     elif reveal_first and results:
+        from rat.ui.preview_panel import reveal_in_finder
         first = results[0]
         console.print(f"[bold green]📁 Đang mở trong Finder:[/bold green] {first.file_path}")
         reveal_in_finder(first.file_path)
@@ -139,6 +138,7 @@ def cmd_search(
 def cmd_ask(file_query: str, question: str) -> None:
     """Find file and ask the local AI/SLM to answer questions about its content."""
     from rat.crawler.extractors import extract_document_content
+    from rat.engine.hybrid_search import SearchEngine
     from rat.engine.qa_engine import qa_engine
 
     engine = SearchEngine()
@@ -171,9 +171,106 @@ def cmd_ask(file_query: str, question: str) -> None:
     ))
 
 
+def cmd_ask_file(file_path, model_path, *, db_path=None, questions=None,
+                 max_context_tokens=4096) -> int:
+    """One explicit indexed file, native offline inference, reusable chat session."""
+    import threading
+    from uuid import uuid4
+    from rat.config import config
+    from rat.crawler.db import Database
+    from rat.engine.assistant_runtime import AssistantRuntime
+    from rat.engine.selected_document_qa import answer_selected_document
+    from rat.timetable.compositor import TimetableCompositor
+
+    database = None
+    current_path = Path(file_path).expanduser()
+
+    def validate_path(path):
+        if not path.is_absolute() or not path.is_file():
+            raise ValueError('Cần đường dẫn tuyệt đối tới tệp đang tồn tại.')
+        if not database.get_document_by_path(str(path)):
+            raise ValueError('Tệp chưa có trong chỉ mục RAT; hãy lập chỉ mục thư mục đã chọn trước.')
+
+    try:
+        database = Database(db_path or config.db_path, read_only=True)
+        validate_path(current_path)
+        with AssistantRuntime(db=database, compositor=TimetableCompositor([]),
+                document_model_path=model_path,
+                document_max_context_tokens=max_context_tokens) as runtime:
+            with console.status('Đang nạp model local…'):
+                load_s = runtime.document_model_client.load()
+            console.print(f'Model đã sẵn sàng ({load_s:.2f}s).', markup=False)
+
+            def ask(question):
+                cancelled = threading.Event()
+                execution_id = 'document-cli-' + uuid4().hex
+                try:
+                    response = answer_selected_document(runtime, question, str(current_path),
+                        should_cancel=cancelled.is_set, execution_id=execution_id)
+                except KeyboardInterrupt:
+                    cancelled.set()
+                    runtime.cancel_execution(execution_id)
+                    console.print('Đã dừng câu hỏi. Có thể hỏi tiếp.', markup=False)
+                    return False
+                if response.error:
+                    console.print(f'Chưa trả lời được: {response.error}', markup=False)
+                    return False
+                console.print(response.answer, markup=False)
+                for source in response.sources:
+                    if source.get('path') == str(current_path) and source.get('read'):
+                        scope = f"{source.get('read_chars')}/{source.get('total_chars')} ký tự"
+                        suffix = ' · chỉ là trích đoạn' if source.get('truncated') else ''
+                        console.print(f'Nguồn: {current_path} · {scope}{suffix}', markup=False)
+                return True
+
+            if questions:
+                success = True
+                for question in questions:
+                    success = ask(question) and success
+                return 0 if success else 1
+
+            console.print('Hỏi về tệp đã chọn. :file /đường/dẫn đổi tệp; :unload giải phóng model; :quit thoát.',
+                          markup=False)
+            while True:
+                try:
+                    question = console.input('Bạn> ').strip()
+                except (EOFError, KeyboardInterrupt):
+                    break
+                if question == ':quit':
+                    break
+                if question == ':unload':
+                    runtime.document_model_client.unload()
+                    console.print('Đã giải phóng model và cache; câu hỏi tiếp theo sẽ nạp lại.', markup=False)
+                elif question.startswith(':file '):
+                    candidate = Path(question[6:].strip()).expanduser()
+                    try:
+                        validate_path(candidate)
+                    except ValueError as error:
+                        console.print(str(error), markup=False)
+                    else:
+                        current_path = candidate
+                        console.print(f'Đã chọn: {current_path}', markup=False)
+                elif question:
+                    ask(question)
+            return 0
+    except KeyboardInterrupt:
+        console.print('Đã dừng và đóng session.', markup=False)
+        return 130
+    except Exception as error:
+        console.print(f'Không thể chạy session local: {error}', markup=False)
+        return 1
+    finally:
+        if database is not None:
+            connection = getattr(database._local, 'conn', None)
+            if connection is not None:
+                connection.close()
+                database._local.conn = None
+
+
 def cmd_dedup() -> None:
     """Find duplicate files and semantic document version trees."""
     from rat.crawler.dedup import dedup_engine
+    from rat.engine.reranker import format_file_size, format_relative_time
     console.print(Panel.fit("[bold cyan]🌳 Smart Deduplication & Version Tree Analyzer[/bold cyan]", border_style="cyan"))
 
     with console.status("[bold green]Đang phân tích cấu trúc trùng lặp và các phiên bản sửa đổi..."):
@@ -183,7 +280,6 @@ def cmd_dedup() -> None:
     # 1. Exact Duplicates
     if exact_dups:
         total_wasted = sum(g["wasted_space_bytes"] for g in exact_dups)
-        from rat.engine.reranker import format_file_size
         console.print(f"\n[bold red]⚠️ Phát hiện {len(exact_dups)} nhóm tệp trùng lặp 100% (Lãng phí: ~{format_file_size(total_wasted)}):[/bold red]")
         for idx, g in enumerate(exact_dups[:10], 1):
             console.print(f"\n  [bold yellow]Nhóm {idx}:[/bold yellow] {g['copy_count']} bản sao • Kích thước: {format_file_size(g['file_size'])}")
@@ -209,6 +305,8 @@ def cmd_dedup() -> None:
 
 def cmd_stats() -> None:
     """Print indexing statistics."""
+    from rat.config import config
+    from rat.crawler.db import Database
     from rat.engine.slm import slm_engine
     db = Database(config.db_path)
     stats = db.get_stats()
@@ -247,6 +345,13 @@ def main() -> None:
     ask_parser.add_argument("file_query", help="Query to identify the file")
     ask_parser.add_argument("question", help="Question to ask about the file")
 
+    file_parser = subparsers.add_parser("ask-file", help="Chat offline about one exact indexed file using native MLX")
+    file_parser.add_argument("file_path", help="Absolute path of an already indexed file")
+    file_parser.add_argument("--model-path", required=True, help="Complete local MLX model directory; no downloads")
+    file_parser.add_argument("--db", help="Existing RAT index database")
+    file_parser.add_argument("-q", "--question", action="append", help="Repeat for batch questions; omit for interactive chat")
+    file_parser.add_argument("--max-context-tokens", type=int, default=4096)
+
     # Dedup & Version Tree command
     subparsers.add_parser("dedup", help="Find duplicate files and document revision trees")
 
@@ -261,6 +366,9 @@ def main() -> None:
         cmd_search(args.query, limit=args.limit, open_first=args.open, reveal_first=args.finder, show_trace=getattr(args, "trace", False))
     elif args.command == "ask":
         cmd_ask(args.file_query, args.question)
+    elif args.command == "ask-file":
+        raise SystemExit(cmd_ask_file(args.file_path, args.model_path, db_path=args.db,
+            questions=args.question, max_context_tokens=args.max_context_tokens))
     elif args.command == "dedup":
         cmd_dedup()
     elif args.command == "status":

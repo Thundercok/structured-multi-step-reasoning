@@ -68,6 +68,7 @@ from rat.timetable.model import (
     ShiftAvailability,
     resolve_room_location,
 )
+from rat.ui.theme import FONT_FAMILY
 
 logger = logging.getLogger("rat.ui.schedule_window")
 
@@ -93,14 +94,14 @@ def save_course_notes(notes: Dict[str, str]) -> None:
         pass
 
 
-SPOTLIGHT_STYLE = """
+_BASE_SPOTLIGHT_STYLE = """
 QMainWindow {
     background-color: #f8fafc;
 }
 
 QWidget#CentralWidget {
     background-color: #f8fafc;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Arial;
 }
 
 /* Spotlight Command Bar & Header */
@@ -370,6 +371,11 @@ QPushButton.PrimaryActionButton:hover {
     background-color: #15803d;
 }
 """
+
+SPOTLIGHT_STYLE = _BASE_SPOTLIGHT_STYLE.replace(
+    '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Arial',
+    FONT_FAMILY
+)
 
 
 class ShiftCellWidget(QFrame):

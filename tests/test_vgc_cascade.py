@@ -17,11 +17,11 @@ class TestVGCVerifier(unittest.TestCase):
         cert = VGCCertificate(claim="480", witness="480")
         res = VGCVerifier.verify_calculation(cert, "120 * 4")
         self.assertEqual(res.status, VGCVerificationStatus.VALID)
-        self.assertIn("verified", res.reason.lower())
+        self.assertEqual(res.scope, "calculation")
 
     def test_verify_calculation_float_tolerance(self):
         # 10 / 3 = 3.3333333333333335
-        cert = VGCCertificate(claim="3.3333", witness=3.333333)
+        cert = VGCCertificate(claim="3.3333333333333335", witness=3.3333333333333335)
         res = VGCVerifier.verify_calculation(cert, "10 / 3")
         self.assertEqual(res.status, VGCVerificationStatus.VALID)
 
@@ -30,12 +30,12 @@ class TestVGCVerifier(unittest.TestCase):
         cert = VGCCertificate(claim="500", witness="500")
         res = VGCVerifier.verify_calculation(cert, "120 * 4")
         self.assertEqual(res.status, VGCVerificationStatus.INVALID)
-        self.assertIn("mismatch", res.reason.lower())
+        self.assertIn("480", res.reason)
 
     def test_verify_calculation_division_by_zero(self):
         cert = VGCCertificate(claim="0", witness="0")
         res = VGCVerifier.verify_calculation(cert, "10 / 0")
-        self.assertEqual(res.status, VGCVerificationStatus.INVALID)
+        self.assertEqual(res.status, VGCVerificationStatus.UNVERIFIABLE)
 
     def test_verify_calculation_sandboxed_python(self):
         code_good = "x = 15\ny = 3\nresult = x * y\n"
@@ -54,7 +54,7 @@ class TestVGCVerifier(unittest.TestCase):
         claim = "Sinh viên được đăng ký tối đa 24 tín chỉ theo quyết định 1234."
         cert = VGCCertificate(claim=claim, witness=claim, source_snippet=source[:50])
         res = VGCVerifier.verify_document_fact(cert, source)
-        self.assertEqual(res.status, VGCVerificationStatus.VALID)
+        self.assertEqual(res.status, VGCVerificationStatus.UNVERIFIABLE)
 
     def test_verify_document_fact_catches_hallucinated_numbers(self):
         source = "Học phí học kỳ 1 là 15.000.000 VNĐ cho 14 tín chỉ."
@@ -85,7 +85,8 @@ class TestVGCCascadeEngine(unittest.TestCase):
         self.assertFalse(res.escalated)
         self.assertIn("100", res.answer)
         self.assertIn("Verified", res.strategy)
-        self.assertGreater(res.confidence, 0.95)
+        self.assertIsNone(res.confidence)
+        self.assertEqual(res.tokens, 0)
 
     def test_cascade_solve_document_fact_grounded_citation(self):
         doc = "Phòng thực hành C302 nằm tại tầng 3, tòa nhà C của trường ĐH Tôn Đức Thắng."

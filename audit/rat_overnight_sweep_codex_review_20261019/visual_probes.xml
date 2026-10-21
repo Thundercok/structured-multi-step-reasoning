@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="6" time="4.195" timestamp="2026-10-19T11:53:34.900876+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance" name="test_v2_result_card_visibility_tracks_bubble[short-full-bubble]" time="0.915"><failure message="AssertionError: Full short bubble must not duplicate the answer on the desk: truncated=False, card_hidden=False&#10;assert False is not False&#10; +  where False = &lt;built-in method isHidden of ResultDeskCard object at 0x12c3a0eb0&gt;()&#10; +    where &lt;built-in method isHidden of ResultDeskCard object at 0x12c3a0eb0&gt; = &lt;rat.ui.workbench_scene.ResultDeskCard object at 0x12c3a0eb0&gt;.isHidden&#10; +      where &lt;rat.ui.workbench_scene.ResultDeskCard object at 0x12c3a0eb0&gt; = &lt;rat.ui.workbench_scene.WorkbenchScene object at 0x12c38f750&gt;.result_card">scene_window = &lt;rat.ui.omnibar.OmnibarWindow object at 0x12c293d90&gt;
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-736/test_v2_result_card_visibility0')
+long_answer = False
+
+    @pytest.mark.parametrize("long_answer", [False, True], ids=["short-full-bubble", "long-truncated-control"])
+    def test_v2_result_card_visibility_tracks_bubble(scene_window, tmp_path, long_answer):
+        win = scene_window
+        db = Database(str(tmp_path / "index.db"))
+        path = tmp_path / "fixture.txt"
+        path.write_text("Verification code LOTUS-7319.")
+        db.upsert_document(dict(file_path=str(path), file_name=path.name, file_ext='.txt',
+            file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+            content_text=path.read_text(), summary="Synthetic source"))
+        answer_text = "LOTUS-7319" if not long_answer else "Code LOTUS-7319. " * 90
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={"content": answer_text}, done_reason="stop",
+            prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous_runtime = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt("What code?", selected_document_path=str(path))
+            handle = win._assistant_handle
+            response = answer_selected_document(runtime, "What code?", str(path), model_client=client,
+                turn_ref=handle["turn_ref"], execution_id=handle["execution_id"])
+            assert response.error is None and response.reconciliation.all_satisfied
+            win._on_assistant_response(handle, response)
+            base._pump(8)
+            scene, bubble = win.workbench_scene, win.workbench_speech_bubble
+            assert scene.mode == "overview" and scene.current_snapshot.phase == "done"
+            assert scene.result_card.answer_lbl.text() == answer_text.strip()
+            assert bubble._copy_text.strip() == answer_text.strip()
+            assert bubble._truncated is long_answer
+            assert all(a.kind in {"document_content", "book_page_content", "document_search", "book_page_search"}
+                       for a in response.artifacts)
+            assert not any(not r.isHidden() for r in scene.artifact_panel.renderers.values())
+&gt;           assert scene.result_card.isHidden() is (not long_answer), (
+                f"Full short bubble must not duplicate the answer on the desk: "
+                f"truncated={bubble._truncated}, card_hidden={scene.result_card.isHidden()}"
+            )
+E           AssertionError: Full short bubble must not duplicate the answer on the desk: truncated=False, card_hidden=False
+E           assert False is not False
+E            +  where False = &lt;built-in method isHidden of ResultDeskCard object at 0x12c3a0eb0&gt;()
+E            +    where &lt;built-in method isHidden of ResultDeskCard object at 0x12c3a0eb0&gt; = &lt;rat.ui.workbench_scene.ResultDeskCard object at 0x12c3a0eb0&gt;.isHidden
+E            +      where &lt;rat.ui.workbench_scene.ResultDeskCard object at 0x12c3a0eb0&gt; = &lt;rat.ui.workbench_scene.WorkbenchScene object at 0x12c38f750&gt;.result_card
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py:62: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance" name="test_v2_result_card_visibility_tracks_bubble[long-truncated-control]" time="0.586" /><testcase classname="audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance" name="test_v4_structured_finder_shows_quiet_trace[structured-finder]" time="0.351"><failure message="AssertionError: Structured Finder flow should expose its collapsed toggle: steps=2, visible=False&#10;assert False is True&#10; +  where False = &lt;built-in method isVisible of QWidget object at 0x15c2f93b0&gt;()&#10; +    where &lt;built-in method isVisible of QWidget object at 0x15c2f93b0&gt; = &lt;PyQt6.QtWidgets.QWidget object at 0x15c2f93b0&gt;.isVisible&#10; +      where &lt;PyQt6.QtWidgets.QWidget object at 0x15c2f93b0&gt; = &lt;rat.ui.workbench_scene.WorkbenchScene object at 0x15c2f3610&gt;.trace_box">scene_window = &lt;rat.ui.omnibar.OmnibarWindow object at 0x12c3a1f90&gt;
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-736/test_v4_structured_finder_show0')
+query = 'Slide DSA sửa tuần trước', expect_trace = True
+
+    @pytest.mark.parametrize("query,expect_trace", [
+        ("Slide DSA sửa tuần trước", True), ("DSA", False),
+    ], ids=["structured-finder", "bare-query-control"])
+    def test_v4_structured_finder_shows_quiet_trace(scene_window, tmp_path, query, expect_trace):
+        scene_window._show_interaction_surface()
+        scene = scene_window.workbench_scene
+        scene.reset(generation=21)
+        path = tmp_path / "DSA.pptx"
+        path.write_text("Synthetic slide.")
+        intent = parse_finder_intent(query, now=datetime(2026, 10, 19, 12,
+            tzinfo=timezone(timedelta(hours=7))))
+        hit = SearchHit("file:visual-probe", "file", path.name, str(path), "metadata")
+        scene.set_finder_snapshot(SearchSnapshot(21, query, "lexical", (hit,), hit.resource_id,
+            True, 1.0, intent=intent))
+        base._pump(4)
+        assert scene.current_snapshot.phase == "empty"
+        assert scene.finder_box.isVisible()
+        assert bool(scene.current_snapshot.reasoning_flow) is expect_trace
+        assert not scene.trace_expanded
+&gt;       assert scene.trace_box.isVisible() is expect_trace, (
+            f"Structured Finder flow should expose its collapsed toggle: "
+            f"steps={len(scene.current_snapshot.reasoning_flow)}, visible={scene.trace_box.isVisible()}"
+        )
+E       AssertionError: Structured Finder flow should expose its collapsed toggle: steps=2, visible=False
+E       assert False is True
+E        +  where False = &lt;built-in method isVisible of QWidget object at 0x15c2f93b0&gt;()
+E        +    where &lt;built-in method isVisible of QWidget object at 0x15c2f93b0&gt; = &lt;PyQt6.QtWidgets.QWidget object at 0x15c2f93b0&gt;.isVisible
+E        +      where &lt;PyQt6.QtWidgets.QWidget object at 0x15c2f93b0&gt; = &lt;rat.ui.workbench_scene.WorkbenchScene object at 0x15c2f3610&gt;.trace_box
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py:90: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance" name="test_v4_structured_finder_shows_quiet_trace[bare-query-control]" time="0.321" /><testcase classname="audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance" name="test_v3_candidate_buttons_have_distinguishable_visible_labels[620]" time="0.009"><failure message="AssertionError: [{'text': 'League of Legends · /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/fixture-installations/Applicat...ends.app · com.fixture.league · v1.0', 'readable_prefix': 'League of Legend', 'content_width': 109, 'text_width': 951}]&#10;assert 1 == 2&#10; +  where 1 = len({'League of Legend'})&#10; +    where {'League of Legend'} = set(['League of Legend', 'League of Legend'])">app = &lt;PyQt6.QtWidgets.QApplication object at 0x12c2f0370&gt;, width = 620
+
+    @pytest.mark.parametrize("width", [620, 420])
+    def test_v3_candidate_buttons_have_distinguishable_visible_labels(app, width):
+        common = "/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/fixture-installations/"
+        paths = [common + folder + "/League of Legends.app" for folder in ("Applications", "Riot Games")]
+        choices = [dict(name="League of Legends", path=p, bundle_id="com.fixture.league", version="1.0")
+                   for p in paths]
+        artifact = Artifact("visual-choice", "input_request", payload=dict(operation_name="open_application",
+            missing_fields=[], candidate_choices=choices, supplied_inputs={"name": "Liên Minh"}, prompt="Choose installation"))
+        renderer = QtViewRenderer(StandardViewProvider().provide_view(artifact), artifact)
+        renderer.setFixedWidth(width)
+        renderer.show()
+        base._pump(4)
+        try:
+            buttons = [b for b in renderer.findChildren(QPushButton) if b.objectName() == "CandidateBtn"]
+            assert len(buttons) == 2
+            received = []
+            renderer.input_submitted.connect(lambda op, values: received.append((op, values)))
+            visible_labels = []
+            diagnostics = []
+            for index, button in enumerate(buttons):
+                assert button.isVisible() and not button.visibleRegion().isEmpty()
+                assert paths[index] in button.toolTip()
+                assert artifact.payload["candidate_choices"][index]["path"] == paths[index]
+                button.click()
+                option = QStyleOptionButton()
+                button.initStyleOption(option)
+                contents = button.style().subElementRect(QStyle.SubElement.SE_PushButtonContents, option, button)
+                # Native QPushButton paints a single line. Find the readable prefix
+                # inside its actual style content rect, before the shared path ends.
+                text, fm = button.text(), button.fontMetrics()
+                prefix = ""
+                for char in text:
+                    if fm.horizontalAdvance(prefix + char) &gt; contents.width():
+                        break
+                    prefix += char
+                visible_labels.append(prefix)
+                diagnostics.append(dict(text=text, readable_prefix=prefix, content_width=contents.width(),
+                                        text_width=fm.horizontalAdvance(text)))
+            assert [v[1]["selected_candidate"] for v in received] == [0, 1]
+&gt;           assert len(set(visible_labels)) == 2, diagnostics
+E           AssertionError: [{'text': 'League of Legends · /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/fixture-installations/Applicat...ends.app · com.fixture.league · v1.0', 'readable_prefix': 'League of Legend', 'content_width': 109, 'text_width': 951}]
+E           assert 1 == 2
+E            +  where 1 = len({'League of Legend'})
+E            +    where {'League of Legend'} = set(['League of Legend', 'League of Legend'])
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py:135: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance" name="test_v3_candidate_buttons_have_distinguishable_visible_labels[420]" time="0.006"><failure message="AssertionError: [{'text': 'League of Legends · /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/fixture-installations/Applicat...ends.app · com.fixture.league · v1.0', 'readable_prefix': 'League of Legend', 'content_width': 109, 'text_width': 951}]&#10;assert 1 == 2&#10; +  where 1 = len({'League of Legend'})&#10; +    where {'League of Legend'} = set(['League of Legend', 'League of Legend'])">app = &lt;PyQt6.QtWidgets.QApplication object at 0x12c2f0370&gt;, width = 420
+
+    @pytest.mark.parametrize("width", [620, 420])
+    def test_v3_candidate_buttons_have_distinguishable_visible_labels(app, width):
+        common = "/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/fixture-installations/"
+        paths = [common + folder + "/League of Legends.app" for folder in ("Applications", "Riot Games")]
+        choices = [dict(name="League of Legends", path=p, bundle_id="com.fixture.league", version="1.0")
+                   for p in paths]
+        artifact = Artifact("visual-choice", "input_request", payload=dict(operation_name="open_application",
+            missing_fields=[], candidate_choices=choices, supplied_inputs={"name": "Liên Minh"}, prompt="Choose installation"))
+        renderer = QtViewRenderer(StandardViewProvider().provide_view(artifact), artifact)
+        renderer.setFixedWidth(width)
+        renderer.show()
+        base._pump(4)
+        try:
+            buttons = [b for b in renderer.findChildren(QPushButton) if b.objectName() == "CandidateBtn"]
+            assert len(buttons) == 2
+            received = []
+            renderer.input_submitted.connect(lambda op, values: received.append((op, values)))
+            visible_labels = []
+            diagnostics = []
+            for index, button in enumerate(buttons):
+                assert button.isVisible() and not button.visibleRegion().isEmpty()
+                assert paths[index] in button.toolTip()
+                assert artifact.payload["candidate_choices"][index]["path"] == paths[index]
+                button.click()
+                option = QStyleOptionButton()
+                button.initStyleOption(option)
+                contents = button.style().subElementRect(QStyle.SubElement.SE_PushButtonContents, option, button)
+                # Native QPushButton paints a single line. Find the readable prefix
+                # inside its actual style content rect, before the shared path ends.
+                text, fm = button.text(), button.fontMetrics()
+                prefix = ""
+                for char in text:
+                    if fm.horizontalAdvance(prefix + char) &gt; contents.width():
+                        break
+                    prefix += char
+                visible_labels.append(prefix)
+                diagnostics.append(dict(text=text, readable_prefix=prefix, content_width=contents.width(),
+                                        text_width=fm.horizontalAdvance(text)))
+            assert [v[1]["selected_candidate"] for v in received] == [0, 1]
+&gt;           assert len(set(visible_labels)) == 2, diagnostics
+E           AssertionError: [{'text': 'League of Legends · /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/fixture-installations/Applicat...ends.app · com.fixture.league · v1.0', 'readable_prefix': 'League of Legend', 'content_width': 109, 'text_width': 951}]
+E           assert 1 == 2
+E            +  where 1 = len({'League of Legend'})
+E            +    where {'League of Legend'} = set(['League of Legend', 'League of Legend'])
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py:135: AssertionError</failure></testcase></testsuite></testsuites>

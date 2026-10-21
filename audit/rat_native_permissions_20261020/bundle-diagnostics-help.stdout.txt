@@ -1,0 +1,10 @@
+usage: rat [-h] [--seconds SECONDS] output_root
+
+Explicit isolated native startup session, with model and network guards.
+
+positional arguments:
+  output_root
+
+options:
+  -h, --help         show this help message and exit
+  --seconds SECONDS  auto-quit after this many seconds; 0 waits for Quit

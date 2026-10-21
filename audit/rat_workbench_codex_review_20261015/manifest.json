@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-15",
+  "head": "11c748a7a60c3da72e24f2e4cbb2233e5aa6a2b5",
+  "branch": "main",
+  "product_source_modified_by_review": false,
+  "source_sha256": {
+    "rat/ui/omnibar.py": "e099e162006ce3aec3afc38e3093917fdd1d75243ce80ea951f7d28eb90a44bf",
+    "rat/ui/workbench.py": "c92a350876805deb72d478b29d2396153cd912e6ec379e32f662df3a649377ed",
+    "tests/test_rat_magic_ui.py": "8ba3be2be3f680c2ab19fb412ea6c29753c092001f6565c2cbedb8d3a7277be8",
+    "tests/test_work_context_ui.py": "ec2bdcdff1919e9c499d3ae78d64c6ce913fc68d04c95687371b317080fbb098",
+    "tests/test_rat_one_box_ui.py": "7442d59293d5bbe966b4d37be37fe342ae2a0a92539946a562549a0c9a5f059d"
+  },
+  "focused_suite": {
+    "passed": 142,
+    "failed": 1,
+    "subtests_passed": 3,
+    "elapsed_seconds": 32.87,
+    "failure": "tests/test_rat_one_box_ui.py::test_mode_change_keeps_the_composer_anchor_when_space_allows"
+  },
+  "baseline_anchor": {
+    "omnibar_source": "git show HEAD:rat/ui/omnibar.py",
+    "passed": 1,
+    "elapsed_seconds": 2.79,
+    "log": "baseline-anchor.log"
+  },
+  "evidence_scope": "Integrated Qt offscreen fixture replay; actual repository README file; no model inference, Cocoa smoke or personal-corpus retrieval."
+}

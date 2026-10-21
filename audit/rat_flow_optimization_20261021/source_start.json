@@ -1,0 +1,18 @@
+{
+  "rat/ui/omnibar.py": "f7c830dd60ffb8065e4a29977ee42cf7a198b05769726638bb03500e76edec10",
+  "rat/ui/assistant_worker.py": "8c426dbea1015e367be0d2e4324909f4e397d6a12bdaf73cbc4df9fd590154a4",
+  "rat/ui/workbench_scene.py": "354ecc063b675d913a3bc9081a34e80e147f82c4d1c9fc6d85337abb6eb34467",
+  "rat/ui/surface_layout.py": "b297ca9f6ac937d96519a2f5f9e874508920355297931ce3d97bfb5920d82ee6",
+  "rat/engine/assistant_runtime.py": "e1db57107f58306c7b33d485a361f51aedbf08fa5c443e2419fe9a990b46b746",
+  "rat/engine/meta_reasoner.py": "4f5736a8b2cea1884e0ebf34faf545be5b7166fc4af9b0abf1687a4dc0be401d",
+  "rat/os/diagnostics.py": "3ffb43a6349ed1b883172a23515b5d17a94949ffc7a821728f00c222b84b5bc3",
+  "rat.spec": "690faa95855e0697ef1dc42c41755504114a421810ce72bbef8a334642b56893",
+  "tests/test_workbench_scene.py": "9e44198c588762cd9c82d740c0683b1e387143a733c16074f28881a8d9feb2de",
+  "tests/test_native_startup_contract.py": "d024af6e35b0ced351bdc71b22c98704649aa8888ffb0f18b5fbf5f3f8e17adf",
+  "tests/test_work_context_ui.py": "ec2bdcdff1919e9c499d3ae78d64c6ce913fc68d04c95687371b317080fbb098",
+  "tests/test_native_acceptance_readiness.py": "70b8a2467fa6b5fb07a80400fc0eb07a75de19050be7e6cfe9cbab3ef9d4e75e",
+  "tests/test_selected_document_ui.py": "b73ba8a9da35faf91aab12ec3803ae943aaa2ace637c77e6e9ce8542f02ee489",
+  "tests/test_policy_bundle.py": "c25cd70a59eb365fa7a16a2f204cb3168c2d6087f81de4c5267ec1d5f9ef857a",
+  "reasoning/runtime.py": "4749da409ffb5ff0a75f2d6c91f213589cb6d016855a0e4d45906a41b658199f",
+  "reasoning/bundle.py": "317d2f8b50c816f02b3546824292e3e3592ea1c8964cc05c5512ff85f1a500cf"
+}

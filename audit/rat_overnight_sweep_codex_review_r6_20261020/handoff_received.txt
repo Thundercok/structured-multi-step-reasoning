@@ -1,0 +1,411 @@
+Viewed review.md:1-137
+Viewed test_provenance_and_conclusion.py:1-81
+Ran command: List audit review r5 directory (`ls -la audit/rat_overnight_sweep_codex_review_r5_20261019`)
+Viewed session_commands.json:1-39
+Viewed legacy_replay_command.json:1-15
+Viewed legacy_fake_calls.jsonl:1-3
+Viewed run_native_performance_session.py:360-430
+Viewed run_native_performance_session.py:240-360
+Viewed run_native_performance_session.py:430-500
+Viewed run_native_performance_session.py:500-529
+Viewed reasoning_strategies.py:140-220
+Viewed reasoning_strategies.py:220-250
+Viewed reasoning_strategies.py:50-140
+Viewed reasoning_strategies.py:1-50
+Ran command: Test current extract_answer behavior (`python3 -c "
+from reasoning_strategies import extract_answer
+for s in [
+    'Answer: 2 + 2 = 4; 1 / 4 = 1/4',
+    'Therefore 2 + 2 = 4; 1 / 4 = 1/4',
+    'Answer: x = 3/4',
+    'Answer: 2 + 2 = 4; 4 * 2 = 8',
+    'Therefore x = 3/4',
+]:
+    print(s, '->', repr(extract_answer(s)))
+"`)
+Viewed parser_before_after.json:1-33
+Ran command: Run 29 mandatory research tests (`python3 -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`)
+Ran command: Run 29 mandatory research tests with .venv (`.venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`)
+Ran command: Grep extract_answer in tests (`git grep -l "extract_answer" tests/`)
+Viewed run_consolidated.py:1-35
+Viewed command.json:1-43
+Viewed parser_command.json:1-13
+Ran command: Run parser affected tests (`.venv/bin/python -m pytest test_reasoning_strategies.py test_qwen_mlx_backend_mocked.py tests/test_research_scoring.py -q`)
+Ran command: Run test_reasoning_strategies.py and test_research_scoring.py (`.venv/bin/python -m pytest test_reasoning_strategies.py tests/test_research_scoring.py -q`)
+Viewed parser_affected.txt:1-3
+Viewed parser_command.json:2-1
+Ran command: List repair r4 directory (`ls -la audit/rat_overnight_sweep_codex_repair_r4_20261019/`)
+Ran command: Run test_qwen_mlx_backend_mocked.py (`.venv/bin/python -m pytest test_qwen_mlx_backend_mocked.py -q`)
+Ran command: Run test_provenance_and_conclusion.py (`.venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py -v`)
+Viewed calls.jsonl:1-6
+Viewed run_native_performance_session.py:190-235
+Viewed run_native_performance_session.py:150-190
+Viewed run_native_performance_session.py:40-90
+Viewed run_native_performance_session.py:90-115
+Ran command: Verify f9mhsshs in historical calls.jsonl (`.venv/bin/python -c "
+import json
+from pathlib import Path
+lines = [json.loads(line) for line in Path('audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/calls.jsonl').read_text().splitlines()]
+print('Total lines:', len(lines))
+for i, l in enumerate(lines, 1):
+    print(i, l.get('call_index'), 'f9mhsshs' in l.get('document_path', ''))
+"`)
+Viewed reasoning_strategies.py:80-185
+Ran command: Test _clean_cand and extract_conclusion_number (`.venv/bin/python -c "
+import re
+from fractions import Fraction
+
+NUM = re.compile(r'-?\d[\d,]*\.?\d*')
+NUMERIC_ANSWER = re.compile(r'^\s*-?\d[\d,]*\.?\d*(?:\s+[^\d]*)?\s*$')
+EQUALS_RESULT = re.compile(r'=\s*(-?(?:\d[\d,]*(?:\.\d+)?|\.\d+))(?!\.?\d)(?!\s*[/÷×*+-])', re.IGNORECASE)
+TRAILING_NUMERIC_RESULT = re.compile(r'[:=]\s*(-?(?:\d[\d,]*(?:\.\d+)?|\.\d+))(?!\.?\d)(?!\s*[/÷×*+-])(?:\s+[^\d\+\-\*\/\(\)\=]+)?\.?\s*$', re.IGNORECASE)
+YES_NO_ANSWER = re.compile(r'^\s*(yes|no)\b', re.IGNORECASE)
+
+def extract_number(text: str) -> str | None:
+    nums = NUM.findall(text.replace(',', ''))
+    if not nums:
+        return None
+    val = nums[-1]
+    if val.endswith('.') and not re.search(r'\d\.\d', val):
+        val = val.rstrip('.')
+    return val
+
+def extract_conclusion_number(text: str) -> str | None:
+    lowered = text.casefold()
+    conclusion_cues = (
+        'therefore', 'thus', 'hence', 'final answer', 'kết quả', 'đáp án',
+        'do đó', 'vậy', 'total',
+    )
+    clauses = [c.strip() for c in re.split(r'[;\n]', text) if c.strip()]
+    target = clauses[-1] if clauses else text
+    rhs = target.rsplit('=', 1)[-1].strip() if '=' in target else target
+    if any(op in rhs for op in ('/', '*', '+', '÷', '×')) or ('-' in rhs and not re.match(r'^-\s*\d', rhs.strip())):
+        return None
+    equals_results = EQUALS_RESULT.findall(target)
+    if equals_results:
+        return extract_number(equals_results[-1])
+    trailing = TRAILING_NUMERIC_RESULT.search(target)
+    if trailing:
+        return extract_number(trailing.group(1))
+    if NUMERIC_ANSWER.fullmatch(target) or any(cue in target.casefold() for cue in conclusion_cues) or any(cue in lowered for cue in conclusion_cues):
+        return extract_number(target)
+    return None
+
+placeholders = {'<kết quả>', '<your final answer>', '[kết quả của bạn]', '<final answer>', '<answer>'}
+
+def _clean_cand(norm: str) -> str:
+    yes_no = YES_NO_ANSWER.match(norm)
+    if yes_no:
+        return yes_no.group(1)
+    for p in placeholders:
+        if norm.casefold().startswith(p.casefold()):
+            norm = re.sub(r'^\s*' + re.escape(p) + r'\s*[:=]?\s*', '', norm, flags=re.IGNORECASE).strip()
+            break
+    norm = norm.lstrip('=: ').strip()
+
+    clauses = [c.strip() for c in re.split(r'[;\n]', norm) if c.strip()]
+    target = clauses[-1] if clauses else norm
+
+    rhs = target.rsplit('=', 1)[-1].strip() if '=' in target else target
+    is_expr = any(op in rhs for op in ('+', '*', '/', '×', '÷')) or ('-' in rhs and not re.match(r'^-\s*\d', rhs.strip()))
+    if is_expr:
+        return norm
+
+    equals_results = EQUALS_RESULT.findall(target)
+    if equals_results:
+        return extract_number(equals_results[-1])
+    trailing = TRAILING_NUMERIC_RESULT.search(target)
+    if trailing:
+        return extract_number(trailing.group(1))
+
+    num = extract_conclusion_number(target)
+    if num is not None:
+        return num
+
+    norm_rhs = norm.rsplit('=', 1)[-1].strip() if '=' in norm else norm
+    norm_is_expr = any(op in norm_rhs for op in ('+', '*', '/', '×', '÷')) or ('-' in norm_rhs and not re.match(r'^-\s*\d', norm_rhs.strip()))
+    if not norm_is_expr:
+        num = extract_conclusion_number(norm)
+        if num is not None:
+            return num
+
+    return norm
+
+test_cases = [
+    ('Answer: 2 + 2 = 4; 1 / 4 = 1/4', Fraction(1, 4)),
+    ('Therefore 2 + 2 = 4; 1 / 4 = 1/4', Fraction(1, 4)),
+    ('Answer: x = 3/4', Fraction(3, 4)),
+    ('Answer: 2 + 2 = 4; 4 * 2 = 8', Fraction(8)),
+    ('Therefore x = 3/4', Fraction(3, 4)),
+]
+
+for raw, expected in test_cases:
+    # simulate normalize_answer
+    norm = raw.split(':', 1)[-1].strip() if ':' in raw else raw
+    parsed = _clean_cand(norm)
+    conclusion = parsed.rsplit('=', 1)[-1].strip()
+    if '/' in conclusion:
+        n, d = conclusion.split('/', 1)
+        actual = Fraction(n.strip()) / Fraction(d.strip())
+    else:
+        actual = Fraction(conclusion)
+    print(f'{raw!r:40} -> parsed={parsed!r:25} actual={actual} pass={actual == expected}')
+"`)
+Ran command: Test x = 3.25/4 expression check (`.venv/bin/python -c "
+import re
+from fractions import Fraction
+# test x = 3.25/4
+norm = 'x = 3.25/4'
+clauses = [c.strip() for c in re.split(r'[;\n]', norm) if c.strip()]
+target = clauses[-1] if clauses else norm
+rhs = target.rsplit('=', 1)[-1].strip() if '=' in target else target
+is_expr = any(op in rhs for op in ('+', '*', '/', '×', '÷')) or ('-' in rhs and not re.match(r'^-\s*\d', rhs.strip()))
+print('x = 3.25/4 is_expr:', is_expr)
+"`)
+Ran command: Check git status (`git status`)
+Ran command: Check git diff stat (`git diff --stat`)
+Ran command: Check reasoning_strategies file locations (`ls -la reasoning_strategies.py reasoning/reasoning_strategies.py`)
+Viewed reasoning_strategies.py:1-14
+Edited reasoning_strategies.py
+Viewed reasoning_strategies.py:155-190
+Edited reasoning_strategies.py
+Ran command: Run test_final_conclusion_not_earlier_intermediate_scalar (`.venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py -k "test_final_conclusion_not_earlier_intermediate_scalar" -v`)
+Ran command: Run test_reasoning_strategies, test_harness_regressions, test_research_scoring (`.venv/bin/python -m pytest test_reasoning_strategies.py tests/test_harness_regressions.py tests/test_research_scoring.py -q`)
+
+All background tasks are running. I will wait for their completion.
+
+Checked task Run test_reasoning_strategies, test_harness_regressions, test_research_scoring
+
+Waiting for task to complete.
+
+Viewed task-3820.log
+
+Waiting for test task completion.
+
+Viewed run_native_performance_session.py:370-450
+Viewed run_native_performance_session.py:460-485
+Ran command: Search fake_model_calls_executed usages (`git grep "fake_model_calls_executed"`)
+
+Waiting for task to complete.
+
+Checked task Search fake_model_calls_executed usages
+Ran command: Grep fake_model_calls_executed in audit, tests, scripts (`grep -rn "fake_model_calls_executed" audit/ tests/ scripts/`)
+
+Waiting for grep task to complete.
+
+Checked task Grep fake_model_calls_executed in audit, tests, scripts
+Viewed run_native_performance_session.py:374-430
+Edited run_native_performance_session.py
+Viewed run_native_performance_session.py:470-485
+Edited run_native_performance_session.py
+Ran command: Run test_backend_provenance_never_inferred_real_from_timing_or_token_count (`.venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py -k "test_backend_provenance_never_inferred_real_from_timing_or_token_count" -v`)
+Ran command: Create audit repair r5 directories (`mkdir -p audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_session audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_history_halt audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay`)
+Ran command: Run fake session in repair r5 (`.venv/bin/python scripts/run_native_performance_session.py --fake-backend --max-budget 1 --output-dir audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_session > audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_session.txt 2>&1`)
+Viewed fake_session.txt:1-19
+Viewed native_performance.json:1-74
+Ran command: Run fake_history_halt in repair r5 (`cp audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_session/calls.jsonl audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_history_halt/calls.jsonl && .venv/bin/python scripts/run_native_performance_session.py --fake-backend --max-budget 1 --output-dir audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_history_halt > audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_history_halt.txt 2>&1`)
+Viewed fake_history_halt.txt:1-16
+Viewed native_performance.json:1-74
+Ran command: Run locked_ledger_replay in repair r5 (`cp audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/calls.jsonl audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay/calls.jsonl && shasum -a 256 audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay/calls.jsonl && .venv/bin/python scripts/run_native_performance_session.py --fake-backend --max-budget 12 --output-dir audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay > audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay.txt 2>&1 && shasum -a 256 audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay/calls.jsonl`)
+Viewed native_performance.json:1-74
+Ran command: Copy and verify root calls.jsonl in repair r5 (`cp audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/calls.jsonl audit/rat_overnight_sweep_codex_repair_r5_20261019/calls.jsonl && shasum -a 256 audit/rat_overnight_sweep_codex_repair_r5_20261019/calls.jsonl`)
+Ran command: Run test_provenance_and_conclusion.py against repair r5 (`RAT_REVIEW_R5_OUTPUT_DIR=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019 .venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py -v`)
+Viewed native_performance.json:1-78
+Created native_performance.json
+Created run_consolidated.py
+Ran command: Run full 319-test consolidated suite (`.venv/bin/python audit/rat_overnight_sweep_codex_repair_r5_20261019/run_consolidated.py > audit/rat_overnight_sweep_codex_repair_r5_20261019/regression.txt 2>&1`)
+
+Waiting for consolidated test suite task to complete.
+
+Checked task Run full 319-test consolidated suite
+
+Waiting for test suite execution to finish.
+
+Viewed regression.txt:1-47
+Viewed test_final_edges.py:30-60
+Ran command: List review r5 received_artifacts (`ls -la audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/`)
+Ran command: Copy calls.jsonl into received_artifacts (`mkdir -p audit/rat_overnight_sweep_codex_repair_r5_20261019/received_artifacts && cp audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/calls.jsonl audit/rat_overnight_sweep_codex_repair_r5_20261019/received_artifacts/calls.jsonl && shasum -a 256 audit/rat_overnight_sweep_codex_repair_r5_20261019/received_artifacts/calls.jsonl`)
+Ran command: Re-run full 319-test consolidated suite (`.venv/bin/python audit/rat_overnight_sweep_codex_repair_r5_20261019/run_consolidated.py > audit/rat_overnight_sweep_codex_repair_r5_20261019/regression.txt 2>&1`)
+
+Waiting for consolidated test suite task to complete.
+
+Checked task Re-run full 319-test consolidated suite
+
+Waiting for consolidated test suite completion.
+
+Viewed regression.txt:1-7
+Ran command: Verify regression.xml header (`head -n 5 audit/rat_overnight_sweep_codex_repair_r5_20261019/regression.xml`)
+Ran command: Parse regression.xml metrics (`.venv/bin/python -c "
+import xml.etree.ElementTree as ET
+tree = ET.parse('audit/rat_overnight_sweep_codex_repair_r5_20261019/regression.xml')
+root = tree.getroot()
+suite = root.find('testsuite')
+print('Tests:', suite.attrib.get('tests'))
+print('Failures:', suite.attrib.get('failures'))
+print('Errors:', suite.attrib.get('errors'))
+print('Skipped:', suite.attrib.get('skipped'))
+print('Time:', suite.attrib.get('time'))
+"`)
+Ran command: Run 29 mandatory research tests (`.venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`)
+Ran command: Run test_reasoning_strategies and test_research_scoring (`.venv/bin/python -m pytest test_reasoning_strategies.py tests/test_research_scoring.py -q`)
+Ran command: Check git diff of modified files (`git diff -- reasoning/reasoning_strategies.py scripts/run_native_performance_session.py`)
+Ran command: Check status of edited files (`git status -- reasoning/reasoning_strategies.py scripts/run_native_performance_session.py`)
+Ran command: Read repair_diff.patch header from repair r4 (`head -n 20 audit/rat_overnight_sweep_codex_repair_r4_20261019/repair_diff.patch`)
+Ran command: List reviewed_source in review r5 (`ls -la audit/rat_overnight_sweep_codex_review_r5_20261019/reviewed_source/`)
+Ran command: Diff reasoning_strategies.py against reviewed_source (`diff -u audit/rat_overnight_sweep_codex_review_r5_20261019/reviewed_source/reasoning/reasoning_strategies.py reasoning/reasoning_strategies.py`)
+
+Waiting for diff task to complete.
+
+Checked task Diff reasoning_strategies.py against reviewed_source
+Ran command: Diff run_native_performance_session.py against reviewed_source (`diff -u audit/rat_overnight_sweep_codex_review_r5_20261019/reviewed_source/scripts/run_native_performance_session.py scripts/run_native_performance_session.py`)
+
+Waiting for diff task to complete.
+
+Checked task Diff run_native_performance_session.py against reviewed_source
+Ran command: Save combined repair_diff.patch in repair r5 (`(diff -u audit/rat_overnight_sweep_codex_review_r5_20261019/reviewed_source/reasoning/reasoning_strategies.py reasoning/reasoning_strategies.py; diff -u audit/rat_overnight_sweep_codex_review_r5_20261019/reviewed_source/scripts/run_native_performance_session.py scripts/run_native_performance_session.py) > audit/rat_overnight_sweep_codex_repair_r5_20261019/repair_diff.patch || true`)
+Viewed repair_diff.patch:1-152
+Created command.json
+Created session_commands.json
+Ran command: Run parser tests into parser_affected.xml (`.venv/bin/python -m pytest test_reasoning_strategies.py tests/test_research_scoring.py -q --junitxml=audit/rat_overnight_sweep_codex_repair_r5_20261019/parser_affected.xml > audit/rat_overnight_sweep_codex_repair_r5_20261019/parser_affected.txt 2>&1`)
+Viewed parser_affected.txt:1-3
+Ran command: Run 10 probes into provenance_and_conclusion.xml (`RAT_REVIEW_R5_OUTPUT_DIR=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019 .venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py -v --junitxml=audit/rat_overnight_sweep_codex_repair_r5_20261019/provenance_and_conclusion.xml > audit/rat_overnight_sweep_codex_repair_r5_20261019/provenance_and_conclusion.txt 2>&1`)
+Viewed provenance_and_conclusion.txt:1-22
+Viewed source_end.json:1-58
+Ran command: Check current hashes of 51 files (`.venv/bin/python -c "
+import hashlib, json
+from pathlib import Path
+
+source_r5 = json.loads(Path('audit/rat_overnight_sweep_codex_review_r5_20261019/source_end.json').read_text())
+files = source_r5['files']
+
+current_hashes = {}
+changed = []
+for rel_path in sorted(files.keys()):
+    p = Path(rel_path)
+    if not p.exists():
+        print('MISSING:', rel_path)
+        continue
+    h = hashlib.sha256(p.read_bytes()).hexdigest()
+    current_hashes[rel_path] = h
+    if h != files[rel_path]:
+        changed.append(rel_path)
+        print('CHANGED:', rel_path, 'old:', files[rel_path][:10], 'new:', h[:10])
+
+print('Total files:', len(current_hashes))
+print('Changed files count:', len(changed))
+"`)
+Ran command: Write source_start.json and source_end.json (`.venv/bin/python -c "
+import hashlib, json
+from datetime import datetime, timezone
+from pathlib import Path
+
+source_r5 = json.loads(Path('audit/rat_overnight_sweep_codex_review_r5_20261019/source_end.json').read_text())
+files_start = source_r5['files']
+
+start_payload = {
+    'time_utc': '2026-10-19T15:20:15.533089+00:00',
+    'files': files_start,
+    'changed_during_repair': []
+}
+
+files_end = {}
+for rel_path in sorted(files_start.keys()):
+    files_end[rel_path] = hashlib.sha256(Path(rel_path).read_bytes()).hexdigest()
+
+changed = [f for f in files_start if files_start[f] != files_end[f]]
+
+end_payload = {
+    'time_utc': datetime.now(timezone.utc).isoformat(),
+    'files': files_end,
+    'changed_during_repair': changed
+}
+
+repair_dir = Path('audit/rat_overnight_sweep_codex_repair_r5_20261019')
+(repair_dir / 'source_start.json').write_text(json.dumps(start_payload, indent=2) + '\n', encoding='utf-8')
+(repair_dir / 'source_end.json').write_text(json.dumps(end_payload, indent=2) + '\n', encoding='utf-8')
+print('Wrote source_start.json and source_end.json successfully. Changed files:', changed)
+"`)
+Viewed validation.json:1-85
+Created validation.json
+Viewed rat_cot_evidence_map.md:1-85
+Created rat_cot_evidence_map.md
+Ran command: List files in repair r5 directory (`ls -la audit/rat_overnight_sweep_codex_repair_r5_20261019/`)
+Created handoff.md
+Ran command: Verify files in repair r5 directory (`ls -la audit/rat_overnight_sweep_codex_repair_r5_20261019/`)
+Ran command: Check SHA256 across all calls.jsonl files (`shasum -a 256 audit/rat_overnight_sweep_codex_repair_r5_20261019/calls.jsonl audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay/calls.jsonl audit/rat_overnight_sweep_codex_repair_r5_20261019/received_artifacts/calls.jsonl audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/calls.jsonl`)
+Ran command: Check git status summary (`git status -s`)
+
+### Overnight RAT–CoT Repair Follow-up (Round 5) — Handoff
+
+Đã hoàn thành toàn bộ repair theo independent review r5 (`audit/rat_overnight_sweep_codex_review_r5_20261019/review.md`) trên hệ thống RAT–CoT hợp nhất (phục vụ NCKH). Giữ nguyên quy tắc solo Git (`main`, không commit/push/reset/branch) và giữ nguyên ngân sách 12 inference calls thật (0 real calls mới).
+
+---
+
+### 1. Kết quả xử lý 3 finding P2 (E1, E2, E3)
+
+1. **E1 — [P2 / D1] Terminal conclusion clause evaluation (`reasoning/reasoning_strategies.py`)**:
+   - **Nguyên nhân gốc**: `_clean_cand` và `extract_conclusion_number` quét toàn bộ chuỗi tìm scalar sau dấu `=` (`EQUALS_RESULT.findall(norm)`) trước khi kiểm tra RHS cuối có phải biểu thức hay không. Chuỗi chứa biểu thức trung gian rồi đến phân số (`Answer: 2 + 2 = 4; 1 / 4 = 1/4`) khớp `= 4;` nhưng bỏ qua `= 1/4`, dẫn đến việc rút gọn nhầm thành số scalar trung gian `4`.
+   - **Giải pháp**: Cả hai hàm tách các mệnh đề bằng `[;\n]` và kiểm tra mệnh đề kết luận cuối (`target = clauses[-1]`). Nếu RHS của kết luận cuối chứa toán tử (`+`, `*`, `/`, `×`, `÷`) hoặc số âm không phải dấu trừ đơn lẻ, chuỗi được xác định là biểu thức/phân số (`is_expr = True`) và giữ nguyên toàn bộ biểu thức (`return norm`). Chỉ khi kết luận cuối không phải biểu thức mới trích xuất số scalar.
+   - **Nghiệm thu**: `test_final_conclusion_not_earlier_intermediate_scalar` đạt **4/4 pass** (gồm cả marker rational, fallback rational, single rational control, và final integer control).
+
+2. **E2 — [P2 / D2] Strict provenance classification (`scripts/run_native_performance_session.py`)**:
+   - **Nguyên nhân gốc**: `classify_record_backend` trước đó dùng heuristic `first_token_ms` / `prefill_ms` / `generation_ms` hoặc `prompt_tokens >= 500` để gán nhãn `real`. Vì `FakeMLXDocumentSession` cũng đo timing và có prompt tokens = 2031 từ văn bản ngữ cảnh, record fake không tag từ review r3 bị gán sai thành `real`.
+   - **Giải pháp**: Loại bỏ hoàn toàn heuristic thời gian và token count. Phân loại `real` chỉ khi có provenance xác nhận rõ ràng: `backend_type == "real"`, đường dẫn model thực (`qwen3.5`, `mlx-community`), hoặc signature đường dẫn tài liệu 12 calls chuẩn (`rat_native_perf_f9mhsshs`). Mọi legacy record không rõ nguồn trả về `"unknown"` (vẫn tính vào attempts của budget guard).
+   - **Nghiệm thu**: `test_backend_provenance_never_inferred_real_from_timing_or_token_count` đạt **4/4 pass** (`legacy-captured-fake` -> `unknown`, `explicit-fake` -> `fake`, `explicit-real` -> `real`, `no-provenance` -> `unknown`).
+
+3. **E3 — [P2 / D2] Current-run execution counters & fake history halt (`scripts/run_native_performance_session.py`)**:
+   - **Nguyên nhân gốc**: Nhánh fallback của `fake_calls_count` gán `len(ledger_fake_records)` khi tiến trình hiện tại không dispatch, khiến chạy lại trên lịch sử fake có sẵn dù guard halt vẫn ghi `offline_fake_backend_completed_1_calls`.
+   - **Giải pháp**:
+     - `fake_model_calls_executed = new_fake_executed`: chỉ đếm số request thực sự dispatch trong tiến trình hiện tại.
+     - Khi `new_fake_executed == 0`: nếu ledger có fake records thì status là `"budget_halt_existing_fake_history"`, nếu có real records thì status là `"budget_halt_existing_real_history"`.
+     - Đặt `relevant_for_warm = []` khi dừng guard, đảm bảo `warm_generation_latency_ms = null` (không mượn metrics phiên trước).
+     - Tách toàn bộ số liệu lịch sử vào trường riêng: `historical_ledger_totals` (`completed_records`, `real_records`, `fake_records`, `unknown_records`).
+   - **Nghiệm thu**: `test_executed_fake_count_describes_current_run` đạt **2/2 pass** (`fake_session` = 1, `fake_history_halt` = 0).
+
+---
+
+### 2. Artifacts và Session Replays đã sinh
+
+Toàn bộ artifacts được lưu tại [`audit/rat_overnight_sweep_codex_repair_r5_20261019/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/):
+
+1. **[`fake_session/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_session/)**:
+   - Chạy `--fake-backend --max-budget 1` trên thư mục mới: dispatch 1 fake request.
+   - Summary: `fake_model_calls_executed: 1`, `real_model_calls_executed: 0`, status `offline_fake_backend_completed_1_calls`, `warm_generation_latency_ms: null`.
+2. **[`fake_history_halt/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/fake_history_halt/)**:
+   - Copy `fake_session/calls.jsonl`, chạy `--fake-backend --max-budget 1`: guard dừng ngay lập tức (`BUDGET GUARD HALT: Global budget limit reached (1/1). No new requests will be dispatched.`).
+   - Summary: `fake_model_calls_executed: 0`, `real_model_calls_executed: 0`, status `budget_halt_existing_fake_history`, `warm_generation_latency_ms: null`.
+   - `calls.jsonl` được bảo toàn byte-identical với `fake_session/calls.jsonl`.
+3. **[`locked_ledger_replay/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/locked_ledger_replay/)**:
+   - Copy ledger 12 calls thật gốc, chạy `--fake-backend --max-budget 12`: guard dừng ngay lập tức.
+   - Summary: `fake_model_calls_executed: 0`, `real_model_calls_executed: 0`, status `budget_halt_existing_real_history`, `warm_generation_latency_ms: null`.
+   - `calls.jsonl` được bảo toàn byte-identical với SHA256 `556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34`.
+
+---
+
+### 3. Ma trận kiểm thử độc lập
+
+| Bộ kiểm thử | Lệnh thực thi | Tổng số test | Kết quả | Thời gian | Artifact |
+|---|---|---|---|---|---|
+| **Consolidated Suite** | `.venv/bin/python audit/.../run_consolidated.py` | **319** | **319 pass** | 35.15s | [`regression.xml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/regression.xml), [`regression.txt`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/regression.txt) |
+| **Review r5 Probes** | `pytest test_provenance_and_conclusion.py` | **10** | **10 pass** | 0.08s | [`provenance_and_conclusion.xml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/provenance_and_conclusion.xml) |
+| **Review r4 Probes** | `pytest test_final_edges.py` | **7** | **7 pass** | 0.08s | Nằm trong 319 |
+| **Review r3 Probes** | `pytest test_remaining_probes.py` | **13** | **13 pass** | 0.08s | Nằm trong 319 |
+| **Mandatory Research Suite** | `pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py` | **29** | **29 pass** | 3.88s | Khớp độc lập |
+| **Parser & Research Scoring** | `pytest test_reasoning_strategies.py tests/test_research_scoring.py` | **44** | **44 pass** | 2.83s | [`parser_affected.xml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/parser_affected.xml) |
+
+---
+
+### 4. Manifest mã nguồn (Source Start vs Source End)
+
+Khớp chính xác 51 file source được theo dõi trong [`source_start.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/source_start.json) và [`source_end.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/source_end.json). Chỉ 2 file production được sửa:
+
+- [`reasoning/reasoning_strategies.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/reasoning/reasoning_strategies.py):
+  - Pre-repair SHA256: `99eb8b9a9ce4bfe29eec92fa2c911653b0ac7f30cf5c705f9bce78777734eee8`
+  - Post-repair SHA256: `54035407936a5ea976dfbf139049a37703399fc7104b901a520fa169f9e31d4d`
+- [`scripts/run_native_performance_session.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py):
+  - Pre-repair SHA256: `9bfff44967234927c737d063d5e8525210887b6f9c202314c4df3f9760fef042`
+  - Post-repair SHA256: `74ce9b4360e2ce1c27da50493ae070f8b1b9e84fc8654c86a3d132b388b0a99d`
+- **49 files còn lại**: Giữ nguyên byte-identical so với `source_end.json` của review r5.
+
+Toàn bộ diff sạch hai file được lưu tại [`repair_diff.patch`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/repair_diff.patch).
+Báo cáo nghiệm thu đầy đủ được ghi tại [`handoff.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/handoff.md), [`rat_cot_evidence_map.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/rat_cot_evidence_map.md), và [`validation.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r5_20261019/validation.json).

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.453" timestamp="2026-10-16T23:02:52.068606+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_rat_one_box_ui" name="test_result_opens_at_start_instead_of_skipping_form_fields" time="3.949"><failure message="assert 7 == 8&#10; +  where 7 = &lt;built-in method value of QScrollBar object at 0x119cdac10&gt;()&#10; +    where &lt;built-in method value of QScrollBar object at 0x119cdac10&gt; = &lt;PyQt6.QtWidgets.QScrollBar object at 0x119cdac10&gt;.value&#10; +      where &lt;PyQt6.QtWidgets.QScrollBar object at 0x119cdac10&gt; = &lt;built-in method verticalScrollBar of ChatStreamWidget object at 0x119cda5d0&gt;()&#10; +        where &lt;built-in method verticalScrollBar of ChatStreamWidget object at 0x119cda5d0&gt; = &lt;rat.ui.chat_stream.ChatStreamWidget object at 0x119cda5d0&gt;.verticalScrollBar&#10; +          where &lt;rat.ui.chat_stream.ChatStreamWidget object at 0x119cda5d0&gt; = &lt;rat.ui.omnibar.OmnibarWindow object at 0x11828fc50&gt;.chat_stream&#10; +  and   8 = &lt;built-in method y of QFrame object at 0x11d50d270&gt;()&#10; +    where &lt;built-in method y of QFrame object at 0x11d50d270&gt; = &lt;PyQt6.QtWidgets.QFrame object at 0x11d50d270&gt;.y">window = &lt;rat.ui.omnibar.OmnibarWindow object at 0x11828fc50&gt;
+
+    def test_result_opens_at_start_instead_of_skipping_form_fields(window):
+        window.open_natal_chart()
+        QTest.qWait(60)
+        handle = window._latest_assistant_handle
+&gt;       assert window.chat_stream.verticalScrollBar().value() == handle['card'].y()
+E       assert 7 == 8
+E        +  where 7 = &lt;built-in method value of QScrollBar object at 0x119cdac10&gt;()
+E        +    where &lt;built-in method value of QScrollBar object at 0x119cdac10&gt; = &lt;PyQt6.QtWidgets.QScrollBar object at 0x119cdac10&gt;.value
+E        +      where &lt;PyQt6.QtWidgets.QScrollBar object at 0x119cdac10&gt; = &lt;built-in method verticalScrollBar of ChatStreamWidget object at 0x119cda5d0&gt;()
+E        +        where &lt;built-in method verticalScrollBar of ChatStreamWidget object at 0x119cda5d0&gt; = &lt;rat.ui.chat_stream.ChatStreamWidget object at 0x119cda5d0&gt;.verticalScrollBar
+E        +          where &lt;rat.ui.chat_stream.ChatStreamWidget object at 0x119cda5d0&gt; = &lt;rat.ui.omnibar.OmnibarWindow object at 0x11828fc50&gt;.chat_stream
+E        +  and   8 = &lt;built-in method y of QFrame object at 0x11d50d270&gt;()
+E        +    where &lt;built-in method y of QFrame object at 0x11d50d270&gt; = &lt;PyQt6.QtWidgets.QFrame object at 0x11d50d270&gt;.y
+
+tests/test_rat_one_box_ui.py:228: AssertionError</failure></testcase></testsuite></testsuites>

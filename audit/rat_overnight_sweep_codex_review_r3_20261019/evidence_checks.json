@@ -1,0 +1,21 @@
+{
+  "old_artifact_mismatches": {
+    "audit/rat_overnight_sweep_codex_review_20261019": [],
+    "audit/rat_overnight_sweep_repair_codex_review_20261019": []
+  },
+  "real_ledger_hashes": {
+    "audit/rat_overnight_sweep_repair_20261019/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_repair_codex_repair_20261019/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34"
+  },
+  "ledger_preserved_byte_for_byte": true,
+  "changed_telemetry_values": {
+    "original_model_load_time_s": 27.542,
+    "new_model_load_time_s": 1.258,
+    "original_current_rss_mb": 104.09,
+    "new_backend_runner_rss_mb": 2221.72,
+    "original_peak_rss_mb": 876.31,
+    "new_backend_runner_peak_rss_mb": 2503.25,
+    "new_timestamp_utc": "2026-10-19T06:08:15.000000+00:00"
+  },
+  "render_candidates_exists": false
+}

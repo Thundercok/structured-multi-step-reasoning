@@ -1,0 +1,105 @@
+{
+  "manifest": {
+    "phase": "after",
+    "repetitions": 3,
+    "source_hashes": {
+      "main.py": "7d617ebfe79f69f28785961681c6feed396da912a2c34ca2a017084c661df947",
+      "rat/main.py": "0a14aa31c02e9e89a77f2a5ffe8340d5ffa050ae449f56cb980c6d092f220621",
+      "rat/cli.py": "98af6f9dd82688e27095ae4bc3e1aa178562720c79041083476e0db0f2182716"
+    },
+    "scope": "Instrumented CLI startup, not GUI latency or model quality",
+    "source_changed": []
+  },
+  "rows": [
+    {
+      "case": "rat_help",
+      "repetition": 0,
+      "process_wall_s": 0.24745516700204462,
+      "exit_code": 0,
+      "command_wall_s": 0.11021087504923344,
+      "peak_rss_bytes": 26279936,
+      "dependency_modules": [],
+      "stdout": "usage: rat.main [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "cli_help",
+      "repetition": 0,
+      "process_wall_s": 0.26561149989720434,
+      "exit_code": 0,
+      "command_wall_s": 0.1155217089690268,
+      "peak_rss_bytes": 26968064,
+      "dependency_modules": [],
+      "stdout": "usage: rat.cli [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "launcher_help",
+      "repetition": 0,
+      "process_wall_s": 0.25722412508912385,
+      "exit_code": 0,
+      "command_wall_s": 0.1146698750089854,
+      "peak_rss_bytes": 26755072,
+      "dependency_modules": [],
+      "stdout": "usage: main.py [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "rat_help",
+      "repetition": 1,
+      "process_wall_s": 0.2194963750662282,
+      "exit_code": 0,
+      "command_wall_s": 0.08617954107467085,
+      "peak_rss_bytes": 26558464,
+      "dependency_modules": [],
+      "stdout": "usage: rat.main [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "cli_help",
+      "repetition": 1,
+      "process_wall_s": 0.1971298330463469,
+      "exit_code": 0,
+      "command_wall_s": 0.08294291701167822,
+      "peak_rss_bytes": 26181632,
+      "dependency_modules": [],
+      "stdout": "usage: rat.cli [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "launcher_help",
+      "repetition": 1,
+      "process_wall_s": 0.19363225006964058,
+      "exit_code": 0,
+      "command_wall_s": 0.08431470801588148,
+      "peak_rss_bytes": 26181632,
+      "dependency_modules": [],
+      "stdout": "usage: main.py [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "rat_help",
+      "repetition": 2,
+      "process_wall_s": 0.19946258305571973,
+      "exit_code": 0,
+      "command_wall_s": 0.08650804194621742,
+      "peak_rss_bytes": 26312704,
+      "dependency_modules": [],
+      "stdout": "usage: rat.main [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "cli_help",
+      "repetition": 2,
+      "process_wall_s": 0.19239641597960144,
+      "exit_code": 0,
+      "command_wall_s": 0.08267645793966949,
+      "peak_rss_bytes": 26132480,
+      "dependency_modules": [],
+      "stdout": "usage: rat.cli [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "case": "launcher_help",
+      "repetition": 2,
+      "process_wall_s": 0.18668133299797773,
+      "exit_code": 0,
+      "command_wall_s": 0.08211850002408028,
+      "peak_rss_bytes": 25919488,
+      "dependency_modules": [],
+      "stdout": "usage: main.py [-h] {index,search,ask,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "blocked_operations": [],
+  "real_model_calls": 0,
+  "real_file_or_app_launches": 0,
+  "scope": "Cocoa fixture interaction; opening and preview are doubles; hotkey disabled"
+}

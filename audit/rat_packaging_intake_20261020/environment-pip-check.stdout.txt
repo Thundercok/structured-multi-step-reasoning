@@ -1,0 +1,11 @@
+scrapy-rotating-proxies 0.6.2 requires typing, which is not installed.
+opencv-python 4.12.0.88 has requirement numpy<2.3.0,>=2; python_version >= "3.9", but you have numpy 2.5.1.
+googleapis-common-protos 1.73.0 has requirement protobuf!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<7.0.0,>=3.20.2, but you have protobuf 7.35.1.
+google-ai-generativelanguage 0.6.15 has requirement protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<6.0.0dev,>=3.20.2, but you have protobuf 7.35.1.
+proto-plus 1.27.1 has requirement protobuf<7.0.0,>=3.19.0, but you have protobuf 7.35.1.
+grpcio-status 1.71.2 has requirement protobuf<6.0dev,>=5.26.1, but you have protobuf 7.35.1.
+mediapipe 0.10.14 has requirement protobuf<5,>=4.25.3, but you have protobuf 7.35.1.
+google-api-core 2.30.0 has requirement protobuf<7.0.0,>=4.25.8, but you have protobuf 7.35.1.
+numba 0.64.0 has requirement numpy<2.5,>=1.22, but you have numpy 2.5.1.
+ortools 9.15.6755 has requirement protobuf<6.34,>=6.33.1, but you have protobuf 7.35.1.
+z3-solver 5.0.0.0 is not supported on this platform

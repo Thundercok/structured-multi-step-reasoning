@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.212" timestamp="2026-10-20T14:18:22.811855+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_cot_runtime_codex_review_20261020.test_replay_fixture_probe" name="test_same_document_fixture_contains_one_completed_unknown_request" time="0.003"><failure message="AssertionError: {'invalid_jsonl_lines': 7, 'completed_request_records': 0}&#10;assert (7 == 0)">def test_same_document_fixture_contains_one_completed_unknown_request():
+        folder=ROOT/'audit/rat_cot_runtime_acceptance_20261020/same_document_legacy_fake'
+        records=[]
+        invalid_lines=0
+        for line in (folder/'calls.jsonl').read_text().splitlines():
+            if not line.strip():
+                continue
+            try:
+                records.append(json.loads(line))
+            except json.JSONDecodeError:
+                invalid_lines+=1
+        completed=[r for r in records if isinstance(r,dict) and (r.get('event')=='request_complete' or ('completion_tokens' in r and 'event' not in r))]
+&gt;       assert invalid_lines==0 and len(completed)==1, {'invalid_jsonl_lines':invalid_lines,'completed_request_records':len(completed)}
+E       AssertionError: {'invalid_jsonl_lines': 7, 'completed_request_records': 0}
+E       assert (7 == 0)
+
+audit/rat_cot_runtime_codex_review_20261020/test_replay_fixture_probe.py:19: AssertionError</failure></testcase></testsuite></testsuites>

@@ -50,6 +50,12 @@ class WheelResource(QWidget):
             self._fit_pending = True
             QTimer.singleShot(0, self._fit_wheel)
 
+    def _apply_theme(self):
+        from rat.ui.workbench import WorkbenchTokens, FONT_FAMILY
+        tokens = WorkbenchTokens.get()
+        if hasattr(self, 'detail'):
+            self.detail.setStyleSheet(f"color: {tokens.muted_hex}; font-size: 12px; font-family: {FONT_FAMILY};")
+
 
 def register_resource_renderer(name, renderer):
     RESOURCE_RENDERERS[name] = renderer

@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-10-16T10:00:00+07:00",
+  "branch": "main",
+  "head": "11c748a7a60c3da72e24f2e4cbb2233e5aa6a2b5",
+  "modified_and_added_files": {
+    "rat/crawler/spider_adapter.py": "08511d9e56c15e66d5417468d93ee0d20818121392b617a2a22248ed25b8565d",
+    "rat/kernel/capabilities/web.py": "6c4205d51126dec1e3e880ef755f64641926d7694dadcce4bfe9e74d40d4e67d",
+    "rat/kernel/capabilities/__init__.py": "e87f66a491211d899f9bdbf08f6c533d560b661638c3c1a7b0ead72b65c6b94e",
+    "rat/kernel/capabilities/views.py": "7f7a802991abbb77094d83e537e434f7ad1d07757ff4b38db1147aae77489143",
+    "rat/kernel/registry.py": "87be01a1dab4cfd18a68cd195ed0d6856f00ff5373d296a91a09cf04beb7bf1a",
+    "rat/engine/assistant_runtime.py": "46502ec7afffdd6f0b254a17e487700093ea1a1f1512837935b032ed4799030a",
+    "tests/test_spider_adapter.py": "ae99e40d0edba5b67fdf728141a79683202df3b0ab0cf190cff534140edf9dd0",
+    "docs/spider_reuse_audit_20261016.md": "e226f73e5be427ff50a50fc8472c963a71083459740894f11b9cf4926555c9ff",
+    "docs/rat_backlog.md": "07afacbe2ce05c4f418ff543d0479edf9b158f914790e4c885d7f78b96fb8bdb"
+  },
+  "status_summary": [
+    " M AGENTS.md",
+    " M README.md",
+    " M docs/benchmark_showcase.png",
+    " M docs/benchmark_table.tex",
+    " M docs/document_intake_refactor_20261015.md",
+    " M docs/rat_backlog.md",
+    " M docs/research_artifact_index.md",
+    " M docs/research_plan.md",
+    " M docs/research_protocol.md",
+    " M experiments/cot_restart_addendum.py",
+    " M experiments/cot_restart_pilot.py",
+    " M experiments/research_study.py",
+    " M main.py",
+    " M rat.spec",
+    " M rat/cli.py",
+    " M rat/crawler/warmup.py",
+    " M rat/engine/assistant_runtime.py",
+    " M rat/engine/context_snapshot.py",
+    " M rat/engine/slm.py",
+    " M rat/kernel/capabilities/__init__.py"
+  ]
+}

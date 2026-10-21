@@ -561,6 +561,10 @@ class TurnReconciliation:
     semantic_limitation: str = "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions."
     summary: str = ""
 
+    @property
+    def all_satisfied(self) -> bool:
+        return self.declared_scope_completion == "satisfied"
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "contract_id": self.contract_id,

@@ -1,0 +1,29 @@
+{
+  "status": "request_changes",
+  "b1_accepted": false,
+  "b2_wiring_gate": "not_accepted",
+  "reviewed_compiler_sha256": "a0aea01b5ace4d27ea7cad586717f2d6351272b21d5b79c2c6615ec75b1359a9",
+  "existing_test_executions": {
+    "passed": 92,
+    "failed": 0
+  },
+  "new_test_executions": {
+    "passed": 2,
+    "failed": 3
+  },
+  "findings": [
+    {
+      "id": "R3-1",
+      "priority": 1,
+      "class": "raw_operation_result_root_wrapper_decoded"
+    },
+    {
+      "id": "R3-2",
+      "priority": 2,
+      "class": "current_proof_ref_scope_unvalidated"
+    }
+  ],
+  "live_model_calls": 0,
+  "product_files_modified_by_review": [],
+  "source_drift": []
+}

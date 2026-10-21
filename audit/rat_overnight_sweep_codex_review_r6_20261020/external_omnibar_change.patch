@@ -1,0 +1,34 @@
+--- reviewed_source/rat/ui/omnibar.py
++++ external_changes/rat/ui/omnibar.py
+@@ -3686,6 +3686,8 @@
+             if meta_reasoner.is_reasoning_query(q_text):
+                 try:
+                     r_res = meta_reasoner.solve(q_text)
++                    confidence_label = ("Chưa ước lượng" if getattr(r_res, "confidence_kind", "legacy") == "not_estimated"
++                                        else f"{int(r_res.confidence*100)}%")
+                     reason_item = SearchResultItem(
+                         file_path=f"rat://reasoning_copy/{r_res.answer}",
+                         file_name=f"Suy luận AI: {r_res.badge}",
+@@ -3694,7 +3696,7 @@
+                         modified_at=time.time(),
+                         score=2500.0,
+                         explanation=f"Định tuyến bởi Meta-Controller RL ({r_res.strategy}) • Nhấn ↵ để sao chép đáp án",
+-                        snippet=f"{r_res.answer}\n\n[Chiến lược: {r_res.strategy} | Độ tự tin: {int(r_res.confidence*100)}% | Tiêu thụ: {r_res.tokens} tokens]",
++                        snippet=f"{r_res.answer}\n\n[Chiến lược: {r_res.strategy} | Độ tự tin: {confidence_label} | Tiêu thụ: {r_res.tokens} tokens]",
+                     )
+                     results.insert(0, reason_item)
+ 
+@@ -3707,10 +3709,11 @@
+                             thought=s_txt,
+                             action=f"execute_{r_res.strategy.lower()}",
+                             observation="Hoàn tất suy luận qua Meta-Controller",
+-                            evaluation=f"Độ tự tin: {int(r_res.confidence*100)}%",
++                            evaluation=f"Độ tự tin: {confidence_label}",
+                             latency_ms=round(r_res.latency_ms / max(len(r_res.steps), 1), 2),
+                         )
+-                    r_trace.finalize(confidence=r_res.confidence, is_sufficient=True)
++                    r_trace.finalize(confidence=r_res.confidence,
++                                     is_sufficient=r_res.verification_status != "unverifiable")
+                     response["reasoning_trace"] = r_trace
+                 except Exception as e:
+                     logger.debug(f"Reasoning card error: {e}")

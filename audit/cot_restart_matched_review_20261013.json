@@ -1,0 +1,44 @@
+{
+  "evidence": "reviewed_exposed_development_single_draw",
+  "confirmatory": false,
+  "publication_review_required": true,
+  "stage_0_changed": false,
+  "approved_plan_sha256": "9816139847b89f26508e3858430afd9fa806a4ff426e09cd2709b5fcd4117157",
+  "raw_run": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/cot_restart_matched_real_20261013",
+  "analysis": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/cot_restart_matched_analysis_20261013",
+  "diagnostics": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/cot_restart_matched_diagnostics_20261013",
+  "completed_calls": 36,
+  "failed_inference_attempts": 0,
+  "bootstrap_note": "First sandboxed load lacked a Metal device before any call_started. Same plan resumed outside sandbox; no inference call was retried.",
+  "token_scope": "backend-reported completion tokens including terminal EOS; prompt counts separately included",
+  "completion_tokens": 19715,
+  "new_prompt_plus_completion_tokens": 33840,
+  "active_collection_seconds": 1916.7987846240867,
+  "limits_respected": true,
+  "all_input_output_hashes_checked": true,
+  "M_correct": {
+    "A": 6,
+    "F": 9,
+    "CONT": 8
+  },
+  "boundary_sensitive_questions": 0,
+  "base_rescoring_changes": 0,
+  "decision_states_enabled": false,
+  "D_base_cost_scope": "historical logged counts; EOS convention unverified",
+  "tests": [
+    {
+      "command": "python3.12 -m pytest tests/test_cot_restart_matched_analysis.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q",
+      "passed": 33,
+      "exit_code": 0
+    },
+    {
+      "command": "python3.12 -m pytest tests/test_cot_restart_rescue_diagnostics.py -q",
+      "passed": 2,
+      "exit_code": 0
+    }
+  ],
+  "audits_sha256": {
+    "primary_analysis": "e1bf3a46012586516da8a823a36d27875ffd2d6bfa4178731dc5f4b78c90747d",
+    "diagnostics": "148c2b4fc6e83552b2635ff1f8b5836385276d3043d4a56329765e92b7fabc3f"
+  }
+}

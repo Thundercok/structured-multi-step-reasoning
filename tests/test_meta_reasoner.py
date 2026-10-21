@@ -26,13 +26,14 @@ class TestMetaReasonerEngine(unittest.TestCase):
         self.assertFalse(self.engine.is_reasoning_query("slm.py"))
         self.assertFalse(self.engine.is_reasoning_query("Poster NCKH"))
 
-    def test_pal_solver_cpa(self):
+    def test_pal_solver_does_not_fill_missing_cpa_inputs(self):
         res = self.engine.solve("Sinh viên tích lũy 64 tín chỉ có CPA 7.20. Học kỳ này thêm 4 môn...")
         self.assertEqual(res.strategy, "PAL")
-        self.assertIn("PAL", res.badge)
-        self.assertIn("7.4", res.answer)
-        self.assertGreaterEqual(res.confidence, 0.9)
-        self.assertGreater(len(res.steps), 1)
+        self.assertEqual(res.verification_status, "unverifiable")
+        self.assertIsNone(res.witness_proof)
+        self.assertNotIn("7.4", res.answer)
+        self.assertEqual(res.tokens, 0)
+        self.assertEqual(res.confidence_kind, "not_estimated")
 
     def test_ladder_escalation_policy(self):
         res = self.engine.solve("Quy chế đào tạo: sinh viên học song bằng thạc sĩ có bị đình chỉ không?")
@@ -47,6 +48,10 @@ class TestMetaReasonerEngine(unittest.TestCase):
         res1 = meta_reasoner.solve(q)
         res2 = meta_reasoner.solve(q)
         self.assertIs(res1, res2)
+
+    def test_hi_inside_nhieu_does_not_turn_calculation_into_a_greeting(self):
+        self.assertTrue(self.engine._is_conversational_query("hi"))
+        self.assertFalse(self.engine._is_conversational_query("CPA 9.1 thì bao nhiêu?"))
 
 
 if __name__ == "__main__":

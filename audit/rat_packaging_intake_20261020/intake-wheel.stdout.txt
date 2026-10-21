@@ -1,0 +1,9 @@
+Processing ./document_intake
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: nesy-document-intake
+  Building wheel for nesy-document-intake (pyproject.toml): started
+  Building wheel for nesy-document-intake (pyproject.toml): finished with status 'done'
+  Created wheel for nesy-document-intake: filename=nesy_document_intake-0.1.0-py3-none-any.whl size=6943 sha256=89f0e1c859e8e8a9cf5cb4b5ced8bd399bcea40a354dc83ca961a64a47645400
+  Stored in directory: /private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pip-ephem-wheel-cache-1dld48kp/wheels/1d/9c/d3/bdc4083a04939fdd77f0db1495c3a096ef64a1634eafd06396
+Successfully built nesy-document-intake

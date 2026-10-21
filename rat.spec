@@ -5,22 +5,39 @@ Packages Python runtime, PyQt6, ONNX/FastEmbed, Apple Vision, and all dependenci
 """
 
 import sys
+import os
+from importlib.util import find_spec
 from pathlib import Path
+from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
 
+project_dir = Path(SPECPATH)
 block_cipher = None
 
+# Python modules belong in PYZ, not as duplicate source/__pycache__ directories.
 added_files = [
-    ('rat/crawler', 'rat/crawler'),
-    ('rat/engine', 'rat/engine'),
-    ('rat/ui', 'rat/ui'),
     ('rat/assets', 'rat/assets'),
-    ('rat/os', 'rat/os'),
-    ('rat/timetable', 'rat/timetable'),
-    ('rat/astrology', 'rat/astrology'),
-    ('rat/kernel', 'rat/kernel'),
+    ('rat/engine/snapshot.schema.json', 'rat/engine'),
+    ('rat/astrology/ephemeris', 'rat/astrology/ephemeris'),
 ]
 
+# Collect installed MLX runtime libraries/kernels, never local model directories.
+mlx_binaries = collect_dynamic_libs('mlx') if find_spec('mlx') is not None else []
+mlx_data = collect_data_files('mlx', includes=['**/*.metallib']) if mlx_binaries else []
+format_data = collect_data_files('rfc3987_syntax', includes=['*.lark']) if find_spec('rfc3987_syntax') is not None else []
+format_data += collect_data_files('lark', includes=['grammars/*.lark']) if find_spec('lark') is not None else []
+
 hidden_imports = [
+    'reasoning',
+    'reasoning.entry_predictor',
+    'reasoning.optimal_stopping',
+    'reasoning.reasoning_env',
+    'reasoning.reasoning_strategies',
+    'document_intake.pdf',
+    'document_intake.vision',
+    'document_intake.tesseract',
+    'sklearn',
+    'scipy',
+    'gymnasium',
     'rat.os.crash_shield',
     'rat.os.memory_sentinel',
     'rat.os.hotkey',
@@ -48,6 +65,7 @@ hidden_imports = [
     'rat.astrology.export',
     'rat.ui.claude_widget',
     'rat.engine.meta_reasoner',
+    'rat.engine.selected_document_qa',
     'rat.astrology.chart',
     'rat.astrology.places',
     'rat.astrology.svg',
@@ -80,10 +98,10 @@ hidden_imports = [
 ]
 
 a = Analysis(
-    ['main.py'],
-    pathex=['.'],
-    binaries=[],
-    datas=added_files,
+    [str(project_dir / 'main.py')],
+    pathex=[str(project_dir)],
+    binaries=mlx_binaries,
+    datas=[(str(project_dir / source), target) for source, target in added_files] + mlx_data + format_data,
     hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
@@ -91,7 +109,6 @@ a = Analysis(
     excludes=[
         'tkinter',
         'matplotlib',
-        'scipy',
         'pytest',
         'torch',
         'torchvision',
@@ -99,8 +116,6 @@ a = Analysis(
         'transformers',
         'cv2',
         'pandas',
-        'sklearn',
-        'scipy',
         'sympy',
         'IPython',
         'jedi',
@@ -130,10 +145,10 @@ exe = EXE(
     upx=True,
     console=False,
     disable_windowed_traceback=False,
-    argv_emulation=True,
+    argv_emulation=False,
     target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    codesign_identity=os.environ.get('RAT_CODESIGN_IDENTITY') or None,
+    entitlements_file=str(project_dir / 'entitlements.plist'),
 )
 
 coll = COLLECT(
@@ -150,7 +165,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='rat.app',
-    icon='rat.icns',
+    icon=str(project_dir / 'rat.icns'),
     bundle_identifier='com.thundercock.rat',
     info_plist={
         'CFBundleName': 'rat',

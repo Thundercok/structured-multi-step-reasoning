@@ -15,6 +15,7 @@ import json
 import math
 import os
 import platform
+import random
 import re
 import resource
 import sys
@@ -24,6 +25,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -37,6 +39,15 @@ from research_identity import (
 )
 from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
 from scripts.gen_tasks import check as gen_check
+from experiments.cot_restart_replay import (
+    CAP_SWEEP_SEED_POLICY,
+    backend_kwargs,
+    backend_runtime_identity,
+    collect_token_stream,
+    decoding_config,
+    derive_cap_sweep_seed,
+    encode_prompt,
+)
 
 # Pinned model and runtime configuration
 MODEL_REPOSITORY = "mlx-community/Qwen3.5-4B-MLX-4bit"
@@ -85,17 +96,20 @@ BASE_COT_BUDGET = 1024
 MAX_CALLS_LIMIT = 136
 MAX_COMPLETION_TOKENS_LIMIT = 250_000
 MAX_DURATION_SECONDS = 8 * 3600  # 8 hours
+COMPLETED_CALL_KINDS = ("smoke", "base_cot", "restart_call", "addendum_call", "matched_call")
 
 # Source code files to hash
 SOURCE_FILES = (
     "experiments/cot_restart_pilot.py",
     "experiments/cot_restart_addendum.py",
+    "experiments/cot_restart_replay.py",
     "experiments/research_study.py",
     "reasoning_strategies.py",
     "research_identity.py",
     "research_prompt_profiles.py",
     "scripts/gen_tasks.py",
     "docs/cot_restart_preflight_protocol_20261009.md",
+    "docs/cot_restart_replay_protocol_20261013.md",
 )
 
 
@@ -222,6 +236,7 @@ def select_pilot_questions(pool_path: Path = DEV_POOL_PATH) -> list[dict]:
 
 
 def derive_call_seed(base_seed: int, question_id: str, arm: str, budget: int) -> int:
+    """Historical budget-specific seed; new cap-sweeps use derive_cap_sweep_seed."""
     h = hashlib.sha256(f"{base_seed}:{question_id}:{arm}:{budget}".encode("utf-8")).digest()
     return int.from_bytes(h[:4], "big")
 
@@ -334,6 +349,10 @@ def build_run_identity(mock: bool, config_arms: tuple[str, ...] | list[str] = CO
             "sampling_top_p": SAMPLING_TOP_P,
             "base_cot_budget": BASE_COT_BUDGET,
             "config_arms": list(config_arms),
+            "seed_policy": CAP_SWEEP_SEED_POLICY,
+            "token_record_version": 1,
+            "backend_runtime": backend_runtime_identity(mock=mock),
+            "decoding_config": decoding_config(SAMPLING_TEMPERATURE, SAMPLING_TOP_P),
         })),
         "source_sha256": source_hashes(),
     }
@@ -483,7 +502,7 @@ class PilotJournal:
             self.count += 1
             if kind == "call_started":
                 started_count += 1
-            elif kind in ("smoke", "base_cot", "restart_call", "addendum_call"):
+            elif kind in COMPLETED_CALL_KINDS:
                 val = body["value"]
                 is_skipped = val.get("skipped", False) or val.get("budget_infeasible", False)
                 if is_skipped:
@@ -589,7 +608,7 @@ class PilotJournal:
         self.cache[composite_key] = value
         self.head = entry["sha256"]
         self.count += 1
-        if kind in ("smoke", "base_cot", "restart_call", "addendum_call"):
+        if kind in COMPLETED_CALL_KINDS:
             is_skipped = value.get("skipped", False) or value.get("budget_infeasible", False)
             if is_skipped:
                 self.skipped_calls += 1
@@ -639,8 +658,18 @@ class MockLLM:
     """Offline mock tokenizer and model; strictly never imports or touches MLX."""
 
     class MockTokenizer:
-        def encode(self, text: str) -> list[int]:
-            return [hash(w) % 256 for w in re.findall(r"\w+|[^\w\s]", text)]
+        bos_token = None
+        eos_token_ids = {0}
+        name_or_path = "mock"
+
+        def encode(self, text: str, add_special_tokens: bool = True) -> list[int]:
+            # Reversible, deterministic chunks with roughly the real prompt scale.
+            return [int.from_bytes(b"\x01" + text[i:i + 4].encode("utf-8"), "big")
+                    for i in range(0, len(text), 4)]
+
+        def decode(self, ids: list[int]) -> str:
+            return "".join(token.to_bytes((token.bit_length() + 7) // 8, "big")[1:].decode("utf-8")
+                           for token in ids if token != 0)
 
         def apply_chat_template(
             self,
@@ -667,8 +696,31 @@ class MockLLM:
                     res += "<|im_start|>assistant\n<think>\n\n</think>\n\n"
             return res
 
-    def __init__(self):
+    def __init__(self, eos_at: int | None = None):
         self.tokenizer = self.MockTokenizer()
+        self.eos_at = eos_at
+
+    def stream_events(self, prompt_ids: list[int], *, max_tokens: int, seed: int, config: dict):
+        """Causal seeded synthetic stream: cap affects only stopping, EOS counts."""
+        prompt = self.tokenizer.decode(prompt_ids)
+        rng_seed = int.from_bytes(hashlib.sha256(f"{seed}:{prompt}".encode()).digest()[:8], "big")
+        rng = random.Random(rng_seed)
+        step = rng.randrange(1, 10)
+        answer = rng.choice((42, 43)) if config["temperature"] else 42
+        opening = "Thinking step by step.\n</think>\n" if config["is_thinking"] else ""
+        output = f"{opening}Mock step {step}. Mock step 2. Mock step 3.\nAnswer: {answer}\n"
+        planned = self.tokenizer.encode(output)
+        eos_at = self.eos_at if self.eos_at is not None else len(planned) + 1
+        for position in range(1, max_tokens + 1):
+            token = (0 if position == eos_at else planned[position - 1]
+                     if position <= len(planned) else self.tokenizer.encode(" ...")[0])
+            finish = "stop" if token == 0 else "length" if position == max_tokens else None
+            yield SimpleNamespace(
+                token=token, text=self.tokenizer.decode([token]),
+                generation_tokens=position, prompt_tokens=len(prompt_ids), finish_reason=finish,
+            )
+            if finish is not None:
+                break
 
     def generate(
         self,
@@ -678,14 +730,13 @@ class MockLLM:
         seed: int,
         is_thinking: bool = False,
     ) -> tuple[str, int, str]:
-        # Return deterministic mock output without touching MLX
-        if is_thinking:
-            output = f"Thinking step by step for seed {seed}.\n</think>\n\nAnswer: 42\n"
-        else:
-            output = f"Mock step 1. Mock step 2. Mock step 3.\nAnswer: 42\n"
-        tokens = min(len(self.tokenizer.encode(output)), max_tokens)
-        finish_reason = "stop" if len(self.tokenizer.encode(output)) <= max_tokens else "length"
-        return output, tokens, finish_reason
+        prompt_ids = encode_prompt(self.tokenizer, prompt)
+        config = decoding_config(temp, SAMPLING_TOP_P, is_thinking=is_thinking)
+        record = collect_token_stream(
+            self.stream_events(prompt_ids, max_tokens=max_tokens, seed=seed, config=config),
+            self.tokenizer, prompt_ids=prompt_ids, cap=max_tokens, seed=seed, config=config, mock=True,
+        )
+        return record["raw_output"], record["completion_tokens"], record["finish_reason"]
 
 
 def execute_llm_call(
@@ -697,34 +748,31 @@ def execute_llm_call(
     seed: int,
     is_mock: bool = False,
     is_thinking: bool = False,
+    capture: dict | None = None,
 ) -> tuple[str, int, str, float]:
     """Execute a single model generation call with telemetry."""
     started = time.perf_counter()
+    if type(max_tokens) is not int or max_tokens < 1:
+        raise ValueError("completion cap must be a positive integer")
+    prompt_ids = encode_prompt(tokenizer, prompt)
+    config = decoding_config(temp, SAMPLING_TOP_P, is_thinking=is_thinking)
     if is_mock:
-        output, tokens, finish_reason = model.generate(
-            prompt, max_tokens, temp, seed, is_thinking=is_thinking
-        )
-        duration_ms = (time.perf_counter() - started) * 1000
-        return output, tokens, finish_reason, duration_ms
+        events = model.stream_events(prompt_ids, max_tokens=max_tokens, seed=seed, config=config)
+    else:
+        import mlx.core as mx
+        from mlx_lm import stream_generate
+        from mlx_lm.sample_utils import make_sampler
 
-    import mlx.core as mx
-    from mlx_lm import stream_generate
-    from mlx_lm.sample_utils import make_sampler
-
-    mx.random.seed(seed)
-    sampler = make_sampler(temp=temp, top_p=SAMPLING_TOP_P)
-    text = ""
-    tokens = 0
-    finish_reason = "stop"
-
-    for r in stream_generate(model, tokenizer, prompt, max_tokens=max_tokens, sampler=sampler):
-        text += r.text
-        tokens = r.generation_tokens
-        if getattr(r, "finish_reason", None) is not None:
-            finish_reason = r.finish_reason
-
+        mx.random.seed(seed)
+        sampler = make_sampler(temp=temp, top_p=SAMPLING_TOP_P)
+        events = stream_generate(model, tokenizer, prompt_ids, max_tokens=max_tokens,
+                                 sampler=sampler, **backend_kwargs(config))
+    record = collect_token_stream(events, tokenizer, prompt_ids=prompt_ids, cap=max_tokens,
+                                  seed=seed, config=config, mock=is_mock)
     duration_ms = (time.perf_counter() - started) * 1000
-    return text, tokens, finish_reason, duration_ms
+    if capture is not None:
+        capture.update(record)
+    return record["raw_output"], record["completion_tokens"], record["finish_reason"], duration_ms
 
 
 def run_smoke_verification(
@@ -800,9 +848,10 @@ def run_smoke_verification(
             continue_final_message=spec["continue_final_message"],
             enable_thinking=spec["enable_thinking"],
         )
-        p_tok = len(tokenizer.encode(prompt))
+        p_tok = len(encode_prompt(tokenizer, prompt))
 
         journal.record_call_started("smoke", [cid], prompt, p_tok)
+        captured = {}
         out_text, comp_tok, finish, dur_ms = execute_llm_call(
             model,
             tokenizer,
@@ -812,6 +861,7 @@ def run_smoke_verification(
             seed=spec["seed"],
             is_mock=is_mock,
             is_thinking=spec["enable_thinking"],
+            capture=captured,
         )
         mem = get_memory_telemetry(mock=is_mock)
         record = {
@@ -826,6 +876,8 @@ def run_smoke_verification(
             "finish_reason": finish,
             "duration_ms": round(dur_ms, 2),
             "memory": mem,
+            **captured,
+            "seed_policy": "fixed-smoke-seed",
         }
         journal.append("smoke", [cid], record)
         smoke_calls.append(record)
@@ -984,10 +1036,11 @@ def run_cot_restart_pilot(
             prompt = tokenizer.apply_chat_template(
                 msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False
             )
-            p_tok = len(tokenizer.encode(prompt))
-            seed = derive_call_seed(42, qid, "base_cot", BASE_COT_BUDGET)
+            p_tok = len(encode_prompt(tokenizer, prompt))
+            seed = derive_cap_sweep_seed(42, qid, "base_cot")
 
             journal.record_call_started("base_cot", [qid], prompt, p_tok)
+            captured = {}
             out_text, comp_tok, finish, dur_ms = execute_llm_call(
                 model,
                 tokenizer,
@@ -997,6 +1050,7 @@ def run_cot_restart_pilot(
                 seed=seed,
                 is_mock=mock,
                 is_thinking=False,
+                capture=captured,
             )
 
             # Parse and evaluate base trace
@@ -1034,6 +1088,8 @@ def run_cot_restart_pilot(
                 "prefix_menu": menu,
                 "duration_ms": round(dur_ms, 2),
                 "memory": get_memory_telemetry(mock=mock),
+                **captured,
+                "seed_policy": CAP_SWEEP_SEED_POLICY,
             }
             journal.append("base_cot", [qid], trace_record)
             base_traces[qid] = trace_record
@@ -1114,7 +1170,7 @@ def run_cot_restart_pilot(
                                 enable_thinking=False,
                             )
 
-                        p_tok = len(tokenizer.encode(prompt))
+                        p_tok = len(encode_prompt(tokenizer, prompt))
                         comp_cap = budget - p_tok
 
                         if comp_cap <= 0:
@@ -1139,8 +1195,9 @@ def run_cot_restart_pilot(
                                 "duration_ms": 0.0,
                             }
                         else:
-                            seed = derive_call_seed(42, qid, rep_arm, budget)
+                            seed = derive_cap_sweep_seed(42, qid, rep_arm)
                             journal.record_call_started("restart_call", call_key, prompt, p_tok)
+                            captured = {}
                             out_text, comp_tok, finish, dur_ms = execute_llm_call(
                                 model,
                                 tokenizer,
@@ -1150,6 +1207,7 @@ def run_cot_restart_pilot(
                                 seed=seed,
                                 is_mock=mock,
                                 is_thinking=False,
+                                capture=captured,
                             )
                             # Parse concatenated assistant response
                             full_response = prefix_text + out_text
@@ -1179,6 +1237,8 @@ def run_cot_restart_pilot(
                                 "correct": correct,
                                 "duration_ms": round(dur_ms, 2),
                                 "memory": get_memory_telemetry(mock=mock),
+                                **captured,
+                                "seed_policy": CAP_SWEEP_SEED_POLICY,
                             }
                         journal.append("restart_call", call_key, res)
                     executed_prefix_calls[p_hash] = res
@@ -1216,7 +1276,7 @@ def run_cot_restart_pilot(
                         prompt = tokenizer.apply_chat_template(
                             msgs, tokenize=False, add_generation_prompt=True, enable_thinking=True
                         )
-                        p_tok = len(tokenizer.encode(prompt))
+                        p_tok = len(encode_prompt(tokenizer, prompt))
                         comp_cap = budget - p_tok
 
                         if comp_cap <= 0:
@@ -1241,8 +1301,9 @@ def run_cot_restart_pilot(
                                 "duration_ms": 0.0,
                             }
                         else:
-                            seed = derive_call_seed(42, qid, "thinking_native", budget)
+                            seed = derive_cap_sweep_seed(42, qid, "thinking_native")
                             journal.record_call_started("restart_call", native_key, prompt, p_tok)
+                            captured = {}
                             out_text, comp_tok, finish, dur_ms = execute_llm_call(
                                 model,
                                 tokenizer,
@@ -1252,6 +1313,7 @@ def run_cot_restart_pilot(
                                 seed=seed,
                                 is_mock=mock,
                                 is_thinking=True,
+                                capture=captured,
                             )
 
                             # Thinking-native rule: ONLY extract answer after </think> block
@@ -1287,6 +1349,8 @@ def run_cot_restart_pilot(
                                 "correct": correct,
                                 "duration_ms": round(dur_ms, 2),
                                 "memory": get_memory_telemetry(mock=mock),
+                                **captured,
+                                "seed_policy": CAP_SWEEP_SEED_POLICY,
                             }
                         journal.append("restart_call", native_key, native_res)
 

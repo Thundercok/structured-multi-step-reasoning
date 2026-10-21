@@ -1,0 +1,27 @@
+{
+  "hash_algorithm": "SHA-256 (internal file integrity checksums, not cryptographic signatures)",
+  "reviewed_source_sha256_start": {
+    "rat/engine/completion.py": "596a1c69368d256cb33fa039b764d38acb43051bc2071b32655200f59a5ef30f",
+    "rat/engine/assistant_runtime.py": "3a8be41260f87c298439f7f1f864b44e0b475730a54395ff41ce8fdfeac3fcc0",
+    "rat/ui/chat_session.py": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "rat/ui/omnibar.py": "657fbe090f2ec9bd7e8697c6ea240506b3b505a094c471f8169289801380b401",
+    "tests/test_rat_completion_reconciliation.py": "d8383866667ca17c92b74389d3468314038cd1bb29bdd555bf0247ee4da26edd",
+    "tests/test_rat_calculation_conversation.py": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "scripts/export_reconciliation_transcripts.py": "d8d85be42fca93a823604aad529d2236ac41f0ceb9ce4955ce177ac5d22e84ca"
+  },
+  "workspace_source_sha256_finish": {
+    "rat/engine/completion.py": "a2d7fe20695ad57cb7e817af76eba43982e8068f324402c907b2256901f836a3",
+    "rat/engine/assistant_runtime.py": "76a3d8db183aa7e93460fb29230eaefae80d87c0378e3360b67705ab8cd295b5",
+    "rat/ui/chat_session.py": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "rat/ui/omnibar.py": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "tests/test_rat_completion_reconciliation.py": "d8383866667ca17c92b74389d3468314038cd1bb29bdd555bf0247ee4da26edd",
+    "tests/test_rat_calculation_conversation.py": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "scripts/export_reconciliation_transcripts.py": "2836566812303f91ee6da8c9ccd03d151557f620e9ade07b17377b9802f32f32"
+  },
+  "changed_files": [
+    "rat/engine/completion.py",
+    "rat/engine/assistant_runtime.py",
+    "rat/ui/omnibar.py",
+    "scripts/export_reconciliation_transcripts.py"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py",
+    "-q",
+    "--junitxml=audit/rat_overnight_sweep_codex_review_r5_20261019/provenance_and_conclusion.xml"
+  ]
+}

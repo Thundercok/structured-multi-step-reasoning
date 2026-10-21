@@ -12,6 +12,24 @@ from rat.crawler.warmup import SEMESTER_DIR_PATTERN, SemesterWarmupWorker
 
 class TestSemesterWarmup(unittest.TestCase):
 
+    def setUp(self) -> None:
+        for target, value in [("rat.crawler.warmup.is_on_battery", False),
+                              ("rat.crawler.warmup.set_thread_qos_background", True)]:
+            mocked = patch(target, return_value=value)
+            mocked.start()
+            self.addCleanup(mocked.stop)
+        setting = patch("rat.config.config.auto_watch", True)
+        setting.start()
+        self.addCleanup(setting.stop)
+
+    def make_worker(self):
+        worker = SemesterWarmupWorker(db=MagicMock())
+        indexer = worker.indexer
+        worker.indexer = MagicMock()
+        worker.indexer.is_ignored.side_effect = indexer.is_ignored
+        worker.indexer.index_single_file.return_value = True
+        return worker
+
     def test_semester_dir_regex(self) -> None:
         """Verify semester directory pattern matching."""
         self.assertTrue(SEMESTER_DIR_PATTERN.search("/Users/user/Documents/HK241/CS101"))
@@ -40,10 +58,7 @@ class TestSemesterWarmup(unittest.TestCase):
             random_ppt = other_dir / "random.pptx"
             random_ppt.write_text("random")
 
-            mock_db = MagicMock()
-            worker = SemesterWarmupWorker(db=mock_db)
-            worker.indexer = MagicMock()
-            worker.indexer.index_single_file.return_value = True
+            worker = self.make_worker()
 
             with patch("rat.config.config.indexed_directories", [tmpdir]):
                 finished_counts = []
@@ -66,6 +81,79 @@ class TestSemesterWarmup(unittest.TestCase):
         worker.stop()
         self.assertTrue(worker._stopped)
         worker.indexer.cancel.assert_called_once()
+
+    def test_skipped_warmup_never_walks_or_indexes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            for reason in ("disabled", "battery", "stopped", "empty"):
+                with self.subTest(reason=reason):
+                    worker = self.make_worker()
+                    if reason == "stopped":
+                        worker.stop()
+                    finished = []
+                    worker.finished.connect(finished.append)
+                    with patch("rat.config.config.auto_watch", reason != "disabled"), \
+                         patch("rat.config.config.indexed_directories", [] if reason == "empty" else [directory]), \
+                         patch("rat.crawler.warmup.is_on_battery", return_value=reason == "battery"), \
+                         patch("rat.crawler.warmup.os.walk") as walk:
+                        worker.run()
+                    walk.assert_not_called()
+                    worker.indexer.index_single_file.assert_not_called()
+                    self.assertEqual(finished, [0])
+
+    def test_indexes_before_discovery_has_finished(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            worker = self.make_worker()
+            root = str(Path(directory) / "HK242")
+
+            def walk(unused):
+                yield root, [], ["first.pdf"]
+                self.assertEqual(worker.indexer.index_single_file.call_count, 1)
+                yield root, [], ["second.pdf"]
+
+            with patch("rat.config.config.indexed_directories", [directory]), \
+                 patch("rat.crawler.warmup.os.walk", side_effect=walk):
+                worker.run()
+            self.assertEqual(worker.indexer.index_single_file.call_count, 2)
+
+    def test_stop_or_disabled_setting_interrupts_streamed_work(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            for reason in ("stop", "disable"):
+                with self.subTest(reason=reason):
+                    worker = self.make_worker()
+                    finished = []
+                    worker.finished.connect(finished.append)
+
+                    def index(unused):
+                        if reason == "stop":
+                            worker.stop()
+                        else:
+                            from rat.config import config
+                            config.auto_watch = False
+                        return True
+
+                    worker.indexer.index_single_file.side_effect = index
+                    with patch("rat.config.config.auto_watch", True), \
+                         patch("rat.config.config.indexed_directories", [directory]), \
+                         patch("rat.crawler.warmup.os.walk", return_value=iter([
+                             (str(Path(directory) / "HK242"), [], ["first.pdf", "second.pdf"])
+                         ])):
+                        worker.run()
+                    self.assertEqual(worker.indexer.index_single_file.call_count, 1)
+                    self.assertEqual(finished, [1])
+
+    def test_uses_normal_indexer_directory_exclusions(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "HK242"
+            for relative in ("slides/lecture.pdf", "build/generated.pdf", "dist/generated.pdf",
+                             "Editor.app/Contents/bundled.pdf"):
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("synthetic UI-independent indexing fixture")
+            worker = self.make_worker()
+            with patch("rat.config.config.indexed_directories", [directory]):
+                worker.run()
+            self.assertEqual([c.args[0] for c in worker.indexer.index_single_file.call_args_list],
+                             [str((root / "slides/lecture.pdf").resolve())])
 
 
 if __name__ == "__main__":

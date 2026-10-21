@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-13",
+  "timezone": "Asia/Saigon",
+  "verdict": "request_changes",
+  "ready_for_ui_phase": false,
+  "scope": "offline Round-2 source review; remaining original R1/R3/R4/R5 contract gates",
+  "roles": {
+    "Codex": "design and review",
+    "Antigravity": "implementation"
+  },
+  "baseline": {
+    "existing_regressions": 224,
+    "original_probes": 19,
+    "passed": 243,
+    "failed": 0,
+    "seconds": 11.97,
+    "exit_code": 0,
+    "log": "regression_and_original_probes.txt",
+    "repository_wide": false
+  },
+  "remaining_probes": {
+    "cases": 14,
+    "passed": 1,
+    "failed": 13,
+    "runs": [
+      {
+        "cases": 13,
+        "passed": 1,
+        "failed": 12,
+        "seconds": 0.5
+      },
+      {
+        "cases": 1,
+        "passed": 0,
+        "failed": 1,
+        "seconds": 0.8
+      }
+    ],
+    "log": "remaining_contract_probes.txt",
+    "source": "remaining_contract_probes.py",
+    "failed_cases": [
+      "test_note_cannot_satisfy_required_source_proof_when_no_proof_exists",
+      "test_terminal_confirmed_note_must_still_match_required_source",
+      "test_wrong_expression_cannot_match_by_substring",
+      "test_valid_producer_consumer_matching_is_independent_of_declaration_order[consumer_first]",
+      "test_cyclic_dependencies_cannot_be_satisfied",
+      "test_freeze_also_protects_nested_refs_and_dependencies[source_ref]",
+      "test_freeze_also_protects_nested_refs_and_dependencies[target_ref]",
+      "test_freeze_also_protects_nested_refs_and_dependencies[dependency_ids]",
+      "test_native_off_contract_envelope_is_not_user_facing_answer",
+      "test_malformed_native_outcomes_return_invalid_result_instead_of_crashing",
+      "test_untrusted_frozen_contract_metadata_does_not_crash_runtime",
+      "test_completion_status_does_not_fall_back_to_model_task_report",
+      "test_correct_calculation_with_linked_pass_proof_is_satisfied"
+    ],
+    "independent_bug_or_model_quality_sample_count_asserted": false
+  },
+  "source_sha256_start": {
+    "rat/engine/completion.py": "a2d7fe20695ad57cb7e817af76eba43982e8068f324402c907b2256901f836a3",
+    "rat/engine/assistant_runtime.py": "76a3d8db183aa7e93460fb29230eaefae80d87c0378e3360b67705ab8cd295b5",
+    "rat/ui/chat_session.py": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "rat/ui/omnibar.py": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "tests/test_rat_completion_reconciliation.py": "d8383866667ca17c92b74389d3468314038cd1bb29bdd555bf0247ee4da26edd",
+    "tests/test_rat_calculation_conversation.py": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "scripts/export_reconciliation_transcripts.py": "2836566812303f91ee6da8c9ccd03d151557f620e9ade07b17377b9802f32f32"
+  },
+  "source_sha256_finish": {
+    "rat/engine/completion.py": "a2d7fe20695ad57cb7e817af76eba43982e8068f324402c907b2256901f836a3",
+    "rat/engine/assistant_runtime.py": "76a3d8db183aa7e93460fb29230eaefae80d87c0378e3360b67705ab8cd295b5",
+    "rat/ui/chat_session.py": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "rat/ui/omnibar.py": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "tests/test_rat_completion_reconciliation.py": "d8383866667ca17c92b74389d3468314038cd1bb29bdd555bf0247ee4da26edd",
+    "tests/test_rat_calculation_conversation.py": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "scripts/export_reconciliation_transcripts.py": "2836566812303f91ee6da8c9ccd03d151557f620e9ade07b17377b9802f32f32"
+  },
+  "source_changed_during_review": [],
+  "claimed_hash_mismatches": [
+    {
+      "path": "scripts/export_reconciliation_transcripts.py",
+      "claimed_sha256": "7d929b9f71c4c81048a1c8b36873c33379ec885c30b200b2cb9e8674516ff25d",
+      "observed_sha256": "2836566812303f91ee6da8c9ccd03d151557f620e9ade07b17377b9802f32f32"
+    }
+  ],
+  "prior_protected_artifacts_checked": 100,
+  "prior_protected_artifacts_changed": [],
+  "new_live_model_calls": 0,
+  "native_client_probes_use_mock": true,
+  "qt_or_native_ui_checked": false,
+  "runtime_or_product_test_files_modified_by_review": false,
+  "full_dependency_source_freeze_asserted": false,
+  "research_or_stage_0_changed": false,
+  "docai_integrated": false,
+  "defaults_changed": false,
+  "external_message_to_antigravity_sent": false,
+  "git_push_pull_reset_force_performed": false
+}

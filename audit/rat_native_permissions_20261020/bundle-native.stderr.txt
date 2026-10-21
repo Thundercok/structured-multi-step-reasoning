@@ -1,0 +1,341 @@
+2026-10-20 14:48:20,586 [INFO] (rat.crash_shield) 🛡️ CrashShield active: Global exception & signal protection engaged.
+2026-10-20 14:48:20,810 [INFO] (rat.os.app) Initializing macOS Resident AI Finder System...
+2026-10-20 14:48:20,811 [INFO] (rat.os.single_instance) SingleInstanceServer listening on 'rat_instance_501_diagnostic_12527'
+2026-10-20 14:48:20,920 [WARNING] (rat.os.app) Deferred OmnibarWindow initialization: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:48:21,704 [WARNING] (rat.os.hotkey) macOS Accessibility permission not granted! Global hotkeys require Accessibility in System Settings -> Privacy & Security -> Accessibility.
+2026-10-20 14:48:21,705 [INFO] (rat.permissions) Accessibility request dispatched: state=not_granted identity={'pid': 12527, 'executable': '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/MacOS/rat', 'mode': 'frozen', 'bundle_id': 'com.thundercock.rat', 'bundle_path': '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app', 'version': '1.0.0'}
+2026-10-20 14:48:21,793 [INFO] (rat.os.menu_bar) macOS System Tray resident item loaded.
+2026-10-20 14:48:21,926 [ERROR] (rat.os.app) Error toggling Omnibar: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 232, in _do_toggle_spotlight
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:48:45,587 [ERROR] (rat.os.app) Error toggling Omnibar: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 232, in _do_toggle_spotlight
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:49:08,519 [ERROR] (rat.os.app) Error toggling Omnibar: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 232, in _do_toggle_spotlight
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:49:14,135 [ERROR] (rat.os.app) Error toggling Omnibar: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 232, in _do_toggle_spotlight
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:49:17,323 [ERROR] (rat.os.app) Error toggling Omnibar: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 232, in _do_toggle_spotlight
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:49:17,938 [ERROR] (rat.os.app) Error toggling Omnibar: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 232, in _do_toggle_spotlight
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:49:19,094 [ERROR] (rat.os.app) Error opening Omnibar Files: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+Traceback (most recent call last):
+  File "jsonschema/_format.py", line 304, in <module>
+ModuleNotFoundError: No module named 'rfc3987'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "rat/os/app.py", line 246, in _do_open_finder
+  File "rat/ui/omnibar.py", line 1330, in __init__
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/assistant_runtime.py", line 44, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/runtime_context.py", line 12, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rat/engine/context_snapshot.py", line 23, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/__init__.py", line 13, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "jsonschema/_format.py", line 328, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/__init__.py", line 1, in <module>
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "pyimod02_importers.py", line 457, in exec_module
+  File "rfc3987_syntax/syntax_helpers.py", line 48, in <module>
+  File "rfc3987_syntax/utils.py", line 5, in load_grammar
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/Frameworks/rfc3987_syntax/syntax_rfc3987.lark'
+2026-10-20 14:52:20,135 [INFO] (rat.crash_shield) CrashShield: Received signal SIGTERM (15). Initiating clean shutdown...
+2026-10-20 14:52:20,140 [INFO] (rat.os.app) ResidentApplication: Initiating zero-crash graceful teardown...
+2026-10-20 14:52:20,141 [INFO] (rat.os.hotkey) Global Hotkey Manager stopped.
+2026-10-20 14:52:20,144 [INFO] (rat.os.single_instance) SingleInstanceServer stopped and unlinked 'rat_instance_501_diagnostic_12527'
+2026-10-20 14:52:20,145 [INFO] (rat.os.app) ResidentApplication: Teardown complete. Exiting cleanly.

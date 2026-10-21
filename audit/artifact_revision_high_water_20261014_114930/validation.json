@@ -1,0 +1,44 @@
+{
+  "scope": "Per-ID revision high-water mark within a store generation and guarded InputRequest revision allocation",
+  "changed_files": [
+    "rat/kernel/contracts.py",
+    "rat/kernel/dispatcher.py",
+    "tests/test_artifact_store_lifecycle.py"
+  ],
+  "focused_tests": {
+    "command": [
+      "python3.12",
+      "-m",
+      "pytest",
+      "tests/test_artifact_store_lifecycle.py",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "--tb=short"
+    ],
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "passed": 19,
+    "log": "focused_tests.log"
+  },
+  "existing_core_regression": {
+    "command_source": "audit/rat_core_reconciliation_fix_20261013/test_run.json",
+    "exit_code": 0,
+    "passed": 292,
+    "log": "core_regression.log",
+    "source_changed_during_tests": []
+  },
+  "final_source_sha256": {
+    "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
+    "rat/kernel/dispatcher.py": "16181378861b9ab1ca937d13ff61d282db2a22057371c2ee84c4737c67e72412",
+    "tests/test_artifact_store_lifecycle.py": "f38847182e18158504c086e34c47f5492dd3f3dba60ef1d9cea8b94b726e7ecf"
+  },
+  "scope_notes": [
+    "Existing dispatcher presentation change was present in baseline and preserved; source_changes.diff isolates this patch.",
+    "Revision suggestions do not reserve values; put performs final validation and commit under RLock.",
+    "Ledger grows with distinct IDs within a generation and resets only on clear.",
+    "Software validation is not model-quality, latency or Stage 0 evidence."
+  ]
+}

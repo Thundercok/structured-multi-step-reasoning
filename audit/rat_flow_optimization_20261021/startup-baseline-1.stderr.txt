@@ -1,0 +1,5 @@
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+This plugin does not support propagateSizeHints()

@@ -1,0 +1,81 @@
+{
+  "scope": "one_exposed_artificial_document_task_per_configuration",
+  "inference_calls_in_analysis": 0,
+  "source_and_trace_checks_passed": true,
+  "tool_catalog_and_parameter_constraints_unchanged": true,
+  "runs": {
+    "baseline": {
+      "wall_s": 16.026257583056577,
+      "task_success": false,
+      "call_count": 2,
+      "prompt_tokens": 2713,
+      "completion_tokens": 48,
+      "first_prompt_tokens": 1293,
+      "server_phase_s": {
+        "load_duration": 1.850236375,
+        "prompt_eval_duration": 10.799618,
+        "eval_duration": 3.253234,
+        "total_duration": 15.960779334
+      },
+      "target_resident_before": false,
+      "swap_before": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)"
+    },
+    "baseline_4b": {
+      "wall_s": 85.85413037496619,
+      "task_success": true,
+      "call_count": 3,
+      "prompt_tokens": 5571,
+      "completion_tokens": 118,
+      "first_prompt_tokens": 1484,
+      "server_phase_s": {
+        "load_duration": 3.659066667,
+        "prompt_eval_duration": 60.744289,
+        "eval_duration": 21.02397,
+        "total_duration": 85.725925625
+      },
+      "target_resident_before": false,
+      "swap_before": "vm.swapusage: total = 3072.00M  used = 2384.12M  free = 687.88M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 5120.00M  used = 4520.81M  free = 599.19M  (encrypted)"
+    },
+    "candidate_1p5": {
+      "wall_s": 20.014333083992824,
+      "task_success": false,
+      "call_count": 2,
+      "prompt_tokens": 2505,
+      "completion_tokens": 108,
+      "first_prompt_tokens": 1080,
+      "server_phase_s": {
+        "load_duration": 2.083217917,
+        "prompt_eval_duration": 10.451238,
+        "eval_duration": 7.372317,
+        "total_duration": 19.93508975
+      },
+      "target_resident_before": false,
+      "swap_before": "vm.swapusage: total = 5120.00M  used = 4456.81M  free = 663.19M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 5120.00M  used = 4456.81M  free = 663.19M  (encrypted)"
+    },
+    "candidate_4b": {
+      "wall_s": 78.5796687080292,
+      "task_success": true,
+      "call_count": 3,
+      "prompt_tokens": 4866,
+      "completion_tokens": 105,
+      "first_prompt_tokens": 1271,
+      "server_phase_s": {
+        "load_duration": 3.359328708,
+        "prompt_eval_duration": 52.740266,
+        "eval_duration": 21.598398,
+        "total_duration": 78.102472916
+      },
+      "target_resident_before": false,
+      "swap_before": "vm.swapusage: total = 5120.00M  used = 4440.81M  free = 679.19M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 5120.00M  used = 4481.88M  free = 638.12M  (encrypted)"
+    }
+  },
+  "four_b_observed_wall_reduction_fraction": 0.0847304798868257,
+  "four_b_prompt_token_reduction_fraction": 0.12654819601507805,
+  "causal_speedup_established": false,
+  "app_acceptance_established": false,
+  "stage0_changed": false
+}

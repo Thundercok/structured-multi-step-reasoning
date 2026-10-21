@@ -1,0 +1,30 @@
+{
+  "changed_existing": [
+    "rat/ui/omnibar.py",
+    "rat/ui/assistant_worker.py",
+    "rat/ui/workbench_scene.py",
+    "rat/ui/surface_layout.py",
+    "tests/test_workbench_scene.py"
+  ],
+  "new_files": [
+    "rat/engine/execution.py",
+    "tests/test_execution_flow.py",
+    "tests/test_flow_interaction.py",
+    "docs/rat_flow_optimization_20261021.md"
+  ],
+  "concurrent_changes_not_authored_in_this_delivery": [
+    "reasoning/runtime.py",
+    "reasoning/bundle.py"
+  ],
+  "unchanged_baseline_files": [
+    "rat/engine/assistant_runtime.py",
+    "rat/engine/meta_reasoner.py",
+    "rat/os/diagnostics.py",
+    "rat.spec",
+    "tests/test_native_startup_contract.py",
+    "tests/test_work_context_ui.py",
+    "tests/test_native_acceptance_readiness.py",
+    "tests/test_selected_document_ui.py",
+    "tests/test_policy_bundle.py"
+  ]
+}

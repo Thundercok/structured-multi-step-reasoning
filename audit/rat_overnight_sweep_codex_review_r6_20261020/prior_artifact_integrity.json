@@ -1,0 +1,27 @@
+[
+  {
+    "folder": "rat_overnight_sweep_codex_review_20261019",
+    "files_checked": 82,
+    "mismatches": []
+  },
+  {
+    "folder": "rat_overnight_sweep_repair_codex_review_20261019",
+    "files_checked": 353,
+    "mismatches": []
+  },
+  {
+    "folder": "rat_overnight_sweep_codex_review_r3_20261019",
+    "files_checked": 96,
+    "mismatches": []
+  },
+  {
+    "folder": "rat_overnight_sweep_codex_review_r4_20261019",
+    "files_checked": 98,
+    "mismatches": []
+  },
+  {
+    "folder": "rat_overnight_sweep_codex_review_r5_20261019",
+    "files_checked": 106,
+    "mismatches": []
+  }
+]

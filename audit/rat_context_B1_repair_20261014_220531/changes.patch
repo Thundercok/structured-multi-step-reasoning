@@ -1,0 +1,313 @@
+--- a/rat/engine/context_snapshot.py
++++ b/rat/engine/context_snapshot.py
+@@ -215,9 +215,21 @@
+     # 1. Receipts in observed_state.receipts
+     for rcpt in snapshot.get("observed_state", {}).get("receipts", []):
+         rcpt_id = str(rcpt.get("receipt_id", ""))
++        projected_slots = rcpt.get("projected_slots")
+         for slot in ("operation_result", "note_event", "verification_report"):
++            if projected_slots is not None and slot not in projected_slots:
++                continue
+             val = rcpt.get(slot)
+             if is_value_ref(val):
++                if projected_slots is None:
++                    eref = val.get("$value_ref", {}).get("entity_ref", {})
++                    ekind = eref.get("kind")
++                    if slot == "operation_result" and ekind not in ("operation_result", "artifact"):
++                        continue
++                    if slot == "note_event" and ekind != "note_event":
++                        continue
++                    if slot == "verification_report" and ekind != "verification_report":
++                        continue
+                 edges.append((("receipt", rcpt_id, slot), val))
+ 
+     # 2. Entities in snapshot.entities
+@@ -335,20 +347,55 @@
+ def _expand_receipt(rcpt: Dict[str, Any], snapshot: Dict[str, Any], seen_refs: Set[Tuple[str, str]]) -> Dict[str, Any]:
+     res = copy.deepcopy(rcpt)
+     op_name = rcpt.get("operation_name")
++    projected_slots = rcpt.get("projected_slots")
++
++    # 1. operation_result
+     if is_value_ref(res.get("operation_result")):
+-        resolved_op = _resolve_deref_chain(snapshot, res["operation_result"], seen_refs)
+-        if isinstance(resolved_op, dict):
+-            res["operation_result"] = _expand_operation_result_body(resolved_op, snapshot, op_name, seen_refs)
++        should_expand = False
++        if projected_slots is not None:
++            should_expand = "operation_result" in projected_slots
+         else:
+-            res["operation_result"] = copy.deepcopy(resolved_op)
++            eref = res["operation_result"].get("$value_ref", {}).get("entity_ref", {})
++            ekind = eref.get("kind")
++            should_expand = ekind in ("operation_result", "artifact")
++
++        if should_expand:
++            resolved_op = _resolve_deref_chain(snapshot, res["operation_result"], seen_refs)
++            if isinstance(resolved_op, dict):
++                res["operation_result"] = _expand_operation_result_body(resolved_op, snapshot, op_name, seen_refs)
++            else:
++                res["operation_result"] = copy.deepcopy(resolved_op)
++
++    # 2. note_event
+     if is_value_ref(res.get("note_event")):
+-        resolved_evt = _resolve_deref_chain(snapshot, res["note_event"], seen_refs)
+-        if isinstance(resolved_evt, dict):
+-            res["note_event"] = _expand_note_event_body(resolved_evt, snapshot, seen_refs)
++        should_expand = False
++        if projected_slots is not None:
++            should_expand = "note_event" in projected_slots
+         else:
+-            res["note_event"] = copy.deepcopy(resolved_evt)
++            eref = res["note_event"].get("$value_ref", {}).get("entity_ref", {})
++            ekind = eref.get("kind")
++            should_expand = ekind == "note_event"
++
++        if should_expand:
++            resolved_evt = _resolve_deref_chain(snapshot, res["note_event"], seen_refs)
++            if isinstance(resolved_evt, dict):
++                res["note_event"] = _expand_note_event_body(resolved_evt, snapshot, seen_refs)
++            else:
++                res["note_event"] = copy.deepcopy(resolved_evt)
++
++    # 3. verification_report
+     if is_value_ref(res.get("verification_report")):
+-        res["verification_report"] = copy.deepcopy(_resolve_deref_chain(snapshot, res["verification_report"], seen_refs))
++        should_expand = False
++        if projected_slots is not None:
++            should_expand = "verification_report" in projected_slots
++        else:
++            eref = res["verification_report"].get("$value_ref", {}).get("entity_ref", {})
++            ekind = eref.get("kind")
++            should_expand = ekind == "verification_report"
++
++        if should_expand:
++            res["verification_report"] = copy.deepcopy(_resolve_deref_chain(snapshot, res["verification_report"], seen_refs))
++
+     return res
+ 
+ 
+@@ -976,6 +1023,7 @@
+             "error": receipt.error,
+             "timestamp": receipt.timestamp,
+         }
++        projected_slots: List[str] = []
+ 
+         if has_result_entity:
+             header["operation_result"] = {
+@@ -988,6 +1036,7 @@
+                     "pointer": result_pointer,
+                 }
+             }
++            projected_slots.append("operation_result")
+         elif receipt.operation_result is not None:
+             header["operation_result"] = copy.deepcopy(receipt.operation_result)
+             # A dispatcher receipt can point to its exact committed artifact
+@@ -1009,6 +1058,7 @@
+                     pointer = '/payload/items'
+                 if pointer is not None:
+                     header['operation_result'] = {'$value_ref': {'entity_ref': art_ref, 'pointer': pointer}}
++                    projected_slots.append("operation_result")
+ 
+         if receipt.note_event and isinstance(receipt.note_event, dict) and receipt.note_event.get("event_id"):
+             evt_ref = {
+@@ -1019,6 +1069,7 @@
+             target_evt = find_entity(event_entities, evt_ref)
+             if target_evt is not None and exact_json_equal(target_evt.get("body"), receipt.note_event):
+                 header["note_event"] = {"$value_ref": {"entity_ref": evt_ref, "pointer": ""}}
++                projected_slots.append("note_event")
+             else:
+                 header["note_event"] = copy.deepcopy(receipt.note_event)
+         elif receipt.note_event is not None:
+@@ -1035,9 +1086,11 @@
+                     "pointer": "",
+                 }
+             }
++            projected_slots.append("verification_report")
+         elif receipt.verification_report is not None:
+             header["verification_report"] = copy.deepcopy(receipt.verification_report)
+ 
++        header["projected_slots"] = projected_slots
+         projected_receipts.append(header)
+ 
+     return entities, projected_receipts, proof_refs
+
+--- a/tests/test_rat_context_snapshot.py
++++ b/tests/test_rat_context_snapshot.py
+@@ -1015,3 +1015,176 @@
+     assert snap["indexes"]["current_results"] == []
+     assert snap["indexes"]["selected_results"] == []
+     assert snap["boundary"]["artifact_pins"]
++
++
++# ---------------------------------------------------------------------------
++# B1 Round 4 Regressions: Strict Typed Origin, Exact Types, and JSON Roundtrips
++# ---------------------------------------------------------------------------
++
++
++def _assert_strict_equal(actual: Any, expected: Any, path: str = "root") -> None:
++    """Recursively assert exact equality including strict Python type equality (e.g. bool != int)."""
++    assert type(actual) is type(expected), f"Type mismatch at {path}: {type(actual)} vs {type(expected)}"
++    if isinstance(actual, dict):
++        assert set(actual.keys()) == set(expected.keys()), f"Key mismatch at {path}: {set(actual.keys())} vs {set(expected.keys())}"
++        for k in actual:
++            _assert_strict_equal(actual[k], expected[k], f"{path}.{k}")
++    elif isinstance(actual, (list, tuple)):
++        assert len(actual) == len(expected), f"Length mismatch at {path}: {len(actual)} vs {len(expected)}"
++        for idx, (a, e) in enumerate(zip(actual, expected)):
++            _assert_strict_equal(a, e, f"{path}[{idx}]")
++    else:
++        assert actual == expected, f"Value mismatch at {path}: {actual!r} vs {expected!r}"
++
++
++@pytest.mark.parametrize("slot", ["operation_result", "note_event", "verification_report"])
++@pytest.mark.parametrize("mode", ["available", "missing", "self_referencing"])
++def test_regression_unprojected_receipt_slots_with_arbitrary_wrappers_stay_literal(slot, mode):
++    """Available, missing, and self-referencing literal wrappers in unprojected slots stay literal without fake cycles."""
++    if mode == "available":
++        target_ref = {"kind": "artifact", "conversation_id": "review-conv", "artifact_id": "avail-art", "revision": 1}
++        literal = {"$value_ref": {"entity_ref": target_ref, "pointer": "/payload/val"}}
++        artifacts = [Artifact("avail-art", "fixture", payload={"val": "CANONICAL_TARGET"})]
++    elif mode == "missing":
++        target_ref = {"kind": "artifact", "conversation_id": "review-conv", "artifact_id": "missing-art", "revision": 1}
++        literal = {"$value_ref": {"entity_ref": target_ref, "pointer": "/payload/val"}}
++        artifacts = []
++    else:  # self_referencing
++        target_ref = {"kind": "operation_result", "execution_id": "review-exec", "receipt_id": "rcpt-self"}
++        literal = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
++        artifacts = []
++
++    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
++    receipt = journal.record_operation(
++        "custom_op", {}, literal if slot == "operation_result" else {"ok": True},
++        artifact_refs=[{"artifact_id": "unrelated", "revision": 1}] if slot == "operation_result" else None,
++    )
++    if slot != "operation_result":
++        setattr(receipt, slot, copy.deepcopy(literal))
++
++    snap = _review_snapshot(execution_journal=journal, artifact_store_items=artifacts)
++    valid, errors = validate_context_snapshot(snap)
++    assert valid, f"Snapshot must validate cleanly even with raw wrapper in unprojected slot: {errors}"
++
++    rcpt_snap = snap["observed_state"]["receipts"][0]
++    assert slot not in rcpt_snap.get("projected_slots", [])
++    _assert_strict_equal(rcpt_snap[slot], literal)
++
++    # Restored via expand_value_refs on receipt or snapshot remains strictly literal
++    restored_rcpt = expand_value_refs(rcpt_snap, snap)
++    _assert_strict_equal(restored_rcpt[slot], literal)
++
++    restored_snap = expand_value_refs(snap, snap)
++    _assert_strict_equal(restored_snap["observed_state"]["receipts"][0][slot], literal)
++
++
++@pytest.mark.parametrize("value", [
++    True,
++    False,
++    1,
++    0,
++    0.0,
++    3.14159,
++    "",
++    "string value",
++    [],
++    [True, 1, False, 0, None, "nested"],
++    None,
++    {"bool": True, "int": 1, "float": 2.5, "null": None, "sublist": [False, 0]},
++])
++def test_regression_exact_json_types_roundtrip_through_json_serialization(value):
++    """Preserve exact types (bool != int, list, null) across serialization and expansion."""
++    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
++    journal.record_operation("type_test_op", {}, copy.deepcopy(value))
++
++    snap = _review_snapshot(execution_journal=journal)
++    valid, errors = validate_context_snapshot(snap)
++    assert valid, errors
++
++    # JSON serialization roundtrip
++    serialized = json.dumps(snap)
++    deserialized = json.loads(serialized)
++    valid, errors = validate_context_snapshot(deserialized)
++    assert valid, f"Deserialized snapshot failed validation: {errors}"
++
++    # Expand whole deserialized snapshot
++    expanded_snap = expand_value_refs(deserialized, deserialized, root_context="snapshot")
++    restored_val = expanded_snap["observed_state"]["receipts"][0]["operation_result"]
++    _assert_strict_equal(restored_val, value)
++
++    # Expand individual receipt with explicit root_context
++    deserialized_rcpt = deserialized["observed_state"]["receipts"][0]
++    expanded_rcpt = expand_value_refs(deserialized_rcpt, deserialized, root_context="receipt")
++    _assert_strict_equal(expanded_rcpt["operation_result"], value)
++
++
++def test_regression_pinned_matching_vs_nonmatching_artifact_payload():
++    """Operation result with single artifact pin projects only when payload matches strictly."""
++    art = Artifact("p-art", "fixture", payload={"field": "exact_match", "flag": True})
++    diff_payload = {"field": "different_payload", "flag": True}
++
++    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
++    # 1. Matching receipt
++    journal.record_operation("matching_op", {}, copy.deepcopy(art.payload),
++                             artifact_refs=[{"artifact_id": "p-art", "revision": 1}])
++    # 2. Non-matching receipt
++    journal.record_operation("nonmatching_op", {}, copy.deepcopy(diff_payload),
++                             artifact_refs=[{"artifact_id": "p-art", "revision": 1}])
++
++    snap = _review_snapshot(execution_journal=journal, artifact_store_items=[art])
++    valid, errors = validate_context_snapshot(snap)
++    assert valid, errors
++
++    r0 = snap["observed_state"]["receipts"][0]
++    r1 = snap["observed_state"]["receipts"][1]
++
++    # r0 projected to value_ref
++    assert "operation_result" in r0.get("projected_slots", [])
++    assert is_value_ref(r0["operation_result"])
++    assert r0["operation_result"]["$value_ref"]["pointer"] == "/payload"
++
++    # r1 stays raw literal
++    assert "operation_result" not in r1.get("projected_slots", [])
++    _assert_strict_equal(r1["operation_result"], diff_payload)
++
++    # Restored
++    restored0 = expand_value_refs(r0, snap)
++    _assert_strict_equal(restored0["operation_result"], art.payload)
++
++    restored1 = expand_value_refs(r1, snap)
++    _assert_strict_equal(restored1["operation_result"], diff_payload)
++
++
++def test_regression_input_immutability_with_arbitrary_unprojected_receipt_literals():
++    """Ensure caller inputs remain untouched when unprojected slots contain raw wrapper shapes."""
++    literal = {"$value_ref": {"entity_ref": {"kind": "artifact", "conversation_id": "c", "artifact_id": "a", "revision": 1}, "pointer": "/p"}}
++    contract = TurnContract(
++        contract_id="c-immut2", conversation_id="review-conv", turn_id="review-turn", execution_id="review-exec",
++        generation=0, outcomes=[OutcomeSpec("out-1", "registered_effect", "fixture")],
++    )
++    journal = ExecutionJournal("review-conv", "review-turn", "review-exec", generation=0)
++    rcpt = journal.record_operation("custom_op", {"arg": "val"}, copy.deepcopy(literal))
++    rcpt.note_event = copy.deepcopy(literal)
++    rcpt.verification_report = copy.deepcopy(literal)
++    art = Artifact("a", "fixture", payload={"data": "test"})
++    note = _review_note()
++
++    orig_contract = copy.deepcopy(contract.to_dict())
++    orig_receipts = [copy.deepcopy(r.__dict__) for r in journal.receipts]
++    orig_art = copy.deepcopy(art.to_dict())
++    orig_note = copy.deepcopy(note)
++
++    snap = _review_snapshot(
++        turn_contract=contract,
++        execution_journal=journal,
++        artifact_store_items=[art],
++        notebook_notes=[note],
++    )
++    validate_context_snapshot(snap)
++    expand_value_refs(snap, snap)
++
++    _assert_strict_equal(contract.to_dict(), orig_contract)
++    _assert_strict_equal([r.__dict__ for r in journal.receipts], orig_receipts)
++    _assert_strict_equal(art.to_dict(), orig_art)
++    _assert_strict_equal(note, orig_note)
++

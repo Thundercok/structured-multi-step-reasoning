@@ -1,0 +1,8 @@
+{
+  "files": {
+    "test_reasoning_strategies.py": "7791675817a34c652fa7485501a454b5e387103158d806e198d95826361942e9",
+    "test_qwen_mlx_backend_mocked.py": "a5d09d4833357058ef626a765a4aa367053ff94d5a71c116dfd87ae175a175b9",
+    "tests/test_research_scoring.py": "89ccdb96fe741354eba295478add646f5f6c4915bafd45f70a0dc0840ca7c2bb",
+    "tests/test_reranker_golden.py": "a7f4cea1a8223846b5d8a10128f3642b98558f74c19220caa056001d64f1c0bf"
+  }
+}

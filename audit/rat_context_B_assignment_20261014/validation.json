@@ -1,0 +1,29 @@
+{
+  "status": "revised_B_design_consistent_implementation_pending",
+  "protected_input_count": 25,
+  "changed_protected_inputs": [],
+  "checks": [
+    "Revised transport schema and both example snapshots valid",
+    "Existing joint reconciler matches only the notebook receipt for the authored draft effect",
+    "Stronger hypothetical expected arguments remain literal and match the authored actual args",
+    "Response remains pending before final, source content has no formal proof",
+    "No outcome-to-receipt map or terminal completion claim is manufactured",
+    "Canonical declarations, native call and tool definitions retained",
+    "Prior design packet and protected core/audit inputs unchanged"
+  ],
+  "live_model_calls": 0,
+  "B_runtime_implemented": false,
+  "claims": "Software/design consistency only; no measured AI quality, latency, token or cache savings.",
+  "files_sha256": {
+    "after.request.json": "171464aaec163bb25451ff33714186fcf58028518fa9f0ce727941326914c11c",
+    "after.snapshot.json": "19eaedd349194fc139b65121fabdf5ceaf13a79d37d1da22491d9c0fd4edf0e1",
+    "assessment_reports.json": "32c34cf5c69780e7bfc7bc5c3573db681cb7981bcf96b055185e105e196c719a",
+    "build_and_validate.py": "9ae6caa3a4d22a68c699474b6838f52c53a2dc757efa8e4011729320dfe7aa98",
+    "decisions.md": "d5d3de07185e89cc181415aeab5fb3a2ce2d10ee06a4673577ba17b5f860e13f",
+    "declared_args.snapshot.json": "6215f2c78defe0b8b22ff5d0fe97324559e892c34d3197645e03ad3551e39e1b",
+    "manifest_start.json": "a952e407c89833701fd2532081175a7de42ae9dd148299008a7c707666bc5f5b",
+    "prompt_antigravity.md": "b47139ab7047337a1a759b49466489bfc7507994ca9adb21386bc728b6410872",
+    "provenance.json": "ff1e01e0f13e8b3692e9c43c5b3d1990defba2a95a89996403200566d86e42f3",
+    "snapshot.schema.json": "8a168a7aaff57e41d43eca956e49e583702bb6ff9285b2f75bcdc135a47da667"
+  }
+}

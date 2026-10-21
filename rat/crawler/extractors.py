@@ -31,12 +31,14 @@ def extract_text_from_pdf(file_path: str) -> str:
     try:
         from document_intake.pdf import read_pdf
         result = read_pdf(file_path, max_chars=MAX_CHARS_PER_DOC)
+        if not result["full_text"].strip():
+            return ""
         texts = [f"{label}: {result['metadata'][key]}" for key, label in
                  (("title", "Title"), ("author", "Author"), ("subject", "Subject"))
                  if result["metadata"].get(key)]
         texts.extend(f"--- Page {p['page_num']} ---\n{p['text_content'].strip()}"
                      for p in result["pages"] if p["text_content"].strip())
-        return "\n\n".join(texts)
+        return "\n\n".join(texts)[:MAX_CHARS_PER_DOC]
     except Exception as exc:
         logger.debug("Failed to extract PDF %s: %s", file_path, exc)
         return ""

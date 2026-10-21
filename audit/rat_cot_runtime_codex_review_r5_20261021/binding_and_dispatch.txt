@@ -1,0 +1,455 @@
+FFFFFFFFF...                                                             [100%]
+=================================== FAILURES ===================================
+________ test_predispatch_prompt_failure_count_is_invariant_to_message _________
+
+    def test_predispatch_prompt_failure_count_is_invariant_to_message():
+        plain = prompt_failure('scripted prompt failure')
+        phrase = prompt_failure('scripted prompt failure after dispatch')
+        save('prompt_failure_message_cases.json', {'plain': plain, 'with_phrase': phrase})
+>       assert plain['ledger']['underlying_requests_dispatched'] == phrase['ledger']['underlying_requests_dispatched'] == 0
+E       assert 0 == 1
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:40: AssertionError
+______ test_declared_react_turn_limit_cannot_bypass_hard_budget[requests] ______
+
+budget = 'requests'
+
+    @pytest.mark.parametrize('budget', ['requests', 'tokens'])
+    def test_declared_react_turn_limit_cannot_bypass_hard_budget(budget):
+        backend, state, _ = helper.native_stream_controller('complete')
+        bundle, policy = create_synthetic_specimen_bundle()
+        # Supported metadata accepted by bundle validation and consumed by estimator.
+        bundle = replace(bundle, strategy_settings={**bundle.strategy_settings, 'react_max_turns': 1})
+        for index, model in enumerate(policy.entry_predictor.perf):
+            model.value = float(index == EntryChoice.REACT)
+        def stream(*args, **kwargs):
+            state['dispatched'] += 1
+            count = kwargs['max_tokens'] if budget == 'tokens' else 1
+            for index in range(1, count + 1):
+                state['generated_tokens'] += 1
+                text = 'Thought: Calculate the fixture.\nAction: calculate[1+1]' if index == 1 else ' '
+                yield SimpleNamespace(text=text, generation_tokens=index, token=0, logprobs=None, finish_reason=None)
+        backend._chat.__globals__['stream_generate'] = stream
+        try:
+            controller = OnlineReasoningController(backend, policy, bundle=bundle, allow_synthetic_bundle=True)
+            result = controller.solve('authored arithmetic fixture', **({'max_underlying_requests': 1} if budget == 'requests' else {'max_generated_tokens': 3}))
+        except (BundleValidationError, NotImplementedError, ValueError) as error:
+            # Rejecting an unsupported configuration before dispatch is also safe.
+            save(f'react_{budget}_budget_case.json', {'safe_rejection': str(error), 'actual': state})
+            assert state['dispatched'] == 0
+            return
+        save(f'react_{budget}_budget_case.json', {'settings': bundle.strategy_settings, 'actual': state, 'status': result.status, 'ledger': asdict(result.cost_ledger)})
+>       assert state['dispatched'] <= 1 if budget == 'requests' else state['generated_tokens'] <= 3
+E       assert False
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:67: AssertionError
+_______ test_declared_react_turn_limit_cannot_bypass_hard_budget[tokens] _______
+
+budget = 'tokens'
+
+    @pytest.mark.parametrize('budget', ['requests', 'tokens'])
+    def test_declared_react_turn_limit_cannot_bypass_hard_budget(budget):
+        backend, state, _ = helper.native_stream_controller('complete')
+        bundle, policy = create_synthetic_specimen_bundle()
+        # Supported metadata accepted by bundle validation and consumed by estimator.
+        bundle = replace(bundle, strategy_settings={**bundle.strategy_settings, 'react_max_turns': 1})
+        for index, model in enumerate(policy.entry_predictor.perf):
+            model.value = float(index == EntryChoice.REACT)
+        def stream(*args, **kwargs):
+            state['dispatched'] += 1
+            count = kwargs['max_tokens'] if budget == 'tokens' else 1
+            for index in range(1, count + 1):
+                state['generated_tokens'] += 1
+                text = 'Thought: Calculate the fixture.\nAction: calculate[1+1]' if index == 1 else ' '
+                yield SimpleNamespace(text=text, generation_tokens=index, token=0, logprobs=None, finish_reason=None)
+        backend._chat.__globals__['stream_generate'] = stream
+        try:
+            controller = OnlineReasoningController(backend, policy, bundle=bundle, allow_synthetic_bundle=True)
+            result = controller.solve('authored arithmetic fixture', **({'max_underlying_requests': 1} if budget == 'requests' else {'max_generated_tokens': 3}))
+        except (BundleValidationError, NotImplementedError, ValueError) as error:
+            # Rejecting an unsupported configuration before dispatch is also safe.
+            save(f'react_{budget}_budget_case.json', {'safe_rejection': str(error), 'actual': state})
+            assert state['dispatched'] == 0
+            return
+        save(f'react_{budget}_budget_case.json', {'settings': bundle.strategy_settings, 'actual': state, 'status': result.status, 'ledger': asdict(result.cost_ledger)})
+>       assert state['dispatched'] <= 1 if budget == 'requests' else state['generated_tokens'] <= 3
+E       assert False
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:67: AssertionError
+_____ test_approved_bundle_requires_complete_binding[missing-performance] ______
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1076/test_approved_bundle_requires_0')
+variant = 'missing-performance'
+
+    @pytest.mark.parametrize('variant', ['missing-performance', 'missing-cost-intercept', 'multiple-untyped-json', 'non-json-only-artifact', 'nonfinite-threshold', 'learned-performance-intercept'])
+    def test_approved_bundle_requires_complete_binding(tmp_path, variant):
+        bundle, policy, backend, artifact = helper.approved_fixture(tmp_path)
+        data = json.loads(artifact.read_text())
+        before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+        artifacts = {str(artifact): None}
+        if variant == 'missing-performance':
+            policy.entry_predictor.perf[0].value = 0.0
+        elif variant == 'missing-cost-intercept':
+            for model in data['entry_cost_models']:
+                del model['intercept']
+            policy.entry_predictor.cost[0].intercept_ += 9
+        elif variant == 'multiple-untyped-json':
+            artifacts = {}
+            for name in ('a.json', 'b.json'):
+                other = tmp_path / name
+                other.write_text('{}')
+                artifacts[str(other)] = None
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'non-json-only-artifact':
+            other = tmp_path / 'weights.txt'
+            other.write_text('{}')
+            artifacts = {str(other): None}
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'nonfinite-threshold':
+            data['tau'] = [float('nan')] * len(policy.tau)
+        else:
+            classifier = LogisticRegression().fit(np.zeros((4, 5)), np.array([0, 1, 0, 1]))
+            policy.entry_predictor.perf[0] = classifier
+            data['entry_perf_models'] = [
+                {'coef': classifier.coef_.tolist(), 'intercept': classifier.intercept_.tolist()},
+                *[{'constant': model.value} for model in policy.entry_predictor.perf[1:]],
+            ]
+            before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+            classifier.intercept_ += 10
+        artifact.write_text(json.dumps(data, allow_nan=True))
+        artifacts = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in artifacts}
+        bundle = replace(bundle, artifact_hashes=artifacts)
+        try:
+            report = validate_policy_bundle(bundle, policy, backend)
+        except BundleValidationError as error:
+            outcome = {'accepted': False, 'error': str(error)}
+        else:
+            outcome = {'accepted': True, 'report': asdict(report)}
+        save(f'approved_binding_{variant}.json', {
+            'outcome': outcome,
+            'artifacts': {Path(name).name: {'sha256': digest, 'content': Path(name).read_text()} for name, digest in artifacts.items()},
+            'predictor_scores_before': before,
+            'predictor_scores_after': policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist(),
+            'live_cost_intercept': float(policy.entry_predictor.cost[0].intercept_),
+        })
+>       assert not outcome['accepted'], outcome
+E       AssertionError: {'accepted': True, 'report': {'diagnostics': {'bundle_id': 'synthetic-specimen-v1', 'is_production_approved': True, 'review_status': 'approved'}, 'errors': [], 'is_approved': True, 'is_valid': True, ...}}
+E       assert not True
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:120: AssertionError
+____ test_approved_bundle_requires_complete_binding[missing-cost-intercept] ____
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1076/test_approved_bundle_requires_1')
+variant = 'missing-cost-intercept'
+
+    @pytest.mark.parametrize('variant', ['missing-performance', 'missing-cost-intercept', 'multiple-untyped-json', 'non-json-only-artifact', 'nonfinite-threshold', 'learned-performance-intercept'])
+    def test_approved_bundle_requires_complete_binding(tmp_path, variant):
+        bundle, policy, backend, artifact = helper.approved_fixture(tmp_path)
+        data = json.loads(artifact.read_text())
+        before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+        artifacts = {str(artifact): None}
+        if variant == 'missing-performance':
+            policy.entry_predictor.perf[0].value = 0.0
+        elif variant == 'missing-cost-intercept':
+            for model in data['entry_cost_models']:
+                del model['intercept']
+            policy.entry_predictor.cost[0].intercept_ += 9
+        elif variant == 'multiple-untyped-json':
+            artifacts = {}
+            for name in ('a.json', 'b.json'):
+                other = tmp_path / name
+                other.write_text('{}')
+                artifacts[str(other)] = None
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'non-json-only-artifact':
+            other = tmp_path / 'weights.txt'
+            other.write_text('{}')
+            artifacts = {str(other): None}
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'nonfinite-threshold':
+            data['tau'] = [float('nan')] * len(policy.tau)
+        else:
+            classifier = LogisticRegression().fit(np.zeros((4, 5)), np.array([0, 1, 0, 1]))
+            policy.entry_predictor.perf[0] = classifier
+            data['entry_perf_models'] = [
+                {'coef': classifier.coef_.tolist(), 'intercept': classifier.intercept_.tolist()},
+                *[{'constant': model.value} for model in policy.entry_predictor.perf[1:]],
+            ]
+            before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+            classifier.intercept_ += 10
+        artifact.write_text(json.dumps(data, allow_nan=True))
+        artifacts = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in artifacts}
+        bundle = replace(bundle, artifact_hashes=artifacts)
+        try:
+            report = validate_policy_bundle(bundle, policy, backend)
+        except BundleValidationError as error:
+            outcome = {'accepted': False, 'error': str(error)}
+        else:
+            outcome = {'accepted': True, 'report': asdict(report)}
+        save(f'approved_binding_{variant}.json', {
+            'outcome': outcome,
+            'artifacts': {Path(name).name: {'sha256': digest, 'content': Path(name).read_text()} for name, digest in artifacts.items()},
+            'predictor_scores_before': before,
+            'predictor_scores_after': policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist(),
+            'live_cost_intercept': float(policy.entry_predictor.cost[0].intercept_),
+        })
+>       assert not outcome['accepted'], outcome
+E       AssertionError: {'accepted': True, 'report': {'diagnostics': {'bundle_id': 'synthetic-specimen-v1', 'is_production_approved': True, 'review_status': 'approved'}, 'errors': [], 'is_approved': True, 'is_valid': True, ...}}
+E       assert not True
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:120: AssertionError
+____ test_approved_bundle_requires_complete_binding[multiple-untyped-json] _____
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1076/test_approved_bundle_requires_2')
+variant = 'multiple-untyped-json'
+
+    @pytest.mark.parametrize('variant', ['missing-performance', 'missing-cost-intercept', 'multiple-untyped-json', 'non-json-only-artifact', 'nonfinite-threshold', 'learned-performance-intercept'])
+    def test_approved_bundle_requires_complete_binding(tmp_path, variant):
+        bundle, policy, backend, artifact = helper.approved_fixture(tmp_path)
+        data = json.loads(artifact.read_text())
+        before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+        artifacts = {str(artifact): None}
+        if variant == 'missing-performance':
+            policy.entry_predictor.perf[0].value = 0.0
+        elif variant == 'missing-cost-intercept':
+            for model in data['entry_cost_models']:
+                del model['intercept']
+            policy.entry_predictor.cost[0].intercept_ += 9
+        elif variant == 'multiple-untyped-json':
+            artifacts = {}
+            for name in ('a.json', 'b.json'):
+                other = tmp_path / name
+                other.write_text('{}')
+                artifacts[str(other)] = None
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'non-json-only-artifact':
+            other = tmp_path / 'weights.txt'
+            other.write_text('{}')
+            artifacts = {str(other): None}
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'nonfinite-threshold':
+            data['tau'] = [float('nan')] * len(policy.tau)
+        else:
+            classifier = LogisticRegression().fit(np.zeros((4, 5)), np.array([0, 1, 0, 1]))
+            policy.entry_predictor.perf[0] = classifier
+            data['entry_perf_models'] = [
+                {'coef': classifier.coef_.tolist(), 'intercept': classifier.intercept_.tolist()},
+                *[{'constant': model.value} for model in policy.entry_predictor.perf[1:]],
+            ]
+            before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+            classifier.intercept_ += 10
+        artifact.write_text(json.dumps(data, allow_nan=True))
+        artifacts = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in artifacts}
+        bundle = replace(bundle, artifact_hashes=artifacts)
+        try:
+            report = validate_policy_bundle(bundle, policy, backend)
+        except BundleValidationError as error:
+            outcome = {'accepted': False, 'error': str(error)}
+        else:
+            outcome = {'accepted': True, 'report': asdict(report)}
+        save(f'approved_binding_{variant}.json', {
+            'outcome': outcome,
+            'artifacts': {Path(name).name: {'sha256': digest, 'content': Path(name).read_text()} for name, digest in artifacts.items()},
+            'predictor_scores_before': before,
+            'predictor_scores_after': policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist(),
+            'live_cost_intercept': float(policy.entry_predictor.cost[0].intercept_),
+        })
+>       assert not outcome['accepted'], outcome
+E       AssertionError: {'accepted': True, 'report': {'diagnostics': {'bundle_id': 'synthetic-specimen-v1', 'is_production_approved': True, 'review_status': 'approved'}, 'errors': [], 'is_approved': True, 'is_valid': True, ...}}
+E       assert not True
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:120: AssertionError
+____ test_approved_bundle_requires_complete_binding[non-json-only-artifact] ____
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1076/test_approved_bundle_requires_3')
+variant = 'non-json-only-artifact'
+
+    @pytest.mark.parametrize('variant', ['missing-performance', 'missing-cost-intercept', 'multiple-untyped-json', 'non-json-only-artifact', 'nonfinite-threshold', 'learned-performance-intercept'])
+    def test_approved_bundle_requires_complete_binding(tmp_path, variant):
+        bundle, policy, backend, artifact = helper.approved_fixture(tmp_path)
+        data = json.loads(artifact.read_text())
+        before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+        artifacts = {str(artifact): None}
+        if variant == 'missing-performance':
+            policy.entry_predictor.perf[0].value = 0.0
+        elif variant == 'missing-cost-intercept':
+            for model in data['entry_cost_models']:
+                del model['intercept']
+            policy.entry_predictor.cost[0].intercept_ += 9
+        elif variant == 'multiple-untyped-json':
+            artifacts = {}
+            for name in ('a.json', 'b.json'):
+                other = tmp_path / name
+                other.write_text('{}')
+                artifacts[str(other)] = None
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'non-json-only-artifact':
+            other = tmp_path / 'weights.txt'
+            other.write_text('{}')
+            artifacts = {str(other): None}
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'nonfinite-threshold':
+            data['tau'] = [float('nan')] * len(policy.tau)
+        else:
+            classifier = LogisticRegression().fit(np.zeros((4, 5)), np.array([0, 1, 0, 1]))
+            policy.entry_predictor.perf[0] = classifier
+            data['entry_perf_models'] = [
+                {'coef': classifier.coef_.tolist(), 'intercept': classifier.intercept_.tolist()},
+                *[{'constant': model.value} for model in policy.entry_predictor.perf[1:]],
+            ]
+            before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+            classifier.intercept_ += 10
+        artifact.write_text(json.dumps(data, allow_nan=True))
+        artifacts = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in artifacts}
+        bundle = replace(bundle, artifact_hashes=artifacts)
+        try:
+            report = validate_policy_bundle(bundle, policy, backend)
+        except BundleValidationError as error:
+            outcome = {'accepted': False, 'error': str(error)}
+        else:
+            outcome = {'accepted': True, 'report': asdict(report)}
+        save(f'approved_binding_{variant}.json', {
+            'outcome': outcome,
+            'artifacts': {Path(name).name: {'sha256': digest, 'content': Path(name).read_text()} for name, digest in artifacts.items()},
+            'predictor_scores_before': before,
+            'predictor_scores_after': policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist(),
+            'live_cost_intercept': float(policy.entry_predictor.cost[0].intercept_),
+        })
+>       assert not outcome['accepted'], outcome
+E       AssertionError: {'accepted': True, 'report': {'diagnostics': {'bundle_id': 'synthetic-specimen-v1', 'is_production_approved': True, 'review_status': 'approved'}, 'errors': [], 'is_approved': True, 'is_valid': True, ...}}
+E       assert not True
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:120: AssertionError
+_____ test_approved_bundle_requires_complete_binding[nonfinite-threshold] ______
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1076/test_approved_bundle_requires_4')
+variant = 'nonfinite-threshold'
+
+    @pytest.mark.parametrize('variant', ['missing-performance', 'missing-cost-intercept', 'multiple-untyped-json', 'non-json-only-artifact', 'nonfinite-threshold', 'learned-performance-intercept'])
+    def test_approved_bundle_requires_complete_binding(tmp_path, variant):
+        bundle, policy, backend, artifact = helper.approved_fixture(tmp_path)
+        data = json.loads(artifact.read_text())
+        before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+        artifacts = {str(artifact): None}
+        if variant == 'missing-performance':
+            policy.entry_predictor.perf[0].value = 0.0
+        elif variant == 'missing-cost-intercept':
+            for model in data['entry_cost_models']:
+                del model['intercept']
+            policy.entry_predictor.cost[0].intercept_ += 9
+        elif variant == 'multiple-untyped-json':
+            artifacts = {}
+            for name in ('a.json', 'b.json'):
+                other = tmp_path / name
+                other.write_text('{}')
+                artifacts[str(other)] = None
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'non-json-only-artifact':
+            other = tmp_path / 'weights.txt'
+            other.write_text('{}')
+            artifacts = {str(other): None}
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'nonfinite-threshold':
+            data['tau'] = [float('nan')] * len(policy.tau)
+        else:
+            classifier = LogisticRegression().fit(np.zeros((4, 5)), np.array([0, 1, 0, 1]))
+            policy.entry_predictor.perf[0] = classifier
+            data['entry_perf_models'] = [
+                {'coef': classifier.coef_.tolist(), 'intercept': classifier.intercept_.tolist()},
+                *[{'constant': model.value} for model in policy.entry_predictor.perf[1:]],
+            ]
+            before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+            classifier.intercept_ += 10
+        artifact.write_text(json.dumps(data, allow_nan=True))
+        artifacts = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in artifacts}
+        bundle = replace(bundle, artifact_hashes=artifacts)
+        try:
+            report = validate_policy_bundle(bundle, policy, backend)
+        except BundleValidationError as error:
+            outcome = {'accepted': False, 'error': str(error)}
+        else:
+            outcome = {'accepted': True, 'report': asdict(report)}
+        save(f'approved_binding_{variant}.json', {
+            'outcome': outcome,
+            'artifacts': {Path(name).name: {'sha256': digest, 'content': Path(name).read_text()} for name, digest in artifacts.items()},
+            'predictor_scores_before': before,
+            'predictor_scores_after': policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist(),
+            'live_cost_intercept': float(policy.entry_predictor.cost[0].intercept_),
+        })
+>       assert not outcome['accepted'], outcome
+E       AssertionError: {'accepted': True, 'report': {'diagnostics': {'bundle_id': 'synthetic-specimen-v1', 'is_production_approved': True, 'review_status': 'approved'}, 'errors': [], 'is_approved': True, 'is_valid': True, ...}}
+E       assert not True
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:120: AssertionError
+_ test_approved_bundle_requires_complete_binding[learned-performance-intercept] _
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1076/test_approved_bundle_requires_5')
+variant = 'learned-performance-intercept'
+
+    @pytest.mark.parametrize('variant', ['missing-performance', 'missing-cost-intercept', 'multiple-untyped-json', 'non-json-only-artifact', 'nonfinite-threshold', 'learned-performance-intercept'])
+    def test_approved_bundle_requires_complete_binding(tmp_path, variant):
+        bundle, policy, backend, artifact = helper.approved_fixture(tmp_path)
+        data = json.loads(artifact.read_text())
+        before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+        artifacts = {str(artifact): None}
+        if variant == 'missing-performance':
+            policy.entry_predictor.perf[0].value = 0.0
+        elif variant == 'missing-cost-intercept':
+            for model in data['entry_cost_models']:
+                del model['intercept']
+            policy.entry_predictor.cost[0].intercept_ += 9
+        elif variant == 'multiple-untyped-json':
+            artifacts = {}
+            for name in ('a.json', 'b.json'):
+                other = tmp_path / name
+                other.write_text('{}')
+                artifacts[str(other)] = None
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'non-json-only-artifact':
+            other = tmp_path / 'weights.txt'
+            other.write_text('{}')
+            artifacts = {str(other): None}
+            policy.entry_predictor.cost[0].coef_ += 9
+        elif variant == 'nonfinite-threshold':
+            data['tau'] = [float('nan')] * len(policy.tau)
+        else:
+            classifier = LogisticRegression().fit(np.zeros((4, 5)), np.array([0, 1, 0, 1]))
+            policy.entry_predictor.perf[0] = classifier
+            data['entry_perf_models'] = [
+                {'coef': classifier.coef_.tolist(), 'intercept': classifier.intercept_.tolist()},
+                *[{'constant': model.value} for model in policy.entry_predictor.perf[1:]],
+            ]
+            before = policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist()
+            classifier.intercept_ += 10
+        artifact.write_text(json.dumps(data, allow_nan=True))
+        artifacts = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in artifacts}
+        bundle = replace(bundle, artifact_hashes=artifacts)
+        try:
+            report = validate_policy_bundle(bundle, policy, backend)
+        except BundleValidationError as error:
+            outcome = {'accepted': False, 'error': str(error)}
+        else:
+            outcome = {'accepted': True, 'report': asdict(report)}
+        save(f'approved_binding_{variant}.json', {
+            'outcome': outcome,
+            'artifacts': {Path(name).name: {'sha256': digest, 'content': Path(name).read_text()} for name, digest in artifacts.items()},
+            'predictor_scores_before': before,
+            'predictor_scores_after': policy.entry_predictor.score(np.ones(2), np.ones(3)).tolist(),
+            'live_cost_intercept': float(policy.entry_predictor.cost[0].intercept_),
+        })
+>       assert not outcome['accepted'], outcome
+E       AssertionError: {'accepted': True, 'report': {'diagnostics': {'bundle_id': 'synthetic-specimen-v1', 'is_production_approved': True, 'review_status': 'approved'}, 'errors': [], 'is_approved': True, 'is_valid': True, ...}}
+E       assert not True
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py:120: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_predispatch_prompt_failure_count_is_invariant_to_message
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_declared_react_turn_limit_cannot_bypass_hard_budget[requests]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_declared_react_turn_limit_cannot_bypass_hard_budget[tokens]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[missing-performance]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[missing-cost-intercept]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[multiple-untyped-json]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[non-json-only-artifact]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[nonfinite-threshold]
+FAILED audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[learned-performance-intercept]
+9 failed, 3 passed in 3.36s

@@ -1,0 +1,80 @@
+{
+  "kind": "read_only_source_audit_and_design_research",
+  "date_local": "2026-10-14",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "model_calls": 0,
+  "native_ui_inspection": false,
+  "runtime_changes": false,
+  "catalog_scope": "build_default_registry before AssistantRuntime adds session operations",
+  "default_operation_count": 16,
+  "schema_serialized_characters": 9016,
+  "character_count_is_not_tokens_or_latency": true,
+  "catalog": [
+    {
+      "capability": "documents",
+      "operations": [
+        "search_book_pages",
+        "read_book_page",
+        "open_document",
+        "search_documents",
+        "read_document"
+      ]
+    },
+    {
+      "capability": "timetable",
+      "operations": [
+        "get_schedule",
+        "locate_room",
+        "get_group_availability"
+      ]
+    },
+    {
+      "capability": "natal_chart",
+      "operations": [
+        "search_birth_places",
+        "create_natal_chart",
+        "update_birth_data",
+        "export_natal_chart"
+      ]
+    },
+    {
+      "capability": "result_tables",
+      "operations": [
+        "compose_result_table"
+      ]
+    },
+    {
+      "capability": "utilities",
+      "operations": [
+        "update_task_state",
+        "calculate",
+        "inspect_artifact"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "rat/engine/assistant_runtime.py": "f8a48ad4fb3cb93288d0ed538c07ba08d2701deafb8bf958a77ad351c9dfa5d0",
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/context_snapshot.py": "8dea28d860d5cb207afb952dfef727628c963442ffc3eaf0d1513aa0d86ab598",
+    "rat/engine/work_notes.py": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "rat/kernel/view_spec.py": "213b5e88e7f28541f4a02803be6af7ae076ff3f8df7ad54517340e060323250d",
+    "rat/kernel/capabilities/views.py": "0a5a7c9ed654f0c991f816a058279acb710c5b6f3ab8bfd8c0650c0e89a77989",
+    "rat/kernel/capabilities/result_tables.py": "407e1bd44ed793cec34577925c7353a96b794e699bfada47119a3fde33b7571b",
+    "rat/ui/assistant_presenter.py": "4f88b24cc72e9b3181d7f19a598e6779a8cd4e5b4f0b780be90f5b7a65a168b7",
+    "rat/ui/omnibar.py": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "docs/adr-002-rat-adaptive-interaction.md": "04c5e2707967c8778749cb9065a2a83d232ea8ef16d99663821e0ee8e2a505b1",
+    "docs/adr-004-rat-context-snapshot.md": "17ab81dd1248de03858158b9f769f936f834316b05140d4778aca09db88af711",
+    "docs/rat_backlog.md": "7fb776d42a459bd5624c0d1c9030d728bae23c12c4230a6a63cb2ead2ec31f28",
+    "audit/rat_book_features_20261014/REPORT.md": "e0859b5b724e6934756b1ce9ac5a87d6d121dc8a3154b4e9bb66533a1b7fcbed"
+  },
+  "sources": [
+    "https://www.anthropic.com/engineering/building-effective-agents",
+    "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+    "https://www.anthropic.com/engineering/advanced-tool-use",
+    "https://www.anthropic.com/engineering/multi-agent-research-system",
+    "https://a2ui.org/introduction/what-is-a2ui/",
+    "https://www.microsoft.com/en-us/research/blog/magentic-ui-an-experimental-human-centered-web-agent/",
+    "https://arxiv.org/html/2406.12045v1",
+    "https://arxiv.org/abs/2505.06120"
+  ]
+}

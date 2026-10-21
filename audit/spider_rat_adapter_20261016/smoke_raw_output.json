@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/bin/spider",
+    "--url",
+    "https://example.com",
+    "--limit",
+    "1",
+    "--budget",
+    "*,1",
+    "--http",
+    "--return-format",
+    "markdown",
+    "-H",
+    "scrape",
+    "--output-html"
+  ],
+  "version": "spider_cli 2.51.208",
+  "exit_code": 0,
+  "duration_seconds": 0.614,
+  "stdout": "{\n  \"content\": \"Example Domain\\nThis domain is for use in documentation examples without needing permission. This is not a service; avoid relying on it for testing and monitoring purposes.\",\n  \"headers\": {\n    \"age\": \"6\",\n    \"allow\": \"GET, HEAD\",\n    \"alt-svc\": \"h3=\\\":443\\\"; ma=86400\",\n    \"cf-cache-status\": \"HIT\",\n    \"cf-ray\": \"a4b3ca82fac30988-HKG\",\n    \"content-type\": \"text/html; charset=utf-8\",\n    \"date\": \"Fri, 16 Oct 2026 02:56:33 GMT\",\n    \"last-modified\": \"Tue, 13 Oct 2026 20:08:28 GMT\",\n    \"server\": \"cloudflare\"\n  },\n  \"links\": null,\n  \"status_code\": 200,\n  \"url\": \"https://example.com\"\n}\n",
+  "stderr": ""
+}

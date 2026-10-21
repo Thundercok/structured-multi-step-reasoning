@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QSizePolic
 from rat.engine.reranker import SearchResultItem
 from rat.ui.theme import get_ext_badge_info
 from rat.ui.experience import debug_ui_enabled
+from rat.ui.workbench import WorkbenchTokens
 
 
 class ElidedLabel(QLabel):
@@ -38,6 +39,7 @@ class CompactFileRow(QFrame):
     preview_requested = pyqtSignal(object)
     reveal_requested = pyqtSignal(object)
     cite_requested = pyqtSignal(object)
+    question_requested = pyqtSignal(object)
     ROW_HEIGHT = 48
 
     def __init__(self, item: SearchResultItem, parent=None):
@@ -46,16 +48,17 @@ class CompactFileRow(QFrame):
         self.debug_ui = debug_ui_enabled()
         self.setObjectName("CompactFileRow")
         self.setFixedHeight(self.ROW_HEIGHT)
-        self.setStyleSheet("""
-            QFrame#CompactFileRow { background: transparent; border: none; }
-            QLabel { background: transparent; border: none; }
-            QPushButton {
+        tokens = WorkbenchTokens.get()
+        self.setStyleSheet(f"""
+            QFrame#CompactFileRow {{ background: transparent; border: none; }}
+            QLabel {{ background: transparent; border: none; }}
+            QPushButton {{
                 background: transparent; border: none; border-radius: 6px;
-                color: #635C51; font-size: 11px; padding: 4px 7px;
-            }
-            QPushButton:hover, QPushButton:focus { background: #EDE5D6; color: #302B24; }
-            QPushButton#OpenCompactFile { background: #F0E2C4; color: #56401D; }
-            QPushButton#OpenCompactFile:hover { background: #E8D4AA; }
+                color: {tokens.muted_hex}; font-size: 11px; padding: 4px 7px;
+            }}
+            QPushButton:hover, QPushButton:focus {{ background: {tokens.soft_hex}; color: {tokens.ink_hex}; }}
+            QPushButton#OpenCompactFile {{ background: {tokens.accent_hex}; color: {tokens.paper_hex}; }}
+            QPushButton#OpenCompactFile:hover {{ background: {tokens.focus_hex}; }}
         """)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 5, 8, 5)
@@ -81,7 +84,7 @@ class CompactFileRow(QFrame):
         name_row.setSpacing(6)
 
         self.name_label = ElidedLabel(item.file_name)
-        self.name_label.setStyleSheet("font-size: 13px; font-weight: 500; color: #302B24;")
+        self.name_label.setStyleSheet(f"font-size: 13px; font-weight: 500; color: {tokens.ink_hex};")
         name_row.addWidget(self.name_label, 1)
 
         if getattr(item, "verified", False):
@@ -97,9 +100,17 @@ class CompactFileRow(QFrame):
 
         folder = Path(item.file_path).parent.name
         self.detail_label = ElidedLabel(f"{folder} · {item.file_size_formatted} · {item.modified_formatted}")
-        self.detail_label.setStyleSheet("font-size: 10px; color: #766E63;")
+        self.detail_label.setStyleSheet(f"font-size: 10px; color: {tokens.muted_hex};")
         details.addWidget(self.detail_label)
         layout.addLayout(details, 1)
+
+        self.btn_ask = QPushButton('Hỏi')
+        self.btn_ask.setToolTip('Hỏi về tệp này trong ô chat')
+        self.btn_ask.setAccessibleName(f'Hỏi về {item.file_name}')
+        self.btn_ask.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_ask.clicked.connect(lambda: self.question_requested.emit(self.item))
+        layout.addWidget(self.btn_ask)
+        self.btn_ask.setVisible(Path(item.file_path).is_absolute())
 
         self.btn_preview = QPushButton("Xem nhanh")
         self.btn_preview.setToolTip("Xem nhanh tệp (Space)")
@@ -136,3 +147,19 @@ class CompactFileRow(QFrame):
             event.accept()
             return
         super().keyPressEvent(event)
+ 
+    def _apply_theme(self) -> None:
+        tokens = WorkbenchTokens.get()
+        self.setStyleSheet(f"""
+            QFrame#CompactFileRow {{ background: transparent; border: none; }}
+            QLabel {{ background: transparent; border: none; }}
+            QPushButton {{
+                background: transparent; border: none; border-radius: 6px;
+                color: {tokens.muted_hex}; font-size: 11px; padding: 4px 7px;
+            }}
+            QPushButton:hover, QPushButton:focus {{ background: {tokens.soft_hex}; color: {tokens.ink_hex}; }}
+            QPushButton#OpenCompactFile {{ background: {tokens.accent_hex}; color: {tokens.paper_hex}; }}
+            QPushButton#OpenCompactFile:hover {{ background: {tokens.focus_hex}; }}
+        """)
+        self.name_label.setStyleSheet(f"font-size: 13px; font-weight: 500; color: {tokens.ink_hex};")
+        self.detail_label.setStyleSheet(f"font-size: 10px; color: {tokens.muted_hex};")

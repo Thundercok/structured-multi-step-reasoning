@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "evidence": "planned_app_development_benchmark",
+  "model": "qwen3:4b-instruct",
+  "model_digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+  "url": "http://127.0.0.1:11434",
+  "deadline": "2026-10-16T06:00:00+07:00",
+  "trials": [
+    {
+      "id": "short-0-cold-bare",
+      "case": "short",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "short-0-cold-rat_prompt",
+      "case": "short",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "short-0-cold-rat_e2e",
+      "case": "short",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "short-0-resident-bare",
+      "case": "short",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "short-0-resident-rat_prompt",
+      "case": "short",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "short-0-resident-rat_e2e",
+      "case": "short",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-0-resident-bare",
+      "case": "medium",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-0-resident-rat_prompt",
+      "case": "medium",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-0-resident-rat_e2e",
+      "case": "medium",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-0-cold-bare",
+      "case": "medium",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-0-cold-rat_prompt",
+      "case": "medium",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-0-cold-rat_e2e",
+      "case": "medium",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "long-0-cold-bare",
+      "case": "long",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-0-cold-rat_prompt",
+      "case": "long",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "long-0-cold-rat_e2e",
+      "case": "long",
+      "repeat": 0,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "long-0-resident-bare",
+      "case": "long",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-0-resident-rat_prompt",
+      "case": "long",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "long-0-resident-rat_e2e",
+      "case": "long",
+      "repeat": 0,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-1-resident-rat_prompt",
+      "case": "medium",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-1-resident-rat_e2e",
+      "case": "medium",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-1-resident-bare",
+      "case": "medium",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-1-cold-rat_prompt",
+      "case": "medium",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-1-cold-rat_e2e",
+      "case": "medium",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-1-cold-bare",
+      "case": "medium",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-1-cold-rat_prompt",
+      "case": "long",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "long-1-cold-rat_e2e",
+      "case": "long",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "long-1-cold-bare",
+      "case": "long",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-1-resident-rat_prompt",
+      "case": "long",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "long-1-resident-rat_e2e",
+      "case": "long",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "long-1-resident-bare",
+      "case": "long",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "short-1-resident-rat_prompt",
+      "case": "short",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "short-1-resident-rat_e2e",
+      "case": "short",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "short-1-resident-bare",
+      "case": "short",
+      "repeat": 1,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "short-1-cold-rat_prompt",
+      "case": "short",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "short-1-cold-rat_e2e",
+      "case": "short",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "short-1-cold-bare",
+      "case": "short",
+      "repeat": 1,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-2-cold-rat_e2e",
+      "case": "long",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "long-2-cold-bare",
+      "case": "long",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-2-cold-rat_prompt",
+      "case": "long",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "long-2-resident-rat_e2e",
+      "case": "long",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "long-2-resident-bare",
+      "case": "long",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "long-2-resident-rat_prompt",
+      "case": "long",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "short-2-resident-rat_e2e",
+      "case": "short",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "short-2-resident-bare",
+      "case": "short",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "short-2-resident-rat_prompt",
+      "case": "short",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "short-2-cold-rat_e2e",
+      "case": "short",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "short-2-cold-bare",
+      "case": "short",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "short-2-cold-rat_prompt",
+      "case": "short",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-2-cold-rat_e2e",
+      "case": "medium",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-2-cold-bare",
+      "case": "medium",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-2-cold-rat_prompt",
+      "case": "medium",
+      "repeat": 2,
+      "residency": "cold",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-2-resident-rat_e2e",
+      "case": "medium",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "rat_e2e",
+      "max_calls": 5
+    },
+    {
+      "id": "medium-2-resident-bare",
+      "case": "medium",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "bare",
+      "max_calls": 1
+    },
+    {
+      "id": "medium-2-resident-rat_prompt",
+      "case": "medium",
+      "repeat": 2,
+      "residency": "resident",
+      "arm": "rat_prompt",
+      "max_calls": 1
+    }
+  ],
+  "max_calls": 126,
+  "max_tokens_per_call": 640,
+  "timeout_s": 90,
+  "generation_seed": null,
+  "sampling_note": "Three observed repetitions; no fixed generation seed or independence claim.",
+  "context_tokens": 8192,
+  "thinking": false,
+  "temperature": 0.1,
+  "stage0_changed": false,
+  "personal_index_used": false,
+  "lock_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.rat/overnight_latency.lock",
+  "output": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_20261015",
+  "source_hashes": {
+    "rat/config.py": "45060ae322e2943129d1eb28250e28513c3bc76b239fefc79ee11af27e4e11a1",
+    "rat/__init__.py": "261e1f861d3000ae8e98481680976ac88c7207020206147227c721578898d269",
+    "rat/cli.py": "ae49dff3d8499bf132bc0497a3f4989608cdb6ebbe50e3012ec88889f0cf75c9",
+    "rat/main.py": "eb24b4ace7ccde69f968994cc079bad346043030f8053f97c338e9f0a1b4f331",
+    "scripts/benchmark_rat_overnight.py": "e215163740dea02b450fd2b0ad648a49348ab6469cc1a6589b73419ffd6703c8",
+    "rat/ui/compact_cot.py": "8c8fdc825f91a57b1c9db993886ae6b15ef4155df747aa50947866214eef75cc",
+    "rat/ui/view_renderer.py": "98051b0129cd84f439690dddb4baf0747f6d13d6a7a0a95cfcc1fde683aa406a",
+    "rat/ui/turn_notes_preview.py": "1830e229c2d5e2a9a0aa6ff7407ea430d84f0fa8428fd0850d249bab93d3c786",
+    "rat/ui/assistant_worker.py": "096227d9a2bf863370348104ddaffb80cf7b42a02b10682f9604607d9087b3f9",
+    "rat/ui/onboarding_dialog.py": "a09dcbdc49c5f1d78e7f14c9f7cac2e6d5b0c25574584f5c63757954ef3417e8",
+    "rat/ui/theme.py": "13c55a1fd7c74c307c7b42f386d10e4771cf85c1d8292825b2f8f7dbd931e9c8",
+    "rat/ui/preview_panel.py": "df4b48a1403f775e38753bf832edb9a82f8faf933cc3bb8f259aeac1e7b8897f",
+    "rat/ui/feedback.py": "58a0842e8caa3f04a06fb9be2f212e37b44fb7075f20b90138f5591d5bbd4ecc",
+    "rat/ui/finder_window.py": "08dbe1763b445d860e52be95c1a2edfad7bc90168b32e50f75eb3b8e9cfc911a",
+    "rat/ui/chat_stream.py": "123d1dd776fbf31f0d5f9f8c26a26beff15322f848d806c1dd945255de255428",
+    "rat/ui/live_companion.py": "bcc18fe718935bf2e5dcb0fa45d2fa34d943ed4bd1f4461ef3eeaf927a8b8f13",
+    "rat/ui/experience.py": "c2e20afdea457b0d2708ce17794e324ab6cda21e31cb7c0c413851a2443a6872",
+    "rat/ui/__init__.py": "d9478a9475307e62da7c7c2c2016ed71ede39bcf6c6f497c0fc6c0aed171184e",
+    "rat/ui/chat_session.py": "c36954c4f54e78a38607670d334871bd086a5f4bdd07057f9ba698d871d09fc4",
+    "rat/ui/surface_layout.py": "514362d7766a97a88262825ccf3ccf84db5d478264c378b0086a9496184ec7cb",
+    "rat/ui/naming_dialog.py": "252ef4d1d9af0d251cea0dd2b94b6a9132e7a23a1ea6d6fbf16ef0b2624dbe94",
+    "rat/ui/assistant_presenter.py": "cd784f900650a82b339a501a7784d15573f67c496d7ee151a1235c4707b1826d",
+    "rat/ui/claude_widget.py": "f55cd58097a394c16306f49a049aa3449edd4b1904d3f2910ccce2c48ddba0b6",
+    "rat/ui/workbench.py": "df7a195676e7244a6c39d436caf80cb7207280d6bda9c575887de518dd61ab74",
+    "rat/ui/natal_chart.py": "d3398f6db1c333fa356fd579cc095a8a695d2f6fc2870241e4b9976a86c3acd7",
+    "rat/ui/artifact_resources.py": "dc0ff0e830ae55eb5455cce164005b7f22c90ea6b7d8602df5ec2a7ccefb17df",
+    "rat/ui/schedule_window.py": "e66d5d795651fcdfb5411c46d8f59c6b440391091a9f78b4a4b60ee774f024c7",
+    "rat/ui/spotlight_window.py": "dfc3c9d41d0df2553df28268ae1b991339d6d7b6d589a8415c4e922dc5746917",
+    "rat/ui/action_menu.py": "5d827a3977c9d0706da991b5bd1473bf50ab836892da54244c97f008f52b0b4f",
+    "rat/ui/apple_item_delegate.py": "bf11342a4a041a63a0c7f0de852e86cf9c652358f513a917cb047c6823747c3c",
+    "rat/ui/turn_notes.py": "93d8706a27c15f8f0be5664bf80586cfb8109b38da9689f32aeefd8f50e1b59c",
+    "rat/ui/settings_dialog.py": "55a71f0862ef4790740df92538e503ee936872e24a614ffe83b25f5256635614",
+    "rat/ui/work_context.py": "f264c940fbd6ffee1673b197e5db23e6b89661a611c894d74842b81a680bb3d1",
+    "rat/ui/omnibar.py": "5b5683bf1149f83a120990451fbfec0162a50a1771bb18fa9af4d69f7f26c5a1",
+    "rat/ui/compact_results.py": "bb9ea919ba3c7101c389b13d9c3f86e129966bba8b62350bdda704680b8d902b",
+    "rat/crawler/db.py": "9c9e6dfe963a1df707230dd8a3c24e7ef1713a129aa4a7fb30b4b14d0bacb15a",
+    "rat/crawler/extractors.py": "eb25f634abfe82920a57e6a5d250fb86d686889a2370db3c613099f3847841ad",
+    "rat/crawler/chunker.py": "9a3c143bfe5ccd49b8a49902c99710efc1815805d37268e376215bdb26304754",
+    "rat/crawler/__init__.py": "c51176658e1585fb1a8aae274daa0f59da9d1f8e065a4053213d356e320c13a4",
+    "rat/crawler/apple_vision.py": "ab4218128537ba441d0cc1e2e9a09db3073caf44292cbc5890864e19bda3eddf",
+    "rat/crawler/warmup.py": "957e66b6f00767cffd2f9b77b13dae39a36fe66bd809213833438efe72e25232",
+    "rat/crawler/dedup.py": "8f42172b3a64400acaa06424eb1a58fcb2c35ee7b6548dbff1cf0c3d510b24fa",
+    "rat/crawler/indexer.py": "94a81d091c8d20402fccbba0e3296a5d060015ac8ae1b822e72ecf557d19b8fd",
+    "rat/crawler/watcher.py": "06b055902bc8f12453b1b0dbc290b360ec4b63ae9da2ba90004ddfa0d6d499e5",
+    "rat/crawler/provenance.py": "7bf5f096ce6714191dbca1a0424e9859f1e97c7f80e88cc45042e3185ebee902",
+    "rat/crawler/vision_taxonomy.py": "71f74ea433d7883483a066f35c3f0b850840fa8224a4ebd42ede7ccc712815fa",
+    "rat/os/menu_bar.py": "8422ab1fb733a879fd9cbefb762d964479e6f657d9bdf4f30a5be294a8c0fd6e",
+    "rat/os/hotkey.py": "07345f64b429a71274f7ef3ba04cb4e0c8f1d62703e8453821afb89f4f31c56a",
+    "rat/os/memory_sentinel.py": "b69ea73fe944987359b5a5e0e868f1faf46aea1ea1aec68f8e1a7efde0c410ec",
+    "rat/os/crash_shield.py": "ca6f41b1bd856fc5829494759592e551cfb8270053e7587a5fd6c651e9bb9568",
+    "rat/os/__init__.py": "c8e4123bed57fb94e1d272be8b44c282117afbce8c71e38bdcefeef64ae5346a",
+    "rat/os/single_instance.py": "8b03e9629351f257d3d4348bfc1fdfe1b3fae5a910067f29c9740c56ec2180cc",
+    "rat/os/app.py": "28b5f7cade6305e71b115196423309117aa752145f14c1d62ad0aa0e0c293c3b",
+    "rat/os/shell_integration.py": "bf3afac41e8366b5a71fe65226a87fb0e05c53aa26bd701951995342ddb5f306",
+    "rat/os/daemon.py": "8866bb6160467a09d69ad53fc4c703340ac767ae1f827f511013d82c0a9a12c0",
+    "rat/assets/rat_mascot_bust.png": "ddf6e910828c21ff4fdfff8658ea822723dab994110dff708c33d6544c83900e",
+    "rat/assets/rat_mascot.png": "20888c4bafd8c5b2a93b900bc7a170bd85effa4e3237c3722f465a31a6016770",
+    "rat/assets/rat_mascot_cutout.png": "943cc4f13f8e8bf613b9017bac335754716a87b41636d932903a8448f368a88d",
+    "rat/engine/snapshot.schema.json": "8a168a7aaff57e41d43eca956e49e583702bb6ff9285b2f75bcdc135a47da667",
+    "rat/engine/qa_engine.py": "5fca42aa242bf058d571c6e791b5dc0680e188aacea6bd679a7bb4bddc48e409",
+    "rat/engine/multi_way_rrf.py": "e8a860f5590355910a55ec41c41dadef14861d7d8cad2020587c90ba6296cbe3",
+    "rat/engine/vgc.py": "016b1113c00ad058bd0fa08f1786d8ff5cd67ed2f6fa37e289e1e5cbe1089f9b",
+    "rat/engine/hyde.py": "b9e074665a6124fe16d04441e331db71b99958a97578d1967b13dea48c0867a9",
+    "rat/engine/reasoning_trace.py": "ab42c866707b950c2b057776d5c1ced1f7d1d29d272f87d9a1024eb048d6d2b6",
+    "rat/engine/verification.py": "8da0f8573c35d09b507d12a568203d0fc866d79b0995f8ab4ca9fa0a6318e8d5",
+    "rat/engine/hybrid_search.py": "34512639e807090a6be9c7cd70182bcdc8df958dcd851c78a66bcfe520f44c07",
+    "rat/engine/controller.py": "79c0e84c6361bd443996e8f5644ffd31aefb02fd3c0b9617c27c6bd3025eb9c7",
+    "rat/engine/slm.py": "b7f27c9d7b66c3bc821180450d7db5a9a9112fe6c4ac9c6001a4cb9b85b9d4da",
+    "rat/engine/reranker.py": "e8721d618c853fed0e67b11051ca196199548ce4348a940a6efd1d9732cbb3c0",
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/paired_continuation.py": "4cfee681e769ee47c200352d871f5a7b5de600d439293b671c0119d930330c6b",
+    "rat/engine/naming.py": "90a216955be38d2e9483021ea6e3008998f61bbcc543254bd653ed5c2f615874",
+    "rat/engine/runtime_context.py": "a4bbfa94550f75120794e457ee84b0f636467bf1be519e800e157c3444c11328",
+    "rat/engine/vector_cache.py": "0f0b7a41a17490cb2f08dd4a8eba55dbb049b472dfbb58e14fb8cca796a4bde7",
+    "rat/engine/__init__.py": "62de935581656ed87c6eda194496a81b8a1afddd564fc136d74bdb793f1bbff5",
+    "rat/engine/query_decomposer.py": "2e284bbd6dcded4989e206be36b5a0c62e778540382e0bfd39213c66f23b8980",
+    "rat/engine/persona.py": "bc870315b41fa73dac15e991b52df7518e959c933156b19d35f66f095d61665a",
+    "rat/engine/adaptive_reranker.py": "21560fd419c0bfbbdad7bafe6bc287678d5007f0ff18af69f73db0de6c9049d8",
+    "rat/engine/curriculum_mapper.py": "38824ccac5abdb9734c897849579fe43d89929610d7bc5944f0820de7594734c",
+    "rat/engine/sufficiency_evaluator.py": "5597cd3842adf7f20f5ac6b88e60b9c3b6ffd89e5271abe242fa481a5fa62672",
+    "rat/engine/meta_reasoner.py": "dcece4a9b0787c3a1b1ccd7062a8c721b9aa1089a0be8bf8f5bb1019ddb83c3d",
+    "rat/engine/context_snapshot.py": "cca488dea3fabb814c6187d8980b69fbc5eaf7d8c8cef0552eb0cad4f2b86b1f",
+    "rat/engine/work_notes.py": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "rat/engine/llm_client.py": "c82d9dba8b827ced7b5738733c7772148264b99f8baed71883eb80f4edd78f41",
+    "rat/engine/corrective_retriever.py": "046ef3528799797eab5763e2883e4891b7bf57956e362fe78935b1c67245d26f",
+    "rat/engine/feedback_log.py": "a96eaeaac2dc34dde0f848f995cb6a076bb053568bd55fb915aad6604d17f6af",
+    "rat/engine/assistant_runtime.py": "2af7eb209e36d40ff1dfe081dcd8c1e10b4f2fb2057a2780e962ed22f5794b1d",
+    "rat/engine/rrf.py": "2461c329a3eef808b62bc8b016dc9b90e33472341ba170440ae124d1667209b4",
+    "rat/engine/context_engine.py": "8638bf1c032dafa0e96483f1028665bc860d45f4a7b0d88490264b8e1a6cf89f",
+    "rat/engine/context_parser.py": "c44987b8c93a99eb04bbc7ac97c4353431f0d6445887c61b909483c192ce9460",
+    "rat/engine/embedder.py": "be8a6a430b262033572fbb0384881d96db64102ddffe4777c8a1e4122ddaa705",
+    "rat/engine/task_state.py": "59b7a639d104bdf75c7c68f10fc6b688935d65085350634eefda1f0c7a98d406",
+    "rat/engine/book_pages.py": "8dcaa5eb109176d44381a529218d449798208d34155a5a4105b3c49a41bdb7fa",
+    "rat/engine/work_trace.py": "a49e91527da77377ae812cd87aec15855d3137d8a20241c1fcea2b6a03c56580",
+    "rat/engine/slm_prompts.py": "b887c820644d6e165c67df4e05da77e32320a930ae7909c2e5772ac698f9eaea",
+    "rat/kernel/dispatcher.py": "2db4021fa29af75b8dc7b03420e5924c182e18d7b5b22ebd298e28cf454ab6a6",
+    "rat/kernel/registry.py": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+    "rat/kernel/__init__.py": "0bfdd4d0ab7920b8e765efee01cc93925c9b269625fbfff0d305c8969fa05fad",
+    "rat/kernel/view_spec.py": "213b5e88e7f28541f4a02803be6af7ae076ff3f8df7ad54517340e060323250d",
+    "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
+    "rat/astrology/places.py": "b2879f5bd2f6854bacf33be9140df66dee56989d5b0314904a62cbaba5f3c0f3",
+    "rat/astrology/__init__.py": "cdcfcb6182f6d1ebda61fdee6886605260a009c3f9cf1a13aa15c3898f95437f",
+    "rat/astrology/chart.py": "5cec0eaf779d1a94e877be73d434aa2cfb563e65a58d26c4ab14f84b9d757e6e",
+    "rat/astrology/export.py": "a38f23541ad9ca03b3287e0d9d2c8646fd9fe44cf20a6c8c5de2a2708c03fac7",
+    "rat/astrology/svg.py": "36ae501f1839fa17fd9d628a51e4d85ffe826fcaba40387576dbd54a76451965",
+    "rat/astrology/__main__.py": "bebc44841ecdcd9aba5a74f90fb4944b87575618f83e8265d2d96ced4722b106",
+    "rat/timetable/__init__.py": "4522e4a497453ad482b991fcb8eb020b299398fa57a5cbe5a37da0b49d309ba1",
+    "rat/timetable/model.py": "20ab7b61066405d893ecb3682a634bf810d14443321e1f61bffc3942a632abd7",
+    "rat/timetable/compositor.py": "63f8d8022b3cee0469ab1a27d6c53937c48c2a95492594fff083c4c5f5f08493",
+    "rat/timetable/data.py": "638c64fa9a5512424fd5ff5e7bf7472d70ef9622d81acc22f338f34eec4f9643",
+    "rat/kernel/capabilities/result_tables.py": "407e1bd44ed793cec34577925c7353a96b794e699bfada47119a3fde33b7571b",
+    "rat/kernel/capabilities/documents.py": "1c3406fdcbf999f6b45c8bc1ac066a3b119aea9bff69bb9e72e9e428903876f4",
+    "rat/kernel/capabilities/natal.py": "88ea365831b161865493d813610e910e55bf8d0fff5057c13119fc9ece4b5d9a",
+    "rat/kernel/capabilities/__init__.py": "35f185cb72f8cecbae8c4a095daf38ab4efb5f236854ab8d4f49ca24278439b4",
+    "rat/kernel/capabilities/timetable.py": "473dc2335e7be589c2d679de4d75eb1e3662e43fa96bcda4611a7ececd285462",
+    "rat/kernel/capabilities/views.py": "130fde76d75e7867e7aaceb5fcf4b8b1c1a59cc36abbdb3bbfc00d53e3bfd6fa",
+    "rat/astrology/ephemeris/LICENSE": "b6345743292c516d07799dfad46f1a641e5270da2160cc4d6bd54594d6faa991",
+    "rat/astrology/ephemeris/seas_18.se1": "a2cd8fc33807c78ca9a700c91c2e042258b12fc4796519e00781440b5ad8b2e2",
+    "rat/astrology/ephemeris/sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66",
+    "rat/astrology/ephemeris/manifest.json": "5bd69dc6f40208a0c5d7986741f38925035dd34e3cefeffe796eded5ddcf049f",
+    "rat/astrology/ephemeris/semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7"
+  },
+  "fixtures_sha256": "b4e21e650b1ac8da771e614d2eb901381ce5a6b114e79159faeafb58dba530e4",
+  "prepared_utc": "2026-10-15T16:09:17.951138+00:00"
+}

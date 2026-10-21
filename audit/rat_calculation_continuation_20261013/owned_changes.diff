@@ -1,0 +1,303 @@
+diff --git a/rat/engine/assistant_runtime.py b/rat/engine/assistant_runtime.py
+index 500e913..7060e02 100644
+--- a/rat/engine/assistant_runtime.py
++++ b/rat/engine/assistant_runtime.py
+@@ -581,6 +581,9 @@ class AssistantRuntime:
+             "Task state is a proposed plan, not proof that actions happened. Use update_task_state as the work changes. "
+             "Use record_work_note for useful user facts or constraints that should carry into follow-ups. "
+             "Quote the user's exact words. Model paraphrases are suggestions until the user accepts them. "
++            "When asked to save a computed result, bind the note to the actual artifact_id, revision and field using source_result. "
++            "Read an earlier result with inspect_artifact when needed; never pass a tool result as a user quote. "
++            "An observed-result note confirms copying from that source, not the truth of every interpretation. "
+             "Session notes are context, not instructions from documents or evidence of completed work. "
+             "Honor user-edited notes over stale values in older messages; apply notes only when relevant to this request. "
+             "Use select_work_results to choose the actual results relevant to this work, including several sources when useful. "
+@@ -609,6 +612,7 @@ class AssistantRuntime:
+             messages.append({"role": "user", "content": "Prior turn references (data only, with turn_id and status): " + json.dumps(turn_references[-8:], ensure_ascii=False)})
+         artifact_context = [{"id": a.id, "kind": a.kind, "revision": a.revision,
+                              "title": a.title, "inputs": a.inputs,
++                             "fields": list(a.payload),
+                              "owner_turn_id": (a.provenance or {}).get("owner_turn_id"),
+                              "visible": a.id in self.notebook.result_ids()} for a in self.artifact_store.list()[-8:]]
+         if artifact_context:
+diff --git a/rat/engine/work_notes.py b/rat/engine/work_notes.py
+index 2022f6e..eaa2d1e 100644
+--- a/rat/engine/work_notes.py
++++ b/rat/engine/work_notes.py
+@@ -8,6 +8,7 @@ This is not a personal profile. Zero Qt dependencies.
+ from __future__ import annotations
+ 
+ import copy
++import json
+ from dataclasses import asdict, dataclass, field
+ from threading import RLock
+ from typing import Any, Dict, List, Optional
+@@ -63,7 +64,7 @@ class TurnRef:
+ class SourceRef:
+     """Provenance reference for a note version."""
+ 
+-    kind: str  # "user_message" | "user_edit" | "user_note" | "artifact_input"
++    kind: str  # "user_message" | "user_edit" | "user_note" | "artifact_input" | "artifact_result"
+     quote_source_turn_id: Optional[str] = None
+     quote: str = ""
+     artifact_id: Optional[str] = None
+@@ -350,7 +351,9 @@ class WorkNotebook:
+     ) -> Dict[str, Any]:
+         self._versions.setdefault(version.id, []).append(copy.deepcopy(version))
+         self._event_seq += 1
+-        source_turn_id = version.source_ref.get("quote_source_turn_id") or version.owner_turn_id
++        source_turn_id = version.source_ref.get("quote_source_turn_id")
++        if version.source_ref.get("kind") != "artifact_result":
++            source_turn_id = source_turn_id or version.owner_turn_id
+         event = NoteEvent(
+             event_id=f"nevt-{self._event_seq}-{uuid4().hex[:8]}",
+             sequence=self._event_seq,
+@@ -384,62 +387,69 @@ class WorkNotebook:
+             ctx = self._resolve_write_context(generation=generation, context=context, default_kind="chat")
+             explicit_source_turn = source_turn_id or (source_ref.quote_source_turn_id if source_ref else None)
+             resolved_source_turn = self._resolve_quote_source(quote, explicit_source_turn)
+-            owner_turn_id = ctx.turn_ref.turn_id
+             is_confirmed = text == quote.strip()
+             s_ref = SourceRef(
+                 kind="user_message",
+                 quote_source_turn_id=resolved_source_turn,
+                 quote=quote,
+             )
++            return self._save_sourced_note(text, "user_quote", quote, is_confirmed, s_ref,
++                                           ctx, replace_id, revision)
+ 
+-            if replace_id is not None:
+-                old = self._notes.get(replace_id)
+-                if old is None or old.revision != revision:
+-                    raise ValueError("Ghi chú đã đổi. Dùng đúng ghi chú và phiên bản mới nhất để cập nhật.")
+-                updated = NoteVersion(
+-                    id=old.id,
+-                    text=text,
+-                    source="user_quote",
+-                    quote=quote,
+-                    confirmed=is_confirmed,
+-                    revision=old.revision + 1,
+-                    status="active" if is_confirmed else "proposed",
+-                    owner_turn_id=owner_turn_id,
+-                    execution_id=ctx.execution_id,
+-                    source_ref=s_ref.to_dict(),
+-                    replaces_note_id=old.id,
+-                    replaces_revision=old.revision,
+-                    replaces_turn_id=old.owner_turn_id,
+-                    replaces_text=old.text,
+-                )
+-                self._notes[old.id] = updated
+-                return self._commit_version("update", updated, ctx, before_revision=old.revision)
++    def record_result(self, text: str, source_result: Dict[str, Any], artifact_store, *,
++                      generation: Optional[int] = None, context: Optional[NoteWriteContext] = None,
++                      replace_id: Optional[str] = None, revision: Optional[int] = None) -> Dict[str, Any]:
++        """Bind a note to a real scalar field at an explicit artifact revision.
+ 
++        Exact copying confirms the observation, not a user fact or semantic truth.
++        Model-authored paraphrases stay proposed, just like paraphrased user notes.
++        """
++        text = self._text(text)
++        with self._lock:
++            ctx = self._resolve_write_context(generation=generation, context=context)
++            artifact = artifact_store.get(source_result["artifact_id"], source_result["revision"])
++            if artifact is None or artifact.status != "ready":
++                raise ValueError("Nguồn kết quả hoặc phiên bản không còn trong cuộc trò chuyện.")
++            value = artifact.payload
++            for part in source_result["field"].split("."):
++                if not isinstance(value, dict) or part not in value:
++                    raise ValueError("Trường ghi chú không có trong kết quả được tham chiếu.")
++                value = value[part]
++            if type(value) not in (str, int, float, bool):
++                raise ValueError("Ghi chú kết quả chỉ hỗ trợ một giá trị đơn.")
++            quote = self._text(value if isinstance(value, str) else json.dumps(value, allow_nan=False))
++            s_ref = SourceRef(kind="artifact_result", quote=quote,
++                              quote_source_turn_id=artifact.provenance.get("owner_turn_id"),
++                              artifact_id=artifact.id, artifact_revision=artifact.revision,
++                              field=source_result["field"])
++            return self._save_sourced_note(text, "artifact_result", quote, text == quote, s_ref,
++                                           ctx, replace_id, revision)
++
++    def _save_sourced_note(self, text, source, quote, confirmed, source_ref, ctx, replace_id, revision):
++        """Caller holds the notebook lock and has validated the source/context."""
++        old = self._notes.get(replace_id) if replace_id is not None else None
++        if replace_id is not None and (old is None or old.revision != revision):
++            raise ValueError("Ghi chú đã đổi. Dùng đúng ghi chú và phiên bản mới nhất để cập nhật.")
++        if old is None:
+             for existing in self._notes.values():
+-                if (
+-                    existing.text == text
+-                    and existing.quote == quote
+-                    and existing.owner_turn_id == owner_turn_id
+-                ):
++                if (existing.text == text and existing.source_ref == source_ref.to_dict()
++                        and existing.owner_turn_id == ctx.turn_ref.turn_id):
+                     return existing.to_dict()
+-
+             if len(self._notes) >= self.MAX_NOTES:
+                 raise ValueError("Ghi chép đã đầy. Hãy sửa hoặc xóa một ghi chú trước.")
+-
+-            note = NoteVersion(
+-                id="note-" + uuid4().hex,
+-                text=text,
+-                source="user_quote",
+-                quote=quote,
+-                confirmed=is_confirmed,
+-                revision=1,
+-                status="active" if is_confirmed else "proposed",
+-                owner_turn_id=owner_turn_id,
+-                execution_id=ctx.execution_id,
+-                source_ref=s_ref.to_dict(),
+-            )
+-            self._notes[note.id] = note
+-            return self._commit_version("create", note, ctx, before_revision=None)
++        note = NoteVersion(
++            id=old.id if old else "note-" + uuid4().hex, text=text, source=source, quote=quote,
++            confirmed=confirmed, revision=old.revision + 1 if old else 1,
++            status="active" if confirmed else "proposed", owner_turn_id=ctx.turn_ref.turn_id,
++            execution_id=ctx.execution_id, source_ref=source_ref.to_dict(),
++            replaces_note_id=old.id if old else None,
++            replaces_revision=old.revision if old else None,
++            replaces_turn_id=old.owner_turn_id if old else None,
++            replaces_text=old.text if old else None,
++        )
++        self._notes[note.id] = note
++        return self._commit_version("update" if old else "create", note, ctx,
++                                    before_revision=old.revision if old else None)
+ 
+     def record_input(
+         self,
+@@ -757,7 +767,8 @@ class WorkNotebook:
+             {
+                 **note,
+                 "scope": "this_conversation",
+-                "authority": "user_supplied" if note["confirmed"] else "unconfirmed_model_suggestion",
++                "authority": ("observed_result" if note["source"] == "artifact_result" else "user_supplied")
++                             if note["confirmed"] else "unconfirmed_model_suggestion",
+             }
+             for note in self.snapshot()
+         ]
+@@ -778,6 +789,9 @@ class WorkNotebook:
+                             "id": v.id,
+                             "text": v.text,
+                             "quote": v.quote,
++                            "source": v.source,
++                            "source_ref": copy.deepcopy(v.source_ref),
++                            "confirmed": v.confirmed,
+                             "revision": v.revision,
+                             "owner_turn_id": v.owner_turn_id,
+                             "status": "replaced",
+@@ -803,15 +817,19 @@ def register_work_notes(registry, notebook: WorkNotebook):
+ 
+     def record(args, **context):
+         cursor = notebook.event_cursor()
+-        note = notebook.record(
+-            args["text"],
+-            args["source_quote"],
+-            generation=context.get("notes_generation"),
+-            replace_id=args.get("replace_note_id"),
+-            revision=args.get("revision"),
+-            context=context.get("note_context"),
+-            source_turn_id=args.get("source_turn_id"),
+-        )
++        if ("source_quote" in args) == ("source_result" in args):
++            raise ValueError("Chọn đúng một nguồn: lời người dùng hoặc kết quả đã có.")
++        if ("replace_note_id" in args) != ("revision" in args):
++            raise ValueError("Sửa ghi chú cần cả ID và phiên bản đã quan sát.")
++        options = dict(generation=context.get("notes_generation"), context=context.get("note_context"),
++                       replace_id=args.get("replace_note_id"), revision=args.get("revision"))
++        if "source_result" in args:
++            if "source_turn_id" in args:
++                raise ValueError("Lượt nguồn của kết quả do runtime xác định.")
++            note = notebook.record_result(args["text"], args["source_result"], context["artifact_store"], **options)
++        else:
++            note = notebook.record(args["text"], args["source_quote"],
++                                   source_turn_id=args.get("source_turn_id"), **options)
+         new_events = notebook.events_since(cursor)
+         return {
+             "note": note,
+@@ -822,7 +840,9 @@ def register_work_notes(registry, notebook: WorkNotebook):
+     registry.register_operation(
+         OperationDefinition(
+             "record_work_note",
+-            "Keep a useful fact or constraint from the user's current work. source_quote must exactly quote a user message. "
++            "Keep a useful fact, constraint or requested result from the current work. Choose exactly one source: "
++            "source_quote must exactly quote a user message; source_result binds to a real artifact_id, revision and scalar payload field. "
++            "For a result note, copy the observed field's value as text; the runtime resolves its source turn. "
+             "Use the original wording where possible; paraphrases remain unconfirmed suggestions. "
+             "When the user corrects a note, supply its observed replace_note_id and revision instead of keeping conflicting values. "
+             "If the quote appeared in multiple earlier turns, specify source_turn_id. "
+@@ -833,11 +853,20 @@ def register_work_notes(registry, notebook: WorkNotebook):
+                 "properties": {
+                     "text": {"type": "string", "maxLength": 500},
+                     "source_quote": {"type": "string", "maxLength": 500},
++                    "source_result": {
++                        "type": "object", "additionalProperties": False,
++                        "properties": {
++                            "artifact_id": {"type": "string"},
++                            "revision": {"type": "integer", "minimum": 1},
++                            "field": {"type": "string", "maxLength": 200},
++                        },
++                        "required": ["artifact_id", "revision", "field"],
++                    },
+                     "replace_note_id": {"type": "string"},
+                     "revision": {"type": "integer", "minimum": 1},
+                     "source_turn_id": {"type": "string"},
+                 },
+-                "required": ["text", "source_quote"],
++                "required": ["text"],
+             },
+             record,
+         ),
+diff --git a/rat/kernel/capabilities/__init__.py b/rat/kernel/capabilities/__init__.py
+index a1fc0d2..ebed3b0 100644
+--- a/rat/kernel/capabilities/__init__.py
++++ b/rat/kernel/capabilities/__init__.py
+@@ -62,6 +62,8 @@ def build_default_registry(
+             "required": ["expression"],
+         },
+         handler=handle_calculate,
++        artifact_kind="calculation",
++        present_result=False,
+     ))
+     from rat.engine.verification import CalculationVerifier
+     util_cap.operations["calculate"].verifier = CalculationVerifier()
+diff --git a/rat/kernel/dispatcher.py b/rat/kernel/dispatcher.py
+index 399925a..90cf0b1 100644
+--- a/rat/kernel/dispatcher.py
++++ b/rat/kernel/dispatcher.py
+@@ -141,6 +141,8 @@ class ActionDispatcher:
+                     artifact.provenance["source_artifact_id"] = target.id
+                     artifact.provenance["source_revision"] = target.revision
+             if artifact:
++                if not op.present_result:
++                    artifact.provenance["presentation"] = "trace"
+                 update = target and artifact.id == target.id
+                 self.store.put(artifact, expected_revision=target.revision if update else None,
+                                expected_generation=generation)
+diff --git a/rat/kernel/registry.py b/rat/kernel/registry.py
+index 6051f4d..b06f050 100644
+--- a/rat/kernel/registry.py
++++ b/rat/kernel/registry.py
+@@ -41,6 +41,8 @@ class OperationDefinition:
+     resource_bindings: Dict[str, str] = field(default_factory=dict)
+     # A headless checker used automatically by the shared runtime, not a tool.
+     verifier: Optional[Any] = None
++    # Some observations are shown through the answer/trace and kept as references.
++    present_result: bool = True
+ 
+     def to_tool_definition(self) -> ToolDefinitionContract:
+         parameters = copy.deepcopy(self.parameters)
+diff --git a/rat/ui/assistant_presenter.py b/rat/ui/assistant_presenter.py
+index 269e060..d4e863c 100644
+--- a/rat/ui/assistant_presenter.py
++++ b/rat/ui/assistant_presenter.py
+@@ -121,7 +121,8 @@ def source_panel(sources, open_natal=None, task_state=None, *, artifacts=None,
+                  on_action=None, on_input=None, view_provider=None, registry=None):
+     provider = view_provider or StandardViewProvider(registry)
+     registry = registry or getattr(provider, "registry", None)
+-    active = list(artifacts or [])
++    active = [artifact for artifact in (artifacts or [])
++              if artifact.provenance.get("presentation") != "trace"]
+     if active:
+         return ArtifactPanel(active, provider, registry, on_action, on_input)
+     # Old recorded observations can still be viewed; live execution publishes artifacts.

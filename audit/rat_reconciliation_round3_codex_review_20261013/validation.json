@@ -1,0 +1,121 @@
+{
+  "generated_at_utc": "2026-10-13T15:57:09.799680+00:00",
+  "verdict": "request_changes",
+  "core_approved": false,
+  "ready_for_ui_phase": false,
+  "scope": "offline_review_of_round3_source_plus_context_design_handoff",
+  "roles": {
+    "Codex": "design and review",
+    "Antigravity": "implementation"
+  },
+  "baseline": {
+    "total_passed": 260,
+    "prior_probes": 33,
+    "selected_regressions": 227,
+    "seconds": 18.21,
+    "exit_code": 0,
+    "log": "regression_and_previous_probes.txt"
+  },
+  "additional_boundary_probes": {
+    "total": 17,
+    "failed": 11,
+    "passed": 6,
+    "seconds": 0.67,
+    "exit_code": 1,
+    "file": "boundary_probes.py",
+    "log": "boundary_probes.txt",
+    "scope": "deterministic and native-client mocks; not model-quality evidence",
+    "initial_log": "boundary_probes_initial.txt",
+    "initial_probe_adjustment": "ADR allows unchecked empty contract; final control checks absence of false satisfaction"
+  },
+  "exporter": {
+    "fixture_count": 11,
+    "all_passed": true,
+    "fresh_directory_used": true,
+    "existing_directory_rejected": true,
+    "existing_transcript_hash_preserved": true,
+    "log": "exporter_check.json"
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "P1",
+      "issue": "native malformed nested source reference crashes final reconciliation"
+    },
+    {
+      "id": "R2",
+      "priority": "P1",
+      "issue": "deep frozen JSON fails nested export and valid array argument equality"
+    },
+    {
+      "id": "R3",
+      "priority": "P1",
+      "issue": "typed calculation and note inputs not consistently bound"
+    },
+    {
+      "id": "R4",
+      "priority": "P1",
+      "issue": "generic consumer ignores declared producer source"
+    },
+    {
+      "id": "R5",
+      "priority": "P1",
+      "issue": "response ignores required proof; verification receipts lack generation isolation"
+    },
+    {
+      "id": "R6",
+      "priority": "P2",
+      "issue": "planner outcome schema does not advertise expected_args"
+    }
+  ],
+  "handoff_hashes_matched": 8,
+  "reviewed_source_files": 14,
+  "source_changes_during_review": [],
+  "protected_artifact_count": 66,
+  "protected_artifact_changes": [],
+  "live_model_calls": 0,
+  "native_ui_acceptance": false,
+  "product_files_edited_by_codex": [],
+  "product_tests_edited_by_codex": [],
+  "git_push_pull_reset_force": false,
+  "defaults_changed_by_codex": false,
+  "research_stage0_docai_scope_changed_by_codex": false,
+  "context_design_status": "A/B/C/D broadly consistent; core gate remains; note revision resolver and continuity requirements clarified",
+  "linked_files_checked": [
+    "audit/rat_reconciliation_round3_codex_review_20261013/boundary_probes.py",
+    "audit/rat_reconciliation_round3_codex_review_20261013/boundary_probes.txt",
+    "audit/rat_reconciliation_round3_codex_review_20261013/exporter_check.json",
+    "audit/rat_reconciliation_round3_codex_review_20261013/handoff_antigravity.md",
+    "audit/rat_reconciliation_round3_codex_review_20261013/regression_and_previous_probes.txt",
+    "audit/rat_reconciliation_round3_codex_review_20261013/review.md",
+    "rat/engine/assistant_runtime.py",
+    "rat/engine/completion.py"
+  ],
+  "output_sha256": {
+    "boundary_probes.py": "3dfc08c5a7df3903aa05316d935e60cc5ab82ebc79fe1453453095b8ec67a269",
+    "boundary_probes.txt": "7deae3fc898e330955f87bcf810a7d1e574f89fc7ccb53da772a79ebfed1bd2e",
+    "boundary_probes_initial.txt": "3588a1988e715ca1f4b52c32ded2ce23a0da73b782725842f722b9e9471042c9",
+    "exporter_check.json": "388b405d92e4565aca2ecc0cffb658fe089839ba3ebde145b80b86aee7fc7161",
+    "handoff_antigravity.md": "4c8b958c3752fe15567509c1d7e6a6662772c503e862c87ec9931daf40e3fcfe",
+    "original_handoff_context.md.txt": "b4ed41e501e55e5613ac7e3cd8d92646e777e61cec7f7afed0be1b6df3e85ee0",
+    "original_handoff_core.md.txt": "e32fab57b89a9f66d2732d99a42386912b7b18239fd9dd3eca4deabd733b05ea",
+    "regression_and_previous_probes.txt": "995e8028b21f6d321f19a55af63839fa1e4b053c4996156c49da2dde69a31d7c",
+    "review.md": "a911fda94cd9729037bf11eff7ea4b78eb5df9fcd542ff3b0cca62dbb1af1985",
+    "reviewed_source/docs/adr-003-rat-completion-reconciliation.md.txt": "e89ffe8feca119e29e3f1c2766787547ebb22a7f8eca21416f159a378caef875",
+    "reviewed_source/rat/engine/assistant_runtime.py.txt": "725e77037d6791401c2299071b973af6cebaacbc8dba916d3114a0d145eb1be2",
+    "reviewed_source/rat/engine/completion.py.txt": "0514a0b9384cfa596b5e1fbf6b2799838c5d8476216dd853e8bf18f5843af556",
+    "reviewed_source/rat/engine/slm.py.txt": "65d506aed501be5cc2c9795e020447515f0b7d88cc404557b9aac9da646cc817",
+    "reviewed_source/rat/engine/verification.py.txt": "8da0f8573c35d09b507d12a568203d0fc866d79b0995f8ab4ca9fa0a6318e8d5",
+    "reviewed_source/rat/engine/work_notes.py.txt": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "reviewed_source/rat/kernel/capabilities/__init__.py.txt": "7230eddc5ab6c5231bf80d280187130132b7995e747823149f5edc4124b200aa",
+    "reviewed_source/rat/kernel/registry.py.txt": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+    "reviewed_source/rat/ui/chat_session.py.txt": "13dd0a5f2b6dfd25e0c1a0b29f3e98b575b404ee9848a7603d0ffa8d2ed78b44",
+    "reviewed_source/rat/ui/omnibar.py.txt": "67991431cfcd19c9a2b54598c6690440f7d637e970668a0e5e94c46d12348619",
+    "reviewed_source/scripts/export_reconciliation_transcripts.py.txt": "2da1a0e186240efbc41ba855ca740d455bbee8a9108dc225719de52dd90f979c",
+    "reviewed_source/tests/test_rat_calculation_conversation.py.txt": "a3803e4589e9557b9a0fb5e42a4c62edfaaa1390ab5c2a8fef3f1118aa140662",
+    "reviewed_source/tests/test_rat_completion_reconciliation.py.txt": "2a95d69e2ed527f6c8f493b150053b3712e4707d3f56280cb72f788c053c00d9",
+    "reviewed_source/tests/test_rat_task_memory.py.txt": "f5745e4309f95dd8e9c3c071d953d7f4728450da1a276d90e21c6f648eac34b0",
+    "source_manifest_start.json": "82b45e4d3a1a6fe8ac5e4786e2f7ea4d3261059f0bb8231adc3d8d3f8069e96f",
+    "transcripts/fixture_transcripts.json": "ab95b36bbd6b258ecaea75b9e2e47a644e4edc908586b1f1b893ee39445a561b"
+  }
+}

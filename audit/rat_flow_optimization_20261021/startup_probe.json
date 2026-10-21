@@ -1,0 +1,61 @@
+{
+  "scope": "offscreen authored DB/catalog doubles; imports + constructor + first event processing; fresh Python processes with OS caches uncontrolled; 3 alternating pairs; not native hotkey latency or model inference",
+  "runs": [
+    {
+      "revision": "baseline",
+      "import_ms": 518.5885839164257,
+      "constructor_ms": 5940.219416981563,
+      "show_and_events_ms": 113.09966701082885,
+      "widgets_after_construct": 356
+    },
+    {
+      "revision": "candidate",
+      "import_ms": 352.281125029549,
+      "constructor_ms": 2222.310084151104,
+      "show_and_events_ms": 112.44262498803437,
+      "widgets_after_construct": 252
+    },
+    {
+      "revision": "baseline",
+      "import_ms": 338.64895813167095,
+      "constructor_ms": 5786.404625046998,
+      "show_and_events_ms": 88.17583392374218,
+      "widgets_after_construct": 356
+    },
+    {
+      "revision": "candidate",
+      "import_ms": 527.433417038992,
+      "constructor_ms": 2560.8622080180794,
+      "show_and_events_ms": 137.67558289691806,
+      "widgets_after_construct": 252
+    },
+    {
+      "revision": "baseline",
+      "import_ms": 348.31570903770626,
+      "constructor_ms": 5011.542834108695,
+      "show_and_events_ms": 163.6150828562677,
+      "widgets_after_construct": 356
+    },
+    {
+      "revision": "candidate",
+      "import_ms": 440.04524988122284,
+      "constructor_ms": 2155.444792006165,
+      "show_and_events_ms": 96.69187502004206,
+      "widgets_after_construct": 252
+    }
+  ],
+  "medians": {
+    "baseline": {
+      "import_ms": 348.31570903770626,
+      "constructor_ms": 5786.404625046998,
+      "show_and_events_ms": 113.09966701082885,
+      "widgets_after_construct": 356
+    },
+    "candidate": {
+      "import_ms": 440.04524988122284,
+      "constructor_ms": 2222.310084151104,
+      "show_and_events_ms": 112.44262498803437,
+      "widgets_after_construct": 252
+    }
+  }
+}

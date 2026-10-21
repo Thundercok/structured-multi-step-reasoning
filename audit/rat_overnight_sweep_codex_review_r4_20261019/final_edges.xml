@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="7" time="0.934" timestamp="2026-10-19T21:53:21.121515+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_fallback_and_marker_paths_preserve_fraction_value[conclusion-cue-fallback]" time="0.001"><failure message="AssertionError: {'raw': 'Therefore x = 3/4', 'parsed': '4'}&#10;assert Fraction(4, 1) == Fraction(3, 4)">raw = 'Therefore x = 3/4', expected = Fraction(3, 4)
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Therefore x = 3/4", Fraction(3, 4)),
+        ("x = 3.25/4", Fraction(13, 16)),
+        ("Answer: x = 3/4", Fraction(3, 4)),
+        ("x = 3/4", Fraction(3, 4)),
+    ], ids=["conclusion-cue-fallback", "decimal-numerator-fallback", "answer-marker-control", "bare-equation-control"])
+    def test_fallback_and_marker_paths_preserve_fraction_value(raw, expected):
+        parsed = extract_answer(raw)
+        conclusion = parsed.rsplit("=", 1)[-1].strip()
+        if "/" in conclusion:
+            numerator, denominator = conclusion.split("/", 1)
+            actual = Fraction(numerator.strip()) / Fraction(denominator.strip())
+        else:
+            actual = Fraction(conclusion)
+&gt;       assert actual == expected, {"raw": raw, "parsed": parsed}
+E       AssertionError: {'raw': 'Therefore x = 3/4', 'parsed': '4'}
+E       assert Fraction(4, 1) == Fraction(3, 4)
+
+audit/rat_overnight_sweep_codex_review_r4_20261019/test_final_edges.py:26: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_fallback_and_marker_paths_preserve_fraction_value[decimal-numerator-fallback]" time="0.001"><failure message="AssertionError: {'raw': 'x = 3.25/4', 'parsed': '3'}&#10;assert Fraction(3, 1) == Fraction(13, 16)">raw = 'x = 3.25/4', expected = Fraction(13, 16)
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Therefore x = 3/4", Fraction(3, 4)),
+        ("x = 3.25/4", Fraction(13, 16)),
+        ("Answer: x = 3/4", Fraction(3, 4)),
+        ("x = 3/4", Fraction(3, 4)),
+    ], ids=["conclusion-cue-fallback", "decimal-numerator-fallback", "answer-marker-control", "bare-equation-control"])
+    def test_fallback_and_marker_paths_preserve_fraction_value(raw, expected):
+        parsed = extract_answer(raw)
+        conclusion = parsed.rsplit("=", 1)[-1].strip()
+        if "/" in conclusion:
+            numerator, denominator = conclusion.split("/", 1)
+            actual = Fraction(numerator.strip()) / Fraction(denominator.strip())
+        else:
+            actual = Fraction(conclusion)
+&gt;       assert actual == expected, {"raw": raw, "parsed": parsed}
+E       AssertionError: {'raw': 'x = 3.25/4', 'parsed': '3'}
+E       assert Fraction(3, 1) == Fraction(13, 16)
+
+audit/rat_overnight_sweep_codex_review_r4_20261019/test_final_edges.py:26: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_fallback_and_marker_paths_preserve_fraction_value[answer-marker-control]" time="0.001" /><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_fallback_and_marker_paths_preserve_fraction_value[bare-equation-control]" time="0.000" /><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_cli_mode_does_not_relabel_historical_calls[fresh-fake-control]" time="0.001" /><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_cli_mode_does_not_relabel_historical_calls[budget-halt-on-real-history]" time="0.002"><failure message="AssertionError: {'type': 'offline_fake_backend_simulation', 'status': 'offline_fake_backend_completed_12_calls', 'unverified_native_sc...'], 'note': 'Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed.'}&#10;assert 12 == 0">folder = 'locked_ledger_replay', expected_new_fake = 0
+
+    @pytest.mark.parametrize("folder,expected_new_fake", [
+        ("fake_session", 1), ("locked_ledger_replay", 0),
+    ], ids=["fresh-fake-control", "budget-halt-on-real-history"])
+    def test_cli_mode_does_not_relabel_historical_calls(folder, expected_new_fake):
+        perf = json.loads((HERE / folder / "native_performance.json").read_text())
+        if folder == "locked_ledger_replay":
+            original = (HERE / "received_artifacts/calls.jsonl").read_bytes()
+            assert (HERE / folder / "calls.jsonl").read_bytes() == original
+            assert b"BUDGET GUARD HALT" in (HERE / "locked_ledger_replay.txt").read_bytes()
+&gt;       assert perf["fake_model_calls_executed"] == expected_new_fake, perf["scope_classification"]
+E       AssertionError: {'type': 'offline_fake_backend_simulation', 'status': 'offline_fake_backend_completed_12_calls', 'unverified_native_sc...'], 'note': 'Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed.'}
+E       assert 12 == 0
+
+audit/rat_overnight_sweep_codex_review_r4_20261019/test_final_edges.py:38: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges" name="test_same_directory_copy_labels_fit_hosted_420px_viewport" time="0.822" /></testsuite></testsuites>

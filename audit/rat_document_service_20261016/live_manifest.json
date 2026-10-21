@@ -1,0 +1,145 @@
+{
+  "status": "completed",
+  "pid": 62231,
+  "started_utc": "2026-10-16T06:39:04.846384+00:00",
+  "scope": "Headless application acceptance on synthetic development fixtures; not held-out model quality or native UI.",
+  "max_calls": 9,
+  "network_attempts": 0,
+  "model_path": "/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3.5-4B-MLX-4bit/snapshots/32f3e8ecf65426fc3306969496342d504bfa13f3",
+  "cases": [
+    {
+      "name": "first_document_cold",
+      "wall_s": 6.264932541991584,
+      "first_text_s": 5.303448542021215,
+      "prefix_prepared": false,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    },
+    {
+      "name": "same_document_followup",
+      "wall_s": 2.0733477079775184,
+      "first_text_s": 1.1783375839004293,
+      "prefix_prepared": true,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    },
+    {
+      "name": "switch_document",
+      "wall_s": 5.361540124984458,
+      "first_text_s": 4.279938291059807,
+      "prefix_prepared": false,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    },
+    {
+      "name": "changed_file_same_path",
+      "wall_s": 9.240799707942642,
+      "first_text_s": 7.726604958064854,
+      "prefix_prepared": false,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    },
+    {
+      "name": "absent_information",
+      "wall_s": 4.85611816693563,
+      "first_text_s": 2.689664458972402,
+      "prefix_prepared": true,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    },
+    {
+      "name": "cancel_during_generation",
+      "wall_s": 1.9260369580006227,
+      "first_text_s": null,
+      "prefix_prepared": null,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "cancelled_without_final_answer": true
+      }
+    },
+    {
+      "name": "new_question_after_cancel",
+      "wall_s": 3.7729978340212256,
+      "first_text_s": 1.9366531668929383,
+      "prefix_prepared": true,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    },
+    {
+      "name": "long_document_excerpt",
+      "wall_s": 26.05435887502972,
+      "first_text_s": 24.555532249971293,
+      "prefix_prepared": false,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true,
+        "explicit_truncation": true
+      }
+    },
+    {
+      "name": "reload_after_unload",
+      "wall_s": 14.605214334093034,
+      "first_text_s": 8.21569470805116,
+      "prefix_prepared": false,
+      "checks": {
+        "one_call": true,
+        "source_read": true,
+        "committed_read": true,
+        "answered_without_error": true,
+        "expected_answer": true
+      }
+    }
+  ],
+  "source_hashes": {
+    "rat/engine/document_model_service.py": "183a38fa9c7df2cf9f16d62adb2012ab85664160be6f1e927129ed92e487755e",
+    "rat/engine/mlx_document_session.py": "0830710cea9c375eff1d9bda94913363fe583a0fad0741ac8741eaa99c91cec4",
+    "rat/engine/selected_document_qa.py": "e3a94c665226a5244e7302e5c87e1d8355595f29662fbc4376e41244dce3ba6c",
+    "rat/engine/assistant_runtime.py": "a3dd7659298fa1f518615932c849b85bc928ac6466b5e55ba7af250f1c2c9cef",
+    "rat/cli.py": "ca36f035301e60f6ef6e0f882435947c53be9482ce4d1227770bb03fdc4d75fb",
+    "rat/main.py": "bdff09204f4ca8038969eb968490260f57543042d81e5c5e274199deab9d2b9d",
+    "tests/test_mlx_document_session.py": "9b701611f2a35d601b66d044a776c55fd43e936f717f77bcacd9f6357118e8b0"
+  },
+  "load_s": 18.015312457922846,
+  "active_after_load_bytes": 2367528456,
+  "unloaded": true,
+  "peak_mlx_bytes": 2986361544,
+  "active_before_close_bytes": 2427428364,
+  "source_changed": [],
+  "closed": true,
+  "finished_utc": "2026-10-16T06:40:38.791696+00:00"
+}

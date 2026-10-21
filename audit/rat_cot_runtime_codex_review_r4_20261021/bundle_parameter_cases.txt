@@ -1,0 +1,66 @@
+{
+  "malformed-json": {
+    "is_valid": true,
+    "review_status": "approved",
+    "is_approved": true,
+    "errors": [],
+    "warnings": [
+      "Could not inspect artifact '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r4_20261021/bundle_counterexamples/malformed-json/fitted-policy.json' parameters: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+    ],
+    "diagnostics": {
+      "bundle_id": "synthetic-specimen-v1",
+      "review_status": "approved",
+      "is_production_approved": true
+    }
+  },
+  "missing-parameters": {
+    "is_valid": true,
+    "review_status": "approved",
+    "is_approved": true,
+    "errors": [],
+    "warnings": [],
+    "diagnostics": {
+      "bundle_id": "synthetic-specimen-v1",
+      "review_status": "approved",
+      "is_production_approved": true
+    }
+  },
+  "empty-cost-models": {
+    "is_valid": true,
+    "review_status": "approved",
+    "is_approved": true,
+    "errors": [],
+    "warnings": [],
+    "diagnostics": {
+      "bundle_id": "synthetic-specimen-v1",
+      "review_status": "approved",
+      "is_production_approved": true
+    }
+  },
+  "wrong-coefficient-shape": {
+    "is_valid": true,
+    "review_status": "approved",
+    "is_approved": true,
+    "errors": [],
+    "warnings": [
+      "Could not inspect artifact '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r4_20261021/bundle_counterexamples/wrong-coefficient-shape/fitted-policy.json' parameters: operands could not be broadcast together with shapes (2,) (5,) "
+    ],
+    "diagnostics": {
+      "bundle_id": "synthetic-specimen-v1",
+      "review_status": "approved",
+      "is_production_approved": true
+    }
+  },
+  "changed-performance-model": {
+    "is_valid": true,
+    "review_status": "approved",
+    "is_approved": true,
+    "errors": [],
+    "warnings": [],
+    "diagnostics": {
+      "bundle_id": "synthetic-specimen-v1",
+      "review_status": "approved",
+      "is_production_approved": true
+    }
+  }
+}

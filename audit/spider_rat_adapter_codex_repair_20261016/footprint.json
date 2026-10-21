@@ -1,0 +1,28 @@
+{
+  "product_code_added_or_modified": {
+    "rat/crawler/spider_adapter.py": 681,
+    "rat/kernel/capabilities/web.py": 207,
+    "rat/kernel/registry.py_diff_lines": 3,
+    "rat/kernel/capabilities/__init__.py_diff_lines": 9
+  },
+  "test_code_added": {
+    "tests/test_spider_adapter.py": 638
+  },
+  "binary_dependency": {
+    "path": "rat/bin/spider",
+    "size_bytes": 20675200,
+    "version": "2.51.208",
+    "features": "status_code,headers (no chrome, no warc, no spider_cloud)"
+  },
+  "scratch_build_artifacts": {
+    "path": "scratch/build_spider",
+    "note": "Cached cargo build artifacts (~1.9 GB), preserved until migration completed"
+  },
+  "embedded_tree_status": {
+    "rust_source_files": 269,
+    "rust_source_non_empty_lines": 123868,
+    "all_tracked_text_files": 321,
+    "all_tracked_text_non_empty_lines": 139745,
+    "status": "Preserved intact in repo. Zero reduction claimed before physical repo extraction."
+  }
+}

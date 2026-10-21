@@ -1,0 +1,94 @@
+{
+  "time_utc": "2026-10-20T01:10:43.040349+00:00",
+  "inventory_method": "same exclusions and is_file conditions as attachment; includes docs/tests/nonproduct files, no symlink-dir recursion",
+  "inventory": {
+    "files": 794,
+    "python_files": 372
+  },
+  "current_file_stats": {
+    "reasoning/__init__.py": {
+      "bytes": 259,
+      "total_lines": 11,
+      "non_blank_lines": 10,
+      "sha256": "3a489ee38de54a23e09c638e06980f34b086f27b385933e8248ff6f24f09efaa"
+    },
+    "reasoning/entry_predictor.py": {
+      "bytes": 4754,
+      "total_lines": 101,
+      "non_blank_lines": 80,
+      "sha256": "113c1f32ac4e319fd8b52a05d7e4ee05e19bdca0c2fe1698df7728be0f1a0920"
+    },
+    "reasoning/optimal_stopping.py": {
+      "bytes": 12829,
+      "total_lines": 289,
+      "non_blank_lines": 247,
+      "sha256": "540811a148fdf232c0d1434c6ccc2b816dec23cbb78b67d653a647cca0f5a0a0"
+    },
+    "reasoning/reasoning_env.py": {
+      "bytes": 7752,
+      "total_lines": 185,
+      "non_blank_lines": 157,
+      "sha256": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54"
+    },
+    "reasoning/reasoning_strategies.py": {
+      "bytes": 19919,
+      "total_lines": 501,
+      "non_blank_lines": 437,
+      "sha256": "5403540793a4ff112ee6ef94b311c070b39d3039145d254e248cfc2475a1ef4f"
+    },
+    "entry_predictor.py": {
+      "bytes": 455,
+      "total_lines": 13,
+      "non_blank_lines": 10,
+      "sha256": "e427e587ac32df583a0c84604b00e2601f809824e0911be1c096cf20b0d78fd3"
+    },
+    "optimal_stopping.py": {
+      "bytes": 458,
+      "total_lines": 13,
+      "non_blank_lines": 10,
+      "sha256": "349ef970e5d921ced68278e53e0b772b18d35a7fc26bef655da8deded6cd22de"
+    },
+    "reasoning_env.py": {
+      "bytes": 449,
+      "total_lines": 13,
+      "non_blank_lines": 10,
+      "sha256": "094f911f9efe43e2669ee4de9365f59bccef85d072b5c0f9fcdbdf1d2dd9673b"
+    },
+    "reasoning_strategies.py": {
+      "bytes": 470,
+      "total_lines": 13,
+      "non_blank_lines": 10,
+      "sha256": "fd77403c24b67dd5d7c777bd174aec158ecc9d90f1d6fa8d79f0e704aff8975b"
+    }
+  },
+  "current_group_totals": {
+    "canonical_implementation": {
+      "bytes": 45513,
+      "total_lines": 1087,
+      "non_blank_lines": 931
+    },
+    "root_backward_compatibility_shims": {
+      "bytes": 1832,
+      "total_lines": 52,
+      "non_blank_lines": 40
+    }
+  },
+  "current_delta_from_verified_pre_refactor_baseline": {
+    "bytes": 4193,
+    "total_lines": 104,
+    "non_blank_lines": 86
+  },
+  "received_json_delta": {
+    "delta_files": 5,
+    "delta_bytes": 2550,
+    "delta_total_lines": 73,
+    "delta_non_blank_lines": 60,
+    "explanation": "Adding 5 canonical package files (+1056 lines) and replacing 4 root files with 13-line shims (-983 lines) results in a net physical change of +73 total lines (+60 non-blank lines). Zero algorithmic logic modified."
+  },
+  "doc_delta_claims": {
+    "bytes": 2267,
+    "total_lines": 73,
+    "non_blank_lines": 46
+  },
+  "note": "Current source includes later changes; current delta is not an isolated measurement of the October 17 move."
+}

@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-20",
+  "result": "legacy VGC failure corrected without broadening verifier acceptance",
+  "tests": {
+    "headless_passed": 155,
+    "qt_passed": 7
+  },
+  "source_hashes": {
+    "rat/engine/meta_reasoner.py": "2ebb8427a57937ead89ede475d293103906ae3eabced1f968b0fad4fd00c101e",
+    "rat/engine/vgc.py": "94c192ed16ba1edf8165e5d443cd2be3764e8d2e17704d34e8c822b344fb30ee",
+    "tests/test_vgc_cascade.py": "5fd15ca5568e819f25d724c93a745c520523c8645f40ed007a5bb7fc7f3e266a",
+    "tests/test_vgc_verification.py": "6841fa726af57652305f2ea52cf580a779e4525a2801d8efd96e69b69cd3911e",
+    "tests/test_vgc_ui_integration.py": "c2857d372d8e49f2e73f866927c87482111f71ac2c413584590d5782f457b0d9",
+    "tests/test_meta_reasoner.py": "dcbabf6235c0f0a2a85da6bce0963be09f2c91c665373fa50e2195aaa2a927f7"
+  },
+  "model_inference": false,
+  "stage0_changed": false,
+  "commit_push": false,
+  "limitations": [
+    "Only supported literal arithmetic; no general GPA/tuition word-problem parser",
+    "Source excerpt check is not semantic entailment or source authentication",
+    "Numeric legacy confidence sentinel is not a measured score"
+  ]
+}

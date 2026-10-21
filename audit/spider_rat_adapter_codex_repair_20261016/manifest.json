@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-10-16T13:45:00+07:00",
+  "branch": "main",
+  "hashes": {
+    "rat/crawler/spider_adapter.py": "f7ddf8c62a0e19d687e117bd92eada4bd9c2dd527930be5076484b48da450ba6",
+    "rat/kernel/capabilities/web.py": "2bd8e8e16b597b4bfda83a4b1ea269f0c7da77e83f19228136ecc66cfd87f501",
+    "rat/kernel/capabilities/__init__.py": "1027b5a69ce199f4bbcd34f41c76e498d82b4f93fae3540fb72d3d98f257be7e",
+    "rat/kernel/registry.py": "f9b2788c7026a43d8c8c1c884ada28d8de3690a43f0ddc736b1035f32fc1bfd2",
+    "tests/test_spider_adapter.py": "2bcc855021028d215e0ca989818a8562d5bcdea169e32b3fda2e26b03b744575",
+    "docs/rat_backlog.md": "eb5c5de29ad1ddfa7504daec242cc2525aa7b3e65ca65d7b29df01df34814dd4",
+    "audit/spider_rat_adapter_codex_repair_20261016/fake_binary_evidence.json": "bb1bc44cc98ab72720c87326d54f29a014cf00ae0f3f545ce1a242fe532d71eb",
+    "audit/spider_rat_adapter_codex_repair_20261016/real_binary_evidence.json": "811cbaf19bc20f7c996b9af775f0e60643d7bff830b9204d42315cf74ab7db78",
+    "audit/spider_rat_adapter_codex_repair_20261016/runtime_evidence.json": "f07fb2ce7662578c07539033732a6b71f23dba2590b454f382bebdd0660c02cf",
+    "audit/spider_rat_adapter_codex_repair_20261016/migration_manifest.json": "a23162b2a5930171d1f6a82ff22f62b6abf3deb95d76a8c5b3c08a4de28a81d4",
+    "audit/spider_rat_adapter_codex_repair_20261016/footprint.json": "d130231d95e925a45b5b9405a806268aaa228d8d54d5493c61ce389df25999aa",
+    "audit/spider_rat_adapter_codex_repair_20261016/review_reconciliation.md": "eb0f667ae122ff913a9debb9d670ef73e6c60190c6cbb35a2c3db6f85bdcdbc6"
+  }
+}

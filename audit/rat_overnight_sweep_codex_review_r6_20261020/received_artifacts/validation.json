@@ -1,0 +1,83 @@
+{
+  "verdict": "ready_for_review",
+  "consolidated_suite": {
+    "total_tests": 319,
+    "passed": 319,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_s": 35.15,
+    "xml_file": "regression.xml"
+  },
+  "provenance_and_conclusion_probes_r5": {
+    "total_tests": 10,
+    "passed": 10,
+    "failures": 0,
+    "errors": 0,
+    "duration_s": 0.08,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py"
+  },
+  "final_edges_probes_r4": {
+    "total_tests": 7,
+    "passed": 7,
+    "failures": 0,
+    "errors": 0,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r4_20261019/test_final_edges.py"
+  },
+  "remaining_probes_r3": {
+    "total_tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py"
+  },
+  "mandatory_research_suite": {
+    "total_tests": 29,
+    "passed": 29,
+    "failures": 0,
+    "errors": 0,
+    "duration_s": 3.88
+  },
+  "new_real_model_requests": 0,
+  "historical_12_real_calls_ledger_unchanged": true,
+  "historical_12_real_calls_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "qpa_platform": "offscreen",
+  "git_branch": "main",
+  "git_commits_created": 0,
+  "git_branches_created": 0,
+  "resolved_findings": [
+    {
+      "id": "E1",
+      "title": "Terminal rational and expression preservation over earlier intermediate scalar equations",
+      "status": "resolved",
+      "target_file": "reasoning/reasoning_strategies.py",
+      "verified_by": "test_final_conclusion_not_earlier_intermediate_scalar (4/4 pass)"
+    },
+    {
+      "id": "E2",
+      "title": "Strict provenance verification prevents inferring real inference from timing or prompt token count",
+      "status": "resolved",
+      "target_file": "scripts/run_native_performance_session.py",
+      "verified_by": "test_backend_provenance_never_inferred_real_from_timing_or_token_count (4/4 pass)"
+    },
+    {
+      "id": "E3",
+      "title": "Process execution counters describe current run; budget halt on historical fake ledger reports 0 new calls",
+      "status": "resolved",
+      "target_file": "scripts/run_native_performance_session.py",
+      "verified_by": "test_executed_fake_count_describes_current_run (2/2 pass)"
+    }
+  ],
+  "previous_findings": {
+    "D1_fallback_rational_preservation": "resolved",
+    "D2_session_provenance_separation": "resolved",
+    "C3_unique_budget_counting": "resolved",
+    "C4_candidate_420px_labels": "resolved",
+    "R1_tray_startup_name_error": "resolved",
+    "R2_answer_navigation_visibility": "resolved",
+    "R3_candidate_directory_disambiguation": "resolved",
+    "R4_pre_request_checkpointing": "resolved",
+    "R5_telemetry_cpu_native_scoping": "resolved",
+    "R6_ast_symbol_naming": "resolved"
+  }
+}

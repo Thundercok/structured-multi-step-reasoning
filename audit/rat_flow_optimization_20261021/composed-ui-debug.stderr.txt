@@ -1,0 +1,61 @@
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 4320, in <lambda>
+    worker.step_completed.connect(lambda step, h=handle: self._on_execution_step(h, step))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 4331, in _on_execution_step
+    self._on_assistant_step(handle, execution_step(step, handle["execution_step_count"]))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/engine/execution.py", line 67, in execution_step
+    return AgentStep(number=number,
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: AgentStep.__init__() got an unexpected keyword argument 'number'
+Fatal Python error: Aborted
+
+Thread 0x000000016c9bf000 (most recent call first):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 355 in wait
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 390 in wait_for
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/engine/progressive_search.py", line 330 in _run
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1012 in run
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1075 in _bootstrap_inner
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1032 in _bootstrap
+
+Current thread 0x00000001f6379d80 (most recent call first):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_flow_interaction.py", line 25 in until
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_flow_interaction.py", line 222 in test_composer_reaches_composed_policy_and_returns_to_same_conversation
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/python.py", line 167 in pytest_pyfunc_call
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/python.py", line 1707 in runtest
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 184 in pytest_runtest_call
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 250 in <lambda>
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 361 in from_call
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 249 in call_and_report
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 139 in runtestprotocol
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/main.py", line 408 in pytest_runtestloop
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/main.py", line 384 in _main
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/main.py", line 330 in wrap_session
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/main.py", line 377 in pytest_cmdline_main
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py", line 229 in _main
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py", line 201 in main
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_flow_optimization_20261021/offline_pytest.py", line 28 in <module>
+
+Extension modules: PyQt6.QtCore, PyQt6.QtGui, PyQt6.QtWidgets, PyQt6.QtTest, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, regex._regex, sklearn.__check_build._check_build, cython.cimports.libc.math, scipy._lib._ccallback_c, charset_normalizer.md, charset_normalizer.cd, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._pcg64, numpy.random._generator, numpy.random._mt19937, numpy.random._philox, numpy.random._sfc64, numpy.random.mtrand, scipy.sparse._sparsetools, _csparsetools, _cyutility, scipy._cyutility, scipy.sparse._csparsetools, psutil._psutil_osx, scipy.special._ufuncs_cxx, scipy.special._ellip_harm_2, scipy.special._special_ufuncs, scipy.special._gufuncs, scipy.special._ufuncs, scipy.special._specfun, scipy.special._comb, scipy.linalg._fblas, scipy.linalg._flapack, scipy.linalg.cython_lapack, scipy.linalg._cythonized_array_utils, scipy.linalg._solve_toeplitz, scipy.linalg._decomp_lu_cython, scipy.linalg._matfuncs_schur_sqrtm, scipy.linalg._matfuncs_expm, scipy.linalg._linalg_pythran, scipy.linalg.cython_blas, scipy.linalg._decomp_update, scipy.sparse.linalg._dsolve._superlu, scipy.sparse.linalg._eigen.arpack._arpack, scipy.sparse.linalg._propack._spropack, scipy.sparse.linalg._propack._dpropack, scipy.sparse.linalg._propack._cpropack, scipy.sparse.linalg._propack._zpropack, scipy.spatial._ckdtree, scipy._lib.messagestream, scipy.spatial._qhull, scipy.spatial._voronoi, scipy.spatial._hausdorff, scipy.spatial._distance_wrap, scipy.spatial.transform._rotation, scipy.spatial.transform._rigid_transform, scipy.optimize._group_columns, scipy.optimize._trlib._trlib, scipy.optimize._lbfgsb, _moduleTNC, scipy.optimize._moduleTNC, scipy.optimize._slsqplib, scipy.optimize._minpack, scipy.optimize._lsq.givens_elimination, scipy.optimize._zeros, scipy._lib._uarray._uarray, scipy.linalg._decomp_interpolative, scipy.optimize._bglu_dense, scipy.optimize._lsap, scipy.optimize._direct, scipy.integrate._odepack, scipy.integrate._quadpack, scipy.integrate._vode, scipy.integrate._dop, scipy.integrate._lsoda, scipy.interpolate._fitpack, scipy.interpolate._dfitpack, scipy.interpolate._dierckx, scipy.interpolate._ppoly, scipy.interpolate._interpnd, scipy.interpolate._rbfinterp_pythran, scipy.interpolate._rgi_cython, scipy.special.cython_special, scipy.stats._stats, scipy.stats._biasedurn, scipy.stats._stats_pythran, scipy.stats._levy_stable.levyst, scipy.stats._ansari_swilk_statistics, scipy.sparse.csgraph._tools, scipy.sparse.csgraph._shortest_path, scipy.sparse.csgraph._traversal, scipy.sparse.csgraph._min_spanning_tree, scipy.sparse.csgraph._flow, scipy.sparse.csgraph._matching, scipy.sparse.csgraph._reordering, scipy.stats._sobol, scipy.stats._qmc_cy, scipy.stats._rcont.rcont, scipy.stats._qmvnt_cy, scipy.ndimage._nd_image, scipy.ndimage._rank_filter_1d, _ni_label, scipy.ndimage._ni_label, pyarrow.lib, pandas._libs._cyutility, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.properties, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute, pandas._libs.ops, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, sklearn._cyutility, sklearn.utils._isfinite, sklearn.utils.sparsefuncs_fast, sklearn.utils.murmurhash, sklearn.utils._openmp_helpers, sklearn.utils._random, sklearn.utils._seq_dataset, sklearn.utils._cython_blas, sklearn.linear_model._cd_fast, sklearn.metrics.cluster._expected_mutual_info_fast, sklearn.metrics._dist_metrics, sklearn.metrics._pairwise_distances_reduction._datasets_pair, sklearn.metrics._pairwise_distances_reduction._base, sklearn.metrics._pairwise_distances_reduction._middle_term_computer, sklearn.utils._heap, sklearn.utils._sorting, sklearn.metrics._pairwise_distances_reduction._argkmin, sklearn.metrics._pairwise_distances_reduction._argkmin_classmode, sklearn.utils._vector_sentinel, sklearn.metrics._pairwise_distances_reduction._radius_neighbors, sklearn.metrics._pairwise_distances_reduction._radius_neighbors_classmode, sklearn.metrics._pairwise_fast, sklearn.preprocessing._csr_polynomial_expansion, sklearn.preprocessing._target_encoder_fast, sklearn._loss._loss, sklearn.utils.arrayfuncs, sklearn.linear_model._sag_fast, sklearn.svm._liblinear, sklearn.svm._libsvm, sklearn.svm._libsvm_sparse, sklearn.utils._weight_vector, sklearn.linear_model._sgd_fast (total: 181)

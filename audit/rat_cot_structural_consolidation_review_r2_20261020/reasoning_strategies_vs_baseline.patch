@@ -1,0 +1,107 @@
+--- baseline_head/reasoning_strategies.py
++++ current_reasoning/reasoning_strategies.py
+@@ -15,8 +15,8 @@
+ ACTION_LINE = re.compile(r"Action:\s*(\w+)\[(.*?)\]", re.DOTALL)
+ NUM = re.compile(r"-?\d[\d,]*\.?\d*")
+ NUMERIC_ANSWER = re.compile(r"^\s*-?\d[\d,]*\.?\d*(?:\s+[^\d]*)?\s*$")
+-EQUALS_RESULT = re.compile(r"=\s*(-?\d[\d,]*\.?\d*)")
+-TRAILING_NUMERIC_RESULT = re.compile(r"[:=]\s*(-?\d[\d,]*\.?\d*)(?:\s+[^\d]*)?\s*$")
++EQUALS_RESULT = re.compile(r"=\s*(-?(?:\d[\d,]*(?:\.\d+)?|\.\d+))(?!\.?\d)(?!\s*[/÷×*+-])", re.IGNORECASE)
++TRAILING_NUMERIC_RESULT = re.compile(r"[:=]\s*(-?(?:\d[\d,]*(?:\.\d+)?|\.\d+))(?!\.?\d)(?!\s*[/÷×*+-])(?:\s+[^\d\+\-\*\/\(\)\=]+)?\.?\s*$", re.IGNORECASE)
+ YES_NO_ANSWER = re.compile(r"^\s*(yes|no)\b", re.IGNORECASE)
+ 
+ 
+@@ -69,7 +69,12 @@
+ def extract_number(text: str) -> str | None:
+     """Số cuối cùng xuất hiện trong text, bỏ dấu phẩy ngăn cách nghìn. Dùng để so khớp đáp án GSM8K/MATH."""
+     nums = NUM.findall(text.replace(",", ""))
+-    return nums[-1] if nums else None
++    if not nums:
++        return None
++    val = nums[-1]
++    if val.endswith(".") and not re.search(r"\d\.\d", val):
++        val = val.rstrip(".")
++    return val
+ 
+ 
+ def extract_conclusion_number(text: str) -> str | None:
+@@ -79,14 +84,19 @@
+         "therefore", "thus", "hence", "final answer", "kết quả", "đáp án",
+         "do đó", "vậy", "total",
+     )
+-    equals_results = EQUALS_RESULT.findall(text)
++    clauses = [c.strip() for c in re.split(r"[;\n]", text) if c.strip()]
++    target = clauses[-1] if clauses else text
++    rhs = target.rsplit("=", 1)[-1].strip() if "=" in target else target
++    if any(op in rhs for op in ("/", "*", "+", "÷", "×")) or ("-" in rhs and not re.match(r"^-\s*\d", rhs.strip())):
++        return None
++    equals_results = EQUALS_RESULT.findall(target)
+     if equals_results:
+         return extract_number(equals_results[-1])
+-    trailing = TRAILING_NUMERIC_RESULT.search(text)
++    trailing = TRAILING_NUMERIC_RESULT.search(target)
+     if trailing:
+         return extract_number(trailing.group(1))
+-    if NUMERIC_ANSWER.fullmatch(text) or any(cue in lowered for cue in conclusion_cues):
+-        return extract_number(text)
++    if NUMERIC_ANSWER.fullmatch(target) or any(cue in target.casefold() for cue in conclusion_cues) or any(cue in lowered for cue in conclusion_cues):
++        return extract_number(target)
+     return None
+ 
+ 
+@@ -152,11 +162,37 @@
+         yes_no = YES_NO_ANSWER.match(norm)
+         if yes_no:
+             return yes_no.group(1)
+-        is_expr = any(op in norm for op in ("+", "*", "/", "×", "÷")) or ("=" in norm and not re.match(r"^-\d", norm.strip()))
+-        if not is_expr:
++        for p in placeholders:
++            if norm.casefold().startswith(p.casefold()):
++                norm = re.sub(r"^\s*" + re.escape(p) + r"\s*[:=]?\s*", "", norm, flags=re.IGNORECASE).strip()
++                break
++        norm = norm.lstrip("=: ").strip()
++        clauses = [c.strip() for c in re.split(r"[;\n]", norm) if c.strip()]
++        target = clauses[-1] if clauses else norm
++
++        rhs = target.rsplit("=", 1)[-1].strip() if "=" in target else target
++        is_expr = any(op in rhs for op in ("+", "*", "/", "×", "÷")) or ("-" in rhs and not re.match(r"^-\s*\d", rhs.strip()))
++        if is_expr:
++            return norm
++
++        equals_results = EQUALS_RESULT.findall(target)
++        if equals_results:
++            return extract_number(equals_results[-1])
++        trailing = TRAILING_NUMERIC_RESULT.search(target)
++        if trailing:
++            return extract_number(trailing.group(1))
++
++        num = extract_conclusion_number(target)
++        if num is not None:
++            return num
++
++        norm_rhs = norm.rsplit("=", 1)[-1].strip() if "=" in norm else norm
++        norm_is_expr = any(op in norm_rhs for op in ("+", "*", "/", "×", "÷")) or ("-" in norm_rhs and not re.match(r"^-\s*\d", norm_rhs.strip()))
++        if not norm_is_expr:
+             num = extract_conclusion_number(norm)
+             if num is not None:
+                 return num
++
+         return norm
+ 
+     # 1. Search backwards for marker line (accept same line or next line)
+@@ -196,14 +232,9 @@
+                 ans = yes_no.group(1)
+                 status = "fallback"
+                 break
+-            num = extract_conclusion_number(l)
+-            if num is not None:
+-                ans = num
+-                status = "fallback"
+-                break
+             norm = normalize_answer(l)
+             if norm and norm.casefold() not in placeholders:
+-                ans = norm
++                ans = _clean_cand(norm)
+                 status = "fallback"
+                 break
+ 

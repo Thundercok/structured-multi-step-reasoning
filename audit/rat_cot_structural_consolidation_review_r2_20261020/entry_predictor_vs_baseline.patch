@@ -1,0 +1,17 @@
+--- baseline_head/entry_predictor.py
++++ current_reasoning/entry_predictor.py
+@@ -14,8 +14,12 @@
+ import numpy as np
+ from sklearn.linear_model import LogisticRegression, Ridge
+ 
+-from optimal_stopping import CalibrationData, OptimalStoppingPolicy
+-from reasoning_env import LLMBackend, ReasoningAction as A, complexity_features
++try:
++    from reasoning.optimal_stopping import CalibrationData, OptimalStoppingPolicy
++    from reasoning.reasoning_env import LLMBackend, ReasoningAction as A, complexity_features
++except ImportError:
++    from optimal_stopping import CalibrationData, OptimalStoppingPolicy
++    from reasoning_env import LLMBackend, ReasoningAction as A, complexity_features
+ 
+ 
+ class EntryChoice(IntEnum):

@@ -1,0 +1,298 @@
+--- before/rat/engine/mlx_document_session.py
++++ after/rat/engine/mlx_document_session.py
+@@ -25,11 +25,13 @@
+                 'local_files_only': True, 'trust_remote_code': False}, lazy=False)
+ 
+         @staticmethod
+-        def prepare(model, tokens):
++        def prepare(model, tokens, check):
+             cache = make_prompt_cache(model)
+             for offset in range(0, len(tokens), 256):
++                check()
+                 model(mx.array(tokens[offset:offset + 256])[None], cache=cache)
+                 mx.eval([layer.state for layer in cache])
++                check()
+             return cache
+ 
+         @staticmethod
+@@ -52,6 +54,8 @@
+     load()/prepare_context() are blocking preparation operations: use an app-owned
+     inference worker, never the GUI thread. close() releases session references.
+     """
++
++    supports_document_callbacks = True
+ 
+     def __init__(self, model_path, *, max_context_tokens=4096, _backend_factory=None):
+         path = Path(model_path).expanduser()
+@@ -92,11 +96,13 @@
+         return tuple(self._tokenizer.apply_chat_template(messages, tokenize=True,
+             add_generation_prompt=generation, enable_thinking=False))
+ 
+-    def _prepare(self, tokens):
++    def _prepare(self, tokens, check=lambda: None):
+         if tokens != self._prefix_tokens or self._prefix_cache is None:
+             # Drop the previous document before allocating another context.
+             self._prefix_tokens, self._prefix_cache = (), None
+-            self._prefix_cache = self._backend.prepare(self._weights, tokens)
++            prepared = self._backend.prepare(self._weights, tokens, check)
++            check()
++            self._prefix_cache = prepared
+             self._prefix_tokens = tokens
+ 
+     def prepare_context(self, messages):
+@@ -130,8 +136,8 @@
+             if type(max_tokens) is not int or max_tokens < 1 or timeout <= 0:
+                 raise ValueError('invalid_native_generation_budget')
+             # Include time waiting for another inference operation in the budget.
+-            if not self._lock.acquire(timeout=timeout):
+-                raise TimeoutError('native_document_timeout')
++            while not self._lock.acquire(timeout=min(0.05, timeout)):
++                check()
+             try:
+                 check()
+                 if not self.is_loaded:
+@@ -146,7 +152,7 @@
+                     raise ValueError('native_document_template_prefix_mismatch')
+                 meta['prompt_tokens'] = len(full)
+                 already_prepared = prefix == self._prefix_tokens and self._prefix_cache is not None
+-                self._prepare(prefix)
++                self._prepare(prefix, check)
+                 check()
+                 cached = copy.deepcopy(self._prefix_cache)
+                 generator = self._backend.generate(self._weights, self._tokenizer,
+--- before/rat/engine/selected_document_qa.py
++++ after/rat/engine/selected_document_qa.py
+@@ -38,7 +38,7 @@
+ 
+ 
+ def answer_selected_document(runtime, question, file_path, *, model_client=None,
+-                             on_model_call=None, should_cancel=None, **context):
++                             on_model_call=None, should_cancel=None, on_text=None, **context):
+     """Read only the exact selected indexed path, then make at most one call."""
+     path = Path(file_path).expanduser()
+     if not path.is_absolute() or not question.strip() or len(question) > 2000:
+@@ -46,6 +46,8 @@
+     if not runtime.use_live_model and model_client is None:
+         raise ValueError('live_model_disabled')
+     path_text = str(path)
++    if model_client is None:
++        model_client = runtime.document_model_client
+     if model_client is None:
+         from rat.engine.slm import SLMEngine
+         from rat.config import config
+@@ -76,7 +78,14 @@
+             return ModelDecision('', error='selected_document_context_too_large')
+         calls += 1
+         started = time.perf_counter()
+-        meta = model_client.chat_with_meta(messages, [], max_tokens=640, thinking=False, timeout=90)
++        callbacks = {}
++        if getattr(model_client, 'supports_document_callbacks', False) is True:
++            def forward_text(text):
++                if on_text and not (should_cancel and should_cancel()):
++                    on_text(text)
++            callbacks = dict(should_cancel=should_cancel, on_text=forward_text)
++        meta = model_client.chat_with_meta(messages, [], max_tokens=640, thinking=False,
++                                           timeout=90, **callbacks)
+         duration = (time.perf_counter() - started) * 1000
+         if on_model_call:
+             on_model_call(meta)
+--- before/rat/engine/assistant_runtime.py
++++ after/rat/engine/assistant_runtime.py
+@@ -222,6 +222,8 @@
+         discover_tools: bool = False,
+         structured_context: bool = False,
+         planner_operations_only: bool = False,
++        document_model_path=None,
++        document_max_context_tokens: int = 4096,
+     ) -> None:
+         if db is not None:
+             self.db = db
+@@ -233,6 +235,11 @@
+         self.use_live_model = use_live_model
+         self.controller = controller
+         self.model_client = model_client
++        self.document_model_client = None
++        if document_model_path is not None:
++            from rat.engine.document_model_service import ResidentDocumentModel
++            self.document_model_client = ResidentDocumentModel(document_model_path,
++                max_context_tokens=document_max_context_tokens)
+         self.plan_tasks = plan_tasks
+         self.discover_tools = discover_tools
+         self.structured_context = structured_context
+@@ -286,6 +293,17 @@
+                 'operation_names': {'type': 'array', 'minItems': 1, 'maxItems': 4,
+                                     'items': {'type': 'string', 'enum': discoverable}}},
+              'required': ['operation_names']}, request_operation_tools), 'work_context')
++
++    def close(self) -> None:
++        """Release this runtime's optional resident document inference service."""
++        if self.document_model_client is not None:
++            self.document_model_client.close()
++
++    def __enter__(self):
++        return self
++
++    def __exit__(self, *exc):
++        self.close()
+ 
+     # -------------------------------------------------------------------------
+     # MECHANICAL TOOL IMPLEMENTATIONS
+--- before/rat/cli.py
++++ after/rat/cli.py
+@@ -169,6 +169,102 @@
+         title="💡 Kết quả Hỏi - Đáp Tài liệu",
+         border_style="green"
+     ))
++
++
++def cmd_ask_file(file_path, model_path, *, db_path=None, questions=None,
++                 max_context_tokens=4096) -> int:
++    """One explicit indexed file, native offline inference, reusable chat session."""
++    import threading
++    from uuid import uuid4
++    from rat.config import config
++    from rat.crawler.db import Database
++    from rat.engine.assistant_runtime import AssistantRuntime
++    from rat.engine.selected_document_qa import answer_selected_document
++    from rat.timetable.compositor import TimetableCompositor
++
++    database = None
++    current_path = Path(file_path).expanduser()
++
++    def validate_path(path):
++        if not path.is_absolute() or not path.is_file():
++            raise ValueError('Cần đường dẫn tuyệt đối tới tệp đang tồn tại.')
++        if not database.get_document_by_path(str(path)):
++            raise ValueError('Tệp chưa có trong chỉ mục RAT; hãy lập chỉ mục thư mục đã chọn trước.')
++
++    try:
++        database = Database(db_path or config.db_path, read_only=True)
++        validate_path(current_path)
++        with AssistantRuntime(db=database, compositor=TimetableCompositor([]),
++                document_model_path=model_path,
++                document_max_context_tokens=max_context_tokens) as runtime:
++            with console.status('Đang nạp model local…'):
++                load_s = runtime.document_model_client.load()
++            console.print(f'Model đã sẵn sàng ({load_s:.2f}s).', markup=False)
++
++            def ask(question):
++                cancelled = threading.Event()
++                execution_id = 'document-cli-' + uuid4().hex
++                try:
++                    response = answer_selected_document(runtime, question, str(current_path),
++                        should_cancel=cancelled.is_set, execution_id=execution_id)
++                except KeyboardInterrupt:
++                    cancelled.set()
++                    runtime.cancel_execution(execution_id)
++                    console.print('Đã dừng câu hỏi. Có thể hỏi tiếp.', markup=False)
++                    return False
++                if response.error:
++                    console.print(f'Chưa trả lời được: {response.error}', markup=False)
++                    return False
++                console.print(response.answer, markup=False)
++                for source in response.sources:
++                    if source.get('path') == str(current_path) and source.get('read'):
++                        scope = f"{source.get('read_chars')}/{source.get('total_chars')} ký tự"
++                        suffix = ' · chỉ là trích đoạn' if source.get('truncated') else ''
++                        console.print(f'Nguồn: {current_path} · {scope}{suffix}', markup=False)
++                return True
++
++            if questions:
++                success = True
++                for question in questions:
++                    success = ask(question) and success
++                return 0 if success else 1
++
++            console.print('Hỏi về tệp đã chọn. :file /đường/dẫn đổi tệp; :unload giải phóng model; :quit thoát.',
++                          markup=False)
++            while True:
++                try:
++                    question = console.input('Bạn> ').strip()
++                except (EOFError, KeyboardInterrupt):
++                    break
++                if question == ':quit':
++                    break
++                if question == ':unload':
++                    runtime.document_model_client.unload()
++                    console.print('Đã giải phóng model và cache; câu hỏi tiếp theo sẽ nạp lại.', markup=False)
++                elif question.startswith(':file '):
++                    candidate = Path(question[6:].strip()).expanduser()
++                    try:
++                        validate_path(candidate)
++                    except ValueError as error:
++                        console.print(str(error), markup=False)
++                    else:
++                        current_path = candidate
++                        console.print(f'Đã chọn: {current_path}', markup=False)
++                elif question:
++                    ask(question)
++            return 0
++    except KeyboardInterrupt:
++        console.print('Đã dừng và đóng session.', markup=False)
++        return 130
++    except Exception as error:
++        console.print(f'Không thể chạy session local: {error}', markup=False)
++        return 1
++    finally:
++        if database is not None:
++            connection = getattr(database._local, 'conn', None)
++            if connection is not None:
++                connection.close()
++                database._local.conn = None
+ 
+ 
+ def cmd_dedup() -> None:
+@@ -249,6 +345,13 @@
+     ask_parser.add_argument("file_query", help="Query to identify the file")
+     ask_parser.add_argument("question", help="Question to ask about the file")
+ 
++    file_parser = subparsers.add_parser("ask-file", help="Chat offline about one exact indexed file using native MLX")
++    file_parser.add_argument("file_path", help="Absolute path of an already indexed file")
++    file_parser.add_argument("--model-path", required=True, help="Complete local MLX model directory; no downloads")
++    file_parser.add_argument("--db", help="Existing RAT index database")
++    file_parser.add_argument("-q", "--question", action="append", help="Repeat for batch questions; omit for interactive chat")
++    file_parser.add_argument("--max-context-tokens", type=int, default=4096)
++
+     # Dedup & Version Tree command
+     subparsers.add_parser("dedup", help="Find duplicate files and document revision trees")
+ 
+@@ -263,6 +366,9 @@
+         cmd_search(args.query, limit=args.limit, open_first=args.open, reveal_first=args.finder, show_trace=getattr(args, "trace", False))
+     elif args.command == "ask":
+         cmd_ask(args.file_query, args.question)
++    elif args.command == "ask-file":
++        raise SystemExit(cmd_ask_file(args.file_path, args.model_path, db_path=args.db,
++            questions=args.question, max_context_tokens=args.max_context_tokens))
+     elif args.command == "dedup":
+         cmd_dedup()
+     elif args.command == "status":
+--- before/rat/main.py
++++ after/rat/main.py
+@@ -37,7 +37,7 @@
+             from rat.astrology.__main__ import main as natal_main
+             natal_main()
+             return
+-        elif cmd in ("search", "index", "status", "ask", "dedup", "--help", "-h"):
++        elif cmd in ("search", "index", "status", "ask", "ask-file", "dedup", "--help", "-h"):
+             cli_main()
+             return
+         elif cmd in ("init-shell", "shell"):
+--- before/docs/rat_backlog.md
++++ after/docs/rat_backlog.md
+@@ -35,6 +35,16 @@
+ Không gán deadline hoặc effort chưa được ước lượng. Source đã cập nhật ngày 2026-10-12; chưa build lại bản đóng gói. Bằng chứng và giới hạn: [audit UI](../audit/rat_one_box_ui_20261012/REPORT.md) và [audit companion](../audit/rat_companion_reasoning_20261012/REPORT.md).
+ 
+ ## Backlog kiến trúc
++
++**RAT-FIND-01 — Advanced Spotlight finder ngay trong khung chat.** Backlog theo
++yêu cầu người dùng ngày 2026-10-16; chưa triển khai trong đợt MLX/backend hiện tại.
++Tìm và lọc tệp local, xem trước, chọn nguồn để hỏi tiếp, mở tệp hoặc hiện trong
++Finder ngay trong cùng cuộc trò chuyện/composer. Tái sử dụng index, quyền và
++artifact/nguồn hiện có; phân biệt kết quả tìm thấy với nội dung thực sự đã đọc.
++Mục tiêu sử dụng offline, phản hồi tìm kiếm nhanh; chỉ gọi model khi tác vụ cần.
++Thiết kế chi tiết và acceptance cho bàn phím, lọc kết quả, chọn tệp và tiếp nối
++hội thoại sẽ chốt trong lần làm sau. Không thêm một cửa sổ/chế độ tìm kiếm mới
++hoặc mở rộng indexing trong công việc hiện tại.
+ 
+ | ID | Hướng phát triển | Trạng thái | Phụ thuộc / bằng chứng cần có |
+ | --- | --- | --- | --- |

@@ -1,5 +1,16 @@
 # Research experiment protocol
 
+## Relationship to RAT
+
+User clarification, 2026-10-16: RAT is the primary application implementation of
+the CoT / structured-reasoning method. This headless harness is its reproducible
+evaluation environment, not a reason to classify RAT as an unrelated demo.
+See [project scope](project_scope.md). This is an architectural and priority
+clarification, not evidence that RAT and the harness currently execute identical
+policies. Map model, prompts, strategy, verifier, stopping and cost semantics
+explicitly before transferring a result between them. No dataset status,
+comparison, experimental freeze or Stage 0 gate changes from this clarification.
+
 ## Scope
 
 `python -m experiments.research_study` collects each strategy output once per
@@ -28,7 +39,65 @@ path quality and token cost. It does not simulate cache state, parallel
 scheduling or online latency. Collection cost is additional: all strategies
 execute during collection; test cost sums the path selected by each method.
 
+The separate [CoT restart token replay preparation](cot_restart_replay_protocol_20261013.md)
+adds original token IDs and cap-independent seeds to future development draws,
+with CPU/mock acceptance checks. The historical text-only pilot fails its token
+count audit even after an EOS adjustment; paired M/D replay is unavailable on
+those legacy arms. This infrastructure does not change Stage 0 or authorize a
+new real-model campaign, and it supplies no measured model-quality claim.
+Its [matched A/F/CONT follow-up](cot_restart_matched_protocol_20261013.md) prepares
+an exact bounded development plan at user-fixed q=0.50, with synthetic journal
+validation before real-budget approval. Deployment replay retains an explicitly
+unverified historical base-count component; no formal decision rule is enabled.
+
+The [second matched draw preparation](cot_restart_replication_protocol_20261013.md)
+copies verified first-draw prompts/IDs/caps while freezing call index 1 in the
+same seed namespace. Generation sources remain unchanged. This follow-up is
+prepared and validated without inference; the user-authorized second draw has
+now completed all 36 calls, with its per-draw audit saved separately. The
+[offline two-draw matched aggregate](cot_restart_matched_aggregate_20261013.md)
+verifies both 36-call journals and saved replay artifacts, averages within each
+of the same 12 questions, then performs the prospectively specified paired
+original-group resampling. Its intervals remain descriptive and conditional on
+these observed draws and fixed historical bases. Seed repetitions and cap
+replays do not add independent questions or establish a held-out claim.
+
+The [retrospective reporting review](../audit/cot_restart_reporting_review_20261014/report.md)
+records actual chronology: aggregation rules were in the hashed replication
+plan, but aggregator code was written after the second-draw report was read.
+Linear interpolation/RNG details and token-cost intervals were implementation
+choices after inspection. NumPy checks validate implementation, not
+pre-specification. A choice ledger, standalone first-draw regression,
+base-outcome strata/O comparisons, question-level CP null rates and exhaustive
+group sign-flip checks are saved separately. They remain exploratory; sign-flip
+validity requires groupwise exchangeability beyond a zero-mean null. CONT is
+the active continuation comparison and O the stop baseline for deployment
+value; A alone cannot establish deployment benefit.
+
+The [M/D budget interpretation review](../audit/cot_restart_budget_review_20261014/report.md)
+verifies item-level transitions on the same draw: A gains late G24 final answers
+at D(w=0), while F's correctness mask is unchanged. Added D(w=0)-8 and
+D(w=1)+/-8 replays are explicitly labeled "added after inspection";
+D(w=0)+8 exceeds collected caps and is not estimated. The review quotes exact
+plan JSON pointers for the bootstrap settings and labels strata/null/sign-flip
+tables as retrospective. None of these checks resolves the historical base
+EOS-count limitation or establishes an unconstrained accuracy advantage.
+
 ## Dataset contract
+
+The [fresh-base CoT restart adapter](cot_restart_fresh_adapter_20261016.md) is an
+offline software component for one new O base and F/CONT with optional A per
+original group. Its October 16 smoke uses authored synthetic fixtures only;
+original token IDs/EOS, prompt-inclusive path costs and failure/resume behavior
+are checked. The [October 19 entry-point integration](cot_restart_entrypoint_20261019.md)
+exposes the same fixed check as `--cot-restart-fresh-smoke` through the supported
+command and hashes canonical reasoning code behind the compatibility shims.
+It cannot load a real model or collect pending candidate data. Historical raw
+artifacts retain their original hashes; source drift from the earlier structural
+consolidation and this entry-point change is recorded separately, without
+relaxing historical source guards. Real collection still needs its own reviewed
+execution freeze. This software acceptance does not change Stage 0 or establish
+a model-quality or online-RAT result.
 
 Input is a UTF-8 JSON object with `name`, `version`, `source`, `license`, `items`.
 Each item has string fields `id`, `group_id`, `split`, `query`, `answer` and

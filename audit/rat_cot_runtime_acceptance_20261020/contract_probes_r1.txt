@@ -1,0 +1,266 @@
+......F...............F...                                               [100%]
+=================================== FAILURES ===================================
+________ test_generated_token_ceiling_is_enforced_within_final_strategy ________
+
+    def test_generated_token_ceiling_is_enforced_within_final_strategy():
+        _,_,_,controller=make()
+>       result=controller.solve('offline query',max_generated_tokens=1)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <reasoning.runtime.OnlineReasoningController object at 0x12fd88b30>
+query = 'offline query', execution_id = None, query_generation = None
+deadline_monotonic = None, is_cancelled = None, max_strategy_invocations = None
+max_underlying_requests = None, max_generated_tokens = 1, on_step = None
+
+    def solve(
+        self,
+        query: str,
+        *,
+        execution_id: Optional[str] = None,
+        query_generation: Optional[int] = None,
+        deadline_monotonic: Optional[float] = None,
+        is_cancelled: Optional[Callable[[], bool]] = None,
+        max_strategy_invocations: Optional[int] = None,
+        max_underlying_requests: Optional[int] = None,
+        max_generated_tokens: Optional[int] = None,
+        on_step: Optional[Callable[[StrategyObservation], None]] = None,
+    ) -> OnlineReasoningResult:
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError("A nonempty query is required")
+    
+        started = time.monotonic()
+    
+        def _is_timeout() -> bool:
+            return deadline_monotonic is not None and time.monotonic() >= deadline_monotonic
+    
+        def _is_interrupted() -> bool:
+            return is_cancelled is not None and is_cancelled()
+    
+        # Check budget overrides with strict distinction between 0 and None
+        for name, val in [
+            ("max_strategy_invocations", max_strategy_invocations),
+            ("max_underlying_requests", max_underlying_requests),
+            ("max_generated_tokens", max_generated_tokens),
+        ]:
+            if val is not None:
+                if isinstance(val, bool) or not isinstance(val, int) or val < 0:
+                    raise ValueError(f"{name} must be a non-negative integer")
+    
+        strat_limit = max_strategy_invocations if max_strategy_invocations is not None else self.max_strategy_invocations
+        req_limit = max_underlying_requests if max_underlying_requests is not None else self.max_underlying_requests
+        tok_limit = max_generated_tokens if max_generated_tokens is not None else self.max_generated_tokens
+    
+        # Zero-quota contract enforcement: if any limit is 0, dispatch nothing
+        if (strat_limit is not None and strat_limit == 0) or \
+           (req_limit is not None and req_limit == 0) or \
+           (tok_limit is not None and tok_limit == 0):
+            ledger = ExecutionCostLedger(0, 0, 0, 0, 0, status="budget_exceeded")
+            return OnlineReasoningResult(
+                observations=(), latency_ms=(time.monotonic() - started) * 1000,
+                policy_source=self.policy_source, status="budget_exceeded",
+                bundle_id=self.bundle_id, bundle_review_status=self.bundle_review_status,
+                cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
+            )
+    
+        # Check pre-execution cancellation/timeout
+        if _is_interrupted():
+            ledger = ExecutionCostLedger(0, 0, 0, 0, 0, status="cancelled")
+            return OnlineReasoningResult(
+                observations=(), latency_ms=(time.monotonic() - started) * 1000,
+                policy_source=self.policy_source, status="cancelled",
+                bundle_id=self.bundle_id, bundle_review_status=self.bundle_review_status,
+                cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
+            )
+        if _is_timeout():
+            ledger = ExecutionCostLedger(0, 0, 0, 0, 0, status="timeout")
+            return OnlineReasoningResult(
+                observations=(), latency_ms=(time.monotonic() - started) * 1000,
+                policy_source=self.policy_source, status="timeout",
+                bundle_id=self.bundle_id, bundle_review_status=self.bundle_review_status,
+                cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
+            )
+    
+        embedding = np.asarray(self.backend.embed(query))
+        if embedding.shape != (self.backend.hidden_size,) or not np.isfinite(embedding).all():
+            raise ValueError("Backend embedding must be a finite hidden-size vector")
+    
+        # Feature versioning
+        feat_version = 1
+        if self.bundle is not None:
+            feat_version = getattr(self.bundle, "feature_schema_version", 1)
+    
+        choice = self.policy.entry_predictor.choose(embedding, complexity_features(query, version=feat_version))
+        if choice == EntryChoice.LADDER:
+            strategies = LADDER
+        elif choice == EntryChoice.REACT:
+            strategies = (ReasoningAction.REACT,)
+        elif choice == EntryChoice.PAL:
+            strategies = (ReasoningAction.PAL,)
+        else:
+            raise ValueError("Unsupported predictor choice")
+    
+        observations = []
+        dispatched_strategies = 0
+        dispatched_requests = 0
+        successful_requests = 0
+        failed_requests = 0
+        total_tokens = 0
+        final_status = "completed"
+    
+        # Inspect backend.run signature for supported keyword arguments
+        run_accepts_cancel = False
+        run_accepts_deadline = False
+        run_accepts_max_tokens = False
+        try:
+            sig = inspect.signature(self.backend.run)
+            params = sig.parameters
+            has_varkw = any(p.kind == p.VAR_KEYWORD for p in params.values())
+            run_accepts_cancel = ("should_cancel" in params) or has_varkw
+            run_accepts_deadline = ("deadline_monotonic" in params) or has_varkw
+            run_accepts_max_tokens = ("max_tokens" in params) or has_varkw
+        except Exception:
+            pass
+    
+        # Reject unsupported hard cap before generation for all callers
+        if tok_limit is not None and not run_accepts_max_tokens:
+>           raise NotImplementedError("Backend does not accept max_tokens required for hard token cap")
+E           NotImplementedError: Backend does not accept max_tokens required for hard token cap
+
+reasoning/runtime.py:261: NotImplementedError
+________________ test_control_positive_budget_and_result_ledger ________________
+
+    def test_control_positive_budget_and_result_ledger():
+        _,_,backend,controller=make()
+>       result=controller.solve('offline query',max_underlying_requests=1,max_generated_tokens=100)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <reasoning.runtime.OnlineReasoningController object at 0x12fd62cc0>
+query = 'offline query', execution_id = None, query_generation = None
+deadline_monotonic = None, is_cancelled = None, max_strategy_invocations = None
+max_underlying_requests = 1, max_generated_tokens = 100, on_step = None
+
+    def solve(
+        self,
+        query: str,
+        *,
+        execution_id: Optional[str] = None,
+        query_generation: Optional[int] = None,
+        deadline_monotonic: Optional[float] = None,
+        is_cancelled: Optional[Callable[[], bool]] = None,
+        max_strategy_invocations: Optional[int] = None,
+        max_underlying_requests: Optional[int] = None,
+        max_generated_tokens: Optional[int] = None,
+        on_step: Optional[Callable[[StrategyObservation], None]] = None,
+    ) -> OnlineReasoningResult:
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError("A nonempty query is required")
+    
+        started = time.monotonic()
+    
+        def _is_timeout() -> bool:
+            return deadline_monotonic is not None and time.monotonic() >= deadline_monotonic
+    
+        def _is_interrupted() -> bool:
+            return is_cancelled is not None and is_cancelled()
+    
+        # Check budget overrides with strict distinction between 0 and None
+        for name, val in [
+            ("max_strategy_invocations", max_strategy_invocations),
+            ("max_underlying_requests", max_underlying_requests),
+            ("max_generated_tokens", max_generated_tokens),
+        ]:
+            if val is not None:
+                if isinstance(val, bool) or not isinstance(val, int) or val < 0:
+                    raise ValueError(f"{name} must be a non-negative integer")
+    
+        strat_limit = max_strategy_invocations if max_strategy_invocations is not None else self.max_strategy_invocations
+        req_limit = max_underlying_requests if max_underlying_requests is not None else self.max_underlying_requests
+        tok_limit = max_generated_tokens if max_generated_tokens is not None else self.max_generated_tokens
+    
+        # Zero-quota contract enforcement: if any limit is 0, dispatch nothing
+        if (strat_limit is not None and strat_limit == 0) or \
+           (req_limit is not None and req_limit == 0) or \
+           (tok_limit is not None and tok_limit == 0):
+            ledger = ExecutionCostLedger(0, 0, 0, 0, 0, status="budget_exceeded")
+            return OnlineReasoningResult(
+                observations=(), latency_ms=(time.monotonic() - started) * 1000,
+                policy_source=self.policy_source, status="budget_exceeded",
+                bundle_id=self.bundle_id, bundle_review_status=self.bundle_review_status,
+                cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
+            )
+    
+        # Check pre-execution cancellation/timeout
+        if _is_interrupted():
+            ledger = ExecutionCostLedger(0, 0, 0, 0, 0, status="cancelled")
+            return OnlineReasoningResult(
+                observations=(), latency_ms=(time.monotonic() - started) * 1000,
+                policy_source=self.policy_source, status="cancelled",
+                bundle_id=self.bundle_id, bundle_review_status=self.bundle_review_status,
+                cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
+            )
+        if _is_timeout():
+            ledger = ExecutionCostLedger(0, 0, 0, 0, 0, status="timeout")
+            return OnlineReasoningResult(
+                observations=(), latency_ms=(time.monotonic() - started) * 1000,
+                policy_source=self.policy_source, status="timeout",
+                bundle_id=self.bundle_id, bundle_review_status=self.bundle_review_status,
+                cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
+            )
+    
+        embedding = np.asarray(self.backend.embed(query))
+        if embedding.shape != (self.backend.hidden_size,) or not np.isfinite(embedding).all():
+            raise ValueError("Backend embedding must be a finite hidden-size vector")
+    
+        # Feature versioning
+        feat_version = 1
+        if self.bundle is not None:
+            feat_version = getattr(self.bundle, "feature_schema_version", 1)
+    
+        choice = self.policy.entry_predictor.choose(embedding, complexity_features(query, version=feat_version))
+        if choice == EntryChoice.LADDER:
+            strategies = LADDER
+        elif choice == EntryChoice.REACT:
+            strategies = (ReasoningAction.REACT,)
+        elif choice == EntryChoice.PAL:
+            strategies = (ReasoningAction.PAL,)
+        else:
+            raise ValueError("Unsupported predictor choice")
+    
+        observations = []
+        dispatched_strategies = 0
+        dispatched_requests = 0
+        successful_requests = 0
+        failed_requests = 0
+        total_tokens = 0
+        final_status = "completed"
+    
+        # Inspect backend.run signature for supported keyword arguments
+        run_accepts_cancel = False
+        run_accepts_deadline = False
+        run_accepts_max_tokens = False
+        try:
+            sig = inspect.signature(self.backend.run)
+            params = sig.parameters
+            has_varkw = any(p.kind == p.VAR_KEYWORD for p in params.values())
+            run_accepts_cancel = ("should_cancel" in params) or has_varkw
+            run_accepts_deadline = ("deadline_monotonic" in params) or has_varkw
+            run_accepts_max_tokens = ("max_tokens" in params) or has_varkw
+        except Exception:
+            pass
+    
+        # Reject unsupported hard cap before generation for all callers
+        if tok_limit is not None and not run_accepts_max_tokens:
+>           raise NotImplementedError("Backend does not accept max_tokens required for hard token cap")
+E           NotImplementedError: Backend does not accept max_tokens required for hard token cap
+
+reasoning/runtime.py:261: NotImplementedError
+=========================== short test summary info ============================
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_generated_token_ceiling_is_enforced_within_final_strategy
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_control_positive_budget_and_result_ledger
+2 failed, 24 passed in 4.94s

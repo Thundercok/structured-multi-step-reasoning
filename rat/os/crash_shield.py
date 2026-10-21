@@ -18,7 +18,8 @@ from typing import Any, Callable, Optional
 
 logger = logging.getLogger("rat.crash_shield")
 
-CRASH_LOG_DIR = Path.home() / ".rat" / "logs"
+CRASH_LOG_DIR = Path(os.environ.get("RAT_LOG_DIR") or
+                     Path(os.environ.get("RAT_STATE_DIR") or Path.home() / ".rat") / "logs").expanduser()
 CRASH_LOG_FILE = CRASH_LOG_DIR / "crash.log"
 
 _SHIELD_INSTALLED = False

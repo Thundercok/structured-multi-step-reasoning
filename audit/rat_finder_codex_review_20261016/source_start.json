@@ -1,0 +1,8 @@
+{
+  "rat/ui/omnibar.py": "3a5e86cc7afac4819c4152bbc1287ec5586e55a1c43ef7aca5a9ddaa2c5865db",
+  "rat/ui/workbench_scene.py": "c618812904104e8e14e9aeb362545fcef8a5f1b4c81c0ad6efb5cae456f7cf8a",
+  "rat/ui/workbench.py": "64cbba3128d508457744d6d4637c13434fa9f6176ec0547453bebf2ff5c4626f",
+  "rat/ui/surface_layout.py": "b297ca9f6ac937d96519a2f5f9e874508920355297931ce3d97bfb5920d82ee6",
+  "tests/test_workbench_scene.py": "80d0da7013739f10ab9ff4883fada864f070cb3d60ec2acbbf099015e3127ecb",
+  "scripts/reproduce_native_workbench_scene.py": "ea2a337a1aa30f83042894711687148a5270f9b59a09f6543e1b9e5e6d2f4752"
+}

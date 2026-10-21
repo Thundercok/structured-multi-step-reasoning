@@ -1,0 +1,31 @@
+{
+  "label": "added after inspection",
+  "confirmatory": false,
+  "plan_sha256": "132f850d304de9e7026a5cc42ac65691ac3249e3d4eb4315f9c1a28436925bd6",
+  "exact_registered_keys": {
+    "/replication/analysis_spec/bootstrap_samples": 2000,
+    "/replication/analysis_spec/bootstrap_seed": 20261013
+  },
+  "added_tables": [
+    {
+      "artifact": "audit/cot_restart_reporting_review_20261014/strata.json",
+      "label": "added after inspection"
+    },
+    {
+      "artifact": "audit/cot_restart_reporting_review_20261014/null_and_boundary.json",
+      "label": "added after inspection"
+    },
+    {
+      "artifact": "audit/cot_restart_reporting_review_20261014/sign_flip.json",
+      "label": "added after inspection"
+    },
+    {
+      "artifact": "M_to_D_w0_transitions.json",
+      "label": "added after inspection"
+    },
+    {
+      "artifact": "D_sensitivity.json",
+      "label": "added after inspection"
+    }
+  ]
+}

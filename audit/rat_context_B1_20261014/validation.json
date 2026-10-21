@@ -1,0 +1,39 @@
+{
+  "status": "b1_headless_compiler_implemented_and_verified",
+  "timestamp": "2026-10-14T11:10:00+07:00",
+  "compiler_module": "rat/engine/context_snapshot.py",
+  "test_suite": "tests/test_rat_context_snapshot.py",
+  "total_tests_passed": 312,
+  "breakdown": {
+    "b1_unit_tests": 14,
+    "core_and_probes_regressions": 292,
+    "context_audit_tests": 6,
+    "design_builder": 1
+  },
+  "protected_inputs_checked": 10,
+  "checks": [
+    "Pure headless compiler implemented in rat/engine/context_snapshot.py without state store or Qt",
+    "Schema validation conforms to rat.context/1 and passes for design fixtures and new projections",
+    "Provisional progress evaluation uses existing pure reconciler with global evidence only",
+    "Ineligible contracts (empty, invalid, unchecked) strictly remain unresolved",
+    "Distinct epochs generation and artifact_store_generation preserved",
+    "Indexes selection_set boolean flag distinguishes unperformed selection from empty selection",
+    "Full note text retained across all active and historical revisions inline in body",
+    "RFC 6901 pointer resolution verified for empty, nested, array, and escaped tokens",
+    "Security guard prevents decoding fake  in untrusted user data",
+    "Operations without artifacts project operation_result without inventing fake artifact IDs",
+    "Runtime execution loop (_call_model/run) strictly untouched; deferred to B2",
+    "Zero live model calls, zero latency/token/cache speed-up claims"
+  ],
+  "live_model_calls": 0,
+  "runtime_wiring_deferred_to_b2": true,
+  "claims": "Software/compiler consistency only; zero measured AI quality, latency, token or cache savings.",
+  "files_sha256": {
+    "changes.patch": "a83666d12a3016b3ed904ed4f7bb3546f9a804ece95a17386237884e540853b0",
+    "example_snapshots.json": "dfc47055ed5340523b4fbc1471e7372be7969b404578275cbc3df545d011e86d",
+    "handoff_codex.md": "edd8fa94c7bb216464cbcefbecb9b8c3e84ca41c7ae697d778e0d0fc0b89343d",
+    "manifest_finish.json": "ebf60c9fe6da23670f9373046d1cd84327f84ac87f92b3513c2d99f6bf8773f5",
+    "manifest_start.json": "326cf79450ac9a01a6e6e75aa719604066426ee8deb22a4ee602f9ef8e2a8b2b",
+    "test_run.json": "5e15b6c6918e161b326a66f37a4a62b3ba345b88f8a6f10c8cb27dff7acd5601"
+  }
+}

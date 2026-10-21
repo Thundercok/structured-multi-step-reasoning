@@ -1,0 +1,16 @@
+{
+  "tests": 203,
+  "failures": 0,
+  "errors": 0,
+  "probe_status": "completed",
+  "network_attempts": 0,
+  "blocked_dependencies_imported": [],
+  "source_matches": {
+    "rat/crawler/db.py": true,
+    "rat/crawler/__init__.py": true,
+    "rat/engine/__init__.py": true,
+    "rat/engine/app_resolver.py": true,
+    "rat/engine/progressive_search.py": true,
+    "tests/test_progressive_search.py": true
+  }
+}

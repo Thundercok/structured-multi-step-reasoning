@@ -1,0 +1,194 @@
+{
+  "reviewed_source_files": 51,
+  "reported_source_mismatches": [],
+  "source_changed_during_review": [
+    "rat/ui/omnibar.py"
+  ],
+  "received_repair_changed_files": [
+    "reasoning/reasoning_strategies.py",
+    "scripts/run_native_performance_session.py"
+  ],
+  "consolidated": {
+    "tests": 319,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 319
+  },
+  "subsets_in_consolidated": {
+    "research": {
+      "tests": 29,
+      "failed_error_or_skip": 0
+    },
+    "r5_probes": {
+      "tests": 10,
+      "failed_error_or_skip": 0
+    },
+    "r4_probes": {
+      "tests": 7,
+      "failed_error_or_skip": 0
+    },
+    "r3_probes": {
+      "tests": 13,
+      "failed_error_or_skip": 0
+    }
+  },
+  "parser_affected": {
+    "tests": 70,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2,
+    "passed": 68
+  },
+  "new_probes": {
+    "tests": 8,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 4
+  },
+  "historical_real_ledgers_sha256": {
+    "audit/rat_overnight_sweep_repair_20261019/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_codex_repair_r5_20261019/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_codex_review_r6_20261020/received_artifacts/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_codex_review_r6_20261020/locked_ledger_replay/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34"
+  },
+  "historical_real_ledgers_identical": true,
+  "sessions": {
+    "fake_session": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 1,
+      "historical_ledger_totals": {
+        "completed_records": 1,
+        "real_records": 0,
+        "fake_records": 1,
+        "unknown_records": 0
+      },
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "offline_fake_backend_completed_1_calls",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed."
+      },
+      "warm_generation_latency_ms": null
+    },
+    "locked_ledger_replay": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 0,
+      "historical_ledger_totals": {
+        "completed_records": 12,
+        "real_records": 12,
+        "fake_records": 0,
+        "unknown_records": 0
+      },
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "budget_halt_existing_real_history",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Budget guard halted without dispatching new requests. Existing append-only ledger contains 12 historical real-model records; zero fake calls executed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    },
+    "fake_history_halt": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 0,
+      "historical_ledger_totals": {
+        "completed_records": 1,
+        "real_records": 0,
+        "fake_records": 1,
+        "unknown_records": 0
+      },
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "budget_halt_existing_fake_history",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Budget guard halted without dispatching new requests. Existing append-only ledger contains 1 historical fake-model records; zero new fake calls executed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    },
+    "legacy_fake_history_halt": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 0,
+      "historical_ledger_totals": {
+        "completed_records": 1,
+        "real_records": 0,
+        "fake_records": 0,
+        "unknown_records": 1
+      },
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "budget_halt_existing_unknown_history",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Budget guard halted without dispatching new requests. Existing append-only ledger contains 1 historical records; zero fake calls executed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    },
+    "same_document_legacy_fake": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 0,
+      "historical_ledger_totals": {
+        "completed_records": 1,
+        "real_records": 1,
+        "fake_records": 0,
+        "unknown_records": 0
+      },
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "budget_halt_existing_real_history",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Budget guard halted without dispatching new requests. Existing append-only ledger contains 1 historical real-model records; zero fake calls executed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    }
+  },
+  "reviewer_real_model_requests": 0,
+  "reviewer_runner_fake_requests": 1,
+  "guard_replays": 4,
+  "real_reporting_check_kind": "isolated actual reporting AST with synthetic explicit tags; no real backend initialized",
+  "path_counterexample_kind": "synthetic fixture derived from captured fake record; unchanged historical evidence",
+  "external_change_observation": "omnibar.py changed externally after completed-suite hash check; test results pin reviewed_source snapshot",
+  "reviewed_target_files_unchanged": true
+}

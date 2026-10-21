@@ -1,0 +1,35 @@
+{
+  "verdict": "accepted_for_structural_consolidation_scope",
+  "resolved": [
+    "S1 manual summary vs raw evidence",
+    "S2 historical/current footprint separation and correct totals",
+    "P3 canonical/root dual-path import metadata"
+  ],
+  "new_findings": [],
+  "source_hashes_verified": 17,
+  "prior_review_artifact_entries_verified_unchanged": 76,
+  "production_changes_since_r2": false,
+  "reviewer_production_or_existing_tests_edited": false,
+  "tests_rerun": false,
+  "prior_results_reused_by_hash": {
+    "four_suites_passed": 199,
+    "four_suites_skipped": 2,
+    "additional_package_probes_passed": 5
+  },
+  "historical_17_move_delta": {
+    "total_lines": 73,
+    "non_blank_lines": 60,
+    "bytes": 2550
+  },
+  "current_20_delta_from_baseline": {
+    "total_lines": 104,
+    "non_blank_lines": 86,
+    "bytes": 4193
+  },
+  "new_real_model_calls": 0,
+  "stage_0": "unchanged",
+  "limits": [
+    "no new model-quality or native-acceptance claim",
+    "does not reaccept overnight-runner finding G1"
+  ]
+}

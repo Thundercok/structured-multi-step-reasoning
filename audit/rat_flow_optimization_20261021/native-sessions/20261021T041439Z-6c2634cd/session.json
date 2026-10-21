@@ -1,0 +1,28 @@
+{
+  "status": "exited",
+  "exit_code": 0,
+  "identity": {
+    "pid": 63592,
+    "executable": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python",
+    "mode": "source",
+    "bundle_id": null,
+    "bundle_path": null,
+    "version": null
+  },
+  "qpa": "cocoa",
+  "blocked_operations": [],
+  "embedding_loaded": false,
+  "elapsed_seconds": 158.6991382499691,
+  "final_state": {
+    "accessibility": {
+      "trusted": true,
+      "state": "granted",
+      "prompt_requested": false,
+      "error": null
+    },
+    "hotkey_status": "stopped",
+    "hotkey_error": null,
+    "window_visible": false
+  },
+  "isolation": "fixture state/database; empty app/model catalogs; no model/network access"
+}

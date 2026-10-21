@@ -1,0 +1,388 @@
+FFFFFFFFFFFFFFFF.FFFFF...                                                [100%]
+=================================== FAILURES ===================================
+____ test_zero_per_call_budget_dispatches_nothing[max_strategy_invocations] ____
+
+field = 'max_strategy_invocations'
+
+    @pytest.mark.parametrize('field',['max_strategy_invocations','max_underlying_requests','max_generated_tokens'])
+    def test_zero_per_call_budget_dispatches_nothing(field):
+        _,_,backend,controller=make()
+        result=controller.solve('offline query',**{field:0})
+>       assert backend.calls==[], {'field':field,'calls':backend.calls,'status':result.status}
+E       AssertionError: {'field': 'max_strategy_invocations', 'calls': ['COT'], 'status': 'completed'}
+E       assert ['COT'] == []
+E         
+E         Left contains one more item: 'COT'
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:57: AssertionError
+____ test_zero_per_call_budget_dispatches_nothing[max_underlying_requests] _____
+
+field = 'max_underlying_requests'
+
+    @pytest.mark.parametrize('field',['max_strategy_invocations','max_underlying_requests','max_generated_tokens'])
+    def test_zero_per_call_budget_dispatches_nothing(field):
+        _,_,backend,controller=make()
+        result=controller.solve('offline query',**{field:0})
+>       assert backend.calls==[], {'field':field,'calls':backend.calls,'status':result.status}
+E       AssertionError: {'field': 'max_underlying_requests', 'calls': ['COT'], 'status': 'completed'}
+E       assert ['COT'] == []
+E         
+E         Left contains one more item: 'COT'
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:57: AssertionError
+______ test_zero_per_call_budget_dispatches_nothing[max_generated_tokens] ______
+
+field = 'max_generated_tokens'
+
+    @pytest.mark.parametrize('field',['max_strategy_invocations','max_underlying_requests','max_generated_tokens'])
+    def test_zero_per_call_budget_dispatches_nothing(field):
+        _,_,backend,controller=make()
+        result=controller.solve('offline query',**{field:0})
+>       assert backend.calls==[], {'field':field,'calls':backend.calls,'status':result.status}
+E       AssertionError: {'field': 'max_generated_tokens', 'calls': ['COT'], 'status': 'completed'}
+E       assert ['COT'] == []
+E         
+E         Left contains one more item: 'COT'
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:57: AssertionError
+_ test_zero_override_does_not_restore_positive_default[max_strategy_invocations] _
+
+field = 'max_strategy_invocations'
+
+    @pytest.mark.parametrize('field',['max_strategy_invocations','max_underlying_requests','max_generated_tokens'])
+    def test_zero_override_does_not_restore_positive_default(field):
+        bundle,policy,backend,_=make()
+        controller=OnlineReasoningController(backend,policy,bundle=bundle,allow_synthetic_bundle=True,**{field:10})
+        result=controller.solve('offline query',**{field:0})
+>       assert backend.calls==[], {'field':field,'calls':backend.calls,'status':result.status}
+E       AssertionError: {'field': 'max_strategy_invocations', 'calls': ['COT'], 'status': 'completed'}
+E       assert ['COT'] == []
+E         
+E         Left contains one more item: 'COT'
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:64: AssertionError
+_ test_zero_override_does_not_restore_positive_default[max_underlying_requests] _
+
+field = 'max_underlying_requests'
+
+    @pytest.mark.parametrize('field',['max_strategy_invocations','max_underlying_requests','max_generated_tokens'])
+    def test_zero_override_does_not_restore_positive_default(field):
+        bundle,policy,backend,_=make()
+        controller=OnlineReasoningController(backend,policy,bundle=bundle,allow_synthetic_bundle=True,**{field:10})
+        result=controller.solve('offline query',**{field:0})
+>       assert backend.calls==[], {'field':field,'calls':backend.calls,'status':result.status}
+E       AssertionError: {'field': 'max_underlying_requests', 'calls': ['COT'], 'status': 'completed'}
+E       assert ['COT'] == []
+E         
+E         Left contains one more item: 'COT'
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:64: AssertionError
+__ test_zero_override_does_not_restore_positive_default[max_generated_tokens] __
+
+field = 'max_generated_tokens'
+
+    @pytest.mark.parametrize('field',['max_strategy_invocations','max_underlying_requests','max_generated_tokens'])
+    def test_zero_override_does_not_restore_positive_default(field):
+        bundle,policy,backend,_=make()
+        controller=OnlineReasoningController(backend,policy,bundle=bundle,allow_synthetic_bundle=True,**{field:10})
+        result=controller.solve('offline query',**{field:0})
+>       assert backend.calls==[], {'field':field,'calls':backend.calls,'status':result.status}
+E       AssertionError: {'field': 'max_generated_tokens', 'calls': ['COT'], 'status': 'completed'}
+E       assert ['COT'] == []
+E         
+E         Left contains one more item: 'COT'
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:64: AssertionError
+________ test_generated_token_ceiling_is_enforced_within_final_strategy ________
+
+    def test_generated_token_ceiling_is_enforced_within_final_strategy():
+        _,_,_,controller=make()
+        result=controller.solve('offline query',max_generated_tokens=1)
+>       assert result.cost_ledger.generated_tokens<=1, result
+E       AssertionError: OnlineReasoningResult(observations=(StrategyObservation(strategy=<ReasoningAction.COT: 0>, answer='fixture answer', co...prompt_tokens=None, full_inference_cost_estimated=False, status='completed'), execution_id=None, query_generation=None)
+E       assert 40 <= 1
+E        +  where 40 = ExecutionCostLedger(strategy_invocations=1, underlying_requests_dispatched=1, underlying_requests_succeeded=1, underlying_requests_failed=0, generated_tokens=40, prompt_tokens=None, full_inference_cost_estimated=False, status='completed').generated_tokens
+E        +    where ExecutionCostLedger(strategy_invocations=1, underlying_requests_dispatched=1, underlying_requests_succeeded=1, underlying_requests_failed=0, generated_tokens=40, prompt_tokens=None, full_inference_cost_estimated=False, status='completed') = OnlineReasoningResult(observations=(StrategyObservation(strategy=<ReasoningAction.COT: 0>, answer='fixture answer', co...prompt_tokens=None, full_inference_cost_estimated=False, status='completed'), execution_id=None, query_generation=None).cost_ledger
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:69: AssertionError
+_____ test_final_strategy_cannot_report_completed_after_stop_event[cancel] _____
+
+event = 'cancel'
+
+    @pytest.mark.parametrize('event',['cancel','deadline'])
+    def test_final_strategy_cannot_report_completed_after_stop_event(event):
+        stopped=False
+        def stop():
+            nonlocal stopped
+            stopped=True
+            if event=='deadline':
+                time.sleep(0.03)
+        backend=Backend(stop)
+        _,_,_,controller=make(backend)
+        result=controller.solve('offline query',is_cancelled=lambda:stopped if event=='cancel' else False,
+                                deadline_monotonic=time.monotonic()+0.01 if event=='deadline' else None)
+>       assert result.status==('cancelled' if event=='cancel' else 'timeout'),result
+E       AssertionError: OnlineReasoningResult(observations=(StrategyObservation(strategy=<ReasoningAction.COT: 0>, answer='fixture answer', co...prompt_tokens=None, full_inference_cost_estimated=False, status='completed'), execution_id=None, query_generation=None)
+E       assert 'completed' == 'cancelled'
+E         
+E         - cancelled
+E         + completed
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:83: AssertionError
+____ test_final_strategy_cannot_report_completed_after_stop_event[deadline] ____
+
+event = 'deadline'
+
+    @pytest.mark.parametrize('event',['cancel','deadline'])
+    def test_final_strategy_cannot_report_completed_after_stop_event(event):
+        stopped=False
+        def stop():
+            nonlocal stopped
+            stopped=True
+            if event=='deadline':
+                time.sleep(0.03)
+        backend=Backend(stop)
+        _,_,_,controller=make(backend)
+        result=controller.solve('offline query',is_cancelled=lambda:stopped if event=='cancel' else False,
+                                deadline_monotonic=time.monotonic()+0.01 if event=='deadline' else None)
+>       assert result.status==('cancelled' if event=='cancel' else 'timeout'),result
+E       AssertionError: OnlineReasoningResult(observations=(StrategyObservation(strategy=<ReasoningAction.COT: 0>, answer='fixture answer', co...prompt_tokens=None, full_inference_cost_estimated=False, status='completed'), execution_id=None, query_generation=None)
+E       assert 'completed' == 'timeout'
+E         
+E         - timeout
+E         + completed
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:83: AssertionError
+_____________________ test_cancel_hook_reaches_backend_run _____________________
+
+    def test_cancel_hook_reaches_backend_run():
+        _,_,backend,controller=make()
+        controller.solve('offline query',is_cancelled=lambda:False)
+>       assert backend.cancel_hook_received, 'Controller called backend.run(strategy, query) without a cancellation callback'
+E       AssertionError: Controller called backend.run(strategy, query) without a cancellation callback
+E       assert False
+E        +  where False = <test_contract_probes.Backend object at 0x133670b90>.cancel_hook_received
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:88: AssertionError
+____________ test_backend_error_preserves_attempt_ledger_for_caller ____________
+
+    def test_backend_error_preserves_attempt_ledger_for_caller():
+        _,_,_,controller=make(PartialFailureBackend())
+        with pytest.raises(RuntimeError) as caught:
+            controller.solve('offline query')
+        ledger=getattr(caught.value,'cost_ledger',None)
+>       assert ledger is not None, 'Exception discarded the local attempt counters'
+E       AssertionError: Exception discarded the local attempt counters
+E       assert None is not None
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:106: AssertionError
+__________________ test_worker_error_preserves_attempt_ledger __________________
+
+    def test_worker_error_preserves_attempt_ledger():
+        bundle,policy,backend,_=make(PartialFailureBackend())
+        engine=build_composed_meta_reasoner(bundle,backend,policy,allow_synthetic=True)
+        result,_=worker_result(OnlineReasoningWorker(engine,'offline query'))
+>       assert result.cost_ledger is not None, result
+E       AssertionError: MetaReasoningResult(query='offline query', strategy='ERROR', badge='Lỗi', answer='', steps=['Execution failed: fixture...dence_kind='not_estimated', status='error', bundle_id=None, cost_ledger=None, execution_id=None, query_generation=None)
+E       assert None is not None
+E        +  where None = MetaReasoningResult(query='offline query', strategy='ERROR', badge='Lỗi', answer='', steps=['Execution failed: fixture...dence_kind='not_estimated', status='error', bundle_id=None, cost_ledger=None, execution_id=None, query_generation=None).cost_ledger
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:114: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  rat.ui.reasoning_worker:reasoning_worker.py:137 OnlineReasoningWorker exception: fixture failure after three dispatches
+__________ test_incompatible_approved_metadata_fails_closed[identity] __________
+
+changes = {'model_id': 'incompatible', 'model_snapshot': 'incompatible', 'prompt_profile': 'unsupported'}
+
+    @pytest.mark.parametrize('changes',[
+        {'model_id':'incompatible','model_snapshot':'incompatible','prompt_profile':'unsupported'},
+        {'backend_protocol':'NonexistentProtocol.v999'},
+        {'feature_schema_version':999},
+        {'source_hashes':{},'artifact_hashes':{},'dataset_versions':{},'train_calibration_provenance':{}},
+        {'calibrator_type':'unknown-calibrator'},
+        {'lambda_val':float('nan')},
+        {'stopping_thresholds':(float('nan'),float('nan'))},
+    ],ids=['identity','protocol','feature-version','empty-provenance','calibrator','nan-lambda','nan-thresholds'])
+    def test_incompatible_approved_metadata_fails_closed(changes):
+        bundle,policy,backend,_=make()
+        approved=replace(bundle,review_status='approved',is_production_approved=True,**changes)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:129: Failed
+__________ test_incompatible_approved_metadata_fails_closed[protocol] __________
+
+changes = {'backend_protocol': 'NonexistentProtocol.v999'}
+
+    @pytest.mark.parametrize('changes',[
+        {'model_id':'incompatible','model_snapshot':'incompatible','prompt_profile':'unsupported'},
+        {'backend_protocol':'NonexistentProtocol.v999'},
+        {'feature_schema_version':999},
+        {'source_hashes':{},'artifact_hashes':{},'dataset_versions':{},'train_calibration_provenance':{}},
+        {'calibrator_type':'unknown-calibrator'},
+        {'lambda_val':float('nan')},
+        {'stopping_thresholds':(float('nan'),float('nan'))},
+    ],ids=['identity','protocol','feature-version','empty-provenance','calibrator','nan-lambda','nan-thresholds'])
+    def test_incompatible_approved_metadata_fails_closed(changes):
+        bundle,policy,backend,_=make()
+        approved=replace(bundle,review_status='approved',is_production_approved=True,**changes)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:129: Failed
+______ test_incompatible_approved_metadata_fails_closed[feature-version] _______
+
+changes = {'feature_schema_version': 999}
+
+    @pytest.mark.parametrize('changes',[
+        {'model_id':'incompatible','model_snapshot':'incompatible','prompt_profile':'unsupported'},
+        {'backend_protocol':'NonexistentProtocol.v999'},
+        {'feature_schema_version':999},
+        {'source_hashes':{},'artifact_hashes':{},'dataset_versions':{},'train_calibration_provenance':{}},
+        {'calibrator_type':'unknown-calibrator'},
+        {'lambda_val':float('nan')},
+        {'stopping_thresholds':(float('nan'),float('nan'))},
+    ],ids=['identity','protocol','feature-version','empty-provenance','calibrator','nan-lambda','nan-thresholds'])
+    def test_incompatible_approved_metadata_fails_closed(changes):
+        bundle,policy,backend,_=make()
+        approved=replace(bundle,review_status='approved',is_production_approved=True,**changes)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:129: Failed
+______ test_incompatible_approved_metadata_fails_closed[empty-provenance] ______
+
+changes = {'source_hashes': {}, 'artifact_hashes': {}, 'dataset_versions': {}, 'train_calibration_provenance': {}}
+
+    @pytest.mark.parametrize('changes',[
+        {'model_id':'incompatible','model_snapshot':'incompatible','prompt_profile':'unsupported'},
+        {'backend_protocol':'NonexistentProtocol.v999'},
+        {'feature_schema_version':999},
+        {'source_hashes':{},'artifact_hashes':{},'dataset_versions':{},'train_calibration_provenance':{}},
+        {'calibrator_type':'unknown-calibrator'},
+        {'lambda_val':float('nan')},
+        {'stopping_thresholds':(float('nan'),float('nan'))},
+    ],ids=['identity','protocol','feature-version','empty-provenance','calibrator','nan-lambda','nan-thresholds'])
+    def test_incompatible_approved_metadata_fails_closed(changes):
+        bundle,policy,backend,_=make()
+        approved=replace(bundle,review_status='approved',is_production_approved=True,**changes)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:129: Failed
+_________ test_incompatible_approved_metadata_fails_closed[nan-lambda] _________
+
+changes = {'lambda_val': nan}
+
+    @pytest.mark.parametrize('changes',[
+        {'model_id':'incompatible','model_snapshot':'incompatible','prompt_profile':'unsupported'},
+        {'backend_protocol':'NonexistentProtocol.v999'},
+        {'feature_schema_version':999},
+        {'source_hashes':{},'artifact_hashes':{},'dataset_versions':{},'train_calibration_provenance':{}},
+        {'calibrator_type':'unknown-calibrator'},
+        {'lambda_val':float('nan')},
+        {'stopping_thresholds':(float('nan'),float('nan'))},
+    ],ids=['identity','protocol','feature-version','empty-provenance','calibrator','nan-lambda','nan-thresholds'])
+    def test_incompatible_approved_metadata_fails_closed(changes):
+        bundle,policy,backend,_=make()
+        approved=replace(bundle,review_status='approved',is_production_approved=True,**changes)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:129: Failed
+_______ test_incompatible_approved_metadata_fails_closed[nan-thresholds] _______
+
+changes = {'stopping_thresholds': (nan, nan)}
+
+    @pytest.mark.parametrize('changes',[
+        {'model_id':'incompatible','model_snapshot':'incompatible','prompt_profile':'unsupported'},
+        {'backend_protocol':'NonexistentProtocol.v999'},
+        {'feature_schema_version':999},
+        {'source_hashes':{},'artifact_hashes':{},'dataset_versions':{},'train_calibration_provenance':{}},
+        {'calibrator_type':'unknown-calibrator'},
+        {'lambda_val':float('nan')},
+        {'stopping_thresholds':(float('nan'),float('nan'))},
+    ],ids=['identity','protocol','feature-version','empty-provenance','calibrator','nan-lambda','nan-thresholds'])
+    def test_incompatible_approved_metadata_fails_closed(changes):
+        bundle,policy,backend,_=make()
+        approved=replace(bundle,review_status='approved',is_production_approved=True,**changes)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:129: Failed
+__________ test_feature_dimension_mismatch_rejected_before_embedding ___________
+
+    def test_feature_dimension_mismatch_rejected_before_embedding():
+        bundle,policy,backend,_=make()
+        # The specimen's fitted regressors expect 2 embedding + 3 complexity features.
+        invalid=replace(bundle,feature_schema_version=2)
+>       with pytest.raises(BundleValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:136: Failed
+__________ test_worker_document_change_during_execution_is_unresolved __________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-961/test_worker_document_change_du0')
+
+    def test_worker_document_change_during_execution_is_unresolved(tmp_path):
+        document=tmp_path/'document.txt'
+        document.write_text('version one')
+        backend=Backend(lambda:document.write_text('version two'))
+        bundle,policy,_,_=make(backend)
+        engine=build_composed_meta_reasoner(bundle,backend,policy,allow_synthetic=True)
+        result,_=worker_result(OnlineReasoningWorker(engine,'question about document',document_path=str(document)))
+>       assert result.status=='unresolved', {'result':result,'document':document.read_text()}
+E       AssertionError: {'result': MetaReasoningResult(query='question about document', strategy='COT', badge='Policy', answer='fixture answer...0, 'prompt_tokens': None, 'status': 'completed'}, execution_id=None, query_generation=None), 'document': 'version two'}
+E       assert 'completed' == 'unresolved'
+E         
+E         - unresolved
+E         + completed
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:146: AssertionError
+_________________ test_worker_forwards_observed_step_progress __________________
+
+    def test_worker_forwards_observed_step_progress():
+        bundle,policy,backend,_=make()
+        engine=build_composed_meta_reasoner(bundle,backend,policy,allow_synthetic=True)
+        result,steps=worker_result(OnlineReasoningWorker(engine,'offline query'))
+>       assert steps, {'status':result.status,'steps':steps}
+E       AssertionError: {'status': 'completed', 'steps': []}
+E       assert []
+
+audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py:152: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_zero_per_call_budget_dispatches_nothing[max_strategy_invocations]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_zero_per_call_budget_dispatches_nothing[max_underlying_requests]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_zero_per_call_budget_dispatches_nothing[max_generated_tokens]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_zero_override_does_not_restore_positive_default[max_strategy_invocations]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_zero_override_does_not_restore_positive_default[max_underlying_requests]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_zero_override_does_not_restore_positive_default[max_generated_tokens]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_generated_token_ceiling_is_enforced_within_final_strategy
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_final_strategy_cannot_report_completed_after_stop_event[cancel]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_final_strategy_cannot_report_completed_after_stop_event[deadline]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_cancel_hook_reaches_backend_run
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_backend_error_preserves_attempt_ledger_for_caller
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_worker_error_preserves_attempt_ledger
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_incompatible_approved_metadata_fails_closed[identity]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_incompatible_approved_metadata_fails_closed[protocol]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_incompatible_approved_metadata_fails_closed[feature-version]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_incompatible_approved_metadata_fails_closed[empty-provenance]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_incompatible_approved_metadata_fails_closed[nan-lambda]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_incompatible_approved_metadata_fails_closed[nan-thresholds]
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_feature_dimension_mismatch_rejected_before_embedding
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_worker_document_change_during_execution_is_unresolved
+FAILED audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py::test_worker_forwards_observed_step_progress
+21 failed, 4 passed in 4.47s

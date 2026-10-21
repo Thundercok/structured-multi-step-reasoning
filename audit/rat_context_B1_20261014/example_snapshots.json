@@ -1,0 +1,632 @@
+{
+  "planner_initial": {
+    "schema_version": "rat.context/1",
+    "view": "planner",
+    "boundary": {
+      "snapshot_id": "snap-0c35bee75444",
+      "conversation_id": "conv-example-1",
+      "turn_id": "turn-1",
+      "execution_id": "exec-example-1",
+      "generation": 0,
+      "note_event_cursor": 0,
+      "coherence": "validated_copies",
+      "artifact_pins": [],
+      "note_pins": [],
+      "candidate_hash": null,
+      "artifact_store_generation": 0
+    },
+    "current_request": {
+      "message_ref": "messages/current",
+      "history_message_refs": []
+    },
+    "continuity": {
+      "turn_refs": [],
+      "confirmed_constraint_refs": []
+    },
+    "proposal": {
+      "authority": "model_proposed",
+      "state": {
+        "goal": "Tìm tài liệu về binary search",
+        "status": "in_progress"
+      }
+    },
+    "runtime_obligations": {
+      "status": "not_declared",
+      "authority": "runtime_default",
+      "contract": null
+    },
+    "observed_state": {
+      "lifecycle": {
+        "state": "running",
+        "cancelled": false,
+        "pending_input": null
+      },
+      "receipts": [],
+      "proof_refs": [],
+      "progress": {
+        "assessment": "provisional",
+        "matcher": "existing_completion_reconciler",
+        "outcomes": [],
+        "final_response_pending": true,
+        "evidence": {
+          "intent_coverage": "unchecked",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [],
+          "unresolved_reasons": []
+        }
+      }
+    },
+    "entities": [],
+    "indexes": {
+      "active_notes": [],
+      "historical_notes": [],
+      "previous_sources": [],
+      "current_results": [],
+      "selected_results": [],
+      "selection_set": false
+    },
+    "unavailable_refs": [],
+    "unmodeled_observations": []
+  },
+  "actor_bound_provisional": {
+    "schema_version": "rat.context/1",
+    "view": "actor",
+    "boundary": {
+      "snapshot_id": "snap-dea3de307172",
+      "conversation_id": "conv-example-2",
+      "turn_id": "turn-2",
+      "execution_id": "exec-example-2",
+      "generation": 0,
+      "note_event_cursor": 0,
+      "coherence": "validated_copies",
+      "artifact_pins": [],
+      "note_pins": [],
+      "candidate_hash": null,
+      "artifact_store_generation": 0
+    },
+    "current_request": {
+      "message_ref": "messages/current",
+      "history_message_refs": []
+    },
+    "continuity": {
+      "turn_refs": [],
+      "confirmed_constraint_refs": []
+    },
+    "proposal": {
+      "authority": "model_proposed",
+      "state": {
+        "goal": "Tính 18 * 7",
+        "status": "in_progress"
+      }
+    },
+    "runtime_obligations": {
+      "status": "bound",
+      "authority": "runtime_bound_model_proposal",
+      "contract": {
+        "schema_version": "1.0",
+        "contract_id": "contract-c01",
+        "conversation_id": "conv-example-2",
+        "turn_id": "turn-2",
+        "execution_id": "exec-example-2",
+        "generation": 0,
+        "proposed_by": "model",
+        "source_message_refs": [],
+        "outcomes": [
+          {
+            "outcome_id": "C01.calc",
+            "kind": "registered_effect",
+            "effect_type": "calculate",
+            "description": "",
+            "expected_args": null,
+            "target_ref": null,
+            "source_ref": null,
+            "dependency_ids": [],
+            "allow_proposal": false,
+            "required_proof_scope": null,
+            "required_authority": null
+          },
+          {
+            "outcome_id": "C01.resp",
+            "kind": "response",
+            "effect_type": null,
+            "description": "",
+            "expected_args": null,
+            "target_ref": null,
+            "source_ref": null,
+            "dependency_ids": [],
+            "allow_proposal": false,
+            "required_proof_scope": null,
+            "required_authority": null
+          }
+        ],
+        "intent_coverage": "model_proposed",
+        "frozen": false,
+        "is_valid": true,
+        "validation_errors": []
+      }
+    },
+    "observed_state": {
+      "lifecycle": {
+        "state": "running",
+        "cancelled": false,
+        "pending_input": null
+      },
+      "receipts": [
+        {
+          "receipt_id": "rcpt-1bb97bbae566",
+          "issuer": "dispatcher",
+          "sequence": 1,
+          "conversation_id": "conv-example-2",
+          "turn_id": "turn-2",
+          "execution_id": "exec-example-2",
+          "generation": 0,
+          "operation_call_id": "call-1",
+          "status": "committed",
+          "committed": true,
+          "operation_name": "calculate",
+          "operation_args": {
+            "expression": "18 * 7"
+          },
+          "operation_result": {
+            "$value_ref": {
+              "entity_ref": {
+                "kind": "operation_result",
+                "execution_id": "exec-example-2",
+                "receipt_id": "rcpt-1bb97bbae566"
+              },
+              "pointer": ""
+            }
+          },
+          "artifact_refs": [],
+          "note_event": null,
+          "verification_report": null,
+          "before_revision": null,
+          "after_revision": null,
+          "parent_receipt_ids": [],
+          "evidence_hash": "d6aece40072ad444cff7ff79a8d27cc277976b6a939b673781386bd92af1dc03",
+          "error": null,
+          "timestamp": 1791950885.449999
+        }
+      ],
+      "proof_refs": [],
+      "progress": {
+        "assessment": "provisional",
+        "matcher": "existing_completion_reconciler",
+        "outcomes": [
+          {
+            "outcome_id": "C01.calc",
+            "status": "met",
+            "reason": "matched_by_joint_reconciler_at_snapshot_boundary"
+          },
+          {
+            "outcome_id": "C01.resp",
+            "status": "pending_response",
+            "reason": "missing_response"
+          }
+        ],
+        "final_response_pending": true,
+        "evidence": {
+          "intent_coverage": "model_proposed",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [
+            "rcpt-1bb97bbae566"
+          ],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "C01.resp",
+              "reason": "missing_response",
+              "description": "Chưa có phản hồi văn bản"
+            }
+          ],
+          "unresolved_reasons": [
+            "missing_response"
+          ]
+        }
+      }
+    },
+    "entities": [
+      {
+        "ref": {
+          "kind": "operation_result",
+          "execution_id": "exec-example-2",
+          "receipt_id": "rcpt-1bb97bbae566"
+        },
+        "authority": "observed_operation_result",
+        "issuer": "dispatcher",
+        "owner_turn_id": "turn-2",
+        "projection_status": "lossless",
+        "body": {
+          "result": 126
+        }
+      }
+    ],
+    "indexes": {
+      "active_notes": [],
+      "historical_notes": [],
+      "previous_sources": [
+        {
+          "kind": "operation_result",
+          "execution_id": "exec-example-2",
+          "receipt_id": "rcpt-1bb97bbae566"
+        }
+      ],
+      "current_results": [],
+      "selected_results": [],
+      "selection_set": false
+    },
+    "unavailable_refs": [],
+    "unmodeled_observations": []
+  },
+  "actor_with_artifact_and_note": {
+    "schema_version": "rat.context/1",
+    "view": "actor",
+    "boundary": {
+      "snapshot_id": "snap-01905b16ae1d",
+      "conversation_id": "conv-example-3",
+      "turn_id": "turn-3",
+      "execution_id": "exec-example-3",
+      "generation": 1,
+      "note_event_cursor": 1,
+      "coherence": "validated_copies",
+      "artifact_pins": [
+        {
+          "kind": "artifact",
+          "conversation_id": "conv-example-3",
+          "artifact_id": "art-bs-doc",
+          "revision": 1
+        }
+      ],
+      "note_pins": [
+        {
+          "kind": "note_version",
+          "conversation_id": "conv-example-3",
+          "note_id": "note-bs-rule",
+          "revision": 1
+        }
+      ],
+      "candidate_hash": null,
+      "artifact_store_generation": 1
+    },
+    "current_request": {
+      "message_ref": "messages/current",
+      "history_message_refs": []
+    },
+    "continuity": {
+      "turn_refs": [],
+      "confirmed_constraint_refs": []
+    },
+    "proposal": {
+      "authority": "model_proposed",
+      "state": null
+    },
+    "runtime_obligations": {
+      "status": "not_declared",
+      "authority": "runtime_default",
+      "contract": null
+    },
+    "observed_state": {
+      "lifecycle": {
+        "state": "running",
+        "cancelled": false,
+        "pending_input": null
+      },
+      "receipts": [],
+      "proof_refs": [],
+      "progress": {
+        "assessment": "provisional",
+        "matcher": "existing_completion_reconciler",
+        "outcomes": [],
+        "final_response_pending": true,
+        "evidence": {
+          "intent_coverage": "unchecked",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [],
+          "unmet_outcomes": [],
+          "unresolved_reasons": []
+        }
+      }
+    },
+    "entities": [
+      {
+        "ref": {
+          "kind": "artifact",
+          "conversation_id": "conv-example-3",
+          "artifact_id": "art-bs-doc",
+          "revision": 1
+        },
+        "authority": "observed_source_content",
+        "issuer": "artifact_store",
+        "owner_turn_id": "turn-3",
+        "projection_status": "lossless",
+        "body": {
+          "id": "art-bs-doc",
+          "kind": "document_content",
+          "revision": 1,
+          "title": "Binary Search Basics",
+          "inputs": {},
+          "fields": [
+            "content"
+          ],
+          "owner_turn_id": "turn-3",
+          "visible": false,
+          "payload": {
+            "content": "Binary search yêu cầu mảng đã sắp xếp."
+          }
+        }
+      },
+      {
+        "ref": {
+          "kind": "note_version",
+          "conversation_id": "conv-example-3",
+          "note_id": "note-bs-rule",
+          "revision": 1
+        },
+        "authority": "observed_result",
+        "issuer": "notebook",
+        "owner_turn_id": "turn-3",
+        "projection_status": "lossless",
+        "body": {
+          "id": "note-bs-rule",
+          "text": "Binary search yêu cầu mảng đã sắp xếp.",
+          "quote": {
+            "$value_ref": {
+              "entity_ref": {
+                "kind": "artifact",
+                "conversation_id": "conv-example-3",
+                "artifact_id": "art-bs-doc",
+                "revision": 1
+              },
+              "pointer": "/payload/content"
+            }
+          },
+          "source": "artifact_result",
+          "confirmed": true,
+          "revision": 1,
+          "owner_turn_id": "turn-3",
+          "status": "active",
+          "source_ref": {
+            "artifact_id": "art-bs-doc",
+            "artifact_revision": 1,
+            "field": "content",
+            "quote": {
+              "$value_ref": {
+                "entity_ref": {
+                  "kind": "artifact",
+                  "conversation_id": "conv-example-3",
+                  "artifact_id": "art-bs-doc",
+                  "revision": 1
+                },
+                "pointer": "/payload/content"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "indexes": {
+      "active_notes": [
+        {
+          "kind": "note_version",
+          "conversation_id": "conv-example-3",
+          "note_id": "note-bs-rule",
+          "revision": 1
+        }
+      ],
+      "historical_notes": [],
+      "previous_sources": [
+        {
+          "kind": "artifact",
+          "conversation_id": "conv-example-3",
+          "artifact_id": "art-bs-doc",
+          "revision": 1
+        }
+      ],
+      "current_results": [
+        {
+          "kind": "artifact",
+          "conversation_id": "conv-example-3",
+          "artifact_id": "art-bs-doc",
+          "revision": 1
+        }
+      ],
+      "selected_results": [
+        {
+          "kind": "artifact",
+          "conversation_id": "conv-example-3",
+          "artifact_id": "art-bs-doc",
+          "revision": 1
+        }
+      ],
+      "selection_set": true
+    },
+    "unavailable_refs": [],
+    "unmodeled_observations": []
+  },
+  "repair_candidate": {
+    "schema_version": "rat.context/1",
+    "view": "repair",
+    "boundary": {
+      "snapshot_id": "snap-5aeffdf8993b",
+      "conversation_id": "conv-example-4",
+      "turn_id": "turn-4",
+      "execution_id": "exec-example-4",
+      "generation": 1,
+      "note_event_cursor": 2,
+      "coherence": "validated_copies",
+      "artifact_pins": [],
+      "note_pins": [],
+      "candidate_hash": "sha256-rejected-candidate-49f3e1a",
+      "artifact_store_generation": 1
+    },
+    "current_request": {
+      "message_ref": "messages/current",
+      "history_message_refs": []
+    },
+    "continuity": {
+      "turn_refs": [],
+      "confirmed_constraint_refs": []
+    },
+    "proposal": {
+      "authority": "model_proposed",
+      "state": null
+    },
+    "runtime_obligations": {
+      "status": "bound",
+      "authority": "runtime_bound_model_proposal",
+      "contract": {
+        "schema_version": "1.0",
+        "contract_id": "contract-c01",
+        "conversation_id": "conv-example-2",
+        "turn_id": "turn-2",
+        "execution_id": "exec-example-2",
+        "generation": 0,
+        "proposed_by": "model",
+        "source_message_refs": [],
+        "outcomes": [
+          {
+            "outcome_id": "C01.calc",
+            "kind": "registered_effect",
+            "effect_type": "calculate",
+            "description": "",
+            "expected_args": null,
+            "target_ref": null,
+            "source_ref": null,
+            "dependency_ids": [],
+            "allow_proposal": false,
+            "required_proof_scope": null,
+            "required_authority": null
+          },
+          {
+            "outcome_id": "C01.resp",
+            "kind": "response",
+            "effect_type": null,
+            "description": "",
+            "expected_args": null,
+            "target_ref": null,
+            "source_ref": null,
+            "dependency_ids": [],
+            "allow_proposal": false,
+            "required_proof_scope": null,
+            "required_authority": null
+          }
+        ],
+        "intent_coverage": "model_proposed",
+        "frozen": false,
+        "is_valid": true,
+        "validation_errors": []
+      }
+    },
+    "observed_state": {
+      "lifecycle": {
+        "state": "running",
+        "cancelled": false,
+        "pending_input": null
+      },
+      "receipts": [
+        {
+          "receipt_id": "rcpt-1bb97bbae566",
+          "issuer": "dispatcher",
+          "sequence": 1,
+          "conversation_id": "conv-example-2",
+          "turn_id": "turn-2",
+          "execution_id": "exec-example-2",
+          "generation": 0,
+          "operation_call_id": "call-1",
+          "status": "committed",
+          "committed": true,
+          "operation_name": "calculate",
+          "operation_args": {
+            "expression": "18 * 7"
+          },
+          "operation_result": {
+            "$value_ref": {
+              "entity_ref": {
+                "kind": "operation_result",
+                "execution_id": "exec-example-2",
+                "receipt_id": "rcpt-1bb97bbae566"
+              },
+              "pointer": ""
+            }
+          },
+          "artifact_refs": [],
+          "note_event": null,
+          "verification_report": null,
+          "before_revision": null,
+          "after_revision": null,
+          "parent_receipt_ids": [],
+          "evidence_hash": "d6aece40072ad444cff7ff79a8d27cc277976b6a939b673781386bd92af1dc03",
+          "error": null,
+          "timestamp": 1791950885.449999
+        }
+      ],
+      "proof_refs": [],
+      "progress": {
+        "assessment": "provisional",
+        "matcher": "existing_completion_reconciler",
+        "outcomes": [
+          {
+            "outcome_id": "C01.calc",
+            "status": "met",
+            "reason": "matched_by_joint_reconciler_at_snapshot_boundary"
+          },
+          {
+            "outcome_id": "C01.resp",
+            "status": "pending_response",
+            "reason": "missing_response"
+          }
+        ],
+        "final_response_pending": true,
+        "evidence": {
+          "intent_coverage": "model_proposed",
+          "scoped_quality": "not_checked",
+          "matched_receipts": [
+            "rcpt-1bb97bbae566"
+          ],
+          "unmet_outcomes": [
+            {
+              "outcome_id": "C01.resp",
+              "reason": "missing_response",
+              "description": "Chưa có phản hồi văn bản"
+            }
+          ],
+          "unresolved_reasons": [
+            "missing_response"
+          ]
+        }
+      }
+    },
+    "entities": [
+      {
+        "ref": {
+          "kind": "operation_result",
+          "execution_id": "exec-example-2",
+          "receipt_id": "rcpt-1bb97bbae566"
+        },
+        "authority": "observed_operation_result",
+        "issuer": "dispatcher",
+        "owner_turn_id": "turn-2",
+        "projection_status": "lossless",
+        "body": {
+          "result": 126
+        }
+      }
+    ],
+    "indexes": {
+      "active_notes": [],
+      "historical_notes": [],
+      "previous_sources": [
+        {
+          "kind": "operation_result",
+          "execution_id": "exec-example-2",
+          "receipt_id": "rcpt-1bb97bbae566"
+        }
+      ],
+      "current_results": [],
+      "selected_results": [],
+      "selection_set": false
+    },
+    "unavailable_refs": [],
+    "unmodeled_observations": []
+  }
+}

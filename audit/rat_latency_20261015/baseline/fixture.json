@@ -1,0 +1,5 @@
+{
+  "query": "Tìm file latency_probe.txt trong máy, đọc nội dung rồi cho biết mã xác nhận ghi trong file.",
+  "document": "Ghi chú kiểm tra RAT.\nMã xác nhận: LOTUS-7319.\nPhòng học: B203.\n",
+  "document_sha256": "f8878f1a10003ea6483badfae42e8af8f6d388171204976c7a233b87f88fae10"
+}

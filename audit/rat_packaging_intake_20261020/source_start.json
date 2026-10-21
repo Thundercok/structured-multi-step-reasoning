@@ -1,0 +1,14 @@
+{
+  "rat.spec": "be6e694565c5f47981a77b0690d58b4709f468646aad70401c2c1ef523dcb1f4",
+  "requirements.txt": "a6d5e7f1f053900fdc84b6ccf2d6f4371def697e0f9ab3ba54fa8be2029c9371",
+  "requirements-research.txt": "5ed9750c9a43f220f8b99e4207fb738f16a5d356244d38a234facd779ff70008",
+  "scripts/build_app.sh": "c4ae270a9666dbb0fc1cb15723894e300cf69286eacbe2fdde3602106a4028df",
+  "document_intake/__init__.py": "1ec935f7f9ef338b45e4b678ca0883513d5bfe6c82d5f59a65237dccfd83a0b8",
+  "document_intake/pdf.py": "264e9f3bb980d8036a9c535b48fdf7f72526a46595742f6c9f674a26016f8a6b",
+  "document_intake/vision.py": "eb5fdbe1cbc80809ae4bece77dc198b7ef80438e2aa54532e878b368940de418",
+  "document_intake/tesseract.py": "7bab3b00f55d2f55aec77e85819c06cf5dcd2fe0014a40181050ca8af583b4e0",
+  "document_intake/README.md": "e8e39ee559d66d953579488ac865cb23e8fdd8b1b6e312ebaa3baf0b901d69a3",
+  "document_intake/pyproject.toml": "e18a97fe58eb727919da39ec057109b746f15fe22ec00ca4132657471c5754f6",
+  "rat/crawler/extractors.py": "eb25f634abfe82920a57e6a5d250fb86d686889a2370db3c613099f3847841ad",
+  "tests/test_document_intake.py": "18c300346779aa6ea60dbf44aa6211aede13d91ffbf3329de5a7ea471a3211ad"
+}

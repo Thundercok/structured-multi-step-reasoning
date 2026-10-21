@@ -1,0 +1,10 @@
+[
+  {
+    "case": "test_bfloat16_logprobs_produce_finite_confidence",
+    "reason": "Requires native MLX bfloat16 arrays"
+  },
+  {
+    "case": "test_bfloat16_hidden_states_export_float32_embedding",
+    "reason": "Requires native MLX bfloat16 arrays"
+  }
+]

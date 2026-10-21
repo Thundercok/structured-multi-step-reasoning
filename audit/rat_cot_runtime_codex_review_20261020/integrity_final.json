@@ -1,0 +1,13 @@
+{
+  "source_snapshot_files": 68,
+  "source_changed": [],
+  "submitted_source_hashes_matched": 59,
+  "submitted_artifact_entries_matched": 47,
+  "received_audit_file_count": 48,
+  "received_audit_changed_files": [],
+  "received_audit_added_files": [],
+  "received_audit_removed_files": [],
+  "historical_ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "data_integrity_file": "data_integrity.json",
+  "baseline_reconciliation_file": "baseline_reconciliation.json"
+}

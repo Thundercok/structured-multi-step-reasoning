@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 # Default Paths
 HOME_DIR = Path.home()
-RAT_DIR = HOME_DIR / ".rat"
+RAT_DIR = Path(os.environ.get("RAT_STATE_DIR") or HOME_DIR / ".rat").expanduser()
 
 CONFIG_FILE = RAT_DIR / "config.json"
 DEFAULT_DB_PATH = RAT_DIR / "rat_index.db"
@@ -102,6 +102,9 @@ class Config:
         self.ollama_url: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
         self.ollama_model: str = "qwen2.5:1.5b"
         self.assistant_model: str = ""  # Assistant-only override; empty inherits SLM.
+        # Optional native selected-document backend; GUI wiring is explicit.
+        self.document_model_path: str = ""
+        self.document_model_preload: bool = False
         self.use_slm: bool = True
         self.auto_watch: bool = True
         self.max_results: int = 15
@@ -112,6 +115,13 @@ class Config:
         self.deep_idle_timeout_seconds: float = 2700.0  # 45 minutes
         self.memory_pressure_eviction_enabled: bool = True
         self.load()
+        # Explicit launch overrides take precedence over saved native settings.
+        native_path = os.getenv("RAT_DOCUMENT_MODEL_PATH")
+        if native_path is not None:
+            self.document_model_path = native_path.strip()
+        native_preload = os.getenv("RAT_DOCUMENT_MODEL_PRELOAD")
+        if native_preload is not None:
+            self.document_model_preload = native_preload.strip().lower() in ("1", "true", "yes")
 
     def get_hotkey_display(self) -> str:
         """Return native macOS symbols representation for global_hotkey."""
@@ -145,6 +155,10 @@ class Config:
                         self.ollama_model = data["ollama_model"]
                     if isinstance(data.get("assistant_model"), str):
                         self.assistant_model = data["assistant_model"]
+                    if isinstance(data.get("document_model_path"), str):
+                        self.document_model_path = data["document_model_path"].strip()
+                    if type(data.get("document_model_preload")) is bool:
+                        self.document_model_preload = data["document_model_preload"]
                     if "auto_watch" in data:
                         self.auto_watch = data["auto_watch"]
                     if "max_results" in data:
@@ -176,6 +190,8 @@ class Config:
             "ollama_url": self.ollama_url,
             "ollama_model": self.ollama_model,
             "assistant_model": self.assistant_model,
+            "document_model_path": self.document_model_path,
+            "document_model_preload": self.document_model_preload,
             "auto_watch": self.auto_watch,
             "max_results": self.max_results,
             "global_hotkey": self.global_hotkey,

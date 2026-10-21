@@ -1,0 +1,25 @@
+{
+  "date_local": "2026-10-19",
+  "verdict": "one_remaining_P2_in_F2",
+  "original_F1_F5_reproductions": "7 of 7 passed inside 263-test suite",
+  "production_files_changed": [],
+  "real_model_generations": 0,
+  "real_app_launches": 0,
+  "qpa_platform": "offscreen",
+  "suites": {
+    "regression.xml": {
+      "tests": "263",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "37.416"
+    },
+    "summary_projection.xml": {
+      "tests": "2",
+      "failures": "1",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.134"
+    }
+  }
+}

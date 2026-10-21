@@ -1,0 +1,21 @@
+{
+  "binary_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/bin/spider",
+  "binary_sha256": "bd522395c85cb80df0172066ba8d49dc538dfdec04693dc67455f3a1ee756f54",
+  "binary_size_bytes": 20675200,
+  "verified_version": "spider_cli 2.51.208",
+  "scrape_execution": {
+    "requested_url": "https://example.org",
+    "final_url": "https://example.org",
+    "status_code": 200,
+    "content_length": 171,
+    "content_hash": "cbf3f738cc4646f250e5964ab74741b434912a67e1cce86c798bf71af1cf85c8",
+    "elapsed_seconds": 1.2379
+  },
+  "dispatcher_execution": {
+    "status": "success",
+    "artifact_id": "art-49c0c01baac24fc28602ea4488b21e1e",
+    "artifact_kind": "web_page_snapshot",
+    "artifact_revision": 1,
+    "view_blocks_count": 3
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "module": "entry_predictor",
+    "body_ast_equal_after_removing_top_level_import_wrappers": true,
+    "current_matches_received_canonical_hash": true
+  },
+  {
+    "module": "optimal_stopping",
+    "body_ast_equal_after_removing_top_level_import_wrappers": false,
+    "current_matches_received_canonical_hash": false
+  },
+  {
+    "module": "reasoning_env",
+    "body_ast_equal_after_removing_top_level_import_wrappers": true,
+    "current_matches_received_canonical_hash": true
+  },
+  {
+    "module": "reasoning_strategies",
+    "body_ast_equal_after_removing_top_level_import_wrappers": false,
+    "current_matches_received_canonical_hash": false
+  }
+]

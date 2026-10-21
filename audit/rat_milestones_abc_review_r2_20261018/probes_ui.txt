@@ -1,0 +1,117 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+______ test_key_to_editor_measurement_is_not_overwritten_by_slot_duration ______
+
+    def test_key_to_editor_measurement_is_not_overwritten_by_slot_duration():
+        owner = SimpleNamespace(
+            _last_key_press_t0=9.0, _artifact_worker=None, _pending_chat_query=None,
+            chat_composer_send=Mock(), workbench_finder_enabled=False,
+            chat_composer_input=SimpleNamespace(is_composing=lambda: False))
+        # Deterministic clock: key at 9s, text change at 10s, zero slot work time.
+        with patch('rat.ui.omnibar.time.perf_counter', return_value=10.0):
+            OmnibarWindow._on_composer_text_changed(owner, 'DSA')
+>       assert owner.last_key_to_editor_ms == 1000.0
+E       AssertionError: assert 0.0 == 1000.0
+E        +  where 0.0 = namespace(_last_key_press_t0=None, _artifact_worker=None, _pending_chat_query=None, chat_composer_send=<Mock id='45610...o_editor_measurement_is_not_overwritten_by_slot_duration.<locals>.<lambda> at 0x10fe42de0>), last_key_to_editor_ms=0.0).last_key_to_editor_ms
+
+audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py:36: AssertionError
+____ test_first_hit_latency_is_not_overwritten_by_later_same_query_snapshot ____
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x10fe42cb0>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-693/test_first_hit_latency_is_not_0')
+
+    def test_first_hit_latency_is_not_overwritten_by_later_same_query_snapshot(scene_window, tmp_path):
+        win = scene_window
+        path = tmp_path / 'fixture.txt'
+        path.write_text('Synthetic file.')
+        hit = SearchHit('file:r2', 'file', path.name, str(path), 'lexical_index')
+        snapshot = SearchSnapshot(17, 'fixture', 'lexical', (hit,), hit.resource_id, False, 2.0)
+        win._finder_coordinator = None
+        win._finder_query_submit_t0 = 99.0
+        with patch('rat.ui.omnibar.time.perf_counter', return_value=100.0):
+            win._on_finder_snapshot_delivered(snapshot)
+        assert win.last_query_to_first_hit_ms == 1000.0
+        win._on_finder_snapshot_delivered(replace(snapshot, phase='semantic', complete=True, elapsed_ms=7000.0))
+>       assert win.last_query_to_first_hit_ms == 1000.0
+E       assert 7000.0 == 1000.0
+E        +  where 7000.0 = <rat.ui.omnibar.OmnibarWindow object at 0x10fe42cb0>.last_query_to_first_hit_ms
+
+audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py:51: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+qt.qpa.fonts: Populating font family aliases took 139 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+____________ test_empty_delivery_does_not_claim_a_first_hit_latency ____________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x10fe42b70>
+
+    def test_empty_delivery_does_not_claim_a_first_hit_latency(scene_window):
+        win = scene_window
+        win._finder_coordinator = None
+        win._finder_query_submit_t0 = 99.0
+        win.last_query_to_first_hit_ms = None
+        empty = SearchSnapshot(18, 'fixture', 'lexical', (), None, False, 2.0)
+        with patch('rat.ui.omnibar.time.perf_counter', return_value=100.0):
+            win._on_finder_snapshot_delivered(empty)
+>       assert win.last_query_to_first_hit_ms is None
+E       assert 1000.0 is None
+E        +  where 1000.0 = <rat.ui.omnibar.OmnibarWindow object at 0x10fe42b70>.last_query_to_first_hit_ms
+
+audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py:62: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+__________ test_failed_direct_launch_after_qa_has_current_error_trace __________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x10ff33b10>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-693/test_failed_direct_launch_afte0')
+
+    def test_failed_direct_launch_after_qa_has_current_error_trace(scene_window, tmp_path):
+        win = scene_window
+        db = Database(str(tmp_path / 'index.db'))
+        selected = tmp_path / 'selected.txt'
+        index(db, selected, content='Verification code LOTUS-7319.')
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={'content': 'LOTUS-7319'},
+            done_reason='stop', prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous_runtime = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt('What code?', selected_document_path=str(selected))
+            handle = win._assistant_handle
+            answer = answer_selected_document(runtime, 'What code?', str(selected), model_client=client,
+                turn_ref=handle['turn_ref'], execution_id=handle['execution_id'])
+            assert answer.error is None and answer.reconciliation.all_satisfied
+            win._on_assistant_response(handle, answer)
+            app_path = make_app(tmp_path / 'Apps')
+            win._finder_catalog = ApplicationCatalog.scan([app_path.parent])
+            # Revalidation failure after catalog discovery, never call an OS launcher.
+            (app_path / 'Contents/MacOS/fixture-bin').unlink()
+            win._app_launcher = lambda _: pytest.fail('Invalid app cannot launch')
+            with patch('rat.ui.assistant_worker.ArtifactWorker.start'):
+                win._submit_chat_prompt('mở Liên Minh')
+                result = win._artifact_worker.callback()
+                assert result.status == 'error'
+                win._on_artifact_result(win._chat_generation, result)
+            snap = win.workbench_scene.current_snapshot
+            assert snap.phase == 'error'
+>           assert any(e.status == 'error' for e in snap.reasoning_flow), [
+                (e.status, e.title, e.evidence_ref) for e in snap.reasoning_flow]
+E               AssertionError: [('read', 'Đọc tài liệu', 'rcpt-0a121a29b44d · art-36f261ba57ff49d8bc9335d5e078e298@v1'), ('done', 'Đưa câu trả lời', ''), ('verified_pass', 'Đủ điều kiện hoàn tất theo biên nhận', 'rcpt-0a121a29b44d, response:turn-1')]
+E               assert False
+E                +  where False = any(<generator object test_failed_direct_launch_after_qa_has_current_error_trace.<locals>.<genexpr> at 0x12c731e50>)
+
+audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py:95: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+=========================== short test summary info ============================
+FAILED audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py::test_key_to_editor_measurement_is_not_overwritten_by_slot_duration
+FAILED audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py::test_first_hit_latency_is_not_overwritten_by_later_same_query_snapshot
+FAILED audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py::test_empty_delivery_does_not_claim_a_first_hit_latency
+FAILED audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py::test_failed_direct_launch_after_qa_has_current_error_trace
+4 failed in 4.25s

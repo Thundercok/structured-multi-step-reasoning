@@ -6,7 +6,9 @@ Validates sys.excepthook, safe_slot, unparented QThread lifecycle, and graceful 
 import os
 import sys
 import threading
+import tempfile
 import time
+from pathlib import Path
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -35,7 +37,20 @@ class TestCrashShield(unittest.TestCase):
     """Test suite for crash prevention, exception shielding, and thread shutdown safety."""
 
     def setUp(self):
+        from rat.os import crash_shield
+        self._original_hooks = sys.excepthook, threading.excepthook
+        self._temp_logs = tempfile.TemporaryDirectory(prefix='rat-crash-shield-test-')
+        self.addCleanup(self._temp_logs.cleanup)
+        self.log_file = Path(self._temp_logs.name) / 'crash.log'
+        for name, value in [('CRASH_LOG_DIR', self.log_file.parent), ('CRASH_LOG_FILE', self.log_file), ('_SHIELD_INSTALLED', False)]:
+            patcher = patch.object(crash_shield, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.addCleanup(self._restore_hooks)
         install_crash_shield()
+
+    def _restore_hooks(self):
+        sys.excepthook, threading.excepthook = self._original_hooks
 
     def test_crash_shield_installation(self):
         """Verify that install_crash_shield sets sys.excepthook and threading.excepthook."""
@@ -60,8 +75,8 @@ class TestCrashShield(unittest.TestCase):
             exc_type, exc_val, exc_tb = sys.exc_info()
             global_excepthook(exc_type, exc_val, exc_tb)
 
-        self.assertTrue(CRASH_LOG_FILE.exists())
-        with open(CRASH_LOG_FILE, "r", encoding="utf-8") as f:
+        self.assertTrue(self.log_file.exists())
+        with open(self.log_file, "r", encoding="utf-8") as f:
             content = f.read()
         self.assertIn("Diagnostic crash test for CrashShield", content)
         self.assertIn("RuntimeError", content)

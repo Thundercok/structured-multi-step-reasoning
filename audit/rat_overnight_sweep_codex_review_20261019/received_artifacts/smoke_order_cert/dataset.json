@@ -1,0 +1,479 @@
+{
+  "name": "synthetic-order-certificate-smoke",
+  "version": "1",
+  "role": "main_study",
+  "identity_version": "procedural-v1",
+  "source": "Project-authored synthetic fixtures",
+  "license": "Project-authored test fixture",
+  "human_review_status": "synthetic_fixture",
+  "items": [
+    {
+      "id": "synthetic-order-3-0",
+      "family": "order",
+      "checker": "order",
+      "level": 1,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ]
+        ],
+        "ask": 0
+      },
+      "query": "3 runners (Alice, Bob, Carol) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol. Who finished in 1st place?",
+      "answer": "Alice",
+      "answer_type": "text",
+      "split": "train",
+      "problem_id": "problem_order_003c2e6a09a6a57f3764d38de5f997ff477247a5d9e353cf4f72801e95979b67",
+      "group_id": "problem_order_003c2e6a09a6a57f3764d38de5f997ff477247a5d9e353cf4f72801e95979b67"
+    },
+    {
+      "id": "synthetic-order-3-1",
+      "family": "order",
+      "checker": "order",
+      "level": 1,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ]
+        ],
+        "ask": 1
+      },
+      "query": "3 runners (Alice, Bob, Carol) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol. Who finished in 2nd place?",
+      "answer": "Bob",
+      "answer_type": "text",
+      "split": "calibration",
+      "problem_id": "problem_order_ef9f2e57bd74fadc2d058f0f8cbeccbc7b1e09049553c14601ccb53541cc7aa2",
+      "group_id": "problem_order_ef9f2e57bd74fadc2d058f0f8cbeccbc7b1e09049553c14601ccb53541cc7aa2"
+    },
+    {
+      "id": "synthetic-order-3-2",
+      "family": "order",
+      "checker": "order",
+      "level": 1,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ]
+        ],
+        "ask": 2
+      },
+      "query": "3 runners (Alice, Bob, Carol) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol. Who finished in 3rd place?",
+      "answer": "Carol",
+      "answer_type": "text",
+      "split": "test",
+      "problem_id": "problem_order_600c140d72e7370c7fc3f551d491e5373c99184f227f35cd67f832ecfce94b27",
+      "group_id": "problem_order_600c140d72e7370c7fc3f551d491e5373c99184f227f35cd67f832ecfce94b27"
+    },
+    {
+      "id": "synthetic-order-4-0",
+      "family": "order",
+      "checker": "order",
+      "level": 2,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ]
+        ],
+        "ask": 0
+      },
+      "query": "4 runners (Alice, Bob, Carol, Dave) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave. Who finished in 1st place?",
+      "answer": "Alice",
+      "answer_type": "text",
+      "split": "train",
+      "problem_id": "problem_order_cfadf8cac31b969815d4362df577ad3c9c159831194ce2eae5f91403c964b9d6",
+      "group_id": "problem_order_cfadf8cac31b969815d4362df577ad3c9c159831194ce2eae5f91403c964b9d6"
+    },
+    {
+      "id": "synthetic-order-4-1",
+      "family": "order",
+      "checker": "order",
+      "level": 2,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ]
+        ],
+        "ask": 1
+      },
+      "query": "4 runners (Alice, Bob, Carol, Dave) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave. Who finished in 2nd place?",
+      "answer": "Bob",
+      "answer_type": "text",
+      "split": "calibration",
+      "problem_id": "problem_order_24d7d4808dbca8b7ef2199e2e9b3027a302893d8decc5f2c181bdb05e0cff393",
+      "group_id": "problem_order_24d7d4808dbca8b7ef2199e2e9b3027a302893d8decc5f2c181bdb05e0cff393"
+    },
+    {
+      "id": "synthetic-order-4-2",
+      "family": "order",
+      "checker": "order",
+      "level": 2,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ]
+        ],
+        "ask": 2
+      },
+      "query": "4 runners (Alice, Bob, Carol, Dave) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave. Who finished in 3rd place?",
+      "answer": "Carol",
+      "answer_type": "text",
+      "split": "test",
+      "problem_id": "problem_order_c3722277f7c056b97cc081c7af4f3e88192dddb83174508d64f8dce4fc353661",
+      "group_id": "problem_order_c3722277f7c056b97cc081c7af4f3e88192dddb83174508d64f8dce4fc353661"
+    },
+    {
+      "id": "synthetic-order-4-3",
+      "family": "order",
+      "checker": "order",
+      "level": 2,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ]
+        ],
+        "ask": 3
+      },
+      "query": "4 runners (Alice, Bob, Carol, Dave) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave. Who finished in 4th place?",
+      "answer": "Dave",
+      "answer_type": "text",
+      "split": "train",
+      "problem_id": "problem_order_a16a82ce7a06ac571fa569af76a76aff2c68701b139c741ea41fb5049d9f4705",
+      "group_id": "problem_order_a16a82ce7a06ac571fa569af76a76aff2c68701b139c741ea41fb5049d9f4705"
+    },
+    {
+      "id": "synthetic-order-5-0",
+      "family": "order",
+      "checker": "order",
+      "level": 3,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave",
+          "Erin"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ],
+          [
+            "b",
+            3,
+            4
+          ]
+        ],
+        "ask": 0
+      },
+      "query": "5 runners (Alice, Bob, Carol, Dave, Erin) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave; Dave finished before Erin. Who finished in 1st place?",
+      "answer": "Alice",
+      "answer_type": "text",
+      "split": "calibration",
+      "problem_id": "problem_order_142341da96fc7bbd9ecf4a81a325d951d7100617fb75e04b847f61d6abe572a1",
+      "group_id": "problem_order_142341da96fc7bbd9ecf4a81a325d951d7100617fb75e04b847f61d6abe572a1"
+    },
+    {
+      "id": "synthetic-order-5-1",
+      "family": "order",
+      "checker": "order",
+      "level": 3,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave",
+          "Erin"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ],
+          [
+            "b",
+            3,
+            4
+          ]
+        ],
+        "ask": 1
+      },
+      "query": "5 runners (Alice, Bob, Carol, Dave, Erin) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave; Dave finished before Erin. Who finished in 2nd place?",
+      "answer": "Bob",
+      "answer_type": "text",
+      "split": "test",
+      "problem_id": "problem_order_6e287b9470a16a83543effa1bab15bcdb0eef82aef31b00b5092720223d982f3",
+      "group_id": "problem_order_6e287b9470a16a83543effa1bab15bcdb0eef82aef31b00b5092720223d982f3"
+    },
+    {
+      "id": "synthetic-order-5-2",
+      "family": "order",
+      "checker": "order",
+      "level": 3,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave",
+          "Erin"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ],
+          [
+            "b",
+            3,
+            4
+          ]
+        ],
+        "ask": 2
+      },
+      "query": "5 runners (Alice, Bob, Carol, Dave, Erin) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave; Dave finished before Erin. Who finished in 3rd place?",
+      "answer": "Carol",
+      "answer_type": "text",
+      "split": "train",
+      "problem_id": "problem_order_733a46a2f9b85e5782407c3c655bbe5774788b6e63ef84fb80b500c72c5d0662",
+      "group_id": "problem_order_733a46a2f9b85e5782407c3c655bbe5774788b6e63ef84fb80b500c72c5d0662"
+    },
+    {
+      "id": "synthetic-order-5-3",
+      "family": "order",
+      "checker": "order",
+      "level": 3,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave",
+          "Erin"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ],
+          [
+            "b",
+            3,
+            4
+          ]
+        ],
+        "ask": 3
+      },
+      "query": "5 runners (Alice, Bob, Carol, Dave, Erin) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave; Dave finished before Erin. Who finished in 4th place?",
+      "answer": "Dave",
+      "answer_type": "text",
+      "split": "calibration",
+      "problem_id": "problem_order_6de8397ab3cd7a63f6efacd500546fe3deb021e18eabd4ce7ec8885d1823468c",
+      "group_id": "problem_order_6de8397ab3cd7a63f6efacd500546fe3deb021e18eabd4ce7ec8885d1823468c"
+    },
+    {
+      "id": "synthetic-order-5-4",
+      "family": "order",
+      "checker": "order",
+      "level": 3,
+      "meta": {
+        "names": [
+          "Alice",
+          "Bob",
+          "Carol",
+          "Dave",
+          "Erin"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ],
+          [
+            "b",
+            1,
+            2
+          ],
+          [
+            "b",
+            2,
+            3
+          ],
+          [
+            "b",
+            3,
+            4
+          ]
+        ],
+        "ask": 4
+      },
+      "query": "5 runners (Alice, Bob, Carol, Dave, Erin) ran a race with no ties. Clues: Alice finished before Bob; Bob finished before Carol; Carol finished before Dave; Dave finished before Erin. Who finished in 5th place?",
+      "answer": "Erin",
+      "answer_type": "text",
+      "split": "test",
+      "problem_id": "problem_order_6f087e43829603035a9dc0310845085693a4d75299f0c05f749c0bcb668e7ee7",
+      "group_id": "problem_order_6f087e43829603035a9dc0310845085693a4d75299f0c05f749c0bcb668e7ee7"
+    }
+  ]
+}

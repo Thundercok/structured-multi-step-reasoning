@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.12.1, timeout-2.4.0
+collecting ... collected 19 items
+
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_native_planner_schema_can_express_outcomes PASSED [  5%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_native_planner_outcomes_are_not_rejected_as_task_state PASSED [ 10%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_correct_producer_consumer_source_satisfies_contract PASSED [ 15%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_freeze_prevents_mutating_existing_outcome PASSED [ 21%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_freeze_prevents_deleting_obligations PASSED [ 26%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_journal_snapshots_args_and_result_at_commit PASSED [ 31%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_empty_or_invalid_contract_cannot_be_satisfied[raw0] PASSED [ 36%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_empty_or_invalid_contract_cannot_be_satisfied[raw1] PASSED [ 42%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_empty_or_invalid_contract_cannot_be_satisfied[raw2] PASSED [ 47%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_missing_declared_response_cannot_be_satisfied_with_successful_effect PASSED [ 52%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_generic_effect_must_match_target_revision PASSED [ 57%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_generic_effect_cannot_skip_a_required_proof PASSED [ 63%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_one_calculation_cannot_satisfy_two_distinct_producers PASSED [ 68%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_calculation_proof_must_belong_to_matched_receipt PASSED [ 73%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_unknown_dependency_cannot_be_silently_satisfied PASSED [ 78%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_receipt_scope_must_match_conversation_turn_and_generation PASSED [ 84%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_terminal_note_revision_cannot_reuse_an_earlier_confirmed_version PASSED [ 89%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_cancel_after_commit_retains_matched_effect_in_reconciliation PASSED [ 94%]
+audit/rat_reconciliation_codex_review_20261013/contract_probes.py::test_returned_response_preserves_authoritative_journal_and_contract_for_audit PASSED [100%]
+
+============================== 19 passed in 0.79s ==============================

@@ -28,7 +28,7 @@ def document_cards(sources):
         cards.append(SearchResultItem(
             file_path=path, file_name=source.get("filename") or p.name,
             file_ext=source.get("extension") or p.suffix, file_size=size,
-            modified_at=modified, score=0, explanation="Đã đọc" if source.get("read") else "Đã tìm thấy",
+            modified_at=modified, score=0, explanation=("Đã đọc đoạn trích" if source.get('truncated') else "Đã đọc") if source.get("read") else "Đã tìm thấy",
             snippet=source.get("snippet", ""), verified=False,
         ))
     return cards[:4]
@@ -44,7 +44,9 @@ def artifact_file_cards(artifacts):
             label = 'Đã tìm thấy'
         elif artifact.kind in {'document_content', 'book_page_search', 'book_page_content', 'document_file'}:
             files = [data]
-            label = 'Tệp trên máy' if artifact.kind == 'document_file' else 'Đã đọc' if artifact.kind in {'document_content', 'book_page_content'} else 'Đã tìm thấy'
+            label = ('Tệp trên máy' if artifact.kind == 'document_file' else
+                     ('Đã đọc đoạn trích' if data.get('truncated') else 'Đã đọc')
+                     if artifact.kind in {'document_content', 'book_page_content'} else 'Đã tìm thấy')
         elif artifact.kind == 'file_export':
             files = [{**data, 'path': data.get('exported_path')}]
             label = 'Đã tạo tệp'
@@ -97,10 +99,11 @@ from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 class ArtifactPanel(QWidget):
     """Keep a view instance while its artifact revision is unchanged."""
-    def __init__(self, artifacts, provider, registry, on_action=None, on_input=None):
+    def __init__(self, artifacts, provider, registry, on_action=None, on_input=None, on_question=None):
         super().__init__()
         self.provider, self.registry = provider, registry
         self.on_action, self.on_input = on_action, on_input
+        self.on_question = on_question
         self.renderers = {}
         self.file_rows = {}
         self.debug_ui = debug_ui_enabled()
@@ -112,6 +115,7 @@ class ArtifactPanel(QWidget):
 
     def update_from(self, other):
         self.provider, self.registry = other.provider, other.registry
+        self.on_question = other.on_question
         self.update_artifacts(other.artifacts)
 
     def update_artifacts(self, artifacts):
@@ -129,12 +133,23 @@ class ArtifactPanel(QWidget):
             row = self.file_rows.get(item.file_path)
             if row is None:
                 row = InlineFileCard(item)
+                row.question_requested.connect(lambda item: self.on_question(item) if self.on_question else None)
                 self.file_rows[item.file_path] = row
                 self.layout.insertWidget(index, row)
             else:
                 row.refresh_item(item)
-        presented = [a for a in artifacts if self.debug_ui or a.kind not in
-                     {'document_search', 'document_file', 'file_export', 'input_request'}]
+            row.btn_ask.setVisible(bool(self.on_question) and Path(item.file_path).is_absolute())
+        presented = [
+            a for a in artifacts
+            if self.debug_ui
+            or (
+                a.kind == 'input_request'
+                and isinstance(a.payload, dict)
+                and a.payload.get('operation_name') == 'open_application'
+                and bool(a.payload.get('candidate_choices'))
+            )
+            or a.kind not in {'document_search', 'document_file', 'file_export', 'input_request'}
+        ]
         ids = {a.id for a in presented}
         for key in list(self.renderers):
             if key not in ids:
@@ -173,16 +188,32 @@ class ArtifactPanel(QWidget):
                 self.layout.addWidget(renderer)
             self.renderers[art.id] = renderer
 
+    def _apply_theme(self):
+        for r in self.renderers.values():
+            if hasattr(r, "_apply_theme"):
+                r._apply_theme()
+
+
 
 def source_panel(sources, open_natal=None, task_state=None, *, artifacts=None,
-                 on_action=None, on_input=None, view_provider=None, registry=None):
+                 on_action=None, on_input=None, on_question=None, view_provider=None, registry=None):
     provider = view_provider or StandardViewProvider(registry)
     registry = registry or getattr(provider, "registry", None)
-    active = [artifact for artifact in (artifacts or [])
-              if artifact.provenance.get("presentation") != "trace"
-              and (debug_ui_enabled() or artifact.kind != 'input_request')]
+    active = [
+        artifact for artifact in (artifacts or [])
+        if artifact.provenance.get("presentation") != "trace"
+        and (
+            debug_ui_enabled()
+            or artifact.kind != 'input_request'
+            or (
+                isinstance(artifact.payload, dict)
+                and artifact.payload.get('operation_name') == 'open_application'
+                and bool(artifact.payload.get('candidate_choices'))
+            )
+        )
+    ]
     if active:
-        return ArtifactPanel(active, provider, registry, on_action, on_input)
+        return ArtifactPanel(active, provider, registry, on_action, on_input, on_question)
     # Old recorded observations can still be viewed; live execution publishes artifacts.
     for source in sources or []:
         if source.get("type") == "natal_chart" and source.get("chart"):

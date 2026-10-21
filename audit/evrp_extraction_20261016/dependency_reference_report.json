@@ -1,0 +1,165 @@
+{
+  "module_references": [
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 3,
+      "text": "\u0110\u1ecdc `AGENTS.md`, `modules/evrp/AGENTS.md`, `IMPORT.md`, `IMPORT_PROVENANCE.json`"
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 7,
+      "text": "1. Inventory \u0111\u1ea7y \u0111\u1ee7 `modules/evrp/`: tracked/untracked/ignored, content hashes,"
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 18,
+      "text": "c\u00f3 `modules/evrp` r\u1eb1ng RAT\u2013CoT startup/default registry v\u00e0 c\u00e1c tests li\u00ean"
+    }
+  ],
+  "name_references": [
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 1,
+      "text": "# EVRP / SaigonRide \u2014 r\u00e0 t\u00e1i s\u1eed d\u1ee5ng \u0111\u1ec3 debloat"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 14,
+      "text": "| ASP.NET thu\u00ea xe, payment, v\u00ed, auth, kiosk, SignalR | Nghi\u1ec7p v\u1ee5 SaigonRide | T\u00e1ch nguy\u00ean d\u1ef1 \u00e1n, kh\u00f4ng t\u00edch h\u1ee3p RAT |"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 15,
+      "text": "| `EvrpSolverService.cs` | Haversine, greedy route construction, 2-opt v\u00e0 m\u00f4 ph\u1ecfng t\u1ea3i/pin | Gi\u1eef \u1edf d\u1ef1 \u00e1n tuy\u1ebfn \u0111\u01b0\u1eddng; ch\u01b0a c\u00f3 y\u00eau c\u1ea7u RAT d\u00f9ng routing |"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 16,
+      "text": "| Python `scripts/run_benchmark.py` | Generators VRPTW/EVRP, optimizers v\u00e0 benchmark legacy | Gi\u1eef \u0111\u1ec3 d\u00f9ng sau; kh\u00f4ng \u0111\u01b0a th\u00e0nh d\u1eef li\u1ec7u/\u0111\u1ed1i ch\u1ee9ng CoT hi\u1ec7n t\u1ea1i |"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 17,
+      "text": "| Tr\u1ea1m s\u1ea1c v\u00e0 script fetch | Dataset snapshot v\u00e0 c\u00f4ng c\u1ee5 ri\u00eang cho EVRP | B\u1ea3o to\u00e0n ngu\u1ed3n; kh\u00f4ng ph\u1ea3i live availability |"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 22,
+      "text": "\u1ee9ng d\u1ee5ng thu\u00ea xe trong main repo. Ch\u01b0a c\u00f3 b\u1eb1ng ch\u1ee9ng c\u1ea3i thi\u1ec7n CoT t\u1eeb EVRP."
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 32,
+      "text": "- `IMPORT.md` / `IMPORT_PROVENANCE.json`: ngu\u1ed3n `Thundercok/evrp-optimizer`,"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 35,
+      "text": "- README hi\u1ec7n tr\u1ecf `Thundercok/SaigonRide`. Ch\u01b0a ki\u1ec3m tra remote n\u00e0o l\u00e0 \u0111\u00edch hi\u1ec7n"
+    },
+    {
+      "file": "docs/evrp_reuse_audit_20261016.md",
+      "line": 42,
+      "text": "- R\u00e0 c\u00e1c Python/shell/TOML/spec ngo\u00e0i module, kh\u00f4ng th\u1ea5y tham chi\u1ebfu EVRP trong"
+    },
+    {
+      "file": "docs/codebase_scope_20261014.md",
+      "line": 14,
+      "text": "- N\u1ed9i dung source tr\u00f9ng byte \u1edf file t\u1eeb 30 d\u00f2ng tr\u1edf l\u00ean: 11,277 d\u00f2ng c\u1ee7a c\u00e1c b\u1ea3n b\u1ed5 sung; 10,974 n\u1eb1m trong EVRP. \u0110\u00e2y ch\u1ee7 y\u1ebfu l\u00e0 footprint c\u1ee7a module kh\u00f3a h\u1ecdc ri\u00eang, kh\u00f4ng ph\u1ea3i \u0111i\u1ec3m c\u1ea7n refactor tr\u01b0\u1edbc \u0111\u1ec3 ho\u00e0n th\u00e0nh NCKH."
+    },
+    {
+      "file": "docs/codebase_scope_20261014.md",
+      "line": 22,
+      "text": "| EVRP \u00b7 kh\u00f3a h\u1ecdc ri\u00eang | 247 | 26,903 | 1,789 |"
+    },
+    {
+      "file": "docs/codebase_scope_20261014.md",
+      "line": 71,
+      "text": "\u0110\u00e2y l\u00e0 s\u01a1 \u0111\u1ed3 kh\u00e1i qu\u00e1t sau khi \u0111\u1ecdc code; kh\u00f4ng ph\u1ea3i call trace runtime. Danh s\u00e1ch edges Python \u0111o b\u1eb1ng AST c\u00f3 trong `audit/codebase_scope_20261014/inventory.json`. Import t\u0129nh c\u1ee7a entry point kh\u00f4ng \u0111i qua RAT, DocAI ho\u1eb7c watch bot. T\u00ecm chu\u1ed7i path/call trong code kh\u00f4ng th\u1ea5y RAT ho\u1eb7c entry nghi\u00ean c\u1ee9u t\u00edch h\u1ee3p Spider/EVRP; t\u1eeb \u201cspider\u201d xu\u1ea5t hi\u1ec7n \u1edf b\u1ed9 t\u1eeb \u0111\u1ed3ng ngh\u0129a, kh\u00f4ng ph\u1ea3i import th\u01b0 vi\u1ec7n."
+    },
+    {
+      "file": "docs/project_scope.md",
+      "line": 37,
+      "text": "| Spider, EVRP v\u00e0 watch bot | \u0110\u00e1nh gi\u00e1 theo nhu c\u1ea7u c\u1ee5 th\u1ec3; kh\u00f4ng t\u1ef1 \u0111\u01b0a v\u00e0o core ho\u1eb7c t\u00ednh l\u00e0 m\u00e3 nh\u00f3m ph\u00e1t tri\u1ec3n ch\u1ec9 v\u00ec n\u1eb1m c\u00f9ng repo. |"
+    },
+    {
+      "file": "docs/codebase_scope_20261016.md",
+      "line": 12,
+      "text": "| D\u1ef1 \u00e1n ri\u00eang c\u00f2n nh\u00fang: EVRP, DocAI, watch bot | 314 | 33,083 |"
+    },
+    {
+      "file": "docs/codebase_scope_20261016.md",
+      "line": 59,
+      "text": "Exact-byte duplicate scan ph\u00e1t hi\u1ec7n 10,974 d\u00f2ng copy d\u01b0 trong EVRP. Kh\u00f4ng suy ra"
+    },
+    {
+      "file": "docs/codebase_scope_20261016.md",
+      "line": 64,
+      "text": "1. **EVRP:** 247 file source / 26,903 d\u00f2ng, d\u1ef1 \u00e1n ri\u00eang l\u1edbn nh\u1ea5t c\u00f2n nh\u00fang. R\u00e0"
+    },
+    {
+      "file": "docs/rat_backlog.md",
+      "line": 102,
+      "text": "## EVRP / SaigonRide \u2014 \u1ee9ng vi\u00ean t\u00e1ch ti\u1ebfp"
+    },
+    {
+      "file": "docs/rat_backlog.md",
+      "line": 104,
+      "text": "**EVRP-01 \u2014 \u0110\u00e3 r\u00e0 t\u0129nh 2026-10-16.** Ch\u01b0a th\u1ea5y implementation c\u1ea7n d\u00f9ng ngay"
+    },
+    {
+      "file": "docs/rat_backlog.md",
+      "line": 109,
+      "text": "Xem [audit](evrp_reuse_audit_20261016.md) v\u00e0"
+    },
+    {
+      "file": "docs/rat_backlog.md",
+      "line": 110,
+      "text": "[prompt Antigravity](prompts/antigravity_evrp_extraction_20261016.md)."
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 1,
+      "text": "# Antigravity \u2014 chu\u1ea9n b\u1ecb t\u00e1ch EVRP/SaigonRide, b\u00e1o c\u00e1o ng\u1eafn"
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 4,
+      "text": "v\u00e0 `docs/evrp_reuse_audit_20261016.md`. Nhi\u1ec7m v\u1ee5 debloat d\u1ef1 \u00e1n gh\u00e9p v\u00e0o;"
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 5,
+      "text": "RAT\u2013CoT l\u00e0 m\u1ed9t h\u1ec7, kh\u00f4ng t\u1ea1o th\u00eam t\u00edch h\u1ee3p EVRP ch\u1ec9 \u0111\u1ec3 gi\u1eef code."
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 11,
+      "text": "2. \u0110\u1ed1i chi\u1ebfu read-only repo g\u1ed1c `Thundercok/evrp-optimizer` v\u00e0 repo README tr\u1ecf"
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 12,
+      "text": "`Thundercok/SaigonRide`; x\u00e1c \u0111\u1ecbnh redirect/ngu\u1ed3n hi\u1ec7n h\u00e0nh n\u1ebfu truy c\u1eadp \u0111\u01b0\u1ee3c."
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 20,
+      "text": "benchmark/training ch\u1ec9 \u0111\u1ec3 ch\u1ee9ng minh RAT kh\u00f4ng ph\u1ee5 thu\u1ed9c EVRP."
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 21,
+      "text": "5. Gi\u1eef solver/benchmark \u1edf d\u1ef1 \u00e1n EVRP ri\u00eang cho nhu c\u1ea7u sau; kh\u00f4ng \u0111\u01b0a v\u00e0o main"
+    },
+    {
+      "file": "docs/prompts/antigravity_evrp_extraction_20261016.md",
+      "line": 24,
+      "text": "6. L\u01b0u `audit/evrp_extraction_20261016/`: inventory, recovery verification,"
+    }
+  ],
+  "scanned_files_count": 411,
+  "runtime_dependency_count": 0,
+  "test_dependency_count": 0,
+  "is_decoupled": true
+}

@@ -1,0 +1,10 @@
+{
+  "rat/engine/work_notes.py": "3eba881c7f74245b956e3c61c23d0e7f5b442356e64f2568ab51642a8d2db9b9",
+  "rat/engine/assistant_runtime.py": "d7f6852c64f0857ed19f59c808ebab86d2aa3f83c866ad01982c9291b3694072",
+  "rat/kernel/capabilities/__init__.py": "7230eddc5ab6c5231bf80d280187130132b7995e747823149f5edc4124b200aa",
+  "rat/kernel/registry.py": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+  "rat/kernel/dispatcher.py": "75d59cdfcf4bd7562a5b5b64435c703712e09852f66405054609d2b7457a9113",
+  "rat/ui/assistant_presenter.py": "972c72c435a99522cc951429ac87068a8fd8a35396cea050481a4286b626bedc",
+  "tests/test_rat_calculation_conversation.py": "ea3505d7e2a031ef76c37ee86be73b90eb9d67e42ac22c432b10a46e56c4c690",
+  "tests/test_rat_result_presentation.py": "285c11efe53b202e8f542249509fe7689152c7f92a6ecd07cee47f8a84ced1aa"
+}

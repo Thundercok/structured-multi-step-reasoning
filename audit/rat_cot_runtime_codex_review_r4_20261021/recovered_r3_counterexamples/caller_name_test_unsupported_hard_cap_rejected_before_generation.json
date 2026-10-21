@@ -1,0 +1,12 @@
+{
+  "ordinary": {
+    "outcome": "return",
+    "tokens": 40,
+    "calls": 1,
+    "status": "budget_exceeded"
+  },
+  "renamed": {
+    "outcome": "NotImplementedError",
+    "calls": 0
+  }
+}

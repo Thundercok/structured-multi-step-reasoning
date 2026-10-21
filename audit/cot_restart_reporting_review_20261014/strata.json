@@ -1,0 +1,1227 @@
+[
+  {
+    "draw_index": 0,
+    "tables": [
+      {
+        "point": "M",
+        "stratum": "base_correct",
+        "n": 7,
+        "question_ids": [
+          "arith_0023_en_orig",
+          "arith_0027_en_orig",
+          "arith_0032_en_orig",
+          "g24_0018_en_orig",
+          "g24_0028_en_orig",
+          "order_0004_en_orig",
+          "order_0012_en_orig"
+        ],
+        "correct": {
+          "A": 4,
+          "F": 6,
+          "CONT": 7,
+          "O": 7
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 7,
+            "b": 3,
+            "c": 0,
+            "delta": 0.42857142857142855,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 7,
+            "b": 3,
+            "c": 1,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 7,
+            "b": 0,
+            "c": 1,
+            "delta": -0.14285714285714285,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 3,
+            "delta": -0.42857142857142855,
+            "contribution_to_all_question_delta": -0.25,
+            "wins": [],
+            "losses": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 1,
+            "delta": -0.14285714285714285,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "M",
+        "stratum": "base_wrong",
+        "n": 5,
+        "question_ids": [
+          "arith_0039_en_orig",
+          "g24_0014_en_orig",
+          "g24_0023_en_orig",
+          "order_0006_en_orig",
+          "order_0027_en_orig"
+        ],
+        "correct": {
+          "A": 2,
+          "F": 3,
+          "CONT": 1,
+          "O": 0
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 1,
+            "delta": -0.2,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0039_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 5,
+            "b": 2,
+            "c": 1,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0014_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": [
+              "arith_0039_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 5,
+            "b": 2,
+            "c": 0,
+            "delta": 0.4,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0014_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 5,
+            "b": 2,
+            "c": 0,
+            "delta": 0.4,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0039_en_orig",
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 5,
+            "b": 3,
+            "c": 0,
+            "delta": 0.6,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w0",
+        "stratum": "base_correct",
+        "n": 7,
+        "question_ids": [
+          "arith_0023_en_orig",
+          "arith_0027_en_orig",
+          "arith_0032_en_orig",
+          "g24_0018_en_orig",
+          "g24_0028_en_orig",
+          "order_0004_en_orig",
+          "order_0012_en_orig"
+        ],
+        "correct": {
+          "A": 4,
+          "F": 6,
+          "CONT": 7,
+          "O": 7
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 7,
+            "b": 3,
+            "c": 0,
+            "delta": 0.42857142857142855,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 7,
+            "b": 3,
+            "c": 1,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 7,
+            "b": 0,
+            "c": 1,
+            "delta": -0.14285714285714285,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 3,
+            "delta": -0.42857142857142855,
+            "contribution_to_all_question_delta": -0.25,
+            "wins": [],
+            "losses": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 1,
+            "delta": -0.14285714285714285,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w0",
+        "stratum": "base_wrong",
+        "n": 5,
+        "question_ids": [
+          "arith_0039_en_orig",
+          "g24_0014_en_orig",
+          "g24_0023_en_orig",
+          "order_0006_en_orig",
+          "order_0027_en_orig"
+        ],
+        "correct": {
+          "A": 3,
+          "F": 3,
+          "CONT": 1,
+          "O": 0
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 2,
+            "delta": -0.4,
+            "contribution_to_all_question_delta": -0.16666666666666666,
+            "wins": [],
+            "losses": [
+              "arith_0039_en_orig",
+              "g24_0014_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 5,
+            "b": 1,
+            "c": 1,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [
+              "order_0006_en_orig"
+            ],
+            "losses": [
+              "arith_0039_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 5,
+            "b": 2,
+            "c": 0,
+            "delta": 0.4,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0014_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 5,
+            "b": 3,
+            "c": 0,
+            "delta": 0.6,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "arith_0039_en_orig",
+              "g24_0014_en_orig",
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 5,
+            "b": 3,
+            "c": 0,
+            "delta": 0.6,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w1",
+        "stratum": "base_correct",
+        "n": 7,
+        "question_ids": [
+          "arith_0023_en_orig",
+          "arith_0027_en_orig",
+          "arith_0032_en_orig",
+          "g24_0018_en_orig",
+          "g24_0028_en_orig",
+          "order_0004_en_orig",
+          "order_0012_en_orig"
+        ],
+        "correct": {
+          "A": 4,
+          "F": 6,
+          "CONT": 7,
+          "O": 7
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 7,
+            "b": 3,
+            "c": 0,
+            "delta": 0.42857142857142855,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 7,
+            "b": 3,
+            "c": 1,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 7,
+            "b": 0,
+            "c": 1,
+            "delta": -0.14285714285714285,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 3,
+            "delta": -0.42857142857142855,
+            "contribution_to_all_question_delta": -0.25,
+            "wins": [],
+            "losses": [
+              "g24_0028_en_orig",
+              "order_0004_en_orig",
+              "order_0012_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 1,
+            "delta": -0.14285714285714285,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "arith_0032_en_orig"
+            ]
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w1",
+        "stratum": "base_wrong",
+        "n": 5,
+        "question_ids": [
+          "arith_0039_en_orig",
+          "g24_0014_en_orig",
+          "g24_0023_en_orig",
+          "order_0006_en_orig",
+          "order_0027_en_orig"
+        ],
+        "correct": {
+          "A": 3,
+          "F": 3,
+          "CONT": 0,
+          "O": 0
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 3,
+            "delta": -0.6,
+            "contribution_to_all_question_delta": -0.25,
+            "wins": [],
+            "losses": [
+              "arith_0039_en_orig",
+              "g24_0014_en_orig",
+              "g24_0023_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 5,
+            "b": 1,
+            "c": 1,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [
+              "order_0006_en_orig"
+            ],
+            "losses": [
+              "arith_0039_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 5,
+            "b": 3,
+            "c": 0,
+            "delta": 0.6,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 5,
+            "b": 3,
+            "c": 0,
+            "delta": 0.6,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "arith_0039_en_orig",
+              "g24_0014_en_orig",
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 5,
+            "b": 3,
+            "c": 0,
+            "delta": 0.6,
+            "contribution_to_all_question_delta": 0.25,
+            "wins": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig",
+              "order_0006_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 5,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "draw_index": 1,
+    "tables": [
+      {
+        "point": "M",
+        "stratum": "base_correct",
+        "n": 7,
+        "question_ids": [
+          "arith_0023_en_orig",
+          "arith_0027_en_orig",
+          "arith_0032_en_orig",
+          "g24_0018_en_orig",
+          "g24_0028_en_orig",
+          "order_0004_en_orig",
+          "order_0012_en_orig"
+        ],
+        "correct": {
+          "A": 5,
+          "F": 7,
+          "CONT": 7,
+          "O": 7
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 7,
+            "b": 2,
+            "c": 0,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 7,
+            "b": 2,
+            "c": 0,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 2,
+            "delta": -0.2857142857142857,
+            "contribution_to_all_question_delta": -0.16666666666666666,
+            "wins": [],
+            "losses": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "M",
+        "stratum": "base_wrong",
+        "n": 5,
+        "question_ids": [
+          "arith_0039_en_orig",
+          "g24_0014_en_orig",
+          "g24_0023_en_orig",
+          "order_0006_en_orig",
+          "order_0027_en_orig"
+        ],
+        "correct": {
+          "A": 0,
+          "F": 1,
+          "CONT": 1,
+          "O": 0
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 5,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 5,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w0",
+        "stratum": "base_correct",
+        "n": 7,
+        "question_ids": [
+          "arith_0023_en_orig",
+          "arith_0027_en_orig",
+          "arith_0032_en_orig",
+          "g24_0018_en_orig",
+          "g24_0028_en_orig",
+          "order_0004_en_orig",
+          "order_0012_en_orig"
+        ],
+        "correct": {
+          "A": 5,
+          "F": 7,
+          "CONT": 7,
+          "O": 7
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 7,
+            "b": 2,
+            "c": 0,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 7,
+            "b": 2,
+            "c": 0,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 2,
+            "delta": -0.2857142857142857,
+            "contribution_to_all_question_delta": -0.16666666666666666,
+            "wins": [],
+            "losses": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w0",
+        "stratum": "base_wrong",
+        "n": 5,
+        "question_ids": [
+          "arith_0039_en_orig",
+          "g24_0014_en_orig",
+          "g24_0023_en_orig",
+          "order_0006_en_orig",
+          "order_0027_en_orig"
+        ],
+        "correct": {
+          "A": 2,
+          "F": 1,
+          "CONT": 1,
+          "O": 0
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 1,
+            "delta": -0.2,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "g24_0014_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 1,
+            "delta": -0.2,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "g24_0014_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 5,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 5,
+            "b": 2,
+            "c": 0,
+            "delta": 0.4,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w1",
+        "stratum": "base_correct",
+        "n": 7,
+        "question_ids": [
+          "arith_0023_en_orig",
+          "arith_0027_en_orig",
+          "arith_0032_en_orig",
+          "g24_0018_en_orig",
+          "g24_0028_en_orig",
+          "order_0004_en_orig",
+          "order_0012_en_orig"
+        ],
+        "correct": {
+          "A": 5,
+          "F": 7,
+          "CONT": 7,
+          "O": 7
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 7,
+            "b": 2,
+            "c": 0,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 7,
+            "b": 2,
+            "c": 0,
+            "delta": 0.2857142857142857,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 2,
+            "delta": -0.2857142857142857,
+            "contribution_to_all_question_delta": -0.16666666666666666,
+            "wins": [],
+            "losses": [
+              "arith_0023_en_orig",
+              "g24_0018_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 7,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      },
+      {
+        "point": "D_w1",
+        "stratum": "base_wrong",
+        "n": 5,
+        "question_ids": [
+          "arith_0039_en_orig",
+          "g24_0014_en_orig",
+          "g24_0023_en_orig",
+          "order_0006_en_orig",
+          "order_0027_en_orig"
+        ],
+        "correct": {
+          "A": 2,
+          "F": 1,
+          "CONT": 0,
+          "O": 0
+        },
+        "contrasts": [
+          {
+            "X": "CONT",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 2,
+            "delta": -0.4,
+            "contribution_to_all_question_delta": -0.16666666666666666,
+            "wins": [],
+            "losses": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "A",
+            "n": 5,
+            "b": 0,
+            "c": 1,
+            "delta": -0.2,
+            "contribution_to_all_question_delta": -0.08333333333333333,
+            "wins": [],
+            "losses": [
+              "g24_0014_en_orig"
+            ]
+          },
+          {
+            "X": "F",
+            "Y": "CONT",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "A",
+            "Y": "O",
+            "n": 5,
+            "b": 2,
+            "c": 0,
+            "delta": 0.4,
+            "contribution_to_all_question_delta": 0.16666666666666666,
+            "wins": [
+              "g24_0014_en_orig",
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "F",
+            "Y": "O",
+            "n": 5,
+            "b": 1,
+            "c": 0,
+            "delta": 0.2,
+            "contribution_to_all_question_delta": 0.08333333333333333,
+            "wins": [
+              "g24_0023_en_orig"
+            ],
+            "losses": []
+          },
+          {
+            "X": "CONT",
+            "Y": "O",
+            "n": 5,
+            "b": 0,
+            "c": 0,
+            "delta": 0.0,
+            "contribution_to_all_question_delta": 0.0,
+            "wins": [],
+            "losses": []
+          }
+        ]
+      }
+    ]
+  }
+]

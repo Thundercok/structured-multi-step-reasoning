@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r3_20261020/recover_prior_counterexamples.py", line 18, in <module>
+    old_runtime=load('reasoning._r2_recovery_runtime',SNAP/'reasoning/runtime.py')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r3_20261020/recover_prior_counterexamples.py", line 16, in load
+    spec.loader.exec_module(module);return module
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r2_20261020/reviewed_source/reasoning/runtime.py", line 17, in <module>
+    from .entry_predictor import EntryChoice
+ModuleNotFoundError: No module named 'reasoning'

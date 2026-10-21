@@ -1,0 +1,62 @@
+{
+  "results": [
+    {
+      "width": 736,
+      "before": "978 file · 256.516 dòng · 100% toàn repo",
+      "tests": "74 file · 18.300 dòng · 7,1% toàn repo",
+      "core": "26 file · 9.551 dòng · 3,7% toàn repo",
+      "detail": "Thí nghiệm headless",
+      "allLayout": {
+        "width": 704,
+        "scrollWidth": 704,
+        "nodes": 10
+      },
+      "layout": {
+        "rootWidth": 704,
+        "scrollWidth": 704,
+        "plotWidth": 704,
+        "nodes": 4,
+        "clippedLabels": []
+      }
+    },
+    {
+      "width": 360,
+      "before": "978 file · 256.516 dòng · 100% toàn repo",
+      "tests": "74 file · 18.300 dòng · 7,1% toàn repo",
+      "core": "26 file · 9.551 dòng · 3,7% toàn repo",
+      "detail": "Thí nghiệm headless",
+      "allLayout": {
+        "width": 328,
+        "scrollWidth": 328,
+        "nodes": 5
+      },
+      "layout": {
+        "rootWidth": 328,
+        "scrollWidth": 328,
+        "plotWidth": 328,
+        "nodes": 4,
+        "clippedLabels": []
+      }
+    },
+    {
+      "width": 320,
+      "before": "978 file · 256.516 dòng · 100% toàn repo",
+      "tests": "74 file · 18.300 dòng · 7,1% toàn repo",
+      "core": "26 file · 9.551 dòng · 3,7% toàn repo",
+      "detail": "Thí nghiệm headless",
+      "allLayout": {
+        "width": 288,
+        "scrollWidth": 288,
+        "nodes": 8
+      },
+      "layout": {
+        "rootWidth": 288,
+        "scrollWidth": 288,
+        "plotWidth": 288,
+        "nodes": 4,
+        "clippedLabels": []
+      }
+    }
+  ],
+  "errors": []
+}

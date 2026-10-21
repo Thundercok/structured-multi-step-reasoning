@@ -1,0 +1,33 @@
+[
+  {
+    "draw_index": 0,
+    "X": "F",
+    "Y": "A",
+    "n": 5,
+    "b": 2,
+    "c": 1,
+    "delta": 0.2,
+    "contribution_to_all_question_delta": 0.08333333333333333,
+    "wins": [
+      "g24_0014_en_orig",
+      "order_0006_en_orig"
+    ],
+    "losses": [
+      "arith_0039_en_orig"
+    ]
+  },
+  {
+    "draw_index": 1,
+    "X": "F",
+    "Y": "A",
+    "n": 5,
+    "b": 1,
+    "c": 0,
+    "delta": 0.2,
+    "contribution_to_all_question_delta": 0.08333333333333333,
+    "wins": [
+      "g24_0023_en_orig"
+    ],
+    "losses": []
+  }
+]

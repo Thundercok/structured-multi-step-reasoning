@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+    "-m",
+    "pytest",
+    "tests/test_rat_context_snapshot.py",
+    "tests/test_rat_context_audit.py",
+    "tests/test_artifact_store_lifecycle.py",
+    "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py",
+    "audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py",
+    "audit/rat_context_B1_independent_20261014_084657/origin_scope_probes.py",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short",
+    "--junitxml=audit/rat_context_B1_origin_scope_fix_20261014_085017/focused.xml"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 2.1260146249551326,
+  "source_sha256_start": {
+    "rat/engine/context_snapshot.py": "28ea27cae8213d84b76d2deed5e0bdaf8d423487813921769a93c669456ea94e",
+    "tests/test_rat_context_snapshot.py": "bd38845d4d58f2550d8938c4a3cbca08856ded17a61117a0a456165b124c89fd",
+    "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py": "6efea8afad295d0e692ff0199469ff26573c7e28cc082324a675527ac206eab8",
+    "audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py": "26fd2f957c0a3129917994dbaf6af864ff1c268571192fa08217b9af1515a61f",
+    "audit/rat_context_B1_independent_20261014_084657/origin_scope_probes.py": "d2a2aa69d0e09d79caf2c05b98c438956e09f37abb323cd23ee84271d2d2c6d8"
+  },
+  "source_sha256_finish": {
+    "rat/engine/context_snapshot.py": "28ea27cae8213d84b76d2deed5e0bdaf8d423487813921769a93c669456ea94e",
+    "tests/test_rat_context_snapshot.py": "bd38845d4d58f2550d8938c4a3cbca08856ded17a61117a0a456165b124c89fd",
+    "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py": "6efea8afad295d0e692ff0199469ff26573c7e28cc082324a675527ac206eab8",
+    "audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py": "26fd2f957c0a3129917994dbaf6af864ff1c268571192fa08217b9af1515a61f",
+    "audit/rat_context_B1_independent_20261014_084657/origin_scope_probes.py": "d2a2aa69d0e09d79caf2c05b98c438956e09f37abb323cd23ee84271d2d2c6d8"
+  },
+  "source_drift": [],
+  "live_model_calls": 0
+}

@@ -1,0 +1,1 @@
+{"status": "passed", "package_location": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_packaging_intake_20261020/isolated-venv/lib/python3.12/site-packages/document_intake/__init__.py", "optional_engines": "not installed", "model_calls": 0}

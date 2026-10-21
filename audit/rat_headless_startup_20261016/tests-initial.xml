@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="23" time="1.971" timestamp="2026-10-16T07:48:15.267992+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case0-]" time="0.083" /><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case1-usage:]" time="0.132"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 136, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs1')
+case = {'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 136, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case2-usage:]" time="0.118"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs2')
+case = {'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case3-usage:]" time="0.125"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 22, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 287, in run_path&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 98, in _run_module_code&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;main.py&quot;, line 13, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs3')
+case = {'kind': 'file', 'argv': ['main.py', '--help']}, expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 22, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 287, in run_path
+E           File "&lt;frozen runpy&gt;", line 98, in _run_module_code
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "main.py", line 13, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case4-usage:]" time="0.118"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 136, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs4')
+case = {'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'search', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 136, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case5-usage:]" time="0.117"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 136, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs5')
+case = {'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'index', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 136, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case6-usage:]" time="0.117"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 136, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs6')
+case = {'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'ask', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 136, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case7-usage:]" time="0.118"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 136, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs7')
+case = {'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'dedup', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 136, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case8-usage:]" time="0.118"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 26, in &lt;module&gt;&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 229, in run_module&#10;    File &quot;&lt;frozen runpy&gt;&quot;, line 88, in _run_code&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 136, in &lt;module&gt;&#10;      main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 39, in main&#10;      cli_main()&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py&quot;, line 18, in cli_main&#10;      from rat.cli import main as run_cli&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py&quot;, line 19, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from rat.crawler.db import Database&#10;    File &quot;/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py&quot;, line 17, in &lt;module&gt;&#10;      import numpy as np&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1322, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1262, in _find_spec&#10;    File &quot;&lt;string&gt;&quot;, line 8, in find_spec&#10;  AssertionError: Unneeded dependency: numpy&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;&quot;, line 1262, in _find_spec\n  File &quot;&lt;string&gt;&quot;, line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-495/test_lightweight_command_needs8')
+case = {'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'status', '--help']}
+expected = 'usage:'
+
+    @pytest.mark.parametrize('case,expected', [
+        ({'kind': 'import', 'argv': ['rat.main']}, ''),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '--help']}, 'usage:'),
+        ({'kind': 'module', 'module': 'rat.cli', 'argv': ['rat.cli', '--help']}, 'usage:'),
+        ({'kind': 'file', 'argv': ['main.py', '--help']}, 'usage:'),
+        *[({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', command, '--help']}, 'usage:')
+          for command in ('search', 'index', 'ask', 'dedup', 'status')],
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'init-shell']}, 'rat()'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', '2+2']}, '4'),
+        ({'kind': 'module', 'module': 'rat.main', 'argv': ['rat.main', 'B203']}, 'B203'),
+    ])
+    def test_lightweight_command_needs_no_gui_model_or_service(tmp_path, case, expected):
+        # A sentinel database must not be opened, migrated or replaced by help and
+        # direct commands, even when configured at the normal application boundary.
+        database = tmp_path / 'unused.db'
+        database.write_bytes(b'preserve this uninitialized database')
+        environment = dict(os.environ, RAT_DB_PATH=str(database), PYTHONDONTWRITEBYTECODE='1')
+        result = subprocess.run([sys.executable, '-c', PROGRAM, json.dumps(case)],
+                                cwd=ROOT, env=environment, capture_output=True, text=True, timeout=20)
+&gt;       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 26, in &lt;module&gt;
+E           File "&lt;frozen runpy&gt;", line 229, in run_module
+E           File "&lt;frozen runpy&gt;", line 88, in _run_code
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 136, in &lt;module&gt;
+E             main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 39, in main
+E             cli_main()
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/main.py", line 18, in cli_main
+E             from rat.cli import main as run_cli
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/cli.py", line 19, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/__init__.py", line 5, in &lt;module&gt;
+E             from rat.crawler.db import Database
+E           File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 17, in &lt;module&gt;
+E             import numpy as np
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1322, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1262, in _find_spec
+E           File "&lt;string&gt;", line 8, in find_spec
+E         AssertionError: Unneeded dependency: numpy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python', '-c', ...ap&gt;", line 1262, in _find_spec\n  File "&lt;string&gt;", line 8, in find_spec\nAssertionError: Unneeded dependency: numpy\n').returncode
+
+tests/test_rat_headless_cli.py:65: AssertionError</failure></testcase><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case9-rat()]" time="0.077" /><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case10-4]" time="0.083" /><testcase classname="tests.test_rat_headless_cli" name="test_lightweight_command_needs_no_gui_model_or_service[case11-B203]" time="0.085" /><testcase classname="tests.test_rat_headless_cli" name="test_gui_route_keeps_exception_hooks_before_launch[spotlight-spotlight]" time="0.004" /><testcase classname="tests.test_rat_headless_cli" name="test_gui_route_keeps_exception_hooks_before_launch[--daemon-daemon]" time="0.001" /><testcase classname="tests.test_rat_headless_cli" name="test_gui_route_keeps_exception_hooks_before_launch[finder-finder]" time="0.000" /><testcase classname="tests.test_rat_headless_cli" name="test_gui_route_keeps_exception_hooks_before_launch[widget-widget]" time="0.000" /><testcase classname="tests.test_database_lifecycle" name="test_constructor_defers_filesystem_and_schema_creation" time="0.007" /><testcase classname="tests.test_database_lifecycle" name="test_concurrent_first_use_initializes_once" time="0.010" /><testcase classname="tests.test_database_lifecycle" name="test_import_does_not_create_or_migrate_configured_database[False]" time="0.173" /><testcase classname="tests.test_database_lifecycle" name="test_import_does_not_create_or_migrate_configured_database[True]" time="0.171" /><testcase classname="tests.test_database_lifecycle" name="test_config_save_creates_directory_only_on_explicit_save" time="0.051" /><testcase classname="tests.test_database_lifecycle" name="test_read_only_database_never_initializes_or_writes" time="0.004" /><testcase classname="tests.test_database_lifecycle" name="test_read_only_missing_database_is_not_created" time="0.001" /></testsuite></testsuites>

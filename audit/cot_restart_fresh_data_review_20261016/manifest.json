@@ -1,0 +1,65 @@
+{
+  "status": "prepared_pending_independent_review",
+  "evidence": "CPU-only structural export",
+  "date_local": "2026-10-16",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "model_calls": 0,
+  "semantic_gold_review_performed": false,
+  "test_query_or_gold_printed_to_agent": false,
+  "execution_authorized": false,
+  "stage_0_changed": false,
+  "candidate_items": 71,
+  "candidate_groups": 70,
+  "human_approved_by_this_packet": 0,
+  "overlap_checks": [
+    {
+      "dataset": "data/procedural_research_v1/tuning.json",
+      "sha256": "069ca68a4d34d40a3c2f559dffadaa255e73e1e9719e8e488f171a091e002d95",
+      "groups": 91,
+      "overlap_groups": []
+    },
+    {
+      "dataset": "audit/cot_restart_pilot_qwen35_20261009/dataset.json",
+      "sha256": "bc7c3ff389fa0fb217627cef44de2327c8c8df47c9b3b6c7db361ae1502fe109",
+      "groups": 12,
+      "overlap_groups": []
+    },
+    {
+      "dataset": "audit/order_certificate_pilot_dev2_real_20261008/dataset.json",
+      "sha256": "ff1029db9e85a14480691d7ec0e24ca430cbfd264c385db14ac5de1a4dfeccb9",
+      "groups": 2,
+      "overlap_groups": []
+    },
+    {
+      "dataset": "audit/order_certificate_pilot_dev8_contract_v2_real_20261008/dataset.json",
+      "sha256": "dde4a78c2b4b8c9e654445b859e3c23ae245bec9f2c92ab8b5c8cefeb36b76e5",
+      "groups": 8,
+      "overlap_groups": []
+    }
+  ],
+  "identity_compatibility": {
+    "release_source_sha256": "5b9107f99d92839238694e950f9d6c8b946c72c7ce4219500b932cba12c6a7fe",
+    "current_source_sha256": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "exact_source_match": false,
+    "review": "Compared e6129d4 with current: gap/offset support added; legacy three-field identities preserved",
+    "all_main_item_canonical_ids_recomputed_and_equal": true,
+    "main_items_checked": 179
+  },
+  "inputs_sha256": {
+    "data/procedural_research_v1/manifest.json": "d585eddb175d292568230c1cf8e7f6b7aba3bb23345c6b49f2584447d86c5289",
+    "data/procedural_research_v1/main.json": "fa5d09d9a1074de0e65ae544ff977b6c2751a1a36c60fd721d51234a9b2b3ddc",
+    "data/procedural_research_v1/tuning.json": "069ca68a4d34d40a3c2f559dffadaa255e73e1e9719e8e488f171a091e002d95",
+    "data/gen_v2.json": "c6af7d21994d537da1a4b94dbe8c954e2cf2b66dce1d3732e485688cac522d6b",
+    "data/gen_tune.json": "3552e2ebf515a4c0cdcb8ad5e07ab396f0dacf3dab58435ea1fbaca576a54ea0",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "audit/cot_restart_fresh_data_review_20261016/prepare_review.py": "1e719172727694ab0f379066f4f2ae9f56d953697d19d25e06ce9d6326dc843b",
+    "audit/cot_restart_pilot_qwen35_20261009/dataset.json": "bc7c3ff389fa0fb217627cef44de2327c8c8df47c9b3b6c7db361ae1502fe109",
+    "audit/order_certificate_pilot_dev2_real_20261008/dataset.json": "ff1029db9e85a14480691d7ec0e24ca430cbfd264c385db14ac5de1a4dfeccb9",
+    "audit/order_certificate_pilot_dev8_contract_v2_real_20261008/dataset.json": "dde4a78c2b4b8c9e654445b859e3c23ae245bec9f2c92ab8b5c8cefeb36b76e5"
+  },
+  "artifact_sha256": {
+    "README.md": "1d10e4031a612727915a293fa98ae5080e1f62873fc86d2ee6be602e4e1cd94b",
+    "review_packet.md": "22a00b322581e5695c38aaf9c0030f632090cc6b027f163383cf6abc1f4fae7c",
+    "candidate_frame.json": "6c889c3b0514ec25465b7e971bde862ee97e41fbb66ce9a5aa22e2286be23845"
+  }
+}

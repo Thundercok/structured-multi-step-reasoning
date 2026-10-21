@@ -1,0 +1,14 @@
+{
+  "status": "ready_for_codex_review",
+  "compiler_hash": "37259475b6a861b483ecc37f35460844cae0e3daf1ad13f1875170fbfd952c28",
+  "baseline_compiler_hash": "5ec3442d3cd1c0f2ee2f52747ffff02ee5992313bd538dce3f93b7f08ebceb14",
+  "focused_pass": true,
+  "raw_receipt_probes_pass": true,
+  "core_results": {
+    "exit_code": 1,
+    "expected_failures": 6,
+    "failure_attribution": "native planner schema compatibility (operations/respond vs outcomes/expected_args) in rat/engine/assistant_runtime.py"
+  },
+  "programmatic_roundtrips_pass": true,
+  "schema_compliance": true
+}

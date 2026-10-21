@@ -1,0 +1,19 @@
+{
+  "evidence_scope": "scripted_software_contracts_not_model_quality",
+  "test_command": "python -m pytest tests/test_rat_calculation_conversation.py -q",
+  "passed": 11,
+  "failed": 2,
+  "failures": [
+    "calculate returned no persisted artifact",
+    "record_work_note rejected source_result schema"
+  ],
+  "source_sha256": {
+    "rat/engine/work_notes.py": "b9fb0bd6987a215f1119ce2d4e711353bbffa18aa712e03b4e91943c1bb11f09",
+    "rat/engine/assistant_runtime.py": "ed349eb746708786b7df0756d20d2845a432b4665471e433191cb20104258977",
+    "rat/kernel/capabilities/__init__.py": "6e7b2cec87e4c66a54dcd1762cb6bd7bf7f818e214bfbc9753568e5578ed5cbc",
+    "rat/kernel/registry.py": "2732be0edd3a53c06dffc2d2b779e3dce13ad06ce22162cb96bd1ec306116875",
+    "rat/kernel/dispatcher.py": "c5146ddddc8c1e72feee6cf42c42501b94bb3d569154ad54aa25121ebd9ae03e",
+    "rat/ui/assistant_presenter.py": "7620dd56e534257dbf99193a30aa1c7cbc62b586a9a5619cbb538270402aaeec"
+  },
+  "new_model_calls": 0
+}

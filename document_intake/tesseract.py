@@ -3,8 +3,10 @@ Tesseract 5.5.2 Native CLI OCR Engine with TSV Bounding Box Support
 """
 
 import logging
+import math
 import os
 import subprocess
+import time
 from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
@@ -12,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 class TesseractOCREngine:
     def __init__(self, tesseract_cmd: str = "/opt/homebrew/bin/tesseract", *, timeout: float = 15, languages: str = "vie+eng"):
+        if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+            raise ValueError("timeout must be positive and finite")
         self.timeout = timeout
         self.languages = languages
         self.tesseract_cmd = tesseract_cmd if os.path.exists(tesseract_cmd) else "tesseract"
@@ -21,17 +25,19 @@ class TesseractOCREngine:
         Runs Tesseract OCR on an image.
         Returns full text, individual lines, and tokens with bounding boxes.
         """
-        if not os.path.exists(image_path):
+        if not os.path.isfile(image_path):
             logger.warning("Image file not found: %s", image_path)
             return {"full_text": "", "lines": [], "tokens": []}
 
         tokens = []
         full_text = ""
+        deadline = time.monotonic() + self.timeout
 
         # 1. Try TSV mode for bounding boxes
         try:
             cmd_tsv = [self.tesseract_cmd, image_path, "stdout", "-l", self.languages, "--oem", "1", "tsv"]
-            res_tsv = subprocess.run(cmd_tsv, capture_output=True, text=True, timeout=self.timeout)
+            res_tsv = subprocess.run(cmd_tsv, capture_output=True, text=True, timeout=self.timeout,
+                                     encoding="utf-8", errors="replace")
             if res_tsv.returncode == 0 and res_tsv.stdout.strip():
                 tokens = self._parse_tsv_output(res_tsv.stdout)
                 lines_by_id = {}
@@ -40,14 +46,20 @@ class TesseractOCREngine:
                     lines_by_id.setdefault(key, []).append(token["text"])
                 full_text = "\n".join(" ".join(words) for words in lines_by_id.values())
                 logger.info("Tesseract TSV mode: extracted %d tokens from %s", len(tokens), os.path.basename(image_path))
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            return {"full_text": "", "lines": [], "tokens": []}
         except Exception as e:
             logger.warning("Tesseract TSV mode failed for %s: %s", image_path, e)
 
         # 2. Fallback to plain text mode if TSV didn't work
         if not full_text:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return {"full_text": "", "lines": [], "tokens": []}
             try:
                 cmd_text = [self.tesseract_cmd, image_path, "stdout", "-l", self.languages, "--oem", "1"]
-                res_text = subprocess.run(cmd_text, capture_output=True, text=True, timeout=self.timeout)
+                res_text = subprocess.run(cmd_text, capture_output=True, text=True, timeout=remaining,
+                                          encoding="utf-8", errors="replace")
                 full_text = res_text.stdout if res_text.returncode == 0 else ""
                 logger.info("Tesseract text mode: extracted %d chars from %s", len(full_text), os.path.basename(image_path))
             except Exception as e:
@@ -75,7 +87,7 @@ class TesseractOCREngine:
 
         # Skip header line
         for line in lines[1:]:
-            parts = line.split("\t")
+            parts = line.split("\t", 11)
             if len(parts) < 12:
                 continue
 
@@ -84,13 +96,15 @@ class TesseractOCREngine:
                 text = parts[11].strip()
 
                 # Skip empty text or low-confidence noise (conf < 0 means no text)
-                if not text or conf < 0:
+                if not text or not math.isfinite(conf) or not 0 <= conf <= 100 or int(parts[0]) != 5:
                     continue
 
                 left = int(parts[6])
                 top = int(parts[7])
                 width = int(parts[8])
                 height = int(parts[9])
+                if left < 0 or top < 0 or width <= 0 or height <= 0:
+                    continue
 
                 tokens.append({
                     "text": text,

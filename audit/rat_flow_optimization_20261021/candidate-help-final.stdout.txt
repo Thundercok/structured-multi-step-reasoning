@@ -1,0 +1,16 @@
+usage: rat [-h] {index,search,ask,ask-file,dedup,status} ...
+
+rat — Smart Local File Finder with Context Engineering & SLM
+
+positional arguments:
+  {index,search,ask,ask-file,dedup,status}
+    index               Scan and index folders
+    search              Search files with natural language
+    ask                 Ask local SLM a question about a file
+    ask-file            Chat offline about one exact indexed file using native
+                        MLX
+    dedup               Find duplicate files and document revision trees
+    status              Show index statistics
+
+options:
+  -h, --help            show this help message and exit

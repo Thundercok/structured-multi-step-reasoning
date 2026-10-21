@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="13" time="6.283" timestamp="2026-10-21T10:49:24.305160+07:00" hostname="thien-than-bong-em.local"><testcase classname="tests.test_execution_flow" name="test_assistant_request_keeps_identity_and_runs_off_gui" time="0.020" /><testcase classname="tests.test_execution_flow" name="test_composed_policy_uses_existing_reasoning_worker_and_preserves_cost" time="0.026"><failure message="TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'">app = &lt;PyQt6.QtWidgets.QApplication object at 0x130630b90&gt;
+
+    def test_composed_policy_uses_existing_reasoning_worker_and_preserves_cost(app):
+        engine, backend = composed()
+        request = ExecutionRequest("giải thích fixture", "exec-r", 4,
+                                   SimpleNamespace(turn_id="turn-r"), lane="reasoning")
+        target = runtime()
+        worker = create_execution_worker(target, request, reasoning_engine=engine, allow_synthetic_policy=True)
+        assert isinstance(worker, OnlineReasoningWorker)
+        result = collect(app, worker)
+&gt;       response = execution_response(request, result)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_execution_flow.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = ExecutionRequest(query='giải thích fixture', execution_id='exec-r', generation=4, turn_ref=namespace(turn_id='turn-r')...g', context={}, timeout_s=None, max_strategy_invocations=None, max_underlying_requests=None, max_generated_tokens=None)
+result = MetaReasoningResult(query='giải thích fixture', strategy='COT', badge='Policy', answer='synthetic answer', steps=['Exe...d': 0, 'generated_tokens': 7, 'prompt_tokens': None, 'status': 'completed'}, execution_id='exec-r', query_generation=4)
+
+    def execution_response(request, result):
+        """Adapt a strategy result for the existing conversation consumer.
+    
+        A completed generation is not proof of a verified answer or tool effect.
+        No strategy internals/private reasoning are copied to public step traces.
+        """
+        from rat.engine.assistant_runtime import AgentResponse
+        if isinstance(result, AgentResponse):
+            result.execution_id = request.execution_id or result.execution_id
+            result.turn_id = getattr(request.turn_ref, "turn_id", None) or result.turn_id
+            return result
+        ledger = dict(result.cost_ledger or {})
+        return AgentResponse(
+            answer=result.answer, steps=[], total_time_ms=result.latency_ms,
+            tool_call_count=0, token_estimate=ledger.get("generated_tokens", result.tokens),
+            prompt_tokens=ledger.get("prompt_tokens", 0),
+            completion_tokens=ledger.get("generated_tokens", result.tokens),
+&gt;           total_tokens=ledger.get("prompt_tokens", 0) + ledger.get("generated_tokens", result.tokens),
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            sources=list(result.citations),
+            error=None if result.status == "completed" else result.status,
+            token_scope="generated_tokens; prompt_tokens_when_observed; not_full_inference_cost",
+            execution_id=request.execution_id, turn_id=getattr(request.turn_ref, "turn_id", None),
+            completion_status="unchecked", answer_verification_status="UNKNOWN",
+            qa_telemetry={"execution_lane": "reasoning", "execution_mode": result.execution_mode,
+                          "policy_source": result.policy_source, "bundle_id": result.bundle_id,
+                          "cost_ledger": ledger, "query_generation": request.generation},
+        )
+E       TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+
+rat/engine/execution.py:49: TypeError</failure></testcase><testcase classname="tests.test_execution_flow" name="test_production_rejects_synthetic_policy_without_dispatch" time="0.003" /><testcase classname="tests.test_execution_flow" name="test_zero_budget_reaches_controller_without_embedding_or_generation" time="0.003"><failure message="TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'">app = &lt;PyQt6.QtWidgets.QApplication object at 0x130630b90&gt;
+
+    def test_zero_budget_reaches_controller_without_embedding_or_generation(app):
+        engine, backend = composed()
+        request = ExecutionRequest("fixture", "exec-zero", 2, lane="reasoning", max_generated_tokens=0)
+        worker = create_execution_worker(runtime(), request, reasoning_engine=engine, allow_synthetic_policy=True)
+&gt;       response = execution_response(request, collect(app, worker))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_execution_flow.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = ExecutionRequest(query='fixture', execution_id='exec-zero', generation=2, turn_ref=None, document_path=None, lane='reasoning', context={}, timeout_s=None, max_strategy_invocations=None, max_underlying_requests=None, max_generated_tokens=0)
+result = MetaReasoningResult(query='fixture', strategy='NONE', badge='Budget_exceeded', answer='', steps=['Execution stopped wi...enerated_tokens': 0, 'prompt_tokens': None, 'status': 'budget_exceeded'}, execution_id='exec-zero', query_generation=2)
+
+    def execution_response(request, result):
+        """Adapt a strategy result for the existing conversation consumer.
+    
+        A completed generation is not proof of a verified answer or tool effect.
+        No strategy internals/private reasoning are copied to public step traces.
+        """
+        from rat.engine.assistant_runtime import AgentResponse
+        if isinstance(result, AgentResponse):
+            result.execution_id = request.execution_id or result.execution_id
+            result.turn_id = getattr(request.turn_ref, "turn_id", None) or result.turn_id
+            return result
+        ledger = dict(result.cost_ledger or {})
+        return AgentResponse(
+            answer=result.answer, steps=[], total_time_ms=result.latency_ms,
+            tool_call_count=0, token_estimate=ledger.get("generated_tokens", result.tokens),
+            prompt_tokens=ledger.get("prompt_tokens", 0),
+            completion_tokens=ledger.get("generated_tokens", result.tokens),
+&gt;           total_tokens=ledger.get("prompt_tokens", 0) + ledger.get("generated_tokens", result.tokens),
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            sources=list(result.citations),
+            error=None if result.status == "completed" else result.status,
+            token_scope="generated_tokens; prompt_tokens_when_observed; not_full_inference_cost",
+            execution_id=request.execution_id, turn_id=getattr(request.turn_ref, "turn_id", None),
+            completion_status="unchecked", answer_verification_status="UNKNOWN",
+            qa_telemetry={"execution_lane": "reasoning", "execution_mode": result.execution_mode,
+                          "policy_source": result.policy_source, "bundle_id": result.bundle_id,
+                          "cost_ledger": ledger, "query_generation": request.generation},
+        )
+E       TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+
+rat/engine/execution.py:49: TypeError</failure></testcase><testcase classname="tests.test_execution_flow" name="test_document_selection_takes_precedence_over_reasoning" time="0.002" /><testcase classname="tests.test_execution_flow" name="test_pre_cancelled_request_does_not_call_runtime" time="0.000" /><testcase classname="tests.test_execution_flow" name="test_direct_operation_reuses_artifact_worker" time="0.001" /><testcase classname="tests.test_flow_interaction" name="test_standard_surface_and_explicit_compatibility_opt_out" time="0.000" /><testcase classname="tests.test_flow_interaction" name="test_hidden_pages_are_lazy_and_reused" time="0.800" /><testcase classname="tests.test_flow_interaction" name="test_hide_reopen_and_resize_keep_draft_selection_and_focus" time="0.380" /><testcase classname="tests.test_flow_interaction" name="test_type_select_preview_open_and_return_to_composer" time="0.176" /><testcase classname="tests.test_flow_interaction" name="test_enter_in_composer_submits_request_without_opening_selection" time="0.186" /><testcase classname="tests.test_flow_interaction" name="test_old_snapshot_cannot_replace_new_query_selection" time="0.158" /></testsuite></testsuites>

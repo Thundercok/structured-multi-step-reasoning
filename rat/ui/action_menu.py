@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
 )
 
 from rat.engine.reranker import SearchResultItem
+from rat.ui.theme import MONO_FONT_FAMILY
 
 
 class ActionItemWidget(QWidget):
@@ -51,7 +52,7 @@ class ActionItemWidget(QWidget):
         # Shortcut badge
         if shortcut:
             self.badge = QLabel(shortcut)
-            self.badge.setStyleSheet("""
+            self.badge.setStyleSheet(f"""
                 background-color: #fffefa;
                 color: #6d6258;
                 border: 1px solid #d8cfc3;
@@ -59,7 +60,7 @@ class ActionItemWidget(QWidget):
                 padding: 3px 6px;
                 font-size: 11px;
                 font-weight: 600;
-                font-family: -apple-system, BlinkMacSystemFont, "SF Mono", Menlo, monospace;
+                font-family: {MONO_FONT_FAMILY};
             """)
             layout.addWidget(self.badge)
 

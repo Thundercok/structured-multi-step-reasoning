@@ -1,0 +1,21 @@
+{
+  "status": "completed",
+  "started_utc": "2026-10-16T01:23:58.895698+00:00",
+  "network_attempts": 0,
+  "max_generations": 2,
+  "scope": "Headless RAT fixture, not native UI acceptance",
+  "sources": {
+    "rat/engine/mlx_document_session.py": "64e3fca449d6e14635bef0b4541ac94108fc18b61f05b72ca074b701575d19e5",
+    "rat/engine/selected_document_qa.py": "f3ef9912511635137288126c483459d93c38606c0cd9e2fece6d46493f6b0541",
+    "rat/engine/assistant_runtime.py": "70f7e33154abf66c44283d955f4c1f2c2f43cdd6c9e500015b686d78b7c34ce2",
+    "tests/test_mlx_document_session.py": "dc31e4620a987f35e798b638f51f7b606cad2b10c3dcaaa3228a4e89ac5567ae"
+  },
+  "load_s": 16.652482124976814,
+  "preparation": {
+    "prefill_s": 9.519376832991838,
+    "prefix_tokens": 470
+  },
+  "source_changed": [],
+  "session_closed": true,
+  "finished_utc": "2026-10-16T01:24:31.468997+00:00"
+}

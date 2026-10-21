@@ -1,0 +1,38 @@
+{
+  "outcome": {
+    "accepted": true,
+    "report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    }
+  },
+  "artifacts": {
+    "a.json": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "content": "{}"
+    },
+    "b.json": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "content": "{}"
+    }
+  },
+  "predictor_scores_before": [
+    0.9979999999701977,
+    -0.0020000000298023225,
+    -0.0020000000298023225
+  ],
+  "predictor_scores_after": [
+    0.0979999999701977,
+    -0.0020000000298023225,
+    -0.0020000000298023225
+  ],
+  "live_cost_intercept": 0.10000000149011612
+}

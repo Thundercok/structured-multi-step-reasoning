@@ -1,0 +1,42 @@
+{
+  "wall_s": 20.014333083992824,
+  "quality": {
+    "runtime_error": null,
+    "operations": [
+      "search_documents"
+    ],
+    "correct_code_in_answer": false,
+    "read_correct_document": false,
+    "task_success": false
+  },
+  "calls": [
+    {
+      "wall_s": 11.325672916020267,
+      "error": null,
+      "prompt_tokens": 1080,
+      "completion_tokens": 23,
+      "tools": 7,
+      "request_bytes": 5796,
+      "total_duration": 11323287292,
+      "load_duration": 2079944584,
+      "prompt_eval_duration": 7635125000,
+      "eval_duration": 1594161000,
+      "prompt_eval_cached_count": 0
+    },
+    {
+      "wall_s": 8.613789832917973,
+      "error": null,
+      "prompt_tokens": 1425,
+      "completion_tokens": 85,
+      "tools": 7,
+      "request_bytes": 7145,
+      "total_duration": 8611802458,
+      "load_duration": 3273333,
+      "prompt_eval_duration": 2816113000,
+      "eval_duration": 5778156000,
+      "prompt_eval_cached_count": 1094
+    }
+  ],
+  "call_count": 2,
+  "source_changed_during_run": []
+}

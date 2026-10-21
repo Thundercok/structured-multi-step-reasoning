@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-10-16T08:54:00+07:00",
+  "branch": "main",
+  "head": "11c748a7a60c3da72e24f2e4cbb2233e5aa6a2b5",
+  "status_summary": [
+    "M AGENTS.md",
+    " M README.md",
+    " M docs/benchmark_showcase.png",
+    " M docs/benchmark_table.tex",
+    " M docs/document_intake_refactor_20261015.md",
+    " M docs/rat_backlog.md",
+    " M docs/research_artifact_index.md",
+    " M docs/research_plan.md",
+    " M docs/research_protocol.md",
+    " M experiments/cot_restart_addendum.py",
+    " M experiments/cot_restart_pilot.py",
+    " M experiments/research_study.py",
+    " M main.py",
+    " M rat.spec",
+    " M rat/cli.py",
+    " M rat/crawler/warmup.py",
+    " M rat/engine/assistant_runtime.py",
+    " M rat/engine/context_snapshot.py",
+    " M rat/engine/slm.py",
+    " M rat/kernel/capabilities/documents.py"
+  ],
+  "file_hashes": {
+    "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
+    "rat/kernel/dispatcher.py": "2db4021fa29af75b8dc7b03420e5924c182e18d7b5b22ebd298e28cf454ab6a6",
+    "rat/kernel/registry.py": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+    "rat/kernel/capabilities/__init__.py": "35f185cb72f8cecbae8c4a095daf38ab4efb5f236854ab8d4f49ca24278439b4",
+    "rat/kernel/capabilities/documents.py": "1c3406fdcbf999f6b45c8bc1ac066a3b119aea9bff69bb9e72e9e428903876f4",
+    "rat/kernel/capabilities/views.py": "130fde76d75e7867e7aaceb5fcf4b8b1c1a59cc36abbdb3bbfc00d53e3bfd6fa",
+    "rat/engine/assistant_runtime.py": "70f7e33154abf66c44283d955f4c1f2c2f43cdd6c9e500015b686d78b7c34ce2",
+    "spider/Cargo.toml": "1bb4a796f575e30bd8cd78c2739130e74f1e0718330f1fd6b1e68a048e291ca6",
+    "spider/spider_cli/Cargo.toml": "adf5e1c447f0d1bfd7e7c32a4c4d37e821f95ea2c32085a240ef35108c5ea8de",
+    "docs/spider_reuse_audit_20261016.md": "50064f075cac718479bc057162a4ef149411c184c5967777e30057e0fedb219d",
+    "docs/rat_backlog.md": "e3ee17accb681c8759470f79962005bbd0f41214da9330180cc5c53e7be19c7d"
+  }
+}

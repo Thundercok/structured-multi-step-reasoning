@@ -1,0 +1,27 @@
+diff --git a/rat.spec b/rat.spec
+index ee5700c..109dfda 100644
+--- a/rat.spec
++++ b/rat.spec
+@@ -48,6 +48,7 @@ hidden_imports = [
+     'rat.astrology.export',
+     'rat.ui.claude_widget',
+     'rat.engine.meta_reasoner',
++    'rat.engine.selected_document_qa',
+     'rat.astrology.chart',
+     'rat.astrology.places',
+     'rat.astrology.svg',
+diff --git a/scripts/build_app.sh b/scripts/build_app.sh
+index f4747ce..bf27ec2 100755
+--- a/scripts/build_app.sh
++++ b/scripts/build_app.sh
+@@ -22,7 +22,9 @@ fi
+ 
+ # Detect Python environment with PyInstaller installed
+ if [ -z "$PYTHON_BIN" ]; then
+-    if /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m PyInstaller --version &> /dev/null; then
++    if [ -x "$PROJECT_DIR/.venv/bin/python" ] && "$PROJECT_DIR/.venv/bin/python" -m PyInstaller --version &> /dev/null; then
++        PYTHON_BIN="$PROJECT_DIR/.venv/bin/python"
++    elif /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m PyInstaller --version &> /dev/null; then
+         PYTHON_BIN="/Library/Frameworks/Python.framework/Versions/3.12/bin/python3"
+     elif python3 -m PyInstaller --version &> /dev/null; then
+         PYTHON_BIN="python3"

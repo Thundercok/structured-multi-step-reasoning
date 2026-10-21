@@ -1,0 +1,3 @@
+Processing ./audit/rat_packaging_intake_20261020/wheels/nesy_document_intake-0.1.0-py3-none-any.whl
+Installing collected packages: nesy-document-intake
+Successfully installed nesy-document-intake-0.1.0

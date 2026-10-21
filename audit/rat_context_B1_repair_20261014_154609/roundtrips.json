@@ -1,0 +1,294 @@
+{
+  "status": "ready_for_codex_review",
+  "timestamp": "2026-10-14T09:00:31.427208+00:00",
+  "total_cases_verified": 14,
+  "cases": [
+    {
+      "case_id": "R2_1_raw_unknown_result_quote_not_decoded",
+      "finding": "R2-1: Raw unknown plugin result key 'quote' does not authorize $value_ref decode",
+      "literal_input": {
+        "quote": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "restored_output": {
+        "quote": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_1_raw_unknown_result_note_not_decoded",
+      "finding": "R2-1: Raw unknown plugin result key 'note' does not authorize $value_ref decode",
+      "literal_input": {
+        "note": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "restored_output": {
+        "note": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_1_raw_unknown_result_snapshot_not_decoded",
+      "finding": "R2-1: Raw unknown plugin result key 'snapshot' does not authorize $value_ref decode",
+      "literal_input": {
+        "snapshot": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "restored_output": {
+        "snapshot": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_1_raw_unknown_result_verification_report_not_decoded",
+      "finding": "R2-1: Raw unknown plugin result key 'verification_report' does not authorize $value_ref decode",
+      "literal_input": {
+        "verification_report": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "restored_output": {
+        "verification_report": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "a",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_1_dangling_literal_ref_in_raw_result_is_not_structural_error",
+      "finding": "R2-1: Dangling literal ref in raw unknown plugin result remains opaque data",
+      "literal_input": {
+        "quote": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "missing",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "restored_output": {
+        "quote": {
+          "$value_ref": {
+            "entity_ref": {
+              "kind": "artifact",
+              "conversation_id": "review-conv",
+              "artifact_id": "missing",
+              "revision": 1
+            },
+            "pointer": "/payload/value"
+          }
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_1_raw_artifact_literal_cycle_is_not_graph_edge",
+      "finding": "R2-1: Literal cycle in raw artifact payload is not treated as a projector cycle",
+      "literal_input": {
+        "$value_ref": {
+          "entity_ref": {
+            "kind": "artifact",
+            "conversation_id": "review-conv",
+            "artifact_id": "a",
+            "revision": 1
+          },
+          "pointer": "/payload/quote"
+        }
+      },
+      "entity_payload": {
+        "$value_ref": {
+          "entity_ref": {
+            "kind": "artifact",
+            "conversation_id": "review-conv",
+            "artifact_id": "a",
+            "revision": 1
+          },
+          "pointer": "/payload/quote"
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_2_note_and_source_ref_quote_independent_exact_values",
+      "finding": "R2-2: quote and source_ref.quote independently verified and preserved",
+      "original_quote": "Canonical source",
+      "original_sref_quote": "Different literal source quote",
+      "restored_quote": "Canonical source",
+      "restored_sref_quote": "Different literal source quote",
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_2_replaces_text_not_rewritten_without_exact_match",
+      "finding": "R2-2: replaces_text preserved verbatim when differing from target note text",
+      "literal_replaces_text": "Different literal prior text",
+      "restored_replaces_text": "Different literal prior text",
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_2_distinguish_bool_from_number_in_exact_equality",
+      "finding": "R2-2: exact_json_equal distinguishes confirmed: 1 (int) from confirmed: True (bool)",
+      "input_confirmed_type": "int",
+      "input_confirmed_val": 1,
+      "restored_confirmed_type": "int",
+      "restored_confirmed_val": 1,
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_2_receipt_event_different_body_preserved_verbatim",
+      "finding": "R2-2: Receipt note_event with same ID but different body is preserved verbatim",
+      "literal_event": {
+        "event_id": "evt",
+        "kind": "different literal kind",
+        "note_id": "n1",
+        "after_revision": 1,
+        "extra": "keep"
+      },
+      "restored_event": {
+        "event_id": "evt",
+        "kind": "different literal kind",
+        "note_id": "n1",
+        "after_revision": 1,
+        "extra": "keep"
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_3_proof_without_generation_excluded_from_current_proof",
+      "finding": "R2-3: Receipt with generation None is excluded from current proof_refs and retains None generation",
+      "proof_refs": [],
+      "receipt_generation": null,
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "R2_4_typed_proof_ref_closure_enforced",
+      "finding": "R2-4: observed_state.proof_refs enforces closure validation against entities and unavailable_refs",
+      "missing_ref_rejected": true,
+      "unavailable_ref_accepted": true,
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "control_unknown_result_equal_canonical_note_remains_raw",
+      "finding": "Control: Unknown plugin result identical to canonical note remains raw",
+      "entity_body": {
+        "note": {
+          "id": "n1",
+          "revision": 1,
+          "text": "Canonical note",
+          "quote": "Canonical quote",
+          "source": "user_quote",
+          "confirmed": true,
+          "owner_turn_id": "review-turn"
+        }
+      },
+      "restored_output": {
+        "note": {
+          "id": "n1",
+          "revision": 1,
+          "text": "Canonical note",
+          "quote": "Canonical quote",
+          "source": "user_quote",
+          "confirmed": true,
+          "owner_turn_id": "review-turn"
+        }
+      },
+      "exact_match": true,
+      "verified": true
+    },
+    {
+      "case_id": "control_distinct_conversations_distinct_identity",
+      "finding": "Control: Entities with same id/revision across different conversations do not collide",
+      "validation_passed": true,
+      "exact_match": true,
+      "verified": true
+    }
+  ]
+}

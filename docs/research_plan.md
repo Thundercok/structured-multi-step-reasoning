@@ -2,8 +2,10 @@
 
 ## Sản phẩm cần đạt
 
-Thứ tự ưu tiên: **bài báo NCKH → pipeline nghiên cứu tái lập được → app đơn giản
-cho người ít rành công nghệ**. Một kết quả âm có phương pháp đúng, phân tích rõ
+Mục tiêu thống nhất: **phương pháp CoT/structured reasoning → triển khai chính
+trong RAT → đánh giá tái lập bằng pipeline headless → bằng chứng cho bài NCKH**.
+Đây là quan hệ giữa các thành phần, không phải thứ tự bắt buộc phải hoàn thành
+từng phần. RAT không phải demo phụ có thể bỏ. Xem [phạm vi đã chốt với người dùng](project_scope.md). Một kết quả âm có phương pháp đúng, phân tích rõ
 và tái lập được vẫn là kết quả nghiên cứu. Không đặt điều kiện phải chứng minh
 phương pháp của nhóm luôn tốt hơn.
 
@@ -69,7 +71,7 @@ thành bằng chứng cho bài báo. Stage 0 của chiến dịch Qwen/Meta-Reas
 | **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng confidence và verifier | **CHƯA QUA GATE** | Có trace model thật và verifier development. Kết luận confidence chưa chấm đúng prereg; Recall 100% của verifier chỉ trên fixture lỗi trong-sample và cần fresh development replication. |
 | **M3: Thực nghiệm chính** | Sweep nhiều seed trên model/dataset đã freeze | **CHƯA CHẠY** | Run 11 đã đủ 571 bản ghi development nhưng dùng model session tuần tự, mixed sampling, token proxy thiếu input multi-call và SC có lỗi scoring semantics. Nó dùng để debug/thiết kế, không hoàn tất M3. |
 | **M4: Bài báo & Cascade** | Policy evaluation, ablation và tổng hợp bằng chứng | **ĐANG LÀM** | Policy V hiện là replay trong-sample; GapB là paired exploratory (9 rescues, 5 harms, McNemar exact hai phía p≈0,424) và có selection-by-extractability. Chưa có claim confirmatory. |
-| **M5: Minh họa RAT** | Demo luồng app tối thiểu | **ĐỂ SAU** | Chỉ thực hiện sau khi evidence pipeline và bản thảo nghiên cứu đạt gate. |
+| **M5: Triển khai phương pháp trong RAT** | Luồng ứng dụng thể hiện suy luận, kiểm tra, quyết định tiếp tục/dừng và kết quả có nguồn | **CẦN ĐỐI CHIẾU TRIỂN KHAI / BẰNG CHỨNG** | RAT là implementation chính; không hoãn toàn bộ RAT đến sau bài báo. Đối chiếu hành vi với protocol, kiểm tra phần mềm và đánh giá model riêng; thay đổi định hướng này không xác nhận chất lượng hay vượt Stage 0. |
 
 ## Nhật ký Tiến trình Thực nghiệm (Chronological Execution Log)
 
@@ -95,8 +97,10 @@ thì không dùng làm ground truth thực nghiệm chính.
 RAT được định hướng là trợ lý cá nhân theo hướng “second me”, hỗ trợ công việc
 hằng ngày dựa trên ngữ cảnh, nhu cầu và cách làm việc của từng người. Định hướng
 này phục vụ nhiều đối tượng người dùng. Đây là mục tiêu phát triển lâu dài;
-trong đề tài NCKH hiện tại, RAT vẫn là ứng dụng minh họa, còn thí nghiệm và bài
-báo là ưu tiên. Các khả năng cá nhân hóa cần được xây dựng và đánh giá riêng.
+trong đề tài NCKH hiện tại, RAT là ứng dụng triển khai chính phương pháp CoT,
+còn pipeline headless cung cấp đánh giá độc lập với UI. Không mặc định mọi chức
+năng RAT thuộc đóng góp nghiên cứu; các khả năng cá nhân hóa cần được xây dựng
+và đánh giá riêng.
 
 Tác vụ minh họa ban đầu của RAT là tìm file thật: tìm slide Calculus theo tên, môn,
 nội dung, và cách hỏi tiếng Việt/Anh. Người dùng cần danh sách file liên quan,

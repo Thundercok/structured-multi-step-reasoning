@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-19",
+  "status": "opt-in integration; default singleton unchanged",
+  "evidence": "synthetic fitted-policy software contracts, not model quality",
+  "source_hashes": {
+    "reasoning/runtime.py": "273c29801e6c89a001287b0764a53f755d6352e5922d81c3e257690199ef7276",
+    "reasoning/optimal_stopping.py": "540811a148fdf232c0d1434c6ccc2b816dec23cbb78b67d653a647cca0f5a0a0",
+    "rat/engine/meta_reasoner.py": "f7d50bc07517f7cc2a658cdca76f374678b8654ecd104df30c1c3eac4c8c90f4",
+    "tests/test_online_reasoning.py": "7cc26742959a9b5023ea9711baba00b8738ae5c4f2df79a84cdcc4dcf2f88890"
+  },
+  "headless_passed": 149,
+  "qt_passed": 6,
+  "qt_existing_failure": 1,
+  "model_calls": 0,
+  "commit_push": false
+}

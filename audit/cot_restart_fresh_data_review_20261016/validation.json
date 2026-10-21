@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "candidate_items": 71,
+  "candidate_groups": 70,
+  "checks": [
+    "all input and artifact hashes",
+    "unique group representatives chosen without outcomes",
+    "71 pending review entries",
+    "zero automatic human approvals",
+    "execution and power remain unfrozen",
+    "byte-identical reproduction",
+    "repeat export refuses overwrite and preserves files"
+  ],
+  "required_regressions": {
+    "command": "python3.12 -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q",
+    "passed": 29
+  },
+  "model_calls": 0
+}

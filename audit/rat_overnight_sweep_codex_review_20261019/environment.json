@@ -1,0 +1,10 @@
+{
+  "sys_executable": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python",
+  "sys_prefix": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv",
+  "base_prefix": "/Library/Frameworks/Python.framework/Versions/3.12",
+  "user_site_enabled": true,
+  "pytest_shebang": "#!/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python3.12",
+  "psutil_origin": "/Users/thundercock2/Library/Python/3.12/lib/python/site-packages/psutil/__init__.py",
+  "venv_cfg": "home = /Library/Frameworks/Python.framework/Versions/3.12/bin\ninclude-system-site-packages = true\nversion = 3.12.6\nexecutable = /Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12\ncommand = /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m venv /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv\n",
+  "python_link": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python"
+}

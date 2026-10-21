@@ -1,0 +1,9 @@
+{
+  "kind": "artifact_integrity_check_only_not_runtime_tests",
+  "journeys": 12,
+  "unique_ids": true,
+  "every_journey_has_review_assertions": true,
+  "source_changed_since_manifest": [],
+  "model_calls": 0,
+  "product_source_edits_in_this_research_turn": false
+}

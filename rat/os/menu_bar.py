@@ -18,6 +18,7 @@ from rat.config import config
 from rat.crawler.db import Database
 from rat.crawler.indexer import Indexer
 from rat.os.daemon import is_launch_agent_installed, set_launch_at_login
+from rat.ui.theme import FONT_FAMILY
 
 logger = logging.getLogger("rat.os.menu_bar")
 
@@ -93,38 +94,43 @@ class SystemTrayManager:
 
         # Create Menu with warm paper styling
         menu = QMenu()
-        menu.setStyleSheet("""
-            QMenu {
+        menu.setStyleSheet(f"""
+            QMenu {{
                 background-color: #fffdf9;
                 color: #2c241c;
                 border: 1px solid #d9d0c5;
                 border-radius: 10px;
                 padding: 5px;
-                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+                font-family: {FONT_FAMILY};
                 font-size: 13px;
-            }
-            QMenu::item {
+            }}
+            QMenu::item {{
                 padding: 6px 14px;
                 border-radius: 6px;
-            }
-            QMenu::item:selected {
+            }}
+            QMenu::item:selected {{
                 background-color: #f7eedb;
                 color: #4c3a21;
-            }
-            QMenu::separator {
+            }}
+            QMenu::separator {{
                 height: 1px;
                 background-color: #ebe4db;
                 margin: 4px 8px;
-            }
+            }}
         """)
 
         # Check Accessibility permission
         from rat.os.hotkey import is_accessibility_trusted, open_accessibility_settings
-        if not is_accessibility_trusted():
-            action_perm = QAction("⚠️ Cấp quyền Phím tắt (Accessibility)...", menu)
-            action_perm.triggered.connect(open_accessibility_settings)
-            menu.addAction(action_perm)
-            menu.addSeparator()
+        action_perm = QAction("⚠️ Cấp quyền Phím tắt (Accessibility)...", menu)
+        action_perm.triggered.connect(open_accessibility_settings)
+        menu.addAction(action_perm)
+        permission_separator = menu.addSeparator()
+        def refresh_permission_action():
+            missing = not is_accessibility_trusted()
+            action_perm.setVisible(missing)
+            permission_separator.setVisible(missing)
+        menu.aboutToShow.connect(refresh_permission_action)
+        refresh_permission_action()
 
         # Search Quick Actions
         action_spotlight = QAction(f"🔍 Tìm kiếm nhanh ({config.get_hotkey_display()})", menu)

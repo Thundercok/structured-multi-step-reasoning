@@ -1,0 +1,177 @@
+--- a/experiments/research_study.py
++++ b/experiments/research_study.py
+@@ -415,6 +415,7 @@
+     mode.add_argument("--cot-restart-addendum", action="store_true", help="Run the read-only full-prefix continuation addendum on historical pilot base traces")
+     mode.add_argument("--cot-restart-matched-plan", action="store_true", help="Prepare an A/F/CONT development budget using only the cached tokenizer")
+     mode.add_argument("--cot-restart-matched-run", type=Path, metavar="PLAN", help="Execute the exact prepared A/F/CONT development plan")
++    mode.add_argument("--cot-restart-fresh-smoke", action="store_true", help="Offline fresh-base O/F/CONT/A adapter check on three synthetic fixtures; never loads a model")
+     mode.add_argument("--agreement-analysis", action="store_true", help="Offline exploratory reanalysis of pinned Run 11/PAL-v2 development outputs; never calls a model")
+     parser.add_argument("--order-pilot-mock", action="store_true", help="Synthetic ordering pilot; never import or load MLX")
+     parser.add_argument("--order-pilot-items", type=int, help="Exposed ordering train questions (default 2)")
+@@ -442,9 +443,27 @@
+     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
+     parser.add_argument("--seed", type=int)
+     parser.add_argument("--lam", type=float)
+-    parser.add_argument("--output", type=Path, required=True, help="New run directory; only the ordering development pilot supports exact compatible resume")
++    parser.add_argument("--output", type=Path, required=True, help="New run directory; checkpointed pilot/smoke modes support exact compatible resume")
+     args = parser.parse_args(argv)
+     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
++    if args.cot_restart_fresh_smoke:
++        overrides = sorted(
++            "--" + key.replace("_", "-") for key, value in vars(args).items()
++            if key not in ("cot_restart_fresh_smoke", "output")
++            and value is not None and value is not False
++        )
++        if overrides:
++            parser.error("Fresh restart smoke uses fixed synthetic fixtures; overrides are not allowed: " + ", ".join(overrides))
++        from experiments.cot_restart_fresh import run_smoke
++        try:
++            manifest = run_smoke(args.output)
++        except (ValueError, OSError, RuntimeError) as error:
++            parser.error(str(error))
++        print(json.dumps({key: manifest[key] for key in (
++            "status", "evidence", "original_groups", "completed_mock_calls", "real_model_calls",
++            "total_synthetic_collection_tokens", "confirmatory", "stage_0_changed",
++        )}))
++        return
+     if args.order_certificate_pilot:
+         if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.lam, args.direct_cot_budget, *pilot_settings)):
+             parser.error("Ordering pilot selects exposed train only; generic collection overrides are not allowed")
+--- a/experiments/cot_restart_fresh.py
++++ b/experiments/cot_restart_fresh.py
+@@ -1,8 +1,8 @@
+ """Offline adapter for fresh CoT restart frames; real inference is disabled.
+ 
+-This is software preparation, not a new research collection entry point.
+-Historical sources/plans stay byte-for-byte intact. A future reviewed campaign
+-must integrate through experiments.research_study and freeze its own sources.
++This is software preparation, exposed through research_study's smoke mode.
++Historical artifacts keep their original identities; modified sources require
++a new freeze before real collection. Real inference is not enabled here.
+ """
+ 
+ from __future__ import annotations
+@@ -32,6 +32,8 @@
+     "experiments/cot_restart_replay.py", "experiments/order_pilot_checkpoint.py",
+     "experiments/research_study.py", "research_identity.py",
+     "research_prompt_profiles.py", "reasoning_strategies.py", "scripts/gen_tasks.py",
++    "reasoning/__init__.py", "reasoning/reasoning_strategies.py",
++    "reasoning/reasoning_env.py", "reasoning/entry_predictor.py", "reasoning/optimal_stopping.py",
+ )
+ 
+ 
+@@ -339,3 +341,9 @@
+             "source": "Three authored synthetic software fixtures; no study-pool inputs",
+             "license": "Project software-test fixtures", "identity_version": "procedural-v1",
+             "role": "synthetic_software_validation", "evidence": "synthetic_smoke", "items": items}
++
++
++def run_smoke(output):
++    """Fixed authored fixtures and mock settings for the supported entry point."""
++    return run_mock(synthetic_dataset(), output,
++                    MockSettings(base_cap=64, completion_cap=64, include_a=True))
+--- a/scripts/smoke_cot_restart_fresh.py
++++ b/scripts/smoke_cot_restart_fresh.py
+@@ -1,22 +1,12 @@
+-"""Auxiliary CPU software check, not a real research collection entry point."""
++"""Compatibility command forwarding to the supported research smoke mode."""
+ 
+-import argparse
+-import json
+-from pathlib import Path
++import sys
+ 
+-from experiments.cot_restart_fresh import MockSettings, run_mock, synthetic_dataset
++from experiments.research_study import main as research_main
+ 
+ 
+ def main(argv=None):
+-    parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument("--output", type=Path, required=True)
+-    args = parser.parse_args(argv)
+-    manifest = run_mock(synthetic_dataset(), args.output,
+-                        MockSettings(base_cap=64, completion_cap=64, include_a=True))
+-    print(json.dumps({key: manifest[key] for key in (
+-        "status", "evidence", "original_groups", "completed_mock_calls", "real_model_calls",
+-        "total_synthetic_collection_tokens", "confirmatory", "stage_0_changed",
+-    )}))
++    return research_main(["--cot-restart-fresh-smoke", *(sys.argv[1:] if argv is None else argv)])
+ 
+ 
+ if __name__ == "__main__":
+--- a/tests/test_cot_restart_fresh.py
++++ b/tests/test_cot_restart_fresh.py
+@@ -168,15 +168,15 @@
+ def test_smoke_runs_without_importing_model_or_gui_libraries(tmp_path):
+     root = Path(__file__).resolve().parents[1]
+     code = """
+-import builtins, sys
++import builtins, runpy, sys
+ original = builtins.__import__
+ def guarded(name, *args, **kwargs):
+     if name.split('.')[0] in ('mlx', 'mlx_lm', 'PySide6', 'PyQt6', 'PyQt5'):
+         raise AssertionError('Forbidden software-smoke dependency: ' + name)
+     return original(name, *args, **kwargs)
+ builtins.__import__ = guarded
+-from scripts.smoke_cot_restart_fresh import main
+-main(['--output', sys.argv[1]])
++sys.argv = ['experiments.research_study', '--cot-restart-fresh-smoke', '--output', sys.argv[1]]
++runpy.run_module('experiments.research_study', run_name='__main__')
+ """
+     proc = subprocess.run([sys.executable, "-c", code, str(tmp_path / "headless")],
+                           cwd=root, capture_output=True, text=True)
+@@ -191,3 +191,54 @@
+     assert manifest["completed_mock_calls"] == 9
+     f_records = [r for r in read_records(output) if r["arm"] == "F"]
+     assert len(f_records) == 3 and all(r["prefix_collapsed_to_empty"] for r in f_records)
++
++
++def test_supported_entrypoint_and_compatibility_command_share_exact_resume(tmp_path, capsys):
++    from experiments.research_study import main
++    from scripts.smoke_cot_restart_fresh import main as compatibility_main
++
++    output = tmp_path / "entrypoint"
++    main(["--cot-restart-fresh-smoke", "--output", str(output)])
++    result = json.loads(capsys.readouterr().out)
++    assert result["completed_mock_calls"] == 12 and result["real_model_calls"] == 0
++    before = {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()}
++    compatibility_main(["--output", str(output)])
++    assert json.loads(capsys.readouterr().out) == result
++    assert before == {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()}
++
++
++@pytest.mark.parametrize("extra", [
++    ["--dataset", "data/procedural_research_v1/main.json"],
++    ["--model", "never-load-model"],
++    ["--seed", "0"],
++    ["--max-tokens", "128"],
++    ["--cot-restart-matched-approved"],
++    ["--backend", "mlx"],
++])
++def test_smoke_entrypoint_rejects_collection_overrides_before_output(tmp_path, extra):
++    from experiments.research_study import main
++
++    output = tmp_path / "forbidden"
++    with pytest.raises(SystemExit) as error:
++        main(["--cot-restart-fresh-smoke", "--output", str(output), *extra])
++    assert error.value.code == 2
++    assert not output.exists()
++
++
++def test_resume_fingerprint_tracks_canonical_reasoning_behind_root_shims(tmp_path, monkeypatch):
++    output = tmp_path / "canonical"
++    dataset, settings = fresh.synthetic_dataset(), fresh.MockSettings(64, 64)
++    manifest = fresh.run_mock(dataset, output, settings)
++    target = "reasoning/reasoning_strategies.py"
++    hashes = manifest["identity"]["source_sha256"]
++    assert hashes[target] == fresh.file_digest(fresh.ROOT / target)
++    before = (output / "manifest.json").read_bytes()
++    original = fresh.file_digest
++
++    def changed_canonical(path):
++        return "0" * 64 if Path(path) == fresh.ROOT / target else original(path)
++
++    monkeypatch.setattr(fresh, "file_digest", changed_canonical)
++    with pytest.raises(ValueError, match="identity mismatch"):
++        fresh.run_mock(dataset, output, settings)
++    assert (output / "manifest.json").read_bytes() == before

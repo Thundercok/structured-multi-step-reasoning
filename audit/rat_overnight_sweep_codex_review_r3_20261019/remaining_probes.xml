@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="10" time="0.657" timestamp="2026-10-19T18:54:59.028941+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_budget_counts_attempts_instead_of_event_lines[legacy-control]" time="0.005" /><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_budget_counts_attempts_instead_of_event_lines[pending-start-control]" time="0.001" /><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_budget_counts_attempts_instead_of_event_lines[completed-pair]" time="0.001"><failure message="AssertionError: assert 2 == 1&#10; +  where 2 = &lt;function count_existing_attempts at 0x1092e0040&gt;(PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-842/test_budget_counts_attempts_in2/calls.jsonl'))&#10; +    where &lt;function count_existing_attempts at 0x1092e0040&gt; = runner.count_existing_attempts">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-842/test_budget_counts_attempts_in2')
+records = [{'event': 'request_start', 'call_index': 1, 'request_id': 'r1'}, {'event': 'request_complete', 'call_index': 1, 'request_id': 'r1', 'completion_tokens': 10}]
+expected = 1
+
+    @pytest.mark.parametrize("records,expected", [
+        ([{"call_index": 1, "completion_tokens": 10}], 1),
+        ([{"event": "request_start", "call_index": 1, "request_id": "r1"}], 1),
+        ([{"event": "request_start", "call_index": 1, "request_id": "r1"},
+          {"event": "request_complete", "call_index": 1, "request_id": "r1", "completion_tokens": 10}], 1),
+        ([{"call_index": 1, "completion_tokens": 10},
+          {"event": "request_start", "call_index": 2, "request_id": "r2"},
+          {"event": "request_complete", "call_index": 2, "request_id": "r2", "completion_tokens": 10}], 2),
+    ], ids=["legacy-control", "pending-start-control", "completed-pair", "legacy-plus-pair"])
+    def test_budget_counts_attempts_instead_of_event_lines(tmp_path, records, expected):
+        ledger = tmp_path / "calls.jsonl"
+        ledger.write_text("".join(json.dumps(r) + "\n" for r in records))
+&gt;       assert runner.count_existing_attempts(ledger) == expected
+E       AssertionError: assert 2 == 1
+E        +  where 2 = &lt;function count_existing_attempts at 0x1092e0040&gt;(PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-842/test_budget_counts_attempts_in2/calls.jsonl'))
+E        +    where &lt;function count_existing_attempts at 0x1092e0040&gt; = runner.count_existing_attempts
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:31: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_budget_counts_attempts_instead_of_event_lines[legacy-plus-pair]" time="0.001"><failure message="AssertionError: assert 3 == 2&#10; +  where 3 = &lt;function count_existing_attempts at 0x1092e0040&gt;(PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-842/test_budget_counts_attempts_in3/calls.jsonl'))&#10; +    where &lt;function count_existing_attempts at 0x1092e0040&gt; = runner.count_existing_attempts">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-842/test_budget_counts_attempts_in3')
+records = [{'call_index': 1, 'completion_tokens': 10}, {'event': 'request_start', 'call_index': 2, 'request_id': 'r2'}, {'event': 'request_complete', 'call_index': 2, 'request_id': 'r2', 'completion_tokens': 10}]
+expected = 2
+
+    @pytest.mark.parametrize("records,expected", [
+        ([{"call_index": 1, "completion_tokens": 10}], 1),
+        ([{"event": "request_start", "call_index": 1, "request_id": "r1"}], 1),
+        ([{"event": "request_start", "call_index": 1, "request_id": "r1"},
+          {"event": "request_complete", "call_index": 1, "request_id": "r1", "completion_tokens": 10}], 1),
+        ([{"call_index": 1, "completion_tokens": 10},
+          {"event": "request_start", "call_index": 2, "request_id": "r2"},
+          {"event": "request_complete", "call_index": 2, "request_id": "r2", "completion_tokens": 10}], 2),
+    ], ids=["legacy-control", "pending-start-control", "completed-pair", "legacy-plus-pair"])
+    def test_budget_counts_attempts_instead_of_event_lines(tmp_path, records, expected):
+        ledger = tmp_path / "calls.jsonl"
+        ledger.write_text("".join(json.dumps(r) + "\n" for r in records))
+&gt;       assert runner.count_existing_attempts(ledger) == expected
+E       AssertionError: assert 3 == 2
+E        +  where 3 = &lt;function count_existing_attempts at 0x1092e0040&gt;(PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-842/test_budget_counts_attempts_in3/calls.jsonl'))
+E        +    where &lt;function count_existing_attempts at 0x1092e0040&gt; = runner.count_existing_attempts
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:31: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_fake_session_does_not_claim_real_model_calls" time="0.001"><failure message="assert 1 == 0">fake_perf = {'timestamp_utc': '2026-10-19T11:53:29.927584+00:00', 'qpa_platform': 'offscreen', 'model_id': 'mock/FakeMLXDocumentSession', 'model_path': '/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_qjaaens9', ...}
+
+    def test_fake_session_does_not_claim_real_model_calls(fake_perf):
+        assert fake_perf["model_id"].startswith("mock/")
+        assert fake_perf["scope_classification"]["type"] == "offline_fake_backend_simulation"
+&gt;       assert fake_perf["real_model_calls_executed"] == 0
+E       assert 1 == 0
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:43: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_single_fake_request_cannot_verify_twelve_native_requests" time="0.000"><failure message="AssertionError: assert 'backend_inference_verified_12_calls' != 'backend_inference_verified_12_calls'">fake_perf = {'timestamp_utc': '2026-10-19T11:53:29.927584+00:00', 'qpa_platform': 'offscreen', 'model_id': 'mock/FakeMLXDocumentSession', 'model_path': '/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_qjaaens9', ...}
+
+    def test_single_fake_request_cannot_verify_twelve_native_requests(fake_perf):
+        assert fake_perf["gates"]["all_12_requests_succeeded"] is False
+&gt;       assert fake_perf["scope_classification"]["status"] != "backend_inference_verified_12_calls"
+E       AssertionError: assert 'backend_inference_verified_12_calls' != 'backend_inference_verified_12_calls'
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:48: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_single_request_has_no_warm_distribution" time="0.001"><failure message="AssertionError: {'min': 4635.92, 'max': 47359.53, 'median': 6364.26, 'call_8_ms': 31830.36, ...}&#10;assert ({'min': 4635.92, 'max': 47359.53, 'median': 6364.26, 'call_8_ms': 31830.36, ...} is None or False)&#10; +  where False = all(&lt;generator object test_single_request_has_no_warm_distribution.&lt;locals&gt;.&lt;genexpr&gt; at 0x1092c6ea0&gt;)">fake_perf = {'timestamp_utc': '2026-10-19T11:53:29.927584+00:00', 'qpa_platform': 'offscreen', 'model_id': 'mock/FakeMLXDocumentSession', 'model_path': '/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_qjaaens9', ...}
+
+    def test_single_request_has_no_warm_distribution(fake_perf):
+        ledger = [json.loads(s) for s in (HERE / "fake_session/calls.jsonl").read_text().splitlines()]
+        completed = [s for s in ledger if s.get("event") == "request_complete"]
+        assert len(completed) == 1
+        warm = fake_perf.get("warm_generation_latency_ms")
+&gt;       assert warm is None or all(warm.get(k) is None for k in ("min", "max", "median", "call_8_ms")), warm
+E       AssertionError: {'min': 4635.92, 'max': 47359.53, 'median': 6364.26, 'call_8_ms': 31830.36, ...}
+E       assert ({'min': 4635.92, 'max': 47359.53, 'median': 6364.26, 'call_8_ms': 31830.36, ...} is None or False)
+E        +  where False = all(&lt;generator object test_single_request_has_no_warm_distribution.&lt;locals&gt;.&lt;genexpr&gt; at 0x1092c6ea0&gt;)
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:56: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_candidate_labels_distinguish_full_bundle_identity[renamed-copy-same-directory]" time="0.376"><failure message="AssertionError: ['Applications · League of Legends · v1.0', 'Applications · League of Legends · v1.0']&#10;assert 1 == 2&#10; +  where 1 = len({'Applications · League of Legends · v1.0'})">app = &lt;PyQt6.QtWidgets.QApplication object at 0x1092eaa30&gt;
+paths = ('/Applications/League of Legends.app', '/Applications/League of Legends copy.app')
+
+    @pytest.mark.parametrize("paths", [
+        ("/Applications/League of Legends.app", "/Applications/League of Legends copy.app"),
+        ("/Applications/League of Legends.app", "/Users/fixture/Applications/League of Legends.app"),
+    ], ids=["renamed-copy-same-directory", "system-user-directory-control"])
+    def test_candidate_labels_distinguish_full_bundle_identity(app, paths):
+        from rat.kernel.contracts import Artifact
+        from rat.kernel.view_spec import StandardViewProvider
+        from rat.ui.view_renderer import QtViewRenderer
+    
+        choices = [dict(name="League of Legends", path=p, bundle_id="com.fixture.league", version="1.0") for p in paths]
+        artifact = Artifact("same-directory-probe", "input_request", payload=dict(operation_name="open_application",
+            missing_fields=[], candidate_choices=choices, supplied_inputs={"name": "Liên Minh"}, prompt="Choose installation"))
+        renderer = QtViewRenderer(StandardViewProvider().provide_view(artifact), artifact)
+        renderer.setFixedWidth(420)
+        renderer.show()
+        for _ in range(4):
+            app.processEvents()
+        try:
+            buttons = [b for b in renderer.findChildren(QPushButton) if b.objectName() == "CandidateBtn"]
+            assert len(buttons) == 2 and all(b.isVisible() for b in buttons)
+            assert all(p in b.toolTip() for p, b in zip(paths, buttons))
+&gt;           assert len({b.text() for b in buttons}) == 2, [b.text() for b in buttons]
+E           AssertionError: ['Applications · League of Legends · v1.0', 'Applications · League of Legends · v1.0']
+E           assert 1 == 2
+E            +  where 1 = len({'Applications · League of Legends · v1.0'})
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:85: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_candidate_labels_distinguish_full_bundle_identity[system-user-directory-control]" time="0.004" /><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_200_golden_scores_hold_under_current_25_feature_schema" time="0.017" /></testsuite></testsuites>

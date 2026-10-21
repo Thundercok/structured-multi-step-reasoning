@@ -1,0 +1,294 @@
+FFFFFFFFFFFFFFFF...                                                      [100%]
+=================================== FAILURES ===================================
+_ test_caller_name_does_not_change_identical_execution[test_unsupported_hard_cap_rejected_before_generation] _
+
+caller_name = 'test_unsupported_hard_cap_rejected_before_generation'
+
+    @pytest.mark.parametrize('caller_name',[
+        'test_unsupported_hard_cap_rejected_before_generation',
+        'test_generated_token_ceiling_is_enforced_within_final_strategy',
+    ])
+    def test_caller_name_does_not_change_identical_execution(caller_name):
+        client=invocation(LegacyBackend)
+        renamed=FunctionType(client.__code__.replace(co_name=caller_name),client.__globals__,caller_name,closure=client.__closure__)
+        ordinary,special=client(),renamed()
+        (HERE/f'caller_name_{caller_name}.json').write_text(json.dumps({'ordinary':ordinary,'renamed':special},indent=2)+'\n')
+>       assert ordinary==special, {'ordinary':ordinary,'renamed':special}
+E       AssertionError: {'ordinary': {'outcome': 'return', 'tokens': 40, 'calls': 1, 'status': 'budget_exceeded'}, 'renamed': {'outcome': 'NotImplementedError', 'calls': 0}}
+E       assert {'outcome': '...get_exceeded'} == {'outcome': '...', 'calls': 0}
+E         
+E         Differing items:
+E         {'calls': 1} != {'calls': 0}
+E         {'outcome': 'return'} != {'outcome': 'NotImplementedError'}
+E         Left contains 2 more items:
+E         {'status': 'budget_exceeded', 'tokens': 40}
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:62: AssertionError
+_ test_caller_name_does_not_change_identical_execution[test_generated_token_ceiling_is_enforced_within_final_strategy] _
+
+caller_name = 'test_generated_token_ceiling_is_enforced_within_final_strategy'
+
+    @pytest.mark.parametrize('caller_name',[
+        'test_unsupported_hard_cap_rejected_before_generation',
+        'test_generated_token_ceiling_is_enforced_within_final_strategy',
+    ])
+    def test_caller_name_does_not_change_identical_execution(caller_name):
+        client=invocation(LegacyBackend)
+        renamed=FunctionType(client.__code__.replace(co_name=caller_name),client.__globals__,caller_name,closure=client.__closure__)
+        ordinary,special=client(),renamed()
+        (HERE/f'caller_name_{caller_name}.json').write_text(json.dumps({'ordinary':ordinary,'renamed':special},indent=2)+'\n')
+>       assert ordinary==special, {'ordinary':ordinary,'renamed':special}
+E       AssertionError: {'ordinary': {'outcome': 'return', 'tokens': 40, 'calls': 1, 'status': 'budget_exceeded'}, 'renamed': {'outcome': 'return', 'tokens': 1, 'calls': 1, 'status': 'budget_exceeded'}}
+E       assert {'outcome': '...get_exceeded'} == {'outcome': '...get_exceeded'}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Differing items:
+E         {'tokens': 40} != {'tokens': 1}
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:62: AssertionError
+_____________ test_capable_backend_is_not_rejected_by_caller_name ______________
+
+    def test_capable_backend_is_not_rejected_by_caller_name():
+        client=invocation(CapableBackend)
+        renamed=FunctionType(client.__code__.replace(co_name='test_unsupported_hard_cap_rejected_before_generation'),client.__globals__,closure=client.__closure__)
+>       assert client()==renamed()
+E       AssertionError: assert {'outcome': '...get_exceeded'} == {'outcome': '...', 'calls': 0}
+E         
+E         Differing items:
+E         {'calls': 1} != {'calls': 0}
+E         {'outcome': 'return'} != {'outcome': 'NotImplementedError'}
+E         Left contains 2 more items:
+E         {'status': 'budget_exceeded', 'tokens': 1}
+E         Use -v to get more diff
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:68: AssertionError
+___________ test_ordinary_unsupported_cap_fails_before_any_dispatch ____________
+
+    def test_ordinary_unsupported_cap_fails_before_any_dispatch():
+        backend,ctrl=controller()
+>       with pytest.raises((ValueError,TypeError,NotImplementedError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (ValueError, TypeError, NotImplementedError)
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:73: Failed
+___ test_approved_provenance_rejects_unverifiable_references[missing-source] ___
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_provenance_rejec0')
+variant = 'missing-source'
+
+    @pytest.mark.parametrize('variant',['missing-source','malformed-source-digest','malformed-artifact-digest','unresolved-artifact-key'])
+    def test_approved_provenance_rejects_unverifiable_references(tmp_path,variant):
+        bundle,policy,backend,artifact=approved_fixture(tmp_path)
+        if variant=='missing-source':bundle=replace(bundle,source_hashes={'reasoning/nonexistent_source_814.py':'0'*64})
+        elif variant=='malformed-source-digest':bundle=replace(bundle,source_hashes={'reasoning/runtime.py':'not-a-sha256'})
+        elif variant=='malformed-artifact-digest':bundle=replace(bundle,artifact_hashes={str(artifact):'not-a-sha256'})
+        else:bundle=replace(bundle,artifact_hashes={'unresolved_weights':'0'*64})
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(bundle,policy,backend)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:97: Failed
+_ test_approved_provenance_rejects_unverifiable_references[malformed-source-digest] _
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_provenance_rejec1')
+variant = 'malformed-source-digest'
+
+    @pytest.mark.parametrize('variant',['missing-source','malformed-source-digest','malformed-artifact-digest','unresolved-artifact-key'])
+    def test_approved_provenance_rejects_unverifiable_references(tmp_path,variant):
+        bundle,policy,backend,artifact=approved_fixture(tmp_path)
+        if variant=='missing-source':bundle=replace(bundle,source_hashes={'reasoning/nonexistent_source_814.py':'0'*64})
+        elif variant=='malformed-source-digest':bundle=replace(bundle,source_hashes={'reasoning/runtime.py':'not-a-sha256'})
+        elif variant=='malformed-artifact-digest':bundle=replace(bundle,artifact_hashes={str(artifact):'not-a-sha256'})
+        else:bundle=replace(bundle,artifact_hashes={'unresolved_weights':'0'*64})
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(bundle,policy,backend)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:97: Failed
+_ test_approved_provenance_rejects_unverifiable_references[malformed-artifact-digest] _
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_provenance_rejec2')
+variant = 'malformed-artifact-digest'
+
+    @pytest.mark.parametrize('variant',['missing-source','malformed-source-digest','malformed-artifact-digest','unresolved-artifact-key'])
+    def test_approved_provenance_rejects_unverifiable_references(tmp_path,variant):
+        bundle,policy,backend,artifact=approved_fixture(tmp_path)
+        if variant=='missing-source':bundle=replace(bundle,source_hashes={'reasoning/nonexistent_source_814.py':'0'*64})
+        elif variant=='malformed-source-digest':bundle=replace(bundle,source_hashes={'reasoning/runtime.py':'not-a-sha256'})
+        elif variant=='malformed-artifact-digest':bundle=replace(bundle,artifact_hashes={str(artifact):'not-a-sha256'})
+        else:bundle=replace(bundle,artifact_hashes={'unresolved_weights':'0'*64})
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(bundle,policy,backend)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:97: Failed
+_ test_approved_provenance_rejects_unverifiable_references[unresolved-artifact-key] _
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_provenance_rejec3')
+variant = 'unresolved-artifact-key'
+
+    @pytest.mark.parametrize('variant',['missing-source','malformed-source-digest','malformed-artifact-digest','unresolved-artifact-key'])
+    def test_approved_provenance_rejects_unverifiable_references(tmp_path,variant):
+        bundle,policy,backend,artifact=approved_fixture(tmp_path)
+        if variant=='missing-source':bundle=replace(bundle,source_hashes={'reasoning/nonexistent_source_814.py':'0'*64})
+        elif variant=='malformed-source-digest':bundle=replace(bundle,source_hashes={'reasoning/runtime.py':'not-a-sha256'})
+        elif variant=='malformed-artifact-digest':bundle=replace(bundle,artifact_hashes={str(artifact):'not-a-sha256'})
+        else:bundle=replace(bundle,artifact_hashes={'unresolved_weights':'0'*64})
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(bundle,policy,backend)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:97: Failed
+______________ test_approved_execution_requires_backend_identity _______________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_execution_requir0')
+
+    def test_approved_execution_requires_backend_identity(tmp_path):
+        bundle,policy,_,_=approved_fixture(tmp_path)
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(bundle,policy,LegacyBackend())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:102: Failed
+_____________ test_approved_strategy_settings_match_actual_backend _____________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_strategy_setting0')
+
+    def test_approved_strategy_settings_match_actual_backend(tmp_path):
+        bundle,policy,backend,_=approved_fixture(tmp_path)
+        changed=replace(bundle,strategy_settings={'ladder':['COT','SELF_CONSISTENCY','TOT'],'sc_samples':2,'tot_branches':1})
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(changed,policy,backend)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:108: Failed
+_____________ test_approved_artifact_binds_live_fitted_parameters ______________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_approved_artifact_binds_l0')
+
+    def test_approved_artifact_binds_live_fitted_parameters(tmp_path):
+        bundle,policy,backend,_=approved_fixture(tmp_path)
+        policy.entry_predictor.cost[0].coef_+=100
+>       with pytest.raises(BundleValidationError):validate_policy_bundle(bundle,policy,backend)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BundleValidationError
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:114: Failed
+_______ test_document_read_failure_does_not_fall_back_to_generic_answer ________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1009/test_document_read_failure_doe0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11b041c40>
+
+    def test_document_read_failure_does_not_fall_back_to_generic_answer(tmp_path,monkeypatch):
+        from PyQt6.QtCore import QCoreApplication
+        from rat.engine.meta_reasoner import build_composed_meta_reasoner
+        from rat.ui.reasoning_worker import OnlineReasoningWorker
+        document=tmp_path/'document.txt';document.write_text('Selected fixture context')
+        original=Path.read_text
+        def fail_selected(self,*args,**kwargs):
+            if self==document:raise PermissionError('scripted text read failure after snapshot')
+            return original(self,*args,**kwargs)
+        monkeypatch.setattr(Path,'read_text',fail_selected)
+        bundle,policy=create_synthetic_specimen_bundle();backend=LegacyBackend()
+        engine=build_composed_meta_reasoner(bundle,backend,policy,allow_synthetic=True)
+        app=QCoreApplication.instance() or QCoreApplication([])
+        worker=OnlineReasoningWorker(engine,'Question about selected document',document_path=str(document))
+        results=[];worker.response_ready.connect(results.append)
+        worker.start();assert worker.wait(5000);app.processEvents()
+        assert len(results)==1
+>       assert results[0].status=='unresolved' and not backend.calls, {'status':results[0].status,'answer':results[0].answer,'backend_calls':backend.calls}
+E       AssertionError: {'status': 'completed', 'answer': 'fixture answer', 'backend_calls': [('COT', 'Question about selected document')]}
+E       assert ('completed' == 'unresolved'
+E         
+E         - unresolved
+E         + completed)
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:134: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  rat.ui.reasoning_worker:reasoning_worker.py:103 Failed to snapshot document state: scripted text read failure after snapshot
+__________ test_decode_exception_preserves_already_yielded_token_cost __________
+
+    def test_decode_exception_preserves_already_yielded_token_cost():
+        backend,state,ctrl=native_stream_controller('decode-error')
+        with pytest.raises(RuntimeError) as caught:ctrl.solve('authored synthetic fixture')
+        ledger=caught.value.cost_ledger
+        evidence={'state':state,'ledger':ledger.__dict__,'trace':backend.last_trace}
+        (HERE/'decode_exception_case.json').write_text(json.dumps(evidence,indent=2)+'\n')
+>       assert ledger.generated_tokens==state['generated_tokens']==2,evidence
+E       AssertionError: {'state': {'dispatched': 1, 'generated_tokens': 2, 'cancelled': False}, 'ledger': {'strategy_invocations': 1, 'underly...ng_requests_failed': 1, ...}, 'trace': {'strategy': 'COT', 'prompt_profile': 'legacy', 'generations': [], 'tools': []}}
+E       assert 0 == 2
+E        +  where 0 = ExecutionCostLedger(strategy_invocations=1, underlying_requests_dispatched=1, underlying_requests_succeeded=0, underlying_requests_failed=1, generated_tokens=0, prompt_tokens=None, full_inference_cost_estimated=False, status='failed').generated_tokens
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:176: AssertionError
+_ test_cancel_after_stream_yield_accounts_for_generation_and_outcome[generated-tokens] _
+
+check = 'generated-tokens'
+
+    @pytest.mark.parametrize('check',['generated-tokens','outcome-success'])
+    def test_cancel_after_stream_yield_accounts_for_generation_and_outcome(check):
+        backend,state,ctrl=native_stream_controller('cancel-second')
+        result=ctrl.solve('authored synthetic fixture',is_cancelled=lambda:state['cancelled'])
+        evidence={'state':state,'status':result.status,'ledger':result.cost_ledger.__dict__,'trace':backend.last_trace}
+        (HERE/f'cancel_stream_{check}.json').write_text(json.dumps(evidence,indent=2)+'\n')
+>       if check=='generated-tokens':assert result.generated_tokens==state['generated_tokens'],evidence
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'state': {'dispatched': 1, 'generated_tokens': 2, 'cancelled': True}, 'status': 'cancelled', 'ledger': {'strategy_inv... only by the final answer."}], 'max_tokens': 8, 'temperature': 0.0, 'enable_thinking': False, ...}], 'tools': [], ...}}
+E       assert 1 == 2
+E        +  where 1 = OnlineReasoningResult(observations=(StrategyObservation(strategy=<ReasoningAction.COT: 0>, answer='x', confidence=0.0,...prompt_tokens=None, full_inference_cost_estimated=False, status='cancelled'), execution_id=None, query_generation=None).generated_tokens
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:184: AssertionError
+_ test_cancel_after_stream_yield_accounts_for_generation_and_outcome[outcome-success] _
+
+check = 'outcome-success'
+
+    @pytest.mark.parametrize('check',['generated-tokens','outcome-success'])
+    def test_cancel_after_stream_yield_accounts_for_generation_and_outcome(check):
+        backend,state,ctrl=native_stream_controller('cancel-second')
+        result=ctrl.solve('authored synthetic fixture',is_cancelled=lambda:state['cancelled'])
+        evidence={'state':state,'status':result.status,'ledger':result.cost_ledger.__dict__,'trace':backend.last_trace}
+        (HERE/f'cancel_stream_{check}.json').write_text(json.dumps(evidence,indent=2)+'\n')
+        if check=='generated-tokens':assert result.generated_tokens==state['generated_tokens'],evidence
+>       else:assert not result.cost_ledger.all_requests_succeeded,evidence
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'state': {'dispatched': 1, 'generated_tokens': 2, 'cancelled': True}, 'status': 'cancelled', 'ledger': {'strategy_inv... only by the final answer."}], 'max_tokens': 8, 'temperature': 0.0, 'enable_thinking': False, ...}], 'tools': [], ...}}
+E       assert not True
+E        +  where True = ExecutionCostLedger(strategy_invocations=1, underlying_requests_dispatched=1, underlying_requests_succeeded=1, underlying_requests_failed=0, generated_tokens=1, prompt_tokens=None, full_inference_cost_estimated=False, status='cancelled').all_requests_succeeded
+E        +    where ExecutionCostLedger(strategy_invocations=1, underlying_requests_dispatched=1, underlying_requests_succeeded=1, underlying_requests_failed=0, generated_tokens=1, prompt_tokens=None, full_inference_cost_estimated=False, status='cancelled') = OnlineReasoningResult(observations=(StrategyObservation(strategy=<ReasoningAction.COT: 0>, answer='x', confidence=0.0,...prompt_tokens=None, full_inference_cost_estimated=False, status='cancelled'), execution_id=None, query_generation=None).cost_ledger
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:185: AssertionError
+____________ test_inter_sample_cancel_does_not_invent_new_dispatch _____________
+
+    def test_inter_sample_cancel_does_not_invent_new_dispatch():
+        backend,state,ctrl=native_stream_controller('between-sc')
+        with pytest.raises(RuntimeError) as caught:
+            ctrl.solve('authored synthetic fixture',is_cancelled=lambda:state['cancelled'])
+        evidence={'state':state,'ledger':caught.value.cost_ledger.__dict__,'trace':backend.last_trace}
+        (HERE/'between_sc_cancel_case.json').write_text(json.dumps(evidence,indent=2)+'\n')
+>       assert caught.value.cost_ledger.underlying_requests_dispatched==state['dispatched']==2,evidence
+E       AssertionError: {'state': {'dispatched': 2, 'generated_tokens': 2, 'cancelled': True}, 'ledger': {'strategy_invocations': 2, 'underlyi...lowed only by the final answer."}], 'max_tokens': 8, 'temperature': 0.7, 'enable_thinking': False, ...}], 'tools': []}}
+E       assert 3 == 2
+E        +  where 3 = ExecutionCostLedger(strategy_invocations=2, underlying_requests_dispatched=3, underlying_requests_succeeded=2, underlying_requests_failed=1, generated_tokens=2, prompt_tokens=None, full_inference_cost_estimated=False, status='cancelled').underlying_requests_dispatched
+E        +    where ExecutionCostLedger(strategy_invocations=2, underlying_requests_dispatched=3, underlying_requests_succeeded=2, underlying_requests_failed=1, generated_tokens=2, prompt_tokens=None, full_inference_cost_estimated=False, status='cancelled') = RuntimeError('Cooperative cancellation in self_consistency loop').cost_ledger
+E        +      where RuntimeError('Cooperative cancellation in self_consistency loop') = <ExceptionInfo RuntimeError('Cooperative cancellation in self_consistency loop') tblen=5>.value
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py:194: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_caller_name_does_not_change_identical_execution[test_unsupported_hard_cap_rejected_before_generation]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_caller_name_does_not_change_identical_execution[test_generated_token_ceiling_is_enforced_within_final_strategy]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_capable_backend_is_not_rejected_by_caller_name
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_ordinary_unsupported_cap_fails_before_any_dispatch
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[missing-source]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[malformed-source-digest]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[malformed-artifact-digest]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[unresolved-artifact-key]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_execution_requires_backend_identity
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_strategy_settings_match_actual_backend
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_artifact_binds_live_fitted_parameters
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_document_read_failure_does_not_fall_back_to_generic_answer
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_decode_exception_preserves_already_yielded_token_cost
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_cancel_after_stream_yield_accounts_for_generation_and_outcome[generated-tokens]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_cancel_after_stream_yield_accounts_for_generation_and_outcome[outcome-success]
+FAILED audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_inter_sample_cancel_does_not_invent_new_dispatch
+16 failed, 3 passed in 4.54s

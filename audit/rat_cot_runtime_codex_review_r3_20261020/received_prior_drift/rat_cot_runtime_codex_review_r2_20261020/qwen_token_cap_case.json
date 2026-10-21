@@ -1,0 +1,38 @@
+{
+  "counters": {
+    "dispatched": 1,
+    "successful": 1,
+    "tokens": 20
+  },
+  "current_trace": {
+    "strategy": "COT",
+    "prompt_profile": "legacy",
+    "generations": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "authored synthetic arithmetic fixture\nWrite concise steps in plain text without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer."
+          }
+        ],
+        "tokens": 20,
+        "prompt_tokens": 9,
+        "output": "Answer: 1",
+        "finish_reason": "eos"
+      }
+    ],
+    "tools": [],
+    "parse_status": "marker",
+    "wordy": false
+  },
+  "ledger": {
+    "strategy_invocations": 1,
+    "underlying_requests_dispatched": 1,
+    "underlying_requests_succeeded": 1,
+    "underlying_requests_failed": 0,
+    "generated_tokens": 20,
+    "prompt_tokens": null,
+    "full_inference_cost_estimated": false,
+    "status": "budget_exceeded"
+  }
+}

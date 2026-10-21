@@ -1,0 +1,138 @@
+{
+  "verdict": "ready_for_review",
+  "consolidated_suite": {
+    "total_tests": 331,
+    "passed": 331,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_s": 100.56,
+    "xml_file": "regression.xml"
+  },
+  "failed_request_reporting_probes_r7": {
+    "total_tests": 4,
+    "passed": 4,
+    "failures": 0,
+    "errors": 0,
+    "duration_s": 0.29,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py",
+    "xml_file": "failed_request_reporting.xml"
+  },
+  "legacy_identity_and_real_history_probes_r6": {
+    "total_tests": 8,
+    "passed": 8,
+    "failures": 0,
+    "errors": 0,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py"
+  },
+  "provenance_and_conclusion_probes_r5": {
+    "total_tests": 10,
+    "passed": 10,
+    "failures": 0,
+    "errors": 0,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py"
+  },
+  "final_edges_probes_r4": {
+    "total_tests": 7,
+    "passed": 7,
+    "failures": 0,
+    "errors": 0,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r4_20261019/test_final_edges.py"
+  },
+  "remaining_probes_r3": {
+    "total_tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "source_file": "audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py"
+  },
+  "parser_affected_suite": {
+    "total_tests": 44,
+    "passed": 44,
+    "failures": 0,
+    "errors": 0,
+    "duration_s": 6.78,
+    "xml_file": "parser_affected.xml"
+  },
+  "mandatory_research_suite": {
+    "total_tests": 29,
+    "passed": 29,
+    "failures": 0,
+    "errors": 0,
+    "duration_s": 8.48
+  },
+  "replays": {
+    "fake_session": {
+      "new_fake_calls": 1,
+      "real_calls": 0,
+      "status": "offline_fake_backend_completed_1_calls",
+      "log_file": "fake_session.txt"
+    },
+    "locked_ledger_replay": {
+      "new_fake_calls": 0,
+      "real_calls": 0,
+      "status": "budget_halt_existing_real_history",
+      "ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+      "log_file": "locked_ledger_replay.txt"
+    },
+    "fake_history_halt": {
+      "new_fake_calls": 0,
+      "real_calls": 0,
+      "status": "budget_halt_existing_fake_history",
+      "log_file": "fake_history_halt.txt"
+    },
+    "legacy_fake_history_halt": {
+      "new_fake_calls": 0,
+      "real_calls": 0,
+      "status": "budget_halt_existing_unknown_history",
+      "log_file": "legacy_fake_history_halt.txt"
+    },
+    "same_document_legacy_fake": {
+      "new_fake_calls": 0,
+      "real_calls": 0,
+      "historical_real_records": 0,
+      "historical_unknown_records": 1,
+      "status": "budget_halt_existing_unknown_history",
+      "log_file": "same_document_legacy_fake.txt"
+    }
+  },
+  "new_real_model_requests": 0,
+  "historical_12_real_calls_ledger_unchanged": true,
+  "historical_12_real_calls_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "qpa_platform": "offscreen",
+  "git_branch": "main",
+  "git_commits_created": 0,
+  "git_branches_created": 0,
+  "external_changes_preserved": {
+    "rat/ui/omnibar.py": {
+      "sha256": "72d9b746754083662e21982b885c2a910024fcb835eb1f89354f3314fed09d7a",
+      "status": "preserved_unmodified_by_repair"
+    }
+  },
+  "resolved_findings": [
+    {
+      "id": "G1",
+      "title": "Reporting block evaluates current-run success/failure outcomes before emitting status and note",
+      "status": "resolved",
+      "target_file": "scripts/run_native_performance_session.py",
+      "verified_by": "test_failed_attempts_never_claim_verified_or_successful_backend_requests (4/4 pass, covering 12-exception failure, 1-exception failure, 12-success control, and 1-success control)"
+    }
+  ],
+  "previous_findings": {
+    "F1_strict_provenance_whitelist": "resolved",
+    "F2_current_run_real_isolation": "resolved",
+    "E1_terminal_conclusion_selection": "resolved",
+    "E2_timing_and_token_provenance": "resolved",
+    "E3_current_run_fake_counting": "resolved",
+    "D1_fallback_rational_preservation": "resolved",
+    "D2_session_provenance_separation": "resolved",
+    "C3_unique_budget_counting": "resolved",
+    "C4_candidate_420px_labels": "resolved",
+    "R1_tray_startup_name_error": "resolved",
+    "R2_answer_navigation_visibility": "resolved",
+    "R3_candidate_directory_disambiguation": "resolved",
+    "R4_pre_request_checkpointing": "resolved",
+    "R5_telemetry_cpu_native_scoping": "resolved",
+    "R6_ast_symbol_naming": "resolved"
+  }
+}

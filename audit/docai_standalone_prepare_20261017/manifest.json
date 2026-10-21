@@ -1,0 +1,1158 @@
+{
+  "folder": "modules/docai",
+  "files": 191,
+  "bytes": 2503966,
+  "archive": "scratch/docai_standalone_prepare_20261017.tar.gz",
+  "archive_sha256": "eaab17bef0622620f8a6b666d3cf00683fc315d90477f8eb7deeb198200c9385",
+  "parity": "all regular file bytes and modes verified",
+  "manifest": [
+    {
+      "path": "modules/docai/.gitignore",
+      "bytes": 208,
+      "sha256": "5b88227d783a607b934e80bbb3863bc6bce706d3c2633c6c24235eadaa3c1691",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/.pytest_cache/.gitignore",
+      "bytes": 37,
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/.pytest_cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/.pytest_cache/README.md",
+      "bytes": 302,
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/.pytest_cache/v/cache/nodeids",
+      "bytes": 4840,
+      "sha256": "ebd2eba243dd444494bef918f515cd38749f67ff1ff4991232f27c6cb51f7312",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/README.md",
+      "bytes": 3093,
+      "sha256": "eea1316f947d0e515662fa1d2e59530a40e4a2dcd636a73e6a3f889851368d6c",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/README.upstream.md",
+      "bytes": 3753,
+      "sha256": "46bb00f883d8e8c9a71b454755588435573268fd43fa654873e2a7c139a40f39",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/__init__.py",
+      "bytes": 2756,
+      "sha256": "e76f9608199eda5befcc6b22852a86414c45aa7eccc5310ca823b0576b4f1b10",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/__main__.py",
+      "bytes": 146,
+      "sha256": "30fb81b00c6c5c7d7310329146bfb4f82cc34a141ae05de034bb2be5e971a4f6",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/batch_processor.py",
+      "bytes": 5737,
+      "sha256": "25d6c4a212b7b457d22f992a951cbcfbc2f9600c85dd3e659087880a4fef6635",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/benchmark_suite.py",
+      "bytes": 4915,
+      "sha256": "e8145b01872cbabd4218e671f0eebbf4062ca1b13b1c96a7487e4aa50c2c070d",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/cli.py",
+      "bytes": 4819,
+      "sha256": "a44ace75a58255dda39363e4c7ef4e8dd9ae830bf8a1b6f4d2fc876a82b27e10",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/config.py",
+      "bytes": 3117,
+      "sha256": "70537716b190276e2bd951b09cfb4b98ed53de220d07e90e3cf58276da5ea7ed",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/cord_loader.py",
+      "bytes": 4630,
+      "sha256": "26482498fd458fa949eae2b7e84e515df312b62ad9ab9fff93fb702b44ac30b2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/csv_exporter.py",
+      "bytes": 7498,
+      "sha256": "1e3bfbd4ba131aa7359c34f81bc9c642f66f9a89de071d907045f2114bb6d206",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/description_extractor.py",
+      "bytes": 2549,
+      "sha256": "9805e16bd5a66ae2c5d42e2802d65f9db6dcbda1744c5411bc734c9862e77089",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/exporter.py",
+      "bytes": 6125,
+      "sha256": "db847d54521d6098abe2742869a2d4385cd67d3f555c9693cd7d0b49ce4daa22",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/fraud_checker.py",
+      "bytes": 8177,
+      "sha256": "48b4b6e5f6208735526be9ed194d1a0e264affb2b5959eda6cc25cc8ff4829e2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/hitl_workbench.py",
+      "bytes": 8027,
+      "sha256": "0ceda29d7ca512c8ab7bd3a28265d9483f4540e14bee0e0e3794222100f80b81",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/intake/__init__.py",
+      "bytes": 452,
+      "sha256": "9b6a89b7ba639dbe42a9f977e1b434bb6052a5e2fee4b05fe037f004e8b83d3e",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/intake/pdf_reader.py",
+      "bytes": 411,
+      "sha256": "4331da4646ff8e67d6756631e063e3469196aba716925d3cd0b2e09f3f2e6e94",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/intake/qwen_ocr.py",
+      "bytes": 848,
+      "sha256": "849aca162c8ea5f9657c946e41625aed2d4598dbba92264aabedfef66f58c7de",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/intake/tesseract_ocr.py",
+      "bytes": 159,
+      "sha256": "58bfbc059caa866cfa1a288f74e43d4d7aa587d7811c0b4c938c843d824d6ad2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/intake/vision_ocr.py",
+      "bytes": 215,
+      "sha256": "d19e3d6f73c3243fafe81155fedd74c877e1e5c0de2ae2eff581360c3285c071",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/intake/xml_reader.py",
+      "bytes": 11558,
+      "sha256": "bff89cecbd1282fdecd6f2bfe825482b3a9f9135bf34356e5d3091d388f73226",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/lattice/generator.py",
+      "bytes": 12054,
+      "sha256": "13990684ed7e979f48a07f7b94fba2529f39f7d52f1c4eb7cb82b9b4d7497010",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/layout/__init__.py",
+      "bytes": 148,
+      "sha256": "8938dda841d25233e6a741a0c900c3cc56b59671bad97bbf9f3eb32d98b6d6d6",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/layout/bbox_extractor.py",
+      "bytes": 7202,
+      "sha256": "a6fbcc49ba2c95868fb2ee1d3628347138c77b7cc39d7f5e67bf23819471426a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/logging_setup.py",
+      "bytes": 1766,
+      "sha256": "1da7a1f9d217192b690d10eaca6ecf1735323a13f65cd7faefaaaacf84dc1b43",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/misa_vat_exporter.py",
+      "bytes": 11011,
+      "sha256": "613b75b6af4152daf245ed88fc01679ed5988dd467699b4b6a49b5d399e0a82b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/output/__init__.py",
+      "bytes": 189,
+      "sha256": "c47c108e9c5ef6348016f7d6bed5fc1d4a369bf48f55c0c2fb18b0950d81147a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/output/excel_writer.py",
+      "bytes": 2533,
+      "sha256": "ef126b37a9766594efc17a7fa5c6503bbebeed6102794e3dda72fc3af0072b40",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/pdf_processor.py",
+      "bytes": 1763,
+      "sha256": "698535807957f1d1a54a5b83f7aa644b51b5bb32cd433708ead038d3f2cb2f91",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/pipeline.py",
+      "bytes": 16072,
+      "sha256": "5b7e58407b400cb6879dc33cd2bde64c76aca43f25b8f5baeec58412da166d8f",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/service.py",
+      "bytes": 9720,
+      "sha256": "f8a45e2d4a9a0b02aeb71d8992820b898a00360cdc44a9b1937690e352600354",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/solver/__init__.py",
+      "bytes": 115,
+      "sha256": "ec52077dc862c303d5106ce475675e7a1b9be3aab489767fe2cfa6ffb710e98b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/solver/z3_engine.py",
+      "bytes": 6157,
+      "sha256": "f0b5f39c74a585790de7a7a5f4cd73f1ff5db2d1414de20fbc1bb09cb58f80df",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/system1_vision.py",
+      "bytes": 9164,
+      "sha256": "049f37391b1d9f13c9453229c43d32ea7a3bc4feef4f84161c728e6c160f9939",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/system2_solver.py",
+      "bytes": 4832,
+      "sha256": "57e1f5f3ebc9f256e0be8c35b0a7b4959bb96951efb8436efaa1972dc629eb0e",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/tax_code_mapper.py",
+      "bytes": 1023,
+      "sha256": "da3892a1ae78962bcb9c1e18d84251fb9a1d6339e6108b91ee6a93227d9c3b05",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/tax_verifier.py",
+      "bytes": 1969,
+      "sha256": "a58810040ec0aa1490b793e508bc4fdbefac9a64befa19b2447911ece227382a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/build/lib/nesy_docai/visualizer.py",
+      "bytes": 2438,
+      "sha256": "07668b68a2345079924f6cf9d25c4c547d0aac7252d8ca5ecfd6ba645e535473",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/.streamlit/config.toml",
+      "bytes": 208,
+      "sha256": "cb3be47f04f721510fd0f54cf127b856944b401c6f57c4cba7a4ba967378b19c",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/README.md",
+      "bytes": 477,
+      "sha256": "5a1001d20716f8e7da54a8ad1632e9cd3ad8d2460a85be61253b8e9d500d3954",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/README.upstream.md",
+      "bytes": 3753,
+      "sha256": "46bb00f883d8e8c9a71b454755588435573268fd43fa654873e2a7c139a40f39",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/__pycache__/api_server.cpython-312.pyc",
+      "bytes": 10154,
+      "sha256": "47464841790d4446d3b001aff77b7b69c38e3aa976d39d1a3cd574a1cb6c637e",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/api_server.py",
+      "bytes": 7025,
+      "sha256": "95fc1014facb4c947abfd4d0ffea9a8d5fe37b47137cec11abb1ba973f11c7f9",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/app_streamlit.py",
+      "bytes": 17781,
+      "sha256": "a6c7d6e650192f7934a6e93a3ace33017229ff1b44d20a5143d8640694921276",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/benchmark.py",
+      "bytes": 944,
+      "sha256": "91f1d86cbbec482a582759d921ceeeabae707a66b047a068870819b0e73801c1",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/demo.ipynb",
+      "bytes": 4679,
+      "sha256": "e2bccf929861d05a9ada6669dc8590af79260d67f021cbfc61da5dc237fe6399",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/generate_hardcore_invoices.py",
+      "bytes": 5802,
+      "sha256": "f2de7999f2b25c668e76368a95d06b84ed7747092f5a9c256771eccddb612143",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/generate_large_batch.py",
+      "bytes": 3078,
+      "sha256": "28c789f4f6c3de485253aecd48c3489f4ee3c6984cfff2333d46ebcf1e0485d0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/main.py",
+      "bytes": 5022,
+      "sha256": "aab2bc558d281d8451d5da4452fefcff96015b77186b7ca6b7e7849528807fd0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/migration_manifest.json",
+      "bytes": 22219,
+      "sha256": "f13f497ce5b44ec49ee3ffcb0e947e52327ba34970092b98e2c460e86604a36f",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/compatibility/requirements.txt",
+      "bytes": 208,
+      "sha256": "63d4e744fd68344ede46555cb7b76977a1ff911b5be2f08f2896d430e07271ae",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/fixtures/hardcore_invoices_challenge.zip",
+      "bytes": 118255,
+      "sha256": "13899eb239d390093c95bb344ac3f662195a2730af981489c69df2570e76b962",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/fixtures/large_invoices_batch_100.zip",
+      "bytes": 1359136,
+      "sha256": "98d5e4ff4fb613b2048fc9d3ed1aa277bab43328f75e004863df00a94cd1debb",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/fixtures/public_cord_hard_receipts.zip",
+      "bytes": 22,
+      "sha256": "8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/invoice_audit_registry.json",
+      "bytes": 463,
+      "sha256": "aed72fe4e47830b478fb10f5f57a34d90a0e13027cac604c44e24cbef1c5e693",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/invoice_audit_report.xlsx",
+      "bytes": 7123,
+      "sha256": "78a41974364f075b52d1ccbcd2c0608a90bedc1cd1b85a0a17c52d02f74b782a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/invoice_registry.db",
+      "bytes": 12288,
+      "sha256": "df417f1ba6243f1661f0232c95c9b9e03a4bfee84c92964c338615ed16dcbd07",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/master_invoice_audit_report.xlsx",
+      "bytes": 9819,
+      "sha256": "c4b0f94af8f10b6cc16051c70367279a267a0dd89e0bf0b45da541cfa82ff9e6",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 2020,
+      "sha256": "f01a3d84f546a725f4dc210fb6ba45bb61c9bb0489ccaaf6260abe94152ff0e1",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/benchmark_suite.cpython-312.pyc",
+      "bytes": 4832,
+      "sha256": "328e4ed1e935bdcf90e52bdb6ccdf8a60f05e5829051134e0e28a4515a4f561b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/config.cpython-312.pyc",
+      "bytes": 4899,
+      "sha256": "68650feb417175096987e338de20ee57a046e095c18a29421d46ffbb902ea2f7",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/cord_loader.cpython-312.pyc",
+      "bytes": 4026,
+      "sha256": "566e66e83324f3c5e1c599714e28d4a5280ff0b46b08cf69fd1dd1e63f63c976",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/csv_exporter.cpython-312.pyc",
+      "bytes": 8622,
+      "sha256": "a0cb9ee69a2f449c198bc0924dbc494b3f9e4e8f807469349a26f52cc8ab473b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/exporter.cpython-312.pyc",
+      "bytes": 6706,
+      "sha256": "dc0136233533b3ad8cb7d497b2ecd68e4eaea64435051915ee11a20e088403af",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/fraud_checker.cpython-312.pyc",
+      "bytes": 11310,
+      "sha256": "162f54779029b098a44db2dc797864c5e89cfc7efee1959cfef72ee19d4c3318",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/hitl_workbench.cpython-312.pyc",
+      "bytes": 10212,
+      "sha256": "81a804cedf8865e4ba1184808d221aecd26308292e18a9cee412d6d5331e9aa0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/misa_vat_exporter.cpython-312.pyc",
+      "bytes": 12171,
+      "sha256": "199a6703d21fb2010c9c633f42b38259f2b3390c5f8c870c0ba7400ba5e85dee",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/pdf_processor.cpython-312.pyc",
+      "bytes": 2830,
+      "sha256": "feb28599e05e1a1fe7bf1485ebbb4863a95d4788c737d9794baa7d674816b4ed",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/pipeline.cpython-312.pyc",
+      "bytes": 20108,
+      "sha256": "527472f91f40e77ad9802894d7a0beefb70058684a6756544252573581b97e86",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/system1_vision.cpython-312.pyc",
+      "bytes": 10735,
+      "sha256": "8e064f9af1b2c68e2299bc98f55ae99af9b7553517a599f5251d20748ca07698",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/system2_solver.cpython-312.pyc",
+      "bytes": 5569,
+      "sha256": "a3dae3f93418b5651827b3f0311d0c3c8374b7fa8840d3279a26c5a47fc38c29",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/tax_code_mapper.cpython-312.pyc",
+      "bytes": 1524,
+      "sha256": "9f66c709c5e4031d13e14d33e378c0fbede295566af2da4af64ba39b7b88ad91",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/tax_verifier.cpython-312.pyc",
+      "bytes": 2354,
+      "sha256": "72f0f150c39dbddb1152763bcea37984ebe25c3b86fef9072ecb296a3873b2f9",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/__pycache__/visualizer.cpython-312.pyc",
+      "bytes": 3835,
+      "sha256": "6a46fd32d6e6b5edc682f13f05c3257a934c5baa38a7295d772f04c6fa3e3320",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/intake/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 621,
+      "sha256": "98ebacae59d0db80e3040e3935bdcfe0e95d594f790fca02b1c5b9e7f81a5c50",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/intake/__pycache__/pdf_reader.cpython-312.pyc",
+      "bytes": 1877,
+      "sha256": "28b50968678f37308f0900e9566e49bd15e8e06a4e80017aacefadf5dd256b86",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/intake/__pycache__/qwen_ocr.cpython-312.pyc",
+      "bytes": 1638,
+      "sha256": "60ad141bfc4294b0f538d260a5fbffc5a2e830960bbb504467377a40f23ffa00",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/intake/__pycache__/tesseract_ocr.cpython-312.pyc",
+      "bytes": 5376,
+      "sha256": "a6296ae1a5a2fae72fa045a8c5cb0f060e6bf3e408681bea087e837a800a59d5",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/intake/__pycache__/vision_ocr.cpython-312.pyc",
+      "bytes": 2123,
+      "sha256": "44e01bf9ad25916bb99baecb859a5a138c316febdbda9c2a440186b2257492c2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/intake/__pycache__/xml_reader.cpython-312.pyc",
+      "bytes": 11479,
+      "sha256": "85a1bb24f105c71a432fbade1766e0e5b6e478cbd92a69d735f3e6f3bebac507",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/lattice/__pycache__/generator.cpython-312.pyc",
+      "bytes": 15501,
+      "sha256": "79858009f293d783edb6020071964d465bd6a883e559f17cddd7cfe6c3de1e1d",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/layout/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 384,
+      "sha256": "99a19605979bc20e71e787e589543cafe2e59a914946cbad28aa9879a07a64f4",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/layout/__pycache__/bbox_extractor.cpython-312.pyc",
+      "bytes": 9779,
+      "sha256": "2fe8fe56ed758a27763951eb3173b7fe6dfb6645503ab2eaaabf7f0cd31c9ab6",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/output/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 319,
+      "sha256": "ac8733f4ef239d8c1a1311d0f76c83432493742c6983695683bbfc479106630e",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/output/__pycache__/excel_writer.cpython-312.pyc",
+      "bytes": 4020,
+      "sha256": "f6dec56849bf215e95c32112e2e07194f58723a9a810a79240b42cdb86dcc5e5",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/solver/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 341,
+      "sha256": "43d1aac24ac28e1ee9036c7d29b482814f9f828eff30a4945088b074cd0bf461",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/local_state/pre_migration_python_cache/solver/__pycache__/z3_engine.cpython-312.pyc",
+      "bytes": 8636,
+      "sha256": "4c804573e54efdbf344c395af8b5db7dc28e7b4dfdbeeb6685b39c51c4526649",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__init__.py",
+      "bytes": 2756,
+      "sha256": "e76f9608199eda5befcc6b22852a86414c45aa7eccc5310ca823b0576b4f1b10",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__main__.py",
+      "bytes": 146,
+      "sha256": "30fb81b00c6c5c7d7310329146bfb4f82cc34a141ae05de034bb2be5e971a4f6",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 2702,
+      "sha256": "a56ce0c1313c2c4dad85a60265ada393b66c1270423ccaad1e389ddbce3e47e0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/__main__.cpython-312.pyc",
+      "bytes": 410,
+      "sha256": "2e70f648fa6c41cc8cb5de868c1463266ad8f24d95136884919f2bc93d832674",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/benchmark_suite.cpython-312.pyc",
+      "bytes": 5444,
+      "sha256": "9adabdafe04a132a98bde7a6cfa69c3ee281e0c348bf8f0eb3a2a2fe609df8ab",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/cli.cpython-312.pyc",
+      "bytes": 8215,
+      "sha256": "e6905854af829e1698bbef5dca10d8a01a69195e2e0e2ff775cb5b0e5d2c7ef0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/cord_loader.cpython-312.pyc",
+      "bytes": 4118,
+      "sha256": "5699c83de8a344bcec7b8ef3c75a4efb51cb98940ae9dfa01266584ca9e57240",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/csv_exporter.cpython-312.pyc",
+      "bytes": 8644,
+      "sha256": "112e7f8717e5c7c20136921bb7ddd07499e09682b9abc142194f3e68c63f51ef",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/exporter.cpython-312.pyc",
+      "bytes": 6728,
+      "sha256": "d23129a43827d4cc455acd105f01c2127564168a53a69a93bc9e9bc3b58b6747",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/fraud_checker.cpython-312.pyc",
+      "bytes": 11332,
+      "sha256": "a0d3d9f530208ca5abdbfc0903f9e78fb5927dee682fa6ff62afd9757d44dcb0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/hitl_workbench.cpython-312.pyc",
+      "bytes": 10234,
+      "sha256": "9706651b1735b631945d71a397076307f53ba14dd920f02c012b108e2c417a12",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/misa_vat_exporter.cpython-312.pyc",
+      "bytes": 12193,
+      "sha256": "169010e3061a35f5ae918271af29813faad664fbd3f7917134c1594bff7143a0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/pdf_processor.cpython-312.pyc",
+      "bytes": 2852,
+      "sha256": "5ddf01032ecb4c9ca4257d94793c954dc61067ae9ebea276b3951a812deb156b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/pipeline.cpython-312.pyc",
+      "bytes": 20130,
+      "sha256": "556224ec3a4e37d50833539f0a4494d5a0374d38be754c64d49c78c312cbebb2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/service.cpython-312.pyc",
+      "bytes": 14260,
+      "sha256": "0e7b93d4d24e3b9b92bab73bb9233af7a626373ae3431a08c8e69a8b04601308",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/system1_vision.cpython-312.pyc",
+      "bytes": 10757,
+      "sha256": "730eb0acabd1004696ae9b3ec8d341050b426fec54fd303d2f47e357f29a5cd0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/system2_solver.cpython-312.pyc",
+      "bytes": 5591,
+      "sha256": "8675e939d60ba0eb687b51f559d489dc7efced4f59e3c725dc5023ef55130a28",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/tax_code_mapper.cpython-312.pyc",
+      "bytes": 1546,
+      "sha256": "1a69e93c482d3cc7668effd34dfbcf8690d507fe6fd9d2c30d03506bb677e3c2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/tax_verifier.cpython-312.pyc",
+      "bytes": 2376,
+      "sha256": "ce116dea80b81145d8ff8b3864c740dd7ce310f82429f6d656d933962d598e72",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/__pycache__/visualizer.cpython-312.pyc",
+      "bytes": 3857,
+      "sha256": "3128aadad9ce2d7cae4965949ca68b8535e87cfd512857e7fb15f5daf0815f4d",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/batch_processor.py",
+      "bytes": 5737,
+      "sha256": "25d6c4a212b7b457d22f992a951cbcfbc2f9600c85dd3e659087880a4fef6635",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/benchmark_suite.py",
+      "bytes": 4915,
+      "sha256": "e8145b01872cbabd4218e671f0eebbf4062ca1b13b1c96a7487e4aa50c2c070d",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/cli.py",
+      "bytes": 4819,
+      "sha256": "a44ace75a58255dda39363e4c7ef4e8dd9ae830bf8a1b6f4d2fc876a82b27e10",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/config.py",
+      "bytes": 3117,
+      "sha256": "70537716b190276e2bd951b09cfb4b98ed53de220d07e90e3cf58276da5ea7ed",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/cord_loader.py",
+      "bytes": 4630,
+      "sha256": "26482498fd458fa949eae2b7e84e515df312b62ad9ab9fff93fb702b44ac30b2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/csv_exporter.py",
+      "bytes": 7498,
+      "sha256": "1e3bfbd4ba131aa7359c34f81bc9c642f66f9a89de071d907045f2114bb6d206",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/description_extractor.py",
+      "bytes": 2549,
+      "sha256": "9805e16bd5a66ae2c5d42e2802d65f9db6dcbda1744c5411bc734c9862e77089",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/exporter.py",
+      "bytes": 6125,
+      "sha256": "db847d54521d6098abe2742869a2d4385cd67d3f555c9693cd7d0b49ce4daa22",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/fraud_checker.py",
+      "bytes": 8177,
+      "sha256": "48b4b6e5f6208735526be9ed194d1a0e264affb2b5959eda6cc25cc8ff4829e2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/hitl_workbench.py",
+      "bytes": 8027,
+      "sha256": "0ceda29d7ca512c8ab7bd3a28265d9483f4540e14bee0e0e3794222100f80b81",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__init__.py",
+      "bytes": 452,
+      "sha256": "9b6a89b7ba639dbe42a9f977e1b434bb6052a5e2fee4b05fe037f004e8b83d3e",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 643,
+      "sha256": "b9af8ca07133e6108d7f3f2f9eff06bfd225686dd40237dec43e05d1150f76ee",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__pycache__/pdf_reader.cpython-312.pyc",
+      "bytes": 1021,
+      "sha256": "3b62e3dd75136621cfddd3dfd3e9a9766f842d50fb61925325df68d4b191a854",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__pycache__/qwen_ocr.cpython-312.pyc",
+      "bytes": 1660,
+      "sha256": "852c66d0532e1d68f5afa330bce8be513fe1fb36f7798503942913af1bb12739",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__pycache__/tesseract_ocr.cpython-312.pyc",
+      "bytes": 392,
+      "sha256": "0155783ab37bd1b4c170dc0bc5f387ecaf6cfbe9c918fb70c3c8495eea5c4a6a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__pycache__/vision_ocr.cpython-312.pyc",
+      "bytes": 693,
+      "sha256": "c64eef66e70014e3c842f644fee35426a575e20e28276a48b8ba3d9f5f2893dc",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/__pycache__/xml_reader.cpython-312.pyc",
+      "bytes": 12955,
+      "sha256": "1e27c11e2d6bf9f419670dcad895e0a935933a053e7bcdca78372646dd53b767",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/pdf_reader.py",
+      "bytes": 411,
+      "sha256": "4331da4646ff8e67d6756631e063e3469196aba716925d3cd0b2e09f3f2e6e94",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/qwen_ocr.py",
+      "bytes": 848,
+      "sha256": "849aca162c8ea5f9657c946e41625aed2d4598dbba92264aabedfef66f58c7de",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/tesseract_ocr.py",
+      "bytes": 159,
+      "sha256": "58bfbc059caa866cfa1a288f74e43d4d7aa587d7811c0b4c938c843d824d6ad2",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/vision_ocr.py",
+      "bytes": 215,
+      "sha256": "d19e3d6f73c3243fafe81155fedd74c877e1e5c0de2ae2eff581360c3285c071",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/intake/xml_reader.py",
+      "bytes": 11558,
+      "sha256": "bff89cecbd1282fdecd6f2bfe825482b3a9f9135bf34356e5d3091d388f73226",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/lattice/__pycache__/generator.cpython-312.pyc",
+      "bytes": 15523,
+      "sha256": "15e287f45783cf11f92ca1ea67c6b4a74230c96636c29f9d58dde4dc8305db43",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/lattice/generator.py",
+      "bytes": 12054,
+      "sha256": "13990684ed7e979f48a07f7b94fba2529f39f7d52f1c4eb7cb82b9b4d7497010",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/layout/__init__.py",
+      "bytes": 148,
+      "sha256": "8938dda841d25233e6a741a0c900c3cc56b59671bad97bbf9f3eb32d98b6d6d6",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/layout/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 406,
+      "sha256": "46ead8fa3fba5ec3738e87ec241b45174dfb17f57070f2b938b3116704dddba0",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/layout/__pycache__/bbox_extractor.cpython-312.pyc",
+      "bytes": 9801,
+      "sha256": "5df026ee5a198930f05a1c2d3e58ecd7b3a71b8cf360783174134460fd6bae64",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/layout/bbox_extractor.py",
+      "bytes": 7202,
+      "sha256": "a6fbcc49ba2c95868fb2ee1d3628347138c77b7cc39d7f5e67bf23819471426a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/logging_setup.py",
+      "bytes": 1766,
+      "sha256": "1da7a1f9d217192b690d10eaca6ecf1735323a13f65cd7faefaaaacf84dc1b43",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/misa_vat_exporter.py",
+      "bytes": 11011,
+      "sha256": "613b75b6af4152daf245ed88fc01679ed5988dd467699b4b6a49b5d399e0a82b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/output/__init__.py",
+      "bytes": 189,
+      "sha256": "c47c108e9c5ef6348016f7d6bed5fc1d4a369bf48f55c0c2fb18b0950d81147a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/output/excel_writer.py",
+      "bytes": 2533,
+      "sha256": "ef126b37a9766594efc17a7fa5c6503bbebeed6102794e3dda72fc3af0072b40",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/pdf_processor.py",
+      "bytes": 1763,
+      "sha256": "698535807957f1d1a54a5b83f7aa644b51b5bb32cd433708ead038d3f2cb2f91",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/pipeline.py",
+      "bytes": 16072,
+      "sha256": "5b7e58407b400cb6879dc33cd2bde64c76aca43f25b8f5baeec58412da166d8f",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/service.py",
+      "bytes": 9720,
+      "sha256": "f8a45e2d4a9a0b02aeb71d8992820b898a00360cdc44a9b1937690e352600354",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/solver/__init__.py",
+      "bytes": 115,
+      "sha256": "ec52077dc862c303d5106ce475675e7a1b9be3aab489767fe2cfa6ffb710e98b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/solver/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 363,
+      "sha256": "aa7d26024217808523f3a975b3de65415c4c8f96e2bf233099f8df4e389e7a46",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/solver/__pycache__/z3_engine.cpython-312.pyc",
+      "bytes": 8658,
+      "sha256": "a1003b7f60bcb8d12ba9fdc1bf216d77e304520d24b1d7e0891ef9802627dbff",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/solver/z3_engine.py",
+      "bytes": 6157,
+      "sha256": "f0b5f39c74a585790de7a7a5f4cd73f1ff5db2d1414de20fbc1bb09cb58f80df",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/system1_vision.py",
+      "bytes": 9164,
+      "sha256": "049f37391b1d9f13c9453229c43d32ea7a3bc4feef4f84161c728e6c160f9939",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/system2_solver.py",
+      "bytes": 4832,
+      "sha256": "57e1f5f3ebc9f256e0be8c35b0a7b4959bb96951efb8436efaa1972dc629eb0e",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/tax_code_mapper.py",
+      "bytes": 1023,
+      "sha256": "da3892a1ae78962bcb9c1e18d84251fb9a1d6339e6108b91ee6a93227d9c3b05",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/tax_verifier.py",
+      "bytes": 1969,
+      "sha256": "a58810040ec0aa1490b793e508bc4fdbefac9a64befa19b2447911ece227382a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai/visualizer.py",
+      "bytes": 2438,
+      "sha256": "07668b68a2345079924f6cf9d25c4c547d0aac7252d8ca5ecfd6ba645e535473",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai_prototype.egg-info/PKG-INFO",
+      "bytes": 376,
+      "sha256": "43562f7dbb9c0f82a292163a73ab4fe741a4fdf6d882f75bfbf29a405283797a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai_prototype.egg-info/SOURCES.txt",
+      "bytes": 1269,
+      "sha256": "a72f3d17ecd7f79eb855f4c8d6830b256e91ab32868323afaabb0ecca70d4105",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai_prototype.egg-info/dependency_links.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai_prototype.egg-info/requires.txt",
+      "bytes": 115,
+      "sha256": "31fea9c0735e591adf447d7e17c3471597a3329ef0bee10cd63ceb577146bb11",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/nesy_docai_prototype.egg-info/top_level.txt",
+      "bytes": 11,
+      "sha256": "ec83b2ab1d4f0b88bb4e7421d1c9841d710d0e9451ced3787af782ddc3d981d4",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/pyproject.toml",
+      "bytes": 550,
+      "sha256": "1d3329d6f0e546ac47b2236436548852536fc240f5fce5c16865351dce326850",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/requirements-ui.txt",
+      "bytes": 203,
+      "sha256": "75bcce048f8e08979aa44feffa347c2e4598d35cafb2b34eaadd028dbc262969",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/requirements.txt",
+      "bytes": 269,
+      "sha256": "cc545a40225e3ed952d351abade054cb3f3f4941cda8481e1e991133a61401d5",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/requirements.upstream.txt",
+      "bytes": 208,
+      "sha256": "63d4e744fd68344ede46555cb7b76977a1ff911b5be2f08f2896d430e07271ae",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/__pycache__/conftest.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 688,
+      "sha256": "bebc80d27e38f44bc477c04cc9e081d74a4243a36c80162ac3d7799729542c84",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/__pycache__/conftest.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 688,
+      "sha256": "bebc80d27e38f44bc477c04cc9e081d74a4243a36c80162ac3d7799729542c84",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/__pycache__/test_inspection.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 36130,
+      "sha256": "cdc248428571d87190dae91017f24ebb8286eed7630652f1fb00454d2f876c72",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/__pycache__/test_inspection.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 36130,
+      "sha256": "cdc248428571d87190dae91017f24ebb8286eed7630652f1fb00454d2f876c72",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/conftest.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 1702,
+      "sha256": "e386d8df8f0db9c0d917d9b96089b9a7bae93b71159e68d56ed4a37cded7f303",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/conftest.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 1702,
+      "sha256": "e386d8df8f0db9c0d917d9b96089b9a7bae93b71159e68d56ed4a37cded7f303",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_accounting_suite.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 18349,
+      "sha256": "764ed3b800980d12ce202392bc391a29ebf6f83eb255bcaebd7a0386e288f1c9",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_adversarial_layout.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 13387,
+      "sha256": "e1c6ea379f2357718300063486991115eb0435e436830e738fae64948febe869",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_e2e_streamlit_app.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 2617,
+      "sha256": "aa30d9890e09058f5d9dc799e436df958dd3a026646fa761b6143ccaa5d67aa5",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_failure_modes.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 15881,
+      "sha256": "0e5401287fe787a4952d3bcad4fab394cca61d49c07c3f408ae400cdfad12a2f",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_fraud_shield.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 14059,
+      "sha256": "35870b2e74df69097ff075beca030dc15e7c545d0f76af60a14d0cc7cde400db",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_nesy_docai.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 7770,
+      "sha256": "10154efe80219197a38ee092bc344a2f4dce958e2f414b321e21dbb167da681b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_overhaul.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 8727,
+      "sha256": "fd26031e5e020a1623aa6871ce46d0ec7d42e74dd4e594473312323ba3a7b1d9",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_phase2.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 6985,
+      "sha256": "29c0348ab6c3bb0b3ebb02a0cdaa38624c2b5bd0212702aa2ce28b011cba4445",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/__pycache__/test_rigorous_audit.cpython-312-pytest-9.1.1.pyc",
+      "bytes": 15082,
+      "sha256": "73d849e746fa4501fbaba60880b3f9f50b457e7c6807d7fbfa5de8b649d88d29",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/conftest.py",
+      "bytes": 868,
+      "sha256": "0c8b09cd21927996bb8260813b9ec3c239db14fa8f98fc86b3e49ebcdfa66b81",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_accounting_suite.py",
+      "bytes": 6155,
+      "sha256": "32a9dc256ce77e1c21d78498dbccde4d93990311e1c381e1e7a53a0d5b334eda",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_adversarial_layout.py",
+      "bytes": 5778,
+      "sha256": "22d0904b826f1f7ea880ab7631b092ae0ffd23a7647970b0e803c23bb1bebcde",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_e2e_streamlit_app.py",
+      "bytes": 769,
+      "sha256": "2df954c57d2ea872a439af7950cc8a0809e4d7d4a0559ced846cab21e8ad178a",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_failure_modes.py",
+      "bytes": 6398,
+      "sha256": "2512452b53f195085f34241e83e90e8a1289a7d641a81f6e459634643e6f349b",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_fraud_shield.py",
+      "bytes": 3366,
+      "sha256": "6906611fc4040ef5c1eb7b77e9518d9f65e25aea73abea3bdbf05f559d386248",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_nesy_docai.py",
+      "bytes": 2808,
+      "sha256": "5a51601ea2b598a51cd1c687c696fc0656ac74abe42f0a48c87ae28382730111",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_overhaul.py",
+      "bytes": 1150,
+      "sha256": "3c0d28938b95e16ec18aa611761212e8a4559b5bbe81ae0328f087ab6d572b73",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_phase2.py",
+      "bytes": 1750,
+      "sha256": "8108d074dc0e1bc0cd050462abb8b8ffe4451998a032dd7af05c4a5b2cf94469",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/compatibility/test_rigorous_audit.py",
+      "bytes": 5017,
+      "sha256": "bb86d6dd4bd90056d40b8d98d2cb7d87f70cced2fd1dca96bdd3618895c159d4",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/conftest.py",
+      "bytes": 176,
+      "sha256": "b441840d2069b7875d48651059be8fd60779b9a898a7bc3c71b216d65515cc84",
+      "mode": 420
+    },
+    {
+      "path": "modules/docai/tests/test_inspection.py",
+      "bytes": 8011,
+      "sha256": "32c2109f85f2ecdc4c906e0320fb185eba5bcd3df41d9456fcfe28d07b14b664",
+      "mode": 420
+    }
+  ],
+  "removed": false,
+  "status": "Prepared recovery export; original retained pending destination. Shared document_intake remains at repository root."
+}

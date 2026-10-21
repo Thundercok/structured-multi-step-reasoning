@@ -1,0 +1,46 @@
+[
+  {
+    "kind": "synthetic actual-reporting-AST fixture, no backend initialized",
+    "attempts": 12,
+    "successful_records": 0,
+    "report": {
+      "real_calls_count": 12,
+      "scope_status": "backend_inference_verified_12_calls",
+      "scope_note": "12 successful backend requests demonstrate real MLX model inference on local document context. Full interactive UI queue requires dedicated model budget and native display server.",
+      "all_12_requests_succeeded": false
+    }
+  },
+  {
+    "kind": "synthetic actual-reporting-AST fixture, no backend initialized",
+    "attempts": 1,
+    "successful_records": 0,
+    "report": {
+      "real_calls_count": 1,
+      "scope_status": "backend_inference_completed_1_calls",
+      "scope_note": "1 successful backend requests demonstrate real MLX model inference on local document context. Full interactive UI queue requires dedicated model budget and native display server.",
+      "all_12_requests_succeeded": false
+    }
+  },
+  {
+    "kind": "synthetic actual-reporting-AST fixture, no backend initialized",
+    "attempts": 12,
+    "successful_records": 12,
+    "report": {
+      "real_calls_count": 12,
+      "scope_status": "backend_inference_verified_12_calls",
+      "scope_note": "12 successful backend requests demonstrate real MLX model inference on local document context. Full interactive UI queue requires dedicated model budget and native display server.",
+      "all_12_requests_succeeded": true
+    }
+  },
+  {
+    "kind": "synthetic actual-reporting-AST fixture, no backend initialized",
+    "attempts": 1,
+    "successful_records": 1,
+    "report": {
+      "real_calls_count": 1,
+      "scope_status": "backend_inference_completed_1_calls",
+      "scope_note": "1 successful backend requests demonstrate real MLX model inference on local document context. Full interactive UI queue requires dedicated model budget and native display server.",
+      "all_12_requests_succeeded": false
+    }
+  }
+]

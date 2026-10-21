@@ -1,0 +1,30 @@
+{
+  "visual_refinement_plan.md": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/visual_refinement_plan.md",
+    "sha256": "a5e4ccedf65ed4aa49afef40b9272231a85dccda1954cac258fc7c6260f0d09f"
+  },
+  "specimens_metadata.json": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/specimens_metadata.json",
+    "sha256": "53bc4a38426dc45a9b2d13395b02c1441dec6b246755f8bd7b57ad069043b84e"
+  },
+  "specimen_1_desktop_light_finder_offscreen.png": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/specimen_1_desktop_light_finder_offscreen.png",
+    "sha256": "7a34b4ab5f80e3269c875b93745a2f3d424d7362e134f4ce6fcb311d6caa4396"
+  },
+  "specimen_2_narrow_420px_light_offscreen.png": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/specimen_2_narrow_420px_light_offscreen.png",
+    "sha256": "5162571d431287ec0fef2e982fafc7cb97c577d092be716747df68044c4dae6b"
+  },
+  "specimen_3a_desktop_light_sources_top_offscreen.png": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/specimen_3a_desktop_light_sources_top_offscreen.png",
+    "sha256": "3dc144faea5e799a2fa7a7235d43b029fdc614da3ea7bcf9c83bc90664f75d60"
+  },
+  "specimen_3b_desktop_light_trace_bottom_offscreen.png": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/specimen_3b_desktop_light_trace_bottom_offscreen.png",
+    "sha256": "458185ce823259c00190be933a363ebfc24f56f5d28e6eda40964be4cd19d5b7"
+  },
+  "specimen_4_desktop_dark_disambiguation_offscreen.png": {
+    "source": "/Users/thundercock2/.gemini/antigravity/brain/1543d8ec-005e-4709-a052-c585c9fd7d2a/specimen_4_desktop_dark_disambiguation_offscreen.png",
+    "sha256": "c794634e9a37c4224f3fc8bd166cbb98fb270830135be8ac6a412f293658f51e"
+  }
+}

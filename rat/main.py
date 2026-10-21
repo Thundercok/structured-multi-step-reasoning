@@ -7,43 +7,58 @@ from __future__ import annotations
 import logging
 import sys
 
-from rat.cli import main as cli_main
-from rat.os.app import run_resident_app
-from rat.os.crash_shield import install_crash_shield
-from rat.os.daemon import install_launch_agent, uninstall_launch_agent
-from rat.os.shell_integration import generate_shell_init_script, install_to_user_zshrc
-
-# Engage Enterprise-Grade Crash Shield & Exception Governance immediately
-install_crash_shield()
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] (%(name)s) %(message)s",
 )
+logger = logging.getLogger("rat.main")
+
+
+def cli_main() -> None:
+    from rat.cli import main as run_cli
+    run_cli()
+
+
+def run_resident_app(mode: str = "finder") -> None:
+    # Qt and resident services are needed only for a GUI launch. Install the
+    # GUI exception hooks before importing or constructing Qt components.
+    from rat.os.crash_shield import install_crash_shield
+    install_crash_shield()
+    from rat.os.app import run_resident_app as launch
+    launch(mode=mode)
 
 
 def main() -> None:
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
-        if cmd in ("astrology", "natal", "la-so"):
+        if cmd == "--diagnostics":
+            from rat.os.diagnostics import run_session
+            raise SystemExit(run_session(sys.argv[2:]))
+        elif cmd in ("astrology", "natal", "la-so"):
+            from rat.os.crash_shield import install_crash_shield
+            install_crash_shield()
             from rat.astrology.__main__ import main as natal_main
             natal_main()
             return
-        elif cmd in ("search", "index", "status", "ask", "dedup", "--help", "-h"):
+        elif cmd in ("search", "index", "status", "ask", "ask-file", "dedup", "--help", "-h"):
             cli_main()
             return
         elif cmd in ("init-shell", "shell"):
+            from rat.os.shell_integration import generate_shell_init_script
             print(generate_shell_init_script())
             return
         elif cmd == "install-shell":
+            from rat.os.shell_integration import install_to_user_zshrc
             ok = install_to_user_zshrc()
             print("✓ Đã cài đặt tích hợp lệnh 'rat' vào ~/.zshrc!" if ok else "⚠️ Không thể ghi vào ~/.zshrc")
             return
         elif cmd in ("install-daemon", "install-service"):
+            from rat.os.daemon import install_launch_agent
             ok = install_launch_agent()
             print("✓ Đã cài đặt LaunchAgent tự động khởi động cùng macOS!" if ok else "⚠️ Cài đặt LaunchAgent thất bại")
             return
         elif cmd in ("uninstall-daemon", "uninstall-service"):
+            from rat.os.daemon import uninstall_launch_agent
             ok = uninstall_launch_agent()
             print("✓ Đã gỡ bỏ LaunchAgent khỏi macOS!" if ok else "⚠️ Gỡ bỏ LaunchAgent thất bại")
             return

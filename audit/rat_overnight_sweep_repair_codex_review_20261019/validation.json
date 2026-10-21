@@ -1,0 +1,58 @@
+{
+  "verdict": "request_changes",
+  "regression_and_preserved_visual": {
+    "tests": 271,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "followup_and_reported_failures": {
+    "tests": 8,
+    "failures": 6,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_visual_probe_cases": 5,
+  "new_visual_failures": 3,
+  "new_visual_controls_passed": 2,
+  "reported_failures_independently_reproduced": 3,
+  "reported_inventory_files_checked": 132,
+  "reported_inventory_passes": 1685,
+  "reported_inventory_failures": 19,
+  "reported_real_model_records": 12,
+  "reviewer_real_model_calls": 0,
+  "reviewer_os_app_launches": 0,
+  "qpa_platform": "offscreen",
+  "full_132_sweep_rerun_by_reviewer": false,
+  "native_cocoa_run_by_reviewer": false,
+  "production_source_files_checked": 47,
+  "production_source_changed_during_review": [],
+  "production_source_edited_by_reviewer": false,
+  "research_stage_0_changed": false,
+  "findings": [
+    {
+      "id": "R1",
+      "priority": 1
+    },
+    {
+      "id": "R2",
+      "priority": 2
+    },
+    {
+      "id": "R3",
+      "priority": 2
+    },
+    {
+      "id": "R4",
+      "priority": 2
+    },
+    {
+      "id": "R5",
+      "priority": 2
+    },
+    {
+      "id": "R6",
+      "priority": 2
+    }
+  ]
+}

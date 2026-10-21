@@ -1,0 +1,26 @@
+{
+  "source_tree": "spider/",
+  "tracked_files_count": 321,
+  "tracked_rust_source_files_count": 269,
+  "tracked_rust_source_non_empty_lines": 123868,
+  "all_tracked_files_non_empty_lines": 139745,
+  "untracked_or_ignored_files_to_preserve": [
+    {
+      "path": "spider/release.sh",
+      "lines_non_empty": 38,
+      "sha256": "4618c7465533d26ad82b080fff4bd35113426abbd6c2801713108b369656a9a3",
+      "note": "Ignored release script in spider directory"
+    }
+  ],
+  "local_changes_to_preserve": [
+    "spider/examples/cv_job_crawler.rs",
+    "spider/release.sh"
+  ],
+  "recovery_bundle": {
+    "archive_path": "scratch/spider_migration_bundle.tar.gz",
+    "archive_size_bytes": 1169718,
+    "restoration_verified": true
+  },
+  "migration_status": "READY_FOR_SEPARATION_UPON_TARGET_REPO_CONFIRMATION",
+  "debloat_claim": "0% reduction claimed; source tree preserved in-place until physical separation."
+}

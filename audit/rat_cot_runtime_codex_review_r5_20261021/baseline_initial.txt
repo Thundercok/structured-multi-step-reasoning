@@ -1,0 +1,313 @@
+........................................................................ [ 17%]
+..........................................................F............. [ 35%]
+.FF..................................................................... [ 52%]
+........................................................................ [ 70%]
+.........................F.....FFFF..................................... [ 88%]
+................................................                         [100%]
+=================================== FAILURES ===================================
+__ test_bottom_composer_preserves_editor_and_anchor_across_content_and_modes ___
+
+window = <rat.ui.omnibar.OmnibarWindow object at 0x17d71e490>
+app = <PyQt6.QtWidgets.QApplication object at 0x12a1a8870>
+
+    def test_bottom_composer_preserves_editor_and_anchor_across_content_and_modes(window, app):
+        composer = window.chat_composer_input
+        window._deliver_assistant_reply('Kết quả có thể hỏi tiếp. ' * 35)
+        app.processEvents()
+        composer.setText('Bản nháp tiếng Việt đang sửa')
+        composer.setSelection(4, 8)
+        composer.setFocus()
+        app.processEvents()
+        selection = composer.selectedText()
+        bottom = window.geometry().bottom()
+        for mode in (True, False):
+            window.set_expanded(mode)
+            app.processEvents()
+            assert window.chat_composer_input is composer is window.full_chat_input
+            assert composer.selectedText() == selection
+            assert QApplication.focusWidget() is composer
+            assert window.geometry().bottom() == bottom
+            assert window.main_layout.indexOf(window.workbench_dialogue) > window.main_layout.indexOf(window.workbench_canvas)
+            assert window.workbench_dialogue.geometry().top() >= window.workbench_canvas.geometry().bottom()
+>           assert window.companion_avatar_btn.geometry().right() <= window.workbench_dialogue.user_lane.geometry().left()
+E           assert 215 <= 0
+E            +  where 215 = <built-in method right of QRect object at 0x31f740350>()
+E            +    where <built-in method right of QRect object at 0x31f740350> = PyQt6.QtCore.QRect(12, 29, 204, 246).right
+E            +      where PyQt6.QtCore.QRect(12, 29, 204, 246) = <built-in method geometry of WorkbenchActorWidget object at 0x17d315a90>()
+E            +        where <built-in method geometry of WorkbenchActorWidget object at 0x17d315a90> = <rat.ui.workbench.WorkbenchActorWidget object at 0x17d315a90>.geometry
+E            +          where <rat.ui.workbench.WorkbenchActorWidget object at 0x17d315a90> = <rat.ui.omnibar.OmnibarWindow object at 0x17d71e490>.companion_avatar_btn
+E            +  and   0 = <built-in method left of QRect object at 0x31f741ed0>()
+E            +    where <built-in method left of QRect object at 0x31f741ed0> = PyQt6.QtCore.QRect(0, 141, 640, 92).left
+E            +      where PyQt6.QtCore.QRect(0, 141, 640, 92) = <built-in method geometry of WorkbenchUserLane object at 0x104e3b4d0>()
+E            +        where <built-in method geometry of WorkbenchUserLane object at 0x104e3b4d0> = <rat.ui.workbench.WorkbenchUserLane object at 0x104e3b4d0>.geometry
+E            +          where <rat.ui.workbench.WorkbenchUserLane object at 0x104e3b4d0> = <rat.ui.workbench.WorkbenchDialogueRegion object at 0x17d315ef0>.user_lane
+E            +            where <rat.ui.workbench.WorkbenchDialogueRegion object at 0x17d315ef0> = <rat.ui.omnibar.OmnibarWindow object at 0x17d71e490>.workbench_dialogue
+
+tests/test_rat_magic_ui.py:68: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_________ test_footer_hints_have_usable_positive_bounds_across_states __________
+
+window = <rat.ui.omnibar.OmnibarWindow object at 0x31f797610>
+app = <PyQt6.QtWidgets.QApplication object at 0x12a1a8870>
+
+    def test_footer_hints_have_usable_positive_bounds_across_states(window, app):
+        lane = window.workbench_user_lane
+        window.show()
+        app.processEvents()
+    
+        # 1. Desktop compact state
+        assert lane.input_state_lbl.isVisible()
+        assert lane.input_state_lbl.width() > 40
+        assert lane.kbd_hint_lbl.isVisible()
+        assert lane.kbd_hint_lbl.width() > 20
+    
+        # 2. Busy / working state
+        lane.set_phase("working")
+        app.processEvents()
+>       assert lane.input_state_lbl.text() == "Gõ tiếp · Esc để dừng"
+E       AssertionError: assert 'Đang xử lý · Esc để dừng' == 'Gõ tiếp · Esc để dừng'
+E         
+E         - Gõ tiếp · Esc để dừng
+E         + Đang xử lý · Esc để dừng
+
+tests/test_rat_magic_ui.py:225: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+_____ test_responsive_breakpoint_uses_content_width_on_constrained_screens _____
+
+window = <rat.ui.omnibar.OmnibarWindow object at 0x17d31cc30>
+app = <PyQt6.QtWidgets.QApplication object at 0x12a1a8870>
+
+    def test_responsive_breakpoint_uses_content_width_on_constrained_screens(window, app):
+        from unittest.mock import MagicMock
+        mock_screen = MagicMock()
+        mock_screen.availableGeometry.return_value = QRect(0, 0, 490, 800)
+        window.screen = MagicMock(return_value=mock_screen)
+    
+        # Calling resize with standard 620 produces outer 466 (490 - 24) and content 450 (466 - 16)
+        window._resize_overlay(620, 240)
+        app.processEvents()
+    
+        assert window.width() == 466
+        assert window.workbench_dialogue.is_narrow is True
+        assert window.workbench_canvas.is_narrow is True
+>       assert window.companion_avatar_btn.width() == 88
+E       assert 132 == 88
+E        +  where 132 = <built-in method width of WorkbenchActorWidget object at 0x323130e10>()
+E        +    where <built-in method width of WorkbenchActorWidget object at 0x323130e10> = <rat.ui.workbench.WorkbenchActorWidget object at 0x323130e10>.width
+E        +      where <rat.ui.workbench.WorkbenchActorWidget object at 0x323130e10> = <rat.ui.omnibar.OmnibarWindow object at 0x17d31cc30>.companion_avatar_btn
+
+tests/test_rat_magic_ui.py:260: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_ test_backend_provenance_never_inferred_real_from_timing_or_token_count[legacy-captured-fake-expected0] _
+
+kind = 'legacy-captured-fake', expected = {'fake', 'unknown'}
+actual_classifier = <function classify_record_backend at 0x321170a40>
+
+    @pytest.mark.parametrize("kind,expected", [
+        ("legacy-captured-fake", {"fake", "unknown"}),
+        ("explicit-fake", {"fake"}),
+        ("explicit-real", {"real"}),
+        ("no-provenance", {"unknown"}),
+    ])
+    def test_backend_provenance_never_inferred_real_from_timing_or_token_count(kind, expected, actual_classifier):
+        if kind == "legacy-captured-fake":
+            # This is genuine fake-run evidence from r3, with command/raw log preserved.
+>           records = [json.loads(line) for line in (HERE / "legacy_fake_calls.jsonl").read_text().splitlines()]
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl'
+
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: FileNotFoundError
+__ test_path_text_cannot_turn_fake_evidence_into_verified_real[same-document] __
+
+variant = 'same-document'
+source_blocks = (<code object <module> at 0x34adfd290, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("variant", ["same-document", "real-checkpoint-path", "untagged-control", "explicit-fake-control"])
+    def test_path_text_cannot_turn_fake_evidence_into_verified_real(variant, source_blocks):
+>       record = completed(HERE / "legacy_fake_calls.jsonl")[0].copy()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:24: in completed
+    return [r for line in path.read_text().splitlines()
+                          ^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl'
+
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_path_text_cannot_turn_fake_evidence_into_verified_real[real-checkpoint-path] _
+
+variant = 'real-checkpoint-path'
+source_blocks = (<code object <module> at 0x34adfd290, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("variant", ["same-document", "real-checkpoint-path", "untagged-control", "explicit-fake-control"])
+    def test_path_text_cannot_turn_fake_evidence_into_verified_real(variant, source_blocks):
+>       record = completed(HERE / "legacy_fake_calls.jsonl")[0].copy()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:24: in completed
+    return [r for line in path.read_text().splitlines()
+                          ^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl'
+
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_path_text_cannot_turn_fake_evidence_into_verified_real[untagged-control] _
+
+variant = 'untagged-control'
+source_blocks = (<code object <module> at 0x34adfd290, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("variant", ["same-document", "real-checkpoint-path", "untagged-control", "explicit-fake-control"])
+    def test_path_text_cannot_turn_fake_evidence_into_verified_real(variant, source_blocks):
+>       record = completed(HERE / "legacy_fake_calls.jsonl")[0].copy()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:24: in completed
+    return [r for line in path.read_text().splitlines()
+                          ^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl'
+
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_path_text_cannot_turn_fake_evidence_into_verified_real[explicit-fake-control] _
+
+variant = 'explicit-fake-control'
+source_blocks = (<code object <module> at 0x34adfd290, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("variant", ["same-document", "real-checkpoint-path", "untagged-control", "explicit-fake-control"])
+    def test_path_text_cannot_turn_fake_evidence_into_verified_real(variant, source_blocks):
+>       record = completed(HERE / "legacy_fake_calls.jsonl")[0].copy()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:24: in completed
+    return [r for line in path.read_text().splitlines()
+                          ^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r5_20261021/legacy_fake_calls.jsonl'
+
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_rat_magic_ui.py::test_bottom_composer_preserves_editor_and_anchor_across_content_and_modes
+FAILED tests/test_rat_magic_ui.py::test_footer_hints_have_usable_positive_bounds_across_states
+FAILED tests/test_rat_magic_ui.py::test_responsive_breakpoint_uses_content_width_on_constrained_screens
+FAILED audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py::test_backend_provenance_never_inferred_real_from_timing_or_token_count[legacy-captured-fake-expected0]
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[same-document]
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[real-checkpoint-path]
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[untagged-control]
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[explicit-fake-control]
+8 failed, 400 passed in 54.66s

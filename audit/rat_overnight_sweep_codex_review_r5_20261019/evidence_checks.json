@@ -1,0 +1,125 @@
+{
+  "reviewed_source_files": 51,
+  "source_changed_during_review": [],
+  "received_repair_changed_files": [
+    "reasoning/reasoning_strategies.py",
+    "scripts/run_native_performance_session.py"
+  ],
+  "historical_ledgers_sha256": {
+    "audit/rat_overnight_sweep_repair_20261019/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_codex_repair_r4_20261019/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_codex_review_r5_20261019/received_artifacts/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "audit/rat_overnight_sweep_codex_review_r5_20261019/locked_ledger_replay/calls.jsonl": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34"
+  },
+  "historical_ledgers_identical": true,
+  "consolidated": {
+    "tests": 309,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 309
+  },
+  "parser_affected": {
+    "tests": 70,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2,
+    "passed": 68
+  },
+  "new_probes": {
+    "tests": 10,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 6
+  },
+  "mandatory_research_cases_in_consolidated": 29,
+  "mandatory_research_failures": 0,
+  "fake_sessions": {
+    "fake_session": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 1,
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "offline_fake_backend_completed_1_calls",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed."
+      },
+      "warm_generation_latency_ms": null
+    },
+    "locked_ledger_replay": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 0,
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "budget_halt_existing_real_history",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Budget guard halted without dispatching new requests. Existing append-only ledger contains 12 historical real-model records; zero fake calls executed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    },
+    "fake_history_halt": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 1,
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "offline_fake_backend_completed_1_calls",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    },
+    "legacy_fake_history_halt": {
+      "real_model_calls_executed": 0,
+      "fake_model_calls_executed": 0,
+      "scope_classification": {
+        "type": "offline_fake_backend_simulation",
+        "status": "budget_halt_existing_real_history",
+        "unverified_native_scenarios": [
+          "native_gui_token_streaming",
+          "user_cancel_during_prefill_or_decode",
+          "query_after_cancel",
+          "changed_file_invalidation",
+          "changed_document_invalidation",
+          "outside_excerpt_unresolved_case"
+        ],
+        "note": "Budget guard halted without dispatching new requests. Existing append-only ledger contains 1 historical real-model records; zero fake calls executed."
+      },
+      "warm_generation_latency_ms": null,
+      "ledger_unchanged": true,
+      "guard_halt_in_log": true
+    }
+  },
+  "reviewer_new_real_model_calls": 0,
+  "reviewer_new_fake_requests": 1,
+  "legacy_fake_evidence": {
+    "source": "audit/rat_overnight_sweep_codex_review_r3_20261019/fake_session/calls.jsonl",
+    "sha256": "8a58964531bf0e1d8cce2149e5d40b8a98a085316772ff708aeecfb67a07353a",
+    "copied_byte_identical": true
+  }
+}

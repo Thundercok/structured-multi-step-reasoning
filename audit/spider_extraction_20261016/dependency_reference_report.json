@@ -1,0 +1,1396 @@
+{
+  "scanned_paths": [
+    "rat",
+    "tests",
+    "main.py",
+    "rat.spec"
+  ],
+  "source_tree_references": [],
+  "binary_references": [],
+  "service_references": [
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 2,
+      "text": "rat.crawler.spider_adapter \u2014 Out-of-process Spider CLI adapter for RAT."
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 28,
+      "text": "logger = logging.getLogger(\"rat.spider_adapter\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 44,
+      "text": "class SpiderAdapterError(RuntimeError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 48,
+      "text": "class SpiderBinaryNotFoundError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 52,
+      "text": "class SpiderVersionMismatchError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 56,
+      "text": "class SpiderSecurityGateError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 60,
+      "text": "class SpiderTimeoutError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 64,
+      "text": "class SpiderSSRFBlockedError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 68,
+      "text": "class SpiderProcessError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 72,
+      "text": "class SpiderParseError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 76,
+      "text": "class SpiderEmptyContentError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 80,
+      "text": "class SpiderHTTPError(SpiderAdapterError):"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 165,
+      "text": "class SpiderAdapter:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 14,
+      "text": "from rat.crawler.spider_adapter import ("
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 15,
+      "text": "SpiderAdapter,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 16,
+      "text": "SpiderAdapterError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 33,
+      "text": "adapter: Optional[SpiderAdapter] = None,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 42,
+      "text": "spider_adapter = adapter or SpiderAdapter()"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 78,
+      "text": "result = spider_adapter.scrape_page("
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 127,
+      "text": "except SpiderAdapterError as exc:"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 2,
+      "text": "tests/test_spider_adapter.py \u2014 Behavioral unit & contract tests for Spider adapter,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 20,
+      "text": "from rat.crawler.spider_adapter import ("
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 21,
+      "text": "SpiderAdapter,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 64,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 72,
+      "text": "adapter = SpiderAdapter()"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 81,
+      "text": "adapter = SpiderAdapter(binary_path=tmp_path / \"does_not_exist\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 93,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 103,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 110,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 130,
+      "text": "adapter = SpiderAdapter(binary_path=bin_path)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 142,
+      "text": "SpiderAdapter.validate_url(\"https://example.com/test\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 143,
+      "text": "SpiderAdapter.validate_url(\"http://example.org:8080/path?query=1\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 157,
+      "text": "SpiderAdapter.validate_url(bad_url)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 169,
+      "text": "SpiderAdapter.validate_url(bad_url)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 176,
+      "text": "SpiderAdapter.validate_url(\"http://spoofed.domain.com\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 185,
+      "text": "SpiderAdapter.validate_url(\"http://internal.company.com\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 193,
+      "text": "SpiderAdapter.validate_url(\"http://cloud-metadata.evil.com\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 201,
+      "text": "SpiderAdapter.validate_url(\"http://invalid.ip.com\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 221,
+      "text": "pages = SpiderAdapter.parse_output(pretty_json)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 240,
+      "text": "pages = SpiderAdapter.parse_output(multi_json)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 248,
+      "text": "SpiderAdapter.parse_output(\"Not JSON output at all!\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 253,
+      "text": "SpiderAdapter.parse_output('[\"array_item\"]')"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 272,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, timeout_seconds=5.0)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 294,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, timeout_seconds=5.0)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 311,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, max_output_bytes=100000, timeout_seconds=5.0)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 326,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, max_stderr_bytes=50000, timeout_seconds=5.0)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 337,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, timeout_seconds=0.2)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 348,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, timeout_seconds=10.0)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 370,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 391,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 407,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 419,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 431,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 445,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 462,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 474,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 486,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 503,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 555,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 587,
+      "text": "adapter = SpiderAdapter(binary_path=tmp_path / \"nonexistent_spider\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 605,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 668,
+      "text": "adapter = SpiderAdapter(binary_path=path)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 687,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 703,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, timeout_seconds=0.05)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 729,
+      "text": "adapter = SpiderAdapter(binary_path=fake_bin, timeout_seconds=10.0)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 752,
+      "text": "adapter = SpiderAdapter(binary_path=bin_path)"
+    }
+  ],
+  "other_references": [
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 4,
+      "text": "Executes the standalone Spider binary to scrape a single public web page"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 31,
+      "text": "DEFAULT_LOCAL_BIN = PROJECT_ROOT / \"rat\" / \"bin\" / \"spider\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 32,
+      "text": "USER_LOCAL_BIN = Path.home() / \".local\" / \"bin\" / \"spider\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 33,
+      "text": "USER_CARGO_BIN = Path.home() / \".cargo\" / \"bin\" / \"spider\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 35,
+      "text": "PINNED_SPIDER_VERSION = \"2.51.208\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 36,
+      "text": "PINNED_BINARY_PREFIX = \"spider_cli\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 45,
+      "text": "\"\"\"Base exception for all Spider adapter errors.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 49,
+      "text": "\"\"\"Raised when Spider executable is not found or not executable.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 53,
+      "text": "\"\"\"Raised when Spider executable version does not match pinned version.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 61,
+      "text": "\"\"\"Raised when Spider execution exceeds deadline or is cancelled.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 69,
+      "text": "\"\"\"Raised when the Spider subprocess exits with non-zero status or fatal error.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 73,
+      "text": "\"\"\"Raised when Spider stdout cannot be parsed into valid page objects or violates schema.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 77,
+      "text": "\"\"\"Raised when Spider completed without returning usable page content.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 132,
+      "text": "class SpiderPageResult:"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 133,
+      "text": "\"\"\"Truthful extraction result of a single web page from Spider.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 144,
+      "text": "engine: str = \"spider\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 166,
+      "text": "\"\"\"Safe, out-of-process subprocess adapter for Spider web crawler.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 189,
+      "text": "raise SpiderBinaryNotFoundError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 190,
+      "text": "f\"\u0110\u01b0\u1eddng d\u1eabn Spider binary \u0111\u01b0\u1ee3c ch\u1ec9 \u0111\u1ecbnh kh\u00f4ng t\u1ed3n t\u1ea1i ho\u1eb7c kh\u00f4ng th\u1ec3 th\u1ef1c thi: {p}\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 193,
+      "text": "env_bin = os.getenv(\"RAT_SPIDER_BIN\") or os.getenv(\"SPIDER_BIN\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 203,
+      "text": "which_path = shutil.which(\"spider\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 209,
+      "text": "raise SpiderBinaryNotFoundError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 210,
+      "text": "\"Kh\u00f4ng t\u00ecm th\u1ea5y Spider binary tr\u00ean h\u1ec7 th\u1ed1ng. \""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 211,
+      "text": "\"Vui l\u00f2ng thi\u1ebft l\u1eadp bi\u1ebfn m\u00f4i tr\u01b0\u1eddng RAT_SPIDER_BIN ho\u1eb7c c\u00e0i \u0111\u1eb7t binary t\u1ea1i \""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 212,
+      "text": "f\"{DEFAULT_LOCAL_BIN} (xem h\u01b0\u1edbng d\u1eabn t\u1ea1i audit/spider_rat_adapter_20261016/).\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 216,
+      "text": "\"\"\"Check whether a usable Spider binary is present on the host.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 220,
+      "text": "except SpiderBinaryNotFoundError:"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 232,
+      "text": "raise SpiderProcessError(f\"Kh\u00f4ng th\u1ec3 \u0111\u1ecdc file nh\u1ecb ph\u00e2n Spider ({bin_path}): {exc}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 242,
+      "text": "and per-stream byte caps. Enforces exact match against PINNED_SPIDER_VERSION."
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 278,
+      "text": "raise SpiderProcessError(f\"Ki\u1ec3m tra version Spider th\u1ea5t b\u1ea1i ({bin_path}): {err}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 282,
+      "text": "raise SpiderVersionMismatchError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 283,
+      "text": "f\"Spider binary ({bin_path}) kh\u00f4ng tr\u1ea3 v\u1ec1 th\u00f4ng tin version h\u1ee3p l\u1ec7.\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 288,
+      "text": "if detected_version != PINNED_SPIDER_VERSION and raw_version != PINNED_SPIDER_VERSION:"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 289,
+      "text": "raise SpiderVersionMismatchError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 290,
+      "text": "f\"Spider version mismatch: k\u1ef3 v\u1ecdng version '{PINNED_SPIDER_VERSION}', \""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 304,
+      "text": "\"\"\"Query or return verified Spider version string.\"\"\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 320,
+      "text": "raise SpiderTimeoutError(\"cancelled:operation_cancelled\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 325,
+      "text": "raise SpiderTimeoutError(f\"H\u1ebft th\u1eddi gian ch\u1edd tr\u01b0\u1edbc khi ph\u00e2n gi\u1ea3i DNS cho '{hostname}'.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 332,
+      "text": "raise SpiderTimeoutError(\"cancelled:operation_cancelled\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 336,
+      "text": "raise SpiderTimeoutError(f\"Qu\u00e1 th\u1eddi gian ch\u1edd khi ph\u00e2n gi\u1ea3i DNS cho '{hostname}'.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 342,
+      "text": "raise SpiderTimeoutError(f\"Qu\u00e1 th\u1eddi gian ch\u1edd khi ph\u00e2n gi\u1ea3i DNS cho '{hostname}'.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 344,
+      "text": "raise SpiderSSRFBlockedError(f\"Kh\u00f4ng th\u1ec3 ph\u00e2n gi\u1ea3i t\u00ean mi\u1ec1n '{hostname}': {exc}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 365,
+      "text": "raise SpiderSSRFBlockedError(\"URL kh\u00f4ng h\u1ee3p l\u1ec7 ho\u1eb7c \u0111\u1ec3 tr\u1ed1ng.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 370,
+      "text": "raise SpiderSSRFBlockedError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 376,
+      "text": "raise SpiderSSRFBlockedError(\"URL thi\u1ebfu hostname h\u1ee3p l\u1ec7.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 385,
+      "text": "raise SpiderSSRFBlockedError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 394,
+      "text": "raise SpiderSSRFBlockedError(f\"Kh\u00f4ng t\u00ecm th\u1ea5y \u0111\u1ecba ch\u1ec9 IP cho t\u00ean mi\u1ec1n '{hostname}'.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 401,
+      "text": "raise SpiderSSRFBlockedError(f\"\u0110\u1ecba ch\u1ec9 IP kh\u00f4ng h\u1ee3p l\u1ec7 t\u1eeb DNS: {ip_str}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 404,
+      "text": "raise SpiderSSRFBlockedError(\"\u0110\u1ecba ch\u1ec9 Cloud Metadata (169.254.169.254) b\u1ecb ch\u1eb7n.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 406,
+      "text": "raise SpiderSSRFBlockedError(f\"\u0110\u1ecba ch\u1ec9 IP loopback b\u1ecb ch\u1eb7n: {ip_str}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 408,
+      "text": "raise SpiderSSRFBlockedError(f\"\u0110\u1ecba ch\u1ec9 IP link-local b\u1ecb ch\u1eb7n: {ip_str}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 410,
+      "text": "raise SpiderSSRFBlockedError(f\"\u0110\u1ecba ch\u1ec9 IP m\u1ea1ng n\u1ed9i b\u1ed9 (private) b\u1ecb ch\u1eb7n: {ip_str}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 412,
+      "text": "raise SpiderSSRFBlockedError(f\"\u0110\u1ecba ch\u1ec9 IP multicast b\u1ecb ch\u1eb7n: {ip_str}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 414,
+      "text": "raise SpiderSSRFBlockedError(f\"\u0110\u1ecba ch\u1ec9 IP unspecified b\u1ecb ch\u1eb7n: {ip_str}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 419,
+      "text": "Parse multi-line pretty-printed JSON stream produced by Spider CLI."
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 437,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 442,
+      "text": "raise SpiderParseError(f\"Kh\u00f4ng th\u1ec3 ph\u00e2n t\u00edch d\u1eef li\u1ec7u JSON tr\u1ea3 v\u1ec1 t\u1eeb Spider: {exc}\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 492,
+      "text": "raise SpiderTimeoutError(\"cancelled:operation_cancelled\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 498,
+      "text": "raise SpiderTimeoutError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 524,
+      "text": "raise SpiderProcessError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 532,
+      "text": "raise SpiderProcessError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 543,
+      "text": "raise SpiderTimeoutError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 566,
+      "text": ") -> SpiderPageResult:"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 574,
+      "text": "raise SpiderEmptyContentError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 575,
+      "text": "f\"Kh\u00f4ng nh\u1eadn \u0111\u01b0\u1ee3c n\u1ed9i dung trang t\u1eeb Spider cho URL '{clean_url}'.\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 580,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 586,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 593,
+      "text": "raise SpiderParseError(\"D\u1eef li\u1ec7u trang thi\u1ebfu tr\u01b0\u1eddng 'url' d\u1ea1ng chu\u1ed7i h\u1ee3p l\u1ec7.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 598,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 608,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 620,
+      "text": "raise SpiderParseError(\"Tr\u01b0\u1eddng status_code kh\u00f4ng \u0111\u01b0\u1ee3c l\u00e0 ki\u1ec3u boolean.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 623,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 631,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 636,
+      "text": "raise SpiderParseError(f\"M\u00e3 tr\u1ea1ng th\u00e1i HTTP kh\u00f4ng h\u1ee3p l\u1ec7: {raw_status}.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 638,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 643,
+      "text": "raise SpiderHTTPError(f\"Trang web tr\u1ea3 v\u1ec1 m\u00e3 l\u1ed7i HTTP {status_code} ({final_url}).\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 648,
+      "text": "raise SpiderEmptyContentError(f\"Trang web '{final_url}' kh\u00f4ng c\u00f3 tr\u01b0\u1eddng content.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 650,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 657,
+      "text": "raise SpiderEmptyContentError(f\"Trang web '{final_url}' kh\u00f4ng c\u00f3 n\u1ed9i dung v\u0103n b\u1ea3n usable.\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 671,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 677,
+      "text": "raise SpiderParseError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 681,
+      "text": "return SpiderPageResult("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 691,
+      "text": "engine=\"spider\","
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 701,
+      "text": ") -> SpiderPageResult:"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 703,
+      "text": "Execute Spider binary to scrape a single public web page."
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 729,
+      "text": "raise SpiderVersionMismatchError("
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 752,
+      "text": "raise SpiderTimeoutError(\"cancelled:operation_cancelled\")"
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 765,
+      "text": "err_msg = raw_stderr.strip() or f\"Spider tho\u00e1t v\u1edbi m\u00e3 l\u1ed7i {returncode}\""
+    },
+    {
+      "file": "rat/crawler/spider_adapter.py",
+      "line": 766,
+      "text": "raise SpiderProcessError(f\"Spider g\u1eb7p l\u1ed7i khi thu th\u1eadp d\u1eef li\u1ec7u: {err_msg}\")"
+    },
+    {
+      "file": "rat/engine/context_engine.py",
+      "line": 76,
+      "text": "\"cao du lieu\", \"crawler\", \"spider\", \"crawl\", \"scrape\", \"boc tach\","
+    },
+    {
+      "file": "rat/engine/context_engine.py",
+      "line": 79,
+      "text": "\"synonyms\": [\"c\u00e0o d\u1eef li\u1ec7u\", \"crawler\", \"spider\", \"thu th\u1eadp d\u1eef li\u1ec7u\", \"web scraping\", \"b\u00f3c t\u00e1ch web\", \"t\u1ef1 \u0111\u1ed9ng h\u00f3a\"],"
+    },
+    {
+      "file": "rat/engine/context_engine.py",
+      "line": 81,
+      "text": "\"intent_desc\": \"M\u00e3 ngu\u1ed3n ho\u1eb7c t\u00e0i li\u1ec7u v\u1ec1 c\u00f4ng c\u1ee5 c\u00e0o d\u1eef li\u1ec7u web (Spider/Crawler)\","
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 2,
+      "text": "rat.kernel.capabilities.web \u2014 Public web reading capability via Spider."
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 5,
+      "text": "- read_web_page: Scrapes a public HTTP(S) URL via the out-of-process Spider adapter"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 17,
+      "text": "SpiderBinaryNotFoundError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 18,
+      "text": "SpiderEmptyContentError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 19,
+      "text": "SpiderHTTPError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 20,
+      "text": "SpiderParseError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 21,
+      "text": "SpiderSecurityGateError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 22,
+      "text": "SpiderSSRFBlockedError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 23,
+      "text": "SpiderTimeoutError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 24,
+      "text": "SpiderVersionMismatchError,"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 39,
+      "text": "the underlying Spider CLI backend lacks per-hop destination IP and redirect"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 47,
+      "text": "description=\"\u0110\u1ecdc n\u1ed9i dung trang web c\u00f4ng khai qua Spider crawler v\u00e0 tr\u00edch xu\u1ea5t b\u1ea3n ch\u1ee5p c\u00f3 ngu\u1ed3n.\","
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 58,
+      "text": "\"Kh\u1ea3 n\u0103ng duy\u1ec7t web ch\u01b0a \u0111\u01b0\u1ee3c k\u00edch ho\u1ea1t: backend Spider CLI hi\u1ec7n t\u1ea1i \""
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 83,
+      "text": "except SpiderSecurityGateError as exc:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 91,
+      "text": "except SpiderBinaryNotFoundError as exc:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 92,
+      "text": "logger.warning(f\"Spider binary not found: {exc}\")"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 99,
+      "text": "except SpiderVersionMismatchError as exc:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 100,
+      "text": "logger.warning(f\"Spider version mismatch: {exc}\")"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 107,
+      "text": "except SpiderSSRFBlockedError as exc:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 114,
+      "text": "except SpiderParseError as exc:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 121,
+      "text": "except (SpiderTimeoutError, SpiderHTTPError, SpiderEmptyContentError) as exc:"
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 130,
+      "text": "\"error\": f\"L\u1ed7i thu th\u1eadp d\u1eef li\u1ec7u qua Spider: {exc}\","
+    },
+    {
+      "file": "rat/kernel/capabilities/web.py",
+      "line": 181,
+      "text": "\"Fetch and read the content of a public web page using the Spider engine. \""
+    },
+    {
+      "file": "rat/kernel/capabilities/__init__.py",
+      "line": 27,
+      "text": "the underlying Spider CLI backend lacks per-hop destination IP and redirect"
+    },
+    {
+      "file": "rat/kernel/capabilities/views.py",
+      "line": 130,
+      "text": "ViewBlock('details', {'title': 'Ngu\u1ed3n & B\u1ea3n ch\u1ee5p', 'content': f\"URL: {url}\\nB\u1ea3n ch\u1ee5p SHA256: {data.get('content_hash', '')}\\nEngine: {data.get('engine', 'spider')} {data.get('engine_version', '')}\"}),"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 22,
+      "text": "SpiderBinaryNotFoundError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 23,
+      "text": "SpiderEmptyContentError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 24,
+      "text": "SpiderHTTPError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 25,
+      "text": "SpiderParseError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 26,
+      "text": "SpiderProcessError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 27,
+      "text": "SpiderSecurityGateError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 28,
+      "text": "SpiderSSRFBlockedError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 29,
+      "text": "SpiderTimeoutError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 30,
+      "text": "SpiderVersionMismatchError,"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 40,
+      "text": "def create_fake_spider("
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 43,
+      "text": "version: str = \"spider_cli 2.51.208\","
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 45,
+      "text": "\"\"\"Create a temporary executable fake Spider script.\"\"\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 46,
+      "text": "bin_path = tmp_path / f\"fake_spider_{hashlib.md5(script_content.encode()).hexdigest()[:8]}\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 63,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 70,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 71,
+      "text": "monkeypatch.setenv(\"RAT_SPIDER_BIN\", str(fake_bin))"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 77,
+      "text": "monkeypatch.setenv(\"RAT_SPIDER_BIN\", str(tmp_path / \"nonexistent\"))"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 78,
+      "text": "monkeypatch.setenv(\"SPIDER_BIN\", str(tmp_path / \"nonexistent\"))"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 83,
+      "text": "with pytest.raises(SpiderBinaryNotFoundError):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 92,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"spider_cli 2.51.208\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 95,
+      "text": "assert ver == \"spider_cli 2.51.208\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 98,
+      "text": "assert adapter.get_version() == \"spider_cli 2.51.208\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 102,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"spider_cli 99.0.0\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 104,
+      "text": "with pytest.raises(SpiderVersionMismatchError, match=\"mismatch\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 109,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"broken-version\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 111,
+      "text": "with pytest.raises(SpiderVersionMismatchError):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 116,
+      "text": "monkeypatch.setenv(\"SPIDER_CLOUD_KEY\", \"SECRET_KEY\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 120,
+      "text": "if \"SPIDER_CLOUD_KEY\" in os.environ:"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 123,
+      "text": "print(\"spider_cli 2.51.208\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 126,
+      "text": "bin_path = tmp_path / \"env_spider\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 132,
+      "text": "assert ver == \"spider_cli 2.51.208\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 156,
+      "text": "with pytest.raises(SpiderSSRFBlockedError):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 168,
+      "text": "with pytest.raises(SpiderSSRFBlockedError):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 175,
+      "text": "with pytest.raises(SpiderSSRFBlockedError, match=\"loopback\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 184,
+      "text": "with pytest.raises(SpiderSSRFBlockedError, match=\"m\u1ea1ng n\u1ed9i b\u1ed9\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 192,
+      "text": "with pytest.raises(SpiderSSRFBlockedError, match=\"(link-local|Metadata)\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 200,
+      "text": "with pytest.raises(SpiderSSRFBlockedError):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 247,
+      "text": "with pytest.raises(SpiderParseError):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 252,
+      "text": "with pytest.raises(SpiderParseError, match=\"kh\u00f4ng ph\u1ea3i l\u00e0 JSON object\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 271,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 293,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 310,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 315,
+      "text": "with pytest.raises(SpiderProcessError, match=\"v\u01b0\u1ee3t qu\u00e1 gi\u1edbi h\u1ea1n an to\u00e0n\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 325,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 330,
+      "text": "with pytest.raises(SpiderProcessError, match=\"v\u01b0\u1ee3t qu\u00e1 gi\u1edbi h\u1ea1n an to\u00e0n\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 336,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 341,
+      "text": "with pytest.raises(SpiderTimeoutError, match=\"Qu\u00e1 th\u1eddi gian ch\u1edd\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 347,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 352,
+      "text": "with pytest.raises(SpiderTimeoutError, match=\"cancelled:operation_cancelled\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 357,
+      "text": "monkeypatch.setenv(\"SPIDER_CLOUD_API_KEY\", \"SECRET_KEY_12345\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 358,
+      "text": "monkeypatch.setenv(\"SPIDER_CACHE_NAMESPACE\", \"SECRET_NS\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 362,
+      "text": "spider_vars = [k for k in os.environ if 'SPIDER' in k]"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 363,
+      "text": "if spider_vars:"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 364,
+      "text": "sys.stderr.write('LEAKED_ENV: ' + ','.join(spider_vars))"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 369,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 383,
+      "text": "\"\"\"Payload with content as dict must raise SpiderParseError without coercion.\"\"\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 390,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 395,
+      "text": "with pytest.raises(SpiderParseError, match=\"sai ki\u1ec3u d\u1eef li\u1ec7u\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 406,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 411,
+      "text": "with pytest.raises(SpiderParseError, match=\"sai ki\u1ec3u d\u1eef li\u1ec7u\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 418,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 423,
+      "text": "with pytest.raises(SpiderParseError, match=\"M\u00e3 tr\u1ea1ng th\u00e1i HTTP kh\u00f4ng h\u1ee3p l\u1ec7\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 430,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 435,
+      "text": "with pytest.raises(SpiderParseError, match=\"M\u00e3 tr\u1ea1ng th\u00e1i HTTP kh\u00f4ng h\u1ee3p l\u1ec7\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 444,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 449,
+      "text": "with pytest.raises(SpiderParseError, match=\"vi ph\u1ea1m h\u1ee3p \u0111\u1ed3ng thu th\u1eadp \u0111\u01a1n trang\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 461,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 466,
+      "text": "with pytest.raises(SpiderParseError, match=\"Source validation t\u1eeb ch\u1ed1i\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 473,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 478,
+      "text": "with pytest.raises(SpiderEmptyContentError, match=\"kh\u00f4ng c\u00f3 n\u1ed9i dung\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 485,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 490,
+      "text": "with pytest.raises(SpiderHTTPError, match=\"HTTP 404\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 502,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 554,
+      "text": "fake_bin = create_fake_spider(tmp_path, script)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 599,
+      "text": "assert \"Spider binary\" in res.error"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 604,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"spider_cli 99.0.0\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 620,
+      "text": "def test_local_file_flow_unaffected_when_spider_missing(tmp_path):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 652,
+      "text": "Adapter must detect the changed disk identity, re-verify, and reject with SpiderVersionMismatchError."
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 654,
+      "text": "path = tmp_path / \"spider\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 667,
+      "text": "write_bin(\"spider_cli 2.51.208\", \"first content\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 670,
+      "text": "assert old_ver == \"spider_cli 2.51.208\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 673,
+      "text": "write_bin(\"spider_cli 99.0.0\", \"second content\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 680,
+      "text": "with pytest.raises(SpiderVersionMismatchError, match=\"mismatch\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 686,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"spider_cli 2.51.208\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 692,
+      "text": "assert ver1 == ver2 == \"spider_cli 2.51.208\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 702,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"spider_cli 2.51.208\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 716,
+      "text": "with pytest.raises(SpiderTimeoutError, match=\"Qu\u00e1 th\u1eddi gian ch\u1edd\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 727,
+      "text": "\"\"\"DNS resolution immediately raises SpiderTimeoutError when cancelled.\"\"\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 728,
+      "text": "fake_bin = create_fake_spider(tmp_path, \"pass\", version=\"spider_cli 2.51.208\")"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 736,
+      "text": "with pytest.raises(SpiderTimeoutError, match=\"cancelled:operation_cancelled\"):"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 745,
+      "text": "sys.stdout.write(\"spider_cli \" + \"x\" * 100000)"
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 748,
+      "text": "bin_path = tmp_path / \"giant_version_spider\""
+    },
+    {
+      "file": "tests/test_spider_adapter.py",
+      "line": 753,
+      "text": "with pytest.raises(SpiderProcessError, match=\"v\u01b0\u1ee3t qu\u00e1 gi\u1edbi h\u1ea1n an to\u00e0n\"):"
+    }
+  ],
+  "source_tree_dependency_count": 0,
+  "is_decoupled": true
+}

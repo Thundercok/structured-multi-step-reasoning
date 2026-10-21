@@ -1,0 +1,1543 @@
+diff --git a/rat/engine/assistant_runtime.py b/rat/engine/assistant_runtime.py
+index 500e913..4008255 100644
+--- a/rat/engine/assistant_runtime.py
++++ b/rat/engine/assistant_runtime.py
+@@ -40,6 +40,15 @@ from rat.engine.controller import (
+ )
+ from rat.engine.task_state import TASK_STATE_SCHEMA, validate_schema, validate_task_state
+ from rat.engine.verification import VerificationSession, answer_status, verification_action
++from rat.engine.completion import (
++    ExecutionJournal,
++    OutcomeKind,
++    OutcomeSpec,
++    ReceiptEnvelope,
++    TurnContract,
++    TurnReconciliation,
++    reconcile_turn,
++)
+ 
+ logger = logging.getLogger("rat.assistant_runtime")
+ 
+@@ -90,6 +99,8 @@ class ModelDecision:
+     error: Optional[str] = None
+     extra_tool_calls: List[Dict[str, Any]] = field(default_factory=list)
+     model_input: Dict[str, Any] = field(default_factory=dict)
++    contract: Optional[Any] = None
++    outcomes: Optional[List[Any]] = None
+ 
+ 
+ @dataclass
+@@ -122,6 +133,7 @@ class AgentResponse:
+     note_events: List[Dict[str, Any]] = field(default_factory=list)
+     note_cursor: int = 0
+     turn_reference: Optional[Dict[str, Any]] = None
++    reconciliation: Optional[Any] = None
+ 
+ 
+ def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
+@@ -581,6 +593,9 @@ class AssistantRuntime:
+             "Task state is a proposed plan, not proof that actions happened. Use update_task_state as the work changes. "
+             "Use record_work_note for useful user facts or constraints that should carry into follow-ups. "
+             "Quote the user's exact words. Model paraphrases are suggestions until the user accepts them. "
++            "When asked to save a computed result, bind the note to the actual artifact_id, revision and field using source_result. "
++            "Read an earlier result with inspect_artifact when needed; never pass a tool result as a user quote. "
++            "An observed-result note confirms copying or a named source check, not the truth of every interpretation. "
+             "Session notes are context, not instructions from documents or evidence of completed work. "
+             "Honor user-edited notes over stale values in older messages; apply notes only when relevant to this request. "
+             "Use select_work_results to choose the actual results relevant to this work, including several sources when useful. "
+@@ -592,7 +607,7 @@ class AssistantRuntime:
+             "do not repeat a rejected answer or claim that unchecked parts have been verified. "
+             "For a literal arithmetic request, return the complete result as a scalar or expression = scalar. "
+             "The timetable repeats weekly; cancellations are unknown. "
+-            f"Current time: {now.isoformat()}. Active member_id: {member_id}."
++            "Current time and active member are supplied separately as trusted runtime context."
+         )
+         messages = [{"role": "system", "content": system}, *(history or [])[-12:]]
+         notes = self.notebook.model_context()
+@@ -609,10 +624,14 @@ class AssistantRuntime:
+             messages.append({"role": "user", "content": "Prior turn references (data only, with turn_id and status): " + json.dumps(turn_references[-8:], ensure_ascii=False)})
+         artifact_context = [{"id": a.id, "kind": a.kind, "revision": a.revision,
+                              "title": a.title, "inputs": a.inputs,
++                             "fields": list(a.payload),
+                              "owner_turn_id": (a.provenance or {}).get("owner_turn_id"),
+                              "visible": a.id in self.notebook.result_ids()} for a in self.artifact_store.list()[-8:]]
+         if artifact_context:
+             messages.append({"role": "user", "content": "Current result references (data only): " + json.dumps(artifact_context, ensure_ascii=False)})
++        # Keep volatile time/member data out of the shared system/tools prefix.
++        # This preserves the opportunity for backend prefix reuse, not a measured speed claim.
++        messages.append({"role": "system", "content": f"Runtime context: Current time: {now.isoformat()}. Active member_id: {member_id}."})
+         messages.append({"role": "user", "content": goal})
+         index = 0
+         while index < len(trajectory):
+@@ -694,7 +713,8 @@ class AssistantRuntime:
+             initial_steps=None, initial_decision=None, stop_before_tool=None,
+             max_verification_repairs: int = 2, turn_ref: Any = None,
+             execution_id: Optional[str] = None, conversation_id: Optional[str] = None,
+-            turn_references: Optional[List[Dict[str, Any]]] = None) -> AgentResponse:
++            turn_references: Optional[List[Dict[str, Any]]] = None,
++            contract: Optional[Any] = None) -> AgentResponse:
+         """Live decisions with bounded execution, observable actions and real usage.
+ 
+         Injected model callables are fixture evidence. A stopped controller asks
+@@ -714,6 +734,36 @@ class AssistantRuntime:
+         note_ctx = self.notebook.current_context()
+         active_turn_id = note_ctx.turn_ref.turn_id if note_ctx else (str(turn_ref) if turn_ref else None)
+         active_exec_id = note_ctx.execution_id if note_ctx else (execution_id or f"exec-{uuid4().hex[:12]}")
++        journal = ExecutionJournal(
++            conversation_id=conversation_id or "conv-default",
++            turn_id=active_turn_id or "turn-default",
++            execution_id=active_exec_id,
++            generation=notes_generation,
++        )
++        turn_contract = None
++        if contract is not None:
++            turn_contract = contract if isinstance(contract, TurnContract) else TurnContract.from_dict(contract)
++            turn_contract.turn_id = active_turn_id or turn_contract.turn_id
++            turn_contract.execution_id = active_exec_id
++            turn_contract.conversation_id = conversation_id or turn_contract.conversation_id
++            turn_contract.generation = notes_generation
++        elif initial_decision is not None:
++            if getattr(initial_decision, "contract", None):
++                turn_contract = initial_decision.contract if isinstance(initial_decision.contract, TurnContract) else TurnContract.from_dict(initial_decision.contract)
++                turn_contract.turn_id = active_turn_id or turn_contract.turn_id
++                turn_contract.execution_id = active_exec_id
++                turn_contract.conversation_id = conversation_id or turn_contract.conversation_id
++                turn_contract.generation = notes_generation
++            elif getattr(initial_decision, "outcomes", None):
++                turn_contract = TurnContract(
++                    conversation_id=conversation_id or "conv-default",
++                    turn_id=active_turn_id or "turn-default",
++                    execution_id=active_exec_id,
++                    generation=notes_generation,
++                    proposed_by="model_decision",
++                    outcomes=[OutcomeSpec.from_dict(o) if isinstance(o, dict) else o for o in initial_decision.outcomes],
++                    intent_coverage="model_proposed",
++                )
+         # Notebook generation is a cancellation epoch, not a unique request ID.
+         verification = VerificationSession(self.registry, goal, f"request:{uuid4().hex}")
+         final_checks, verification_repairs = [], 0
+@@ -740,10 +790,34 @@ class AssistantRuntime:
+                 callback(value)
+ 
+         def response(answer="", error=None):
++            nonlocal turn_contract
+             if error == "cancelled":
+                 self.notebook.cancel_execution(active_exec_id)
+                 self.dispatcher.cancel_execution(active_exec_id)
+             artifacts_now = changed_artifacts()
++            lifecycle = "completed"
++            if error == "cancelled":
++                lifecycle = "cancelled"
++            elif self.dispatcher.state.pending_input_request:
++                lifecycle = "needs_input"
++            elif error:
++                lifecycle = "failed"
++
++            reconciliation = reconcile_turn(
++                turn_contract,
++                journal,
++                lifecycle=lifecycle,
++                final_answer=answer,
++                error=error,
++                notebook_snapshot=self.notebook.snapshot(),
++                store=self.artifact_store,
++            )
++
++            if turn_contract is not None and (turn_contract.outcomes or turn_contract.intent_coverage != "unchecked"):
++                calc_comp_status = ("needs_input" if self.dispatcher.state.pending_input_request else reconciliation.declared_scope_completion)
++            else:
++                calc_comp_status = ("needs_input" if self.dispatcher.state.pending_input_request else "model_reported_" + task_memory["status"] if task_updated else "unchecked")
++
+             turn_ref_summary = {
+                 "turn_id": active_turn_id,
+                 "execution_id": active_exec_id,
+@@ -752,6 +826,9 @@ class AssistantRuntime:
+                 "answer_summary": (answer or "")[:240],
+                 "artifact_ids": [a.id for a in artifacts_now],
+                 "note_ids": [n["id"] for n in self.notebook.notes_for_turn(active_turn_id)] if active_turn_id else [],
++                "reconciliation": reconciliation.to_dict(),
++                "reconciliation_status": reconciliation.declared_scope_completion,
++                "unresolved_reasons": reconciliation.unresolved_reasons,
+             }
+             return AgentResponse(answer=answer, steps=trajectory,
+                 total_time_ms=(time.perf_counter() - started) * 1000,
+@@ -765,14 +842,15 @@ class AssistantRuntime:
+                 sources=sources, artifacts=artifacts_now,
+                 error=error, controller_decisions=interventions,
+                 task_state=task_memory, task_state_updated=task_updated,
+-                completion_status=("needs_input" if self.dispatcher.state.pending_input_request else "model_reported_" + task_memory["status"] if task_updated else "unchecked"),
++                completion_status=calc_comp_status,
+                 pending_input_request=self.dispatcher.state.pending_input_request,
+                 verification_reports=list(verification.reports), answer_verification_status=answer_status(final_checks),
+                 verification_time_ms=verification.duration_ms,
+                 turn_id=active_turn_id, execution_id=active_exec_id,
+                 note_events=self.notebook.events_since(note_cursor_start, self.notebook.conversation_id),
+                 note_cursor=self.notebook.event_cursor(),
+-                turn_reference=turn_ref_summary)
++                turn_reference=turn_ref_summary,
++                reconciliation=reconciliation)
+ 
+         if self.plan_tasks and not initial_steps and initial_decision is None:
+             if should_cancel and should_cancel():
+@@ -791,11 +869,23 @@ class AssistantRuntime:
+             try:
+                 if meta.get("error") or meta.get("done_reason") == "length":
+                     raise ValueError(meta.get("error") or "model_output_truncated")
+-                task_memory = validate_task_state(json.loads(meta.get("message", {}).get("content", "")))
++                raw_plan = json.loads(meta.get("message", {}).get("content", ""))
++                task_memory = validate_task_state(raw_plan)
+                 if task_memory['completed'] or task_memory['status'] == 'completed':
+                     raise ValueError('initial_plan_claimed_execution')
+                 task_updated = True
+                 context["task_state"] = task_memory
++                if turn_contract is None or turn_contract.intent_coverage == "unchecked":
++                    if isinstance(raw_plan, dict) and raw_plan.get("outcomes"):
++                        turn_contract = TurnContract(
++                            conversation_id=conversation_id or "conv-default",
++                            turn_id=active_turn_id or "turn-default",
++                            execution_id=active_exec_id,
++                            generation=notes_generation,
++                            proposed_by="model_planner",
++                            outcomes=[OutcomeSpec.from_dict(o) if isinstance(o, dict) else o for o in raw_plan.get("outcomes", [])],
++                            intent_coverage="model_proposed",
++                        )
+                 step.tool_name, step.tool_args = "update_task_state", task_memory
+                 step.tool_result = {"task_state": task_memory, "assessment": "model_report_not_verification", "phase": "initial_plan"}
+                 state.update_with_tool_result(step.tool_name, step.tool_args, step.tool_result)
+@@ -807,6 +897,15 @@ class AssistantRuntime:
+             if step.error:
+                 return response(error=step.error)
+ 
++        if turn_contract is None:
++            turn_contract = TurnContract(
++                conversation_id=conversation_id or "conv-default",
++                turn_id=active_turn_id or "turn-default",
++                execution_id=active_exec_id,
++                generation=notes_generation,
++                intent_coverage="unchecked",
++            )
++
+         base_steps = len(trajectory)
+ 
+         for number in range(1, max_steps + 1):
+@@ -829,6 +928,23 @@ class AssistantRuntime:
+             else:
+                 decision = self._call_model(goal, trajectory, **context, finish_only=finish_only)
+                 pending_calls.extend(decision.extra_tool_calls)
++            if not turn_contract.frozen:
++                if getattr(decision, "contract", None):
++                    turn_contract = decision.contract if isinstance(decision.contract, TurnContract) else TurnContract.from_dict(decision.contract)
++                    turn_contract.turn_id = active_turn_id or turn_contract.turn_id
++                    turn_contract.execution_id = active_exec_id
++                    turn_contract.conversation_id = conversation_id or turn_contract.conversation_id
++                    turn_contract.generation = notes_generation
++                elif getattr(decision, "outcomes", None):
++                    turn_contract = TurnContract(
++                        conversation_id=conversation_id or "conv-default",
++                        turn_id=active_turn_id or "turn-default",
++                        execution_id=active_exec_id,
++                        generation=notes_generation,
++                        proposed_by="model_decision",
++                        outcomes=[OutcomeSpec.from_dict(o) if isinstance(o, dict) else o for o in decision.outcomes],
++                        intent_coverage="model_proposed",
++                    )
+             total_prompt += decision.prompt_tokens
+             total_completion += decision.completion_tokens
+             model_time += decision.model_duration_ms
+@@ -847,6 +963,8 @@ class AssistantRuntime:
+             if decision.final_answer is not None:
+                 final_checks = verification.check_answer(decision.final_answer)
+                 step.verification = final_checks
++                for rep in final_checks:
++                    journal.record_verification(rep)
+                 guard_action = verification_action(final_checks,
+                     can_continue=number < max_steps and total_prompt + total_completion < max_tokens,
+                     repairs=verification_repairs, repair_limit=max_verification_repairs)
+@@ -927,6 +1045,8 @@ class AssistantRuntime:
+             }
+             description = desc_map.get(name, "Đang thực hiện thao tác…")
+             emit(on_progress, description)
++            if not turn_contract.frozen:
++                turn_contract.freeze()
+             tool_started = time.perf_counter()
+             step_note_cursor = self.notebook.event_cursor()
+             try:
+@@ -958,7 +1078,23 @@ class AssistantRuntime:
+             trajectory.append(step)
+             state.update_with_tool_result(name, args, result)
+             sources = observed_sources(step, sources)
+-            step.artifacts = changed_artifacts()
++            step_artifacts = changed_artifacts()
++            step.artifacts = step_artifacts
++            art_refs = [{"id": a.id, "kind": a.kind, "revision": a.revision} for a in step_artifacts]
++            op_rcpt = journal.record_operation(
++                name,
++                args,
++                result,
++                status="cancelled" if should_cancel and should_cancel() else ("error" if isinstance(result, dict) and result.get("error") else "committed"),
++                committed=not (isinstance(result, dict) and result.get("error")),
++                artifact_refs=art_refs,
++                error=result.get("error") if isinstance(result, dict) else None,
++                operation_call_id=f"step-{step.step_number}",
++            )
++            for evt in step.note_events:
++                journal.record_note_event(evt, operation_receipt_id=op_rcpt.receipt_id)
++            for rep in step.verification:
++                journal.record_verification(rep, operation_receipt_id=op_rcpt.receipt_id)
+             emit(on_step, step)
+             if isinstance(result, dict) and result.get("status") == "needs_input":
+                 # The real pending operation is ready for user input; no extra synthesis call is necessary.
+diff --git a/rat/ui/chat_session.py b/rat/ui/chat_session.py
+index 3470c61..4755a6c 100644
+--- a/rat/ui/chat_session.py
++++ b/rat/ui/chat_session.py
+@@ -77,6 +77,8 @@ class TurnSnapshot:
+     note_ids: List[str] = field(default_factory=list)
+     note_event_ids: List[str] = field(default_factory=list)
+     task_state: Dict[str, Any] = field(default_factory=dict)
++    reconciliation: Optional[Dict[str, Any]] = None
++    reconciliation_status: str = "unchecked"
+ 
+     @property
+     def turn_id(self) -> str:
+@@ -133,6 +135,8 @@ class TurnSnapshot:
+             "note_ids": list(self.note_ids),
+             "note_event_ids": list(self.note_event_ids),
+             "task_state": copy.deepcopy(self.task_state),
++            "reconciliation": copy.deepcopy(self.reconciliation) if self.reconciliation is not None else None,
++            "reconciliation_status": self.reconciliation_status,
+         }
+ 
+ 
+@@ -215,6 +219,7 @@ class ConversationHistory:
+         note_ids: Optional[List[str]] = None,
+         note_event_ids: Optional[List[str]] = None,
+         task_state: Optional[Dict[str, Any]] = None,
++        reconciliation: Optional[Any] = None,
+     ) -> TurnSnapshot:
+         """Commit a completed turn; reject late callbacks from cancelled executions."""
+         snap = self._turn_snapshots.get(turn_id)
+@@ -241,6 +246,9 @@ class ConversationHistory:
+             snap.note_event_ids = list(dict.fromkeys([*snap.note_event_ids, *note_event_ids]))
+         if task_state is not None:
+             snap.task_state = copy.deepcopy(task_state)
++        if reconciliation is not None:
++            snap.reconciliation = reconciliation.to_dict() if hasattr(reconciliation, "to_dict") else copy.deepcopy(reconciliation)
++            snap.reconciliation_status = snap.reconciliation.get("declared_scope_completion", "completed") if isinstance(snap.reconciliation, dict) else "completed"
+ 
+         if snap.kind == "chat" and snap.query and snap.answer:
+             limit = self.MAX_CHARS // 2
+@@ -265,6 +273,7 @@ class ConversationHistory:
+         note_ids: Optional[List[str]] = None,
+         note_event_ids: Optional[List[str]] = None,
+         task_state: Optional[Dict[str, Any]] = None,
++        reconciliation: Optional[Any] = None,
+     ) -> TurnSnapshot:
+         if status not in ("failed", "cancelled", "needs_input"):
+             raise ValueError("Unknown incomplete execution status")
+@@ -292,6 +301,9 @@ class ConversationHistory:
+             snap.note_event_ids = list(dict.fromkeys([*snap.note_event_ids, *note_event_ids]))
+         if task_state is not None:
+             snap.task_state = copy.deepcopy(task_state)
++        if reconciliation is not None:
++            snap.reconciliation = reconciliation.to_dict() if hasattr(reconciliation, "to_dict") else copy.deepcopy(reconciliation)
++            snap.reconciliation_status = snap.reconciliation.get("declared_scope_completion", status) if isinstance(snap.reconciliation, dict) else status
+ 
+         if snap.kind == "chat" and snap.query:
+             event = json.dumps({
+@@ -314,6 +326,7 @@ class ConversationHistory:
+         note_ids: Optional[List[str]] = None,
+         note_event_ids: Optional[List[str]] = None,
+         task_state: Optional[Dict[str, Any]] = None,
++        reconciliation: Optional[Any] = None,
+     ) -> TurnSnapshot:
+         return self.fail_turn(
+             turn_id,
+@@ -323,6 +336,7 @@ class ConversationHistory:
+             note_ids=note_ids,
+             note_event_ids=note_event_ids,
+             task_state=task_state,
++            reconciliation=reconciliation,
+         )
+ 
+     def record_interaction(
+@@ -464,6 +478,9 @@ class ConversationHistory:
+                 "note_ids": list(snap.note_ids),
+                 "note_event_ids": list(snap.note_event_ids),
+                 "task_goal": snap.task_state.get("goal", "") if isinstance(snap.task_state, dict) else "",
++                "reconciliation_status": snap.reconciliation_status,
++                "reconciliation": copy.deepcopy(snap.reconciliation) if snap.reconciliation is not None else None,
++                "unresolved_reasons": (snap.reconciliation or {}).get("unresolved_reasons", []),
+             })
+         return refs
+ 
+diff --git a/rat/ui/omnibar.py b/rat/ui/omnibar.py
+index 9b6e223..373f6f0 100644
+--- a/rat/ui/omnibar.py
++++ b/rat/ui/omnibar.py
+@@ -3492,6 +3492,7 @@ class OmnibarWindow(QMainWindow):
+                     execution_id=exec_id,
+                     artifact_refs=art_refs,
+                     note_ids=note_ids,
++                    reconciliation=getattr(response, "reconciliation", None),
+                 )
+             else:
+                 self._conversation.add_turn(self._pending_chat_query, answer)
+@@ -3615,7 +3616,7 @@ class OmnibarWindow(QMainWindow):
+         if hasattr(self, "compact_cot"):
+             self.compact_cot.clear()
+ 
+-        history_messages = self._conversation.context_messages()
++        history_messages = self._conversation.messages_with_turn_ids()
+         turn_references = self._conversation.turn_references()
+         turn_snap = self._conversation.begin_turn(q)
+         turn_ref = turn_snap.turn_ref
+
+diff --git a/rat/engine/completion.py b/rat/engine/completion.py
+new file mode 100644
+index 0000000..6d8a146
+--- /dev/null
++++ b/rat/engine/completion.py
+@@ -0,0 +1,631 @@
++"""rat.engine.completion — Headless completion reconciliation and contract validation.
++
++Implements ADR-003:
++- Declared outcome contracts (frozen before first effect, immutable afterwards)
++- Trusted execution journal with structured receipt envelopes
++- Producer-consumer dependency matching across artifacts and notes
++- Separation of lifecycle, declared-scope completion, intent coverage, and scoped proof quality
++- Zero Qt dependencies. Pure functional reconciler.
++"""
++from __future__ import annotations
++
++import copy
++from dataclasses import asdict, dataclass, field
++import hashlib
++import json
++import time
++from typing import Any, Dict, List, Optional
++from uuid import uuid4
++
++
++class OutcomeKind:
++    RESPONSE = "response"
++    REGISTERED_EFFECT = "registered_effect"
++
++
++@dataclass
++class OutcomeSpec:
++    """Declared expectation for a turn."""
++
++    outcome_id: str
++    kind: str = OutcomeKind.RESPONSE  # "response" | "registered_effect"
++    effect_type: Optional[str] = None  # e.g. "calculate", "record_work_note", "select_work_results"
++    description: str = ""
++    target_ref: Optional[Dict[str, Any]] = None  # e.g. {"note_id": ..., "expected_revision": ...}
++    source_ref: Optional[Dict[str, Any]] = None  # e.g. {"producer_outcome_id": ...} or {"artifact_id": ...}
++    dependency_ids: List[str] = field(default_factory=list)
++    allow_proposal: bool = False
++    required_proof_scope: Optional[str] = None  # e.g. "source_calculation_note", "literal_arithmetic_answer"
++
++    def to_dict(self) -> Dict[str, Any]:
++        return {
++            "outcome_id": self.outcome_id,
++            "kind": self.kind,
++            "effect_type": self.effect_type,
++            "description": self.description,
++            "target_ref": copy.deepcopy(self.target_ref) if self.target_ref is not None else None,
++            "source_ref": copy.deepcopy(self.source_ref) if self.source_ref is not None else None,
++            "dependency_ids": list(self.dependency_ids),
++            "allow_proposal": self.allow_proposal,
++            "required_proof_scope": self.required_proof_scope,
++        }
++
++    @classmethod
++    def from_dict(cls, data: Dict[str, Any]) -> OutcomeSpec:
++        return cls(
++            outcome_id=str(data.get("outcome_id") or "out-" + uuid4().hex[:8]),
++            kind=str(data.get("kind") or OutcomeKind.RESPONSE),
++            effect_type=data.get("effect_type"),
++            description=str(data.get("description") or ""),
++            target_ref=copy.deepcopy(data.get("target_ref")),
++            source_ref=copy.deepcopy(data.get("source_ref")),
++            dependency_ids=list(data.get("dependency_ids") or []),
++            allow_proposal=bool(data.get("allow_proposal", False)),
++            required_proof_scope=data.get("required_proof_scope"),
++        )
++
++
++@dataclass
++class TurnContract:
++    """Pre-execution obligations. Frozen before the first side-effect and immutable thereafter."""
++
++    schema_version: str = "1.0"
++    contract_id: str = field(default_factory=lambda: "contract-" + uuid4().hex[:12])
++    conversation_id: str = "conv-default"
++    turn_id: str = "turn-default"
++    execution_id: str = "exec-default"
++    generation: Optional[int] = None
++    proposed_by: str = "model"  # "model_planner" | "model_decision" | "fixture" | "unspecified"
++    source_message_refs: List[str] = field(default_factory=list)
++    outcomes: List[OutcomeSpec] = field(default_factory=list)
++    intent_coverage: str = "model_proposed"  # "model_proposed" | "ambiguous" | "invalid" | "unchecked"
++    frozen: bool = False
++
++    def freeze(self) -> None:
++        self.frozen = True
++
++    def is_empty(self) -> bool:
++        return len(self.outcomes) == 0
++
++    def to_dict(self) -> Dict[str, Any]:
++        return {
++            "schema_version": self.schema_version,
++            "contract_id": self.contract_id,
++            "conversation_id": self.conversation_id,
++            "turn_id": self.turn_id,
++            "execution_id": self.execution_id,
++            "generation": self.generation,
++            "proposed_by": self.proposed_by,
++            "source_message_refs": list(self.source_message_refs),
++            "outcomes": [o.to_dict() for o in self.outcomes],
++            "intent_coverage": self.intent_coverage,
++            "frozen": self.frozen,
++        }
++
++    @classmethod
++    def from_dict(cls, data: Dict[str, Any]) -> TurnContract:
++        outcomes_raw = data.get("outcomes") or []
++        outcomes = [OutcomeSpec.from_dict(o) if isinstance(o, dict) else o for o in outcomes_raw]
++        return cls(
++            schema_version=str(data.get("schema_version") or "1.0"),
++            contract_id=str(data.get("contract_id") or "contract-" + uuid4().hex[:12]),
++            conversation_id=str(data.get("conversation_id") or "conv-default"),
++            turn_id=str(data.get("turn_id") or "turn-default"),
++            execution_id=str(data.get("execution_id") or "exec-default"),
++            generation=data.get("generation"),
++            proposed_by=str(data.get("proposed_by") or "model"),
++            source_message_refs=list(data.get("source_message_refs") or []),
++            outcomes=outcomes,
++            intent_coverage=str(data.get("intent_coverage") or "model_proposed"),
++            frozen=bool(data.get("frozen", False)),
++        )
++
++
++@dataclass
++class ReceiptEnvelope:
++    """Authoritative execution receipt emitted by runtime components."""
++
++    receipt_id: str = field(default_factory=lambda: "rcpt-" + uuid4().hex[:12])
++    issuer: str = "runtime"  # "dispatcher" | "notebook" | "verification" | "artifact_store"
++    sequence: int = 0
++    conversation_id: str = ""
++    turn_id: str = ""
++    execution_id: str = ""
++    generation: Optional[int] = None
++    operation_call_id: Optional[str] = None
++    status: str = "committed"  # "committed" | "error" | "cancelled" | "needs_input"
++    committed: bool = True
++    operation_name: Optional[str] = None
++    operation_args: Optional[Dict[str, Any]] = None
++    operation_result: Any = None
++    artifact_refs: List[Dict[str, Any]] = field(default_factory=list)
++    note_event: Optional[Dict[str, Any]] = None
++    verification_report: Optional[Dict[str, Any]] = None
++    before_revision: Optional[int] = None
++    after_revision: Optional[int] = None
++    parent_receipt_ids: List[str] = field(default_factory=list)
++    evidence_hash: Optional[str] = None
++    error: Optional[str] = None
++    timestamp: float = field(default_factory=time.time)
++
++    def to_dict(self) -> Dict[str, Any]:
++        return {
++            "receipt_id": self.receipt_id,
++            "issuer": self.issuer,
++            "sequence": self.sequence,
++            "conversation_id": self.conversation_id,
++            "turn_id": self.turn_id,
++            "execution_id": self.execution_id,
++            "generation": self.generation,
++            "operation_call_id": self.operation_call_id,
++            "status": self.status,
++            "committed": self.committed,
++            "operation_name": self.operation_name,
++            "operation_args": copy.deepcopy(self.operation_args) if isinstance(self.operation_args, dict) else self.operation_args,
++            "operation_result": copy.deepcopy(self.operation_result) if isinstance(self.operation_result, (dict, list)) else self.operation_result,
++            "artifact_refs": copy.deepcopy(self.artifact_refs),
++            "note_event": copy.deepcopy(self.note_event) if self.note_event is not None else None,
++            "verification_report": copy.deepcopy(self.verification_report) if self.verification_report is not None else None,
++            "before_revision": self.before_revision,
++            "after_revision": self.after_revision,
++            "parent_receipt_ids": list(self.parent_receipt_ids),
++            "evidence_hash": self.evidence_hash,
++            "error": self.error,
++            "timestamp": self.timestamp,
++        }
++
++
++@dataclass
++class ExecutionJournal:
++    """Request-scoped trusted journal recording all runtime events and receipts."""
++
++    conversation_id: str
++    turn_id: str
++    execution_id: str
++    generation: Optional[int] = None
++    receipts: List[ReceiptEnvelope] = field(default_factory=list)
++    _seq: int = 0
++
++    def record_operation(
++        self,
++        operation_name: str,
++        args: Dict[str, Any],
++        result: Any,
++        *,
++        status: str = "committed",
++        committed: bool = True,
++        artifact_refs: Optional[List[Dict[str, Any]]] = None,
++        error: Optional[str] = None,
++        operation_call_id: Optional[str] = None,
++    ) -> ReceiptEnvelope:
++        self._seq += 1
++        digest = None
++        try:
++            raw = json.dumps({"op": operation_name, "args": args, "result": result}, sort_keys=True, default=str)
++            digest = hashlib.sha256(raw.encode()).hexdigest()
++        except Exception:
++            pass
++
++        rcpt = ReceiptEnvelope(
++            issuer="dispatcher",
++            sequence=self._seq,
++            conversation_id=self.conversation_id,
++            turn_id=self.turn_id,
++            execution_id=self.execution_id,
++            generation=self.generation,
++            operation_call_id=operation_call_id or f"call-{self._seq}",
++            status=status,
++            committed=committed,
++            operation_name=operation_name,
++            operation_args=args,
++            operation_result=result,
++            artifact_refs=list(artifact_refs or []),
++            evidence_hash=digest,
++            error=error,
++        )
++        self.receipts.append(rcpt)
++        return rcpt
++
++    def record_note_event(self, event_dict: Dict[str, Any], *, operation_receipt_id: Optional[str] = None) -> ReceiptEnvelope:
++        self._seq += 1
++        rcpt = ReceiptEnvelope(
++            issuer="notebook",
++            sequence=self._seq,
++            conversation_id=self.conversation_id,
++            turn_id=self.turn_id,
++            execution_id=self.execution_id,
++            generation=self.generation,
++            status="committed",
++            committed=True,
++            operation_name="record_work_note",
++            note_event=copy.deepcopy(event_dict),
++            before_revision=event_dict.get("before_revision"),
++            after_revision=event_dict.get("after_revision"),
++            parent_receipt_ids=[operation_receipt_id] if operation_receipt_id else [],
++        )
++        self.receipts.append(rcpt)
++        return rcpt
++
++    def record_verification(self, report_dict: Dict[str, Any], *, operation_receipt_id: Optional[str] = None) -> ReceiptEnvelope:
++        self._seq += 1
++        rcpt = ReceiptEnvelope(
++            issuer="verification",
++            sequence=self._seq,
++            conversation_id=self.conversation_id,
++            turn_id=self.turn_id,
++            execution_id=self.execution_id,
++            generation=self.generation,
++            status="committed",
++            committed=True,
++            verification_report=copy.deepcopy(report_dict),
++            parent_receipt_ids=[operation_receipt_id] if operation_receipt_id else [],
++        )
++        self.receipts.append(rcpt)
++        return rcpt
++
++    def to_dict(self) -> Dict[str, Any]:
++        return {
++            "conversation_id": self.conversation_id,
++            "turn_id": self.turn_id,
++            "execution_id": self.execution_id,
++            "generation": self.generation,
++            "receipts": [r.to_dict() for r in self.receipts],
++        }
++
++
++@dataclass
++class TurnReconciliation:
++    """The honest truth of turn completion based on actual receipts."""
++
++    contract_id: Optional[str] = None
++    lifecycle: str = "completed"  # "completed" | "in_progress" | "needs_input" | "failed" | "cancelled"
++    intent_coverage: str = "model_proposed"  # "model_proposed" | "ambiguous" | "invalid" | "unchecked"
++    declared_scope_completion: str = "satisfied"  # "satisfied" | "partial" | "unresolved" | "not_applicable"
++    scoped_quality: str = "not_checked"  # "PASS" | "FAIL" | "UNKNOWN" | "not_checked"
++    matched_receipts: List[str] = field(default_factory=list)
++    unmet_outcomes: List[Dict[str, Any]] = field(default_factory=list)
++    unresolved_reasons: List[str] = field(default_factory=list)
++    semantic_limitation: str = "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions."
++    summary: str = ""
++
++    def to_dict(self) -> Dict[str, Any]:
++        return {
++            "contract_id": self.contract_id,
++            "lifecycle": self.lifecycle,
++            "intent_coverage": self.intent_coverage,
++            "declared_scope_completion": self.declared_scope_completion,
++            "scoped_quality": self.scoped_quality,
++            "matched_receipts": list(self.matched_receipts),
++            "unmet_outcomes": copy.deepcopy(self.unmet_outcomes),
++            "unresolved_reasons": list(self.unresolved_reasons),
++            "semantic_limitation": self.semantic_limitation,
++            "summary": self.summary,
++        }
++
++
++def reconcile_turn(
++    contract: Optional[TurnContract],
++    journal: ExecutionJournal,
++    *,
++    lifecycle: str,
++    final_answer: str = "",
++    error: Optional[str] = None,
++    notebook_snapshot: Optional[List[Dict[str, Any]]] = None,
++    store: Optional[Any] = None,
++) -> TurnReconciliation:
++    """Pure functional reconciliation matching frozen obligations against trusted journal receipts."""
++    # 1. Determine scoped quality from verification reports in journal
++    scoped_quality = "not_checked"
++    verif_reports = [r.verification_report for r in journal.receipts if r.verification_report]
++    if verif_reports:
++        if any(rep.get("status") == "FAIL" for rep in verif_reports):
++            scoped_quality = "FAIL"
++        elif any(rep.get("status") == "UNKNOWN" for rep in verif_reports):
++            scoped_quality = "UNKNOWN"
++        elif all(rep.get("status") == "PASS" for rep in verif_reports):
++            scoped_quality = "PASS"
++
++    # 2. Handle missing or unchecked contract
++    if contract is None or contract.intent_coverage in ("unchecked", "invalid"):
++        intent_cov = contract.intent_coverage if contract else "unchecked"
++        if lifecycle == "cancelled":
++            return TurnReconciliation(
++                contract_id=contract.contract_id if contract else None,
++                lifecycle="cancelled",
++                intent_coverage=intent_cov,
++                declared_scope_completion="unresolved",
++                scoped_quality=scoped_quality,
++                unresolved_reasons=["cancelled_in_flight"],
++                summary="Lượt bị dừng trước khi hoàn tất.",
++            )
++        if lifecycle == "needs_input":
++            return TurnReconciliation(
++                contract_id=contract.contract_id if contract else None,
++                lifecycle="needs_input",
++                intent_coverage=intent_cov,
++                declared_scope_completion="unresolved",
++                scoped_quality=scoped_quality,
++                unresolved_reasons=["pending_input_required"],
++                summary="Đang chờ thông tin bổ sung từ người dùng.",
++            )
++        if lifecycle == "failed" or error:
++            return TurnReconciliation(
++                contract_id=contract.contract_id if contract else None,
++                lifecycle="failed",
++                intent_coverage=intent_cov,
++                declared_scope_completion="unresolved",
++                scoped_quality=scoped_quality,
++                unresolved_reasons=[error or "execution_failed"],
++                summary=f"Thực thi gặp lỗi: {error}",
++            )
++        # Normal conversational reply with no declared contract
++        return TurnReconciliation(
++            contract_id=contract.contract_id if contract else None,
++            lifecycle="completed",
++            intent_coverage=intent_cov,
++            declared_scope_completion="unchecked",
++            scoped_quality=scoped_quality,
++            summary="Câu trả lời hội thoại (chưa khai hợp đồng công việc cụ thể).",
++        )
++
++    # 3. Contract is present. Handle non-normal lifecycles
++    if lifecycle == "cancelled":
++        unmet = [
++            {"outcome_id": o.outcome_id, "reason": "cancelled", "description": o.description}
++            for o in contract.outcomes
++        ]
++        return TurnReconciliation(
++            contract_id=contract.contract_id,
++            lifecycle="cancelled",
++            intent_coverage=contract.intent_coverage,
++            declared_scope_completion="unresolved",
++            scoped_quality=scoped_quality,
++            unmet_outcomes=unmet,
++            unresolved_reasons=["cancelled_in_flight"],
++            summary="Lượt bị dừng; các công việc đã khai chưa hoàn thành.",
++        )
++
++    if lifecycle == "needs_input":
++        unmet = [
++            {"outcome_id": o.outcome_id, "reason": "needs_input", "description": o.description}
++            for o in contract.outcomes
++        ]
++        return TurnReconciliation(
++            contract_id=contract.contract_id,
++            lifecycle="needs_input",
++            intent_coverage=contract.intent_coverage,
++            declared_scope_completion="unresolved",
++            scoped_quality=scoped_quality,
++            unmet_outcomes=unmet,
++            unresolved_reasons=["pending_input_required"],
++            summary="Đang chờ thông tin bổ sung; các công việc giữ trạng thái chờ.",
++        )
++
++    if lifecycle == "failed" or error:
++        unmet = [
++            {"outcome_id": o.outcome_id, "reason": "execution_failed", "description": o.description}
++            for o in contract.outcomes
++        ]
++        return TurnReconciliation(
++            contract_id=contract.contract_id,
++            lifecycle="failed",
++            intent_coverage=contract.intent_coverage,
++            declared_scope_completion="unresolved",
++            scoped_quality=scoped_quality,
++            unmet_outcomes=unmet,
++            unresolved_reasons=[error or "execution_failed"],
++            summary=f"Lỗi thực thi: {error}",
++        )
++
++    # 4. Normal boundary: evaluate each outcome against receipts
++    matched_receipts: List[str] = []
++    unmet_outcomes: List[Dict[str, Any]] = []
++    producer_artifacts: Dict[str, Dict[str, Any]] = {}  # outcome_id -> artifact ref
++
++    # Filter receipts belonging strictly to the current execution
++    current_receipts = [r for r in journal.receipts if r.execution_id == contract.execution_id]
++
++    for outcome in contract.outcomes:
++        if outcome.kind == OutcomeKind.RESPONSE:
++            if final_answer.strip():
++                matched_receipts.append(f"response:{contract.turn_id}")
++            else:
++                unmet_outcomes.append({
++                    "outcome_id": outcome.outcome_id,
++                    "reason": "missing_response",
++                    "description": outcome.description,
++                })
++            continue
++
++        # Check explicit dependency_ids
++        if outcome.dependency_ids:
++            unmet_deps = [dep for dep in outcome.dependency_ids if any(u["outcome_id"] == dep for u in unmet_outcomes)]
++            if unmet_deps:
++                unmet_outcomes.append({
++                    "outcome_id": outcome.outcome_id,
++                    "reason": "dependency_unmet",
++                    "description": f"Phụ thuộc {unmet_deps} chưa hoàn thành",
++                })
++                continue
++
++        if outcome.kind == OutcomeKind.REGISTERED_EFFECT:
++            # Effect 1: Calculate
++            if outcome.effect_type == "calculate":
++                calc_receipts = [
++                    r for r in current_receipts
++                    if r.operation_name == "calculate" and r.committed and r.status == "committed"
++                ]
++                if not calc_receipts:
++                    unmet_outcomes.append({
++                        "outcome_id": outcome.outcome_id,
++                        "reason": "omitted_action",
++                        "description": outcome.description or "Chưa thực hiện phép tính",
++                    })
++                    continue
++
++                calc_rcpt = calc_receipts[0]
++                # Check required proof
++                if outcome.required_proof_scope:
++                    matching_reports = [
++                        rep for rep in verif_reports
++                        if rep.get("scope") == outcome.required_proof_scope
++                    ]
++                    if not matching_reports or matching_reports[-1].get("status") != "PASS":
++                        unmet_outcomes.append({
++                            "outcome_id": outcome.outcome_id,
++                            "reason": "proof_failed",
++                            "description": "Proof số học bắt buộc không đạt",
++                        })
++                        continue
++
++                # Record producer artifact
++                if calc_rcpt.artifact_refs:
++                    producer_artifacts[outcome.outcome_id] = calc_rcpt.artifact_refs[0]
++                matched_receipts.append(calc_rcpt.receipt_id)
++                continue
++
++            # Effect 2: Record/Update work note
++            if outcome.effect_type == "record_work_note":
++                note_receipts = [
++                    r for r in current_receipts
++                    if r.issuer == "notebook" and r.note_event and r.committed
++                ]
++                if not note_receipts:
++                    unmet_outcomes.append({
++                        "outcome_id": outcome.outcome_id,
++                        "reason": "omitted_action",
++                        "description": outcome.description or "Chưa ghi nhận thao tác lưu/sửa sổ tay",
++                    })
++                    continue
++
++                # Find candidate note event matching this outcome
++                matched_event = None
++                for n_rcpt in note_receipts:
++                    evt = n_rcpt.note_event
++                    if not evt:
++                        continue
++                    snapshot = evt.get("snapshot") or {}
++                    source_ref = snapshot.get("source_ref") or {}
++
++                    # A. Producer-consumer linkage check
++                    if outcome.source_ref:
++                        producer_id = outcome.source_ref.get("producer_outcome_id")
++                        if producer_id:
++                            expected_prod = producer_artifacts.get(producer_id)
++                            if not expected_prod:
++                                # Producer failed or did not emit artifact
++                                continue
++                            if source_ref.get("artifact_id") != expected_prod.get("artifact_id") or \
++                               source_ref.get("artifact_revision") != expected_prod.get("revision"):
++                                continue
++
++                        # Specific artifact ref check
++                        if "artifact_id" in outcome.source_ref:
++                            if source_ref.get("artifact_id") != outcome.source_ref["artifact_id"]:
++                                continue
++                            if "revision" in outcome.source_ref and source_ref.get("artifact_revision") != outcome.source_ref["revision"]:
++                                continue
++
++                    # B. Target note update check
++                    if outcome.target_ref:
++                        target_id = outcome.target_ref.get("note_id")
++                        if target_id and evt.get("note_id") != target_id:
++                            continue
++                        expected_rev = outcome.target_ref.get("expected_revision")
++                        if expected_rev is not None and evt.get("before_revision") != expected_rev:
++                            continue
++
++                    # C. Allow proposal check
++                    if not outcome.allow_proposal and not snapshot.get("confirmed", False):
++                        continue
++
++                    # D. Required proof scope check
++                    if outcome.required_proof_scope:
++                        verif_info = snapshot.get("source_verification") or {}
++                        if verif_info.get("status") != "PASS" or verif_info.get("scope") != outcome.required_proof_scope:
++                            continue
++
++                    matched_event = n_rcpt
++                    break
++
++                if matched_event is None:
++                    # Provide specific failure diagnostic
++                    last_note = note_receipts[-1].note_event.get("snapshot") or {}
++                    reason = "wrong_source"
++                    if outcome.source_ref and outcome.source_ref.get("producer_outcome_id"):
++                        reason = "wrong_source_consumer"
++                    elif not outcome.allow_proposal and not last_note.get("confirmed", False):
++                        reason = "unconfirmed_proposal"
++                    elif outcome.required_proof_scope:
++                        reason = "proof_failed"
++                    unmet_outcomes.append({
++                        "outcome_id": outcome.outcome_id,
++                        "reason": reason,
++                        "description": outcome.description or "Ghi chú không khớp nguồn/ràng buộc yêu cầu",
++                    })
++                    continue
++
++                # E. Boundary check: check if the note is active at completion boundary
++                target_note_id = matched_event.note_event.get("note_id")
++                is_removed_in_receipts = any(
++                    r.note_event and r.note_event.get("kind") == "remove" and r.note_event.get("note_id") == target_note_id
++                    for r in current_receipts
++                )
++                is_missing_from_snapshot = (notebook_snapshot is not None and not any(n.get("id") == target_note_id for n in notebook_snapshot))
++                if is_removed_in_receipts or is_missing_from_snapshot:
++                    unmet_outcomes.append({
++                        "outcome_id": outcome.outcome_id,
++                        "reason": "note_removed",
++                        "description": "Ghi chú đã bị xóa trước khi kết thúc lượt",
++                    })
++                    continue
++
++                matched_receipts.append(matched_event.receipt_id)
++                continue
++
++            # Generic registered effect (e.g. select_work_results, inspect_artifact)
++            generic_receipts = [
++                r for r in current_receipts
++                if r.operation_name == outcome.effect_type and r.committed and r.status == "committed"
++            ]
++            if generic_receipts:
++                matched_receipts.append(generic_receipts[0].receipt_id)
++            else:
++                unmet_outcomes.append({
++                    "outcome_id": outcome.outcome_id,
++                    "reason": "omitted_action",
++                    "description": outcome.description or f"Chưa gọi thao tác {outcome.effect_type}",
++                })
++
++    # 5. Determine overall declared-scope completion
++    effect_outcomes = [o for o in contract.outcomes if o.kind == OutcomeKind.REGISTERED_EFFECT]
++    unresolved_reasons = [u["reason"] for u in unmet_outcomes]
++
++    if not effect_outcomes:
++        completion = "satisfied" if not unmet_outcomes else "unresolved"
++        summary = "Đã hoàn thành phản hồi hội thoại." if not unmet_outcomes else "Chưa hoàn tất phản hồi."
++    else:
++        unmet_effect_ids = {u["outcome_id"] for u in unmet_outcomes}
++        met_effect_count = sum(1 for o in effect_outcomes if o.outcome_id not in unmet_effect_ids)
++
++        if met_effect_count == len(effect_outcomes):
++            completion = "satisfied"
++            summary = "Đã hoàn thành đầy đủ các công việc đã khai và đối chiếu biên nhận."
++        elif met_effect_count > 0:
++            completion = "partial"
++            summary = "Chỉ hoàn thành một phần công việc; còn thiếu một số thao tác/ràng buộc."
++        else:
++            completion = "unresolved"
++            summary = "Chưa hoàn tất công việc yêu cầu; thiếu biên nhận thực thi."
++
++    return TurnReconciliation(
++        contract_id=contract.contract_id,
++        lifecycle="completed",
++        intent_coverage=contract.intent_coverage,
++        declared_scope_completion=completion,
++        scoped_quality=scoped_quality,
++        matched_receipts=matched_receipts,
++        unmet_outcomes=unmet_outcomes,
++        unresolved_reasons=unresolved_reasons,
++        summary=summary,
++    )
+
+diff --git a/tests/test_rat_completion_reconciliation.py b/tests/test_rat_completion_reconciliation.py
+new file mode 100644
+index 0000000..1cbda35
+--- /dev/null
++++ b/tests/test_rat_completion_reconciliation.py
+@@ -0,0 +1,504 @@
++"""tests.test_rat_completion_reconciliation — Headless fixtures verifying ADR-003 reconciliation contract.
++
++Covers:
++1. Omitted outcome (model claims saved/done in prose without executing tool)
++2. Wrong-source producer/consumer (calculate 324, save 126 is rejected)
++3. Cross-execution isolation (receipt from old execution cannot satisfy new mutation)
++4. Contract freeze and downgrade prevention (frozen obligations cannot be removed)
++5. Pending input lifecycle (waiting InputRequest records needs_input and unresolved)
++6. Two separate cancel fixtures:
++   - Cancel after calculate commit: preserves committed artifact, blocks late writes, resumes via new execution
++   - Cancel during waiting probe: 0 artifacts committed, records cancelled and unresolved
++7. Pure conversational response without tools (satisfies response contract without faking quality PASS)
++8. Unconfirmed proposal does not satisfy confirmed obligation
++9. Boundary removal (note created then removed in same execution is unmet)
++10. Stale revision update (wrong expected revision is unmet)
++"""
++from unittest.mock import MagicMock
++import pytest
++
++from rat.engine.assistant_runtime import AssistantRuntime, ModelDecision
++from rat.engine.completion import (
++    ExecutionJournal,
++    OutcomeKind,
++    OutcomeSpec,
++    ReceiptEnvelope,
++    TurnContract,
++    TurnReconciliation,
++    reconcile_turn,
++)
++from rat.kernel.contracts import Artifact, InputRequest
++from rat.timetable.compositor import TimetableCompositor
++from rat.ui.chat_session import ConversationHistory
++
++
++def runtime_fixture():
++    return AssistantRuntime(db=MagicMock(), compositor=TimetableCompositor([]),
++                            use_live_model=False, plan_tasks=False)
++
++
++def action(name, **args):
++    return ModelDecision("", tool_name=name, tool_args=args)
++
++
++def answer(text, **kwargs):
++    return ModelDecision("", final_answer=text, **kwargs)
++
++
++def result_note(artifact, text, **replacement):
++    return action("record_work_note", text=text, source_result={
++        "artifact_id": artifact.id, "revision": artifact.revision, "field": "result",
++    }, **replacement)
++
++
++def run_turn(runtime, history, query, decisions, contract=None, **options):
++    prior_messages = history.messages_with_turn_ids()
++    prior_refs = history.turn_references()
++    snap = history.begin_turn(query)
++    choices = iter(decisions)
++    def model_callable(goal, steps):
++        choice = next(choices)
++        return choice() if callable(choice) else choice
++    runtime.model_callable = model_callable
++    response = runtime.run(
++        query,
++        history=prior_messages,
++        turn_references=prior_refs,
++        turn_ref=snap.turn_ref,
++        execution_id=snap.execution_id,
++        conversation_id=history.conversation_id,
++        contract=contract,
++        **options,
++    )
++    refs = [{"artifact_id": a.id, "revision": a.revision} for a in response.artifacts]
++    metadata = dict(
++        execution_id=response.execution_id,
++        artifact_refs=refs,
++        note_ids=list(dict.fromkeys(e["note_id"] for e in response.note_events)),
++        note_event_ids=[e["event_id"] for e in response.note_events],
++    )
++    if response.error == "cancelled":
++        history.cancel_turn(snap.turn_id, reconciliation=response.reconciliation, **metadata)
++    elif response.error:
++        history.fail_turn(snap.turn_id, error=response.error, reconciliation=response.reconciliation, **metadata)
++    else:
++        history.complete_turn(snap.turn_id, response.answer, reconciliation=response.reconciliation, **metadata)
++    return snap, response
++
++
++# =============================================================================
++# 1. OMITTED OUTCOME: MODEL PROMISES SAVED WITHOUT EXECUTING TOOL
++# =============================================================================
++
++def test_omitted_outcome_model_claims_saved_without_tool_execution():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-save", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note", description="Ghi lại kết quả"),
++            OutcomeSpec("out-resp", kind=OutcomeKind.RESPONSE, description="Trả lời xác nhận"),
++        ],
++        intent_coverage="model_proposed",
++    )
++    snap, response = run_turn(
++        runtime, history, "Ghi lại kết quả giúp tôi.",
++        [answer("Tôi đã ghi lại kết quả vào sổ tay rồi nhé.")],
++        contract=contract,
++    )
++
++    assert response.error is None
++    assert len(response.note_events) == 0
++    assert response.completion_status == "unresolved"
++    assert response.reconciliation is not None
++    assert response.reconciliation.declared_scope_completion == "unresolved"
++    assert any(u["outcome_id"] == "out-save" and u["reason"] == "omitted_action" for u in response.reconciliation.unmet_outcomes)
++
++    # UI / History wiring verification
++    turn_record = history.get_turn(snap.turn_id)
++    assert turn_record.reconciliation_status == "unresolved"
++    assert "omitted_action" in turn_record.reconciliation["unresolved_reasons"]
++    latest_ref = history.turn_references()[-1]
++    assert latest_ref["reconciliation_status"] == "unresolved"
++    assert "omitted_action" in latest_ref["unresolved_reasons"]
++
++
++# =============================================================================
++# 2. WRONG-SOURCE PRODUCER/CONSUMER: CALCULATE 324 BUT SAVE 126
++# =============================================================================
++
++def test_wrong_source_producer_consumer_calculate_324_save_126_fails():
++    runtime, history = runtime_fixture(), ConversationHistory()
++
++    # Step 1: establish old artifact 126
++    _, first = run_turn(runtime, history, "Tính 18 * 7", [
++        action("calculate", expression="18 * 7"), answer("126"),
++    ])
++    old_artifact = first.artifacts[0]
++    assert old_artifact.payload["result"] == "126"
++
++    # Step 2: request calculate double AND record that newly calculated result
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-calc", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="calculate", description="Tính 162 * 2"),
++            OutcomeSpec("out-note", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note",
++                        source_ref={"producer_outcome_id": "out-calc"}, dependency_ids=["out-calc"],
++                        description="Ghi kết quả vừa tính"),
++            OutcomeSpec("out-ans", kind=OutcomeKind.RESPONSE, description="Trả lời"),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    # Model calculates 162 * 2 (producing 324), but records the old artifact 126!
++    _, response = run_turn(
++        runtime, history, "Tính 162 * 2 rồi ghi lại kết quả vừa tính.",
++        [
++            action("calculate", expression="162 * 2"),
++            result_note(old_artifact, "126"),
++            answer("Đã tính và ghi lại."),
++        ],
++        contract=contract,
++    )
++
++    assert response.error is None
++    # Calculate succeeded, but note consumer pointed to wrong producer source
++    assert response.completion_status == "partial"
++    assert response.reconciliation.declared_scope_completion == "partial"
++    unmet = response.reconciliation.unmet_outcomes
++    assert len(unmet) == 1
++    assert unmet[0]["outcome_id"] == "out-note"
++    assert unmet[0]["reason"] == "wrong_source_consumer"
++
++
++# =============================================================================
++# 3. CROSS-EXECUTION ISOLATION: OLD EXECUTION RECEIPTS CANNOT SATISFY NEW MUTATION
++# =============================================================================
++
++def test_cross_execution_receipt_cannot_satisfy_new_mutation():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-note", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note"),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    # Create fake journal containing an old receipt from previous execution
++    old_journal = ExecutionJournal("conv-1", "turn-1", "exec-old", 1)
++    old_journal.receipts.append(ReceiptEnvelope(
++        receipt_id="rcpt-old-note",
++        issuer="notebook",
++        conversation_id="conv-1",
++        turn_id="turn-1",
++        execution_id="exec-old",
++        operation_name="record_work_note",
++        status="committed",
++        committed=True,
++        note_event={"owner_turn_id": "turn-1", "context": {"execution_id": "exec-old"}, "snapshot": {"confirmed": True}},
++    ))
++
++    # Reconcile for new execution 'exec-new'
++    reconciliation = reconcile_turn(
++        contract,
++        old_journal,
++        lifecycle="completed",
++        final_answer="Done",
++    )
++
++    assert reconciliation.declared_scope_completion == "unresolved"
++    assert any(u["outcome_id"] == "out-note" and u["reason"] == "omitted_action" for u in reconciliation.unmet_outcomes)
++
++
++# =============================================================================
++# 4. CONTRACT FREEZE: DOWNGRADE PREVENTION AFTER FIRST EFFECT
++# =============================================================================
++
++def test_contract_freeze_prevents_downgrade_or_obligation_deletion():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-calc", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="calculate"),
++            OutcomeSpec("out-note", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note"),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    # Model executes calculate, then tries to return a decision with contract having 0 outcomes (downgrade)
++    downgraded_decision = answer("Only calculated, deleting note obligation")
++    downgraded_decision.contract = TurnContract(outcomes=[], intent_coverage="model_proposed")
++
++    _, response = run_turn(
++        runtime, history, "Tính và ghi",
++        [
++            action("calculate", expression="10 + 5"),
++            downgraded_decision,
++        ],
++        contract=contract,
++    )
++
++    # Frozen contract was preserved; note remains unmet
++    assert response.reconciliation.declared_scope_completion == "partial"
++    assert any(u["outcome_id"] == "out-note" and u["reason"] == "omitted_action" for u in response.reconciliation.unmet_outcomes)
++
++
++# =============================================================================
++# 5. PENDING INPUT: DISPATCHER WAITING INPUT REQUEST RECONCILES TO NEEDS_INPUT
++# =============================================================================
++
++def test_pending_input_reconciles_to_needs_input_and_unresolved():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-1", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="custom_input_op"),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    # Simulate pending input request in dispatcher
++    req = InputRequest(operation_name="custom_input_op", prompt="Need user selection")
++    runtime.dispatcher.state.pending_input_request = req
++
++    # Decision returning needs_input
++    decisions = [ModelDecision("", final_answer="Cần bạn chọn", tool_name="custom_input_op", tool_args={})]
++    snap, response = run_turn(runtime, history, "Thao tác cần hỏi ý kiến", decisions, contract=contract)
++
++    assert response.completion_status == "needs_input"
++    assert response.reconciliation.lifecycle == "needs_input"
++    assert response.reconciliation.declared_scope_completion == "unresolved"
++    assert "pending_input_required" in response.reconciliation.unresolved_reasons
++
++
++# =============================================================================
++# 6. TWO SEPARATE CANCEL FIXTURES:
++#    A) Cancel after calculate commit: preserves artifact, blocks late writes,
++#       and resumes via new execution
++#    B) Cancel during waiting probe: 0 artifacts committed
++# =============================================================================
++
++def test_cancel_after_calculate_commit_preserves_artifact_and_resumes_in_new_exec():
++    runtime, history = runtime_fixture(), ConversationHistory()
++
++    # Step 1: calculate and record
++    _, t1 = run_turn(runtime, history, "Tính 18 * 9", [
++        action("calculate", expression="18 * 9"),
++        lambda: result_note(runtime.artifact_store.list("calculation")[-1], "162"),
++        answer("162"),
++    ])
++    note_id = t1.note_events[0]["note_id"]
++
++    # Step 2: calculate double (324) and cancel immediately after calculate commit
++    cancelled_flag = {"cancelled": False}
++    def trigger_cancel_after_calc(step):
++        if step.tool_name == "calculate":
++            cancelled_flag["cancelled"] = True
++
++    contract_t2 = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-calc", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="calculate"),
++            OutcomeSpec("out-note", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note"),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    snap_stopped, stopped = run_turn(
++        runtime, history, "Tính gấp đôi rồi ghi lại.",
++        [
++            action("calculate", expression="162 * 2"),
++            answer("Unreachable committed text"),
++        ],
++        contract=contract_t2,
++        on_step=trigger_cancel_after_calc,
++        should_cancel=lambda: cancelled_flag["cancelled"],
++    )
++
++    assert stopped.error == "cancelled"
++    assert stopped.reconciliation.lifecycle == "cancelled"
++    assert stopped.reconciliation.declared_scope_completion == "unresolved"
++    # Committed artifact 324 is PRESERVED in store
++    assert len(stopped.artifacts) == 1
++    artifact_324 = stopped.artifacts[0]
++    assert artifact_324.payload["result"] == "324"
++
++    # Late-write guard: attempting to record note on stopped execution is rejected
++    stopped_ctx = runtime.notebook.current_context()
++    with pytest.raises(ValueError, match="cancelled"):
++        runtime.execute_tool(
++            "record_work_note",
++            result_note(artifact_324, "324").tool_args,
++            turn_id=snap_stopped.turn_id,
++            execution_id=stopped.execution_id,
++            note_context=stopped_ctx,
++        )
++
++    # Turn 6 in history remains cancelled
++    assert history.get_turn(snap_stopped.turn_id).status == "cancelled"
++
++    # Step 3: Resume in a NEW execution, referencing the preserved artifact 324
++    contract_t3 = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-inspect", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="inspect_artifact"),
++            OutcomeSpec("out-save", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note"),
++            OutcomeSpec("out-resp", kind=OutcomeKind.RESPONSE),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    snap_resumed, resumed = run_turn(
++        runtime, history, "Tiếp tục, ghi kết quả vừa tính.",
++        [
++            action("inspect_artifact", artifact_id=artifact_324.id, revision=1),
++            result_note(artifact_324, "324", replace_note_id=note_id, revision=1),
++            answer("Đã ghi kết quả vừa tính."),
++        ],
++        contract=contract_t3,
++    )
++
++    assert resumed.error is None
++    assert resumed.execution_id != stopped.execution_id
++    assert resumed.reconciliation.lifecycle == "completed"
++    assert resumed.reconciliation.declared_scope_completion == "satisfied"
++    assert len(resumed.note_events) == 1
++    assert resumed.note_events[0]["snapshot"]["text"] == "324"
++    assert history.get_turn(snap_stopped.turn_id).status == "cancelled"
++    assert history.get_turn(snap_resumed.turn_id).status == "completed"
++
++
++def test_cancel_during_waiting_probe_has_zero_artifacts():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    contract = TurnContract(
++        outcomes=[OutcomeSpec("out-calc", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="calculate")],
++        intent_coverage="model_proposed",
++    )
++
++    # Cancel triggered before any tool starts
++    snap, response = run_turn(
++        runtime, history, "Tính phép toán lớn",
++        [action("calculate", expression="1000 ** 2")],
++        contract=contract,
++        should_cancel=lambda: True,
++    )
++
++    assert response.error == "cancelled"
++    assert response.reconciliation.lifecycle == "cancelled"
++    assert response.reconciliation.declared_scope_completion == "unresolved"
++    assert len(response.artifacts) == 0
++
++
++# =============================================================================
++# 7. CONVERSATIONAL RESPONSE WITHOUT TOOLS: NO FAKE QUALITY PASS
++# =============================================================================
++
++def test_conversational_response_without_tools():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    contract = TurnContract(
++        outcomes=[OutcomeSpec("out-explain", kind=OutcomeKind.RESPONSE, description="Giải thích thuật toán")],
++        intent_coverage="model_proposed",
++    )
++
++    snap, response = run_turn(
++        runtime, history, "Giải thích binary search bằng ví dụ nhỏ",
++        [answer("Binary search chia đôi không gian tìm kiếm mỗi bước.")],
++        contract=contract,
++    )
++
++    assert response.error is None
++    assert response.tool_call_count == 0
++    assert response.reconciliation.lifecycle == "completed"
++    assert response.reconciliation.declared_scope_completion == "satisfied"
++    # Quality for un-verified prose is not_checked, not a fake PASS
++    assert response.reconciliation.scoped_quality == "not_checked"
++
++
++# =============================================================================
++# 8. UNCONFIRMED PROPOSAL DOES NOT SATISFY CONFIRMED OBLIGATION
++# =============================================================================
++
++def test_proposed_note_does_not_satisfy_confirmed_obligation():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    runtime.artifact_store.put(Artifact("sample", "sample", 1, {"result": "42"}))
++    ref = {"artifact_id": "sample", "revision": 1, "field": "result"}
++
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-note", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note",
++                        allow_proposal=False, description="Ghi kết quả đã kiểm chứng"),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    # Paraphrased note stays proposed (confirmed=False)
++    _, response = run_turn(
++        runtime, history, "Ghi lại kết quả",
++        [
++            action("record_work_note", text="Kết quả đo đạc khoảng bốn mươi hai", source_result=ref),
++            answer("Đã ghi"),
++        ],
++        contract=contract,
++    )
++
++    assert response.reconciliation.declared_scope_completion == "unresolved"
++    assert any(u["outcome_id"] == "out-note" and u["reason"] == "unconfirmed_proposal" for u in response.reconciliation.unmet_outcomes)
++
++
++# =============================================================================
++# 9. BOUNDARY REMOVAL: NOTE CREATED THEN REMOVED IN SAME EXECUTION IS UNMET
++# =============================================================================
++
++def test_note_created_then_removed_in_same_execution_fails_boundary_check():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    runtime.artifact_store.put(Artifact("sample", "sample", 1, {"result": "42"}))
++    ref = {"artifact_id": "sample", "revision": 1, "field": "result"}
++
++    contract = TurnContract(
++        outcomes=[OutcomeSpec("out-note", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note")],
++        intent_coverage="model_proposed",
++    )
++
++    def remove_step():
++        note_id = runtime.notebook.snapshot()[0]["id"]
++        runtime.notebook.remove(note_id, revision=1, context=runtime.notebook.current_context())
++        return answer("Đã ghi rồi xóa")
++
++    def decisions_gen():
++        yield action("record_work_note", text="42", source_result=ref)
++        yield remove_step
++
++    _, response = run_turn(runtime, history, "Ghi rồi xóa", decisions_gen(), contract=contract)
++
++    assert response.reconciliation.declared_scope_completion == "unresolved"
++    assert any(u["outcome_id"] == "out-note" and u["reason"] == "note_removed" for u in response.reconciliation.unmet_outcomes)
++
++
++# =============================================================================
++# 10. STALE REVISION UPDATE: TARGET REVISION MISMATCH IS UNMET
++# =============================================================================
++
++def test_stale_revision_update_is_unmet():
++    runtime, history = runtime_fixture(), ConversationHistory()
++    runtime.artifact_store.put(Artifact("sample", "sample", 1, {"result": "42"}))
++    ref = {"artifact_id": "sample", "revision": 1, "field": "result"}
++
++    # Establish note at revision 2
++    runtime.notebook.begin_request("Setup")
++    note1 = runtime.execute_tool("record_work_note", {"text": "42", "source_result": ref})["note"]
++    runtime.execute_tool("record_work_note", {"text": "43", "source_result": ref, "replace_note_id": note1["id"], "revision": 1})
++
++    # Obligation expects updating revision 2, but model sends expected_revision 1
++    contract = TurnContract(
++        outcomes=[
++            OutcomeSpec("out-update", kind=OutcomeKind.REGISTERED_EFFECT, effect_type="record_work_note",
++                        target_ref={"note_id": note1["id"], "expected_revision": 2}),
++        ],
++        intent_coverage="model_proposed",
++    )
++
++    _, response = run_turn(
++        runtime, history, "Sửa ghi chú",
++        [
++            # Stale update attempt targeting revision 1
++            action("record_work_note", text="44", source_result=ref, replace_note_id=note1["id"], revision=1),
++            answer("Đã sửa"),
++        ],
++        contract=contract,
++    )
++
++    # The tool threw a ValueError for stale revision, so no commit happened
++    assert response.reconciliation.declared_scope_completion == "unresolved"

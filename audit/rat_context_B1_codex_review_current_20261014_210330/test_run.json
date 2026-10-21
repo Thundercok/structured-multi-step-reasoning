@@ -1,0 +1,55 @@
+{
+  "suites": [
+    {
+      "name": "focused",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "tests/test_rat_context_snapshot.py",
+        "tests/test_rat_context_audit.py",
+        "tests/test_artifact_store_lifecycle.py",
+        "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py",
+        "audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py",
+        "audit/rat_context_B1_independent_20261014_084657/origin_scope_probes.py",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "--tb=short",
+        "--junitxml=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_context_B1_codex_review_current_20261014_210330/focused.xml"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 24.738,
+      "stdout": "........................................................................ [ 60%]\n................................................                         [100%]\n120 passed in 21.54s\n",
+      "stderr": "",
+      "tests": 120,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "raw_receipt_probes",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+        "-m",
+        "pytest",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "--tb=short",
+        "--junitxml=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.xml"
+      ],
+      "exit_code": 1,
+      "duration_seconds": 10.821,
+      "stdout": "FFFFFF.F                                                                 [100%]\n=================================== FAILURES ===================================\n_ test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[True-operation_result] _\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:50: in test_literal_wrapper_in_unprojected_receipt_slot_stays_raw\n    assert type(restored[slot]) is dict\nE   AssertionError: assert <class 'str'> is dict\nE    +  where <class 'str'> = type('RAW_MUST_STAY_LITERAL')\n_ test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[True-note_event] __\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:50: in test_literal_wrapper_in_unprojected_receipt_slot_stays_raw\n    assert type(restored[slot]) is dict\nE   AssertionError: assert <class 'str'> is dict\nE    +  where <class 'str'> = type('RAW_MUST_STAY_LITERAL')\n_ test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[True-verification_report] _\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:50: in test_literal_wrapper_in_unprojected_receipt_slot_stays_raw\n    assert type(restored[slot]) is dict\nE   AssertionError: assert <class 'str'> is dict\nE    +  where <class 'str'> = type('RAW_MUST_STAY_LITERAL')\n_ test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[False-operation_result] _\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:48: in test_literal_wrapper_in_unprojected_receipt_slot_stays_raw\n    assert valid, errors\nE   AssertionError: [\"Broken value_ref at 'operation_result': entity {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'literal-missing', 'revision': 1} not found in entities or unavailable_refs\"]\nE   assert False\n_ test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[False-note_event] _\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:48: in test_literal_wrapper_in_unprojected_receipt_slot_stays_raw\n    assert valid, errors\nE   AssertionError: [\"Broken value_ref at 'note_event': entity {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'literal-missing', 'revision': 1} not found in entities or unavailable_refs\"]\nE   assert False\n_ test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[False-verification_report] _\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:48: in test_literal_wrapper_in_unprojected_receipt_slot_stays_raw\n    assert valid, errors\nE   AssertionError: [\"Broken value_ref at 'verification_report': entity {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'literal-missing', 'revision': 1} not found in entities or unavailable_refs\"]\nE   assert False\n___ test_literal_matching_real_projector_target_and_pointer_still_stays_raw ____\naudit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py:84: in test_literal_matching_real_projector_target_and_pointer_still_stays_raw\n    assert expand_value_refs(snap[\"observed_state\"][\"receipts\"][0], snap)[\"operation_result\"] == literal\nE   AssertionError: assert {'value': 'Di...native value'} == {'$value_ref'...: '/payload'}}\nE     \nE     Left contains 1 more item:\nE     {'value': 'Different native value'}\nE     Right contains 1 more item:\nE     {'$value_ref': {'entity_ref': {'artifact_id': 'produced',\nE                                    'conversation_id': 'review-conv',\nE                                    'kind': 'artifact',...\nE     \nE     ...Full output truncated (3 lines hidden), use '-vv' to show\n=========================== short test summary info ============================\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[True-operation_result]\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[True-note_event]\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[True-verification_report]\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[False-operation_result]\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[False-note_event]\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_wrapper_in_unprojected_receipt_slot_stays_raw[False-verification_report]\nFAILED audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py::test_literal_matching_real_projector_target_and_pointer_still_stays_raw\n7 failed, 1 passed in 6.74s\n",
+      "stderr": "",
+      "tests": 8,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "source_drift": [],
+  "live_model_calls": 0
+}

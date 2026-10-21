@@ -1,0 +1,46 @@
+{
+  "after.snapshot.json": {
+    "contract_id": "example-contract",
+    "lifecycle": "in_progress",
+    "intent_coverage": "model_proposed",
+    "declared_scope_completion": "partial",
+    "scoped_quality": "not_checked",
+    "matched_receipts": [
+      "example-receipt-notebook"
+    ],
+    "unmet_outcomes": [
+      {
+        "outcome_id": "C01.t5.response",
+        "reason": "missing_response",
+        "description": "Chưa có phản hồi văn bản"
+      }
+    ],
+    "unresolved_reasons": [
+      "missing_response"
+    ],
+    "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+    "summary": "Đã hoàn thành các thao tác nhưng thiếu phản hồi."
+  },
+  "declared_args.snapshot.json": {
+    "contract_id": "example-contract",
+    "lifecycle": "in_progress",
+    "intent_coverage": "model_proposed",
+    "declared_scope_completion": "partial",
+    "scoped_quality": "not_checked",
+    "matched_receipts": [
+      "example-receipt-notebook"
+    ],
+    "unmet_outcomes": [
+      {
+        "outcome_id": "C01.t5.response",
+        "reason": "missing_response",
+        "description": "Chưa có phản hồi văn bản"
+      }
+    ],
+    "unresolved_reasons": [
+      "missing_response"
+    ],
+    "semantic_limitation": "Receipt matching validates recorded effects and scoped proofs, but does not prove unverified prose assertions.",
+    "summary": "Đã hoàn thành các thao tác nhưng thiếu phản hồi."
+  }
+}

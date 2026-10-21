@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "data/procedural_research_v1/manifest.json": true,
+    "data/procedural_research_v1/main.json": true,
+    "data/procedural_research_v1/tuning.json": true,
+    "data/gen_v2.json": true,
+    "data/gen_tune.json": true,
+    "research_identity.py": true,
+    "audit/cot_restart_fresh_data_review_20261016/prepare_review.py": true,
+    "audit/cot_restart_pilot_qwen35_20261009/dataset.json": true,
+    "audit/order_certificate_pilot_dev2_real_20261008/dataset.json": true,
+    "audit/order_certificate_pilot_dev8_contract_v2_real_20261008/dataset.json": true,
+    "audit/cot_restart_fresh_data_review_20261016/README.md": true,
+    "audit/cot_restart_fresh_data_review_20261016/review_packet.md": true,
+    "audit/cot_restart_fresh_data_review_20261016/candidate_frame.json": true
+  },
+  "passed": 13,
+  "total": 13,
+  "structural_review": "inherited via unchanged hashes from first reviewer data_integrity.json",
+  "human_review": "pending",
+  "held_out_queries_or_gold_emitted": false
+}

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="8" time="12.807" timestamp="2026-10-19T13:18:36.583181+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance" name="test_v2_answer_stays_visibly_accessible_after_navigation[initial]" time="0.660" /><testcase classname="audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance" name="test_v2_answer_stays_visibly_accessible_after_navigation[source-detail-back]" time="0.309"><failure message="AssertionError: {'visible_bubble': 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.', 'copy_buffer': 'LOTUS-7319', 'result_card_hidden': True, 'answer_label': 'LOTUS-7319'}&#10;assert ('LOTUS-7319' in 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.' or False)">completed_short_qa = &lt;rat.ui.omnibar.OmnibarWindow object at 0x169232850&gt;
+action = 'source-detail-back'
+
+    @pytest.mark.parametrize("action", ["initial", "source-detail-back", "snapshot-refresh"])
+    def test_v2_answer_stays_visibly_accessible_after_navigation(completed_short_qa, action):
+        win = completed_short_qa
+        scene = win.workbench_scene
+        if action == "source-detail-back":
+            src = scene.current_snapshot.primary_sources[0]
+            assert scene.select_source(src.node_id)
+            base._pump(3)
+            scene.show_overview()
+        elif action == "snapshot-refresh":
+            win._sync_workbench_scene(animate=False)
+        base._pump(4)
+        assert scene.mode == "overview"
+        bubble_text = win.workbench_speech_bubble.dialogue.text()
+        visible_card_answer = scene.result_card.isVisible() and "LOTUS-7319" in scene.result_card.answer_lbl.text()
+&gt;       assert "LOTUS-7319" in bubble_text or visible_card_answer, {
+            "visible_bubble": bubble_text,
+            "copy_buffer": win.workbench_speech_bubble._copy_text,
+            "result_card_hidden": scene.result_card.isHidden(),
+            "answer_label": scene.result_card.answer_lbl.text(),
+        }
+E       AssertionError: {'visible_bubble': 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.', 'copy_buffer': 'LOTUS-7319', 'result_card_hidden': True, 'answer_label': 'LOTUS-7319'}
+E       assert ('LOTUS-7319' in 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.' or False)
+
+audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py:72: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance" name="test_v2_answer_stays_visibly_accessible_after_navigation[snapshot-refresh]" time="0.298"><failure message="AssertionError: {'visible_bubble': 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.', 'copy_buffer': 'LOTUS-7319', 'result_card_hidden': True, 'answer_label': 'LOTUS-7319'}&#10;assert ('LOTUS-7319' in 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.' or False)">completed_short_qa = &lt;rat.ui.omnibar.OmnibarWindow object at 0x16926db30&gt;
+action = 'snapshot-refresh'
+
+    @pytest.mark.parametrize("action", ["initial", "source-detail-back", "snapshot-refresh"])
+    def test_v2_answer_stays_visibly_accessible_after_navigation(completed_short_qa, action):
+        win = completed_short_qa
+        scene = win.workbench_scene
+        if action == "source-detail-back":
+            src = scene.current_snapshot.primary_sources[0]
+            assert scene.select_source(src.node_id)
+            base._pump(3)
+            scene.show_overview()
+        elif action == "snapshot-refresh":
+            win._sync_workbench_scene(animate=False)
+        base._pump(4)
+        assert scene.mode == "overview"
+        bubble_text = win.workbench_speech_bubble.dialogue.text()
+        visible_card_answer = scene.result_card.isVisible() and "LOTUS-7319" in scene.result_card.answer_lbl.text()
+&gt;       assert "LOTUS-7319" in bubble_text or visible_card_answer, {
+            "visible_bubble": bubble_text,
+            "copy_buffer": win.workbench_speech_bubble._copy_text,
+            "result_card_hidden": scene.result_card.isHidden(),
+            "answer_label": scene.result_card.answer_lbl.text(),
+        }
+E       AssertionError: {'visible_bubble': 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.', 'copy_buffer': 'LOTUS-7319', 'result_card_hidden': True, 'answer_label': 'LOTUS-7319'}
+E       assert ('LOTUS-7319' in 'Mình đã đặt kết quả và nguồn tham chiếu trên bàn. Chạm nguồn để xem chi tiết.' or False)
+
+audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py:72: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance" name="test_v3_installations_with_same_parent_name_remain_distinguishable[same-parent-basename]" time="0.006"><failure message="AssertionError: ['Applications · League of Legends · v1.0', 'Applications · League of Legends · v1.0']&#10;assert 1 == 2&#10; +  where 1 = len({'Applications · League of Legends · v1.0'})&#10; +    where {'Applications · League of Legends · v1.0'} = set(&lt;generator object test_v3_installations_with_same_parent_name_remain_distinguishable.&lt;locals&gt;.&lt;genexpr&gt; at 0x175215150&gt;)">app = &lt;PyQt6.QtWidgets.QApplication object at 0x106ad4a50&gt;
+parents = ('/Applications', '/Users/fixture/Applications')
+
+    @pytest.mark.parametrize("parents", [
+        ("/Applications", "/Users/fixture/Applications"),
+        ("/Applications", "/Users/fixture/Riot Games"),
+    ], ids=["same-parent-basename", "different-parent-control"])
+    def test_v3_installations_with_same_parent_name_remain_distinguishable(app, parents):
+        paths = [parent + "/League of Legends.app" for parent in parents]
+        choices = [dict(name="League of Legends", path=p, bundle_id="com.fixture.league", version="1.0") for p in paths]
+        artifact = Artifact("followup-choice", "input_request", payload=dict(operation_name="open_application",
+            missing_fields=[], candidate_choices=choices, supplied_inputs={"name": "Liên Minh"}, prompt="Choose installation"))
+        renderer = QtViewRenderer(StandardViewProvider().provide_view(artifact), artifact)
+        renderer.setFixedWidth(420)
+        renderer.show()
+        base._pump(4)
+        try:
+            buttons = [b for b in renderer.findChildren(QPushButton) if b.objectName() == "CandidateBtn"]
+            assert len(buttons) == 2 and all(b.isVisible() for b in buttons)
+            assert all(p in b.toolTip() for p, b in zip(paths, buttons))
+&gt;           assert len(set(b.text() for b in buttons)) == 2, [b.text() for b in buttons]
+E           AssertionError: ['Applications · League of Legends · v1.0', 'Applications · League of Legends · v1.0']
+E           assert 1 == 2
+E            +  where 1 = len({'Applications · League of Legends · v1.0'})
+E            +    where {'Applications · League of Legends · v1.0'} = set(&lt;generator object test_v3_installations_with_same_parent_name_remain_distinguishable.&lt;locals&gt;.&lt;genexpr&gt; at 0x175215150&gt;)
+
+audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py:97: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance" name="test_v3_installations_with_same_parent_name_remain_distinguishable[different-parent-control]" time="0.004" /><testcase classname="tests.test_crash_shield.TestCrashShield" name="test_system_tray_manager_shutdown" time="0.005"><failure message="NameError: name 'padding' is not defined">self = &lt;tests.test_crash_shield.TestCrashShield testMethod=test_system_tray_manager_shutdown&gt;
+
+    def test_system_tray_manager_shutdown(self):
+        """Verify SystemTrayManager.shutdown safely terminates any active rescan worker."""
+        from rat.os.menu_bar import RescanWorker, SystemTrayManager
+        with patch("rat.os.menu_bar.Database") as mock_db:
+            mock_db_inst = MagicMock()
+            mock_db_inst.get_stats.return_value = {"total_files": 10, "total_size_bytes": 1024}
+            mock_db.return_value = mock_db_inst
+    
+&gt;           tray = SystemTrayManager()
+                   ^^^^^^^^^^^^^^^^^^^
+
+tests/test_crash_shield.py:147: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+rat/os/menu_bar.py:86: in __init__
+    self._init_tray()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;rat.os.menu_bar.SystemTrayManager object at 0x175745160&gt;
+
+    def _init_tray(self) -&gt; None:
+        # Create macOS template icon (automatically inverts in dark mode)
+        icon = QIcon(create_tray_pixmap())
+        icon.setIsMask(True)
+        self.tray_icon.setIcon(icon)
+        self.tray_icon.setToolTip("rat — Trợ lý sinh viên &amp; công việc macOS")
+    
+        # Create Menu with warm paper styling
+        menu = QMenu()
+        menu.setStyleSheet(f"""
+            QMenu {{
+                background-color: #fffdf9;
+                color: #2c241c;
+                border: 1px solid #d9d0c5;
+                border-radius: 10px;
+                padding: 5px;
+                font-family: {FONT_FAMILY};
+                font-size: 13px;
+            }}
+            QMenu::item {
+&gt;               padding: 6px 14px;
+                ^^^^^^^
+                border-radius: 6px;
+            }
+            QMenu::item:selected {
+                background-color: #f7eedb;
+                color: #4c3a21;
+            }
+            QMenu::separator {
+                height: 1px;
+                background-color: #ebe4db;
+                margin: 4px 8px;
+            }
+        """)
+E       NameError: name 'padding' is not defined
+
+rat/os/menu_bar.py:108: NameError</failure></testcase><testcase classname="tests.test_harness_regressions" name="test_regression_react_placeholder_rejection" time="0.002"><failure message="AssertionError: Parsed answer leaked prompt placeholder: '&lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'&#10;assert '&lt;kết quả&gt;' not in '&lt;kết quả&gt; =... boxes total'&#10;  &#10;  '&lt;kết quả&gt;' is contained here:&#10;    &lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total&#10;  ? +++++++++">def test_regression_react_placeholder_rejection():
+        """Bug 2: Parser rejects echoed placeholder templates, and REACT_SYSTEM contains no placeholder artifacts.
+    
+        Ghi chú kiểm định: chưa tái hiện bug ReAct trên trace thật; chỉ kiểm parser + prompt.
+        """
+        # Parser must strip leading placeholder and extract the real numeric conclusion
+        parsed = extract_answer(RAW_REACT_PLACEHOLDER_FIXTURE)
+&gt;       assert "&lt;kết quả&gt;" not in parsed, f"Parsed answer leaked prompt placeholder: {parsed!r}"
+E       AssertionError: Parsed answer leaked prompt placeholder: '&lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'
+E       assert '&lt;kết quả&gt;' not in '&lt;kết quả&gt; =... boxes total'
+E         
+E         '&lt;kết quả&gt;' is contained here:
+E           &lt;kết quả&gt; = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total
+E         ? +++++++++
+
+tests/test_harness_regressions.py:93: AssertionError</failure></testcase><testcase classname="tests.test_harness_regressions" name="test_regression_parser_does_not_pick_wrong_trailing_token_or_unit" time="0.001"><failure message="AssertionError: Expected '290', got '&lt;kết quả&gt; = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290'&#10;assert '&lt;kết quả&gt; = ...60 + 50 = 290' == '290'&#10;  &#10;  - 290&#10;  + &lt;kết quả&gt; = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290">def test_regression_parser_does_not_pick_wrong_trailing_token_or_unit():
+        """Bug 4: Parser extracts numeric conclusion without capturing trailing units or intermediate equation text."""
+        ans1 = extract_answer(RAW_PARSER_PIZZA_FIXTURE)
+        assert ans1 == "192", f"Expected '192', got {ans1!r}"
+    
+        ans2 = extract_answer(RAW_PARSER_BOXES_FIXTURE)
+        assert ans2 == "1167", f"Expected '1167', got {ans2!r}"
+    
+        ans3 = extract_answer(RAW_PARSER_ARITHMETIC_FIXTURE)
+&gt;       assert ans3 == "290", f"Expected '290', got {ans3!r}"
+E       AssertionError: Expected '290', got '&lt;kết quả&gt; = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290'
+E       assert '&lt;kết quả&gt; = ...60 + 50 = 290' == '290'
+E         
+E         - 290
+E         + &lt;kết quả&gt; = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290
+
+tests/test_harness_regressions.py:166: AssertionError</failure></testcase></testsuite></testsuites>

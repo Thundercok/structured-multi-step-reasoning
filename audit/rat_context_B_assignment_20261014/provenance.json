@@ -1,0 +1,8 @@
+{
+  "status": "authored_design_reconciled_by_existing_pure_software_not_B_runtime",
+  "parent_design_packet": "audit/rat_context_snapshot_design_20261014",
+  "progress": "Computed by existing reconcile_turn over authored synthetic receipt envelopes; not inferred from live A journals.",
+  "boundary_epochs_and_selection": "Authored illustrative values; must be read/rechecked from real state in B2.",
+  "scope": "Local design only: no live inference, UI, production compiler, controller or model-default changes.",
+  "previous_design_kept_unchanged": true
+}

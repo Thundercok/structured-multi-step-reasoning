@@ -1,0 +1,78 @@
+{
+  "name": "fresh-restart-software-fixture",
+  "version": "1",
+  "source": "Three authored synthetic software fixtures; no study-pool inputs",
+  "license": "Project software-test fixtures",
+  "identity_version": "procedural-v1",
+  "role": "synthetic_software_validation",
+  "evidence": "synthetic_smoke",
+  "items": [
+    {
+      "id": "synthetic-fresh-arith",
+      "family": "arith",
+      "checker": "arith",
+      "meta": {
+        "start": 40,
+        "steps": [
+          [
+            "add",
+            2
+          ]
+        ]
+      },
+      "answer": "42",
+      "split": "train",
+      "level": 0,
+      "answer_type": "number",
+      "query": "A counter starts at 40. Apply these steps in order: (1) add 2. What is the final value of the counter?",
+      "group_id": "problem_arith_b744ade94d833b2636d1c6771ce50f85af3713c24622fd1f7e20c0d227854bfc",
+      "problem_id": "problem_arith_b744ade94d833b2636d1c6771ce50f85af3713c24622fd1f7e20c0d227854bfc"
+    },
+    {
+      "id": "synthetic-fresh-order",
+      "family": "order",
+      "checker": "order",
+      "meta": {
+        "names": [
+          "Arin",
+          "Beryl"
+        ],
+        "clues": [
+          [
+            "b",
+            0,
+            1
+          ]
+        ],
+        "ask": 0
+      },
+      "answer": "Arin",
+      "split": "train",
+      "level": 0,
+      "answer_type": "text",
+      "query": "2 runners (Arin, Beryl) ran a race with no ties. Clues: Arin finished before Beryl. Who finished in 1st place?",
+      "group_id": "problem_order_609d5a0719e3350c12e97f2267b0ffb6c012ae61f75367bff6c045ae7598f1e0",
+      "problem_id": "problem_order_609d5a0719e3350c12e97f2267b0ffb6c012ae61f75367bff6c045ae7598f1e0"
+    },
+    {
+      "id": "synthetic-fresh-g24",
+      "family": "g24",
+      "checker": "g24",
+      "meta": {
+        "numbers": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "answer": "(1+3)*(2+4)",
+      "split": "train",
+      "level": 0,
+      "answer_type": "text",
+      "query": "Using each of the numbers 1, 2, 3 and 4 exactly once, together with +, -, *, / and parentheses, write an expression that equals 24.",
+      "group_id": "problem_g24_e433d87d37a272e5f222cd4612285c3fc44ec6adb999436669c3a761271762d7",
+      "problem_id": "problem_g24_e433d87d37a272e5f222cd4612285c3fc44ec6adb999436669c3a761271762d7"
+    }
+  ]
+}

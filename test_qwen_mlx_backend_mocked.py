@@ -10,6 +10,8 @@ import numpy as np
 
 try:
     import mlx.core as mx
+    if hasattr(mx, "set_default_device") and hasattr(mx, "cpu"):
+        mx.set_default_device(mx.cpu)
 except ImportError:
     class FakeMLXCore:
         float32 = np.float32

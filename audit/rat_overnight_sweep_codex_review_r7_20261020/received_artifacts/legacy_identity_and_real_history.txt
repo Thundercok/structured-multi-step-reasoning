@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 8 items
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[same-document] PASSED [ 12%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[real-checkpoint-path] PASSED [ 25%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[untagged-control] PASSED [ 37%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[explicit-fake-control] PASSED [ 50%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_same_document_fake_guard_replay_remains_unverified PASSED [ 62%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_current_run_counters_and_warm_scope_apply_to_real_mode_too[real-history-halt-0-0] PASSED [ 75%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_current_run_counters_and_warm_scope_apply_to_real_mode_too[new-real-control-1-0] PASSED [ 87%]
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_current_run_counters_and_warm_scope_apply_to_real_mode_too[fake-history-control-0-0] PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020/legacy_identity_and_real_history.xml -
+============================== 8 passed in 0.09s ===============================

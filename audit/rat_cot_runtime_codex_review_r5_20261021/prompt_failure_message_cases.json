@@ -1,0 +1,48 @@
+{
+  "plain": {
+    "actual": {
+      "dispatched": 0,
+      "generated_tokens": 0,
+      "cancelled": false
+    },
+    "ledger": {
+      "strategy_invocations": 1,
+      "underlying_requests_dispatched": 0,
+      "underlying_requests_succeeded": 0,
+      "underlying_requests_failed": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": null,
+      "full_inference_cost_estimated": false,
+      "status": "failed"
+    },
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "legacy",
+      "generations": [],
+      "tools": []
+    }
+  },
+  "with_phrase": {
+    "actual": {
+      "dispatched": 0,
+      "generated_tokens": 0,
+      "cancelled": false
+    },
+    "ledger": {
+      "strategy_invocations": 1,
+      "underlying_requests_dispatched": 1,
+      "underlying_requests_succeeded": 0,
+      "underlying_requests_failed": 1,
+      "generated_tokens": 0,
+      "prompt_tokens": null,
+      "full_inference_cost_estimated": false,
+      "status": "failed"
+    },
+    "trace": {
+      "strategy": "COT",
+      "prompt_profile": "legacy",
+      "generations": [],
+      "tools": []
+    }
+  }
+}

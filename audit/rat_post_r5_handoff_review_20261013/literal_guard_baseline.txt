@@ -1,0 +1,55 @@
+Reproduction before literal guard fix; fixture model decisions and fake native client.
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_unparseable_answer_expression_is_rejected_for_a_literal_request[T\xednh 2 + 2 = 999] _
+
+candidate = 'Tính 2 + 2 = 999'
+
+    @pytest.mark.parametrize('candidate', ['Tính 2 + 2 = 999', 'unparseable expression = 999'])
+    def test_unparseable_answer_expression_is_rejected_for_a_literal_request(candidate):
+        runtime = AssistantRuntime(db=MagicMock(), compositor=TimetableCompositor([]), use_live_model=False,
+                                   model_callable=lambda goal, steps: ModelDecision('', final_answer=candidate))
+        result = runtime.run('Tính 2 + 2', max_verification_repairs=0)
+>       assert result.error == 'verification_unresolved' and result.answer == ''
+E       AssertionError: assert (None == 'verification_unresolved')
+E        +  where None = AgentResponse(answer='Tính 2 + 2 = 999', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thông tin hiện c...status': 'completed', 'query': 'Tính 2 + 2', 'answer_summary': 'Tính 2 + 2 = 999', 'artifact_ids': [], 'note_ids': []}).error
+
+tests/test_rat_verification_literal_guard.py:16: AssertionError
+_ test_unparseable_answer_expression_is_rejected_for_a_literal_request[unparseable expression = 999] _
+
+candidate = 'unparseable expression = 999'
+
+    @pytest.mark.parametrize('candidate', ['Tính 2 + 2 = 999', 'unparseable expression = 999'])
+    def test_unparseable_answer_expression_is_rejected_for_a_literal_request(candidate):
+        runtime = AssistantRuntime(db=MagicMock(), compositor=TimetableCompositor([]), use_live_model=False,
+                                   model_callable=lambda goal, steps: ModelDecision('', final_answer=candidate))
+        result = runtime.run('Tính 2 + 2', max_verification_repairs=0)
+>       assert result.error == 'verification_unresolved' and result.answer == ''
+E       AssertionError: assert (None == 'verification_unresolved')
+E        +  where None = AgentResponse(answer='unparseable expression = 999', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thôn...mpleted', 'query': 'Tính 2 + 2', 'answer_summary': 'unparseable expression = 999', 'artifact_ids': [], 'note_ids': []}).error
+
+tests/test_rat_verification_literal_guard.py:16: AssertionError
+____ test_literal_format_failure_reaches_native_feedback_and_bounded_repair ____
+
+    def test_literal_format_failure_reaches_native_feedback_and_bounded_repair():
+        client = MagicMock()
+        client.chat_with_meta.side_effect = [
+            {'message': {'content': 'Tính 2 + 2 = 999'}, 'prompt_tokens': 10, 'completion_tokens': 4},
+            {'message': {'content': json.dumps({'answer': '4'})}, 'prompt_tokens': 11, 'completion_tokens': 5},
+        ]
+        runtime = AssistantRuntime(db=MagicMock(), compositor=TimetableCompositor([]),
+                                   use_live_model=True, model_client=client)
+        result = runtime.run('Tính 2 + 2')
+>       assert not result.error and result.answer == '4'
+E       AssertionError: assert (not None and 'Tính 2 + 2 = 999' == '4'
+E        +  where None = AgentResponse(answer='Tính 2 + 2 = 999', steps=[AgentStep(step_number=1, thought='Đã trả lời dựa trên thông tin hiện c...status': 'completed', 'query': 'Tính 2 + 2', 'answer_summary': 'Tính 2 + 2 = 999', 'artifact_ids': [], 'note_ids': []}).error
+E         
+E         - 4
+E         + Tính 2 + 2 = 999)
+
+tests/test_rat_verification_literal_guard.py:29: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_rat_verification_literal_guard.py::test_unparseable_answer_expression_is_rejected_for_a_literal_request[T\xednh 2 + 2 = 999]
+FAILED tests/test_rat_verification_literal_guard.py::test_unparseable_answer_expression_is_rejected_for_a_literal_request[unparseable expression = 999]
+FAILED tests/test_rat_verification_literal_guard.py::test_literal_format_failure_reaches_native_feedback_and_bounded_repair
+3 failed in 2.11s

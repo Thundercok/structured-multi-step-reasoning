@@ -1,0 +1,9 @@
+{
+  "source_root": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "created_at": "2026-10-14T11:49:30.564015+07:00",
+  "scope": "Per-ID committed revision high-water mark and InputRequest revision allocation",
+  "baseline": {
+    "rat/kernel/contracts.py": "41c94885a983cc004cbf65641076d845cfeff800dbbed24ff5651384468fc912",
+    "rat/kernel/dispatcher.py": "75d59cdfcf4bd7562a5b5b64435c703712e09852f66405054609d2b7457a9113"
+  }
+}

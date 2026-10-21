@@ -1,0 +1,22 @@
+{
+  "destination": "https://github.com/Thundercok/tdtu-timetable-compiler",
+  "local_checkout": "/private/tmp/rat-spider-export-20261016.WpxoC2/tdtu-timetable-compiler",
+  "destination_base_commit": "628f61b9f0da100b5e785643e9f54036e51aedcf",
+  "source_files_copied": 325,
+  "content_and_modes_verified": true,
+  "existing_files_unchanged": {
+    "requirements.txt": "7d2537525caf29bd3ff3eeead7da74ba008b5123c7080ca2fc7db2bfa885301b",
+    "preprocess.py": "b65f4448f3fdedc251b0822bb1e7a6d2045d53f0a1f9a49f2a0e47115e3f27cf",
+    ".gitignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "main.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_removed": false,
+  "pushed": true,
+  "pushed_at": "2026-10-16T14:53:01+07:00",
+  "pushed_commit": "e21fcef0d26f22216a195e81a0fcf4041e2349aa",
+  "prepared_commit": "e21fcef0d26f22216a195e81a0fcf4041e2349aa",
+  "durable_bundle": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/spider_destination_prepare_20261016/destination_import.bundle",
+  "committed_spider_files": 325,
+  "worktree_clean": true,
+  "original_destination_files_unchanged_in_commit": true
+}

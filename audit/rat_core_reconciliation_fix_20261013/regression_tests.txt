@@ -1,0 +1,11 @@
+Command: ['/Library/Frameworks/Python.framework/Versions/3.12/bin/python3', '-m', 'pytest', 'audit/rat_reconciliation_codex_review_20261013/contract_probes.py', 'audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py', 'tests/test_rat_completion_boundaries.py', 'tests/test_rat_completion_reconciliation.py', 'tests/test_rat_note_source_verification.py', 'tests/test_rat_smoke_harness.py', 'tests/test_rat_verification_literal_guard.py', 'tests/test_rat_conversation_lifecycle.py', 'tests/test_rat_calculation_conversation.py', 'tests/test_work_context.py', 'tests/test_rat_chat_session.py', 'tests/test_assistant_runtime.py', 'tests/test_rat_task_memory.py', 'tests/test_research_study.py', 'test_optimal_stopping.py', 'test_entry_predictor.py', 'tests/test_interaction_kernel.py', 'tests/test_interaction_kernel_regressions.py', 'tests/test_rat_verification.py', 'tests/test_vgc_verification.py', '-p', 'no:cacheprovider', '-q', '--tb=short']
+Actual exit code: 0
+
+........................................................................ [ 24%]
+........................................................................ [ 49%]
+........................................................................ [ 73%]
+........................................................................ [ 98%]
+....                                                                     [100%]
+292 passed in 10.64s
+
+Scope: software fixtures and mock-native clients; no real model or Qt/native acceptance.

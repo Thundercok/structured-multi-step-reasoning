@@ -1,0 +1,14 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py",
+    "-v",
+    "--junitxml=audit/rat_overnight_sweep_codex_repair_r6_20261020/legacy_identity_and_real_history.xml"
+  ],
+  "env": {
+    "QT_QPA_PLATFORM": "offscreen",
+    "RAT_REVIEW_R6_OUTPUT_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020"
+  }
+}

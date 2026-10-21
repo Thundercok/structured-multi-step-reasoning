@@ -1,0 +1,179 @@
+{
+  "status": "verified",
+  "timestamp": "2026-10-14T13:06:00+07:00",
+  "total_cases_verified": 15,
+  "cases": [
+    {
+      "probe_id": "raw_nested_quote_key_never_authorizes_value_ref_decode_proposal",
+      "finding": "Finding 1 (P1): Only authorized structural projector paths decode $value_ref",
+      "root_tested": "proposal",
+      "untrusted_path": "proposal.nested.quote",
+      "literal_dict_preserved": true,
+      "verified": true
+    },
+    {
+      "probe_id": "raw_nested_quote_key_never_authorizes_value_ref_decode_runtime_obligations",
+      "finding": "Finding 1 (P1): Only authorized structural projector paths decode $value_ref",
+      "root_tested": "runtime_obligations",
+      "untrusted_path": "runtime_obligations.nested.quote",
+      "literal_dict_preserved": true,
+      "verified": true
+    },
+    {
+      "probe_id": "no_artifact_operation_result_roundtrip_preserves_json_type_int",
+      "finding": "Finding 3 (P1): Scalar and list operation results retain exact JSON type and value",
+      "input_value": 42,
+      "input_type": "int",
+      "restored_value": 42,
+      "restored_type": "int",
+      "pointer": "/result",
+      "verified": true
+    },
+    {
+      "probe_id": "no_artifact_operation_result_roundtrip_preserves_json_type_list",
+      "finding": "Finding 3 (P1): Scalar and list operation results retain exact JSON type and value",
+      "input_value": [
+        1,
+        2
+      ],
+      "input_type": "list",
+      "restored_value": [
+        1,
+        2
+      ],
+      "restored_type": "list",
+      "pointer": "/result",
+      "verified": true
+    },
+    {
+      "probe_id": "no_artifact_operation_result_roundtrip_preserves_json_type_bool",
+      "finding": "Finding 3 (P1): Scalar and list operation results retain exact JSON type and value",
+      "input_value": false,
+      "input_type": "bool",
+      "restored_value": false,
+      "restored_type": "bool",
+      "pointer": "/result",
+      "verified": true
+    },
+    {
+      "probe_id": "no_artifact_operation_result_roundtrip_preserves_json_type_str",
+      "finding": "Finding 3 (P1): Scalar and list operation results retain exact JSON type and value",
+      "input_value": "scalar",
+      "input_type": "str",
+      "restored_value": "scalar",
+      "restored_type": "str",
+      "pointer": "/result",
+      "verified": true
+    },
+    {
+      "probe_id": "unknown_result_note_shaped_payload_is_preserved_verbatim",
+      "finding": "Finding 3 (P1): Unknown plugin output with note shape stays raw and retains all custom fields",
+      "input_payload": {
+        "note": {
+          "id": "n1",
+          "revision": 1,
+          "text": "Plugin-specific note",
+          "plugin_field": "keep"
+        }
+      },
+      "restored_payload": {
+        "note": {
+          "id": "n1",
+          "revision": 1,
+          "text": "Plugin-specific note",
+          "plugin_field": "keep"
+        }
+      },
+      "verified": true
+    },
+    {
+      "probe_id": "quote_projection_preserves_exact_string_and_type_42_42",
+      "finding": "Finding 3 (P1): Exact string type and whitespace equality without coercion or strip",
+      "target_field_value": 42,
+      "quote_value": "42",
+      "restored_quote": "42",
+      "restored_type": "str",
+      "verified": true
+    },
+    {
+      "probe_id": "quote_projection_preserves_exact_string_and_type_ source text _source text",
+      "finding": "Finding 3 (P1): Exact string type and whitespace equality without coercion or strip",
+      "target_field_value": " source text ",
+      "quote_value": "source text",
+      "restored_quote": "source text",
+      "restored_type": "str",
+      "verified": true
+    },
+    {
+      "probe_id": "artifact_projection_retains_status_provenance_and_timestamp",
+      "finding": "Finding 6 (P2): Artifact status, provenance, and created_at retained inline under lossless projection",
+      "canonical_metadata": {
+        "status": "waiting_input",
+        "provenance": {
+          "source_artifact_id": "source",
+          "source_revision": 3,
+          "operation_name": "fixture"
+        },
+        "created_at": 7
+      },
+      "projected_body_metadata": {
+        "status": "waiting_input",
+        "provenance": {
+          "source_artifact_id": "source",
+          "source_revision": 3,
+          "operation_name": "fixture"
+        },
+        "created_at": 7
+      },
+      "projection_status": "lossless",
+      "verified": true
+    },
+    {
+      "probe_id": "canonical_invalid_dict_cannot_be_reparsed_into_met_progress",
+      "finding": "Finding 2 (P1): Canonical dict validity preserved; ineligible contract outcomes remain unresolved",
+      "input_contract_is_valid": false,
+      "input_validation_errors": [
+        "runtime_binding_error"
+      ],
+      "obligations_contract_is_valid": false,
+      "progress_outcome_status": "unresolved",
+      "verified": true
+    },
+    {
+      "probe_id": "foreign_execution_proof_is_not_current_proof",
+      "finding": "Finding 5 (P2): Stale/foreign verification receipts excluded from current proof_refs",
+      "foreign_receipt_present_in_journal": true,
+      "current_proof_refs": [],
+      "excluded_from_current_proofs": true,
+      "verified": true
+    },
+    {
+      "probe_id": "missing_typed_index_ref_requires_explicit_unavailable",
+      "finding": "Finding 4 (P1): Semantic validation requires structural refs to exist in entities or unavailable_refs",
+      "validation_valid": false,
+      "errors_detected": [
+        "Typed reference in indexes.selected_results not found in entities or unavailable_refs: {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'missing', 'revision': 1}"
+      ],
+      "verified": true
+    },
+    {
+      "probe_id": "duplicate_entity_identity_with_conflicting_bodies_is_rejected",
+      "finding": "Finding 4 (P1): Conflicting duplicate entity identities rejected during validation",
+      "validation_valid": false,
+      "errors_detected": [
+        "Duplicate entity identity found in entities: {'kind': 'artifact', 'conversation_id': 'review-conv', 'artifact_id': 'a', 'revision': 1}"
+      ],
+      "verified": true
+    },
+    {
+      "probe_id": "cycle_in_projection_quote_refs_is_rejected_before_expansion",
+      "finding": "Finding 4 (P1): Reference cycles in dereference graph rejected before expansion",
+      "validation_valid": false,
+      "errors_detected": [
+        "Cycle detected in value_ref graph: [('{\"conversation_id\": \"review-conv\", \"kind\": \"note_version\", \"note_id\": \"n1\", \"revision\": 1}', '/source_ref/quote'), ('{\"conversation_id\": \"review-conv\", \"kind\": \"note_version\", \"note_id\": \"n1\", \"revision\": 1}', '/quote')] -> ('{\"conversation_id\": \"review-conv\", \"kind\": \"note_version\", \"note_id\": \"n1\", \"revision\": 1}', '/source_ref/quote')",
+        "Cycle detected in value_ref graph: [('{\"conversation_id\": \"review-conv\", \"kind\": \"note_version\", \"note_id\": \"n1\", \"revision\": 1}', '/quote'), ('{\"conversation_id\": \"review-conv\", \"kind\": \"note_version\", \"note_id\": \"n1\", \"revision\": 1}', '/source_ref/quote')] -> ('{\"conversation_id\": \"review-conv\", \"kind\": \"note_version\", \"note_id\": \"n1\", \"revision\": 1}', '/quote')"
+      ],
+      "verified": true
+    }
+  ]
+}

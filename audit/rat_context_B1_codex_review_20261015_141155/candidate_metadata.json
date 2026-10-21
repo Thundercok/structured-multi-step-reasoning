@@ -1,0 +1,9 @@
+{
+  "baseline_sha256": "cca488dea3fabb814c6187d8980b69fbc5eaf7d8c8cef0552eb0cad4f2b86b1f",
+  "candidate_sha256": "11072c6098635903d0d90c408d49cfc81f10df756eb96f2dd9b21a826bbb07e7",
+  "alias_checks_removed": {
+    "note": 3,
+    "note_event": 3
+  },
+  "applied_to_product": false
+}

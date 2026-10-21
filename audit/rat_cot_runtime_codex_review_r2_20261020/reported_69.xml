@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="3.795" timestamp="2026-10-20T18:42:40.082512+07:00" hostname="thien-than-bong-em.local"><testcase classname="" name="tests.test_harness_regressions" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_harness_regressions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_harness_regressions.py:12: in &lt;module&gt;
+    import qwen_mlx_backend
+qwen_mlx_backend.py:11: in &lt;module&gt;
+    from mlx_lm import load, stream_generate
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/__init__.py:9: in &lt;module&gt;
+    from .convert import convert
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/convert.py:7: in &lt;module&gt;
+    import mlx.core as mx
+E   ImportError: [metal::load_device] No Metal device available. This typically occurs in headless, sandboxed, or virtualized macOS sessions where the GPU is not accessible.</error></testcase></testsuite></testsuites>

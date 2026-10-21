@@ -1,0 +1,212 @@
+{
+  "kind": "authored_application_acceptance_proposal",
+  "date_local": "2026-10-14",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "exposure": "exposed_design_examples_not_held_out",
+  "status": "not_executed_no_measured_quality_labels",
+  "is_research_pipeline_dataset": false,
+  "model_calls": 0,
+  "instructions": "Before live execution, prepare reviewed artificial documents/timetables, exact source revisions and observable expected effects. Bracketed turns are test events, not model prompts. These examples specify required behavior, not answers to inject into the runtime.",
+  "journeys": [
+    {
+      "id": "J01",
+      "group": "document_work",
+      "name": "read_explain_quote",
+      "turns_or_events": [
+        "Tìm phần binary search trong sách DSA, giải thích ngắn và lấy hai trích dẫn.",
+        "Dùng cuốn tiếng Việt kia.",
+        "Bỏ giải thích, chỉ ghi đúng hai trích dẫn."
+      ],
+      "review_assertions": [
+        "Preserve concise/two-quotes constraints when changing the book.",
+        "Resolve the book reference or ask once if truly ambiguous.",
+        "Read the replacement source before attributing content.",
+        "Only requested note effects commit; explanations tied to the old source are marked superseded.",
+        "Historical snapshots remain unchanged; only the active work view refreshes after source change. User-edited notes are preserved and warned about stale sources rather than overwritten."
+      ]
+    },
+    {
+      "id": "J02",
+      "group": "document_work",
+      "name": "ambiguous_reference",
+      "turns_or_events": [
+        "Tìm hai sách về cấu trúc dữ liệu.",
+        "So sánh đoạn đó với cuốn còn lại.",
+        "Tôi nói đoạn định nghĩa trong sách thứ hai."
+      ],
+      "review_assertions": [
+        "Do not silently choose one of multiple plausible passages.",
+        "Use one focused clarification, then retain the selected document/page and original comparison goal.",
+        "Produce one comparison bound to actual source revisions."
+      ]
+    },
+    {
+      "id": "J03",
+      "group": "document_work",
+      "name": "page_scope_and_failure",
+      "turns_or_events": [
+        "Tìm nội dung X trong cuốn PDF dài này.",
+        "Tìm tiếp phần chưa đọc.",
+        "Chỉ giữ các trang đã đọc được."
+      ],
+      "review_assertions": [
+        "Report searched range, continuation and unreadable/textless pages accurately.",
+        "Do not infer absence from unsearched pages or fabricate scanned-page text.",
+        "Retain useful verified-read scope without claiming all pages were read."
+      ]
+    },
+    {
+      "id": "J04",
+      "group": "note_continuity",
+      "name": "targeted_update",
+      "turns_or_events": [
+        "Ghi lại hai kết quả này.",
+        "Sửa kết quả thứ hai theo giá trị vừa tính lại.",
+        "Cho xem bản cũ của ghi chú đó."
+      ],
+      "review_assertions": [
+        "Mutation binds to the intended note and observed revision.",
+        "The first note remains untouched.",
+        "Historic and current values remain distinct, with actual event evidence."
+      ]
+    },
+    {
+      "id": "J05",
+      "group": "note_continuity",
+      "name": "user_edit_authority",
+      "turns_or_events": [
+        "Lưu đoạn trích này.",
+        "Tôi sửa dòng ghi chú đó bằng tay.",
+        "Tóm tắt theo ghi chú đang dùng, giữ phần tôi sửa."
+      ],
+      "review_assertions": [
+        "Treat direct user edits as authoritative for the current note.",
+        "Do not silently refresh user-edited content from old model/source text.",
+        "Distinguish source quotations from user-authored changes."
+      ]
+    },
+    {
+      "id": "J06",
+      "group": "pending_interaction",
+      "name": "side_question_while_waiting",
+      "turns_or_events": [
+        "Lập lá số theo ngày và nơi đã đưa; còn thiếu gì?",
+        "Không biết giờ sinh thì phần nào chưa xác định?",
+        "Dùng chế độ giờ chưa rõ nếu backend hỗ trợ."
+      ],
+      "review_assertions": [
+        "Do not parse a side question as a literal time value.",
+        "Keep supplied date/place and answer the side question before continuing.",
+        "Use only supported backend behavior and state uncertainty; ask only actually missing data."
+      ]
+    },
+    {
+      "id": "J07",
+      "group": "pending_interaction",
+      "name": "direct_action_then_continue",
+      "turns_or_events": [
+        "Tìm sách, đọc trang phù hợp rồi ghi trích dẫn.",
+        "[User selects the book/page using a direct UI control.]",
+        "Tiếp tục phần còn lại."
+      ],
+      "review_assertions": [
+        "Click and language share the same target references and work obligations.",
+        "Direct action records its real receipt and does not require rediscovering the source.",
+        "Continue only outstanding authorized work; never repeat a committed save."
+      ]
+    },
+    {
+      "id": "J08",
+      "group": "lifecycle",
+      "name": "stop_resume",
+      "turns_or_events": [
+        "Đọc hai nguồn rồi ghi lại các đoạn trích.",
+        "[User presses Stop during execution.]",
+        "Chỉ giữ phần đã đọc; chưa ghi chú."
+      ],
+      "review_assertions": [
+        "Respect effects already committed before Stop and report them truthfully.",
+        "Reject unauthorized late writes and future steps from the old execution.",
+        "New request supersedes remaining work without fabricating rollback or backend cancellation."
+      ]
+    },
+    {
+      "id": "J09",
+      "group": "cross_domain",
+      "name": "schedule_and_documents",
+      "turns_or_events": [
+        "Mai học gì? Chọn phần tài liệu để ôn trước buổi đó.",
+        "Ngắn hơn, ưu tiên ví dụ với mảng.",
+        "Giữ cuốn vừa chọn, chỉ đổi phần cần đọc."
+      ],
+      "review_assertions": [
+        "Use actual available timetable data and selected source references.",
+        "Return one study proposal rather than unrelated schedule/search/read cards.",
+        "Keep uncertainty about cancellations and do not claim a new calendar event was created.",
+        "Retain source/course references while updating content constraints."
+      ]
+    },
+    {
+      "id": "J10",
+      "group": "cross_domain",
+      "name": "goal_switch_isolation",
+      "turns_or_events": [
+        "So sánh hai kết quả tính này.",
+        "Thôi, tìm tài liệu khác giúp tôi.",
+        "Quay lại bảng cũ, đừng dùng tài liệu vừa tìm."
+      ],
+      "review_assertions": [
+        "Switch focused work explicitly without leaking unrelated constraints or sources.",
+        "Preserve the historical comparison rather than silently overwriting it.",
+        "Resolve lookback to exact results/revisions."
+      ]
+    },
+    {
+      "id": "J11",
+      "group": "lifecycle",
+      "name": "budget_or_tool_failure",
+      "turns_or_events": [
+        "Tìm, đọc và ghi đoạn trích từ hai nguồn.",
+        "[A tool fails or the execution budget ends.]",
+        "Tiếp tục phần thiếu từ kết quả đã có."
+      ],
+      "review_assertions": [
+        "Report partial completion and pending obligations with known effects.",
+        "Reuse existing valid data and do not repeat successful mutations.",
+        "Count failed/repair calls and unavailable usage honestly in an eventual live evaluation."
+      ]
+    },
+    {
+      "id": "J12",
+      "group": "conversation",
+      "name": "no_unnecessary_tool_use",
+      "turns_or_events": [
+        "Giải thích khái niệm này từ đoạn đã đọc, không cần tìm thêm.",
+        "Tại sao bước đó cần thiết?",
+        "Rút còn hai câu."
+      ],
+      "review_assertions": [
+        "Use the actual established source/example across follow-ups.",
+        "No unnecessary domain tool calls or irrelevant artifact cards.",
+        "Respond to the requested form and length while keeping relevant source attribution."
+      ]
+    }
+  ],
+  "review_dimensions": [
+    "end_to_end_goal_and_constraints",
+    "content_and_source_correctness",
+    "reference_and_revision_correctness",
+    "committed_effects_and_truthful_status",
+    "repeated_input_and_unnecessary_questions",
+    "focused_result_continuity",
+    "failure_and_stop_recovery",
+    "online_latency_all_calls",
+    "reported_prompt_and_completion_tokens_unknown_when_missing"
+  ],
+  "ui_review_assertions": [
+    "Draft/caret, keyboard focus and reading position survive source/goal changes.",
+    "Stable work-block identity is preserved when unaffected content remains visible.",
+    "Compact/full toggles never trigger a model call or operation.",
+    "Intermediate search/full-page blocks can collapse into details without deleting source history."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "method": "read-only static inventory, visualization and non-destructive scope proposal",
+  "source_head": "85a0e2c4864aa4ba4a04d69053300701b9865258",
+  "source_branch": "main",
+  "core": {
+    "files": 26,
+    "nonblank": 9551,
+    "rat_source_files": 0,
+    "test_files": 0
+  },
+  "core_with_tests": {
+    "files": 74,
+    "nonblank": 18300,
+    "rat_source_files": 0,
+    "test_files": 33
+  },
+  "no_model_calls": true,
+  "no_product_code_changes": true,
+  "gate_changed": false,
+  "outputs": {
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/codebase_scope_20261014/inventory.json": "277a465f40c4575f0fc724e6c5384e6352a22600ad9ad4e37fb50da31c00cebc",
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/codebase_scope_20261014/focus_manifest.json": "f43286d28870fa92a703265f5b1a4d99bdd4b66997ba753ca7690d68fecf0f8a",
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/codebase_scope_20261014/report.md": "861bf70680a040445e1a39aef84869b8212cfe16eddd370c55a6fa2dd7728739",
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/codebase_scope_20261014.md": "861bf70680a040445e1a39aef84869b8212cfe16eddd370c55a6fa2dd7728739",
+    "/Users/thundercock2/.codex/visualizations/2026/10/13/01a13471-50ba-7153-986d-fdc73bea9398/codebase-scope.html": "622b8af6fbb9f1bab5ef98fb95da7d00ffb10ec7e859613dcf7280f5500109a8",
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/codebase_scope_20261014/browser_verification.json": "c363a8769ffda9f68740e970f7d6a30ce0eac403b1e5f0cbf2f1a94e5789d6f8"
+  },
+  "visual_validation": {
+    "scopes": [
+      "all",
+      "tests",
+      "core"
+    ],
+    "viewports": [
+      736,
+      360,
+      320
+    ],
+    "dark_theme_inspected": true,
+    "javascript_errors": 0,
+    "horizontal_overflow": false,
+    "core_labels_clipped": false
+  }
+}

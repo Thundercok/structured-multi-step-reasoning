@@ -1,0 +1,18 @@
+{
+  "start_count": 51,
+  "r7_end_count": 51,
+  "start_matches_r7": true,
+  "changed_existing": [
+    "rat/ui/assistant_worker.py"
+  ],
+  "new_paths": [
+    "bundle.py",
+    "rat/engine/meta_reasoner.py",
+    "rat/ui/reasoning_worker.py",
+    "reasoning/bundle.py",
+    "reasoning/runtime.py",
+    "tests/test_native_acceptance_readiness.py",
+    "tests/test_online_reasoning_execution.py",
+    "tests/test_policy_bundle.py"
+  ]
+}

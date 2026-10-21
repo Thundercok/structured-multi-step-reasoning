@@ -7,10 +7,12 @@ from typing import Optional
 
 from rat.crawler.db import Database
 from rat.engine.task_state import TASK_STATE_SCHEMA, validate_task_state
+from rat.kernel.capabilities.applications import create_applications_capability
 from rat.kernel.capabilities.documents import create_documents_capability
 from rat.kernel.capabilities.natal import create_natal_capability
 from rat.kernel.capabilities.result_tables import create_result_tables_capability
 from rat.kernel.capabilities.timetable import create_timetable_capability
+from rat.kernel.capabilities.web import create_web_capability
 from rat.kernel.registry import Capability, CapabilityRegistry, OperationDefinition
 from rat.timetable.compositor import TimetableCompositor
 
@@ -18,15 +20,27 @@ from rat.timetable.compositor import TimetableCompositor
 def build_default_registry(
     db: Optional[Database] = None,
     compositor: Optional[TimetableCompositor] = None,
+    enable_web: bool = False,
 ) -> CapabilityRegistry:
-    """Build and populate a CapabilityRegistry with all core RAT capabilities."""
+    """Build and populate a CapabilityRegistry with all core RAT capabilities.
+
+    NOTE on P1 Network Gate: enable_web defaults to False (fail-closed) because
+    the underlying Spider CLI backend lacks per-hop destination IP and redirect
+    enforcement at the network layer. To prevent SSRF via redirects or DNS rebinding,
+    the web capability is NOT enabled or registered in the default registry.
+    """
     registry = CapabilityRegistry()
 
     # Core capabilities
     registry.register_capability(create_documents_capability(db=db))
+    registry.register_capability(create_applications_capability())
     registry.register_capability(create_timetable_capability(compositor=compositor))
     registry.register_capability(create_natal_capability())
     registry.register_capability(create_result_tables_capability())
+
+    if enable_web:
+        registry.register_capability(create_web_capability(enabled=True))
+
 
     # Utility operations: update_task_state & calculate
     def handle_update_task_state(args, **context):
@@ -81,11 +95,24 @@ def build_default_registry(
         inspect_artifact))
     registry.register_capability(util_cap)
 
-    from rat.kernel.capabilities.views import view_natal_chart, view_schedule, view_document_search, view_document_content, view_file_export, view_book_page_search, view_book_page_content, view_document_file
+    from rat.kernel.capabilities.views import (
+        view_application_launch,
+        view_book_page_content,
+        view_book_page_search,
+        view_document_content,
+        view_document_file,
+        view_document_search,
+        view_file_export,
+        view_natal_chart,
+        view_schedule,
+        view_web_page_snapshot,
+    )
     factories = {"natal_chart": view_natal_chart, "schedule": view_schedule,
                  "document_search": view_document_search, "document_content": view_document_content, "file_export": view_file_export,
                  "book_page_search": view_book_page_search, "book_page_content": view_book_page_content,
-                 "document_file": view_document_file}
+                 "document_file": view_document_file, "web_page_snapshot": view_web_page_snapshot,
+                 "application_launch": view_application_launch}
+
     for op in registry.list_operations():
         op.view_factory = factories.get(op.artifact_kind, op.view_factory)
     return registry

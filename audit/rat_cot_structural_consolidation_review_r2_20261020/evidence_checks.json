@@ -1,0 +1,66 @@
+{
+  "source_files_unchanged": 32,
+  "source_changes_during_review": [],
+  "received_artifacts_unchanged": {
+    "contract_comparison.json": true,
+    "handoff_codex.md": true,
+    "footprint.json": true,
+    "import_map.json": true,
+    "tests.log": true
+  },
+  "test_suites": {
+    "research": {
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 29
+    },
+    "core": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 53
+    },
+    "backend": {
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 24
+    },
+    "runtime": {
+      "tests": 93,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 93
+    },
+    "package_contracts": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 5
+    }
+  },
+  "four_original_suites": {
+    "passed": 199,
+    "skipped": 2
+  },
+  "package_contract_probes": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 5
+  },
+  "baseline_pre_refactor_hashes_verified": 4,
+  "historical_canonical_hashes_reconstructed_and_verified": 4,
+  "historical_body_ast_equivalence_excluding_imports": true,
+  "canonical_source_hash_files": 17,
+  "new_real_model_calls": 0,
+  "production_existing_tests_or_received_artifacts_edited": false,
+  "note": "Historical test log is manual summary, not independently verified raw output; current rerun logs remain separate."
+}

@@ -1,0 +1,404 @@
+{
+  "snapshot": "16/10/2026",
+  "main": {
+    "value": 85561,
+    "files": 359
+  },
+  "foreign": {
+    "value": 33083,
+    "files": 314
+  },
+  "history": {
+    "value": 146932,
+    "files": 403
+  },
+  "all": {
+    "value": 265576,
+    "files": 1076
+  },
+  "nodes": [
+    {
+      "id": "history",
+      "label": "Bằng chứng & snapshots",
+      "paths": "audit/",
+      "note": "Giữ bằng chứng; không coi là mã runtime đang phát triển",
+      "value": 141058,
+      "files": 370,
+      "largest": [
+        {
+          "path": "audit/rat_selected_qa_20261016/final_source/rat/ui/omnibar.py",
+          "value": 3857
+        },
+        {
+          "path": "audit/rat_ui_handoff_review_20261016/source/rat/ui/omnibar.py",
+          "value": 3857
+        },
+        {
+          "path": "audit/rat_latency_20261015/baseline/source/rat/ui/omnibar.py",
+          "value": 3818
+        },
+        {
+          "path": "audit/rat_latency_20261015/baseline_4b/source/rat/ui/omnibar.py",
+          "value": 3818
+        },
+        {
+          "path": "audit/rat_latency_20261015/candidate_1p5/source/rat/ui/omnibar.py",
+          "value": 3818
+        }
+      ]
+    },
+    {
+      "id": "legacy",
+      "label": "Mã cũ cần rà",
+      "paths": "legacy/ · scratch/ · pipeline.py",
+      "note": "Chưa được xóa theo thư mục: pipeline.MockDemoBackend vẫn được harness dùng",
+      "value": 5541,
+      "files": 32,
+      "largest": [
+        {
+          "path": "legacy/V2/crawler.py",
+          "value": 887
+        },
+        {
+          "path": "legacy/V1/emhuy/crawler.py",
+          "value": 467
+        },
+        {
+          "path": "legacy/V2/crawler/app.py",
+          "value": 357
+        },
+        {
+          "path": "scratch/approved-fragment-stripped.html",
+          "value": 333
+        },
+        {
+          "path": "qwen_backend.py",
+          "value": 290
+        }
+      ]
+    },
+    {
+      "id": "design",
+      "label": "Bản thiết kế",
+      "paths": "docs/design/",
+      "note": "Tài liệu thiết kế, ngoài mẫu số mã sản phẩm",
+      "value": 333,
+      "files": 1,
+      "largest": [
+        {
+          "path": "docs/design/rat_workbench_20261015/approved-fragment.html",
+          "value": 333
+        }
+      ]
+    },
+    {
+      "id": "capabilities",
+      "label": "Công cụ & đọc nguồn",
+      "paths": "rat/kernel/ · rat/crawler/ · document_intake/",
+      "note": "Hạ tầng cho cùng hệ thống",
+      "value": 5314,
+      "files": 28,
+      "largest": [
+        {
+          "path": "rat/crawler/db.py",
+          "value": 737
+        },
+        {
+          "path": "rat/crawler/spider_adapter.py",
+          "value": 664
+        },
+        {
+          "path": "rat/kernel/contracts.py",
+          "value": 288
+        },
+        {
+          "path": "rat/kernel/capabilities/natal.py",
+          "value": 284
+        },
+        {
+          "path": "rat/kernel/capabilities/documents.py",
+          "value": 283
+        }
+      ]
+    },
+    {
+      "id": "reasoning",
+      "label": "Suy luận & điều phối",
+      "paths": "rat/engine/ · entry_predictor · optimal_stopping",
+      "note": "CoT được triển khai và sử dụng qua RAT",
+      "value": 13810,
+      "files": 57,
+      "largest": [
+        {
+          "path": "rat/engine/assistant_runtime.py",
+          "value": 1338
+        },
+        {
+          "path": "rat/engine/context_snapshot.py",
+          "value": 1305
+        },
+        {
+          "path": "rat/engine/completion.py",
+          "value": 1031
+        },
+        {
+          "path": "rat/engine/work_notes.py",
+          "value": 845
+        },
+        {
+          "path": "rat/engine/reranker.py",
+          "value": 508
+        }
+      ]
+    },
+    {
+      "id": "evaluation",
+      "label": "Chạy & đánh giá",
+      "paths": "experiments/ · scripts/",
+      "note": "Đo và hỗ trợ cùng phương pháp; không phải dự án CoT tách riêng",
+      "value": 21786,
+      "files": 87,
+      "largest": [
+        {
+          "path": "experiments/cot_restart_pilot.py",
+          "value": 1536
+        },
+        {
+          "path": "scripts/agreement.py",
+          "value": 731
+        },
+        {
+          "path": "scripts/run_dsa_core_smoke.py",
+          "value": 720
+        },
+        {
+          "path": "experiments/benchmark_reasoning.py",
+          "value": 678
+        },
+        {
+          "path": "experiments/direct_cot_analysis.py",
+          "value": 668
+        }
+      ]
+    },
+    {
+      "id": "surface",
+      "label": "Tương tác RAT",
+      "paths": "rat/ui/ · rat/os/ · main/CLI",
+      "note": "Giữ trong hệ RAT–CoT",
+      "value": 22226,
+      "files": 45,
+      "largest": [
+        {
+          "path": "rat/ui/omnibar.py",
+          "value": 4290
+        },
+        {
+          "path": "rat/ui/workbench_scene.py",
+          "value": 2957
+        },
+        {
+          "path": "rat/ui/schedule_window.py",
+          "value": 1536
+        },
+        {
+          "path": "rat/ui/workbench.py",
+          "value": 1240
+        },
+        {
+          "path": "rat/ui/claude_widget.py",
+          "value": 984
+        }
+      ]
+    },
+    {
+      "id": "docai",
+      "label": "DocAI",
+      "paths": "modules/docai/",
+      "note": "Độc lập, backlog; PDF/OCR dùng chung đã lấy ra",
+      "value": 5195,
+      "files": 53,
+      "largest": [
+        {
+          "path": "modules/docai/compatibility/app_streamlit.py",
+          "value": 328
+        },
+        {
+          "path": "modules/docai/nesy_docai/pipeline.py",
+          "value": 315
+        },
+        {
+          "path": "modules/docai/nesy_docai/lattice/generator.py",
+          "value": 286
+        },
+        {
+          "path": "modules/docai/nesy_docai/misa_vat_exporter.py",
+          "value": 218
+        },
+        {
+          "path": "modules/docai/nesy_docai/intake/xml_reader.py",
+          "value": 216
+        }
+      ]
+    },
+    {
+      "id": "evrp",
+      "label": "EVRP / SaigonRide",
+      "paths": "modules/evrp/",
+      "note": "Dự án khác: ứng viên tách tiếp",
+      "value": 26903,
+      "files": 247,
+      "largest": [
+        {
+          "path": "modules/evrp/create_notebook.py",
+          "value": 1032
+        },
+        {
+          "path": "modules/evrp/scripts/run_benchmark.py",
+          "value": 864
+        },
+        {
+          "path": "modules/evrp/SaigonRide_SourceCode/Sprint4/SaigonRide.App/Migrations/20260513053647_AddTotpToUser.Designer.cs",
+          "value": 517
+        },
+        {
+          "path": "modules/evrp/SaigonRide_SourceCode/Sprint4/SaigonRide.App/Migrations/20260513105004_AddTotpToApplicationUser.Designer.cs",
+          "value": 517
+        },
+        {
+          "path": "modules/evrp/Sprint4/SaigonRide.App/Migrations/20260513053647_AddTotpToUser.Designer.cs",
+          "value": 517
+        }
+      ]
+    },
+    {
+      "id": "extensions",
+      "label": "Tiện ích trong RAT",
+      "paths": "rat/timetable/ · rat/astrology/",
+      "note": "Phần mở rộng trong ứng dụng; cân nhắc theo nhu cầu",
+      "value": 1737,
+      "files": 10,
+      "largest": [
+        {
+          "path": "rat/timetable/compositor.py",
+          "value": 697
+        },
+        {
+          "path": "rat/astrology/chart.py",
+          "value": 305
+        },
+        {
+          "path": "rat/timetable/data.py",
+          "value": 221
+        },
+        {
+          "path": "rat/timetable/model.py",
+          "value": 212
+        },
+        {
+          "path": "rat/astrology/svg.py",
+          "value": 139
+        }
+      ]
+    },
+    {
+      "id": "watchbot",
+      "label": "Watch bot",
+      "paths": "rep_watch_bot/",
+      "note": "Dự án riêng: ứng viên tách",
+      "value": 985,
+      "files": 14,
+      "largest": [
+        {
+          "path": "rep_watch_bot/slang_dictionary.py",
+          "value": 165
+        },
+        {
+          "path": "rep_watch_bot/main.py",
+          "value": 138
+        },
+        {
+          "path": "rep_watch_bot/storage.py",
+          "value": 123
+        },
+        {
+          "path": "rep_watch_bot/scrapers/facebook_scraper.py",
+          "value": 83
+        },
+        {
+          "path": "rep_watch_bot/scrapers/webrep_scraper.py",
+          "value": 82
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "label": "Thiết lập",
+      "paths": "setup.sh",
+      "note": "Giữ",
+      "value": 4,
+      "files": 1,
+      "largest": [
+        {
+          "path": "setup.sh",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "label": "Tests hệ thống",
+      "paths": "tests/ · test_*.py",
+      "note": "Kiểm chứng hành vi; không phải mã dư",
+      "value": 20684,
+      "files": 131,
+      "largest": [
+        {
+          "path": "tests/test_workbench_scene.py",
+          "value": 1120
+        },
+        {
+          "path": "tests/test_rat_context_snapshot.py",
+          "value": 1091
+        },
+        {
+          "path": "tests/test_omnibar.py",
+          "value": 693
+        },
+        {
+          "path": "tests/test_spider_adapter.py",
+          "value": 602
+        },
+        {
+          "path": "tests/test_rat_completion_reconciliation.py",
+          "value": 547
+        }
+      ]
+    }
+  ],
+  "mainids": [
+    "surface",
+    "reasoning",
+    "capabilities",
+    "evaluation",
+    "tests",
+    "extensions",
+    "setup"
+  ],
+  "foreignids": [
+    "evrp",
+    "docai",
+    "watchbot"
+  ],
+  "historyids": [
+    "history",
+    "legacy",
+    "design"
+  ],
+  "spider_removed": 123868,
+  "spider_files": 269,
+  "old_baseline_source": 256516,
+  "build_cache_bytes": 2008327880,
+  "binary_bytes": 20675200,
+  "duplicate_evrp": 10974
+}

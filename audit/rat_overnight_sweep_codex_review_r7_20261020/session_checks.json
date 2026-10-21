@@ -1,0 +1,92 @@
+[
+  {
+    "case": "fake_session",
+    "exit_code": 0,
+    "seed": null,
+    "guard_halt": false,
+    "ledger_unchanged": null,
+    "calls_ledger_sha256": "6273f2469e48b549fcfe09fff013d264cad31ff41655e6f54455c24cf3a76fea",
+    "scope": "offline_fake_backend_completed_1_calls",
+    "real_calls": 0,
+    "fake_calls": 1,
+    "warm": null,
+    "historical": {
+      "completed_records": 1,
+      "real_records": 0,
+      "fake_records": 1,
+      "unknown_records": 0
+    }
+  },
+  {
+    "case": "locked_ledger_replay",
+    "exit_code": 0,
+    "seed": "audit/rat_overnight_sweep_codex_review_r7_20261020/received_artifacts/calls.jsonl",
+    "guard_halt": true,
+    "ledger_unchanged": true,
+    "calls_ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "scope": "budget_halt_existing_real_history",
+    "real_calls": 0,
+    "fake_calls": 0,
+    "warm": null,
+    "historical": {
+      "completed_records": 12,
+      "real_records": 12,
+      "fake_records": 0,
+      "unknown_records": 0
+    }
+  },
+  {
+    "case": "fake_history_halt",
+    "exit_code": 0,
+    "seed": "audit/rat_overnight_sweep_codex_review_r7_20261020/fake_session/calls.jsonl",
+    "guard_halt": true,
+    "ledger_unchanged": true,
+    "calls_ledger_sha256": "6273f2469e48b549fcfe09fff013d264cad31ff41655e6f54455c24cf3a76fea",
+    "scope": "budget_halt_existing_fake_history",
+    "real_calls": 0,
+    "fake_calls": 0,
+    "warm": null,
+    "historical": {
+      "completed_records": 1,
+      "real_records": 0,
+      "fake_records": 1,
+      "unknown_records": 0
+    }
+  },
+  {
+    "case": "legacy_fake_history_halt",
+    "exit_code": 0,
+    "seed": "audit/rat_overnight_sweep_codex_review_r7_20261020/legacy_fake_calls.jsonl",
+    "guard_halt": true,
+    "ledger_unchanged": true,
+    "calls_ledger_sha256": "8a58964531bf0e1d8cce2149e5d40b8a98a085316772ff708aeecfb67a07353a",
+    "scope": "budget_halt_existing_unknown_history",
+    "real_calls": 0,
+    "fake_calls": 0,
+    "warm": null,
+    "historical": {
+      "completed_records": 1,
+      "real_records": 0,
+      "fake_records": 0,
+      "unknown_records": 1
+    }
+  },
+  {
+    "case": "same_document_legacy_fake",
+    "exit_code": 0,
+    "seed": "audit/rat_overnight_sweep_codex_review_r6_20261020/same_document_legacy_fake/calls.jsonl",
+    "guard_halt": true,
+    "ledger_unchanged": true,
+    "calls_ledger_sha256": "ae611360a32a7081a5829907b13feed407941d03420334f1dee3a5e8805a92f8",
+    "scope": "budget_halt_existing_unknown_history",
+    "real_calls": 0,
+    "fake_calls": 0,
+    "warm": null,
+    "historical": {
+      "completed_records": 1,
+      "real_records": 0,
+      "fake_records": 0,
+      "unknown_records": 1
+    }
+  }
+]

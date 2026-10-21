@@ -1,0 +1,2 @@
+{"elapsed_seconds": 5.916121457936242, "accessibility": {"trusted": false, "state": "not_granted", "prompt_requested": false, "error": null}, "hotkey_status": "waiting_permission", "hotkey_error": null, "window_visible": true}
+{"elapsed_seconds": 32.045620708027855, "accessibility": {"trusted": false, "state": "not_granted", "prompt_requested": false, "error": null}, "hotkey_status": "stopped", "hotkey_error": null, "window_visible": false}

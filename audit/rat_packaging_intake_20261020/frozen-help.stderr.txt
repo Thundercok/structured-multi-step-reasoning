@@ -1,0 +1,2 @@
+2026-10-20 14:09:43.767 rat[68841:49456818] Error received in message reply handler: Connection invalid
+2026-10-20 14:09:43.767 rat[68841:49457576] Connection Invalid error for service com.apple.hiservices-xpcservice.

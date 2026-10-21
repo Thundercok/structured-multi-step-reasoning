@@ -1,0 +1,18 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "audit/rat_flow_optimization_20261021/native_flow.py"
+  ],
+  "cwd": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "exit_code": 0,
+  "started_unix": 1792556079.0630112,
+  "elapsed_seconds": 164.19804692268372,
+  "environment_overrides": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "PYINSTALLER_CONFIG_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_flow_optimization_20261021/pyinstaller-cache",
+    "PIP_NO_INDEX": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "QT_QPA_PLATFORM": "cocoa"
+  }
+}

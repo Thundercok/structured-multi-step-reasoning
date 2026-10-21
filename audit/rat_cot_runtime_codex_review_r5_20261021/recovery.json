@@ -1,0 +1,37 @@
+{
+  "outputs": {
+    "error_message_dispatch_cases.json": {
+      "original_sha256": "35426e175d82e30e973c29a22c9e8199f6f698858c609ecbf3950c2411dc47ee",
+      "recovered_copy_sha256": "35426e175d82e30e973c29a22c9e8199f6f698858c609ecbf3950c2411dc47ee",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r4_counterexamples/error_message_dispatch_cases.json"
+    },
+    "prior_probe_outputs/rat_cot_runtime_codex_review_r2_20261020/qwen_failure_case.json": {
+      "original_sha256": "0951cb6207008e6e6e7faf374b85d4027094ba0674f5c68f492a3bf4be54b128",
+      "recovered_copy_sha256": "0951cb6207008e6e6e7faf374b85d4027094ba0674f5c68f492a3bf4be54b128",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r4_counterexamples/prior_probe_outputs/rat_cot_runtime_codex_review_r2_20261020/qwen_failure_case.json"
+    }
+  },
+  "original_r4_failure_reproduced": true,
+  "source_inputs": {
+    "audit/rat_cot_runtime_codex_review_r4_20261021/reviewed_source/reasoning/runtime.py": "4749da409ffb5ff0a75f2d6c91f213589cb6d016855a0e4d45906a41b658199f",
+    "audit/rat_cot_runtime_codex_review_r4_20261021/reviewed_source/reasoning/bundle.py": "317d2f8b50c816f02b3546824292e3e3592ea1c8964cc05c5512ff85f1a500cf",
+    "audit/rat_cot_runtime_codex_review_r4_20261021/reviewed_source/qwen_mlx_backend.py": "7120e6472126202dab0f15217db5e03b600779b6ce27a4f80569d869b484c7f8",
+    "audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py": "b1698f3fd1babf6b898ca8daa3b775705d5511c080773a62597d6d628679d86c",
+    "audit/rat_cot_runtime_codex_review_r4_20261021/received_prior_drift/rat_cot_runtime_codex_review_r2_20261020/qwen_failure_case.json": "0951cb6207008e6e6e7faf374b85d4027094ba0674f5c68f492a3bf4be54b128"
+  },
+  "baseline_xml": {
+    "original_entry": {
+      "sha256": "5ddaf8a3417ff6016367e0988b59bae0a5cbf08e2f37393fe222323b6eef6cdb",
+      "bytes": 59546
+    },
+    "received_sha256": "548a8a33352b56f41aa85d06b5e7c17a6818aa637e33f9fde317bbae295125bb",
+    "backup_search_scope": "Existing XML files visible to rg --hidden --no-ignore under audit, filtered by original byte size.",
+    "same_size_candidates": [],
+    "byte_identical_backups": [],
+    "reconstructed": false
+  },
+  "old_files_modified": false,
+  "real_model_calls": 0
+}

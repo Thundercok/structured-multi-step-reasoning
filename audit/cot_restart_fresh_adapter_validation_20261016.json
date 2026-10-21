@@ -1,0 +1,49 @@
+{
+  "status": "pass",
+  "evidence": "synthetic_software_validation",
+  "date_local": "2026-10-16",
+  "command": "python3.12 -m pytest tests/test_cot_restart_fresh.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_cot_restart_matched.py -q",
+  "passed": 46,
+  "fresh_acceptance_cases": 12,
+  "required_regressions": 29,
+  "historical_matched_tests": 5,
+  "source_sha256": {
+    "experiments/cot_restart_fresh.py": "8283486bd569c95bf8a12e7be8e79ce9e479a52692047bf0dab974eb88918186",
+    "scripts/smoke_cot_restart_fresh.py": "8791801a15781e843204533317acf5a40287ce78769c4ef4e47a71b3fba27c08",
+    "tests/test_cot_restart_fresh.py": "6a7ba3bcf4749690cbd0e70542c8e82093d0d4c44d203b8fa805417c789854b3",
+    "docs/cot_restart_fresh_adapter_20261016.md": "5f179ff249e3fa949473de762369aa21e737c60b046b119fd7ca3b5e68112f54"
+  },
+  "smoke": {
+    "directory": "audit/cot_restart_fresh_adapter_smoke_20261016",
+    "completed_mock_calls": 12,
+    "original_groups": 3,
+    "real_model_calls": 0,
+    "synthetic_collection_tokens": 1405,
+    "all_manifest_artifact_hashes_verified": true
+  },
+  "pending_candidate_frame": {
+    "items": 71,
+    "unique_representatives": 70,
+    "matches_review_packet": true,
+    "candidate_generation_calls": 0,
+    "semantic_gold_review_performed": false
+  },
+  "historical_plans": [
+    {
+      "directory": "audit/cot_restart_matched_plan_20261013",
+      "plan_sha256": "9816139847b89f26508e3858430afd9fa806a4ff426e09cd2709b5fcd4117157",
+      "frozen_sources_unchanged": true,
+      "existing_read_plan_verified": true
+    },
+    {
+      "directory": "audit/cot_restart_replication_plan_20261013",
+      "plan_sha256": "132f850d304de9e7026a5cc42ac65691ac3249e3d4eb4315f9c1a28436925bd6",
+      "frozen_sources_unchanged": true,
+      "existing_read_plan_verified": true
+    }
+  ],
+  "real_model_calls": 0,
+  "confirmatory": false,
+  "stage_0_changed": false,
+  "real_entry_point_integration": "pending separate reviewed campaign freeze; existing entry point unchanged"
+}

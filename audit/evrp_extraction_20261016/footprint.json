@@ -1,0 +1,70 @@
+{
+  "module_path": "modules/evrp",
+  "status": "STAGED_READY_FOR_EXTRACTION",
+  "total_regular_files": 448,
+  "total_bytes": 41379543,
+  "git_tracked_files": 447,
+  "untracked_files": 1,
+  "untracked_files_details": [
+    {
+      "path": "modules/evrp/scripts/__pycache__/run_benchmark.cpython-312.pyc",
+      "bytes": 64459
+    }
+  ],
+  "source_lines_accounting": {
+    "all_text_files": {
+      "total_lines": 214349,
+      "non_empty_lines": 191214
+    },
+    "csharp_files": {
+      "count": 160,
+      "bytes": 835671,
+      "non_empty_lines": 17794
+    },
+    "razor_cshtml_files": {
+      "count": 62,
+      "bytes": 245857,
+      "non_empty_lines": 4765
+    },
+    "scanner_visible_source": {
+      "files": 247,
+      "non_empty_lines": 26903,
+      "exact_duplicate_lines": 10974,
+      "note": "Per docs/evrp_reuse_audit_20261016.md baseline"
+    }
+  },
+  "provenance_local_extras": {
+    "count": 7,
+    "verified_exact_match": true
+  },
+  "preservation_artifacts": {
+    "pristine_staging": {
+      "path": "work/evrp-extraction-20261016/pristine",
+      "files": 448,
+      "bytes": 41379543
+    },
+    "recovery_archive": {
+      "path": "scratch/evrp_migration_bundle.tar.gz",
+      "bytes": 21619585,
+      "sha256": "dd043b68c7f6cfef14503da0efc2962be2b4954e8c63864fc794a2e6a444fe37"
+    },
+    "git_history_bundle": {
+      "path": ".migration-backups/20261013_evrp/evrp-optimizer.bundle",
+      "bytes": 69593951,
+      "commits": 104,
+      "head": "2c8fa69f8f3cfeae475792159ff0ebcf20529044"
+    }
+  },
+  "reduction_accounting": {
+    "current_claimed_loc_reduction": 0,
+    "current_claimed_file_reduction": 0,
+    "current_claimed_bytes_reduction": 0,
+    "note": "Ch\u01b0a c\u00f3 m\u1ee9c gi\u1ea3m th\u1ef1c t\u1ebf n\u00e0o tr\u00ean \u0111\u0129a hay m\u00e3 ngu\u1ed3n v\u00ec module v\u1eabn c\u00f2n nguy\u00ean t\u1ea1i modules/evrp v\u00e0 staging/archive n\u1eb1m trong work/ v\u00e0 scratch/.",
+    "projected_reduction_on_deletion": {
+      "regular_files": 448,
+      "total_bytes": 41379543,
+      "total_non_empty_lines": 191214,
+      "scanner_visible_non_empty_lines": 26903
+    }
+  }
+}

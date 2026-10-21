@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-10-16T14:05:00+07:00",
+  "branch": "main",
+  "round": 2,
+  "hashes": {
+    "rat/crawler/spider_adapter.py": "197545e6114e2e18d2ed319bd2ddde8d4edf7e131a6669f8ff53379e9026dec5",
+    "rat/kernel/capabilities/web.py": "2bd8e8e16b597b4bfda83a4b1ea269f0c7da77e83f19228136ecc66cfd87f501",
+    "rat/kernel/capabilities/__init__.py": "1027b5a69ce199f4bbcd34f41c76e498d82b4f93fae3540fb72d3d98f257be7e",
+    "rat/kernel/registry.py": "f9b2788c7026a43d8c8c1c884ada28d8de3690a43f0ddc736b1035f32fc1bfd2",
+    "tests/test_spider_adapter.py": "f1a992f9b56b4c5088ea5fe07697cb3e20197ce21237a268a23243dc92b44f50",
+    "audit/spider_rat_adapter_codex_repair_round2_20261016/probe_round2.py": "aeede79309b08f3ecc17f69dd4bb937e2633a02c75fdfbd7539bef3531c59c42",
+    "audit/spider_rat_adapter_codex_repair_round2_20261016/probe_results.json": "f76be8af335ee8679ba4c97a0e11614eda017b62ded095ee9c4500678f09834f",
+    "audit/spider_rat_adapter_codex_repair_round2_20261016/footprint.json": "a8d1f889e2da68767621a3f1c02e4fbbcde86b7c37cca88a37061c56c2575ff1",
+    "audit/spider_rat_adapter_codex_repair_round2_20261016/review_reconciliation.md": "e07f757758ecd22ca3eef3a57a658748ff866619d136b1216e5d64be8da91dbd"
+  }
+}

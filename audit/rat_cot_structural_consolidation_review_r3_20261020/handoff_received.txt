@@ -1,0 +1,88 @@
+Analyzed footprint.json:L1-100
+Analyzed footprint.json:L101-124
+Analyzed rat_cot_structural_consolidation_20261017.md:L120-150
+Analyzed handoff_codex.md:L60-108
+Analyzed tests.log:L1-18
+Analyzed rat_cot_structural_consolidation_20261017.md:L110-162
+Analyzed import_map.json:L1-60
+Ran search for old footprint numbers
+Checked task Search for old footprint numbers
+Ran search footprint in handoff_codex.md
+Ran search lines in handoff_codex.md
+Analyzed message_to_antigravity.md:L1-34
+Edited rat_cot_structural_consolidation_20261017.md
+Analyzed inventory_and_footprint.json:L1-60
+Analyzed inventory_and_footprint.json:L60-94
+Analyzed current_import_scan.json:L1-60
+Ran run test_package_contracts.py
+Checked task Run test_package_contracts.py
+Analyzed research_study.py:L340-365
+Analyzed test_package_contracts.py:L1-78
+Ran generate consolidation repair artifacts
+Ran list repair r2 directory
+Created handoff.md
+Ran check git status of modified files
+
+Đợt follow-up đính chính hồ sơ sau independent review r2 của **RAT–CoT Structural Consolidation** (`audit/rat_cot_structural_consolidation_review_r2_20261020/review.md`) đã được xử lý và ghi nhận đầy đủ trong thư mục [audit/rat_cot_structural_consolidation_repair_r2_20261020/](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_structural_consolidation_repair_r2_20261020/) và living document [docs/rat_cot_structural_consolidation_20261017.md](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/rat_cot_structural_consolidation_20261017.md).
+
+---
+
+### 1. Đính chính S1 — Minh bạch bản chất `tests.log` & Dẫn chiếu Raw Evidence
+
+- **Bản chất file lịch sử**: File `audit/rat_cot_structural_consolidation_20261017/tests.log` được ghi nhận chính thức là **manual summary transcript** (bản tóm tắt thủ công) ghi lại kết quả pass quan sát được trong phiên làm việc ngày 17/10, không phải là raw log pytest đầy đủ có stdout/stderr, exit codes và JUnit XML.
+- **Dẫn chiếu Raw Evidence ngày 20/10**: Toàn bộ kết quả kiểm thử độc lập với câu lệnh, môi trường, exit codes và file JUnit XML thực tế được dẫn chiếu trực tiếp tới `audit/rat_cot_structural_consolidation_review_r2_20261020/`:
+  - **Research Study (29 passed)**: `research.txt` / `research.xml` (exit code 0).
+  - **Core Reasoning Suite (53 passed)**: `core.txt` / `core.xml` (exit code 0).
+  - **Qwen MLX Backend (24 passed, 2 skipped)**: `backend.txt` / `backend.xml` (exit code 0; 2 skip do yêu cầu native Apple Silicon bfloat16).
+  - **RAT Runtime & Work Context (93 passed)**: `runtime.txt` / `runtime.xml` (exit code 0).
+  - **Package Contracts Probes (5 passed)**: `package_contracts.txt` / `package_contracts.xml` (exit code 0, kiểm tra module identity, private helper patching, legacy pickle và lightweight import isolation).
+- Chi tiết đối chiếu được lưu tại `audit/rat_cot_structural_consolidation_repair_r2_20261020/test_evidence_reconciliation.json`.
+
+---
+
+### 2. Đính chính S2 — Thống nhất Footprint Snapshot 17/10 & Phân định Delta hiện tại
+
+Đã cập nhật mục 5 trong `docs/rat_cot_structural_consolidation_20261017.md` để khớp hoàn toàn với snapshot lịch sử đã được reviewer xác minh độc lập trong `footprint.json`:
+
+| Chỉ số | Baseline trước hợp nhất | Snapshot 17/10 (`footprint.json`) | Checkout 20/10 hiện tại | Chênh lệch sau consolidation (Bản sửa sau này) |
+|---|---:|---:|---:|---:|
+| **Canonical Bytes** | 43,152 | **43,870** | 45,513 | +1,643 bytes |
+| **Canonical Non-blank Lines** | 885 | **905** | 931 | +26 dòng |
+| **Canonical Total Lines** | 1,035 | **1,056** | 1,087 | +31 dòng |
+| **Root Shims Bytes** | 0 | **1,832** | 1,832 | 0 |
+| **Root Shims Total Lines** | 0 | **52** (40 non-blank) | 52 (40 non-blank) | 0 |
+| **Tác động thuần (Net Bytes)** | — | **+2,550 bytes** | **+4,193 bytes** | +1,643 bytes |
+| **Tác động thuần (Net Non-blank)** | — | **+60 dòng** | **+86 dòng** | +26 dòng |
+| **Tác động thuần (Net Total Lines)**| — | **+73 dòng** | **+104 dòng** | +31 dòng |
+
+- **Phân định rõ ràng**:
+  - Delta riêng của việc di chuyển package ngày 17/10 là **+73 dòng tổng, +60 dòng non-blank, +2,550 bytes** (đã sửa các số cũ bị lệch 43,647 / 891 / 1,772 / +2,267 / +46).
+  - Delta hiện tại ngày 20/10 là **+104 dòng tổng, +86 dòng non-blank, +4,193 bytes** so với baseline. Phần chênh lệch +31 dòng này xuất phát từ các bản sửa lỗi sau đó về logic parser (`reasoning/reasoning_strategies.py`) và shape handling (`reasoning/optimal_stopping.py`).
+  - **Giữ nguyên mã nguồn production hiện tại**, không khôi phục snapshot cũ lên production để giả mạo số đo.
+
+---
+
+### 3. Ghi chú P3 — Bản đồ Import hai đường dẫn (Dual-path Specification)
+
+Đã tạo file `audit/rat_cot_structural_consolidation_repair_r2_20261020/import_map.json`, trong đó:
+- Ghi nhận tách biệt rõ ràng hai vai trò của từng module:
+  - `canonical_implementation_file`: `reasoning/<module>.py`
+  - `root_compatibility_entry`: `<module>.py`
+- Bảng symbols AST (classes, methods, functions, constants) được trích xuất trực tiếp từ mã nguồn canonical.
+- **Phân định số đếm consumers theo mốc thời gian**:
+  - Số đếm lịch sử 17/10 (trên 782 files / 365 Python files): `entry_predictor`: 6, `optimal_stopping`: 7, `reasoning_env`: 19, `reasoning_strategies`: 29.
+  - Số đếm hiện tại 20/10 (trên 794 files / 372 Python files): `entry_predictor`: 8, `optimal_stopping`: 9, `reasoning_env`: 21, `reasoning_strategies`: 29 (kèm danh sách chi tiết từng file và dòng tham chiếu).
+
+---
+
+### 4. Danh mục hồ sơ bàn giao đợt r2
+
+Toàn bộ tài liệu và chứng cứ được tổng hợp tại thư mục [audit/rat_cot_structural_consolidation_repair_r2_20261020/](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_structural_consolidation_repair_r2_20261020/):
+1. `import_map.json`: Metadata map phân định canonical path vs root shim và số đếm consumers theo mốc thời gian.
+2. `footprint.json`: Bảng đối chiếu footprint snapshot 17/10 (+73 dòng) và checkout 20/10 (+104 dòng).
+3. `test_evidence_reconciliation.json`: Liên kết đối chiếu giữa manual summary 17/10 và raw evidence độc lập 20/10.
+4. `source_hashes.json`: SHA256 của 17 file theo `study.source_hashes()`.
+5. `handoff.md`: Báo cáo chi tiết gửi reviewer độc lập.
+6. Living doc [docs/rat_cot_structural_consolidation_20261017.md](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/rat_cot_structural_consolidation_20261017.md) (đã cập nhật mục 5 & 6).
+
+*Tuân thủ kỷ luật*: Nhánh `main`, 0 commit, 0 push, 0 branch, 0 reset, 0 real model calls, giữ nguyên Stage 0 và mọi recovery archive.

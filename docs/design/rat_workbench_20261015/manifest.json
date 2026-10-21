@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-15",
+  "scope": "user-approved compact separated Workbench with prominent RAT; prototype only",
+  "native_implementation_status": "not_implemented",
+  "reference_viewport_px": 800,
+  "visible_group_css_px": {
+    "width": 520,
+    "height": 335.0625
+  },
+  "artwork_width_css_px": {
+    "compact_desktop": 104,
+    "compact_narrow": 80
+  },
+  "data": "synthetic UI examples; no personal file content or live-model evidence",
+  "head_at_handoff": "11c748a7a60c3da72e24f2e4cbb2233e5aa6a2b5",
+  "branch_at_handoff": "main",
+  "reference_sha256": {
+    "approved-fragment.html": "2cd65ca9e662c40d90836e9f4dd6335dad37be53b4f4b146ff7f2889fb68709e",
+    "approved-desktop.png": "628a4c2b2bce3e8e39058f978cfb804fd9a2ac9a05a1cd86ee895df0da0474a9",
+    "reference-narrow.png": "4e0c5962f7a7aea21132d5e3a03b55eb26ac8469f981fc739d9e32f3d2ae2501",
+    "reference-expanded.png": "ac12d8ba0c7bca450a5cb17af6f204a0ab816691b7dfc56638b555bb1418df97",
+    "reference-dark.png": "ee92d519d8f63fb599c657024089ef9f450a1ac120f17e2abf97f47d5e82c02b",
+    "browser-validation.json": "a989d05ec5a18ff2a2ba1e72d4bf140269d4859723bf56105eca109a816d1ad6"
+  },
+  "ui_source_sha256_at_handoff": {
+    "rat/ui/omnibar.py": "92ed2e299cff7d5a864f3d57734e1c2ff815fa94c243c958cf833f77a9b5c5e7",
+    "rat/ui/surface_layout.py": "514362d7766a97a88262825ccf3ccf84db5d478264c378b0086a9496184ec7cb",
+    "rat/ui/live_companion.py": "bcc18fe718935bf2e5dcb0fa45d2fa34d943ed4bd1f4461ef3eeaf927a8b8f13",
+    "rat/ui/assistant_presenter.py": "cd784f900650a82b339a501a7784d15573f67c496d7ee151a1235c4707b1826d",
+    "rat/ui/chat_stream.py": "123d1dd776fbf31f0d5f9f8c26a26beff15322f848d806c1dd945255de255428",
+    "rat/ui/chat_session.py": "c36954c4f54e78a38607670d334871bd086a5f4bdd07057f9ba698d871d09fc4"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "model_load_time_s": {
+    "original": 27.542,
+    "restored": 27.542,
+    "matches": true
+  },
+  "current_rss_mb": {
+    "original": 104.09,
+    "restored": 104.09,
+    "matches": true
+  },
+  "peak_rss_mb": {
+    "original": 876.31,
+    "restored": 876.31,
+    "matches": true
+  },
+  "idle_cpu_percent": {
+    "original": 57.8,
+    "restored": 57.8,
+    "matches": true
+  },
+  "font_alias_population_cost_ms": {
+    "original": 203.0,
+    "restored": 203.0,
+    "matches": true
+  }
+}

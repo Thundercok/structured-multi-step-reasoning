@@ -1,0 +1,77 @@
+{
+  "method": "Copy two already verified r2 originals; replay six scripted r3 counterexamples with hash-pinned historical source snapshots and native imports removed.",
+  "source_inputs": {
+    "audit/rat_cot_runtime_codex_review_r3_20261020/reviewed_source/reasoning/runtime.py": "9dd7edadf10452112ea6024fb8cad85e807d94f9c64bd7ab750ebb7b16d6c2b1",
+    "audit/rat_cot_runtime_codex_review_r3_20261020/reviewed_source/reasoning/bundle.py": "bf3f5419f3424a8735c630d58633d99d754dea4726c171a7cf7e604bdd59bfe3",
+    "audit/rat_cot_runtime_codex_review_r3_20261020/reviewed_source/qwen_mlx_backend.py": "ccea5747c18c69f0e1934741118ca91195abecb2ce1ef480a92c7439a2578fd4",
+    "audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py": "8558d63ad6d1f090a7f141f16f0254a09580ec2ecc29664a098c62cc56ef7bbb"
+  },
+  "original_assertion_outcomes": {
+    "caller-unsupported": "original assertion failure reproduced",
+    "caller-ceiling": "original assertion failure reproduced",
+    "decode-error": "original assertion failure reproduced",
+    "cancel-tokens": "original assertion failure reproduced",
+    "cancel-outcome": "original assertion failure reproduced",
+    "between-sc": "original assertion failure reproduced"
+  },
+  "outputs": {
+    "rat_cot_runtime_codex_review_r2_20261020/qwen_failure_case.json": {
+      "expected_original_sha256": "69553525c809e9e1cc2788be0b8ad8fd4df55126879a071bbf718f6f31a6b806",
+      "recovered_copy_sha256": "69553525c809e9e1cc2788be0b8ad8fd4df55126879a071bbf718f6f31a6b806",
+      "received_prior_file_sha256": "0951cb6207008e6e6e7faf374b85d4027094ba0674f5c68f492a3bf4be54b128",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r2_counterexamples/qwen_failure_case.json"
+    },
+    "rat_cot_runtime_codex_review_r2_20261020/qwen_token_cap_case.json": {
+      "expected_original_sha256": "a9ef02e9cc18eb626c2642079d3547a86b68e89bfb12f019f29674860e2d91f3",
+      "recovered_copy_sha256": "a9ef02e9cc18eb626c2642079d3547a86b68e89bfb12f019f29674860e2d91f3",
+      "received_prior_file_sha256": "3e0d351cc5b5d8069cee4b28e54b36961b289dbbb2f7748d8d510527929f8977",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r2_counterexamples/qwen_token_cap_case.json"
+    },
+    "rat_cot_runtime_codex_review_r3_20261020/between_sc_cancel_case.json": {
+      "expected_original_sha256": "71bcc9952c34cf4899d7562c8ab3551e07f0b0d7385adc1b85f145d78544ee43",
+      "recovered_copy_sha256": "71bcc9952c34cf4899d7562c8ab3551e07f0b0d7385adc1b85f145d78544ee43",
+      "received_prior_file_sha256": "096d7a4f26eb8c54e3c4b9a11dd299b5cf1d45595391e43af4f427232eff3cea",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r3_counterexamples/between_sc_cancel_case.json"
+    },
+    "rat_cot_runtime_codex_review_r3_20261020/caller_name_test_generated_token_ceiling_is_enforced_within_final_strategy.json": {
+      "expected_original_sha256": "e493a2cecc577f2807600dde4389aa140c46724fe64f454b7bf61e0914d495b6",
+      "recovered_copy_sha256": "e493a2cecc577f2807600dde4389aa140c46724fe64f454b7bf61e0914d495b6",
+      "received_prior_file_sha256": "c5fe3e0f10a1e4514e9631769d2dea5acbb194931835086e3ee82b1f0446bd86",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r3_counterexamples/caller_name_test_generated_token_ceiling_is_enforced_within_final_strategy.json"
+    },
+    "rat_cot_runtime_codex_review_r3_20261020/caller_name_test_unsupported_hard_cap_rejected_before_generation.json": {
+      "expected_original_sha256": "0a9073a457f1284f09eeb5af36caac544b58a49e40dc469f5b00281f601f490e",
+      "recovered_copy_sha256": "0a9073a457f1284f09eeb5af36caac544b58a49e40dc469f5b00281f601f490e",
+      "received_prior_file_sha256": "c5fe3e0f10a1e4514e9631769d2dea5acbb194931835086e3ee82b1f0446bd86",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r3_counterexamples/caller_name_test_unsupported_hard_cap_rejected_before_generation.json"
+    },
+    "rat_cot_runtime_codex_review_r3_20261020/cancel_stream_generated-tokens.json": {
+      "expected_original_sha256": "210e6a9a04b1c504c6759f264e3ac685d9f73ef93e72ca9b0efa71205847f469",
+      "recovered_copy_sha256": "210e6a9a04b1c504c6759f264e3ac685d9f73ef93e72ca9b0efa71205847f469",
+      "received_prior_file_sha256": "8c99e2b0a0a010f19a636a1cd2c3facc74e035dba90687e60126afd82f8ab040",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r3_counterexamples/cancel_stream_generated-tokens.json"
+    },
+    "rat_cot_runtime_codex_review_r3_20261020/cancel_stream_outcome-success.json": {
+      "expected_original_sha256": "210e6a9a04b1c504c6759f264e3ac685d9f73ef93e72ca9b0efa71205847f469",
+      "recovered_copy_sha256": "210e6a9a04b1c504c6759f264e3ac685d9f73ef93e72ca9b0efa71205847f469",
+      "received_prior_file_sha256": "8c99e2b0a0a010f19a636a1cd2c3facc74e035dba90687e60126afd82f8ab040",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r3_counterexamples/cancel_stream_outcome-success.json"
+    },
+    "rat_cot_runtime_codex_review_r3_20261020/decode_exception_case.json": {
+      "expected_original_sha256": "ede5471b776b13838644c9daf8ad87b13d6032883204b653536f6f4d35ce4ab0",
+      "recovered_copy_sha256": "ede5471b776b13838644c9daf8ad87b13d6032883204b653536f6f4d35ce4ab0",
+      "received_prior_file_sha256": "44a1b72f8d0e3f2f2ae9bcf3fa3f2d2d83b1e6db28b2b2f1a6bb7d721b5f09a5",
+      "matches_original_manifest": true,
+      "recovered_path": "recovered_r3_counterexamples/decode_exception_case.json"
+    }
+  },
+  "prior_files_modified": false,
+  "real_model_calls": 0
+}

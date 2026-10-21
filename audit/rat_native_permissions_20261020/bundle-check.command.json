@@ -1,0 +1,18 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "audit/rat_native_permissions_20261020/check_bundle.py"
+  ],
+  "cwd": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "exit_code": 1,
+  "started_unix": 1792482486.765048,
+  "elapsed_seconds": 4.741091966629028,
+  "environment_overrides": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "PYINSTALLER_CONFIG_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/pyinstaller-cache",
+    "PIP_NO_INDEX": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "QT_QPA_PLATFORM": "offscreen"
+  }
+}

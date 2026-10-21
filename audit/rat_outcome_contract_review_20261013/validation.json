@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-13",
+  "scope": "design and source review only",
+  "decision": "revised ADR accepted by user for Antigravity core implementation; UI review deferred",
+  "implementation_status": "core implementation authorized for Antigravity; no runtime code changed by Codex in this design-review turn",
+  "attachments": {
+    "original_handoff.md.txt": {
+      "source": "/Users/thundercock2/.codex/attachments/ea3e65b9-de9c-4278-a767-ae8e3acbd3ec/Văn bản đã dán.txt",
+      "sha256": "fe2094232b1379b61366211bd7f96ff47f3938ce0c1166b9a0db9d183688492f"
+    },
+    "original_design.md.txt": {
+      "source": "/Users/thundercock2/.codex/attachments/84d8109f-66d2-4442-bd99-8c4e318d2eba/Văn bản đã dán.txt",
+      "sha256": "0b617b5f79e3deee5ad4b99a5f8b3ee1d92c1147426922db75286263a1ba7cde"
+    }
+  },
+  "reviewed_source_sha256": {
+    "AGENTS.md": "d0066b32b39fa8d690147ef4259343cec171fe31c95571caf9cd29a36da664f4",
+    "rat/engine/assistant_runtime.py": "ce7886a733dab14cf81b88e5bb59d0aabc76d23963af202af7f8c45dc1d8aed9",
+    "rat/engine/verification.py": "8da0f8573c35d09b507d12a568203d0fc866d79b0995f8ab4ca9fa0a6318e8d5",
+    "rat/engine/work_notes.py": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "rat/kernel/contracts.py": "41c94885a983cc004cbf65641076d845cfeff800dbbed24ff5651384468fc912",
+    "rat/kernel/dispatcher.py": "75d59cdfcf4bd7562a5b5b64435c703712e09852f66405054609d2b7457a9113",
+    "rat/kernel/registry.py": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+    "rat/ui/chat_session.py": "366056822407c3438a492c97d943dbd7bb09de674b914d46e6861eec95059271",
+    "rat/ui/omnibar.py": "5f587f9faa67a5638063149559e4ffe22c789e25d80715f2b0c7bb212d94d255",
+    "rat/ui/assistant_presenter.py": "972c72c435a99522cc951429ac87068a8fd8a35396cea050481a4286b626bedc",
+    "tests/test_rat_calculation_conversation.py": "ea3505d7e2a031ef76c37ee86be73b90eb9d67e42ac22c432b10a46e56c4c690",
+    "docs/adr-001-rat-interaction-kernel.md": "bc291c3e9ae413b24e147e94443308303489014190fbe1fccd7c152febdc80d6",
+    "docs/adr-002-rat-adaptive-interaction.md": "04c5e2707967c8778749cb9065a2a83d232ea8ef16d99663821e0ee8e2a505b1",
+    "docs/rat_result_notes_contract.md": "da9ce50f07a5fc8ea1543ce50ee24afc71281cefdfc688e45bb24b054a927f1d",
+    "docs/research_plan.md": "577bfe2ad9d0098f8215505607ee6a6369fdfddb370488b150b45487ef8bb171",
+    "docs/research_protocol.md": "3d0e2341570b1e27c5279c1645ba9fed9800f3820dae46e99f4bd9d1faf1962b"
+  },
+  "new_document_sha256": {
+    "docs/adr-003-rat-completion-reconciliation.md": "e89ffe8feca119e29e3f1c2766787547ebb22a7f8eca21416f159a378caef875",
+    "audit/rat_outcome_contract_review_20261013/review.md": "eac394bdf7fc0926ad7a01e8394075e9904586e371990d2a6876a021cd5b4dcc",
+    "audit/rat_outcome_contract_review_20261013/handoff_antigravity.md": "df9d352769b634bf7eb40048c9b470d254a17161ed50a9909be0ec1bc285f453"
+  },
+  "local_links_checked": true,
+  "broken_local_links": [],
+  "protected_prior_artifacts_checked": 68,
+  "changed_prior_protected_artifacts": [],
+  "prior_9_owned_source_files_unchanged_since_previous_validation": true,
+  "new_test_runs": 0,
+  "new_live_model_calls": 0,
+  "new_qt_or_native_checks": 0,
+  "earlier_206_tests_validate_proposed_reconciliation": false,
+  "default_model_changed": false,
+  "planner_default_changed": false,
+  "research_pipeline_or_stage_0_changed": false,
+  "docai_integrated": false,
+  "live_ablation_budget_approved_by_this_review": false,
+  "external_handoff_message_sent": false,
+  "git_push_pull_reset_force_performed": false,
+  "user_approved_core_first_ui_after": true,
+  "roles": {
+    "Codex": "design and review",
+    "Antigravity": "implementation"
+  }
+}

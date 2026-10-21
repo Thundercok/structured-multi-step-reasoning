@@ -1,0 +1,91 @@
+{
+  "at_utc": "2026-10-13T21:40:39.739276+00:00",
+  "status": "phase_A_mock_context_audit_complete",
+  "live_inference_calls": 0,
+  "model_quality_measured": false,
+  "tokens_or_cache_or_online_latency_measured": false,
+  "counts": {
+    "cases": 12,
+    "runtime_turns": 20,
+    "port_calls": 41
+  },
+  "phases": {
+    "actor": 34,
+    "planner": 7
+  },
+  "coverage": {
+    "core_fixtures": 11,
+    "main_document_scenario_turns": 7,
+    "all_fixture_assertions_passed": true,
+    "all_six_acceptance_scenarios_covered": false,
+    "verified_finish_channel_covered": false,
+    "native_ui_acceptance": false
+  },
+  "audit_tests": {
+    "passed": 6,
+    "seconds": 0.35,
+    "exit_code": 0,
+    "log": "audit_tests.txt"
+  },
+  "checks": {
+    "per_call_size_metrics_recomputed": true,
+    "size_components_sum_to_totals": true,
+    "journal_matches_captures": true,
+    "saved_analysis_reproduced_exactly": true,
+    "source_stable_during_capture_and_validation": true,
+    "fixed_core_hashes_match": true,
+    "existing_output_rejected_and_preserved": true,
+    "runtime_class_methods_restored_in_smoke_test": true,
+    "prior_92_audit_inputs_unchanged": true,
+    "core_fix_packet_outputs_unchanged": true,
+    "parallel_validation_file_preserved": true,
+    "markdown_links_resolve": true
+  },
+  "parallel_validation": {
+    "file": "validation.json",
+    "preserved_sha256": "7eb1177b9b1635e559803aaf5863359151fc2b555452898afcb74bd5703ee46d",
+    "interpretation_limit": "runtime_turns=20, not 20 independent registry/cache experiments"
+  },
+  "size_scope": "canonical_JSON_serialization_of_runtime_client_arguments_not_wire_bytes_or_token_counts",
+  "model_decisions": "scripted_fixture_inputs_and_answers_not_inferred",
+  "fixture_counter_scope": "numeric_zero_placeholders_only; audit_tokens_and_server_metrics_null",
+  "new_code_files": [
+    "scripts/audit_rat_context.py",
+    "tests/test_rat_context_audit.py"
+  ],
+  "product_runtime_or_prompt_files_edited": [],
+  "default_model_or_planner_changed": false,
+  "research_stage0_docai_scope_changed": false,
+  "design_B_required": [
+    "explicit_runtime_obligations_and_effects_for_actor",
+    "single_model_task_proposal_body",
+    "entity_revision_body_dedup_with_typed_provenance",
+    "continuity_and_historical_note_text_until_resolver_exists"
+  ],
+  "C_prefix_status": "stable_canonical_first_system_and_tools_values_in_captures; cache_reuse_not_measured",
+  "next_phase": "review_B_snapshot_before_after_schema; no_B_C_D_runtime_changes_in_A",
+  "links_checked": [
+    "audit/rat_context_audit_20261014/analysis.json",
+    "audit/rat_context_audit_20261014/audit_tests.txt",
+    "audit/rat_context_audit_20261014/calls.jsonl",
+    "audit/rat_context_audit_20261014/captures.json",
+    "audit/rat_context_audit_20261014/codex_validation.json",
+    "audit/rat_context_audit_20261014/handoff_antigravity.md",
+    "audit/rat_context_audit_20261014/report.md"
+  ],
+  "new_code_sha256": {
+    "scripts/audit_rat_context.py": "0ac1a0e1ec47ba2b3b3f2ba7ad212fa27e691fbeba6ca4a9317cebb4c8622bad",
+    "tests/test_rat_context_audit.py": "39439434c66c64ac3afbdfa71ebb5751c0b345b97da329542a6006ec336afef6"
+  },
+  "audit_outputs_sha256": {
+    "analysis.json": "7afb6816b30f0ef4f93675dc4b54f1067c3e85230f19b1a663234e5403039f6a",
+    "analyze.py": "0dd1453da107d2a4ddf9ec6dabc6094900826c8ba86b6d0db53b6f4f07c06da9",
+    "audit_tests.txt": "6e3739f9f8c474acb311b099ba6ddc79152d9cc41a68eebed6cfb8b6be4ad155",
+    "calls.jsonl": "d4bc14e64bebe0c5c8b5c487db9aba50ad730fc42cfba8e9a3cc7c192c4a2595",
+    "captures.json": "64aa2d03a8919ea97077378d82e32cc921cad2894a19b8a7c97588a8a2fcdcba",
+    "handoff_antigravity.md": "11c4b6db9f620fd877a452524a09a22231cccb4b3fb7a8221aba6e3ef9049d02",
+    "report.md": "28b6e81ff211f355ef792aa96572664079f3290de2ee66126031a1e0bc0c51ac",
+    "summary.json": "28f834dc5dd5db2fa67ae22ab13367a40afba0bbf0d891dbce1fa1545a9ef8fb",
+    "validation.json": "7eb1177b9b1635e559803aaf5863359151fc2b555452898afcb74bd5703ee46d"
+  }
+}

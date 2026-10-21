@@ -1,0 +1,3856 @@
+diff --git a/rat/crawler/db.py b/rat/crawler/db.py
+index 1f5cb9e..4b6ae8b 100644
+--- a/rat/crawler/db.py
++++ b/rat/crawler/db.py
+@@ -12,9 +12,10 @@ import threading
+ import unicodedata
+ from collections import OrderedDict
+ from pathlib import Path
+-from typing import Any, Dict, List, Optional, Tuple
++from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+ 
+-import numpy as np
++if TYPE_CHECKING:
++    import numpy as np
+ 
+ logger = logging.getLogger("rat.db")
+ 
+@@ -107,6 +108,15 @@ class Database:
+                 conn.execute("PRAGMA synchronous=NORMAL;")
+             conn.row_factory = sqlite3.Row
+             conn.execute("PRAGMA busy_timeout=60000;")
++            def _is_slide_doc_sql(file_name: Any, file_path: Any, summary: Any) -> int:
++                from rat.engine.finder_intent import is_slide_row
++                return 1 if is_slide_row({
++                    "file_ext": ".pdf",
++                    "file_name": file_name or "",
++                    "file_path": file_path or "",
++                    "summary": summary or "",
++                }) else 0
++            conn.create_function("is_slide_doc", 3, _is_slide_doc_sql)
+             self._local.conn = conn
+         return self._local.conn
+ 
+@@ -520,6 +530,107 @@ class Database:
+         self.query_cache.set(cache_key, res)
+         return res
+ 
++    def search_metadata(
++        self,
++        query: str,
++        *,
++        extensions=(),
++        excluded_extensions=(),
++        date_min=None,
++        date_max=None,
++        date_max_exclusive=None,
++        date_field: str = 'modified',
++        slide_rule: bool = False,
++        report_rule: bool = False,
++        sort: str = 'relevance',
++        limit: int = 30,
++        should_cancel=None,
++    ):
++        """Small FTS/metadata projection for the finder; never return full document text.
++
++        Terms are literal ANDed prefixes. Filters are explicit, not inferred by a
++        model. No LIKE content scan or stale query cache. Use a worker-owned DB
++        connection when supplying cancellation (SQLite progress handler).
++        """
++        if type(limit) is not int or not 1 <= limit <= 100:
++            raise ValueError('invalid_finder_limit')
++        if sort not in ('relevance', 'modified_desc'):
++            raise ValueError('invalid_finder_sort')
++        terms = re.findall(r'[^\W_]+', query)
++        if query.strip() and not terms:
++            return []
++        clauses, args = [], []
++        for column, values, operator in (
++            ('file_ext', extensions, 'IN'), ('file_ext', excluded_extensions, 'NOT IN')):
++            if values:
++                clauses.append(f"lower(d.{column}) {operator} ({','.join('?' for _ in values)})")
++                args.extend(value.lower() for value in values)
++        col = 'd.created_at' if date_field == 'created' else 'd.modified_at'
++        if date_min is not None:
++            clauses.append(f'{col} >= ?')
++            args.append(date_min)
++        if date_max_exclusive is not None:
++            clauses.append(f'{col} < ?')
++            args.append(date_max_exclusive)
++        elif date_max is not None:
++            clauses.append(f'{col} <= ?')
++            args.append(date_max)
++        if slide_rule:
++            pres_exts = ('.pptx', '.ppt', '.key', '.odp')
++            clauses.append(
++                f"(lower(d.file_ext) IN ({','.join('?' for _ in pres_exts)}) "
++                f"OR (lower(d.file_ext) = '.pdf' AND is_slide_doc(d.file_name, d.file_path, d.summary) = 1))"
++            )
++            args.extend(pres_exts)
++        fts_parts = []
++        if terms:
++            fts_parts.extend('(' + build_fts_query([term]) + ')' for term in terms)
++        if report_rule:
++            fts_parts.append('(' + build_fts_query(['báo cáo', 'baocao', 'report']) + ')')
++        fields = ('d.file_path, d.file_name, d.file_ext, d.file_size, d.modified_at, d.created_at, '
++                  "substr(coalesce(d.summary, ''), 1, 200) AS summary")
++        if fts_parts:
++            clauses.append('documents_fts MATCH ?')
++            args.append(' AND '.join(fts_parts))
++            source = 'documents_fts JOIN documents d ON d.id = documents_fts.rowid'
++            rank = 'bm25(documents_fts, 15.0, 1.0, 1.0)'
++        else:
++            source, rank = 'documents d', '0.0'
++        where = ' WHERE ' + ' AND '.join(clauses) if clauses else ''
++        order_by = (
++            'ORDER BY d.modified_at DESC, rank ASC, d.file_path'
++            if sort == 'modified_desc'
++            else 'ORDER BY rank ASC, d.modified_at DESC, d.file_path'
++        )
++        conn = self.get_connection()
++        if should_cancel and should_cancel():
++            raise InterruptedError('finder_cancelled')
++        previous_timeout = conn.execute('PRAGMA busy_timeout').fetchone()[0]
++        conn.execute('PRAGMA busy_timeout=50')
++        if should_cancel:
++            conn.set_progress_handler(lambda: int(should_cancel()), 1000)
++        try:
++            rows = conn.execute(
++                f'SELECT {fields}, {rank} AS rank FROM {source}{where} {order_by} LIMIT ?',
++                [*args, limit],
++            ).fetchall()
++            results = [dict(row) for row in rows]
++            if slide_rule:
++                for r in results:
++                    r['_slide_rule_matched'] = True
++            if report_rule:
++                for r in results:
++                    r['_report_rule_matched'] = True
++            return results
++        except sqlite3.OperationalError:
++            if should_cancel and should_cancel():
++                raise InterruptedError('finder_cancelled') from None
++            raise
++        finally:
++            if should_cancel:
++                conn.set_progress_handler(None, 0)
++            conn.execute(f'PRAGMA busy_timeout={previous_timeout}')
++
+     def save_document_chunks(
+         self,
+         doc_id: int,
+@@ -539,6 +650,7 @@ class Database:
+         chunks: List[Any], embeddings: np.ndarray,
+     ) -> None:
+         """Validate and replace chunks inside the caller's write transaction."""
++        import numpy as np
+         if embeddings.ndim != 2 or len(embeddings) != len(chunks):
+             raise ValueError("Each chunk must have one embedding row")
+ 
+@@ -572,6 +684,7 @@ class Database:
+         """
+         Execute Cosine Similarity search over chunk embeddings matrix in RAM.
+         """
++        import numpy as np
+         if query_vector.size == 0:
+             return []
+ 
+diff --git a/rat/engine/work_trace.py b/rat/engine/work_trace.py
+index 97269b9..15b9786 100644
+--- a/rat/engine/work_trace.py
++++ b/rat/engine/work_trace.py
+@@ -1,6 +1,9 @@
+ """Public execution summaries, never raw model reasoning or verification claims."""
++from __future__ import annotations
++
+ from dataclasses import dataclass
+ from pathlib import Path
++from typing import Any, List, Optional, Sequence
+ 
+ 
+ @dataclass
+@@ -9,47 +12,130 @@ class TraceEntry:
+     title: str
+     detail: str = ''
+     status: str = 'done'
++    stage: str = ''
++    evidence_ref: str = ''
++    receipt_id: str = ''
++    resource_id: str = ''
++    artifact_id: str = ''
++    revision: Optional[int] = None
+ 
+ 
+ LABELS = {
+-    'search_documents': 'Tìm tài liệu', 'read_document': 'Đọc tài liệu',
+-    'get_schedule': 'Xem lịch học', 'get_group_availability': 'Đối chiếu lịch rảnh',
+-    'calculate': 'Tính toán', 'locate_room': 'Tra vị trí phòng',
+-    'create_natal_chart': 'Tính lá số', 'update_birth_data': 'Cập nhật lá số',
+-    'export_natal_chart': 'Xuất lá số', 'search_birth_places': 'Tra nơi sinh',
+-    'inspect_artifact': 'Đọc lại kết quả', 'record_work_note': 'Ghi chép dữ kiện',
++    'search_documents': 'Tìm tài liệu',
++    'read_document': 'Đọc tài liệu',
++    'search_book_pages': 'Tìm trang sách',
++    'read_book_page': 'Đọc trang sách',
++    'deliver_document': 'Giao tệp gốc',
++    'read_web_page': 'Đọc trang web',
++    'open_application': 'Mở ứng dụng',
++    'get_schedule': 'Xem lịch học',
++    'get_group_availability': 'Đối chiếu lịch rảnh',
++    'calculate': 'Tính toán',
++    'locate_room': 'Tra vị trí phòng',
++    'create_natal_chart': 'Tính lá số',
++    'update_birth_data': 'Cập nhật lá số',
++    'export_natal_chart': 'Xuất lá số',
++    'search_birth_places': 'Tra nơi sinh',
++    'inspect_artifact': 'Đọc lại kết quả',
++    'record_work_note': 'Ghi chép dữ kiện',
+     'update_task_state': 'Sắp xếp công việc',
+     'select_work_results': 'Chọn kết quả cho công việc',
++    'request_operation_tools': 'Mở công cụ thao tác',
++    'dismiss_pending_input': 'Đóng yêu cầu nhập cũ',
+ }
+ 
+ 
++def _stage_for_tool(name: Optional[str]) -> str:
++    if name in ('search_documents', 'search_book_pages', 'search_birth_places'):
++        return 'search'
++    if name in ('read_document', 'read_book_page', 'read_web_page', 'inspect_artifact', 'get_schedule', 'get_group_availability', 'locate_room'):
++        return 'read'
++    if name in ('calculate',):
++        return 'verify'
++    if name in ('update_task_state', 'select_work_results', 'request_operation_tools'):
++        return 'plan'
++    return 'result'
++
++
+ def summarize_step(step):
+     """Only observed calls/results and explicitly labeled structured plans."""
+     result = step.tool_result
+     result = result if isinstance(result, dict) else {'items': result} if isinstance(result, list) else {}
+     name = step.tool_name
+     checks = getattr(step, 'verification', [])
++    artifacts = getattr(step, 'artifacts', []) or []
++    first_art = artifacts[0] if artifacts else None
++    art_id = getattr(first_art, 'id', '') if first_art is not None else ''
++    art_rev = getattr(first_art, 'revision', None) if first_art is not None else None
++    ev_ref = f"{art_id}@v{art_rev}" if art_id and art_rev is not None else art_id
++
+     if checks and not name:
+         status = 'error' if any(c['status'] == 'FAIL' for c in checks) else 'unchecked' if any(c['status'] == 'UNKNOWN' for c in checks) else 'done'
+-        return TraceEntry(step.step_number, 'Đối chiếu kết luận', '\n'.join(c['reason'] for c in checks), status)
++        return TraceEntry(
++            step.step_number,
++            'Đối chiếu kết luận',
++            '\n'.join(c['reason'] for c in checks),
++            status,
++            stage='verify',
++            evidence_ref=ev_ref,
++        )
+     if step.error:
+-        return TraceEntry(step.step_number, 'Chưa thực hiện được bước này', str(step.error)[:300], 'error')
++        return TraceEntry(
++            step.step_number,
++            'Chưa thực hiện được bước này',
++            str(step.error)[:300],
++            'error',
++            stage=_stage_for_tool(name),
++            evidence_ref=ev_ref,
++        )
+     if result.get('error') == 'duplicate_action':
+-        return TraceEntry(step.step_number, 'Dừng thao tác lặp lại', 'Dùng các kết quả đã có để trả lời.', 'stopped')
++        return TraceEntry(
++            step.step_number,
++            'Dừng thao tác lặp lại',
++            'Dùng các kết quả đã có để trả lời.',
++            'stopped',
++            stage='verify',
++        )
+     if result.get('controller'):
+-        return TraceEntry(step.step_number, 'Dừng gọi thêm công cụ', 'Bộ điều phối yêu cầu tổng hợp từ dữ kiện đã có.', 'stopped')
++        return TraceEntry(
++            step.step_number,
++            'Dừng gọi thêm công cụ',
++            'Bộ điều phối yêu cầu tổng hợp từ dữ kiện đã có.',
++            'stopped',
++            stage='verify',
++        )
++    if result.get('phase') == 'initial_plan' and not name:
++        contract = result.get('contract') or {}
++        outcomes = contract.get('outcomes', []) if isinstance(contract, dict) else []
++        desc_parts = [
++            str(o.get('description') or o.get('effect_type') or o.get('kind') or '')
++            for o in outcomes[:4]
++            if isinstance(o, dict)
++        ]
++        detail = ' → '.join(p for p in desc_parts if p) or 'Đã lập kế hoạch các bước cần thực hiện.'
++        return TraceEntry(step.step_number, 'Dự định làm việc', detail, 'proposed', stage='plan')
++    if result.get('completion_feedback') and not name:
++        fb = result['completion_feedback']
++        unmet = fb.get('unmet_outcomes', []) if isinstance(fb, dict) else []
++        reasons = [str(u.get('description') or u.get('outcome_id') or '') for u in unmet[:3] if isinstance(u, dict)]
++        detail = 'Còn thiếu: ' + ', '.join(r for r in reasons if r) if reasons else 'Còn phần việc đã khai chưa thực hiện.'
++        return TraceEntry(step.step_number, 'Kiểm tra điều kiện hoàn tất', detail, 'unchecked', stage='verify')
+     if name == 'update_task_state':
+         state = result.get('task_state', {})
+         parts = [state.get('goal', ''), *state.get('remaining', [])[:3]]
+-        return TraceEntry(step.step_number, 'Dự định làm việc', '\n'.join(p for p in parts if p), 'proposed')
++        return TraceEntry(step.step_number, 'Dự định làm việc', '\n'.join(p for p in parts if p), 'proposed', stage='plan')
+     if not name:
+-        return TraceEntry(step.step_number, 'Đưa câu trả lời', 'Câu trả lời đã được model trả về.')
++        return TraceEntry(step.step_number, 'Đưa câu trả lời', 'Câu trả lời đã được model trả về.', 'done', stage='result')
++
+     detail = ''
+     status = 'done'
++    stage = _stage_for_tool(name)
++    res_id = str(result.get('resource_id') or result.get('path') or '')
++
+     if result.get('error') or result.get('found') is False:
+         detail, status = str(result.get('error') or 'Chưa có dữ liệu phù hợp.')[:300], 'error'
+     elif result.get('status') == 'needs_input':
+-        detail, status = result.get('prompt', 'Cần thêm dữ kiện để tiếp tục.'), 'waiting'
++        detail, status, stage = result.get('prompt', 'Cần thêm dữ kiện để tiếp tục.'), 'waiting', 'clarify'
+     elif name == 'record_work_note':
+         note = result.get('note', {})
+         detail = note.get('text', '')
+@@ -57,8 +143,26 @@ def summarize_step(step):
+             status = 'proposed'
+     elif name == 'read_document':
+         detail = result.get('filename') or Path(result.get('path', '')).name
++        content = result.get('content', '')
++        total_chars = result.get('total_chars')
++        if isinstance(content, str) and content and total_chars:
++            detail += f" ({len(content):,}/{int(total_chars):,} ký tự)"
++        if result.get('truncated'):
++            detail += ' · đã đọc phần đầu'
++    elif name == 'read_book_page':
++        fn = result.get('filename') or Path(result.get('path', '')).name
++        pg = result.get('page', 1)
++        lbl = result.get('page_label', pg)
++        detail = f"{fn} · trang PDF {pg} (nhãn {lbl})"
+         if result.get('truncated'):
+             detail += ' · đã đọc phần đầu'
++    elif name == 'search_book_pages':
++        fn = result.get('filename') or Path(result.get('path', '')).name
++        matched = result.get('matched_pages', 0)
++        detail = f"{fn} · {matched} trang khớp"
++    elif name == 'open_application':
++        app_name = result.get('name') or 'Ứng dụng'
++        detail = f"{app_name} · Đã gửi lệnh mở tới macOS (chưa xác nhận vào trong ứng dụng)"
+     elif 'items' in result and isinstance(result['items'], list):
+         detail = f"Có {len(result['items'])} kết quả từ công cụ."
+     elif name == 'calculate':
+@@ -71,8 +175,461 @@ def summarize_step(step):
+                 status = 'unchecked'
+     elif 'result_refs' in result:
+         detail = f"Giữ {len(result['result_refs'])} kết quả để tiếp tục làm việc."
+-    for artifact in getattr(step, 'artifacts', []):
++    for artifact in artifacts:
+         if artifact.status == 'waiting_input':
+             status = 'waiting'
++            stage = 'clarify'
+             detail = artifact.payload.get('prompt', detail)
+-    return TraceEntry(step.step_number, LABELS.get(name, 'Thực hiện thao tác'), detail, status)
++    return TraceEntry(
++        step.step_number,
++        LABELS.get(name, 'Thực hiện thao tác'),
++        detail,
++        status,
++        stage=stage,
++        evidence_ref=ev_ref or res_id,
++        resource_id=res_id,
++        artifact_id=art_id,
++        revision=art_rev,
++    )
++
++
++def build_reasoning_flow(
++    steps: Sequence[Any] = (),
++    *,
++    contract: Optional[Any] = None,
++    reconciliation: Optional[Any] = None,
++    journal: Optional[Any] = None,
++    finder_intent: Optional[Any] = None,
++    finder_hits_count: Optional[int] = None,
++    direct_artifact: Optional[Any] = None,
++    active_phase: str = '',
++    active_label: str = '',
++    streaming_chars: int = 0,
++    error: Optional[str] = None,
++) -> List[TraceEntry]:
++    """
++    Construct a compact, grounded public reasoning flow:
++      hiểu yêu cầu → tìm/đọc nguồn → kiểm tra điều kiện → kết quả/hỏi làm rõ.
++
++    Invariants:
++    - Never accesses private `thought`, `raw_completion`, or `model_input`.
++    - Distinguishes `proposed`, `running`, `found`, `read`, `verified_pass`,
++      `verified_fail`, `unchecked`, `waiting`, `error`, and `cancelled`.
++    - Every state is anchored to an observed step, receipt, artifact revision,
++      or deterministic FinderIntentPlan. Unexecuted plans stay `proposed`.
++    """
++    flow: List[TraceEntry] = []
++    seq = 1
++
++    # 1. Deterministic Finder Intent Flow (0 model calls)
++    if finder_intent is not None and not steps and direct_artifact is None:
++        chips = list(getattr(finder_intent, 'interpretation_chips', ()) or ())
++        action = getattr(finder_intent, 'action', 'find')
++        has_structured = bool(
++            chips
++            or getattr(finder_intent, 'needs_clarification', False)
++            or action in ('open_app', 'negated_open')
++            or getattr(finder_intent, 'slide_rule', False)
++            or getattr(finder_intent, 'report_rule', False)
++            or getattr(finder_intent, 'date_min', None) is not None
++        )
++        if not has_structured:
++            return []
++
++        understand_title = (
++            'Ghi nhận lệnh phủ định'
++            if action == 'negated_open'
++            else 'Nhận diện yêu cầu mở ứng dụng'
++            if action == 'open_app'
++            else 'Hiểu điều kiện tìm kiếm'
++        )
++        understand_detail = ' · '.join(chips) if chips else str(getattr(finder_intent, 'raw_query', ''))
++        flow.append(
++            TraceEntry(
++                number=seq,
++                title=understand_title,
++                detail=understand_detail,
++                status='found',
++                stage='understand',
++                evidence_ref='intent:finder_plan',
++            )
++        )
++        seq += 1
++
++        if getattr(finder_intent, 'needs_clarification', False):
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Cần làm rõ yêu cầu',
++                    detail=str(getattr(finder_intent, 'clarification_reason', '') or 'Cần thêm thông tin để lọc chính xác.'),
++                    status='waiting',
++                    stage='clarify',
++                    evidence_ref='intent:needs_clarification',
++                )
++            )
++            return flow
++
++        if action == 'negated_open':
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Giữ nguyên trạng thái (không mở ứng dụng)',
++                    detail=str(getattr(finder_intent, 'clarification_reason', '') or 'Đã chặn thao tác mở theo yêu cầu phủ định.'),
++                    status='done',
++                    stage='result',
++                    evidence_ref='intent:negated_open',
++                )
++            )
++            return flow
++
++        count = int(finder_hits_count or 0)
++        if action == 'open_app':
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Đối chiếu danh mục ứng dụng macOS',
++                    detail=(
++                        f"Tìm thấy {count} ứng viên khớp · đang gợi ý, chỉ mở khi bạn nhấn Enter hoặc chọn Mở."
++                        if count > 0
++                        else "Chưa tìm thấy gói .app khớp trong danh mục ứng dụng."
++                    ),
++                    status='proposed' if count > 0 else 'unchecked',
++                    stage='search',
++                    evidence_ref=f"catalog:hits={count}",
++                )
++            )
++        else:
++            scope_note = str(getattr(finder_intent, 'scope_note', '') or '').strip()
++            detail = f"Khớp {count} nguồn theo metadata/chỉ mục · chưa đọc toàn bộ nội dung bên trong."
++            if scope_note:
++                detail = f"{detail} {scope_note}"
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Lọc ứng viên trong chỉ mục',
++                    detail=detail,
++                    status='found' if count > 0 else 'unchecked',
++                    stage='search',
++                    evidence_ref=f"index:hits={count}",
++                )
++            )
++        return flow
++
++    # 2. Direct Artifact Operation Flow (e.g. open_application disambiguation or launch receipt)
++    if direct_artifact is not None and (not steps or getattr(direct_artifact, 'kind', '') in ('input_request', 'application_launch')):
++        kind = getattr(direct_artifact, 'kind', '')
++        payload = getattr(direct_artifact, 'payload', {}) if isinstance(getattr(direct_artifact, 'payload', None), dict) else {}
++        art_ref = f"{direct_artifact.id}@v{direct_artifact.revision}"
++        if kind == 'input_request':
++            raw_cands = payload.get('candidate_choices') or payload.get('candidates')
++            candidates = raw_cands if isinstance(raw_cands, list) else []
++            prompt = str(payload.get('prompt') or 'Cần bạn chọn hoặc bổ sung thông tin.')
++            if candidates:
++                names = ', '.join(
++                    f"{c.get('name', 'App')} ({c.get('path', '')})"
++                    for c in candidates[:3]
++                    if isinstance(c, dict)
++                )
++                flow.append(
++                    TraceEntry(
++                        number=seq,
++                        title='Tìm thấy nhiều bản cài đặt ứng dụng',
++                        detail=f"Có {len(candidates)} ứng viên trên ổ đĩa: {names}",
++                        status='found',
++                        stage='search',
++                        evidence_ref=art_ref,
++                        artifact_id=direct_artifact.id,
++                        revision=direct_artifact.revision,
++                    )
++                )
++                seq += 1
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Chờ bạn chọn ứng dụng cần mở' if candidates else 'Chờ bổ sung thông tin',
++                    detail=f"{prompt} (Chưa mở ứng dụng nào)",
++                    status='waiting',
++                    stage='clarify',
++                    evidence_ref=art_ref,
++                    artifact_id=direct_artifact.id,
++                    revision=direct_artifact.revision,
++                )
++            )
++            return flow
++
++        if kind == 'application_launch':
++            app_name = str(payload.get('name') or direct_artifact.title or 'Ứng dụng')
++            bundle_id = str(payload.get('bundle_id') or '')
++            path_str = str(payload.get('path') or '')
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Kiểm tra gói ứng dụng trên ổ đĩa',
++                    detail=f"Đã xác thực .app, Info.plist và tệp thực thi ({bundle_id or path_str}).",
++                    status='verified_pass',
++                    stage='verify',
++                    evidence_ref=art_ref,
++                    resource_id=str(payload.get('resource_id') or path_str),
++                    artifact_id=direct_artifact.id,
++                    revision=direct_artifact.revision,
++                )
++            )
++            seq += 1
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title=f"Đã gửi yêu cầu mở {app_name} tới macOS",
++                    detail="Hệ điều hành đã nhận lệnh khởi chạy (.app) · không đồng nghĩa đã đăng nhập hay vào trong màn hình trò chơi.",
++                    status='done',
++                    stage='result',
++                    evidence_ref=art_ref,
++                    resource_id=str(payload.get('resource_id') or path_str),
++                    artifact_id=direct_artifact.id,
++                    revision=direct_artifact.revision,
++                )
++            )
++            return flow
++
++    # 3. Runtime Execution & Contract Reconciliation Flow
++    receipts = getattr(journal, 'receipts', []) if journal is not None else []
++    receipt_by_call = {
++        getattr(r, 'operation_call_id', ''): r
++        for r in receipts
++        if getattr(r, 'operation_call_id', None)
++    }
++
++    for step in steps:
++        base_entry = summarize_step(step)
++        call_id = f"step-{getattr(step, 'step_number', 0)}"
++        rcpt = receipt_by_call.get(call_id)
++        rcpt_id = getattr(rcpt, 'receipt_id', '') if rcpt is not None else ''
++        name = getattr(step, 'tool_name', None)
++        res = getattr(step, 'tool_result', None)
++
++        # Refine status to distinguish `found` vs `read` vs `proposed` vs `done`
++        refined_status = base_entry.status
++        if refined_status == 'done':
++            if name in ('search_documents', 'search_book_pages', 'search_birth_places'):
++                refined_status = 'found'
++            elif name in ('read_document', 'read_book_page', 'read_web_page', 'inspect_artifact') and isinstance(res, dict) and (res.get('found') or res.get('content')):
++                refined_status = 'read'
++
++        ev = base_entry.evidence_ref
++        if rcpt_id and ev:
++            ev = f"{rcpt_id} · {ev}"
++        elif rcpt_id:
++            ev = rcpt_id
++
++        flow.append(
++            TraceEntry(
++                number=seq,
++                title=base_entry.title,
++                detail=base_entry.detail,
++                status=refined_status,
++                stage=base_entry.stage or _stage_for_tool(name),
++                evidence_ref=ev,
++                receipt_id=rcpt_id,
++                resource_id=base_entry.resource_id,
++                artifact_id=base_entry.artifact_id,
++                revision=base_entry.revision,
++            )
++        )
++        seq += 1
++
++    # Check declared TurnContract outcomes for unexecuted / in-progress steps
++    outcomes = list(getattr(contract, 'outcomes', ()) or ()) if contract is not None else []
++    matched_rcpt_ids = set(getattr(reconciliation, 'matched_receipts', ()) or ()) if reconciliation is not None else set()
++    unmet_map = {
++        u.get('outcome_id'): u
++        for u in (getattr(reconciliation, 'unmet_outcomes', ()) or [])
++        if isinstance(u, dict) and u.get('outcome_id')
++    } if reconciliation is not None else {}
++
++    observed_ops = {
++        getattr(s, 'tool_name', None)
++        for s in steps
++        if getattr(s, 'tool_name', None) and not getattr(s, 'error', None)
++        and not (isinstance(getattr(s, 'tool_result', None), dict) and (getattr(s, 'tool_result', {}).get('error') or getattr(s, 'tool_result', {}).get('found') is False))
++    }
++    has_final_answer = any(
++        not getattr(s, 'tool_name', None)
++        and not getattr(s, 'error', None)
++        and not getattr(s, 'verification', None)
++        and not (isinstance(getattr(s, 'tool_result', None), dict) and getattr(s, 'tool_result', {}).get('phase') == 'initial_plan')
++        for s in steps
++    )
++
++    if active_phase == 'working':
++        # Show currently running or proposed remaining steps from contract
++        shown_running = False
++        for outcome in outcomes:
++            kind = getattr(outcome, 'kind', '')
++            eff = getattr(outcome, 'effect_type', '')
++            desc = str(getattr(outcome, 'description', '') or eff or kind)
++            if kind == 'registered_effect' and eff in observed_ops:
++                continue
++            if kind == 'response' and has_final_answer:
++                continue
++            if not shown_running:
++                shown_running = True
++                run_detail = active_label or desc
++                if kind == 'response' and streaming_chars > 0:
++                    run_detail = f"Đang ghi câu trả lời trực tiếp ({streaming_chars:,} ký tự)…"
++                flow.append(
++                    TraceEntry(
++                        number=seq,
++                        title=desc if desc else (active_label or 'Đang thực hiện bước tiếp theo'),
++                        detail=run_detail,
++                        status='running',
++                        stage='result' if kind == 'response' else _stage_for_tool(eff),
++                        evidence_ref=f"contract:{getattr(outcome, 'outcome_id', '')}",
++                    )
++                )
++            else:
++                flow.append(
++                    TraceEntry(
++                        number=seq,
++                        title=f"Dự định: {desc}",
++                        detail="Kế hoạch đã khai · chưa thực thi",
++                        status='proposed',
++                        stage='plan',
++                        evidence_ref=f"contract:{getattr(outcome, 'outcome_id', '')}",
++                    )
++                )
++            seq += 1
++
++        if not outcomes and active_label:
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title=active_label,
++                    detail=(
++                        f"Đang ghi câu trả lời ({streaming_chars:,} ký tự)…"
++                        if streaming_chars > 0
++                        else "Đang xử lý yêu cầu hiện tại…"
++                    ),
++                    status='running',
++                    stage='result' if streaming_chars > 0 else 'understand',
++                )
++            )
++            seq += 1
++    else:
++        # Turn has finished/cancelled/errored: surface any unexecuted contract outcomes as `proposed` (never `done`)
++        for outcome in outcomes:
++            oid = getattr(outcome, 'outcome_id', '')
++            if oid in unmet_map:
++                unmet_info = unmet_map[oid]
++                desc = str(getattr(outcome, 'description', '') or unmet_info.get('description') or oid)
++                reason_code = str(unmet_info.get('reason') or 'unmet')
++                flow.append(
++                    TraceEntry(
++                        number=seq,
++                        title=f"Dự định chưa thực thi: {desc}",
++                        detail=f"Chưa chạy ({reason_code}) · không tính là đã hoàn thành.",
++                        status='proposed',
++                        stage='plan',
++                        evidence_ref=f"contract:{oid}",
++                    )
++                )
++                seq += 1
++
++    # Append grounded reconciliation / verification check when turn has reconciliation
++    if reconciliation is not None:
++        lifecycle = getattr(reconciliation, 'lifecycle', '')
++        comp = getattr(reconciliation, 'declared_scope_completion', 'unchecked')
++        qual = getattr(reconciliation, 'scoped_quality', 'not_checked')
++        rcpt_list = list(matched_rcpt_ids)
++        rcpt_summary = ', '.join(rcpt_list[:2])
++
++        if lifecycle == 'cancelled' or active_phase == 'cancelled':
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Đã dừng theo yêu cầu',
++                    detail='Các dữ kiện đã đọc được giữ lại trên bàn; phần việc chưa chạy đã hủy.',
++                    status='cancelled',
++                    stage='verify',
++                    evidence_ref=rcpt_summary,
++                )
++            )
++        elif lifecycle == 'needs_input' or active_phase == 'waiting':
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Chờ thông tin bổ sung',
++                    detail=str(getattr(reconciliation, 'summary', '') or 'Đang chờ bạn xác nhận hoặc chọn ứng viên.'),
++                    status='waiting',
++                    stage='clarify',
++                    evidence_ref=rcpt_summary,
++                )
++            )
++        elif qual == 'FAIL' or error == 'verification_failed':
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Kiểm tra điều kiện chưa đạt',
++                    detail=str(getattr(reconciliation, 'summary', '') or 'Kết luận chưa khớp với dữ kiện kiểm chứng.'),
++                    status='verified_fail',
++                    stage='verify',
++                    evidence_ref=rcpt_summary,
++                )
++            )
++        elif qual == 'PASS':
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Đã kiểm chứng trong phạm vi',
++                    detail=f"Đối chiếu đạt ({rcpt_summary or 'verification:PASS'}) · chỉ xác nhận phạm vi đã kiểm tra.",
++                    status='verified_pass',
++                    stage='verify',
++                    evidence_ref=rcpt_summary or 'verification:PASS',
++                )
++            )
++        elif comp == 'satisfied' and rcpt_list:
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Đủ điều kiện hoàn tất theo biên nhận',
++                    detail=(
++                        f"Khớp biên nhận ({rcpt_summary}) · xác nhận đã đọc nguồn và trả lời, "
++                        "không tự chứng minh suy diễn ngoài phần đã đọc."
++                    ),
++                    status='verified_pass',
++                    stage='verify',
++                    evidence_ref=rcpt_summary,
++                )
++            )
++        elif lifecycle == 'failed' or error:
++            flow.append(
++                TraceEntry(
++                    number=seq,
++                    title='Chưa hoàn tất yêu cầu',
++                    detail=str(getattr(reconciliation, 'summary', '') or error or 'Còn bước chưa thực hiện được.'),
++                    status='error',
++                    stage='verify',
++                    evidence_ref=rcpt_summary,
++                )
++            )
++    elif active_phase == 'cancelled' or error == 'cancelled':
++        flow.append(
++            TraceEntry(
++                number=seq,
++                title='Đã dừng theo yêu cầu',
++                detail='Các dữ kiện đã đọc được giữ lại trên bàn; phần việc chưa chạy đã hủy.',
++                status='cancelled',
++                stage='verify',
++            )
++        )
++    elif active_phase == 'error' or error:
++        flow.append(
++            TraceEntry(
++                number=seq,
++                title='Chưa hoàn tất yêu cầu',
++                detail=str(error or 'Còn bước chưa thực hiện được.'),
++                status='error',
++                stage='verify',
++            )
++        )
++
++    return flow
++
+diff --git a/rat/os/menu_bar.py b/rat/os/menu_bar.py
+index 68dbe92..a87cf33 100644
+--- a/rat/os/menu_bar.py
++++ b/rat/os/menu_bar.py
+@@ -18,6 +18,7 @@ from rat.config import config
+ from rat.crawler.db import Database
+ from rat.crawler.indexer import Indexer
+ from rat.os.daemon import is_launch_agent_installed, set_launch_at_login
++from rat.ui.theme import FONT_FAMILY
+ 
+ logger = logging.getLogger("rat.os.menu_bar")
+ 
+@@ -93,16 +94,16 @@ class SystemTrayManager:
+ 
+         # Create Menu with warm paper styling
+         menu = QMenu()
+-        menu.setStyleSheet("""
+-            QMenu {
++        menu.setStyleSheet(f"""
++            QMenu {{
+                 background-color: #fffdf9;
+                 color: #2c241c;
+                 border: 1px solid #d9d0c5;
+                 border-radius: 10px;
+                 padding: 5px;
+-                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
++                font-family: {FONT_FAMILY};
+                 font-size: 13px;
+-            }
++            }}
+             QMenu::item {
+                 padding: 6px 14px;
+                 border-radius: 6px;
+diff --git a/rat/ui/action_menu.py b/rat/ui/action_menu.py
+index 7de1822..cf0df8e 100644
+--- a/rat/ui/action_menu.py
++++ b/rat/ui/action_menu.py
+@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
+ )
+ 
+ from rat.engine.reranker import SearchResultItem
++from rat.ui.theme import MONO_FONT_FAMILY
+ 
+ 
+ class ActionItemWidget(QWidget):
+@@ -51,7 +52,7 @@ class ActionItemWidget(QWidget):
+         # Shortcut badge
+         if shortcut:
+             self.badge = QLabel(shortcut)
+-            self.badge.setStyleSheet("""
++            self.badge.setStyleSheet(f"""
+                 background-color: #fffefa;
+                 color: #6d6258;
+                 border: 1px solid #d8cfc3;
+@@ -59,7 +60,7 @@ class ActionItemWidget(QWidget):
+                 padding: 3px 6px;
+                 font-size: 11px;
+                 font-weight: 600;
+-                font-family: -apple-system, BlinkMacSystemFont, "SF Mono", Menlo, monospace;
++                font-family: {MONO_FONT_FAMILY};
+             """)
+             layout.addWidget(self.badge)
+ 
+diff --git a/rat/ui/claude_widget.py b/rat/ui/claude_widget.py
+index 4d8922a..e7cbfb4 100644
+--- a/rat/ui/claude_widget.py
++++ b/rat/ui/claude_widget.py
+@@ -52,6 +52,7 @@ from rat.timetable.model import (
+     MemberSchedule,
+     resolve_room_location,
+ )
++from rat.ui.theme import FONT_FAMILY
+ 
+ logger = logging.getLogger(__name__)
+ 
+@@ -227,7 +228,7 @@ class ClaudeTimetableWidget(QWidget):
+             QWidget {{
+                 background-color: {CLAUDE_STYLE['bg_window']};
+                 color: {CLAUDE_STYLE['text_primary']};
+-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
++                font-family: {FONT_FAMILY};
+             }}
+             QLineEdit {{
+                 background-color: {CLAUDE_STYLE['surface']};
+diff --git a/rat/ui/compact_results.py b/rat/ui/compact_results.py
+index 0c7d55d..1bed711 100644
+--- a/rat/ui/compact_results.py
++++ b/rat/ui/compact_results.py
+@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QSizePolic
+ from rat.engine.reranker import SearchResultItem
+ from rat.ui.theme import get_ext_badge_info
+ from rat.ui.experience import debug_ui_enabled
++from rat.ui.workbench import WorkbenchTokens
+ 
+ 
+ class ElidedLabel(QLabel):
+@@ -38,6 +39,7 @@ class CompactFileRow(QFrame):
+     preview_requested = pyqtSignal(object)
+     reveal_requested = pyqtSignal(object)
+     cite_requested = pyqtSignal(object)
++    question_requested = pyqtSignal(object)
+     ROW_HEIGHT = 48
+ 
+     def __init__(self, item: SearchResultItem, parent=None):
+@@ -46,16 +48,17 @@ class CompactFileRow(QFrame):
+         self.debug_ui = debug_ui_enabled()
+         self.setObjectName("CompactFileRow")
+         self.setFixedHeight(self.ROW_HEIGHT)
+-        self.setStyleSheet("""
+-            QFrame#CompactFileRow { background: transparent; border: none; }
+-            QLabel { background: transparent; border: none; }
+-            QPushButton {
++        tokens = WorkbenchTokens.get()
++        self.setStyleSheet(f"""
++            QFrame#CompactFileRow {{ background: transparent; border: none; }}
++            QLabel {{ background: transparent; border: none; }}
++            QPushButton {{
+                 background: transparent; border: none; border-radius: 6px;
+-                color: #635C51; font-size: 11px; padding: 4px 7px;
+-            }
+-            QPushButton:hover, QPushButton:focus { background: #EDE5D6; color: #302B24; }
+-            QPushButton#OpenCompactFile { background: #F0E2C4; color: #56401D; }
+-            QPushButton#OpenCompactFile:hover { background: #E8D4AA; }
++                color: {tokens.muted_hex}; font-size: 11px; padding: 4px 7px;
++            }}
++            QPushButton:hover, QPushButton:focus {{ background: {tokens.soft_hex}; color: {tokens.ink_hex}; }}
++            QPushButton#OpenCompactFile {{ background: {tokens.accent_hex}; color: {tokens.paper_hex}; }}
++            QPushButton#OpenCompactFile:hover {{ background: {tokens.focus_hex}; }}
+         """)
+         layout = QHBoxLayout(self)
+         layout.setContentsMargins(8, 5, 8, 5)
+@@ -81,7 +84,7 @@ class CompactFileRow(QFrame):
+         name_row.setSpacing(6)
+ 
+         self.name_label = ElidedLabel(item.file_name)
+-        self.name_label.setStyleSheet("font-size: 13px; font-weight: 500; color: #302B24;")
++        self.name_label.setStyleSheet(f"font-size: 13px; font-weight: 500; color: {tokens.ink_hex};")
+         name_row.addWidget(self.name_label, 1)
+ 
+         if getattr(item, "verified", False):
+@@ -97,10 +100,18 @@ class CompactFileRow(QFrame):
+ 
+         folder = Path(item.file_path).parent.name
+         self.detail_label = ElidedLabel(f"{folder} · {item.file_size_formatted} · {item.modified_formatted}")
+-        self.detail_label.setStyleSheet("font-size: 10px; color: #766E63;")
++        self.detail_label.setStyleSheet(f"font-size: 10px; color: {tokens.muted_hex};")
+         details.addWidget(self.detail_label)
+         layout.addLayout(details, 1)
+ 
++        self.btn_ask = QPushButton('Hỏi')
++        self.btn_ask.setToolTip('Hỏi về tệp này trong ô chat')
++        self.btn_ask.setAccessibleName(f'Hỏi về {item.file_name}')
++        self.btn_ask.setCursor(Qt.CursorShape.PointingHandCursor)
++        self.btn_ask.clicked.connect(lambda: self.question_requested.emit(self.item))
++        layout.addWidget(self.btn_ask)
++        self.btn_ask.setVisible(Path(item.file_path).is_absolute())
++
+         self.btn_preview = QPushButton("Xem nhanh")
+         self.btn_preview.setToolTip("Xem nhanh tệp (Space)")
+         self.btn_preview.setAccessibleName(f"Xem nhanh {item.file_name}")
+@@ -136,3 +147,19 @@ class CompactFileRow(QFrame):
+             event.accept()
+             return
+         super().keyPressEvent(event)
++ 
++    def _apply_theme(self) -> None:
++        tokens = WorkbenchTokens.get()
++        self.setStyleSheet(f"""
++            QFrame#CompactFileRow {{ background: transparent; border: none; }}
++            QLabel {{ background: transparent; border: none; }}
++            QPushButton {{
++                background: transparent; border: none; border-radius: 6px;
++                color: {tokens.muted_hex}; font-size: 11px; padding: 4px 7px;
++            }}
++            QPushButton:hover, QPushButton:focus {{ background: {tokens.soft_hex}; color: {tokens.ink_hex}; }}
++            QPushButton#OpenCompactFile {{ background: {tokens.accent_hex}; color: {tokens.paper_hex}; }}
++            QPushButton#OpenCompactFile:hover {{ background: {tokens.focus_hex}; }}
++        """)
++        self.name_label.setStyleSheet(f"font-size: 13px; font-weight: 500; color: {tokens.ink_hex};")
++        self.detail_label.setStyleSheet(f"font-size: 10px; color: {tokens.muted_hex};")
+diff --git a/rat/ui/finder_window.py b/rat/ui/finder_window.py
+index e2d75ad..33331ff 100644
+--- a/rat/ui/finder_window.py
++++ b/rat/ui/finder_window.py
+@@ -42,7 +42,7 @@ from rat.engine.qa_engine import qa_engine
+ from rat.engine.reranker import SearchResultItem, format_file_size, format_relative_time, sort_search_results
+ from rat.ui.apple_item_delegate import AppleSpotlightDelegate
+ from rat.ui.preview_panel import EXT_DESCRIPTIONS, PreviewPanel, open_file_default, reveal_in_finder
+-from rat.ui.theme import RAYCAST_QSS, get_ext_badge_info
++from rat.ui.theme import FONT_FAMILY, RAYCAST_QSS, get_ext_badge_info
+ 
+ logger = logging.getLogger("rat.finder")
+ 
+@@ -247,17 +247,17 @@ class ModernFinderPreview(QFrame):
+ 
+         self.preview_text = QTextEdit()
+         self.preview_text.setReadOnly(True)
+-        self.preview_text.setStyleSheet("""
+-            QTextEdit {
++        self.preview_text.setStyleSheet(f"""
++            QTextEdit {{
+                 background-color: #ffffff;
+                 color: #1c1c1e;
+                 border: 1px solid #e5e5ea;
+                 border-radius: 8px;
+-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
++                font-family: {FONT_FAMILY};
+                 font-size: 11.5px;
+                 line-height: 1.45;
+                 padding: 8px;
+-            }
++            }}
+         """)
+         layout.addWidget(self.preview_text, 1)
+ 
+diff --git a/rat/ui/omnibar.py b/rat/ui/omnibar.py
+index 7833361..54a61b8 100644
+--- a/rat/ui/omnibar.py
++++ b/rat/ui/omnibar.py
+@@ -7,7 +7,10 @@ campus room guidance, and instant calculations into a single macOS-native HUD.
+ 
+ from __future__ import annotations
+ 
++from pathlib import Path
++
+ import logging
++import os
+ import re
+ import threading
+ import time
+@@ -45,6 +48,7 @@ from PyQt6.QtGui import (
+     QPainterPath,
+     QPen,
+     QPixmap,
++    QTextCursor,
+ )
+ from PyQt6.QtWidgets import (
+     QAbstractItemView,
+@@ -73,6 +77,32 @@ from PyQt6.QtWidgets import (
+ from rat.ui.surface_layout import ChatComposer, CurrentPageStack, motion_enabled
+ from rat.ui.experience import debug_ui_enabled
+ from rat.ui.live_companion import LiveCompanion
++from rat.ui.workbench import (
++    FONT_FAMILY,
++    WorkbenchCanvas,
++    WorkbenchDialogueRegion,
++    WorkbenchThoughtTrail,
++    WorkbenchTokens,
++    is_expand_command,
++    is_collapse_command,
++    is_stop_command,
++)
++from rat.ui.workbench_scene import (
++    FinderHitRow,
++    SceneResultNode,
++    WorkbenchScene,
++    sanitize_public_text,
++    workbench_scene_enabled,
++    workbench_finder_enabled,
++)
++from rat.engine.app_resolver import ApplicationCatalog
++from rat.engine.progressive_search import (
++    ProgressiveSearch,
++    SearchCoordinator,
++    SearchFilters,
++    SearchHit,
++    SearchSnapshot,
++)
+ 
+ from rat.config import config
+ from rat.crawler.db import Database
+@@ -326,6 +356,29 @@ class OmnibarInputFilter(QObject):
+         self.window = window
+ 
+     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
++        if event.type() == QEvent.Type.FocusIn:
++            scene = getattr(self.window, "workbench_scene", None)
++            finder_box = getattr(scene, "finder_box", None) if scene else None
++            if (
++                getattr(self.window, "workbench_finder_enabled", False)
++                and finder_box is not None
++                and finder_box.isVisible()
++                and (watched is finder_box or finder_box.isAncestorOf(watched))
++            ):
++                target_row = watched if isinstance(watched, FinderHitRow) else None
++                if target_row is None and isinstance(watched, QWidget):
++                    p = watched.parentWidget()
++                    while p is not None and p is not finder_box:
++                        if isinstance(p, FinderHitRow):
++                            target_row = p
++                            break
++                        p = p.parentWidget()
++                if target_row is not None and hasattr(target_row, "hit"):
++                    finder_box.set_selected_id(target_row.hit.resource_id)
++                    self.window._finder_selected_id = target_row.hit.resource_id
++                    finder_box.hit_selected.emit(target_row.hit.resource_id)
++            return super().eventFilter(watched, event)
++
+         if event.type() == QEvent.Type.KeyPress:
+             key_event: QKeyEvent = event
+             key = key_event.key()
+@@ -339,12 +392,78 @@ class OmnibarInputFilter(QObject):
+                 return super().eventFilter(watched, event)
+ 
+             if watched is getattr(self.window, "chat_composer_input", None):
++                self.window._last_key_press_t0 = time.perf_counter()
+                 if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and mod & Qt.KeyboardModifier.ShiftModifier:
++                    return super().eventFilter(watched, event)
++                if getattr(self.window.chat_composer_input, "is_composing", lambda: False)():
++                    return super().eventFilter(watched, event)
++
++                # When cursor cannot move down further, Down key drops focus to finder suggestions, compact list, or chips
++                if key == Qt.Key.Key_Down:
++                    if not (mod & (
++                        Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |
++                        Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
++                    )):
++                        cursor = self.window.chat_composer_input.textCursor()
++                        test_cursor = QTextCursor(cursor)
++                        can_move_down = test_cursor.movePosition(QTextCursor.MoveOperation.Down)
++                        if not can_move_down:
++                            scene = getattr(self.window, "workbench_scene", None)
++                            finder_box = getattr(scene, "finder_box", None) if scene else None
++                            if (
++                                getattr(self.window, "workbench_finder_enabled", False)
++                                and finder_box is not None
++                                and finder_box.isVisible()
++                                and getattr(finder_box, "_row_order", [])
++                            ):
++                                finder_box.setFocus()
++                                if not finder_box.selected_resource_id:
++                                    finder_box.navigate(1)
++                                self.window._finder_selected_id = finder_box.selected_resource_id
++                                return True
++                            results = getattr(self.window, "compact_file_list", None)
++                            if results is not None and results.isVisible() and results.count():
++                                results.setFocus()
++                                if results.currentRow() < 0:
++                                    results.setCurrentRow(0)
++                                return True
++                            chips = getattr(self.window, "chip_buttons", [])
++                            if getattr(self.window, "quick_suggestions", None) and self.window.quick_suggestions.isVisible() and chips:
++                                chips[0].setFocus()
++                                return True
++                    return super().eventFilter(watched, event)
++
++                # Tab navigation from composer to suggestions
++                if key == Qt.Key.Key_Tab and not (mod & Qt.KeyboardModifier.ShiftModifier):
++                    scene = getattr(self.window, "workbench_scene", None)
++                    finder_box = getattr(scene, "finder_box", None) if scene else None
++                    if (
++                        getattr(self.window, "workbench_finder_enabled", False)
++                        and finder_box is not None
++                        and finder_box.isVisible()
++                        and getattr(finder_box, "_row_order", [])
++                    ):
++                        finder_box.setFocus()
++                        if not finder_box.selected_resource_id:
++                            finder_box.navigate(1)
++                        self.window._finder_selected_id = finder_box.selected_resource_id
++                        return True
++                    results = getattr(self.window, "compact_file_list", None)
++                    if results is not None and results.isVisible() and results.count():
++                        results.setFocus()
++                        if results.currentRow() < 0:
++                            results.setCurrentRow(0)
++                        return True
++                    chips = getattr(self.window, "chip_buttons", [])
++                    if getattr(self.window, "quick_suggestions", None) and self.window.quick_suggestions.isVisible() and chips:
++                        chips[0].setFocus()
++                        return True
+                     return False
+-                if key in (Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageUp, Qt.Key.Key_PageDown) and not is_cmd:
+-                    return False
++
++                if key in (Qt.Key.Key_Up, Qt.Key.Key_PageUp, Qt.Key.Key_PageDown) and not is_cmd:
++                    return super().eventFilter(watched, event)
+                 if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
+-                    return False
++                    return super().eventFilter(watched, event)
+ 
+             # Chip Button Keyboard Navigation
+             chips = getattr(self.window, "chip_buttons", [])
+@@ -373,18 +492,54 @@ class OmnibarInputFilter(QObject):
+                     self.window.chat_composer_input.setText(key_event.text())
+                     return True
+ 
+-            # When typing in chat composer, Down or Tab (if empty) drops focus to suggestion chips
+-            if watched is getattr(self.window, "chat_composer_input", None):
+-                if key == Qt.Key.Key_Down or (key == Qt.Key.Key_Tab and not self.window.chat_composer_input.text()):
+-                    results = getattr(self.window, "compact_file_list", None)
+-                    if results is not None and results.isVisible() and results.count():
+-                        results.setFocus()
+-                        if results.currentRow() < 0:
+-                            results.setCurrentRow(0)
+-                        return True
+-                    if getattr(self.window, "quick_suggestions", None) and self.window.quick_suggestions.isVisible() and chips:
+-                        chips[0].setFocus()
+-                        return True
++            # Suggestions in Workbench Scene (Finder)
++            scene = getattr(self.window, "workbench_scene", None)
++            finder_box = getattr(scene, "finder_box", None) if scene else None
++            if finder_box is not None and (watched is finder_box or finder_box.isAncestorOf(watched)):
++                target_row = watched if isinstance(watched, FinderHitRow) else None
++                if target_row is None and isinstance(watched, QWidget):
++                    p = watched.parentWidget()
++                    while p is not None and p is not finder_box:
++                        if isinstance(p, FinderHitRow):
++                            target_row = p
++                            break
++                        p = p.parentWidget()
++                target_hit = target_row.hit if target_row is not None else finder_box.current_hit()
++
++                if key == Qt.Key.Key_Down:
++                    finder_box.navigate(1)
++                    self.window._finder_selected_id = finder_box.selected_resource_id
++                    return True
++                elif key == Qt.Key.Key_Up:
++                    if not finder_box.navigate(-1):
++                        self.window.chat_composer_input.setFocus()
++                        cursor = self.window.chat_composer_input.textCursor()
++                        cursor.movePosition(QTextCursor.MoveOperation.End)
++                        self.window.chat_composer_input.setTextCursor(cursor)
++                    else:
++                        self.window._finder_selected_id = finder_box.selected_resource_id
++                    return True
++                elif is_cmd and key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
++                    if target_hit and target_hit.path:
++                        reveal_in_finder(target_hit.path)
++                    return True
++                elif isinstance(watched, QPushButton) and key in (Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Space):
++                    watched.click()
++                    return True
++                elif key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
++                    if target_hit:
++                        if target_hit.kind == "file":
++                            open_file_default(target_hit.path)
++                        else:
++                            self.window._request_open_application(hit=target_hit)
++                    return True
++                elif key == Qt.Key.Key_Space or (key == Qt.Key.Key_Y and is_cmd):
++                    if target_hit and target_hit.kind == "file":
++                        trigger_quicklook(target_hit.path)
++                    return True
++                elif key == Qt.Key.Key_Escape:
++                    self.window.chat_composer_input.setFocus()
++                    return True
+ 
+             # 1. Navigation Up/Down
+             if key == Qt.Key.Key_Down:
+@@ -475,8 +630,15 @@ class OmnibarInputFilter(QObject):
+                 self.window.hide()
+                 return True
+ 
+-            # 9. Escape: If expanded, collapse to compact; else hide Omnibar
++            # 9. Escape: If in source detail, return to overview; if expanded, collapse; else hide Omnibar
+             if key == Qt.Key.Key_Escape:
++                if (
++                    getattr(self.window, "workbench_scene_enabled", False)
++                    and hasattr(self.window, "workbench_scene")
++                    and self.window.workbench_scene.mode == "source_detail"
++                ):
++                    self.window.workbench_scene.show_overview()
++                    return True
+                 if getattr(self.window, "is_expanded", False):
+                     self.window.set_expanded(False)
+                     return True
+@@ -858,6 +1020,7 @@ class PeekingRatMascot(QWidget):
+         self.y_speaking = 4       # slight upward shift
+         self.rot_idle = 0.0       # 0 degree khi núp
+         self.rot_speaking = 0.0   # 0 degree to guarantee zero ear/paw cropping
++        self.move(self.x_idle, self.y_idle)
+ 
+         # Parallel animation group for smooth synchronous transform
+         self._anim_group = QParallelAnimationGroup(self)
+@@ -1114,6 +1277,15 @@ class RatCompanionStage(QWidget):
+         self.window.toggle_expand()
+ 
+ 
++class _FinderSignalBridge(QObject):
++    snapshot_ready = pyqtSignal(object)
++    catalog_ready = pyqtSignal(object)
++
++
++class _NativeModelSignalBridge(QObject):
++    preload_completed = pyqtSignal(bool, str)
++
++
+ class OmnibarWindow(QMainWindow):
+     """
+     Unified Casual Surface (Omnibar).
+@@ -1124,19 +1296,78 @@ class OmnibarWindow(QMainWindow):
+ 
+     def __init__(self) -> None:
+         super().__init__()
++        app_inst = QApplication.instance()
++        if app_inst is not None:
++            from PyQt6.QtGui import QFont
++            from rat.ui.workbench import FONT_FAMILY
++            app_inst.setFont(QFont(FONT_FAMILY))
+         self.debug_ui = debug_ui_enabled()
++        self.workbench_scene_enabled = workbench_scene_enabled()
++        self.workbench_finder_enabled = workbench_finder_enabled()
++        self._finder_coordinator: Optional[SearchCoordinator] = None
++        self._finder_search: Optional[ProgressiveSearch] = None
++        self._finder_catalog: Optional[ApplicationCatalog] = None
++        self._finder_selected_id: Optional[str] = None
++        self._finder_bridge = _FinderSignalBridge(self)
++        self._finder_bridge.snapshot_ready.connect(self._on_finder_snapshot_delivered)
++        self._finder_bridge.catalog_ready.connect(self._on_finder_catalog_ready)
++        self._model_bridge = _NativeModelSignalBridge(self)
++        self._model_bridge.preload_completed.connect(self._on_document_model_preload_completed)
++        self._document_model_status = "idle"
++        self._document_model_init_error: Optional[str] = None
++        self.last_key_to_editor_ms: float = 0.0
++        self.last_query_to_first_hit_ms: float = 0.0
++        self.last_delivery_to_paint_ms: Optional[float] = 0.0
++        self._pending_delivery_paint_t0: Optional[float] = None
++        self._last_key_press_t0: Optional[float] = None
++        self.last_turn_telemetry: Dict[str, Any] = {}
++        self._finder_query_submit_t0: Optional[float] = None
++        self._first_hit_query_id: Optional[int] = None
++        self.installEventFilter(self)
++        if self.workbench_finder_enabled:
++            self._init_finder_service()
+         self.db = Database(config.db_path)
+         self.engine = SearchEngine(self.db)
+         self.compositor = TimetableCompositor(load_club_members())
+         self.members: List[MemberSchedule] = self.compositor.members
+         from rat.engine.assistant_runtime import AssistantRuntime
+         from rat.engine.slm import SLMEngine
+-        self.assistant_runtime = AssistantRuntime(db=self.db, compositor=self.compositor, use_live_model=True,
+-            plan_tasks=False, discover_tools=True, structured_context=False,
+-            model_client=SLMEngine(model=config.assistant_model or config.ollama_model))
++        from rat.ui.assistant_worker import ErrorDocumentModel
++
++        doc_model_path = config.document_model_path.strip() or None
++        if doc_model_path:
++            try:
++                self.assistant_runtime = AssistantRuntime(
++                    db=self.db, compositor=self.compositor, use_live_model=True,
++                    plan_tasks=False, discover_tools=True, structured_context=False,
++                    model_client=SLMEngine(model=config.assistant_model or config.ollama_model),
++                    document_model_path=doc_model_path,
++                )
++            except Exception as e:
++                logger.warning(f"Failed to initialize native document model from {doc_model_path}: {e}")
++                self._document_model_init_error = str(e)
++                self.assistant_runtime = AssistantRuntime(
++                    db=self.db, compositor=self.compositor, use_live_model=True,
++                    plan_tasks=False, discover_tools=True, structured_context=False,
++                    model_client=SLMEngine(model=config.assistant_model or config.ollama_model),
++                    document_model_path=None,
++                )
++                self.assistant_runtime.document_model_client = ErrorDocumentModel(str(e))
++        else:
++            self.assistant_runtime = AssistantRuntime(
++                db=self.db, compositor=self.compositor, use_live_model=True,
++                plan_tasks=False, discover_tools=True, structured_context=False,
++                model_client=SLMEngine(model=config.assistant_model or config.ollama_model),
++                document_model_path=None,
++            )
++
++        if getattr(config, "document_model_preload", False) and self.assistant_runtime.document_model_client is not None:
++            self._init_document_model_preload()
++
+         self._assistant_sources = []
+         self._assistant_task_state = {}
+         self._assistant_handle = None
++        self._selected_document_path = None
+ 
+         self.current_section_idx = 0
+         self.active_file_filter_idx = 0
+@@ -1148,6 +1379,7 @@ class OmnibarWindow(QMainWindow):
+         self.current_query = ""
+         self._conversation = ConversationHistory()
+         self._pending_chat_query: Optional[str] = None
++        self._last_assistant_query: Optional[str] = None
+         self._chat_generation = 0
+         self._current_reasoner: Optional[StreamReasoningWorker] = None
+         self._reasoning_workers: set[StreamReasoningWorker] = set()
+@@ -1198,6 +1430,17 @@ class OmnibarWindow(QMainWindow):
+         self._resize_overlay(652, 238)
+         configure_macos_fullscreen_overlay(self)
+ 
++    def minimumSizeHint(self) -> QSize:
++        base = super().minimumSizeHint()
++        return QSize(min(380, base.width()), min(200, base.height()))
++
++    def _is_narrow(self, outer_width: Optional[int] = None) -> bool:
++        """Apply responsive breakpoint <= 450px to usable content width consistently."""
++        w = self.width() if outer_width is None else outer_width
++        # Usable content width is outer width minus minimum outer margins (2 * 8px = 16px).
++        # At <= 450px of content width (outer width <= 466px), narrow reflow triggers.
++        return (w - 16) <= 450
++
+     def _resize_overlay(self, new_width: int, new_height: int, animated: bool = False) -> None:
+         """Keep the bottom composer anchored while the result grows upward."""
+         minimum = self.minimumSizeHint()
+@@ -1210,13 +1453,31 @@ class OmnibarWindow(QMainWindow):
+                 geo = screen.availableGeometry()
+                 new_width = min(new_width, geo.width() - 24)
+                 new_height = min(new_height, geo.height() - 24)
++                is_narrow = self._is_narrow(new_width)
++                if hasattr(self, "workbench_dialogue") and getattr(self.workbench_dialogue, "is_narrow", False) != is_narrow:
++                    self.workbench_canvas.set_presentation(self.is_expanded, narrow=is_narrow)
++                    self.workbench_dialogue.set_presentation(self.is_expanded, narrow=is_narrow)
++                    if hasattr(self, "thought_trail"):
++                        self.thought_trail.set_presentation(self.is_expanded, narrow=is_narrow)
++                    if hasattr(self, "workbench_scene"):
++                        self.workbench_scene.set_presentation(self.is_expanded, narrow=is_narrow)
++                if hasattr(self, "main_layout"):
++                    content_w = 640 if self.is_expanded else (420 if is_narrow else 520)
++                    margin_h = max(8, min(90 if self.is_expanded else 50, (new_width - content_w) // 2))
++                    self.main_layout.setContentsMargins(margin_h, 12, margin_h, 12)
++                    self.main_layout.activate()
+                 if self.isVisible():
+                     left = max(geo.left() + 12, min(self.x(), geo.right() - new_width - 11))
+-                    bottom = min(self.geometry().bottom(), geo.bottom() - 12)
++                    anchor = getattr(self, "_anchor_bottom", None)
++                    if anchor is None:
++                        anchor = self.geometry().bottom()
++                    bottom = min(anchor, geo.bottom() - 12)
+                     top = max(geo.top() + 12, min(bottom - new_height + 1, geo.bottom() - new_height - 11))
+                     target_rect = QRect(left, top, int(new_width), int(new_height))
++                    self._anchor_bottom = bottom
+                 else:
+                     target_rect = lower_overlay_geometry(geo, int(new_width), int(new_height))
++                    self._anchor_bottom = target_rect.bottom()
+ 
+                 if hasattr(self, "_geom_anim"):
+                     if self._geom_anim.state() == QPropertyAnimation.State.Running and self._geom_anim.endValue() == target_rect:
+@@ -1234,6 +1495,7 @@ class OmnibarWindow(QMainWindow):
+                     self._geom_anim.start()
+                 else:
+                     self.setGeometry(target_rect)
++                    self.resize(new_width, new_height)
+                 return
+         except Exception:
+             pass
+@@ -1264,6 +1526,19 @@ class OmnibarWindow(QMainWindow):
+ 
+     def resizeEvent(self, event: Any) -> None:
+         super().resizeEvent(event)
++        is_narrow = self._is_narrow(self.width())
++        if hasattr(self, "workbench_dialogue") and getattr(self.workbench_dialogue, "is_narrow", False) != is_narrow:
++            self.workbench_canvas.set_presentation(self.is_expanded, narrow=is_narrow)
++            self.workbench_dialogue.set_presentation(self.is_expanded, narrow=is_narrow)
++            if hasattr(self, "thought_trail"):
++                self.thought_trail.set_presentation(self.is_expanded, narrow=is_narrow)
++            if hasattr(self, "workbench_scene"):
++                self.workbench_scene.set_presentation(self.is_expanded, narrow=is_narrow)
++            if hasattr(self, "main_layout"):
++                content_w = 640 if self.is_expanded else (420 if is_narrow else 520)
++                margin_h = max(8, min(90 if self.is_expanded else 50, (self.width() - content_w) // 2))
++                self.main_layout.setContentsMargins(margin_h, 12, margin_h, 12)
++                self.main_layout.activate()
+         if hasattr(self, "speech_bubble") and hasattr(self, "container"):
+             self._position_reply_bubble()
+             cx = self.container.x() if self.container.x() > 0 else 16
+@@ -1293,6 +1568,8 @@ class OmnibarWindow(QMainWindow):
+     def set_mascot_idle(self):
+         self.speech_bubble.hide()
+         self.mascot_peeking.hide()
++        if hasattr(self, "thought_trail"):
++            self.thought_trail.set_state("idle")
+ 
+     def _on_mascot_idle_retreated(self) -> None:
+         pass
+@@ -1306,6 +1583,8 @@ class OmnibarWindow(QMainWindow):
+         self._mascot_state = state
+         if hasattr(self, "companion_avatar_btn"):
+             self.companion_avatar_btn.set_state(state)
++        if hasattr(self, "thought_trail"):
++            self.thought_trail.set_state(state)
+         if hasattr(self, "mascot_peeking"):
+             self.mascot_peeking.set_state(state)
+         if hasattr(self, "rat_stage") and self.rat_stage:
+@@ -1326,9 +1605,32 @@ class OmnibarWindow(QMainWindow):
+         focus = QApplication.focusWidget()
+         if hasattr(self, 'chat_stream'):
+             self._surface_scroll[old_mode] = self.chat_stream.verticalScrollBar().value()
++        if not hasattr(self, '_anchor_bottom') or self._anchor_bottom is None:
++            self._anchor_bottom = self.geometry().bottom()
+         self.is_expanded = bool(expanded)
+-        self._interaction_surface_active = True
+-        self.main_layout.setContentsMargins(12, 12, 12, 12)
++        started_chat = bool(
++            (hasattr(self, "chat_stream") and not self.chat_stream.is_empty())
++            or (
++                getattr(self, "workbench_scene_enabled", False)
++                and hasattr(self, "workbench_scene")
++                and not self.workbench_scene.is_empty()
++            )
++        )
++        if expanded:
++            self._interaction_surface_active = True
++        elif not started_chat:
++            self._interaction_surface_active = False
++        is_narrow = self._is_narrow(self.width())
++        margin_h = 90 if expanded else (10 if is_narrow else 50)
++        self.main_layout.setContentsMargins(margin_h, 12, margin_h, 12)
++        if hasattr(self, "workbench_canvas"):
++            self.workbench_canvas.set_presentation(self.is_expanded, narrow=is_narrow)
++        if hasattr(self, "thought_trail"):
++            self.thought_trail.set_presentation(self.is_expanded, narrow=is_narrow)
++        if hasattr(self, "workbench_dialogue"):
++            self.workbench_dialogue.set_presentation(self.is_expanded, narrow=is_narrow)
++        if hasattr(self, "workbench_scene"):
++            self.workbench_scene.set_presentation(self.is_expanded, narrow=is_narrow)
+         self.quick_bar.show()
+         self.btn_expand.setVisible(self.debug_ui)
+         self.btn_expand.setText('−' if expanded else '+')
+@@ -1337,12 +1639,21 @@ class OmnibarWindow(QMainWindow):
+         for widget in (self.mascot_peeking, self.speech_bubble, self.section_bar,
+                        self.hairline_divider, self.action_footer, self.compact_cot,
+                        self.compact_file_list, self.compact_footer):
+-            widget.hide()
+-        self.content_stack.setVisible(self.is_expanded or self.current_section_idx != 0 or not self.chat_stream.is_empty())
++            if widget is not None:
++                widget.hide()
++        scene_started = bool(
++            getattr(self, "workbench_scene_enabled", False)
++            and hasattr(self, "workbench_scene")
++            and not self.workbench_scene.is_empty()
++        )
++        self.content_stack.setVisible(
++            self.is_expanded or self.current_section_idx != 0 or not self.chat_stream.is_empty() or scene_started
++        )
+         self.chat_stream.set_compact(not self.is_expanded)
+         self._sync_compact_surface()
++        self.main_layout.activate()
+         if old_mode != self.is_expanded:
+-            self._resize_overlay(820 if expanded else 620, self._surface_height(), animated=True)
++            self._resize_overlay(820 if expanded else (440 if is_narrow else 620), self._surface_height(), animated=True)
+             self.chat_stream.restore_reading_position(self._surface_scroll.get(self.is_expanded))
+         if focus is not None and self.isAncestorOf(focus) and focus.isVisible():
+             focus.setFocus(Qt.FocusReason.OtherFocusReason)
+@@ -1354,101 +1665,66 @@ class OmnibarWindow(QMainWindow):
+         main_widget.setObjectName("OmnibarCanvas")
+         main_widget.setStyleSheet("QWidget#OmnibarCanvas { background: transparent; border: none; }")
+         self.setCentralWidget(main_widget)
+-        self.main_layout = QHBoxLayout(main_widget)
+-        self.main_layout.setContentsMargins(12, 12, 12, 12)
+-        self.main_layout.setSpacing(0)
++        self.main_layout = QVBoxLayout(main_widget)
++        self.main_layout.setContentsMargins(50, 12, 50, 12)
++        self.main_layout.setSpacing(5)
+ 
+-        # =============================================================
+-        # SINGLE UNIFIED CONTAINER (Warm Light Glass)
+-        # =============================================================
+-        container = QFrame(main_widget)
+-        container.setObjectName("SpotlightContainer")
+-        container.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+-        container.setStyleSheet("""
+-            QFrame#SpotlightContainer {
+-                background: #FFFDFA;
+-                border: 1px solid #DDD7CD;
+-                border-radius: 16px;
+-            }
+-        """)
+-        cont_shadow = QGraphicsDropShadowEffect(container)
+-        cont_shadow.setBlurRadius(18)
+-        cont_shadow.setOffset(0, 4)
+-        cont_shadow.setColor(QColor(38, 30, 23, 24))
+-        container.setGraphicsEffect(cont_shadow)
+-
+-        self.container = container
+-        self.container_layout = QVBoxLayout(container)
+-        self.container_layout.setContentsMargins(14, 12, 14, 12)
+-        self.container_layout.setSpacing(8)
+-
+-        # -------------------------------------------------------------
+-        # PEEKING MASCOT (Núp hở mắt/tay & Pop-out xéo)
+-        # -------------------------------------------------------------
+-        self.mascot_peeking = PeekingRatMascot(self, main_widget)
+-        self.mascot_peeking.stackUnder(container)
+-        self.mascot_peeking.setGeometry(16, 8, 176, 150)
+-        self.mascot_peeking.set_anchors(16, 120)
+-        self.mascot_peeking.speaking_popped_out.connect(self._on_mascot_speaking_popped_out)
+-        self.mascot_peeking.idle_retreated.connect(self._on_mascot_idle_retreated)
+-        self.mascot_peeking.show()
++        # Hidden compatibility host for secondary background/debug panels
++        compat_host = QWidget(main_widget)
++        compat_host.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
++        compat_host.hide()
+ 
+-        # -------------------------------------------------------------
+-        # ARTISTIC SPEECH BUBBLE (Sitting above container, flush right)
+-        # -------------------------------------------------------------
+-        self.speech_bubble = ArtisticSpeechBubble(self, main_widget)
+-        self.speech_bubble.setGeometry(176, 14, 460, 92)
++        self.speech_bubble = ArtisticSpeechBubble(self, compat_host)
++        self.speech_bubble.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+         self.speech_bubble.hide()
+ 
+-        # Compatibility attributes
+-        self.rat_avatar = self.mascot_peeking
+-        self.rat_stage = None
+-        self.rat_perch = None
+-        self.rat_speech = self.speech_bubble.dialogue
+-        self.rat_speech_frame = self.speech_bubble
+-        self.btn_expand = None
+-        self.btn_close = None
+-        self.btn_bubble_expand = None
+-        self.speech_expand_hint = None
+-        self.rat_tail = None
+-
+-        # -------------------------------------------------------------
+-        # One persistent composer; inserted below the result viewport.
+-        # -------------------------------------------------------------
+-        quick_bar = QFrame()
+-        quick_bar.setObjectName("QuickBar")
+-        quick_bar.setMinimumHeight(42)
+-
+-        qb_layout = QHBoxLayout(quick_bar)
+-        qb_layout.setContentsMargins(4, 0, 4, 0)
+-        qb_layout.setSpacing(6)
+-
+-        # Companion stands beside the chat, sharing its window and lifecycle.
+-        self.companion_avatar_btn = CompanionAvatarButton(self, main_widget)
+-        self.companion_avatar_btn.show()
+-        self.main_layout.addWidget(self.companion_avatar_btn, 0, Qt.AlignmentFlag.AlignBottom)
++        # =============================================================
++        # 1. WORKBENCH WORK CANVAS (Paper Card Compartment)
++        # =============================================================
++        self.workbench_canvas = WorkbenchCanvas(main_widget)
++        self.container = self.workbench_canvas
++        self.container_layout = self.workbench_canvas.canvas_layout
+ 
++        # =============================================================
++        # 2. CHAT COMPOSER (Persistent Single Editor)
++        # =============================================================
+         self.chat_composer_input = ChatComposer()
+         self.chat_composer_input.setObjectName("ChatComposerInput")
+-        self.chat_composer_input.setPlaceholderText("Hỏi một điều, tìm một tệp…")
+-        self.chat_composer_input.setStyleSheet("""
+-            QPlainTextEdit#ChatComposerInput {
+-                font-size: 13px;
+-                font-weight: 400;
+-                border: none;
+-                background: transparent;
+-                color: #302B24;
+-                padding-left: 2px;
+-            }
+-        """)
++        self.chat_composer_input.setPlaceholderText("Bạn muốn làm gì tiếp?")
+         self.chat_composer_input.setAccessibleName("Yêu cầu cho Chuột")
+         self.chat_composer_input.installEventFilter(self.input_filter)
+         self.chat_composer_input.returnPressed.connect(lambda: self._submit_chat_prompt(self.chat_composer_input.text()))
+         self.chat_composer_input.textChanged.connect(lambda: self._on_composer_text_changed(self.chat_composer_input.text()))
+         self.chat_composer_input.height_changed.connect(self._schedule_surface_fit)
+-        qb_layout.addWidget(self.chat_composer_input, 1)
+ 
+-        # Minimal model status badge (shown in expanded mode)
++        # =============================================================
++        # 3. WORKBENCH DIALOGUE REGION (RAT Stage + User Lane)
++        # =============================================================
++        self.workbench_dialogue = WorkbenchDialogueRegion(self.chat_composer_input, main_widget)
++        self.companion_avatar_btn = self.workbench_dialogue.actor
++        self.workbench_speech_bubble = self.workbench_dialogue.rat_bubble
++        self.quick_bar = self.workbench_dialogue.user_lane
++        self.workbench_user_lane = self.workbench_dialogue.user_lane
++
++        # Compatibility references
++        self.rat_avatar = self.workbench_dialogue.actor
++        self.rat_stage = None
++        self.rat_perch = None
++        self.rat_speech = self.workbench_speech_bubble.dialogue
++        self.rat_speech_frame = self.workbench_speech_bubble
++        self.btn_close = None
++        self.btn_bubble_expand = None
++        self.speech_expand_hint = None
++        self.rat_tail = None
++        self.full_chat_input = self.chat_composer_input
++
++        # Add compartments to window layout: Canvas above, Thought trail in middle, Dialogue below
++        self.main_layout.addWidget(self.workbench_canvas)
++        self.thought_trail = WorkbenchThoughtTrail(self.companion_avatar_btn, main_widget)
++        self.main_layout.addWidget(self.thought_trail)
++        self.main_layout.addWidget(self.workbench_dialogue)
++
++        # Minimal model status badge
+         has_slm = False
+         try:
+             from rat.engine.slm import slm_engine
+@@ -1456,40 +1732,23 @@ class OmnibarWindow(QMainWindow):
+         except Exception:
+             pass
+         status_text = "● Qwen2.5" if has_slm else "● TDTU"
+-        self.chat_header_status = QLabel(status_text, quick_bar)
++        self.chat_header_status = QLabel(status_text, self.workbench_user_lane)
+         self.chat_header_status.setObjectName("QuickModelBadge")
+         self.chat_header_status.hide()
+-        qb_layout.addWidget(self.chat_header_status)
+ 
+-        self.btn_expand = QPushButton("+", quick_bar)
++        self.btn_expand = QPushButton("+", self.workbench_user_lane)
+         self.btn_expand.setObjectName("BtnExpand")
+         self.btn_expand.setCursor(Qt.CursorShape.PointingHandCursor)
+         self.btn_expand.setToolTip("Mở rộng / Thu nhỏ (⌘L)")
+         self.btn_expand.clicked.connect(self.toggle_expand)
+         self.btn_expand.setFixedSize(26, 26)
+-        self.btn_expand.setStyleSheet("""
+-            QPushButton#BtnExpand {
+-                background: transparent;
+-                border: none;
+-                color: #8C8275;
+-                font-size: 13px;
+-                font-weight: bold;
+-                border-radius: 6px;
+-            }
+-            QPushButton#BtnExpand:hover {
+-                background: rgba(43, 38, 31, 0.08);
+-                color: #1F1A16;
+-            }
+-        """)
+         self.btn_expand.setVisible(self.debug_ui)
+-        qb_layout.addWidget(self.btn_expand)
+ 
+-        self.btn_surface_menu = QPushButton("⋯", quick_bar)
++        self.btn_surface_menu = QPushButton("⋯", self.workbench_user_lane)
+         self.btn_surface_menu.setObjectName("SurfaceMenu")
+         self.btn_surface_menu.setAccessibleName("Tùy chọn hội thoại")
+         self.btn_surface_menu.setToolTip("Hội thoại và cài đặt")
+         self.btn_surface_menu.setFixedSize(28, 28)
+-        self.btn_surface_menu.setStyleSheet("QPushButton { border: none; background: transparent; color: #8C8275; font-size: 20px; } QPushButton:hover { color: #302B24; background: #F3EEE5; border-radius: 7px; } QPushButton::menu-indicator { image: none; width: 0; }")
+         menu = QMenu(self.btn_surface_menu)
+         menu.addAction("Hội thoại mới", self._reset_chat)
+         menu.addSeparator()
+@@ -1500,96 +1759,51 @@ class OmnibarWindow(QMainWindow):
+         menu.addSeparator()
+         menu.addAction("Cài đặt…", self._open_settings)
+         self.btn_surface_menu.setMenu(menu)
+-        qb_layout.addWidget(self.btn_surface_menu)
++        self.btn_surface_menu.setVisible(self.debug_ui)
+ 
+-        self.return_keycap = QLabel("↵")
++        self.return_keycap = QLabel("↵", self.workbench_user_lane)
+         self.return_keycap.setObjectName("ReturnKeycap")
+         self.return_keycap.setToolTip("Nhấn Enter để gửi")
+         self.return_keycap.hide()
+-        qb_layout.addWidget(self.return_keycap)
+ 
+-        self.chat_composer_send = QPushButton("↑", quick_bar)
++        self.chat_composer_send = QPushButton("↑", self.workbench_user_lane)
+         self.chat_composer_send.setObjectName("ChatComposerSend")
+         self.chat_composer_send.setFixedSize(28, 28)
+         self.chat_composer_send.setToolTip("Gửi câu hỏi (Enter)")
+         self.chat_composer_send.setAccessibleName("Gửi câu hỏi")
+         self.chat_composer_send.setCursor(Qt.CursorShape.PointingHandCursor)
+         self.chat_composer_send.setEnabled(False)
+-        self.chat_composer_send.setStyleSheet("""
+-            QPushButton#ChatComposerSend {
+-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #F59E0B, stop:1 #D97706);
+-                color: #FFFFFF;
+-                border: 1px solid #B45309;
+-                border-bottom: 2.5px solid #92400E;
+-                border-radius: 8px;
+-                font-size: 15px;
+-                font-weight: bold;
+-                padding-bottom: 1px;
+-            }
+-            QPushButton#ChatComposerSend:hover {
+-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FBBF24, stop:1 #E28D1B);
+-                border: 1px solid #92400E;
+-                border-bottom: 2.5px solid #78350F;
+-            }
+-            QPushButton#ChatComposerSend:pressed {
+-                background: #B45309;
+-                border: 1px solid #78350F;
+-                border-bottom: 1px solid #78350F;
+-                padding-top: 2px;
+-                padding-bottom: 0px;
+-            }
+-            QPushButton#ChatComposerSend:disabled {
+-                background: #F3EFE8;
+-                color: #B5AB9B;
+-                border: 1px solid #E6DFD5;
+-                border-bottom: 1.5px solid #DCD4C4;
+-            }
+-        """)
+         self.chat_composer_send.clicked.connect(self._submit_chat_or_stop)
+-        qb_layout.addWidget(self.chat_composer_send)
+         self.chat_composer_send.setVisible(self.debug_ui)
+-        self.btn_surface_menu.setVisible(self.debug_ui)
++        self.full_chat_send = self.chat_composer_send
+ 
+-        self.quick_bar = quick_bar
++
++        self.mascot_peeking = PeekingRatMascot(self, compat_host)
++        self.mascot_peeking.hide()
++        self.mascot_peeking.speaking_popped_out.connect(self._on_mascot_speaking_popped_out)
++        self.mascot_peeking.idle_retreated.connect(self._on_mascot_idle_retreated)
+ 
+         from rat.ui.work_context import NotebookPane
+-        self.notebook_pane = NotebookPane(self.assistant_runtime.notebook, container)
++        self.notebook_pane = NotebookPane(self.assistant_runtime.notebook, compat_host)
+         self.notebook_pane.changed.connect(self._schedule_surface_fit)
+         self.notebook_pane.error.connect(self.show_toast)
+         self.notebook_pane.changed_notes.connect(self._on_notes_changed)
+-        self.container_layout.addWidget(self.notebook_pane, 0)
+ 
+-        self.surface_notice = QLabel('', container)
+-        self.surface_notice.setWordWrap(True)
+-        self.surface_notice.setStyleSheet('color: #927249; font-size: 12px; border: none; background: transparent; padding: 2px 4px;')
++        self.surface_notice = QLabel('', compat_host)
+         self.surface_notice.hide()
+-        self.container_layout.addWidget(self.surface_notice)
+ 
+-        # -------------------------------------------------------------
+-        # 1b. COMPACT CHAIN-OF-THOUGHT (CoT) RIBBON (Min Mode)
+-        # -------------------------------------------------------------
+-        self.compact_cot = CompactCoTBar(container)
++        self.compact_cot = CompactCoTBar(compat_host)
+         self.compact_cot.heightChanged.connect(self._sync_compact_surface)
+-        self.container_layout.addWidget(self.compact_cot, 0)
+-
+-        # -------------------------------------------------------------
+-        # 2. HAIRLINE DIVIDER (Hidden in clean compact mode)
+-        # -------------------------------------------------------------
+-        self.hairline_divider = QFrame()
+-        self.hairline_divider.setObjectName("HairlineDivider")
+-        self.container_layout.addWidget(self.hairline_divider, 0)
++        self.compact_cot.hide()
++
++        self.hairline_divider = QFrame(compat_host)
+         self.hairline_divider.hide()
+ 
+-        # -------------------------------------------------------------
+-        # 3. QUICK SUGGESTIONS STRIP (Clean suggestion chips)
+-        # -------------------------------------------------------------
+-        self.quick_suggestions = QWidget()
+-        self.quick_suggestions.setObjectName("QuickSuggestionsStrip")
+-        self.quick_suggestions.setFixedHeight(28)
++        self.quick_suggestions = QWidget(compat_host)
++        self.quick_suggestions.hide()
+         qs_layout = QHBoxLayout(self.quick_suggestions)
+         qs_layout.setContentsMargins(2, 0, 2, 0)
+         qs_layout.setSpacing(6)
+-
+         sugg_chips = [
+             ("Gỡ một việc", "Giúp mình ", False),
+             ("Tìm tài liệu", "Mình đang tìm tài liệu về ", False),
+@@ -1597,24 +1811,8 @@ class OmnibarWindow(QMainWindow):
+         ]
+         self.chip_buttons: List[QPushButton] = []
+         for label, q_text, submit in sugg_chips:
+-            chip_btn = QPushButton(label)
++            chip_btn = QPushButton(label, self.quick_suggestions)
+             chip_btn.setProperty("class", "QuickSuggestionChip")
+-            chip_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+-            chip_btn.setStyleSheet("""
+-                QPushButton {
+-                    background: #F7F3EC;
+-                    border: none;
+-                    border-radius: 7px;
+-                    padding: 3px 10px;
+-                    font-size: 11px;
+-                    color: #6D6356;
+-                    font-weight: 400;
+-                }
+-                QPushButton:hover {
+-                    background: #EDE5D6;
+-                    color: #302B24;
+-                }
+-            """)
+             chip_btn.installEventFilter(self.input_filter)
+             chip_btn.clicked.connect(
+                 lambda checked=False, q=q_text, send=submit: self._submit_chat_prompt(q) if send else self._prefill_chat(q)
+@@ -1622,210 +1820,78 @@ class OmnibarWindow(QMainWindow):
+             qs_layout.addWidget(chip_btn)
+             self.chip_buttons.append(chip_btn)
+ 
+-        self.container_layout.addWidget(self.quick_suggestions, 0)
+-        self.quick_suggestions.setVisible(self.debug_ui)
+-
+-        # File results stay actionable in quick mode rather than behind a chat toggle.
+-        self.compact_file_list = QListWidget(container)
++        self.compact_file_list = QListWidget(compat_host)
+         self.compact_file_list.setObjectName("CompactFileResults")
+-        self.compact_file_list.setAccessibleName("Kết quả tìm tệp")
+-        self.compact_file_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+-        self.compact_file_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+-        self.compact_file_list.setUniformItemSizes(True)
+-        self.compact_file_list.setStyleSheet("""
+-            QListWidget#CompactFileResults { border: none; background: transparent; outline: none; }
+-            QListWidget#CompactFileResults::item { border: none; border-radius: 8px; }
+-            QListWidget#CompactFileResults::item:selected { background: #F3ECDf; }
+-            QListWidget#CompactFileResults::item:hover { background: #F6F1E8; }
+-        """)
+-        self.compact_list_filter = OmnibarListFilter(self)
+-        self.compact_file_list.installEventFilter(self.compact_list_filter)
+-        self.compact_file_list.itemDoubleClicked.connect(self._on_item_double_clicked)
+         self.compact_file_list.hide()
+-        self.container_layout.addWidget(self.compact_file_list)
+ 
+-        self.compact_footer = QWidget(container)
++        self.compact_footer = QWidget(compat_host)
++        self.compact_footer.hide()
+         compact_footer_layout = QHBoxLayout(self.compact_footer)
+-        compact_footer_layout.setContentsMargins(6, 2, 4, 2)
+-        compact_footer_layout.setSpacing(6)
+-
+-        # macOS Tactile Keycaps Container
+         self.keycaps_box = QWidget(self.compact_footer)
+-        self.keycaps_box.setStyleSheet("background: transparent;")
+         self.keycaps_layout = QHBoxLayout(self.keycaps_box)
+-        self.keycaps_layout.setContentsMargins(0, 0, 0, 0)
+-        self.keycaps_layout.setSpacing(6)
+         compact_footer_layout.addWidget(self.keycaps_box, 1)
+-
+         self.compact_hint = ElidedLabel("")
+-        self.compact_hint.hide()  # Kept for backward compatibility
+-        compact_footer_layout.addWidget(self.compact_hint)
+-        self.compact_new_chat = QPushButton("Chat mới")
+-        self.compact_new_chat.setToolTip("Bắt đầu hội thoại mới (⌘N)")
++        self.compact_hint.hide()
++        self.compact_new_chat = QPushButton("Chat mới", self.compact_footer)
+         self.compact_new_chat.clicked.connect(self._reset_chat)
+-        self.compact_new_chat.setCursor(Qt.CursorShape.PointingHandCursor)
+-        self.compact_new_chat.setStyleSheet("""
+-            QPushButton { background: transparent; border: none; border-radius: 5px;
+-                color: #776B59; font-size: 10px; padding: 4px 6px; }
+-            QPushButton:hover { background: #F0E8DA; }
+-        """)
+         compact_footer_layout.addWidget(self.compact_new_chat)
+-        self.compact_footer.hide()
+-        self.container_layout.addWidget(self.compact_footer)
+-
+-        # -------------------------------------------------------------
+-        # 4. FOLDER TABS (SECTION BAR)
+-        # -------------------------------------------------------------
+-        self.section_bar = QFrame()
+-        self.section_bar.setObjectName("SectionNavBar")
+-        self.section_bar.setStyleSheet("""
+-            QFrame#SectionNavBar {
+-                background: transparent;
+-                border: none;
+-                padding: 0px;
+-                margin-top: 1px;
+-                margin-bottom: 2px;
+-            }
+-        """)
++
++        self.section_bar = QFrame(compat_host)
++        self.section_bar.hide()
+         section_layout = QHBoxLayout(self.section_bar)
+-        section_layout.setContentsMargins(4, 0, 4, 0)
+-        section_layout.setSpacing(4)
+         self.section_buttons: List[QPushButton] = []
+         for idx, (sec_id, label, tooltip) in enumerate(SECTION_TABS):
+-            btn = QPushButton(label)
+-            btn.setProperty("class", "SectionNavTab")
+-            btn.setProperty("active", "true" if idx == 0 else "false")
+-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+-            btn.setStyleSheet("""
+-                QPushButton.SectionNavTab {
+-                    background-color: transparent;
+-                    color: #786F66;
+-                    font-size: 11.5px;
+-                    font-weight: 550;
+-                    padding: 4px 10px;
+-                    border: none;
+-                    border-radius: 6px;
+-                }
+-                QPushButton.SectionNavTab:hover {
+-                    background-color: rgba(43, 38, 31, 0.06);
+-                    color: #1F1A16;
+-                }
+-                QPushButton.SectionNavTab[active="true"] {
+-                    background-color: #EDE5D8;
+-                    color: #1F1A16;
+-                    font-weight: 700;
+-                }
+-            """)
++            btn = QPushButton(label, self.section_bar)
+             btn.clicked.connect(lambda checked, i=idx: self.switch_section(i))
+             section_layout.addWidget(btn)
+             self.section_buttons.append(btn)
+         section_layout.addStretch()
+-
+-        self.btn_natal = QPushButton("✧ Lá số")
+-        self.btn_natal.setToolTip("Lập bản đồ sao cá nhân theo ngày, giờ và nơi sinh")
+-        self.btn_natal.setCursor(Qt.CursorShape.PointingHandCursor)
++        self.btn_natal = QPushButton("✧ Lá số", self.section_bar)
+         self.btn_natal.clicked.connect(lambda checked=False: self.open_natal_chart())
+-        self.btn_natal.setStyleSheet("QPushButton { background: #EEE5D5; color: #705C38; border: none; border-radius: 6px; padding: 5px 9px; font-size: 11px; } QPushButton:hover { background: #E2D4BA; }")
+         section_layout.addWidget(self.btn_natal)
+-
+-        self.full_model_badge = QLabel("● " + self.assistant_runtime.model_client.model if self.assistant_runtime.model_client else "● " + config.ollama_model)
+-        self.full_model_badge.setStyleSheet("""
+-            color: #92400E;
+-            background: #FEF3C7;
+-            border-radius: 4px;
+-            padding: 2px 7px;
+-            font-size: 10px;
+-            font-weight: 600;
+-        """)
++        self.full_model_badge = QLabel("● " + (self.assistant_runtime.model_client.model if self.assistant_runtime.model_client else config.ollama_model), self.section_bar)
+         section_layout.addWidget(self.full_model_badge)
+-
+-        self.btn_full_collapse = QPushButton("⤡")
+-        self.btn_full_collapse.setFixedSize(24, 24)
+-        self.btn_full_collapse.setCursor(Qt.CursorShape.PointingHandCursor)
+-        self.btn_full_collapse.setToolTip("Thu nhỏ thanh gõ (⌘L)")
+-        self.btn_full_collapse.setStyleSheet("""
+-            QPushButton {
+-                background: transparent;
+-                border: none;
+-                color: #8C8275;
+-                font-size: 13px;
+-                font-weight: bold;
+-                border-radius: 6px;
+-            }
+-            QPushButton:hover {
+-                background: rgba(43, 38, 31, 0.08);
+-                color: #1F1A16;
+-            }
+-        """)
++        self.btn_full_collapse = QPushButton("⤡", self.section_bar)
+         self.btn_full_collapse.clicked.connect(lambda: self.set_expanded(False))
+         section_layout.addWidget(self.btn_full_collapse)
+ 
+-        self.container_layout.addWidget(self.section_bar, 0)
+-        self.section_bar.hide()
+-
+-        # -------------------------------------------------------------
+-        # 5. CONTENT STACK
+-        # -------------------------------------------------------------
+-        self.content_stack = CurrentPageStack()
+-        # Unselected timetable/club pages must not impose their size on the chat overlay.
+-        self.content_stack.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
++        # Content stack embedded inside workbench_canvas content container
++        self.content_stack = CurrentPageStack(self.workbench_canvas.content_container)
++        self.content_stack.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+         self.content_stack.setStyleSheet("background: transparent;")
+-
+         self.home_view = self._create_home_view()
+         self.content_stack.addWidget(self.home_view)
+-
+         self.files_view = self._create_files_view()
+         self.content_stack.addWidget(self.files_view)
+-
+         self.schedule_view = self._create_schedule_view()
+         self.content_stack.addWidget(self.schedule_view)
+-
+         self.club_view = self._create_club_view()
+         self.content_stack.addWidget(self.club_view)
+-
+         self.settings_view = self._create_settings_view()
+         self.content_stack.addWidget(self.settings_view)
+-
+-        self.container_layout.addWidget(self.content_stack, 1)
+         self.content_stack.hide()
++        self.workbench_canvas.set_embedded_stack(self.content_stack)
+ 
+-        # Action Footer
+-        footer = QFrame()
++        footer = QFrame(compat_host)
+         footer.setObjectName("ActionFooter")
+         footer_layout = QHBoxLayout(footer)
+-        footer_layout.setContentsMargins(14, 6, 14, 6)
+-        footer_layout.setSpacing(10)
+-
+-        self.footer_status = QLabel("Sẵn sàng")
+-        self.footer_status.setMinimumWidth(0)
+-        self.footer_status.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+-        self.footer_status.setObjectName("FooterStatus")
++        self.footer_status = QLabel("Sẵn sàng", footer)
+         footer_layout.addWidget(self.footer_status)
+         footer_layout.addStretch()
+-
+         self.action_footer_keycaps_box = QWidget(footer)
+-        self.action_footer_keycaps_box.setStyleSheet("background: transparent;")
+         self.action_footer_keycaps_layout = QHBoxLayout(self.action_footer_keycaps_box)
+-        self.action_footer_keycaps_layout.setContentsMargins(0, 0, 0, 0)
+-        self.action_footer_keycaps_layout.setSpacing(6)
+         footer_layout.addWidget(self.action_footer_keycaps_box)
+-
+         self.footer_hotkey_widgets = []
+         self.action_footer = footer
+         self.action_footer.hide()
+-        self.container_layout.addWidget(self.action_footer)
+-        self.container_layout.addWidget(quick_bar, 0)
+ 
+-        # Hidden Compatibility Buttons
+-        self.btn_new_chat = QPushButton("⌘N", container)
++        self.btn_new_chat = QPushButton("⌘N", compat_host)
+         self.btn_new_chat.clicked.connect(self._reset_chat)
+         self.btn_new_chat.hide()
+-        self.btn_settings = QPushButton("⚙", container)
++        self.btn_settings = QPushButton("⚙", compat_host)
+         self.btn_settings.clicked.connect(self._open_settings)
+         self.btn_settings.hide()
+ 
+-        self.main_layout.addWidget(container, 1)
+-
+     def _compact_height(self) -> int:
+         return self._surface_height()
+ 
+@@ -1833,20 +1899,53 @@ class OmnibarWindow(QMainWindow):
+         screen = self.screen() or QGuiApplication.primaryScreen()
+         available = screen.availableGeometry().height() if screen else 900
+         if self.is_expanded:
+-            room = self.geometry().bottom() - screen.availableGeometry().top() - 12 if screen and self.isVisible() else available - 72
++            anchor = getattr(self, "_anchor_bottom", None)
++            if anchor is None and self.isVisible():
++                anchor = self.geometry().bottom()
++            room = anchor - screen.availableGeometry().top() - 12 if screen and self.isVisible() and anchor else available - 72
+             return min(760, max(300, room))
+-        chrome = self.quick_bar.sizeHint().height() + 50
+-        minimum = self.companion_avatar_btn.height() + 24 if not self.companion_avatar_btn.isHidden() else 128
+-        if not self.notebook_pane.isHidden():
+-            chrome += self.notebook_pane.sizeHint().height() + 8
+-        if self.chat_stream.is_empty():
+-            return min(available * 0.65, max(minimum, chrome + self.quick_suggestions.sizeHint().height()))
+-        self.chat_stream.container.layout().activate()
+-        layout = self.chat_stream.container.layout()
+-        content = layout.totalHeightForWidth(self.chat_stream.viewport().width())
+-        if content < 0:
+-            content = layout.sizeHint().height()
+-        return min(max(240, available * 0.65), max(220, chrome + content))
++
++        margin_top = self.main_layout.contentsMargins().top() if hasattr(self, "main_layout") else 12
++        margin_bottom = self.main_layout.contentsMargins().bottom() if hasattr(self, "main_layout") else 12
++        spacing = self.main_layout.spacing() if hasattr(self, "main_layout") else 8
++        window_chrome = margin_top + margin_bottom + spacing
++
++        dialogue_h = 120
++        if hasattr(self, "workbench_dialogue"):
++            self.workbench_dialogue.layout().activate()
++            dialogue_h = max(120, self.workbench_dialogue.sizeHint().height())
++
++        canvas_chrome = 34
++        if hasattr(self, "workbench_canvas"):
++            canvas_chrome = self.workbench_canvas.chrome_height()
++
++        content_h = 0
++        if hasattr(self, "content_stack") and self.content_stack.isVisible():
++            if self.current_section_idx != 0:
++                cw = self.content_stack.currentWidget()
++                content_h = cw.sizeHint().height() if cw else 200
++            elif (
++                getattr(self, "workbench_scene_enabled", False)
++                and hasattr(self, "workbench_scene")
++                and not self.workbench_scene.is_empty()
++            ):
++                content_h = self.workbench_scene.preferred_height(int(available * 0.55))
++            elif hasattr(self, "chat_stream") and not self.chat_stream.is_empty():
++                self.chat_stream.container.layout().activate()
++                layout = self.chat_stream.container.layout()
++                viewport_w = self.chat_stream.viewport().width() or 480
++                content_h = layout.totalHeightForWidth(viewport_w)
++                if content_h < 0:
++                    content_h = layout.sizeHint().height()
++                # Ensure a usable viewport for results (e.g. at least 56px for a file card)
++                content_h = max(56, min(content_h, min(260, int(available * 0.55))))
++
++        trail_h = 0
++        if hasattr(self, "thought_trail") and self.thought_trail.isVisible():
++            trail_h = self.thought_trail.sizeHint().height()
++
++        total = window_chrome + dialogue_h + canvas_chrome + content_h + trail_h
++        return int(min(max(204, total), max(204, available * 0.75)))
+ 
+     def _schedule_surface_fit(self):
+         if getattr(self, '_surface_fit_pending', False):
+@@ -1859,8 +1958,9 @@ class OmnibarWindow(QMainWindow):
+         if not hasattr(self, 'chat_stream') or getattr(self, '_shutting_down', False):
+             return
+         target = int(self._surface_height())
++        target_w = 820 if self.is_expanded else (min(self.width(), 440) if self._is_narrow() else 620)
+         if abs(target - self.height()) > 3:
+-            self._resize_overlay(820 if self.is_expanded else 620, target, animated=True)
++            self._resize_overlay(target_w, target, animated=True)
+ 
+     def activate_chat_feature(self, index):
+         self.current_section_idx = 0
+@@ -1959,15 +2059,33 @@ class OmnibarWindow(QMainWindow):
+             return
+         busy = self._pending_chat_query is not None
+         updating = self._artifact_worker is not None
+-        started = not self.chat_stream.is_empty()
++        scene_started = bool(
++            getattr(self, "workbench_scene_enabled", False)
++            and hasattr(self, "workbench_scene")
++            and not self.workbench_scene.is_empty()
++        )
++        started = (not self.chat_stream.is_empty()) or scene_started
+         self.quick_suggestions.setVisible(self.debug_ui and not started and not busy and not updating and self.current_section_idx == 0)
+         for widget in (self.speech_bubble, self.mascot_peeking, self.compact_cot,
+                        self.compact_file_list, self.compact_footer, self.section_bar,
+                        self.action_footer, self.hairline_divider):
+             widget.hide()
+         self.quick_bar.setVisible(self.current_section_idx == 0)
+-        self.content_stack.setVisible(started or self.is_expanded or self.current_section_idx != 0)
+-        self.chat_composer_input.setPlaceholderText('Hỏi tiếp hoặc sửa điều gì đó…' if started else 'Bạn muốn làm gì?')
++        stack_visible = bool(
++            started
++            or self.is_expanded
++            or self.current_section_idx != 0
++            or getattr(self, "_interaction_surface_active", False)
++        )
++        self.content_stack.setVisible(stack_visible)
++        if hasattr(self, "workbench_canvas") and hasattr(self.workbench_canvas, "content_container"):
++            self.workbench_canvas.content_container.setVisible(stack_visible)
++        if hasattr(self, "thought_trail"):
++            self.thought_trail.setVisible(self.current_section_idx == 0 and self.workbench_canvas.isVisible())
++        selected = getattr(self, '_selected_document_path', None)
++        self.chat_composer_input.setPlaceholderText(
++            f'Hỏi về {Path(selected).name}…' if selected else
++            'Hỏi tiếp hoặc sửa điều gì đó…' if started else 'Bạn muốn làm gì?')
+         self.chat_composer_send.setText('■' if busy else '…' if updating else '↑')
+         self.chat_composer_send.setToolTip('Dừng xử lý' if busy else 'Đang cập nhật kết quả' if updating else 'Gửi · Enter (Shift+Enter xuống dòng)')
+         self.chat_composer_send.setAccessibleName('Dừng xử lý' if busy else 'Đang cập nhật kết quả' if updating else 'Gửi yêu cầu')
+@@ -1977,14 +2095,26 @@ class OmnibarWindow(QMainWindow):
+         self.btn_expand.setVisible(self.debug_ui)
+         self.notebook_pane.set_busy(busy or updating)
+         self.companion_avatar_btn.setVisible(self.current_section_idx == 0)
+-        if busy or updating:
+-            self.companion_avatar_btn.set_state('thinking')
+-        elif self.assistant_runtime.dispatcher.state.pending_input_request:
+-            self.companion_avatar_btn.set_state('waiting')
+-        elif getattr(self, '_mascot_state', 'idle') == 'error':
+-            self.companion_avatar_btn.set_state('error')
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            snap = self.workbench_scene.current_snapshot
++            self.companion_avatar_btn.set_prop_kind(snap.prop_kind)
++            if busy or updating:
++                self.companion_avatar_btn.set_state(snap.actor_state if snap.actor_state != "idle" else "thinking")
++            elif self.assistant_runtime.dispatcher.state.pending_input_request or snap.phase == "waiting":
++                self.companion_avatar_btn.set_state("waiting")
++            elif getattr(self, "_mascot_state", "idle") == "error" or snap.phase == "error":
++                self.companion_avatar_btn.set_state("error")
++            else:
++                self.companion_avatar_btn.set_state(snap.actor_state if started else "idle")
+         else:
+-            self.companion_avatar_btn.set_state('done' if started else 'idle')
++            if busy or updating:
++                self.companion_avatar_btn.set_state('thinking')
++            elif self.assistant_runtime.dispatcher.state.pending_input_request:
++                self.companion_avatar_btn.set_state('waiting')
++            elif getattr(self, '_mascot_state', 'idle') == 'error':
++                self.companion_avatar_btn.set_state('error')
++            else:
++                self.companion_avatar_btn.set_state('done' if started else 'idle')
+         self._schedule_surface_fit()
+ 
+     def _update_work_results(self, handle, artifacts=()):
+@@ -2014,6 +2144,8 @@ class OmnibarWindow(QMainWindow):
+         self._update_work_results(handle)
+         if self.assistant_runtime.notebook.selection_set and not handle.get('artifacts'):
+             return
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            return
+         host = previous.pop('sources_widget', None)
+         if host is not None:
+             previous['c_layout'].removeWidget(host)
+@@ -2068,6 +2200,7 @@ class OmnibarWindow(QMainWindow):
+             row.open_requested.connect(lambda item: self.feedback.perform("open", item, open_file_default))
+             row.reveal_requested.connect(lambda item: self.feedback.perform("reveal", item, reveal_in_finder))
+             row.preview_requested.connect(lambda item: trigger_quicklook(item.file_path))
++            row.question_requested.connect(self._select_document_question)
+             self.compact_file_list.setItemWidget(list_item, row)
+         count = self.compact_file_list.count()
+         self.compact_file_list.setFixedHeight(max(1, count) * CompactFileRow.ROW_HEIGHT + 4)
+@@ -2077,7 +2210,110 @@ class OmnibarWindow(QMainWindow):
+         if not self.is_expanded:
+             self._resize_overlay(652, self._compact_height())
+ 
++    def _init_finder_service(self, catalog: Optional[ApplicationCatalog] = None) -> None:
++        if catalog is not None:
++            self._on_finder_catalog_ready(catalog)
++            return
++
++        def scan_job() -> None:
++            try:
++                cat = ApplicationCatalog.scan()
++                self._finder_bridge.catalog_ready.emit(cat)
++            except Exception as ex:
++                logger.exception("Finder application catalog scan failed: %s", ex)
++
++        threading.Thread(target=scan_job, name="rat-finder-catalog-init", daemon=True).start()
++
++    def _on_finder_catalog_ready(self, catalog: ApplicationCatalog) -> None:
++        if getattr(self, "_shutting_down", False):
++            return
++        self._finder_catalog = catalog
++        self._finder_search = ProgressiveSearch(config.db_path, catalog=catalog)
++        self._finder_coordinator = SearchCoordinator(
++            self._finder_search,
++            on_update=lambda snap: self._finder_bridge.snapshot_ready.emit(snap),
++        )
++        if hasattr(self, "chat_composer_input") and not getattr(self.chat_composer_input, "is_composing", lambda: False)():
++            q = self.chat_composer_input.text().strip()
++            if q and len(q) <= 2000 and getattr(self, "workbench_finder_enabled", False):
++                self._finder_coordinator.submit(q, limit=15, selected_id=self._finder_selected_id)
++
++    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
++        if event.type() == QEvent.Type.Paint:
++            t0 = getattr(self, "_pending_delivery_paint_t0", None)
++            if t0 is not None:
++                self.last_delivery_to_paint_ms = (time.perf_counter() - t0) * 1000.0
++                self._pending_delivery_paint_t0 = None
++        return super().eventFilter(watched, event)
++
++    @pyqtSlot(object)
++    def _on_finder_snapshot_delivered(self, snapshot: SearchSnapshot) -> None:
++        t_deliv0 = time.perf_counter()
++        if self._finder_coordinator is not None and not self._finder_coordinator.is_current(snapshot.query_id):
++            return
++
++        if snapshot.hits and getattr(self, "_first_hit_query_id", None) != snapshot.query_id:
++            self._first_hit_query_id = snapshot.query_id
++            if self._finder_query_submit_t0 is not None:
++                self.last_query_to_first_hit_ms = (t_deliv0 - self._finder_query_submit_t0) * 1000.0
++                self._finder_query_submit_t0 = None
++            elif getattr(snapshot, "elapsed_ms", 0.0):
++                self.last_query_to_first_hit_ms = float(snapshot.elapsed_ms)
++
++        # Maintain selection by resource_id
++        current_sel = self._finder_selected_id
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            box_sel = getattr(self.workbench_scene.finder_box, "selected_resource_id", None)
++            if box_sel:
++                current_sel = box_sel
++
++        if any(h.resource_id == current_sel for h in snapshot.hits):
++            self._finder_selected_id = current_sel
++        elif snapshot.hits:
++            self._finder_selected_id = snapshot.hits[0].resource_id
++        else:
++            self._finder_selected_id = None
++
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.set_finder_snapshot(snapshot, selected_id=self._finder_selected_id)
++            if self.workbench_scene.finder_box.has_visible_content():
++                self._interaction_surface_active = True
++                self.content_stack.setVisible(True)
++                if hasattr(self, "workbench_canvas"):
++                    if hasattr(self.workbench_canvas, "content_container"):
++                        self.workbench_canvas.content_container.setVisible(True)
++                    if hasattr(self.workbench_canvas, "_sync_header_visibility"):
++                        self.workbench_canvas._sync_header_visibility()
++                self._schedule_surface_fit()
++        else:
++            file_hits = [
++                SearchResultItem(
++                    file_path=h.path,
++                    file_name=h.title,
++                    file_ext=Path(h.path).suffix,
++                    file_size=0,
++                    modified_at=0.0,
++                    score=0.0,
++                    explanation="",
++                    snippet=h.snippet,
++                )
++                for h in snapshot.hits
++                if h.kind == "file"
++            ]
++            self._set_compact_files(file_hits)
++        self._pending_delivery_paint_t0 = t_deliv0
++
+     def _on_composer_text_changed(self, text: str) -> None:
++        t_edit0 = time.perf_counter()
++        t_key0 = getattr(self, "_last_key_press_t0", None)
++        if t_key0 is not None:
++            self.last_key_to_editor_ms = (time.perf_counter() - t_key0) * 1000.0
++            self._last_key_press_t0 = None
++        else:
++            self.last_key_to_editor_ms = (time.perf_counter() - t_edit0) * 1000.0
++        if hasattr(self, "chat_composer_input") and getattr(self.chat_composer_input, "is_composing", lambda: False)():
++            return
++
+         q = text.strip()
+         is_active = bool(q)
+         self.chat_composer_send.setEnabled(self._artifact_worker is None and (is_active or self._pending_chat_query is not None))
+@@ -2091,10 +2327,147 @@ class OmnibarWindow(QMainWindow):
+                 self.rat_stage.set_state("idle")
+             if hasattr(self, "speech_bubble") and hasattr(self, "chat_stream") and self.chat_stream.is_empty():
+                 self.speech_bubble.reset_welcome()
++            if getattr(self, "workbench_finder_enabled", False):
++                if getattr(self, "_finder_coordinator", None) is not None:
++                    self._finder_coordinator.cancel()
++                self._finder_selected_id = None
++                if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                    self.workbench_scene.clear_finder_snapshot()
++                self._set_compact_files(None)
++                if (
++                    self.chat_stream.is_empty()
++                    and not self.is_expanded
++                    and (
++                        not hasattr(self, "workbench_scene")
++                        or self.workbench_scene.is_empty()
++                    )
++                ):
++                    self._interaction_surface_active = False
++                    self.content_stack.setVisible(False)
++                    if hasattr(self, "workbench_canvas") and hasattr(self.workbench_canvas, "content_container"):
++                        self.workbench_canvas.content_container.setVisible(False)
++                    self._schedule_surface_fit()
+             return
++
+         if getattr(self, "rat_stage", None):
+             self.rat_stage.set_state("listening", "Chuột · Đang nghe")
+ 
++        # Progressive finder search if enabled and ready
++        if getattr(self, "workbench_finder_enabled", False):
++            if len(q) > 2000:
++                if getattr(self, "_finder_coordinator", None) is not None:
++                    self._finder_coordinator.cancel()
++                self._finder_selected_id = None
++                if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                    self.workbench_scene.clear_finder_snapshot()
++                self._set_compact_files(None)
++            elif getattr(self, "_finder_coordinator", None) is not None:
++                try:
++                    self._finder_query_submit_t0 = time.perf_counter()
++                    self._finder_coordinator.submit(q, limit=15, selected_id=self._finder_selected_id)
++                except ValueError:
++                    if getattr(self, "_finder_coordinator", None) is not None:
++                        self._finder_coordinator.cancel()
++                    self._finder_selected_id = None
++                    if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                        self.workbench_scene.clear_finder_snapshot()
++                    self._set_compact_files(None)
++
++    def _on_finder_hit_selected(self, resource_id: str) -> None:
++        self._finder_selected_id = resource_id
++
++    def _on_scene_mode_changed(self, mode: str) -> None:
++        if not getattr(self, "workbench_scene_enabled", False) or not hasattr(self, "workbench_scene"):
++            return
++        snap = self.workbench_scene.current_snapshot
++        if mode == "source_detail" and self.workbench_scene.selected_source_id:
++            src = self.workbench_scene.find_source(self.workbench_scene.selected_source_id)
++            if src is not None:
++                self.workbench_canvas.set_work(
++                    f"Nguồn: {src.title}",
++                    status=src.scope_label or "Đi sâu vào nguồn",
++                )
++                self.workbench_canvas.mode_lbl.setText("Đi sâu vào nguồn")
++                self.workbench_speech_bubble.set_reply(
++                    f"Đang mở {src.title} ({src.scope_label or 'chi tiết'}). Nhấn ‘← Tổng quan công việc’ hoặc gõ ‘quay lại’ để về bàn.",
++                    "Chi tiết nguồn",
++                    copy_text=src.snippet or src.title,
++                    has_details=True,
++                )
++        else:
++            title = (snap.result_node.title if snap.result_node else None) or snap.query or "Không gian làm việc"
++            self.workbench_canvas.set_work(title, status=snap.phase_label or "Đã xong")
++            self.workbench_canvas.mode_lbl.setText(
++                "Chi tiết công việc" if self.is_expanded else ""
++            )
++            if snap.phase != "empty":
++                copy_txt = (snap.result_node.answer_text if snap.result_node else "") or snap.rat_speech
++                self.workbench_speech_bubble.set_reply(
++                    snap.rat_speech,
++                    snap.phase_label,
++                    copy_text=copy_txt,
++                    has_details=not self.workbench_scene.is_empty(),
++                    is_error=(snap.phase == "error"),
++                )
++        self._schedule_surface_fit()
++
++    def _sync_workbench_scene(
++        self,
++        *,
++        artifacts: Optional[List[Any]] = None,
++        animate: bool = True,
++    ) -> None:
++        if not getattr(self, "workbench_scene_enabled", False) or not hasattr(self, "workbench_scene"):
++            return
++        snap = self.workbench_scene.projector.snapshot(store=self.assistant_runtime.artifact_store)
++        self.workbench_scene.apply_snapshot(snap, artifacts=artifacts, animate=animate)
++
++        if self.workbench_scene.is_empty():
++            self.workbench_canvas.reset_work()
++            self.workbench_speech_bubble.reset_welcome()
++            self.workbench_user_lane.set_phase("idle")
++            self._sync_compact_surface()
++            return
++
++        if self.workbench_scene.mode == "source_detail" and self.workbench_scene.selected_source_id:
++            self._on_scene_mode_changed("source_detail")
++        else:
++            title = (snap.result_node.title if snap.result_node else None) or snap.query or "Không gian làm việc"
++            self.workbench_canvas.set_work(title, status=snap.phase_label or "Đang xử lý")
++            self.workbench_canvas.mode_lbl.setText(
++                "Chi tiết công việc" if self.is_expanded else ""
++            )
++            copy_txt = (snap.result_node.answer_text if snap.result_node else "") or snap.rat_speech
++            self.workbench_speech_bubble.set_reply(
++                snap.rat_speech,
++                snap.phase_label,
++                copy_text=copy_txt,
++                has_details=True,
++                is_error=(snap.phase == "error"),
++            )
++
++        lane_phase = {
++            "empty": "idle",
++            "working": "working",
++            "waiting": "waiting",
++            "done": "done",
++            "error": "error",
++            "cancelled": "cancelled",
++        }.get(snap.phase, "idle")
++        self.workbench_user_lane.set_phase(lane_phase)
++        self._sync_compact_surface()
++
++    def _apply_theme(self) -> None:
++        if hasattr(self, "workbench_canvas") and hasattr(self.workbench_canvas, "_apply_theme"):
++            self.workbench_canvas._apply_theme()
++        if hasattr(self, "thought_trail") and hasattr(self.thought_trail, "_apply_theme"):
++            self.thought_trail._apply_theme()
++        if hasattr(self, "workbench_dialogue") and hasattr(self.workbench_dialogue, "_apply_theme"):
++            self.workbench_dialogue._apply_theme()
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene") and hasattr(self.workbench_scene, "_apply_theme"):
++            self.workbench_scene._apply_theme()
++
++
+     # -----------------------------------------------------------------
+     # PAGE 0: CHAT HOME
+     # -----------------------------------------------------------------
+@@ -2115,13 +2488,37 @@ class OmnibarWindow(QMainWindow):
+ 
+         self._on_chat_prompt_action = _on_chat_prompt_action
+         self.chat_stream.prompt_clicked.connect(_on_chat_prompt_action)
++        self.chat_stream.document_question_requested.connect(self._select_document_question)
+         self.chat_stream.note_edit_saved.connect(self._on_turn_note_edited)
+         self.chat_stream.note_removed.connect(self._on_turn_note_removed)
+         self.chat_stream.note_restored.connect(self._on_turn_note_restored)
+         self.chat_stream.note_confirmed.connect(self._on_turn_note_confirmed)
+         self.chat_stream.navigate_turn_requested.connect(self.chat_stream.navigate_to_turn_note)
+         self.chat_stream.edit_replacement_requested.connect(self.chat_stream.open_editor_on_note)
+-        root_layout.addWidget(self.chat_stream, 1)
++
++        self.workbench_scene = WorkbenchScene(
++            registry=self.assistant_runtime.registry,
++            store=self.assistant_runtime.artifact_store,
++            on_open_file=open_file_default,
++            on_open_app=self._request_open_application,
++            on_action=self._on_action_dispatched,
++            on_input=self._on_input_submitted,
++            on_question=self._select_document_question,
++            parent=widget,
++        )
++        self.workbench_scene.mode_changed.connect(self._on_scene_mode_changed)
++        self.workbench_scene.content_changed.connect(self._schedule_surface_fit)
++        self.workbench_scene.installEventFilter(self)
++        self.workbench_scene.finder_box.set_event_filter(self.input_filter)
++        self.workbench_scene.finder_box.hit_selected.connect(self._on_finder_hit_selected)
++
++        if self.workbench_scene_enabled:
++            root_layout.addWidget(self.workbench_scene, 1)
++            self.workbench_scene.show()
++            self.chat_stream.hide()
++        else:
++            self.workbench_scene.hide()
++            root_layout.addWidget(self.chat_stream, 1)
+ 
+         self.full_chat_input = self.chat_composer_input
+         self.full_chat_send = self.chat_composer_send
+@@ -2129,8 +2526,13 @@ class OmnibarWindow(QMainWindow):
+ 
+         # Hidden Compatibility Container for Tests
+         compat_box = QWidget(widget)
++        compat_box.setObjectName("compat_box")
+         compat_box.hide()
++        compat_box.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
++        compat_box.setMaximumSize(0, 0)
+         compat_layout = QVBoxLayout(compat_box)
++        if self.workbench_scene_enabled:
++            compat_layout.addWidget(self.chat_stream)
+ 
+         # Micro footer (kept inside compat container so it never becomes a top-level window)
+         self.chat_micro_footer = QWidget(compat_box)
+@@ -2241,6 +2643,7 @@ class OmnibarWindow(QMainWindow):
+ 
+         # Right Inspector Panel
+         self.preview_panel = PreviewPanel()
++        self.preview_panel.ask_requested.connect(self._on_selected_document_question)
+         self.splitter.addWidget(self.preview_panel)
+ 
+         self.splitter.setSizes([280, 380])
+@@ -3051,10 +3454,10 @@ class OmnibarWindow(QMainWindow):
+             v_info.setContentsMargins(0, 0, 0, 0)
+             v_info.setSpacing(3)
+             title = QLabel(f"<b>{slot.day_name}</b> — Tiết {slot.start_period}-{slot.end_period} ({slot.time_range})")
+-            title.setStyleSheet(f"color: {av['text']}; font-size: 12px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;")
++            title.setStyleSheet(f"color: {av['text']}; font-size: 12px; font-weight: 600; font-family: {FONT_FAMILY};")
+             free_names = ", ".join(slot.free_members) if slot.free_members else "Không có ai"
+             desc = QLabel(f"{slot.free_count} trên {slot.total_count} bạn rảnh: {free_names}")
+-            desc.setStyleSheet("color: #81766b; font-size: 10.5px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;")
++            desc.setStyleSheet(f"color: #81766b; font-size: 10.5px; font-family: {FONT_FAMILY};")
+             desc.setWordWrap(True)
+             v_info.addWidget(title)
+             v_info.addWidget(desc)
+@@ -3536,6 +3939,29 @@ class OmnibarWindow(QMainWindow):
+         self._present_compact_reply(
+             answer, context_str, has_details=bool(custom_widget), file_summary=bool(inline_files)
+         )
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_phase("done")
++        if hasattr(self, "workbench_canvas"):
++            self.workbench_canvas.set_work(
++                self._last_assistant_query or context_str,
++                status="Đã xong",
++            )
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            proj = self.workbench_scene.projector
++            proj.query = self._last_assistant_query or context_str
++            proj.phase = "done"
++            proj.phase_label = "Đã xong"
++            proj.actor_state = "done"
++            proj.rat_speech = sanitize_public_text(answer, max_chars=240) or "Đã xong kết quả."
++            proj.result_node = SceneResultNode(
++                node_id=f"reply:{self._chat_generation}",
++                title=self._last_assistant_query or context_str,
++                answer_text=sanitize_public_text(answer, max_chars=2000),
++                status="ready",
++                status_label="Đã xong",
++            )
++            self.workbench_scene._render_snapshot(animate=True)
++            self._sync_workbench_scene()
+         self.speech_bubble.context_pill.setToolTip(f"{strategy} · {latency_ms:.0f} ms")
+ 
+         if hasattr(self, "chat_stream"):
+@@ -3570,6 +3996,8 @@ class OmnibarWindow(QMainWindow):
+             self.set_mascot_state("idle")
+ 
+     def _reset_chat(self) -> None:
++        self._interaction_surface_active = False
++        self._selected_document_path = None
+         self._chat_generation += 1
+         self._conversation.clear()
+         self._assistant_sources = []
+@@ -3600,20 +4028,74 @@ class OmnibarWindow(QMainWindow):
+         self.set_mascot_idle()
+         if hasattr(self, "speech_bubble"):
+             self.speech_bubble.reset_welcome()
++        if hasattr(self, "workbench_speech_bubble"):
++            self.workbench_speech_bubble.reset_welcome()
++        if hasattr(self, "workbench_canvas"):
++            self.workbench_canvas.reset_work()
++        if hasattr(self, "workbench_scene"):
++            self.workbench_scene.reset()
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_phase("idle")
++            self.workbench_user_lane.set_last_user_query("")
+         self.search_input.clear()
+         if hasattr(self, "chat_composer_input"):
+             self.chat_composer_input.clear()
++        if getattr(self, "workbench_finder_enabled", False):
++            if getattr(self, "_finder_coordinator", None) is not None:
++                self._finder_coordinator.cancel()
++            self._finder_selected_id = None
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                self.workbench_scene.clear_finder_snapshot()
+         self.switch_section(0)
+         self.show_toast("Đã làm mới phiên chat")
+ 
+-    def _submit_chat_prompt(self, query: str) -> None:
++    def _select_document_question(self, item):
++        if not Path(item.file_path).is_absolute():
++            self.show_toast('Chọn một tệp trong chỉ mục để hỏi nội dung.')
++            return
++        if self._pending_chat_query is not None or self._artifact_worker is not None:
++            self.show_toast('Chờ câu trả lời hiện tại hoặc dừng trước khi chọn tệp khác.')
++            return
++        self._selected_document_path = item.file_path
++        self._show_interaction_surface()
++        self._sync_compact_surface()
++        self.chat_composer_input.setFocus()
++        self.show_toast(f'Đang hỏi về {item.file_name}. Nhập câu hỏi trong ô chat.')
++
++    def _on_selected_document_question(self, file_path, file_name, question):
++        # This signal is an explicit question about the displayed selection;
++        # ordinary chat is never routed by filename/topic keyword matching.
++        self._submit_chat_prompt(question, selected_document_path=file_path)
++
++    def _submit_chat_prompt(self, query: str, *, selected_document_path=None) -> None:
++        if hasattr(self, "chat_composer_input") and getattr(self.chat_composer_input, "is_composing", lambda: False)():
++            return
+         q = query.strip()
+         if not q:
+             return
++
++        from rat.ui.workbench import is_expand_command, is_collapse_command, is_stop_command
++        if is_expand_command(q):
++            if hasattr(self, "chat_composer_input") and self.chat_composer_input.text().strip() == q:
++                self.chat_composer_input.clear()
++            self.set_expanded(True)
++            return
++        if is_collapse_command(q):
++            if hasattr(self, "chat_composer_input") and self.chat_composer_input.text().strip() == q:
++                self.chat_composer_input.clear()
++            self.set_expanded(False)
++            return
++
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            if self.workbench_scene.try_handle_scene_command(q):
++                if hasattr(self, "chat_composer_input") and self.chat_composer_input.text().strip() == q:
++                    self.chat_composer_input.clear()
++                self._sync_workbench_scene()
++                self._sync_compact_surface()
++                return
++
+         # Control of an active execution is independent of model/domain routing.
+-        if self._pending_chat_query is not None and q.casefold().rstrip('.!') in {
+-            'dừng', 'dừng lại', 'hủy', 'huỷ', 'stop', 'cancel',
+-        }:
++        if self._pending_chat_query is not None and is_stop_command(q):
+             self._cancel_assistant()
+             if self.chat_composer_input.text().strip() == q:
+                 self.chat_composer_input.clear()
+@@ -3623,10 +4105,39 @@ class OmnibarWindow(QMainWindow):
+             self.footer_status.setText("Đang trả lời câu trước. Câu đang gõ vẫn được giữ.")
+             return
+ 
++        active_doc = selected_document_path or self._selected_document_path
++        if not active_doc and (
++            getattr(self, "workbench_finder_enabled", False)
++            or getattr(self, "workbench_scene_enabled", False)
++            or getattr(self, "_finder_catalog", None) is not None
++        ):
++            from rat.engine.finder_intent import parse_finder_intent
++            intent = parse_finder_intent(q, catalog=getattr(self, "_finder_catalog", None))
++            if intent.action == "negated_open":
++                self._handle_negated_open_command(q, intent)
++                return
++            if intent.action == "open_app":
++                self._request_open_application(query=q)
++                return
++
+         self._apply_assistant_model()
++        selected_document_path = active_doc
++        self._selected_document_path = None
+         self._pending_chat_query = q
+         self._last_assistant_query = q
+         self._set_compact_files(None)
++        if getattr(self, "workbench_finder_enabled", False):
++            if getattr(self, "_finder_coordinator", None) is not None:
++                self._finder_coordinator.cancel()
++            self._finder_selected_id = None
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                self.workbench_scene.clear_finder_snapshot()
++
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_last_user_query(q)
++            self.workbench_user_lane.set_phase("working")
++        if hasattr(self, "workbench_canvas"):
++            self.workbench_canvas.set_work(q, status="Đang xử lý")
+ 
+         if self.current_section_idx != 0:
+             self.switch_section(0)
+@@ -3634,6 +4145,8 @@ class OmnibarWindow(QMainWindow):
+         # Keep one conversation surface for requests and their sources.
+         self.set_mascot_state("thinking", "Chuột · Suy nghĩ...")
+         self.speech_bubble.set_reply("Đang suy nghĩ…", "Đang nghĩ", copy_text="")
++        if hasattr(self, "workbench_speech_bubble"):
++            self.workbench_speech_bubble.set_reply("Đang suy nghĩ…", "Đang nghĩ", copy_text="")
+         if hasattr(self, "compact_cot"):
+             self.compact_cot.clear()
+ 
+@@ -3660,15 +4173,54 @@ class OmnibarWindow(QMainWindow):
+         handle["turn_ref"] = turn_ref
+         handle["execution_id"] = execution_id
+         handle["observed_sources"] = list(self._assistant_sources)
++        handle['selected_document_path'] = selected_document_path
++        handle["submit_t0"] = time.perf_counter()
++        handle["first_ui_token_ms"] = None
+         self._carry_work_results(handle)
+         handle["work_trace"].set_status("Đã nhận việc")
+         self._assistant_handle = handle
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            initial_contract = None
++            if selected_document_path:
++                from rat.engine.completion import OutcomeSpec, TurnContract
++                initial_contract = TurnContract(
++                    turn_id=str(turn_ref.turn_id),
++                    execution_id=str(execution_id),
++                    outcomes=[
++                        OutcomeSpec(
++                            outcome_id="read_selected_doc",
++                            kind="registered_effect",
++                            effect_type="read_document",
++                            expected_args={"file_path": str(selected_document_path)},
++                            description=f"Đọc trích đoạn {Path(selected_document_path).name}",
++                        ),
++                        OutcomeSpec(
++                            outcome_id="answer_from_excerpt",
++                            kind="response",
++                            dependency_ids=["read_selected_doc"],
++                            description=f"Trả lời câu hỏi từ trích đoạn đã đọc của {Path(selected_document_path).name}",
++                        ),
++                    ],
++                    proposed_by="selected_document_qa",
++                )
++            self.workbench_scene.begin_turn(
++                q,
++                generation=self._chat_generation,
++                execution_id=execution_id,
++                turn_id=turn_ref.turn_id,
++                turn_contract=initial_contract,
++                previous_sources=list(self._assistant_sources),
++                previous_artifacts=list(handle.get("artifacts", {}).values()),
++                artifact_store=self.assistant_runtime.artifact_store,
++            )
++            self._sync_workbench_scene()
+         from rat.ui.assistant_worker import AssistantWorker
+         worker = AssistantWorker(
+             self.assistant_runtime, q, history=history_messages,
+             previous_sources=list(self._assistant_sources), member_id=self.current_member.id,
+             task_state=dict(self._assistant_task_state),
+             turn_ref=turn_ref, execution_id=execution_id, turn_references=turn_references,
++            document_path=selected_document_path,
+             parent=QApplication.instance(),
+         )
+         self._current_reasoner = worker
+@@ -3676,20 +4228,102 @@ class OmnibarWindow(QMainWindow):
+         worker.progress_changed.connect(lambda status, h=handle: self._on_assistant_progress(h, status))
+         worker.step_completed.connect(lambda step, h=handle: self._on_assistant_step(h, step))
+         worker.response_ready.connect(lambda result, h=handle: self._on_assistant_response(h, result))
++        if hasattr(worker, "text_streamed"):
++            worker.text_streamed.connect(lambda text, h=handle: self._on_assistant_text_streamed(h, text))
+         worker.finished.connect(lambda w=worker: self._on_chat_worker_finished(w))
+         worker.finished.connect(worker.deleteLater)
+         worker.start()
+         self._sync_compact_surface()
+ 
++    def _on_assistant_text_streamed(self, handle, text: str) -> None:
++        if getattr(self, "_shutting_down", False):
++            return
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
++                self.workbench_scene.on_text_streamed(
++                    text,
++                    generation=handle.get("generation", -1),
++                    execution_id=handle.get("execution_id", ""),
++                )
++                return
++        if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
++            return
++        if handle.get("first_ui_token_ms") is None and handle.get("submit_t0") is not None:
++            handle["first_ui_token_ms"] = (time.perf_counter() - handle["submit_t0"]) * 1000.0
++        self.chat_stream.append_stream_token(handle, text)
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.on_text_streamed(
++                text,
++                generation=handle.get("generation", -1),
++                execution_id=handle.get("execution_id", ""),
++            )
++            self._sync_workbench_scene(animate=False)
++
++    def _init_document_model_preload(self) -> None:
++        if not getattr(config, "document_model_preload", False):
++            return
++        if not hasattr(self, "assistant_runtime") or self.assistant_runtime is None:
++            return
++        client = getattr(self.assistant_runtime, "document_model_client", None)
++        if client is None:
++            return
++
++        self._document_model_status = "preparing"
++        future = self.assistant_runtime.preload_document_model()
++        if future is None:
++            return
++
++        def _on_done(f):
++            if getattr(self, "_shutting_down", False):
++                return
++            try:
++                f.result()
++                err = ""
++                ok = True
++            except Exception as e:
++                err = str(e)
++                ok = False
++            self._model_bridge.preload_completed.emit(ok, err)
++
++        future.add_done_callback(_on_done)
++
++    def _on_document_model_preload_completed(self, ok: bool, error: str) -> None:
++        if getattr(self, "_shutting_down", False):
++            return
++        if ok:
++            self._document_model_status = "ready"
++            logger.info("Native document model preloaded and ready.")
++        else:
++            self._document_model_status = "error"
++            self._document_model_error = error
++            logger.warning(f"Native document model preload error: {error}")
++
+     def _on_assistant_progress(self, handle, status):
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.on_progress(
++                status,
++                generation=handle.get("generation", -1),
++                execution_id=handle.get("execution_id", ""),
++            )
++            self._sync_workbench_scene()
+         if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
+             return
+         handle["status_lbl"].setText(status)
+         self.footer_status.setText(status)
+         self.speech_bubble.set_reply(status, "Đang xử lý", copy_text="")
++        if hasattr(self, "workbench_speech_bubble"):
++            self.workbench_speech_bubble.set_reply(status, "Đang xử lý", copy_text="")
+         handle["work_trace"].set_status(status)
+ 
+     def _on_assistant_step(self, handle, step):
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.on_step(
++                step,
++                generation=handle.get("generation", -1),
++                execution_id=handle.get("execution_id", ""),
++                artifact_store=self.assistant_runtime.artifact_store,
++            )
++            self._sync_workbench_scene()
+         if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
+             return
+         handle["work_trace"].add_step(step)
+@@ -3712,6 +4346,8 @@ class OmnibarWindow(QMainWindow):
+         if sources == handle["observed_sources"] and not task_updated and not getattr(step, "artifacts", None) and not selection_updated:
+             return
+         handle["observed_sources"] = sources
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            return
+         self.chat_stream.update_source_cards(
+             handle,
+             inline_files=document_cards(self._work_sources(sources)),
+@@ -3723,12 +4359,37 @@ class OmnibarWindow(QMainWindow):
+                 registry=self.assistant_runtime.registry,
+                 on_action=self._on_action_dispatched,
+                 on_input=self._on_input_submitted,
++                on_question=self._select_document_question,
+             ),
+         )
+ 
+     def _on_assistant_response(self, handle, response):
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
++                self.workbench_scene.on_response(
++                    response,
++                    generation=handle.get("generation", -1),
++                    execution_id=handle.get("execution_id", ""),
++                    artifact_store=self.assistant_runtime.artifact_store,
++                    pending_input_request=self.assistant_runtime.dispatcher.state.pending_input_request,
++                )
++                return
+         if handle.get("generation") != self._chat_generation or handle is not self._assistant_handle:
+             return
++        submit_t0 = handle.get("submit_t0")
++        submit_to_done_ms = (
++            (time.perf_counter() - submit_t0) * 1000.0
++            if submit_t0 is not None
++            else float(getattr(response, "total_time_ms", 0.0) or 0.0)
++        )
++        first_ui_token_ms = handle.get("first_ui_token_ms")
++        qa_tel = dict(getattr(response, "qa_telemetry", None) or {})
++        if first_ui_token_ms is not None:
++            qa_tel.setdefault("first_ui_token_ms", first_ui_token_ms)
++        qa_tel["submit_to_done_ms"] = submit_to_done_ms
++        if getattr(response, "qa_telemetry", None) is not None or first_ui_token_ms is not None:
++            response.qa_telemetry = qa_tel
++        self.last_turn_telemetry = dict(qa_tel)
+         failed = bool(response.error)
+         handle["work_trace"].finish(response)
+         self._refresh_notes_surface()
+@@ -3773,8 +4434,25 @@ class OmnibarWindow(QMainWindow):
+                           if response.sources else "Mình chưa hoàn tất yêu cầu trong lượt này. Bạn có thể thu hẹp yêu cầu hoặc thử lại.")
+             elif response.error == "verification_failed":
+                 answer = "Mình phát hiện kết luận chưa khớp khi đối chiếu và chưa sửa xong trong lượt này. Bạn có thể xem các bước kiểm tra hoặc thử lại."
++            elif response.error == 'selected_document_read_failed':
++                answer = 'Không đọc lại được tệp đã chọn. Hãy tìm và chọn lại tệp trong chỉ mục.'
++            elif response.error == 'selected_document_no_text':
++                answer = 'Phần đã đọc của tệp không có văn bản để trả lời câu hỏi.'
++            elif response.error in {'selected_document_context_too_large', 'invalid_selected_document_question'}:
++                answer = 'Hãy chọn một tệp và rút gọn câu hỏi để vừa giới hạn đọc.'
+             elif response.error in {"verification_unresolved", "invalid_verified_answer_format"}:
+                 answer = "Mình chưa đối chiếu được kết luận trong lượt này. Bạn có thể ghi rõ biểu thức cần tính hoặc xem các bước kiểm tra."
++            elif response.error == 'selected_document_requires_local_model':
++                answer = 'Yêu cầu mô hình cục bộ: hãy cấu hình đường dẫn mô hình MLX trong Cài đặt hoặc khởi chạy Ollama.'
++            elif response.error == 'native_model_requires_complete_local_directory':
++                answer = 'Mô hình MLX cục bộ không hợp lệ: thư mục cần chứa đầy đủ config.json, tokenizer.json và file .safetensors.'
++            elif response.error in {'model_load_failed', 'native_model_not_found', 'document_model_closed'}:
++                answer = 'Không thể nạp mô hình cục bộ. Vui lòng kiểm tra lại đường dẫn mô hình trong Cài đặt.'
++            elif handle.get('selected_document_path'):
++                if getattr(self.assistant_runtime, "document_model_client", None) is not None:
++                    answer = f"Lỗi mô hình Hỏi tệp cục bộ ({response.error}). Vui lòng kiểm tra lại mô hình trong Cài đặt hoặc thử lại."
++                else:
++                    answer = "Mình chưa trả lời được lượt này. Bạn có thể thử lại hoặc kiểm tra Ollama trong Cài đặt."
+             else:
+                 answer = "Mình chưa trả lời được lượt này. Bạn có thể thử lại hoặc kiểm tra Ollama trong Cài đặt."
+             if response.pending_input_request is not None and not self.debug_ui:
+@@ -3814,24 +4492,55 @@ class OmnibarWindow(QMainWindow):
+         self._update_work_results(handle, response.artifacts if not self.assistant_runtime.notebook.selection_set else [])
+         from rat.ui.assistant_presenter import document_cards, source_panel
+         files = document_cards(self._work_sources(self._assistant_sources))
+-        agenda = source_panel(
+-            self._work_sources(self._assistant_sources),
+-            self.open_natal_chart,
+-            response.task_state if response.task_state_updated else None,
+-            artifacts=list(handle.get("artifacts", {}).values()),
+-            registry=self.assistant_runtime.registry,
+-            on_action=self._on_action_dispatched,
+-            on_input=self._on_input_submitted,
+-        )
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            agenda = None
++        else:
++            agenda = source_panel(
++                self._work_sources(self._assistant_sources),
++                self.open_natal_chart,
++                response.task_state if response.task_state_updated else None,
++                artifacts=list(handle.get("artifacts", {}).values()),
++                registry=self.assistant_runtime.registry,
++                on_action=self._on_action_dispatched,
++                on_input=self._on_input_submitted,
++                on_question=self._select_document_question,
++            )
+         handle["full_text"] = answer
+         handle["badge_lbl"].setText("· Chưa hoàn tất" if failed else "· Chuột")
+         handle["card"].setToolTip(f"Thời gian xử lý: {response.total_time_ms / 1000:.1f} giây")
+         self.chat_stream.finalize_stream(
+             handle, latency_ms=response.total_time_ms, inline_files=files,
+-            custom_widget=agenda, retry_prompt=self._last_assistant_query if failed else None,
++            custom_widget=agenda, retry_prompt=self._last_assistant_query if failed and not handle.get('selected_document_path') else None,
+         )
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.on_response(
++                response,
++                generation=handle.get("generation", -1),
++                execution_id=handle.get("execution_id", ""),
++                artifact_store=self.assistant_runtime.artifact_store,
++                pending_input_request=self.assistant_runtime.dispatcher.state.pending_input_request,
++            )
++            self._sync_workbench_scene()
+         self._set_compact_files(files)
+-        self._present_compact_reply(answer, "Chưa hoàn tất" if failed else "Trả lời", has_details=bool(agenda))
++        self._present_compact_reply(
++            answer,
++            "Chưa hoàn tất" if failed else "Trả lời",
++            has_details=bool(agenda or getattr(self, "workbench_scene_enabled", False)),
++        )
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_phase("error" if failed else "done")
++        if hasattr(self, "workbench_canvas"):
++            title = self._last_assistant_query or "Không gian làm việc"
++            if getattr(response, "artifacts", None):
++                for art in response.artifacts:
++                    fn = getattr(art, "payload", {}).get("filename")
++                    if fn:
++                        title = fn
++                        break
++            self.workbench_canvas.set_work(
++                title,
++                status="Chưa hoàn tất" if failed else "Đã xong",
++            )
+         self.compact_cot.clear()
+         self.set_mascot_idle()
+         self._mascot_state = "error" if failed else "idle"
+@@ -3843,6 +4552,8 @@ class OmnibarWindow(QMainWindow):
+             return
+         worker.requestInterruption()
+         handle = self._assistant_handle
++        cancelled_gen = handle.get("generation", self._chat_generation) if handle else self._chat_generation
++        cancelled_exec_id = handle.get("execution_id", "") if handle else ""
+         if handle and handle.get("execution_id"):
+             self.assistant_runtime.cancel_execution(handle["execution_id"])
+         else:
+@@ -3869,22 +4580,46 @@ class OmnibarWindow(QMainWindow):
+             if handle.get("task_state"):
+                 self._assistant_task_state = dict(handle["task_state"])
+             self._assistant_sources = list(sources or self._assistant_sources)[-12:]
+-            self.chat_stream.finalize_stream(
+-                handle,
+-                inline_files=document_cards(self._work_sources(sources)),
+-                custom_widget=source_panel(
+-                    self._work_sources(sources),
+-                    self.open_natal_chart,
+-                    handle.get("task_state"),
+-                    artifacts=list(handle.get("artifacts", {}).values()),
+-                    registry=self.assistant_runtime.registry,
+-                    on_action=self._on_action_dispatched,
+-                    on_input=self._on_input_submitted,
+-                ),
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                self.chat_stream.finalize_stream(
++                    handle,
++                    inline_files=document_cards(self._work_sources(sources)),
++                    custom_widget=None,
++                )
++            else:
++                self.chat_stream.finalize_stream(
++                    handle,
++                    inline_files=document_cards(self._work_sources(sources)),
++                    custom_widget=source_panel(
++                        self._work_sources(sources),
++                        self.open_natal_chart,
++                        handle.get("task_state"),
++                        artifacts=list(handle.get("artifacts", {}).values()),
++                        registry=self.assistant_runtime.registry,
++                        on_action=self._on_action_dispatched,
++                        on_input=self._on_input_submitted,
++                        on_question=self._select_document_question,
++                    ),
++                )
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.on_cancel(
++                generation=cancelled_gen,
++                execution_id=cancelled_exec_id,
++                new_generation=self._chat_generation,
+             )
++            self._sync_workbench_scene()
+         self.footer_status.setText("Đã dừng")
+         self.compact_cot.clear()
+         self.set_mascot_idle()
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_phase("cancelled")
++        if hasattr(self, "workbench_speech_bubble"):
++            self.workbench_speech_bubble.set_reply("Đã dừng.", "Đã dừng")
++        if hasattr(self, "workbench_canvas"):
++            self.workbench_canvas.set_work(
++                self._last_assistant_query or "Không gian làm việc",
++                status="Đã dừng",
++            )
+         self._sync_compact_surface()
+ 
+     def _submit_chat_or_stop(self):
+@@ -3896,7 +4631,11 @@ class OmnibarWindow(QMainWindow):
+     def _show_interaction_surface(self):
+         self._interaction_surface_active = True
+         self.content_stack.show()
+-        self.chat_stream.show()
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.show()
++            self.chat_stream.hide()
++        else:
++            self.chat_stream.show()
+         self._sync_compact_surface()
+ 
+     def open_natal_chart(self, birth=None):
+@@ -3914,8 +4653,88 @@ class OmnibarWindow(QMainWindow):
+ 
+     def _artifact_context(self):
+         from datetime import datetime
+-        return {"member_id": self.current_member.id, "now_dt": datetime.now().astimezone(),
+-                "get_schedule": self.assistant_runtime.tool_get_schedule}
++        ctx = {
++            "member_id": self.current_member.id,
++            "now_dt": datetime.now().astimezone(),
++            "get_schedule": self.assistant_runtime.tool_get_schedule,
++            "catalog": getattr(self, "_finder_catalog", None),
++        }
++        if getattr(self, "_app_launcher", None) is not None:
++            ctx["app_launcher"] = getattr(self, "_app_launcher", None)
++        return ctx
++
++    def _handle_negated_open_command(self, query: str, intent: Any) -> None:
++        q = query.strip()
++        if hasattr(self, "chat_composer_input") and self.chat_composer_input.text().strip() == q:
++            self.chat_composer_input.clear()
++        if getattr(self, "workbench_finder_enabled", False):
++            if getattr(self, "_finder_coordinator", None) is not None:
++                self._finder_coordinator.cancel()
++            self._finder_selected_id = None
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                self.workbench_scene.clear_finder_snapshot()
++        self._set_compact_files(None)
++        msg = getattr(intent, "clarification_prompt", None) or (
++            f"Đã ghi nhận lệnh phủ định (“{q}”) — Chuột sẽ không mở ứng dụng nào."
++        )
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_last_user_query(q)
++            self.workbench_user_lane.set_phase("done")
++        if hasattr(self, "workbench_speech_bubble"):
++            self.workbench_speech_bubble.set_reply(
++                msg,
++                "Đã giữ nguyên",
++                copy_text=msg,
++                has_details=False,
++            )
++        self.footer_status.setText(msg)
++        self.show_toast(msg, 5000)
++        self._sync_compact_surface()
++
++    def _request_open_application(self, hit: Any = None, query: Optional[str] = None) -> None:
++        raw_q = (query or "").strip()
++        if raw_q and hasattr(self, "chat_composer_input") and self.chat_composer_input.text().strip() == raw_q:
++            self.chat_composer_input.clear()
++        elif hit is not None and hasattr(self, "chat_composer_input"):
++            self.chat_composer_input.clear()
++
++        if getattr(self, "workbench_finder_enabled", False):
++            if getattr(self, "_finder_coordinator", None) is not None:
++                self._finder_coordinator.cancel()
++            self._finder_selected_id = None
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                self.workbench_scene.clear_finder_snapshot()
++        self._set_compact_files(None)
++
++        payload: Dict[str, Any] = {}
++        if hit is not None:
++            raw_payload = {
++                "query": getattr(hit, "title", "") or raw_q,
++                "path": getattr(hit, "path", ""),
++                "bundle_id": getattr(hit, "bundle_id", ""),
++            }
++            payload = {k: str(v).strip() for k, v in raw_payload.items() if v and str(v).strip()}
++        elif raw_q:
++            payload = {"query": raw_q}
++
++        display_q = raw_q or (f"Mở {getattr(hit, 'title', '')}".strip() if hit is not None else "Mở ứng dụng")
++        if hasattr(self, "workbench_user_lane"):
++            self.workbench_user_lane.set_last_user_query(display_q)
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.projector.query = display_q
++            self._interaction_surface_active = True
++            self.content_stack.setVisible(True)
++            if hasattr(self, "workbench_canvas") and hasattr(self.workbench_canvas, "content_container"):
++                self.workbench_canvas.content_container.setVisible(True)
++
++        context = self._artifact_context()
++        self._start_artifact_operation(
++            lambda: self.assistant_runtime.dispatcher.execute_operation(
++                "open_application",
++                payload,
++                context=context,
++            )
++        )
+ 
+     def _start_artifact_operation(self, callback, *, note_inputs=None):
+         if self._pending_chat_query is not None or self._artifact_worker is not None:
+@@ -3959,6 +4778,9 @@ class OmnibarWindow(QMainWindow):
+             self.footer_status.setText(result.error or "Không thực hiện được thao tác.")
+             self.show_toast(result.error or "Không thực hiện được thao tác.", 8000)
+             self._append_direct_trace(result)
++            if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++                self.workbench_scene.on_artifact_result(result, artifact_store=self.assistant_runtime.artifact_store)
++                self._sync_workbench_scene()
+             self._mascot_state = 'error'
+             self.companion_avatar_btn.set_state('error')
+             return
+@@ -3974,6 +4796,11 @@ class OmnibarWindow(QMainWindow):
+             if result.artifact.id not in active:
+                 active.append(result.artifact.id)
+             self.assistant_runtime.notebook.select_results(active)
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self._interaction_surface_active = True
++            self.content_stack.setVisible(True)
++            if hasattr(self, "workbench_canvas") and hasattr(self.workbench_canvas, "content_container"):
++                self.workbench_canvas.content_container.setVisible(True)
+         self._refresh_latest_assistant_panel(result.artifact)
+         self._append_direct_trace(result)
+         if note_inputs and result.status in ('success', 'needs_input'):
+@@ -4017,9 +4844,20 @@ class OmnibarWindow(QMainWindow):
+         else:
+             self._update_work_results(handle)
+         artifacts = handle['artifacts']
++        if getattr(self, "workbench_scene_enabled", False) and hasattr(self, "workbench_scene"):
++            self.workbench_scene.refresh_from_store(
++                sources=self._work_sources(self._assistant_sources),
++                artifacts=list(artifacts.values()),
++                artifact_store=self.assistant_runtime.artifact_store,
++                pending_input_request=self.assistant_runtime.dispatcher.state.pending_input_request,
++                changed_artifact=changed,
++            )
++            self._sync_workbench_scene()
++            return
+         panel = source_panel(self._work_sources(self._assistant_sources), artifacts=list(artifacts.values()),
+                              registry=self.assistant_runtime.registry,
+-                             on_action=self._on_action_dispatched, on_input=self._on_input_submitted)
++                             on_action=self._on_action_dispatched, on_input=self._on_input_submitted,
++                             on_question=self._select_document_question)
+         self.chat_stream.update_source_cards(handle, inline_files=document_cards(self._work_sources(self._assistant_sources)), custom_widget=panel)
+ 
+     def _ask_about_natal_chart(self, prompt, chart):
+@@ -4200,9 +5038,13 @@ class OmnibarWindow(QMainWindow):
+ 
+     def _present_compact_reply(self, answer, status, *, has_details=False, file_summary=False):
+         # Kept as a read-only compatibility record; the live answer has one view.
+-        self.speech_bubble.set_reply(answer.replace('**', '').replace('`', ''), status,
++        clean_text = answer.replace('**', '').replace('`', '')
++        self.speech_bubble.set_reply(clean_text, status,
+             copy_text=answer, has_details=has_details, file_summary=file_summary)
+         self.speech_bubble.hide()
++        if hasattr(self, "workbench_speech_bubble"):
++            self.workbench_speech_bubble.set_reply(clean_text, status,
++                copy_text=answer, has_details=has_details, file_summary=file_summary)
+ 
+     def _on_reasoning_token(self, handle: Dict[str, Any], token: str) -> None:
+         if handle.get("generation", self._chat_generation) != self._chat_generation:
+@@ -4281,11 +5123,12 @@ class OmnibarWindow(QMainWindow):
+         self.raise_()
+         self.activateWindow()
+ 
+-        try:
+-            from rat.os.app import activate_macos_app
+-            activate_macos_app()
+-        except Exception:
+-            pass
++        if os.getenv("QT_QPA_PLATFORM") != "offscreen":
++            try:
++                from rat.os.app import activate_macos_app
++                activate_macos_app()
++            except Exception:
++                pass
+ 
+         self._entrance_anim = QPropertyAnimation(self, b"windowOpacity")
+         self._entrance_anim.setDuration(160 if motion_enabled() else 0)
+@@ -4315,6 +5158,7 @@ class OmnibarWindow(QMainWindow):
+                 and QApplication.activePopupWidget() is None
+                 and not getattr(self, "_is_opening", False)
+                 and getattr(self, "_was_activated", False)
++                and os.getenv("QT_QPA_PLATFORM") != "offscreen"
+             ):
+                 self.hide()
+                 self._was_activated = False
+@@ -4325,6 +5169,8 @@ class OmnibarWindow(QMainWindow):
+         self._was_activated = False
+         if hasattr(self, "_entrance_anim") and self._entrance_anim.state() == QPropertyAnimation.State.Running:
+             self._entrance_anim.stop()
++        if hasattr(self, "workbench_scene"):
++            self.workbench_scene._stop_all_animations()
+         self.setWindowOpacity(1.0)
+         close_quicklook()
+         super().hideEvent(event)
+@@ -4341,10 +5187,14 @@ class OmnibarWindow(QMainWindow):
+ 
+     def shutdown(self) -> None:
+         """Graceful zero-crash thread cleanup."""
++        if getattr(self, "_shutting_down", False):
++            return
+         self._shutting_down = True
+         QApplication.instance().removeEventFilter(self._mode_filter)
+         self._toast_timer.stop()
+         self.companion_avatar_btn.timer.stop()
++        if hasattr(self, "thought_trail") and hasattr(self.thought_trail, "stop"):
++            self.thought_trail.stop()
+         self._toast_restore = None
+         self._chat_generation += 1
+         self._pending_chat_query = None
+@@ -4353,19 +5203,16 @@ class OmnibarWindow(QMainWindow):
+         for worker in workers:
+             worker.requestInterruption()
+             # No delayed callback may touch widgets while the window is closing.
+-            if hasattr(worker, "result_ready"):
+-                worker.result_ready.disconnect()
+-            elif hasattr(worker, "response_ready"):
+-                worker.response_ready.disconnect()
+-                worker.progress_changed.disconnect()
+-                worker.step_completed.disconnect()
+-            else:
+-                worker.token_received.disconnect()
+-                worker.reasoning_finished.disconnect()
++            for sig_name in ("result_ready", "response_ready", "progress_changed", "step_completed", "text_streamed", "token_received", "reasoning_finished"):
++                sig = getattr(worker, sig_name, None)
++                if sig is not None:
++                    try:
++                        sig.disconnect()
++                    except Exception:
++                        pass
+         for worker in workers:
+             if worker.isRunning():
+-                # Streaming I/O has a 30-second timeout; never terminate an inference thread.
+-                worker.wait(31000)
++                worker.wait(2000)
+         self._reasoning_workers.clear()
+         try:
+             if hasattr(self, "search_timer") and self.search_timer.isActive():
+@@ -4386,6 +5233,51 @@ class OmnibarWindow(QMainWindow):
+             finally:
+                 self.search_thread = None
+ 
++        if getattr(self, "_finder_coordinator", None) is not None:
++            try:
++                self._finder_coordinator.close(timeout=2)
++            except Exception as e:
++                logger.debug(f"Finder coordinator close note: {e}")
++            finally:
++                self._finder_coordinator = None
++
++        self._close_assistant_runtime()
++
++    def _close_assistant_runtime(self) -> None:
++        runtime = getattr(self, "assistant_runtime", None)
++        if runtime is None:
++            return
++        doc_client = getattr(runtime, "document_model_client", None)
++        if doc_client is None:
++            return
++
++        import threading
++        import time
++        close_done = threading.Event()
++
++        def _do_close():
++            try:
++                runtime.close()
++            except Exception as e:
++                logger.debug(f"Assistant runtime close note: {e}")
++            finally:
++                close_done.set()
++
++        t = threading.Thread(target=_do_close, name="rat-runtime-close")
++        t.start()
++
++        deadline = time.time() + 5.0
++        while not close_done.is_set() and time.time() < deadline:
++            app = QApplication.instance()
++            if app is not None:
++                app.processEvents()
++            time.sleep(0.02)
++
++        if not close_done.is_set():
++            logger.warning("Assistant runtime close timed out after 5.0s")
++        else:
++            t.join(timeout=0.5)
++
+     def closeEvent(self, event) -> None:
+         app = QApplication.instance()
+         if app and not getattr(app, "_is_quitting", False):
+diff --git a/rat/ui/preview_panel.py b/rat/ui/preview_panel.py
+index 06b4a7a..a94cf5b 100644
+--- a/rat/ui/preview_panel.py
++++ b/rat/ui/preview_panel.py
+@@ -34,7 +34,7 @@ from PyQt6.QtWidgets import (
+ 
+ from rat.engine.reasoning_trace import ReasoningTrace
+ from rat.engine.reranker import SearchResultItem
+-from rat.ui.theme import get_ext_badge_info
++from rat.ui.theme import MONO_FONT_FAMILY, get_ext_badge_info
+ 
+ EXT_DESCRIPTIONS = {
+     ".docx": "Tài liệu Word",
+@@ -415,18 +415,18 @@ class PreviewPanel(QFrame):
+         self.preview_text.setObjectName("PreviewContent")
+         self.preview_text.setReadOnly(True)
+         self.preview_text.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+-        self.preview_text.setStyleSheet("""
+-            QTextEdit {
++        self.preview_text.setStyleSheet(f"""
++            QTextEdit {{
+                 background-color: #ffffff;
+                 border: 1px solid #e2d9cd;
+                 border-top: 1px solid #e2d9cd;
+                 border-radius: 6px;
+                 color: #2c241c;
+                 font-size: 11.5px;
+-                font-family: "SF Mono", "Menlo", "Fira Code", monospace;
++                font-family: {MONO_FONT_FAMILY};
+                 line-height: 1.45;
+                 padding: 8px;
+-            }
++            }}
+         """)
+         self.stack.addWidget(self.preview_text)
+ 
+@@ -752,7 +752,7 @@ class PreviewPanel(QFrame):
+                     r'<mark style="background-color: #f7eedb; color: #1c1917; padding: 1px 3px; border-radius: 3px;">\1</mark>',
+                     escaped_body
+                 )
+-                self.preview_text.setHtml(f"<div style='font-family: \"SF Mono\", \"Menlo\", \"Fira Code\", monospace; font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; color: #2c241c;'>{highlighted}</div>")
++                self.preview_text.setHtml(f"<div style='font-family: {MONO_FONT_FAMILY}; font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; color: #2c241c;'>{highlighted}</div>")
+             else:
+                 self.preview_text.setPlainText(preview_body)
+         else:
+diff --git a/rat/ui/schedule_window.py b/rat/ui/schedule_window.py
+index 2f9ba87..9bdb674 100644
+--- a/rat/ui/schedule_window.py
++++ b/rat/ui/schedule_window.py
+@@ -68,6 +68,7 @@ from rat.timetable.model import (
+     ShiftAvailability,
+     resolve_room_location,
+ )
++from rat.ui.theme import FONT_FAMILY
+ 
+ logger = logging.getLogger("rat.ui.schedule_window")
+ 
+@@ -93,14 +94,14 @@ def save_course_notes(notes: Dict[str, str]) -> None:
+         pass
+ 
+ 
+-SPOTLIGHT_STYLE = """
++_BASE_SPOTLIGHT_STYLE = """
+ QMainWindow {
+     background-color: #f8fafc;
+ }
+ 
+ QWidget#CentralWidget {
+     background-color: #f8fafc;
+-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
++    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Arial;
+ }
+ 
+ /* Spotlight Command Bar & Header */
+@@ -371,6 +372,11 @@ QPushButton.PrimaryActionButton:hover {
+ }
+ """
+ 
++SPOTLIGHT_STYLE = _BASE_SPOTLIGHT_STYLE.replace(
++    '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Arial',
++    FONT_FAMILY
++)
++
+ 
+ class ShiftCellWidget(QFrame):
+     """Interactive cell representing availability for one Shift on one Day (CLB Mode)."""
+diff --git a/rat/ui/theme.py b/rat/ui/theme.py
+index 0f5391d..73efd17 100644
+--- a/rat/ui/theme.py
++++ b/rat/ui/theme.py
+@@ -50,14 +50,19 @@ def get_ext_badge_info(ext: str) -> dict:
+     return {"bg": "#8c7e6f", "fg": "#ffffff", "border": "#75685a", "label": label[:4]}
+ 
+ 
+-RAYCAST_QSS = """
++from rat.ui.workbench import get_system_font_family, get_system_mono_font_family
++
++FONT_FAMILY = get_system_font_family()
++MONO_FONT_FAMILY = get_system_mono_font_family()
++
++_BASE_RAYCAST_QSS = """
+ /* ========================================================================= */
+ /* AGENT CHUỘT - LIGHT MODE REFINED (WARM LIGHT GLASS SPECIFICATION)         */
+ /* Clean, modern, warm light glass aesthetic with peeking mascot              */
+ /* ========================================================================= */
+ 
+ * {
+-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
++    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial;
+     outline: none;
+     color: #1F2937;
+ }
+@@ -320,7 +325,7 @@ QTextEdit#PreviewContent {
+     border-radius: 8px;
+     font-size: 12px;
+     padding: 10px;
+-    font-family: "SF Mono", "Menlo", monospace;
++    font-family: Menlo, monospace;
+     line-height: 1.5;
+ }
+ 
+@@ -377,3 +382,15 @@ QScrollBar:horizontal {
+     height: 0px;
+ }
+ """
++
++RAYCAST_QSS = _BASE_RAYCAST_QSS.replace(
++    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial',
++    FONT_FAMILY
++).replace(
++    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "JetBrains Mono", monospace',
++    MONO_FONT_FAMILY
++).replace(
++    'Menlo, monospace',
++    MONO_FONT_FAMILY
++)
++
+diff --git a/rat/ui/view_renderer.py b/rat/ui/view_renderer.py
+index 3ae791d..b4f2b45 100644
+--- a/rat/ui/view_renderer.py
++++ b/rat/ui/view_renderer.py
+@@ -41,27 +41,56 @@ from PyQt6.QtWidgets import (
+ 
+ from rat.ui.surface_layout import Disclosure, ResponsiveFields
+ from rat.ui.experience import debug_ui_enabled
++from rat.ui.workbench import WorkbenchTokens
+ 
+ from rat.kernel.contracts import Artifact, ArtifactAction, InputRequest
+ from rat.kernel.view_spec import ViewBlock, ViewSpec
+ 
+ 
+-CARD_STYLE = """
+-QFrame#ArtifactCard { background: transparent; border: none; padding: 0; }
+-QLabel#CardTitle { color: #302B24; font-size: 14px; font-weight: 600; background: transparent; border: none; }
+-QLabel#CardText { color: #867762; font-size: 12px; background: transparent; border: none; }
+-QLabel#CardBadge { color: #9E907D; font-size: 10px; background: transparent; border: none; }
+-QLabel#StaleBadge { color: #A25C48; font-size: 10px; background: transparent; border: none; }
+-QPushButton.ActionBtn, QPushButton.CandidateBtn {
+-    background: #F2ECE2; border: none; border-radius: 7px; padding: 7px 10px;
+-    font-size: 12px; color: #766548;
+-}
+-QPushButton.ActionBtn:hover, QPushButton.CandidateBtn:hover { background: #EAE0D1; color: #302B24; }
+-QPushButton.ActionBtn:disabled { color: #B5A996; background: #F7F3EC; }
+-QPushButton::menu-indicator { image: none; width: 0; }
+-QLineEdit, QComboBox { background: #F8F5EF; border: 1px solid #E9E1D4; border-radius: 7px; padding: 7px 9px; font-size: 12px; color: #302B24; }
+-QLineEdit:focus, QComboBox:focus { border-color: #B79A63; background: #FFFDF9; }
+-"""
++def get_card_style(dark: Optional[bool] = None) -> str:
++    tokens = WorkbenchTokens.get(dark=dark)
++    return f"""
++    QFrame#ArtifactCard {{ background: transparent; border: none; padding: 0; }}
++    QLabel#CardTitle {{ color: {tokens.ink_hex}; font-size: 14px; font-weight: 600; background: transparent; border: none; }}
++    QLabel#CardText {{ color: {tokens.muted_hex}; font-size: 12px; background: transparent; border: none; }}
++    QLabel#CardBadge {{ color: {tokens.muted_hex}; font-size: 10px; background: transparent; border: none; }}
++    QLabel#StaleBadge {{ color: {tokens.error_hex}; font-size: 10px; background: transparent; border: none; }}
++    QPushButton.ActionBtn, QPushButton.CandidateBtn {{
++        background: {tokens.soft_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 10px;
++        font-size: 12px; color: {tokens.ink_hex}; text-align: left;
++    }}
++    QPushButton.ActionBtn:hover, QPushButton.CandidateBtn:hover {{ background: {tokens.line_hex}; color: {tokens.ink_hex}; }}
++    QPushButton.ActionBtn:disabled {{ color: {tokens.muted_hex}; background: {tokens.soft_hex}; border-color: transparent; }}
++    QPushButton::menu-indicator {{ image: none; width: 0; }}
++    QLineEdit, QComboBox {{ background: {tokens.paper_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 9px; font-size: 12px; color: {tokens.ink_hex}; }}
++    QLineEdit:focus, QComboBox:focus {{ border-color: {tokens.focus_hex}; background: {tokens.paper_hex}; }}
++    QTableWidget {{
++        background: transparent;
++        border: none;
++        font-size: 12px;
++        gridline-color: {tokens.line_hex};
++        color: {tokens.ink_hex};
++        selection-background-color: {tokens.soft_hex};
++        selection-color: {tokens.accent_hex};
++    }}
++    QHeaderView::section {{
++        background: {tokens.soft_hex};
++        border: none;
++        color: {tokens.muted_hex};
++        padding: 5px;
++        font-size: 11px;
++        font-weight: 600;
++    }}
++    QTextBrowser {{
++        background: transparent;
++        border: none;
++        font-size: 12px;
++        color: {tokens.ink_hex};
++    }}
++    """
++
++
++CARD_STYLE = get_card_style(dark=False)
+ 
+ 
+ class QtViewRenderer(QFrame):
+@@ -93,7 +122,7 @@ class QtViewRenderer(QFrame):
+ 
+     def _init_ui(self) -> None:
+         self.setObjectName("ArtifactCard")
+-        self.setStyleSheet(CARD_STYLE)
++        self.setStyleSheet(get_card_style())
+         self.layout = QVBoxLayout(self)
+         self.layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+         self.layout.setContentsMargins(0, 3, 0, 3)
+@@ -113,7 +142,10 @@ class QtViewRenderer(QFrame):
+         elif b_type == "resource":
+             self._render_resource(data)
+         elif b_type == "input_form":
+-            if self.debug_ui:
++            if self.debug_ui or (
++                data.get("operation_name") == "open_application"
++                and data.get("candidate_choices")
++            ):
+                 self._render_input_form(data)
+         elif b_type == "actions":
+             if self.debug_ui:
+@@ -152,6 +184,8 @@ class QtViewRenderer(QFrame):
+             lbl_text.setTextFormat(Qt.TextFormat.PlainText)
+             lbl_text.setObjectName("CardText")
+             lbl_text.setWordWrap(True)
++            lbl_text.setMinimumWidth(0)
++            lbl_text.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+             self.layout.addWidget(lbl_text)
+ 
+     def _render_table(self, data: Dict[str, Any]) -> None:
+@@ -160,6 +194,7 @@ class QtViewRenderer(QFrame):
+         if not rows:
+             return
+ 
++        tokens = WorkbenchTokens.get()
+         table_frame = QFrame()
+         table_frame.setObjectName("ResultRows")
+         table_frame.setStyleSheet("""
+@@ -177,7 +212,8 @@ class QtViewRenderer(QFrame):
+             for h in headers:
+                 hl = QLabel(h)
+                 hl.setTextFormat(Qt.TextFormat.PlainText)
+-                hl.setStyleSheet("color: #7A7267; font-size: 10px; font-weight: 700;")
++                hl.setProperty("role", "table_header")
++                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: 10px; font-weight: 700; background: transparent; border: none;")
+                 h_row.addWidget(hl, 1)
+             t_layout.addLayout(h_row)
+ 
+@@ -186,7 +222,8 @@ class QtViewRenderer(QFrame):
+             r_row.setSpacing(8)
+             for item in row_items:
+                 rl = QLabel(str(item))
+-                rl.setStyleSheet("color: #30363E; font-size: 11px;")
++                rl.setProperty("role", "table_cell")
++                rl.setStyleSheet(f"color: {tokens.ink_hex}; font-size: 11px; background: transparent; border: none;")
+                 rl.setTextFormat(Qt.TextFormat.PlainText)
+                 rl.setWordWrap(True)
+                 r_row.addWidget(rl, 1)
+@@ -222,16 +259,32 @@ class QtViewRenderer(QFrame):
+ 
+         # Candidate choices (e.g. ambiguous cities)
+         if candidates:
++            tokens = WorkbenchTokens.get()
+             cand_label = QLabel("Chọn kết quả phù hợp:")
+-            cand_label.setStyleSheet("color: #705C38; font-size: 11px; font-weight: 700;")
++            cand_label.setProperty("role", "candidate_prompt")
++            cand_label.setStyleSheet(f"color: {tokens.muted_hex}; font-size: 11px; font-weight: 700; background: transparent; border: none;")
+             f_layout.addWidget(cand_label)
+ 
+             c_flow = QVBoxLayout()
+             c_flow.setSpacing(6)
+             for index, c in enumerate(candidates):
+                 name = c.get("name", "")
+-                btn = QPushButton(name + (" · " + c.get("admin", c.get("country", "")) if c.get("admin") or c.get("country") else ""))
++                extra_parts = []
++                if c.get("admin") or c.get("country"):
++                    extra_parts.append(c.get("admin", c.get("country", "")))
++                if c.get("path"):
++                    extra_parts.append(str(c.get("path")))
++                if c.get("bundle_id"):
++                    extra_parts.append(str(c.get("bundle_id")))
++                if c.get("version"):
++                    extra_parts.append(f"v{c.get('version')}")
++                btn_text = name + (" · " + " · ".join(extra_parts) if extra_parts else "")
++                btn = QPushButton(btn_text)
++                btn.setObjectName("CandidateBtn")
+                 btn.setProperty("class", "CandidateBtn")
++                btn.setToolTip(btn_text)
++                btn.setMinimumWidth(0)
++                btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+                 btn.setCursor(Qt.CursorShape.PointingHandCursor)
+                 btn.clicked.connect(lambda _, idx=index: self._on_candidate_chosen(op_name, idx, supplied))
+                 c_flow.addWidget(btn)
+@@ -252,7 +305,9 @@ class QtViewRenderer(QFrame):
+             row.setSpacing(4)
+             lbl = QLabel(f_label)
+             lbl.setWordWrap(True)
+-            lbl.setStyleSheet('color: #968976; font-size: 11px; background: transparent; border: none;')
++            lbl.setProperty("role", "input_label")
++            tokens = WorkbenchTokens.get()
++            lbl.setStyleSheet(f'color: {tokens.muted_hex}; font-size: 11px; background: transparent; border: none;')
+             row.addWidget(lbl)
+ 
+             input_widget: QWidget
+@@ -339,9 +394,14 @@ class QtViewRenderer(QFrame):
+                 text, start, length, caret = values
+                 edit.setText(text)
+                 edit.setSelection(start, length) if start >= 0 else edit.setCursorPosition(caret)
+-        for name in state.get('details', []):
+-            if name in self.disclosures:
+-                self.disclosures[name].set_open(True, animate=False)
++        if 'details' in state:
++            opened_names = set(state.get('details', []))
++            for name, item in self.disclosures.items():
++                item.set_open(name in opened_names, animate=False)
++        else:
++            for name in state.get('details', []):
++                if name in self.disclosures:
++                    self.disclosures[name].set_open(True, animate=False)
+         for name in state.get('editors', []):
+             if name in self.action_editors:
+                 self.action_editors[name][0].show()
+@@ -455,10 +515,11 @@ class QtViewRenderer(QFrame):
+         body = QWidget()
+         layout = QVBoxLayout(body)
+         layout.setContentsMargins(0, 2, 0, 3)
++        tokens = WorkbenchTokens.get()
+         if data.get('content'):
+             browser = QTextBrowser()
+             browser.setPlainText(str(data['content']))
+-            browser.setStyleSheet('QTextBrowser { background: transparent; border: none; font-size: 12px; color: #302B24; }')
++            browser.setStyleSheet(f'QTextBrowser {{ background: transparent; border: none; font-size: 12px; color: {tokens.ink_hex}; }}')
+             browser.setMaximumHeight(220)
+             layout.addWidget(browser)
+         elif data.get('table_headers') and data.get('table_rows'):
+@@ -467,7 +528,25 @@ class QtViewRenderer(QFrame):
+             table = QTableWidget(len(rows), len(headers))
+             table.setHorizontalHeaderLabels(headers)
+             table.verticalHeader().hide()
+-            table.setStyleSheet('QTableWidget { background: transparent; border: none; font-size: 12px; gridline-color: #EEE7DB; color: #302B24; } QHeaderView::section { background: #F6F1E8; border: none; color: #8A7B64; padding: 5px; }')
++            table.setStyleSheet(f"""
++                QTableWidget {{
++                    background: transparent;
++                    border: none;
++                    font-size: 12px;
++                    gridline-color: {tokens.line_hex};
++                    color: {tokens.ink_hex};
++                    selection-background-color: {tokens.soft_hex};
++                    selection-color: {tokens.accent_hex};
++                }}
++                QHeaderView::section {{
++                    background: {tokens.soft_hex};
++                    border: none;
++                    color: {tokens.muted_hex};
++                    padding: 5px;
++                    font-size: 11px;
++                    font-weight: 600;
++                }}
++            """)
+             for r, values in enumerate(rows):
+                 for c, value in enumerate(values):
+                     table.setItem(r, c, QTableWidgetItem(str(value)))
+@@ -483,3 +562,46 @@ class QtViewRenderer(QFrame):
+             disclosure.set_open(True, animate=False)
+             disclosure.button.hide()
+         self.layout.addWidget(disclosure)
++
++    def _apply_theme(self) -> None:
++        tokens = WorkbenchTokens.get()
++        self.setStyleSheet(get_card_style())
++        for hl in self.findChildren(QLabel):
++            role = hl.property("role")
++            if role == "table_header":
++                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: 10px; font-weight: 700; background: transparent; border: none;")
++            elif role == "table_cell":
++                hl.setStyleSheet(f"color: {tokens.ink_hex}; font-size: 11px; background: transparent; border: none;")
++            elif role == "input_label":
++                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: 11px; background: transparent; border: none;")
++            elif role == "candidate_prompt":
++                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: 11px; font-weight: 700; background: transparent; border: none;")
++        for table in self.findChildren(QTableWidget):
++            table.setStyleSheet(f"""
++                QTableWidget {{
++                    background: transparent;
++                    border: none;
++                    font-size: 12px;
++                    gridline-color: {tokens.line_hex};
++                    color: {tokens.ink_hex};
++                    selection-background-color: {tokens.soft_hex};
++                    selection-color: {tokens.accent_hex};
++                }}
++                QHeaderView::section {{
++                    background: {tokens.soft_hex};
++                    border: none;
++                    color: {tokens.muted_hex};
++                    padding: 5px;
++                    font-size: 11px;
++                    font-weight: 600;
++                }}
++            """)
++        for browser in self.findChildren(QTextBrowser):
++            browser.setStyleSheet(f"QTextBrowser {{ background: transparent; border: none; font-size: 12px; color: {tokens.ink_hex}; }}")
++        for edit in self.findChildren(QLineEdit):
++            edit.setStyleSheet(f"QLineEdit {{ background: {tokens.paper_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 9px; font-size: 12px; color: {tokens.ink_hex}; }}")
++        for combo in self.findChildren(QComboBox):
++            combo.setStyleSheet(f"QComboBox {{ background: {tokens.paper_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 9px; font-size: 12px; color: {tokens.ink_hex}; }}")
++        for res in self._resources:
++            if hasattr(res, "_apply_theme"):
++                res._apply_theme()

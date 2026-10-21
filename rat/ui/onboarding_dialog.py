@@ -32,26 +32,14 @@ from rat.config import DEFAULT_WATCH_DIRS, config
 
 def check_accessibility_status() -> bool:
     """Check if the process is trusted for macOS Accessibility APIs."""
-    if platform.system() != "Darwin":
-        return True
-    try:
-        from ApplicationServices import AXIsProcessTrusted
-        return bool(AXIsProcessTrusted())
-    except Exception:
-        return False
+    from rat.os.permissions import is_accessibility_trusted
+    return is_accessibility_trusted()
 
 
 def open_accessibility_settings() -> None:
     """Open macOS System Settings directly to Accessibility panel."""
-    if platform.system() == "Darwin":
-        try:
-            from ApplicationServices import AXIsProcessTrustedWithOptions
-            from Foundation import NSDictionary
-            options = NSDictionary.dictionaryWithObject_forKey_(True, "AXTrustedCheckOptionPrompt")
-            AXIsProcessTrustedWithOptions(options)
-        except Exception:
-            pass
-        subprocess.run(["open", "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"])
+    from rat.os.permissions import open_accessibility_settings as open_settings
+    return open_settings()
 
 
 def open_full_disk_access_settings() -> None:

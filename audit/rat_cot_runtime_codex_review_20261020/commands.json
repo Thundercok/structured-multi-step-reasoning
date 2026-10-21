@@ -1,0 +1,68 @@
+[
+  {
+    "command": ".venv/bin/python audit/rat_cot_runtime_codex_review_20261020/run_regression.py",
+    "context": "sandbox",
+    "exit_code": 134,
+    "log": "regression_sandbox_abort.txt"
+  },
+  {
+    "command": "QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py -q",
+    "context": "sandbox initial probe collection",
+    "exit_code": 134,
+    "log": "contract_probes_sandbox_abort.txt"
+  },
+  {
+    "command": ".venv/bin/python audit/rat_cot_runtime_codex_review_20261020/run_regression.py",
+    "context": "outside sandbox; initial reviewer fixture-copy setup",
+    "exit_code": 1,
+    "log": "regression_initial.txt"
+  },
+  {
+    "command": ".venv/bin/python audit/rat_cot_runtime_codex_review_20261020/run_regression.py",
+    "context": "outside sandbox; corrected reviewer fixture-copy setup",
+    "exit_code": 0,
+    "log": "regression.txt"
+  },
+  {
+    "command": "QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_20261020/test_contract_probes.py -q --junitxml=audit/rat_cot_runtime_codex_review_20261020/contract_probes.xml",
+    "context": "outside sandbox; final probe source",
+    "exit_code": 1,
+    "log": "contract_probes.txt"
+  },
+  {
+    "command": ".venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q --junitxml=audit/rat_cot_runtime_codex_review_20261020/mandatory_research.xml",
+    "context": "sandbox",
+    "exit_code": 0,
+    "log": "mandatory_research.txt"
+  },
+  {
+    "command": ".venv/bin/python -m pytest test_reasoning_strategies.py tests/test_research_scoring.py -q --junitxml=audit/rat_cot_runtime_codex_review_20261020/parser_scoring.xml",
+    "context": "sandbox",
+    "exit_code": 0,
+    "log": "parser_scoring.txt"
+  },
+  {
+    "command": ".venv/bin/python -m experiments.research_study --cot-restart-fresh-smoke --output audit/rat_cot_runtime_codex_review_20261020/fresh_smoke",
+    "context": "sandbox",
+    "exit_code": 0,
+    "log": "fresh_smoke.txt"
+  },
+  {
+    "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_20261020/test_replay_fixture_probe.py -q --junitxml=audit/rat_cot_runtime_codex_review_20261020/replay_fixture_probe.xml",
+    "context": "sandbox",
+    "exit_code": 1,
+    "log": "replay_fixture_probe.txt"
+  },
+  {
+    "command": ".venv/bin/python audit/rat_cot_runtime_codex_review_20261020/run_replays.py",
+    "context": "outside sandbox; always --fake-backend; per-case argv in fresh_replays/commands.json",
+    "exit_code": 0,
+    "log": "replays.txt"
+  },
+  {
+    "command": ".venv/bin/python audit/rat_cot_runtime_codex_review_20261020/run_corrected_same_document_replay.py",
+    "context": "outside sandbox; always --fake-backend; new synthetic fixture",
+    "exit_code": 0,
+    "log": "corrected_same_document_replay.txt"
+  }
+]

@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-10-14T21:16:28.717332+07:00",
+  "status": "codex_request_changes",
+  "b1_accepted": false,
+  "b2_accepted_by_this_review": false,
+  "current_runtime_wiring_present": true,
+  "reviewed_compiler_sha256": "5ec3442d3cd1c0f2ee2f52747ffff02ee5992313bd538dce3f93b7f08ebceb14",
+  "tested_runtime_sha256": "725a2cbe0efc9ae32112e60106d689ea90cd9a3097f876ef0816067bb6fb74e5",
+  "runtime_sha256_at_report": "055a518ff5317a27f81e72861c30e4553b5760c5044c1c9fa3cbe1b455d5e584",
+  "results": {
+    "existing": {
+      "passed": 120,
+      "failed": 0
+    },
+    "new_receipt_origin": {
+      "passed": 1,
+      "failed": 7
+    },
+    "core_on_frozen_runtime": {
+      "passed": 286,
+      "failed": 6
+    }
+  },
+  "findings": [
+    {
+      "id": "R4-1",
+      "priority": 1,
+      "class": "unprojected_receipt_wrapper_inferred_as_link"
+    },
+    {
+      "id": "tested_runtime_planner_compatibility",
+      "priority": 1,
+      "attributed_to_attached_anti_b1_repair": false,
+      "class": "native_planner_contract_schema_compatibility"
+    }
+  ],
+  "source_drift_during_tests": [],
+  "source_changes_after_tests": [
+    "rat/engine/assistant_runtime.py"
+  ],
+  "later_runtime_retested": false,
+  "live_model_calls": 0,
+  "product_files_modified_by_review": [],
+  "files_sha256": {
+    "core_run.json": "cb6911c93bb74942a939a6c2175446661618edea47e95831681a73862aac32b8",
+    "raw_receipt_initial.log": "3b85d88e57fec07c5db1c6227af3d90fb8f0c1f7b6322d2cba7a12ab590e3694",
+    "core.log": "fb0627a831c38536ca9360fb28b2f9236f2494f2fcf1c7d007ac4fe6a6eac8fd",
+    "focused.xml": "c0b52243293ced913fec7dc9c70abf8221ceb512574736fcc0163458903078aa",
+    "rat__engine__completion.py.txt": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "raw_receipt_initial_run.json": "9d657f28e49b178868316f90582ed4884101406c9c2fb08f3a73429b91a9a6b4",
+    "manifest_start.json": "bf54b3f0836c5e6dbee2f9d95e750acc22d985ace2e985ee80aede21daf97fcd",
+    "tests__test_rat_context_snapshot.py.txt": "a0f32c8b5f78e5d447b2ddd75380c88ad38bf07066ee95bc135d0172641591cf",
+    "rat__engine__runtime_context.py.txt": "99735f064729a469665082ef868530218d24459c12905aeb1d414866874b6bfa",
+    "manifest_at_report.json": "c6b74f41d342e9c38bbd9e3a49c4f77339144e8750f87b8838b8b9eade85e432",
+    "raw_receipt_probes.log": "e712a40bc976160cb5a5e3c83d4fb84f5914a2e6836cb85f7c9b8c514279c634",
+    "test_run.json": "f9703b8d58f2e6c72786c7b5db1c7f12a483090ea92e70e0da38da97dc2ee1c0",
+    "runtime_changed_after_tests.patch": "42b343deb2220dab0201ed663609efe0072f3bed34f238aa03ee28037c0c1a10",
+    "raw_receipt_probes.py": "547d94428976feb1d978576866717dd0aceb0c83e4bc57730849be4d84c0b0f1",
+    "manifest_finish.json": "bf54b3f0836c5e6dbee2f9d95e750acc22d985ace2e985ee80aede21daf97fcd",
+    "handoff_antigravity.md": "937c7efa46ccd00d344f2b685a51096bf7a7e3638ad144e25fd1af9f1af0bbb4",
+    "rat__engine__assistant_runtime.py.txt": "725a2cbe0efc9ae32112e60106d689ea90cd9a3097f876ef0816067bb6fb74e5",
+    "raw_receipt_probes.xml": "b43a5d5795400f9d157153395fce06dec91044c35fce9a59f65b52d5dc19c61c",
+    "run_checks.py": "524189bf8d49a4e6782bf6e3c43bb46304983b79c4774b400f3c965344775149",
+    "review.md": "84277df72b8f02d9d2aac817b2d4047a699209465bc91e0a5f38e8101dca9db2",
+    "rat__engine__context_snapshot.py.txt": "5ec3442d3cd1c0f2ee2f52747ffff02ee5992313bd538dce3f93b7f08ebceb14",
+    "core.xml": "0189f33e87d50db683f570c44eaba80c1e89ef2af621865496fd0fcee333d591",
+    "focused.log": "cd501a62adde56318f50f2a1de7c4cde7c3e489ef012c7108b92fda093d773eb"
+  }
+}

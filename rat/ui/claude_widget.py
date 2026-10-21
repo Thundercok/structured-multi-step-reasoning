@@ -52,6 +52,7 @@ from rat.timetable.model import (
     MemberSchedule,
     resolve_room_location,
 )
+from rat.ui.theme import FONT_FAMILY
 
 logger = logging.getLogger(__name__)
 
@@ -227,7 +228,7 @@ class ClaudeTimetableWidget(QWidget):
             QWidget {{
                 background-color: {CLAUDE_STYLE['bg_window']};
                 color: {CLAUDE_STYLE['text_primary']};
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                font-family: {FONT_FAMILY};
             }}
             QLineEdit {{
                 background-color: {CLAUDE_STYLE['surface']};

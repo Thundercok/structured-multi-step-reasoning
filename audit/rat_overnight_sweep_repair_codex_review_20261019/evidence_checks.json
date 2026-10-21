@@ -1,0 +1,117 @@
+{
+  "inventory_matches_active_file_set": true,
+  "inventory_file_count": 132,
+  "inventory_xml_mismatches": [],
+  "failed_cases": [
+    {
+      "file": "tests/test_crash_shield.py",
+      "name": "test_system_tray_manager_shutdown",
+      "message": "NameError: name 'padding' is not defined"
+    },
+    {
+      "file": "tests/test_harness_regressions.py",
+      "name": "test_regression_react_placeholder_rejection",
+      "message": "AssertionError: Parsed answer leaked prompt placeholder: '<kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total'\nassert '<kết quả>' not in '<kết quả> =... boxes total'\n  \n  '<kết quả>' is contained here:\n    <kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total\n  ? +++++++++"
+    },
+    {
+      "file": "tests/test_harness_regressions.py",
+      "name": "test_regression_parser_does_not_pick_wrong_trailing_token_or_unit",
+      "message": "AssertionError: Expected '290', got '<kết quả> = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290'\nassert '<kết quả> = ...60 + 50 = 290' == '290'\n  \n  - 290\n  + <kết quả> = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_compound_does_not_leak_component_keywords[slides gi\\u1ea3i t\\xedch]",
+      "message": "AssertionError: assert ['giai tich',...', 'GT1', ...] == ['giai tich', 'slides']\n  \n  Left contains 5 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_compound_does_not_leak_component_keywords[slides giai tich]",
+      "message": "AssertionError: assert ['giai tich',...', 'GT1', ...] == ['giai tich', 'slides']\n  \n  Left contains 5 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_compound_does_not_leak_component_keywords[slides GI\\u1ea2I T\\xcdCH]",
+      "message": "AssertionError: assert ['giai tich',...', 'GT1', ...] == ['giai tich', 'slides']\n  \n  Left contains 5 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_compound_does_not_leak_component_keywords[slides gi\\u1ea3i\\t  t\\xedch]",
+      "message": "AssertionError: assert ['giai tich',...', 'GT1', ...] == ['giai tich', 'slides']\n  \n  Left contains 5 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_compound_does_not_leak_component_keywords[slides gia\\u0309i ti\\u0301ch]",
+      "message": "AssertionError: assert ['giai tich',...', 'GT1', ...] == ['giai tich', 'slides']\n  \n  Left contains 5 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_compound_matching_uses_whole_words_and_preserves_other_occurrences",
+      "message": "AssertionError: assert ['giai tich',...alculus', ...] == ['giai tich',...ides', 'giải']\n  \n  Left contains 5 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_longest_compound_wins_without_duplicate_subphrases",
+      "message": "AssertionError: assert ['bai tap lon...T1', 'MT1003'] == ['bai tap lon', 'calculus']\n  \n  Left contains 4 more items, first extra item: '501011'\n  Use -v to get more diff"
+    },
+    {
+      "file": "tests/test_query_compounds.py",
+      "name": "test_unrelated_compound_components_do_not_gain_topic_points",
+      "message": "assert 100.0 == 60"
+    },
+    {
+      "file": "tests/test_reranker_golden.py",
+      "name": "test_200_query_document_golden_scores_and_feature_invariant",
+      "message": "AssertionError: assert 25 == 20\n +  where 25 = len({'ext_hit': 35.0, 'ext_miss': 0.0, 'kw_stem': 0.0, 'kw_word': 0.0, ...})"
+    },
+    {
+      "file": "tests/test_vgc_cascade.py",
+      "name": "test_verify_calculation_division_by_zero",
+      "message": "AssertionError: <VGCVerificationStatus.UNVERIFIABLE: 'unverifiable'> != <VGCVerificationStatus.INVALID: 'invalid'>"
+    },
+    {
+      "file": "tests/test_vgc_cascade.py",
+      "name": "test_verify_calculation_exact",
+      "message": "AssertionError: 'verified' not found in 'đối chiếu 120 * 4: công cụ trả 480; tính độc lập được 480.; kết luận 480; đối chiếu 120 * 4 được 480.'"
+    },
+    {
+      "file": "tests/test_vgc_cascade.py",
+      "name": "test_verify_calculation_float_tolerance",
+      "message": "AssertionError: <VGCVerificationStatus.INVALID: 'invalid'> != <VGCVerificationStatus.VALID: 'valid'>"
+    },
+    {
+      "file": "tests/test_vgc_cascade.py",
+      "name": "test_verify_calculation_mismatch_fails_closed",
+      "message": "AssertionError: 'mismatch' not found in 'đối chiếu 120 * 4: công cụ trả 500; tính độc lập được 480.; kết luận 500; đối chiếu 120 * 4 được 480.'"
+    },
+    {
+      "file": "tests/test_vgc_cascade.py",
+      "name": "test_verify_document_fact_grounded",
+      "message": "AssertionError: <VGCVerificationStatus.UNVERIFIABLE: 'unverifiable'> != <VGCVerificationStatus.VALID: 'valid'>"
+    },
+    {
+      "file": "tests/test_vgc_cascade.py",
+      "name": "test_cascade_solve_quantitative_verified_fast",
+      "message": "TypeError: '>' not supported between instances of 'NoneType' and 'float'"
+    },
+    {
+      "file": "tests/test_vgc_ui_integration.py",
+      "name": "test_meta_reasoner_delivers_vgc_certificates_and_citations",
+      "message": "AssertionError: 'unverifiable' != 'valid'\n- unverifiable\n+ valid"
+    }
+  ],
+  "old_review_artifacts_changed": [],
+  "native_record_count": 12,
+  "native_completion_tokens": 370,
+  "native_max_completion_tokens": 44,
+  "native_latency_max_ms": 47359.53,
+  "warm_latency_range_ms": [
+    4635.92,
+    47359.53
+  ],
+  "warm_latency_median_ms": 6364.26,
+  "warm_calls_over_12_3s": [
+    7,
+    8
+  ],
+  "stage_0_changed_by_review": false
+}

@@ -1,0 +1,97 @@
+FF..FF..                                                                 [100%]
+=================================== FAILURES ===================================
+__ test_path_text_cannot_turn_fake_evidence_into_verified_real[same-document] __
+
+variant = 'same-document'
+source_blocks = (<code object <module> at 0x109bb6a30, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("variant", ["same-document", "real-checkpoint-path", "untagged-control", "explicit-fake-control"])
+    def test_path_text_cannot_turn_fake_evidence_into_verified_real(variant, source_blocks):
+        record = completed(HERE / "legacy_fake_calls.jsonl")[0].copy()
+        if variant == "same-document":
+            record["document_path"] = completed(HERE / "received_artifacts/calls.jsonl")[0]["document_path"]
+        elif variant == "real-checkpoint-path":
+            record["model_path"] = "/fixture/mlx-community/Qwen3.5-4B-MLX-4bit"
+        elif variant == "explicit-fake-control":
+            record.update(backend_type="fake", model_path="/fixture/mlx-community/Qwen3.5-4B-MLX-4bit")
+        ns = {}
+        exec(source_blocks[0], ns)
+        actual = ns["classify_record_backend"](record)
+>       assert actual in {"fake", "unknown"}, {"fixture_variant": variant, "backend": actual, "record": record}
+E       AssertionError: {'fixture_variant': 'same-document', 'backend': 'real', 'record': {'event': 'request_complete', 'call_index': 1, 'request_id': 'perf-exec-1-1792410808882', 'timestamp_utc': '2026-10-19T11:53:28.921948+00:00', ...}}
+E       assert 'real' in {'fake', 'unknown'}
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:58: AssertionError
+_ test_path_text_cannot_turn_fake_evidence_into_verified_real[real-checkpoint-path] _
+
+variant = 'real-checkpoint-path'
+source_blocks = (<code object <module> at 0x109bb6a30, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("variant", ["same-document", "real-checkpoint-path", "untagged-control", "explicit-fake-control"])
+    def test_path_text_cannot_turn_fake_evidence_into_verified_real(variant, source_blocks):
+        record = completed(HERE / "legacy_fake_calls.jsonl")[0].copy()
+        if variant == "same-document":
+            record["document_path"] = completed(HERE / "received_artifacts/calls.jsonl")[0]["document_path"]
+        elif variant == "real-checkpoint-path":
+            record["model_path"] = "/fixture/mlx-community/Qwen3.5-4B-MLX-4bit"
+        elif variant == "explicit-fake-control":
+            record.update(backend_type="fake", model_path="/fixture/mlx-community/Qwen3.5-4B-MLX-4bit")
+        ns = {}
+        exec(source_blocks[0], ns)
+        actual = ns["classify_record_backend"](record)
+>       assert actual in {"fake", "unknown"}, {"fixture_variant": variant, "backend": actual, "record": record}
+E       AssertionError: {'fixture_variant': 'real-checkpoint-path', 'backend': 'real', 'record': {'event': 'request_complete', 'call_index': 1, 'request_id': 'perf-exec-1-1792410808882', 'timestamp_utc': '2026-10-19T11:53:28.921948+00:00', ...}}
+E       assert 'real' in {'fake', 'unknown'}
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:58: AssertionError
+___________ test_same_document_fake_guard_replay_remains_unverified ____________
+
+    def test_same_document_fake_guard_replay_remains_unverified():
+        root = output_root()
+        perf = json.loads((root / "same_document_legacy_fake/native_performance.json").read_text())
+        assert "No new requests will be dispatched" in (root / "same_document_legacy_fake.txt").read_text()
+>       assert perf["historical_ledger_totals"]["real_records"] == 0, perf["scope_classification"]
+E       AssertionError: {'type': 'offline_fake_backend_simulation', 'status': 'budget_halt_existing_real_history', 'unverified_native_scenario...atching new requests. Existing append-only ledger contains 1 historical real-model records; zero fake calls executed.'}
+E       assert 1 == 0
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:65: AssertionError
+_ test_current_run_counters_and_warm_scope_apply_to_real_mode_too[real-history-halt-0-0] _
+
+mode = 'real-history-halt', expected_real = 0, expected_fake = 0
+source_blocks = (<code object <module> at 0x109bb6a30, file "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scri...sers/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py", line 1>)
+
+    @pytest.mark.parametrize("mode,expected_real,expected_fake", [
+        ("real-history-halt", 0, 0),
+        ("new-real-control", 1, 0),
+        ("fake-history-control", 0, 0),
+    ])
+    def test_current_run_counters_and_warm_scope_apply_to_real_mode_too(mode, expected_real, expected_fake, source_blocks):
+        # Explicit provenance isolates counting from the separate legacy classifier issue.
+        history = [dict(r, backend_type="real", session_id="historical-reviewed-session")
+                   for r in completed(HERE / "received_artifacts/calls.jsonl")]
+        current = []
+        if mode == "new-real-control":
+            current = [dict(history[0], request_id="synthetic-current-request", session_id="current-fixture-session")]
+            history = history + current
+        elif mode == "fake-history-control":
+            history = [dict(history[0], backend_type="fake")]
+        ns = dict(args=SimpleNamespace(fake_backend=mode == "fake-history-control"),
+                  completed_records=history, current_run_dispatched=current)
+        exec(source_blocks[0], ns)
+        exec(source_blocks[1], ns)
+>       assert (ns["real_calls_count"], ns["fake_calls_count"]) == (expected_real, expected_fake), {
+            "mode": mode, "new_requests": len(current), "reported_real": ns["real_calls_count"],
+            "scope": ns["scope_status"], "warm_records": len(ns["relevant_for_warm"])}
+E       AssertionError: {'mode': 'real-history-halt', 'new_requests': 0, 'reported_real': 12, 'scope': 'backend_inference_verified_12_calls', ...}
+E       assert (12, 0) == (0, 0)
+E         
+E         At index 0 diff: 12 != 0
+E         Use -v to get more diff
+
+audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py:87: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[same-document]
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_path_text_cannot_turn_fake_evidence_into_verified_real[real-checkpoint-path]
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_same_document_fake_guard_replay_remains_unverified
+FAILED audit/rat_overnight_sweep_codex_review_r6_20261020/test_legacy_identity_and_real_history.py::test_current_run_counters_and_warm_scope_apply_to_real_mode_too[real-history-halt-0-0]
+4 failed, 4 passed in 0.13s

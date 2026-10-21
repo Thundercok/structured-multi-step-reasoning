@@ -1,0 +1,215 @@
+{
+  "folder": "rep_watch_bot",
+  "files": 34,
+  "bytes": 190871,
+  "archive": "scratch/rep_watch_bot_removal_20261017.tar.gz",
+  "archive_sha256": "c6d7bf9bf4e27d4d43741ee5af1540e9fb860bbb4298eed26cabbc0692b18ac1",
+  "parity": "all regular file bytes and modes verified",
+  "manifest": [
+    {
+      "path": "rep_watch_bot/.env.example",
+      "bytes": 345,
+      "sha256": "a1c015c6c39c20f84e6e1a25a52fd664c4e3118dbc1832cbcf57c8c989e96ed8",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/README.md",
+      "bytes": 2916,
+      "sha256": "cfe8970c975cd01f3c3d36c9683a6546b91e1cbf3f10eeced9da1783e44a329e",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/__pycache__/models.cpython-312.pyc",
+      "bytes": 3942,
+      "sha256": "f6d828a463f73fb3b9ff464b57e99821d519a80237cd48054f93031bd8cdacc1",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/__pycache__/slang_dictionary.cpython-312.pyc",
+      "bytes": 6793,
+      "sha256": "0e0a258c2f93edc5df64318f23e413ed131bba2acf624cdb76544c3707190234",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/__pycache__/storage.cpython-312.pyc",
+      "bytes": 7469,
+      "sha256": "f735c3ad1e0ca7e499225f3cd3e0210d34e645cca9425af48678ad14e2901c9f",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/__pycache__/telegram_notifier.cpython-312.pyc",
+      "bytes": 4555,
+      "sha256": "927e29d0b0e6e4f9eeeadab57fbdb702e92b4404428d8057d6900f0be9773b78",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/config.yaml",
+      "bytes": 1321,
+      "sha256": "c0257ba6ac6d64363fe5f0b5e1b97d57a0080ac0fda51df9ca9e0c378231811f",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/data/rep_watches.db",
+      "bytes": 53248,
+      "sha256": "74720c08092c7d21dda46c69db98a128c34989d118d542edfb8e4e81fc4acc42",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/main.py",
+      "bytes": 6532,
+      "sha256": "4e7bf8328acea515ed8fc05e048f444dd7ae8187db3899c65367ade4b8556bff",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/models.py",
+      "bytes": 2709,
+      "sha256": "1fc58295d9006e1574d6428c999e56e1863033e0bee08f40829c3802ec0d90fa",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/output/rep_watches_report.csv",
+      "bytes": 19284,
+      "sha256": "f64c43496d10dacc7c3a84a005678efa0523ada013d2645c4060622576c91ba3",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/pyproject.toml",
+      "bytes": 994,
+      "sha256": "12f4b022240b4ab87708cb60a55fa5c07819c9b905ac325172696ddf0535b7b3",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/requirements.txt",
+      "bytes": 152,
+      "sha256": "42a06166c7c8208a1e90d0116b9c1cd5b6c1b1afa99b2595c305a01470970205",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/__pycache__/base_scraper.cpython-312.pyc",
+      "bytes": 2337,
+      "sha256": "4ddf89a59e30217bd6e76f6a963824a3d2cb26151f472cb46019c91044b41f9c",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/__pycache__/chotot_scraper.cpython-312.pyc",
+      "bytes": 4857,
+      "sha256": "35333d45e30b58340a84f501698fa45249728d73b8bf4dc9ff27822bdd05be33",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/__pycache__/facebook_scraper.cpython-312.pyc",
+      "bytes": 6295,
+      "sha256": "dc8138c21897b0a63a162abe75968ab775ca294a4820bc5183ff710090230bad",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/__pycache__/webrep_scraper.cpython-312.pyc",
+      "bytes": 5253,
+      "sha256": "c6f4cb52f5c896e4b569c21082a60a39868e12581dc8e1503567efb65bc9826b",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/base_scraper.py",
+      "bytes": 1566,
+      "sha256": "d7bbbbf7f486beb82486068d7f1ff3a02adfbc3d9a6683f488826f6e907fcd06",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/chotot_scraper.py",
+      "bytes": 4061,
+      "sha256": "0b53755b36d805de0fef6efaff205e290fe05646563a5519e911e7520e5a4429",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/facebook_scraper.py",
+      "bytes": 3993,
+      "sha256": "b725afdbec489ef87d50b148129491439233198d1f93d0dc05e768de1429fbac",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/scrapers/webrep_scraper.py",
+      "bytes": 4251,
+      "sha256": "4c9a9ad45d1fb217203dcd3b3251611a4777f67b9f96dd5c67e596cbefd8819c",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/slang_dictionary.py",
+      "bytes": 7510,
+      "sha256": "c44529d95cd30c16a1a3d9e0e58e52ca318d4e0e67df0844d879bef3a1a8d319",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/storage.py",
+      "bytes": 5111,
+      "sha256": "45c8b3e5e365cf264b25aacb3be196b34f61b74de1a2acb92439ddbc8eb0982a",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/telegram_notifier.py",
+      "bytes": 3603,
+      "sha256": "bc03709cfabe9828b62595ded8060000a5735164abe07b034c4c2058729ec979",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/__init__.py",
+      "bytes": 34,
+      "sha256": "c1adf3dceb6f28f2005ee482b613ceea730721f336a5b324ccaa61a5392c1c67",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/__pycache__/__init__.cpython-312.pyc",
+      "bytes": 197,
+      "sha256": "f1eee1deb06a7178af51ba3e10b873dcfff9a5fca9b2270be9492bdba3a4e4f9",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/__pycache__/test_models.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 5022,
+      "sha256": "d1ad59540713a6f51324cc6efed2f82e2b6bd8a71a2e33d787065b5ff7c0beda",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/__pycache__/test_scrapers.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 8209,
+      "sha256": "4d75950d6f261b24bfaa3ff30699dad75f9440aada57529e112ee05fc180c851",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/__pycache__/test_slang_dictionary.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 3701,
+      "sha256": "b228ce2d2ca3ec62b7179b9242faa876a04d354e0d176a2921a13e1e5fb8a6ef",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/__pycache__/test_storage.cpython-312-pytest-9.0.3.pyc",
+      "bytes": 9072,
+      "sha256": "bcff0a0b2210363ca7a3eb0d60a229d7023d7a9ac8240a3fd54183227c5c806d",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/test_models.py",
+      "bytes": 1309,
+      "sha256": "19f8dbf00c936b0a7fd1bc310a8c38cae8ea300cc0fd1b14f1ddd3d047760b88",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/test_scrapers.py",
+      "bytes": 1908,
+      "sha256": "306a97794be854be526cd5f9d9994360d2ea45cb813c9a524adc950c8746272a",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/test_slang_dictionary.py",
+      "bytes": 874,
+      "sha256": "74170ad8ea843dbc252479ca0847c5fce34f94720bf6e1aeeb14c80874531458",
+      "mode": 420
+    },
+    {
+      "path": "rep_watch_bot/tests/test_storage.py",
+      "bytes": 1448,
+      "sha256": "497416b66300249f8c70af2d945178f0447333d3d3f49a2e707ea4a300ac2253",
+      "mode": 420
+    }
+  ],
+  "removed": true
+}

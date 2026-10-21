@@ -1,0 +1,142 @@
+[
+  {
+    "command": "python audit/rat_cot_runtime_codex_review_r4_20261021/run_baseline.py",
+    "exit_code": 0,
+    "raw_log": "baseline.txt",
+    "junit_xml": "baseline.xml",
+    "result": {
+      "tests": 394,
+      "passed": 394,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failures": [],
+      "class_counts": {
+        "tests.test_progressive_search": 17,
+        "tests.test_mlx_document_session": 26,
+        "tests.test_selected_document_qa": 11,
+        "tests.test_selected_document_ui": 6,
+        "tests.test_workbench_scene": 15,
+        "tests.test_rat_completion_reconciliation": 14,
+        "tests.test_rat_completion_boundaries": 32,
+        "tests.test_document_model_startup": 9,
+        "tests.test_rat_magic_ui": 17,
+        "tests.test_research_study": 12,
+        "test_optimal_stopping": 12,
+        "test_entry_predictor": 5,
+        "tests.test_assistant_runtime": 26,
+        "tests.test_rat_headless_cli": 20,
+        "tests.test_resident_warmup": 5,
+        "audit.rat_finder_codex_review_20261016.test_finder_integration_probes": 12,
+        "audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups": 6,
+        "audit.rat_milestones_abc_independent_review_20261018.test_review_probes": 8,
+        "audit.rat_milestones_abc_independent_review_20261018.test_ui_review_probes": 3,
+        "audit.rat_milestones_abc_review_r2_20261018.test_additional_headless": 3,
+        "audit.rat_milestones_abc_review_r2_20261018.test_additional_ui": 4,
+        "audit.rat_milestones_abc_review_r3_20261019.test_slide_summary_projection": 2,
+        "audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance": 6,
+        "audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance": 5,
+        "tests.test_crash_shield.TestCrashShield": 8,
+        "tests.test_harness_regressions": 5,
+        "audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes": 13,
+        "audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges": 7,
+        "audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion": 10,
+        "audit.rat_overnight_sweep_codex_review_r6_20261020.test_legacy_identity_and_real_history": 8,
+        "audit.rat_overnight_sweep_codex_review_r7_20261020.test_failed_request_reporting": 4,
+        "tests.test_online_reasoning": 14,
+        "tests.test_policy_bundle": 11,
+        "tests.test_online_reasoning_execution": 8,
+        "tests.test_native_acceptance_readiness": 8,
+        "audit.rat_cot_runtime_codex_review_r3_20261020.test_boundary_contracts": 19,
+        "audit.rat_cot_runtime_codex_review_r2_20261020.test_qwen_boundary_replay": 3
+      },
+      "duration_xml_s": 47.785
+    },
+    "host_permission": "Offline host execution for PyQt6; Qt runtime aborts in sandbox. No weights loaded or real inference.",
+    "duration_stdout_s": 47.8,
+    "components": {
+      "submitted_372": 372,
+      "r3_boundary": 19,
+      "r2_native_replay": 3
+    },
+    "subsets_already_in_394": {
+      "mandatory_research": 29,
+      "native_readiness": 8,
+      "G1_failed_reporting": 4
+    }
+  },
+  {
+    "command": "python -m pytest audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py -q --junitxml=audit/rat_cot_runtime_codex_review_r4_20261021/remaining_contracts.xml",
+    "exit_code": 1,
+    "raw_log": "remaining_contracts.txt",
+    "junit_xml": "remaining_contracts.xml",
+    "result": {
+      "tests": 14,
+      "passed": 3,
+      "failed": 11,
+      "errors": 0,
+      "skipped": 0,
+      "failures": [
+        "test_native_sc_configuration_controls_actual_sample_count",
+        "test_native_tot_configuration_controls_actual_branch_count",
+        "test_native_request_budget_uses_actual_configured_strategy",
+        "test_native_token_cap_holds_with_nondefault_supported_configuration",
+        "test_failure_message_does_not_change_recorded_dispatch_count",
+        "test_native_predispatch_cancel_is_not_charged_as_dispatched_generation",
+        "test_approved_fitted_artifact_cannot_skip_parameter_validation[malformed-json]",
+        "test_approved_fitted_artifact_cannot_skip_parameter_validation[missing-parameters]",
+        "test_approved_fitted_artifact_cannot_skip_parameter_validation[empty-cost-models]",
+        "test_approved_fitted_artifact_cannot_skip_parameter_validation[wrong-coefficient-shape]",
+        "test_approved_fitted_artifact_cannot_skip_parameter_validation[changed-performance-model]"
+      ],
+      "class_counts": {
+        "audit.rat_cot_runtime_codex_review_r4_20261021.test_remaining_contracts": 14
+      },
+      "duration_xml_s": 3.225
+    },
+    "duration_stdout_s": 3.23,
+    "scope": "Actual Qwen strategy and stream-loop source with MLX imports removed and scripted stream provider; no model constructor."
+  },
+  {
+    "command": "python -m pytest test_qwen_mlx_backend_mocked.py test_reasoning_strategies.py tests/test_research_scoring.py -q",
+    "exit_code": 0,
+    "raw_log": "backend_scoring.txt",
+    "result": {
+      "passed": 68,
+      "skipped": 2
+    },
+    "duration_stdout_s": 5.91,
+    "skipped_reason": "Native MLX bfloat16 arrays unavailable in mock environment."
+  },
+  {
+    "command": "python audit/rat_cot_runtime_codex_review_r4_20261021/recover_historical_evidence.py",
+    "exit_code": 0,
+    "raw_log": "recovery.txt",
+    "record": "recovery.json",
+    "verified_original_copies": 8
+  },
+  {
+    "command": "python audit/rat_cot_runtime_codex_review_r4_20261021/capture_bundle_evidence.py",
+    "exit_code": 0,
+    "raw_log": "bundle_parameter_cases.txt",
+    "record": "bundle_parameter_cases.json",
+    "approved_invalid_fixtures": 5
+  },
+  {
+    "command": "python audit/rat_cot_runtime_codex_review_r4_20261021/build_validation.py",
+    "exit_code": 0,
+    "raw_log": "final_checks.txt",
+    "earlier_attempts": [
+      {
+        "script_exit_code": 1,
+        "log": "final_checks_initial_setup_error.txt",
+        "reason": "Expected a wrapped files mapping; submitted artifact manifest uses a flat digest mapping. Reader fixed."
+      },
+      {
+        "script_exit_code": 1,
+        "log": "final_checks_source_drift_detected.txt",
+        "reason": "Three unrelated UI source changes detected. Preserved, recorded and explicitly excluded from final-checkout approval."
+      }
+    ]
+  }
+]

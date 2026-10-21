@@ -1,0 +1,25 @@
+{
+  "checked_utc": "2026-10-16T01:27:01.475545+00:00",
+  "tests": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "68",
+    "time": "4.085",
+    "timestamp": "2026-10-16T08:23:44.740337+07:00",
+    "hostname": "thien-than-bong-em.local"
+  },
+  "native_runtime_cases": 2,
+  "native_runtime_passes": 2,
+  "source_changed": [],
+  "packages": {
+    "mlx": "0.32.2",
+    "mlx-lm": "0.31.3",
+    "transformers": "5.16.0"
+  },
+  "model_source": "existing local cache; no download",
+  "ui_integrated": false,
+  "app_default_changed": false,
+  "research_stage0_changed": false
+}

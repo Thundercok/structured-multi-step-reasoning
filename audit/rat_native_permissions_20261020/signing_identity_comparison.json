@@ -1,0 +1,24 @@
+[
+  {
+    "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app",
+    "exit_code": 0,
+    "signing_summary": [
+      "# designated => cdhash H\"16e418b2b8898a984305125d77a17164b5076980\"",
+      "Identifier=com.thundercock.rat",
+      "CDHash=16e418b2b8898a984305125d77a17164b5076980",
+      "Signature=adhoc",
+      "TeamIdentifier=not set"
+    ]
+  },
+  {
+    "path": "/private/tmp/rat-packaging-intake-20261020-verified-dist/rat.app",
+    "exit_code": 0,
+    "signing_summary": [
+      "# designated => cdhash H\"faac85cf0d7d3fc77cfd38dbe4d5d3067285a290\"",
+      "Identifier=com.thundercock.rat",
+      "CDHash=faac85cf0d7d3fc77cfd38dbe4d5d3067285a290",
+      "Signature=adhoc",
+      "TeamIdentifier=not set"
+    ]
+  }
+]

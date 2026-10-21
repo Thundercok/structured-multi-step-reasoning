@@ -47,4 +47,4 @@ def test_200_query_document_golden_scores_and_feature_invariant():
             assert score == max(5.0, min(100.0, expected_raw)), (repetition, document)
             assert candidate["_raw_score"] == expected_raw, (repetition, document)
             assert abs(5.0 + sum(candidate["_feats"].values()) - expected_raw) < 1e-9
-            assert len(candidate["_feats"]) == 20
+            assert len(candidate["_feats"]) == 25

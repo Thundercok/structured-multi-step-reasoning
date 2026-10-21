@@ -1,0 +1,48 @@
+{
+  "status": "completed",
+  "utc": "2026-10-16T00:08:21.352946+00:00",
+  "evidence": "measured_app_development_fixture",
+  "cases": 3,
+  "max_inference_calls": 3,
+  "source_hashes": {
+    "rat/engine/selected_document_qa.py": "d81c84ef1ea0b838bda09c0b7e3ddc6945bc394de87ef3a5cac93941bd324c99",
+    "rat/engine/assistant_runtime.py": "70f7e33154abf66c44283d955f4c1f2c2f43cdd6c9e500015b686d78b7c34ce2",
+    "rat/engine/slm.py": "b7f27c9d7b66c3bc821180450d7db5a9a9112fe6c4ac9c6001a4cb9b85b9d4da",
+    "scripts/profile_selected_document_qa.py": "fbf879b1a05f518a1af063588a7f86f5151ab84362ad8204de6f83d21d617bdd"
+  },
+  "model": "qwen3:4b-instruct",
+  "ollama": {
+    "version": "0.34.3"
+  },
+  "model_metadata": {
+    "name": "qwen3:4b-instruct",
+    "model": "qwen3:4b-instruct",
+    "modified_at": "2026-10-11T19:36:56.720003432+07:00",
+    "size": 2497293803,
+    "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen3",
+      "families": [
+        "qwen3"
+      ],
+      "parameter_size": "4.0B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 262144,
+      "embedding_length": 2560
+    },
+    "capabilities": [
+      "tools",
+      "thinking",
+      "completion"
+    ]
+  },
+  "stage0_changed": false,
+  "latency_scope": "online headless selected-file read and one answer",
+  "token_scope": "reported prompt and completion; not full inference cost",
+  "models_after_cleanup": {
+    "models": []
+  },
+  "source_changed": []
+}

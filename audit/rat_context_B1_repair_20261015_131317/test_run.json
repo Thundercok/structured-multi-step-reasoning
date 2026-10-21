@@ -1,0 +1,31 @@
+{
+  "focused": {
+    "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_rat_context_snapshot.py tests/test_rat_context_audit.py tests/test_artifact_store_lifecycle.py audit/rat_context_B1_codex_review_20261014_123157/review_probes.py audit/rat_context_B1_codex_review_round2_20261014_151324/provenance_probes.py audit/rat_context_B1_independent_20261014_084657/origin_scope_probes.py audit/rat_context_B1_codex_review_current_20261014_210330/raw_receipt_probes.py audit/rat_context_B1_codex_acceptance_20261015_095446/registered_result_probes.py -p no:cacheprovider -q --tb=short --junitxml=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_context_B1_repair_20261015_131317/focused.xml",
+    "exit_code": 0,
+    "duration_seconds": 2.991,
+    "tests": 166,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "registered_result": {
+    "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest audit/rat_context_B1_codex_acceptance_20261015_095446/registered_result_probes.py -p no:cacheprovider -q --tb=short --junitxml=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_context_B1_repair_20261015_131317/registered_result.xml",
+    "exit_code": 0,
+    "duration_seconds": 1.909,
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "core": {
+    "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest audit/rat_reconciliation_codex_review_20261013/contract_probes.py audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py tests/test_rat_completion_boundaries.py tests/test_rat_completion_reconciliation.py tests/test_rat_note_source_verification.py tests/test_rat_smoke_harness.py tests/test_rat_verification_literal_guard.py tests/test_rat_conversation_lifecycle.py tests/test_rat_calculation_conversation.py tests/test_work_context.py tests/test_rat_chat_session.py tests/test_assistant_runtime.py tests/test_rat_task_memory.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_interaction_kernel.py tests/test_interaction_kernel_regressions.py tests/test_rat_verification.py tests/test_vgc_verification.py -p no:cacheprovider -q --tb=short --junitxml=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_context_B1_repair_20261015_131317/core.xml",
+    "exit_code": 1,
+    "duration_seconds": 9.94,
+    "tests": 293,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_drift": [],
+  "live_model_calls": 0
+}

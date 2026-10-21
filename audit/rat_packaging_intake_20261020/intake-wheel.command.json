@@ -1,0 +1,26 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pip",
+    "wheel",
+    "./document_intake",
+    "--no-deps",
+    "--no-build-isolation",
+    "--no-index",
+    "--wheel-dir",
+    "audit/rat_packaging_intake_20261020/wheels"
+  ],
+  "cwd": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "exit_code": 0,
+  "started_unix": 1792479460.081035,
+  "elapsed_seconds": 6.595195055007935,
+  "environment_overrides": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "PYINSTALLER_CONFIG_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_packaging_intake_20261020/pyinstaller-cache",
+    "PIP_NO_INDEX": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "QT_QPA_PLATFORM": "offscreen"
+  }
+}

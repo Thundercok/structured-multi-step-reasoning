@@ -1,0 +1,226 @@
+{
+  "evidence": "exposed_development_subset_diagnostics",
+  "model_calls": 0,
+  "interval_scope": "unadjusted CP under a binomial model; diagnostic, selected by base outcome",
+  "counts": [
+    {
+      "point": "M",
+      "arm": "A",
+      "rescued": 2,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.05274495052631695,
+        0.853367200365327
+      ],
+      "harmed": 3,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.09898827844250785,
+        0.8159484323599169
+      ],
+      "rescued_ids": [
+        "arith_0039_en_orig",
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": [
+        "order_0012_en_orig",
+        "order_0004_en_orig",
+        "g24_0028_en_orig"
+      ]
+    },
+    {
+      "point": "M",
+      "arm": "F",
+      "rescued": 3,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.14663279963467307,
+        0.9472550494736831
+      ],
+      "harmed": 1,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.0036102968619005638,
+        0.5787231970431952
+      ],
+      "rescued_ids": [
+        "order_0006_en_orig",
+        "g24_0014_en_orig",
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": [
+        "arith_0032_en_orig"
+      ]
+    },
+    {
+      "point": "M",
+      "arm": "CONT",
+      "rescued": 1,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.005050763379468026,
+        0.7164179361180896
+      ],
+      "harmed": 0,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.0,
+        0.4096163972250034
+      ],
+      "rescued_ids": [
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": []
+    },
+    {
+      "point": "D_w0",
+      "arm": "A",
+      "rescued": 3,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.14663279963467307,
+        0.9472550494736831
+      ],
+      "harmed": 3,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.09898827844250785,
+        0.8159484323599169
+      ],
+      "rescued_ids": [
+        "arith_0039_en_orig",
+        "g24_0014_en_orig",
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": [
+        "order_0012_en_orig",
+        "order_0004_en_orig",
+        "g24_0028_en_orig"
+      ]
+    },
+    {
+      "point": "D_w0",
+      "arm": "F",
+      "rescued": 3,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.14663279963467307,
+        0.9472550494736831
+      ],
+      "harmed": 1,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.0036102968619005638,
+        0.5787231970431952
+      ],
+      "rescued_ids": [
+        "order_0006_en_orig",
+        "g24_0014_en_orig",
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": [
+        "arith_0032_en_orig"
+      ]
+    },
+    {
+      "point": "D_w0",
+      "arm": "CONT",
+      "rescued": 1,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.005050763379468026,
+        0.7164179361180896
+      ],
+      "harmed": 0,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.0,
+        0.4096163972250034
+      ],
+      "rescued_ids": [
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": []
+    },
+    {
+      "point": "D_w1",
+      "arm": "A",
+      "rescued": 3,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.14663279963467307,
+        0.9472550494736831
+      ],
+      "harmed": 3,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.09898827844250785,
+        0.8159484323599169
+      ],
+      "rescued_ids": [
+        "arith_0039_en_orig",
+        "g24_0014_en_orig",
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": [
+        "order_0012_en_orig",
+        "order_0004_en_orig",
+        "g24_0028_en_orig"
+      ]
+    },
+    {
+      "point": "D_w1",
+      "arm": "F",
+      "rescued": 3,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.14663279963467307,
+        0.9472550494736831
+      ],
+      "harmed": 1,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.0036102968619005638,
+        0.5787231970431952
+      ],
+      "rescued_ids": [
+        "order_0006_en_orig",
+        "g24_0014_en_orig",
+        "g24_0023_en_orig"
+      ],
+      "harmed_ids": [
+        "arith_0032_en_orig"
+      ]
+    },
+    {
+      "point": "D_w1",
+      "arm": "CONT",
+      "rescued": 0,
+      "rescue_n": 5,
+      "rescue_cp95": [
+        0.0,
+        0.5218237501049814
+      ],
+      "harmed": 0,
+      "harm_n": 7,
+      "harm_cp95": [
+        0.0,
+        0.4096163972250034
+      ],
+      "rescued_ids": [],
+      "harmed_ids": []
+    }
+  ],
+  "M_CONT_rescue_observables": [
+    {
+      "question_id": "g24_0023_en_orig",
+      "base_finish_reason": "length",
+      "base_parse_status": "fail",
+      "base_parsed_answer": "(12 * 9) / (something). 108. 108 / 4.5 = 24.",
+      "new_parsed_answer": "(7 - (12 - 9)) * 6",
+      "new_tokens_before_answer_marker": 392,
+      "parsed_answer_text_change_comparable": false,
+      "parsed_answer_text_changed": null
+    }
+  ]
+}

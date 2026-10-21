@@ -1,0 +1,2271 @@
+{
+  "evidence": "exposed_development_tokenizer_audit",
+  "model_calls": 0,
+  "network_downloads": 0,
+  "tokenizer_loader": "tokenizers.Tokenizer.from_file",
+  "tokenizers_version": "0.23.1",
+  "tokenizer_dir": "/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3.5-4B-MLX-4bit/snapshots/32f3e8ecf65426fc3306969496342d504bfa13f3",
+  "tokenizer_hashes": {
+    "tokenizer.json": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+    "tokenizer_config.json": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182"
+  },
+  "historical_dir": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/cot_restart_pilot_qwen35_20261009",
+  "historical_journal_head": "b8e0df5bdbaa7ce76ae27ef98f53f1ac486ead6c1406596453d5da56882e7dd0",
+  "source_sha256": "d477efbe7fe36e6d5f9090a8be56678e99d96dbb6ec0b9102d98311d969a849c",
+  "eos_counting_assumption": "one omitted EOS for finish_reason=stop; zero for length",
+  "rows": 136,
+  "literal_count_matches": 59,
+  "eos_adjusted_count_matches": 122,
+  "roundtrip_matches": 136,
+  "T5_eos_aware_pass": false,
+  "historical_backend_version_verified": false,
+  "original_token_identity_verified": false,
+  "recorded_minus_retokenized_counts": {
+    "1": 74,
+    "0": 59,
+    "2": 3
+  },
+  "observations": [
+    {
+      "key": [
+        "smoke",
+        "smoke_0_non_thinking"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 44,
+      "retokenized_visible_tokens": 43,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "4af865177bccbe8e93084eccae79f88580b49c54cdc94fab78f1509dbe6d07e3"
+    },
+    {
+      "key": [
+        "smoke",
+        "smoke_1_thinking_native"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 128,
+      "retokenized_visible_tokens": 128,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "264c6cd006902da99c9a6770784abd8ae669f046d82af902d28b963a19dc7eed"
+    },
+    {
+      "key": [
+        "smoke",
+        "smoke_2_assistant_prefix"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 42,
+      "retokenized_visible_tokens": 41,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ad0f993ed40eb2f97270168b056fb398015476da2347676018bd166dd358ac09"
+    },
+    {
+      "key": [
+        "smoke",
+        "smoke_3_boundary_continuation"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 27,
+      "retokenized_visible_tokens": 26,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "cc2c2f61c2a6b03c469e8ddc3ff69b2fbcf06be9e7712be92ce9949fbe70a6eb"
+    },
+    {
+      "key": [
+        "base_cot",
+        "arith_0027_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 145,
+      "retokenized_visible_tokens": 144,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ecd59f0867eec5c6eee3ceba591023bec3009825896d294f011caf474f358805"
+    },
+    {
+      "key": [
+        "base_cot",
+        "arith_0039_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 287,
+      "retokenized_visible_tokens": 286,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "223d815b89a8d17cdfcd800cc4fad037129c23cea9e8ead60535a5219371135e"
+    },
+    {
+      "key": [
+        "base_cot",
+        "arith_0023_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 102,
+      "retokenized_visible_tokens": 101,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "f3cbe4bcfd0779711f4f3a9e968f29fb87b550e1e823238427dc701765a80581"
+    },
+    {
+      "key": [
+        "base_cot",
+        "arith_0032_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 184,
+      "retokenized_visible_tokens": 183,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "01d00fd32af4fe773ca5c965071cd9c7a94a384b99ba8502f19898a8b00ff73c"
+    },
+    {
+      "key": [
+        "base_cot",
+        "order_0012_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 587,
+      "retokenized_visible_tokens": 586,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "42b40211cc5eae1e1c01339ec02d0e543dfd57144ba62b8729b543c204994049"
+    },
+    {
+      "key": [
+        "base_cot",
+        "order_0004_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 738,
+      "retokenized_visible_tokens": 737,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "29c5bf4859800f9198129345acede7f6af207b6ad0081835c840c7cea296fc95"
+    },
+    {
+      "key": [
+        "base_cot",
+        "order_0006_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 666,
+      "retokenized_visible_tokens": 665,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "0d65dd6befa36ec3e2d758b73995d4a1de5b5dd77c8fd293f5498883ea009670"
+    },
+    {
+      "key": [
+        "base_cot",
+        "order_0027_en_orig"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1024,
+      "retokenized_visible_tokens": 1024,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "bedbaee63691bc450f80e8b5a52687dc80c032169b3c495cfb21a8ff4dc0fbf3"
+    },
+    {
+      "key": [
+        "base_cot",
+        "g24_0014_en_orig"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1024,
+      "retokenized_visible_tokens": 1024,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2e5fe027e4f9d3b5c2ab316ee3bee6ab7e105b7639e239198f1daccfff0bead5"
+    },
+    {
+      "key": [
+        "base_cot",
+        "g24_0028_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 263,
+      "retokenized_visible_tokens": 262,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ae223d073009680e4e79c0e5ebc8c2c91411503bc7e6250d54a0258385e5340b"
+    },
+    {
+      "key": [
+        "base_cot",
+        "g24_0023_en_orig"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1024,
+      "retokenized_visible_tokens": 1024,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "88975c8ee817a4357ce474295a8070397ed04a06353254411ecc77615861382f"
+    },
+    {
+      "key": [
+        "base_cot",
+        "g24_0018_en_orig"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 344,
+      "retokenized_visible_tokens": 343,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "7df94096959fca7530929c94d9d6324c5a311577914d5670b71e76abe8b91fbf"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 158,
+      "retokenized_visible_tokens": 157,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "a9affaaaf2d098b5521b3e8f03427b13c5ab3893ad57719ce9e335c5dafe3d9c"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "6499de9eecea1cfa",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 110,
+      "retokenized_visible_tokens": 110,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "30cf974d7cd4a6cfdd43cb8b0f370d2c2ce68c2126ce7e6aec07960c917da1d1"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "86577199ed68ff2d",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 78,
+      "retokenized_visible_tokens": 78,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d5b618fa0097fe13c4e21091b3e19fef02de02df5785ff0a725e09ead8f2c8c5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "03ed8b3413ca84d0",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 42,
+      "retokenized_visible_tokens": 42,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "78aaaa4093e7f0e7b3f2f99f4a03b3eed22787a6e1e620d1aa415813556386b2"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 878,
+      "retokenized_visible_tokens": 878,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "8bd9d1f9820de4c95b07ccd1a4ef05eff6a2e0de142b82eece6fe9588fb21ce4"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 145,
+      "retokenized_visible_tokens": 144,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "46f9f6786955aed56a5ff3abc9e7e9b58f703da17afc0988a8e34d7bd7dfff18"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "6499de9eecea1cfa",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 110,
+      "retokenized_visible_tokens": 110,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "30cf974d7cd4a6cfdd43cb8b0f370d2c2ce68c2126ce7e6aec07960c917da1d1"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "86577199ed68ff2d",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 78,
+      "retokenized_visible_tokens": 78,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d5b618fa0097fe13c4e21091b3e19fef02de02df5785ff0a725e09ead8f2c8c5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "prefix_call",
+        "03ed8b3413ca84d0",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 42,
+      "retokenized_visible_tokens": 42,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "78aaaa4093e7f0e7b3f2f99f4a03b3eed22787a6e1e620d1aa415813556386b2"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0027_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1902,
+      "retokenized_visible_tokens": 1902,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "26977bb45310714b6db5e478580f82fa9d782897a1c4f609c2ea6e423469730a"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 451,
+      "retokenized_visible_tokens": 450,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2c176cbf8c8000518d1ef1a2d771132013471e9e9be9af6143f43d321c97e077"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "b292c7fd5cfb8297",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 159,
+      "retokenized_visible_tokens": 158,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "489bf7129c11cf553a5203ed5d7eed230bf3b11f40ebc93530f59e3179eaa433"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "9bed62ba146712ae",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 432,
+      "retokenized_visible_tokens": 431,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "f843f31482e8c931a124bf76a702908e4a27457c2abf972d7303e0eee20a7330"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "569f447c4fbd8af6",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 69,
+      "retokenized_visible_tokens": 67,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "876ba5a013e9587b04e921710c94316fc0d4d964559c20c83687d30f8da4f451"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 853,
+      "retokenized_visible_tokens": 853,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "385bdac770af767db34840dfb39eb0c5bab7d2b92f677448d076938226b1fc7c"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 299,
+      "retokenized_visible_tokens": 298,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "8c2749f92dc1509a2564346a6c23e6cfc35388ff99b8e14444a9d92ed2f5e39c"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "b292c7fd5cfb8297",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 103,
+      "retokenized_visible_tokens": 102,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e5229f8dbb63967fd8148bf25e1074a34543bdc8d9e1c47bd1d2111240d8c62a"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "9bed62ba146712ae",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 403,
+      "retokenized_visible_tokens": 402,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "1ba78081346a3285141e8512a138f929cdb59a0867bc7075ccd36f89b4e5b6d5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "prefix_call",
+        "569f447c4fbd8af6",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 69,
+      "retokenized_visible_tokens": 67,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "09781b273351b007b41eb118339d8191bd56dc7aaa765902ecf0fb5c4d22dd33"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0039_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 1486,
+      "retokenized_visible_tokens": 1485,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "52f63dc46f039e670eba1cdb129497524712bfb89af201982cfb49c2e8758836"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 102,
+      "retokenized_visible_tokens": 101,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "f3cbe4bcfd0779711f4f3a9e968f29fb87b550e1e823238427dc701765a80581"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "6d95d467cd72c010",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 102,
+      "retokenized_visible_tokens": 101,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "93f010cbfa6e383e7d85f31d6a62b8a87d6dfd78b30b5c1c012058324707ae82"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "754620374b52e3e3",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 50,
+      "retokenized_visible_tokens": 50,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "6cce6923374425ecdf2c4819e1d6ab19214b4f68d85913672c22f6f95f490df5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "dd29f397a449bec9",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 37,
+      "retokenized_visible_tokens": 36,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d667d7e23ffbb43484f373e53987678f9c14ce3c7447f978616c4d2e40a59c45"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 904,
+      "retokenized_visible_tokens": 904,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "40ff1390be312e1a23fb32c4dda0f06dec5a07dd4ac7e22b519691ef3a94e4f5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 119,
+      "retokenized_visible_tokens": 118,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2c9f246c6f427f14c58af86207237a8ff7fc3a5a0b5a2bfc2a892c5af6626467"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "6d95d467cd72c010",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 105,
+      "retokenized_visible_tokens": 104,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "0bb4dd7e9920792d64302a0f1e9edf1eb516e961611ffd3d3fa4114f4b4d9586"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "754620374b52e3e3",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 50,
+      "retokenized_visible_tokens": 50,
+      "eos_adjustment": 1,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "6cce6923374425ecdf2c4819e1d6ab19214b4f68d85913672c22f6f95f490df5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "prefix_call",
+        "dd29f397a449bec9",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 37,
+      "retokenized_visible_tokens": 36,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d667d7e23ffbb43484f373e53987678f9c14ce3c7447f978616c4d2e40a59c45"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0023_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1928,
+      "retokenized_visible_tokens": 1928,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "7ab6160b75dc42586753f00de416bc18a28a3441892ebdd2312b7b08b4b8f082"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 167,
+      "retokenized_visible_tokens": 166,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2237ac25ba6fcaf9c329f90b147af58c167bf5a83f0a58bccc13e4cc295cb57e"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "9c6c7fc4209e9ba2",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 144,
+      "retokenized_visible_tokens": 143,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "fb63263fe7cda7f68463fffb5f49daa0fa429226c4cdb30a01482d181103c693"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "9c4107b10db2a5ca",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 98,
+      "retokenized_visible_tokens": 97,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "34fb85ac84caacba944fc7463aa693dc934494f14a34c5e2c271bee9d165db65"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "46bbd1305d3b929e",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 50,
+      "retokenized_visible_tokens": 49,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "f54d345ec9dcc1647107221524c279fe58a1a2cc09123e473fb0f2a8f6f2def1"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 857,
+      "retokenized_visible_tokens": 857,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "89c9a068b0c3c81415d178f7851b7964c88e1b7ceeb1434213b93c60109986c6"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 291,
+      "retokenized_visible_tokens": 290,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "200da292d49d6045069a1cc8fe4dc4694cb6bcc9ff0fdcabfc497c15a79655ce"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "9c6c7fc4209e9ba2",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 144,
+      "retokenized_visible_tokens": 143,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "fb63263fe7cda7f68463fffb5f49daa0fa429226c4cdb30a01482d181103c693"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "9c4107b10db2a5ca",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 98,
+      "retokenized_visible_tokens": 97,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "34fb85ac84caacba944fc7463aa693dc934494f14a34c5e2c271bee9d165db65"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "prefix_call",
+        "46bbd1305d3b929e",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 50,
+      "retokenized_visible_tokens": 49,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "a37f4048412c2b91d32d4b8463e6a0564ede93c7269bad2b8ec25a5ade34bc60"
+    },
+    {
+      "key": [
+        "restart_call",
+        "arith_0032_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1881,
+      "retokenized_visible_tokens": 1881,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "36f9207a35414773c2c6c4a26defac83a983463431fee068c418dc138b8f42ac"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 908,
+      "retokenized_visible_tokens": 908,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "0343a63b583b26fe679bbfef0fbab5d05e95b611e5ea9206f2d729f9be270dc7"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "858ac3829bc71c01",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 394,
+      "retokenized_visible_tokens": 393,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "21ceb19273d5ea44e9a41dd0828bed5423bc2abe654851d5112198c013c637ac"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "2bbd4c07b9727405",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 281,
+      "retokenized_visible_tokens": 280,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "3c2208b8bbd4c92c110a92a819b7c1617501d0dbab57291ea20b7e6f727b9120"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "923e593074da987b",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 217,
+      "retokenized_visible_tokens": 216,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "28c9ff203f581305ebfa90caa2d127e9ede0e13d5f7312ab2415023c1dfdcd0f"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 928,
+      "retokenized_visible_tokens": 928,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "7f21400a27a344272c5d7d68bd47cfe0c0ecb16d2a0ddc9af8c2e8bb8cd86b42"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1932,
+      "retokenized_visible_tokens": 1932,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "4f15bd62a94ac5b9e09d81b66ce0595b1dbd33f45035fb37098dcae829405952"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "858ac3829bc71c01",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 1690,
+      "retokenized_visible_tokens": 1689,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "dc43c4d91d672eca8258d970c90e23fbe3a4b837be286d47bc1321dece1b7b9b"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "2bbd4c07b9727405",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 260,
+      "retokenized_visible_tokens": 259,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "3f68df2d50ea36669674ce7f25531abb028b98cab67468be935ab7e12791d237"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "prefix_call",
+        "923e593074da987b",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 185,
+      "retokenized_visible_tokens": 184,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "632ac2774a89becac343c6564779ad083d090ab08f9950cdbe8fc02a31243f36"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0012_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1952,
+      "retokenized_visible_tokens": 1952,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e34bbd469ccc7936512e4c99b482c6d3a9b52f251a05b398d58579e29e8fd8f5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 476,
+      "retokenized_visible_tokens": 475,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "164ea0f638df78f0dcb04902d362056bcbc407ab769913b3b710206d62712d71"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "88517da91fe909c5",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 725,
+      "retokenized_visible_tokens": 725,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "416883b1d4cb7a9cf0e4e35e52bf05d5a079f7d89e057391a1e61a75f23171fa"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "a650aaccc44b952e",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 533,
+      "retokenized_visible_tokens": 533,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "de3af829a413cf5f2a13c0c3cef8a4d7f54861cb970cd0f361f48e09f77ddf75"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "cb902f0163aa6299",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 166,
+      "retokenized_visible_tokens": 165,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "98d86b910bc310232641dc230a67c41b24ddf99048bf9588ca8502e998fb1c96"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 917,
+      "retokenized_visible_tokens": 917,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "fd32d1dc7cd2248f41ed7835aaa577fd789789a3d444ec612dfa95a49a94b9d7"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 377,
+      "retokenized_visible_tokens": 376,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e24b3ae97bddba1540ea470eb10bb2f9875d7dac5305a5db60002cc65a8a7cee"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "88517da91fe909c5",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1749,
+      "retokenized_visible_tokens": 1749,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "74cc0590110913ee6e778f84648e1ea9fdff2d161075ce33443ecd89403cbd3f"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "a650aaccc44b952e",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 1247,
+      "retokenized_visible_tokens": 1246,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "18215192141ae367630521353c12eb83dedd3d4277fb20efadc0a9f14f975f64"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "prefix_call",
+        "cb902f0163aa6299",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 165,
+      "retokenized_visible_tokens": 164,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2b52b78359b7025e18b6a0134977c8474a77a8db8cca2557adc6202ce1df7644"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0004_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1941,
+      "retokenized_visible_tokens": 1941,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "623e57abc9507de303f1d203e3b415a3785ce227c9287600cd3f115ec49a7379"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 181,
+      "retokenized_visible_tokens": 180,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "eeeb3c7f5d3848d299558c79d61d74fa3d3c7883c6cfa75dd184788e92f51000"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "d51e5c5dc6227e8a",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 751,
+      "retokenized_visible_tokens": 751,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "eed0f932d148b50a97bdeafcbf48ef51d1b5406ea4f03143699d2a1d31b1e6df"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "77d38385c95eee09",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 330,
+      "retokenized_visible_tokens": 329,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "9de3b4f7a692f7229e3908ec4eaccfe9df54257909f7376195d9dea0d9e69d0b"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "3dfb88122287febe",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 210,
+      "retokenized_visible_tokens": 209,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "207033ad73a9bdacf1814f23ebed4b06fe4dccd3096645d88df25ad8b29c6c91"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 937,
+      "retokenized_visible_tokens": 937,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "06d6afa10af87be5bbcc31ffba622782dcddcafb8af840b878f326aef50b0de2"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 1166,
+      "retokenized_visible_tokens": 1165,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "db1377fe5ddaacf8b8fcf623939afc016431a6ad02af178abfc806643d7f26bd"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "d51e5c5dc6227e8a",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 761,
+      "retokenized_visible_tokens": 760,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "776664198491bd52f3e0e7bbc6d28fb8eb9fcf07f9ca8dd06265b138a86ad3c3"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "77d38385c95eee09",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 274,
+      "retokenized_visible_tokens": 273,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ee92c917d89f12725f261dce56833ce4dbf913fe66337b2a2a94cd93862e925e"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "prefix_call",
+        "3dfb88122287febe",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 200,
+      "retokenized_visible_tokens": 199,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "332f957633406924a7b43c2389b229532c8075567a0e68fac7f290a9893ba7b2"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0006_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1961,
+      "retokenized_visible_tokens": 1961,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d9ce2583000fb763417eee15fe841f0510d4fb8fc1a04ec1fea3805138eab1cd"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 869,
+      "retokenized_visible_tokens": 869,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e8f7d4188e24cf25ffb39a8eb5a91fbdd340ef4cc42aef66500f628119b7189f"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "2039383ce2e49dba",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 606,
+      "retokenized_visible_tokens": 606,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ec8355780c031188d4e2129f3508ce8fbc0f8b11a132da64098cffc5f91de779"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "11f993c83cd98544",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 351,
+      "retokenized_visible_tokens": 351,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ef863f8e0e67ce82e7a4261c14de2e41362b66af2675356f2a28d340dbd34c34"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "f874e12808569cce",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 113,
+      "retokenized_visible_tokens": 113,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "a63a8c2ff8e0f6dd889ba469a7c5b649bae18031854294edf8a39728366ce2d2"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 889,
+      "retokenized_visible_tokens": 889,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "a2bf4bd772614b5126e7dfb01e8ec1cdd21d0d05401e29e940ae6c689a9836ef"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1893,
+      "retokenized_visible_tokens": 1893,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "78e6bfa29e59157b86078d8874eedead13297d162f043ccc3b9886beab285c51"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "2039383ce2e49dba",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1630,
+      "retokenized_visible_tokens": 1630,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "c9ddbd558626b8a86b1dca686e1f524833d7435cd35af98e6cfc67d0e4bb05e3"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "11f993c83cd98544",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1375,
+      "retokenized_visible_tokens": 1375,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "9ccb96789867b01c68f5fb1132b690937aa5c281c2640fb1fa4989e930685516"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "prefix_call",
+        "f874e12808569cce",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1137,
+      "retokenized_visible_tokens": 1137,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d7b1f6bbf75f5468e756256790ac55e53bd230dacd87c041f76d5737b6fd9864"
+    },
+    {
+      "key": [
+        "restart_call",
+        "order_0027_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1913,
+      "retokenized_visible_tokens": 1913,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ba0d4aeaf13382c027f307412b48f980377d10bbcaa1cbdfff67a4fd04ea9b00"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 931,
+      "retokenized_visible_tokens": 931,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "8cd4725933631cc27725165b9f0698e31d2033d2aecada4c33dbce32a34bf1e5"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "f5244e6b57f53628",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 674,
+      "retokenized_visible_tokens": 674,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "bd57ae3039019ed912e8f864b677ad33e626f88ea0f61598376660ca1f26ef20"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "c9147571b4374d2f",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 423,
+      "retokenized_visible_tokens": 422,
+      "eos_adjustment": 0,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e9631c4245e141c22f62dacf71643acb94be0f4530bf227ce7fba8994b6c3bc7"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "d2214bf7824b2d59",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 160,
+      "retokenized_visible_tokens": 159,
+      "eos_adjustment": 0,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "182562d1f84770986abc20e7b2a23ce47c3e00b780bf6624f500c4ceb786767c"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 951,
+      "retokenized_visible_tokens": 951,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "a6f3e519273ce6183eb070615fd114d724afb95c21a1a1ef3c5341c547628593"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1955,
+      "retokenized_visible_tokens": 1955,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "817abfb2e7e632613e35644098b4a65756d9bbab221ab1f50bbc9e933955aa88"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "f5244e6b57f53628",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1698,
+      "retokenized_visible_tokens": 1698,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "fdbadb51c59c88f076787babd7367cbbedfb48b80fc5e0d3d9aa2a5c37372424"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "c9147571b4374d2f",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 1296,
+      "retokenized_visible_tokens": 1294,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "4c2371b2bdab389f15b4eb032dfa3da23351964635b9ab823f2b1743a88eee46"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "prefix_call",
+        "d2214bf7824b2d59",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1184,
+      "retokenized_visible_tokens": 1183,
+      "eos_adjustment": 0,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": false,
+      "roundtrip_match": true,
+      "raw_output_sha256": "37c2244a77e8dacec3f29212dc7e6fa01a182e09170d004d452b2bcbbb395c7b"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0014_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1975,
+      "retokenized_visible_tokens": 1975,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "0933206d0eafd894a203f126564d5a8e76cd0d689c8574fd2b01e065b9fe074b"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 929,
+      "retokenized_visible_tokens": 929,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "c0c5f5cdd238d5c3ce223a64b62c363baf43b7abaa6f0a7b08d9f4902818d30d"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "6498c83822a8ad20",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 874,
+      "retokenized_visible_tokens": 874,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "4668e7371e1b7a0703dc3472b5f595666e204a2276dc7a21139491a608501e0c"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "0d9e00c731dd2898",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 312,
+      "retokenized_visible_tokens": 311,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2b7fa6099e04f0d1627a5b92d3bd2dbfe119a5be05776b019178c984a8625d65"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "fa0274117314c36b",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 53,
+      "retokenized_visible_tokens": 52,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ae2efc17418238355f75bb26b65b05529bd09a8bf0236791a5aa93276177c740"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 949,
+      "retokenized_visible_tokens": 949,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "975ea555911e51eaf68f7288421e0be13633226bf0f2158a16a534b9015260c1"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 517,
+      "retokenized_visible_tokens": 516,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "23b7749de3cdac948ac49d127dcacf56a423709dba81a47b351fd4a6ac907466"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "6498c83822a8ad20",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 136,
+      "retokenized_visible_tokens": 135,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2444a4d0f7f7b82d1ea579c1b13fb2b1c701b00b22475ec404c708cd910651ad"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "0d9e00c731dd2898",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 116,
+      "retokenized_visible_tokens": 115,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "92b4cc19503d434a0169965a11cf9735a686e76ab3035f1645f715636b7c084d"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "prefix_call",
+        "fa0274117314c36b",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 55,
+      "retokenized_visible_tokens": 54,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "2cd882d94ff4fd7056a2300da6f2b6b0ce20593e5af82bba0c8f734a08dfe135"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0028_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1973,
+      "retokenized_visible_tokens": 1973,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d955fb6cafa05b16597214724ded0b7c5c717fc94022c07461e00b9d65e635b6"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 930,
+      "retokenized_visible_tokens": 930,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "3391cc5343c1908923ecf86b140b1a79482e8752ebf4af33a84e98ddc8660df6"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "165f00b60d9845a4",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 366,
+      "retokenized_visible_tokens": 365,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "9aa33e00f37f56d5c44a4a550ed210c8ecb7a3cf0ddbdeded3546ed7a753ee6e"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "d1870e320b9b9158",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 85,
+      "retokenized_visible_tokens": 84,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "bdb7735d43b07ac2245baf222b5ad8e815ab2c58bf6468ad3f616ebef72d5c02"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "833d05e5bad79956",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 160,
+      "retokenized_visible_tokens": 160,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "33a7fadede0c62b817f19bdbee64364089ec4c6c5d1e4c6265a9cbfc368d59f6"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 950,
+      "retokenized_visible_tokens": 950,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "ef7d729a9e0a0a8af24d0fd5c88ff765444708798027f158705b1d977988c76b"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 606,
+      "retokenized_visible_tokens": 605,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "fe3d8b8e453fc7b272f03784b11b16345987592d1c9c1d3e1d2fb52302522da2"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "165f00b60d9845a4",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 707,
+      "retokenized_visible_tokens": 706,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "4bf2b024e2127fb114d38a1d77c2312bdb2e059748159c806ddbfe6a87422585"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "d1870e320b9b9158",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 522,
+      "retokenized_visible_tokens": 521,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "013bc5a5a91464c5fe90b34c700c7b7bb24f6ae3b3d35297f944175bd20aaca6"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "prefix_call",
+        "833d05e5bad79956",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 456,
+      "retokenized_visible_tokens": 455,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "fc06db3af66ddd6ad70ba05fcbada02b5c687597ef2501cc2974d6791a379511"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0023_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1974,
+      "retokenized_visible_tokens": 1974,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "9a1f24c03f604cf2a3087aed7a8648b4203cba0663293bd2eeed81e23a0f9929"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 757,
+      "retokenized_visible_tokens": 756,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "040c70ce6343629041fc9010c710daf213e110840934826379b396882ef4228f"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "924cc3946446d5ab",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 390,
+      "retokenized_visible_tokens": 389,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "93e4155b54a709b2fdb0f3872fc1259a584920637ff283abbbad9b765b480a37"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "f5c64160fd2c5c4e",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 761,
+      "retokenized_visible_tokens": 761,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "81a54bb03b6a222bb58b4006e6bcba792c1eddc391c91401c51b08d02a13af32"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "7a858fe04dafd1f8",
+        "1024"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 361,
+      "retokenized_visible_tokens": 360,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "3d726246489b1e5f3b894168b2d0467e1056131cb297b8e5c0d8b452a27132e0"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "thinking_native",
+        "1024"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 949,
+      "retokenized_visible_tokens": 949,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "5e98c57b890196701aeb9572d077e405e26ddf71ce415224698edabf42835f11"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "e3b0c44298fc1c14",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1953,
+      "retokenized_visible_tokens": 1953,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "6b38347c5b6187f81f1dadd47f94f611e08347df97645e7bf6c46703939ac672"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "924cc3946446d5ab",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 949,
+      "retokenized_visible_tokens": 948,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "21719408ddd870b9a09892c67c0a2379d74945679cb3102861cbb325ccf18eed"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "f5c64160fd2c5c4e",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 413,
+      "retokenized_visible_tokens": 412,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e27c0705ce6da135ff7775b369198459218cda3a2e7159705201b8407891ac02"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "prefix_call",
+        "7a858fe04dafd1f8",
+        "2048"
+      ],
+      "finish_reason": "stop",
+      "recorded_completion_tokens": 1474,
+      "retokenized_visible_tokens": 1473,
+      "eos_adjustment": 1,
+      "literal_count_match": false,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "e36c91deaca73fbd25c5e06cec79f6f77b7e6f51bf2e636554bae3218006f9dd"
+    },
+    {
+      "key": [
+        "restart_call",
+        "g24_0018_en_orig",
+        "thinking_native",
+        "2048"
+      ],
+      "finish_reason": "length",
+      "recorded_completion_tokens": 1973,
+      "retokenized_visible_tokens": 1973,
+      "eos_adjustment": 0,
+      "literal_count_match": true,
+      "eos_adjusted_count_match": true,
+      "roundtrip_match": true,
+      "raw_output_sha256": "d094ea468ec2694393b71a3f05e9390167b6ea692646918684be9a3aa772fb36"
+    }
+  ],
+  "legacy_replay_status": "blocked_count_or_roundtrip_mismatch"
+}

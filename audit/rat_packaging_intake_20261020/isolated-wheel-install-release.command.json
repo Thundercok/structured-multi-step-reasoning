@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "audit/rat_packaging_intake_20261020/isolated-venv/bin/python",
+    "-m",
+    "pip",
+    "install",
+    "--no-index",
+    "--no-deps",
+    "--force-reinstall",
+    "audit/rat_packaging_intake_20261020/wheels-release/nesy_document_intake-0.1.0-py3-none-any.whl"
+  ],
+  "cwd": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "exit_code": 0,
+  "started_unix": 1792480153.507731,
+  "elapsed_seconds": 1.1905598640441895,
+  "environment_overrides": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "PYINSTALLER_CONFIG_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_packaging_intake_20261020/pyinstaller-cache",
+    "PIP_NO_INDEX": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "QT_QPA_PLATFORM": "offscreen"
+  }
+}

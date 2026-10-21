@@ -82,12 +82,17 @@ class TestVGCUIIntegration(unittest.TestCase):
         engine = MetaReasonerEngine(lam=0.02)
 
         # Quantitative query with PAL & VGC
-        q_math = "Sinh viên tích lũy 64 tín chỉ có CPA 7.20. Học kỳ này thêm 4 môn..."
+        q_math = "tính 120 * 4"
         res_math = engine.solve(q_math)
         self.assertEqual(res_math.strategy, "PAL")
         self.assertEqual(res_math.verification_status, "valid")
         self.assertIsNotNone(res_math.witness_proof)
-        self.assertTrue(any("✓" in s or "hợp lệ" in s.lower() for s in res_math.steps))
+        self.assertEqual(res_math.witness_proof, "480")
+        self.assertEqual(res_math.tokens, 0)
+
+        incomplete = engine.solve("Sinh viên tích lũy 64 tín chỉ có CPA 7.20. Học kỳ này thêm 4 môn...")
+        self.assertEqual(incomplete.verification_status, "unverifiable")
+        self.assertIsNone(incomplete.witness_proof)
 
         # Academic policy query with grounded citations
         q_policy = "Điều kiện nhận học bổng khuyến khích học tập loại Giỏi?"

@@ -5,7 +5,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from unittest.mock import patch
 
 import pytest
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton
 
@@ -63,9 +63,10 @@ def test_bottom_composer_preserves_editor_and_anchor_across_content_and_modes(wi
         assert composer.selectedText() == selection
         assert QApplication.focusWidget() is composer
         assert window.geometry().bottom() == bottom
-        assert window.container_layout.indexOf(window.quick_bar) > window.container_layout.indexOf(window.content_stack)
-        assert window.quick_bar.geometry().top() >= window.content_stack.geometry().bottom()
-        assert window.companion_avatar_btn.geometry().right() < window.container.geometry().left()
+        assert window.main_layout.indexOf(window.workbench_dialogue) > window.main_layout.indexOf(window.workbench_canvas)
+        assert window.workbench_dialogue.geometry().top() >= window.workbench_canvas.geometry().bottom()
+        visible_head = window.companion_avatar_btn.mask().boundingRect().translated(window.companion_avatar_btn.pos())
+        assert not visible_head.isEmpty()
 
 
 def test_default_controls_stay_hidden_across_progress_and_mode_refresh(window, app):
@@ -184,3 +185,80 @@ def test_pending_question_is_visible_without_backend_form(window):
     assert handle['ans_lbl'].text() == response.answer
     assert not handle['card'].findChildren(QLineEdit)
     assert not any(button.isVisible() for button in handle['card'].findChildren(QPushButton))
+
+
+def test_fresh_empty_workbench_and_reset_have_no_duration_or_plan_metadata(window, app):
+    canvas = window.workbench_canvas
+    assert not canvas.duration_badge.isVisible()
+    assert canvas.duration_badge.text() == ""
+    assert not canvas.eyebrow_lbl.isVisible()
+    assert canvas.eyebrow_lbl.text() == ""
+    assert not canvas.status_lbl.isVisible()
+    assert not canvas.context_lbl.isVisible()
+    assert not canvas.foot_row.isVisible()
+    assert canvas.minutes == []
+
+    # Verify reset also stays clean of synthetic metadata
+    window._reset_chat()
+    app.processEvents()
+    assert not canvas.duration_badge.isVisible()
+    assert canvas.duration_badge.text() == ""
+    assert not canvas.eyebrow_lbl.isVisible()
+    assert not canvas.status_lbl.isVisible()
+    assert not canvas.context_lbl.isVisible()
+    assert not canvas.foot_row.isVisible()
+
+
+def test_footer_hints_have_usable_positive_bounds_across_states(window, app):
+    lane = window.workbench_user_lane
+    window.show()
+    app.processEvents()
+
+    # 1. Desktop compact state
+    assert lane.input_state_lbl.isVisible()
+    assert lane.input_state_lbl.width() > 40
+    assert lane.kbd_hint_lbl.isVisible()
+    assert lane.kbd_hint_lbl.width() > 20
+
+    # 2. Busy / working state
+    lane.set_phase("working")
+    app.processEvents()
+    assert lane.input_state_lbl.text() == "Đang xử lý · Esc để dừng"
+    assert lane.input_state_lbl.width() > 60
+
+    # 3. 1700+ character counter state
+    long_text = "a" * 1750
+    window.chat_composer_input.setText(long_text)
+    app.processEvents()
+    assert "1.750" in lane.input_state_lbl.text() or "1750" in lane.input_state_lbl.text()
+    assert lane.input_state_lbl.width() > 60
+    window.chat_composer_input.clear()
+    lane.set_phase("done")
+    app.processEvents()
+
+    # 4. Narrow mode: kbd hint hidden, input state label has usable positive width
+    window._resize_overlay(440, 360)
+    app.processEvents()
+    assert lane.is_narrow
+    assert lane.kbd_hint_lbl.isHidden()
+    assert lane.input_state_lbl.isVisible()
+    assert lane.input_state_lbl.width() > 40
+
+
+def test_responsive_breakpoint_uses_content_width_on_constrained_screens(window, app):
+    from unittest.mock import MagicMock
+    mock_screen = MagicMock()
+    mock_screen.availableGeometry.return_value = QRect(0, 0, 490, 800)
+    window.screen = MagicMock(return_value=mock_screen)
+
+    # Calling resize with standard 620 produces outer 466 (490 - 24) and content 450 (466 - 16)
+    window._resize_overlay(620, 240)
+    app.processEvents()
+
+    assert window.width() == 466
+    assert window.workbench_dialogue.is_narrow is True
+    assert window.workbench_canvas.is_narrow is True
+    assert window.companion_avatar_btn.width() == 132
+    assert window.companion_avatar_btn.actor_w == 120
+    assert window.workbench_user_lane.kbd_hint_lbl.isHidden()
+

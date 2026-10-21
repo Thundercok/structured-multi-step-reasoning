@@ -1,0 +1,14 @@
+{
+  "rat/engine/mlx_document_session.py": "d1f3b2a25430b63bec2c42a5d05df716ac3ba38bf7b7d9a3ce18a1a42ed3a472",
+  "rat/engine/document_model_service.py": "02024e67975928df1c1e72e26c52feb9df5764201fca5b4889309d1212e5a859",
+  "rat/engine/selected_document_qa.py": "755a37c34a9f7bacad079c898afe0971ba40eb16bfe6e485783b48d41a887ce9",
+  "rat/engine/assistant_runtime.py": "e1db57107f58306c7b33d485a361f51aedbf08fa5c443e2419fe9a990b46b746",
+  "rat/engine/completion.py": "bdd5f6e77ec797bc0476cd15f3d6df8fbe7e3a9935cd9282a0d0031dc611ce75",
+  "rat/engine/work_trace.py": "39287be8ecf1d4eda68f1569cedcdb9fd2252d5f99e355d6aa81f3e9a8b47c95",
+  "rat/ui/workbench_scene.py": "dbcb746dbbc775435a4ee6c5a1bf900c10ac545f02066b87e4d1b0b989e3bca9",
+  "rat/ui/omnibar.py": "a09909df614da89a5def108962eae13c9a0c90b937c897a3de2afa775331ea29",
+  "tests/test_mlx_document_session.py": "fbe8b6a156e7dfa46f45799887962292fae5588eff43a9c4a896280e31f9001d",
+  "tests/test_selected_document_qa.py": "f4f2422bab23ea8c513a9529db312dd7203de51e2701c25e8ae08c301620454f",
+  "tests/test_selected_document_ui.py": "b73ba8a9da35faf91aab12ec3803ae943aaa2ace637c77e6e9ce8542f02ee489",
+  "tests/test_workbench_scene.py": "acc29a46d28d5028ba739069c71d486ff40abe4aa51efc3927f187a53a0a5a58"
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "input": "Answer: 2 + 2 = 4; 1 / 4 = 1/4",
+    "previous": "2 + 2 = 4; 1 / 4 = 1/4",
+    "current": "4"
+  },
+  {
+    "input": "Therefore 2 + 2 = 4; 1 / 4 = 1/4",
+    "previous": "4",
+    "current": "4"
+  },
+  {
+    "input": "Answer: x = 3/4",
+    "previous": "x = 3/4",
+    "current": "x = 3/4"
+  },
+  {
+    "input": "Therefore x = 3/4",
+    "previous": "4",
+    "current": "Therefore x = 3/4"
+  },
+  {
+    "input": "x = 3.25/4",
+    "previous": "3",
+    "current": "x = 3.25/4"
+  },
+  {
+    "input": "Answer: 2 + 2 = 4; 4 * 2 = 8",
+    "previous": "8",
+    "current": "8"
+  }
+]

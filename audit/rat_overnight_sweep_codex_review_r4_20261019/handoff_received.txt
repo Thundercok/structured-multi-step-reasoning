@@ -1,0 +1,449 @@
+Ran command: List review_r3 directory (`ls -la audit/rat_overnight_sweep_codex_review_r3_20261019`)
+Viewed review.md:1-134
+Viewed message_to_antigravity.md:1-54
+Viewed test_remaining_probes.py:1-130
+Ran command: Run probe tests (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py -v`)
+Viewed reasoning_strategies.py:150-185
+Viewed reasoning_strategies.py:110-150
+Viewed reasoning_strategies.py:60-110
+Viewed reasoning_strategies.py:15-60
+Viewed test_harness_regressions.py:1-60
+Viewed test_harness_regressions.py:120-193
+Viewed test_harness_regressions.py:65-100
+Ran command: Search EQUALS_RESULT references (`git grep "EQUALS_RESULT"`)
+Ran command: Test candidate cleaning logic (`python3 -c '
+import re
+from fractions import Fraction
+
+def test_fn(norm):
+    placeholders = {"<kết quả>", "<your final answer>", "[kết quả của bạn]", "<final answer>", "<answer>"}
+    for p in placeholders:
+        if norm.casefold().startswith(p.casefold()):
+            norm = re.sub(r"^\s*" + re.escape(p) + r"\s*[:=]?\s*", "", norm, flags=re.IGNORECASE).strip()
+            break
+    norm = norm.lstrip("=: ").strip()
+    m_term = re.search(r"=\s*(-?\d[\d,]*\.?\d*)(?!\s*[/÷×*+-])(?:\s+[^\d\+\-\*\/\(\)\=]+)?\.?$", norm)
+    if m_term:
+        val = m_term.group(1).replace(",", "")
+        if val.endswith(".") and not re.search(r"\d\.\d", val):
+            val = val.rstrip(".")
+        return val
+    return norm
+
+cases = [
+    ("1 - 1/3 = 2/3", Fraction(2, 3)),
+    ("x = 3/4", Fraction(3, 4)),
+    ("<kết quả> = 3*(45+55) - 4*(120-85) + 250/5 = 3*(100) - 4*(15) + 50 = 300 - 60 + 50 = 290.", Fraction(290)),
+    ("<kết quả> = 24 crates of 18 boxes + 15 crates of 25 boxes + 30 crates of 12 boxes = 24 * 18 + 15 * 25 + 30 * 12 = 432 + 375 + 360 = 1167 boxes total.", Fraction(1167)),
+]
+
+for raw, exp in cases:
+    parsed = test_fn(raw)
+    conclusion = parsed.rsplit("=", 1)[-1].strip()
+    f = Fraction(conclusion.split()[0] if " " in conclusion else conclusion)
+    print(f"raw: {raw[:30]}... -> parsed: {parsed!r} -> conclusion: {conclusion!r} -> Fraction: {f} == {exp}: {f == exp}")
+'`)
+Ran command: Test attempt counting logic (`python3 -c '
+import json
+
+def count_existing_attempts(records):
+    seen_requests = set()
+    legacy_count = 0
+    for line_no, rec in enumerate(records, start=1):
+        req_id = rec.get("request_id")
+        if req_id:
+            seen_requests.add(str(req_id))
+        elif rec.get("event") in ("request_start", "request_complete"):
+            c_idx = rec.get("call_index")
+            if c_idx is not None:
+                seen_requests.add(f"call_{c_idx}")
+            else:
+                seen_requests.add(f"line_{line_no}")
+        else:
+            c_idx = rec.get("call_index")
+            if c_idx is not None:
+                seen_requests.add(f"legacy_call_{c_idx}")
+            else:
+                legacy_count += 1
+    return len(seen_requests) + legacy_count
+
+test_cases = [
+    ([{"call_index": 1, "completion_tokens": 10}], 1),
+    ([{"event": "request_start", "call_index": 1, "request_id": "r1"}], 1),
+    ([{"event": "request_start", "call_index": 1, "request_id": "r1"},
+      {"event": "request_complete", "call_index": 1, "request_id": "r1", "completion_tokens": 10}], 1),
+    ([{"call_index": 1, "completion_tokens": 10},
+      {"event": "request_start", "call_index": 2, "request_id": "r2"},
+      {"event": "request_complete", "call_index": 2, "request_id": "r2", "completion_tokens": 10}], 2),
+]
+
+for recs, exp in test_cases:
+    res = count_existing_attempts(recs)
+    print(f"Result: {res} == {exp}: {res == exp}")
+'`)
+Ran command: Search 27.542 in audit (`git grep "27.542" audit/`)
+Ran command: Locate load time in native_performance.json (`find audit/ -name "native_performance.json" -exec grep -H "27.542" {} +`)
+Viewed native_performance.json:1-36
+Viewed view_renderer.py:260-320
+Viewed view_renderer.py:320-355
+Viewed reasoning_strategies.py:80-180
+Edited reasoning_strategies.py
+Viewed reasoning_strategies.py:150-175
+Edited reasoning_strategies.py
+Ran command: Run fraction parser probe (`.venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py -k "test_untyped_terminal_fraction_keeps_denominator" -v`)
+Ran command: Verify harness regressions pass (`.venv/bin/python -m pytest tests/test_harness_regressions.py -v`)
+Checked task Verify harness regressions pass
+Viewed run_native_performance_session.py:360-440
+Ran command: Test candidate label logic (`python3 -c '
+from pathlib import Path
+
+def get_candidate_labels(candidates):
+    all_paths = [str(c.get("path") or "") for c in candidates if c.get("path")]
+    has_paths = len(all_paths) > 1
+
+    distinguishing_labels = {}
+    if has_paths:
+        parent_dirs = [Path(p).parent for p in all_paths]
+        for depth in range(1, 10):
+            current_labels = []
+            for p_dir in parent_dirs:
+                parts = p_dir.parts
+                if not parts:
+                    current_labels.append(str(p_dir))
+                elif depth >= len(parts):
+                    current_labels.append(str(p_dir))
+                else:
+                    current_labels.append("/".join(parts[-depth:]))
+            if len(set(current_labels)) == len(all_paths):
+                distinguishing_labels = dict(zip(all_paths, current_labels))
+                break
+        if not distinguishing_labels:
+            distinguishing_labels = {p: (Path(p).parent.name or str(Path(p).parent)) for p in all_paths}
+
+    # Detect collisions in (diff_parent, name)
+    parent_name_counts = {}
+    for c in candidates:
+        p = str(c.get("path") or "")
+        parent_label = distinguishing_labels.get(p) or (Path(p).parent.name if p else "")
+        name = c.get("name", "")
+        key = (parent_label, name)
+        parent_name_counts[key] = parent_name_counts.get(key, 0) + 1
+
+    labels = []
+    for c in candidates:
+        name = c.get("name", "")
+        p = str(c.get("path") or "")
+        if p and has_paths:
+            diff_label = distinguishing_labels.get(p) or Path(p).parent.name
+            key = (diff_label, name)
+            if parent_name_counts.get(key, 0) > 1:
+                # Disambiguate using bundle filesystem name / stem
+                stem = Path(p).stem or Path(p).name
+                disp_name = stem if stem else name
+            else:
+                disp_name = name
+            label_parts = [f"{diff_label} · {disp_name}"]
+        else:
+            label_parts = [name]
+        if c.get("version"):
+            label_parts.append(f"v{c.get(\"version\")}")
+        labels.append(" · ".join(label_parts))
+    return labels
+
+cases = [
+    [dict(name="League of Legends", path="/Applications/League of Legends.app", version="1.0"),
+     dict(name="League of Legends", path="/Applications/League of Legends copy.app", version="1.0")],
+    [dict(name="League of Legends", path="/Applications/League of Legends.app", version="1.0"),
+     dict(name="League of Legends", path="/Users/fixture/Applications/League of Legends.app", version="1.0")],
+    [dict(name="League of Legends", path="/Applications/League of Legends.app", version="1.0"),
+     dict(name="League of Legends", path="/Applications/Riot Games/League of Legends.app", version="1.0")],
+]
+
+for idx, cs in enumerate(cases):
+    lbls = get_candidate_labels(cs)
+    print(f"Case {idx+1}: {lbls} (Distinct: {len(set(lbls)) == len(lbls)})")
+'`)
+Ran command: Test candidate labels in python (`python3 -c '
+from pathlib import Path
+
+def get_candidate_labels(candidates):
+    all_paths = [str(c.get("path") or "") for c in candidates if c.get("path")]
+    has_paths = len(all_paths) > 1
+
+    distinguishing_labels = {}
+    if has_paths:
+        parent_dirs = [Path(p).parent for p in all_paths]
+        for depth in range(1, 10):
+            current_labels = []
+            for p_dir in parent_dirs:
+                parts = p_dir.parts
+                if not parts:
+                    current_labels.append(str(p_dir))
+                elif depth >= len(parts):
+                    current_labels.append(str(p_dir))
+                else:
+                    current_labels.append("/".join(parts[-depth:]))
+            if len(set(current_labels)) == len(all_paths):
+                distinguishing_labels = dict(zip(all_paths, current_labels))
+                break
+        if not distinguishing_labels:
+            distinguishing_labels = {p: (Path(p).parent.name or str(Path(p).parent)) for p in all_paths}
+
+    parent_name_counts = {}
+    for c in candidates:
+        p = str(c.get("path") or "")
+        parent_label = distinguishing_labels.get(p) or (Path(p).parent.name if p else "")
+        name = c.get("name", "")
+        key = (parent_label, name)
+        parent_name_counts[key] = parent_name_counts.get(key, 0) + 1
+
+    labels = []
+    for c in candidates:
+        name = c.get("name", "")
+        p = str(c.get("path") or "")
+        if p and has_paths:
+            diff_label = distinguishing_labels.get(p) or Path(p).parent.name
+            key = (diff_label, name)
+            if parent_name_counts.get(key, 0) > 1:
+                stem = Path(p).stem or Path(p).name
+                disp_name = stem if stem else name
+            else:
+                disp_name = name
+            label_parts = [f"{diff_label} · {disp_name}"]
+        else:
+            label_parts = [name]
+        ver = c.get("version")
+        if ver:
+            label_parts.append(f"v{ver}")
+        labels.append(" · ".join(label_parts))
+    return labels
+
+cases = [
+    [dict(name="League of Legends", path="/Applications/League of Legends.app", version="1.0"),
+     dict(name="League of Legends", path="/Applications/League of Legends copy.app", version="1.0")],
+    [dict(name="League of Legends", path="/Applications/League of Legends.app", version="1.0"),
+     dict(name="League of Legends", path="/Users/fixture/Applications/League of Legends.app", version="1.0")],
+    [dict(name="League of Legends", path="/Applications/League of Legends.app", version="1.0"),
+     dict(name="League of Legends", path="/Applications/Riot Games/League of Legends.app", version="1.0")],
+]
+
+for idx, cs in enumerate(cases):
+    lbls = get_candidate_labels(cs)
+    print(f"Case {idx+1}: {lbls} (Distinct: {len(set(lbls)) == len(lbls)})")
+'`)
+Viewed test_followup_acceptance.py:70-102
+Viewed view_renderer.py:270-320
+Edited view_renderer.py
+Ran command: Run candidate identity probe (`QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py -k "test_candidate_labels_distinguish_full_bundle_identity" -v`)
+Viewed run_native_performance_session.py:70-100
+Viewed run_native_performance_session.py:355-440
+Edited run_native_performance_session.py
+Ran command: Run attempt counting probe (`.venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py -k "test_budget_counts_attempts_instead_of_event_lines" -v`)
+Viewed run_native_performance_session.py:360-455
+Edited run_native_performance_session.py
+Ran command: Execute runner with fake backend for probe testing (`QT_QPA_PLATFORM=offscreen .venv/bin/python scripts/run_native_performance_session.py --fake-backend --max-budget 1 --output-dir /tmp/test_fake_output_r3`)
+Ran command: Run test_remaining_probes.py (`RAT_REVIEW_FAKE_OUTPUT_DIR=/tmp/test_fake_output_r3 QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py -v`)
+Ran command: Run affected parser tests (`.venv/bin/python -m pytest test_reasoning_strategies.py test_qwen_mlx_backend_mocked.py tests/test_research_scoring.py -v`)
+Checked task Run affected parser tests
+Ran command: Git status check (`git status --short`)
+Ran command: Git status tracked (`git status -uno`)
+Ran command: Directory listing (`ls -la audit/rat_overnight_sweep_codex_review_r3_20261019/`)
+Viewed message_to_antigravity.md:1-54
+Viewed review.md:1-134
+Ran command: Check repair r3 directory (`ls -la audit/rat_overnight_sweep_codex_repair_r3_20261019/ 2>/dev/null || echo "does not exist yet"`)
+Ran command: List previous repair files (`ls -la audit/rat_overnight_sweep_repair_codex_repair_20261019/`)
+Ran command: Run fake backend session (`mkdir -p audit/rat_overnight_sweep_codex_repair_r3_20261019/fake_session && .venv/bin/python scripts/run_native_performance_session.py --fake-backend --max-budget 1 --output-dir audit/rat_overnight_sweep_codex_repair_r3_20261019/fake_session`)
+Viewed native_performance.json:1-68
+Ran command: Run remaining probes (`RAT_REVIEW_FAKE_OUTPUT_DIR=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/fake_session .venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py -v`)
+Ran command: Run reasoning strategies tests (`.venv/bin/python -m pytest test_reasoning_strategies.py -q`)
+Ran command: Run research scoring tests (`.venv/bin/python -m pytest tests/test_research_scoring.py -q`)
+Ran command: Run qwen mlx backend mocked tests (`.venv/bin/python -m pytest test_qwen_mlx_backend_mocked.py -q`)
+Viewed parser_command.json:1-13
+Viewed qwen_mlx_backend.py:95-120
+Viewed parser_affected.txt:1-3
+Ran command: Run parser tests together (`.venv/bin/python -m pytest test_reasoning_strategies.py test_qwen_mlx_backend_mocked.py tests/test_research_scoring.py -q`)
+Ran command: Run parser tests together unsandboxed (`.venv/bin/python -m pytest test_reasoning_strategies.py test_qwen_mlx_backend_mocked.py tests/test_research_scoring.py -q`)
+Ran command: Run mandatory research suite (`.venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q`)
+Viewed command.json:1-39
+Ran command: Create repair directory (`mkdir -p audit/rat_overnight_sweep_codex_repair_r3_20261019`)
+Ran command: Check calls.jsonl sha256 (`shasum -a 256 audit/rat_overnight_sweep_repair_codex_repair_20261019/calls.jsonl audit/rat_overnight_sweep_final_20261019/calls.jsonl`)
+Ran command: Find calls.jsonl (`find audit -name "calls.jsonl"`)
+Ran command: Check historical calls shasum (`shasum -a 256 \
+  audit/rat_overnight_sweep_repair_codex_repair_20261019/calls.jsonl \
+  audit/rat_overnight_sweep_codex_review_r3_20261019/received_artifacts/calls.jsonl \
+  audit/rat_overnight_sweep_repair_20261019/calls.jsonl \
+  audit/rat_overnight_sweep_final_20261019/smoke_fresh/calls.jsonl`)
+Ran command: Copy byte-identical calls.jsonl (`cp audit/rat_overnight_sweep_repair_codex_repair_20261019/calls.jsonl audit/rat_overnight_sweep_codex_repair_r3_20261019/calls.jsonl && shasum -a 256 audit/rat_overnight_sweep_codex_repair_r3_20261019/calls.jsonl`)
+Viewed native_performance.json:1-36
+Viewed native_performance.json:1-77
+Ran command: Run consolidated test suite (`QT_QPA_PLATFORM=offscreen RAT_REVIEW_FAKE_OUTPUT_DIR=/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/fake_session .venv/bin/python -m pytest \
+  tests/test_progressive_search.py \
+  tests/test_mlx_document_session.py \
+  tests/test_selected_document_qa.py \
+  tests/test_selected_document_ui.py \
+  tests/test_workbench_scene.py \
+  tests/test_rat_completion_reconciliation.py \
+  tests/test_rat_completion_boundaries.py \
+  tests/test_document_model_startup.py \
+  tests/test_rat_magic_ui.py \
+  tests/test_research_study.py \
+  test_optimal_stopping.py \
+  test_entry_predictor.py \
+  tests/test_assistant_runtime.py \
+  tests/test_rat_headless_cli.py \
+  tests/test_resident_warmup.py \
+  audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py \
+  audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py \
+  audit/rat_milestones_abc_independent_review_20261018/test_review_probes.py \
+  audit/rat_milestones_abc_independent_review_20261018/test_ui_review_probes.py \
+  audit/rat_milestones_abc_review_r2_20261018/test_additional_headless.py \
+  audit/rat_milestones_abc_review_r2_20261018/test_additional_ui.py \
+  audit/rat_milestones_abc_review_r3_20261019/test_slide_summary_projection.py \
+  audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py \
+  audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py \
+  tests/test_crash_shield.py \
+  tests/test_harness_regressions.py \
+  audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py \
+  -q \
+  --junitxml=audit/rat_overnight_sweep_codex_repair_r3_20261019/regression.xml`)
+Created command.json
+Viewed source_end.json:1-58
+Ran command: Copy source_start.json (`cp audit/rat_overnight_sweep_codex_review_r3_20261019/source_end.json audit/rat_overnight_sweep_codex_repair_r3_20261019/source_start.json`)
+Ran command: Check reviewed_source directory (`ls -la audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/`)
+Checked task Run consolidated test suite
+Ran command: Diff reasoning_strategies.py (`diff -u audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/reasoning/reasoning_strategies.py reasoning/reasoning_strategies.py || true`)
+Ran command: Diff view_renderer.py (`diff -u audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/rat/ui/view_renderer.py rat/ui/view_renderer.py || true`)
+Ran command: Diff run_native_performance_session.py (`diff -u audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/scripts/run_native_performance_session.py scripts/run_native_performance_session.py || true`)
+Checked task Run consolidated test suite
+Ran command: Check regression.xml (`head -n 20 audit/rat_overnight_sweep_codex_repair_r3_20261019/regression.xml`)
+Ran command: Generate repair diff patch (`diff -u \
+  audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/reasoning/reasoning_strategies.py \
+  reasoning/reasoning_strategies.py > /tmp/p1.patch || true
+
+diff -u \
+  audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/rat/ui/view_renderer.py \
+  rat/ui/view_renderer.py > /tmp/p2.patch || true
+
+diff -u \
+  audit/rat_overnight_sweep_codex_review_r3_20261019/reviewed_source/scripts/run_native_performance_session.py \
+  scripts/run_native_performance_session.py > /tmp/p3.patch || true
+
+cat /tmp/p1.patch /tmp/p2.patch /tmp/p3.patch > audit/rat_overnight_sweep_codex_repair_r3_20261019/repair_diff.patch
+cat audit/rat_overnight_sweep_codex_repair_r3_20261019/repair_diff.patch`)
+Ran command: Generate source_end.json (`.venv/bin/python -c '
+import json, hashlib
+from pathlib import Path
+from datetime import datetime, timezone
+
+with open("audit/rat_overnight_sweep_codex_repair_r3_20261019/source_start.json", "r") as f:
+    start_data = json.load(f)
+
+end_files = {}
+changed = []
+for rel_path, start_hash in start_data["files"].items():
+    p = Path(rel_path)
+    if p.exists():
+        h = hashlib.sha256(p.read_bytes()).hexdigest()
+        end_files[rel_path] = h
+        if h != start_hash:
+            changed.append(rel_path)
+    else:
+        end_files[rel_path] = None
+        changed.append(rel_path)
+
+end_data = {
+    "time_utc": datetime.now(timezone.utc).isoformat(),
+    "files": end_files,
+    "changed_during_repair": changed
+}
+
+with open("audit/rat_overnight_sweep_codex_repair_r3_20261019/source_end.json", "w") as f:
+    json.dump(end_data, f, indent=2)
+
+print("Changed files:", changed)
+'`)
+Created native_performance.json
+Viewed rat_cot_evidence_map.md:1-81
+Created rat_cot_evidence_map.md
+Viewed validation.json:1-59
+Created validation.json
+Viewed handoff.md:129-129
+Viewed handoff.md:80-129
+Ran command: Run 16 stale tests (`.venv/bin/python -m pytest tests/test_reranker_golden.py tests/test_query_compounds.py tests/test_vgc_cascade.py tests/test_vgc_ui_integration.py -v`)
+Created handoff.md
+Ran command: Verify audit directory (`ls -la audit/rat_overnight_sweep_codex_repair_r3_20261019/`)
+Ran command: Verify git status (`git status -s`)
+
+Đã hoàn tất toàn bộ chu kỳ sửa lỗi Round 3 theo independent review tại [`audit/rat_overnight_sweep_codex_review_r3_20261019/review.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_review_r3_20261019/review.md) trong cùng một lượt duy nhất. Toàn bộ bằng chứng, manifest, diff và kết quả test đã được lưu tại [`audit/rat_overnight_sweep_codex_repair_r3_20261019/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/).
+
+---
+
+### 1. Kết quả kiểm tra độc lập & Số liệu nghiệm thu
+
+| Hạng mục kiểm tra | Kết quả | Bằng chứng / File log |
+|---|---|---|
+| **Bộ kiểm tra hợp nhất (Consolidated Suite)** | **302/302 PASS** (0 fail, 0 error, 0 skip) | [`audit/rat_overnight_sweep_codex_repair_r3_20261019/regression.xml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/regression.xml) |
+| **Probe mới review r3 (`test_remaining_probes.py`)** | **13/13 PASS** (trước: 8 fail / 5 pass) | Chạy qua `RAT_REVIEW_FAKE_OUTPUT_DIR` trỏ tới fake session mới |
+| **Parser / Backend / Typed Scoring** | **70/70 PASS** (0 fail) | [`test_reasoning_strategies.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/test_reasoning_strategies.py), [`test_qwen_mlx_backend_mocked.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/test_qwen_mlx_backend_mocked.py), [`tests/test_research_scoring.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_research_scoring.py) |
+| **Bộ kiểm tra NCKH bắt buộc (`AGENTS.md`)** | **29/29 PASS** (0 fail) | [`tests/test_research_study.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_research_study.py), [`test_optimal_stopping.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/test_optimal_stopping.py), [`test_entry_predictor.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/test_entry_predictor.py) |
+| **Số lượt gọi real model phát sinh** | **0** (khóa cứng ngân sách, không gọi model thật) | Ledger lịch sử giữ nguyên byte-identical |
+| **SHA256 của `calls.jsonl` (12 calls cũ)** | `556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34` | Khớp tuyệt đối SHA256 các vòng trước |
+| **Solo Git Workflow trên `main`** | **0 commits, 0 branches, 0 push/reset** | Giữ nguyên mọi uncommitted / recovery work |
+
+---
+
+### 2. Chi tiết 4 lỗi P2 đã giải quyết triệt để
+
+1. **C1 — Rational Parser Denominator Retention ([`reasoning/reasoning_strategies.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/reasoning/reasoning_strategies.py))**:
+   - `EQUALS_RESULT` và `TRAILING_NUMERIC_RESULT` được bổ sung negative lookahead `(?!\s*[/÷×*+-])` nhằm ngăn việc cắt số ngay trước toán tử phân số hay biểu thức số học.
+   - Hàm [`_clean_cand`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/reasoning/reasoning_strategies.py#L161-L175) kiểm tra kết luận đẳng thức ở cuối chuỗi qua regex scalar lookahead: nếu vế sau dấu `=` là một scalar hợp lệ (`= 290.` hoặc `= 1167 boxes total`), giá trị scalar được trích xuất; nếu là phân thức hoặc biểu thức toán (`1 - 1/3 = 2/3` hoặc `x = 3/4`), chuỗi biểu thức được bảo toàn nguyên vẹn.
+   - *Kiểm chứng*: 3/3 ca trong `test_untyped_terminal_fraction_keeps_denominator` đều pass.
+
+2. **C2 — Telemetry Provenance & Fake Backend Separation ([`scripts/run_native_performance_session.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py))**:
+   - Tách biệt rõ ràng chế độ `--fake-backend`: khi chạy giả lập offline, ghi nhận `real_model_calls_executed: 0`, `fake_model_calls_executed: n`, scope `offline_fake_backend_simulation`, status `offline_fake_backend_completed_{n}_calls`, và `all_12_requests_succeeded: false`.
+   - Phân phối độ trễ `warm_generation_latency_ms` được tính động từ session ledger hiện tại: với `<= 1` completion (chưa có mẫu warm), giá trị trả về `null` thay vì gán cứng bộ số liệu lịch sử.
+   - Số liệu telemetry của phiên chạy thật 12 calls ban đầu (load time 27.542s, current RSS 104.09 MB, peak RSS 876.31 MB, host CPU 57.8%) được bảo toàn làm baseline lịch sử chính thức trong [`native_performance.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/native_performance.json).
+   - *Kiểm chứng*: Đạt tuyệt đối 3 probe provenance telemetry.
+
+3. **C3 — Budget Resume & Unique Attempt Counting ([`scripts/run_native_performance_session.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py))**:
+   - Hàm [`count_existing_attempts`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_native_performance_session.py#L71-L103) theo dõi tập hợp định danh `seen_requests = set()`. Cặp sự kiện `request_start` và `request_complete` cùng chung `request_id` (hoặc `call_index`) chỉ được tính là **1 attempt**. Sự kiện `request_start` bị ngắt quãng giữa chừng vẫn được tính là 1 attempt, và các bản ghi legacy không có trường `event` được nhận diện chính xác.
+   - *Kiểm chứng*: 4/4 ca trong `test_budget_counts_attempts_instead_of_event_lines` đều pass.
+
+4. **C4 — Candidate Identity Disambiguation for Same-Directory Bundles ([`rat/ui/view_renderer.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/view_renderer.py))**:
+   - Trong [`QtViewRenderer._render_input_form`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/view_renderer.py#L294-L329), thuật toán đếm số lần xuất hiện của cặp `(parent_folder_label, candidate_name)`. Nếu xảy ra xung đột (ví dụ `/Applications/League of Legends.app` và `/Applications/League of Legends copy.app` cùng thư mục mẹ và cùng metadata name), widget tự động sử dụng filesystem bundle stem (`Path(p).stem`) làm tên hiển thị: `Applications · League of Legends · v1.0` vs `Applications · League of Legends copy · v1.0`.
+   - Nhãn nút phân biệt rõ ràng ở chiều rộng hẹp 420px, đồng thời đường dẫn tuyệt đối đầy đủ vẫn được lưu trong tooltip và event payload.
+   - *Kiểm chứng*: 2/2 ca trong `test_candidate_labels_distinguish_full_bundle_identity` đều pass.
+
+---
+
+### 3. Đính chính AST Symbol Mapping & Phân tích 16 Stale Test Failures
+
+1. **Đính chính AST mapping**:
+   - Phương thức dựng giao diện candidate form thực tế là [`QtViewRenderer._render_input_form`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/view_renderer.py#L294), không tồn tại hàm `render_candidates`. Đã đính chính chính xác trong [`rat_cot_evidence_map.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/rat_cot_evidence_map.md).
+
+2. **Phân tích hợp đồng chi tiết của 16 ca fail cũ**:
+   - `tests/test_reranker_golden.py` (1 ca): Assert cứng `len(candidate["_feats"]) == 20`. Schema thực tế của `Reranker` hiện có 25 đặc trưng (do thêm 5 đặc trưng học thuật). Dưới schema 25, toàn bộ 200 điểm số và cận cộng tính pass 100% (đã chứng minh bằng probe).
+   - `tests/test_query_compounds.py` (7 ca keyword): `ContextParser.parse_query` tự động gọi `curriculum_mapper.expand()` để mở rộng mã môn học sinh viên (`501011`, `CALC1`, `GT1`). Cụm từ ghép `"giai tich"` vẫn được giữ nguyên không phân mảnh, nhưng test cũ assert danh sách từ khóa tĩnh chưa qua mở rộng.
+   - `tests/test_query_compounds.py` (1 ca score): Đuôi file `.pptx` kích hoạt slide boost heuristic (+40), đưa điểm từ 60 lên 100.
+   - `tests/test_vgc_cascade.py` (6 ca):
+     - `test_verify_calculation_division_by_zero`: Phép chia 0 trong `CalculationVerifier` trả về `UNVERIFIABLE` thay vì `INVALID`.
+     - `test_verify_calculation_exact` & `test_verify_calculation_mismatch_fails_closed`: Chuỗi giải trình được bản địa hóa tiếng Việt (`"đối chiếu ..."`), không chứa từ tiếng Anh `"verified"` hay `"mismatch"`.
+     - `test_verify_calculation_float_tolerance`: Verifier kiểm tra nghiêm ngặt không nới lỏng float epsilon tolerance cho `10/3` với claim `"3.3333"`, chuyển trạng thái `INVALID`.
+     - `test_verify_document_fact_grounded`: Snippet cắt ngắn `source[:50]` không bao quát hết khẳng định, verifier fail-closed trả về `UNVERIFIABLE`.
+     - `test_cascade_solve_quantitative_verified_fast`: Thuộc tính `confidence` trả về `None`, gây lỗi type comparison khi so sánh với float.
+   - `tests/test_vgc_ui_integration.py` (1 ca): Test cũ kỳ vọng certificate status `"valid"` từ engine VGC cũ thay vì mô hình `ReconciliationReport` và `WorkSceneSnapshot` đang dùng trong production.
+
+---
+
+### 4. Hồ sơ Bàn giao Artifacts
+
+Thư mục bàn giao đầy đủ: [`audit/rat_overnight_sweep_codex_repair_r3_20261019/`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/)
+- [`command.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/command.json): Toàn bộ tham số và biến môi trường của lệnh chạy 302 tests.
+- [`regression.xml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/regression.xml): Báo cáo JUnit XML ghi nhận 302 testcases qua 100%.
+- [`calls.jsonl`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/calls.jsonl): Bản sao byte-identical của 12 real model calls lịch sử.
+- [`native_performance.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/native_performance.json): Dữ liệu telemetry gốc của phiên chạy thật 12 calls với các trường unmeasured được chú thích `null`.
+- [`rat_cot_evidence_map.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/rat_cot_evidence_map.md): Bản đồ cấu trúc AST chính xác và ranh giới nghiên cứu CoT/NCKH.
+- [`source_start.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/source_start.json) & [`source_end.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/source_end.json): SHA256 trước và sau sửa chữa, xác nhận chỉ 3 file source thay đổi.
+- [`repair_diff.patch`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/repair_diff.patch): Unified diff chi tiết đối chiếu với mã nguồn review r3.
+- [`validation.json`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/validation.json): Tóm tắt trạng thái nghiệm thu kỹ thuật.
+- [`handoff.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r3_20261019/handoff.md): Báo cáo bàn giao chi tiết cho người dùng và reviewer.

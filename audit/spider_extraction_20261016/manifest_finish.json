@@ -1,0 +1,42 @@
+{
+  "rat/crawler/spider_adapter.py": {
+    "bytes": 30915,
+    "sha256": "197545e6114e2e18d2ed319bd2ddde8d4edf7e131a6669f8ff53379e9026dec5"
+  },
+  "rat/bin/spider": {
+    "bytes": 20675200,
+    "sha256": "bd522395c85cb80df0172066ba8d49dc538dfdec04693dc67455f3a1ee756f54"
+  },
+  "scratch/spider_migration_bundle.tar.gz": {
+    "bytes": 1169718,
+    "sha256": "e883fcfa6f88325d0e80571956f21fb49006bc93855f9a1b6f671536f68ece0f"
+  },
+  "work/spider-extraction-20261016/README.md": {
+    "bytes": 4570,
+    "sha256": "47ad84ff195fffb87de53b9e41dd984e3e87fcb8a0cef6d7d5b45acf7dd6f539"
+  },
+  "work/spider-extraction-20261016/inventory.json": {
+    "bytes": 93315,
+    "sha256": "37dfcdfe307344398ee522f40fb261dd749c8fc93b34b8d11a11de8e8a857f57"
+  },
+  "work/spider-extraction-20261016/patches/0001-fix-workspace-manifest-syntax.patch": {
+    "bytes": 320,
+    "sha256": "c792508e5d79ae8c9a68c3267044eb72e2379dde0445a6ffb85e08d239a42842"
+  },
+  "audit/spider_extraction_20261016/restore_verification.json": {
+    "bytes": 377,
+    "sha256": "6bd246655fa648fe86c3d1237fd1ef4c17c33feffb739870eeea2840ac0e98a9"
+  },
+  "audit/spider_extraction_20261016/dependency_reference_report.json": {
+    "bytes": 43134,
+    "sha256": "faf1f6b945ac3db70f3825a94cfdffda25b89fc70261661850ed017c9cac9c02"
+  },
+  "audit/spider_extraction_20261016/footprint.json": {
+    "bytes": 1909,
+    "sha256": "9c73e377143d450ec589b86177c3ef58e5f0b65100ecd4c16dd307cffdcc9e12"
+  },
+  "audit/spider_extraction_20261016/tests.log": {
+    "bytes": 9421,
+    "sha256": "1b6f886f83e7470e5a8ac798a21de6fb591667bd3c229ddeecf036f37b340c20"
+  }
+}

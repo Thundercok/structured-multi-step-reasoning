@@ -1,0 +1,42 @@
+{
+  "scope": "Instrumented CLI startup only; no GUI, inference, indexing or model quality measurement.",
+  "repetitions_per_case_per_phase": 3,
+  "cases": {
+    "rat_help": {
+      "before": {
+        "median_process_wall_s": 1.066897541983053,
+        "median_peak_rss_MiB": 88.28125,
+        "dependency_modules": 113
+      },
+      "after": {
+        "median_process_wall_s": 0.2723521658917889,
+        "median_peak_rss_MiB": 24.671875,
+        "dependency_modules": 0
+      }
+    },
+    "cli_help": {
+      "before": {
+        "median_process_wall_s": 0.4493958329549059,
+        "median_peak_rss_MiB": 68.109375,
+        "dependency_modules": 94
+      },
+      "after": {
+        "median_process_wall_s": 0.28002345899585634,
+        "median_peak_rss_MiB": 25.078125,
+        "dependency_modules": 0
+      }
+    },
+    "launcher_help": {
+      "before": {
+        "median_process_wall_s": 1.3398969999980181,
+        "median_peak_rss_MiB": 88.703125,
+        "dependency_modules": 113
+      },
+      "after": {
+        "median_process_wall_s": 0.24315208301413804,
+        "median_peak_rss_MiB": 25.265625,
+        "dependency_modules": 0
+      }
+    }
+  }
+}

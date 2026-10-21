@@ -1,0 +1,20 @@
+{
+  "tests": 76,
+  "failures": 0,
+  "errors": 0,
+  "live_status": "completed",
+  "live_cases": 9,
+  "all_live_checks": true,
+  "network_attempts": 0,
+  "session_unloaded": true,
+  "session_closed": true,
+  "sources_match": {
+    "rat/engine/document_model_service.py": true,
+    "rat/engine/mlx_document_session.py": true,
+    "rat/engine/selected_document_qa.py": true,
+    "rat/engine/assistant_runtime.py": true,
+    "rat/cli.py": true,
+    "rat/main.py": true,
+    "tests/test_mlx_document_session.py": true
+  }
+}

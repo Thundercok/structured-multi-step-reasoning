@@ -42,7 +42,7 @@ from rat.engine.qa_engine import qa_engine
 from rat.engine.reranker import SearchResultItem, format_file_size, format_relative_time, sort_search_results
 from rat.ui.apple_item_delegate import AppleSpotlightDelegate
 from rat.ui.preview_panel import EXT_DESCRIPTIONS, PreviewPanel, open_file_default, reveal_in_finder
-from rat.ui.theme import RAYCAST_QSS, get_ext_badge_info
+from rat.ui.theme import FONT_FAMILY, RAYCAST_QSS, get_ext_badge_info
 
 logger = logging.getLogger("rat.finder")
 
@@ -247,17 +247,17 @@ class ModernFinderPreview(QFrame):
 
         self.preview_text = QTextEdit()
         self.preview_text.setReadOnly(True)
-        self.preview_text.setStyleSheet("""
-            QTextEdit {
+        self.preview_text.setStyleSheet(f"""
+            QTextEdit {{
                 background-color: #ffffff;
                 color: #1c1c1e;
                 border: 1px solid #e5e5ea;
                 border-radius: 8px;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                font-family: {FONT_FAMILY};
                 font-size: 11.5px;
                 line-height: 1.45;
                 padding: 8px;
-            }
+            }}
         """)
         layout.addWidget(self.preview_text, 1)
 

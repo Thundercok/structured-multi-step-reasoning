@@ -1,0 +1,46 @@
+{
+  "verdict": "request_changes",
+  "consolidated_suite": {
+    "tests": 302,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "parser_backend_scoring": {
+    "tests": 70,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "new_edge_probes": {
+    "tests": 7,
+    "failures": 3,
+    "errors": 0,
+    "skipped": 0
+  },
+  "findings": [
+    {
+      "id": "D1",
+      "priority": 2,
+      "continuation_of": "C1"
+    },
+    {
+      "id": "D2",
+      "priority": 2,
+      "continuation_of": "C2"
+    }
+  ],
+  "C3_unique_attempt_counter": "passed",
+  "C4_same_directory_bundle_labels": "passed_in_hosted_420px_renderer",
+  "historical_telemetry_values_restored": true,
+  "historical_ledger_unchanged": true,
+  "reviewer_fake_requests": 1,
+  "reviewer_locked_history_replay_requests": 0,
+  "reviewer_real_model_requests": 0,
+  "reviewer_os_app_launches": 0,
+  "qpa_platform": "offscreen",
+  "production_source_files_checked": 51,
+  "production_source_changed_during_review": [],
+  "research_stage_0_changed": false,
+  "full_132_sweep_rerun_by_reviewer": false
+}

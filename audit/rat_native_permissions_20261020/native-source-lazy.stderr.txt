@@ -1,0 +1,10 @@
+2026-10-20 14:36:54,437 [INFO] (rat.crash_shield) 🛡️ CrashShield active: Global exception & signal protection engaged.
+2026-10-20 14:36:54,615 [INFO] (rat.os.app) Initializing macOS Resident AI Finder System...
+2026-10-20 14:36:54,616 [INFO] (rat.os.single_instance) SingleInstanceServer listening on 'rat_instance_501_diagnostic_766'
+2026-10-20 14:37:03,588 [INFO] (rat.os.hotkey) Global hotkey listener thread started with shortcuts: ['<cmd>+<shift>+<space>', '<alt>+<space>', '<alt>+r'] (Accessibility trusted: True)
+2026-10-20 14:37:03,653 [INFO] (rat.os.menu_bar) macOS System Tray resident item loaded.
+2026-10-20 14:37:06.668 Python[766:49562387] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+2026-10-20 14:37:06,694 [INFO] (rat.os.app) ResidentApplication: Initiating zero-crash graceful teardown...
+2026-10-20 14:37:06,694 [INFO] (rat.os.hotkey) Global Hotkey Manager stopped.
+2026-10-20 14:37:06,694 [INFO] (rat.os.single_instance) SingleInstanceServer stopped and unlinked 'rat_instance_501_diagnostic_766'
+2026-10-20 14:37:06,695 [INFO] (rat.os.app) ResidentApplication: Teardown complete. Exiting cleanly.

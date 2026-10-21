@@ -41,27 +41,58 @@ from PyQt6.QtWidgets import (
 
 from rat.ui.surface_layout import Disclosure, ResponsiveFields
 from rat.ui.experience import debug_ui_enabled
+from rat.ui.workbench import FONT_FAMILY, WorkbenchStyle, WorkbenchTokens
 
 from rat.kernel.contracts import Artifact, ArtifactAction, InputRequest
 from rat.kernel.view_spec import ViewBlock, ViewSpec
 
 
-CARD_STYLE = """
-QFrame#ArtifactCard { background: transparent; border: none; padding: 0; }
-QLabel#CardTitle { color: #302B24; font-size: 14px; font-weight: 600; background: transparent; border: none; }
-QLabel#CardText { color: #867762; font-size: 12px; background: transparent; border: none; }
-QLabel#CardBadge { color: #9E907D; font-size: 10px; background: transparent; border: none; }
-QLabel#StaleBadge { color: #A25C48; font-size: 10px; background: transparent; border: none; }
-QPushButton.ActionBtn, QPushButton.CandidateBtn {
-    background: #F2ECE2; border: none; border-radius: 7px; padding: 7px 10px;
-    font-size: 12px; color: #766548;
-}
-QPushButton.ActionBtn:hover, QPushButton.CandidateBtn:hover { background: #EAE0D1; color: #302B24; }
-QPushButton.ActionBtn:disabled { color: #B5A996; background: #F7F3EC; }
-QPushButton::menu-indicator { image: none; width: 0; }
-QLineEdit, QComboBox { background: #F8F5EF; border: 1px solid #E9E1D4; border-radius: 7px; padding: 7px 9px; font-size: 12px; color: #302B24; }
-QLineEdit:focus, QComboBox:focus { border-color: #B79A63; background: #FFFDF9; }
-"""
+def get_card_style(dark: Optional[bool] = None) -> str:
+    tokens = WorkbenchTokens.get(dark=dark)
+    return f"""
+    QWidget {{ font-family: '{FONT_FAMILY}'; }}
+    QFrame#ArtifactCard {{ background: transparent; border: none; padding: 0; }}
+    QLabel#CardTitle {{ color: {tokens.ink_hex}; font-size: {WorkbenchStyle.TITLE}px; font-weight: 600; background: transparent; border: none; }}
+    QLabel#CardText {{ color: {tokens.muted_hex}; font-size: {WorkbenchStyle.BODY}px; background: transparent; border: none; }}
+    QLabel#CardBadge {{ color: {tokens.muted_hex}; font-size: {WorkbenchStyle.CAPTION}px; background: transparent; border: none; }}
+    QLabel#StaleBadge {{ color: {tokens.error_hex}; font-size: {WorkbenchStyle.CAPTION}px; background: transparent; border: none; }}
+    QPushButton.ActionBtn, QPushButton.CandidateBtn {{
+        background: {tokens.soft_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 10px;
+        font-size: {WorkbenchStyle.BODY}px; color: {tokens.ink_hex}; text-align: left;
+    }}
+    QPushButton.ActionBtn:hover, QPushButton.CandidateBtn:hover {{ background: {tokens.line_hex}; color: {tokens.ink_hex}; }}
+    QPushButton.ActionBtn:focus, QPushButton.CandidateBtn:focus {{ border-color: {tokens.focus_hex}; }}
+    QPushButton.ActionBtn:disabled {{ color: {tokens.muted_hex}; background: {tokens.soft_hex}; border-color: transparent; }}
+    QPushButton::menu-indicator {{ image: none; width: 0; }}
+    QLineEdit, QComboBox {{ background: {tokens.paper_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 9px; font-size: {WorkbenchStyle.BODY}px; color: {tokens.ink_hex}; }}
+    QLineEdit:focus, QComboBox:focus {{ border-color: {tokens.focus_hex}; background: {tokens.paper_hex}; }}
+    QTableWidget {{
+        background: transparent;
+        border: none;
+        font-size: {WorkbenchStyle.BODY}px;
+        gridline-color: {tokens.line_hex};
+        color: {tokens.ink_hex};
+        selection-background-color: {tokens.soft_hex};
+        selection-color: {tokens.accent_hex};
+    }}
+    QHeaderView::section {{
+        background: {tokens.soft_hex};
+        border: none;
+        color: {tokens.muted_hex};
+        padding: 8px;
+        font-size: {WorkbenchStyle.META}px;
+        font-weight: 600;
+    }}
+    QTextBrowser {{
+        background: transparent;
+        border: none;
+        font-size: {WorkbenchStyle.BODY}px;
+        color: {tokens.ink_hex};
+    }}
+    """
+
+
+CARD_STYLE = get_card_style(dark=False)
 
 
 class QtViewRenderer(QFrame):
@@ -93,7 +124,7 @@ class QtViewRenderer(QFrame):
 
     def _init_ui(self) -> None:
         self.setObjectName("ArtifactCard")
-        self.setStyleSheet(CARD_STYLE)
+        self.setStyleSheet(get_card_style())
         self.layout = QVBoxLayout(self)
         self.layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
         self.layout.setContentsMargins(0, 3, 0, 3)
@@ -113,7 +144,10 @@ class QtViewRenderer(QFrame):
         elif b_type == "resource":
             self._render_resource(data)
         elif b_type == "input_form":
-            if self.debug_ui:
+            if self.debug_ui or (
+                data.get("operation_name") == "open_application"
+                and data.get("candidate_choices")
+            ):
                 self._render_input_form(data)
         elif b_type == "actions":
             if self.debug_ui:
@@ -152,6 +186,8 @@ class QtViewRenderer(QFrame):
             lbl_text.setTextFormat(Qt.TextFormat.PlainText)
             lbl_text.setObjectName("CardText")
             lbl_text.setWordWrap(True)
+            lbl_text.setMinimumWidth(0)
+            lbl_text.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
             self.layout.addWidget(lbl_text)
 
     def _render_table(self, data: Dict[str, Any]) -> None:
@@ -160,6 +196,7 @@ class QtViewRenderer(QFrame):
         if not rows:
             return
 
+        tokens = WorkbenchTokens.get()
         table_frame = QFrame()
         table_frame.setObjectName("ResultRows")
         table_frame.setStyleSheet("""
@@ -177,7 +214,8 @@ class QtViewRenderer(QFrame):
             for h in headers:
                 hl = QLabel(h)
                 hl.setTextFormat(Qt.TextFormat.PlainText)
-                hl.setStyleSheet("color: #7A7267; font-size: 10px; font-weight: 700;")
+                hl.setProperty("role", "table_header")
+                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: {WorkbenchStyle.CAPTION}px; font-weight: 700; background: transparent; border: none;")
                 h_row.addWidget(hl, 1)
             t_layout.addLayout(h_row)
 
@@ -186,7 +224,8 @@ class QtViewRenderer(QFrame):
             r_row.setSpacing(8)
             for item in row_items:
                 rl = QLabel(str(item))
-                rl.setStyleSheet("color: #30363E; font-size: 11px;")
+                rl.setProperty("role", "table_cell")
+                rl.setStyleSheet(f"color: {tokens.ink_hex}; font-size: {WorkbenchStyle.META}px; background: transparent; border: none;")
                 rl.setTextFormat(Qt.TextFormat.PlainText)
                 rl.setWordWrap(True)
                 r_row.addWidget(rl, 1)
@@ -222,16 +261,88 @@ class QtViewRenderer(QFrame):
 
         # Candidate choices (e.g. ambiguous cities)
         if candidates:
+            tokens = WorkbenchTokens.get()
             cand_label = QLabel("Chọn kết quả phù hợp:")
-            cand_label.setStyleSheet("color: #705C38; font-size: 11px; font-weight: 700;")
+            cand_label.setProperty("role", "candidate_prompt")
+            cand_label.setStyleSheet(f"color: {tokens.muted_hex}; font-size: {WorkbenchStyle.META}px; font-weight: 700; background: transparent; border: none;")
             f_layout.addWidget(cand_label)
 
             c_flow = QVBoxLayout()
             c_flow.setSpacing(6)
+            all_paths = [str(c.get("path") or "") for c in candidates if c.get("path")]
+            has_paths = len(all_paths) > 1
+
+            # Compute shortest unique distinguishing parent folder labels across all candidate paths
+            distinguishing_labels = {}
+            if has_paths:
+                from pathlib import Path
+                parent_dirs = [Path(p).parent for p in all_paths]
+                for depth in range(1, 10):
+                    current_labels = []
+                    for p_dir in parent_dirs:
+                        parts = [seg for seg in p_dir.parts if seg and seg != "/"]
+                        if not parts:
+                            current_labels.append(str(p_dir))
+                        elif depth >= len(parts):
+                            current_labels.append("/".join(parts))
+                        else:
+                            current_labels.append("/".join(parts[-depth:]))
+                    if len(set(current_labels)) == len(all_paths):
+                        distinguishing_labels = dict(zip(all_paths, current_labels))
+                        break
+                if not distinguishing_labels:
+                    distinguishing_labels = {p: (Path(p).parent.name or str(Path(p).parent)) for p in all_paths}
+
+            # Detect collisions where parent folder label + candidate name are identical
+            parent_name_counts = {}
+            for c in candidates:
+                p = str(c.get("path") or "")
+                parent_lbl = distinguishing_labels.get(p) or (Path(p).parent.name if p else "")
+                name_val = c.get("name", "")
+                key = (parent_lbl, name_val)
+                parent_name_counts[key] = parent_name_counts.get(key, 0) + 1
+
             for index, c in enumerate(candidates):
                 name = c.get("name", "")
-                btn = QPushButton(name + (" · " + c.get("admin", c.get("country", "")) if c.get("admin") or c.get("country") else ""))
+                p = str(c.get("path") or "")
+
+                full_tooltip_parts = [name]
+                if c.get("admin") or c.get("country"):
+                    full_tooltip_parts.append(c.get("admin", c.get("country", "")))
+                if p:
+                    full_tooltip_parts.append(p)
+                if c.get("bundle_id"):
+                    full_tooltip_parts.append(str(c.get("bundle_id")))
+                if c.get("version"):
+                    full_tooltip_parts.append(f"v{c.get('version')}")
+                full_tooltip = " · ".join(part for part in full_tooltip_parts if part)
+
+                if p and has_paths:
+                    from pathlib import Path
+                    diff_label = distinguishing_labels.get(p) or Path(p).parent.name
+                    key = (diff_label, name)
+                    if parent_name_counts.get(key, 0) > 1:
+                        # Same parent folder & metadata name: distinguish by bundle filesystem name / stem
+                        stem = Path(p).stem or Path(p).name
+                        disp_name = stem if stem else name
+                    else:
+                        disp_name = name
+                    label_parts = [f"{diff_label} · {disp_name}"]
+                elif c.get("admin") or c.get("country"):
+                    label_parts = [f"{name} ({c.get('admin', c.get('country', ''))})"]
+                else:
+                    label_parts = [name]
+
+                if c.get("version"):
+                    label_parts.append(f"v{c.get('version')}")
+
+                btn_text = " · ".join(label_parts)
+                btn = QPushButton(btn_text)
+                btn.setObjectName("CandidateBtn")
                 btn.setProperty("class", "CandidateBtn")
+                btn.setToolTip(full_tooltip)
+                btn.setMinimumWidth(0)
+                btn.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
                 btn.setCursor(Qt.CursorShape.PointingHandCursor)
                 btn.clicked.connect(lambda _, idx=index: self._on_candidate_chosen(op_name, idx, supplied))
                 c_flow.addWidget(btn)
@@ -252,7 +363,9 @@ class QtViewRenderer(QFrame):
             row.setSpacing(4)
             lbl = QLabel(f_label)
             lbl.setWordWrap(True)
-            lbl.setStyleSheet('color: #968976; font-size: 11px; background: transparent; border: none;')
+            lbl.setProperty("role", "input_label")
+            tokens = WorkbenchTokens.get()
+            lbl.setStyleSheet(f'color: {tokens.muted_hex}; font-size: {WorkbenchStyle.META}px; background: transparent; border: none;')
             row.addWidget(lbl)
 
             input_widget: QWidget
@@ -339,9 +452,14 @@ class QtViewRenderer(QFrame):
                 text, start, length, caret = values
                 edit.setText(text)
                 edit.setSelection(start, length) if start >= 0 else edit.setCursorPosition(caret)
-        for name in state.get('details', []):
-            if name in self.disclosures:
-                self.disclosures[name].set_open(True, animate=False)
+        if 'details' in state:
+            opened_names = set(state.get('details', []))
+            for name, item in self.disclosures.items():
+                item.set_open(name in opened_names, animate=False)
+        else:
+            for name in state.get('details', []):
+                if name in self.disclosures:
+                    self.disclosures[name].set_open(True, animate=False)
         for name in state.get('editors', []):
             if name in self.action_editors:
                 self.action_editors[name][0].show()
@@ -455,10 +573,11 @@ class QtViewRenderer(QFrame):
         body = QWidget()
         layout = QVBoxLayout(body)
         layout.setContentsMargins(0, 2, 0, 3)
+        tokens = WorkbenchTokens.get()
         if data.get('content'):
             browser = QTextBrowser()
             browser.setPlainText(str(data['content']))
-            browser.setStyleSheet('QTextBrowser { background: transparent; border: none; font-size: 12px; color: #302B24; }')
+            browser.setStyleSheet(f'QTextBrowser {{ background: transparent; border: none; font-size: {WorkbenchStyle.BODY}px; color: {tokens.ink_hex}; }}')
             browser.setMaximumHeight(220)
             layout.addWidget(browser)
         elif data.get('table_headers') and data.get('table_rows'):
@@ -467,7 +586,25 @@ class QtViewRenderer(QFrame):
             table = QTableWidget(len(rows), len(headers))
             table.setHorizontalHeaderLabels(headers)
             table.verticalHeader().hide()
-            table.setStyleSheet('QTableWidget { background: transparent; border: none; font-size: 12px; gridline-color: #EEE7DB; color: #302B24; } QHeaderView::section { background: #F6F1E8; border: none; color: #8A7B64; padding: 5px; }')
+            table.setStyleSheet(f"""
+                QTableWidget {{
+                    background: transparent;
+                    border: none;
+                    font-size: {WorkbenchStyle.BODY}px;
+                    gridline-color: {tokens.line_hex};
+                    color: {tokens.ink_hex};
+                    selection-background-color: {tokens.soft_hex};
+                    selection-color: {tokens.accent_hex};
+                }}
+                QHeaderView::section {{
+                    background: {tokens.soft_hex};
+                    border: none;
+                    color: {tokens.muted_hex};
+                    padding: 8px;
+                    font-size: {WorkbenchStyle.META}px;
+                    font-weight: 600;
+                }}
+            """)
             for r, values in enumerate(rows):
                 for c, value in enumerate(values):
                     table.setItem(r, c, QTableWidgetItem(str(value)))
@@ -483,3 +620,46 @@ class QtViewRenderer(QFrame):
             disclosure.set_open(True, animate=False)
             disclosure.button.hide()
         self.layout.addWidget(disclosure)
+
+    def _apply_theme(self) -> None:
+        tokens = WorkbenchTokens.get()
+        self.setStyleSheet(get_card_style())
+        for hl in self.findChildren(QLabel):
+            role = hl.property("role")
+            if role == "table_header":
+                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: {WorkbenchStyle.CAPTION}px; font-weight: 700; background: transparent; border: none;")
+            elif role == "table_cell":
+                hl.setStyleSheet(f"color: {tokens.ink_hex}; font-size: {WorkbenchStyle.META}px; background: transparent; border: none;")
+            elif role == "input_label":
+                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: {WorkbenchStyle.META}px; background: transparent; border: none;")
+            elif role == "candidate_prompt":
+                hl.setStyleSheet(f"color: {tokens.muted_hex}; font-size: {WorkbenchStyle.META}px; font-weight: 700; background: transparent; border: none;")
+        for table in self.findChildren(QTableWidget):
+            table.setStyleSheet(f"""
+                QTableWidget {{
+                    background: transparent;
+                    border: none;
+                    font-size: {WorkbenchStyle.BODY}px;
+                    gridline-color: {tokens.line_hex};
+                    color: {tokens.ink_hex};
+                    selection-background-color: {tokens.soft_hex};
+                    selection-color: {tokens.accent_hex};
+                }}
+                QHeaderView::section {{
+                    background: {tokens.soft_hex};
+                    border: none;
+                    color: {tokens.muted_hex};
+                    padding: 8px;
+                    font-size: {WorkbenchStyle.META}px;
+                    font-weight: 600;
+                }}
+            """)
+        for browser in self.findChildren(QTextBrowser):
+            browser.setStyleSheet(f"QTextBrowser {{ background: transparent; border: none; font-size: {WorkbenchStyle.BODY}px; color: {tokens.ink_hex}; }}")
+        for edit in self.findChildren(QLineEdit):
+            edit.setStyleSheet(f"QLineEdit {{ background: {tokens.paper_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 9px; font-size: {WorkbenchStyle.BODY}px; color: {tokens.ink_hex}; }}")
+        for combo in self.findChildren(QComboBox):
+            combo.setStyleSheet(f"QComboBox {{ background: {tokens.paper_hex}; border: 1px solid {tokens.line_hex}; border-radius: 7px; padding: 7px 9px; font-size: {WorkbenchStyle.BODY}px; color: {tokens.ink_hex}; }}")
+        for res in self._resources:
+            if hasattr(res, "_apply_theme"):
+                res._apply_theme()

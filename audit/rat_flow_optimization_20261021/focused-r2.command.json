@@ -1,0 +1,22 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "audit/rat_flow_optimization_20261021/offline_pytest.py",
+    "tests/test_execution_flow.py",
+    "tests/test_flow_interaction.py",
+    "-q",
+    "--junitxml=audit/rat_flow_optimization_20261021/focused-r2.xml"
+  ],
+  "cwd": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "exit_code": -6,
+  "started_unix": 1792554673.581952,
+  "elapsed_seconds": 11.56164288520813,
+  "environment_overrides": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "PYINSTALLER_CONFIG_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_flow_optimization_20261021/pyinstaller-cache",
+    "PIP_NO_INDEX": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "QT_QPA_PLATFORM": "offscreen"
+  }
+}

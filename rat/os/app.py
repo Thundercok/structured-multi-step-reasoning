@@ -314,7 +314,10 @@ class ResidentApplication(QObject):
 
     def _start_semester_warmup(self) -> None:
         """Launch background FTS5 document content pre-warming for semester directories."""
-        if getattr(self.app, "_is_quitting", False):
+        if (getattr(self.app, "_is_quitting", False)
+                or not config.auto_watch or not config.indexed_directories):
+            return
+        if self.warmup_thread and self.warmup_thread.isRunning():
             return
         try:
             from PyQt6.QtCore import QThread
@@ -427,7 +430,8 @@ class ResidentApplication(QObject):
                 logger.warning(f"Failed to start MemorySentinel: {e}")
 
         # 4.5. Background Semester Document Warmup (QoS Background)
-        QTimer.singleShot(2500, self._start_semester_warmup)
+        if config.auto_watch and config.indexed_directories:
+            QTimer.singleShot(2500, self._start_semester_warmup)
 
         # 5. Open initial window based on mode
         if self.mode == "finder":

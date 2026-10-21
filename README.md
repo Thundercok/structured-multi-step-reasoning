@@ -3,8 +3,10 @@
 Research prototype for **budget-aware strategy selection and stopping with a fixed language model**.
 
 The primary deliverables are a student research paper (NCKH) and a reproducible
-experiment pipeline. The RAT desktop app is a secondary demonstration for a
-nontechnical user. See the [research plan](docs/research_plan.md) for priorities,
+experiment pipeline. **RAT is the primary application implementation of the
+CoT / structured-reasoning method.** The headless pipeline provides reproducible
+evaluation of that method. See the [project scope](docs/project_scope.md) and
+[research plan](docs/research_plan.md) for priorities,
 milestones and the manuscript outline.
 
 **Status:** the controller, model adapters and experiment harness exist.
@@ -31,7 +33,9 @@ flowchart LR
     T --> E[Held-out test: paired policy replay]
     E --> R[Raw traces, comparisons and failure analysis]
     R --> P[NCKH paper]
-    R --> A[Optional RAT demonstration]
+    M[CoT / structured-reasoning method] --> A[RAT: primary application implementation]
+    M --> C
+    R -. Evidence informs implementation .-> A
 ```
 
 ## Quickstart
@@ -172,7 +176,7 @@ qwen_mlx_backend.py            Apple Silicon generation adapter
 requirements-research.txt      Research dependencies without the desktop UI
 docs/research_plan.md          NCKH scope and manuscript outline
 docs/research_protocol.md      Reproduction and evidence contract
-rat/                          Secondary desktop demonstration
+rat/                          Primary CoT application implementation
 tests/test_research_study.py   Research integrity regression tests
 ```
 
@@ -209,12 +213,13 @@ python -m pytest tests/test_research_scoring.py tests/test_development_data_audi
 Collaboration hub:
 [Thundercok/nesy-docai](https://github.com/Thundercok/nesy-docai).
 
-## Separate DocAI module
+## Reused document intake
 
-The invoice/OCR prototype is preserved at [modules/docai](modules/docai/README.md)
-with its own dependencies, CLI and tests. It is not registered in RAT and is not
-part of the reasoning study. Integration is deferred. The research entry point
-and existing Stage 0/publication gates remain unchanged.
+RAT uses the shared PDF, Apple Vision and Tesseract readers in `document_intake/`.
+The remaining standalone DocAI invoice prototype was removed on 2026-10-17 after
+verifying a recovery archive. Invoice XML and Z3 integration remain deferred;
+see [removal evidence](audit/docai_removal_20261017/handoff_codex.md).
+The research entry point and existing Stage 0/publication gates remain unchanged.
 
 See [repository migration notes](docs/repository_migration.md) for history,
 working-state preservation and publication status.

@@ -1,0 +1,18 @@
+{
+  "actual": {
+    "dispatched": 6,
+    "generated_tokens": 6,
+    "cancelled": false
+  },
+  "status": "completed",
+  "ledger": {
+    "strategy_invocations": 2,
+    "underlying_requests_dispatched": 6,
+    "underlying_requests_succeeded": 6,
+    "underlying_requests_failed": 0,
+    "generated_tokens": 6,
+    "prompt_tokens": null,
+    "full_inference_cost_estimated": false,
+    "status": "completed"
+  }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.448" timestamp="2026-10-19T18:56:18.988878+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_untyped_terminal_fraction_keeps_denominator[terminal-fraction]" time="0.006"><failure message="AssertionError: {'raw': 'Answer: 1 - 1/3 = 2/3', 'parsed': '2'}&#10;assert Fraction(2, 1) == Fraction(2, 3)&#10; +  where Fraction(2, 1) = Fraction('2')">raw = 'Answer: 1 - 1/3 = 2/3', expected = Fraction(2, 3)
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Answer: 1 - 1/3 = 2/3", Fraction(2, 3)),
+        ("Answer: x = 3/4", Fraction(3, 4)),
+        ("Answer: 3*(45+55) - 4*(120-85) + 250/5 = 290", Fraction(290)),
+    ], ids=["terminal-fraction", "named-fraction", "integer-conclusion-control"])
+    def test_untyped_terminal_fraction_keeps_denominator(raw, expected):
+        from reasoning_strategies import extract_answer
+    
+        parsed = extract_answer(raw)
+        # Both a retained equation and a scalar rational are valid representations;
+        # neither may silently change the mathematical value of its conclusion.
+        conclusion = parsed.rsplit("=", 1)[-1].strip()
+&gt;       assert Fraction(conclusion) == expected, {"raw": raw, "parsed": parsed}
+E       AssertionError: {'raw': 'Answer: 1 - 1/3 = 2/3', 'parsed': '2'}
+E       assert Fraction(2, 1) == Fraction(2, 3)
+E        +  where Fraction(2, 1) = Fraction('2')
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:121: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_untyped_terminal_fraction_keeps_denominator[named-fraction]" time="0.001"><failure message="AssertionError: {'raw': 'Answer: x = 3/4', 'parsed': '3'}&#10;assert Fraction(3, 1) == Fraction(3, 4)&#10; +  where Fraction(3, 1) = Fraction('3')">raw = 'Answer: x = 3/4', expected = Fraction(3, 4)
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Answer: 1 - 1/3 = 2/3", Fraction(2, 3)),
+        ("Answer: x = 3/4", Fraction(3, 4)),
+        ("Answer: 3*(45+55) - 4*(120-85) + 250/5 = 290", Fraction(290)),
+    ], ids=["terminal-fraction", "named-fraction", "integer-conclusion-control"])
+    def test_untyped_terminal_fraction_keeps_denominator(raw, expected):
+        from reasoning_strategies import extract_answer
+    
+        parsed = extract_answer(raw)
+        # Both a retained equation and a scalar rational are valid representations;
+        # neither may silently change the mathematical value of its conclusion.
+        conclusion = parsed.rsplit("=", 1)[-1].strip()
+&gt;       assert Fraction(conclusion) == expected, {"raw": raw, "parsed": parsed}
+E       AssertionError: {'raw': 'Answer: x = 3/4', 'parsed': '3'}
+E       assert Fraction(3, 1) == Fraction(3, 4)
+E        +  where Fraction(3, 1) = Fraction('3')
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:121: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes" name="test_untyped_terminal_fraction_keeps_denominator[integer-conclusion-control]" time="0.001" /></testsuite></testsuites>

@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-17",
+  "user_decision": "Delete EVRP module from main project; no destination repo; may rebuild from scratch later",
+  "regular_files_removed": 448,
+  "bytes_removed": 41379543,
+  "scanner_visible_source_baseline": {
+    "files": 247,
+    "nonblank": 26903
+  },
+  "archive_content_and_modes_verified": true,
+  "archive_sha256": "dd043b68c7f6cfef14503da0efc2962be2b4954e8c63864fc794a2e6a444fe37",
+  "preserved": [
+    "scratch/evrp_migration_bundle.tar.gz",
+    ".migration-backups/20261013_evrp/evrp-optimizer.bundle",
+    "work/evrp-extraction-20261016/",
+    "audit/evrp_extraction_20261016/"
+  ],
+  "module_removed": true,
+  "committed": false,
+  "pushed": false,
+  "tests": {
+    "command": ".venv/bin/python -m pytest tests/test_spider_adapter.py tests/test_assistant_runtime.py tests/test_work_context.py -q",
+    "result": "93 passed in 15.36s"
+  }
+}

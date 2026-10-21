@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-15T16:46:34.627962+00:00",
+  "response": {
+    "model": "qwen3:4b-instruct",
+    "created_at": "2026-10-15T16:46:34.602004Z",
+    "response": "",
+    "done": true,
+    "done_reason": "unload"
+  },
+  "models_after": [],
+  "target_unloaded_verified": true
+}

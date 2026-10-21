@@ -1,0 +1,22 @@
+[
+  {
+    "file": "entry_predictor.py",
+    "sha256": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03",
+    "matches_reported_pre_refactor_hash": true
+  },
+  {
+    "file": "optimal_stopping.py",
+    "sha256": "b7080a3a8dd5ab9b88ffdf70dd17ca207eb3cd05416c2bc47372d14139f31d79",
+    "matches_reported_pre_refactor_hash": true
+  },
+  {
+    "file": "reasoning_env.py",
+    "sha256": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54",
+    "matches_reported_pre_refactor_hash": true
+  },
+  {
+    "file": "reasoning_strategies.py",
+    "sha256": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "matches_reported_pre_refactor_hash": true
+  }
+]

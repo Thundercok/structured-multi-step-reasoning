@@ -302,7 +302,7 @@ class VGCCascadeEngine:
         )
 
         # Stage 2: Verifier Gate
-        steps.append("Giai đoạn 2 (Verifier Gate): Kiểm chứng thực thể và chống ảo giác.")
+        steps.append("Giai đoạn 2 (Verifier Gate): Đối chiếu đoạn trích với văn bản đã cung cấp.")
         v_res = self.verifier.verify_document_fact(certificate, doc_text)
 
         lat_ms = (time.perf_counter() - t0) * 1000.0
@@ -314,7 +314,7 @@ class VGCCascadeEngine:
         }]
 
         if v_res.status == VGCVerificationStatus.VALID:
-            steps.append(f"✓ Chứng chỉ HỢP LỆ: Đã xác thực thực thể từ nguồn gốc `{file_name}`.")
+            steps.append(f"✓ Đoạn trích khớp `{file_name}`; chưa xác thực nguồn hoặc quan hệ ngữ nghĩa.")
             ans = (
                 f"Dựa trên nội dung trong tệp **`{file_name}`**:\n\n"
                 f"> \"{best_para}\"\n\n"

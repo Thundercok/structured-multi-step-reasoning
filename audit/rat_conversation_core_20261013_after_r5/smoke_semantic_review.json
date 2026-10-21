@@ -1,0 +1,184 @@
+{
+  "generated_at_utc": "2026-10-13T05:37:00Z",
+  "purpose": "Turn-by-turn semantic and action audit of post-R5 live qwen2.5:1.5b smoke runs, separating core lifecycle contract compliance from runtime completion status and actual DSA content/tool quality.",
+  "runs": {
+    "plan_tasks_true_omnibar_config": {
+      "artifact": "audit/rat_conversation_core_20261013_after_r5/live_dsa_smoke_plan_tasks_true.json",
+      "config": {
+        "model": "qwen2.5:1.5b",
+        "plan_tasks": true,
+        "max_steps": 8,
+        "timeout_s": 90.0
+      },
+      "core_contracts_all_passed": true,
+      "turns": [
+        {
+          "turn_index": 1,
+          "label": "turn_1_explain",
+          "core_contract_status": "pass",
+          "runtime_error": "model_output_truncated",
+          "token_usage_known": true,
+          "total_tokens": 3164,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Planner succeeded, but step 1 generation hit num_predict=640 (done_reason='length') while writing a verbose 1..100 array example; runtime rejected truncated JSON output."
+        },
+        {
+          "turn_index": 2,
+          "label": "turn_2_trace_8",
+          "core_contract_status": "pass",
+          "runtime_error": null,
+          "token_usage_known": true,
+          "total_tokens": 3288,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "pass_with_caveats",
+          "reason": "Prior failed Turn 1 status was preserved in PriorMessagesSent[-1] (R5 fix). Model traced [2, 4, 6, 8, 10] finding 6 at middle, then 8 > 6 -> right half [8, 10] -> found 8 in 2 steps, though it used 1-based ordinal ('thứ tự 3') without explicit 0-based index math."
+        },
+        {
+          "turn_index": 3,
+          "label": "turn_3_followup_mid_plus_1",
+          "core_contract_status": "pass",
+          "runtime_error": null,
+          "token_usage_known": true,
+          "total_tokens": 4596,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Turn 2 assistant answer was preserved in PriorMessagesSent[-1] (R5 fix), and runtime completed without error, but the explanation of mid + 1 is conceptually wrong (claims mid + 1 is only needed when the array is unsorted, failing to explain that a[mid] was already compared and excluded)."
+        },
+        {
+          "turn_index": 4,
+          "label": "turn_4_change_target_6",
+          "core_contract_status": "pass",
+          "runtime_error": null,
+          "token_usage_known": true,
+          "total_tokens": 5738,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Runtime completed without error, but algorithm trace is wrong: after identifying middle element 6 on [2, 4, 6, 8, 10], model copied Turn 2's template and wrote 'Nếu 6 > 6, chúng ta tìm kiếm trong phần tử bên phải: [8, 10] ... Nếu 8 = 6' instead of stopping immediately at Step 1 (mid=2, a[2]=6)."
+        },
+        {
+          "turn_index": 5,
+          "label": "turn_5_lookback_summary",
+          "core_contract_status": "pass",
+          "runtime_error": null,
+          "token_usage_known": true,
+          "total_tokens": 6977,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Proves R5 context fix works (model retrieves its exact Turn 3 text from PriorMessagesSent), but repeats that flawed Turn 3 paragraph verbatim for all 3 bullet points and does not call record_work_note."
+        },
+        {
+          "turn_index": 6,
+          "label": "turn_6_in_flight_cancel",
+          "core_contract_status": "pass",
+          "runtime_error": "cancelled",
+          "token_usage_known": false,
+          "total_tokens": null,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "not_applicable_cancelled_in_flight",
+          "reason": "Real in-flight cancellation: HTTP request was dispatched to Ollama (was_cancelled_before_start=false, request_dispatched=true), cancel triggered at 255.66ms in-flight, token usage recorded as null (unknown), and both late note write and late dispatcher operation were rejected with cancelled:execution_cancelled."
+        },
+        {
+          "turn_index": 7,
+          "label": "turn_7_post_cancel_followup",
+          "core_contract_status": "pass",
+          "runtime_error": "task_plan_failed:model_output_truncated",
+          "token_usage_known": true,
+          "total_tokens": 3500,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Post-cancel turn isolation and R5 history worked (PriorMessagesSent[-1] contained Turn 6 cancelled status), but _plan_task hit num_predict=640 (done_reason='length')."
+        }
+      ]
+    },
+    "plan_tasks_false_runtime_default": {
+      "artifact": "audit/rat_conversation_core_20261013_after_r5/live_dsa_smoke_plan_tasks_false.json",
+      "config": {
+        "model": "qwen2.5:1.5b",
+        "plan_tasks": false,
+        "max_steps": 8,
+        "timeout_s": 90.0
+      },
+      "core_contracts_all_passed": true,
+      "turns": [
+        {
+          "turn_index": 1,
+          "label": "turn_1_explain",
+          "core_contract_status": "pass",
+          "runtime_error": "model_output_truncated",
+          "token_usage_known": true,
+          "total_tokens": 2815,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Hit num_predict=640 cap (done_reason='length') while generating a 1..100 list."
+        },
+        {
+          "turn_index": 2,
+          "label": "turn_2_trace_8",
+          "core_contract_status": "pass",
+          "runtime_error": "model_output_truncated",
+          "token_usage_known": true,
+          "total_tokens": 2995,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Hit num_predict=640 cap (done_reason='length')."
+        },
+        {
+          "turn_index": 3,
+          "label": "turn_3_followup_mid_plus_1",
+          "core_contract_status": "pass",
+          "runtime_error": "model_output_truncated",
+          "token_usage_known": true,
+          "total_tokens": 3167,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Hit num_predict=640 cap (done_reason='length')."
+        },
+        {
+          "turn_index": 4,
+          "label": "turn_4_change_target_6",
+          "core_contract_status": "pass",
+          "runtime_error": "model_output_truncated",
+          "token_usage_known": true,
+          "total_tokens": 3327,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Hit num_predict=640 cap (done_reason='length')."
+        },
+        {
+          "turn_index": 5,
+          "label": "turn_5_lookback_summary",
+          "core_contract_status": "pass",
+          "runtime_error": null,
+          "token_usage_known": true,
+          "total_tokens": 2875,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "fail",
+          "reason": "Runtime completed without error, but because Turns 1-4 had failed with model_output_truncated (preserved in PriorMessagesSent via R5 fix), model replied with a generic refusal ('Tôi xin lỗi, nhưng tôi không thể giúp bạn với yêu cầu của bạn.') and 0 note calls."
+        },
+        {
+          "turn_index": 6,
+          "label": "turn_6_in_flight_cancel",
+          "core_contract_status": "pass",
+          "runtime_error": "cancelled",
+          "token_usage_known": false,
+          "total_tokens": null,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "not_applicable_cancelled_in_flight",
+          "reason": "Real in-flight cancellation: HTTP request dispatched to Ollama, cancel triggered at 255.02ms in-flight, token usage recorded as null, and late note/dispatcher writes rejected."
+        },
+        {
+          "turn_index": 7,
+          "label": "turn_7_post_cancel_followup",
+          "core_contract_status": "pass",
+          "runtime_error": null,
+          "token_usage_known": true,
+          "total_tokens": 3241,
+          "model_tool_or_note_calls": 0,
+          "semantic_content_status": "pass",
+          "reason": "Correctly answered that the index of element 6 in [2, 4, 6, 8, 10] is 2 ('chỉ số kết quả (index) của phần tử 6 trong mảng [2, 4, 6, 8, 10] là 2')."
+        }
+      ]
+    }
+  }
+}

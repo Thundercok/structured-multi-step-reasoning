@@ -1,0 +1,86 @@
+[
+  {
+    "name": "consolidated_regression_suite",
+    "command": ".venv/bin/python audit/rat_cot_runtime_acceptance_20261020/run_consolidated.py",
+    "description": "372 consolidated tests including 331 prior regression tests and 41 runtime acceptance tests",
+    "total_tests": 372,
+    "passed": 372,
+    "failed": 0,
+    "duration_s": 37.51,
+    "exit_code": 0,
+    "raw_log": "regression.txt",
+    "junit_xml": "regression.xml"
+  },
+  {
+    "name": "mandatory_research_suite",
+    "command": ".venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/mandatory_research.xml",
+    "description": "Mandatory research harness, entry predictor, and optimal stopping tests (29 tests)",
+    "total_tests": 29,
+    "passed": 29,
+    "failed": 0,
+    "duration_s": 4.41,
+    "exit_code": 0,
+    "raw_log": "mandatory_research.txt",
+    "junit_xml": "mandatory_research.xml"
+  },
+  {
+    "name": "parser_and_document_intake_suite",
+    "command": ".venv/bin/python -m pytest tests/test_document_intake.py tests/test_document_intake_robustness.py -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/parser_affected.xml",
+    "description": "Document intake and parser robustness tests (44 tests)",
+    "total_tests": 44,
+    "passed": 44,
+    "failed": 0,
+    "duration_s": 1.10,
+    "exit_code": 0,
+    "raw_log": "parser_affected.txt",
+    "junit_xml": "parser_affected.xml"
+  },
+  {
+    "name": "codex_review_r3_boundary_contracts",
+    "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/contract_probes_r3.xml",
+    "description": "Independent Codex review r3 boundary contracts suite (19 tests covering caller invariance, capability checking, provenance strictness, fail-closed doc QA, and stream yield accounting)",
+    "total_tests": 19,
+    "passed": 19,
+    "failed": 0,
+    "duration_s": 3.84,
+    "exit_code": 0,
+    "raw_log": "contract_probes_r3.txt",
+    "junit_xml": "contract_probes_r3.xml"
+  },
+  {
+    "name": "codex_review_r2_qwen_replay",
+    "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r2_20261020/test_qwen_boundary_replay.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/qwen_boundary_replay.xml",
+    "description": "Independent Codex review r2 Qwen AST boundary replay probe suite (3 tests)",
+    "total_tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "duration_s": 2.97,
+    "exit_code": 0,
+    "raw_log": "qwen_boundary_replay.txt",
+    "junit_xml": "qwen_boundary_replay.xml"
+  },
+  {
+    "name": "failed_request_reporting_r7",
+    "command": ".venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/failed_request_reporting.xml",
+    "description": "G1 failed request reporting verification suite",
+    "total_tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "duration_s": 0.14,
+    "exit_code": 0,
+    "raw_log": "failed_request_reporting.txt",
+    "junit_xml": "failed_request_reporting.xml"
+  },
+  {
+    "name": "codex_review_r4_remaining_contracts",
+    "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/contract_probes_r4.xml",
+    "description": "Independent Codex review r4 remaining contracts suite (14 tests covering configured SC/ToT sample control, hard token cap holding, structured dispatch accounting, pre-dispatch cancellation, and strict fitted policy parameter validation)",
+    "total_tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "duration_s": 4.25,
+    "exit_code": 0,
+    "raw_log": "contract_probes_r4.txt",
+    "junit_xml": "contract_probes_r4.xml"
+  }
+]

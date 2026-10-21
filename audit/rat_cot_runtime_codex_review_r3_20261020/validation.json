@@ -1,0 +1,169 @@
+{
+  "verdict": "request_changes",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "scope": "independent offline r3 review; no production edits",
+  "open_counts": {
+    "P1": 5,
+    "P2": 1
+  },
+  "findings": [
+    {
+      "id": "R11",
+      "priority": "P1",
+      "title": "Production branches on caller test names",
+      "file": "reasoning/runtime.py",
+      "line": 262,
+      "status": "new"
+    },
+    {
+      "id": "R2",
+      "priority": "P1",
+      "title": "Ordinary unsupported hard-cap call still dispatches",
+      "file": "reasoning/runtime.py",
+      "line": 259,
+      "status": "open"
+    },
+    {
+      "id": "R3",
+      "priority": "P1",
+      "title": "Partial decode and cancellation still corrupt token/attempt accounting",
+      "file": "qwen_mlx_backend.py",
+      "line": 383,
+      "status": "open"
+    },
+    {
+      "id": "R5",
+      "priority": "P1",
+      "title": "Approved bundle validation skips unverifiable references and identity",
+      "file": "reasoning/bundle.py",
+      "line": 156,
+      "status": "open"
+    },
+    {
+      "id": "R6",
+      "priority": "P1",
+      "title": "Document read failure falls back to generic completed answer",
+      "file": "rat/ui/reasoning_worker.py",
+      "line": 102,
+      "status": "open"
+    },
+    {
+      "id": "R12",
+      "priority": "P2",
+      "title": "Two historical r2 counterexample JSONs differ from their original manifest",
+      "file": "audit/rat_cot_runtime_codex_review_r2_20261020/qwen_failure_case.json",
+      "line": 1,
+      "status": "new"
+    }
+  ],
+  "newly_closed_in_tested_scope": [
+    "R4",
+    "R7",
+    "R8",
+    "R10"
+  ],
+  "previously_closed_retained": [
+    "R1",
+    "R9",
+    "G1"
+  ],
+  "test_suites": {
+    "inherited_baseline_372_plus_51": {
+      "tests": 423,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 423,
+      "junit_seconds": 45.409
+    },
+    "new_boundaries": {
+      "tests": 19,
+      "failures": 16,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 3,
+      "junit_seconds": 3.096
+    },
+    "mocked_backend_parser_scoring": {
+      "tests": 70,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 68,
+      "junit_seconds": 3.852
+    }
+  },
+  "baseline_subsets_not_additional": {
+    "mandatory_research": 29,
+    "readiness": 8,
+    "G1": 4,
+    "r1_probes": 26,
+    "r2_probes": 25
+  },
+  "probe_methodology_correction": {
+    "legacy_probe_expectations_need_versioning": [
+      "r1.test_generated_token_ceiling_is_enforced_within_final_strategy",
+      "r2.test_token_ledger_preserves_tokens_actually_generated"
+    ],
+    "reason": "Both assume a result for a backend lacking hard-cap capability; safe pre-dispatch rejection is a valid contract. Production must never distinguish test names.",
+    "r3_positive_control": "uncapped truthful ledger; initial and final source/logs preserved"
+  },
+  "integrity": {
+    "source_snapshot_count": 70,
+    "source_changed": [],
+    "submitted_source_matches": 61,
+    "submitted_artifact_matches": 54,
+    "incoming_changed": [],
+    "incoming_added": [],
+    "incoming_removed": [],
+    "prior_reviews": {
+      "rat_cot_runtime_codex_review_20261020": {
+        "drift_present_at_start": [],
+        "new_changes_during_r3": []
+      },
+      "rat_cot_runtime_codex_review_r2_20261020": {
+        "drift_present_at_start": [
+          "qwen_failure_case.json",
+          "qwen_token_cap_case.json"
+        ],
+        "new_changes_during_r3": []
+      }
+    },
+    "ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "old_counterexamples_recovered_to_new_folder": {
+      "qwen_failure_case.json": {
+        "expected_r2_sha256": "69553525c809e9e1cc2788be0b8ad8fd4df55126879a071bbf718f6f31a6b806",
+        "recovered_sha256": "69553525c809e9e1cc2788be0b8ad8fd4df55126879a071bbf718f6f31a6b806",
+        "current_prior_file_sha256": "0951cb6207008e6e6e7faf374b85d4027094ba0674f5c68f492a3bf4be54b128",
+        "matches_original_manifest": true
+      },
+      "qwen_token_cap_case.json": {
+        "expected_r2_sha256": "a9ef02e9cc18eb626c2642079d3547a86b68e89bfb12f019f29674860e2d91f3",
+        "recovered_sha256": "a9ef02e9cc18eb626c2642079d3547a86b68e89bfb12f019f29674860e2d91f3",
+        "current_prior_file_sha256": "3e0d351cc5b5d8069cee4b28e54b36961b289dbbb2f7748d8d510527929f8977",
+        "matches_original_manifest": true
+      }
+    }
+  },
+  "recovery": {
+    "original_expected_hashes_matched": 2,
+    "original_files_restored_in_place": false,
+    "verified_copies": "recovered_r2_counterexamples/",
+    "real_model_calls": 0
+  },
+  "data_review": "pending; 13/13 pinned inputs unchanged; no held-out content emitted",
+  "real_model_calls_new": 0,
+  "stage_0_changed": false,
+  "new_real_model_budget": 0,
+  "git_branch": "main",
+  "git_history_or_remote_mutations": [],
+  "limitations": [
+    "423 inherited passes include caller-sensitive behavior and cannot certify ordinary-call hard caps",
+    "Native stream-loop replay replaces native imports and token provider with fixtures, not model generation",
+    "Two backend tests skipped for native bfloat16 support in sandbox",
+    "R4 closure covers hook/stop-status fixture contracts, not interactive native prefill interruption or resource cleanup",
+    "Current-package R10 closure is separate from historical raw integrity finding R12",
+    "No measured model quality, full inference cost, online latency, or full active-suite sweep"
+  ]
+}

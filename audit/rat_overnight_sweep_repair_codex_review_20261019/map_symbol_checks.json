@@ -1,0 +1,14 @@
+{
+  "rat/kernel/dispatcher.py": {
+    "UnifiedDispatcher": false,
+    "ActionDispatcher": true
+  },
+  "rat/ui/view_renderer.py": {
+    "CandidateChoiceButton": false,
+    "QtViewRenderer": true
+  },
+  "rat/kernel/capabilities/applications.py": {
+    "_execute_launch_app": false,
+    "create_applications_capability": true
+  }
+}

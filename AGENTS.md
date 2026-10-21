@@ -1,12 +1,21 @@
 # Project priorities
 
 The primary outcome is a student research paper (NCKH) supported by a reproducible
-experiment pipeline. RAT is a secondary demonstration for a nontechnical user.
+experiment pipeline. RAT is the primary application implementation of the CoT /
+structured-reasoning method, not a disposable secondary demo. RAT uses CoT; CoT
+is implemented and expressed through RAT. Treat them as one system, not two
+independent projects. The headless
+pipeline evaluates the method reproducibly; it does not replace RAT as the
+implementation target. Read `docs/project_scope.md` for the user-confirmed
+relationship, core/extension boundaries and cross-chat handoff rules.
 Read `docs/research_plan.md` and `docs/research_protocol.md` when changing research
 scope, evaluation, model behavior or project claims.
 
 Prioritize reviewed data, valid comparisons, raw artifacts and manuscript evidence.
-UI expansion is secondary unless the user explicitly requests it. Keep research
+RAT work that implements reasoning, verification, routing, stopping, execution
+contracts or evidence is core project work. Classify RAT changes by function,
+not by the `rat/` directory or absence from headless imports. Cosmetic UI and
+unrelated feature expansion are secondary unless explicitly requested. Keep research
 experiments headless and independent of personal-file indexing and Qt.
 
 The supported research entry point is `python -m experiments.research_study`.
@@ -35,8 +44,36 @@ replayed strategy time from measured online latency.
 
 The primary repository is now `Thundercok/nesy-docai`, locally accessible through
 `~/github/nesy-docai` (real checkout: `SoftwareEngineering2026`). Structured
-reasoning and RAT live at the root. DocAI is standalone under `modules/docai/`
-with its own dependencies and tests; integration into RAT is deferred by the
-user. Keep it out of the default RAT registry and research startup until a
-later integration request. The legacy reasoning checkout/shared worktrees and
+reasoning and RAT live at the root. On 2026-10-17 the user authorized removing
+the remaining standalone `modules/docai/` after reusing PDF/OCR in
+`document_intake/`. The module is now removed with verified recovery at
+`audit/docai_removal_20261017/`. Keep shared PDF, Apple Vision and Tesseract
+readers in place. Invoice XML/Z3 remains deferred; do not restore the module
+or add it to RAT startup without a later request. The legacy reasoning checkout/shared worktrees and
 `.migration-backups/` are recovery material; do not remove them as routine cleanup.
+
+# Spider separation decision — 2026-10-16
+
+The user selected `Thundercok/tdtu-timetable-compiler` as the destination for
+the Spider source, despite its current timetable-related name. Treat Spider
+as an independent project outside RAT/CoT scope; its future mass rework belongs
+there. Do not infer a timetable/RAT integration request from the repository name.
+The existing optional Python adapter may remain, default-disabled; no further
+Spider feature expansion is an active main-project priority. Preserve source,
+license and local changes until the destination import is published and verified.
+Do not report physical removal or a completed remote migration before it occurs.
+
+
+# EVRP removal decision — 2026-10-17
+
+The user explicitly chose to delete EVRP/SaigonRide from the main project and
+rebuild it from scratch later if needed. `modules/evrp/` has been removed; no
+destination repository or integration is pending. Do not restore/import it as
+routine work. Preserve its verified recovery archive, history bundle and audit
+material under the existing recovery policy. RAT–CoT remains one system.
+
+# Solo Git workflow
+
+Use `main` as the working branch for this solo project. Do not create feature
+or checkpoint branches unless the user explicitly asks. Preserve unrelated
+uncommitted work and existing recovery material. Push only when requested.

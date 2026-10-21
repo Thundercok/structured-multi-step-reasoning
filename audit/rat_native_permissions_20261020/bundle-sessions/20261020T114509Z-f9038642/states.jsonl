@@ -1,0 +1,3 @@
+{"elapsed_seconds": 6.804423917084932, "accessibility": {"trusted": false, "state": "not_granted", "prompt_requested": false, "error": null}, "hotkey_status": "waiting_permission", "hotkey_error": null, "window_visible": true}
+{"elapsed_seconds": 205.45760650001466, "accessibility": {"trusted": false, "state": "not_granted", "prompt_requested": false, "error": null}, "hotkey_status": "waiting_permission", "hotkey_error": null, "window_visible": false}
+{"elapsed_seconds": 235.46267229202203, "accessibility": {"trusted": false, "state": "not_granted", "prompt_requested": false, "error": null}, "hotkey_status": "stopped", "hotkey_error": null, "window_visible": false}

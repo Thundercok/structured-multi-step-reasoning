@@ -1,0 +1,51 @@
+FF..                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_failed_attempts_never_claim_verified_or_successful_backend_requests[twelve-exceptions] _
+
+attempts = 12, successful = False
+
+    @pytest.mark.parametrize("attempts,successful", [(12,False),(1,False),(12,True),(1,True)],
+                             ids=["twelve-exceptions", "one-exception", "twelve-success-control", "one-success-control"])
+    def test_failed_attempts_never_claim_verified_or_successful_backend_requests(attempts, successful):
+        records = [dict(event="request_complete", backend_type="real", session_id="synthetic-current-session",
+                        request_id=f"synthetic-{i}", status="success" if successful else "exception:RuntimeError: fixture failure",
+                        latency_ms=1, completion_tokens=1 if successful else None) for i in range(attempts)]
+        report = actual_report(records)
+        assert report["real_calls_count"] == attempts
+        expected_verified = attempts == 12 and successful
+        assert report["all_12_requests_succeeded"] is expected_verified
+        if not successful:
+>           assert report["scope_status"] != "backend_inference_verified_12_calls", report
+E           AssertionError: {'real_calls_count': 12, 'scope_status': 'backend_inference_verified_12_calls', 'scope_note': '12 successful backend r...l interactive UI queue requires dedicated model budget and native display server.', 'all_12_requests_succeeded': False}
+E           assert 'backend_inference_verified_12_calls' != 'backend_inference_verified_12_calls'
+
+audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py:42: AssertionError
+_ test_failed_attempts_never_claim_verified_or_successful_backend_requests[one-exception] _
+
+attempts = 1, successful = False
+
+    @pytest.mark.parametrize("attempts,successful", [(12,False),(1,False),(12,True),(1,True)],
+                             ids=["twelve-exceptions", "one-exception", "twelve-success-control", "one-success-control"])
+    def test_failed_attempts_never_claim_verified_or_successful_backend_requests(attempts, successful):
+        records = [dict(event="request_complete", backend_type="real", session_id="synthetic-current-session",
+                        request_id=f"synthetic-{i}", status="success" if successful else "exception:RuntimeError: fixture failure",
+                        latency_ms=1, completion_tokens=1 if successful else None) for i in range(attempts)]
+        report = actual_report(records)
+        assert report["real_calls_count"] == attempts
+        expected_verified = attempts == 12 and successful
+        assert report["all_12_requests_succeeded"] is expected_verified
+        if not successful:
+            assert report["scope_status"] != "backend_inference_verified_12_calls", report
+>           assert f"{attempts} successful backend requests" not in report["scope_note"], report
+E           AssertionError: {'real_calls_count': 1, 'scope_status': 'backend_inference_completed_1_calls', 'scope_note': '1 successful backend req...l interactive UI queue requires dedicated model budget and native display server.', 'all_12_requests_succeeded': False}
+E           assert '1 successfu...end requests' not in '1 successfu...play server.'
+E             
+E             '1 successful backend requests' is contained here:
+E               1 successful backend requests demonstrate real MLX model inference on local document context. Full interactive UI queue requires dedicated model budget and native display server.
+E             ? +++++++++++++++++++++++++++++
+
+audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py:43: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py::test_failed_attempts_never_claim_verified_or_successful_backend_requests[twelve-exceptions]
+FAILED audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py::test_failed_attempts_never_claim_verified_or_successful_backend_requests[one-exception]
+2 failed, 2 passed in 0.31s

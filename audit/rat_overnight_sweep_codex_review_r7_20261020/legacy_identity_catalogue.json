@@ -1,0 +1,21 @@
+{
+  "kind": "explicit legacy request identity whitelist, not a cryptographic signature",
+  "baseline_artifact_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "catalogue_size": 12,
+  "record_count": 12,
+  "catalogue_matches_reviewed_legacy_identities": true,
+  "genuine_records_classification": [
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real",
+    "real"
+  ]
+}

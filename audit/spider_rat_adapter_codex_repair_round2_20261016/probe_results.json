@@ -1,0 +1,31 @@
+{
+  "binary_replaced_after_verification": {
+    "outcome": "SpiderVersionMismatchError",
+    "error": "Spider version mismatch: kỳ vọng version '2.51.208', nhưng backend trả về 'spider_cli 99.0.0'. Từ chối sử dụng binary không khớp version được pin.",
+    "accepted_content": null,
+    "reported_version": null,
+    "reported_hash": null,
+    "actual_hash": "843d3a9817fef826cd4b365cf124613a77ea8da01a3c70c834b7fc83018975db",
+    "rejected_on_modification": true
+  },
+  "dns_bounded_without_global_timeout": {
+    "configured_timeout_seconds": 0.05,
+    "elapsed_seconds": 0.053,
+    "global_socket_timeout_before": null,
+    "global_socket_timeout_during_dns": [
+      null
+    ],
+    "global_socket_timeout_after": null,
+    "global_timeout_untouched": true,
+    "outcome": "SpiderTimeoutError",
+    "error": "Quá thời gian chờ khi phân giải DNS cho 'example.com'.",
+    "timed_out_properly": true
+  },
+  "recovery_archive": {
+    "archive_sha256": "e883fcfa6f88325d0e80571956f21fb49006bc93855f9a1b6f671536f68ece0f",
+    "current_files": 325,
+    "archive_regular_files": 325,
+    "mismatches": [],
+    "archive_extra_files": []
+  }
+}

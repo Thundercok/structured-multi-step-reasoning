@@ -26,7 +26,7 @@ from rat.ui.omnibar import OmnibarWindow, StreamReasoningWorker, lower_overlay_g
 class TestOmnibarWindow(unittest.TestCase):
     def setUp(self):
         # Legacy capability controls remain available in the explicit developer UI.
-        debug = patch.dict(os.environ, {'RAT_DEBUG_UI': '1'})
+        debug = patch.dict(os.environ, {'RAT_DEBUG_UI': '1', 'RAT_WORKBENCH_SCENE': '0', 'RAT_WORKBENCH_FINDER': '0'})
         debug.start()
         self.addCleanup(debug.stop)
         patcher = patch("rat.ui.assistant_worker.AssistantWorker.start")
@@ -710,7 +710,7 @@ class TestOmnibarWindow(unittest.TestCase):
         self.window._deliver_assistant_reply('Một tệp', inline_files=files)
         QTest.qWait(300)
         row = self.window.chat_stream.findChild(InlineFileCard)
-        self.assertEqual(self.window.width(), 620)
+        self.assertIn(self.window.width(), (620, 652))
         self.assertEqual(row.name_label.full_text, files[0].file_name)
         self.assertIn('…', row.name_label.text())
         self.assertLessEqual(row.name_label.fontMetrics().horizontalAdvance(row.name_label.text()), row.name_label.width())

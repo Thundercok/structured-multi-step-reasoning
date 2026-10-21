@@ -201,12 +201,10 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
     path_schema = {"type": "string", "description": "Exact indexed PDF path returned by search_documents."}
     capability.register_operation(OperationDefinition(
         "search_book_pages",
-        "Find topic words or a passage on actual pages of a local indexed PDF. "
-        "Search_documents first to choose the book; never guess paths. "
-        "All query words must occur on a page (accent/case insensitive); use concise content keywords. "
-        "Returns excerpts, 1-based PDF page numbers and PDF page labels. Labels may differ from printed numbers. "
-        "Searches up to max_pages per call; continue at next_start_page for remaining pages. "
-        "Textless/scanned pages require OCR and are reported separately.",
+        "Find PDF passages matching all query words (case/accent insensitive). "
+        "Use an exact indexed path from search_documents. Returns excerpts and 1-based PDF pages/labels, "
+        "which may differ from printed numbers. After max_pages, continue at next_start_page. "
+        "Report textless/scanned pages requiring OCR.",
         {"type": "object", "properties": {
             "file_path": path_schema, "query": {"type": "string", "maxLength": 300},
             "limit": {"type": "integer", "minimum": 1, "maximum": 12, "default": 5},
@@ -216,9 +214,8 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         artifact_kind="book_page_search", available_actions=page_actions))
     capability.register_operation(OperationDefinition(
         "read_book_page",
-        "Read one exact 1-based PDF page from an indexed book, with citation metadata. "
-        "Use a page returned by search_book_pages or explicitly requested by the user. "
-        "Report truncation/textless pages honestly. To save a quotation, bind record_work_note to the actual result field.",
+        "Read a 1-based PDF page returned by search_book_pages or requested by the user, with citations. "
+        "Report truncation/textless pages. Save quotes via record_work_note bound to the actual result field.",
         {"type": "object", "properties": {
             "file_path": path_schema, "page": {"type": "integer", "minimum": 1},
             "max_chars": {"type": "integer", "minimum": 1, "maximum": 12000, "default": 8000},
@@ -230,10 +227,8 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
 
     capability.register_operation(OperationDefinition(
         "deliver_document",
-        "Give the user an original indexed file as an openable local conversation attachment. "
-        "Use this when the user asks for the file itself, including a file found earlier. "
-        "Requires the exact observed indexed path; search_documents first if unknown. "
-        "Creates an attachment reference with the file's actual metadata and hash; does not open, copy or upload it.",
+        "Attach an original indexed file when requested, using its exact observed path (search_documents first if unknown). "
+        "Returns a local reference, metadata and hash; does not open, copy or upload the file.",
         {"type": "object", "properties": {"file_path": {"type": "string"}},
          "required": ["file_path"]}, handle_deliver, artifact_kind="document_file"))
 
@@ -261,16 +256,15 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
     capability.register_operation(OperationDefinition(
         name="search_documents",
         description=(
-            "Search local indexed documents (slides, lecture notes, syllabus, lab guides) "
-            "by filename, subject or content keywords. Try another query when results are irrelevant."
-            " Returns file metadata only. Use read_document or read_book_page to read contents."
+            "Find indexed local files by filename, subject or content keywords; retry irrelevant results. "
+            "Returns metadata only. Read contents with read_document or read_book_page."
         ),
         parameters={
             "type": "object",
             "properties": {
                 "query": {
                     "type": "string",
-                    "description": "Search query containing course title or topic.",
+                    "description": "Filename, subject or content keywords.",
                 },
                 "limit": {
                     "type": "integer",
@@ -290,9 +284,8 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
     capability.register_operation(OperationDefinition(
         name="read_document",
         description=(
-            "Read content of an indexed document (.pdf, .pptx, .docx, .txt, .md). "
-            "Requires an exact path returned by search_documents or previous source metadata. "
-            "Never guess paths. If the path is unknown, search_documents first."
+            "Read an indexed PDF, PPTX, DOCX, TXT or MD file. Use an exact observed path from search_documents "
+            "or prior sources; search first if unknown. Never guess paths."
         ),
         parameters={
             "type": "object",

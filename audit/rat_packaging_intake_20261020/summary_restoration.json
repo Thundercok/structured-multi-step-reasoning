@@ -1,0 +1,6 @@
+{
+  "reason": "Earlier validator always used its default summary filename; extra output-name argument was ignored.",
+  "failed_summary_restored_byte_identical_from": "frozen-bundle-release.stdout.txt",
+  "passed_summary_copied_byte_identical_from": "frozen-bundle-verified.stdout.txt",
+  "raw_logs_modified": false
+}

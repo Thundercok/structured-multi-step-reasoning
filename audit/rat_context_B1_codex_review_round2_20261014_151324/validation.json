@@ -1,0 +1,65 @@
+{
+  "timestamp_utc": "2026-10-14T08:20:43.975597+00:00",
+  "status": "codex_request_changes",
+  "b1_accepted": false,
+  "b2_implementation_authorized": false,
+  "reviewed_compiler_sha256": "8dea28d860d5cb207afb952dfef727628c963442ffc3eaf0d1513aa0d86ab598",
+  "independently_verified_test_executions": {
+    "existing_passed": 69,
+    "new_passed": 2,
+    "new_failed": 12,
+    "collection_errors": 0
+  },
+  "original_independent_probes_passed": 15,
+  "core_292_suite": "reported by implementer; not independently rerun in this round",
+  "source_drift": [],
+  "live_model_calls": 0,
+  "product_files_modified_by_review": [],
+  "findings": [
+    {
+      "id": "R2-1",
+      "priority": 1,
+      "class": "projector_origin_and_graph_domain"
+    },
+    {
+      "id": "R2-2",
+      "priority": 1,
+      "class": "exact_roundtrip"
+    },
+    {
+      "id": "R2-3",
+      "priority": 2,
+      "class": "proof_generation_scope"
+    },
+    {
+      "id": "R2-4",
+      "priority": 2,
+      "class": "typed_proof_closure"
+    }
+  ],
+  "handoff_scope": "B1 repair, invariant self-audit, adversarial regression matrix, reproducible packet, B2 documentation only",
+  "files": {
+    "bootstrap_python314.json": "2057e12cf4cb10274dfdc7517c683e56fb71f5a3aa729d6838b1864349c3f42c",
+    "context_snapshot.py.txt": "8dea28d860d5cb207afb952dfef727628c963442ffc3eaf0d1513aa0d86ab598",
+    "provenance_probes.xml": "46c82b9a566d900cd7e711a2671bbebe05495a701a63d450e651ed038a3f6b22",
+    "test_rat_context_snapshot.py.txt": "d1903fdfb891dfcc3c5246fe6f7e3f9355466845f299b968ba52884face5f666",
+    "manifest_start.json": "da534e26d036dfcdc351010eee95cc97bf0ad8ea1fa9fb52bb39326248e77ace",
+    "provenance_probes.py": "26fd2f957c0a3129917994dbaf6af864ff1c268571192fa08217b9af1515a61f",
+    "existing_regressions.log": "a2739f08195b919c364e0a4aba0704b578ca0caa37029b81510dd4ce6d04c3e9",
+    "test_run.json": "1922072d5c90006c98f3960fd4239491c6f91e43abcfb591a636559fb879b7a2",
+    "manifest_finish.json": "da534e26d036dfcdc351010eee95cc97bf0ad8ea1fa9fb52bb39326248e77ace",
+    "run_review.py": "d321252c3e35579ee9c762648e4ebdd3e1c47e1e1b96214d4d54092e9ff9ec53",
+    "handoff_antigravity.md": "df9b5155efdab1c13c7b3e7d29e5e9720ddef6ab37ae5dbc9d7bc63b2b111a56",
+    "existing_regressions.xml": "962f97cd51ec1fb4d237f7de1d51a26949495821352514523de395030de3fee4",
+    "review.md": "d69f02457b666926b341e89f4624904a7f4d479480f275afbaebfa48f93f0cf0",
+    "provenance_probes.log": "bb27d38df6c320ba7bbff79481f4f95433c14700e292063451a871cf770fb141"
+  },
+  "repository_wide_diff_check": {
+    "status": "unrelated_whitespace_findings",
+    "messages": [
+      "tests/test_rat_conversation_lifecycle.py:155: new blank line at EOF.",
+      "tests/test_work_context.py:453: new blank line at EOF."
+    ],
+    "files_modified_by_this_review": false
+  }
+}

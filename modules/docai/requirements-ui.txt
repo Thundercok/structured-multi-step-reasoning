@@ -1,9 +1,0 @@
-# Compatibility API/dashboard retained from the former repository.
--r requirements.txt
-pandas>=2.0.0
-streamlit>=1.30.0
-fastapi>=0.100.0
-uvicorn>=0.22.0
-python-multipart>=0.0.6
-httpx>=0.24.0
-tqdm>=4.65.0

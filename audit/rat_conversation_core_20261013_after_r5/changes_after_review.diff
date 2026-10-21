@@ -1,0 +1,901 @@
+--- audit/rat_conversation_core_codex_review_20261013/source_after_changes/tests/test_work_context.py.txt	2026-10-13 11:56:06
++++ tests/test_work_context.py	2026-10-13 12:08:27
+@@ -246,22 +246,27 @@
+ 
+     # Turn 1: Explain binary search with a small example
+     q1 = 'Giải thích binary search bằng ví dụ nhỏ'
++    m1 = history.messages_with_turn_ids()
++    refs1 = history.turn_references()
+     t1 = history.begin_turn(q1)
+     runtime.model_callable = lambda goal, steps: ModelDecision(
+         '', final_answer='Binary search chia đôi mảng đã sắp xếp ở chỉ số mid.'
+     )
+     r1 = runtime.run(
+         q1,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m1,
+         turn_ref=t1.to_turn_ref(history.conversation_id),
+         execution_id=t1.execution_id,
+-        turn_references=history.turn_references()[:-1],
++        turn_references=refs1,
+     )
+     history.complete_turn(t1.turn_id, r1.answer, execution_id=r1.execution_id)
+-    assert r1.turn_id == 'turn-1' and not r1.error
++    assert r1.turn_id == 'turn-1' and r1.execution_id == t1.execution_id and not r1.error
+ 
+     # Turn 2: Array [2, 4, 6, 8, 10], find 8 step-by-step (records work note)
+     q2 = 'Dùng mảng [2, 4, 6, 8, 10], tìm 8 từng bước'
++    m2 = history.messages_with_turn_ids()
++    refs2 = history.turn_references()
++    assert m2[-1] == {'role': 'assistant', 'content': r1.answer, 'turn_id': 'turn-1'}
+     t2 = history.begin_turn(q2)
+     t2_decisions = iter([
+         ModelDecision(
+@@ -277,10 +282,10 @@
+     runtime.model_callable = lambda goal, steps: next(t2_decisions)
+     r2 = runtime.run(
+         q2,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m2,
+         turn_ref=t2.to_turn_ref(history.conversation_id),
+         execution_id=t2.execution_id,
+-        turn_references=history.turn_references()[:-1],
++        turn_references=refs2,
+     )
+     note_v1 = runtime.notebook.snapshot()[0]
+     history.complete_turn(
+@@ -294,22 +299,28 @@
+ 
+     # Turn 3: Follow-up on mid + 1 without repeating the array
+     q3 = 'Vì sao bước đó dùng mid + 1 mà không giữ mid?'
++    m3 = history.messages_with_turn_ids()
++    refs3 = history.turn_references()
++    assert m3[-1] == {'role': 'assistant', 'content': r2.answer, 'turn_id': 'turn-2'}
+     t3 = history.begin_turn(q3)
+     runtime.model_callable = lambda goal, steps: ModelDecision(
+         '', final_answer='Vì a[mid] = 6 đã nhỏ hơn 8 nên chỉ số mid đã kiểm tra xong, cần xét từ mid + 1.'
+     )
+     r3 = runtime.run(
+         q3,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m3,
+         turn_ref=t3.to_turn_ref(history.conversation_id),
+         execution_id=t3.execution_id,
+-        turn_references=history.turn_references()[:-1],
++        turn_references=refs3,
+     )
+     history.complete_turn(t3.turn_id, r3.answer, execution_id=r3.execution_id)
+     assert r3.turn_id == 'turn-3'
+ 
+     # Turn 4: Change target from 8 to 6 (replaces note revision 1 -> revision 2)
+     q4 = 'Đổi thành tìm 6 thì các bước đổi thế nào?'
++    m4 = history.messages_with_turn_ids()
++    refs4 = history.turn_references()
++    assert m4[-1] == {'role': 'assistant', 'content': r3.answer, 'turn_id': 'turn-3'}
+     t4 = history.begin_turn(q4)
+     t4_decisions = iter([
+         ModelDecision(
+@@ -330,10 +341,10 @@
+     runtime.model_callable = lambda goal, steps: next(t4_decisions)
+     r4 = runtime.run(
+         q4,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m4,
+         turn_ref=t4.to_turn_ref(history.conversation_id),
+         execution_id=t4.execution_id,
+-        turn_references=history.turn_references()[:-1],
++        turn_references=refs4,
+     )
+     note_v2 = runtime.notebook.snapshot()[0]
+     history.complete_turn(
+@@ -355,14 +366,18 @@
+ 
+     # Turn 5: Look back at mid + 1 in the earlier example while keeping Turn 4 as active note
+     q5 = 'Quay lại câu hỏi mid + 1 ở ví dụ trước, viết gọn thành 3 ý để tôi chép bài'
++    m5 = history.messages_with_turn_ids()
++    refs5 = history.turn_references()
++    assert m5[-1] == {'role': 'assistant', 'content': r4.answer, 'turn_id': 'turn-4'}
+     t5 = history.begin_turn(q5)
+     t5_messages = runtime._native_messages(
+         q5,
+         [],
+-        history=history.messages_with_turn_ids()[:-1],
+-        turn_references=history.turn_references()[:-1],
++        history=m5,
++        turn_references=refs5,
+     )
+     joined_context = '\n'.join(m['content'] for m in t5_messages)
++    assert r4.answer in joined_context
+     assert 'Prior replaced note versions' in joined_context
+     assert 'Mảng [2, 4, 6, 8, 10], tìm 8' in joined_context
+     assert 'Mảng [2, 4, 6, 8, 10], tìm 6' in joined_context
+@@ -373,27 +388,39 @@
+     )
+     r5 = runtime.run(
+         q5,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m5,
+         turn_ref=t5.to_turn_ref(history.conversation_id),
+         execution_id=t5.execution_id,
+-        turn_references=history.turn_references()[:-1],
++        turn_references=refs5,
+     )
+     history.complete_turn(t5.turn_id, r5.answer, execution_id=r5.execution_id)
+ 
+-    # Turn 6: Start long trace request, cancel mid-execution, block late writes, then continue
++    # Turn 6: Start long trace request, cancel in-flight during inference, block late writes, then continue
+     q6 = 'Viết bảng trace đầy đủ cho mọi trường hợp'
++    m6 = history.messages_with_turn_ids()
++    refs6 = history.turn_references()
++    assert m6[-1] == {'role': 'assistant', 'content': r5.answer, 'turn_id': 'turn-5'}
+     t6 = history.begin_turn(q6)
++    cancel_state = {'in_flight': False, 'cancelled': False}
++
++    def cancel_mid_inference(goal, steps):
++        cancel_state['in_flight'] = True
++        cancel_state['cancelled'] = True
++        return ModelDecision('', final_answer='Bảng trace không được phép hoàn tất sau khi hủy')
++
++    runtime.model_callable = cancel_mid_inference
+     r6 = runtime.run(
+         q6,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m6,
+         turn_ref=t6.to_turn_ref(history.conversation_id),
+         execution_id=t6.execution_id,
+-        turn_references=history.turn_references()[:-1],
+-        should_cancel=lambda: True,
++        turn_references=refs6,
++        should_cancel=lambda: cancel_state['cancelled'],
+     )
+     cancelled_ctx = runtime.notebook.current_context()
+     history.cancel_turn(t6.turn_id, execution_id=r6.execution_id)
+-    assert r6.error == 'cancelled'
++    assert cancel_state['in_flight'] is True
++    assert r6.error == 'cancelled' and r6.answer == ''
+ 
+     # Any late note write or dispatcher action from the cancelled execution must be rejected
+     with pytest.raises(ValueError, match='cancelled'):
+@@ -407,15 +434,20 @@
+ 
+     # Follow-up Turn 7 continues cleanly with Turn 4's active note preserved
+     q7 = 'Tiếp tục với tìm 6 ở trên, chỉ số kết quả là mấy?'
++    m7 = history.messages_with_turn_ids()
++    refs7 = history.turn_references()
++    assert any(m['role'] == 'assistant' and m['content'] == r5.answer and m['turn_id'] == 'turn-5' for m in m7)
++    assert m7[-1]['turn_id'] == 'turn-6' and '"status": "cancelled"' in m7[-1]['content']
+     t7 = history.begin_turn(q7)
+     runtime.model_callable = lambda goal, steps: ModelDecision('', final_answer='Chỉ số kết quả là mid = 2.')
+     r7 = runtime.run(
+         q7,
+-        history=history.messages_with_turn_ids()[:-1],
++        history=m7,
+         turn_ref=t7.to_turn_ref(history.conversation_id),
+         execution_id=t7.execution_id,
+-        turn_references=history.turn_references()[:-1],
++        turn_references=refs7,
+     )
+     history.complete_turn(t7.turn_id, r7.answer, execution_id=r7.execution_id)
+     assert not r7.error and r7.answer == 'Chỉ số kết quả là mid = 2.'
+     assert runtime.notebook.snapshot()[0]['text'] == 'Mảng [2, 4, 6, 8, 10], tìm 6'
++
+
+--- audit/rat_conversation_core_codex_review_20261013/source_after_changes/tests/test_rat_conversation_lifecycle.py.txt	2026-10-13 11:56:06
++++ tests/test_rat_conversation_lifecycle.py	2026-10-13 12:20:28
+@@ -117,3 +117,38 @@
+     assert old_display['text'] == 'Có 30 phút'
+     assert old_context['revision'] == old_display['revision']
+     assert old_context['text'] == old_display['text']
++
++
++def test_messages_with_turn_ids_preserves_prior_assistant_reply_without_slicing():
++    history = ConversationHistory()
++    t1 = history.begin_turn('Giải thích binary search')
++    history.complete_turn(t1.turn_id, 'Trả lời lượt 1 của Chuột', execution_id=t1.execution_id)
++
++    prior_messages = history.messages_with_turn_ids()
++    prior_refs = history.turn_references()
++    t2 = history.begin_turn('Câu hỏi tiếp theo')
++
++    # messages_with_turn_ids() only contains finalized turns; slicing [:-1] would drop t1's assistant reply.
++    assert prior_messages == [
++        {'role': 'user', 'content': 'Giải thích binary search', 'turn_id': 'turn-1'},
++        {'role': 'assistant', 'content': 'Trả lời lượt 1 của Chuột', 'turn_id': 'turn-1'},
++    ]
++    assert history.messages_with_turn_ids() == prior_messages
++    assert len(prior_refs) == 1 and prior_refs[0]['turn_id'] == 'turn-1'
++    assert not any(r['turn_id'] == t2.turn_id for r in prior_refs)
++
++
++def test_smoke_runner_turn4_evaluator_distinguishes_correct_from_broken_traces():
++    from scripts.run_dsa_core_smoke import evaluate_turn4_binary_search
++
++    good = evaluate_turn4_binary_search('Bước 1: low=0, high=4, mid=2, a[2]=6 khớp ngay ở bước đầu.')
++    assert good['verdict'] == 'correct' and good['stops_at_first_mid_match'] is True
++
++    broken_ineq = evaluate_turn4_binary_search('mid = 2, giá trị 6 > 6 nên giảm high, tiếp tục mid = 3.')
++    assert broken_ineq['verdict'] == 'incorrect_algorithm_trace'
++    assert broken_ineq['stops_at_first_mid_match'] is False
++
++    wrong_array = evaluate_turn4_binary_search('Tìm số 6 trong danh sách từ 1 đến 100 ở vị trí thứ 7.')
++    assert wrong_array['verdict'] == 'incorrect_algorithm_trace'
++    assert wrong_array['stops_at_first_mid_match'] is False
++
+
+--- /dev/null	2026-10-13 12:33:34
++++ scripts/run_dsa_core_smoke.py	2026-10-13 12:20:41
+@@ -0,0 +1,674 @@
++"""Reproducible headless smoke runner for the RAT shared conversation core (DSA 6-turn + follow-up flow).
++
++Addresses Codex review items:
++- R5 fix: collects `history.messages_with_turn_ids()` and `history.turn_references()` BEFORE `history.begin_turn(q)`
++  without slicing `[:-1]`, preserving the previous assistant reply in model context.
++- Execution identity: passes `execution_id=snap.execution_id` and `conversation_id=history.conversation_id` to `runtime.run(...)`.
++- Provenance: records SHA-256 hashes of core files, runtime config (`plan_tasks`, `max_steps`, `model`, `timeout`),
++  and full raw model requests/responses per call.
++- Honest token accounting: records `null` (`None`) for token counts when a model call times out or errors without
++  returning Ollama eval counts, never conflating timeout with 0 tokens.
++- Real in-flight cancellation: triggers Turn 6 cancellation while the HTTP request to Ollama is in-flight (not pre-flight),
++  then verifies late note and dispatcher writes are rejected.
++- Honest content/action evaluation: separates core lifecycle/context contract checks from live SLM tool-use and
++  algorithmic accuracy checks (specifically checking whether Turn 4 stops at `mid=2` where `a[2]=6`).
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import sys
++import threading
++import time
++import urllib.request
++from datetime import datetime, timezone
++from pathlib import Path
++from typing import Any, Dict, List, Optional
++from unittest.mock import MagicMock
++
++REPO_ROOT = Path(__file__).resolve().parent.parent
++if str(REPO_ROOT) not in sys.path:
++    sys.path.insert(0, str(REPO_ROOT))
++
++from rat.config import config
++from rat.engine.assistant_runtime import AssistantRuntime
++from rat.engine.slm import SLMEngine
++from rat.timetable.compositor import TimetableCompositor
++from rat.ui.chat_session import ConversationHistory
++
++
++TRACKED_SOURCE_FILES = [
++    "rat/engine/work_notes.py",
++    "rat/ui/chat_session.py",
++    "rat/engine/assistant_runtime.py",
++    "rat/kernel/dispatcher.py",
++    "rat/kernel/contracts.py",
++    "rat/ui/omnibar.py",
++    "tests/test_work_context.py",
++    "tests/test_rat_conversation_lifecycle.py",
++    "scripts/run_dsa_core_smoke.py",
++]
++
++
++def compute_source_hashes(repo_root: Path) -> Dict[str, Optional[str]]:
++    hashes: Dict[str, Optional[str]] = {}
++    for rel_path in TRACKED_SOURCE_FILES:
++        p = repo_root / rel_path
++        if p.exists() and p.is_file():
++            hashes[rel_path] = hashlib.sha256(p.read_bytes()).hexdigest()
++        else:
++            hashes[rel_path] = None
++    return hashes
++
++
++class InstrumentedSLMEngine(SLMEngine):
++    """Wraps SLMEngine.chat_with_meta to capture raw requests/responses and support in-flight cancel."""
++
++    def __init__(
++        self,
++        ollama_url: Optional[str] = None,
++        model: Optional[str] = None,
++        default_timeout: float = 90.0,
++    ) -> None:
++        super().__init__(ollama_url=ollama_url, model=model)
++        self.default_timeout = default_timeout
++        self.call_Records: List[Dict[str, Any]] = []
++        self._in_flight_cancel_config: Optional[Dict[str, Any]] = None
++
++    def arm_in_flight_cancel(
++        self,
++        cancel_event: threading.Event,
++        delay_ms: float = 250.0,
++        request_timeout_s: float = 0.6,
++    ) -> Dict[str, Any]:
++        state = {
++            "armed": True,
++            "was_cancelled_before_start": cancel_event.is_set(),
++            "request_dispatched": False,
++            "cancel_triggered_in_flight": False,
++            "delay_ms": delay_ms,
++            "request_started_perf": None,
++            "cancel_triggered_perf": None,
++            "elapsed_before_cancel_ms": None,
++        }
++        self._in_flight_cancel_config = {
++            "event": cancel_event,
++            "delay_ms": delay_ms,
++            "request_timeout_s": request_timeout_s,
++            "state": state,
++        }
++        return state
++
++    def disarm_in_flight_cancel(self) -> None:
++        self._in_flight_cancel_config = None
++
++    def chat_with_meta(
++        self,
++        messages: List[Dict[str, Any]],
++        tools: List[Dict[str, Any]],
++        timeout: float = 90.0,
++        max_tokens: int = 640,
++        thinking: bool = False,
++        response_format: Optional[Dict[str, Any]] = None,
++    ) -> Dict[str, Any]:
++        effective_timeout = self.default_timeout if timeout == 90.0 else timeout
++        payload: Dict[str, Any] = {
++            "model": self.model,
++            "messages": messages,
++            "stream": False,
++            "think": thinking,
++            "options": {"temperature": 0.1, "num_predict": max_tokens, "num_ctx": 8192},
++        }
++        if tools:
++            payload["tools"] = tools
++        if response_format:
++            payload["format"] = response_format
++
++        req = urllib.request.Request(
++            self.ollama_url + "/api/chat",
++            data=json.dumps(payload).encode("utf-8"),
++            headers={"Content-Type": "application/json"},
++            method="POST",
++        )
++
++        cancel_cfg = self._in_flight_cancel_config
++        timer: Optional[threading.Timer] = None
++        tick = time.perf_counter()
++
++        if cancel_cfg is not None and cancel_cfg["state"]["armed"]:
++            state = cancel_cfg["state"]
++            state["request_dispatched"] = True
++            state["request_started_perf"] = tick
++            effective_timeout = min(effective_timeout, float(cancel_cfg["request_timeout_s"]))
++
++            def _trigger_cancel() -> None:
++                now_p = time.perf_counter()
++                state["cancel_triggered_in_flight"] = True
++                state["cancel_triggered_perf"] = now_p
++                state["elapsed_before_cancel_ms"] = round((now_p - tick) * 1000.0, 2)
++                cancel_cfg["event"].set()
++
++            timer = threading.Timer(float(cancel_cfg["delay_ms"]) / 1000.0, _trigger_cancel)
++            timer.daemon = True
++            timer.start()
++
++        try:
++            with urllib.request.urlopen(req, timeout=effective_timeout) as reply:
++                raw_bytes = reply.read()
++                data = json.loads(raw_bytes.decode("utf-8"))
++            duration_ms = (time.perf_counter() - tick) * 1000.0
++            if timer is not None:
++                timer.cancel()
++            has_eval_counts = ("prompt_eval_count" in data) or ("eval_count" in data)
++            prompt_toks = int(data.get("prompt_eval_count") or 0)
++            completion_toks = int(data.get("eval_count") or 0)
++            err = data.get("error") or (None if data.get("done") is True else "incomplete_chat_response")
++            record = {
++                "call_index": len(self.call_Records) + 1,
++                "duration_ms": round(duration_ms, 2),
++                "timeout_s": effective_timeout,
++                "request": payload,
++                "raw_response": data,
++                "token_usage_known": bool(has_eval_counts and err is None),
++                "prompt_tokens": prompt_toks if (has_eval_counts and err is None) else None,
++                "completion_tokens": completion_toks if (has_eval_counts and err is None) else None,
++                "total_tokens": (prompt_toks + completion_toks) if (has_eval_counts and err is None) else None,
++                "done_reason": data.get("done_reason"),
++                "error": err,
++            }
++            self.call_Records.append(record)
++            return {
++                "message": data.get("message", {}),
++                "prompt_tokens": prompt_toks,
++                "completion_tokens": completion_toks,
++                "done_reason": data.get("done_reason"),
++                "error": err,
++                "request": payload,
++                "raw_response": data,
++                "token_usage_known": record["token_usage_known"],
++                "duration_ms": duration_ms,
++            }
++        except Exception as exc:
++            duration_ms = (time.perf_counter() - tick) * 1000.0
++            if timer is not None:
++                timer.cancel()
++            if cancel_cfg is not None and cancel_cfg["state"]["armed"] and not cancel_cfg["event"].is_set():
++                now_p = time.perf_counter()
++                cancel_cfg["state"]["cancel_triggered_in_flight"] = True
++                cancel_cfg["state"]["cancel_triggered_perf"] = now_p
++                cancel_cfg["state"]["elapsed_before_cancel_ms"] = round((now_p - tick) * 1000.0, 2)
++                cancel_cfg["event"].set()
++            record = {
++                "call_index": len(self.call_Records) + 1,
++                "duration_ms": round(duration_ms, 2),
++                "timeout_s": effective_timeout,
++                "request": payload,
++                "raw_response": None,
++                "token_usage_known": False,
++                "prompt_tokens": None,
++                "completion_tokens": None,
++                "total_tokens": None,
++                "done_reason": None,
++                "error": str(exc),
++            }
++            self.call_Records.append(record)
++            return {
++                "message": {},
++                "prompt_tokens": 0,
++                "completion_tokens": 0,
++                "request": payload,
++                "raw_response": None,
++                "token_usage_known": False,
++                "error": str(exc),
++                "duration_ms": duration_ms,
++            }
++
++
++def evaluate_turn4_binary_search(answer: str) -> Dict[str, Any]:
++    """Check whether Turn 4 ('Đổi thành tìm 6 thì các bước đổi thế nào?') on [2, 4, 6, 8, 10]
++    correctly stops at Step 1 where mid=2 and a[2]=6."""
++    text = (answer or "").lower()
++    if not text.strip():
++        return {
++            "has_answer": False,
++            "mentions_mid_2": False,
++            "claims_6_gt_6_or_continues_search": False,
++            "stops_at_first_mid_match": False,
++            "verdict": "missing_answer",
++            "explanation": "Turn 4 produced no final answer.",
++        }
++
++    mentions_mid_2 = any(
++        pat in text
++        for pat in ("mid = 2", "mid=2", "chỉ số 2", "index 2", "vị trí 2", "a[2]", "arr[2]")
++    )
++    false_inequality_or_extra_step = any(
++        pat in text
++        for pat in (
++            "6 > 6",
++            "6 < 6",
++            "mid = 3",
++            "mid=3",
++            "low = 3",
++            "low=3",
++            "left = 3",
++            "left=3",
++            "high = 1",
++            "high=1",
++            "right = 1",
++            "right=1",
++        )
++    )
++    stops_at_match = mentions_mid_2 and not false_inequality_or_extra_step
++    return {
++        "has_answer": True,
++        "mentions_mid_2": mentions_mid_2,
++        "claims_6_gt_6_or_continues_search": false_inequality_or_extra_step,
++        "stops_at_first_mid_match": stops_at_match,
++        "verdict": "correct" if stops_at_match else "incorrect_algorithm_trace",
++        "explanation": (
++            "Model identified mid=2 (value 6) without spurious extra steps."
++            if stops_at_match
++            else "Model failed to stop immediately at mid=2 (a[2]=6) or hallucinated extra steps / invalid comparisons."
++        ),
++    }
++
++
++def run_smoke_suite(
++    *,
++    model_name: str,
++    plan_tasks: bool,
++    max_steps: int,
++    timeout_s: float,
++) -> Dict[str, Any]:
++    history = ConversationHistory()
++    client = InstrumentedSLMEngine(model=model_name, default_timeout=timeout_s)
++    runtime = AssistantRuntime(
++        db=MagicMock(),
++        compositor=TimetableCompositor([]),
++        use_live_model=True,
++        plan_tasks=plan_tasks,
++        model_client=client,
++    )
++
++    prompts = [
++        ("turn_1_explain", "Giải thích binary search bằng ví dụ nhỏ"),
++        ("turn_2_trace_8", "Dùng mảng [2, 4, 6, 8, 10], tìm 8 từng bước"),
++        ("turn_3_followup_mid_plus_1", "Vì sao bước đó dùng mid + 1 mà không giữ mid?"),
++        ("turn_4_change_target_6", "Đổi thành tìm 6 thì các bước đổi thế nào?"),
++        ("turn_5_lookback_summary", "Quay lại câu hỏi mid + 1 ở ví dụ trước, viết gọn thành 3 ý để tôi chép bài"),
++        ("turn_6_in_flight_cancel", "Viết bảng trace đầy đủ cho mọi trường hợp"),
++        ("turn_7_post_cancel_followup", "Tiếp tục với tìm 6 ở trên, chỉ số kết quả là mấy?"),
++    ]
++
++    turn_logs: List[Dict[str, Any]] = []
++    active_task_state: Dict[str, Any] = {}
++    previous_turn_id: Optional[str] = None
++
++    for idx, (label, q) in enumerate(prompts, start=1):
++        # R5 FIX: Capture prior_messages and prior_refs BEFORE history.begin_turn(q)
++        prior_messages = history.messages_with_turn_ids()
++        prior_refs = history.turn_references()
++        snap = history.begin_turn(q)
++
++        # Verify R5 context integrity before execution
++        prev_assistant_present = True
++        prev_assistant_entry = None
++        if previous_turn_id is not None:
++            prev_assistant_entry = prior_messages[-1] if prior_messages else None
++            prev_assistant_present = bool(
++                prev_assistant_entry
++                and prev_assistant_entry.get("role") == "assistant"
++                and prev_assistant_entry.get("turn_id") == previous_turn_id
++                and bool(prev_assistant_entry.get("content"))
++            )
++
++        context_check = {
++            "prior_messages_count": len(prior_messages),
++            "prior_turn_references_count": len(prior_refs),
++            "current_turn_leaked_into_prior_messages": any(
++                m.get("turn_id") == snap.turn_id for m in prior_messages
++            ),
++            "current_turn_leaked_into_prior_refs": any(
++                r.get("turn_id") == snap.turn_id for r in prior_refs
++            ),
++            "expected_previous_turn_id": previous_turn_id,
++            "previous_turn_assistant_present": prev_assistant_present,
++            "last_prior_message": prev_assistant_entry,
++        }
++
++        call_cursor_start = len(client.call_Records)
++
++        if label == "turn_6_in_flight_cancel":
++            cancel_event = threading.Event()
++            cancel_state = client.arm_in_flight_cancel(
++                cancel_event,
++                delay_ms=250.0,
++                request_timeout_s=0.6,
++            )
++            res = runtime.run(
++                q,
++                max_steps=max_steps,
++                history=prior_messages,
++                turn_ref=snap.to_turn_ref(history.conversation_id),
++                execution_id=snap.execution_id,
++                conversation_id=history.conversation_id,
++                turn_references=prior_refs,
++                task_state=dict(active_task_state),
++                should_cancel=cancel_event.is_set,
++            )
++            client.disarm_in_flight_cancel()
++            cancelled_ctx = runtime.notebook.current_context()
++            history.cancel_turn(snap.turn_id, execution_id=res.execution_id)
++
++            # Probe late note write & late dispatcher operation with cancelled execution_id
++            late_note_rejected = False
++            late_note_error = None
++            try:
++                runtime.notebook.record(
++                    "Ghi chú trễ sau khi hủy",
++                    "Ghi chú trễ",
++                    context=cancelled_ctx,
++                )
++            except ValueError as exc:
++                late_note_rejected = "cancelled" in str(exc)
++                late_note_error = str(exc)
++
++            late_dispatch = runtime.dispatcher.execute_operation(
++                "record_work_note",
++                {"text": "Ghi chú trễ qua dispatcher", "source_quote": "Ghi chú trễ"},
++                context={"execution_id": res.execution_id, "note_context": cancelled_ctx},
++            )
++            late_dispatch_rejected = (
++                late_dispatch.status in ("cancelled", "error")
++                and "cancelled" in (late_dispatch.error or "")
++            )
++            in_flight_cancel_proof = {
++                **cancel_state,
++                "cancel_event_set_after_run": cancel_event.is_set(),
++                "late_note_write_rejected": late_note_rejected,
++                "late_note_error": late_note_error,
++                "late_dispatch_rejected": late_dispatch_rejected,
++                "late_dispatch_status": late_dispatch.status,
++                "late_dispatch_error": late_dispatch.error,
++            }
++        else:
++            in_flight_cancel_proof = None
++            res = runtime.run(
++                q,
++                max_steps=max_steps,
++                history=prior_messages,
++                turn_ref=snap.to_turn_ref(history.conversation_id),
++                execution_id=snap.execution_id,
++                conversation_id=history.conversation_id,
++                turn_references=prior_refs,
++                task_state=dict(active_task_state),
++            )
++            if res.error == "cancelled":
++                history.cancel_turn(snap.turn_id, execution_id=res.execution_id)
++            elif res.error:
++                history.fail_turn(snap.turn_id, "failed", error=res.error, execution_id=res.execution_id)
++            else:
++                if res.task_state_updated and res.task_state:
++                    active_task_state = dict(res.task_state)
++                history.complete_turn(
++                    snap.turn_id,
++                    res.answer,
++                    execution_id=res.execution_id,
++                    note_ids=[
++                        n["id"]
++                        for n in runtime.notebook.notes_for_turn(snap.turn_id)
++                    ],
++                    task_state=dict(active_task_state),
++                )
++
++        turn_calls = client.call_Records[call_cursor_start:]
++        all_tokens_known = bool(turn_calls) and all(c["token_usage_known"] for c in turn_calls)
++        known_prompt_tokens = (
++            sum(c["prompt_tokens"] for c in turn_calls if c["prompt_tokens"] is not None)
++            if all_tokens_known
++            else None
++        )
++        known_completion_tokens = (
++            sum(c["completion_tokens"] for c in turn_calls if c["completion_tokens"] is not None)
++            if all_tokens_known
++            else None
++        )
++        known_total_tokens = (
++            (known_prompt_tokens + known_completion_tokens)
++            if (known_prompt_tokens is not None and known_completion_tokens is not None)
++            else None
++        )
++
++        turn_logs.append({
++            "turn_index": idx,
++            "label": label,
++            "turn_id": snap.turn_id,
++            "snap_execution_id": snap.execution_id,
++            "response_execution_id": res.execution_id,
++            "execution_id_matched": snap.execution_id == res.execution_id,
++            "query": q,
++            "answer": res.answer,
++            "error": res.error,
++            "total_time_ms": round(res.total_time_ms, 2),
++            "model_time_ms": round(res.model_time_ms, 2),
++            "tool_time_ms": round(res.tool_time_ms, 2),
++            "tool_call_count": res.tool_call_count,
++            "token_accounting": {
++                "token_usage_known": all_tokens_known,
++                "prompt_tokens": known_prompt_tokens,
++                "completion_tokens": known_completion_tokens,
++                "total_tokens": known_total_tokens,
++                "runtime_reported_prompt_tokens": res.prompt_tokens,
++                "runtime_reported_completion_tokens": res.completion_tokens,
++            },
++            "context_integrity_check": context_check,
++            "in_flight_cancel_proof": in_flight_cancel_proof,
++            "PriorMessagesSent": prior_messages,
++            "PriorTurnReferencesSent": prior_refs,
++            "steps": [
++                {
++                    "step_number": s.step_number,
++                    "thought": s.thought,
++                    "tool_name": s.tool_name,
++                    "tool_args": s.tool_args,
++                    "tool_result": s.tool_result,
++                    "duration_ms": round(s.duration_ms, 2),
++                    "model_duration_ms": round(s.model_duration_ms, 2),
++                    "tool_duration_ms": round(s.tool_duration_ms, 2),
++                    "prompt_tokens": s.prompt_tokens,
++                    "completion_tokens": s.completion_tokens,
++                    "raw_completion": s.raw_completion,
++                    "model_input": s.model_input,
++                    "error": s.error,
++                    "turn_id": s.turn_id,
++                    "execution_id": s.execution_id,
++                    "note_events": s.note_events,
++                }
++                for s in res.steps
++            ],
++            "raw_model_calls": turn_calls,
++            "note_events": res.note_events,
++            "active_notes_snapshot": runtime.notebook.snapshot(),
++            "historical_notes_snapshot": runtime.notebook.historical_context(),
++            "turn_reference": res.turn_reference,
++        })
++
++        previous_turn_id = snap.turn_id
++
++    turn4_entry = next((t for t in turn_logs if t["label"] == "turn_4_change_target_6"), None)
++    turn6_entry = next((t for t in turn_logs if t["label"] == "turn_6_in_flight_cancel"), None)
++    turn4_eval = evaluate_turn4_binary_search(turn4_entry["answer"] if turn4_entry else "")
++
++    non_cancel_turns = [t for t in turn_logs if t["label"] != "turn_6_in_flight_cancel"]
++    completed_non_cancel = [t for t in non_cancel_turns if t["error"] is None and t["answer"].strip()]
++    errored_non_cancel = [t for t in non_cancel_turns if t["error"] is not None]
++    initial_plan_steps = sum(
++        1
++        for t in turn_logs
++        for s in t["steps"]
++        if isinstance(s.get("tool_result"), dict) and s["tool_result"].get("phase") == "initial_plan"
++    )
++    model_invoked_tool_calls = sum(
++        1
++        for t in turn_logs
++        for s in t["steps"]
++        if s["tool_name"] is not None
++        and s["tool_result"] is not None
++        and not (isinstance(s.get("tool_result"), dict) and s["tool_result"].get("phase") == "initial_plan")
++        and not (isinstance(s.get("tool_result"), dict) and s["tool_result"].get("error") == "paired_stop")
++    )
++    record_note_calls = sum(
++        1
++        for t in turn_logs
++        for s in t["steps"]
++        if s["tool_name"] == "record_work_note"
++    )
++    total_note_events = sum(len(t["note_events"]) for t in turn_logs)
++
++    evaluation = {
++        "lifecycle_and_context_contracts": {
++            "all_execution_ids_matched": all(t["execution_id_matched"] for t in turn_logs),
++            "all_prior_assistant_messages_preserved_r5": all(
++                t["context_integrity_check"]["previous_turn_assistant_present"]
++                for t in turn_logs
++            ),
++            "no_current_turn_leaked_into_prior_messages": all(
++                not t["context_integrity_check"]["current_turn_leaked_into_prior_messages"]
++                for t in turn_logs
++            ),
++            "no_current_turn_leaked_into_prior_refs": all(
++                not t["context_integrity_check"]["current_turn_leaked_into_prior_refs"]
++                for t in turn_logs
++            ),
++            "turn_6_cancelled_in_flight_not_preflight": bool(
++                turn6_entry
++                and turn6_entry["error"] == "cancelled"
++                and turn6_entry["in_flight_cancel_proof"]
++                and not turn6_entry["in_flight_cancel_proof"]["was_cancelled_before_start"]
++                and turn6_entry["in_flight_cancel_proof"]["request_dispatched"]
++                and turn6_entry["in_flight_cancel_proof"]["cancel_triggered_in_flight"]
++                and turn6_entry["in_flight_cancel_proof"]["late_note_write_rejected"]
++                and turn6_entry["in_flight_cancel_proof"]["late_dispatch_rejected"]
++            ),
++        },
++        "model_behavior_and_content_quality": {
++            "non_cancel_turns_total": len(non_cancel_turns),
++            "non_cancel_turns_completed_without_runtime_error": len(completed_non_cancel),
++            "non_cancel_turns_with_runtime_or_timeout_error": [
++                {"turn_id": t["turn_id"], "label": t["label"], "error": t["error"]}
++                for t in errored_non_cancel
++            ],
++            "runtime_reported_tool_call_count_total": sum(t["tool_call_count"] for t in turn_logs),
++            "initial_plan_steps_count": initial_plan_steps,
++            "model_invoked_tool_calls_count": model_invoked_tool_calls,
++            "record_work_note_calls_count": record_note_calls,
++            "note_events_count": total_note_events,
++            "model_spontaneously_recorded_notes": record_note_calls > 0,
++            "turn_4_binary_search_evaluation": turn4_eval,
++        },
++    }
++
++    return {
++        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
++        "provenance": {
++            "script": "scripts/run_dsa_core_smoke.py",
++            "model": client.model,
++            "ollama_url": client.ollama_url,
++            "plan_tasks": plan_tasks,
++            "max_steps": max_steps,
++            "timeout_s": timeout_s,
++            "matches_omnibar_runtime_config": bool(plan_tasks is True and max_steps == 8),
++            "source_sha256": compute_source_hashes(REPO_ROOT),
++        },
++        "conversation_id": history.conversation_id,
++        "evaluation": evaluation,
++        "turns": turn_logs,
++        "final_history_turns": [t.to_dict() for t in history.turns()],
++        "final_turn_references": history.turn_references(),
++        "final_messages_with_turn_ids": history.messages_with_turn_ids(),
++    }
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser(description="Run reproducible RAT shared conversation core DSA smoke.")
++    parser.add_argument(
++        "--output-dir",
++        type=Path,
++        required=True,
++        help="Directory to write raw JSON smoke artifacts into.",
++    )
++    parser.add_argument(
++        "--model",
++        type=str,
++        default=config.assistant_model or config.ollama_model or "qwen2.5:1.5b",
++        help="Ollama model name.",
++    )
++    parser.add_argument(
++        "--max-steps",
++        type=int,
++        default=8,
++        help="Max ReAct steps per turn (Omnibar AssistantWorker uses 8).",
++    )
++    parser.add_argument(
++        "--timeout",
++        type=float,
++        default=90.0,
++        help="Per-call HTTP timeout in seconds.",
++    )
++    parser.add_argument(
++        "--mode",
++        choices=["omnibar", "no_plan", "both"],
++        default="both",
++        help="Run 'omnibar' (plan_tasks=True), 'no_plan' (plan_tasks=False), or 'both'.",
++    )
++    args = parser.parse_args()
++
++    out_dir: Path = args.output_dir.resolve()
++    out_dir.mkdir(parents=True, exist_ok=True)
++
++    summary_index: Dict[str, Any] = {
++        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
++        "model": args.model,
++        "source_sha256": compute_source_hashes(REPO_ROOT),
++        "runs": {},
++    }
++
++    if args.mode in ("omnibar", "both"):
++        omnibar_report = run_smoke_suite(
++            model_name=args.model,
++            plan_tasks=True,
++            max_steps=args.max_steps,
++            timeout_s=args.timeout,
++        )
++        omnibar_path = out_dir / "live_dsa_smoke_plan_tasks_true.json"
++        omnibar_path.write_text(json.dumps(omnibar_report, ensure_ascii=False, indent=2), encoding="utf-8")
++        summary_index["runs"]["plan_tasks_true"] = {
++            "artifact": str(omnibar_path.relative_to(REPO_ROOT)),
++            "evaluation": omnibar_report["evaluation"],
++        }
++
++    if args.mode in ("no_plan", "both"):
++        no_plan_report = run_smoke_suite(
++            model_name=args.model,
++            plan_tasks=False,
++            max_steps=args.max_steps,
++            timeout_s=args.timeout,
++        )
++        no_plan_path = out_dir / "live_dsa_smoke_plan_tasks_false.json"
++        no_plan_path.write_text(json.dumps(no_plan_report, ensure_ascii=False, indent=2), encoding="utf-8")
++        summary_index["runs"]["plan_tasks_false"] = {
++            "artifact": str(no_plan_path.relative_to(REPO_ROOT)),
++            "evaluation": no_plan_report["evaluation"],
++        }
++
++    summary_path = out_dir / "smoke_summary.json"
++    summary_path.write_text(json.dumps(summary_index, ensure_ascii=False, indent=2), encoding="utf-8")
++    print(json.dumps(summary_index, ensure_ascii=False, indent=2))
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

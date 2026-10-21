@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="12" time="11.339" timestamp="2026-10-16T23:05:39.369280+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_real_down_key_from_composer_enters_finder" time="2.989"><failure message="AssertionError: Down key remained in composer instead of entering finder&#10;assert False&#10; +  where False = &lt;built-in method hasFocus of FinderSuggestionsWidget object at 0x11fbb5a90&gt;()&#10; +    where &lt;built-in method hasFocus of FinderSuggestionsWidget object at 0x11fbb5a90&gt; = &lt;rat.ui.workbench_scene.FinderSuggestionsWidget object at 0x11fbb5a90&gt;.hasFocus">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:55: in test_real_down_key_from_composer_enters_finder
+    assert box.hasFocus(), "Down key remained in composer instead of entering finder"
+E   AssertionError: Down key remained in composer instead of entering finder
+E   assert False
+E    +  where False = &lt;built-in method hasFocus of FinderSuggestionsWidget object at 0x11fbb5a90&gt;()
+E    +    where &lt;built-in method hasFocus of FinderSuggestionsWidget object at 0x11fbb5a90&gt; = &lt;rat.ui.workbench_scene.FinderSuggestionsWidget object at 0x11fbb5a90&gt;.hasFocus</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_real_down_key_inside_finder_changes_selection" time="2.038"><failure message="AssertionError: Finder keyboard filter was not installed on the focused suggestions widget&#10;assert 'file:alpha.txt' == 'file:beta.txt'&#10;  &#10;  - file:beta.txt&#10;  + file:alpha.txt">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:65: in test_real_down_key_inside_finder_changes_selection
+    assert box.selected_resource_id == snapshot.hits[1].resource_id, (
+E   AssertionError: Finder keyboard filter was not installed on the focused suggestions widget
+E   assert 'file:alpha.txt' == 'file:beta.txt'
+E     
+E     - file:beta.txt
+E     + file:alpha.txt</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_user_selection_survives_later_snapshot" time="0.687"><failure message="AssertionError: Later snapshot reset user selection to first hit&#10;assert 'file:alpha.txt' == 'file:beta.txt'&#10;  &#10;  - file:beta.txt&#10;  + file:alpha.txt">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:76: in test_user_selection_survives_later_snapshot
+    assert box.selected_resource_id == selected, "Later snapshot reset user selection to first hit"
+E   AssertionError: Later snapshot reset user selection to first hit
+E   assert 'file:alpha.txt' == 'file:beta.txt'
+E     
+E     - file:beta.txt
+E     + file:alpha.txt</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_first_query_is_replayed_when_catalog_becomes_ready" time="0.470"><failure message="AssertionError: Text entered before catalog readiness is lost until another keystroke&#10;assert 0 == 1&#10; +  where 0 = &lt;MagicMock name='SearchCoordinator().submit' id='6091378032'&gt;.call_count&#10; +    where &lt;MagicMock name='SearchCoordinator().submit' id='6091378032'&gt; = &lt;MagicMock name='SearchCoordinator()' id='6091458704'&gt;.submit&#10; +      where &lt;MagicMock name='SearchCoordinator()' id='6091458704'&gt; = &lt;MagicMock name='SearchCoordinator' id='6091459280'&gt;.return_value">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:86: in test_first_query_is_replayed_when_catalog_becomes_ready
+    assert coordinator_type.return_value.submit.call_count == 1, (
+E   AssertionError: Text entered before catalog readiness is lost until another keystroke
+E   assert 0 == 1
+E    +  where 0 = &lt;MagicMock name='SearchCoordinator().submit' id='6091378032'&gt;.call_count
+E    +    where &lt;MagicMock name='SearchCoordinator().submit' id='6091378032'&gt; = &lt;MagicMock name='SearchCoordinator()' id='6091458704'&gt;.submit
+E    +      where &lt;MagicMock name='SearchCoordinator()' id='6091458704'&gt; = &lt;MagicMock name='SearchCoordinator' id='6091459280'&gt;.return_value</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_late_catalog_delivery_cannot_restart_service_after_shutdown" time="0.413"><failure message="AssertionError: Expected 'SearchCoordinator' to not have been called. Called 1 times.&#10;Calls: [call(&lt;rat.engine.progressive_search.ProgressiveSearch object at 0x16b1f2090&gt;, on_update=&lt;function OmnibarWindow._on_finder_catalog_ready.&lt;locals&gt;.&lt;lambda&gt; at 0x16b10f380&gt;)].">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:97: in test_late_catalog_delivery_cannot_restart_service_after_shutdown
+    coordinator_type.assert_not_called()
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:908: in assert_not_called
+    raise AssertionError(msg)
+E   AssertionError: Expected 'SearchCoordinator' to not have been called. Called 1 times.
+E   Calls: [call(&lt;rat.engine.progressive_search.ProgressiveSearch object at 0x16b1f2090&gt;, on_update=&lt;function OmnibarWindow._on_finder_catalog_ready.&lt;locals&gt;.&lt;lambda&gt; at 0x16b10f380&gt;)].</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_clearing_finder_query_has_no_unhandled_qt_exception" time="0.439"><failure message="AssertionError: Unhandled exception clearing composer: [AttributeError(&quot;'WorkSceneSnapshot' object has no attribute 'has_meaningful_content'&quot;)]&#10;assert not [AttributeError(&quot;'WorkSceneSnapshot' object has no attribute 'has_meaningful_content'&quot;)]">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:107: in test_clearing_finder_query_has_no_unhandled_qt_exception
+    assert not errors, f"Unhandled exception clearing composer: {errors!r}"
+E   AssertionError: Unhandled exception clearing composer: [AttributeError("'WorkSceneSnapshot' object has no attribute 'has_meaningful_content'")]
+E   assert not [AttributeError("'WorkSceneSnapshot' object has no attribute 'has_meaningful_content'")]</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_stale_snapshot_is_ignored_at_gui_delivery" time="0.443" /><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_file_buttons_target_their_own_hit" time="0.266" /><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_ask_button_selects_source_without_submitting_chat" time="0.283" /><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_long_chat_draft_does_not_raise_in_finder_slot" time="0.243"><failure message="AssertionError: Unhandled exception pasting chat draft: [ValueError('invalid_finder_request')]&#10;assert not [ValueError('invalid_finder_request')]">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:164: in test_long_chat_draft_does_not_raise_in_finder_slot
+    assert not errors, f"Unhandled exception pasting chat draft: {errors!r}"
+E   AssertionError: Unhandled exception pasting chat draft: [ValueError('invalid_finder_request')]
+E   assert not [ValueError('invalid_finder_request')]</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_finder_action_buttons_remain_inside_viewport[620]" time="0.342"><failure message="AssertionError: Hỏi clipped right of bound target (666 &gt; 478)">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:182: in test_finder_action_buttons_remain_inside_viewport
+    original.assert_not_clipped(button, scene_window.workbench_scene, label=button.text())
+tests/test_workbench_scene.py:88: in assert_not_clipped
+    assert br.x() &lt;= bound_target.width() + 4, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Hỏi clipped right of bound target (666 &gt; 478)</failure></testcase><testcase classname="audit.rat_finder_codex_review_20261016.test_finder_integration_probes" name="test_finder_action_buttons_remain_inside_viewport[420]" time="0.327"><failure message="AssertionError: Hỏi clipped right of bound target (665 &gt; 370)">audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:182: in test_finder_action_buttons_remain_inside_viewport
+    original.assert_not_clipped(button, scene_window.workbench_scene, label=button.text())
+tests/test_workbench_scene.py:88: in assert_not_clipped
+    assert br.x() &lt;= bound_target.width() + 4, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Hỏi clipped right of bound target (665 &gt; 370)</failure></testcase></testsuite></testsuites>

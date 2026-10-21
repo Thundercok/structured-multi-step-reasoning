@@ -1188,3 +1188,134 @@ def test_regression_input_immutability_with_arbitrary_unprojected_receipt_litera
     _assert_strict_equal(art.to_dict(), orig_art)
     _assert_strict_equal(note, orig_note)
 
+
+@pytest.mark.parametrize("subslot", ["note", "note_event"])
+@pytest.mark.parametrize("mode", ["available", "missing", "self_referencing", "exact_match_different_value"])
+def test_regression_registered_result_nested_slots_origin_boundary(subslot, mode):
+    """Raw wrappers in operation_result.note and operation_result.note_event stay literal unless compiler emitted them."""
+    conv, turn, exec_id = "review-conv", "review-turn", "review-exec"
+    canonical_note = _review_note(owner_turn_id=turn)
+    canonical_event = {"event_id": "evt1", "kind": "created", "note_id": "n1", "after_revision": 1, "owner_turn_id": turn}
+
+    if mode == "available":
+        target_ref = ({"kind": "note_version", "conversation_id": conv, "note_id": "n1", "revision": 1}
+                      if subslot == "note" else {"kind": "note_event", "conversation_id": conv, "event_id": "evt1"})
+        literal_wrapper = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+        notes, events = [canonical_note], [canonical_event]
+    elif mode == "missing":
+        target_ref = ({"kind": "note_version", "conversation_id": conv, "note_id": "missing_n", "revision": 1}
+                      if subslot == "note" else {"kind": "note_event", "conversation_id": conv, "event_id": "missing_evt"})
+        literal_wrapper = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+        notes, events = [], []
+    elif mode == "self_referencing":
+        target_ref = {"kind": "operation_result", "execution_id": exec_id, "receipt_id": "rcpt-1"}
+        literal_wrapper = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+        notes, events = [], []
+    else:  # exact_match_different_value
+        target_ref = ({"kind": "note_version", "conversation_id": conv, "note_id": "n1", "revision": 1}
+                      if subslot == "note" else {"kind": "note_event", "conversation_id": conv, "event_id": "evt1"})
+        literal_wrapper = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+        notes, events = [canonical_note], [canonical_event]
+
+    raw_result = {subslot: copy.deepcopy(literal_wrapper)}
+
+    journal = ExecutionJournal(conv, turn, exec_id, generation=0)
+    journal.record_operation("record_work_note", {}, raw_result)
+
+    snap = _review_snapshot(execution_journal=journal, notebook_notes=notes, recent_events=events)
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, f"Snapshot must validate cleanly: {errors}"
+
+    rcpt = snap["observed_state"]["receipts"][0]
+    expected_subslot_tag = f"operation_result.{subslot}"
+    assert expected_subslot_tag not in rcpt.get("projected_slots", [])
+
+    # Entity body is untouched
+    op_entity = next(e for e in snap["entities"] if e["ref"]["kind"] == "operation_result")
+    _assert_strict_equal(op_entity["body"], raw_result)
+
+    # Restored via receipt expansion
+    restored_rcpt = expand_value_refs(rcpt, snap, root_context="receipt")
+    _assert_strict_equal(restored_rcpt["operation_result"], raw_result)
+
+    # Restored via entity envelope expansion
+    restored_entity = expand_value_refs(op_entity, snap, root_context="entity")
+    _assert_strict_equal(restored_entity["body"], raw_result)
+
+    # Restored via whole snapshot expansion
+    restored_snap = expand_value_refs(snap, snap, root_context="snapshot")
+    _assert_strict_equal(restored_snap["observed_state"]["receipts"][0]["operation_result"], raw_result)
+
+
+def test_regression_registered_result_canonical_subslot_roundtrip_and_serialization():
+    """Canonical record_work_note result projects note and note_event subslots, roundtrips JSON, and restores cleanly."""
+    conv, turn, exec_id = "review-conv", "review-turn", "review-exec"
+    canonical_note = _review_note(owner_turn_id=turn)
+    canonical_event = {"event_id": "evt1", "kind": "created", "note_id": "n1", "after_revision": 1, "owner_turn_id": turn}
+    result = {"note": copy.deepcopy(canonical_note), "note_event": copy.deepcopy(canonical_event), "status": "ok"}
+
+    journal = ExecutionJournal(conv, turn, exec_id, generation=0)
+    journal.record_operation("record_work_note", {}, copy.deepcopy(result))
+
+    snap = _review_snapshot(execution_journal=journal, notebook_notes=[canonical_note], recent_events=[canonical_event])
+    valid, errors = validate_context_snapshot(snap)
+    assert valid, f"Snapshot must validate cleanly: {errors}"
+
+    rcpt = snap["observed_state"]["receipts"][0]
+    assert "operation_result.note" in rcpt.get("projected_slots", [])
+    assert "operation_result.note_event" in rcpt.get("projected_slots", [])
+
+    edges = list(iter_projector_edges(snap))
+    note_edges = [e for e in edges if e[1].get("$value_ref", {}).get("entity_ref", {}).get("kind") == "note_version"]
+    event_edges = [e for e in edges if e[1].get("$value_ref", {}).get("entity_ref", {}).get("kind") == "note_event"]
+    assert len(note_edges) >= 1
+    assert len(event_edges) >= 1
+
+    # JSON roundtrip
+    dumped = json.dumps(snap)
+    loaded = json.loads(dumped)
+    valid, errors = validate_context_snapshot(loaded)
+    assert valid, f"Loaded snapshot must validate: {errors}"
+
+    # Expand whole snapshot
+    expanded_snap = expand_value_refs(loaded, loaded, root_context="snapshot")
+    _assert_strict_equal(expanded_snap["observed_state"]["receipts"][0]["operation_result"], result)
+
+    # Expand receipt
+    expanded_rcpt = expand_value_refs(loaded["observed_state"]["receipts"][0], loaded, root_context="receipt")
+    _assert_strict_equal(expanded_rcpt["operation_result"], result)
+
+    # Expand entity
+    op_entity = next(e for e in loaded["entities"] if e["ref"]["kind"] == "operation_result")
+    expanded_entity = expand_value_refs(op_entity, loaded, root_context="entity")
+    _assert_strict_equal(expanded_entity["body"], result)
+
+
+def test_regression_registered_result_input_immutability():
+    """Inputs to compile_context_snapshot with record_work_note are not mutated during compilation or expansion."""
+    conv, turn, exec_id = "review-conv", "review-turn", "review-exec"
+    note = _review_note(owner_turn_id=turn)
+    event = {"event_id": "evt1", "kind": "created", "note_id": "n1", "after_revision": 1, "owner_turn_id": turn}
+    literal_wrapper = {"$value_ref": {"entity_ref": {"kind": "note_version", "conversation_id": conv, "note_id": "n1", "revision": 1}, "pointer": ""}}
+    result = {"note": copy.deepcopy(literal_wrapper), "extra": [1, 2, 3]}
+
+    journal = ExecutionJournal(conv, turn, exec_id, generation=0)
+    journal.record_operation("record_work_note", {"arg": "val"}, copy.deepcopy(result))
+
+    orig_receipts = [copy.deepcopy(r.__dict__) for r in journal.receipts]
+    orig_note = copy.deepcopy(note)
+    orig_event = copy.deepcopy(event)
+
+    snap = _review_snapshot(
+        execution_journal=journal,
+        notebook_notes=[note],
+        recent_events=[event],
+    )
+    validate_context_snapshot(snap)
+    expand_value_refs(snap, snap)
+
+    _assert_strict_equal([r.__dict__ for r in journal.receipts], orig_receipts)
+    _assert_strict_equal(note, orig_note)
+    _assert_strict_equal(event, orig_event)
+
+

@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 6 items
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v2_result_card_visibility_tracks_bubble[short-full-bubble] PASSED [ 16%]
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v2_result_card_visibility_tracks_bubble[long-truncated-control] PASSED [ 33%]
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v4_structured_finder_shows_quiet_trace[structured-finder] PASSED [ 50%]
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v4_structured_finder_shows_quiet_trace[bare-query-control] PASSED [ 66%]
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v3_candidate_buttons_have_distinguishable_visible_labels[620] PASSED [ 83%]
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v3_candidate_buttons_have_distinguishable_visible_labels[420] PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_repair_20261019/visual_probes.xml -
+============================== 6 passed in 6.13s ===============================

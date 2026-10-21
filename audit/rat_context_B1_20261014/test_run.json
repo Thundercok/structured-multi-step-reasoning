@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-10-14T11:09:00+07:00",
+  "total_suites": 4,
+  "all_suites_passed": true,
+  "test_counts": {
+    "b1_context_snapshot_unit_tests": 14,
+    "core_and_probes_regressions": 292,
+    "context_audit_tests": 6,
+    "total_tests_passed": 312
+  },
+  "suites": [
+    {
+      "suite": "b1_context_snapshot_unit_tests",
+      "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_rat_context_snapshot.py -p no:cacheprovider -v",
+      "exit_code": 0,
+      "duration_seconds": 3.233,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.12.6, pytest-9.0.3, pluggy-1.5.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3\nrootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, timeout-2.4.0\ncollecting ... collected 14 items\n\ntests/test_rat_context_snapshot.py::test_schema_loads_and_design_fixtures_validate_cleanly PASSED [  7%]\ntests/test_rat_context_snapshot.py::test_lossless_reconstruction_of_after_fixture_entities PASSED [ 14%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_eligible_contract_evaluation PASSED [ 21%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[empty] PASSED [ 28%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[invalid_coverage] PASSED [ 35%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[dependency_cycle] PASSED [ 42%]\ntests/test_rat_context_snapshot.py::test_provisional_progress_ineligible_contracts_remain_unresolved[none_contract] PASSED [ 50%]\ntests/test_rat_context_snapshot.py::test_distinct_authority_and_provenance PASSED [ 57%]\ntests/test_rat_context_snapshot.py::test_operation_without_artifact_does_not_invent_fake_artifact_id PASSED [ 64%]\ntests/test_rat_context_snapshot.py::test_security_guard_untrusted_fake_value_ref_is_not_expanded PASSED [ 71%]\ntests/test_rat_context_snapshot.py::test_coherence_epochs_and_selection_set_distinction PASSED [ 78%]\ntests/test_rat_context_snapshot.py::test_full_note_text_retention_across_revisions PASSED [ 85%]\ntests/test_rat_context_snapshot.py::test_view_planner_and_repair_semantics PASSED [ 92%]\ntests/test_rat_context_snapshot.py::test_rfc6901_pointer_edge_cases PASSED [100%]\n\n============================== 14 passed in 2.02s ==============================",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "core_and_probes_regressions",
+      "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_rat_completion_reconciliation.py tests/test_rat_completion_boundaries.py tests/test_rat_note_source_verification.py tests/test_rat_smoke_harness.py tests/test_rat_verification_literal_guard.py tests/test_rat_conversation_lifecycle.py tests/test_rat_calculation_conversation.py tests/test_work_context.py tests/test_rat_chat_session.py tests/test_assistant_runtime.py tests/test_rat_task_memory.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_interaction_kernel.py tests/test_interaction_kernel_regressions.py tests/test_rat_verification.py tests/test_vgc_verification.py audit/rat_reconciliation_codex_review_20261013/contract_probes.py audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py -p no:cacheprovider -q",
+      "exit_code": 0,
+      "duration_seconds": 7.935,
+      "stdout": "........................................................................ [ 24%]\n........................................................................ [ 49%]\n........................................................................ [ 73%]\n........................................................................ [ 98%]\n....                                                                     [100%]\n292 passed in 6.60s",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "context_audit_tests",
+      "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m pytest tests/test_rat_context_audit.py -p no:cacheprovider -q",
+      "exit_code": 0,
+      "duration_seconds": 0.799,
+      "stdout": "......                                                                   [100%]\n6 passed in 0.31s",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "suite": "design_builder_consistency",
+      "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 audit/rat_context_B_assignment_20261014/build_and_validate.py",
+      "exit_code": 0,
+      "duration_seconds": 1.863,
+      "stdout": "Revised B design validated on authored receipts; 25 input files preserved; no model/runtime implementation.",
+      "stderr": "",
+      "passed": true
+    }
+  ]
+}

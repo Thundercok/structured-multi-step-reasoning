@@ -1,0 +1,40 @@
+--- baseline_head/optimal_stopping.py
++++ current_reasoning/optimal_stopping.py
+@@ -6,7 +6,10 @@
+ 
+ import numpy as np
+ 
+-from reasoning_env import LADDER, LLMBackend, ReasoningAction as A, complexity_features
++try:
++    from reasoning.reasoning_env import LADDER, LLMBackend, ReasoningAction as A, complexity_features
++except ImportError:
++    from reasoning_env import LADDER, LLMBackend, ReasoningAction as A, complexity_features
+ 
+ 
+ @dataclass
+@@ -147,10 +150,10 @@
+         if not self.is_fitted or self._reg is None:
+             return conf
+         c = np.asarray(conf, dtype=np.float64)
+-        pred = self._reg.predict(c)
++        pred = self._reg.predict(c.reshape(-1))
+         if np.isscalar(conf):
+-            return float(pred)
+-        return pred
++            return float(pred[0])
++        return pred.reshape(c.shape)
+ 
+ 
+ def bootstrap_thresholds(
+@@ -261,7 +264,10 @@
+         heuristic thô (math keyword -> PAL, còn lại vào ladder) - KHÔNG phải phần optimal-stopping."""
+         feats = complexity_features(query)
+         if self.entry_predictor is not None:
+-            from entry_predictor import EntryChoice
++            try:
++                from reasoning.entry_predictor import EntryChoice
++            except ImportError:
++                from entry_predictor import EntryChoice
+ 
+             choice = self.entry_predictor.choose(embed, feats)
+             return {EntryChoice.LADDER: A.COT, EntryChoice.REACT: A.REACT, EntryChoice.PAL: A.PAL}[choice]

@@ -14,7 +14,10 @@ import threading
 import time
 from typing import Callable, Dict, List, Optional
 
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 logger = logging.getLogger("rat.os.memory_sentinel")
 
@@ -254,13 +257,14 @@ class MemorySentinel:
             self.trigger_eviction("darwin_lowmemory_notify")
             return True
 
-        try:
-            vm = psutil.virtual_memory()
-            if vm.percent >= self.critical_ram_percent:
-                self.trigger_eviction(f"system_ram_exceeded_{vm.percent:.1f}pct")
-                return True
-        except Exception:
-            pass
+        if psutil is not None:
+            try:
+                vm = psutil.virtual_memory()
+                if vm.percent >= self.critical_ram_percent:
+                    self.trigger_eviction(f"system_ram_exceeded_{vm.percent:.1f}pct")
+                    return True
+            except Exception:
+                pass
 
         return False
 

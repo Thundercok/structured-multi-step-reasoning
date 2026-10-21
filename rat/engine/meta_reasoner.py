@@ -20,6 +20,7 @@ import numpy as np
 
 from entry_predictor import EntryChoice, EntryPredictor
 from optimal_stopping import OptimalStoppingPolicy
+from reasoning.runtime import OnlineReasoningController
 from rat.engine.vgc import (
     VGCCertificate,
     VGCVerificationResult,
@@ -53,6 +54,15 @@ class MetaReasoningResult:
     citations: List[Dict[str, Any]] = field(default_factory=list)
     verification_status: Optional[str] = None
     witness_proof: Optional[str] = None
+    execution_mode: str = "legacy"
+    strategy_path: List[str] = field(default_factory=list)
+    policy_source: Optional[str] = None
+    confidence_kind: str = "legacy"
+    status: str = "completed"
+    bundle_id: Optional[str] = None
+    cost_ledger: Optional[Dict[str, Any]] = None
+    execution_id: Optional[str] = None
+    query_generation: Optional[int] = None
 
 
 # Domain Knowledge Base for TDTU Regulations & Academic Policies
@@ -78,11 +88,15 @@ class MetaReasonerEngine:
     transparent thinking traces.
     """
 
-    def __init__(self, lam: float = 0.02) -> None:
+    def __init__(self, lam: float = 0.02, *, controller: Optional[OnlineReasoningController] = None) -> None:
+        self._controller = controller
         self.lam = lam
         self.policy = OptimalStoppingPolicy(lam=self.lam)
-        # Pre-fitted optimal thresholds from academic calibration
+        # Legacy fixed values; no reviewed calibration provenance established.
         self.policy.tau = [0.671, 0.688]
+        if controller is not None:
+            self.policy = controller.policy
+            self.lam = self.policy.lam
         self._cache: Dict[str, MetaReasoningResult] = {}
 
     def is_reasoning_query(self, query: str) -> bool:
@@ -119,11 +133,90 @@ class MetaReasonerEngine:
 
         return False
 
-    def solve(self, query: str) -> MetaReasoningResult:
+    def solve(
+        self,
+        query: str,
+        *,
+        execution_id: Optional[str] = None,
+        query_generation: Optional[int] = None,
+        deadline_monotonic: Optional[float] = None,
+        is_cancelled: Optional[Callable[[], bool]] = None,
+        max_strategy_invocations: Optional[int] = None,
+        max_underlying_requests: Optional[int] = None,
+        max_generated_tokens: Optional[int] = None,
+        on_step: Optional[Callable[[Any], None]] = None,
+    ) -> MetaReasoningResult:
         """
         Main entry point for solving reasoning queries with the Meta-Controller.
         """
         clean_q = query.strip()
+        if self._controller is not None:
+            # Explicit controller execution bypasses legacy intent branches and
+            # cache, so every reported path/cost belongs to this invocation.
+            observed = self._controller.solve(
+                clean_q,
+                execution_id=execution_id,
+                query_generation=query_generation,
+                deadline_monotonic=deadline_monotonic,
+                is_cancelled=is_cancelled,
+                max_strategy_invocations=max_strategy_invocations,
+                max_underlying_requests=max_underlying_requests,
+                max_generated_tokens=max_generated_tokens,
+                on_step=on_step,
+            )
+            ledger_dict = (
+                {
+                    "strategy_invocations": observed.cost_ledger.strategy_invocations,
+                    "underlying_requests_dispatched": observed.cost_ledger.underlying_requests_dispatched,
+                    "underlying_requests_succeeded": observed.cost_ledger.underlying_requests_succeeded,
+                    "underlying_requests_failed": observed.cost_ledger.underlying_requests_failed,
+                    "generated_tokens": observed.cost_ledger.generated_tokens,
+                    "prompt_tokens": observed.cost_ledger.prompt_tokens,
+                    "status": observed.cost_ledger.status,
+                }
+                if observed.cost_ledger is not None
+                else None
+            )
+            if not observed.observations:
+                return MetaReasoningResult(
+                    query=clean_q,
+                    strategy="NONE",
+                    badge=observed.status.capitalize(),
+                    answer="",
+                    steps=[f"Execution stopped with status: {observed.status}"],
+                    confidence=0.0,
+                    tokens=0,
+                    latency_ms=observed.latency_ms,
+                    escalated=False,
+                    verification_status="unverified",
+                    execution_mode="online_policy",
+                    strategy_path=[],
+                    policy_source=observed.policy_source,
+                    confidence_kind="not_estimated",
+                    status=observed.status,
+                    bundle_id=observed.bundle_id,
+                    cost_ledger=ledger_dict,
+                    execution_id=execution_id,
+                    query_generation=query_generation,
+                )
+            last = observed.observations[-1]
+            path = [row.strategy.name for row in observed.observations]
+            return MetaReasoningResult(
+                query=clean_q, strategy=last.strategy.name, badge="Policy",
+                answer=last.answer,
+                steps=[f"Executed {row.strategy.name}: {row.generated_tokens} generated tokens."
+                       for row in observed.observations],
+                confidence=last.confidence, tokens=observed.generated_tokens,
+                latency_ms=observed.latency_ms, escalated=len(path) > 1,
+                verification_status="unverified", execution_mode="online_policy",
+                strategy_path=path, policy_source=observed.policy_source,
+                confidence_kind="backend_raw",
+                status=observed.status,
+                bundle_id=observed.bundle_id,
+                cost_ledger=ledger_dict,
+                execution_id=execution_id,
+                query_generation=query_generation,
+            )
         if clean_q in self._cache:
             return self._cache[clean_q]
 
@@ -163,7 +256,8 @@ class MetaReasonerEngine:
 
     def _is_conversational_query(self, q: str) -> bool:
         chat_phrases = ["chào", "hello", "hi", "bạn là ai", "ai là bạn", "giúp tôi", "bot", "trợ lý", "copilot", "hướng dẫn", "làm được gì"]
-        return any(p in q for p in chat_phrases)
+        return any(re.search(r"(?<!\w)" + re.escape(p) + r"(?!\w)", q, flags=re.I)
+                   for p in chat_phrases)
 
     def _solve_conversational(self, query: str, t0: float) -> MetaReasoningResult:
         steps = [
@@ -205,69 +299,31 @@ class MetaReasonerEngine:
     # PAL Solver (Program-Aided Language with Sandboxed Python & VGC)
     # -----------------------------------------------------------------
     def _solve_with_pal(self, query: str, t0: float) -> MetaReasoningResult:
-        # Extract values for CPA calculation
-        if "cpa" in query.lower() or "gpa" in query.lower():
-            python_code = (
-                "# Tính toán CPA tích lũy mới\n"
-                "prev_credits = 64\n"
-                "prev_cpa = 7.20\n"
-                "prev_points = prev_credits * prev_cpa\n"
-                "new_credits = 3 * 3 + 1 * 2  # 11 tín chỉ mới\n"
-                "new_points = 3 * 3 * 8.5 + 1 * 2 * 9.0  # 94.5 điểm\n"
-                "total_credits = prev_credits + new_credits\n"
-                "total_points = prev_points + new_points\n"
-                "result = round(total_points / total_credits, 2)\n"
+        from rat.engine.verification import literal_request
+
+        expr = literal_request(query)
+        if expr is None:
+            return MetaReasoningResult(
+                query=query, strategy="PAL", badge="Chưa kiểm chứng",
+                answer="Chưa đủ dữ kiện hoặc chưa có biểu thức số học được hỗ trợ. "
+                       "Hãy cung cấp đầy đủ điểm, số tín chỉ hoặc biểu thức cần tính; "
+                       "RAT không tự điền các giá trị còn thiếu.",
+                steps=["Không suy ra biểu thức từ bài toán lời văn hoặc tự điền dữ liệu."],
+                confidence=0.0, confidence_kind="not_estimated", tokens=0,
+                latency_ms=(time.time() - t0) * 1000, escalated=False,
+                verification_status="unverifiable", execution_mode="literal_calculation",
             )
-            calc_expr = "round(((64 * 7.20) + (9 * 8.5) + (2 * 9.0)) / 75, 2)"
-            vgc_res = vgc_engine.solve_quantitative(query, expr=calc_expr, python_code=python_code)
-            ans = f"CPA mới sau khi tích lũy là **{vgc_res.verification.certificate.witness}** (hệ 10)."
-            steps = vgc_res.reasoning_steps
-            witness = str(vgc_res.verification.certificate.witness)
-            v_status = vgc_res.verification.status.value
-
-        # Tuition fees calculation
-        elif "học phí" in query.lower():
-            python_code = (
-                "# Tính học phí có học bổng giảm 15%\n"
-                "lt_credits = 12\n"
-                "th_credits = 6\n"
-                "price_lt = 650000\n"
-                "price_th = 850000\n"
-                "discount = 0.15\n"
-                "raw_total = lt_credits * price_lt + th_credits * price_th\n"
-                "result = int(raw_total * (1 - discount))\n"
-            )
-            calc_expr = "int((12 * 650000 + 6 * 850000) * (1 - 0.15))"
-            vgc_res = vgc_engine.solve_quantitative(query, expr=calc_expr, python_code=python_code)
-            formatted = f"{int(vgc_res.verification.certificate.witness):,}".replace(",", ".")
-            ans = f"Tổng học phí thực tế phải nộp sau khi giảm 15% là **{formatted} VNĐ**."
-            steps = vgc_res.reasoning_steps
-            witness = str(vgc_res.verification.certificate.witness)
-            v_status = vgc_res.verification.status.value
-
-        # Generic safe math
-        else:
-            calc_expr = re.sub(r"^(?:tính|tinh|calc)\s*", "", query, flags=re.I).strip()
-            vgc_res = vgc_engine.solve_quantitative(query, expr=calc_expr)
-            ans = vgc_res.answer
-            steps = vgc_res.reasoning_steps
-            witness = str(vgc_res.verification.certificate.witness) if vgc_res.verification.certificate else None
-            v_status = vgc_res.verification.status.value
-
-        lat = (time.time() - t0) * 1000.0
+        observed = vgc_engine.solve_quantitative(query, expr=expr)
+        checked = observed.verification.status == VGCVerificationStatus.VALID
+        certificate = observed.verification.certificate
         return MetaReasoningResult(
-            query=query,
-            strategy="PAL",
-            badge="PAL (Python)",
-            answer=ans,
-            steps=steps,
-            confidence=0.98,
-            tokens=45,
-            latency_ms=lat,
-            escalated=False,
-            citations=[],
-            verification_status=v_status,
-            witness_proof=witness,
+            query=query, strategy="PAL", badge=observed.badge,
+            answer=observed.answer, steps=observed.reasoning_steps,
+            confidence=0.0, confidence_kind="not_estimated", tokens=observed.tokens,
+            latency_ms=(time.time() - t0) * 1000, escalated=observed.escalated,
+            verification_status=observed.verification.status.value,
+            witness_proof=str(certificate.witness) if checked and certificate else None,
+            execution_mode="literal_calculation",
         )
 
     # -----------------------------------------------------------------
@@ -437,5 +493,32 @@ class MetaReasonerEngine:
         )
 
 
-# Global Singleton Instance for Runtime
+# Global Singleton Instance for Runtime (controller-free by default)
 meta_reasoner = MetaReasonerEngine()
+
+
+def build_composed_meta_reasoner(
+    bundle: Any,
+    backend: Any,
+    policy: Optional[OptimalStoppingPolicy] = None,
+    *,
+    allow_synthetic: bool = False,
+) -> MetaReasonerEngine:
+    """Opt-in composition factory for MetaReasonerEngine with strict bundle validation.
+
+    Fails closed if the bundle is missing, unreviewed, or incompatible with the policy/backend.
+    Default UI and singleton remain controller-free.
+    """
+    if bundle is None:
+        raise ValueError("A policy bundle is required for composed meta-reasoner execution")
+    if policy is None:
+        raise ValueError("A fitted policy instance matching the bundle is required")
+    from reasoning.bundle import validate_policy_bundle
+    validate_policy_bundle(bundle, policy, backend, allow_synthetic=allow_synthetic)
+    controller = OnlineReasoningController(
+        backend,
+        policy,
+        bundle=bundle,
+        allow_synthetic_bundle=allow_synthetic,
+    )
+    return MetaReasonerEngine(controller=controller)

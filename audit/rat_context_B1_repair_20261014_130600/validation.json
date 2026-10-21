@@ -1,0 +1,33 @@
+{
+  "status": "b1_repair_verified_and_accepted",
+  "timestamp": "2026-10-14T13:06:00+07:00",
+  "compiler_module": "rat/engine/context_snapshot.py",
+  "test_suite": "tests/test_rat_context_snapshot.py",
+  "total_tests_passed": 361,
+  "breakdown": {
+    "b1_unit_and_regression_tests": 29,
+    "codex_review_probes": 15,
+    "context_audit_tests": 6,
+    "artifact_store_lifecycle_tests": 19,
+    "core_reconciliation_regressions": 292
+  },
+  "repaired_findings": [
+    "Finding 1 (P1): Enforced strict structural projector paths (AUTHORIZED_PROJECTOR_PATHS) without leaf-key fallback; proposal and runtime_obligations root payloads remain literal dictionaries",
+    "Finding 2 (P1): Preserved canonical TurnContract dict validity flags (is_valid, validation_errors) ensuring declared invalid contracts keep outcomes strictly unresolved",
+    "Finding 3 (P1): Restored exact scalar/list values and types via pointer /result, preserved unknown plugin output verbatim, and enforced strict type/character/whitespace equality without coercion or stripping",
+    "Finding 4 (P1): Closed semantic validation on typed references (indexes, pins, constraints), rejected conflicting duplicate entity identities, and enforced graph cycle detection in both validator and expander",
+    "Finding 5 (P2): Filtered verification receipts against execution boundary scope (conversation_id, execution_id, generation) preventing foreign proofs in current proof_refs",
+    "Finding 6 (P2): Preserved complete canonical artifact metadata (status, provenance, created_at) inline in entity bodies under lossless projection"
+  ],
+  "live_model_calls": 0,
+  "runtime_wiring_deferred_to_b2": true,
+  "performance_claims": "Software and mathematical consistency only; zero measured latency, token, or prompt-cache savings claimed.",
+  "files_sha256": {
+    "changes.patch": "cdfc23a0a8570cab51b41041abb818a490c40317968fe9e41edfaffc48e40039",
+    "manifest_start.json": "30ac8df0f114e02bf07f9b9c1a51c0f3c9e93f00cac4f5f659d806ff9e792ab6",
+    "manifest_finish.json": "71ca8e19d1789b9a13bb0327df4091f740d188f67070d1fb4fd81f3304c39af2",
+    "test_run.json": "57508510f6a998e2de77a82f704aaaa2ba9fabdfe35e71cdda37a50e155131d1",
+    "roundtrips.json": "dedac60f3ffe14fbc189817d2f587a4ef4ac7280427f9a87a47f1a793a625c84",
+    "handoff_codex.md": "28f3686765658075fb8ad520f6db6d07ac2ffa87debaa492090e626554cb0fd1"
+  }
+}

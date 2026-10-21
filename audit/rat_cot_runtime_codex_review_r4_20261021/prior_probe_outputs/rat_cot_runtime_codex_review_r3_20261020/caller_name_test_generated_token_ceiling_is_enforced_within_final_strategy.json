@@ -1,0 +1,10 @@
+{
+  "ordinary": {
+    "outcome": "NotImplementedError",
+    "calls": 0
+  },
+  "renamed": {
+    "outcome": "NotImplementedError",
+    "calls": 0
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "verdict": "request_changes",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "scope": "independent offline review of R1-R9 repair",
+  "closed_findings": [
+    "R1",
+    "R9"
+  ],
+  "remaining_findings": [
+    {
+      "id": "R2",
+      "priority": "P1",
+      "title": "Token cap clamps measured cost after generation",
+      "file": "reasoning/runtime.py",
+      "line": 348,
+      "status": "open"
+    },
+    {
+      "id": "R3",
+      "priority": "P1",
+      "title": "Failed-attempt accounting does not match actual Qwen trace schema",
+      "file": "reasoning/runtime.py",
+      "line": 299,
+      "status": "open"
+    },
+    {
+      "id": "R4",
+      "priority": "P1",
+      "title": "Native execution controls absent and cooperative stop exceptions become errors",
+      "file": "rat/ui/reasoning_worker.py",
+      "line": 174,
+      "status": "open"
+    },
+    {
+      "id": "R5",
+      "priority": "P1",
+      "title": "Literal blacklist does not bind policy to runtime identity or artifact hashes",
+      "file": "reasoning/bundle.py",
+      "line": 130,
+      "status": "open"
+    },
+    {
+      "id": "R6",
+      "priority": "P1",
+      "title": "Document context ignored and same-metadata mutations undetected",
+      "file": "rat/ui/reasoning_worker.py",
+      "line": 129,
+      "status": "open"
+    },
+    {
+      "id": "R7",
+      "priority": "P2",
+      "title": "Acceptance still overstates outside-excerpt and stale-result coverage",
+      "file": "audit/rat_cot_runtime_acceptance_20261020/native_acceptance_matrix.md",
+      "line": 18,
+      "status": "open"
+    },
+    {
+      "id": "R8",
+      "priority": "P2",
+      "title": "Power summary hardcodes sample sizes inconsistent with its own formula",
+      "file": "scripts/calculate_power_sensitivity.py",
+      "line": 111,
+      "status": "open"
+    },
+    {
+      "id": "R10",
+      "priority": "P2",
+      "title": "Repair raw logs and complete source patch not aligned",
+      "file": "audit/rat_cot_runtime_acceptance_20261020/repair_diff.patch",
+      "line": 1,
+      "status": "open"
+    }
+  ],
+  "open_counts": {
+    "P1": 5,
+    "P2": 3
+  },
+  "test_suites": {
+    "baseline_372_plus_original_26": {
+      "tests": 398,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 398,
+      "junit_seconds": 50.615
+    },
+    "new_general_contracts": {
+      "tests": 22,
+      "failures": 20,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 2,
+      "junit_seconds": 8.729
+    },
+    "native_strategy_logic_replay_no_model": {
+      "tests": 3,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "junit_seconds": 2.699
+    },
+    "parser_scoring": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 44,
+      "junit_seconds": 4.908
+    },
+    "reported_additional_69_host_retry": {
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 69,
+      "junit_seconds": 14.265
+    }
+  },
+  "baseline_subsets_not_additional": {
+    "mandatory_research": 29,
+    "original_codex_probes": 26,
+    "native_readiness": 8,
+    "policy_bundle": 11,
+    "g1_reporting": 4
+  },
+  "new_probes_total": {
+    "tests": 25,
+    "failed": 22,
+    "passed": 3
+  },
+  "integrity": {
+    "source_snapshot_files": 69,
+    "source_changed": [],
+    "incoming_source_hashes_matched": 59,
+    "incoming_artifact_entries_matched": 48,
+    "incoming_changed_files": [],
+    "incoming_added_files": [],
+    "incoming_removed_files": [],
+    "prior_review_manifest_entries": 81,
+    "prior_review_changed": [],
+    "ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+    "r9_ledger_matches_prior_corrected_fixture": true
+  },
+  "power_crosscheck": "power_crosscheck.json",
+  "raw_package_crosscheck": "repair_evidence_crosscheck.json",
+  "power_artifact_reproduced_byte_identical": true,
+  "data_review": "pending; 13/13 packet input hashes match; structural checks inherited, no semantic review",
+  "held_out_queries_or_gold_emitted": false,
+  "real_model_calls_new": 0,
+  "native_qwen_replay": "AST source excluding MLX-dependent imports; __init__ bypassed; scripted _chat replaces generation; no inference",
+  "stage_0_changed": false,
+  "new_real_model_budget_authorized": 0,
+  "production_changes_by_reviewer": false,
+  "git_branch": "main",
+  "git_operations_mutating_history_or_remote": [],
+  "approval_and_environment_notes": [
+    "69-test sandbox run failed collection on missing Metal device (exit 2)",
+    "First escalation timed out during automatic review before process creation; no command ran",
+    "One retry authorized and completed 69 offline scripted tests; native library import only, no weights load or inference"
+  ],
+  "limitations": [
+    "No real inference, native interactive UI acceptance, model-quality estimate or online latency measurement",
+    "No full active-suite sweep",
+    "R9 closure uses unchanged reviewer-corrected synthetic fixture and existing reporting probes; no new CLI session claimed",
+    "Listed source/artifact hashes establish integrity only, not research approval or full compatibility"
+  ]
+}

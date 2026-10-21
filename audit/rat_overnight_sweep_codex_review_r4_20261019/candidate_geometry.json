@@ -1,0 +1,44 @@
+[
+  {
+    "renderer_width": 131,
+    "buttons": [
+      {
+        "text": "Applications \u00b7 League of Legends \u00b7 v1.0",
+        "button_width": 131,
+        "content_width": 109,
+        "text_width": 229,
+        "readable_prefix": "Applications \u00b7 Lea",
+        "parent_width": 131
+      },
+      {
+        "text": "Applications \u00b7 League of Legends copy \u00b7 v1.0",
+        "button_width": 131,
+        "content_width": 109,
+        "text_width": 261,
+        "readable_prefix": "Applications \u00b7 Lea",
+        "parent_width": 131
+      }
+    ]
+  },
+  {
+    "renderer_width": 131,
+    "buttons": [
+      {
+        "text": "Applications \u00b7 League of Legends \u00b7 v1.0",
+        "button_width": 131,
+        "content_width": 109,
+        "text_width": 229,
+        "readable_prefix": "Applications \u00b7 Lea",
+        "parent_width": 131
+      },
+      {
+        "text": "Applications \u00b7 League of Legends copy \u00b7 v1.0",
+        "button_width": 131,
+        "content_width": 109,
+        "text_width": 261,
+        "readable_prefix": "Applications \u00b7 Lea",
+        "parent_width": 131
+      }
+    ]
+  }
+]

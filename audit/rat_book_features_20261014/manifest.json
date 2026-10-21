@@ -1,0 +1,24 @@
+{
+  "evidence_kind": "software_regression_only",
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "pypdf": "6.14.2",
+  "model_calls": 0,
+  "live_model_acceptance": "not_run",
+  "headless_tests_passed": 165,
+  "new_feature_qt_tests_passed": 3,
+  "combined_gui_suite": "unresolved_order_dependent_export_worker_crash",
+  "sha256": {
+    "rat/engine/book_pages.py": "8dcaa5eb109176d44381a529218d449798208d34155a5a4105b3c49a41bdb7fa",
+    "rat/kernel/capabilities/documents.py": "3d36141411938cb6d3b919cc87154039d03350aa896786503da33c440ed977a6",
+    "rat/kernel/capabilities/result_tables.py": "407e1bd44ed793cec34577925c7353a96b794e699bfada47119a3fde33b7571b",
+    "rat/kernel/capabilities/__init__.py": "18eb8df5b0e3c22abbf7c2b7a8969b3ddaff73e8e9f44557a0e2a2c8625eb1fb",
+    "rat/kernel/capabilities/views.py": "0a5a7c9ed654f0c991f816a058279acb710c5b6f3ab8bfd8c0650c0e89a77989",
+    "rat/ui/assistant_presenter.py": "4f88b24cc72e9b3181d7f19a598e6779a8cd4e5b4f0b780be90f5b7a65a168b7",
+    "rat/ui/view_renderer.py": "fb4df1517748b4b4744981c1a7346747042132c5e7fe3eb59b58eb00a742caac",
+    "tests/test_book_pages.py": "134fc9aa9489a72e84c5977a370554e26e5beed8ca88d3827a36ce2d1ba0b67e",
+    "tests/test_result_tables.py": "a04dc28e40ba5c3b1efaddf01e4e0595ec38e9c2fa23365a33a1559e09af1e28",
+    "tests/test_book_features_ui.py": "18dbb04fc60e47ffd2618763f4d50077147a049af4892b9758d58b2960dce7f7",
+    "docs/rat_book_features.md": "1263921a0ef83df3a6b0b2e87220c031b3690a3794633212263c8f2eeb83b5c3",
+    "docs/rat_backlog.md": "7fb776d42a459bd5624c0d1c9030d728bae23c12c4230a6a63cb2ead2ec31f28"
+  }
+}

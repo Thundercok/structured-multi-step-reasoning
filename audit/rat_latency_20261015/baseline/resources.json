@@ -1,0 +1,185 @@
+[
+  {
+    "utc": "2026-10-15T15:30:03.525643+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     3594.\nPages active:                                 247167.\nPages inactive:                               238083.\nPages speculative:                              8440.\nPages throttled:                                   0.\nPages wired down:                             159748.\nPages purgeable:                                 753.\n\"Translation faults\":                    43989178161.\nPages copy-on-write:                       729982725.\nPages zero filled:                        6719323071.\nPages reactivated:                        5987436022.\nPages purged:                              332301486.\nFile-backed pages:                            152142.\nAnonymous pages:                              341548.\nPages stored in compressor:                  1416348.\nPages occupied by compressor:                 342768.\nDecompressions:                          32434639976.\nCompressions:                            33467369144.\nPageins:                                   283554344.\nPageouts:                                    5614191.\nSwapins:                                    16366528.\nSwapouts:                                   19435648.",
+    "processor": "NAME    ID    SIZE    PROCESSOR    CONTEXT    UNTIL",
+    "loaded_models": {
+      "models": []
+    }
+  },
+  {
+    "utc": "2026-10-15T15:30:06.615697+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     3968.\nPages active:                                 169318.\nPages inactive:                               165674.\nPages speculative:                              2749.\nPages throttled:                                   0.\nPages wired down:                             256082.\nPages purgeable:                                   2.\n\"Translation faults\":                    43989387529.\nPages copy-on-write:                       729993237.\nPages zero filled:                        6719396340.\nPages reactivated:                        5987505927.\nPages purged:                              332302572.\nFile-backed pages:                            126123.\nAnonymous pages:                              211618.\nPages stored in compressor:                  1522758.\nPages occupied by compressor:                 402113.\nDecompressions:                          32434671023.\nCompressions:                            33467522674.\nPageins:                                   283619104.\nPageouts:                                    5614270.\nSwapins:                                    16366632.\nSwapouts:                                   19435648.",
+    "processor": "NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL              \nqwen2.5:1.5b    65ec06548149    1.4 GB    100% GPU     8192       4 minutes from now",
+    "loaded_models": {
+      "models": [
+        {
+          "name": "qwen2.5:1.5b",
+          "model": "qwen2.5:1.5b",
+          "size": 1354456104,
+          "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen2",
+            "families": [
+              "qwen2"
+            ],
+            "parameter_size": "1.5B",
+            "quantization_level": "Q4_K_M"
+          },
+          "expires_at": "2026-10-15T22:35:06.711058+07:00",
+          "size_vram": 1354456104,
+          "context_length": 8192
+        }
+      ]
+    }
+  },
+  {
+    "utc": "2026-10-15T15:30:09.715716+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     3800.\nPages active:                                 169531.\nPages inactive:                               168149.\nPages speculative:                               974.\nPages throttled:                                   0.\nPages wired down:                             255581.\nPages purgeable:                                   2.\n\"Translation faults\":                    43989447763.\nPages copy-on-write:                       729993770.\nPages zero filled:                        6719398909.\nPages reactivated:                        5987520944.\nPages purged:                              332303014.\nFile-backed pages:                            123915.\nAnonymous pages:                              214739.\nPages stored in compressor:                  1516550.\nPages occupied by compressor:                 401899.\nDecompressions:                          32434703971.\nCompressions:                            33467552273.\nPageins:                                   283619410.\nPageouts:                                    5614309.\nSwapins:                                    16366632.\nSwapouts:                                   19435648.",
+    "processor": "NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL              \nqwen2.5:1.5b    65ec06548149    1.4 GB    100% GPU     8192       4 minutes from now",
+    "loaded_models": {
+      "models": [
+        {
+          "name": "qwen2.5:1.5b",
+          "model": "qwen2.5:1.5b",
+          "size": 1354456104,
+          "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen2",
+            "families": [
+              "qwen2"
+            ],
+            "parameter_size": "1.5B",
+            "quantization_level": "Q4_K_M"
+          },
+          "expires_at": "2026-10-15T22:35:09.806979+07:00",
+          "size_vram": 1354456104,
+          "context_length": 8192
+        }
+      ]
+    }
+  },
+  {
+    "utc": "2026-10-15T15:30:12.812856+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     4104.\nPages active:                                 169612.\nPages inactive:                               156019.\nPages speculative:                             13031.\nPages throttled:                                   0.\nPages wired down:                             255752.\nPages purgeable:                                   2.\n\"Translation faults\":                    43989574807.\nPages copy-on-write:                       729994409.\nPages zero filled:                        6719456157.\nPages reactivated:                        5987582088.\nPages purged:                              332303794.\nFile-backed pages:                            130794.\nAnonymous pages:                              207868.\nPages stored in compressor:                  1536025.\nPages occupied by compressor:                 401431.\nDecompressions:                          32434727180.\nCompressions:                            33467609936.\nPageins:                                   283635540.\nPageouts:                                    5614320.\nSwapins:                                    16366632.\nSwapouts:                                   19435648.",
+    "processor": "NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL              \nqwen2.5:1.5b    65ec06548149    1.4 GB    100% GPU     8192       4 minutes from now",
+    "loaded_models": {
+      "models": [
+        {
+          "name": "qwen2.5:1.5b",
+          "model": "qwen2.5:1.5b",
+          "size": 1354456104,
+          "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen2",
+            "families": [
+              "qwen2"
+            ],
+            "parameter_size": "1.5B",
+            "quantization_level": "Q4_K_M"
+          },
+          "expires_at": "2026-10-15T22:35:12.878446+07:00",
+          "size_vram": 1354456104,
+          "context_length": 8192
+        }
+      ]
+    }
+  },
+  {
+    "utc": "2026-10-15T15:30:15.884017+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     3539.\nPages active:                                 153074.\nPages inactive:                               140249.\nPages speculative:                             11605.\nPages throttled:                                   0.\nPages wired down:                             273263.\nPages purgeable:                                   2.\n\"Translation faults\":                    43989622311.\nPages copy-on-write:                       729995029.\nPages zero filled:                        6719480349.\nPages reactivated:                        5987638266.\nPages purged:                              332304837.\nFile-backed pages:                            117745.\nAnonymous pages:                              187183.\nPages stored in compressor:                  1552072.\nPages occupied by compressor:                 418103.\nDecompressions:                          32434756557.\nCompressions:                            33467657686.\nPageins:                                   283637097.\nPageouts:                                    5614325.\nSwapins:                                    16366632.\nSwapouts:                                   19435648.",
+    "processor": "NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL              \nqwen2.5:1.5b    65ec06548149    1.4 GB    100% GPU     8192       4 minutes from now",
+    "loaded_models": {
+      "models": [
+        {
+          "name": "qwen2.5:1.5b",
+          "model": "qwen2.5:1.5b",
+          "size": 1354456104,
+          "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen2",
+            "families": [
+              "qwen2"
+            ],
+            "parameter_size": "1.5B",
+            "quantization_level": "Q4_K_M"
+          },
+          "expires_at": "2026-10-15T22:35:16.014064+07:00",
+          "size_vram": 1354456104,
+          "context_length": 8192
+        }
+      ]
+    }
+  },
+  {
+    "utc": "2026-10-15T15:30:19.019043+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     4087.\nPages active:                                 164489.\nPages inactive:                               157404.\nPages speculative:                              6303.\nPages throttled:                                   0.\nPages wired down:                             256785.\nPages purgeable:                                   2.\n\"Translation faults\":                    43989699519.\nPages copy-on-write:                       729997354.\nPages zero filled:                        6719490185.\nPages reactivated:                        5987659839.\nPages purged:                              332307108.\nFile-backed pages:                            113071.\nAnonymous pages:                              215125.\nPages stored in compressor:                  1536931.\nPages occupied by compressor:                 410884.\nDecompressions:                          32434794910.\nCompressions:                            33467685346.\nPageins:                                   283640723.\nPageouts:                                    5614345.\nSwapins:                                    16366640.\nSwapouts:                                   19435648.",
+    "processor": "NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL              \nqwen2.5:1.5b    65ec06548149    1.4 GB    100% GPU     8192       4 minutes from now",
+    "loaded_models": {
+      "models": [
+        {
+          "name": "qwen2.5:1.5b",
+          "model": "qwen2.5:1.5b",
+          "size": 1354456104,
+          "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen2",
+            "families": [
+              "qwen2"
+            ],
+            "parameter_size": "1.5B",
+            "quantization_level": "Q4_K_M"
+          },
+          "expires_at": "2026-10-15T22:35:16.94923+07:00",
+          "size_vram": 1354456104,
+          "context_length": 8192
+        }
+      ]
+    }
+  },
+  {
+    "utc": "2026-10-15T15:30:19.636852+00:00",
+    "swap": "vm.swapusage: total = 3072.00M  used = 2400.12M  free = 671.88M  (encrypted)",
+    "vm": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                     3861.\nPages active:                                 164876.\nPages inactive:                               156696.\nPages speculative:                              7142.\nPages throttled:                                   0.\nPages wired down:                             256571.\nPages purgeable:                                   1.\n\"Translation faults\":                    43989706020.\nPages copy-on-write:                       729997883.\nPages zero filled:                        6719491272.\nPages reactivated:                        5987660332.\nPages purged:                              332307290.\nFile-backed pages:                            114395.\nAnonymous pages:                              214319.\nPages stored in compressor:                  1537851.\nPages occupied by compressor:                 410794.\nDecompressions:                          32434796081.\nCompressions:                            33467687724.\nPageins:                                   283641932.\nPageouts:                                    5614361.\nSwapins:                                    16366640.\nSwapouts:                                   19435648.",
+    "processor": "NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL              \nqwen2.5:1.5b    65ec06548149    1.4 GB    100% GPU     8192       4 minutes from now",
+    "loaded_models": {
+      "models": [
+        {
+          "name": "qwen2.5:1.5b",
+          "model": "qwen2.5:1.5b",
+          "size": 1354456104,
+          "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen2",
+            "families": [
+              "qwen2"
+            ],
+            "parameter_size": "1.5B",
+            "quantization_level": "Q4_K_M"
+          },
+          "expires_at": "2026-10-15T22:35:19.626416+07:00",
+          "size_vram": 1354456104,
+          "context_length": 8192
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "pristine_files": 325,
+  "source_files": 325,
+  "pristine_matches_content_and_modes": true,
+  "patch": {
+    "returncode": 0,
+    "stdout": "patching file Cargo.toml\n",
+    "stderr": ""
+  },
+  "patched_toml_valid": true,
+  "cargo_metadata": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "without_source_tests": {
+    "returncode": 0,
+    "stdout_tail": "........................................................................ [ 77%]\n.....................                                                    [100%]\n93 passed in 17.52s\n",
+    "stderr_tail": "",
+    "spider_source_present": false,
+    "scratch_build_present": false,
+    "bundled_spider_binary_present": false
+  }
+}

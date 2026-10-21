@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+    "-m",
+    "pytest",
+    "audit/rat_context_B1_independent_20261014_084657/origin_scope_probes.py",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short",
+    "--junitxml=audit/rat_context_B1_independent_20261014_084657/origin_scope.xml"
+  ],
+  "exit_code": 1,
+  "duration_seconds": 1.4743232500040904,
+  "source_sha256_start": "a0aea01b5ace4d27ea7cad586717f2d6351272b21d5b79c2c6615ec75b1359a9",
+  "source_sha256_finish": "a0aea01b5ace4d27ea7cad586717f2d6351272b21d5b79c2c6615ec75b1359a9",
+  "live_model_calls": 0
+}

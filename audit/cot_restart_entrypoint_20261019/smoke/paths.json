@@ -1,0 +1,191 @@
+[
+  {
+    "question_id": "synthetic-fresh-arith",
+    "group_id": "problem_arith_b744ade94d833b2636d1c6771ce50f85af3713c24622fd1f7e20c0d227854bfc",
+    "arm": "O",
+    "correct": true,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O"
+    ],
+    "path_prompt_tokens": 97,
+    "path_completion_tokens_including_eos": 14,
+    "path_total_tokens": 111,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-arith",
+    "group_id": "problem_arith_b744ade94d833b2636d1c6771ce50f85af3713c24622fd1f7e20c0d227854bfc",
+    "arm": "F",
+    "correct": true,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O",
+      "F"
+    ],
+    "path_prompt_tokens": 197,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 225,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-arith",
+    "group_id": "problem_arith_b744ade94d833b2636d1c6771ce50f85af3713c24622fd1f7e20c0d227854bfc",
+    "arm": "CONT",
+    "correct": true,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O",
+      "CONT"
+    ],
+    "path_prompt_tokens": 203,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 231,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-arith",
+    "group_id": "problem_arith_b744ade94d833b2636d1c6771ce50f85af3713c24622fd1f7e20c0d227854bfc",
+    "arm": "A",
+    "correct": false,
+    "parsed_answer": "43",
+    "path_call_arms": [
+      "O",
+      "A"
+    ],
+    "path_prompt_tokens": 194,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 222,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-g24",
+    "group_id": "problem_g24_e433d87d37a272e5f222cd4612285c3fc44ec6adb999436669c3a761271762d7",
+    "arm": "O",
+    "correct": false,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O"
+    ],
+    "path_prompt_tokens": 104,
+    "path_completion_tokens_including_eos": 14,
+    "path_total_tokens": 118,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-g24",
+    "group_id": "problem_g24_e433d87d37a272e5f222cd4612285c3fc44ec6adb999436669c3a761271762d7",
+    "arm": "F",
+    "correct": false,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O",
+      "F"
+    ],
+    "path_prompt_tokens": 211,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 239,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-g24",
+    "group_id": "problem_g24_e433d87d37a272e5f222cd4612285c3fc44ec6adb999436669c3a761271762d7",
+    "arm": "CONT",
+    "correct": false,
+    "parsed_answer": "43",
+    "path_call_arms": [
+      "O",
+      "CONT"
+    ],
+    "path_prompt_tokens": 218,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 246,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-g24",
+    "group_id": "problem_g24_e433d87d37a272e5f222cd4612285c3fc44ec6adb999436669c3a761271762d7",
+    "arm": "A",
+    "correct": false,
+    "parsed_answer": "43",
+    "path_call_arms": [
+      "O",
+      "A"
+    ],
+    "path_prompt_tokens": 208,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 236,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-order",
+    "group_id": "problem_order_609d5a0719e3350c12e97f2267b0ffb6c012ae61f75367bff6c045ae7598f1e0",
+    "arm": "O",
+    "correct": false,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O"
+    ],
+    "path_prompt_tokens": 99,
+    "path_completion_tokens_including_eos": 14,
+    "path_total_tokens": 113,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-order",
+    "group_id": "problem_order_609d5a0719e3350c12e97f2267b0ffb6c012ae61f75367bff6c045ae7598f1e0",
+    "arm": "F",
+    "correct": false,
+    "parsed_answer": "42",
+    "path_call_arms": [
+      "O",
+      "F"
+    ],
+    "path_prompt_tokens": 201,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 229,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-order",
+    "group_id": "problem_order_609d5a0719e3350c12e97f2267b0ffb6c012ae61f75367bff6c045ae7598f1e0",
+    "arm": "CONT",
+    "correct": false,
+    "parsed_answer": "43",
+    "path_call_arms": [
+      "O",
+      "CONT"
+    ],
+    "path_prompt_tokens": 207,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 235,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  },
+  {
+    "question_id": "synthetic-fresh-order",
+    "group_id": "problem_order_609d5a0719e3350c12e97f2267b0ffb6c012ae61f75367bff6c045ae7598f1e0",
+    "arm": "A",
+    "correct": false,
+    "parsed_answer": "43",
+    "path_call_arms": [
+      "O",
+      "A"
+    ],
+    "path_prompt_tokens": 198,
+    "path_completion_tokens_including_eos": 28,
+    "path_total_tokens": 226,
+    "cost_scope": "synthetic token counts, base once plus selected arm; excludes inference overhead",
+    "evidence": "synthetic_fresh_restart_smoke"
+  }
+]

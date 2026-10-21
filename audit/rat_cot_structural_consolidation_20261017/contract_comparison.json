@@ -1,0 +1,153 @@
+{
+  "comparison_metadata": {
+    "date": "2026-10-17",
+    "principle": "RAT uses CoT; CoT is expressed via RAT. One single system.",
+    "behavioral_equivalence_rule": "Identical class names/imports do not imply identical runtime behavior. Headless harness and desktop runtime fulfill distinct architectural roles.",
+    "status": "Verified against working tree and AST analysis; qwen_backend.py and modules/docai removed."
+  },
+  "modules": {
+    "entry_predictor": {
+      "shared_implementation": {
+        "classes": [
+          "EntryChoice",
+          "EntryTrainingData",
+          "EntryPredictor"
+        ],
+        "functions": [
+          "simulate_ladder_outcome",
+          "collect_entry_training_data"
+        ],
+        "algorithm": "Dual predictor (RTR-style): Ridge regression for cost + LogisticRegression for accuracy per candidate (LADDER/REACT/PAL)."
+      },
+      "headless_harness_adapter": {
+        "consumers": [
+          "experiments/research_study.py",
+          "experiments/benchmark_reasoning.py",
+          "pipeline.py"
+        ],
+        "role": "Offline batch fitting and evaluation on train/calibration/test splits with token cost accounting.",
+        "execution_mode": "Batch replay over pre-computed or mock/real model embeddings and token counts."
+      },
+      "desktop_rat_adapter": {
+        "consumers": [
+          "rat/engine/meta_reasoner.py"
+        ],
+        "role": "Imported EntryPredictor and EntryChoice symbols; integration is currently an uninstantiated stub in meta_reasoner.py.",
+        "execution_mode": "AST analysis confirms EntryPredictor/EntryChoice are imported at lines 21-22 but never instantiated or called. Desktop query intent currently relies on regex/keyword heuristics (is_reasoning_query) rather than the trained predictor.",
+        "integration_gap": "Identified gap: EntryPredictor needs proper online wiring into MetaReasoner in future backlog work."
+      }
+    },
+    "optimal_stopping": {
+      "shared_implementation": {
+        "classes": [
+          "CalibrationData",
+          "OptimalStoppingPolicy",
+          "PlattCalibrator",
+          "IsotonicCalibrator"
+        ],
+        "functions": [
+          "fit_threshold",
+          "brier_score",
+          "expected_calibration_error",
+          "bootstrap_thresholds"
+        ],
+        "algorithm": "Backward induction stopping policy with threshold fitting tau_0 (CoT) and tau_1 (SC) on calibrated confidence."
+      },
+      "headless_harness_adapter": {
+        "consumers": [
+          "experiments/research_study.py",
+          "experiments/benchmark_reasoning.py",
+          "pipeline.py"
+        ],
+        "role": "Offline threshold fitting on calibration split and offline policy replay.",
+        "execution_mode": "research_study.fit_policies() fits stopping on calibration split with default n_bootstraps=0 (bootstrap CI disabled by default). Offline replay over pre-computed attempts via evaluate_records(); does not run online Gym episode loops."
+      },
+      "desktop_rat_adapter": {
+        "consumers": [
+          "rat/engine/meta_reasoner.py"
+        ],
+        "role": "Holds OptimalStoppingPolicy instance with hardcoded thresholds for UI demonstration slice.",
+        "execution_mode": "Policy instantiated with hardcoded tau = [0.671, 0.688] (comment \"Pre-fitted\" has no reviewed run artifact evidence). In _solve_policy_with_ladder:335-347, initial confidence is hardcoded at 0.58 and compared directly to tau[0]; consensus (5/5) is synthesized text rather than an online call to should_escalate or 5-sample voting.",
+        "integration_gap": "Heuristic simulation slice for UI; real stopping calibration evidence and runtime ladder escalation remain core backlog."
+      }
+    },
+    "reasoning_env": {
+      "shared_implementation": {
+        "classes": [
+          "ReasoningAction",
+          "ReasoningEnv",
+          "LLMBackend"
+        ],
+        "constants": [
+          "A",
+          "STRATEGIES",
+          "LADDER",
+          "N_COMPLEXITY"
+        ],
+        "functions": [
+          "complexity_features",
+          "expanded_complexity_features"
+        ],
+        "algorithm": "Discrete action space representation and 3D/6D question complexity feature extraction."
+      },
+      "headless_harness_adapter": {
+        "consumers": [
+          "experiments/research_study.py",
+          "qwen_mlx_backend.py",
+          "experiments/benchmark_reasoning.py"
+        ],
+        "role": "Formal Gym environment definition, step transitions, action masking, and reward calculation (-lam*tokens + beta*conf_gain).",
+        "execution_mode": "Episode rollouts and strategy evaluations against dataset ground truth."
+      },
+      "desktop_rat_adapter": {
+        "consumers": [
+          "rat/engine/meta_reasoner.py"
+        ],
+        "role": "Strategy enum (A) and ladder definition (LADDER) sharing; complexity feature extraction.",
+        "execution_mode": "Direct execution of ladder rungs; does not instantiate Gym step loop online to minimize UI latency."
+      }
+    },
+    "reasoning_strategies": {
+      "shared_implementation": {
+        "functions": [
+          "normalize_answer",
+          "extract_answer",
+          "extract_item_answer",
+          "extract_number",
+          "extract_conclusion_number",
+          "numeric_match",
+          "parse_action",
+          "is_wordy_answer",
+          "parse_answer_details",
+          "canonicalize_answer",
+          "majority_vote",
+          "safe_calculate",
+          "run_python_sandboxed",
+          "extract_code"
+        ],
+        "algorithm": "Model-agnostic parsing, answer extraction, safe AST arithmetic, and sandboxed python execution."
+      },
+      "headless_harness_adapter": {
+        "consumers": [
+          "experiments/research_study.py",
+          "research_scoring.py",
+          "experiments/benchmark_reasoning.py",
+          "scripts/*.py"
+        ],
+        "role": "Benchmark scoring, regex extraction for GSM8K/MATH/SVAMP, self-consistency majority voting, sandboxed PAL verification.",
+        "execution_mode": "Batch answer normalization and accuracy checking against gold labels."
+      },
+      "desktop_rat_adapter": {
+        "consumers": [
+          "rat/engine/meta_reasoner.py",
+          "rat/engine/vgc.py",
+          "rat/main.py",
+          "rat/ui/spotlight_window.py",
+          "rat/ui/omnibar.py"
+        ],
+        "role": "Real-time math evaluation (safe_calculate), code extraction and verification in VGC verifier, PAL execution in meta-reasoner.",
+        "execution_mode": "Interactive execution returning structured MetaReasoningResult for Qt PreviewPanel."
+      }
+    }
+  }
+}

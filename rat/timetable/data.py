@@ -11,10 +11,11 @@ from pathlib import Path
 from typing import Dict, List
 
 from rat.timetable.model import ClassSession, MemberSchedule
+from rat.config import RAT_DIR
 
 logger = logging.getLogger("rat.timetable.data")
 
-DATA_DIR = Path.home() / ".rat"
+DATA_DIR = RAT_DIR
 DATA_FILE = DATA_DIR / "club_schedules.json"
 
 # Authentic TDTU Member Schedules Extracted from Portals & OCR

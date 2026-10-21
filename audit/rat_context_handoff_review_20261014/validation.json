@@ -1,0 +1,47 @@
+{
+  "status": "handoffs_reviewed_B_design_proposed_not_implemented",
+  "at_utc": "2026-10-13T22:37:08.586411+00:00",
+  "protected_input_count": 12,
+  "changed_protected_inputs": [],
+  "core_matches_previous_fix_packet": true,
+  "production_tests_rerun": false,
+  "reason_no_production_test_rerun": "Protected core/source/tests unchanged; previous 292-test result remains the existing regression evidence.",
+  "A_metrics_recomputed": {
+    "cases": 12,
+    "turns": 20,
+    "calls": 41,
+    "actor_calls": 34,
+    "planner_calls": 7,
+    "tools_share_mean_per_call_percent": 58.71641038795404,
+    "tools_share_ratio_sums_percent": 53.25603213070409,
+    "tools_share_min_percent": 25.23772363363103,
+    "tools_share_max_percent": 75.06232270265623
+  },
+  "B_design_checks": 38,
+  "broken_local_links": [],
+  "new_artifact_whitespace_errors": [],
+  "live_inference_calls": 0,
+  "runtime_or_UI_implemented_in_this_review": false,
+  "git_push_pull_reset_force": false,
+  "design_and_review_files_sha256": {
+    "docs/adr-004-rat-context-snapshot.md": "17ab81dd1248de03858158b9f769f936f834316b05140d4778aca09db88af711",
+    "audit/rat_context_snapshot_design_20261014/README.md": "ea6aa1f71f2f5b94d207c3f1e058b56bc2d9fe4fabad5a393c0dcc0e0090582b",
+    "audit/rat_context_snapshot_design_20261014/after.request.json": "1db24686df84857d98653d88768bb629ecaade16547c9324d34520df254a75bb",
+    "audit/rat_context_snapshot_design_20261014/after.snapshot.json": "2787c9cf5c7d1350c4b8b8b982822a746ee112bbd5ddedefe32daf24908d06ac",
+    "audit/rat_context_snapshot_design_20261014/before.request.json": "a326018e4ca0fba17b30c48f460450603e6981ac37678f06ab3d8118bd559d34",
+    "audit/rat_context_snapshot_design_20261014/build_examples.py": "47a1353571feacfe2a7dd1d901064e3e795142bcf1ffa29e3d862b4b74d3fa27",
+    "audit/rat_context_snapshot_design_20261014/canonical_example_values.json": "441cbb99e4334a07ae10aed48b03e5422050b2ed1db4bd14fa0523b2e50a5ebd",
+    "audit/rat_context_snapshot_design_20261014/declared_args.snapshot.json": "675827ae66ceeb07cd0ecb29fc218bede34a94dcb8661f75b4987253567e648b",
+    "audit/rat_context_snapshot_design_20261014/handoff_antigravity.md": "261de5c628eb43af7c561d885167edc03c9168463182c62fd95c2d5c7539785d",
+    "audit/rat_context_snapshot_design_20261014/provenance.json": "bf974dc4470d4c1fe3270c928bf11fcc610ecbf12970a2311b48a8f38ecfd46e",
+    "audit/rat_context_snapshot_design_20261014/snapshot.schema.json": "8e63f2ffa45bed22d1f88a6f809f9081e8531936fcd50a9da9caffed3ec89d25",
+    "audit/rat_context_snapshot_design_20261014/validate_examples.py": "1b916d0c090daaf0676b7ee27ce877000ca43dce73e042bad652dec63e85751e",
+    "audit/rat_context_snapshot_design_20261014/validation.json": "db085485c6679dedaaa2f834df27ade294d8a34355dcab2643aa31855a479026",
+    "audit/rat_context_handoff_review_20261014/review.md": "f46c8feddef83e8dc2315d5761ed8c1d9eac46449087f0631ec3b3c92f42095c",
+    "audit/rat_context_handoff_review_20261014/validate_review.py": "69d9448b23d1f9f50caf33d1dd3343521b1643e32cbd869ad213fefa2d73a656"
+  },
+  "limits": [
+    "Scripted captures and authored B design examples are not measured AI quality or speed-up.",
+    "B runtime implementation, new native channel fixtures and user phase decision remain pending."
+  ]
+}

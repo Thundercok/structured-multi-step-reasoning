@@ -22,6 +22,8 @@ def app():
 @pytest.fixture
 def window(app, monkeypatch):
     monkeypatch.setenv('RAT_DEBUG_UI', '1')
+    monkeypatch.setenv('RAT_WORKBENCH_SCENE', '0')
+    monkeypatch.setenv('RAT_WORKBENCH_FINDER', '0')
     with patch('rat.ui.omnibar.Database') as db, patch('rat.ui.omnibar.SearchEngine'), \
             patch('rat.ui.feedback.FeedbackLog'), patch('rat.ui.assistant_worker.AssistantWorker.start'):
         db.return_value.get_stats.return_value = {'total_files': 0}
@@ -66,9 +68,12 @@ def test_live_companion_motion_keeps_editor_stable_and_sleeps_when_hidden(window
     monkeypatch.setattr('rat.ui.live_companion.motion_enabled', lambda: True)
     pet = window.companion_avatar_btn
     pet._sync_timer()
-    assert pet.timer.isActive()
-    assert pet.parent() is window.container.parent()
-    assert pet.geometry().right() < window.container.geometry().left()
+    assert pet.parent() is window.workbench_dialogue
+    # Only the exposed head is painted/hit-tested above the composer.
+    visible_head = pet.mask().boundingRect().translated(pet.pos())
+    assert not visible_head.isEmpty()
+    lane = window.workbench_dialogue.user_lane
+    assert visible_head.bottom() < lane.y() + lane.bubble.y()
     window.chat_composer_input.setText('Bản nháp đang gõ')
     window.chat_composer_input.setFocus()
     QTest.qWait(40)

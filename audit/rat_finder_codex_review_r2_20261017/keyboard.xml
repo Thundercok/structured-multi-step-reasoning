@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="6" time="3.649" timestamp="2026-10-17T11:30:39.694332+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups" name="test_keyboard_ask_activates_ask_instead_of_opening_file[16777220]" time="0.668"><failure message="AssertionError: Focused Hỏi unexpectedly opened a file: [call('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-607/test_keyboard_ask_activates_as0/beta.txt')]&#10;assert 1 == 0&#10; +  where 1 = &lt;MagicMock name='open_file_default' id='5073853600'&gt;.call_count">audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:37: in test_keyboard_ask_activates_ask_instead_of_opening_file
+    assert opened.call_count == 0, f'Focused Hỏi unexpectedly opened a file: {opened.call_args_list!r}'
+E   AssertionError: Focused Hỏi unexpectedly opened a file: [call('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-607/test_keyboard_ask_activates_as0/beta.txt')]
+E   assert 1 == 0
+E    +  where 1 = &lt;MagicMock name='open_file_default' id='5073853600'&gt;.call_count</failure></testcase><testcase classname="audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups" name="test_keyboard_ask_activates_ask_instead_of_opening_file[32]" time="0.233" /><testcase classname="audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups" name="test_tabbed_row_shortcut_targets_focused_row" time="0.227"><failure message="AssertionError: expected call not found.&#10;Expected: reveal_in_finder('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-607/test_tabbed_row_shortcut_targe0/beta.txt')&#10;  Actual: reveal_in_finder('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-607/test_tabbed_row_shortcut_targe0/alpha.txt')">audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:59: in test_tabbed_row_shortcut_targets_focused_row
+    reveal.assert_called_once_with(second.path)
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:959: in assert_called_once_with
+    return self.assert_called_with(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:947: in assert_called_with
+    raise AssertionError(_error_message()) from cause
+E   AssertionError: expected call not found.
+E   Expected: reveal_in_finder('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-607/test_tabbed_row_shortcut_targe0/beta.txt')
+E     Actual: reveal_in_finder('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-607/test_tabbed_row_shortcut_targe0/alpha.txt')</failure></testcase><testcase classname="audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups" name="test_shift_down_keeps_native_text_selection_and_focus" time="0.218"><failure message="AssertionError: Finder shortcut changed Shift+Down text selection&#10;assert (2, 2) == (7, 2)&#10;  &#10;  At index 0 diff: 2 != 7&#10;  Use -v to get more diff">audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:80: in test_shift_down_keeps_native_text_selection_and_focus
+    assert actual == expected, 'Finder shortcut changed Shift+Down text selection'
+E   AssertionError: Finder shortcut changed Shift+Down text selection
+E   assert (2, 2) == (7, 2)
+E     
+E     At index 0 diff: 2 != 7
+E     Use -v to get more diff</failure></testcase><testcase classname="audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups" name="test_plain_down_still_edits_within_multiline_draft" time="0.222" /><testcase classname="audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups" name="test_progressive_update_preserves_focused_action" time="0.246"><failure message="AssertionError: Rebuilding rows lost focused action on same-query update&#10;assert False&#10; +  where False = &lt;built-in method hasFocus of QPushButton object at 0x152d07ed0&gt;()&#10; +    where &lt;built-in method hasFocus of QPushButton object at 0x152d07ed0&gt; = &lt;PyQt6.QtWidgets.QPushButton object at 0x152d07ed0&gt;.hasFocus&#10; +      where &lt;PyQt6.QtWidgets.QPushButton object at 0x152d07ed0&gt; = &lt;rat.ui.workbench_scene.FinderHitRow object at 0x12e65b430&gt;.btn_ask">audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:109: in test_progressive_update_preserves_focused_action
+    assert box._rows[hit.resource_id].btn_ask.hasFocus(), 'Rebuilding rows lost focused action on same-query update'
+E   AssertionError: Rebuilding rows lost focused action on same-query update
+E   assert False
+E    +  where False = &lt;built-in method hasFocus of QPushButton object at 0x152d07ed0&gt;()
+E    +    where &lt;built-in method hasFocus of QPushButton object at 0x152d07ed0&gt; = &lt;PyQt6.QtWidgets.QPushButton object at 0x152d07ed0&gt;.hasFocus
+E    +      where &lt;PyQt6.QtWidgets.QPushButton object at 0x152d07ed0&gt; = &lt;rat.ui.workbench_scene.FinderHitRow object at 0x12e65b430&gt;.btn_ask</failure></testcase></testsuite></testsuites>

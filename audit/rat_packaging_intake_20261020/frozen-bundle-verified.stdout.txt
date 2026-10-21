@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "bundle": "/private/tmp/rat-packaging-intake-20261020-verified-dist/rat.app",
+  "executable_sha256": "ca82e1958cb7544f9aa423f9035cc5cf926d285bb21f4d7bcfd6968f032a25a4",
+  "checks": {
+    "document_intake.pdf:current_bytecode": true,
+    "document_intake.vision:current_bytecode": true,
+    "document_intake.tesseract:current_bytecode": true,
+    "rat.crawler.extractors:current_bytecode": true,
+    "reasoning.entry_predictor:included": true,
+    "reasoning.optimal_stopping:included": true,
+    "reasoning.reasoning_env:included": true,
+    "reasoning.reasoning_strategies:included": true,
+    "sklearn:included": true,
+    "scipy:included": true,
+    "gymnasium:included": true,
+    "pypdf:included": true,
+    "rat/engine/snapshot.schema.json:source_match": true,
+    "rat/assets/rat_mascot.png:source_match": true,
+    "rat/astrology/ephemeris/manifest.json:source_match": true,
+    "libqcocoa.dylib:included": true,
+    "libjaccl.dylib:included": true,
+    "mlx.metallib:included": true,
+    "help:exit_success": true,
+    "calculator:exit_success": true,
+    "help:expected_output": true,
+    "calculator:expected_output": true
+  },
+  "cli": {
+    "help": {
+      "argv": [
+        "/private/tmp/rat-packaging-intake-20261020-verified-dist/rat.app/Contents/MacOS/rat",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout": "usage: rat [-h] {index,search,ask,ask-file,dedup,status} ...\n\nrat — Smart Local File Finder with Context Engineering & SLM\n\npositional arguments:\n  {index,search,ask,ask-file,dedup,status}\n    index               Scan and index folders\n    search              Search files with natural language\n    ask                 Ask local SLM a question about a file\n    ask-file            Chat offline about one exact indexed file using native\n                        MLX\n    dedup               Find duplicate files and document revision trees\n    status              Show index statistics\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "stderr": ""
+    },
+    "calculator": {
+      "argv": [
+        "/private/tmp/rat-packaging-intake-20261020-verified-dist/rat.app/Contents/MacOS/rat",
+        "1 + 2"
+      ],
+      "exit_code": 0,
+      "stdout": "🧮 Kết quả tính toán: 3\n",
+      "stderr": ""
+    }
+  },
+  "model_calls": 0,
+  "scope": "archive/resources and frozen CLI only; no GUI or model acceptance"
+}

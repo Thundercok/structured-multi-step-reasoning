@@ -1,0 +1,50 @@
+{
+  "record_type": "reconstructed command record from executed tool calls; raw process output retained separately",
+  "launches": [
+    {
+      "label": "grammar_fixed_first_launch",
+      "argv": [
+        "/usr/bin/open",
+        "-n",
+        "-a",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app",
+        "--stdout",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-native-grammar.stdout.txt",
+        "--stderr",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-native-grammar.stderr.txt",
+        "--env",
+        "QT_QPA_PLATFORM=cocoa",
+        "--args",
+        "--diagnostics",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-sessions",
+        "--seconds",
+        "300"
+      ],
+      "open_exit_code": 0,
+      "session": "bundle-sessions/20261020T114425Z-5400bad3",
+      "exit_action": "CUA Command-Q; session exit code 0"
+    },
+    {
+      "label": "same_bundle_reopen",
+      "argv": [
+        "/usr/bin/open",
+        "-n",
+        "-a",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app",
+        "--stdout",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-native-reopen.stdout.txt",
+        "--stderr",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-native-reopen.stderr.txt",
+        "--env",
+        "QT_QPA_PLATFORM=cocoa",
+        "--args",
+        "--diagnostics",
+        "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-sessions",
+        "--seconds",
+        "600"
+      ],
+      "open_exit_code": 0,
+      "session": "bundle-sessions/20261020T114509Z-f9038642"
+    }
+  ]
+}

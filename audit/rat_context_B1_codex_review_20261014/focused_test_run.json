@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+    "-m",
+    "pytest",
+    "tests/test_rat_context_snapshot.py",
+    "tests/test_rat_context_audit.py",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 2.5311010419391096,
+  "protected_input_count": 36,
+  "changed_inputs_during_focused_tests": [],
+  "peer_packet_current_source_matches_manifest": true
+}

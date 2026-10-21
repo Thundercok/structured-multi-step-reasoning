@@ -1,0 +1,61 @@
+--- tested/rat/engine/assistant_runtime.py
++++ after_tests/rat/engine/assistant_runtime.py
+@@ -208,6 +208,7 @@
+         registry: Optional[Any] = None,
+         artifact_store: Optional[Any] = None,
+         dispatcher: Optional[Any] = None,
++        discover_tools: bool = False,
+     ) -> None:
+         if db is not None:
+             self.db = db
+@@ -220,6 +221,7 @@
+         self.controller = controller
+         self.model_client = model_client
+         self.plan_tasks = plan_tasks
++        self.discover_tools = discover_tools
+         from rat.engine.work_notes import WorkNotebook, register_work_notes
+         self.notebook = WorkNotebook()
+         if controller is None and os.environ.get("RAT_ASSISTANT_CONTROLLER"):
+@@ -572,17 +574,18 @@
+             tool_defs = self.registry.to_tool_definitions()
+             snapshot = context.get('context_snapshot')
+             declaration = (snapshot or {}).get('runtime_obligations', {}).get('contract')
+-            if (self.plan_tasks and declaration and declaration.get('is_valid', True)
+-                    and declaration.get('intent_coverage') not in ('unchecked', 'invalid')):
+-                selected = {o.get('effect_type') for o in declaration.get('outcomes', [])
++            declared_catalog = bool(self.plan_tasks and declaration and declaration.get('is_valid', True)
++                                    and declaration.get('intent_coverage') not in ('unchecked', 'invalid'))
++            if self.discover_tools or declared_catalog:
++                selected = {o.get('effect_type') for o in (declaration or {}).get('outcomes', [])
+                             if o.get('kind') == 'registered_effect'}
+                 # Tool schemas follow the model's declaration, with generic
+                 # retrieval/state support. No user-text feature classifier.
+                 selected.update({'search_documents', 'inspect_artifact', 'request_operation_tools'})
+-                if snapshot['observed_state']['lifecycle'].get('pending_input'):
++                if snapshot and snapshot['observed_state']['lifecycle'].get('pending_input'):
+                     selected.add('dismiss_pending_input')
+                 from rat.engine.context_snapshot import is_value_ref, resolve_value_ref
+-                for receipt in snapshot['observed_state']['receipts']:
++                for receipt in (snapshot or {}).get('observed_state', {}).get('receipts', []):
+                     if (receipt.get('operation_name') != 'request_operation_tools'
+                             or receipt.get('issuer') != 'dispatcher'
+                             or receipt.get('committed') is not True or receipt.get('status') != 'committed'
+@@ -1028,6 +1031,8 @@
+                     shape_errors = list(Draft202012Validator(self._planning_schema()).iter_errors(raw_plan))
+                     if shape_errors:
+                         raise ValueError('invalid_native_declaration:' + shape_errors[0].message)
++                    if not raw_plan['operations'] and not raw_plan['respond']:
++                        raise ValueError('invalid_native_declaration:empty_work')
+                     raw_plan = {'outcomes': [
+                         {'outcome_id': f'op-{i + 1}', 'kind': 'registered_effect', 'effect_type': name}
+                         for i, name in enumerate(raw_plan['operations'])
+@@ -1046,7 +1051,8 @@
+                     raise ValueError('missing_outcomes')
+                 if raw_outcomes is not None:
+                     from jsonschema import Draft202012Validator
+-                    errors = list(Draft202012Validator({'type': 'array', 'minItems': 1, 'maxItems': 12,
++                    errors = list(Draft202012Validator({'type': 'array', 'minItems': 1,
++                                                       'maxItems': 13 if operation_list_plan else 12,
+                                                        'items': OUTCOME_SCHEMA}).iter_errors(raw_outcomes))
+                     if errors:
+                         raise ValueError('invalid_outcomes:' + errors[0].message)

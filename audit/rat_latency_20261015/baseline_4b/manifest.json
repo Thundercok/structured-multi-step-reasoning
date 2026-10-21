@@ -1,0 +1,65 @@
+{
+  "evidence": "measured_app_development_fixture",
+  "status": "completed",
+  "utc_started": "2026-10-15T15:31:35.505200+00:00",
+  "model": {
+    "name": "qwen3:4b-instruct",
+    "model": "qwen3:4b-instruct",
+    "modified_at": "2026-10-11T19:36:56.720003432+07:00",
+    "size": 2497293803,
+    "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen3",
+      "families": [
+        "qwen3"
+      ],
+      "parameter_size": "4.0B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 262144,
+      "embedding_length": 2560
+    },
+    "capabilities": [
+      "tools",
+      "thinking",
+      "completion"
+    ]
+  },
+  "source_hashes": {
+    "rat/engine/work_notes.py": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "rat/ui/chat_session.py": "c36954c4f54e78a38607670d334871bd086a5f4bdd07057f9ba698d871d09fc4",
+    "rat/engine/assistant_runtime.py": "0518d3732b6e16c454daba78c0c8c8d1d0db00f44a9a9f3799020e35ede87ef6",
+    "rat/kernel/dispatcher.py": "2db4021fa29af75b8dc7b03420e5924c182e18d7b5b22ebd298e28cf454ab6a6",
+    "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
+    "rat/ui/omnibar.py": "5b5683bf1149f83a120990451fbfec0162a50a1771bb18fa9af4d69f7f26c5a1",
+    "tests/test_work_context.py": "ef2c1d105dba4d69db3a0f86dbe33c0b3e5fd7381d4d62efbd6555ae2e9fe5f9",
+    "tests/test_rat_conversation_lifecycle.py": "d5d3eddbecfe13e2ba9869d0e931967b550dc45336b6d6eaba9e81f98e38ae36",
+    "scripts/run_dsa_core_smoke.py": "0f343f670198c0361bd4d30c836292a20f780c9c6012d938ee164aa0ac6b033d",
+    "rat/engine/slm.py": "65d506aed501be5cc2c9795e020447515f0b7d88cc404557b9aac9da646cc817",
+    "rat/engine/persona.py": "bc870315b41fa73dac15e991b52df7518e959c933156b19d35f66f095d61665a",
+    "rat/engine/task_state.py": "59b7a639d104bdf75c7c68f10fc6b688935d65085350634eefda1f0c7a98d406",
+    "rat/engine/verification.py": "8da0f8573c35d09b507d12a568203d0fc866d79b0995f8ab4ca9fa0a6318e8d5",
+    "rat/kernel/registry.py": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+    "rat/kernel/capabilities/__init__.py": "35f185cb72f8cecbae8c4a095daf38ab4efb5f236854ab8d4f49ca24278439b4",
+    "rat/config.py": "45060ae322e2943129d1eb28250e28513c3bc76b239fefc79ee11af27e4e11a1",
+    "rat/engine/runtime_context.py": "a4bbfa94550f75120794e457ee84b0f636467bf1be519e800e157c3444c11328",
+    "rat/engine/context_snapshot.py": "cca488dea3fabb814c6187d8980b69fbc5eaf7d8c8cef0552eb0cad4f2b86b1f",
+    "rat/kernel/capabilities/documents.py": "7efe582219d8bea8cd7f4c1fbfefc08e522f2cbda35b1a7a773867fd7db3da9c",
+    "scripts/profile_rat_latency.py": "7c75b345b9ae2de8aaf0589da48730c7e2a6c80bad3377ecbcc01ee950189846"
+  },
+  "runtime": {
+    "plan_tasks": false,
+    "discover_tools": true,
+    "structured_context": false,
+    "max_steps": 5,
+    "timeout_s_per_call": 60,
+    "max_calls": 5
+  },
+  "stage0_changed": false,
+  "personal_index_used": false,
+  "token_scope": "reported_prompt_and_completion_per_invoked_call",
+  "latency_scope": "headless_online_client_and_reported_server_phases",
+  "quality_scope": "one_exposed_artificial_document_task_only",
+  "utc_finished": "2026-10-15T15:33:01.553884+00:00"
+}

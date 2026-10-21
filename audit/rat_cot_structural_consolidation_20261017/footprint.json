@@ -1,0 +1,124 @@
+{
+  "timestamp": "2026-10-17T05:00:37.254473+00:00",
+  "methodology": "Truthful accounting from current working tree. Denominators exclude removed modules/docai and removed qwen_backend.py, as well as audit/, scratch/, work/, and .venv/.",
+  "working_tree_inventory": {
+    "product_files": 782,
+    "python_files": 365,
+    "note": "Working tree reflects removed modules/docai (verified at audit/docai_removal_20261017/) and removed qwen_backend.py"
+  },
+  "pre_consolidation_baseline": {
+    "files": {
+      "entry_predictor.py": {
+        "bytes": 4545,
+        "total_lines": 97,
+        "non_blank_lines": 76,
+        "sha256": "f3edff741e15bb90431209489ce129e1b52df99b0b2c7350c10861e438efef03"
+      },
+      "optimal_stopping.py": {
+        "bytes": 12547,
+        "total_lines": 283,
+        "non_blank_lines": 241,
+        "sha256": "b7080a3a8dd5ab9b88ffdf70dd17ca207eb3cd05416c2bc47372d14139f31d79"
+      },
+      "reasoning_env.py": {
+        "bytes": 7752,
+        "total_lines": 185,
+        "non_blank_lines": 157,
+        "sha256": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54"
+      },
+      "reasoning_strategies.py": {
+        "bytes": 18308,
+        "total_lines": 470,
+        "non_blank_lines": 411,
+        "sha256": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410"
+      }
+    },
+    "totals": {
+      "files": 4,
+      "bytes": 43152,
+      "total_lines": 1035,
+      "non_blank_lines": 885
+    }
+  },
+  "canonical_implementation": {
+    "files": {
+      "reasoning/__init__.py": {
+        "bytes": 259,
+        "total_lines": 11,
+        "non_blank_lines": 10,
+        "sha256": "3a489ee38de54a23e09c638e06980f34b086f27b385933e8248ff6f24f09efaa"
+      },
+      "reasoning/entry_predictor.py": {
+        "bytes": 4754,
+        "total_lines": 101,
+        "non_blank_lines": 80,
+        "sha256": "113c1f32ac4e319fd8b52a05d7e4ee05e19bdca0c2fe1698df7728be0f1a0920"
+      },
+      "reasoning/optimal_stopping.py": {
+        "bytes": 12797,
+        "total_lines": 289,
+        "non_blank_lines": 247,
+        "sha256": "4e4dc6a1cc60d87a71e6f31cdb41d149bd6d351173b23686cb17510f965d9d0c"
+      },
+      "reasoning/reasoning_env.py": {
+        "bytes": 7752,
+        "total_lines": 185,
+        "non_blank_lines": 157,
+        "sha256": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54"
+      },
+      "reasoning/reasoning_strategies.py": {
+        "bytes": 18308,
+        "total_lines": 470,
+        "non_blank_lines": 411,
+        "sha256": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410"
+      }
+    },
+    "totals": {
+      "files": 5,
+      "bytes": 43870,
+      "total_lines": 1056,
+      "non_blank_lines": 905
+    }
+  },
+  "root_backward_compatibility_shims": {
+    "files": {
+      "entry_predictor.py": {
+        "bytes": 455,
+        "total_lines": 13,
+        "non_blank_lines": 10,
+        "sha256": "e427e587ac32df583a0c84604b00e2601f809824e0911be1c096cf20b0d78fd3"
+      },
+      "optimal_stopping.py": {
+        "bytes": 458,
+        "total_lines": 13,
+        "non_blank_lines": 10,
+        "sha256": "349ef970e5d921ced68278e53e0b772b18d35a7fc26bef655da8deded6cd22de"
+      },
+      "reasoning_env.py": {
+        "bytes": 449,
+        "total_lines": 13,
+        "non_blank_lines": 10,
+        "sha256": "094f911f9efe43e2669ee4de9365f59bccef85d072b5c0f9fcdbdf1d2dd9673b"
+      },
+      "reasoning_strategies.py": {
+        "bytes": 470,
+        "total_lines": 13,
+        "non_blank_lines": 10,
+        "sha256": "fd77403c24b67dd5d7c777bd174aec158ecc9d90f1d6fa8d79f0e704aff8975b"
+      }
+    },
+    "totals": {
+      "files": 4,
+      "bytes": 1832,
+      "total_lines": 52,
+      "non_blank_lines": 40
+    }
+  },
+  "physical_impact": {
+    "delta_files": 5,
+    "delta_bytes": 2550,
+    "delta_total_lines": 73,
+    "delta_non_blank_lines": 60,
+    "explanation": "Adding 5 canonical package files (+1056 lines) and replacing 4 root files with 13-line shims (-983 lines) results in a net physical change of +73 total lines (+60 non-blank lines). Zero algorithmic logic modified."
+  }
+}

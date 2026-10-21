@@ -1,0 +1,8 @@
+{
+  "rat/engine/mlx_document_session.py": "64e3fca449d6e14635bef0b4541ac94108fc18b61f05b72ca074b701575d19e5",
+  "rat/engine/selected_document_qa.py": "f3ef9912511635137288126c483459d93c38606c0cd9e2fece6d46493f6b0541",
+  "rat/engine/assistant_runtime.py": "46502ec7afffdd6f0b254a17e487700093ea1a1f1512837935b032ed4799030a",
+  "rat/cli.py": "98af6f9dd82688e27095ae4bc3e1aa178562720c79041083476e0db0f2182716",
+  "rat/main.py": "0a14aa31c02e9e89a77f2a5ffe8340d5ffa050ae449f56cb980c6d092f220621",
+  "docs/rat_backlog.md": "07afacbe2ce05c4f418ff543d0479edf9b158f914790e4c885d7f78b96fb8bdb"
+}

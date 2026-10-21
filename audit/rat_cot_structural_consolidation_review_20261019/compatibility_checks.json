@@ -1,0 +1,6 @@
+[
+  "root-first: identity/private attributes/patch binding/enum pickle pass",
+  "canonical-first: identity/private attributes/patch binding/enum pickle pass",
+  "lightweight parser import pass",
+  "canonical-only change changes source fingerprint; real source untouched"
+]

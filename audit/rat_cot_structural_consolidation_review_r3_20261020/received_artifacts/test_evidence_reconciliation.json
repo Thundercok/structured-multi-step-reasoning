@@ -1,0 +1,64 @@
+{
+  "historical_summary_20261017": {
+    "file": "audit/rat_cot_structural_consolidation_20261017/tests.log",
+    "nature": "Manual summary transcript of observed test outcomes during 2026-10-17 consolidation session.",
+    "reported_summaries": {
+      "agents_research_suite": "29 passed in 9.12s",
+      "core_reasoning_suite": "53 passed in 7.19s",
+      "qwen_mlx_mocked_backend": "26 passed in 1.90s",
+      "rat_runtime_work_context": "93 passed in 23.54s"
+    }
+  },
+  "verified_raw_runs_20261020": {
+    "directory": "audit/rat_cot_structural_consolidation_review_r2_20261020/",
+    "research_suite": {
+      "tests": 29,
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0,
+      "raw_log": "research.txt",
+      "junit_xml": "research.xml",
+      "command": ".venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q"
+    },
+    "core_reasoning_suite": {
+      "tests": 53,
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0,
+      "raw_log": "core.txt",
+      "junit_xml": "core.xml",
+      "command": ".venv/bin/python -m pytest test_reasoning_env.py test_reasoning_strategies.py tests/test_research_scoring.py -q"
+    },
+    "backend_mocked_suite": {
+      "tests": 26,
+      "passed": 24,
+      "failed": 0,
+      "skipped": 2,
+      "raw_log": "backend.txt",
+      "junit_xml": "backend.xml",
+      "command": ".venv/bin/python -m pytest test_qwen_mlx_backend_mocked.py -q",
+      "skip_reason": "2 tests require native Apple Silicon MLX bfloat16 capability"
+    },
+    "runtime_work_context_suite": {
+      "tests": 93,
+      "passed": 93,
+      "failed": 0,
+      "skipped": 0,
+      "raw_log": "runtime.txt",
+      "junit_xml": "runtime.xml",
+      "command": ".venv/bin/python -m pytest tests/test_spider_adapter.py tests/test_assistant_runtime.py tests/test_work_context.py -q"
+    },
+    "package_contracts_probes": {
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "raw_log": "package_contracts.txt",
+      "junit_xml": "package_contracts.xml",
+      "command": ".venv/bin/python -m pytest audit/rat_cot_structural_consolidation_review_r2_20261020/test_package_contracts.py -v"
+    },
+    "total_passed": 199,
+    "total_skipped": 2,
+    "total_probes_passed": 5
+  }
+}

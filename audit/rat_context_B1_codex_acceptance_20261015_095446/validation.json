@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-10-15T09:58:57.780497+07:00",
+  "status": "codex_request_changes",
+  "b1_accepted": false,
+  "b2_accepted": false,
+  "compiler_sha256": "37259475b6a861b483ecc37f35460844cae0e3daf1ad13f1875170fbfd952c28",
+  "tested_runtime_sha256": "ddf898f3c6544082df8d99191ab99e6fcc9476e12640283eac00b20c30ab83d9",
+  "existing_focused_passed": 151,
+  "new_registered_result": {
+    "passed": 1,
+    "failed": 4
+  },
+  "core_on_tested_runtime": {
+    "passed": 286,
+    "failed": 7,
+    "collected": 293
+  },
+  "finding": {
+    "id": "R5-1",
+    "priority": 1,
+    "class": "nested_registered_result_origin_not_recorded"
+  },
+  "source_drift_during_tests": [],
+  "source_changes_after_tests": [
+    "rat/engine/assistant_runtime.py"
+  ],
+  "later_runtime_retested": false,
+  "product_files_modified_by_review": [],
+  "live_model_calls": 0,
+  "files_sha256": {
+    "registered_result_probes.py": "f113a8112c16f38c483c49a6deb550969415784de936fc82f7d67dbde746a399",
+    "core.log": "808fd5d37327b4c87aa3d35fad2dfbc1391befc4c8edf6170f61175982540cdc",
+    "focused.xml": "66e9ca301582018209c1dc0c7421238bfcab7540413ab429ee18d7eebc873d1a",
+    "manifest_start.json": "6f309bf16f59250c1bb5f05d515e6479794eccdda0b34f86aa94dd08ab660b80",
+    "tests__test_rat_context_snapshot.py.txt": "2319ea4a9bff02e72af8231aa01a9915d1e89534a8ce46b3790b4bb1c329f043",
+    "rat__engine__runtime_context.py.txt": "a4bbfa94550f75120794e457ee84b0f636467bf1be519e800e157c3444c11328",
+    "manifest_at_report.json": "5783bd5831ea0a3650824095ecf23eb69bfabdf9157d712a7ec5b7cc6d5469c4",
+    "test_run.json": "1e3fb39646d509acd81bfb4c37b2fda877917b8fab818f6d3d9b08848cad2e72",
+    "registered_result.xml": "79fb9e0be4d33d2d58b99baed8d471201e090f6621d7a1cdafe9329e531fd562",
+    "manifest_finish.json": "6f309bf16f59250c1bb5f05d515e6479794eccdda0b34f86aa94dd08ab660b80",
+    "run_review.py": "a5c2fca1ca4001adabe259d1e9b09032ca33dfd814285658cbff48869e51580b",
+    "handoff_antigravity.md": "b4666f4a35510ab3300e7e181150445133394661a99ed01f921a8a40e7f707b0",
+    "rat__engine__assistant_runtime.py.txt": "ddf898f3c6544082df8d99191ab99e6fcc9476e12640283eac00b20c30ab83d9",
+    "registered_result.log": "c7ccb54b0e11ac1a01b3afae4b7cb28b7c142a08203d7449b036ed926ee35bef",
+    "review.md": "ab1fa8cbd5cdc845b324c5370fbcd726d72f7795149acfdd7f09f73206201b73",
+    "rat__engine__context_snapshot.py.txt": "37259475b6a861b483ecc37f35460844cae0e3daf1ad13f1875170fbfd952c28",
+    "core.xml": "5c5e812df4a700ddd3504da56a2a042af9fff8ffb39687bfc645ef24d78c8b22",
+    "focused.log": "193e01d703802c4b145bae8074999c3727a48bdff70d4f784eac30433ea26f37"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "command": [
+    "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+    "-m",
+    "pytest",
+    "audit/rat_reconciliation_codex_review_20261013/contract_probes.py",
+    "audit/rat_reconciliation_round2_codex_review_20261013/remaining_contract_probes.py",
+    "tests/test_rat_completion_boundaries.py",
+    "tests/test_rat_completion_reconciliation.py",
+    "tests/test_rat_note_source_verification.py",
+    "tests/test_rat_smoke_harness.py",
+    "tests/test_rat_verification_literal_guard.py",
+    "tests/test_rat_conversation_lifecycle.py",
+    "tests/test_rat_calculation_conversation.py",
+    "tests/test_work_context.py",
+    "tests/test_rat_chat_session.py",
+    "tests/test_assistant_runtime.py",
+    "tests/test_rat_task_memory.py",
+    "tests/test_research_study.py",
+    "test_optimal_stopping.py",
+    "test_entry_predictor.py",
+    "tests/test_interaction_kernel.py",
+    "tests/test_interaction_kernel_regressions.py",
+    "tests/test_rat_verification.py",
+    "tests/test_vgc_verification.py",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "--tb=short"
+  ],
+  "exit_code": 0,
+  "source_sha256_start": {
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/assistant_runtime.py": "f8a48ad4fb3cb93288d0ed538c07ba08d2701deafb8bf958a77ad351c9dfa5d0",
+    "tests/test_rat_completion_boundaries.py": "8123e6b704edefd3fccafd4af1d48940e437e9a132624382c2ec21f28dcb1286"
+  },
+  "source_sha256_finish": {
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/assistant_runtime.py": "f8a48ad4fb3cb93288d0ed538c07ba08d2701deafb8bf958a77ad351c9dfa5d0",
+    "tests/test_rat_completion_boundaries.py": "8123e6b704edefd3fccafd4af1d48940e437e9a132624382c2ec21f28dcb1286"
+  },
+  "source_changed_during_tests": []
+}

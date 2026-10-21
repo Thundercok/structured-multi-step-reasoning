@@ -1,0 +1,32 @@
+[
+  {
+    "mode_fixture": "real-history-halt",
+    "kind": "isolated actual reporting AST; synthetic explicit session tags, no backend initialization",
+    "current_fixture_records": 0,
+    "reported_real_calls": 12,
+    "reported_fake_calls": 0,
+    "status": "backend_inference_verified_12_calls",
+    "all_12_requests_succeeded": true,
+    "records_selected_for_warm": 12
+  },
+  {
+    "mode_fixture": "new-real-control",
+    "kind": "isolated actual reporting AST; synthetic explicit session tags, no backend initialization",
+    "current_fixture_records": 1,
+    "reported_real_calls": 1,
+    "reported_fake_calls": 0,
+    "status": "backend_inference_completed_13_calls",
+    "all_12_requests_succeeded": false,
+    "records_selected_for_warm": 1
+  },
+  {
+    "mode_fixture": "fake-history-control",
+    "kind": "isolated actual reporting AST; synthetic explicit session tags, no backend initialization",
+    "current_fixture_records": 0,
+    "reported_real_calls": 0,
+    "reported_fake_calls": 0,
+    "status": "budget_halt_existing_fake_history",
+    "all_12_requests_succeeded": false,
+    "records_selected_for_warm": 0
+  }
+]

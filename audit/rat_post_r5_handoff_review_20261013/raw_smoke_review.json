@@ -1,0 +1,96 @@
+{
+  "scope": "offline_review_of_post_R5_development_smoke",
+  "new_model_calls_for_this_analysis": 0,
+  "runs": {
+    "live_dsa_smoke_plan_tasks_true.json": {
+      "artifact_sha256": "cfca0d54917bb8965356d35db94b986bed61c63170f0a2b3547034779cd32230",
+      "call_count": 12,
+      "raw_proposed_tool_calls": 0,
+      "note_events": 0,
+      "known_prompt_and_completion_tokens_partial_sum": 27263,
+      "unknown_token_usage_turns": [
+        "turn-6"
+      ],
+      "whole_run_token_total_known": false,
+      "non_cancel_turn_wall_ms": [
+        24232.65,
+        18173.92,
+        14556.82,
+        26410.12,
+        29725.53,
+        37635.2
+      ],
+      "timing_scope": "client wall time, excludes native GUI, one exposed-development conversation per configuration",
+      "turn_6_timeout_s": 0.6,
+      "turn_6_cancel_proof_recorded": {
+        "armed": true,
+        "was_cancelled_before_start": false,
+        "request_dispatched": true,
+        "cancel_triggered_in_flight": true,
+        "delay_ms": 250.0,
+        "request_started_perf": 662045.984621041,
+        "cancel_triggered_perf": 662046.245320208,
+        "elapsed_before_cancel_ms": 260.7,
+        "cancel_event_set_after_run": true,
+        "late_note_write_rejected": true,
+        "late_note_error": "cancelled:execution_cancelled",
+        "late_dispatch_rejected": true,
+        "late_dispatch_status": "cancelled",
+        "late_dispatch_error": "cancelled:execution_cancelled"
+      },
+      "corrections": [
+        "Turn 5 asks for text to copy, not an explicit persisted note; zero tool/note calls do not establish tool-use incapacity.",
+        "Cancel flag plus 0.6s HTTP timeout verifies write guards, not native interruption or backend abort.",
+        "Turn 2 includes the discarded mid value in its stated right half despite a correct final example; treat as partially correct.",
+        "Turn 3 and 4 are semantically incorrect, turn 5 repeats the wrong explanation.",
+        "Reported cancel timings differ from these raw files; use artifact hashes and raw measurements.",
+        "Smoke predates the calculator/result-note contract added by Codex; do not reuse as validation of current source."
+      ]
+    },
+    "live_dsa_smoke_plan_tasks_false.json": {
+      "artifact_sha256": "a05ccdfb0f5df84caba750949687c20d10dd08e67be1853eb1e1a527da31b464",
+      "call_count": 7,
+      "raw_proposed_tool_calls": 0,
+      "note_events": 0,
+      "known_prompt_and_completion_tokens_partial_sum": 18420,
+      "unknown_token_usage_turns": [
+        "turn-6"
+      ],
+      "whole_run_token_total_known": false,
+      "non_cancel_turn_wall_ms": [
+        35446.21,
+        31880.7,
+        27256.7,
+        26196.54,
+        7848.2,
+        14492.07
+      ],
+      "timing_scope": "client wall time, excludes native GUI, one exposed-development conversation per configuration",
+      "turn_6_timeout_s": 0.6,
+      "turn_6_cancel_proof_recorded": {
+        "armed": true,
+        "was_cancelled_before_start": false,
+        "request_dispatched": true,
+        "cancel_triggered_in_flight": true,
+        "delay_ms": 250.0,
+        "request_started_perf": 662212.894988083,
+        "cancel_triggered_perf": 662213.152588583,
+        "elapsed_before_cancel_ms": 257.6,
+        "cancel_event_set_after_run": true,
+        "late_note_write_rejected": true,
+        "late_note_error": "cancelled:execution_cancelled",
+        "late_dispatch_rejected": true,
+        "late_dispatch_status": "cancelled",
+        "late_dispatch_error": "cancelled:execution_cancelled"
+      },
+      "corrections": [
+        "Turn 5 asks for text to copy, not an explicit persisted note; zero tool/note calls do not establish tool-use incapacity.",
+        "Cancel flag plus 0.6s HTTP timeout verifies write guards, not native interruption or backend abort.",
+        "Turn 2 includes the discarded mid value in its stated right half despite a correct final example; treat as partially correct.",
+        "Turn 3 and 4 are semantically incorrect, turn 5 repeats the wrong explanation.",
+        "Reported cancel timings differ from these raw files; use artifact hashes and raw measurements.",
+        "Smoke predates the calculator/result-note contract added by Codex; do not reuse as validation of current source."
+      ]
+    }
+  }
+}

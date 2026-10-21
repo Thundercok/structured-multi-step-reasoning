@@ -1,0 +1,14 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "scripts/run_native_performance_session.py",
+    "--fake-backend",
+    "--output-dir",
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_review_r3_20261019/fake_session",
+    "--max-budget",
+    "1"
+  ],
+  "env": {
+    "QT_QPA_PLATFORM": "offscreen"
+  }
+}

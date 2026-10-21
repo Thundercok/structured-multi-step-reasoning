@@ -1,0 +1,77 @@
+[
+  {
+    "case": "fake_session",
+    "argv": [
+      ".venv/bin/python",
+      "scripts/run_native_performance_session.py",
+      "--fake-backend",
+      "--max-budget",
+      "1",
+      "--output-dir",
+      "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020/fake_session"
+    ],
+    "env": {
+      "QT_QPA_PLATFORM": "offscreen"
+    }
+  },
+  {
+    "case": "locked_ledger_replay",
+    "argv": [
+      ".venv/bin/python",
+      "scripts/run_native_performance_session.py",
+      "--fake-backend",
+      "--max-budget",
+      "12",
+      "--output-dir",
+      "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020/locked_ledger_replay"
+    ],
+    "env": {
+      "QT_QPA_PLATFORM": "offscreen"
+    }
+  },
+  {
+    "case": "fake_history_halt",
+    "argv": [
+      ".venv/bin/python",
+      "scripts/run_native_performance_session.py",
+      "--fake-backend",
+      "--max-budget",
+      "1",
+      "--output-dir",
+      "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020/fake_history_halt"
+    ],
+    "env": {
+      "QT_QPA_PLATFORM": "offscreen"
+    }
+  },
+  {
+    "case": "legacy_fake_history_halt",
+    "argv": [
+      ".venv/bin/python",
+      "scripts/run_native_performance_session.py",
+      "--fake-backend",
+      "--max-budget",
+      "1",
+      "--output-dir",
+      "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020/legacy_fake_history_halt"
+    ],
+    "env": {
+      "QT_QPA_PLATFORM": "offscreen"
+    }
+  },
+  {
+    "case": "same_document_legacy_fake",
+    "argv": [
+      ".venv/bin/python",
+      "scripts/run_native_performance_session.py",
+      "--fake-backend",
+      "--max-budget",
+      "1",
+      "--output-dir",
+      "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_overnight_sweep_codex_repair_r6_20261020/same_document_legacy_fake"
+    ],
+    "env": {
+      "QT_QPA_PLATFORM": "offscreen"
+    }
+  }
+]

@@ -1,0 +1,79 @@
+{
+  "timestamp_utc": "2026-10-19T06:10:00.000000+00:00",
+  "verdict": "pass",
+  "regression": {
+    "tests": 265,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "report_file": "regression.txt",
+    "xml_file": "regression.xml"
+  },
+  "visual_acceptance": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "report_file": "visual_probes.txt",
+    "xml_file": "visual_probes.xml"
+  },
+  "full_132_file_sweep": {
+    "executed": true,
+    "total_files": 132,
+    "files_passed": 126,
+    "files_failed": 6,
+    "files_error": 0,
+    "files_timeout": 0,
+    "tests_passed": 1685,
+    "tests_failed": 19,
+    "tests_errors": 0,
+    "tests_skipped": 0,
+    "summary_json": "test_inventory_132.json",
+    "summary_md": "test_inventory_132.md"
+  },
+  "native_performance": {
+    "executed": true,
+    "real_model_calls": 12,
+    "model_id": "mlx-community/Qwen3.5-4B-MLX-4bit",
+    "model_load_time_s": 27.542,
+    "psutil_available": true,
+    "psutil_version": "7.2.2",
+    "current_rss_mb": 104.09,
+    "peak_rss_mb": 876.31,
+    "idle_cpu_percent": 57.8,
+    "font_alias_warning_count": 1,
+    "font_alias_cost_ms": 203.0,
+    "default_font_resolved": ".AppleSystemUIFont",
+    "mono_font_resolved": "Menlo",
+    "calls_ledger_file": "calls.jsonl",
+    "telemetry_json": "native_performance.json"
+  },
+  "source_files_checked": 37,
+  "production_changes": [
+    "rat/ui/omnibar.py",
+    "rat/ui/view_renderer.py",
+    "rat/ui/workbench_scene.py",
+    "tests/test_workbench_scene.py"
+  ],
+  "repair_added_files_only_under": "audit/rat_overnight_sweep_repair_20261019",
+  "os_app_launches": 0,
+  "qpa_platform": "offscreen",
+  "research_stage_0_changed": false,
+  "resolved_findings": [
+    {
+      "id": "V2",
+      "status": "resolved",
+      "description": "ResultDeskCard collapses/hides when speech bubble shows full short answer without truncation, showing when streaming, truncated, interactive artifact, or revision transition requires it."
+    },
+    {
+      "id": "V3",
+      "status": "resolved",
+      "description": "Candidate button labels distinguish between multiple installations using folder prefix (e.g., Applications · League of Legends vs Riot Games · League of Legends) within contents width, preserving full path in tooltip/payload and index dispatch."
+    },
+    {
+      "id": "V4",
+      "status": "resolved",
+      "description": "Phase empty retains reasoning trace when Finder has grounded structured flow, displaying quiet collapsed toggle; bare query produces no false trace."
+    }
+  ]
+}

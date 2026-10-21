@@ -113,3 +113,47 @@ def view_generic(artifact, context) -> ViewSpec:
 def view_file_export(artifact, context):
     data = artifact.payload
     return ViewSpec(1, artifact.id, artifact.revision, title='Đã lưu lá số', blocks=[ViewBlock('summary', {'title': 'Đã lưu ' + data.get('filename', 'tệp'), 'text': data.get('exported_path', '')})])
+
+def view_application_launch(artifact, context) -> ViewSpec:
+    data = artifact.payload
+    name = data.get('name', 'Ứng dụng')
+    status_label = data.get('status_label', 'Đã gửi yêu cầu mở ứng dụng tới macOS')
+    note = data.get('verification_note', '')
+    path = data.get('path', '')
+    bundle_id = data.get('bundle_id', '')
+    version = data.get('version', '')
+    meta_parts = [p for p in (path, bundle_id, f'v{version}' if version else '') if p]
+    return ViewSpec(
+        schema_version=1,
+        artifact_id=artifact.id,
+        revision=artifact.revision,
+        title=f'Mở ứng dụng · {name}',
+        blocks=[
+            ViewBlock(
+                'summary',
+                {
+                    'title': f'{name} · {status_label}',
+                    'text': (' · '.join(meta_parts) + ('\n' + note if note else '')).strip(),
+                    'badge': data.get('launch_status', 'os_launch_accepted'),
+                },
+            ),
+        ],
+    )
+
+def view_web_page_snapshot(artifact, context) -> ViewSpec:
+    data = artifact.payload
+    url = data.get('final_url') or data.get('requested_url') or 'Trang web'
+    title = data.get('title', f"Web · {url}")
+    status = data.get('status_code', 'unknown')
+    content = data.get('content', '')
+    chars = len(content)
+    text = f"URL: {url} · HTTP {status} · {chars} ký tự."
+    if data.get('truncated'):
+        text += " (Đã cắt ngắn)."
+    blocks = [
+        ViewBlock('summary', {'title': title, 'text': text}),
+        ViewBlock('details', {'title': 'Nội dung trích xuất', 'content': content}),
+        ViewBlock('details', {'title': 'Nguồn & Bản chụp', 'content': f"URL: {url}\nBản chụp SHA256: {data.get('content_hash', '')}\nEngine: {data.get('engine', 'spider')} {data.get('engine_version', '')}"}),
+    ]
+    return ViewSpec(1, artifact.id, artifact.revision, title=title, blocks=blocks)
+

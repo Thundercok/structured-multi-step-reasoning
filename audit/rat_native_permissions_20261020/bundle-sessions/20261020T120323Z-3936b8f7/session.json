@@ -1,0 +1,28 @@
+{
+  "status": "exited",
+  "exit_code": 0,
+  "identity": {
+    "pid": 94378,
+    "executable": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/MacOS/rat",
+    "mode": "frozen",
+    "bundle_id": "com.thundercock.rat",
+    "bundle_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app",
+    "version": "1.0.0"
+  },
+  "qpa": "cocoa",
+  "blocked_operations": [],
+  "embedding_loaded": false,
+  "elapsed_seconds": 32.046360875014216,
+  "final_state": {
+    "accessibility": {
+      "trusted": false,
+      "state": "not_granted",
+      "prompt_requested": false,
+      "error": null
+    },
+    "hotkey_status": "stopped",
+    "hotkey_error": null,
+    "window_visible": false
+  },
+  "isolation": "fixture state/database; empty app/model catalogs; no model/network access"
+}

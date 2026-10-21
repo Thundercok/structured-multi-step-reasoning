@@ -343,8 +343,18 @@ def git_value(*arguments):
 
 def source_hashes():
     names = (
-        "experiments/research_study.py", "optimal_stopping.py", "entry_predictor.py",
-        "reasoning_env.py", "reasoning_strategies.py", "pipeline.py", "qwen_mlx_backend.py",
+        "experiments/research_study.py",
+        "optimal_stopping.py",
+        "entry_predictor.py",
+        "reasoning_env.py",
+        "reasoning_strategies.py",
+        "reasoning/__init__.py",
+        "reasoning/entry_predictor.py",
+        "reasoning/optimal_stopping.py",
+        "reasoning/reasoning_env.py",
+        "reasoning/reasoning_strategies.py",
+        "pipeline.py",
+        "qwen_mlx_backend.py",
         "scripts/gen_tasks.py",
         "research_scoring.py",
         "research_identity.py",
@@ -403,6 +413,9 @@ def main(argv=None):
     mode.add_argument("--order-certificate-pilot", action="store_true", help="Call-checkpointed ordering diagnostics on exposed train only; never confirmatory")
     mode.add_argument("--cot-restart-pilot", action="store_true", help="Run or resume the Qwen3.5-4B CoT restart development pilot on exposed questions")
     mode.add_argument("--cot-restart-addendum", action="store_true", help="Run the read-only full-prefix continuation addendum on historical pilot base traces")
+    mode.add_argument("--cot-restart-matched-plan", action="store_true", help="Prepare an A/F/CONT development budget using only the cached tokenizer")
+    mode.add_argument("--cot-restart-matched-run", type=Path, metavar="PLAN", help="Execute the exact prepared A/F/CONT development plan")
+    mode.add_argument("--cot-restart-fresh-smoke", action="store_true", help="Offline fresh-base O/F/CONT/A adapter check on three synthetic fixtures; never loads a model")
     mode.add_argument("--agreement-analysis", action="store_true", help="Offline exploratory reanalysis of pinned Run 11/PAL-v2 development outputs; never calls a model")
     parser.add_argument("--order-pilot-mock", action="store_true", help="Synthetic ordering pilot; never import or load MLX")
     parser.add_argument("--order-pilot-items", type=int, help="Exposed ordering train questions (default 2)")
@@ -411,6 +424,9 @@ def main(argv=None):
     parser.add_argument("--cot-restart-smoke-only", action="store_true", help="Run only the 4-call smoke verification")
     parser.add_argument("--historical-run", type=Path, help="Directory of completed historical pilot run (default: audit/cot_restart_pilot_qwen35_20261009)")
     parser.add_argument("--cot-restart-addendum-mock", action="store_true", help="Synthetic mock addendum; never import or load MLX")
+    parser.add_argument("--cot-restart-q-star", type=float, choices=(.25, .5, .75), help="One fixed F menu point for matched-plan preparation")
+    parser.add_argument("--cot-restart-matched-mock", action="store_true", help="Synthetic matched execution; never load weights")
+    parser.add_argument("--cot-restart-matched-approved", action="store_true", help="Execute a prepared real batch after explicit approval of its exact budget")
     parser.add_argument("--pilot", action="store_true", help="Fixed-strategy diagnostics on exposed development only")
     parser.add_argument("--strategies", nargs="+", choices=("DIRECT", "COT", "SELF_CONSISTENCY", "TOT", "REACT", "PAL"), help="Pilot strategies (default DIRECT COT)")
     budget = parser.add_mutually_exclusive_group()
@@ -427,9 +443,27 @@ def main(argv=None):
     parser.add_argument("--model", help="Local pinned MLX model directory or model repository")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--lam", type=float)
-    parser.add_argument("--output", type=Path, required=True, help="New run directory; only the ordering development pilot supports exact compatible resume")
+    parser.add_argument("--output", type=Path, required=True, help="New run directory; checkpointed pilot/smoke modes support exact compatible resume")
     args = parser.parse_args(argv)
     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
+    if args.cot_restart_fresh_smoke:
+        overrides = sorted(
+            "--" + key.replace("_", "-") for key, value in vars(args).items()
+            if key not in ("cot_restart_fresh_smoke", "output")
+            and value is not None and value is not False
+        )
+        if overrides:
+            parser.error("Fresh restart smoke uses fixed synthetic fixtures; overrides are not allowed: " + ", ".join(overrides))
+        from experiments.cot_restart_fresh import run_smoke
+        try:
+            manifest = run_smoke(args.output)
+        except (ValueError, OSError, RuntimeError) as error:
+            parser.error(str(error))
+        print(json.dumps({key: manifest[key] for key in (
+            "status", "evidence", "original_groups", "completed_mock_calls", "real_model_calls",
+            "total_synthetic_collection_tokens", "confirmatory", "stage_0_changed",
+        )}))
+        return
     if args.order_certificate_pilot:
         if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.lam, args.direct_cot_budget, *pilot_settings)):
             parser.error("Ordering pilot selects exposed train only; generic collection overrides are not allowed")
@@ -444,6 +478,32 @@ def main(argv=None):
         return
     if args.order_pilot_mock or args.order_pilot_items is not None or args.order_pilot_thinking_tokens is not None:
         parser.error("Ordering pilot overrides require --order-certificate-pilot")
+    if args.cot_restart_matched_plan or args.cot_restart_matched_run is not None:
+        if args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
+            parser.error("Matched preparation/execution uses pinned historical questions and fixed settings")
+        if args.cot_restart_mock or args.cot_restart_smoke_only or args.cot_restart_addendum_mock:
+            parser.error("Legacy mock overrides do not apply to matched collection")
+        from experiments.cot_restart_matched import prepare_plan, run_plan
+        try:
+            if args.cot_restart_matched_plan:
+                if args.cot_restart_matched_mock or args.cot_restart_matched_approved:
+                    parser.error("Plan preparation is tokenizer-only; execution flags are not allowed")
+                from experiments.cot_restart_addendum import DEFAULT_HISTORICAL_DIR
+                prepare_plan(args.output, args.historical_run or DEFAULT_HISTORICAL_DIR,
+                             q_star=.5 if args.cot_restart_q_star is None else args.cot_restart_q_star)
+            else:
+                if args.historical_run is not None or args.cot_restart_q_star is not None:
+                    parser.error("Matched execution retains the exact prepared plan")
+                if args.cot_restart_matched_mock and args.cot_restart_matched_approved:
+                    parser.error("Use mock execution or approved real execution, not both")
+                run_plan(args.cot_restart_matched_run, args.output, mock=args.cot_restart_matched_mock,
+                         approved=args.cot_restart_matched_approved)
+        except (ValueError, OSError, RuntimeError) as error:
+            parser.error(str(error))
+        print(f"cot_restart_matched: {args.output}")
+        return
+    if args.cot_restart_q_star is not None or args.cot_restart_matched_mock or args.cot_restart_matched_approved:
+        parser.error("Matched overrides require --cot-restart-matched-plan or --cot-restart-matched-run")
     if args.cot_restart_pilot:
         if args.backend is not None or args.pilot or any(value is not None for value in (args.dataset, args.model, args.seed, args.lam, args.direct_cot_budget, *pilot_settings)):
             parser.error("CoT restart pilot uses pinned exposed questions and settings; overrides are not allowed")

@@ -1,0 +1,787 @@
+{
+  "scope": "Integrated OmnibarWindow, deterministic fixture replay; no model call; Qt offscreen, not Cocoa smoke.",
+  "integrated-empty": {
+    "window": {
+      "x": 74,
+      "y": 519,
+      "width": 620,
+      "height": 245,
+      "visible": true
+    },
+    "canvas": {
+      "x": 124,
+      "y": 531,
+      "width": 520,
+      "height": 79,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 124,
+      "y": 618,
+      "width": 520,
+      "height": 134,
+      "visible": true
+    },
+    "actor": {
+      "x": 124,
+      "y": 618,
+      "width": 112,
+      "height": 120,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 244,
+      "y": 674,
+      "width": 400,
+      "height": 78,
+      "visible": true
+    },
+    "composer": {
+      "x": 257,
+      "y": 683,
+      "width": 374,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 244,
+      "y": 618,
+      "width": 400,
+      "height": 48,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 141,
+      "y": 604,
+      "width": 100,
+      "height": 30,
+      "visible": false
+    },
+    "title": "Mình bắt đầu từ đâu?",
+    "footer": "Nói “xem chi tiết”",
+    "speech_text": "Mình ở đây. Bạn cứ nói điều đang cần, rồi mình cùng làm nhé.",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "90 phút",
+      "visible": true
+    },
+    "composer_region": [
+      374,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “xem chi tiết”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "integrated-calculation": {
+    "window": {
+      "x": 74,
+      "y": 479,
+      "width": 620,
+      "height": 285,
+      "visible": true
+    },
+    "canvas": {
+      "x": 124,
+      "y": 491,
+      "width": 520,
+      "height": 133,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 124,
+      "y": 632,
+      "width": 520,
+      "height": 120,
+      "visible": true
+    },
+    "actor": {
+      "x": 124,
+      "y": 632,
+      "width": 112,
+      "height": 120,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 244,
+      "y": 672,
+      "width": 400,
+      "height": 80,
+      "visible": true
+    },
+    "composer": {
+      "x": 257,
+      "y": 681,
+      "width": 374,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 244,
+      "y": 632,
+      "width": 400,
+      "height": 32,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 141,
+      "y": 564,
+      "width": 486,
+      "height": 54,
+      "visible": true
+    },
+    "title": "Tính nhanh",
+    "footer": "Nói “xem chi tiết”",
+    "speech_text": "2 + 2 = 4",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      374,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “xem chi tiết”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "integrated-expanded": {
+    "window": {
+      "x": 12,
+      "y": 13,
+      "width": 776,
+      "height": 751,
+      "visible": true
+    },
+    "canvas": {
+      "x": 80,
+      "y": 25,
+      "width": 640,
+      "height": 533,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 80,
+      "y": 566,
+      "width": 640,
+      "height": 186,
+      "visible": true
+    },
+    "actor": {
+      "x": 80,
+      "y": 566,
+      "width": 144,
+      "height": 186,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 232,
+      "y": 648,
+      "width": 488,
+      "height": 104,
+      "visible": true
+    },
+    "composer": {
+      "x": 250,
+      "y": 681,
+      "width": 452,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 232,
+      "y": 566,
+      "width": 488,
+      "height": 74,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 109,
+      "y": 110,
+      "width": 582,
+      "height": 429,
+      "visible": true
+    },
+    "title": "Tính nhanh",
+    "footer": "Nói “thu gọn”",
+    "speech_text": "2 + 2 = 4",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      452,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “thu gọn”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi · Shift + ↵ xuống dòng",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "composer_anchor": {
+    "before": 714,
+    "expanded": 714,
+    "draft": "Bản nháp tiếng Việt",
+    "selection": "nháp ti",
+    "same_editor": true
+  },
+  "integrated-narrow": {
+    "window": {
+      "x": 12,
+      "y": 384,
+      "width": 440,
+      "height": 380,
+      "visible": true
+    },
+    "canvas": {
+      "x": 22,
+      "y": 396,
+      "width": 420,
+      "height": 150,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 22,
+      "y": 554,
+      "width": 420,
+      "height": 198,
+      "visible": true
+    },
+    "actor": {
+      "x": 22,
+      "y": 554,
+      "width": 84,
+      "height": 124,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 22,
+      "y": 666,
+      "width": 420,
+      "height": 86,
+      "visible": true
+    },
+    "composer": {
+      "x": 38,
+      "y": 681,
+      "width": 388,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 114,
+      "y": 554,
+      "width": 328,
+      "height": 104,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 37,
+      "y": 466,
+      "width": 390,
+      "height": 74,
+      "visible": true
+    },
+    "title": "Tính nhanh",
+    "footer": "Nói “xem chi tiết”",
+    "speech_text": "2 + 2 = 4",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": true,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      388,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “xem chi tiết”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi",
+        "width": 0,
+        "height": 20,
+        "visible": false
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "view_command_while_busy": {
+    "same_handle": true,
+    "same_generation": true,
+    "draft": "Bản nháp giữ khi đổi chế độ",
+    "expanded": true
+  },
+  "first_token": {
+    "stream": "Xin",
+    "bubble": "Xin"
+  },
+  "second_token": {
+    "stream": "Xin chào",
+    "bubble": "Xin chào"
+  },
+  "integrated-cancelled": {
+    "window": {
+      "x": 12,
+      "y": 416,
+      "width": 620,
+      "height": 348,
+      "visible": true
+    },
+    "canvas": {
+      "x": 62,
+      "y": 428,
+      "width": 520,
+      "height": 196,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 62,
+      "y": 632,
+      "width": 520,
+      "height": 120,
+      "visible": true
+    },
+    "actor": {
+      "x": 62,
+      "y": 632,
+      "width": 112,
+      "height": 120,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 182,
+      "y": 672,
+      "width": 400,
+      "height": 80,
+      "visible": true
+    },
+    "composer": {
+      "x": 195,
+      "y": 681,
+      "width": 374,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 182,
+      "y": 632,
+      "width": 400,
+      "height": 32,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 79,
+      "y": 501,
+      "width": 486,
+      "height": 117,
+      "visible": true
+    },
+    "title": "Một yêu cầu fixture",
+    "footer": "Nói “xem chi tiết”",
+    "speech_text": "Đã dừng.",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      374,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “xem chi tiết”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "late_callbacks": {
+    "visible_state_unchanged": true
+  },
+  "integrated-file-compact": {
+    "window": {
+      "x": 12,
+      "y": 402,
+      "width": 620,
+      "height": 362,
+      "visible": true
+    },
+    "canvas": {
+      "x": 62,
+      "y": 414,
+      "width": 520,
+      "height": 210,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 62,
+      "y": 632,
+      "width": 520,
+      "height": 120,
+      "visible": true
+    },
+    "actor": {
+      "x": 62,
+      "y": 632,
+      "width": 112,
+      "height": 120,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 182,
+      "y": 672,
+      "width": 400,
+      "height": 80,
+      "visible": true
+    },
+    "composer": {
+      "x": 195,
+      "y": 681,
+      "width": 374,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 182,
+      "y": 632,
+      "width": 400,
+      "height": 32,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 79,
+      "y": 487,
+      "width": 486,
+      "height": 131,
+      "visible": true
+    },
+    "title": "README.md",
+    "footer": "Nói “xem chi tiết”",
+    "speech_text": "Đây là README của dự án.",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      374,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “xem chi tiết”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "file_card_compact": [
+    {
+      "exists": true,
+      "path_matches": true,
+      "visible": true,
+      "visible_region": [
+        473,
+        48
+      ]
+    }
+  ],
+  "file_activation": {
+    "calls": 2,
+    "exact_target": true
+  },
+  "integrated-file-expanded": {
+    "window": {
+      "x": 12,
+      "y": 13,
+      "width": 776,
+      "height": 751,
+      "visible": true
+    },
+    "canvas": {
+      "x": 80,
+      "y": 25,
+      "width": 640,
+      "height": 517,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 80,
+      "y": 550,
+      "width": 640,
+      "height": 202,
+      "visible": true
+    },
+    "actor": {
+      "x": 80,
+      "y": 550,
+      "width": 144,
+      "height": 186,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 232,
+      "y": 603,
+      "width": 488,
+      "height": 149,
+      "visible": true
+    },
+    "composer": {
+      "x": 250,
+      "y": 681,
+      "width": 452,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 232,
+      "y": 550,
+      "width": 488,
+      "height": 45,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 109,
+      "y": 110,
+      "width": 582,
+      "height": 413,
+      "visible": true
+    },
+    "title": "README.md",
+    "footer": "Nói “thu gọn”",
+    "speech_text": "Đây là README của dự án.",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      452,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “thu gọn”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi · Shift + ↵ xuống dòng",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  },
+  "file_card_expanded": [
+    {
+      "visible": true,
+      "visible_region": [
+        574,
+        48
+      ]
+    }
+  ],
+  "integrated-reset": {
+    "window": {
+      "x": 12,
+      "y": 13,
+      "width": 776,
+      "height": 751,
+      "visible": true
+    },
+    "canvas": {
+      "x": 102,
+      "y": 25,
+      "width": 596,
+      "height": 533,
+      "visible": true
+    },
+    "dialogue": {
+      "x": 102,
+      "y": 566,
+      "width": 596,
+      "height": 186,
+      "visible": true
+    },
+    "actor": {
+      "x": 102,
+      "y": 566,
+      "width": 144,
+      "height": 186,
+      "visible": true
+    },
+    "user_lane": {
+      "x": 254,
+      "y": 648,
+      "width": 444,
+      "height": 104,
+      "visible": true
+    },
+    "composer": {
+      "x": 272,
+      "y": 681,
+      "width": 408,
+      "height": 34,
+      "visible": true
+    },
+    "speech": {
+      "x": 254,
+      "y": 566,
+      "width": 444,
+      "height": 74,
+      "visible": true
+    },
+    "canvas_content": {
+      "x": 131,
+      "y": 110,
+      "width": 538,
+      "height": 447,
+      "visible": true
+    },
+    "title": "Không gian làm việc",
+    "footer": "Nói “thu gọn”",
+    "speech_text": "Mình ở đây. Bạn cứ nói điều đang cần, rồi mình cùng làm nhé.",
+    "visible_buttons": {
+      "btn_copy": false,
+      "btn_hist": false
+    },
+    "narrow": false,
+    "badge": {
+      "text": "",
+      "visible": false
+    },
+    "composer_region": [
+      408,
+      34
+    ],
+    "footers": {
+      "input_state_lbl": {
+        "text": "Nói “thu gọn”",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      },
+      "kbd_hint_lbl": {
+        "text": "↵ gửi · Shift + ↵ xuống dòng",
+        "width": 0,
+        "height": 20,
+        "visible": true
+      }
+    },
+    "fonts": {
+      "title": "-apple-system",
+      "composer": "-apple-system"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "PyInstaller",
+    "rat.spec",
+    "--noconfirm",
+    "--distpath",
+    "/private/tmp/rat-packaging-intake-20261020-release-dist",
+    "--workpath",
+    "/private/tmp/rat-packaging-intake-20261020-native-build"
+  ],
+  "cwd": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "exit_code": 0,
+  "started_unix": 1792480149.731818,
+  "elapsed_seconds": 233.39505410194397,
+  "environment_overrides": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "PYINSTALLER_CONFIG_DIR": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_packaging_intake_20261020/pyinstaller-cache",
+    "PIP_NO_INDEX": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "QT_QPA_PLATFORM": "offscreen"
+  }
+}

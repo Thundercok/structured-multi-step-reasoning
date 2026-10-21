@@ -247,6 +247,10 @@ class ActionDispatcher:
             choice = choices[selection]
             if "id" in choice:
                 request.target_artifact_id, request.target_revision = choice["id"], choice["revision"]
+            elif "resource_id" in choice or "path" in choice:
+                for k in ("resource_id", "path", "bundle_id"):
+                    if k in choice and choice[k] is not None:
+                        values[k] = choice[k]
             else:
                 values.update({k: choice[k] for k in ("latitude", "longitude", "timezone")})
                 values["place"] = choice["name"]

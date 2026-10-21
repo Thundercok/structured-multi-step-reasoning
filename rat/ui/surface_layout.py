@@ -12,11 +12,16 @@ from PyQt6.QtWidgets import (
 
 
 def motion_enabled() -> bool:
-    if os.getenv("RAT_REDUCE_MOTION", "").lower() in ("1", "true", "yes"):
+    env = os.getenv("RAT_REDUCE_MOTION", "").lower()
+    if env in ("1", "true", "yes"):
         return False
+    if env in ("0", "false", "no"):
+        return True
     app = QApplication.instance()
-    if app and app.property("ratReduceMotion"):
-        return False
+    if app is not None:
+        prop = app.property("ratReduceMotion")
+        if prop is not None:
+            return not bool(prop)
     try:
         from AppKit import NSWorkspace
         return not NSWorkspace.sharedWorkspace().accessibilityDisplayShouldReduceMotion()
@@ -37,8 +42,18 @@ class ChatComposer(QPlainTextEdit):
         self.setTabChangesFocus(True)
         self.document().setDocumentMargin(3)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self._in_ime_composition = False
         self.textChanged.connect(self._fit_height)
-        self.setFixedHeight(34)
+        self.setFixedHeight(40)
+
+    def is_composing(self) -> bool:
+        return bool(getattr(self, "_in_ime_composition", False))
+
+    def inputMethodEvent(self, event):
+        self._in_ime_composition = bool(event.preeditString())
+        super().inputMethodEvent(event)
+        if not event.preeditString():
+            self._in_ime_composition = False
 
     def text(self):
         return self.toPlainText()
@@ -72,7 +87,7 @@ class ChatComposer(QPlainTextEdit):
     def _fit_height(self):
         # Count wrapped visual lines without changing the editor or caret.
         lines = sum(max(1, block.layout().lineCount()) for block in self._blocks())
-        target = min(112, max(34, lines * self.fontMetrics().lineSpacing() + 10))
+        target = min(112, max(40, lines * self.fontMetrics().lineSpacing() + 10))
         if target != self.height():
             self.setFixedHeight(target)
             self.height_changed.emit()
@@ -97,6 +112,29 @@ class ChatComposer(QPlainTextEdit):
 
 class CurrentPageStack(QStackedWidget):
     """Hidden legacy pages cannot impose their minimum size on the chat box."""
+    def add_lazy_page(self, factory):
+        if not hasattr(self, '_page_factories'):
+            self._page_factories = {}
+        placeholder = QWidget(self)
+        index = self.addWidget(placeholder)
+        self._page_factories[index] = factory
+        return placeholder
+
+    def ensure_page(self, index):
+        factory = getattr(self, '_page_factories', {}).get(index)
+        if factory is not None:
+            page = factory()  # Leave the factory available if construction fails.
+            old = self.widget(index)
+            self.removeWidget(old)
+            self.insertWidget(index, page)
+            del self._page_factories[index]
+            old.deleteLater()
+        return self.widget(index)
+
+    def setCurrentIndex(self, index):
+        self.ensure_page(index)
+        super().setCurrentIndex(index)
+
     def minimumSizeHint(self):
         page = self.currentWidget()
         return page.minimumSizeHint() if page else QSize(0, 0)

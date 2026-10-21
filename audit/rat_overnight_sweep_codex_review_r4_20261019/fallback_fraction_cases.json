@@ -1,0 +1,27 @@
+[
+  {
+    "raw": "Answer: x = 3/4",
+    "expected_rational": "3/4",
+    "parsed": "x = 3/4"
+  },
+  {
+    "raw": "x = 3/4",
+    "expected_rational": "3/4",
+    "parsed": "x = 3/4"
+  },
+  {
+    "raw": "Therefore x = 3/4",
+    "expected_rational": "3/4",
+    "parsed": "4"
+  },
+  {
+    "raw": "Therefore the value is 3/4",
+    "expected_rational": "3/4",
+    "parsed": "4"
+  },
+  {
+    "raw": "x = 3.25/4",
+    "expected_rational": "13/16",
+    "parsed": "3"
+  }
+]

@@ -1,0 +1,72 @@
+{
+  "execution_type": "native Qt fixture replay/widget capture",
+  "disclaimer": "Uses Cocoa Qt with patched worker, injected events, and QWidget.grab(); does not capture WindowServer framebuffer or establish real model execution; native IME text input composition remains unverified by automated setText().",
+  "pid": 86643,
+  "timestamp_iso": "2026-10-16T16:33:08.678445+00:00",
+  "platform": {
+    "system": "Darwin",
+    "release": "25.5.0",
+    "version": "Darwin Kernel Version 25.5.0: Tue Jun  9 22:26:46 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T8103",
+    "machine": "arm64",
+    "python_version": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+    "qpa_platform": "offscreen"
+  },
+  "git": {
+    "head": "11c748a7a60c3da72e24f2e4cbb2233e5aa6a2b5",
+    "branch": "main"
+  },
+  "source_hashes": {
+    "rat/ui/workbench_scene.py": "f2689a957350ecbbb0dc20c637266b5d25b86404a891ad1e8c17aed45d069e59",
+    "rat/ui/workbench.py": "64cbba3128d508457744d6d4637c13434fa9f6176ec0547453bebf2ff5c4626f",
+    "rat/ui/omnibar.py": "17d81cf981e3047e74286f7f3e17a68ca259d7add680406b22a4086dc727cdb1",
+    "rat/ui/surface_layout.py": "b297ca9f6ac937d96519a2f5f9e874508920355297931ce3d97bfb5920d82ee6",
+    "rat/ui/theme.py": "4aa627a738fb76097924f0f51d64303cbf411f819f9da83684499e2f8a7dff9d",
+    "rat/ui/view_renderer.py": "58a721324cddff62b985ceb4e0285179206e5ff65a162af21f4cc6137b4435eb",
+    "rat/ui/assistant_presenter.py": "bc90077c25f1bf7382a4560b0e39786fcd281bdbb81f1c4eeb7ebfe045399d1a",
+    "rat/engine/progressive_search.py": "d91de18e0cdda27cd188eb9c0568b8414bb2dffc556ec45dca093c058d8f5199",
+    "rat/engine/app_resolver.py": "d185b942e9dcf0aeb0af8ed1eedf2d4dcb4c5a6e9826e9bc1c51e8eac87b5930",
+    "tests/test_workbench_scene.py": "80d0da7013739f10ab9ff4883fada864f070cb3d60ec2acbbf099015e3127ecb"
+  },
+  "specimens": {
+    "overview": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_overview.png",
+      "width": 652,
+      "height": 600
+    },
+    "source_detail": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_source_detail.png",
+      "width": 620,
+      "height": 417
+    },
+    "revision_update": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_revision_update.png",
+      "width": 620,
+      "height": 600
+    },
+    "stopped": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_stopped.png",
+      "width": 620,
+      "height": 600
+    },
+    "narrow": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_narrow.png",
+      "width": 420,
+      "height": 600
+    },
+    "dark": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_dark.png",
+      "width": 620,
+      "height": 600
+    },
+    "finder_suggestions": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_finder_suggestions.png",
+      "width": 620,
+      "height": 364
+    },
+    "finder_narrow": {
+      "path": "docs/evidence/rat_workbench_native/native_scene_finder_narrow.png",
+      "width": 420,
+      "height": 442
+    }
+  }
+}

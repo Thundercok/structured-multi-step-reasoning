@@ -563,6 +563,7 @@ class ChatStreamWidget(QScrollArea):
     Pins the rat mascot watermark to the viewport background when active.
     """
     prompt_clicked = pyqtSignal(str)
+    document_question_requested = pyqtSignal(object)
     content_changed = pyqtSignal()
     note_edit_saved = pyqtSignal(str, int, str)
     note_removed = pyqtSignal(str, int)
@@ -943,7 +944,9 @@ class ChatStreamWidget(QScrollArea):
             title.setStyleSheet("color: #786F66; font-size: 11px; padding-top: 8px;")
             layout.addWidget(title)
             for item in inline_files[:4]:
-                layout.addWidget(InlineFileCard(item))
+                card = InlineFileCard(item)
+                card.question_requested.connect(self.document_question_requested.emit)
+                layout.addWidget(card)
         handle["sources_widget"] = host
         anchor = handle.get("turn_notes") or handle["work_trace"]
         handle["c_layout"].insertWidget(handle["c_layout"].indexOf(anchor), host)

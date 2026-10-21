@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.134" timestamp="2026-10-19T01:48:59.169232+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_milestones_abc_review_r3_20261019.test_slide_summary_projection" name="test_sql_slide_match_survives_summary_projection[short-summary-control]" time="0.017" /><testcase classname="audit.rat_milestones_abc_review_r3_20261019.test_slide_summary_projection" name="test_sql_slide_match_survives_summary_projection[indicator-after-200]" time="0.008"><failure message="AssertionError: assert [] == ['/private/tm...ooks/DSA.pdf']&#10;  &#10;  Right contains one more item: '/private/tmp/rat-r3-9zo0u27i/books/DSA.pdf'&#10;  Use -v to get more diff">padding = 15
+
+    @pytest.mark.parametrize('padding', [0, 15], ids=['short-summary-control', 'indicator-after-200'])
+    def test_sql_slide_match_survives_summary_projection(padding):
+        with TemporaryDirectory(prefix='rat-r3-', dir='/tmp') as folder:
+            root = Path(folder).resolve()
+            path = root / 'books' / 'DSA.pdf'
+            path.parent.mkdir()
+            path.write_text('DSA trees')
+            summary = 'Reference material. ' * padding + ' slide'
+            row = dict(file_path=str(path), file_name=path.name, file_ext='.pdf',
+                file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+                content_text='DSA trees', summary=summary)
+            assert is_slide_row(row)
+            db = Database(str(root / 'fixture.db'))
+            db.upsert_document(row)
+            search = ProgressiveSearch(db.db_path)
+            try:
+                candidates = db.search_metadata('DSA', slide_rule=True)
+                assert [r['file_path'] for r in candidates] == [str(path)]
+                assert all('content_text' not in r and len(r['summary']) &lt;= 200 for r in candidates)
+                snap = search.initial(SearchRequest(1, 'slide DSA'))
+&gt;               assert [h.path for h in snap.hits] == [str(path)]
+E               AssertionError: assert [] == ['/private/tm...ooks/DSA.pdf']
+E                 
+E                 Right contains one more item: '/private/tmp/rat-r3-9zo0u27i/books/DSA.pdf'
+E                 Use -v to get more diff
+
+audit/rat_milestones_abc_review_r3_20261019/test_slide_summary_projection.py:32: AssertionError</failure></testcase></testsuite></testsuites>

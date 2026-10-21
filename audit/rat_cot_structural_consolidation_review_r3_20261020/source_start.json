@@ -1,0 +1,40 @@
+{
+  "time_utc": "2026-10-20T06:20:58.724211+00:00",
+  "files": {
+    "AGENTS.md": "9ed99c53b8ddf8f041fb9dbb93590c7e695e92f7f2852516a73d22f7cd34ab10",
+    "docs/project_scope.md": "7fa44eb4300ea0de0e91deb3f55f5b7790fb0dbcf16ffe17377b5948685cb14e",
+    "docs/rat_cot_structural_consolidation_20261017.md": "79204c606a6a44a5b0b9746fd1ae8aef7b22720e45f4fb8955e2924228dfea42",
+    "entry_predictor.py": "e427e587ac32df583a0c84604b00e2601f809824e0911be1c096cf20b0d78fd3",
+    "experiments/research_pilot.py": "02d6fdacf0adc2178de8d539bdea77e242f4f71014c7d17ee81f882cc751fba4",
+    "experiments/research_study.py": "3759513bb6809aa6549a5c5d0824c6a9d167b9b6470ddb508766df6ba1f4225d",
+    "optimal_stopping.py": "349ef970e5d921ced68278e53e0b772b18d35a7fc26bef655da8deded6cd22de",
+    "pipeline.py": "651af02391827c1ee8ea48ad8ba218b023379cce5b04d0ca0d2885ab606fb761",
+    "qwen_mlx_backend.py": "29368030d0f922fe871cec0eb8d8a61a1f266352035a2162fa78826944bafb90",
+    "rat/engine/meta_reasoner.py": "2ebb8427a57937ead89ede475d293103906ae3eabced1f968b0fad4fd00c101e",
+    "rat/ui/omnibar.py": "72d9b746754083662e21982b885c2a910024fcb835eb1f89354f3314fed09d7a",
+    "reasoning/__init__.py": "3a489ee38de54a23e09c638e06980f34b086f27b385933e8248ff6f24f09efaa",
+    "reasoning/entry_predictor.py": "113c1f32ac4e319fd8b52a05d7e4ee05e19bdca0c2fe1698df7728be0f1a0920",
+    "reasoning/optimal_stopping.py": "540811a148fdf232c0d1434c6ccc2b816dec23cbb78b67d653a647cca0f5a0a0",
+    "reasoning/reasoning_env.py": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54",
+    "reasoning/reasoning_strategies.py": "5403540793a4ff112ee6ef94b311c070b39d3039145d254e248cfc2475a1ef4f",
+    "reasoning_env.py": "094f911f9efe43e2669ee4de9365f59bccef85d072b5c0f9fcdbdf1d2dd9673b",
+    "reasoning_strategies.py": "fd77403c24b67dd5d7c777bd174aec158ecc9d90f1d6fa8d79f0e704aff8975b",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "research_prompt_profiles.py": "49873e4d541dcae5c9c836d9d9e4946122f1bb3354f45c957acfe23a0ce0b867",
+    "research_scoring.py": "678187b47ad64365bc92d9e74ad7617eaaf18766b323a53b8aa7f38eff576139",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "test_entry_predictor.py": "963f3a49cb3167d53c487407b60d8e1ce07f037d3d8ec56145c0becb190a10ee",
+    "test_optimal_stopping.py": "ce252acc8f951e52800f0e2b7d098103f6a1489ed76d22ab8bf4675f424507a2",
+    "test_qwen_mlx_backend_mocked.py": "a5d09d4833357058ef626a765a4aa367053ff94d5a71c116dfd87ae175a175b9",
+    "test_reasoning_env.py": "84d05da59d39e4019a3600bd61d193d342d8c83d118c9ca8d60d2db4374caf48",
+    "test_reasoning_strategies.py": "7791675817a34c652fa7485501a454b5e387103158d806e198d95826361942e9",
+    "tests/test_assistant_runtime.py": "3da5280dc096b58c24cb678d7799dfcb9d793823875489e0bd61ba41c089b7fb",
+    "tests/test_research_scoring.py": "89ccdb96fe741354eba295478add646f5f6c4915bafd45f70a0dc0840ca7c2bb",
+    "tests/test_research_study.py": "05752d8be7660a1a61fdda04fe0d62e318e122740781b0a96b88362b3f4a5e73",
+    "tests/test_spider_adapter.py": "f1a992f9b56b4c5088ea5fe07697cb3e20197ce21237a268a23243dc92b44f50",
+    "tests/test_work_context.py": "ef2c1d105dba4d69db3a0f86dbe33c0b3e5fd7381d4d62efbd6555ae2e9fe5f9"
+  },
+  "changed_since_r2": [
+    "docs/rat_cot_structural_consolidation_20261017.md"
+  ]
+}

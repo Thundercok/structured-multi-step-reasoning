@@ -1,0 +1,74 @@
+[
+  {
+    "name": "consolidated_regression_suite",
+    "declared_tests": 372,
+    "junit_tests": 372,
+    "junit_nonpass": 0,
+    "junit_seconds": 44.378,
+    "log_summary": [
+      "372",
+      "44.40"
+    ],
+    "counts_match": true
+  },
+  {
+    "name": "mandatory_research_suite",
+    "declared_tests": 29,
+    "junit_tests": 29,
+    "junit_nonpass": 0,
+    "junit_seconds": 3.226,
+    "log_summary": [
+      "29",
+      "3.32"
+    ],
+    "counts_match": true
+  },
+  {
+    "name": "parser_and_document_intake_suite",
+    "declared_tests": 44,
+    "junit_tests": 44,
+    "junit_nonpass": 0,
+    "junit_seconds": 0.465,
+    "log_summary": [
+      "44",
+      "0.47"
+    ],
+    "counts_match": true
+  },
+  {
+    "name": "codex_review_r1_probes",
+    "declared_tests": 26,
+    "junit_tests": 26,
+    "junit_nonpass": 0,
+    "junit_seconds": 2.113,
+    "log_summary": [
+      "26",
+      "2.24"
+    ],
+    "counts_match": true
+  },
+  {
+    "name": "codex_review_r2_probes",
+    "declared_tests": 25,
+    "junit_tests": 25,
+    "junit_nonpass": 0,
+    "junit_seconds": 2.046,
+    "log_summary": [
+      "25",
+      "2.06"
+    ],
+    "counts_match": true
+  },
+  {
+    "name": "failed_request_reporting_r7",
+    "declared_tests": 4,
+    "junit_tests": 4,
+    "junit_nonpass": 0,
+    "junit_seconds": 0.151,
+    "log_summary": [
+      "4",
+      "0.15"
+    ],
+    "counts_match": true
+  }
+]

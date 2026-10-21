@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="10" time="0.117" timestamp="2026-10-19T22:18:36.104885+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_final_conclusion_not_earlier_intermediate_scalar[marker-final-rational]" time="0.001"><failure message="AssertionError: {'input': 'Answer: 2 + 2 = 4; 1 / 4 = 1/4', 'parsed': '4', 'expected': '1/4'}&#10;assert Fraction(4, 1) == Fraction(1, 4)">raw = 'Answer: 2 + 2 = 4; 1 / 4 = 1/4', expected = Fraction(1, 4)
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Answer: 2 + 2 = 4; 1 / 4 = 1/4", Fraction(1, 4)),
+        ("Therefore 2 + 2 = 4; 1 / 4 = 1/4", Fraction(1, 4)),
+        ("Answer: x = 3/4", Fraction(3, 4)),
+        ("Answer: 2 + 2 = 4; 4 * 2 = 8", Fraction(8)),
+    ], ids=["marker-final-rational", "fallback-final-rational", "single-rational-control", "final-integer-control"])
+    def test_final_conclusion_not_earlier_intermediate_scalar(raw, expected):
+        parsed = extract_answer(raw)
+        # Accept a numeric result or a preserved final expression, as in prior probes.
+        conclusion = parsed.rsplit("=", 1)[-1].strip()
+        if "/" in conclusion:
+            numerator, denominator = conclusion.split("/", 1)
+            actual = Fraction(numerator.strip()) / Fraction(denominator.strip())
+        else:
+            actual = Fraction(conclusion)
+&gt;       assert actual == expected, {"input": raw, "parsed": parsed, "expected": str(expected)}
+E       AssertionError: {'input': 'Answer: 2 + 2 = 4; 1 / 4 = 1/4', 'parsed': '4', 'expected': '1/4'}
+E       assert Fraction(4, 1) == Fraction(1, 4)
+
+audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py:34: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_final_conclusion_not_earlier_intermediate_scalar[fallback-final-rational]" time="0.001"><failure message="AssertionError: {'input': 'Therefore 2 + 2 = 4; 1 / 4 = 1/4', 'parsed': '4', 'expected': '1/4'}&#10;assert Fraction(4, 1) == Fraction(1, 4)">raw = 'Therefore 2 + 2 = 4; 1 / 4 = 1/4', expected = Fraction(1, 4)
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Answer: 2 + 2 = 4; 1 / 4 = 1/4", Fraction(1, 4)),
+        ("Therefore 2 + 2 = 4; 1 / 4 = 1/4", Fraction(1, 4)),
+        ("Answer: x = 3/4", Fraction(3, 4)),
+        ("Answer: 2 + 2 = 4; 4 * 2 = 8", Fraction(8)),
+    ], ids=["marker-final-rational", "fallback-final-rational", "single-rational-control", "final-integer-control"])
+    def test_final_conclusion_not_earlier_intermediate_scalar(raw, expected):
+        parsed = extract_answer(raw)
+        # Accept a numeric result or a preserved final expression, as in prior probes.
+        conclusion = parsed.rsplit("=", 1)[-1].strip()
+        if "/" in conclusion:
+            numerator, denominator = conclusion.split("/", 1)
+            actual = Fraction(numerator.strip()) / Fraction(denominator.strip())
+        else:
+            actual = Fraction(conclusion)
+&gt;       assert actual == expected, {"input": raw, "parsed": parsed, "expected": str(expected)}
+E       AssertionError: {'input': 'Therefore 2 + 2 = 4; 1 / 4 = 1/4', 'parsed': '4', 'expected': '1/4'}
+E       assert Fraction(4, 1) == Fraction(1, 4)
+
+audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py:34: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_final_conclusion_not_earlier_intermediate_scalar[single-rational-control]" time="0.000" /><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_final_conclusion_not_earlier_intermediate_scalar[final-integer-control]" time="0.000" /><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_backend_provenance_never_inferred_real_from_timing_or_token_count[legacy-captured-fake-expected0]" time="0.008"><failure message="AssertionError: {'kind': 'legacy-captured-fake', 'record': {'event': 'request_complete', 'call_index': 1, 'request_id': 'perf-exec-1-1792410808882', 'timestamp_utc': '2026-10-19T11:53:28.921948+00:00', ...}}&#10;assert 'real' in {'fake', 'unknown'}&#10; +  where 'real' = &lt;function classify_record_backend at 0x1058d2840&gt;({'event': 'request_complete', 'call_index': 1, 'request_id': 'perf-exec-1-1792410808882', 'timestamp_utc': '2026-10-19T11:53:28.921948+00:00', ...})">kind = 'legacy-captured-fake', expected = {'fake', 'unknown'}
+actual_classifier = &lt;function classify_record_backend at 0x1058d2840&gt;
+
+    @pytest.mark.parametrize("kind,expected", [
+        ("legacy-captured-fake", {"fake", "unknown"}),
+        ("explicit-fake", {"fake"}),
+        ("explicit-real", {"real"}),
+        ("no-provenance", {"unknown"}),
+    ])
+    def test_backend_provenance_never_inferred_real_from_timing_or_token_count(kind, expected, actual_classifier):
+        if kind == "legacy-captured-fake":
+            # This is genuine fake-run evidence from r3, with command/raw log preserved.
+            records = [json.loads(line) for line in (HERE / "legacy_fake_calls.jsonl").read_text().splitlines()]
+            record = next(r for r in records if r.get("event") == "request_complete")
+            assert "backend_type" not in record and record["prompt_tokens"] &gt;= 500
+        elif kind.startswith("explicit-"):
+            record = {"backend_type": kind.removeprefix("explicit-"), "prompt_tokens": 2031,
+                      "first_token_ms": 0.531}
+        else:
+            record = {"event": "request_complete", "completion_tokens": 28}
+&gt;       assert actual_classifier(record) in expected, {"kind": kind, "record": record}
+E       AssertionError: {'kind': 'legacy-captured-fake', 'record': {'event': 'request_complete', 'call_index': 1, 'request_id': 'perf-exec-1-1792410808882', 'timestamp_utc': '2026-10-19T11:53:28.921948+00:00', ...}}
+E       assert 'real' in {'fake', 'unknown'}
+E        +  where 'real' = &lt;function classify_record_backend at 0x1058d2840&gt;({'event': 'request_complete', 'call_index': 1, 'request_id': 'perf-exec-1-1792410808882', 'timestamp_utc': '2026-10-19T11:53:28.921948+00:00', ...})
+
+audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py:67: AssertionError</failure></testcase><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_backend_provenance_never_inferred_real_from_timing_or_token_count[explicit-fake-expected1]" time="0.000" /><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_backend_provenance_never_inferred_real_from_timing_or_token_count[explicit-real-expected2]" time="0.000" /><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_backend_provenance_never_inferred_real_from_timing_or_token_count[no-provenance-expected3]" time="0.000" /><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_executed_fake_count_describes_current_run[fresh-fake-control]" time="0.001" /><testcase classname="audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion" name="test_executed_fake_count_describes_current_run[budget-halt-on-tagged-fake-history]" time="0.002"><failure message="AssertionError: {'type': 'offline_fake_backend_simulation', 'status': 'offline_fake_backend_completed_1_calls', 'unverified_native_sce...'], 'note': 'Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed.'}&#10;assert 1 == 0">folder = 'fake_history_halt', expected_new_fake = 0
+
+    @pytest.mark.parametrize("folder,expected_new_fake", [
+        ("fake_session", 1), ("fake_history_halt", 0),
+    ], ids=["fresh-fake-control", "budget-halt-on-tagged-fake-history"])
+    def test_executed_fake_count_describes_current_run(folder, expected_new_fake):
+        output_root = Path(os.environ.get("RAT_REVIEW_R5_OUTPUT_DIR") or HERE)
+        perf = json.loads((output_root / folder / "native_performance.json").read_text())
+        if folder == "fake_history_halt":
+            assert (output_root / folder / "calls.jsonl").read_bytes() == (output_root / "fake_session/calls.jsonl").read_bytes()
+            log = (output_root / f"{folder}.txt").read_text()
+            assert "No new requests will be dispatched" in log
+&gt;       assert perf["fake_model_calls_executed"] == expected_new_fake, perf["scope_classification"]
+E       AssertionError: {'type': 'offline_fake_backend_simulation', 'status': 'offline_fake_backend_completed_1_calls', 'unverified_native_sce...'], 'note': 'Offline simulation utilizing mock tokenizer and canned completions; zero real inference calls performed.'}
+E       assert 1 == 0
+
+audit/rat_overnight_sweep_codex_review_r5_20261019/test_provenance_and_conclusion.py:80: AssertionError</failure></testcase></testsuite></testsuites>

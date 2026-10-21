@@ -34,7 +34,7 @@ from PyQt6.QtWidgets import (
 
 from rat.engine.reasoning_trace import ReasoningTrace
 from rat.engine.reranker import SearchResultItem
-from rat.ui.theme import get_ext_badge_info
+from rat.ui.theme import MONO_FONT_FAMILY, get_ext_badge_info
 
 EXT_DESCRIPTIONS = {
     ".docx": "Tài liệu Word",
@@ -415,18 +415,18 @@ class PreviewPanel(QFrame):
         self.preview_text.setObjectName("PreviewContent")
         self.preview_text.setReadOnly(True)
         self.preview_text.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        self.preview_text.setStyleSheet("""
-            QTextEdit {
+        self.preview_text.setStyleSheet(f"""
+            QTextEdit {{
                 background-color: #ffffff;
                 border: 1px solid #e2d9cd;
                 border-top: 1px solid #e2d9cd;
                 border-radius: 6px;
                 color: #2c241c;
                 font-size: 11.5px;
-                font-family: "SF Mono", "Menlo", "Fira Code", monospace;
+                font-family: {MONO_FONT_FAMILY};
                 line-height: 1.45;
                 padding: 8px;
-            }
+            }}
         """)
         self.stack.addWidget(self.preview_text)
 
@@ -752,7 +752,7 @@ class PreviewPanel(QFrame):
                     r'<mark style="background-color: #f7eedb; color: #1c1917; padding: 1px 3px; border-radius: 3px;">\1</mark>',
                     escaped_body
                 )
-                self.preview_text.setHtml(f"<div style='font-family: \"SF Mono\", \"Menlo\", \"Fira Code\", monospace; font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; color: #2c241c;'>{highlighted}</div>")
+                self.preview_text.setHtml(f"<div style='font-family: {MONO_FONT_FAMILY}; font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; color: #2c241c;'>{highlighted}</div>")
             else:
                 self.preview_text.setPlainText(preview_body)
         else:

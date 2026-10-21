@@ -1,0 +1,118 @@
+{
+  "review": "r5",
+  "date_local": "2026-10-21",
+  "timezone": "Asia/Saigon",
+  "verdict": "REQUEST_CHANGES",
+  "open_findings": {
+    "P1": [
+      "R2",
+      "R3",
+      "R5"
+    ],
+    "P2": [
+      "R12"
+    ]
+  },
+  "repairs_confirmed": [
+    "SC/ToT configured loops and r4 budgets",
+    "r4 partial-token and cancellation accounting cases",
+    "r4 five artifact mutation rejections",
+    "eight original r2/r3 counterexamples restored"
+  ],
+  "retained_closed_scoped": [
+    "R1",
+    "R4",
+    "R6",
+    "R7",
+    "R8",
+    "R9",
+    "R10",
+    "R11",
+    "G1"
+  ],
+  "baseline": {
+    "total": 408,
+    "passed": 405,
+    "failed": 3,
+    "skipped": 0,
+    "failures": [
+      {
+        "class": "tests.test_rat_magic_ui",
+        "name": "test_bottom_composer_preserves_editor_and_anchor_across_content_and_modes"
+      },
+      {
+        "class": "tests.test_rat_magic_ui",
+        "name": "test_footer_hints_have_usable_positive_bounds_across_states"
+      },
+      {
+        "class": "tests.test_rat_magic_ui",
+        "name": "test_responsive_breakpoint_uses_content_width_on_constrained_screens"
+      }
+    ],
+    "xml_time_s": 48.29
+  },
+  "new_probes": {
+    "total": 12,
+    "passed": 3,
+    "failed": 9,
+    "skipped": 0,
+    "failures": [
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_predispatch_prompt_failure_count_is_invariant_to_message"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_declared_react_turn_limit_cannot_bypass_hard_budget[requests]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_declared_react_turn_limit_cannot_bypass_hard_budget[tokens]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_approved_bundle_requires_complete_binding[missing-performance]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_approved_bundle_requires_complete_binding[missing-cost-intercept]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_approved_bundle_requires_complete_binding[multiple-untyped-json]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_approved_bundle_requires_complete_binding[non-json-only-artifact]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_approved_bundle_requires_complete_binding[nonfinite-threshold]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch",
+        "name": "test_approved_bundle_requires_complete_binding[learned-performance-intercept]"
+      }
+    ],
+    "xml_time_s": 3.356
+  },
+  "backend_strategy_scoring": {
+    "passed": 68,
+    "skipped": 2
+  },
+  "historical_drift_at_receipt": 3,
+  "historical_changes_during_r5": 0,
+  "verified_original_copies_recovered_to_r5": 2,
+  "baseline_r4_xml_recovery": "No matching backup found among existing audit XML files. Timings not reconstructed.",
+  "real_model_calls": 0,
+  "git_mutations": 0,
+  "research_status": {
+    "human_data_review": "pending",
+    "Stage_0": "unchanged; not established as passed",
+    "native_interactive_acceptance": "pending"
+  },
+  "costs": "Scripted synthetic generated-token counts; no full inference costs measured.",
+  "timings": "Software test wall time, not measured online model latency.",
+  "UI_scope": "Five UI/test source files differ from submission at receipt. Three current UI assertions fail. No product-bug conclusion or repair of those parallel changes is made here.",
+  "legacy_probe_scope": "No requirement to preserve contradictory unsupported-hard-cap expectations. The r2 fake _chat failure seam also lacks structured dispatch evidence; version that fixture instead of retaining production exception-message heuristics."
+}

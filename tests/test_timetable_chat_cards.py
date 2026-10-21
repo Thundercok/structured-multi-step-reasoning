@@ -5,6 +5,7 @@ Verifies Feature A (Session Cards with Action Buttons) and Feature B (Contextual
 
 from __future__ import annotations
 
+import os
 import unittest
 from unittest.mock import MagicMock, patch
 from PyQt6.QtWidgets import QApplication
@@ -111,7 +112,7 @@ class TestTimetableChatCards(unittest.TestCase):
     @patch("rat.ui.omnibar.configure_macos_fullscreen_overlay")
     def test_omnibar_schedule_chat_delivers_deck_widget(self, _mock_overlay, _mock_act):
         from rat.engine.assistant_runtime import AgentResponse
-        with patch("rat.ui.assistant_worker.AssistantWorker.start"):
+        with patch.dict(os.environ, {"RAT_WORKBENCH_SCENE": "0"}), patch("rat.ui.assistant_worker.AssistantWorker.start"):
             window = OmnibarWindow()
             try:
                 window.show_omnibar(initial_section=0)

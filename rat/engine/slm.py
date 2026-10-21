@@ -119,14 +119,22 @@ class SLMEngine:
         try:
             with urllib.request.urlopen(req, timeout=timeout) as reply:
                 data = json.load(reply)
+            error = data.get("error") or (None if data.get("done") is True else "incomplete_chat_response")
+            usage_known = error is None and all(
+                type(data.get(key)) is int and data[key] >= 0
+                for key in ("prompt_eval_count", "eval_count"))
             return {"message": data.get("message", {}),
                     "prompt_tokens": int(data.get("prompt_eval_count") or 0),
                     "completion_tokens": int(data.get("eval_count") or 0),
-                    "done_reason": data.get("done_reason"), "error": data.get("error") or (None if data.get("done") is True else "incomplete_chat_response"),
+                    "done_reason": data.get("done_reason"), "error": error,
+                    # Preserve server phases for diagnosis without logging
+                    # prompts/replies or issuing an extra inference request.
+                    "raw_response": data, "token_usage_known": usage_known,
                     "request": payload,
                     "duration_ms": (time.perf_counter() - tick) * 1000}
         except Exception as exc:
             return {"message": {}, "prompt_tokens": 0, "completion_tokens": 0,
+                    "raw_response": None, "token_usage_known": False,
                     "request": payload,
                     "error": str(exc), "duration_ms": (time.perf_counter() - tick) * 1000}
 

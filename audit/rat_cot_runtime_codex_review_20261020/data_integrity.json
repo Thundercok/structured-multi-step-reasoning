@@ -1,0 +1,41 @@
+{
+  "packet_status": "prepared_pending_independent_review",
+  "input_and_packet_hash_checks": {
+    "data/procedural_research_v1/manifest.json": true,
+    "data/procedural_research_v1/main.json": true,
+    "data/procedural_research_v1/tuning.json": true,
+    "data/gen_v2.json": true,
+    "data/gen_tune.json": true,
+    "research_identity.py": true,
+    "audit/cot_restart_fresh_data_review_20261016/prepare_review.py": true,
+    "audit/cot_restart_pilot_qwen35_20261009/dataset.json": true,
+    "audit/order_certificate_pilot_dev2_real_20261008/dataset.json": true,
+    "audit/order_certificate_pilot_dev8_contract_v2_real_20261008/dataset.json": true,
+    "audit/cot_restart_fresh_data_review_20261016/README.md": true,
+    "audit/cot_restart_fresh_data_review_20261016/review_packet.md": true,
+    "audit/cot_restart_fresh_data_review_20261016/candidate_frame.json": true
+  },
+  "split_item_counts": {
+    "calibration": 72,
+    "train": 36,
+    "test": 71
+  },
+  "split_group_counts": {
+    "train": 36,
+    "calibration": 71,
+    "test": 70
+  },
+  "split_group_overlap": {
+    "train__calibration": 0,
+    "train__test": 0,
+    "calibration__test": 0
+  },
+  "exposed_pool_test_group_overlap": {
+    "data/procedural_research_v1/tuning.json": 0,
+    "audit/cot_restart_pilot_qwen35_20261009/dataset.json": 0,
+    "audit/order_certificate_pilot_dev2_real_20261008/dataset.json": 0,
+    "audit/order_certificate_pilot_dev8_contract_v2_real_20261008/dataset.json": 0
+  },
+  "human_review": false,
+  "held_out_queries_or_gold_emitted": false
+}

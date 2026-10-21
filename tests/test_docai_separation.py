@@ -1,4 +1,4 @@
-"""The deferred DocAI module must not enter RAT/research startup."""
+"""Removed invoice code must not return to RAT startup; shared intake remains."""
 from pathlib import Path
 import subprocess
 import sys
@@ -22,8 +22,9 @@ assert not any(n.startswith('nesy_docai') for n in sys.modules)
     result = subprocess.run([sys.executable, '-c', script], cwd=ROOT, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
 
-def test_docai_source_is_scoped_to_its_standalone_directory():
+def test_invoice_source_is_removed_and_shared_intake_remains():
     assert not (ROOT / 'nesy_docai').exists()
     assert not (ROOT / 'rat/kernel/capabilities/invoices.py').exists()
-    assert (ROOT / 'modules/docai/nesy_docai/service.py').is_file()
-    assert (ROOT / 'modules/docai/requirements.txt').is_file()
+    assert not (ROOT / 'modules/docai').exists()
+    for reader in ('pdf.py', 'vision.py', 'tesseract.py'):
+        assert (ROOT / 'document_intake' / reader).is_file()

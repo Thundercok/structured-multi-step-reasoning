@@ -1,0 +1,19 @@
+{
+  "rat.spec": "b4920e400da31f5867d315277833adda044091071c2f257c8919e8bb1b28b632",
+  "scripts/build_app.sh": "46cd7f949aa84be0300ab435c1e31de42061d47b9af94727faeb3be964051026",
+  "scripts/check_packaging.py": "de477cb4a23d89ae9bb1d7786ad16e9aae74d3a3d8ac313bfca41bfdd7626042",
+  "rat/main.py": "bdff09204f4ca8038969eb968490260f57543042d81e5c5e274199deab9d2b9d",
+  "rat/config.py": "31a7703b49a59b39de5dcf9df21ca9daf429ad95cee546dcd1c71c1f181ae884",
+  "rat/os/app.py": "cd6f93f7a743bb95d39b7686c88ade133e5acdc50b70d840daf613a74cb8289f",
+  "rat/os/hotkey.py": "07345f64b429a71274f7ef3ba04cb4e0c8f1d62703e8453821afb89f4f31c56a",
+  "rat/os/crash_shield.py": "ca6f41b1bd856fc5829494759592e551cfb8270053e7587a5fd6c651e9bb9568",
+  "rat/os/menu_bar.py": "c82a43bec43847af2dfcd2d2c7ff5d7d3021d2c2e3993e459b5f3dff06822e73",
+  "rat/ui/onboarding_dialog.py": "a09dcbdc49c5f1d78e7f14c9f7cac2e6d5b0c25574584f5c63757954ef3417e8",
+  "rat/ui/omnibar.py": "72d9b746754083662e21982b885c2a910024fcb835eb1f89354f3314fed09d7a",
+  "rat/timetable/data.py": "638c64fa9a5512424fd5ff5e7bf7472d70ef9622d81acc22f338f34eec4f9643",
+  "tests/test_crash_shield.py": "521b61993a4c90c121d1529fb1b20bf33ef5f706f6be97002bac4d52bec7ccc0",
+  "tests/test_onboarding.py": "932aa50967248f798b15c6f57f94d10f7c2cf3ee4a8e1987e901905d142c1fc2",
+  "tests/test_packaging_contract.py": "83a5e72d07c523a505700d4ec7e5880b26336f876430948df5141612ad21a538",
+  "tests/test_single_instance.py": "de5cee5ccd573a2c781e101a6d4761359c249ec34336489747f8ebeb06c0e1aa",
+  "entitlements.plist": "c22b1a29f67e34a3956900226547fcbc6e7df06027617dac4401297e12afa673"
+}

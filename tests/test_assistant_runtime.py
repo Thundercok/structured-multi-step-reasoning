@@ -173,7 +173,9 @@ def test_duplicate_in_parallel_batch_skips_remaining_tools_and_asks_model_to_fin
     assert result.tool_call_count == 1 and result.answer == 'Schedule-only answer.'
     assert chat.call_args.args[1] == []
     messages = chat.call_args.args[0]
-    assert 'not_executed' in messages[-2]['content']
+    skipped = next(m for m in messages if m.get('role') == 'tool'
+                   and m.get('tool_name') == 'search_documents')
+    assert 'not_executed' in skipped['content']
 
 
 @pytest.mark.parametrize('message', [None, [], {}, {'content': ''},

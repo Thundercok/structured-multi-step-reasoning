@@ -31,7 +31,7 @@ No claim is made that this percentage applies to the entire repository.
   local-file and book tests: 89 passed, 1 skipped.
 - Index integrity/link repair/consistency: 31 passed.
 - Actual Apple Vision OCR returned 3 observations for a synthetic image and its
-  bytes; Tesseract returned 6 tokens. PDFKit rendered and OCR-read the synthetic
+  bytes; Tesseract returned 6 tokens. PDFKit rendered and OCR-read the synthetic 
   scanned PDF; digital PDF extraction correctly returned no text for the scan.
 - Both packages built as wheels without the removed Swift source. Extracted
   wheels imported outside the checkout and performed a real Z3 consistency check

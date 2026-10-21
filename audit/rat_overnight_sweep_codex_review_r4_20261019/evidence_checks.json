@@ -1,0 +1,9 @@
+{
+  "old_review_artifacts_changed": {
+    "audit/rat_overnight_sweep_codex_review_r3_20261019": [],
+    "audit/rat_overnight_sweep_repair_codex_review_20261019": []
+  },
+  "historical_ledger_unchanged": true,
+  "historical_ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "locked_replay_ledger_unchanged": true
+}

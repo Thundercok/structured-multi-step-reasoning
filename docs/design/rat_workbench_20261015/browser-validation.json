@@ -1,0 +1,80 @@
+{
+  "checks": [
+    {
+      "name": "compact default, detail toggle and active task survive presentation command",
+      "passed": true,
+      "initial_shell": {
+        "x": 140,
+        "y": 32,
+        "width": 520,
+        "height": 335.0625
+      }
+    },
+    {
+      "name": "same canvas and plan row survive update",
+      "passed": true
+    },
+    {
+      "name": "busy draft and cancellation preserve text; no late simulated update",
+      "passed": true
+    },
+    {
+      "name": "question and partial error retain canvas",
+      "passed": true
+    },
+    {
+      "name": "layout",
+      "viewport": 1024,
+      "passed": true,
+      "frame": 992
+    },
+    {
+      "name": "layout",
+      "viewport": 736,
+      "passed": true,
+      "frame": 704
+    },
+    {
+      "name": "layout",
+      "viewport": 620,
+      "passed": true,
+      "frame": 588
+    },
+    {
+      "name": "layout",
+      "viewport": 450,
+      "passed": true,
+      "frame": 418
+    },
+    {
+      "name": "layout",
+      "viewport": 390,
+      "passed": true,
+      "frame": 358
+    },
+    {
+      "name": "layout",
+      "viewport": 320,
+      "passed": true,
+      "frame": 288
+    },
+    {
+      "name": "long Vietnamese draft stays bounded and Shift Enter inserts newline",
+      "passed": true
+    },
+    {
+      "name": "file specimen and reduced motion",
+      "passed": true
+    },
+    {
+      "name": "long Vietnamese title and speech reflow on narrow and desktop",
+      "passed": true
+    },
+    {
+      "name": "restored interrupted simulation is cancelled honestly and retains draft",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "scope": "prototype interaction and layout; no model or native Qt validation"
+}

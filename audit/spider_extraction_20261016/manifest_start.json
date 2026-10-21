@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-10-16T14:20:00+07:00",
+  "branch": "main",
+  "head": "11c748a7a60c3da72e24f2e4cbb2233e5aa6a2b5",
+  "source_tree_files": 365,
+  "hashes": {
+    "rat/crawler/spider_adapter.py": "197545e6114e2e18d2ed319bd2ddde8d4edf7e131a6669f8ff53379e9026dec5",
+    "rat/kernel/capabilities/web.py": "2bd8e8e16b597b4bfda83a4b1ea269f0c7da77e83f19228136ecc66cfd87f501",
+    "rat/kernel/capabilities/__init__.py": "1027b5a69ce199f4bbcd34f41c76e498d82b4f93fae3540fb72d3d98f257be7e",
+    "rat/kernel/registry.py": "f9b2788c7026a43d8c8c1c884ada28d8de3690a43f0ddc736b1035f32fc1bfd2",
+    "tests/test_spider_adapter.py": "f1a992f9b56b4c5088ea5fe07697cb3e20197ce21237a268a23243dc92b44f50",
+    "rat/bin/spider": "bd522395c85cb80df0172066ba8d49dc538dfdec04693dc67455f3a1ee756f54",
+    "scratch/spider_migration_bundle.tar.gz": "e883fcfa6f88325d0e80571956f21fb49006bc93855f9a1b6f671536f68ece0f"
+  }
+}

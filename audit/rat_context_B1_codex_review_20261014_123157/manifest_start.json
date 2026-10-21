@@ -1,0 +1,15 @@
+{
+  "source_root": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning",
+  "created_at": "2026-10-14T12:31:57.530522+07:00",
+  "scope": "Independent B1 code review; no runtime wiring or inference",
+  "source_sha256_start": {
+    "rat/engine/context_snapshot.py": "53d75d689680c62fbb52901ea9cd9fc80841eed13fa97c6d9d93bc94027b633b",
+    "tests/test_rat_context_snapshot.py": "0ad2a2a99d3e9224b9ab076f28fa5dc1c8a23004a12b88a2e3be0c237978c6fb",
+    "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
+    "rat/engine/work_notes.py": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
+    "rat/kernel/dispatcher.py": "16181378861b9ab1ca937d13ff61d282db2a22057371c2ee84c4737c67e72412",
+    "audit/rat_context_B_assignment_20261014/snapshot.schema.json": "8a168a7aaff57e41d43eca956e49e583702bb6ff9285b2f75bcdc135a47da667",
+    "audit/rat_context_B_assignment_20261014/decisions.md": "d5d3de07185e89cc181415aeab5fb3a2ce2d10ee06a4673577ba17b5f860e13f"
+  }
+}

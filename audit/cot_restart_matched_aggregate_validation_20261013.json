@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "new_model_calls": 0,
+  "tests_passed": 42,
+  "test_command": "python3.12 -m pytest tests/test_cot_restart_matched_aggregate.py tests/test_cot_restart_matched_analysis.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q",
+  "independent_numpy_distribution_checks": 27,
+  "bootstrap_replicates_per_check": 2000,
+  "accuracy_and_both_cost_metrics_checked": true,
+  "all_input_output_source_hashes_verified": true,
+  "both_frozen_generation_plans_still_verify": true,
+  "unique_questions": 12,
+  "original_groups": 12,
+  "draws": 2,
+  "aggregation_manifest_sha256": "8b8f67c99b6eb827a9f86c4bfec66aa421afbd9ec2390921bd25715b785298c0",
+  "M_F_minus_A": {
+    "X": "F",
+    "Y": "A",
+    "n_questions": 12,
+    "correct": {
+      "delta": 0.25,
+      "paired_group_percentile_95_ci": [
+        0.041666666666666664,
+        0.4583333333333333
+      ]
+    },
+    "completion_tokens": {
+      "delta": -339.7916666666667,
+      "paired_group_percentile_95_ci": [
+        -531.8072916666666,
+        -163.1885416666668
+      ]
+    },
+    "path_token_cost": {
+      "delta": -78.375,
+      "paired_group_percentile_95_ci": [
+        -292.84166666666664,
+        124.5489583333333
+      ]
+    }
+  },
+  "scope": "descriptive_exposed_development; intervals conditional on these two draws and fixed historical bases; Stage 0 unchanged"
+}

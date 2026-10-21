@@ -19,6 +19,9 @@ import resource
 import sys
 import time
 from typing import Any
+from experiments.cot_restart_replay import (
+    CAP_SWEEP_SEED_POLICY, backend_runtime_identity, decoding_config, derive_cap_sweep_seed, encode_prompt,
+)
 
 from experiments.cot_restart_pilot import (
     ALIGNED_DIRECT_COT_SUFFIX_TEXT,
@@ -32,7 +35,6 @@ from experiments.cot_restart_pilot import (
     MockLLM,
     PilotJournal,
     atomic_save_json,
-    derive_call_seed,
     encoded_json,
     execute_llm_call,
     file_sha256,
@@ -146,6 +148,10 @@ def build_addendum_run_identity(
                 "arm": "full_prefix_continuation",
                 "temp": SAMPLING_TEMPERATURE,
                 "top_p": SAMPLING_TOP_P,
+                "seed_policy": CAP_SWEEP_SEED_POLICY,
+                "token_record_version": 1,
+                "backend_runtime": backend_runtime_identity(mock=mock),
+                "decoding_config": decoding_config(SAMPLING_TEMPERATURE, SAMPLING_TOP_P),
             })
         ),
         "source_sha256": source_hashes(),
@@ -281,7 +287,7 @@ def run_cot_restart_addendum(
                     continue_final_message=True,
                 )
 
-                p_tok = len(tokenizer.encode(prompt))
+                p_tok = len(encode_prompt(tokenizer, prompt))
                 comp_cap = ADDENDUM_BUDGET - p_tok
 
                 if comp_cap <= 0:
@@ -306,8 +312,9 @@ def run_cot_restart_addendum(
                         "duration_ms": 0.0,
                     }
                 else:
-                    seed = derive_call_seed(42, qid, "full_prefix_continuation", ADDENDUM_BUDGET)
+                    seed = derive_cap_sweep_seed(42, qid, "full_prefix_continuation")
                     journal.record_call_started("addendum_call", call_key, prompt, p_tok)
+                    captured = {}
                     out_text, comp_tok, finish, dur_ms = execute_llm_call(
                         model,
                         tokenizer,
@@ -317,6 +324,7 @@ def run_cot_restart_addendum(
                         seed=seed,
                         is_mock=mock,
                         is_thinking=False,
+                        capture=captured,
                     )
                     full_response = prefix_body + out_text
                     family = it["family"]
@@ -345,6 +353,8 @@ def run_cot_restart_addendum(
                         "correct": correct,
                         "duration_ms": round(dur_ms, 2),
                         "memory": get_memory_telemetry(mock=mock),
+                        **captured,
+                        "seed_policy": CAP_SWEEP_SEED_POLICY,
                     }
                 journal.append("addendum_call", call_key, res)
 

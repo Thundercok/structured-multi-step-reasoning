@@ -1,0 +1,52 @@
+[
+  {
+    "command": ".venv/bin/python audit/rat_cot_runtime_codex_review_r2_20261020/run_baseline.py",
+    "exit_code": 0,
+    "log": "baseline.txt",
+    "xml": "baseline.xml",
+    "environment": "host for Qt; fixture backends only"
+  },
+  {
+    "command": "QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r2_20261020/test_general_contracts.py -q --junitxml=audit/rat_cot_runtime_codex_review_r2_20261020/general_contracts.xml",
+    "exit_code": 1,
+    "log": "general_contracts.txt",
+    "environment": "host for Qt; fixture backends only"
+  },
+  {
+    "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r2_20261020/test_qwen_boundary_replay.py -q --junitxml=audit/rat_cot_runtime_codex_review_r2_20261020/qwen_boundary_replay.xml",
+    "exit_code": 1,
+    "log": "qwen_boundary_replay.txt",
+    "environment": "sandbox; native source AST with scripted generation seam"
+  },
+  {
+    "command": ".venv/bin/python -m pytest test_reasoning_strategies.py tests/test_research_scoring.py -q --junitxml=audit/rat_cot_runtime_codex_review_r2_20261020/parser_scoring.xml",
+    "exit_code": 0,
+    "log": "parser_scoring.txt",
+    "environment": "sandbox"
+  },
+  {
+    "command": ".venv/bin/python -m pytest tests/test_harness_regressions.py tests/test_order_selector_contract.py tests/test_cot_restart_reporting_review.py -q --junitxml=audit/rat_cot_runtime_codex_review_r2_20261020/reported_69.xml",
+    "exit_code": 2,
+    "log": "reported_69.txt",
+    "environment": "sandbox; collection error Metal unavailable"
+  },
+  {
+    "command": "mv reported_69 files to sandbox_collection_error names, then host pytest run of the same 69 tests",
+    "process_created": false,
+    "exit_code": null,
+    "status": "automatic_review_timeout_before_process_creation",
+    "log": null
+  },
+  {
+    "command": ".venv/bin/python -m pytest tests/test_harness_regressions.py tests/test_order_selector_contract.py tests/test_cot_restart_reporting_review.py -q --junitxml=audit/rat_cot_runtime_codex_review_r2_20261020/reported_69_retry.xml",
+    "exit_code": 0,
+    "log": "reported_69_retry.txt",
+    "environment": "host; generation scripted and model __init__ bypassed"
+  },
+  {
+    "command": "Python import calculate_power_sensitivity, override OUTPUT_PATH in memory to review/power_sensitivity_recomputed.json, then main()",
+    "exit_code": 0,
+    "artifact": "power_sensitivity_recomputed.json",
+    "environment": "sandbox; arithmetic only"
+  }
+]

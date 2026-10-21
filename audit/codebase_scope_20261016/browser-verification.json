@@ -1,0 +1,149 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "width": 704,
+      "theme": "light",
+      "scope": "product",
+      "total": "118.644 dòng · 673 tệp",
+      "scrollWidth": 704,
+      "bad": []
+    },
+    {
+      "width": 704,
+      "theme": "light",
+      "scope": "main",
+      "total": "85.561 dòng · 359 tệp · RAT + CoT + hạ tầng + đánh giá + tests",
+      "scrollWidth": 704,
+      "bad": []
+    },
+    {
+      "width": 704,
+      "theme": "light",
+      "scope": "all",
+      "total": "265.576 dòng · 1.076 tệp",
+      "scrollWidth": 704,
+      "bad": []
+    },
+    {
+      "width": 328,
+      "theme": "light",
+      "scope": "product",
+      "total": "118.644 dòng · 673 tệp",
+      "scrollWidth": 328,
+      "bad": []
+    },
+    {
+      "width": 328,
+      "theme": "light",
+      "scope": "main",
+      "total": "85.561 dòng · 359 tệp · RAT + CoT + hạ tầng + đánh giá + tests",
+      "scrollWidth": 328,
+      "bad": []
+    },
+    {
+      "width": 328,
+      "theme": "light",
+      "scope": "all",
+      "total": "265.576 dòng · 1.076 tệp",
+      "scrollWidth": 328,
+      "bad": []
+    },
+    {
+      "width": 288,
+      "theme": "light",
+      "scope": "product",
+      "total": "118.644 dòng · 673 tệp",
+      "scrollWidth": 288,
+      "bad": []
+    },
+    {
+      "width": 288,
+      "theme": "light",
+      "scope": "main",
+      "total": "85.561 dòng · 359 tệp · RAT + CoT + hạ tầng + đánh giá + tests",
+      "scrollWidth": 288,
+      "bad": []
+    },
+    {
+      "width": 288,
+      "theme": "light",
+      "scope": "all",
+      "total": "265.576 dòng · 1.076 tệp",
+      "scrollWidth": 288,
+      "bad": []
+    },
+    {
+      "width": 704,
+      "theme": "dark",
+      "scope": "product",
+      "total": "118.644 dòng · 673 tệp",
+      "scrollWidth": 704,
+      "bad": []
+    },
+    {
+      "width": 704,
+      "theme": "dark",
+      "scope": "main",
+      "total": "85.561 dòng · 359 tệp · RAT + CoT + hạ tầng + đánh giá + tests",
+      "scrollWidth": 704,
+      "bad": []
+    },
+    {
+      "width": 704,
+      "theme": "dark",
+      "scope": "all",
+      "total": "265.576 dòng · 1.076 tệp",
+      "scrollWidth": 704,
+      "bad": []
+    },
+    {
+      "width": 328,
+      "theme": "dark",
+      "scope": "product",
+      "total": "118.644 dòng · 673 tệp",
+      "scrollWidth": 328,
+      "bad": []
+    },
+    {
+      "width": 328,
+      "theme": "dark",
+      "scope": "main",
+      "total": "85.561 dòng · 359 tệp · RAT + CoT + hạ tầng + đánh giá + tests",
+      "scrollWidth": 328,
+      "bad": []
+    },
+    {
+      "width": 328,
+      "theme": "dark",
+      "scope": "all",
+      "total": "265.576 dòng · 1.076 tệp",
+      "scrollWidth": 328,
+      "bad": []
+    },
+    {
+      "width": 288,
+      "theme": "dark",
+      "scope": "product",
+      "total": "118.644 dòng · 673 tệp",
+      "scrollWidth": 288,
+      "bad": []
+    },
+    {
+      "width": 288,
+      "theme": "dark",
+      "scope": "main",
+      "total": "85.561 dòng · 359 tệp · RAT + CoT + hạ tầng + đánh giá + tests",
+      "scrollWidth": 288,
+      "bad": []
+    },
+    {
+      "width": 288,
+      "theme": "dark",
+      "scope": "all",
+      "total": "265.576 dòng · 1.076 tệp",
+      "scrollWidth": 288,
+      "bad": []
+    }
+  ]
+}

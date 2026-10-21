@@ -1,0 +1,13 @@
+{
+  "archive_path": "scratch/evrp_migration_bundle.tar.gz",
+  "archive_bytes": 21619585,
+  "archive_sha256": "dd043b68c7f6cfef14503da0efc2962be2b4954e8c63864fc794a2e6a444fe37",
+  "verified_against": "modules/evrp",
+  "source_file_count": 448,
+  "extracted_file_count": 448,
+  "content_mismatch_count": 0,
+  "permission_mismatch_count": 0,
+  "status": "PASS",
+  "mismatches": [],
+  "permission_mismatches": []
+}

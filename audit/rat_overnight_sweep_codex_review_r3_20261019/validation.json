@@ -1,0 +1,58 @@
+{
+  "verdict": "request_changes",
+  "regression": {
+    "tests": 289,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "parser_backend_scoring": {
+    "tests": 70,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "remaining_probes": {
+    "tests": 10,
+    "failures": 6,
+    "errors": 0,
+    "skipped": 0
+  },
+  "fraction_probes": {
+    "tests": 3,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_probes_total": 13,
+  "new_probes_failed": 8,
+  "new_probes_passed": 5,
+  "reviewer_fake_backend_requests": 1,
+  "reviewer_real_model_requests": 0,
+  "reviewer_os_app_launches": 0,
+  "qpa_platform": "offscreen",
+  "old_12_real_call_ledger_unchanged": true,
+  "source_files_checked": 51,
+  "source_changed_during_review": [],
+  "research_stage_0_changed": false,
+  "findings": [
+    {
+      "id": "C1",
+      "priority": 2
+    },
+    {
+      "id": "C2",
+      "priority": 2
+    },
+    {
+      "id": "C3",
+      "priority": 2
+    },
+    {
+      "id": "C4",
+      "priority": 2
+    }
+  ],
+  "previous_p1_startup_reproducer": "passed",
+  "previous_answer_navigation_reproducers": "passed"
+}

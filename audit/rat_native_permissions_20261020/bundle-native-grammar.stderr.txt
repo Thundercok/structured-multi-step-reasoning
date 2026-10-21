@@ -1,0 +1,12 @@
+2026-10-20 18:44:25,951 [INFO] (rat.crash_shield) 🛡️ CrashShield active: Global exception & signal protection engaged.
+2026-10-20 18:44:26,168 [INFO] (rat.os.app) Initializing macOS Resident AI Finder System...
+2026-10-20 18:44:26,169 [INFO] (rat.os.single_instance) SingleInstanceServer listening on 'rat_instance_501_diagnostic_80960'
+2026-10-20 18:44:31,671 [WARNING] (rat.os.hotkey) macOS Accessibility permission not granted! Global hotkeys require Accessibility in System Settings -> Privacy & Security -> Accessibility.
+2026-10-20 18:44:31,671 [INFO] (rat.permissions) Accessibility request dispatched: state=not_granted identity={'pid': 80960, 'executable': '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/MacOS/rat', 'mode': 'frozen', 'bundle_id': 'com.thundercock.rat', 'bundle_path': '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app', 'version': '1.0.0'}
+2026-10-20 18:44:31,701 [INFO] (rat.os.menu_bar) macOS System Tray resident item loaded.
+2026-10-20 18:44:57.884 rat[80960:49854929] ERROR: getApplicationProperty: called with invalid property
+2026-10-20 18:44:57.884 rat[80960:49854929] ERROR: getApplicationProperty: called with invalid property
+2026-10-20 18:44:57,892 [INFO] (rat.os.app) ResidentApplication: Initiating zero-crash graceful teardown...
+2026-10-20 18:44:57,892 [INFO] (rat.os.hotkey) Global Hotkey Manager stopped.
+2026-10-20 18:44:57,893 [INFO] (rat.os.single_instance) SingleInstanceServer stopped and unlinked 'rat_instance_501_diagnostic_80960'
+2026-10-20 18:44:57,893 [INFO] (rat.os.app) ResidentApplication: Teardown complete. Exiting cleanly.

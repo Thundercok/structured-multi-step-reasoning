@@ -1,0 +1,126 @@
+{
+  "malformed-json": {
+    "validation_report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [
+        "Could not inspect artifact '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r4_20261021/bundle_counterexamples/malformed-json/fitted-policy.json' parameters: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+      ],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    },
+    "artifact_sha256": "af4d4da9f58a003dd856fb633b9210fd3f6071091b6e1b27da0f5a5b95c2c5fe",
+    "declared_artifact_sha256": "af4d4da9f58a003dd856fb633b9210fd3f6071091b6e1b27da0f5a5b95c2c5fe",
+    "live_cost_coef": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "live_performance_constant": 1.0
+  },
+  "missing-parameters": {
+    "validation_report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    },
+    "artifact_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "declared_artifact_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "live_cost_coef": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "live_performance_constant": 1.0
+  },
+  "empty-cost-models": {
+    "validation_report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    },
+    "artifact_sha256": "90a27af80dd98e7cb4f6c2d6464c32f4f7488a9396f2b16d796da2c8807a9575",
+    "declared_artifact_sha256": "90a27af80dd98e7cb4f6c2d6464c32f4f7488a9396f2b16d796da2c8807a9575",
+    "live_cost_coef": [
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0
+    ],
+    "live_performance_constant": 1.0
+  },
+  "wrong-coefficient-shape": {
+    "validation_report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [
+        "Could not inspect artifact '/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r4_20261021/bundle_counterexamples/wrong-coefficient-shape/fitted-policy.json' parameters: operands could not be broadcast together with shapes (2,) (5,) "
+      ],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    },
+    "artifact_sha256": "8551224721a995aaf4760c7a43b9e93164ac3005145bb39d3e040991e534fc22",
+    "declared_artifact_sha256": "8551224721a995aaf4760c7a43b9e93164ac3005145bb39d3e040991e534fc22",
+    "live_cost_coef": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "live_performance_constant": 1.0
+  },
+  "changed-performance-model": {
+    "validation_report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    },
+    "artifact_sha256": "b366541718fb252bbd927325fd9dbb6ff0f74512338363205454935f1ab4ae04",
+    "declared_artifact_sha256": "b366541718fb252bbd927325fd9dbb6ff0f74512338363205454935f1ab4ae04",
+    "live_cost_coef": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "live_performance_constant": 0.0
+  }
+}

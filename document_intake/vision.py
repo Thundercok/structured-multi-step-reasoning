@@ -15,9 +15,19 @@ def recognize_tokens(source):
     if platform.system() != "Darwin":
         return []
     try:
+        from PIL import Image
+        if isinstance(source, bytes):
+            image_source = io.BytesIO(source)
+        else:
+            path = Path(source).resolve()
+            if not path.is_file():
+                return []
+            image_source = str(path)
+        with Image.open(image_source) as image:
+            width, height = image.size
+            image.verify()
         import objc
         from Foundation import NSURL
-        from PIL import Image
         objc.loadBundle("Vision", globals(), bundle_path="/System/Library/Frameworks/Vision.framework")
         request = objc.lookUpClass("VNRecognizeTextRequest").alloc().init()
         request.setRecognitionLevel_(1)
@@ -28,17 +38,13 @@ def recognize_tokens(source):
             pass
         handler_cls = objc.lookUpClass("VNImageRequestHandler")
         if isinstance(source, bytes):
-            image_source = io.BytesIO(source)
             handler = handler_cls.alloc().initWithData_options_(source, {})
         else:
-            path = Path(source).resolve()
-            if not path.is_file():
-                return []
-            image_source = str(path)
             handler = handler_cls.alloc().initWithURL_options_(NSURL.fileURLWithPath_(str(path)), {})
-        with Image.open(image_source) as image:
-            width, height = image.size
-        if not handler.performRequests_error_([request], None):
+        outcome = handler.performRequests_error_([request], None)
+        # PyObjC may return (success, NSError); (False, error) is truthy in Python.
+        success = outcome[0] if isinstance(outcome, tuple) else outcome
+        if not success:
             return []
         tokens = []
         for observation in request.results() or []:

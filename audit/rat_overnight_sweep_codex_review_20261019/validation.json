@@ -1,0 +1,57 @@
+{
+  "regression": {
+    "tests": 265,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "visual_acceptance": {
+    "tests": 6,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_files_checked": 37,
+  "production_changes_during_review": [],
+  "review_added_files_only_under": "audit/rat_overnight_sweep_codex_review_20261019",
+  "real_model_calls": 0,
+  "os_app_launches": 0,
+  "qpa_platform": "offscreen",
+  "native_cocoa_acceptance_executed_by_reviewer": false,
+  "full_132_file_sweep_executed_by_reviewer": false,
+  "psutil_available": true,
+  "research_stage_0_changed": false,
+  "verdict": "request_changes",
+  "findings": [
+    {
+      "id": "O1",
+      "priority": 2
+    },
+    {
+      "id": "O2",
+      "priority": 2
+    },
+    {
+      "id": "O3",
+      "priority": 2
+    },
+    {
+      "id": "O4",
+      "priority": 2
+    },
+    {
+      "id": "O5",
+      "priority": 2
+    },
+    {
+      "id": "O6",
+      "priority": 2
+    }
+  ],
+  "visual_failed_cases": [
+    "test_v2_result_card_visibility_tracks_bubble[short-full-bubble]",
+    "test_v4_structured_finder_shows_quiet_trace[structured-finder]",
+    "test_v3_candidate_buttons_have_distinguishable_visible_labels[620]",
+    "test_v3_candidate_buttons_have_distinguishable_visible_labels[420]"
+  ]
+}

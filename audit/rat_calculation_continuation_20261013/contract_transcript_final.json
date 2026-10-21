@@ -1,0 +1,2314 @@
+{
+  "evidence_scope": "scripted_software_contracts_not_model_quality",
+  "decision_source": "injected fixture decisions",
+  "new_model_calls": 0,
+  "source_sha256": {
+    "rat/engine/work_notes.py": "3eba881c7f74245b956e3c61c23d0e7f5b442356e64f2568ab51642a8d2db9b9",
+    "rat/engine/assistant_runtime.py": "d7f6852c64f0857ed19f59c808ebab86d2aa3f83c866ad01982c9291b3694072",
+    "rat/kernel/capabilities/__init__.py": "7230eddc5ab6c5231bf80d280187130132b7995e747823149f5edc4124b200aa",
+    "rat/kernel/registry.py": "fcedb9521d7dbb9198cb0ae88d64246970c28bf781c5655f5f4624d3c313facf",
+    "rat/kernel/dispatcher.py": "75d59cdfcf4bd7562a5b5b64435c703712e09852f66405054609d2b7457a9113",
+    "rat/ui/assistant_presenter.py": "972c72c435a99522cc951429ac87068a8fd8a35396cea050481a4286b626bedc",
+    "tests/test_rat_calculation_conversation.py": "ea3505d7e2a031ef76c37ee86be73b90eb9d67e42ac22c432b10a46e56c4c690",
+    "tests/test_rat_result_presentation.py": "285c11efe53b202e8f542249509fe7689152c7f92a6ecd07cee47f8a84ced1aa"
+  },
+  "token_cost_scope": "not_applicable_no_model_inference",
+  "timing_scope": "local Python execution only",
+  "turns": [
+    {
+      "query": "Tính 18 * 7",
+      "turn": {
+        "turn_ref": {
+          "conversation_id": "conv-c0a1441825b2",
+          "turn_id": "turn-1",
+          "kind": "chat",
+          "turn_number": 1,
+          "target_turn_id": null,
+          "target_artifact_id": null,
+          "target_revision": null
+        },
+        "execution_id": "exec-d73097674cb7",
+        "query": "Tính 18 * 7",
+        "answer": "",
+        "status": "in_progress",
+        "artifact_refs": [],
+        "note_ids": [],
+        "note_event_ids": [],
+        "task_state": {}
+      },
+      "response": {
+        "answer": "126",
+        "steps": [
+          {
+            "step_number": 1,
+            "thought": "Đang tính",
+            "tool_name": "calculate",
+            "tool_args": {
+              "expression": "18 * 7"
+            },
+            "tool_result": {
+              "expression": "18 * 7",
+              "result": "126"
+            },
+            "duration_ms": 0.9596250019967556,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.18879096023738384,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [
+              {
+                "id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                "kind": "calculation",
+                "revision": 1,
+                "payload": {
+                  "expression": "18 * 7",
+                  "result": "126"
+                },
+                "inputs": {
+                  "expression": "18 * 7"
+                },
+                "provenance": {
+                  "operation_name": "calculate",
+                  "owner_turn_id": "turn-1",
+                  "execution_id": "exec-d73097674cb7",
+                  "presentation": "trace"
+                },
+                "title": "Evaluate an arithmetic expression with an AST calculator",
+                "status": "ready",
+                "created_at": 1791871456.7604601
+              }
+            ],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 18 * 7: công cụ trả 126; tính độc lập được 126.",
+                "evidence_ids": [
+                  "request:fe468b94b18f422592ac7072a50fd79b:step:1:7c0c079a5089"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.6783750141039491,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-1",
+            "execution_id": "exec-d73097674cb7",
+            "note_events": []
+          },
+          {
+            "step_number": 2,
+            "thought": "Đã trả lời dựa trên thông tin hiện có",
+            "tool_name": null,
+            "tool_args": null,
+            "tool_result": {
+              "candidate_answer": "126",
+              "verification_action": "ACCEPT"
+            },
+            "duration_ms": 0.17412507440894842,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "literal_arithmetic_answer",
+                "reason": "Kết luận 126; đối chiếu 18 * 7 được 126.",
+                "evidence_ids": [],
+                "checked": [
+                  "whole_scalar_answer",
+                  "independent_arithmetic",
+                  "request_expression"
+                ],
+                "retryable": false,
+                "duration_ms": 0.14358304906636477,
+                "answer_schema": null,
+                "phase": "answer",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-1",
+            "execution_id": "exec-d73097674cb7",
+            "note_events": []
+          }
+        ],
+        "total_time_ms": 1.2120410101488233,
+        "tool_call_count": 1,
+        "token_estimate": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "model_time_ms": 0.0,
+        "tool_time_ms": 0.18879096023738384,
+        "is_live_model": false,
+        "sources": [],
+        "artifacts": [
+          {
+            "id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "18 * 7",
+              "result": "126"
+            },
+            "inputs": {
+              "expression": "18 * 7"
+            },
+            "provenance": {
+              "operation_name": "calculate",
+              "owner_turn_id": "turn-1",
+              "execution_id": "exec-d73097674cb7",
+              "presentation": "trace"
+            },
+            "title": "Evaluate an arithmetic expression with an AST calculator",
+            "status": "ready",
+            "created_at": 1791871456.7604601
+          }
+        ],
+        "error": null,
+        "token_scope": "prompt_and_completion",
+        "controller_decisions": [
+          {
+            "step": 2,
+            "kind": "verification",
+            "intervention": "ACCEPT",
+            "status": "PASS",
+            "reason": [
+              "Kết luận 126; đối chiếu 18 * 7 được 126."
+            ]
+          }
+        ],
+        "task_state": {},
+        "task_state_updated": false,
+        "completion_status": "unchecked",
+        "pending_input_request": null,
+        "verification_reports": [
+          {
+            "status": "PASS",
+            "scope": "calculation_execution",
+            "reason": "Đối chiếu 18 * 7: công cụ trả 126; tính độc lập được 126.",
+            "evidence_ids": [
+              "request:fe468b94b18f422592ac7072a50fd79b:step:1:7c0c079a5089"
+            ],
+            "checked": [
+              "input_expression",
+              "independent_arithmetic",
+              "operation_result"
+            ],
+            "retryable": false,
+            "duration_ms": 0.6783750141039491,
+            "answer_schema": null,
+            "phase": "execution",
+            "checker": "CalculationVerifier"
+          },
+          {
+            "status": "PASS",
+            "scope": "literal_arithmetic_answer",
+            "reason": "Kết luận 126; đối chiếu 18 * 7 được 126.",
+            "evidence_ids": [],
+            "checked": [
+              "whole_scalar_answer",
+              "independent_arithmetic",
+              "request_expression"
+            ],
+            "retryable": false,
+            "duration_ms": 0.14358304906636477,
+            "answer_schema": null,
+            "phase": "answer",
+            "checker": "CalculationVerifier"
+          }
+        ],
+        "answer_verification_status": "PASS",
+        "verification_time_ms": 0.8219580631703138,
+        "turn_id": "turn-1",
+        "execution_id": "exec-d73097674cb7",
+        "note_events": [],
+        "note_cursor": 0,
+        "turn_reference": {
+          "turn_id": "turn-1",
+          "execution_id": "exec-d73097674cb7",
+          "status": "completed",
+          "query": "Tính 18 * 7",
+          "answer_summary": "126",
+          "artifact_ids": [
+            "art-ffe6ad7337ab4002baa6ca2c0c67f50d"
+          ],
+          "note_ids": []
+        }
+      },
+      "active_notes": [],
+      "historical_notes": []
+    },
+    {
+      "query": "Ghi lại kết quả này.",
+      "turn": {
+        "turn_ref": {
+          "conversation_id": "conv-c0a1441825b2",
+          "turn_id": "turn-2",
+          "kind": "chat",
+          "turn_number": 2,
+          "target_turn_id": null,
+          "target_artifact_id": null,
+          "target_revision": null
+        },
+        "execution_id": "exec-515ace0a230c",
+        "query": "Ghi lại kết quả này.",
+        "answer": "",
+        "status": "in_progress",
+        "artifact_refs": [],
+        "note_ids": [],
+        "note_event_ids": [],
+        "task_state": {}
+      },
+      "response": {
+        "answer": "Đã ghi kết quả.",
+        "steps": [
+          {
+            "step_number": 1,
+            "thought": "Đang ghi lại điều bạn dặn",
+            "tool_name": "record_work_note",
+            "tool_args": {
+              "text": "126",
+              "source_result": {
+                "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                "revision": 1,
+                "field": "result"
+              }
+            },
+            "tool_result": {
+              "note": {
+                "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "text": "126",
+                "source": "artifact_result",
+                "quote": "126",
+                "confirmed": true,
+                "revision": 1,
+                "status": "active",
+                "owner_turn_id": "turn-2",
+                "execution_id": "exec-515ace0a230c",
+                "source_ref": {
+                  "kind": "artifact_result",
+                  "quote_source_turn_id": "turn-1",
+                  "quote": "126",
+                  "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                  "artifact_revision": 1,
+                  "field": "result"
+                },
+                "replaces_note_id": null,
+                "replaces_revision": null,
+                "replaces_turn_id": null,
+                "replaces_text": null
+              },
+              "notes_updated": true,
+              "note_event": {
+                "event_id": "nevt-1-f0d66de1",
+                "sequence": 1,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "create",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-2",
+                "source_turn_id": "turn-1",
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "126",
+                  "source": "artifact_result",
+                  "quote": "126",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-2",
+                  "execution_id": "exec-515ace0a230c",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "126",
+                    "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-2",
+                    "kind": "chat",
+                    "turn_number": 2,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-2",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-515ace0a230c",
+                  "generation": 0
+                }
+              }
+            },
+            "duration_ms": 0.2264169743284583,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.14916597865521908,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-2",
+            "execution_id": "exec-515ace0a230c",
+            "note_events": [
+              {
+                "event_id": "nevt-1-f0d66de1",
+                "sequence": 1,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "create",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-2",
+                "source_turn_id": "turn-1",
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "126",
+                  "source": "artifact_result",
+                  "quote": "126",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-2",
+                  "execution_id": "exec-515ace0a230c",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "126",
+                    "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-2",
+                    "kind": "chat",
+                    "turn_number": 2,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-2",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-515ace0a230c",
+                  "generation": 0
+                }
+              }
+            ]
+          },
+          {
+            "step_number": 2,
+            "thought": "Đã trả lời dựa trên thông tin hiện có",
+            "tool_name": null,
+            "tool_args": null,
+            "tool_result": null,
+            "duration_ms": 0.7146669086068869,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-2",
+            "execution_id": "exec-515ace0a230c",
+            "note_events": []
+          }
+        ],
+        "total_time_ms": 1.0231249034404755,
+        "tool_call_count": 1,
+        "token_estimate": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "model_time_ms": 0.0,
+        "tool_time_ms": 0.14916597865521908,
+        "is_live_model": false,
+        "sources": [
+          {
+            "type": "record_work_note",
+            "result": {
+              "note": {
+                "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "text": "126",
+                "source": "artifact_result",
+                "quote": "126",
+                "confirmed": true,
+                "revision": 1,
+                "status": "active",
+                "owner_turn_id": "turn-2",
+                "execution_id": "exec-515ace0a230c",
+                "source_ref": {
+                  "kind": "artifact_result",
+                  "quote_source_turn_id": "turn-1",
+                  "quote": "126",
+                  "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                  "artifact_revision": 1,
+                  "field": "result"
+                },
+                "replaces_note_id": null,
+                "replaces_revision": null,
+                "replaces_turn_id": null,
+                "replaces_text": null
+              },
+              "notes_updated": true,
+              "note_event": {
+                "event_id": "nevt-1-f0d66de1",
+                "sequence": 1,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "create",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-2",
+                "source_turn_id": "turn-1",
+                "before_revision": null,
+                "after_revision": 1,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "126",
+                  "source": "artifact_result",
+                  "quote": "126",
+                  "confirmed": true,
+                  "revision": 1,
+                  "status": "active",
+                  "owner_turn_id": "turn-2",
+                  "execution_id": "exec-515ace0a230c",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-1",
+                    "quote": "126",
+                    "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": null,
+                  "replaces_revision": null,
+                  "replaces_turn_id": null,
+                  "replaces_text": null
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-2",
+                    "kind": "chat",
+                    "turn_number": 2,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-2",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-515ace0a230c",
+                  "generation": 0
+                }
+              }
+            }
+          }
+        ],
+        "artifacts": [],
+        "error": null,
+        "token_scope": "prompt_and_completion",
+        "controller_decisions": [],
+        "task_state": {},
+        "task_state_updated": false,
+        "completion_status": "unchecked",
+        "pending_input_request": null,
+        "verification_reports": [],
+        "answer_verification_status": "UNKNOWN",
+        "verification_time_ms": 0.703957979567349,
+        "turn_id": "turn-2",
+        "execution_id": "exec-515ace0a230c",
+        "note_events": [
+          {
+            "event_id": "nevt-1-f0d66de1",
+            "sequence": 1,
+            "conversation_id": "conv-c0a1441825b2",
+            "kind": "create",
+            "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+            "owner_turn_id": "turn-2",
+            "source_turn_id": "turn-1",
+            "before_revision": null,
+            "after_revision": 1,
+            "snapshot": {
+              "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "text": "126",
+              "source": "artifact_result",
+              "quote": "126",
+              "confirmed": true,
+              "revision": 1,
+              "status": "active",
+              "owner_turn_id": "turn-2",
+              "execution_id": "exec-515ace0a230c",
+              "source_ref": {
+                "kind": "artifact_result",
+                "quote_source_turn_id": "turn-1",
+                "quote": "126",
+                "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+                "artifact_revision": 1,
+                "field": "result"
+              },
+              "replaces_note_id": null,
+              "replaces_revision": null,
+              "replaces_turn_id": null,
+              "replaces_text": null
+            },
+            "context": {
+              "turn_ref": {
+                "conversation_id": "conv-c0a1441825b2",
+                "turn_id": "turn-2",
+                "kind": "chat",
+                "turn_number": 2,
+                "target_turn_id": null,
+                "target_artifact_id": null,
+                "target_revision": null
+              },
+              "turn_id": "turn-2",
+              "conversation_id": "conv-c0a1441825b2",
+              "kind": "chat",
+              "execution_id": "exec-515ace0a230c",
+              "generation": 0
+            }
+          }
+        ],
+        "note_cursor": 1,
+        "turn_reference": {
+          "turn_id": "turn-2",
+          "execution_id": "exec-515ace0a230c",
+          "status": "completed",
+          "query": "Ghi lại kết quả này.",
+          "answer_summary": "Đã ghi kết quả.",
+          "artifact_ids": [],
+          "note_ids": [
+            "note-fe564a7f26eb4f0980810ee5f04ec9a1"
+          ]
+        }
+      },
+      "active_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "126",
+          "source": "artifact_result",
+          "quote": "126",
+          "confirmed": true,
+          "revision": 1,
+          "status": "active",
+          "owner_turn_id": "turn-2",
+          "execution_id": "exec-515ace0a230c",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-1",
+            "quote": "126",
+            "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "replaces_note_id": null,
+          "replaces_revision": null,
+          "replaces_turn_id": null,
+          "replaces_text": null,
+          "scope": "this_conversation",
+          "authority": "observed_result"
+        }
+      ],
+      "historical_notes": []
+    },
+    {
+      "query": "Thay 7 bằng 9 và sửa ghi chú đó.",
+      "turn": {
+        "turn_ref": {
+          "conversation_id": "conv-c0a1441825b2",
+          "turn_id": "turn-3",
+          "kind": "chat",
+          "turn_number": 3,
+          "target_turn_id": null,
+          "target_artifact_id": null,
+          "target_revision": null
+        },
+        "execution_id": "exec-eb0a66c303b8",
+        "query": "Thay 7 bằng 9 và sửa ghi chú đó.",
+        "answer": "",
+        "status": "in_progress",
+        "artifact_refs": [],
+        "note_ids": [],
+        "note_event_ids": [],
+        "task_state": {}
+      },
+      "response": {
+        "answer": "162",
+        "steps": [
+          {
+            "step_number": 1,
+            "thought": "Đang tính",
+            "tool_name": "calculate",
+            "tool_args": {
+              "expression": "18 * 9"
+            },
+            "tool_result": {
+              "expression": "18 * 9",
+              "result": "162"
+            },
+            "duration_ms": 0.17062504775822163,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.08070794865489006,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [
+              {
+                "id": "art-12f30c5682804a19a43c6150f6e155da",
+                "kind": "calculation",
+                "revision": 1,
+                "payload": {
+                  "expression": "18 * 9",
+                  "result": "162"
+                },
+                "inputs": {
+                  "expression": "18 * 9"
+                },
+                "provenance": {
+                  "operation_name": "calculate",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "presentation": "trace"
+                },
+                "title": "Evaluate an arithmetic expression with an AST calculator",
+                "status": "ready",
+                "created_at": 1791871456.7629812
+              }
+            ],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 18 * 9: công cụ trả 162; tính độc lập được 162.",
+                "evidence_ids": [
+                  "request:69e187b772e14f38999cc63c1355b74b:step:1:31740fdf5ab3"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.038125086575746536,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-3",
+            "execution_id": "exec-eb0a66c303b8",
+            "note_events": []
+          },
+          {
+            "step_number": 2,
+            "thought": "Đang ghi lại điều bạn dặn",
+            "tool_name": "record_work_note",
+            "tool_args": {
+              "text": "162",
+              "source_result": {
+                "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                "revision": 1,
+                "field": "result"
+              },
+              "replace_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "revision": 1
+            },
+            "tool_result": {
+              "note": {
+                "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "text": "162",
+                "source": "artifact_result",
+                "quote": "162",
+                "confirmed": true,
+                "revision": 2,
+                "status": "active",
+                "owner_turn_id": "turn-3",
+                "execution_id": "exec-eb0a66c303b8",
+                "source_ref": {
+                  "kind": "artifact_result",
+                  "quote_source_turn_id": "turn-3",
+                  "quote": "162",
+                  "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                  "artifact_revision": 1,
+                  "field": "result"
+                },
+                "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "replaces_revision": 1,
+                "replaces_turn_id": "turn-2",
+                "replaces_text": "126"
+              },
+              "notes_updated": true,
+              "note_event": {
+                "event_id": "nevt-2-3d8106b2",
+                "sequence": 2,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "update",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-3",
+                "source_turn_id": "turn-3",
+                "before_revision": 1,
+                "after_revision": 2,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "162",
+                  "source": "artifact_result",
+                  "quote": "162",
+                  "confirmed": true,
+                  "revision": 2,
+                  "status": "active",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-3",
+                    "quote": "162",
+                    "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "replaces_revision": 1,
+                  "replaces_turn_id": "turn-2",
+                  "replaces_text": "126"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-3",
+                    "kind": "chat",
+                    "turn_number": 3,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-3",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "generation": 0
+                }
+              }
+            },
+            "duration_ms": 0.21479208953678608,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.12579094618558884,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [
+              {
+                "id": "art-12f30c5682804a19a43c6150f6e155da",
+                "kind": "calculation",
+                "revision": 1,
+                "payload": {
+                  "expression": "18 * 9",
+                  "result": "162"
+                },
+                "inputs": {
+                  "expression": "18 * 9"
+                },
+                "provenance": {
+                  "operation_name": "calculate",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "presentation": "trace"
+                },
+                "title": "Evaluate an arithmetic expression with an AST calculator",
+                "status": "ready",
+                "created_at": 1791871456.7629812
+              }
+            ],
+            "verification": [],
+            "turn_id": "turn-3",
+            "execution_id": "exec-eb0a66c303b8",
+            "note_events": [
+              {
+                "event_id": "nevt-2-3d8106b2",
+                "sequence": 2,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "update",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-3",
+                "source_turn_id": "turn-3",
+                "before_revision": 1,
+                "after_revision": 2,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "162",
+                  "source": "artifact_result",
+                  "quote": "162",
+                  "confirmed": true,
+                  "revision": 2,
+                  "status": "active",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-3",
+                    "quote": "162",
+                    "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "replaces_revision": 1,
+                  "replaces_turn_id": "turn-2",
+                  "replaces_text": "126"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-3",
+                    "kind": "chat",
+                    "turn_number": 3,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-3",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "generation": 0
+                }
+              }
+            ]
+          },
+          {
+            "step_number": 3,
+            "thought": "Đã trả lời dựa trên thông tin hiện có",
+            "tool_name": null,
+            "tool_args": null,
+            "tool_result": {
+              "candidate_answer": "162",
+              "verification_action": "ACCEPT"
+            },
+            "duration_ms": 0.09595800656825304,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "calculation_answer_only",
+                "reason": "Kết luận 162; đối chiếu 18 * 9 được 162. Chỉ kiểm tra kết quả phép tính; cách diễn giải đề bài chưa được kiểm chứng.",
+                "evidence_ids": [
+                  "request:69e187b772e14f38999cc63c1355b74b:step:1:31740fdf5ab3"
+                ],
+                "checked": [
+                  "whole_scalar_answer",
+                  "independent_arithmetic",
+                  "observed_expression"
+                ],
+                "retryable": false,
+                "duration_ms": 0.07604190614074469,
+                "answer_schema": null,
+                "phase": "answer",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-3",
+            "execution_id": "exec-eb0a66c303b8",
+            "note_events": []
+          }
+        ],
+        "total_time_ms": 0.6004170281812549,
+        "tool_call_count": 2,
+        "token_estimate": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "model_time_ms": 0.0,
+        "tool_time_ms": 0.2064988948404789,
+        "is_live_model": false,
+        "sources": [
+          {
+            "type": "record_work_note",
+            "result": {
+              "note": {
+                "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "text": "162",
+                "source": "artifact_result",
+                "quote": "162",
+                "confirmed": true,
+                "revision": 2,
+                "status": "active",
+                "owner_turn_id": "turn-3",
+                "execution_id": "exec-eb0a66c303b8",
+                "source_ref": {
+                  "kind": "artifact_result",
+                  "quote_source_turn_id": "turn-3",
+                  "quote": "162",
+                  "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                  "artifact_revision": 1,
+                  "field": "result"
+                },
+                "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "replaces_revision": 1,
+                "replaces_turn_id": "turn-2",
+                "replaces_text": "126"
+              },
+              "notes_updated": true,
+              "note_event": {
+                "event_id": "nevt-2-3d8106b2",
+                "sequence": 2,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "update",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-3",
+                "source_turn_id": "turn-3",
+                "before_revision": 1,
+                "after_revision": 2,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "162",
+                  "source": "artifact_result",
+                  "quote": "162",
+                  "confirmed": true,
+                  "revision": 2,
+                  "status": "active",
+                  "owner_turn_id": "turn-3",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-3",
+                    "quote": "162",
+                    "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "replaces_revision": 1,
+                  "replaces_turn_id": "turn-2",
+                  "replaces_text": "126"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-3",
+                    "kind": "chat",
+                    "turn_number": 3,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-3",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-eb0a66c303b8",
+                  "generation": 0
+                }
+              }
+            }
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "art-12f30c5682804a19a43c6150f6e155da",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "18 * 9",
+              "result": "162"
+            },
+            "inputs": {
+              "expression": "18 * 9"
+            },
+            "provenance": {
+              "operation_name": "calculate",
+              "owner_turn_id": "turn-3",
+              "execution_id": "exec-eb0a66c303b8",
+              "presentation": "trace"
+            },
+            "title": "Evaluate an arithmetic expression with an AST calculator",
+            "status": "ready",
+            "created_at": 1791871456.7629812
+          }
+        ],
+        "error": null,
+        "token_scope": "prompt_and_completion",
+        "controller_decisions": [
+          {
+            "step": 3,
+            "kind": "verification",
+            "intervention": "ACCEPT",
+            "status": "PASS",
+            "reason": [
+              "Kết luận 162; đối chiếu 18 * 9 được 162. Chỉ kiểm tra kết quả phép tính; cách diễn giải đề bài chưa được kiểm chứng."
+            ]
+          }
+        ],
+        "task_state": {},
+        "task_state_updated": false,
+        "completion_status": "unchecked",
+        "pending_input_request": null,
+        "verification_reports": [
+          {
+            "status": "PASS",
+            "scope": "calculation_execution",
+            "reason": "Đối chiếu 18 * 9: công cụ trả 162; tính độc lập được 162.",
+            "evidence_ids": [
+              "request:69e187b772e14f38999cc63c1355b74b:step:1:31740fdf5ab3"
+            ],
+            "checked": [
+              "input_expression",
+              "independent_arithmetic",
+              "operation_result"
+            ],
+            "retryable": false,
+            "duration_ms": 0.038125086575746536,
+            "answer_schema": null,
+            "phase": "execution",
+            "checker": "CalculationVerifier"
+          },
+          {
+            "status": "PASS",
+            "scope": "calculation_answer_only",
+            "reason": "Kết luận 162; đối chiếu 18 * 9 được 162. Chỉ kiểm tra kết quả phép tính; cách diễn giải đề bài chưa được kiểm chứng.",
+            "evidence_ids": [
+              "request:69e187b772e14f38999cc63c1355b74b:step:1:31740fdf5ab3"
+            ],
+            "checked": [
+              "whole_scalar_answer",
+              "independent_arithmetic",
+              "observed_expression"
+            ],
+            "retryable": false,
+            "duration_ms": 0.07604190614074469,
+            "answer_schema": null,
+            "phase": "answer",
+            "checker": "CalculationVerifier"
+          }
+        ],
+        "answer_verification_status": "PASS",
+        "verification_time_ms": 0.11416699271649122,
+        "turn_id": "turn-3",
+        "execution_id": "exec-eb0a66c303b8",
+        "note_events": [
+          {
+            "event_id": "nevt-2-3d8106b2",
+            "sequence": 2,
+            "conversation_id": "conv-c0a1441825b2",
+            "kind": "update",
+            "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+            "owner_turn_id": "turn-3",
+            "source_turn_id": "turn-3",
+            "before_revision": 1,
+            "after_revision": 2,
+            "snapshot": {
+              "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "text": "162",
+              "source": "artifact_result",
+              "quote": "162",
+              "confirmed": true,
+              "revision": 2,
+              "status": "active",
+              "owner_turn_id": "turn-3",
+              "execution_id": "exec-eb0a66c303b8",
+              "source_ref": {
+                "kind": "artifact_result",
+                "quote_source_turn_id": "turn-3",
+                "quote": "162",
+                "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+                "artifact_revision": 1,
+                "field": "result"
+              },
+              "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "replaces_revision": 1,
+              "replaces_turn_id": "turn-2",
+              "replaces_text": "126"
+            },
+            "context": {
+              "turn_ref": {
+                "conversation_id": "conv-c0a1441825b2",
+                "turn_id": "turn-3",
+                "kind": "chat",
+                "turn_number": 3,
+                "target_turn_id": null,
+                "target_artifact_id": null,
+                "target_revision": null
+              },
+              "turn_id": "turn-3",
+              "conversation_id": "conv-c0a1441825b2",
+              "kind": "chat",
+              "execution_id": "exec-eb0a66c303b8",
+              "generation": 0
+            }
+          }
+        ],
+        "note_cursor": 2,
+        "turn_reference": {
+          "turn_id": "turn-3",
+          "execution_id": "exec-eb0a66c303b8",
+          "status": "completed",
+          "query": "Thay 7 bằng 9 và sửa ghi chú đó.",
+          "answer_summary": "162",
+          "artifact_ids": [
+            "art-12f30c5682804a19a43c6150f6e155da"
+          ],
+          "note_ids": [
+            "note-fe564a7f26eb4f0980810ee5f04ec9a1"
+          ]
+        }
+      },
+      "active_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "162",
+          "source": "artifact_result",
+          "quote": "162",
+          "confirmed": true,
+          "revision": 2,
+          "status": "active",
+          "owner_turn_id": "turn-3",
+          "execution_id": "exec-eb0a66c303b8",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-3",
+            "quote": "162",
+            "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "replaces_revision": 1,
+          "replaces_turn_id": "turn-2",
+          "replaces_text": "126",
+          "scope": "this_conversation",
+          "authority": "observed_result"
+        }
+      ],
+      "historical_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "126",
+          "quote": "126",
+          "source": "artifact_result",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-1",
+            "quote": "126",
+            "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "confirmed": true,
+          "revision": 1,
+          "owner_turn_id": "turn-2",
+          "status": "replaced",
+          "replaced_by_revision": 2,
+          "replaced_by_turn_id": "turn-3",
+          "replaced_by_text": "162"
+        }
+      ]
+    },
+    {
+      "query": "Chênh với kết quả trước bao nhiêu?",
+      "turn": {
+        "turn_ref": {
+          "conversation_id": "conv-c0a1441825b2",
+          "turn_id": "turn-4",
+          "kind": "chat",
+          "turn_number": 4,
+          "target_turn_id": null,
+          "target_artifact_id": null,
+          "target_revision": null
+        },
+        "execution_id": "exec-b136899e2e3d",
+        "query": "Chênh với kết quả trước bao nhiêu?",
+        "answer": "",
+        "status": "in_progress",
+        "artifact_refs": [],
+        "note_ids": [],
+        "note_event_ids": [],
+        "task_state": {}
+      },
+      "response": {
+        "answer": "36",
+        "steps": [
+          {
+            "step_number": 1,
+            "thought": "Đang thực hiện thao tác",
+            "tool_name": "inspect_artifact",
+            "tool_args": {
+              "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+              "revision": 1
+            },
+            "tool_result": {
+              "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+              "revision": 1,
+              "expression": "18 * 7",
+              "result": "126"
+            },
+            "duration_ms": 0.046208035200834274,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.02504093572497368,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-4",
+            "execution_id": "exec-b136899e2e3d",
+            "note_events": []
+          },
+          {
+            "step_number": 2,
+            "thought": "Đang thực hiện thao tác",
+            "tool_name": "inspect_artifact",
+            "tool_args": {
+              "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+              "revision": 1
+            },
+            "tool_result": {
+              "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+              "revision": 1,
+              "expression": "18 * 9",
+              "result": "162"
+            },
+            "duration_ms": 0.03658304922282696,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.02079200930893421,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-4",
+            "execution_id": "exec-b136899e2e3d",
+            "note_events": []
+          },
+          {
+            "step_number": 3,
+            "thought": "Đang tính",
+            "tool_name": "calculate",
+            "tool_args": {
+              "expression": "162 - 126"
+            },
+            "tool_result": {
+              "expression": "162 - 126",
+              "result": "36"
+            },
+            "duration_ms": 0.13275002129375935,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.06524997297674417,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [
+              {
+                "id": "art-a075240119234e7984a31f7b5a361e37",
+                "kind": "calculation",
+                "revision": 1,
+                "payload": {
+                  "expression": "162 - 126",
+                  "result": "36"
+                },
+                "inputs": {
+                  "expression": "162 - 126"
+                },
+                "provenance": {
+                  "operation_name": "calculate",
+                  "owner_turn_id": "turn-4",
+                  "execution_id": "exec-b136899e2e3d",
+                  "presentation": "trace"
+                },
+                "title": "Evaluate an arithmetic expression with an AST calculator",
+                "status": "ready",
+                "created_at": 1791871456.764065
+              }
+            ],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 162 - 126: công cụ trả 36; tính độc lập được 36.",
+                "evidence_ids": [
+                  "request:69f388386aca4cda849b6907cdbc6d14:step:3:462a4500aa4d"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.030666938982903957,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-4",
+            "execution_id": "exec-b136899e2e3d",
+            "note_events": []
+          },
+          {
+            "step_number": 4,
+            "thought": "Đã trả lời dựa trên thông tin hiện có",
+            "tool_name": null,
+            "tool_args": null,
+            "tool_result": {
+              "candidate_answer": "36",
+              "verification_action": "ACCEPT"
+            },
+            "duration_ms": 0.08908298332244158,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "calculation_answer_only",
+                "reason": "Kết luận 36; đối chiếu 162 - 126 được 36. Chỉ kiểm tra kết quả phép tính; cách diễn giải đề bài chưa được kiểm chứng.",
+                "evidence_ids": [
+                  "request:69f388386aca4cda849b6907cdbc6d14:step:3:462a4500aa4d"
+                ],
+                "checked": [
+                  "whole_scalar_answer",
+                  "independent_arithmetic",
+                  "observed_expression"
+                ],
+                "retryable": false,
+                "duration_ms": 0.07200008258223534,
+                "answer_schema": null,
+                "phase": "answer",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-4",
+            "execution_id": "exec-b136899e2e3d",
+            "note_events": []
+          }
+        ],
+        "total_time_ms": 0.4871670389547944,
+        "tool_call_count": 3,
+        "token_estimate": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "model_time_ms": 0.0,
+        "tool_time_ms": 0.11108291801065207,
+        "is_live_model": false,
+        "sources": [
+          {
+            "type": "inspect_artifact",
+            "result": {
+              "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+              "revision": 1,
+              "expression": "18 * 7",
+              "result": "126"
+            }
+          },
+          {
+            "type": "inspect_artifact",
+            "result": {
+              "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+              "revision": 1,
+              "expression": "18 * 9",
+              "result": "162"
+            }
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "art-a075240119234e7984a31f7b5a361e37",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "162 - 126",
+              "result": "36"
+            },
+            "inputs": {
+              "expression": "162 - 126"
+            },
+            "provenance": {
+              "operation_name": "calculate",
+              "owner_turn_id": "turn-4",
+              "execution_id": "exec-b136899e2e3d",
+              "presentation": "trace"
+            },
+            "title": "Evaluate an arithmetic expression with an AST calculator",
+            "status": "ready",
+            "created_at": 1791871456.764065
+          }
+        ],
+        "error": null,
+        "token_scope": "prompt_and_completion",
+        "controller_decisions": [
+          {
+            "step": 4,
+            "kind": "verification",
+            "intervention": "ACCEPT",
+            "status": "PASS",
+            "reason": [
+              "Kết luận 36; đối chiếu 162 - 126 được 36. Chỉ kiểm tra kết quả phép tính; cách diễn giải đề bài chưa được kiểm chứng."
+            ]
+          }
+        ],
+        "task_state": {},
+        "task_state_updated": false,
+        "completion_status": "unchecked",
+        "pending_input_request": null,
+        "verification_reports": [
+          {
+            "status": "PASS",
+            "scope": "calculation_execution",
+            "reason": "Đối chiếu 162 - 126: công cụ trả 36; tính độc lập được 36.",
+            "evidence_ids": [
+              "request:69f388386aca4cda849b6907cdbc6d14:step:3:462a4500aa4d"
+            ],
+            "checked": [
+              "input_expression",
+              "independent_arithmetic",
+              "operation_result"
+            ],
+            "retryable": false,
+            "duration_ms": 0.030666938982903957,
+            "answer_schema": null,
+            "phase": "execution",
+            "checker": "CalculationVerifier"
+          },
+          {
+            "status": "PASS",
+            "scope": "calculation_answer_only",
+            "reason": "Kết luận 36; đối chiếu 162 - 126 được 36. Chỉ kiểm tra kết quả phép tính; cách diễn giải đề bài chưa được kiểm chứng.",
+            "evidence_ids": [
+              "request:69f388386aca4cda849b6907cdbc6d14:step:3:462a4500aa4d"
+            ],
+            "checked": [
+              "whole_scalar_answer",
+              "independent_arithmetic",
+              "observed_expression"
+            ],
+            "retryable": false,
+            "duration_ms": 0.07200008258223534,
+            "answer_schema": null,
+            "phase": "answer",
+            "checker": "CalculationVerifier"
+          }
+        ],
+        "answer_verification_status": "PASS",
+        "verification_time_ms": 0.1026670215651393,
+        "turn_id": "turn-4",
+        "execution_id": "exec-b136899e2e3d",
+        "note_events": [],
+        "note_cursor": 2,
+        "turn_reference": {
+          "turn_id": "turn-4",
+          "execution_id": "exec-b136899e2e3d",
+          "status": "completed",
+          "query": "Chênh với kết quả trước bao nhiêu?",
+          "answer_summary": "36",
+          "artifact_ids": [
+            "art-a075240119234e7984a31f7b5a361e37"
+          ],
+          "note_ids": []
+        }
+      },
+      "active_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "162",
+          "source": "artifact_result",
+          "quote": "162",
+          "confirmed": true,
+          "revision": 2,
+          "status": "active",
+          "owner_turn_id": "turn-3",
+          "execution_id": "exec-eb0a66c303b8",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-3",
+            "quote": "162",
+            "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "replaces_revision": 1,
+          "replaces_turn_id": "turn-2",
+          "replaces_text": "126",
+          "scope": "this_conversation",
+          "authority": "observed_result"
+        }
+      ],
+      "historical_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "126",
+          "quote": "126",
+          "source": "artifact_result",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-1",
+            "quote": "126",
+            "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "confirmed": true,
+          "revision": 1,
+          "owner_turn_id": "turn-2",
+          "status": "replaced",
+          "replaced_by_revision": 2,
+          "replaced_by_turn_id": "turn-3",
+          "replaced_by_text": "162"
+        }
+      ]
+    },
+    {
+      "query": "Tính gấp đôi rồi ghi lại.",
+      "turn": {
+        "turn_ref": {
+          "conversation_id": "conv-c0a1441825b2",
+          "turn_id": "turn-5",
+          "kind": "chat",
+          "turn_number": 5,
+          "target_turn_id": null,
+          "target_artifact_id": null,
+          "target_revision": null
+        },
+        "execution_id": "exec-e2556c7b1b60",
+        "query": "Tính gấp đôi rồi ghi lại.",
+        "answer": "",
+        "status": "in_progress",
+        "artifact_refs": [],
+        "note_ids": [],
+        "note_event_ids": [],
+        "task_state": {}
+      },
+      "response": {
+        "answer": "",
+        "steps": [
+          {
+            "step_number": 1,
+            "thought": "Đang tính",
+            "tool_name": "calculate",
+            "tool_args": {
+              "expression": "162 * 2"
+            },
+            "tool_result": {
+              "expression": "162 * 2",
+              "result": "324"
+            },
+            "duration_ms": 0.13033393770456314,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.06412493530660868,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [
+              {
+                "id": "art-7ad9b76577914a3d85540adb14bed364",
+                "kind": "calculation",
+                "revision": 1,
+                "payload": {
+                  "expression": "162 * 2",
+                  "result": "324"
+                },
+                "inputs": {
+                  "expression": "162 * 2"
+                },
+                "provenance": {
+                  "operation_name": "calculate",
+                  "owner_turn_id": "turn-5",
+                  "execution_id": "exec-e2556c7b1b60",
+                  "presentation": "trace"
+                },
+                "title": "Evaluate an arithmetic expression with an AST calculator",
+                "status": "ready",
+                "created_at": 1791871456.764574
+              }
+            ],
+            "verification": [
+              {
+                "status": "PASS",
+                "scope": "calculation_execution",
+                "reason": "Đối chiếu 162 * 2: công cụ trả 324; tính độc lập được 324.",
+                "evidence_ids": [
+                  "request:77e45bd2aae74b379cf737d343a91aca:step:1:05f6ae0d8e87"
+                ],
+                "checked": [
+                  "input_expression",
+                  "independent_arithmetic",
+                  "operation_result"
+                ],
+                "retryable": false,
+                "duration_ms": 0.028875074349343777,
+                "answer_schema": null,
+                "phase": "execution",
+                "checker": "CalculationVerifier"
+              }
+            ],
+            "turn_id": "turn-5",
+            "execution_id": "exec-e2556c7b1b60",
+            "note_events": []
+          }
+        ],
+        "total_time_ms": 0.28074998408555984,
+        "tool_call_count": 1,
+        "token_estimate": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "model_time_ms": 0.0,
+        "tool_time_ms": 0.06412493530660868,
+        "is_live_model": false,
+        "sources": [],
+        "artifacts": [
+          {
+            "id": "art-7ad9b76577914a3d85540adb14bed364",
+            "kind": "calculation",
+            "revision": 1,
+            "payload": {
+              "expression": "162 * 2",
+              "result": "324"
+            },
+            "inputs": {
+              "expression": "162 * 2"
+            },
+            "provenance": {
+              "operation_name": "calculate",
+              "owner_turn_id": "turn-5",
+              "execution_id": "exec-e2556c7b1b60",
+              "presentation": "trace"
+            },
+            "title": "Evaluate an arithmetic expression with an AST calculator",
+            "status": "ready",
+            "created_at": 1791871456.764574
+          }
+        ],
+        "error": "cancelled",
+        "token_scope": "prompt_and_completion",
+        "controller_decisions": [],
+        "task_state": {},
+        "task_state_updated": false,
+        "completion_status": "unchecked",
+        "pending_input_request": null,
+        "verification_reports": [
+          {
+            "status": "PASS",
+            "scope": "calculation_execution",
+            "reason": "Đối chiếu 162 * 2: công cụ trả 324; tính độc lập được 324.",
+            "evidence_ids": [
+              "request:77e45bd2aae74b379cf737d343a91aca:step:1:05f6ae0d8e87"
+            ],
+            "checked": [
+              "input_expression",
+              "independent_arithmetic",
+              "operation_result"
+            ],
+            "retryable": false,
+            "duration_ms": 0.028875074349343777,
+            "answer_schema": null,
+            "phase": "execution",
+            "checker": "CalculationVerifier"
+          }
+        ],
+        "answer_verification_status": "UNKNOWN",
+        "verification_time_ms": 0.028875074349343777,
+        "turn_id": "turn-5",
+        "execution_id": "exec-e2556c7b1b60",
+        "note_events": [],
+        "note_cursor": 2,
+        "turn_reference": {
+          "turn_id": "turn-5",
+          "execution_id": "exec-e2556c7b1b60",
+          "status": "cancelled",
+          "query": "Tính gấp đôi rồi ghi lại.",
+          "answer_summary": "",
+          "artifact_ids": [
+            "art-7ad9b76577914a3d85540adb14bed364"
+          ],
+          "note_ids": []
+        }
+      },
+      "active_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "162",
+          "source": "artifact_result",
+          "quote": "162",
+          "confirmed": true,
+          "revision": 2,
+          "status": "active",
+          "owner_turn_id": "turn-3",
+          "execution_id": "exec-eb0a66c303b8",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-3",
+            "quote": "162",
+            "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "replaces_revision": 1,
+          "replaces_turn_id": "turn-2",
+          "replaces_text": "126",
+          "scope": "this_conversation",
+          "authority": "observed_result"
+        }
+      ],
+      "historical_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "126",
+          "quote": "126",
+          "source": "artifact_result",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-1",
+            "quote": "126",
+            "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "confirmed": true,
+          "revision": 1,
+          "owner_turn_id": "turn-2",
+          "status": "replaced",
+          "replaced_by_revision": 2,
+          "replaced_by_turn_id": "turn-3",
+          "replaced_by_text": "162"
+        }
+      ]
+    },
+    {
+      "query": "Tiếp tục, ghi kết quả vừa tính.",
+      "turn": {
+        "turn_ref": {
+          "conversation_id": "conv-c0a1441825b2",
+          "turn_id": "turn-6",
+          "kind": "chat",
+          "turn_number": 6,
+          "target_turn_id": null,
+          "target_artifact_id": null,
+          "target_revision": null
+        },
+        "execution_id": "exec-7eb447321590",
+        "query": "Tiếp tục, ghi kết quả vừa tính.",
+        "answer": "",
+        "status": "in_progress",
+        "artifact_refs": [],
+        "note_ids": [],
+        "note_event_ids": [],
+        "task_state": {}
+      },
+      "response": {
+        "answer": "Đã ghi kết quả vừa tính.",
+        "steps": [
+          {
+            "step_number": 1,
+            "thought": "Đang thực hiện thao tác",
+            "tool_name": "inspect_artifact",
+            "tool_args": {
+              "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+              "revision": 1
+            },
+            "tool_result": {
+              "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+              "revision": 1,
+              "expression": "162 * 2",
+              "result": "324"
+            },
+            "duration_ms": 0.04108401481062174,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.021916930563747883,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-6",
+            "execution_id": "exec-7eb447321590",
+            "note_events": []
+          },
+          {
+            "step_number": 2,
+            "thought": "Đang ghi lại điều bạn dặn",
+            "tool_name": "record_work_note",
+            "tool_args": {
+              "text": "324",
+              "source_result": {
+                "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                "revision": 1,
+                "field": "result"
+              },
+              "replace_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "revision": 2
+            },
+            "tool_result": {
+              "note": {
+                "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "text": "324",
+                "source": "artifact_result",
+                "quote": "324",
+                "confirmed": true,
+                "revision": 3,
+                "status": "active",
+                "owner_turn_id": "turn-6",
+                "execution_id": "exec-7eb447321590",
+                "source_ref": {
+                  "kind": "artifact_result",
+                  "quote_source_turn_id": "turn-5",
+                  "quote": "324",
+                  "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                  "artifact_revision": 1,
+                  "field": "result"
+                },
+                "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "replaces_revision": 2,
+                "replaces_turn_id": "turn-3",
+                "replaces_text": "162"
+              },
+              "notes_updated": true,
+              "note_event": {
+                "event_id": "nevt-3-b20ba3b1",
+                "sequence": 3,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "update",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-6",
+                "source_turn_id": "turn-5",
+                "before_revision": 2,
+                "after_revision": 3,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "324",
+                  "source": "artifact_result",
+                  "quote": "324",
+                  "confirmed": true,
+                  "revision": 3,
+                  "status": "active",
+                  "owner_turn_id": "turn-6",
+                  "execution_id": "exec-7eb447321590",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-5",
+                    "quote": "324",
+                    "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "replaces_revision": 2,
+                  "replaces_turn_id": "turn-3",
+                  "replaces_text": "162"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-6",
+                    "kind": "chat",
+                    "turn_number": 6,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-6",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-7eb447321590",
+                  "generation": 0
+                }
+              }
+            },
+            "duration_ms": 0.16904203221201897,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.11141702998429537,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-6",
+            "execution_id": "exec-7eb447321590",
+            "note_events": [
+              {
+                "event_id": "nevt-3-b20ba3b1",
+                "sequence": 3,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "update",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-6",
+                "source_turn_id": "turn-5",
+                "before_revision": 2,
+                "after_revision": 3,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "324",
+                  "source": "artifact_result",
+                  "quote": "324",
+                  "confirmed": true,
+                  "revision": 3,
+                  "status": "active",
+                  "owner_turn_id": "turn-6",
+                  "execution_id": "exec-7eb447321590",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-5",
+                    "quote": "324",
+                    "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "replaces_revision": 2,
+                  "replaces_turn_id": "turn-3",
+                  "replaces_text": "162"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-6",
+                    "kind": "chat",
+                    "turn_number": 6,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-6",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-7eb447321590",
+                  "generation": 0
+                }
+              }
+            ]
+          },
+          {
+            "step_number": 3,
+            "thought": "Đã trả lời dựa trên thông tin hiện có",
+            "tool_name": null,
+            "tool_args": null,
+            "tool_result": null,
+            "duration_ms": 0.034208991564810276,
+            "model_duration_ms": 0.0,
+            "tool_duration_ms": 0.0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "raw_completion": "",
+            "error": null,
+            "model_input": {},
+            "artifacts": [],
+            "verification": [],
+            "turn_id": "turn-6",
+            "execution_id": "exec-7eb447321590",
+            "note_events": []
+          }
+        ],
+        "total_time_ms": 0.4270420176908374,
+        "tool_call_count": 2,
+        "token_estimate": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "model_time_ms": 0.0,
+        "tool_time_ms": 0.13333396054804325,
+        "is_live_model": false,
+        "sources": [
+          {
+            "type": "inspect_artifact",
+            "result": {
+              "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+              "revision": 1,
+              "expression": "162 * 2",
+              "result": "324"
+            }
+          },
+          {
+            "type": "record_work_note",
+            "result": {
+              "note": {
+                "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "text": "324",
+                "source": "artifact_result",
+                "quote": "324",
+                "confirmed": true,
+                "revision": 3,
+                "status": "active",
+                "owner_turn_id": "turn-6",
+                "execution_id": "exec-7eb447321590",
+                "source_ref": {
+                  "kind": "artifact_result",
+                  "quote_source_turn_id": "turn-5",
+                  "quote": "324",
+                  "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                  "artifact_revision": 1,
+                  "field": "result"
+                },
+                "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "replaces_revision": 2,
+                "replaces_turn_id": "turn-3",
+                "replaces_text": "162"
+              },
+              "notes_updated": true,
+              "note_event": {
+                "event_id": "nevt-3-b20ba3b1",
+                "sequence": 3,
+                "conversation_id": "conv-c0a1441825b2",
+                "kind": "update",
+                "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                "owner_turn_id": "turn-6",
+                "source_turn_id": "turn-5",
+                "before_revision": 2,
+                "after_revision": 3,
+                "snapshot": {
+                  "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "text": "324",
+                  "source": "artifact_result",
+                  "quote": "324",
+                  "confirmed": true,
+                  "revision": 3,
+                  "status": "active",
+                  "owner_turn_id": "turn-6",
+                  "execution_id": "exec-7eb447321590",
+                  "source_ref": {
+                    "kind": "artifact_result",
+                    "quote_source_turn_id": "turn-5",
+                    "quote": "324",
+                    "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                    "artifact_revision": 1,
+                    "field": "result"
+                  },
+                  "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+                  "replaces_revision": 2,
+                  "replaces_turn_id": "turn-3",
+                  "replaces_text": "162"
+                },
+                "context": {
+                  "turn_ref": {
+                    "conversation_id": "conv-c0a1441825b2",
+                    "turn_id": "turn-6",
+                    "kind": "chat",
+                    "turn_number": 6,
+                    "target_turn_id": null,
+                    "target_artifact_id": null,
+                    "target_revision": null
+                  },
+                  "turn_id": "turn-6",
+                  "conversation_id": "conv-c0a1441825b2",
+                  "kind": "chat",
+                  "execution_id": "exec-7eb447321590",
+                  "generation": 0
+                }
+              }
+            }
+          }
+        ],
+        "artifacts": [],
+        "error": null,
+        "token_scope": "prompt_and_completion",
+        "controller_decisions": [],
+        "task_state": {},
+        "task_state_updated": false,
+        "completion_status": "unchecked",
+        "pending_input_request": null,
+        "verification_reports": [],
+        "answer_verification_status": "UNKNOWN",
+        "verification_time_ms": 0.027499976567924023,
+        "turn_id": "turn-6",
+        "execution_id": "exec-7eb447321590",
+        "note_events": [
+          {
+            "event_id": "nevt-3-b20ba3b1",
+            "sequence": 3,
+            "conversation_id": "conv-c0a1441825b2",
+            "kind": "update",
+            "note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+            "owner_turn_id": "turn-6",
+            "source_turn_id": "turn-5",
+            "before_revision": 2,
+            "after_revision": 3,
+            "snapshot": {
+              "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "text": "324",
+              "source": "artifact_result",
+              "quote": "324",
+              "confirmed": true,
+              "revision": 3,
+              "status": "active",
+              "owner_turn_id": "turn-6",
+              "execution_id": "exec-7eb447321590",
+              "source_ref": {
+                "kind": "artifact_result",
+                "quote_source_turn_id": "turn-5",
+                "quote": "324",
+                "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+                "artifact_revision": 1,
+                "field": "result"
+              },
+              "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+              "replaces_revision": 2,
+              "replaces_turn_id": "turn-3",
+              "replaces_text": "162"
+            },
+            "context": {
+              "turn_ref": {
+                "conversation_id": "conv-c0a1441825b2",
+                "turn_id": "turn-6",
+                "kind": "chat",
+                "turn_number": 6,
+                "target_turn_id": null,
+                "target_artifact_id": null,
+                "target_revision": null
+              },
+              "turn_id": "turn-6",
+              "conversation_id": "conv-c0a1441825b2",
+              "kind": "chat",
+              "execution_id": "exec-7eb447321590",
+              "generation": 0
+            }
+          }
+        ],
+        "note_cursor": 3,
+        "turn_reference": {
+          "turn_id": "turn-6",
+          "execution_id": "exec-7eb447321590",
+          "status": "completed",
+          "query": "Tiếp tục, ghi kết quả vừa tính.",
+          "answer_summary": "Đã ghi kết quả vừa tính.",
+          "artifact_ids": [],
+          "note_ids": [
+            "note-fe564a7f26eb4f0980810ee5f04ec9a1"
+          ]
+        }
+      },
+      "active_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "324",
+          "source": "artifact_result",
+          "quote": "324",
+          "confirmed": true,
+          "revision": 3,
+          "status": "active",
+          "owner_turn_id": "turn-6",
+          "execution_id": "exec-7eb447321590",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-5",
+            "quote": "324",
+            "artifact_id": "art-7ad9b76577914a3d85540adb14bed364",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "replaces_note_id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "replaces_revision": 2,
+          "replaces_turn_id": "turn-3",
+          "replaces_text": "162",
+          "scope": "this_conversation",
+          "authority": "observed_result"
+        }
+      ],
+      "historical_notes": [
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "162",
+          "quote": "162",
+          "source": "artifact_result",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-3",
+            "quote": "162",
+            "artifact_id": "art-12f30c5682804a19a43c6150f6e155da",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "confirmed": true,
+          "revision": 2,
+          "owner_turn_id": "turn-3",
+          "status": "replaced",
+          "replaced_by_revision": 3,
+          "replaced_by_turn_id": "turn-6",
+          "replaced_by_text": "324"
+        },
+        {
+          "id": "note-fe564a7f26eb4f0980810ee5f04ec9a1",
+          "text": "126",
+          "quote": "126",
+          "source": "artifact_result",
+          "source_ref": {
+            "kind": "artifact_result",
+            "quote_source_turn_id": "turn-1",
+            "quote": "126",
+            "artifact_id": "art-ffe6ad7337ab4002baa6ca2c0c67f50d",
+            "artifact_revision": 1,
+            "field": "result"
+          },
+          "confirmed": true,
+          "revision": 1,
+          "owner_turn_id": "turn-2",
+          "status": "replaced",
+          "replaced_by_revision": 3,
+          "replaced_by_turn_id": "turn-6",
+          "replaced_by_text": "324"
+        }
+      ]
+    }
+  ]
+}

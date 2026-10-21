@@ -1,0 +1,13 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "rat/kernel/contracts.py",
+    "rat/kernel/dispatcher.py",
+    "tests/test_artifact_store_lifecycle.py"
+  ],
+  "exit_code": 0,
+  "output": ""
+}

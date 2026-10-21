@@ -50,14 +50,19 @@ def get_ext_badge_info(ext: str) -> dict:
     return {"bg": "#8c7e6f", "fg": "#ffffff", "border": "#75685a", "label": label[:4]}
 
 
-RAYCAST_QSS = """
+from rat.ui.workbench import get_system_font_family, get_system_mono_font_family
+
+FONT_FAMILY = get_system_font_family()
+MONO_FONT_FAMILY = get_system_mono_font_family()
+
+_BASE_RAYCAST_QSS = """
 /* ========================================================================= */
 /* AGENT CHUỘT - LIGHT MODE REFINED (WARM LIGHT GLASS SPECIFICATION)         */
 /* Clean, modern, warm light glass aesthetic with peeking mascot              */
 /* ========================================================================= */
 
 * {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial;
     outline: none;
     color: #1F2937;
 }
@@ -320,7 +325,7 @@ QTextEdit#PreviewContent {
     border-radius: 8px;
     font-size: 12px;
     padding: 10px;
-    font-family: "SF Mono", "Menlo", monospace;
+    font-family: Menlo, monospace;
     line-height: 1.5;
 }
 
@@ -377,3 +382,15 @@ QScrollBar:horizontal {
     height: 0px;
 }
 """
+
+RAYCAST_QSS = _BASE_RAYCAST_QSS.replace(
+    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial',
+    FONT_FAMILY
+).replace(
+    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "JetBrains Mono", monospace',
+    MONO_FONT_FAMILY
+).replace(
+    'Menlo, monospace',
+    MONO_FONT_FAMILY
+)
+

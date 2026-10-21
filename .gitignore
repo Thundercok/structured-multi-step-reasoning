@@ -26,3 +26,20 @@ integrations/nesy_docai/tmp/
 .migration-backups/
 modules/docai/local_state/
 modules/docai/nesy_docai/intake/vision_native_bin
+
+# Local work directories and scratch materials
+work/
+*.tar.gz
+scratch/*.tar.gz
+scratch/debug_images/
+scratch/inspected/
+scratch/sprites/
+scratch/build_spider/
+scratch/*.html
+scratch/font_test_*.png
+scratch/native_specimen_*.png
+scratch/test_*.png
+scratch/capture_overnight_specimens.py
+scratch/debug_capture.py
+scratch/generate_specimens.py
+scratch/inspect_narrow.py

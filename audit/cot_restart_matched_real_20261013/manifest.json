@@ -1,0 +1,79 @@
+{
+  "identity": {
+    "schema_version": 1,
+    "study": "cot_restart_matched_development",
+    "role": "exposed_development_matched",
+    "mock": false,
+    "model_repository": "mlx-community/Qwen3.5-4B-MLX-4bit",
+    "model_revision": "32f3e8ecf65426fc3306969496342d504bfa13f3",
+    "quantization": {
+      "bits": 4,
+      "group_size": 64,
+      "mode": "affine"
+    },
+    "dev_pool_sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+    "settings_sha256": "2443b1781f606bec6e2b2a0636d408b8fb73d58f2f64984a27798042cb26a1d9",
+    "source_sha256": {
+      "experiments/cot_restart_pilot.py": "5b9b95e5d6028b29578e314b584cf76e8c76ab85b650e9bcc857055e45db9347",
+      "experiments/cot_restart_addendum.py": "5569e710c0895e1ff121e58b03a22fe0fef24dfac667808f396c04c08b5cbcdd",
+      "experiments/cot_restart_replay.py": "d7e02d6aeff8a5f67a40caf5f286e32837197da6a69c6424586cf7fd61434ca9",
+      "experiments/research_study.py": "4c368d4ea51b86ef679cd6cf3bcddcb9017745cbdafffca8cb2c5ae5ea54952f",
+      "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+      "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+      "research_prompt_profiles.py": "49873e4d541dcae5c9c836d9d9e4946122f1bb3354f45c957acfe23a0ce0b867",
+      "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+      "docs/cot_restart_preflight_protocol_20261009.md": "4cd4d7d2f2a070945674c5e12879f536a1c21a4a5015917275b1f202466004f1",
+      "docs/cot_restart_replay_protocol_20261013.md": "3590d61965b132fa4a4e8c25b78b8405dc372b18a18d7d6a6bef79e61f308af4",
+      "experiments/cot_restart_matched.py": "131c6564f63e8d045a6394ed79615ca9b30408c1a6d630b0640ef391186c48b5",
+      "docs/cot_restart_matched_protocol_20261013.md": "d58a04d9a2aae77da4d3ee00b95a738ff6f51ec16ba87b9ed99d0bc573d871f4"
+    }
+  },
+  "study": "cot_restart_matched_development",
+  "status": "complete",
+  "mock": false,
+  "confirmatory": false,
+  "evidence": "exposed_development",
+  "plan_sha256": "9816139847b89f26508e3858430afd9fa806a4ff426e09cd2709b5fcd4117157",
+  "limits": {
+    "max_attempted_calls": 36,
+    "max_completion_tokens": 72996,
+    "max_prompt_tokens": 14125,
+    "max_prompt_plus_completion_tokens": 87121,
+    "max_per_call_prompt_plus_completion_tokens": 2739,
+    "active_seconds_before_new_call_is_refused": 28800
+  },
+  "active_seconds": 1916.7987846240867,
+  "source_sha256": {
+    "experiments/cot_restart_pilot.py": "5b9b95e5d6028b29578e314b584cf76e8c76ab85b650e9bcc857055e45db9347",
+    "experiments/cot_restart_addendum.py": "5569e710c0895e1ff121e58b03a22fe0fef24dfac667808f396c04c08b5cbcdd",
+    "experiments/cot_restart_replay.py": "d7e02d6aeff8a5f67a40caf5f286e32837197da6a69c6424586cf7fd61434ca9",
+    "experiments/research_study.py": "4c368d4ea51b86ef679cd6cf3bcddcb9017745cbdafffca8cb2c5ae5ea54952f",
+    "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "research_prompt_profiles.py": "49873e4d541dcae5c9c836d9d9e4946122f1bb3354f45c957acfe23a0ce0b867",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "docs/cot_restart_preflight_protocol_20261009.md": "4cd4d7d2f2a070945674c5e12879f536a1c21a4a5015917275b1f202466004f1",
+    "docs/cot_restart_replay_protocol_20261013.md": "3590d61965b132fa4a4e8c25b78b8405dc372b18a18d7d6a6bef79e61f308af4",
+    "experiments/cot_restart_matched.py": "131c6564f63e8d045a6394ed79615ca9b30408c1a6d630b0640ef391186c48b5",
+    "docs/cot_restart_matched_protocol_20261013.md": "d58a04d9a2aae77da4d3ee00b95a738ff6f51ec16ba87b9ed99d0bc573d871f4"
+  },
+  "started_utc": "2026-10-13T06:59:10.689488+00:00",
+  "resumed_utc": "2026-10-13T07:00:33.404469+00:00",
+  "journal_head": "c81910d4bceac2053c54d9e6761669aa40899aabf4c24fc85a0c9f3f96c23805",
+  "journal_count": 72,
+  "journal_records": 72,
+  "total_attempted_calls": 36,
+  "failed_attempts": 0,
+  "cost_status": "known_incurred",
+  "executed_model_calls": 36,
+  "skipped_calls": 0,
+  "total_calls": 36,
+  "total_completion_tokens": 19715,
+  "total_incurred_prompt_tokens": 14125,
+  "total_incurred_tokens": 33840,
+  "finished_utc": "2026-10-13T07:32:23.893346+00:00",
+  "artifact_hashes": {
+    "records.json": "4708c01dc0fd6005302ab10e2b54172ed34492c377f0c399c8d28f767f89700b",
+    "calls.jsonl": "a165500695f970f5dc2de12cbe38ad87f698c59c2e94a4236c7c8f3cb5726f6d"
+  }
+}

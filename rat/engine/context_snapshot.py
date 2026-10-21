@@ -194,6 +194,24 @@ def resolve_value_ref(snapshot: Dict[str, Any], value_ref_obj: Dict[str, Any]) -
     return resolve_json_pointer(entity.get("body", {}), pointer)
 
 
+def _find_receipt_for_operation_result(snapshot: Dict[str, Any], entity_ref: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    rcpt_id = entity_ref.get("receipt_id")
+    exec_id = entity_ref.get("execution_id")
+    conv_id = entity_ref.get("conversation_id")
+    turn_id = entity_ref.get("turn_id")
+    for r in snapshot.get("observed_state", {}).get("receipts", []):
+        if r.get("receipt_id") != rcpt_id:
+            continue
+        if exec_id is not None and r.get("execution_id") != exec_id:
+            continue
+        if conv_id is not None and r.get("conversation_id") != conv_id:
+            continue
+        if turn_id is not None and r.get("turn_id") != turn_id:
+            continue
+        return r
+    return None
+
+
 def iter_projector_edges(snapshot: Dict[str, Any]) -> List[Tuple[Tuple[str, str, str], Dict[str, Any]]]:
     """Extract all value_ref edges emitted by known typed projectors in their authorized locations.
 
@@ -232,6 +250,14 @@ def iter_projector_edges(snapshot: Dict[str, Any]) -> List[Tuple[Tuple[str, str,
                         continue
                 edges.append((("receipt", rcpt_id, slot), val))
 
+        op_res = rcpt.get("operation_result")
+        if isinstance(op_res, dict) and not is_value_ref(op_res):
+            if projected_slots is not None:
+                if ("operation_result.note" in projected_slots or "note" in projected_slots) and is_value_ref(op_res.get("note")):
+                    edges.append((("receipt", rcpt_id, "operation_result.note"), op_res["note"]))
+                if ("operation_result.note_event" in projected_slots or "note_event" in projected_slots) and is_value_ref(op_res.get("note_event")):
+                    edges.append((("receipt", rcpt_id, "operation_result.note_event"), op_res["note_event"]))
+
     # 2. Entities in snapshot.entities
     for ent in snapshot.get("entities", []):
         ref = ent.get("ref", {})
@@ -255,18 +281,20 @@ def iter_projector_edges(snapshot: Dict[str, Any]) -> List[Tuple[Tuple[str, str,
                 edges.append((("entity", ref_str, "snapshot"), body["snapshot"]))
 
         elif kind == "operation_result":
-            rcpt_id = ref.get("receipt_id")
-            is_record_note = False
-            for r in snapshot.get("observed_state", {}).get("receipts", []):
-                if r.get("receipt_id") == rcpt_id:
-                    if r.get("operation_name") == "record_work_note":
-                        is_record_note = True
-                    break
-            if is_record_note:
-                if is_value_ref(body.get("note")):
+            owning_rcpt = _find_receipt_for_operation_result(snapshot, ref)
+            projected_slots = owning_rcpt.get("projected_slots") if owning_rcpt else None
+            if projected_slots is not None:
+                if ("operation_result.note" in projected_slots or "note" in projected_slots) and is_value_ref(body.get("note")):
                     edges.append((("entity", ref_str, "note"), body["note"]))
-                if is_value_ref(body.get("note_event")):
+                if ("operation_result.note_event" in projected_slots or "note_event" in projected_slots) and is_value_ref(body.get("note_event")):
                     edges.append((("entity", ref_str, "note_event"), body["note_event"]))
+            else:
+                is_record_note = owning_rcpt and owning_rcpt.get("operation_name") == "record_work_note"
+                if is_record_note:
+                    if is_value_ref(body.get("note")):
+                        edges.append((("entity", ref_str, "note"), body["note"]))
+                    if is_value_ref(body.get("note_event")):
+                        edges.append((("entity", ref_str, "note_event"), body["note_event"]))
 
     return edges
 
@@ -325,22 +353,41 @@ def _expand_note_event_body(body: Dict[str, Any], snapshot: Dict[str, Any], seen
 
 
 def _expand_operation_result_body(
-    body: Dict[str, Any], snapshot: Dict[str, Any], operation_name: Optional[str], seen_refs: Set[Tuple[str, str]]
+    body: Dict[str, Any],
+    snapshot: Dict[str, Any],
+    operation_name: Optional[str],
+    seen_refs: Set[Tuple[str, str]],
+    projected_slots: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
     res = copy.deepcopy(body)
-    if operation_name == "record_work_note":
-        if is_value_ref(res.get("note")):
-            target_note = _resolve_deref_chain(snapshot, res["note"], seen_refs)
-            if isinstance(target_note, dict):
-                res["note"] = _expand_note_version_body(target_note, snapshot, seen_refs)
-            else:
-                res["note"] = copy.deepcopy(target_note)
-        if is_value_ref(res.get("note_event")):
-            target_evt = _resolve_deref_chain(snapshot, res["note_event"], seen_refs)
-            if isinstance(target_evt, dict):
-                res["note_event"] = _expand_note_event_body(target_evt, snapshot, seen_refs)
-            else:
-                res["note_event"] = copy.deepcopy(target_evt)
+    should_expand_note = False
+    should_expand_event = False
+
+    if projected_slots is not None:
+        should_expand_note = (
+            "operation_result.note" in projected_slots or "note" in projected_slots
+        )
+        should_expand_event = (
+            "operation_result.note_event" in projected_slots or "note_event" in projected_slots
+        )
+    elif operation_name == "record_work_note":
+        should_expand_note = True
+        should_expand_event = True
+
+    if should_expand_note and is_value_ref(res.get("note")):
+        target_note = _resolve_deref_chain(snapshot, res["note"], seen_refs)
+        if isinstance(target_note, dict):
+            res["note"] = _expand_note_version_body(target_note, snapshot, seen_refs)
+        else:
+            res["note"] = copy.deepcopy(target_note)
+
+    if should_expand_event and is_value_ref(res.get("note_event")):
+        target_evt = _resolve_deref_chain(snapshot, res["note_event"], seen_refs)
+        if isinstance(target_evt, dict):
+            res["note_event"] = _expand_note_event_body(target_evt, snapshot, seen_refs)
+        else:
+            res["note_event"] = copy.deepcopy(target_evt)
+
     return res
 
 
@@ -362,9 +409,15 @@ def _expand_receipt(rcpt: Dict[str, Any], snapshot: Dict[str, Any], seen_refs: S
         if should_expand:
             resolved_op = _resolve_deref_chain(snapshot, res["operation_result"], seen_refs)
             if isinstance(resolved_op, dict):
-                res["operation_result"] = _expand_operation_result_body(resolved_op, snapshot, op_name, seen_refs)
+                res["operation_result"] = _expand_operation_result_body(
+                    resolved_op, snapshot, op_name, seen_refs, projected_slots=projected_slots
+                )
             else:
                 res["operation_result"] = copy.deepcopy(resolved_op)
+    elif isinstance(res.get("operation_result"), dict):
+        res["operation_result"] = _expand_operation_result_body(
+            res["operation_result"], snapshot, op_name, seen_refs, projected_slots=projected_slots
+        )
 
     # 2. note_event
     if is_value_ref(res.get("note_event")):
@@ -437,13 +490,12 @@ def expand_value_refs(
             elif kind == "note_event" and e_copy.get("issuer") == "notebook":
                 e_copy["body"] = _expand_note_event_body(e_copy.get("body", {}), snapshot, current_seen)
             elif kind == "operation_result":
-                rcpt_id = e_copy.get("ref", {}).get("receipt_id")
-                op_name = None
-                for r in snapshot.get("observed_state", {}).get("receipts", []):
-                    if r.get("receipt_id") == rcpt_id:
-                        op_name = r.get("operation_name")
-                        break
-                e_copy["body"] = _expand_operation_result_body(e_copy.get("body", {}), snapshot, op_name, current_seen)
+                owning_rcpt = _find_receipt_for_operation_result(snapshot, e_copy.get("ref", {}))
+                op_name = owning_rcpt.get("operation_name") if owning_rcpt else None
+                rcpt_proj = owning_rcpt.get("projected_slots") if owning_rcpt else None
+                e_copy["body"] = _expand_operation_result_body(
+                    e_copy.get("body", {}), snapshot, op_name, current_seen, projected_slots=rcpt_proj
+                )
             expanded_entities.append(e_copy)
         snap_copy["entities"] = expanded_entities
         return snap_copy
@@ -468,13 +520,12 @@ def expand_value_refs(
         elif kind == "note_event" and target.get("issuer") == "notebook":
             res_ent["body"] = _expand_note_event_body(target["body"], snapshot, current_seen)
         elif kind == "operation_result":
-            rcpt_id = target["ref"].get("receipt_id")
-            op_name = None
-            for r in snapshot.get("observed_state", {}).get("receipts", []):
-                if r.get("receipt_id") == rcpt_id:
-                    op_name = r.get("operation_name")
-                    break
-            res_ent["body"] = _expand_operation_result_body(target["body"], snapshot, op_name, current_seen)
+            owning_rcpt = _find_receipt_for_operation_result(snapshot, target.get("ref", {}))
+            op_name = owning_rcpt.get("operation_name") if owning_rcpt else None
+            rcpt_proj = owning_rcpt.get("projected_slots") if owning_rcpt else None
+            res_ent["body"] = _expand_operation_result_body(
+                target["body"], snapshot, op_name, current_seen, projected_slots=rcpt_proj
+            )
         return res_ent
 
     # 4. A body inherits its canonical envelope's typed origin only by object
@@ -927,6 +978,7 @@ def _build_journal_entities_and_receipts(
         # 1. Operation Result Entity (for operations without an artifact in ArtifactStore)
         has_result_entity = False
         result_pointer = ""
+        result_projected_subslots: List[str] = []
         if receipt.operation_result is not None and not receipt.artifact_refs:
             has_result_entity = True
             result_ref = {
@@ -956,6 +1008,7 @@ def _build_journal_entities_and_receipts(
                     target_ent = find_entity(note_entities, target_ref)
                     if target_ent is not None and exact_json_equal(target_ent.get("body"), res_body["note"]):
                         res_body["note"] = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+                        result_projected_subslots.append("operation_result.note")
 
                 if res_body.get("note_event") and isinstance(res_body["note_event"], dict) and res_body["note_event"].get("event_id"):
                     target_ref = {
@@ -966,6 +1019,7 @@ def _build_journal_entities_and_receipts(
                     target_ent = find_entity(event_entities, target_ref)
                     if target_ent is not None and exact_json_equal(target_ent.get("body"), res_body["note_event"]):
                         res_body["note_event"] = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+                        result_projected_subslots.append("operation_result.note_event")
 
             entities.append({
                 "ref": result_ref,
@@ -1037,8 +1091,33 @@ def _build_journal_entities_and_receipts(
                 }
             }
             projected_slots.append("operation_result")
+            projected_slots.extend(result_projected_subslots)
         elif receipt.operation_result is not None:
             header["operation_result"] = copy.deepcopy(receipt.operation_result)
+            if receipt.operation_name == "record_work_note" and isinstance(header["operation_result"], dict):
+                if header["operation_result"].get("note") and isinstance(header["operation_result"]["note"], dict) and header["operation_result"]["note"].get("id") and header["operation_result"]["note"].get("revision"):
+                    target_ref = {
+                        "kind": "note_version",
+                        "conversation_id": rcpt_conv,
+                        "note_id": str(header["operation_result"]["note"]["id"]),
+                        "revision": int(header["operation_result"]["note"]["revision"]),
+                    }
+                    target_ent = find_entity(note_entities, target_ref)
+                    if target_ent is not None and exact_json_equal(target_ent.get("body"), header["operation_result"]["note"]):
+                        header["operation_result"]["note"] = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+                        projected_slots.append("operation_result.note")
+
+                if header["operation_result"].get("note_event") and isinstance(header["operation_result"]["note_event"], dict) and header["operation_result"]["note_event"].get("event_id"):
+                    target_ref = {
+                        "kind": "note_event",
+                        "conversation_id": rcpt_conv,
+                        "event_id": str(header["operation_result"]["note_event"]["event_id"]),
+                    }
+                    target_ent = find_entity(event_entities, target_ref)
+                    if target_ent is not None and exact_json_equal(target_ent.get("body"), header["operation_result"]["note_event"]):
+                        header["operation_result"]["note_event"] = {"$value_ref": {"entity_ref": target_ref, "pointer": ""}}
+                        projected_slots.append("operation_result.note_event")
+
             # A dispatcher receipt can point to its exact committed artifact
             # payload once. Equal text without the explicit version pin is
             # never sufficient to merge observations or provenance.
