@@ -205,6 +205,31 @@ Rectangle {
         }
     }
 
+    component IconButton: Button {
+        id: iconControl
+        property url iconSource: ""
+        property int iconSize: 14
+        hoverEnabled: true
+        implicitWidth: 28
+        implicitHeight: 26
+        padding: 4
+        contentItem: Image {
+            anchors.centerIn: parent
+            source: iconControl.iconSource
+            width: iconControl.iconSize
+            height: iconControl.iconSize
+            sourceSize.width: iconControl.iconSize * 2
+            sourceSize.height: iconControl.iconSize * 2
+            smooth: true
+        }
+        background: Rectangle {
+            radius: 6
+            color: iconControl.hovered ? desk.backingColor : "transparent"
+            border.color: desk.accent
+            border.width: iconControl.visualFocus ? 1 : 0
+        }
+    }
+
     ColumnLayout {
         visible: !desk.liveMode
         x: 32
@@ -439,7 +464,7 @@ Rectangle {
 
                         QuietButton {
                             objectName: "openPdfCitation"
-                            text: "📄 Đọc tài liệu: " + desk.liveSnapshot.fileName
+                            text: "Đọc tài liệu: " + desk.liveSnapshot.fileName
                             primary: true
                             onClicked: desk.liveController.jumpToPdfPage(1)
                         }
@@ -528,9 +553,13 @@ Rectangle {
                                 anchors.margins: 12
                                 spacing: 10
 
-                                Label {
-                                    text: "✨"
-                                    font.pixelSize: 18
+                                Image {
+                                    width: 20
+                                    height: 20
+                                    source: "../../assets/icons/sparkle.svg"
+                                    sourceSize.width: 40
+                                    sourceSize.height: 40
+                                    smooth: true
                                 }
 
                                 ColumnLayout {
@@ -609,15 +638,24 @@ Rectangle {
                                         Rectangle {
                                             width: 32
                                             height: 32
-                                            radius: 6
-                                            color: modelData.kind === "application" ? desk.accent : desk.paperColor
-                                            border.color: desk.edge
+                                            radius: 7
+                                            color: modelData.kind === "application"
+                                                   ? (desk.darkMode ? "#2b3b24" : "#eaf3e5")
+                                                   : (modelData.is_pdf ? (desk.darkMode ? "#3a2525" : "#fdf0f0") : desk.paperColor)
+                                            border.color: modelData.kind === "application" ? desk.accent : (modelData.is_pdf ? "#c0392b" : desk.edge)
+                                            border.width: 1
 
-                                            Label {
+                                            Image {
                                                 anchors.centerIn: parent
-                                                text: modelData.kind === "application" ? "⬚" : (modelData.is_pdf ? "▤" : "📄")
-                                                color: modelData.kind === "application" ? desk.accentText : desk.ink
-                                                font.pixelSize: 15
+                                                width: 18
+                                                height: 18
+                                                source: modelData.kind === "application"
+                                                        ? "../../assets/icons/app.svg"
+                                                        : (modelData.is_pdf ? "../../assets/icons/pdf.svg" : "../../assets/icons/file.svg")
+                                                sourceSize.width: 36
+                                                sourceSize.height: 36
+                                                smooth: true
+                                                mipmap: true
                                             }
                                         }
 
@@ -682,15 +720,15 @@ Rectangle {
                                         RowLayout {
                                             spacing: 4
                                             visible: hitCard.isSelected
-                                            QuietButton {
+                                            IconButton {
                                                 visible: Boolean(modelData.path)
-                                                text: "👁"
+                                                iconSource: "../../assets/icons/eye.svg"
                                                 Accessible.name: "Xem nhanh QuickLook"
                                                 onClicked: desk.liveController.previewHit(modelData.path)
                                             }
-                                            QuietButton {
+                                            IconButton {
                                                 visible: Boolean(modelData.path)
-                                                text: "↗"
+                                                iconSource: "../../assets/icons/finder.svg"
                                                 Accessible.name: "Hiện trong Finder"
                                                 onClicked: desk.liveController.revealInFinder(modelData.path)
                                             }
@@ -942,10 +980,15 @@ Rectangle {
                         anchors.centerIn: parent
                         spacing: 4
 
-                        Label {
-                            text: desk.liveSnapshot.activeContext ? (desk.liveSnapshot.activeContext.type === "pdf" ? "▤" : "📄") : ""
-                            font.pixelSize: 11
-                            color: desk.accent
+                        Image {
+                            width: 12
+                            height: 12
+                            source: desk.liveSnapshot.activeContext
+                                    ? (desk.liveSnapshot.activeContext.type === "pdf" ? "../../assets/icons/pdf.svg" : "../../assets/icons/file.svg")
+                                    : ""
+                            sourceSize.width: 24
+                            sourceSize.height: 24
+                            smooth: true
                         }
 
                         Label {
@@ -1145,8 +1188,7 @@ Rectangle {
                         visible: desk.liveMode && Boolean(desk.liveSnapshot.fileName)
                         Layout.fillWidth: true
                         Layout.minimumWidth: 60
-                        text: "▤  " + (desk.liveSnapshot.fileName || "") + "  ⌄"
-                        contentItem: Text { text: documentButton.text; font: documentButton.font; color: desk.muted; elide: Text.ElideMiddle; verticalAlignment: Text.AlignVCenter }
+                        text: (desk.liveSnapshot.fileName || "") + "  ⌄"
                         Accessible.name: "Tài liệu đang chọn, mở thao tác PDF"
                         onClicked: documentPopup.open()
                     }
