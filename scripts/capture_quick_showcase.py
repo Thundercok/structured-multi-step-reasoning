@@ -146,22 +146,47 @@ def build_showcase(output_dir: Path):
     # --- Scene 2: Progressive Finder - App Search ---
     editor.setProperty("text", "Terminal")
     wait_until(lambda: controller.snapshot["view"] == "finder" and len(controller.snapshot["finderHits"]) > 0)
-    save_frame("02_finder_apps.png", "Progressive Finder - Gõ 'Terminal', hiển thị ứng dụng macOS theo thời gian thực")
+    root.setProperty("selectedFinderIndex", 0)
+    QTest.qWait(60)
+    save_frame("02_finder_apps.png", "Progressive Finder - Gõ 'Terminal', phân nhóm ỨNG DỤNG và Thanh hành động đáy")
 
     # --- Scene 3: Progressive Finder - File & PDF ---
     pdf_sample = tmp_scratch / "Quy_che_hoc_vu_2026.pdf"
     write_pdf(pdf_sample, ["Quy che hoc vu Ton Duc Thang 2026. Toi da 24 tin chi hoc ky chinh. Binary search uses log n comparisons."])
-    # Inject a simulated hit into finder for clear display
+    # Inject a simulated hit into finder with section headers
     controller._finder_hits = [
-        {"resource_id": "pdf-1", "kind": "file", "title": "Quy_che_hoc_vu_2026.pdf", "path": str(pdf_sample), "origin": "lexical_index", "snippet": "...Tối đa 24 tín chỉ học kỳ chính...", "is_pdf": True, "bundle_id": ""},
-        {"resource_id": "doc-2", "kind": "file", "title": "Bao_cao_NCKH_2026.docx", "path": "/Users/thundercock2/Documents/Bao_cao_NCKH_2026.docx", "origin": "lexical_index", "snippet": "...Nghiên cứu suy luận đa bước CoT...", "is_pdf": False, "bundle_id": ""},
+        {"resource_id": "pdf-1", "kind": "file", "title": "Quy_che_hoc_vu_2026.pdf", "path": str(pdf_sample), "origin": "lexical_index", "snippet": "...Tối đa 24 tín chỉ học kỳ chính...", "is_pdf": True, "bundle_id": "", "is_first_of_section": True, "section_title": "TÀI LIỆU & TỆP"},
+        {"resource_id": "doc-2", "kind": "file", "title": "Bao_cao_NCKH_2026.docx", "path": "/Users/thundercock2/Documents/Bao_cao_NCKH_2026.docx", "origin": "lexical_index", "snippet": "...Nghiên cứu suy luận đa bước CoT...", "is_pdf": False, "bundle_id": "", "is_first_of_section": False, "section_title": "TÀI LIỆU & TỆP"},
     ]
     controller._view = "finder"
     controller._status = "Tìm thấy 2 kết quả cho 'Quy chế'"
     controller.changed.emit()
     editor.setProperty("text", "Quy chế")
+    root.setProperty("selectedFinderIndex", 0)
     QTest.qWait(60)
-    save_frame("03_finder_files.png", "Progressive Finder - Gõ 'Quy chế', hiển thị tệp PDF & tài liệu cùng nút Đọc/Hỏi")
+    save_frame("03_finder_files.png", "Progressive Finder - Gõ 'Quy chế', phân nhóm TÀI LIỆU & TỆP và Bottom Action Bar")
+
+    # --- Scene 3b: Smart AI Query Card ---
+    controller._finder_hits = []
+    controller._view = "finder"
+    controller._status = "Sẵn sàng gửi câu hỏi suy luận"
+    controller.changed.emit()
+    editor.setProperty("text", "Sao phải dùng mid + 1 trong Binary Search?")
+    QTest.qWait(60)
+    save_frame("03b_smart_ai_card.png", "Spotlight AI Card - Tự động phát hiện câu hỏi tự nhiên và gợi ý suy luận CoT")
+
+    # --- Scene 3c: Active Context Chip ---
+    from rat.engine.selected_pdf import SelectedPDF
+    controller._selection = SelectedPDF(pdf_sample, 15, (0, 0, 0, 0))
+    controller._page = {"page": 1, "content": "Quy che hoc vu"}
+    controller._view = "none"
+    controller._finder_hits = []
+    controller.changed.emit()
+    editor.setProperty("text", "Quy định cảnh báo học vụ thế nào?")
+    root.setProperty("selectedFinderIndex", -1)
+    QTest.qWait(60)
+    save_frame("03c_context_chip.png", "Composer Context Chip - Neo ngữ cảnh tài liệu Quy_che_hoc_vu_2026.pdf")
+    controller.clearActiveContext()
 
     # --- Scene 4: Multi-Turn Reasoning - Turn 1 (DSA Concept) ---
     q1 = "Giải thích binary search bằng ví dụ nhỏ, chưa đưa code vội."
