@@ -1,0 +1,313 @@
+"""
+rat.engine.contradiction_auditor — Monotonic Contradiction Auditor & Step Integrity Guard.
+
+Audits multi-step structured reasoning traces to verify epistemic monotonicity:
+1. Grounding Integrity: No reasoning step may contradict facts in authoritative SourceEvidence.
+2. Premise Invariance: Once a premise P is established, subsequent steps cannot assert ¬P without formal branching.
+3. Numeric & Policy Consistency: Quantities and regulatory bounds must not drift or invert across steps.
+"""
+
+from __future__ import annotations
+
+import logging
+import re
+import time
+from dataclasses import asdict, dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+
+logger = logging.getLogger("rat.engine.contradiction_auditor")
+
+
+class ContradictionType(str, Enum):
+    GROUNDING_CONFLICT = "grounding_conflict"
+    PREMISE_INVERSION = "premise_inversion"
+    NUMERIC_COLLISION = "numeric_collision"
+    POLICY_VIOLATION = "policy_violation"
+
+
+@dataclass(frozen=True)
+class AuditFinding:
+    is_contradiction: bool
+    conflict_type: ContradictionType
+    step_index: int
+    claim: str
+    basis: str
+    conflicting_source_id: Optional[str] = None
+    conflicting_step_index: Optional[int] = None
+    severity: str = "blocking"  # "blocking" | "warning"
+    explanation: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "is_contradiction": self.is_contradiction,
+            "conflict_type": self.conflict_type.value,
+            "step_index": self.step_index,
+            "claim": self.claim,
+            "basis": self.basis,
+            "conflicting_source_id": self.conflicting_source_id,
+            "conflicting_step_index": self.conflicting_step_index,
+            "severity": self.severity,
+            "explanation": self.explanation,
+        }
+
+
+@dataclass
+class ContradictionReport:
+    passed: bool
+    findings: List[AuditFinding] = field(default_factory=list)
+    monotonicity_score: float = 1.0
+    audited_steps_count: int = 0
+    source_evidences_count: int = 0
+    duration_ms: float = 0.0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "passed": self.passed,
+            "findings": [f.to_dict() for f in self.findings],
+            "monotonicity_score": round(self.monotonicity_score, 3),
+            "audited_steps_count": self.audited_steps_count,
+            "source_evidences_count": self.source_evidences_count,
+            "duration_ms": round(self.duration_ms, 2),
+        }
+
+
+# Antonym / Inversion pattern pairs (positive phrase vs negative phrase)
+INVERSION_PAIRS: List[Tuple[str, str, str]] = [
+    (
+        r"\b(?:được phép|có quyền|đủ điều kiện|hợp lệ)\b",
+        r"\b(?:không được phép|bị cấm|không đủ điều kiện|không hợp lệ|từ chối)\b",
+        "Quyền / Điều kiện thực hiện (Allowed vs Disallowed)",
+    ),
+    (
+        r"\b(?:bắt buộc|phải|tiên quyết)\b",
+        r"\b(?:không bắt buộc|tùy chọn|không cần|miễn trừ)\b",
+        "Tính bắt buộc (Mandatory vs Optional)",
+    ),
+    (
+        r"\b(?:bị đình chỉ|đình chỉ liên đới|bị hủy kết quả)\b",
+        r"\b(?:không làm đình chỉ|không bị đình chỉ|độc lập|không ảnh hưởng)\b",
+        "Chế tài đình chỉ (Suspension vs Independence)",
+    ),
+    (
+        r"\b(?:được hoàn|hoàn trả học phí)\b",
+        r"\b(?:không được hoàn|không hoàn trả|mất học phí)\b",
+        "Hoàn phí học phần (Refund vs Non-refund)",
+    ),
+    (
+        r"\b(?:bị cảnh báo|cảnh báo học vụ)\b",
+        r"\b(?:không bị cảnh báo|thoát cảnh báo|an toàn học vụ)\b",
+        "Cảnh báo học vụ (Academic probation)",
+    ),
+]
+
+
+def extract_topic_polarity(text: str, pos_raw: str, neg_raw: str) -> Optional[str]:
+    """
+    Evaluates the semantic polarity of text against a pos/neg concept pair,
+    accounting for preceding negation prefixes.
+    """
+    neg_re = re.compile(neg_raw, re.IGNORECASE)
+    has_neg = bool(neg_re.search(text))
+
+    guard = r"(?<!không\s)(?<!chưa\s)(?<!chẳng\s)(?<!không\slàm\s)(?<!không\sbị\s)(?<!không\sđược\s)"
+    pos_re = re.compile(f"{guard}{pos_raw}", re.IGNORECASE)
+    has_pos = bool(pos_re.search(text))
+
+    if has_neg and not has_pos:
+        return "negative"
+    if has_pos and not has_neg:
+        return "positive"
+    return None
+
+
+class ContradictionAuditor:
+    """
+    Auditor for reasoning step monotonicity and source grounding consistency.
+    """
+
+    def __init__(self, strict_numeric: bool = True) -> None:
+        self.strict_numeric = strict_numeric
+
+    def audit_trace(
+        self,
+        steps: Sequence[str],
+        source_evidences: Optional[Sequence[Any]] = None,
+    ) -> ContradictionReport:
+        t0 = time.time()
+        findings: List[AuditFinding] = []
+        evidences = list(source_evidences or [])
+
+        # 1. Audit each step against authoritative SourceEvidence (Grounding)
+        for s_idx, step_text in enumerate(steps):
+            step_clean = step_text.strip()
+            if not step_clean:
+                continue
+
+            for ev in evidences:
+                ev_id = getattr(ev, "source_id", "") or (ev.get("source_id", "") if isinstance(ev, dict) else "")
+                excerpt = getattr(ev, "excerpt", "") or (ev.get("excerpt", "") if isinstance(ev, dict) else "")
+                if not excerpt:
+                    continue
+
+                finding = self._check_grounding_conflict(s_idx, step_clean, ev_id, excerpt)
+                if finding:
+                    findings.append(finding)
+
+                # Check numeric collisions with source evidence
+                if self.strict_numeric:
+                    num_finding = self._check_numeric_collision(s_idx, step_clean, excerpt, ev_id=ev_id)
+                    if num_finding:
+                        findings.append(num_finding)
+
+        # 2. Audit step-to-step monotonicity (Premise Inversion)
+        for j in range(len(steps)):
+            step_j = steps[j].strip()
+            if not step_j:
+                continue
+
+            for i in range(j):
+                step_i = steps[i].strip()
+                if not step_i:
+                    continue
+
+                inversion = self._check_step_inversion(i, step_i, j, step_j)
+                if inversion:
+                    findings.append(inversion)
+
+                if self.strict_numeric:
+                    num_col = self._check_numeric_collision(j, step_j, step_i, prior_step_idx=i)
+                    if num_col:
+                        findings.append(num_col)
+
+        dur_ms = (time.time() - t0) * 1000.0
+        total_steps = len(steps)
+        score = 1.0 if not findings else max(0.0, 1.0 - (len(findings) / max(1, total_steps)))
+
+        return ContradictionReport(
+            passed=len(findings) == 0,
+            findings=findings,
+            monotonicity_score=score,
+            audited_steps_count=total_steps,
+            source_evidences_count=len(evidences),
+            duration_ms=dur_ms,
+        )
+
+    def _check_grounding_conflict(
+        self,
+        step_idx: int,
+        step_text: str,
+        ev_id: str,
+        excerpt: str,
+    ) -> Optional[AuditFinding]:
+        """Detects if step contradicts source excerpt polarities."""
+        shared_topics = self._extract_shared_topics(step_text, excerpt)
+        if not shared_topics:
+            return None
+
+        for pos_raw, neg_raw, desc in INVERSION_PAIRS:
+            pol_source = extract_topic_polarity(excerpt, pos_raw, neg_raw)
+            pol_step = extract_topic_polarity(step_text, pos_raw, neg_raw)
+
+            if pol_source and pol_step and pol_source != pol_step:
+                if pol_source == "negative" and pol_step == "positive":
+                    return AuditFinding(
+                        is_contradiction=True,
+                        conflict_type=ContradictionType.GROUNDING_CONFLICT,
+                        step_index=step_idx,
+                        claim=step_text,
+                        basis=excerpt,
+                        conflicting_source_id=ev_id,
+                        explanation=f"Bước suy luận {step_idx + 1} khẳng định điều trái ngược với nguồn căn cứ [{ev_id}]: {desc}",
+                    )
+                elif pol_source == "positive" and pol_step == "negative":
+                    return AuditFinding(
+                        is_contradiction=True,
+                        conflict_type=ContradictionType.GROUNDING_CONFLICT,
+                        step_index=step_idx,
+                        claim=step_text,
+                        basis=excerpt,
+                        conflicting_source_id=ev_id,
+                        explanation=f"Bước suy luận {step_idx + 1} phủ định dữ kiện đã được xác nhận trong nguồn căn cứ [{ev_id}]: {desc}",
+                    )
+        return None
+
+    def _check_step_inversion(
+        self,
+        step_i: int,
+        text_i: str,
+        step_j: int,
+        text_j: str,
+    ) -> Optional[AuditFinding]:
+        """Detects if step j inverts a premise asserted in prior step i."""
+        shared_topics = self._extract_shared_topics(text_i, text_j)
+        if not shared_topics:
+            return None
+
+        for pos_raw, neg_raw, desc in INVERSION_PAIRS:
+            pol_i = extract_topic_polarity(text_i, pos_raw, neg_raw)
+            pol_j = extract_topic_polarity(text_j, pos_raw, neg_raw)
+
+            if pol_i and pol_j and pol_i != pol_j:
+                return AuditFinding(
+                    is_contradiction=True,
+                    conflict_type=ContradictionType.PREMISE_INVERSION,
+                    step_index=step_j,
+                    claim=text_j,
+                    basis=text_i,
+                    conflicting_step_index=step_i,
+                    explanation=f"Bước {step_j + 1} đảo ngược tiền đề đã xác lập tại Bước {step_i + 1}: {desc}",
+                )
+        return None
+
+    def _check_numeric_collision(
+        self,
+        step_idx: int,
+        text_step: str,
+        text_basis: str,
+        ev_id: Optional[str] = None,
+        prior_step_idx: Optional[int] = None,
+    ) -> Optional[AuditFinding]:
+        """Detects when numerical quantities for the same entity clash."""
+        metric_patterns = [
+            (r"\btoeic\b", r"toeic\s*(?:tối thiểu|đạt|chuẩn)?\s*(\d{3})"),
+            (r"\bcpa\b|\bgpa\b", r"(?:cpa|gpa)\s*(?:dưới|từ|đạt|tối thiểu)?\s*(\d+(?:\.\d+)?)"),
+            (r"\btín chỉ\b", r"(\d{1,2})\s*tín chỉ"),
+            (r"\bnăm\b", r"(\d{1,2})\s*năm"),
+        ]
+
+        for topic_check, num_regex in metric_patterns:
+            if re.search(topic_check, text_step, re.I) and re.search(topic_check, text_basis, re.I):
+                m_step = re.findall(num_regex, text_step, re.I)
+                m_basis = re.findall(num_regex, text_basis, re.I)
+
+                if m_step and m_basis:
+                    val_step = float(m_step[0])
+                    val_basis = float(m_basis[0])
+
+                    if val_step != val_basis:
+                        if "toeic" in topic_check or "cpa" in topic_check:
+                            origin = f"nguồn căn cứ [{ev_id}]" if ev_id else f"Bước {prior_step_idx + 1}"
+                            return AuditFinding(
+                                is_contradiction=True,
+                                conflict_type=ContradictionType.NUMERIC_COLLISION,
+                                step_index=step_idx,
+                                claim=text_step,
+                                basis=text_basis,
+                                conflicting_source_id=ev_id,
+                                conflicting_step_index=prior_step_idx,
+                                explanation=f"Mâu thuẫn thông số số học tại bước {step_idx + 1} ({val_step}) so với {origin} ({val_basis})",
+                            )
+        return None
+
+    def _extract_shared_topics(self, text_a: str, text_b: str) -> Set[str]:
+        """Extracts significant overlapping domain topics."""
+        a_low = text_a.lower()
+        b_low = text_b.lower()
+        topics = [
+            "đình chỉ", "thạc sĩ", "song bằng", "đại học", "học vượt",
+            "tín chỉ", "toeic", "tiếng anh", "cảnh báo học vụ", "rút môn",
+            "học phí", "khóa luận", "rèn luyện", "học bổng",
+        ]
+        shared = {t for t in topics if t in a_low and t in b_low}
+        return shared

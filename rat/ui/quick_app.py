@@ -51,6 +51,7 @@ def main(
     from PyQt6.QtGui import QFont, QGuiApplication
     from PyQt6.QtWidgets import QApplication
     from PyQt6.QtQuick import QQuickView, QQuickWindow
+    from rat.ui.icon_provider import RatIconProvider
     from rat.ui.quick_pdf_controller import QuickPDFController
 
     app = QApplication.instance() or QGuiApplication.instance() or QGuiApplication([sys.argv[0]])
@@ -71,6 +72,7 @@ def main(
     project = Path(__file__).resolve().parents[2]
     QQuickWindow.setDefaultAlphaBuffer(True)
     view = QQuickView()
+    RatIconProvider.register(view.engine(), "icon")
     surface_format = view.format()
     surface_format.setAlphaBufferSize(8)
     view.setFormat(surface_format)

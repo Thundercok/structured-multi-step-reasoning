@@ -66,6 +66,7 @@ class MetaReasoningResult:
     context_snapshot: Optional[Dict[str, Any]] = None
     backend_input: Optional[str] = None
     bundle_review_status: Optional[str] = None
+    contradiction_report: Optional[Dict[str, Any]] = None
 
 
 # Domain Knowledge Base for TDTU Regulations & Academic Policies

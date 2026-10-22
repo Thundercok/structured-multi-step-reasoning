@@ -1,0 +1,55 @@
+{
+  "head": "73a15ecd89f6d09901feb6d51920a992b9eec14f",
+  "branch": "main",
+  "reviewed_work_in_progress": false,
+  "production_edits_by_this_review": 0,
+  "source_hashes": {
+    "rat/ui/icon_provider.py": "d864abebe787e5f671b908f111f509e69764f8b780317f9af5f1142854a6254a",
+    "rat/engine/contradiction_auditor.py": "d55309d77bf1e3fee2c6bb2065a12d3ca8c7c0fdd26fbd3a413bd375aa0ead8b",
+    "rat/ui/quick_app.py": "e054ea8dbbeb9b0a009740e9607b775852e1170d9753fdd4fb51e0392a334b02",
+    "rat/ui/quick_pdf_controller.py": "f50710e461c6017aada7eb82cef713c324bf38e4d6f2f09f3a944121de409672",
+    "rat/ui/quick/PDFDesk.qml": "3255ac81e7302a92a5cb247ccd7b3f536ea315b3abc88a78e65945e05c46bda6",
+    "rat/ui/reasoning_worker.py": "f6d7887fb2e8a26da480de3eac1ce5b6f92c81956b49c0e6a44cd146e1658775",
+    "rat/engine/meta_reasoner.py": "b240fc797caa25df612d00d9cdff7a68992c5c4462679c6cc592ac6320913458",
+    "rat/engine/execution.py": "971698f7b6f90a8d2960c9bf8c8b284a8b786bacdd5969897dc82f419f724834",
+    "rat.spec": "54248930b6566c011cb2dd655aa3beec0545d9bf2cf014f12050ea4c4ac4902a",
+    "tests/test_turn2_innard_and_icons.py": "3160db95a939940a011231d02e29327bf1ab4c498b8b3b5920639091cb5db685",
+    "tests/test_turn3_apps_grid_and_auditor_hardening.py": "e78675c4249e1874a3802319774385f801ebc012d0a0f83c1fafd2beef5f4f7c"
+  },
+  "turn3_suite": {
+    "tests": 55,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 55,
+    "reported_duration_seconds": 29.61,
+    "qpa_platform": "offscreen",
+    "quick_backend": "software",
+    "real_model_calls": 0
+  },
+  "research_harness_suite": {
+    "tests": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 29,
+    "reported_duration_seconds": 10.68
+  },
+  "review_status": "turn3_implemented_and_verified_55_passed",
+  "auditor_fixes": {
+    "finding_1_propositions_and_operational_events": "fixed_in_contradiction_auditor_and_worker",
+    "finding_2_numeric_typing_and_entities": "fixed_with_bound_types_and_known_entities"
+  },
+  "controller_boundaries": {
+    "telemetry_timing": "updated_before_target_artifact_evaluation",
+    "status_generation_matching": "enforced_on_eid_and_gen",
+    "safe_shutdown": "implemented_cooperative_worker_interrupt_and_turn_cancel"
+  },
+  "apps_grid_polish_items": {
+    "item_1_icon_and_name": "strict_52x52_layout_hints_12px_two_line_name_elide_right",
+    "item_2_hover_and_selection": "airy_unselected_bg_distinct_hover_and_selection_accent_bar",
+    "item_3_action_bar_responsive": "path_label_min_width_0_middle_elide_name_max_width_keycaps_protected",
+    "item_4_keyboard_scroll": "scrollAppIntoView_on_arrow_keys_and_filtered_selection_clamping",
+    "item_5_empty_state_long_query": "multiline_wrapping_dynamic_height_safe_enter_no_ai"
+  }
+}

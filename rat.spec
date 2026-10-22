@@ -86,6 +86,8 @@ hidden_imports = [
     'PyQt6.QtQuickControls2',
     'rat.ui.quick_app',
     'rat.ui.quick_pdf_controller',
+    'rat.ui.icon_provider',
+    'rat.engine.contradiction_auditor',
     'pypdf',
     'docx',
     'pptx',

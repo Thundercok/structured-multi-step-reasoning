@@ -15,7 +15,8 @@ os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
 from PIL import Image
 from PyQt6.QtCore import QCoreApplication, QEvent, QPoint, QPointF, QTimer, QUrl, Qt
-from PyQt6.QtGui import QFont, QGuiApplication
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QApplication
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 
@@ -27,6 +28,7 @@ from rat.engine.assistant_runtime import AssistantRuntime
 from rat.engine.app_resolver import Application, ApplicationCatalog
 from rat.engine.progressive_search import ProgressiveSearch
 from rat.kernel.contracts import Artifact
+from rat.ui.icon_provider import RatIconProvider
 from rat.ui.quick_pdf_controller import QuickPDFController
 from rat.ui.quick_app import bind_desk_window
 from reasoning.bundle import create_synthetic_specimen_bundle
@@ -83,7 +85,7 @@ def build_showcase(output_dir: Path):
     tmp_scratch = output_dir / "tmp_data"
     tmp_scratch.mkdir(parents=True, exist_ok=True)
 
-    app = QGuiApplication.instance() or QGuiApplication([sys.argv[0]])
+    app = QApplication.instance() or QApplication([sys.argv[0]])
     app.setApplicationName("RAT Showcase")
     if sys.platform == "darwin":
         app.setFont(QFont("Helvetica Neue", 13))
@@ -112,6 +114,7 @@ def build_showcase(output_dir: Path):
     controller.ready()
 
     view = QQuickView()
+    RatIconProvider.register(view.engine(), "icon")
     view.setColor(Qt.GlobalColor.transparent)
     view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
     view.setInitialProperties({
@@ -143,35 +146,78 @@ def build_showcase(output_dir: Path):
     # --- Scene 1: Idle Desk ---
     save_frame("01_idle_desk.png", "Giao diện bàn làm việc ban đầu (sẵn sàng tìm kiếm & hỏi đáp)")
 
-    # --- Scene 2: Progressive Finder - App Search ---
-    editor.setProperty("text", "Terminal")
-    wait_until(lambda: controller.snapshot["view"] == "finder" and len(controller.snapshot["finderHits"]) > 0)
+    # --- Scene 2: Progressive Finder - App Search with Actual macOS Icons ---
+    editor.setProperty("text", "App")
+    if controller._finder_coordinator is not None:
+        controller._finder_coordinator.cancel()
+    controller._finder_hits = [
+        {"resource_id": "app-terminal", "kind": "application", "title": "Terminal", "path": "/System/Applications/Utilities/Terminal.app", "origin": "catalog", "snippet": "/System/Applications/Utilities/Terminal.app", "is_pdf": False, "bundle_id": "com.apple.Terminal", "parent_name": "Utilities", "file_name": "Terminal.app", "display_path": "/System/Applications/Utilities/Terminal.app", "is_first_of_section": True, "section_title": "ỨNG DỤNG"},
+        {"resource_id": "app-safari", "kind": "application", "title": "Safari", "path": "/Applications/Safari.app", "origin": "catalog", "snippet": "/Applications/Safari.app", "is_pdf": False, "bundle_id": "com.apple.Safari", "parent_name": "Applications", "file_name": "Safari.app", "display_path": "/Applications/Safari.app", "is_first_of_section": False, "section_title": "ỨNG DỤNG"},
+        {"resource_id": "app-calc", "kind": "application", "title": "Calculator", "path": "/System/Applications/Calculator.app", "origin": "catalog", "snippet": "/System/Applications/Calculator.app", "is_pdf": False, "bundle_id": "com.apple.calculator", "parent_name": "Applications", "file_name": "Calculator.app", "display_path": "/System/Applications/Calculator.app", "is_first_of_section": False, "section_title": "ỨNG DỤNG"},
+    ]
+    controller._view = "finder"
+    controller._status = "Tìm thấy 3 ứng dụng cho 'App'"
+    controller._expanded = True
+    controller._unread = False
+    controller.changed.emit()
+    root.setProperty("expanded", True)
     root.setProperty("selectedFinderIndex", 0)
-    QTest.qWait(60)
-    save_frame("02_finder_apps.png", "Progressive Finder - Gõ 'Terminal', phân nhóm ỨNG DỤNG và Thanh hành động đáy")
+    QTest.qWait(120)
+    save_frame("02_finder_apps.png", "Spotlight App Search - Hiển thị Real macOS App Icons (Terminal, Safari, Calculator) & Tactile Keycap Action Bar")
+
+    # --- Scene 02b: Apps Catalog Grid - Unfiltered ---
+    controller.openAppsView("")
+    editor.setProperty("text", "")
+    QTest.qWait(150)
+    save_frame("02b_apps_catalog_grid.png", "Mục Ứng dụng dạng lưới - Hiển thị toàn bộ App đã cài đặt với Real Apple App Icons & Bố cục Responsive")
+
+    # --- Scene 02c: Apps Catalog Grid - Filtered ---
+    editor.setProperty("text", "safari")
+    controller.onComposerTextChanged("safari")
+    root.setProperty("selectedAppGridIndex", 0)
+    QTest.qWait(150)
+    save_frame("02c_apps_catalog_filtered.png", "Lọc Ứng dụng tức thì - Điều hướng phím mũi tên, Keycaps Action Bar [ ↵ ] Mở & [ ⌘↵ ] Finder")
+
+    # --- Scene 02d: Apps Catalog Grid - Empty State with Long Query ---
+    long_query = "ung_dung_chua_cai_dat_trong_he_thong_rat_2026"
+    editor.setProperty("text", long_query)
+    controller.onComposerTextChanged(long_query)
+    QTest.qWait(150)
+    save_frame("02d_apps_catalog_empty.png", "Thẻ rỗng khi không có kết quả - Tự động xuống dòng chuỗi dài, nút Xóa bộ lọc & Về Bàn làm việc")
+    controller.closeAppsView()
 
     # --- Scene 3: Progressive Finder - File & PDF ---
     pdf_sample = tmp_scratch / "Quy_che_hoc_vu_2026.pdf"
     write_pdf(pdf_sample, ["Quy che hoc vu Ton Duc Thang 2026. Toi da 24 tin chi hoc ky chinh. Binary search uses log n comparisons."])
-    # Inject a simulated hit into finder with section headers
+    editor.setProperty("text", "Quy chế")
+    if controller._finder_coordinator is not None:
+        controller._finder_coordinator.cancel()
+    # Inject a simulated hit into finder with section headers and parent folder
     controller._finder_hits = [
-        {"resource_id": "pdf-1", "kind": "file", "title": "Quy_che_hoc_vu_2026.pdf", "path": str(pdf_sample), "origin": "lexical_index", "snippet": "...Tối đa 24 tín chỉ học kỳ chính...", "is_pdf": True, "bundle_id": "", "is_first_of_section": True, "section_title": "TÀI LIỆU & TỆP"},
-        {"resource_id": "doc-2", "kind": "file", "title": "Bao_cao_NCKH_2026.docx", "path": "/Users/thundercock2/Documents/Bao_cao_NCKH_2026.docx", "origin": "lexical_index", "snippet": "...Nghiên cứu suy luận đa bước CoT...", "is_pdf": False, "bundle_id": "", "is_first_of_section": False, "section_title": "TÀI LIỆU & TỆP"},
+        {"resource_id": "pdf-1", "kind": "file", "title": "Quy_che_hoc_vu_2026.pdf", "path": str(pdf_sample), "origin": "lexical_index", "snippet": "...Tối đa 24 tín chỉ học kỳ chính...", "is_pdf": True, "bundle_id": "", "parent_name": "Documents", "file_name": "Quy_che_hoc_vu_2026.pdf", "display_path": "~/Documents/Quy_che_hoc_vu_2026.pdf", "is_first_of_section": True, "section_title": "TÀI LIỆU & TỆP"},
+        {"resource_id": "doc-2", "kind": "file", "title": "Bao_cao_NCKH_2026.docx", "path": "/Users/thundercock2/Documents/Bao_cao_NCKH_2026.docx", "origin": "lexical_index", "snippet": "...Nghiên cứu suy luận đa bước CoT...", "is_pdf": False, "bundle_id": "", "parent_name": "Documents", "file_name": "Bao_cao_NCKH_2026.docx", "display_path": "~/Documents/Bao_cao_NCKH_2026.docx", "is_first_of_section": False, "section_title": "TÀI LIỆU & TỆP"},
     ]
     controller._view = "finder"
     controller._status = "Tìm thấy 2 kết quả cho 'Quy chế'"
+    controller._expanded = True
+    controller._unread = False
     controller.changed.emit()
-    editor.setProperty("text", "Quy chế")
+    root.setProperty("expanded", True)
     root.setProperty("selectedFinderIndex", 0)
-    QTest.qWait(60)
-    save_frame("03_finder_files.png", "Progressive Finder - Gõ 'Quy chế', phân nhóm TÀI LIỆU & TỆP và Bottom Action Bar")
+    QTest.qWait(120)
+    save_frame("03_finder_files.png", "Spotlight Files Search - Dynamic Breadcrumb Path [ Documents ], Lucide Vector Icons & Phím tắt Keycaps")
 
     # --- Scene 3b: Smart AI Query Card ---
+    if controller._finder_coordinator is not None:
+        controller._finder_coordinator.cancel()
     controller._finder_hits = []
     controller._view = "finder"
     controller._status = "Sẵn sàng gửi câu hỏi suy luận"
+    controller._expanded = True
+    controller._unread = False
     controller.changed.emit()
     editor.setProperty("text", "Sao phải dùng mid + 1 trong Binary Search?")
+    root.setProperty("expanded", True)
     QTest.qWait(60)
     save_frame("03b_smart_ai_card.png", "Spotlight AI Card - Tự động phát hiện câu hỏi tự nhiên và gợi ý suy luận CoT")
 

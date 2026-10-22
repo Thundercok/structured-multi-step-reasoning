@@ -1,0 +1,11 @@
+{
+  "rat/ui/icon_provider.py": "d864abebe787e5f671b908f111f509e69764f8b780317f9af5f1142854a6254a",
+  "rat/engine/contradiction_auditor.py": "2ac64dc09ed976f433869c4ce16558aff474c701a47418aa46886a67484965f1",
+  "rat/ui/quick_app.py": "e054ea8dbbeb9b0a009740e9607b775852e1170d9753fdd4fb51e0392a334b02",
+  "rat/ui/quick_pdf_controller.py": "e2c6e04aa0794561cbed6d12062199d960260f1243ce26f71ef97db21d520a1a",
+  "rat/ui/quick/PDFDesk.qml": "339132b328dfa2e90bb934f36af5a191917bfff5151bd6aba7d0571b4a39224c",
+  "rat/ui/reasoning_worker.py": "a03b1da0de1d7eb9804325d8d8b4637211476e28bf494b4bbd3e5a7fb719b2eb",
+  "rat/engine/meta_reasoner.py": "b240fc797caa25df612d00d9cdff7a68992c5c4462679c6cc592ac6320913458",
+  "rat/engine/execution.py": "971698f7b6f90a8d2960c9bf8c8b284a8b786bacdd5969897dc82f419f724834",
+  "tests/test_turn2_innard_and_icons.py": "ac54de4bc6a3d5dec0b0d6137b022a5f90e05f276262604c7e25c0929a52f22c"
+}

@@ -249,6 +249,7 @@ def execution_response(request, result):
             "context_snapshot_schema": snap.get("schema_version") if snap else None,
             "context_snapshot_hash": snap.get("snapshot_hash") if snap else None,
             "backend_input": getattr(result, "backend_input", None),
+            "contradiction_report": getattr(result, "contradiction_report", None),
             "user_displayed_query": request.query,
             "target_turn_id": target_turn_id,
             "target_artifact_id": target_artifact_id,

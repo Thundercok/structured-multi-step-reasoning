@@ -25,7 +25,20 @@ Rectangle {
     property var liveController: null
     property var liveSnapshot: ({})
     property int selectedFinderIndex: -1
+    property int selectedAppGridIndex: 0
     readonly property bool liveMode: liveController !== null
+    readonly property int gridColumns: Math.max(3, Math.min(6, Math.floor(resultScroll.availableWidth / 105)))
+    readonly property var allApps: desk.liveSnapshot.installedApps || []
+    readonly property var filteredApps: {
+        var q = (editor.text || "").trim().toLowerCase()
+        if (!q || desk.liveSnapshot.view !== "apps") return desk.allApps
+        return desk.allApps.filter(function(app) {
+            if (app.name && app.name.toLowerCase().indexOf(q) !== -1) return true
+            if (app.bundle_id && app.bundle_id.toLowerCase().indexOf(q) !== -1) return true
+            if (app.names && app.names.some(function(alias) { return alias.toLowerCase().indexOf(q) !== -1 })) return true
+            return false
+        })
+    }
 
     onSelectedFinderIndexChanged: {
         if (selectedFinderIndex >= 0 && liveSnapshot.view === "finder") {
@@ -40,6 +53,47 @@ Rectangle {
                 } else if (itemBottom > viewBottom) {
                     resultScroll.ScrollBar.vertical.position = Math.min(1, (itemBottom - resultScroll.height) / resultScroll.contentHeight)
                 }
+            }
+        }
+    }
+
+    function scrollAppIntoView(idx) {
+        if (!appsResultsLoader.item) return
+        var repeater = appsResultsLoader.item.appsRepeaterItem
+        if (!repeater) return
+        var cell = repeater.itemAt(idx)
+        if (!cell) return
+        if (resultScroll.contentHeight <= resultScroll.height) return
+
+        var point = cell.mapToItem(resultContents, 0, 0)
+        var itemTop = point.y
+        var itemBottom = point.y + cell.height + 46
+
+        var viewTop = resultScroll.ScrollBar.vertical.position * resultScroll.contentHeight
+        var viewBottom = viewTop + resultScroll.height
+
+        if (itemTop < viewTop) {
+            resultScroll.ScrollBar.vertical.position = Math.max(0, itemTop / resultScroll.contentHeight)
+        } else if (itemBottom > viewBottom) {
+            resultScroll.ScrollBar.vertical.position = Math.min(
+                1.0 - (resultScroll.height / resultScroll.contentHeight),
+                (itemBottom - resultScroll.height) / resultScroll.contentHeight
+            )
+        }
+    }
+
+    onSelectedAppGridIndexChanged: {
+        if (selectedAppGridIndex >= 0 && liveSnapshot.view === "apps") {
+            scrollAppIntoView(selectedAppGridIndex)
+        }
+    }
+
+    onFilteredAppsChanged: {
+        if (desk.liveSnapshot.view === "apps") {
+            if (desk.filteredApps.length === 0) {
+                desk.selectedAppGridIndex = -1
+            } else if (desk.selectedAppGridIndex < 0 || desk.selectedAppGridIndex >= desk.filteredApps.length) {
+                desk.selectedAppGridIndex = 0
             }
         }
     }
@@ -71,6 +125,7 @@ Rectangle {
         if (next.view === "page" && next.pageNumber) pagePicker.value = next.pageNumber
         if (next.view !== "finder") selectedFinderIndex = -1
         else if (selectedFinderIndex >= (next.finderHits || []).length) selectedFinderIndex = -1
+        if (next.view !== "apps") selectedAppGridIndex = 0
         liveSnapshot = next
         phase = next.phase
         expanded = next.expanded
@@ -205,6 +260,71 @@ Rectangle {
         }
     }
 
+    component KeycapBadge: Item {
+        id: keycapRoot
+        signal clicked()
+        property string keyText: ""
+        property string labelText: ""
+        property bool primary: false
+        implicitWidth: keycapRow.implicitWidth
+        implicitHeight: keycapRow.implicitHeight
+        Layout.alignment: Qt.AlignVCenter
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: keycapRoot.clicked()
+        }
+
+        RowLayout {
+            id: keycapRow
+            anchors.fill: parent
+            spacing: 5
+
+            Rectangle {
+                implicitHeight: 20
+                implicitWidth: Math.max(20, keyTextLabel.implicitWidth + 8)
+                radius: 4
+                color: keycapRoot.primary
+                       ? desk.accent
+                       : (desk.darkMode ? "#2e352a" : "#ffffff")
+                border.color: keycapRoot.primary
+                              ? desk.accent
+                              : (desk.darkMode ? "#454f3f" : "#d0d7cb")
+                border.width: 1
+
+                // Subtle physical bottom reflection
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 0
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 1.5
+                    radius: 2
+                    color: keycapRoot.primary ? "#2e4822" : (desk.darkMode ? "#1d231a" : "#b5beaf")
+                }
+
+                Label {
+                    id: keyTextLabel
+                    anchors.centerIn: parent
+                    text: keycapRoot.keyText
+                    color: keycapRoot.primary ? desk.accentText : desk.ink
+                    font.pixelSize: 10
+                    font.weight: Font.DemiBold
+                }
+            }
+
+            Label {
+                text: keycapRoot.labelText
+                color: keycapRoot.primary ? (desk.darkMode ? "#a4d896" : "#2f5c22") : desk.ink
+                font.pixelSize: 11
+                font.weight: keycapRoot.primary ? Font.DemiBold : Font.Medium
+                opacity: 0.9
+            }
+        }
+    }
+
     component IconButton: Button {
         id: iconControl
         property url iconSource: ""
@@ -305,8 +425,33 @@ Rectangle {
                 y: 10
                 width: parent.width - 36
                 spacing: 5
-                Label { visible: !desk.liveSnapshot.canBack; text: desk.liveSnapshot.view === "page" ? "TRANG ĐANG ĐỌC" : (desk.liveSnapshot.view === "answer" ? "CÂU TRẢ LỜI" : (desk.liveSnapshot.view === "finder" ? "TỆP & ỨNG DỤNG" : "TRONG TÀI LIỆU")); font.pixelSize: 10; font.letterSpacing: 1; color: desk.muted }
+                Label {
+                    visible: !desk.liveSnapshot.canBack && desk.liveSnapshot.view !== "apps"
+                    text: desk.liveSnapshot.view === "page" ? "TRANG ĐANG ĐỌC"
+                        : (desk.liveSnapshot.view === "answer" ? "CÂU TRẢ LỜI"
+                        : (desk.liveSnapshot.view === "finder" ? "TỆP & ỨNG DỤNG" : "TRONG TÀI LIỆU"))
+                    font.pixelSize: 10
+                    font.letterSpacing: 1
+                    color: desk.muted
+                }
+                Label {
+                    visible: desk.liveSnapshot.view === "apps"
+                    text: "DANH MỤC ỨNG DỤNG"
+                    font.pixelSize: 10
+                    font.letterSpacing: 1
+                    color: desk.muted
+                }
                 QuietButton { objectName: "backToSearch"; visible: Boolean(desk.liveSnapshot.canBack); text: "← Kết quả tìm"; onClicked: desk.liveController.backToSearch() }
+                QuietButton {
+                    objectName: "backFromApps"
+                    visible: desk.liveSnapshot.view === "apps"
+                    text: "← Bàn làm việc"
+                    onClicked: {
+                        var restored = desk.liveController.closeAppsView()
+                        if (restored) editor.text = restored
+                        editor.forceActiveFocus()
+                    }
+                }
                 Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -348,11 +493,17 @@ Rectangle {
                 }
                 Label {
                     Layout.fillWidth: true
-                    text: desk.liveMode ? (desk.liveSnapshot.view === "page" ? "Trang " + desk.liveSnapshot.pageNumber : (desk.liveSnapshot.view === "answer" ? (desk.liveSnapshot.userQuery || "") : (desk.liveSnapshot.view === "finder" ? (desk.liveSnapshot.title || "Tìm kiếm") : (desk.liveSnapshot.title || "Đang mở bàn làm việc…")))) : desk.phase === "working" ? "Mình đang đối chiếu quy chế." : "Tối đa 24 tín chỉ cho học kỳ chính."
+                    text: desk.liveMode ? (
+                        desk.liveSnapshot.view === "page" ? "Trang " + desk.liveSnapshot.pageNumber
+                        : (desk.liveSnapshot.view === "answer" ? (desk.liveSnapshot.userQuery || "")
+                        : (desk.liveSnapshot.view === "finder" ? (desk.liveSnapshot.title || "Tìm kiếm")
+                        : (desk.liveSnapshot.view === "apps" ? ("Ứng dụng (" + desk.filteredApps.length + ")")
+                        : (desk.liveSnapshot.title || "Đang mở bàn làm việc…"))))
+                    ) : desk.phase === "working" ? "Mình đang đối chiếu quy chế." : "Tối đa 24 tín chỉ cho học kỳ chính."
                     textFormat: Text.PlainText
                     color: desk.ink
-                    font.pixelSize: (desk.liveSnapshot.view === "answer" || desk.liveSnapshot.view === "finder") ? 16 : 20
-                    font.weight: (desk.liveSnapshot.view === "answer" || desk.liveSnapshot.view === "finder") ? Font.Normal : Font.Medium
+                    font.pixelSize: (desk.liveSnapshot.view === "answer" || desk.liveSnapshot.view === "finder" || desk.liveSnapshot.view === "apps") ? 16 : 20
+                    font.weight: (desk.liveSnapshot.view === "answer" || desk.liveSnapshot.view === "finder" || desk.liveSnapshot.view === "apps") ? Font.Normal : Font.Medium
                     wrapMode: Text.Wrap
                 }
                 Label {
@@ -532,11 +683,24 @@ Rectangle {
                             objectName: "smartAiCard"
                             visible: (desk.liveSnapshot.finderHits || []).length === 0 || Boolean(desk.liveSnapshot.isQuestionQuery)
                             Layout.fillWidth: true
-                            implicitHeight: 52
+                            implicitHeight: 56
                             radius: 10
-                            color: desk.darkMode ? "#2b3427" : "#edf4e8"
-                            border.color: desk.accent
+                            color: desk.darkMode ? "#293324" : "#edf4e8"
+                            border.color: desk.darkMode ? "#46593d" : "#b5ceaa"
                             border.width: 1
+
+                            // Ambient accent indicator
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.leftMargin: 2
+                                anchors.top: parent.top
+                                anchors.topMargin: 4
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 4
+                                width: 3.5
+                                radius: 2
+                                color: desk.accent
+                            }
 
                             MouseArea {
                                 anchors.fill: parent
@@ -550,20 +714,32 @@ Rectangle {
 
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.margins: 12
+                                anchors.margins: 10
+                                anchors.leftMargin: 12
                                 spacing: 10
 
-                                Image {
-                                    width: 20
-                                    height: 20
-                                    source: "../../assets/icons/sparkle.svg"
-                                    sourceSize.width: 40
-                                    sourceSize.height: 40
-                                    smooth: true
+                                Rectangle {
+                                    width: 32
+                                    height: 32
+                                    radius: 7
+                                    color: desk.darkMode ? "#34422e" : "#deebd6"
+                                    border.color: desk.accent
+                                    border.width: 1
+
+                                    Image {
+                                        anchors.centerIn: parent
+                                        width: 18
+                                        height: 18
+                                        source: "../../assets/icons/sparkle.svg"
+                                        sourceSize.width: 36
+                                        sourceSize.height: 36
+                                        smooth: true
+                                    }
                                 }
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
+                                    Layout.rightMargin: 8
                                     spacing: 2
                                     Label {
                                         text: "Hỏi trợ lý AI: \"" + (editor.text || "").trim() + "\""
@@ -574,9 +750,22 @@ Rectangle {
                                         Layout.fillWidth: true
                                     }
                                     Label {
-                                        text: "↵ Nhấn Enter để gửi trực tiếp tới bộ điều phối CoT"
-                                        color: desk.accent
+                                        text: "Gửi trực tiếp truy vấn tới bộ điều phối lý luận CoT & Epistemic Grounding"
+                                        color: desk.muted
                                         font.pixelSize: 11
+                                    }
+                                }
+
+                                KeycapBadge {
+                                    keyText: "↵"
+                                    labelText: "Hỏi AI"
+                                    primary: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.rightMargin: 4
+                                    onClicked: {
+                                        if (desk.liveController) {
+                                            desk.liveController.submit(editor.text)
+                                        }
                                     }
                                 }
                             }
@@ -609,9 +798,24 @@ Rectangle {
                                     implicitHeight: hitRow.implicitHeight + 14
                                     radius: 10
                                     readonly property bool isSelected: desk.selectedFinderIndex === index
-                                    color: hitCard.isSelected ? (desk.darkMode ? "#343d2f" : "#edf2e6") : desk.backingColor
-                                    border.color: hitCard.isSelected ? desk.accent : desk.edge
-                                    border.width: hitCard.isSelected ? 2 : 1
+                                    color: hitCard.isSelected ? (desk.darkMode ? "#2d3727" : "#edf4e8") : desk.backingColor
+                                    border.color: hitCard.isSelected ? (desk.darkMode ? "#46593d" : "#b5ceaa") : desk.edge
+                                    border.width: 1
+
+                                    // 3.5px Left Accent Selection Indicator Bar
+                                    Rectangle {
+                                        id: leftAccentBar
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 2
+                                        anchors.top: parent.top
+                                        anchors.topMargin: 4
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: 4
+                                        width: 3.5
+                                        radius: 2
+                                        color: desk.accent
+                                        visible: hitCard.isSelected
+                                    }
 
                                     MouseArea {
                                         anchors.fill: parent
@@ -633,6 +837,7 @@ Rectangle {
                                         z: 1
                                         anchors.fill: parent
                                         anchors.margins: 8
+                                        anchors.leftMargin: hitCard.isSelected ? 10 : 8
                                         spacing: 10
 
                                         Rectangle {
@@ -640,20 +845,23 @@ Rectangle {
                                             height: 32
                                             radius: 7
                                             color: modelData.kind === "application"
-                                                   ? (desk.darkMode ? "#2b3b24" : "#eaf3e5")
-                                                   : (modelData.is_pdf ? (desk.darkMode ? "#3a2525" : "#fdf0f0") : desk.paperColor)
-                                            border.color: modelData.kind === "application" ? desk.accent : (modelData.is_pdf ? "#c0392b" : desk.edge)
+                                                   ? (desk.darkMode ? "#242a20" : "#f0f4ec")
+                                                   : (modelData.is_pdf ? (desk.darkMode ? "#342222" : "#fdf0f0") : desk.paperColor)
+                                            border.color: modelData.kind === "application"
+                                                          ? (desk.darkMode ? "#3f4c37" : "#c6d6be")
+                                                          : (modelData.is_pdf ? (desk.darkMode ? "#5e2b27" : "#f2c2be") : desk.edge)
                                             border.width: 1
+                                            clip: true
 
                                             Image {
                                                 anchors.centerIn: parent
-                                                width: 18
-                                                height: 18
-                                                source: modelData.kind === "application"
-                                                        ? "../../assets/icons/app.svg"
+                                                width: modelData.kind === "application" ? 28 : 18
+                                                height: modelData.kind === "application" ? 28 : 18
+                                                source: modelData.kind === "application" && modelData.path
+                                                        ? ("image://icon" + (modelData.path.startsWith("/") ? "" : "/") + modelData.path)
                                                         : (modelData.is_pdf ? "../../assets/icons/pdf.svg" : "../../assets/icons/file.svg")
-                                                sourceSize.width: 36
-                                                sourceSize.height: 36
+                                                sourceSize.width: 56
+                                                sourceSize.height: 56
                                                 smooth: true
                                                 mipmap: true
                                             }
@@ -706,13 +914,39 @@ Rectangle {
                                                 }
                                             }
 
-                                            Label {
-                                                text: modelData.snippet || modelData.display_path || modelData.path
-                                                textFormat: Text.PlainText
-                                                color: desk.muted
-                                                font.pixelSize: 11
-                                                elide: Text.ElideMiddle
+                                            // Dynamic breadcrumb path with highlighted parent folder
+                                            RowLayout {
                                                 Layout.fillWidth: true
+                                                spacing: 5
+
+                                                Rectangle {
+                                                    visible: Boolean(modelData.parent_name && modelData.kind !== "application")
+                                                    radius: 4
+                                                    color: desk.darkMode ? "#2c3627" : "#e5eee0"
+                                                    implicitHeight: 16
+                                                    implicitWidth: parentFolderLabel.implicitWidth + 8
+                                                    Layout.alignment: Qt.AlignVCenter
+
+                                                    Label {
+                                                        id: parentFolderLabel
+                                                        anchors.centerIn: parent
+                                                        text: modelData.parent_name || ""
+                                                        color: desk.ink
+                                                        font.pixelSize: 10
+                                                        font.weight: Font.DemiBold
+                                                        opacity: 0.9
+                                                    }
+                                                }
+
+                                                Label {
+                                                    text: modelData.snippet || modelData.display_path || modelData.path
+                                                    textFormat: Text.PlainText
+                                                    color: desk.muted
+                                                    font.pixelSize: 11
+                                                    elide: Text.ElideMiddle
+                                                    Layout.fillWidth: true
+                                                    opacity: 0.8
+                                                }
                                             }
                                         }
 
@@ -738,7 +972,7 @@ Rectangle {
                             }
                         }
 
-                        // Bottom Action Bar reflecting selected hit actions cleanly
+                        // Bottom Action Bar reflecting selected hit actions cleanly with tactile keycaps
                         Rectangle {
                             id: bottomActionBar
                             objectName: "bottomActionBar"
@@ -754,57 +988,339 @@ Rectangle {
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.margins: 4
-                                spacing: 8
+                                anchors.leftMargin: 8
+                                anchors.rightMargin: 8
+                                spacing: 10
 
                                 Label {
-                                    text: "Hành động khả dụng:"
+                                    text: "Phím tắt:"
                                     font.pixelSize: 11
+                                    font.weight: Font.DemiBold
                                     color: desk.muted
-                                    Layout.leftMargin: 6
+                                    Layout.leftMargin: 4
                                 }
 
                                 Item { Layout.fillWidth: true }
 
-                                QuietButton {
+                                KeycapBadge {
                                     visible: Boolean(bottomActionBar.selectedHit.is_pdf)
-                                    text: "↵ Đọc trực tiếp"
+                                    keyText: "↵"
+                                    labelText: "Đọc trực tiếp"
                                     primary: true
                                     onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
                                 }
-                                QuietButton {
+                                KeycapBadge {
                                     visible: Boolean(bottomActionBar.selectedHit.is_pdf)
-                                    text: "⇧↵ Hỏi về PDF"
+                                    keyText: "⇧↵"
+                                    labelText: "Hỏi về PDF"
                                     onClicked: {
                                         desk.liveController.selectFile(bottomActionBar.selectedHit.path)
                                         editor.forceActiveFocus()
                                     }
                                 }
-                                QuietButton {
+                                KeycapBadge {
                                     visible: bottomActionBar.selectedHit.kind === "application"
-                                    text: "↵ Mở ứng dụng"
+                                    keyText: "↵"
+                                    labelText: "Mở ứng dụng"
                                     primary: true
                                     onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
                                 }
-                                QuietButton {
+                                KeycapBadge {
                                     visible: bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
-                                    text: "↵ Mở tệp"
+                                    keyText: "↵"
+                                    labelText: "Mở tệp"
                                     onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
                                 }
-                                QuietButton {
+                                KeycapBadge {
                                     visible: bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
-                                    text: "⇧↵ Hỏi về tệp"
+                                    keyText: "⇧↵"
+                                    labelText: "Hỏi về tệp"
                                     primary: true
                                     onClicked: desk.liveController.askAboutSelectedHit(desk.selectedFinderIndex, editor.text)
                                 }
-                                QuietButton {
+                                KeycapBadge {
                                     visible: Boolean(bottomActionBar.selectedHit.path)
-                                    text: "⌘Y Xem nhanh"
+                                    keyText: "⌘Y"
+                                    labelText: "Xem nhanh"
                                     onClicked: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)
                                 }
-                                QuietButton {
+                                KeycapBadge {
                                     visible: Boolean(bottomActionBar.selectedHit.path)
-                                    text: "⌘↵ Thư mục"
+                                    keyText: "⌘↵"
+                                    labelText: "Finder"
                                     onClicked: desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex)
+                                }
+                            }
+                        }
+                    }
+
+                    // APPS CATALOG GRID VIEW (loaded lazily on demand)
+                    Loader {
+                        id: appsResultsLoader
+                        objectName: "appsResultsLoader"
+                        active: desk.liveMode && desk.liveSnapshot.view === "apps"
+                        visible: active
+                        Layout.fillWidth: true
+                        sourceComponent: Component {
+                            ColumnLayout {
+                                id: appsResults
+                                objectName: "appsResults"
+                                property alias appsRepeaterItem: appsRepeater
+                                Layout.fillWidth: true
+                                spacing: 12
+
+                                // State 3: Empty State (when filter matches no app)
+                                Rectangle {
+                                    id: appsEmptyCard
+                                    objectName: "appsEmptyCard"
+                                    visible: desk.filteredApps.length === 0
+                                    Layout.fillWidth: true
+                                    implicitHeight: emptyColumn.implicitHeight + 32
+                                    radius: 12
+                                    color: desk.darkMode ? "#242820" : "#f5f7f2"
+                                    border.color: desk.edge
+
+                                    ColumnLayout {
+                                        id: emptyColumn
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.margins: 16
+                                        spacing: 8
+
+                                        Image {
+                                            Layout.alignment: Qt.AlignHCenter
+                                            Layout.preferredWidth: 28
+                                            Layout.preferredHeight: 28
+                                            source: "../../assets/icons/search.svg"
+                                            sourceSize.width: 56
+                                            sourceSize.height: 56
+                                            opacity: 0.5
+                                        }
+
+                                        Label {
+                                            Layout.fillWidth: true
+                                            Layout.alignment: Qt.AlignHCenter
+                                            text: "Không tìm thấy ứng dụng khớp với \"" + (editor.text || "").trim() + "\""
+                                            color: desk.ink
+                                            font.pixelSize: 13
+                                            font.weight: Font.Medium
+                                            horizontalAlignment: Text.AlignHCenter
+                                            wrapMode: Text.Wrap
+                                            maximumLineCount: 2
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Label {
+                                            Layout.fillWidth: true
+                                            Layout.alignment: Qt.AlignHCenter
+                                            text: "Thử tìm theo tên tiếng Anh, alias hoặc xóa bộ lọc."
+                                            color: desk.muted
+                                            font.pixelSize: 11
+                                            horizontalAlignment: Text.AlignHCenter
+                                            wrapMode: Text.Wrap
+                                        }
+
+                                        RowLayout {
+                                            Layout.alignment: Qt.AlignHCenter
+                                            spacing: 10
+                                            Layout.topMargin: 4
+
+                                            QuietButton {
+                                                objectName: "clearAppsFilter"
+                                                text: "Xóa bộ lọc"
+                                                primary: true
+                                                onClicked: {
+                                                    editor.text = ""
+                                                    editor.forceActiveFocus()
+                                                }
+                                            }
+                                            QuietButton {
+                                                objectName: "exitAppsView"
+                                                text: "Về Bàn làm việc"
+                                                onClicked: {
+                                                    var restored = desk.liveController.closeAppsView()
+                                                    if (restored) editor.text = restored
+                                                    editor.forceActiveFocus()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // State 1 & State 2: Grid View (Unfiltered & Filtered)
+                                Flow {
+                                    id: appsGridFlow
+                                    objectName: "appsGridFlow"
+                                    visible: desk.filteredApps.length > 0
+                                    Layout.fillWidth: true
+                                    spacing: 10
+
+                                    readonly property int cardWidth: Math.max(90, Math.floor((resultScroll.availableWidth - 10 * (desk.gridColumns - 1)) / desk.gridColumns))
+
+                                    Repeater {
+                                        id: appsRepeater
+                                        model: desk.filteredApps
+
+                                        Rectangle {
+                                            id: appCell
+                                            objectName: "appCard_" + index
+                                            width: appsGridFlow.cardWidth
+                                            height: 112
+                                            radius: 10
+                                            readonly property bool isSelected: desk.selectedAppGridIndex === index
+                                            readonly property bool isHovered: cellMouse.containsMouse
+                                            color: isSelected
+                                                ? (desk.darkMode ? "#333e2b" : "#e9f2e3")
+                                                : (isHovered
+                                                    ? (desk.darkMode ? "#2a3125" : "#f1f6ed")
+                                                    : (desk.darkMode ? Qt.rgba(1, 1, 1, 0.03) : Qt.rgba(0, 0, 0, 0.02)))
+                                            border.color: isSelected
+                                                ? desk.accent
+                                                : (isHovered ? desk.edge : (desk.darkMode ? "#323a2d" : "#e8ede2"))
+                                            border.width: 1
+
+                                            Rectangle {
+                                                visible: appCell.isSelected
+                                                anchors.top: parent.top
+                                                anchors.left: parent.left
+                                                anchors.right: parent.right
+                                                height: 2.5
+                                                radius: 1
+                                                color: desk.accent
+                                            }
+
+                                            MouseArea {
+                                                id: cellMouse
+                                                anchors.fill: parent
+                                                hoverEnabled: true
+                                                cursorShape: Qt.PointingHandCursor
+                                                onEntered: desk.selectedAppGridIndex = index
+                                                onClicked: {
+                                                    desk.liveController.launchApplication(modelData.path)
+                                                    var restored = desk.liveController.closeAppsView()
+                                                    if (restored) editor.text = restored
+                                                }
+                                            }
+
+                                            ColumnLayout {
+                                                anchors.fill: parent
+                                                anchors.margins: 6
+                                                anchors.topMargin: 8
+                                                anchors.bottomMargin: 6
+                                                spacing: 5
+
+                                                Image {
+                                                    Layout.alignment: Qt.AlignHCenter
+                                                    Layout.preferredWidth: 52
+                                                    Layout.preferredHeight: 52
+                                                    Layout.minimumWidth: 52
+                                                    Layout.minimumHeight: 52
+                                                    Layout.maximumWidth: 52
+                                                    Layout.maximumHeight: 52
+                                                    width: 52
+                                                    height: 52
+                                                    source: modelData.icon_url || ("image://icon/" + modelData.path)
+                                                    sourceSize.width: 104
+                                                    sourceSize.height: 104
+                                                    fillMode: Image.PreserveAspectFit
+                                                    smooth: true
+                                                    mipmap: true
+                                                }
+
+                                                Label {
+                                                    Layout.fillWidth: true
+                                                    Layout.fillHeight: true
+                                                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                                                    text: modelData.name || ""
+                                                    color: desk.ink
+                                                    font.pixelSize: 12
+                                                    font.weight: appCell.isSelected ? Font.DemiBold : Font.Normal
+                                                    horizontalAlignment: Text.AlignHCenter
+                                                    verticalAlignment: Text.AlignTop
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 2
+                                                    wrapMode: Text.Wrap
+                                                    lineHeight: 1.15
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Bottom Action Bar for selected app in grid
+                                Rectangle {
+                                    id: appsBottomBar
+                                    objectName: "appsBottomBar"
+                                    visible: desk.filteredApps.length > 0 && desk.selectedAppGridIndex >= 0 && desk.selectedAppGridIndex < desk.filteredApps.length
+                                    Layout.fillWidth: true
+                                    implicitHeight: 38
+                                    radius: 8
+                                    color: desk.darkMode ? "#242820" : "#f0f4ea"
+                                    border.color: desk.edge
+
+                                    readonly property var currentApp: desk.filteredApps[desk.selectedAppGridIndex] || ({})
+
+                                    RowLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 4
+                                        anchors.leftMargin: 10
+                                        anchors.rightMargin: 10
+                                        spacing: 8
+
+                                        Label {
+                                            id: bottomBarAppName
+                                            text: appsBottomBar.currentApp.name || ""
+                                            font.pixelSize: 12
+                                            font.weight: Font.DemiBold
+                                            color: desk.ink
+                                            elide: Text.ElideRight
+                                            Layout.maximumWidth: Math.max(90, Math.min(160, appsBottomBar.width * 0.25))
+                                        }
+
+                                        Label {
+                                            id: bottomBarAppPath
+                                            text: appsBottomBar.currentApp.path || ""
+                                            font.pixelSize: 10
+                                            color: desk.muted
+                                            elide: Text.ElideMiddle
+                                            Layout.fillWidth: true
+                                            Layout.minimumWidth: 0
+                                            opacity: 0.75
+                                        }
+
+                                        KeycapBadge {
+                                            keyText: "↵"
+                                            labelText: "Mở ứng dụng"
+                                            primary: true
+                                            Layout.alignment: Qt.AlignVCenter
+                                            onClicked: {
+                                                desk.liveController.launchApplication(appsBottomBar.currentApp.path)
+                                                var restored = desk.liveController.closeAppsView()
+                                                if (restored) editor.text = restored
+                                            }
+                                        }
+
+                                        KeycapBadge {
+                                            keyText: "⌘↵"
+                                            labelText: "Finder"
+                                            Layout.alignment: Qt.AlignVCenter
+                                            onClicked: {
+                                                desk.liveController.revealInFinder(appsBottomBar.currentApp.path)
+                                            }
+                                        }
+
+                                        KeycapBadge {
+                                            keyText: "Esc"
+                                            labelText: "Quay lại"
+                                            Layout.alignment: Qt.AlignVCenter
+                                            onClicked: {
+                                                var restored = desk.liveController.closeAppsView()
+                                                if (restored) editor.text = restored
+                                                editor.forceActiveFocus()
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1039,17 +1555,33 @@ Rectangle {
                         font.pixelSize: 15
                         color: desk.ink
                         placeholderTextColor: desk.muted
-                        placeholderText: desk.liveMode ? (desk.liveSnapshot.fileName ? "Tìm gì trong tài liệu này?" : "Chuột sẵn sàng. Nhập tên file, ứng dụng hoặc câu hỏi…") : desk.phase === "idle" ? "Chuột nghe đây. Bạn cần gì?" : "Hỏi tiếp hoặc sửa điều gì đó…"
+                        placeholderText: desk.liveMode ? (
+                            desk.liveSnapshot.view === "apps" ? "Lọc ứng dụng theo tên hoặc alias…"
+                            : (desk.liveSnapshot.fileName ? "Tìm gì trong tài liệu này?" : "Chuột sẵn sàng. Nhập tên file, ứng dụng hoặc câu hỏi…")
+                        ) : desk.phase === "idle" ? "Chuột nghe đây. Bạn cần gì?" : "Hỏi tiếp hoặc sửa điều gì đó…"
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
                         background: null
                         onTextChanged: {
                             if (desk.liveMode) {
-                                desk.selectedFinderIndex = -1
+                                if (desk.liveSnapshot.view === "apps") {
+                                    desk.selectedAppGridIndex = 0
+                                } else {
+                                    desk.selectedFinderIndex = -1
+                                }
                                 desk.liveController.onComposerTextChanged(text)
                             }
                         }
                         Keys.onDownPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                var total = desk.filteredApps.length
+                                if (total > 0) {
+                                    event.accepted = true
+                                    var cols = desk.gridColumns
+                                    desk.selectedAppGridIndex = Math.min(total - 1, desk.selectedAppGridIndex + cols)
+                                    return
+                                }
+                            }
                             if (desk.liveMode && desk.liveSnapshot.view === "finder") {
                                 var hits = desk.liveSnapshot.finderHits || []
                                 if (hits.length > 0) {
@@ -1065,6 +1597,15 @@ Rectangle {
                             event.accepted = false
                         }
                         Keys.onUpPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                var total = desk.filteredApps.length
+                                if (total > 0) {
+                                    event.accepted = true
+                                    var cols = desk.gridColumns
+                                    desk.selectedAppGridIndex = Math.max(0, desk.selectedAppGridIndex - cols)
+                                    return
+                                }
+                            }
                             if (desk.liveMode && desk.liveSnapshot.view === "finder") {
                                 var hits = desk.liveSnapshot.finderHits || []
                                 if (hits.length > 0) {
@@ -1079,7 +1620,35 @@ Rectangle {
                             }
                             event.accepted = false
                         }
+                        Keys.onLeftPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                var total = desk.filteredApps.length
+                                if (total > 0) {
+                                    event.accepted = true
+                                    desk.selectedAppGridIndex = Math.max(0, desk.selectedAppGridIndex - 1)
+                                    return
+                                }
+                            }
+                            event.accepted = false
+                        }
+                        Keys.onRightPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                var total = desk.filteredApps.length
+                                if (total > 0) {
+                                    event.accepted = true
+                                    desk.selectedAppGridIndex = Math.min(total - 1, desk.selectedAppGridIndex + 1)
+                                    return
+                                }
+                            }
+                            event.accepted = false
+                        }
                         Keys.onEscapePressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                event.accepted = true
+                                var restored = desk.liveController.closeAppsView()
+                                if (restored) editor.text = restored
+                                return
+                            }
                             if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
                                 event.accepted = true
                                 desk.selectedFinderIndex = -1
@@ -1089,6 +1658,20 @@ Rectangle {
                         }
                         Keys.onReturnPressed: event => {
                             if (!inputMethodComposing) {
+                                if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                    event.accepted = true
+                                    if (desk.filteredApps.length > 0 && desk.selectedAppGridIndex >= 0 && desk.selectedAppGridIndex < desk.filteredApps.length) {
+                                        var app = desk.filteredApps[desk.selectedAppGridIndex]
+                                        if ((event.modifiers & Qt.MetaModifier) || (event.modifiers & Qt.ControlModifier)) {
+                                            desk.liveController.revealInFinder(app.path)
+                                        } else {
+                                            desk.liveController.launchApplication(app.path)
+                                            var restored = desk.liveController.closeAppsView()
+                                            if (restored) editor.text = restored
+                                        }
+                                    }
+                                    return
+                                }
                                 if ((event.modifiers & Qt.MetaModifier) || (event.modifiers & Qt.ControlModifier)) {
                                     if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
                                         event.accepted = true
@@ -1122,6 +1705,20 @@ Rectangle {
                         }
                         Keys.onEnterPressed: event => {
                             if (!inputMethodComposing) {
+                                if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                    event.accepted = true
+                                    if (desk.filteredApps.length > 0 && desk.selectedAppGridIndex >= 0 && desk.selectedAppGridIndex < desk.filteredApps.length) {
+                                        var app = desk.filteredApps[desk.selectedAppGridIndex]
+                                        if ((event.modifiers & Qt.MetaModifier) || (event.modifiers & Qt.ControlModifier)) {
+                                            desk.liveController.revealInFinder(app.path)
+                                        } else {
+                                            desk.liveController.launchApplication(app.path)
+                                            var restored = desk.liveController.closeAppsView()
+                                            if (restored) editor.text = restored
+                                        }
+                                    }
+                                    return
+                                }
                                 if ((event.modifiers & Qt.MetaModifier) || (event.modifiers & Qt.ControlModifier)) {
                                     if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
                                         event.accepted = true
@@ -1158,14 +1755,27 @@ Rectangle {
                     QuietButton {
                         id: sendControl
                         objectName: "sendButton"
-                        text: desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy) ? "■" : "↑"
-                        Accessible.name: desk.liveMode ? (desk.liveSnapshot.busy ? "Dừng đọc PDF" : "Tìm trong PDF") : desk.phase === "receiving" ? "Dừng yêu cầu minh họa" : "Gửi yêu cầu minh họa"
+                        text: desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy) ? "■" : (desk.liveMode && desk.liveSnapshot.view === "apps" ? "↵" : "↑")
+                        Accessible.name: desk.liveMode ? (desk.liveSnapshot.busy ? "Dừng đọc PDF" : (desk.liveSnapshot.view === "apps" ? "Mở ứng dụng đã chọn" : "Tìm trong PDF")) : desk.phase === "receiving" ? "Dừng yêu cầu minh họa" : "Gửi yêu cầu minh họa"
                         primary: true
                         implicitWidth: 34
                         implicitHeight: 34
                         Layout.alignment: Qt.AlignTop
                         font.pixelSize: 18
-                        onClicked: { if (desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy)) desk.stopRequest(); else desk.submitDraft() }
+                        onClicked: {
+                            if (desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy)) {
+                                desk.stopRequest()
+                            } else if (desk.liveMode && desk.liveSnapshot.view === "apps") {
+                                if (desk.filteredApps.length > 0 && desk.selectedAppGridIndex >= 0 && desk.selectedAppGridIndex < desk.filteredApps.length) {
+                                    var app = desk.filteredApps[desk.selectedAppGridIndex]
+                                    desk.liveController.launchApplication(app.path)
+                                    var restored = desk.liveController.closeAppsView()
+                                    if (restored) editor.text = restored
+                                }
+                            } else {
+                                desk.submitDraft()
+                            }
+                        }
                     }
                 }
                 RowLayout {
@@ -1201,6 +1811,22 @@ Rectangle {
                         font.pixelSize: 11
                     }
                     Label { visible: desk.liveMode && Boolean(desk.liveSnapshot.fileName); text: desk.liveSnapshot.pageCount + " trang"; color: desk.muted; font.pixelSize: 11 }
+                    QuietButton {
+                        id: appsGridButton
+                        objectName: "appsGridButton"
+                        visible: desk.liveMode
+                        text: desk.liveSnapshot.view === "apps" ? "✕ Bàn làm việc" : "Ứng dụng ⊞"
+                        Accessible.name: "Mở danh mục ứng dụng macOS dạng lưới"
+                        onClicked: {
+                            if (desk.liveSnapshot.view === "apps") {
+                                var restored = desk.liveController.closeAppsView()
+                                if (restored) editor.text = restored
+                            } else {
+                                desk.liveController.openAppsView(editor.text)
+                            }
+                            editor.forceActiveFocus()
+                        }
+                    }
                     QuietButton { objectName: "choosePdf"; visible: desk.liveMode; text: desk.liveSnapshot.fileName ? "+ PDF" : "Chọn PDF  ↗"; onClicked: pdfDialog.open() }
                     QuietButton { objectName: "closeDesk"; visible: desk.liveMode; text: "×"; font.pixelSize: 15; Accessible.name: "Đóng cửa sổ PDF"; onClicked: desk.closeRequested() }
                     Label { visible: desk.phase === "receiving"; text: "Đang nhận yêu cầu…"; color: desk.muted; font.pixelSize: 12 }
@@ -1268,11 +1894,41 @@ Rectangle {
         sequence: "Escape"
         enabled: desk.liveMode && desk.expanded
         onActivated: {
-            if (desk.selectedFinderIndex >= 0) {
+            if (desk.liveSnapshot.view === "apps") {
+                var restored = desk.liveController.closeAppsView()
+                if (restored) editor.text = restored
+                editor.forceActiveFocus()
+            } else if (desk.selectedFinderIndex >= 0) {
                 desk.selectedFinderIndex = -1
             } else {
                 desk.foldWorkbench()
             }
+        }
+    }
+    Shortcut {
+        sequence: "Ctrl+Shift+A"
+        enabled: desk.liveMode
+        onActivated: {
+            if (desk.liveSnapshot.view === "apps") {
+                var restored = desk.liveController.closeAppsView()
+                if (restored) editor.text = restored
+            } else {
+                desk.liveController.openAppsView(editor.text)
+            }
+            editor.forceActiveFocus()
+        }
+    }
+    Shortcut {
+        sequence: "Meta+Shift+A"
+        enabled: desk.liveMode
+        onActivated: {
+            if (desk.liveSnapshot.view === "apps") {
+                var restored = desk.liveController.closeAppsView()
+                if (restored) editor.text = restored
+            } else {
+                desk.liveController.openAppsView(editor.text)
+            }
+            editor.forceActiveFocus()
         }
     }
     Shortcut {

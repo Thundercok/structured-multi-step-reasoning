@@ -130,7 +130,7 @@ class QuickPDFController(QObject):
     copyReady = pyqtSignal(str)
     _delivered = pyqtSignal(int, str, object)
     _execution_delivered = pyqtSignal(object, object)
-    _execution_status_delivered = pyqtSignal(str)
+    _execution_status_delivered = pyqtSignal(str, int, str)
     _finder_delivered = pyqtSignal(object)
     _catalog_ready = pyqtSignal(object)
 
@@ -198,6 +198,12 @@ class QuickPDFController(QObject):
         self._finder_hits: List[Dict[str, Any]] = []
         self._finder_query: str = ""
         self._db_path = db_path or str(config.db_path)
+        self._cached_apps_list: List[Dict[str, Any]] = []
+        self._saved_draft: str = ""
+        self._prior_view: str = "none"
+
+        if self._finder_catalog is not None:
+            self._update_cached_apps(self._finder_catalog)
 
         if self._finder_coordinator is None:
             if self._finder_search is not None:
@@ -313,8 +319,12 @@ class QuickPDFController(QObject):
             "errorCode": self._error,
             "errorText": ERROR_MESSAGES.get(self._error, "Không xử lý được yêu cầu này."),
             "events": list(self._events),
+            "contradictionReport": self._telemetry.get("contradiction_report"),
             "finderHits": list(self._finder_hits),
             "finderQuery": self._finder_query,
+            "installedApps": list(self._cached_apps_list),
+            "isAppsView": (view == "apps"),
+            "savedDraft": self._saved_draft,
             "isQuestionQuery": bool(
                 self._finder_query.startswith(("?", "¿"))
                 or any(self._finder_query.lower().startswith(w) for w in ["sao ", "tại sao ", "giải thích ", "làm sao ", "how ", "why ", "what "])
@@ -722,7 +732,9 @@ class QuickPDFController(QObject):
         self.changed.emit()
 
         worker.response_ready.connect(lambda res, req=request: self._execution_delivered.emit(req, res))
-        worker.status_changed.connect(self._execution_status_delivered.emit)
+        worker.status_changed.connect(
+            lambda st, eid=execution_id, gen=self._chat_generation: self._execution_status_delivered.emit(eid, gen, st)
+        )
         worker.start()
         return True
 
@@ -769,13 +781,16 @@ class QuickPDFController(QObject):
             self.changed.emit()
             return
 
+        curr_telem = getattr(response, "qa_telemetry", {}) or {}
+        self._telemetry = curr_telem
+
         art_refs = None
         if getattr(response, "artifacts", None):
             art_refs = [a.to_dict() for a in response.artifacts]
-        elif self._telemetry.get("target_artifact_id"):
+        elif curr_telem.get("target_artifact_id"):
             art_store = getattr(self.assistant_runtime, "artifact_store", None)
             if art_store:
-                art = art_store.get(self._telemetry["target_artifact_id"])
+                art = art_store.get(curr_telem["target_artifact_id"])
                 if art:
                     art_refs = [art.to_dict()]
 
@@ -787,12 +802,16 @@ class QuickPDFController(QObject):
         )
 
         self._last_assistant_answer = response.answer
-        self._telemetry = getattr(response, "qa_telemetry", {})
         self._view = "answer"
         self._expanded = True
         self._unread = False
 
-        if self._telemetry.get("bundle_review_status") == "synthetic_development_only":
+        c_rep = self._telemetry.get("contradiction_report")
+        if c_rep and not c_rep.get("passed"):
+            count = len(c_rep.get("findings", []))
+            self._status = f"Phát hiện {count} mâu thuẫn trong chuỗi suy luận"
+            self._events.append(f"⚠️ ContradictionAuditor: {count} mâu thuẫn đơn điệu bị gắn cờ.")
+        elif self._telemetry.get("bundle_review_status") == "synthetic_development_only":
             self._status = "Bản thử nghiệm · kết quả fixture, chưa đánh giá model"
         else:
             self._status = "Đã trả lời · có thể hỏi tiếp"
@@ -800,13 +819,29 @@ class QuickPDFController(QObject):
         self._events.append(self._status)
         self.changed.emit()
 
-    @pyqtSlot(str)
-    def _on_execution_status(self, status: str):
+    @pyqtSlot(str, int, str)
+    def _on_execution_status(self, eid: str, gen: int, status: str):
+        if self._closed or eid != self._current_execution_id or gen != self._chat_generation:
+            return
         if status == "cancel":
             self._status = "Đang dừng xử lý…"
         elif status == "wait":
             self._status = "Đang chờ kết quả…"
         self.changed.emit()
+
+    def _update_cached_apps(self, catalog: ApplicationCatalog):
+        self._cached_apps_list = [
+            {
+                "resource_id": app.resource_id,
+                "name": app.name,
+                "path": app.path,
+                "bundle_id": app.bundle_id,
+                "version": app.version,
+                "names": list(app.names),
+                "icon_url": f"image://icon/{app.path}",
+            }
+            for app in sorted(catalog.applications, key=lambda a: a.name.lower())
+        ]
 
     @pyqtSlot(object)
     def _on_catalog_ready(self, catalog: ApplicationCatalog):
@@ -818,12 +853,18 @@ class QuickPDFController(QObject):
             self._finder_search,
             on_update=lambda snap: self._finder_delivered.emit(snap),
         )
-        if self._finder_query and self._selection is None and not self.snapshot["busy"]:
+        self._update_cached_apps(catalog)
+        self.changed.emit()
+        if self._finder_query and self._selection is None and not self.snapshot["busy"] and self._view != "apps":
             self._finder_coordinator.submit(self._finder_query, limit=10)
 
     @pyqtSlot(str)
     def onComposerTextChanged(self, text: str):
         if self._closed:
+            return
+        if self._view == "apps":
+            self._finder_query = text.strip()
+            self.changed.emit()
             return
         if self._selection is not None:
             return
@@ -864,11 +905,15 @@ class QuickPDFController(QObject):
             snippet = h.snippet or display_path
             if snippet.startswith(home_str):
                 snippet = "~" + snippet[len(home_str):]
+            p = Path(h.path)
+            parent_name = p.parent.name if p.parent and p.parent.name else ""
             raw_hits.append({
                 "resource_id": h.resource_id,
                 "kind": h.kind,
                 "title": h.title,
                 "path": h.path,
+                "parent_name": parent_name,
+                "file_name": p.name,
                 "display_path": display_path,
                 "origin": h.origin,
                 "snippet": snippet,
@@ -912,6 +957,41 @@ class QuickPDFController(QObject):
         if not accepted:
             self._show_error("open_failed")
         return accepted
+
+    @pyqtSlot(str)
+    def openAppsView(self, current_draft: str = ""):
+        """Enters Apps Catalog grid mode, preserving composer draft and context."""
+        if self._closed or self.snapshot["busy"]:
+            return
+        if self._view != "apps":
+            self._prior_view = self._view
+            self._saved_draft = current_draft
+        self._view = "apps"
+        self._expanded = True
+        self._unread = False
+        count = len(self._cached_apps_list)
+        self._status = f"Ứng dụng đã cài đặt ({count}) · Bấm icon hoặc Enter để mở"
+        self.changed.emit()
+
+    @pyqtSlot(result=str)
+    def closeAppsView(self) -> str:
+        """Exits Apps Catalog grid mode and returns preserved composer draft."""
+        if self._closed:
+            return ""
+        self._view = self._prior_view if self._prior_view != "apps" else ("answer" if self._last_assistant_answer else "none")
+        restored = self._saved_draft
+        self._saved_draft = ""
+        self._finder_query = ""
+        self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
+        self.changed.emit()
+        return restored
+
+    @pyqtSlot(str, result=bool)
+    def launchApplication(self, path: str) -> bool:
+        """Launches application bundle via standard OS handler, preserving draft."""
+        if self._closed or not path:
+            return False
+        return self.openHit(path)
 
     @pyqtSlot(str)
     def openPdfHit(self, path: str):
@@ -1017,6 +1097,21 @@ class QuickPDFController(QObject):
         if self._current_worker:
             if hasattr(self._current_worker, "requestInterruption"):
                 self._current_worker.requestInterruption()
+            if self._current_execution_id:
+                try:
+                    self.assistant_runtime.cancel_execution(self._current_execution_id)
+                except Exception:
+                    pass
+            if self._current_turn_id:
+                try:
+                    self.conversation.cancel_turn(self._current_turn_id, execution_id=self._current_execution_id)
+                except Exception:
+                    pass
+            try:
+                if hasattr(self._current_worker, "wait"):
+                    self._current_worker.wait(200)
+            except Exception:
+                pass
             self._current_worker = None
         if self._finder_coordinator:
             self._finder_coordinator.close(timeout=0.25)

@@ -1,0 +1,11 @@
+                 pydantic-ai v2.59.0 • Python 3.12.6
+
+      / \        agent: agent • model: function:function:scripted_model: • tools: 1
+     /   \         capabilities: 0
+   /___.___\
+  /    |    \    observability: off — see every model and tool call live, with cost
+/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+
+                 goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+{"status": "offline_bridge_probe_passed", "sdk_version": "2.59.0", "cases_passed": 9, "real_model_calls": 0, "real_os_launches": 0}

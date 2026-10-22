@@ -1,0 +1,10 @@
+{
+  "dependency_target": "/private/tmp/rat-agent-sdk-20261022-4omtt_gd",
+  "installation_scope": "temporary_target_only",
+  "runtime_requirements_changed": false,
+  "sdk_version": "2.59.0",
+  "resolved_distributions": 17,
+  "main_environment_sdk_installed": false,
+  "probe_script": "scripts/dev/rat_agent_sdk_spike.py",
+  "probe_sha256": "763bd6caaea9147f8234126f1d364a44f7d30e78055022af75a9aada4cd1783f"
+}

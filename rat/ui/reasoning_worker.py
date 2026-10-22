@@ -196,6 +196,21 @@ class OnlineReasoningWorker(QThread):
             res.query = self.query
             res.context_snapshot = copy.deepcopy(self.context_snapshot)
             res.bundle_review_status = getattr(getattr(self.engine._controller, "bundle", None), "review_status", None)
+
+            # Turn 2 Innard: Monotonic Contradiction Auditor & Step Integrity Guard
+            if self.context_snapshot:
+                from rat.engine.contradiction_auditor import ContradictionAuditor
+                auditor = ContradictionAuditor()
+                evs = self.context_snapshot.get("source_evidence") or []
+                audit_rep = auditor.audit_trace(res.steps, evs, answer=res.answer)
+                res.contradiction_report = audit_rep.to_dict()
+                if not audit_rep.passed:
+                    res.verification_status = "contradiction_detected"
+                    for finding in audit_rep.findings:
+                        res.steps.append(f"⚠️ Phát hiện mâu thuẫn đơn điệu: {finding.explanation}")
+                elif audit_rep.coverage_status == "not_evaluated":
+                    if res.verification_status in (None, "unknown", "verified"):
+                        res.verification_status = "unverified"
             if self.isInterruptionRequested() or res.status == "cancelled":
                 self.status_changed.emit("cancel")
             elif res.status in ("timeout", "failed", "budget_exceeded"):

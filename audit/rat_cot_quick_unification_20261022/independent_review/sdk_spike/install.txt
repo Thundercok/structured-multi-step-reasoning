@@ -1,0 +1,62 @@
+Collecting pydantic-ai-slim
+  Downloading pydantic_ai_slim-2.59.0-py3-none-any.whl.metadata (7.7 kB)
+Collecting anyio>=4.7.0 (from pydantic-ai-slim)
+  Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting genai-prices>=0.1.13 (from pydantic-ai-slim)
+  Downloading genai_prices-0.1.13-py3-none-any.whl.metadata (12 kB)
+Collecting griffelib>=2.0 (from pydantic-ai-slim)
+  Downloading griffelib-2.4.1-py3-none-any.whl.metadata (1.9 kB)
+Collecting httpx2>=2.7 (from pydantic-ai-slim)
+  Downloading httpx2-2.16.0-py3-none-any.whl.metadata (10 kB)
+Collecting opentelemetry-api>=1.28.0 (from pydantic-ai-slim)
+  Downloading opentelemetry_api-1.45.1-py3-none-any.whl.metadata (1.4 kB)
+Collecting pydantic-graph==2.59.0 (from pydantic-ai-slim)
+  Downloading pydantic_graph-2.59.0-py3-none-any.whl.metadata (4.3 kB)
+Collecting pydantic>=2.12 (from pydantic-ai-slim)
+  Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+Collecting typing-inspection>=0.4.0 (from pydantic-ai-slim)
+  Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+Collecting logfire-api>=3.14.1 (from pydantic-graph==2.59.0->pydantic-ai-slim)
+  Downloading logfire_api-5.2.0-py3-none-any.whl.metadata (972 bytes)
+Collecting idna>=2.8 (from anyio>=4.7.0->pydantic-ai-slim)
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting typing_extensions>=4.16.0 (from anyio>=4.7.0->pydantic-ai-slim)
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting httpcore2==2.16.0 (from httpx2>=2.7->pydantic-ai-slim)
+  Downloading httpcore2-2.16.0-py3-none-any.whl.metadata (27 kB)
+Collecting truststore>=0.10 (from httpx2>=2.7->pydantic-ai-slim)
+  Downloading truststore-0.10.5-py3-none-any.whl.metadata (4.5 kB)
+Collecting h11>=0.16 (from httpcore2==2.16.0->httpx2>=2.7->pydantic-ai-slim)
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting annotated-types>=0.6.0 (from pydantic>=2.12->pydantic-ai-slim)
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.50.1 (from pydantic>=2.12->pydantic-ai-slim)
+  Downloading pydantic_core-2.50.1-cp312-cp312-macosx_11_0_arm64.whl.metadata (6.5 kB)
+Downloading pydantic_ai_slim-2.59.0-py3-none-any.whl (2.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.4/2.4 MB 6.4 MB/s eta 0:00:00
+Downloading pydantic_graph-2.59.0-py3-none-any.whl (53 kB)
+Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+Downloading genai_prices-0.1.13-py3-none-any.whl (142 kB)
+Downloading griffelib-2.4.1-py3-none-any.whl (172 kB)
+Downloading httpx2-2.16.0-py3-none-any.whl (97 kB)
+Downloading httpcore2-2.16.0-py3-none-any.whl (85 kB)
+Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+Downloading pydantic_core-2.50.1-cp312-cp312-macosx_11_0_arm64.whl (2.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 4.1 MB/s eta 0:00:00
+Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading logfire_api-5.2.0-py3-none-any.whl (151 kB)
+Downloading truststore-0.10.5-py3-none-any.whl (19 kB)
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Installing collected packages: typing_extensions, truststore, logfire-api, idna, h11, griffelib, annotated-types, typing-inspection, pydantic-core, opentelemetry-api, httpcore2, anyio, pydantic, httpx2, pydantic-graph, genai-prices, pydantic-ai-slim
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+grpcio-status 1.71.2 requires protobuf<6.0dev,>=5.26.1, but you have protobuf 7.35.1 which is incompatible.
+google-api-core 2.30.0 requires protobuf<7.0.0,>=4.25.8, but you have protobuf 7.35.1 which is incompatible.
+ortools 9.15.6755 requires protobuf<6.34,>=6.33.1, but you have protobuf 7.35.1 which is incompatible.
+Successfully installed annotated-types-0.8.0 anyio-4.15.1 genai-prices-0.1.13 griffelib-2.4.1 h11-0.16.0 httpcore2-2.16.0 httpx2-2.16.0 idna-3.20 logfire-api-5.2.0 opentelemetry-api-1.45.1 pydantic-2.14.1 pydantic-ai-slim-2.59.0 pydantic-core-2.50.1 pydantic-graph-2.59.0 truststore-0.10.5 typing-inspection-0.4.4 typing_extensions-4.16.0
+
+[notice] A new release of pip is available: 24.2 -> 26.2.2
+[notice] To update, run: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python -m pip install --upgrade pip
