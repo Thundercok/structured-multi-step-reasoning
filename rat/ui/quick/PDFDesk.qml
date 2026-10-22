@@ -26,6 +26,23 @@ Rectangle {
     property var liveSnapshot: ({})
     property int selectedFinderIndex: -1
     readonly property bool liveMode: liveController !== null
+
+    onSelectedFinderIndexChanged: {
+        if (selectedFinderIndex >= 0 && liveSnapshot.view === "finder") {
+            var item = finderRepeater.itemAt(selectedFinderIndex)
+            if (item && resultScroll.contentHeight > resultScroll.height) {
+                var itemTop = item.y
+                var itemBottom = item.y + item.height
+                var viewTop = resultScroll.ScrollBar.vertical.position * resultScroll.contentHeight
+                var viewBottom = viewTop + resultScroll.height
+                if (itemTop < viewTop) {
+                    resultScroll.ScrollBar.vertical.position = Math.max(0, itemTop / resultScroll.contentHeight)
+                } else if (itemBottom > viewBottom) {
+                    resultScroll.ScrollBar.vertical.position = Math.min(1, (itemBottom - resultScroll.height) / resultScroll.contentHeight)
+                }
+            }
+        }
+    }
     property bool floatingWindow: liveMode
     property real maxPaperHeight: 420
     readonly property real preferredWindowHeight: 48 + composer.height + Math.max(116, expanded && hasWorkbench ? resultPaper.height - 22 : 0)
@@ -475,6 +492,7 @@ Rectangle {
                         }
 
                         Repeater {
+                            id: finderRepeater
                             model: desk.liveSnapshot.finderHits || []
                             Rectangle {
                                 required property var modelData
@@ -557,14 +575,14 @@ Rectangle {
                                             }
                                             Rectangle {
                                                 visible: isSelected
-                                                width: keyHint.implicitWidth + 8
+                                                width: keyHint.implicitWidth + 10
                                                 height: 18
                                                 radius: 4
                                                 color: desk.accent
                                                 Label {
                                                     id: keyHint
                                                     anchors.centerIn: parent
-                                                    text: "↵ Mở"
+                                                    text: modelData.is_pdf ? "↵ Đọc · ⇧↵ Hỏi" : (modelData.kind === "application" ? "↵ Mở" : "↵ Mở · ⇧↵ Hỏi")
                                                     color: desk.accentText
                                                     font.pixelSize: 10
                                                     font.weight: Font.Medium
@@ -573,7 +591,7 @@ Rectangle {
                                         }
 
                                         Label {
-                                            text: modelData.snippet || modelData.path
+                                            text: modelData.snippet || modelData.display_path || modelData.path
                                             textFormat: Text.PlainText
                                             color: desk.muted
                                             font.pixelSize: 11
@@ -614,6 +632,18 @@ Rectangle {
                                             text: "Hỏi về tệp"
                                             primary: true
                                             onClicked: desk.liveController.askAboutHit(modelData.path, editor.text)
+                                        }
+                                        QuietButton {
+                                            visible: Boolean(modelData.path)
+                                            text: "👁"
+                                            Accessible.name: "Xem nhanh QuickLook"
+                                            onClicked: desk.liveController.previewHit(modelData.path)
+                                        }
+                                        QuietButton {
+                                            visible: Boolean(modelData.path)
+                                            text: "↗"
+                                            Accessible.name: "Hiện trong Finder"
+                                            onClicked: desk.liveController.revealInFinder(modelData.path)
                                         }
                                     }
                                 }
@@ -842,46 +872,66 @@ Rectangle {
                             event.accepted = false
                         }
                         Keys.onReturnPressed: event => {
-                            if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
-                                event.accepted = true
-                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
-                                    var idx = desk.selectedFinderIndex
-                                    desk.selectedFinderIndex = -1
-                                    desk.liveController.openSelectedHit(idx)
-                                } else {
-                                    desk.submitDraft()
+                            if (!inputMethodComposing) {
+                                if ((event.modifiers & Qt.MetaModifier) || (event.modifiers & Qt.ControlModifier)) {
+                                    if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                        event.accepted = true
+                                        var idx = desk.selectedFinderIndex
+                                        desk.liveController.revealSelectedInFinder(idx)
+                                        return
+                                    }
                                 }
-                            } else if ((event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
-                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                if (!(event.modifiers & Qt.ShiftModifier)) {
                                     event.accepted = true
-                                    var idx = desk.selectedFinderIndex
-                                    desk.selectedFinderIndex = -1
-                                    desk.liveController.askAboutSelectedHit(idx, editor.text)
+                                    if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                        var idx = desk.selectedFinderIndex
+                                        desk.selectedFinderIndex = -1
+                                        desk.liveController.openSelectedHit(idx)
+                                    } else {
+                                        desk.submitDraft()
+                                    }
                                 } else {
-                                    event.accepted = false
+                                    if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                        event.accepted = true
+                                        var idx = desk.selectedFinderIndex
+                                        desk.selectedFinderIndex = -1
+                                        desk.liveController.askAboutSelectedHit(idx, editor.text)
+                                    } else {
+                                        event.accepted = false
+                                    }
                                 }
                             } else {
                                 event.accepted = false
                             }
                         }
                         Keys.onEnterPressed: event => {
-                            if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
-                                event.accepted = true
-                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
-                                    var idx = desk.selectedFinderIndex
-                                    desk.selectedFinderIndex = -1
-                                    desk.liveController.openSelectedHit(idx)
-                                } else {
-                                    desk.submitDraft()
+                            if (!inputMethodComposing) {
+                                if ((event.modifiers & Qt.MetaModifier) || (event.modifiers & Qt.ControlModifier)) {
+                                    if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                        event.accepted = true
+                                        var idx = desk.selectedFinderIndex
+                                        desk.liveController.revealSelectedInFinder(idx)
+                                        return
+                                    }
                                 }
-                            } else if ((event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
-                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                if (!(event.modifiers & Qt.ShiftModifier)) {
                                     event.accepted = true
-                                    var idx = desk.selectedFinderIndex
-                                    desk.selectedFinderIndex = -1
-                                    desk.liveController.askAboutSelectedHit(idx, editor.text)
+                                    if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                        var idx = desk.selectedFinderIndex
+                                        desk.selectedFinderIndex = -1
+                                        desk.liveController.openSelectedHit(idx)
+                                    } else {
+                                        desk.submitDraft()
+                                    }
                                 } else {
-                                    event.accepted = false
+                                    if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                        event.accepted = true
+                                        var idx = desk.selectedFinderIndex
+                                        desk.selectedFinderIndex = -1
+                                        desk.liveController.askAboutSelectedHit(idx, editor.text)
+                                    } else {
+                                        event.accepted = false
+                                    }
                                 }
                             } else {
                                 event.accepted = false
@@ -1019,5 +1069,15 @@ Rectangle {
         sequence: "Meta+L"
         enabled: desk.hasWorkbench
         onActivated: { if (desk.expanded) desk.foldWorkbench(); else desk.openWorkbench() }
+    }
+    Shortcut {
+        sequence: "Ctrl+Y"
+        enabled: desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0
+        onActivated: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)
+    }
+    Shortcut {
+        sequence: "Meta+Y"
+        enabled: desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0
+        onActivated: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)
     }
 }

@@ -5,6 +5,8 @@ import copy
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
+import subprocess
+import sys
 import threading
 from typing import Any, Dict, List, Optional
 
@@ -136,6 +138,8 @@ class QuickPDFController(QObject):
         parent=None,
         *,
         open_url=None,
+        reveal_file=None,
+        preview_file=None,
         assistant_runtime: Optional[AssistantRuntime] = None,
         conversation: Optional[ConversationHistory] = None,
         reasoning_engine: Optional[Any] = None,
@@ -162,6 +166,8 @@ class QuickPDFController(QObject):
         self._error = ""
         self._events = []
         self._open_url = open_url
+        self._reveal_file = reveal_file
+        self._preview_file = preview_file
         self._delivered.connect(self._finish, Qt.ConnectionType.QueuedConnection)
         self._execution_delivered.connect(self._handle_execution_delivered, Qt.ConnectionType.QueuedConnection)
         self._execution_status_delivered.connect(self._on_execution_status, Qt.ConnectionType.QueuedConnection)
@@ -767,15 +773,23 @@ class QuickPDFController(QObject):
         if self._selection is not None or self.snapshot["busy"]:
             return
 
+        home_str = str(Path.home())
         hits = []
         for h in snapshot.hits:
+            display_path = h.path
+            if display_path.startswith(home_str):
+                display_path = "~" + display_path[len(home_str):]
+            snippet = h.snippet or display_path
+            if snippet.startswith(home_str):
+                snippet = "~" + snippet[len(home_str):]
             hits.append({
                 "resource_id": h.resource_id,
                 "kind": h.kind,
                 "title": h.title,
                 "path": h.path,
+                "display_path": display_path,
                 "origin": h.origin,
-                "snippet": h.snippet or h.path,
+                "snippet": snippet,
                 "bundle_id": h.bundle_id or "",
                 "is_pdf": h.path.lower().endswith(".pdf"),
             })
@@ -846,6 +860,54 @@ class QuickPDFController(QObject):
         if 0 <= index < len(self._finder_hits):
             hit = self._finder_hits[index]
             return self.askAboutHit(hit["path"], query)
+        return False
+
+    @pyqtSlot(str, result=bool)
+    def revealInFinder(self, path: str) -> bool:
+        if not path:
+            return False
+        p = Path(path).resolve()
+        if not p.exists():
+            self._show_error("file_not_found")
+            return False
+        if self._reveal_file is not None:
+            return bool(self._reveal_file(str(p)))
+        if sys.platform == "darwin":
+            try:
+                subprocess.Popen(["open", "-R", str(p)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except Exception:
+                return False
+        return False
+
+    @pyqtSlot(int, result=bool)
+    def revealSelectedInFinder(self, index: int) -> bool:
+        if 0 <= index < len(self._finder_hits):
+            return self.revealInFinder(self._finder_hits[index]["path"])
+        return False
+
+    @pyqtSlot(str, result=bool)
+    def previewHit(self, path: str) -> bool:
+        if not path:
+            return False
+        p = Path(path).resolve()
+        if not p.exists():
+            self._show_error("file_not_found")
+            return False
+        if self._preview_file is not None:
+            return bool(self._preview_file(str(p)))
+        if sys.platform == "darwin":
+            try:
+                subprocess.Popen(["qlmanage", "-p", str(p)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except Exception:
+                return False
+        return False
+
+    @pyqtSlot(int, result=bool)
+    def previewSelectedHit(self, index: int) -> bool:
+        if 0 <= index < len(self._finder_hits):
+            return self.previewHit(self._finder_hits[index]["path"])
         return False
 
     @pyqtSlot(result=bool)

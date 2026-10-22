@@ -379,3 +379,41 @@ def test_quick_finder_keyboard_navigation_and_actions(finder_fixture):
 
     view.close()
     controller.close()
+
+
+def test_quick_finder_reveal_and_preview_actions(finder_fixture):
+    """Verify quicklook preview and reveal in Finder actions work and shorten home path."""
+    app = QApplication.instance() or QApplication([])
+    revealed = []
+    previewed = []
+
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+        reveal_file=lambda p: revealed.append(p) or True,
+        preview_file=lambda p: previewed.append(p) or True,
+    )
+    controller.ready()
+
+    controller.onComposerTextChanged("calc")
+    _process_events(200)
+
+    hits = controller.snapshot["finderHits"]
+    assert len(hits) >= 1
+    hit = hits[0]
+
+    # Home path is shortened to ~
+    assert not hit["display_path"].startswith(str(Path.home())) or "~" in hit["display_path"]
+
+    # Reveal in finder
+    assert controller.revealSelectedInFinder(0) is True
+    assert len(revealed) == 1
+    assert "Calculator.app" in revealed[0]
+
+    # QuickLook preview
+    assert controller.previewSelectedHit(0) is True
+    assert len(previewed) == 1
+    assert "Calculator.app" in previewed[0]
+
+    controller.close()
