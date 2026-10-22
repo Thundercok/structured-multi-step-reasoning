@@ -417,3 +417,86 @@ def test_quick_finder_reveal_and_preview_actions(finder_fixture):
     assert "Calculator.app" in previewed[0]
 
     controller.close()
+
+
+def test_quick_finder_spotlight_sections_and_action_bar(finder_fixture):
+    """Verify section grouping, isQuestionQuery, bottomActionBar, and contextChip in QML."""
+    app = QApplication.instance() or QApplication([])
+
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+    )
+    controller.ready()
+
+    # 1. Search for 'c' to get both apps and files
+    controller.onComposerTextChanged("c")
+    _process_events(200)
+
+    snap = controller.snapshot
+    hits = snap["finderHits"]
+    assert len(hits) >= 1
+
+    # Verify section header flags
+    app_hits = [h for h in hits if h["kind"] == "application"]
+    if app_hits:
+        assert app_hits[0]["is_first_of_section"] is True
+        assert app_hits[0]["section_title"] == "ỨNG DỤNG"
+
+    doc_hits = [h for h in hits if h["kind"] != "application"]
+    if doc_hits:
+        assert doc_hits[0]["is_first_of_section"] is True
+        assert doc_hits[0]["section_title"] == "TÀI LIỆU & TỆP"
+
+    # 2. Test conversational / question query detection
+    controller.onComposerTextChanged("sao phải dùng mid + 1?")
+    _process_events(100)
+    assert controller.snapshot["isQuestionQuery"] is True
+
+    controller.onComposerTextChanged("calculator")
+    _process_events(100)
+    assert controller.snapshot["isQuestionQuery"] is False
+
+    # 3. Mount in QML to test bottomActionBar and contextChip visibility
+    view = QQuickView()
+    view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(Path("rat/ui/quick/PDFDesk.qml").resolve())))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.show()
+    _process_events(50)
+
+    # When search hits exist and selectedFinderIndex >= 0
+    controller.onComposerTextChanged("calc")
+    _process_events(200)
+
+    bottom_action_bar = root.findChild(QQuickItem, "bottomActionBar")
+    assert bottom_action_bar is not None
+    # Initially selectedFinderIndex is -1 so bottomActionBar is hidden
+    assert not bottom_action_bar.isVisible()
+
+    # Select hit 0 -> bottom action bar becomes visible
+    root.setProperty("selectedFinderIndex", 0)
+    _process_events(50)
+    assert bottom_action_bar.isVisible()
+
+    # Test contextChip appears when activeContext is present
+    context_chip = root.findChild(QQuickItem, "contextChip")
+    assert context_chip is not None
+    assert not context_chip.isVisible()
+
+    from rat.engine.selected_pdf import SelectedPDF
+    controller._selection = SelectedPDF(Path("/tmp/quy_che.pdf"), 20, (0, 0, 0, 0))
+    controller.changed.emit()
+    _process_events(50)
+
+    assert context_chip.isVisible()
+
+    # Clear active context -> chip hides
+    controller.clearActiveContext()
+    _process_events(50)
+    assert not context_chip.isVisible()
+
+    view.close()
+    controller.close()

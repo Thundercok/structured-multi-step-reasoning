@@ -425,6 +425,25 @@ Rectangle {
                         background: null
                         Accessible.name: "Câu trả lời của trợ lý"
                     }
+                    // Grounding Citation bar if referencing an authoritative document
+                    RowLayout {
+                        visible: desk.liveSnapshot.view === "answer" && Boolean(desk.liveSnapshot.fileName)
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Label {
+                            text: "Nguồn tham chiếu:"
+                            color: desk.muted
+                            font.pixelSize: 12
+                        }
+
+                        QuietButton {
+                            objectName: "openPdfCitation"
+                            text: "📄 Đọc tài liệu: " + desk.liveSnapshot.fileName
+                            primary: true
+                            onClicked: desk.liveController.jumpToPdfPage(1)
+                        }
+                    }
                     Label {
                         visible: desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "finder"
                         Layout.fillWidth: true
@@ -482,170 +501,272 @@ Rectangle {
                         Layout.fillWidth: true
                         spacing: 8
 
-                        Label {
-                            visible: (desk.liveSnapshot.finderHits || []).length === 0
-                            text: "Không tìm thấy tệp hoặc ứng dụng nào khớp. Nhấn Enter để hỏi trợ lý AI."
-                            color: desk.muted
-                            font.pixelSize: 13
-                            wrapMode: Text.Wrap
+                        // Smart AI Query card when query is conversational or no hits found
+                        Rectangle {
+                            id: smartAiCard
+                            objectName: "smartAiCard"
+                            visible: (desk.liveSnapshot.finderHits || []).length === 0 || Boolean(desk.liveSnapshot.isQuestionQuery)
                             Layout.fillWidth: true
+                            implicitHeight: 52
+                            radius: 10
+                            color: desk.darkMode ? "#2b3427" : "#edf4e8"
+                            border.color: desk.accent
+                            border.width: 1
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (desk.liveController) {
+                                        desk.liveController.submit(editor.text)
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 12
+                                spacing: 10
+
+                                Label {
+                                    text: "✨"
+                                    font.pixelSize: 18
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Label {
+                                        text: "Hỏi trợ lý AI: \"" + (editor.text || "").trim() + "\""
+                                        color: desk.ink
+                                        font.pixelSize: 13
+                                        font.weight: Font.Medium
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                    }
+                                    Label {
+                                        text: "↵ Nhấn Enter để gửi trực tiếp tới bộ điều phối CoT"
+                                        color: desk.accent
+                                        font.pixelSize: 11
+                                    }
+                                }
+                            }
                         }
 
                         Repeater {
                             id: finderRepeater
                             model: desk.liveSnapshot.finderHits || []
-                            Rectangle {
+                            ColumnLayout {
                                 required property var modelData
                                 required property int index
-                                objectName: "finderHit_" + index
                                 Layout.fillWidth: true
-                                implicitHeight: hitRow.implicitHeight + 14
-                                radius: 10
-                                readonly property bool isSelected: desk.selectedFinderIndex === index
-                                color: isSelected ? (desk.darkMode ? "#343d2f" : "#edf2e6") : desk.backingColor
-                                border.color: isSelected ? desk.accent : desk.edge
-                                border.width: isSelected ? 2 : 1
+                                spacing: 4
 
-                                MouseArea {
-                                    anchors.fill: parent
-                                    z: 0
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onEntered: desk.selectedFinderIndex = index
-                                    onClicked: {
-                                        desk.selectedFinderIndex = index
-                                        editor.forceActiveFocus()
-                                    }
-                                    onDoubleClicked: {
-                                        desk.liveController.openSelectedHit(index)
-                                    }
+                                // Section header when category changes
+                                Label {
+                                    visible: Boolean(modelData.is_first_of_section)
+                                    text: modelData.section_title || ""
+                                    color: desk.muted
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                    Layout.topMargin: index === 0 ? 0 : 8
+                                    Layout.bottomMargin: 2
                                 }
 
-                                RowLayout {
-                                    id: hitRow
-                                    z: 1
-                                    anchors.fill: parent
-                                    anchors.margins: 8
-                                    spacing: 10
+                                Rectangle {
+                                    id: hitCard
+                                    objectName: "finderHit_" + index
+                                    Layout.fillWidth: true
+                                    implicitHeight: hitRow.implicitHeight + 14
+                                    radius: 10
+                                    readonly property bool isSelected: desk.selectedFinderIndex === index
+                                    color: hitCard.isSelected ? (desk.darkMode ? "#343d2f" : "#edf2e6") : desk.backingColor
+                                    border.color: hitCard.isSelected ? desk.accent : desk.edge
+                                    border.width: hitCard.isSelected ? 2 : 1
 
-                                    Rectangle {
-                                        width: 30
-                                        height: 30
-                                        radius: 6
-                                        color: modelData.kind === "application" ? desk.accent : desk.paperColor
-                                        border.color: desk.edge
-
-                                        Label {
-                                            anchors.centerIn: parent
-                                            text: modelData.kind === "application" ? "⬚" : (modelData.is_pdf ? "▤" : "📄")
-                                            color: modelData.kind === "application" ? desk.accentText : desk.ink
-                                            font.pixelSize: 14
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        z: 0
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onEntered: desk.selectedFinderIndex = index
+                                        onClicked: {
+                                            desk.selectedFinderIndex = index
+                                            editor.forceActiveFocus()
                                         }
-                                    }
-
-                                    ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 2
-
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 6
-                                            Label {
-                                                text: modelData.title
-                                                textFormat: Text.PlainText
-                                                color: desk.ink
-                                                font.pixelSize: 13
-                                                font.weight: Font.Medium
-                                                elide: Text.ElideRight
-                                                Layout.fillWidth: true
-                                            }
-                                            Rectangle {
-                                                width: kindBadge.implicitWidth + 8
-                                                height: 18
-                                                radius: 4
-                                                color: modelData.kind === "application" ? desk.accent : desk.paperColor
-                                                border.color: desk.edge
-                                                Label {
-                                                    id: kindBadge
-                                                    anchors.centerIn: parent
-                                                    text: modelData.kind === "application" ? "App" : (modelData.is_pdf ? "PDF" : "Tệp")
-                                                    color: modelData.kind === "application" ? desk.accentText : desk.muted
-                                                    font.pixelSize: 10
-                                                }
-                                            }
-                                            Rectangle {
-                                                visible: isSelected
-                                                width: keyHint.implicitWidth + 10
-                                                height: 18
-                                                radius: 4
-                                                color: desk.accent
-                                                Label {
-                                                    id: keyHint
-                                                    anchors.centerIn: parent
-                                                    text: modelData.is_pdf ? "↵ Đọc · ⇧↵ Hỏi" : (modelData.kind === "application" ? "↵ Mở" : "↵ Mở · ⇧↵ Hỏi")
-                                                    color: desk.accentText
-                                                    font.pixelSize: 10
-                                                    font.weight: Font.Medium
-                                                }
-                                            }
-                                        }
-
-                                        Label {
-                                            text: modelData.snippet || modelData.display_path || modelData.path
-                                            textFormat: Text.PlainText
-                                            color: desk.muted
-                                            font.pixelSize: 11
-                                            elide: Text.ElideMiddle
-                                            Layout.fillWidth: true
+                                        onDoubleClicked: {
+                                            desk.liveController.openSelectedHit(index)
                                         }
                                     }
 
                                     RowLayout {
-                                        spacing: 6
-                                        QuietButton {
-                                            visible: Boolean(modelData.is_pdf)
-                                            text: "Đọc trực tiếp"
-                                            primary: true
-                                            onClicked: desk.liveController.openPdfHit(modelData.path)
-                                        }
-                                        QuietButton {
-                                            visible: Boolean(modelData.is_pdf)
-                                            text: "Hỏi về PDF"
-                                            onClicked: {
-                                                desk.liveController.selectFile(modelData.path)
-                                                editor.forceActiveFocus()
+                                        id: hitRow
+                                        z: 1
+                                        anchors.fill: parent
+                                        anchors.margins: 8
+                                        spacing: 10
+
+                                        Rectangle {
+                                            width: 32
+                                            height: 32
+                                            radius: 6
+                                            color: modelData.kind === "application" ? desk.accent : desk.paperColor
+                                            border.color: desk.edge
+
+                                            Label {
+                                                anchors.centerIn: parent
+                                                text: modelData.kind === "application" ? "⬚" : (modelData.is_pdf ? "▤" : "📄")
+                                                color: modelData.kind === "application" ? desk.accentText : desk.ink
+                                                font.pixelSize: 15
                                             }
                                         }
-                                        QuietButton {
-                                            visible: modelData.kind === "application"
-                                            text: "Mở ứng dụng"
-                                            primary: true
-                                            onClicked: desk.liveController.openHit(modelData.path)
+
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 2
+
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 6
+                                                Label {
+                                                    text: modelData.title
+                                                    textFormat: Text.PlainText
+                                                    color: desk.ink
+                                                    font.pixelSize: 13
+                                                    font.weight: Font.Medium
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                }
+                                                Rectangle {
+                                                    width: kindBadge.implicitWidth + 8
+                                                    height: 18
+                                                    radius: 4
+                                                    color: modelData.kind === "application" ? desk.accent : desk.paperColor
+                                                    border.color: desk.edge
+                                                    Label {
+                                                        id: kindBadge
+                                                        anchors.centerIn: parent
+                                                        text: modelData.kind === "application" ? "App" : (modelData.is_pdf ? "PDF" : "Tệp")
+                                                        color: modelData.kind === "application" ? desk.accentText : desk.muted
+                                                        font.pixelSize: 10
+                                                    }
+                                                }
+                                                Rectangle {
+                                                    visible: hitCard.isSelected
+                                                    width: keyHint.implicitWidth + 10
+                                                    height: 18
+                                                    radius: 4
+                                                    color: desk.accent
+                                                    Label {
+                                                        id: keyHint
+                                                        anchors.centerIn: parent
+                                                        text: modelData.is_pdf ? "↵ Đọc · ⇧↵ Hỏi" : (modelData.kind === "application" ? "↵ Mở" : "↵ Mở · ⇧↵ Hỏi")
+                                                        color: desk.accentText
+                                                        font.pixelSize: 10
+                                                        font.weight: Font.Medium
+                                                    }
+                                                }
+                                            }
+
+                                            Label {
+                                                text: modelData.snippet || modelData.display_path || modelData.path
+                                                textFormat: Text.PlainText
+                                                color: desk.muted
+                                                font.pixelSize: 11
+                                                elide: Text.ElideMiddle
+                                                Layout.fillWidth: true
+                                            }
                                         }
-                                        QuietButton {
-                                            visible: modelData.kind === "file" && !modelData.is_pdf
-                                            text: "Mở tệp"
-                                            onClicked: desk.liveController.openHit(modelData.path)
-                                        }
-                                        QuietButton {
-                                            visible: modelData.kind === "file" && !modelData.is_pdf
-                                            text: "Hỏi về tệp"
-                                            primary: true
-                                            onClicked: desk.liveController.askAboutHit(modelData.path, editor.text)
-                                        }
-                                        QuietButton {
-                                            visible: Boolean(modelData.path)
-                                            text: "👁"
-                                            Accessible.name: "Xem nhanh QuickLook"
-                                            onClicked: desk.liveController.previewHit(modelData.path)
-                                        }
-                                        QuietButton {
-                                            visible: Boolean(modelData.path)
-                                            text: "↗"
-                                            Accessible.name: "Hiện trong Finder"
-                                            onClicked: desk.liveController.revealInFinder(modelData.path)
+
+                                        // Subtle action shortcuts for mouse users
+                                        RowLayout {
+                                            spacing: 4
+                                            visible: hitCard.isSelected
+                                            QuietButton {
+                                                visible: Boolean(modelData.path)
+                                                text: "👁"
+                                                Accessible.name: "Xem nhanh QuickLook"
+                                                onClicked: desk.liveController.previewHit(modelData.path)
+                                            }
+                                            QuietButton {
+                                                visible: Boolean(modelData.path)
+                                                text: "↗"
+                                                Accessible.name: "Hiện trong Finder"
+                                                onClicked: desk.liveController.revealInFinder(modelData.path)
+                                            }
                                         }
                                     }
+                                }
+                            }
+                        }
+
+                        // Bottom Action Bar reflecting selected hit actions cleanly
+                        Rectangle {
+                            id: bottomActionBar
+                            objectName: "bottomActionBar"
+                            visible: desk.selectedFinderIndex >= 0 && desk.selectedFinderIndex < (desk.liveSnapshot.finderHits || []).length
+                            Layout.fillWidth: true
+                            implicitHeight: 38
+                            radius: 8
+                            color: desk.darkMode ? "#242820" : "#f0f4ea"
+                            border.color: desk.edge
+
+                            readonly property var selectedHit: (desk.liveSnapshot.finderHits || [])[desk.selectedFinderIndex] || ({})
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 4
+                                spacing: 8
+
+                                Label {
+                                    text: "Hành động khả dụng:"
+                                    font.pixelSize: 11
+                                    color: desk.muted
+                                    Layout.leftMargin: 6
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                QuietButton {
+                                    visible: Boolean(bottomActionBar.selectedHit.is_pdf)
+                                    text: "↵ Đọc trực tiếp"
+                                    primary: true
+                                    onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
+                                }
+                                QuietButton {
+                                    visible: Boolean(bottomActionBar.selectedHit.is_pdf)
+                                    text: "⇧↵ Hỏi về PDF"
+                                    onClicked: {
+                                        desk.liveController.selectFile(bottomActionBar.selectedHit.path)
+                                        editor.forceActiveFocus()
+                                    }
+                                }
+                                QuietButton {
+                                    visible: bottomActionBar.selectedHit.kind === "application"
+                                    text: "↵ Mở ứng dụng"
+                                    primary: true
+                                    onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
+                                }
+                                QuietButton {
+                                    visible: bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
+                                    text: "↵ Mở tệp"
+                                    onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
+                                }
+                                QuietButton {
+                                    visible: bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
+                                    text: "⇧↵ Hỏi về tệp"
+                                    primary: true
+                                    onClicked: desk.liveController.askAboutSelectedHit(desk.selectedFinderIndex, editor.text)
+                                }
+                                QuietButton {
+                                    visible: Boolean(bottomActionBar.selectedHit.path)
+                                    text: "⌘Y Xem nhanh"
+                                    onClicked: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)
+                                }
+                                QuietButton {
+                                    visible: Boolean(bottomActionBar.selectedHit.path)
+                                    text: "⌘↵ Thư mục"
+                                    onClicked: desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex)
                                 }
                             }
                         }
@@ -771,7 +892,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.rightMargin: 20
             anchors.bottom: parent.bottom
-            height: desk.phase === "startup" ? 94 : Math.max(94, editorColumn.implicitHeight + 26)
+            height: desk.phase === "startup" ? 94 : Math.min(148, Math.max(94, editorColumn.implicitHeight + 18))
             radius: 18
             color: desk.inputColor
             border.color: editor.activeFocus ? desk.accent : desk.edge
@@ -803,13 +924,65 @@ Rectangle {
                 y: 13
                 width: parent.width - 28
                 spacing: 7
+
+                // Active Context Chip (shows attached file/PDF or prior context)
+                Rectangle {
+                    id: contextChip
+                    objectName: "contextChip"
+                    visible: Boolean(desk.liveSnapshot.activeContext)
+                    implicitHeight: 20
+                    implicitWidth: chipRow.implicitWidth + 12
+                    radius: 5
+                    color: desk.darkMode ? "#2e3b2b" : "#e6f0e2"
+                    border.color: desk.accent
+                    border.width: 1
+
+                    RowLayout {
+                        id: chipRow
+                        anchors.centerIn: parent
+                        spacing: 4
+
+                        Label {
+                            text: desk.liveSnapshot.activeContext ? (desk.liveSnapshot.activeContext.type === "pdf" ? "▤" : "📄") : ""
+                            font.pixelSize: 11
+                            color: desk.accent
+                        }
+
+                        Label {
+                            text: desk.liveSnapshot.activeContext ? (desk.liveSnapshot.activeContext.title + " · " + desk.liveSnapshot.activeContext.subtitle) : ""
+                            font.pixelSize: 11
+                            font.weight: Font.Medium
+                            color: desk.ink
+                            elide: Text.ElideMiddle
+                            Layout.maximumWidth: composer.width - 100
+                        }
+
+                        MouseArea {
+                            width: 16
+                            height: 16
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (desk.liveController) {
+                                    desk.liveController.clearActiveContext()
+                                }
+                            }
+                            Label {
+                                anchors.centerIn: parent
+                                text: "✕"
+                                font.pixelSize: 10
+                                color: desk.muted
+                            }
+                        }
+                    }
+                }
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 12
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignTop
-                        Layout.preferredHeight: Math.min(78, Math.max(30, editor.contentHeight + 4))
+                        Layout.preferredHeight: Math.min(contextChip.visible ? 56 : 78, Math.max(30, editor.contentHeight + 4))
                         contentWidth: availableWidth
                         clip: true
                     TextArea {

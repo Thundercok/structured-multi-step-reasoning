@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 from dataclasses import dataclass, field
+import hashlib
 import logging
 from pathlib import Path
 import subprocess
@@ -32,7 +33,7 @@ from rat.engine.execution import (
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
 from rat.ui.assistant_worker import create_execution_worker
-from rat.kernel.contracts import Artifact
+from rat.kernel.contracts import Artifact, SourceEvidence
 
 logger = logging.getLogger("rat.ui.quick_pdf_controller")
 
@@ -265,6 +266,24 @@ class QuickPDFController(QObject):
             title = "Cần xem lại PDF hoặc yêu cầu."
         else:
             title = self._status
+
+        active_context = None
+        if self._selection is not None:
+            active_context = {
+                "type": "pdf",
+                "title": self._selection.path.name,
+                "subtitle": f"Trang {page.get('page', 1)}/{self._selection.page_count}" if page else f"{self._selection.page_count} trang",
+                "path": str(self._selection.path),
+            }
+        elif self._assistant_sources:
+            src = self._assistant_sources[-1]
+            active_context = {
+                "type": "file",
+                "title": src.get("name", "Tệp"),
+                "subtitle": "Tệp đính kèm",
+                "path": src.get("path", ""),
+            }
+
         return {
             "phase": "startup" if not self._ready else "working" if busy else "result" if self._view != "none" else "idle",
             "busy": busy,
@@ -274,6 +293,7 @@ class QuickPDFController(QObject):
             "view": view,
             "fileName": self._selection.path.name if self._selection else "",
             "pageCount": self._selection.page_count if self._selection else 0,
+            "activeContext": active_context,
             "title": title,
             "status": self._status,
             "query": self._last_user_query or search.get("query", ""),
@@ -295,6 +315,11 @@ class QuickPDFController(QObject):
             "events": list(self._events),
             "finderHits": list(self._finder_hits),
             "finderQuery": self._finder_query,
+            "isQuestionQuery": bool(
+                self._finder_query.startswith(("?", "¿"))
+                or any(self._finder_query.lower().startswith(w) for w in ["sao ", "tại sao ", "giải thích ", "làm sao ", "how ", "why ", "what "])
+                or len(self._finder_query.split()) >= 5
+            ),
         }
 
     @pyqtSlot()
@@ -342,6 +367,30 @@ class QuickPDFController(QObject):
             path = value
         self._status = "Đang kiểm tra PDF…"
         self._begin("select", path)
+
+    @pyqtSlot()
+    def clearActiveContext(self):
+        """Clear active file or PDF context, allowing the user to ask standalone queries."""
+        if self._request:
+            self._request.cancelled.set()
+            self._request = None
+        self._selection = None
+        self._assistant_sources = []
+        self._search = self._page = None
+        self._view = "answer" if self._last_assistant_answer else "none"
+        self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
+        self.changed.emit()
+
+    @pyqtSlot(int, result=bool)
+    def jumpToPdfPage(self, page_number: int) -> bool:
+        """Jump to a specific PDF page, e.g. from an in-text citation click."""
+        if self._selection is not None and 1 <= page_number <= self._selection.page_count:
+            self.readPage(page_number)
+            self._view = "page"
+            self._expanded = True
+            self.changed.emit()
+            return True
+        return False
 
     @pyqtSlot(str)
     def submitQuery(self, query: str):
@@ -587,6 +636,37 @@ class QuickPDFController(QObject):
 
         lane = "reasoning" if engine is not None else "auto"
 
+        source_evidence = []
+        if self._selection is not None:
+            pdf_path_str = str(self._selection.path)
+            try:
+                pdf_sha = hashlib.sha256(self._selection.path.read_bytes()[:65536]).hexdigest()
+            except Exception:
+                pdf_sha = ""
+            current_pg = self._page.get("page", 1) if self._page else 1
+            excerpt = (self._page.get("content", "") if self._page else "")[:1000]
+            source_evidence.append({
+                "source_id": f"src-pdf-{self._selection.path.stem}",
+                "kind": "pdf_page",
+                "path": pdf_path_str,
+                "page_num": current_pg,
+                "excerpt": excerpt,
+                "sha256": pdf_sha,
+                "provenance": {"title": self._selection.path.name, "page_count": self._selection.page_count},
+            })
+
+        for i, src in enumerate(self._assistant_sources):
+            content = src.get("content", "")
+            sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
+            source_evidence.append({
+                "source_id": f"src-file-{i+1}",
+                "kind": "file_excerpt",
+                "path": src.get("path", ""),
+                "excerpt": content[:1000],
+                "sha256": sha,
+                "provenance": {"name": src.get("name", "")},
+            })
+
         request = ExecutionRequest(
             q,
             execution_id=execution_id,
@@ -598,6 +678,8 @@ class QuickPDFController(QObject):
                 "turn_references": turn_references,
                 "artifact_refs": active_arts,
                 "previous_sources": list(self._assistant_sources),
+                "source_evidence": source_evidence,
+                "requires_grounding": bool(source_evidence),
                 "task_state": dict(self._assistant_task_state),
             },
         )
@@ -774,7 +856,7 @@ class QuickPDFController(QObject):
             return
 
         home_str = str(Path.home())
-        hits = []
+        raw_hits = []
         for h in snapshot.hits:
             display_path = h.path
             if display_path.startswith(home_str):
@@ -782,7 +864,7 @@ class QuickPDFController(QObject):
             snippet = h.snippet or display_path
             if snippet.startswith(home_str):
                 snippet = "~" + snippet[len(home_str):]
-            hits.append({
+            raw_hits.append({
                 "resource_id": h.resource_id,
                 "kind": h.kind,
                 "title": h.title,
@@ -793,6 +875,22 @@ class QuickPDFController(QObject):
                 "bundle_id": h.bundle_id or "",
                 "is_pdf": h.path.lower().endswith(".pdf"),
             })
+
+        # Group by category: Applications first, then Files & PDFs
+        apps = [h for h in raw_hits if h["kind"] == "application"]
+        docs = [h for h in raw_hits if h["kind"] != "application"]
+        hits = []
+        if apps:
+            for i, h in enumerate(apps):
+                h["is_first_of_section"] = (i == 0)
+                h["section_title"] = "ỨNG DỤNG"
+                hits.append(h)
+        if docs:
+            for i, h in enumerate(docs):
+                h["is_first_of_section"] = (i == 0)
+                h["section_title"] = "TÀI LIỆU & TỆP"
+                hits.append(h)
+
         self._finder_hits = hits
         self._view = "finder"
         count = len(hits)

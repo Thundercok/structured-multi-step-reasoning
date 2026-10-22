@@ -17,7 +17,51 @@ from dataclasses import dataclass, field
 import threading
 import time
 from uuid import uuid4
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
+
+@dataclass
+class SourceEvidence:
+    """Immutable evidence binding a claim or reasoning step to an authoritative source."""
+
+    source_id: str
+    kind: str  # "pdf_page" | "file_excerpt" | "artifact" | "turn"
+    path: str = ""
+    page_num: Optional[int] = None
+    char_span: Optional[Tuple[int, int]] = None
+    excerpt: str = ""
+    sha256: str = ""
+    provenance: Dict[str, Any] = field(default_factory=dict)
+    created_at: float = field(default_factory=time.time)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "source_id": self.source_id,
+            "kind": self.kind,
+            "path": self.path,
+            "page_num": self.page_num,
+            "char_span": list(self.char_span) if self.char_span else None,
+            "excerpt": self.excerpt,
+            "sha256": self.sha256,
+            "provenance": copy.deepcopy(self.provenance),
+            "created_at": self.created_at,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> SourceEvidence:
+        span = data.get("char_span")
+        char_span = tuple(span) if isinstance(span, (list, tuple)) and len(span) == 2 else None
+        return cls(
+            source_id=data.get("source_id", ""),
+            kind=data.get("kind", "file_excerpt"),
+            path=data.get("path", ""),
+            page_num=data.get("page_num"),
+            char_span=char_span,
+            excerpt=data.get("excerpt", ""),
+            sha256=data.get("sha256", ""),
+            provenance=dict(data.get("provenance", {})),
+            created_at=data.get("created_at", time.time()),
+        )
 
 
 @dataclass

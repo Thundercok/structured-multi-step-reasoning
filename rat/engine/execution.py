@@ -28,6 +28,8 @@ def build_execution_context_snapshot(
     task_state = copy.deepcopy(ctx.get("task_state") or {})
     previous_sources = copy.deepcopy(ctx.get("previous_sources") or [])
     artifact_refs = copy.deepcopy(ctx.get("artifact_refs") or [])
+    source_evidence = copy.deepcopy(ctx.get("source_evidence") or [])
+    requires_grounding = bool(ctx.get("requires_grounding", False))
 
     turn_ref_dict = None
     if turn_ref is not None:
@@ -57,6 +59,8 @@ def build_execution_context_snapshot(
         "task_state": task_state,
         "previous_sources": previous_sources,
         "artifact_refs": artifact_refs,
+        "source_evidence": source_evidence,
+        "requires_grounding": requires_grounding,
     }
 
     canonical_bytes = json.dumps(snapshot, sort_keys=True, ensure_ascii=False, default=str).encode("utf-8")
@@ -74,10 +78,11 @@ def render_backend_input(query: str, snapshot: Optional[Dict[str, Any]] = None) 
     has_refs = bool(snapshot.get("turn_references"))
     has_task = bool(snapshot.get("task_state"))
     has_artifacts = bool(snapshot.get("artifact_refs"))
+    has_evidence = bool(snapshot.get("source_evidence"))
     t_ref = snapshot.get("turn_ref") or {}
     has_target = bool(t_ref.get("target_turn_id") or t_ref.get("target_artifact_id"))
 
-    if not (has_history or has_refs or has_task or has_artifacts or has_target):
+    if not (has_history or has_refs or has_task or has_artifacts or has_target or has_evidence):
         return clean_q
 
     sections = [f"[Conversation Context (schema: {snapshot.get('schema_version', CONTEXT_ADAPTER_SCHEMA_VERSION)})]"]
@@ -118,6 +123,24 @@ def render_backend_input(query: str, snapshot: Optional[Dict[str, Any]] = None) 
             art_summaries.append(f"{aid}@v{rev} inputs={inputs}")
         sections.append(f"Artifact State: {'; '.join(art_summaries)}")
 
+    if has_evidence:
+        sections.append("Authoritative Source Evidence (Grounding):")
+        for ev in snapshot["source_evidence"]:
+            ev_id = ev.get("source_id", "src")
+            kind = ev.get("kind", "source")
+            loc = []
+            if ev.get("path"):
+                loc.append(str(ev.get("path")))
+            if ev.get("page_num"):
+                loc.append(f"Page {ev.get('page_num')}")
+            loc_str = f" [{', '.join(loc)}]" if loc else ""
+            sha = f" sha256:{ev.get('sha256')[:8]}" if ev.get("sha256") else ""
+            excerpt = (ev.get("excerpt") or "").strip()
+            if excerpt:
+                sections.append(f"- [{ev_id}] ({kind}{loc_str}{sha}): \"{excerpt}\"")
+            else:
+                sections.append(f"- [{ev_id}] ({kind}{loc_str}{sha})")
+
     sections.append("\n[Current Request]")
     sections.append(clean_q)
     return "\n".join(sections)
@@ -125,6 +148,8 @@ def render_backend_input(query: str, snapshot: Optional[Dict[str, Any]] = None) 
 
 def validate_referenced_context(snapshot):
     """Explicit references are required inputs, rather than hints to guess at."""
+    if snapshot.get("requires_grounding") and not snapshot.get("source_evidence"):
+        raise ValueError("missing_grounding_evidence")
     target = snapshot.get("turn_ref") or {}
     turn_id = target.get("target_turn_id")
     if turn_id and not any(ref.get("turn_id") == turn_id
