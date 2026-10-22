@@ -24,6 +24,7 @@ Rectangle {
     property bool readyForMotion: false
     property var liveController: null
     property var liveSnapshot: ({})
+    property int selectedFinderIndex: -1
     readonly property bool liveMode: liveController !== null
     property bool floatingWindow: liveMode
     property real maxPaperHeight: 420
@@ -51,6 +52,8 @@ Rectangle {
         if (next.pageNumber !== liveSnapshot.pageNumber || next.fileName !== liveSnapshot.fileName || next.view !== "page") copied = false
         if (next.fileName !== liveSnapshot.fileName) pagePicker.value = 1
         if (next.view === "page" && next.pageNumber) pagePicker.value = next.pageNumber
+        if (next.view !== "finder") selectedFinderIndex = -1
+        else if (selectedFinderIndex >= (next.finderHits || []).length) selectedFinderIndex = -1
         liveSnapshot = next
         phase = next.phase
         expanded = next.expanded
@@ -475,14 +478,34 @@ Rectangle {
                             model: desk.liveSnapshot.finderHits || []
                             Rectangle {
                                 required property var modelData
+                                required property int index
+                                objectName: "finderHit_" + index
                                 Layout.fillWidth: true
                                 implicitHeight: hitRow.implicitHeight + 14
                                 radius: 10
-                                color: desk.backingColor
-                                border.color: desk.edge
+                                readonly property bool isSelected: desk.selectedFinderIndex === index
+                                color: isSelected ? (desk.darkMode ? "#343d2f" : "#edf2e6") : desk.backingColor
+                                border.color: isSelected ? desk.accent : desk.edge
+                                border.width: isSelected ? 2 : 1
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    z: 0
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onEntered: desk.selectedFinderIndex = index
+                                    onClicked: {
+                                        desk.selectedFinderIndex = index
+                                        editor.forceActiveFocus()
+                                    }
+                                    onDoubleClicked: {
+                                        desk.liveController.openSelectedHit(index)
+                                    }
+                                }
 
                                 RowLayout {
                                     id: hitRow
+                                    z: 1
                                     anchors.fill: parent
                                     anchors.margins: 8
                                     spacing: 10
@@ -530,6 +553,21 @@ Rectangle {
                                                     text: modelData.kind === "application" ? "App" : (modelData.is_pdf ? "PDF" : "Tệp")
                                                     color: modelData.kind === "application" ? desk.accentText : desk.muted
                                                     font.pixelSize: 10
+                                                }
+                                            }
+                                            Rectangle {
+                                                visible: isSelected
+                                                width: keyHint.implicitWidth + 8
+                                                height: 18
+                                                radius: 4
+                                                color: desk.accent
+                                                Label {
+                                                    id: keyHint
+                                                    anchors.centerIn: parent
+                                                    text: "↵ Mở"
+                                                    color: desk.accentText
+                                                    font.pixelSize: 10
+                                                    font.weight: Font.Medium
                                                 }
                                             }
                                         }
@@ -761,16 +799,93 @@ Rectangle {
                         background: null
                         onTextChanged: {
                             if (desk.liveMode) {
+                                desk.selectedFinderIndex = -1
                                 desk.liveController.onComposerTextChanged(text)
                             }
                         }
+                        Keys.onDownPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "finder") {
+                                var hits = desk.liveSnapshot.finderHits || []
+                                if (hits.length > 0) {
+                                    event.accepted = true
+                                    if (desk.selectedFinderIndex < hits.length - 1) {
+                                        desk.selectedFinderIndex++
+                                    } else {
+                                        desk.selectedFinderIndex = 0
+                                    }
+                                    return
+                                }
+                            }
+                            event.accepted = false
+                        }
+                        Keys.onUpPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "finder") {
+                                var hits = desk.liveSnapshot.finderHits || []
+                                if (hits.length > 0) {
+                                    event.accepted = true
+                                    if (desk.selectedFinderIndex > 0) {
+                                        desk.selectedFinderIndex--
+                                    } else {
+                                        desk.selectedFinderIndex = hits.length - 1
+                                    }
+                                    return
+                                }
+                            }
+                            event.accepted = false
+                        }
+                        Keys.onEscapePressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                event.accepted = true
+                                desk.selectedFinderIndex = -1
+                                return
+                            }
+                            event.accepted = false
+                        }
                         Keys.onReturnPressed: event => {
-                            if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) { event.accepted = true; desk.submitDraft() }
-                            else event.accepted = false
+                            if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
+                                event.accepted = true
+                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                    var idx = desk.selectedFinderIndex
+                                    desk.selectedFinderIndex = -1
+                                    desk.liveController.openSelectedHit(idx)
+                                } else {
+                                    desk.submitDraft()
+                                }
+                            } else if ((event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
+                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                    event.accepted = true
+                                    var idx = desk.selectedFinderIndex
+                                    desk.selectedFinderIndex = -1
+                                    desk.liveController.askAboutSelectedHit(idx, editor.text)
+                                } else {
+                                    event.accepted = false
+                                }
+                            } else {
+                                event.accepted = false
+                            }
                         }
                         Keys.onEnterPressed: event => {
-                            if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) { event.accepted = true; desk.submitDraft() }
-                            else event.accepted = false
+                            if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
+                                event.accepted = true
+                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                    var idx = desk.selectedFinderIndex
+                                    desk.selectedFinderIndex = -1
+                                    desk.liveController.openSelectedHit(idx)
+                                } else {
+                                    desk.submitDraft()
+                                }
+                            } else if ((event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) {
+                                if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0) {
+                                    event.accepted = true
+                                    var idx = desk.selectedFinderIndex
+                                    desk.selectedFinderIndex = -1
+                                    desk.liveController.askAboutSelectedHit(idx, editor.text)
+                                } else {
+                                    event.accepted = false
+                                }
+                            } else {
+                                event.accepted = false
+                            }
                         }
                     }
                     }
@@ -887,7 +1002,13 @@ Rectangle {
     Shortcut {
         sequence: "Escape"
         enabled: desk.liveMode && desk.expanded
-        onActivated: desk.foldWorkbench()
+        onActivated: {
+            if (desk.selectedFinderIndex >= 0) {
+                desk.selectedFinderIndex = -1
+            } else {
+                desk.foldWorkbench()
+            }
+        }
     }
     Shortcut {
         sequence: "Ctrl+L"

@@ -830,6 +830,24 @@ class QuickPDFController(QObject):
             })
             return self.submit(q)
 
+    @pyqtSlot(int, result=bool)
+    def openSelectedHit(self, index: int) -> bool:
+        if 0 <= index < len(self._finder_hits):
+            hit = self._finder_hits[index]
+            if hit.get("is_pdf"):
+                self.openPdfHit(hit["path"])
+                return True
+            else:
+                return self.openHit(hit["path"])
+        return False
+
+    @pyqtSlot(int, str, result=bool)
+    def askAboutSelectedHit(self, index: int, query: str = "") -> bool:
+        if 0 <= index < len(self._finder_hits):
+            hit = self._finder_hits[index]
+            return self.askAboutHit(hit["path"], query)
+        return False
+
     @pyqtSlot(result=bool)
     def close(self):
         self._closed = True

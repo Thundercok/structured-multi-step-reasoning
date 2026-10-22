@@ -8,9 +8,14 @@ import tempfile
 import time
 from typing import List
 
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+os.environ.setdefault("QT_QUICK_BACKEND", "software")
+os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
+
 import pytest
 from PyQt6.QtCore import QCoreApplication, QUrl, Qt
 from PyQt6.QtQuick import QQuickItem, QQuickView
+from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication
 
 from rat.crawler.db import Database
@@ -304,6 +309,73 @@ def test_quick_finder_qml_real_surface(finder_fixture):
     editor.setProperty("text", "")
     _process_events(150)
     assert controller.snapshot["view"] == "none"
+
+    view.close()
+    controller.close()
+
+
+def test_quick_finder_keyboard_navigation_and_actions(finder_fixture):
+    """Arrow Up/Down keys cycle through finder hits; Return key opens selected hit."""
+    app = QApplication.instance() or QApplication([])
+    opened_urls = []
+
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+        open_url=lambda url: opened_urls.append(url) or True,
+    )
+
+    view = QQuickView()
+    view.setInitialProperties({
+        "liveController": controller,
+        "darkMode": False,
+        "reduceMotion": True,
+    })
+    qml_path = Path(__file__).resolve().parents[1] / "rat/ui/quick/PDFDesk.qml"
+    view.setSource(QUrl.fromLocalFile(str(qml_path)))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    _process_events(100)
+
+    root = view.rootObject()
+    editor = root.findChild(QQuickItem, "draftEditor")
+    assert editor is not None
+    editor.forceActiveFocus()
+
+    # 1. Type "calc" to get results
+    editor.setProperty("text", "calc")
+    _process_events(300)
+    assert controller.snapshot["view"] == "finder"
+    hits = controller.snapshot["finderHits"]
+    assert len(hits) >= 1
+    assert root.property("selectedFinderIndex") == -1
+
+    # 2. Press Arrow Down -> selects first hit (index 0)
+    QTest.keyClick(view, Qt.Key.Key_Down)
+    _process_events(50)
+    assert root.property("selectedFinderIndex") == 0
+
+    # 3. Press Escape -> clears selection
+    QTest.keyClick(view, Qt.Key.Key_Escape)
+    _process_events(50)
+    assert root.property("selectedFinderIndex") == -1
+
+    # 4. Press Arrow Up -> wraps to last hit
+    QTest.keyClick(view, Qt.Key.Key_Up)
+    _process_events(50)
+    assert root.property("selectedFinderIndex") == len(hits) - 1
+
+    # 5. Cycle back to 0 and press Return to open
+    QTest.keyClick(view, Qt.Key.Key_Down)
+    _process_events(50)
+    assert root.property("selectedFinderIndex") == 0
+
+    QTest.keyClick(view, Qt.Key.Key_Return)
+    _process_events(100)
+    assert len(opened_urls) == 1
+    assert "Calculator.app" in opened_urls[0].toString()
 
     view.close()
     controller.close()

@@ -9,12 +9,27 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 from itertools import islice
+import json
+import os
 from pathlib import Path
 import plistlib
 import re
 import sys
 import unicodedata
 from xml.parsers.expat import ExpatError
+
+
+def _default_catalog_cache_path() -> Path:
+    state_dir = os.environ.get("RAT_STATE_DIR")
+    if state_dir:
+        return Path(state_dir).expanduser() / "app_catalog_cache.json"
+    rat_dir = Path.home() / ".rat"
+    try:
+        if rat_dir.is_dir() and os.access(str(rat_dir), os.W_OK):
+            return rat_dir / "app_catalog_cache.json"
+    except Exception:
+        pass
+    return Path("/tmp/rat_app_catalog_cache.json")
 
 
 def name_key(text):
@@ -101,16 +116,71 @@ class ApplicationCatalog:
     issues: tuple[str, ...] = ()
 
     @classmethod
-    def scan(cls, roots=None, *, aliases=None, max_entries=20000, max_depth=2):
-        """Bounded metadata scan; retain separate installations of one bundle ID."""
+    def scan(
+        cls,
+        roots=None,
+        *,
+        aliases=None,
+        max_entries=20000,
+        max_depth=2,
+        use_cache: bool = True,
+        cache_path: str | Path | None = None,
+    ):
+        """Bounded metadata scan; retain separate installations of one bundle ID.
+
+        If use_cache is True and aliases is None, checks directory mtimes against
+        cached metadata to achieve instant (< 2ms) startup.
+        """
         if max_entries < 1 or max_depth < 0:
             raise ValueError('invalid_app_catalog_budget')
+        is_default_scan = (roots is None and aliases is None and max_entries == 20000 and max_depth == 2)
+        should_cache = (use_cache and cache_path is not None) or (use_cache and is_default_scan)
+
         if roots is None:
             if sys.platform != 'darwin':
                 return cls(issues=('application_catalog_platform_unsupported',))
             roots = ('/Applications', '/System/Applications', Path.home() / 'Applications')
+
+        resolved_roots = [Path(root).expanduser() for root in roots]
+        target_cache = Path(cache_path) if cache_path else _default_catalog_cache_path()
+
+        # Fast cache path: verify directory mtimes
+        if should_cache:
+            try:
+                if target_cache.is_file():
+                    with target_cache.open('r', encoding='utf-8') as f:
+                        cache_data = json.load(f)
+                    if isinstance(cache_data, dict) and cache_data.get('schema_version') == 1:
+                        cached_mtimes = cache_data.get('roots_mtimes', {})
+                        valid = True
+                        for r in resolved_roots:
+                            if r.is_dir():
+                                mtime = r.stat().st_mtime_ns
+                                if cached_mtimes.get(str(r)) != mtime:
+                                    valid = False
+                                    break
+                            elif str(r) in cached_mtimes:
+                                valid = False
+                                break
+                        if valid and 'apps' in cache_data:
+                            cached_apps = [
+                                Application(
+                                    item['resource_id'],
+                                    item['path'],
+                                    item['name'],
+                                    item['bundle_id'],
+                                    item['version'],
+                                    tuple(item.get('names', ())),
+                                )
+                                for item in cache_data['apps']
+                            ]
+                            cached_issues = tuple(cache_data.get('issues', ()))
+                            return cls(tuple(cached_apps), cached_issues)
+            except Exception:
+                pass
+
         apps, issues, seen, inspected = [], set(), set(), 0
-        pending = [(Path(root).expanduser(), 0) for root in roots]
+        pending = [(r, 0) for r in resolved_roots]
         while pending:
             directory, depth = pending.pop()
             try:
@@ -138,7 +208,41 @@ class ApplicationCatalog:
                     seen.add(app.path)
                 except (OSError, ValueError, TypeError, AttributeError, ExpatError, plistlib.InvalidFileException):
                     issues.add('invalid_application_bundle')
-        return cls(tuple(sorted(apps, key=lambda a: (a.name, a.path))), tuple(sorted(issues)))
+
+        catalog_result = cls(tuple(sorted(apps, key=lambda a: (a.name, a.path))), tuple(sorted(issues)))
+
+        # Save to cache atomically
+        if should_cache:
+            try:
+                target_cache.parent.mkdir(parents=True, exist_ok=True)
+                current_mtimes = {}
+                for r in resolved_roots:
+                    if r.is_dir():
+                        current_mtimes[str(r)] = r.stat().st_mtime_ns
+                cache_payload = {
+                    'schema_version': 1,
+                    'roots_mtimes': current_mtimes,
+                    'apps': [
+                        {
+                            'resource_id': a.resource_id,
+                            'path': a.path,
+                            'name': a.name,
+                            'bundle_id': a.bundle_id,
+                            'version': a.version,
+                            'names': list(a.names),
+                        }
+                        for a in catalog_result.applications
+                    ],
+                    'issues': list(catalog_result.issues),
+                }
+                tmp_cache = target_cache.with_name(f"{target_cache.name}.tmp.{os.getpid()}")
+                with tmp_cache.open('w', encoding='utf-8') as f:
+                    json.dump(cache_payload, f)
+                tmp_cache.replace(target_cache)
+            except Exception:
+                pass
+
+        return catalog_result
 
     def search(self, query, *, limit=10):
         if type(limit) is not int or not 1 <= limit <= 100:
