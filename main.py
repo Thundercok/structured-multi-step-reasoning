@@ -8,7 +8,10 @@ Run CLI: python main.py search "file word tuần trước"
          python main.py status
 """
 
+import os
 import sys
+
+os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 from rat.main import main
 
 if __name__ == "__main__":

@@ -262,7 +262,16 @@ Rectangle {
                 spacing: 5
                 Label { visible: !desk.liveSnapshot.canBack; text: desk.liveSnapshot.view === "page" ? "TRANG ĐANG ĐỌC" : (desk.liveSnapshot.view === "answer" ? "CÂU TRẢ LỜI" : (desk.liveSnapshot.view === "finder" ? "TỆP & ỨNG DỤNG" : "TRONG TÀI LIỆU")); font.pixelSize: 10; font.letterSpacing: 1; color: desk.muted }
                 QuietButton { objectName: "backToSearch"; visible: Boolean(desk.liveSnapshot.canBack); text: "← Kết quả tìm"; onClicked: desk.liveController.backToSearch() }
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.OpenHandCursor
+                        onPressed: desk.moveRequested()
+                    }
+                }
                 QuietButton { objectName: "copyCitation"; visible: Boolean(desk.liveSnapshot.canCopy); text: desk.copied ? "Đã chép ✓" : (desk.liveSnapshot.view === "answer" ? "Sao chép" : "Chép trích dẫn"); primary: true; onClicked: desk.requestCopy() }
                 QuietButton { objectName: "liveFoldButton"; text: "−"; Accessible.name: "Thu workbench"; onClicked: desk.foldWorkbench() }
             }
@@ -653,13 +662,15 @@ Rectangle {
             rightPadding: 16
         }
         Item {
+            id: mascotItem
             objectName: "mascotCrop"
             x: 4
-            y: composer.y - 116
+            y: composer.y - 116 + (mascotWobble.running ? mascotWobble.offsetY : 0)
             width: 122
             height: 116
             clip: true
             z: 4
+            rotation: mascotWobble.running ? mascotWobble.rot : 0
             Image {
                 width: 180
                 height: width * (sourceSize.height / Math.max(1, sourceSize.width))
@@ -667,6 +678,22 @@ Rectangle {
                 fillMode: Image.PreserveAspectFit
                 smooth: true
                 Accessible.ignored: true
+            }
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: mascotWobble.restart()
+            }
+            SequentialAnimation {
+                id: mascotWobble
+                property real offsetY: 0
+                property real rot: 0
+                NumberAnimation { target: mascotWobble; property: "offsetY"; from: 0; to: -6; duration: 80; easing.type: Easing.OutQuad }
+                NumberAnimation { target: mascotWobble; property: "rot"; from: 0; to: 3; duration: 60 }
+                NumberAnimation { target: mascotWobble; property: "rot"; from: 3; to: -3; duration: 80 }
+                NumberAnimation { target: mascotWobble; property: "rot"; from: -3; to: 0; duration: 60 }
+                NumberAnimation { target: mascotWobble; property: "offsetY"; from: -6; to: 0; duration: 100; easing.type: Easing.OutBounce }
             }
         }
         Rectangle {

@@ -5,7 +5,10 @@ rat.main — Primary entry point for rat (GUI & CLI).
 from __future__ import annotations
 
 import logging
+import os
 import sys
+
+os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,6 +44,9 @@ def main() -> None:
         elif cmd == "quick-pdf":
             from rat.ui.quick_app import main as quick_pdf_main
             raise SystemExit(quick_pdf_main(sys.argv[2:]))
+        elif cmd.lower().endswith(".pdf"):
+            from rat.ui.quick_app import main as quick_pdf_main
+            raise SystemExit(quick_pdf_main(sys.argv[1:]))
         elif cmd in ("astrology", "natal", "la-so"):
             from rat.os.crash_shield import install_crash_shield
             install_crash_shield()
@@ -75,6 +81,22 @@ def main() -> None:
         elif cmd in ("spotlight", "widgets", "omnibar"):
             run_resident_app(mode="spotlight")
             return
+        elif cmd.startswith("--mode="):
+            target_mode = cmd.split("=", 1)[1]
+            if target_mode in ("quick", "quick-pdf"):
+                from rat.ui.quick_app import main as quick_main
+                raise SystemExit(quick_main(sys.argv[2:]))
+            else:
+                run_resident_app(mode=target_mode)
+                return
+        elif cmd == "--mode" and len(sys.argv) > 2:
+            target_mode = sys.argv[2]
+            if target_mode in ("quick", "quick-pdf"):
+                from rat.ui.quick_app import main as quick_main
+                raise SystemExit(quick_main(sys.argv[3:]))
+            else:
+                run_resident_app(mode=target_mode)
+                return
         elif cmd in ("widget", "mini", "claude"):
             run_resident_app(mode="widget")
             return

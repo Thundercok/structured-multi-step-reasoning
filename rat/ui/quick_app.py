@@ -7,6 +7,8 @@ from pathlib import Path
 import os
 import sys
 
+os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
+
 
 def bind_desk_window(view):
     """Fit the paper surface upwards, retaining the composer's screen anchor."""
@@ -39,9 +41,11 @@ def main(
 ):
     parser = argparse.ArgumentParser(description="RAT — macOS AI Assistant & PDF Desk")
     parser.add_argument("--document", type=Path, help="Open one explicitly selected PDF")
+    parser.add_argument("document_pos", nargs="?", type=Path, help="Optional document path")
     parser.add_argument("--dark", action="store_true")
     parser.add_argument("--reduced-motion", action="store_true")
     args = parser.parse_args(argv)
+    doc_target = args.document or args.document_pos
     os.environ["QT_QUICK_CONTROLS_STYLE"] = "Basic"
     from PyQt6.QtCore import QCoreApplication, QEvent, QTimer, QUrl, Qt
     from PyQt6.QtGui import QFont, QGuiApplication
@@ -105,8 +109,8 @@ def main(
     def initialize():
         controller.ready()
         logging.getLogger(__name__).info("RAT Qt Quick Desk is ready.")
-        if args.document:
-            controller.selectFile(str(args.document.absolute()))
+        if doc_target:
+            controller.selectFile(str(doc_target.absolute()))
 
     QTimer.singleShot(0, initialize)
     try:

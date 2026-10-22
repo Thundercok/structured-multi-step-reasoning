@@ -319,8 +319,8 @@ class QuickPDFController(QObject):
         if not value:
             self._selection = None
             self._search = self._page = None
-            self._view = "none"
-            self._status = "Chuột sẵn sàng. Bạn cần gì?"
+            self._view = "answer" if self._last_assistant_answer else "none"
+            self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
             self.changed.emit()
             return
         self._selection = None
@@ -544,6 +544,12 @@ class QuickPDFController(QObject):
         if not q or self.snapshot["busy"] or self._closed:
             return False
 
+        # Clear finder query and cancel any pending finder jobs
+        self._finder_query = ""
+        self._finder_hits = []
+        if self._finder_coordinator is not None:
+            self._finder_coordinator.cancel()
+
         history_messages = self.conversation.messages_with_turn_ids()
         turn_references = self.conversation.turn_references()
         art_store = getattr(self.assistant_runtime, "artifact_store", None)
@@ -738,10 +744,12 @@ class QuickPDFController(QObject):
         q = text.strip()
         self._finder_query = q
         if not q:
+            if self._finder_coordinator is not None:
+                self._finder_coordinator.cancel()
+            self._finder_hits = []
             if self._view == "finder":
-                self._view = "none"
-                self._finder_hits = []
-                self._status = "Chuột sẵn sàng. Bạn cần gì?"
+                self._view = "answer" if self._last_assistant_answer else "none"
+                self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
                 self.changed.emit()
             return
         if self._finder_coordinator is not None:
@@ -753,6 +761,12 @@ class QuickPDFController(QObject):
             return
         if self._finder_coordinator and not self._finder_coordinator.is_current(snapshot.query_id):
             return
+        # If composer query changed or was cleared (e.g. submitted), ignore stale hit
+        if not self._finder_query or snapshot.query != self._finder_query:
+            return
+        if self._selection is not None or self.snapshot["busy"]:
+            return
+
         hits = []
         for h in snapshot.hits:
             hits.append({
@@ -766,18 +780,12 @@ class QuickPDFController(QObject):
                 "is_pdf": h.path.lower().endswith(".pdf"),
             })
         self._finder_hits = hits
-        if self._selection is None and not self.snapshot["busy"]:
-            if snapshot.query.strip():
-                self._view = "finder"
-                count = len(hits)
-                self._status = f"Tìm thấy {count} kết quả cho '{snapshot.query}'" if count else f"Không tìm thấy tệp hoặc ứng dụng nào khớp với '{snapshot.query}'"
-                self._expanded = True
-                self._unread = False
-            else:
-                if self._view == "finder":
-                    self._view = "none"
-                    self._status = "Chuột sẵn sàng. Bạn cần gì?"
-            self.changed.emit()
+        self._view = "finder"
+        count = len(hits)
+        self._status = f"Tìm thấy {count} kết quả cho '{snapshot.query}'" if count else f"Không tìm thấy tệp hoặc ứng dụng nào khớp với '{snapshot.query}'"
+        self._expanded = True
+        self._unread = False
+        self.changed.emit()
 
     @pyqtSlot(str, result=bool)
     def openHit(self, path: str) -> bool:
@@ -835,4 +843,10 @@ class QuickPDFController(QObject):
         if self._finder_coordinator:
             self._finder_coordinator.close(timeout=0.25)
             self._finder_coordinator = None
+        if self._finder_search:
+            try:
+                self._finder_search.close_connection()
+            except Exception:
+                pass
+            self._finder_search = None
         return self._worker.close() if self._worker else True
