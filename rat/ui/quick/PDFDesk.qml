@@ -260,7 +260,7 @@ Rectangle {
                 y: 10
                 width: parent.width - 36
                 spacing: 5
-                Label { visible: !desk.liveSnapshot.canBack; text: desk.liveSnapshot.view === "page" ? "TRANG ĐANG ĐỌC" : (desk.liveSnapshot.view === "answer" ? "CÂU TRẢ LỜI" : "TRONG TÀI LIỆU"); font.pixelSize: 10; font.letterSpacing: 1; color: desk.muted }
+                Label { visible: !desk.liveSnapshot.canBack; text: desk.liveSnapshot.view === "page" ? "TRANG ĐANG ĐỌC" : (desk.liveSnapshot.view === "answer" ? "CÂU TRẢ LỜI" : (desk.liveSnapshot.view === "finder" ? "TỆP & ỨNG DỤNG" : "TRONG TÀI LIỆU")); font.pixelSize: 10; font.letterSpacing: 1; color: desk.muted }
                 QuietButton { objectName: "backToSearch"; visible: Boolean(desk.liveSnapshot.canBack); text: "← Kết quả tìm"; onClicked: desk.liveController.backToSearch() }
                 Item { Layout.fillWidth: true }
                 QuietButton { objectName: "copyCitation"; visible: Boolean(desk.liveSnapshot.canCopy); text: desk.copied ? "Đã chép ✓" : (desk.liveSnapshot.view === "answer" ? "Sao chép" : "Chép trích dẫn"); primary: true; onClicked: desk.requestCopy() }
@@ -294,11 +294,11 @@ Rectangle {
                 }
                 Label {
                     Layout.fillWidth: true
-                    text: desk.liveMode ? (desk.liveSnapshot.view === "page" ? "Trang " + desk.liveSnapshot.pageNumber : (desk.liveSnapshot.view === "answer" ? (desk.liveSnapshot.userQuery || "") : (desk.liveSnapshot.title || "Đang mở bàn làm việc…"))) : desk.phase === "working" ? "Mình đang đối chiếu quy chế." : "Tối đa 24 tín chỉ cho học kỳ chính."
+                    text: desk.liveMode ? (desk.liveSnapshot.view === "page" ? "Trang " + desk.liveSnapshot.pageNumber : (desk.liveSnapshot.view === "answer" ? (desk.liveSnapshot.userQuery || "") : (desk.liveSnapshot.view === "finder" ? (desk.liveSnapshot.title || "Tìm kiếm") : (desk.liveSnapshot.title || "Đang mở bàn làm việc…")))) : desk.phase === "working" ? "Mình đang đối chiếu quy chế." : "Tối đa 24 tín chỉ cho học kỳ chính."
                     textFormat: Text.PlainText
                     color: desk.ink
-                    font.pixelSize: desk.liveSnapshot.view === "answer" ? 16 : 20
-                    font.weight: desk.liveSnapshot.view === "answer" ? Font.Normal : Font.Medium
+                    font.pixelSize: (desk.liveSnapshot.view === "answer" || desk.liveSnapshot.view === "finder") ? 16 : 20
+                    font.weight: (desk.liveSnapshot.view === "answer" || desk.liveSnapshot.view === "finder") ? Font.Normal : Font.Medium
                     wrapMode: Text.Wrap
                 }
                 Label {
@@ -397,7 +397,7 @@ Rectangle {
                         Accessible.name: "Câu trả lời của trợ lý"
                     }
                     Label {
-                        visible: desk.liveSnapshot.view !== "answer"
+                        visible: desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "finder"
                         Layout.fillWidth: true
                         text: desk.liveSnapshot.view === "page" ? (desk.liveSnapshot.fileName + " · nhãn " + desk.liveSnapshot.pageLabel + (desk.liveSnapshot.pageTruncated ? " · Đã cắt ở 8.000 ký tự" : "") + "\nBôi chọn đoạn cần lấy, rồi chép trích dẫn.") : (desk.liveSnapshot.view === "error" ? desk.liveSnapshot.errorText : desk.liveSnapshot.status) || ""
                         textFormat: Text.PlainText
@@ -445,6 +445,133 @@ Rectangle {
                         padding: 0
                         background: null
                         Accessible.name: "Văn bản trích xuất từ trang PDF đang đọc"
+                    }
+                    ColumnLayout {
+                        id: finderResults
+                        objectName: "finderResults"
+                        visible: desk.liveSnapshot.view === "finder"
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Label {
+                            visible: (desk.liveSnapshot.finderHits || []).length === 0
+                            text: "Không tìm thấy tệp hoặc ứng dụng nào khớp. Nhấn Enter để hỏi trợ lý AI."
+                            color: desk.muted
+                            font.pixelSize: 13
+                            wrapMode: Text.Wrap
+                            Layout.fillWidth: true
+                        }
+
+                        Repeater {
+                            model: desk.liveSnapshot.finderHits || []
+                            Rectangle {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                implicitHeight: hitRow.implicitHeight + 14
+                                radius: 10
+                                color: desk.backingColor
+                                border.color: desk.edge
+
+                                RowLayout {
+                                    id: hitRow
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 10
+
+                                    Rectangle {
+                                        width: 30
+                                        height: 30
+                                        radius: 6
+                                        color: modelData.kind === "application" ? desk.accent : desk.paperColor
+                                        border.color: desk.edge
+
+                                        Label {
+                                            anchors.centerIn: parent
+                                            text: modelData.kind === "application" ? "⬚" : (modelData.is_pdf ? "▤" : "📄")
+                                            color: modelData.kind === "application" ? desk.accentText : desk.ink
+                                            font.pixelSize: 14
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 6
+                                            Label {
+                                                text: modelData.title
+                                                textFormat: Text.PlainText
+                                                color: desk.ink
+                                                font.pixelSize: 13
+                                                font.weight: Font.Medium
+                                                elide: Text.ElideRight
+                                                Layout.fillWidth: true
+                                            }
+                                            Rectangle {
+                                                width: kindBadge.implicitWidth + 8
+                                                height: 18
+                                                radius: 4
+                                                color: modelData.kind === "application" ? desk.accent : desk.paperColor
+                                                border.color: desk.edge
+                                                Label {
+                                                    id: kindBadge
+                                                    anchors.centerIn: parent
+                                                    text: modelData.kind === "application" ? "App" : (modelData.is_pdf ? "PDF" : "Tệp")
+                                                    color: modelData.kind === "application" ? desk.accentText : desk.muted
+                                                    font.pixelSize: 10
+                                                }
+                                            }
+                                        }
+
+                                        Label {
+                                            text: modelData.snippet || modelData.path
+                                            textFormat: Text.PlainText
+                                            color: desk.muted
+                                            font.pixelSize: 11
+                                            elide: Text.ElideMiddle
+                                            Layout.fillWidth: true
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        spacing: 6
+                                        QuietButton {
+                                            visible: Boolean(modelData.is_pdf)
+                                            text: "Đọc trực tiếp"
+                                            primary: true
+                                            onClicked: desk.liveController.openPdfHit(modelData.path)
+                                        }
+                                        QuietButton {
+                                            visible: Boolean(modelData.is_pdf)
+                                            text: "Hỏi về PDF"
+                                            onClicked: {
+                                                desk.liveController.selectFile(modelData.path)
+                                                editor.forceActiveFocus()
+                                            }
+                                        }
+                                        QuietButton {
+                                            visible: modelData.kind === "application"
+                                            text: "Mở ứng dụng"
+                                            primary: true
+                                            onClicked: desk.liveController.openHit(modelData.path)
+                                        }
+                                        QuietButton {
+                                            visible: modelData.kind === "file" && !modelData.is_pdf
+                                            text: "Mở tệp"
+                                            onClicked: desk.liveController.openHit(modelData.path)
+                                        }
+                                        QuietButton {
+                                            visible: modelData.kind === "file" && !modelData.is_pdf
+                                            text: "Hỏi về tệp"
+                                            primary: true
+                                            onClicked: desk.liveController.askAboutHit(modelData.path, editor.text)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     RowLayout {
                         Layout.fillWidth: true
@@ -601,10 +728,15 @@ Rectangle {
                         font.pixelSize: 15
                         color: desk.ink
                         placeholderTextColor: desk.muted
-                        placeholderText: desk.liveMode ? (desk.liveSnapshot.fileName ? "Tìm gì trong tài liệu này?" : "Chuột sẵn sàng. Bạn muốn đọc PDF nào?") : desk.phase === "idle" ? "Chuột nghe đây. Bạn cần gì?" : "Hỏi tiếp hoặc sửa điều gì đó…"
+                        placeholderText: desk.liveMode ? (desk.liveSnapshot.fileName ? "Tìm gì trong tài liệu này?" : "Chuột sẵn sàng. Nhập tên file, ứng dụng hoặc câu hỏi…") : desk.phase === "idle" ? "Chuột nghe đây. Bạn cần gì?" : "Hỏi tiếp hoặc sửa điều gì đó…"
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
                         background: null
+                        onTextChanged: {
+                            if (desk.liveMode) {
+                                desk.liveController.onComposerTextChanged(text)
+                            }
+                        }
                         Keys.onReturnPressed: event => {
                             if (!(event.modifiers & Qt.ShiftModifier) && !inputMethodComposing) { event.accepted = true; desk.submitDraft() }
                             else event.accepted = false

@@ -9,9 +9,12 @@ import threading
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import QCoreApplication, QObject, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
-from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtGui import QDesktopServices, QGuiApplication
 from PyQt6.QtWidgets import QApplication
 
+from rat.config import config
+from rat.engine.app_resolver import ApplicationCatalog
+from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
 from rat.engine.selected_pdf import (
     SelectedPDFError, check_current, citation_text, read_selected_page,
     search_selected_pdf, select_pdf,
@@ -125,6 +128,8 @@ class QuickPDFController(QObject):
     _delivered = pyqtSignal(int, str, object)
     _execution_delivered = pyqtSignal(object, object)
     _execution_status_delivered = pyqtSignal(str)
+    _finder_delivered = pyqtSignal(object)
+    _catalog_ready = pyqtSignal(object)
 
     def __init__(
         self,
@@ -135,6 +140,11 @@ class QuickPDFController(QObject):
         conversation: Optional[ConversationHistory] = None,
         reasoning_engine: Optional[Any] = None,
         allow_synthetic_policy: bool = False,
+        finder_search: Optional[ProgressiveSearch] = None,
+        finder_catalog: Optional[ApplicationCatalog] = None,
+        finder_coordinator: Optional[SearchCoordinator] = None,
+        db_path: Optional[str] = None,
+        auto_init_finder: bool = True,
     ):
         super().__init__(parent)
         self._ready = False
@@ -155,6 +165,8 @@ class QuickPDFController(QObject):
         self._delivered.connect(self._finish, Qt.ConnectionType.QueuedConnection)
         self._execution_delivered.connect(self._handle_execution_delivered, Qt.ConnectionType.QueuedConnection)
         self._execution_status_delivered.connect(self._on_execution_status, Qt.ConnectionType.QueuedConnection)
+        self._finder_delivered.connect(self._handle_finder_snapshot, Qt.ConnectionType.QueuedConnection)
+        self._catalog_ready.connect(self._on_catalog_ready, Qt.ConnectionType.QueuedConnection)
 
         # Unified shared runtime & conversation state
         self._assistant_runtime = assistant_runtime
@@ -171,6 +183,44 @@ class QuickPDFController(QObject):
         self._telemetry = {}
         self._assistant_sources = []
         self._assistant_task_state = {}
+
+        # Progressive finder integration
+        self._finder_coordinator = finder_coordinator
+        self._finder_search = finder_search
+        self._finder_catalog = finder_catalog
+        self._finder_hits: List[Dict[str, Any]] = []
+        self._finder_query: str = ""
+        self._db_path = db_path or str(config.db_path)
+
+        if self._finder_coordinator is None:
+            if self._finder_search is not None:
+                self._finder_coordinator = SearchCoordinator(
+                    self._finder_search,
+                    on_update=lambda snap: self._finder_delivered.emit(snap),
+                )
+            elif self._finder_catalog is not None:
+                self._finder_search = ProgressiveSearch(self._db_path, catalog=self._finder_catalog)
+                self._finder_coordinator = SearchCoordinator(
+                    self._finder_search,
+                    on_update=lambda snap: self._finder_delivered.emit(snap),
+                )
+            elif auto_init_finder:
+                def scan_catalog():
+                    try:
+                        cat = ApplicationCatalog.scan()
+                        if not self._closed:
+                            self._catalog_ready.emit(cat)
+                    except RuntimeError:
+                        pass
+                    except Exception as e:
+                        logger.debug(f"Finder catalog scan exception: {e}")
+                        try:
+                            if not self._closed:
+                                self._catalog_ready.emit(ApplicationCatalog())
+                        except RuntimeError:
+                            pass
+
+                threading.Thread(target=scan_catalog, name="rat-quick-catalog-scan", daemon=True).start()
 
     @property
     def assistant_runtime(self) -> AssistantRuntime:
@@ -202,6 +252,9 @@ class QuickPDFController(QObject):
             title = f"Trang PDF {page['page']} · {page['filename']}"
         elif view == "answer":
             title = self._last_user_query or "Câu trả lời"
+        elif view == "finder":
+            found = len(self._finder_hits)
+            title = f"Tìm thấy {found} kết quả" if found else "Không có kết quả khớp"
         elif view == "error":
             title = "Cần xem lại PDF hoặc yêu cầu."
         else:
@@ -234,6 +287,8 @@ class QuickPDFController(QObject):
             "errorCode": self._error,
             "errorText": ERROR_MESSAGES.get(self._error, "Không xử lý được yêu cầu này."),
             "events": list(self._events),
+            "finderHits": list(self._finder_hits),
+            "finderQuery": self._finder_query,
         }
 
     @pyqtSlot()
@@ -383,6 +438,13 @@ class QuickPDFController(QObject):
         if self._request:
             self._request.cancelled.set()
             self._request = None
+
+        # Cancel finder coordinator if active
+        if self._finder_coordinator:
+            self._finder_coordinator.cancel()
+        if self._view == "finder":
+            self._view = "none"
+            self._finder_hits = []
 
         # Cancel chat / reasoning worker if active
         if self._current_worker:
@@ -652,6 +714,114 @@ class QuickPDFController(QObject):
             self._status = "Đang chờ kết quả…"
         self.changed.emit()
 
+    @pyqtSlot(object)
+    def _on_catalog_ready(self, catalog: ApplicationCatalog):
+        if self._closed or self._finder_coordinator is not None:
+            return
+        self._finder_catalog = catalog
+        self._finder_search = ProgressiveSearch(self._db_path, catalog=catalog)
+        self._finder_coordinator = SearchCoordinator(
+            self._finder_search,
+            on_update=lambda snap: self._finder_delivered.emit(snap),
+        )
+        if self._finder_query and self._selection is None and not self.snapshot["busy"]:
+            self._finder_coordinator.submit(self._finder_query, limit=10)
+
+    @pyqtSlot(str)
+    def onComposerTextChanged(self, text: str):
+        if self._closed:
+            return
+        if self._selection is not None:
+            return
+        if self.snapshot["busy"]:
+            return
+        q = text.strip()
+        self._finder_query = q
+        if not q:
+            if self._view == "finder":
+                self._view = "none"
+                self._finder_hits = []
+                self._status = "Chuột sẵn sàng. Bạn cần gì?"
+                self.changed.emit()
+            return
+        if self._finder_coordinator is not None:
+            self._finder_coordinator.submit(q, limit=10)
+
+    @pyqtSlot(object)
+    def _handle_finder_snapshot(self, snapshot: SearchSnapshot):
+        if self._closed:
+            return
+        if self._finder_coordinator and not self._finder_coordinator.is_current(snapshot.query_id):
+            return
+        hits = []
+        for h in snapshot.hits:
+            hits.append({
+                "resource_id": h.resource_id,
+                "kind": h.kind,
+                "title": h.title,
+                "path": h.path,
+                "origin": h.origin,
+                "snippet": h.snippet or h.path,
+                "bundle_id": h.bundle_id or "",
+                "is_pdf": h.path.lower().endswith(".pdf"),
+            })
+        self._finder_hits = hits
+        if self._selection is None and not self.snapshot["busy"]:
+            if snapshot.query.strip():
+                self._view = "finder"
+                count = len(hits)
+                self._status = f"Tìm thấy {count} kết quả cho '{snapshot.query}'" if count else f"Không tìm thấy tệp hoặc ứng dụng nào khớp với '{snapshot.query}'"
+                self._expanded = True
+                self._unread = False
+            else:
+                if self._view == "finder":
+                    self._view = "none"
+                    self._status = "Chuột sẵn sàng. Bạn cần gì?"
+            self.changed.emit()
+
+    @pyqtSlot(str, result=bool)
+    def openHit(self, path: str) -> bool:
+        if not path:
+            return False
+        p = Path(path)
+        if not p.exists():
+            self._show_error("file_not_found")
+            return False
+        opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
+        accepted = bool(opener(QUrl.fromLocalFile(str(p.resolve()))))
+        if not accepted:
+            self._show_error("open_failed")
+        return accepted
+
+    @pyqtSlot(str)
+    def openPdfHit(self, path: str):
+        self.selectFile(path)
+
+    @pyqtSlot(str, str, result=bool)
+    def askAboutHit(self, path: str, query: str = "") -> bool:
+        p = Path(path)
+        if not p.exists():
+            self._show_error("file_not_found")
+            return False
+        if p.suffix.lower() == ".pdf":
+            self.selectFile(str(p))
+            q = query.strip()
+            if q:
+                self.submitQuery(q)
+            return True
+        else:
+            try:
+                content = p.read_text(encoding="utf-8", errors="replace")[:4000]
+            except Exception:
+                content = ""
+            q = query.strip() or f"Tóm tắt nội dung tệp {p.name}"
+            self._assistant_sources.append({
+                "path": str(p),
+                "name": p.name,
+                "content": content,
+            })
+            return self.submit(q)
+
     @pyqtSlot(result=bool)
     def close(self):
         self._closed = True
@@ -662,4 +832,7 @@ class QuickPDFController(QObject):
             if hasattr(self._current_worker, "requestInterruption"):
                 self._current_worker.requestInterruption()
             self._current_worker = None
+        if self._finder_coordinator:
+            self._finder_coordinator.close(timeout=0.25)
+            self._finder_coordinator = None
         return self._worker.close() if self._worker else True
