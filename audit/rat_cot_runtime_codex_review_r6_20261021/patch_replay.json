@@ -1,0 +1,25 @@
+{
+  "check_exit_code": 0,
+  "check_output": "",
+  "applied_to": "r6/patch_replay_source copies only",
+  "production_modified": false,
+  "apply_exit_code": 0,
+  "apply_output": "",
+  "outputs": {
+    "qwen_mlx_backend.py": {
+      "replayed_sha256": "b2bcf97833cf5834721f3ef690195a632a060cd869c5fff7d938d0108748d9f7",
+      "current_sha256": "b2bcf97833cf5834721f3ef690195a632a060cd869c5fff7d938d0108748d9f7",
+      "matches_current": true
+    },
+    "reasoning/runtime.py": {
+      "replayed_sha256": "84417ec2ccc6d92ba10949b8801cb588d0f909afc736995a923999bea1b31a7e",
+      "current_sha256": "84417ec2ccc6d92ba10949b8801cb588d0f909afc736995a923999bea1b31a7e",
+      "matches_current": true
+    },
+    "reasoning/bundle.py": {
+      "replayed_sha256": "c11680da8af7a2f92451137fbe1926a405568607c20f0275aed6a71afdf5d4e0",
+      "current_sha256": "c11680da8af7a2f92451137fbe1926a405568607c20f0275aed6a71afdf5d4e0",
+      "matches_current": true
+    }
+  }
+}

@@ -1,18 +1,7 @@
 {
   "outcome": {
-    "accepted": true,
-    "report": {
-      "is_valid": true,
-      "review_status": "approved",
-      "is_approved": true,
-      "errors": [],
-      "warnings": [],
-      "diagnostics": {
-        "bundle_id": "synthetic-specimen-v1",
-        "review_status": "approved",
-        "is_production_approved": true
-      }
-    }
+    "accepted": false,
+    "error": "Policy bundle validation failed: Approved bundle must include an authoritative fitted policy artifact declaring complete parameters."
   },
   "artifacts": {
     "weights.txt": {

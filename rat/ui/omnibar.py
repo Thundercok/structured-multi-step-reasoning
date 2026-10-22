@@ -4285,7 +4285,21 @@ class OmnibarWindow(QMainWindow):
         # ordinary chat is never routed by filename/topic keyword matching.
         self._submit_chat_prompt(question, selected_document_path=file_path)
 
-    def _submit_chat_prompt(self, query: str, *, selected_document_path=None) -> None:
+    def navigate_to_turn(self, turn_id) -> bool:
+        """View a historical turn without dispatching new execution or losing composer draft."""
+        snap = self._conversation.get_turn(turn_id)
+        if snap is None:
+            return False
+        if hasattr(self, "workbench_speech_bubble"):
+            self.workbench_speech_bubble.set_reply(
+                snap.answer or "Lượt tương tác.",
+                snap.status,
+                copy_text=snap.answer or "",
+            )
+        return True
+
+    def _submit_chat_prompt(self, query: str, *, selected_document_path=None,
+                            target_turn_id=None, target_artifact_id=None, target_revision=None) -> None:
         if hasattr(self, "chat_composer_input") and getattr(self.chat_composer_input, "is_composing", lambda: False)():
             return
         q = query.strip()
@@ -4370,7 +4384,12 @@ class OmnibarWindow(QMainWindow):
 
         history_messages = self._conversation.messages_with_turn_ids()
         turn_references = self._conversation.turn_references()
-        turn_snap = self._conversation.begin_turn(q)
+        turn_snap = self._conversation.begin_turn(
+            q,
+            target_turn_id=target_turn_id,
+            target_artifact_id=target_artifact_id,
+            target_revision=target_revision,
+        )
         turn_ref = turn_snap.turn_ref
         execution_id = turn_snap.execution_id
 
@@ -4433,15 +4452,28 @@ class OmnibarWindow(QMainWindow):
             )
             self._sync_workbench_scene()
         from rat.ui.assistant_worker import create_execution_worker
+        art_store = getattr(self.assistant_runtime, "artifact_store", None)
+        active_arts = [
+            {"id": a.id, "kind": a.kind, "revision": a.revision, "title": a.title, "inputs": getattr(a, "inputs", {})}
+            for a in (art_store.list() if art_store is not None else [])
+        ]
+        if art_store is not None and target_artifact_id and target_revision is not None:
+            source_artifact = art_store.get(target_artifact_id, revision=target_revision)
+            if source_artifact is not None and not any(
+                a["id"] == source_artifact.id and a["revision"] == source_artifact.revision
+                for a in active_arts
+            ):
+                active_arts.append(source_artifact.to_dict())
+        host = QApplication.instance()
         request = ExecutionRequest(
             q, execution_id=execution_id, generation=self._chat_generation,
             turn_ref=turn_ref, document_path=selected_document_path,
+            lane="reasoning" if not selected_document_path and host.property("ratReasoningConversation") is True else "auto",
             context=dict(history=history_messages, previous_sources=list(self._assistant_sources),
                          member_id=self.current_member.id, task_state=dict(self._assistant_task_state),
-                         turn_references=turn_references),
+                         turn_references=turn_references, artifact_refs=active_arts),
         )
         handle["execution_request"] = request
-        host = QApplication.instance()
         worker = create_execution_worker(self.assistant_runtime, request,
             reasoning_engine=host.property("ratReasoningEngine"),
             allow_synthetic_policy=host.property("ratAllowSyntheticPolicy") is True,
@@ -4711,6 +4743,8 @@ class OmnibarWindow(QMainWindow):
             answer = response.answer
             self._complete_chat_turn(answer, handle=handle, response=response)
             self.footer_status.setText("Đã trả lời · có thể hỏi tiếp")
+            if qa_tel.get("bundle_review_status") == "synthetic_development_only":
+                self.footer_status.setText("Bản thử nghiệm · kết quả fixture, chưa đánh giá model")
         self._current_reasoner = None
         self._assistant_handle = None
         self._assistant_sources = list(response.sources or self._assistant_sources)[-12:]

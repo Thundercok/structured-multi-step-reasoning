@@ -1,2 +1,25 @@
-..............                                                           [100%]
-14 passed in 3.33s
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 14 items
+
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_native_sc_configuration_controls_actual_sample_count PASSED [  7%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_native_tot_configuration_controls_actual_branch_count PASSED [ 14%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_native_request_budget_uses_actual_configured_strategy PASSED [ 21%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_native_token_cap_holds_with_nondefault_supported_configuration PASSED [ 28%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_failure_message_does_not_change_recorded_dispatch_count PASSED [ 35%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_native_predispatch_cancel_is_not_charged_as_dispatched_generation PASSED [ 42%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_approved_fitted_artifact_cannot_skip_parameter_validation[malformed-json] PASSED [ 50%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_approved_fitted_artifact_cannot_skip_parameter_validation[missing-parameters] PASSED [ 57%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_approved_fitted_artifact_cannot_skip_parameter_validation[empty-cost-models] PASSED [ 64%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_approved_fitted_artifact_cannot_skip_parameter_validation[wrong-coefficient-shape] PASSED [ 71%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_approved_fitted_artifact_cannot_skip_parameter_validation[changed-performance-model] PASSED [ 78%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_control_valid_approved_artifact_validates PASSED [ 85%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_control_default_native_configuration_matches_count PASSED [ 92%]
+audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py::test_control_failed_generation_records_partial_tokens PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_acceptance_20261020/contract_probes_r4.xml -
+============================== 14 passed in 2.96s ==============================

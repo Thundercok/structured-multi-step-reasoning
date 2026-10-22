@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 12 items
+
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_predispatch_prompt_failure_count_is_invariant_to_message PASSED [  8%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_declared_react_turn_limit_cannot_bypass_hard_budget[requests] PASSED [ 16%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_declared_react_turn_limit_cannot_bypass_hard_budget[tokens] PASSED [ 25%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[missing-performance] PASSED [ 33%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[missing-cost-intercept] PASSED [ 41%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[multiple-untyped-json] PASSED [ 50%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[non-json-only-artifact] PASSED [ 58%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[nonfinite-threshold] PASSED [ 66%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_approved_bundle_requires_complete_binding[learned-performance-intercept] PASSED [ 75%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_control_complete_matching_artifact_validates PASSED [ 83%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_control_plain_prompt_failure_has_no_dispatch PASSED [ 91%]
+audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py::test_control_declared_react_default_estimate_prevents_too_small_budget PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_acceptance_20261020/contract_probes_r5.xml -
+============================== 12 passed in 2.89s ==============================

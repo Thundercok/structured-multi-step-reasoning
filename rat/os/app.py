@@ -70,10 +70,14 @@ class ResidentApplication(QObject):
     open_widget_signal = pyqtSignal()
     open_natal_signal = pyqtSignal()
 
-    def __init__(self, mode: str = "all") -> None:
+    def __init__(self, mode: str = "all", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
         install_crash_shield()
         self.app = QApplication.instance() or QApplication(sys.argv)
         super().__init__()
+        if reasoning_engine is not None:
+            from rat.ui.reasoning_host import install_reasoning_engine
+            install_reasoning_engine(self.app, reasoning_engine,
+                                     allow_synthetic_policy=allow_synthetic_policy)
         self.mode = mode
         self.app.setApplicationName("rat — macOS Smart AI File Finder")
         self.app.setQuitOnLastWindowClosed(False)  # Keep running in menu bar
@@ -448,7 +452,7 @@ class ResidentApplication(QObject):
         return self.app.exec()
 
 
-def run_resident_app(mode: str = "finder") -> None:
+def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
     """Launch the resident system with strict single-instance enforcement."""
     # Ensure QApplication exists for socket IPC and event processing
     app = QApplication.instance() or QApplication(sys.argv)
@@ -464,5 +468,9 @@ def run_resident_app(mode: str = "finder") -> None:
         logger.info(f"Cleaned up {killed} stale orphan rat process(es).")
 
     # 3. Launch the single resident application
-    res_app = ResidentApplication(mode=mode)
+    if reasoning_engine is None:
+        res_app = ResidentApplication(mode=mode)
+    else:
+        res_app = ResidentApplication(mode=mode, reasoning_engine=reasoning_engine,
+                                      allow_synthetic_policy=allow_synthetic_policy)
     sys.exit(res_app.run())

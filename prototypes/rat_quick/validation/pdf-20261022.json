@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-22",
+  "evidence": "authored PDF files and Qt offscreen software rendering; no model/OCR quality or performance claim",
+  "validation": [
+    {
+      "command": "python -m pytest tests/test_selected_pdf.py tests/test_book_pages.py tests/test_document_intake_robustness.py -q -p no:cacheprovider",
+      "passed": 61
+    },
+    {
+      "command": "QT_QPA_PLATFORM=offscreen python -m pytest tests/test_quick_pdf.py -q -p no:cacheprovider",
+      "passed": 5
+    },
+    {
+      "command": "QT_QPA_PLATFORM=offscreen python -m pytest tests/test_book_features_ui.py -q -p no:cacheprovider",
+      "passed": 3
+    },
+    {
+      "command": "python scripts/preview_rat_quick.py --smoke",
+      "fixture_states": 14,
+      "warnings": []
+    }
+  ],
+  "sha256": {
+    "rat/engine/book_pages.py": "1deb6f54f57abbffc5a5fe0af522fafb5d92a1e4749d93dbd49ac4752baae580",
+    "rat/engine/selected_pdf.py": "1c224ca712ce2af3558ed11ebc11cd0a0a517d02cc82c60bbb556023add42322",
+    "rat/ui/quick_pdf_controller.py": "0e4c2e3bd2c2019173a9ae2a15f86e1ebb59ea3ccb966bb7803142e580a49e3c",
+    "rat/ui/quick/PaperDesk.qml": "47e110056d2726831d529aef67fd47d83c670438364c6a5d27dd18d779140c96",
+    "rat/ui/quick_app.py": "8b003ea448f197061e03781c569abdca2f93c8a4ece11a7d52d3494ba00624da",
+    "rat/main.py": "e06189252ebca0bcb8895c7b6f13ef5119bbfa7c78979a54a68e9208b870d126",
+    "tests/test_selected_pdf.py": "7fa2c02be62d24cdb9cd5d746afa7b43f2fc4692ef3adc4eebaba70a80b80d16",
+    "tests/test_quick_pdf.py": "e2f5215b2111d70a450888528647cebb5acab9c65701f41b076b2200e7b75c24"
+  },
+  "ui_followup": "pdf-ui-polish-20261022.json",
+  "scope_note": "Historical PDF slice validation before the UI polish; current UI hashes and native renderer smoke are in ui_followup."
+}

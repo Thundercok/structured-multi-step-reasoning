@@ -106,7 +106,7 @@
          else:
              if not isinstance(policy_source, str) or not policy_source.strip():
                  raise ValueError("An explicit policy provenance label is required")
-@@ -322,30 +331,28 @@
+@@ -322,30 +331,30 @@
                  )
                  recorded_failed = len(gens) - rung_succeeded
  
@@ -136,12 +136,14 @@
                      stop_status = "failed"
 +
 +                # If trace already contains recorded failed generations, do not add extra failed dispatch.
++                # Only if zero failures are recorded in trace and structured in_flight flag is True:
 +                extra_failed = 0
-+                if recorded_failed == 0 and isinstance(trace_after, dict):
-+                    if trace_after.get("in_flight", False):
-+                        extra_failed = 1
-+                    elif len(gens) > 0 and stop_status == "failed":
-+                        extra_failed = 1
++                if (
++                    recorded_failed == 0
++                    and isinstance(trace_after, dict)
++                    and trace_after.get("in_flight", False)
++                ):
++                    extra_failed = 1
 +
 +                rung_failed = recorded_failed + extra_failed
 +                rung_dispatched = len(gens) + extra_failed
@@ -163,7 +165,7 @@
              for art_key, art_h in bundle.artifact_hashes.items():
                  if not (isinstance(art_h, str) and len(art_h) == 64 and all(c in "0123456789abcdefABCDEF" for c in art_h)):
                      errors.append(f"Approved bundle artifact '{art_key}' digest '{art_h}' is not a valid 64-character SHA-256 hex string.")
-@@ -201,71 +202,116 @@
+@@ -201,71 +202,119 @@
                              continue
  
                          required_keys = ("lambda", "tau", "mean_cost", "entry_cost_models")
@@ -293,40 +295,42 @@
 +                                                continue
                                              live_m = pred.perf[idx]
 -                                            if "constant" in m_dict:
--                                                live_val = getattr(live_m, "value", None)
++                                            if hasattr(live_m, "value"):
+                                                 live_val = getattr(live_m, "value", None)
 -                                                if live_val is None or abs(float(m_dict["constant"]) - float(live_val)) > 1e-5:
 -                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({m_dict['constant']}) does not match live model ({live_val}).")
 -                                            elif "coef" in m_dict:
 -                                                coef_art = m_dict["coef"]
 -                                                if not hasattr(live_m, "coef_") or len(coef_art) != len(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5):
 -                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] coef does not match live model.")
-+                                            if hasattr(live_m, "value"):
-+                                                if "constant" not in m_dict:
++                                                if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val):
++                                                    errors.append(f"Live performance model [{idx}] constant is non-finite: {live_val}")
++                                                elif "constant" not in m_dict:
 +                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'constant'.")
 +                                                else:
 +                                                    c_val = m_dict["constant"]
-+                                                    if not isinstance(c_val, (int, float)) or not np.isfinite(c_val) or abs(float(c_val) - float(live_m.value)) > 1e-5:
-+                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({c_val}) does not match live model ({live_m.value}).")
++                                                    if not isinstance(c_val, (int, float)) or not np.isfinite(c_val) or abs(float(c_val) - float(live_val)) > 1e-5:
++                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({c_val}) does not match live model ({live_val}).")
 +                                            elif hasattr(live_m, "coef_"):
 +                                                if "coef" not in m_dict:
 +                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'coef'.")
 +                                                else:
 +                                                    coef_art = np.asarray(m_dict["coef"], dtype=float)
-+                                                    if not np.all(np.isfinite(coef_art)) or np.shape(coef_art) != np.shape(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5, equal_nan=False):
++                                                    if not np.all(np.isfinite(coef_art)) or not np.all(np.isfinite(live_m.coef_)) or np.shape(coef_art) != np.shape(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5, equal_nan=False):
 +                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] coef does not match live model.")
 +                                                if hasattr(live_m, "intercept_"):
 +                                                    if "intercept" not in m_dict:
 +                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'intercept'.")
 +                                                    else:
 +                                                        int_art = np.asarray(m_dict["intercept"], dtype=float)
-+                                                        if not np.all(np.isfinite(int_art)) or not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
++                                                        if not np.all(np.isfinite(int_art)) or not np.all(np.isfinite(live_m.intercept_)) or not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
 +                                                            errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] intercept does not match live model.")
 +                                else:
 +                                    # If entry_perf_models is omitted from artifact, live performance models must not deviate from baseline defaults [1.0, 0.0, 0.0]
 +                                    expected_defaults = [1.0, 0.0, 0.0]
 +                                    for idx, live_m in enumerate(pred.perf):
 +                                        live_val = getattr(live_m, "value", None)
-+                                        if live_val is None or idx >= len(expected_defaults) or abs(float(live_val) - expected_defaults[idx]) > 1e-5:
++                                        if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val) or idx >= len(expected_defaults) or abs(float(live_val) - expected_defaults[idx]) > 1e-5:
 +                                            errors.append(f"Artifact '{art_key}' missing required 'entry_perf_models' for non-default live performance model at index {idx}.")
 +
 +            if not found_authoritative_artifact:
@@ -334,7 +338,45 @@
      else:
          if isinstance(bundle.source_hashes, dict):
              for src_path, expected_h in bundle.source_hashes.items():
-@@ -429,6 +475,11 @@
+@@ -373,15 +422,34 @@
+                     errors.append(f"Mean cost [{i}] mismatch: bundle {b_cost} vs policy {p_cost}")
+ 
+         # Calibrator validation
+-        if bundle.calibrator_type is not None:
+-            if not getattr(policy, "calibrators", None):
++        live_calibrators = getattr(policy, "calibrators", None)
++        has_active_calibrators = (
++            live_calibrators is not None
++            and isinstance(live_calibrators, (list, tuple))
++            and len(live_calibrators) > 0
++            and any(c is not None for c in live_calibrators)
++        )
++        if bundle.calibrator_type is None or bundle.calibrator_semantics == "raw_confidence_uncalibrated":
++            if has_active_calibrators:
++                errors.append(
++                    f"Bundle specifies uncalibrated policy (calibrator_type={bundle.calibrator_type}), "
++                    f"but live policy has {len(live_calibrators)} active calibrator(s)."
++                )
++        else:
++            if not has_active_calibrators:
+                 errors.append(f"Bundle specifies calibrator_type='{bundle.calibrator_type}', but policy has no calibrators.")
+             else:
+-                for idx, cal in enumerate(policy.calibrators):
++                for idx, cal in enumerate(live_calibrators):
+                     if bundle.calibrator_type == "isotonic" and not isinstance(cal, IsotonicCalibrator):
+                         errors.append(f"Calibrator [{idx}] is not an IsotonicCalibrator.")
+                     elif bundle.calibrator_type == "platt" and not isinstance(cal, PlattCalibrator):
+                         errors.append(f"Calibrator [{idx}] is not a PlattCalibrator.")
++                    else:
++                        if isinstance(cal, PlattCalibrator):
++                            if hasattr(cal, "a") and not np.isfinite(cal.a):
++                                errors.append(f"PlattCalibrator [{idx}] parameter 'a' is non-finite: {cal.a}")
++                            if hasattr(cal, "b") and not np.isfinite(cal.b):
++                                errors.append(f"PlattCalibrator [{idx}] parameter 'b' is non-finite: {cal.b}")
+ 
+     # 4. Backend compatibility
+     if backend is not None:
+@@ -429,6 +497,11 @@
                  if bundle.strategy_settings["tot_branches"] != backend.tot_branches:
                      errors.append(
                          f"Bundle strategy_settings tot_branches ({bundle.strategy_settings['tot_branches']}) does not match backend tot_branches ({backend.tot_branches})."

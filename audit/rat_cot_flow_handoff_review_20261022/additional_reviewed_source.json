@@ -1,0 +1,9 @@
+{
+  "scope": "Static source inspection for revision semantics; collected after tests, not retroactively a start snapshot",
+  "files": {
+    "rat/ui/chat_session.py": "c36954c4f54e78a38607670d334871bd086a5f4bdd07057f9ba698d871d09fc4",
+    "rat/engine/work_notes.py": "83ebfa61e6d84315da39fb53b42a0ac56599bc340583a0716f2b74c034c39bbc",
+    "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
+    "rat/kernel/dispatcher.py": "c9adb457d504a9d18d9cf266a6fe623d773118e6b951d1e498e399ea3265962d"
+  }
+}

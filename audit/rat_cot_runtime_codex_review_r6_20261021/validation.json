@@ -1,0 +1,138 @@
+{
+  "review": "r6",
+  "started_date_local": "2026-10-21",
+  "completed_date_local": "2026-10-22",
+  "timezone": "Asia/Saigon",
+  "verdict": "REQUEST_CHANGES",
+  "open_findings": {
+    "P1": [
+      "R3",
+      "R5"
+    ],
+    "P2": [
+      "R10"
+    ]
+  },
+  "closed_this_review": [
+    "R2"
+  ],
+  "R12": "Resolved with historical XML loss recorded; incident actual-digest metadata correction is tracked under R10. Original XML remains unavailable.",
+  "retained_closed_scoped": [
+    "R1",
+    "R4",
+    "R6",
+    "R7",
+    "R8",
+    "R9",
+    "R11",
+    "G1"
+  ],
+  "baseline": {
+    "tests": 420,
+    "passed": 408,
+    "failed": 9,
+    "errors": 3,
+    "skipped": 0,
+    "failures": [
+      {
+        "class": "audit.rat_finder_codex_review_20261016.test_finder_integration_probes",
+        "name": "test_finder_action_buttons_remain_inside_viewport[620]"
+      },
+      {
+        "class": "audit.rat_finder_codex_review_20261016.test_finder_integration_probes",
+        "name": "test_finder_action_buttons_remain_inside_viewport[420]"
+      },
+      {
+        "class": "audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups",
+        "name": "test_keyboard_ask_activates_ask_instead_of_opening_file[16777220]"
+      },
+      {
+        "class": "audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups",
+        "name": "test_keyboard_ask_activates_ask_instead_of_opening_file[32]"
+      },
+      {
+        "class": "audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups",
+        "name": "test_tabbed_row_shortcut_targets_focused_row"
+      },
+      {
+        "class": "audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups",
+        "name": "test_progressive_update_preserves_focused_action"
+      },
+      {
+        "class": "audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance",
+        "name": "test_v2_result_card_visibility_tracks_bubble[short-full-bubble]"
+      },
+      {
+        "class": "audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance",
+        "name": "test_v2_result_card_visibility_tracks_bubble[long-truncated-control]"
+      },
+      {
+        "class": "audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes",
+        "name": "test_200_golden_scores_hold_under_current_25_feature_schema"
+      }
+    ],
+    "error_cases": [
+      {
+        "class": "audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance",
+        "name": "test_v2_answer_stays_visibly_accessible_after_navigation[initial]"
+      },
+      {
+        "class": "audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance",
+        "name": "test_v2_answer_stays_visibly_accessible_after_navigation[source-detail-back]"
+      },
+      {
+        "class": "audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance",
+        "name": "test_v2_answer_stays_visibly_accessible_after_navigation[snapshot-refresh]"
+      }
+    ],
+    "xml_time_s": 44.862
+  },
+  "new_probes": {
+    "tests": 7,
+    "passed": 3,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0,
+    "failures": [
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r6_20261021.test_trace_and_calibrator",
+        "name": "test_no_new_dispatch_is_invented_for_native_non_generation_error[between-samples]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r6_20261021.test_trace_and_calibrator",
+        "name": "test_no_new_dispatch_is_invented_for_native_non_generation_error[after-samples]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r6_20261021.test_trace_and_calibrator",
+        "name": "test_approved_full_artifact_rejects_unbound_live_state[live-nonfinite-constant]"
+      },
+      {
+        "class": "audit.rat_cot_runtime_codex_review_r6_20261021.test_trace_and_calibrator",
+        "name": "test_approved_full_artifact_rejects_unbound_live_state[undeclared-active-calibrator]"
+      }
+    ],
+    "error_cases": [],
+    "xml_time_s": 2.777
+  },
+  "backend_strategy_scoring": {
+    "passed": 68,
+    "skipped": 2
+  },
+  "submitted_claims": {
+    "executions": 497,
+    "distinct_test_identities": 464,
+    "repeated_executions": 33,
+    "all_pass_on_current_checkout_established": false
+  },
+  "real_model_calls": 0,
+  "git_history_or_remote_mutations": 0,
+  "research_status": {
+    "human_data_review": "pending",
+    "Stage_0": "unchanged; not established as passed",
+    "native_interactive_acceptance": "pending"
+  },
+  "costs": "Scripted synthetic generated-token counts; no full inference costs measured.",
+  "timings": "Software test wall time, not measured online model latency.",
+  "scope": "Current broad failures are reported, not repaired. Tests may contain stale UI or AST assumptions. No new product-bug claims are inferred from those failures alone.",
+  "legacy_fixture_note": "The r2 scripted _chat failure must expose structured dispatch state in a versioned fixture; successful generations followed by a strategy error do not prove another request was started."
+}

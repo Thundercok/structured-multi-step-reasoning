@@ -26,7 +26,7 @@ def app():
 def collect(app, worker, signal="response_ready"):
     spy = QSignalSpy(getattr(worker, signal))
     worker.start()
-    assert spy.wait(5000), "worker did not deliver a response"
+    assert spy or spy.wait(5000), "worker did not deliver a response"
     assert worker.wait(5000)
     app.processEvents()
     return spy[0][0]

@@ -19,13 +19,17 @@ def cli_main() -> None:
     run_cli()
 
 
-def run_resident_app(mode: str = "finder") -> None:
+def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
     # Qt and resident services are needed only for a GUI launch. Install the
     # GUI exception hooks before importing or constructing Qt components.
     from rat.os.crash_shield import install_crash_shield
     install_crash_shield()
     from rat.os.app import run_resident_app as launch
-    launch(mode=mode)
+    if reasoning_engine is None:
+        launch(mode=mode)
+    else:
+        launch(mode=mode, reasoning_engine=reasoning_engine,
+               allow_synthetic_policy=allow_synthetic_policy)
 
 
 def main() -> None:
@@ -34,6 +38,9 @@ def main() -> None:
         if cmd == "--diagnostics":
             from rat.os.diagnostics import run_session
             raise SystemExit(run_session(sys.argv[2:]))
+        elif cmd == "quick-pdf":
+            from rat.ui.quick_app import main as quick_pdf_main
+            raise SystemExit(quick_pdf_main(sys.argv[2:]))
         elif cmd in ("astrology", "natal", "la-so"):
             from rat.os.crash_shield import install_crash_shield
             install_crash_shield()
@@ -65,7 +72,7 @@ def main() -> None:
         elif cmd in ("--daemon", "-d"):
             run_resident_app(mode="daemon")
             return
-        elif cmd == "spotlight":
+        elif cmd in ("spotlight", "widgets", "omnibar"):
             run_resident_app(mode="spotlight")
             return
         elif cmd in ("widget", "mini", "claude"):
@@ -133,8 +140,9 @@ def main() -> None:
             cli_main()
             return
 
-    # Default 1-Action: summon sleek Master Spotlight HUD
-    run_resident_app(mode="spotlight")
+    # Primary unified entry point: summon unified RAT Qt Quick Desk
+    from rat.ui.quick_app import main as quick_main
+    raise SystemExit(quick_main(sys.argv[1:]))
 
 
 if __name__ == "__main__":

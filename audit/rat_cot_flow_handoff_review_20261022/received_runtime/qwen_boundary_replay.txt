@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 3 items
+
+audit/rat_cot_runtime_codex_review_r2_20261020/test_qwen_boundary_replay.py::test_actual_qwen_strategy_failure_preserves_generation_costs PASSED [ 33%]
+audit/rat_cot_runtime_codex_review_r2_20261020/test_qwen_boundary_replay.py::test_actual_qwen_cot_does_not_underreport_over_budget_generation PASSED [ 66%]
+audit/rat_cot_runtime_codex_review_r2_20261020/test_qwen_boundary_replay.py::test_control_actual_qwen_cot_without_cap PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_acceptance_20261020/qwen_boundary_replay.xml -
+============================== 3 passed in 2.05s ===============================

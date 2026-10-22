@@ -16,6 +16,7 @@ block_cipher = None
 # Python modules belong in PYZ, not as duplicate source/__pycache__ directories.
 added_files = [
     ('rat/assets', 'rat/assets'),
+    ('rat/ui/quick', 'rat/ui/quick'),
     ('rat/engine/snapshot.schema.json', 'rat/engine'),
     ('rat/astrology/ephemeris', 'rat/astrology/ephemeris'),
 ]
@@ -80,6 +81,11 @@ hidden_imports = [
     'PyQt6.QtGui',
     'PyQt6.QtWidgets',
     'PyQt6.QtSvg',
+    'PyQt6.QtQml',
+    'PyQt6.QtQuick',
+    'PyQt6.QtQuickControls2',
+    'rat.ui.quick_app',
+    'rat.ui.quick_pdf_controller',
     'pypdf',
     'docx',
     'pptx',

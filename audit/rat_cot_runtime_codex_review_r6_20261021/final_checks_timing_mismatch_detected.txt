@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r6_20261021/build_evidence.py", line 108, in <module>
+    assert all(x['counts_match'] and x['stdout_time_matches_declared'] for x in raw_checks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

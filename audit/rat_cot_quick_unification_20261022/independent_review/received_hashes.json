@@ -1,0 +1,16 @@
+{
+  "source": {
+    "rat/main.py": "244adc3e3463f76d5dc7c518149be82130c99dc61feb97f584da602ab1b47c5d",
+    "rat/ui/quick_app.py": "047fc39e818dcd385bfdea7296161186a41240516a0f00a6dac0b796947e548c",
+    "rat/ui/quick_pdf_controller.py": "ecdbd51d234ceff5b9186ba80cbb591fc2b1a0ad23d2fec87865134f3bc1b8ec",
+    "rat/ui/quick/PDFDesk.qml": "0607bad159b777c65533ece17d0afb423ac20e985f639e65a956310bec465b73",
+    "rat.spec": "35a9065ff1671b532eb15140b7676d9bf753936aa8e2687da67ff086c1c76887",
+    "tests/test_quick_unified_flow.py": "71979b2b73aa2bad4686eb61ed29ccebc63df2f5e954af870b415334006b72e6",
+    "tests/test_quick_pdf.py": "bd7746a247b3d5bfee81298372992a1a74bbf40de13d9052d014965ccfa0b68e"
+  },
+  "submitted_artifacts": {
+    "test_results.txt": "79200fdbb83fb5e8d61d06ad6054e996f7d83a4b73d944103c1cbdbb102ebc70",
+    "unification_status.md": "afa50e38bebe7570873b20fa7c03c531b8bc6e2ad7890107f5c91b3f7a35f287",
+    "test_results.xml": "460fe3eb997c48a0b2690a95aac4af596d0ea3fbb5356e2b82451e0a77a65f06"
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "submitted_suites": [
+    {
+      "name": "consolidated_regression_suite",
+      "xml": "regression.xml",
+      "executions": 372,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 372,
+      "xml_duration_s": 37.485,
+      "stdout_passed": 372,
+      "stdout_duration_s": 37.51,
+      "metadata_matches": true
+    },
+    {
+      "name": "mandatory_research_suite",
+      "xml": "mandatory_research.xml",
+      "executions": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 29,
+      "xml_duration_s": 5.146,
+      "stdout_passed": 29,
+      "stdout_duration_s": 5.15,
+      "metadata_matches": true
+    },
+    {
+      "name": "parser_and_document_intake_suite",
+      "xml": "parser_affected.xml",
+      "executions": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 44,
+      "xml_duration_s": 0.562,
+      "stdout_passed": 44,
+      "stdout_duration_s": 0.57,
+      "metadata_matches": true
+    },
+    {
+      "name": "failed_request_reporting_r7",
+      "xml": "failed_request_reporting.xml",
+      "executions": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 4,
+      "xml_duration_s": 0.133,
+      "stdout_passed": 4,
+      "stdout_duration_s": 0.13,
+      "metadata_matches": true
+    },
+    {
+      "name": "codex_review_r2_qwen_replay",
+      "xml": "qwen_boundary_replay.xml",
+      "executions": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 3,
+      "xml_duration_s": 2.054,
+      "stdout_passed": 3,
+      "stdout_duration_s": 2.05,
+      "metadata_matches": true
+    },
+    {
+      "name": "codex_review_r3_boundary_contracts",
+      "xml": "contract_probes_r3.xml",
+      "executions": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 19,
+      "xml_duration_s": 2.477,
+      "stdout_passed": 19,
+      "stdout_duration_s": 2.49,
+      "metadata_matches": true
+    },
+    {
+      "name": "codex_review_r4_remaining_contracts",
+      "xml": "contract_probes_r4.xml",
+      "executions": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 14,
+      "xml_duration_s": 2.957,
+      "stdout_passed": 14,
+      "stdout_duration_s": 2.96,
+      "metadata_matches": true
+    },
+    {
+      "name": "codex_review_r5_binding_and_dispatch",
+      "xml": "contract_probes_r5.xml",
+      "executions": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 12,
+      "xml_duration_s": 2.887,
+      "stdout_passed": 12,
+      "stdout_duration_s": 2.89,
+      "metadata_matches": true
+    },
+    {
+      "name": "codex_review_r6_trace_and_calibrator",
+      "xml": "contract_probes_r6.xml",
+      "executions": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 7,
+      "xml_duration_s": 3.032,
+      "stdout_passed": 7,
+      "stdout_duration_s": 3.04,
+      "metadata_matches": true
+    }
+  ],
+  "submitted_accounting": {
+    "total_test_executions": 504,
+    "distinct_test_identities": 471,
+    "repeated_executions": 33
+  },
+  "all_submitted_metadata_matches": true,
+  "historical_regression": {
+    "sha256": "de13ebdbbccfe16864884c777dd2433d6951266c195c44e8b6ea1773808f5d1e",
+    "received_as": "historical r5 baseline; not a fresh current-source regression run",
+    "rerun_in_this_review": false
+  },
+  "r4_incident": {
+    "incident": "r4_baseline_xml_overwrite_and_unavailability",
+    "file": "audit/rat_cot_runtime_codex_review_r4_20261021/baseline.xml",
+    "expected_sha256": "5ddaf8a3417ff6016367e0988b59bae0a5cbf08e2f37393fe222323b6eef6cdb",
+    "actual_sha256": "548a8a33352b56f41aa85d06b5e7c17a6818aa637e33f9fde317bbae295125bb",
+    "root_cause": "Prior acceptance test runner executed run_baseline.py directly, overwriting baseline.xml in-place with new run timings before runner redirection plugin was established.",
+    "recovery_action": "Preserved original manifest entry 5ddaf8a3... in r4/artifact_manifest.json as immutable record; recorded evidence loss incident explicitly; did not synthesize or forge JUnit timestamps. Mandated that all future acceptance runners redirect JUnit XML targets and probe fixtures to prior_probe_outputs/.",
+    "status": "closed_with_loss_recorded"
+  },
+  "data_hash_check": {
+    "entries": 13,
+    "mismatches": {},
+    "heldout_content_printed": false
+  },
+  "patch_replay": {
+    "exit_code": 0,
+    "files": {
+      "qwen_mlx_backend.py": {
+        "expected_current": "b2bcf97833cf5834721f3ef690195a632a060cd869c5fff7d938d0108748d9f7",
+        "replayed": "b2bcf97833cf5834721f3ef690195a632a060cd869c5fff7d938d0108748d9f7"
+      },
+      "reasoning/runtime.py": {
+        "expected_current": "fff8d4a814aea08ab46a8a0e6221478727d33e11c6bc9b1707cd30a495218893",
+        "replayed": "fff8d4a814aea08ab46a8a0e6221478727d33e11c6bc9b1707cd30a495218893"
+      },
+      "reasoning/bundle.py": {
+        "expected_current": "9bc8a004f559cc8de86b375262c7890cbbcefcb42c68a61c8b718bacb3857d64",
+        "replayed": "9bc8a004f559cc8de86b375262c7890cbbcefcb42c68a61c8b718bacb3857d64"
+      }
+    }
+  },
+  "independent_runs": {
+    "current_contracts.xml": {
+      "executions": 95,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 95,
+      "xml_duration_s": 7.217
+    },
+    "remaining_flow.xml": {
+      "executions": 4,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 2,
+      "xml_duration_s": 3.558
+    },
+    "remaining_flow_v2.xml": {
+      "executions": 4,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 2,
+      "xml_duration_s": 4.42
+    },
+    "remaining_flow_v3.xml": {
+      "executions": 4,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 2,
+      "xml_duration_s": 4.242
+    }
+  }
+}

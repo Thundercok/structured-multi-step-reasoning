@@ -1,0 +1,703 @@
+--- a/rat/engine/execution.py
++++ b/rat/engine/execution.py
+@@ -90,12 +90,14 @@
+ 
+     if has_refs:
+         sections.append("Prior Turn References:")
+-        for ref in snapshot["turn_references"][-4:]:
++        refs = snapshot["turn_references"]
++        pinned = [ref for ref in refs[:-4] if ref.get("turn_id") == t_ref.get("target_turn_id")]
++        for ref in pinned + refs[-4:]:
+             tid = ref.get("turn_id", "")
+             q = ref.get("user_query", "")
+             ans = ref.get("assistant_summary", "")
+             sections.append(f"- Turn {tid}: User: '{q}' -> Assistant: '{ans}'")
+-    elif has_history:
++    if has_history:
+         sections.append("Recent Dialogue:")
+         for msg in snapshot["history"][-4:]:
+             sections.append(f"- {msg.get('role', 'user')}: {msg.get('content', '')}")
+@@ -105,7 +107,11 @@
+ 
+     if has_artifacts and snapshot["artifact_refs"]:
+         art_summaries = []
+-        for a in snapshot["artifact_refs"][-4:]:
++        artifacts = snapshot["artifact_refs"]
++        pinned = [a for a in artifacts[:-4]
++                  if (a.get("id") or a.get("artifact_id")) == t_ref.get("target_artifact_id")
++                  and a.get("revision") == t_ref.get("target_revision")]
++        for a in pinned + artifacts[-4:]:
+             aid = a.get("id") or a.get("artifact_id")
+             rev = a.get("revision")
+             inputs = a.get("inputs") or {}
+@@ -115,6 +121,22 @@
+     sections.append("\n[Current Request]")
+     sections.append(clean_q)
+     return "\n".join(sections)
++
++
++def validate_referenced_context(snapshot):
++    """Explicit references are required inputs, rather than hints to guess at."""
++    target = snapshot.get("turn_ref") or {}
++    turn_id = target.get("target_turn_id")
++    if turn_id and not any(ref.get("turn_id") == turn_id
++                           for ref in snapshot.get("turn_references", []) + snapshot.get("history", [])):
++        raise ValueError("missing_referenced_turn")
++    artifact_id = target.get("target_artifact_id")
++    if artifact_id and not any(
++        (ref.get("id") or ref.get("artifact_id")) == artifact_id
++        and ref.get("revision") == target.get("target_revision")
++        for ref in snapshot.get("artifact_refs", [])
++    ):
++        raise ValueError("missing_referenced_artifact_revision")
+ 
+ 
+ @dataclass(frozen=True)
+@@ -130,25 +152,28 @@
+     max_strategy_invocations: int | None = None
+     max_underlying_requests: int | None = None
+     max_generated_tokens: int | None = None
++    _submitted_context: dict = field(init=False, repr=False, compare=False)
++    _snapshot: dict = field(init=False, repr=False, compare=False)
+ 
+     def __post_init__(self):
+         if self.lane not in {"auto", "assistant", "document", "reasoning", "operation"}:
+             raise ValueError("unknown_execution_lane")
+         if self.document_path and self.lane in {"reasoning", "operation"}:
+             raise ValueError("document_requires_qa_lane")
++        submitted = copy.deepcopy(self.context)
++        object.__setattr__(self, "_submitted_context", submitted)
++        object.__setattr__(self, "_snapshot", build_execution_context_snapshot(
++            self.query, turn_ref=self.turn_ref, execution_id=self.execution_id,
++            generation=self.generation, context=submitted,
++        ))
+ 
+     def assistant_context(self):
+-        return {**self.context, "turn_ref": self.turn_ref, "execution_id": self.execution_id}
++        return {**copy.deepcopy(self._submitted_context), "turn_ref": self.turn_ref,
++                "execution_id": self.execution_id}
+ 
+     def context_snapshot(self) -> Dict[str, Any]:
+         """Produce the immutable, hash-pinned context snapshot for this request."""
+-        return build_execution_context_snapshot(
+-            self.query,
+-            turn_ref=self.turn_ref,
+-            execution_id=self.execution_id,
+-            generation=self.generation,
+-            context=self.context,
+-        )
++        return copy.deepcopy(self._snapshot)
+ 
+ 
+ def execution_response(request, result):
+@@ -172,7 +197,7 @@
+     ledger = dict(result.cost_ledger or {})
+     prompt_tokens = ledger.get("prompt_tokens")
+     generated_tokens = ledger.get("generated_tokens", result.tokens)
+-    snap = request.context_snapshot() if hasattr(request, "context_snapshot") else None
++    snap = getattr(result, "context_snapshot", None) or request.context_snapshot()
+     t_ref = getattr(request, "turn_ref", None)
+     target_turn_id = getattr(t_ref, "target_turn_id", None) if hasattr(t_ref, "target_turn_id") else (t_ref.get("target_turn_id") if isinstance(t_ref, dict) else None)
+     target_artifact_id = getattr(t_ref, "target_artifact_id", None) if hasattr(t_ref, "target_artifact_id") else (t_ref.get("target_artifact_id") if isinstance(t_ref, dict) else None)
+@@ -193,6 +218,7 @@
+             "execution_mode": result.execution_mode,
+             "policy_source": result.policy_source,
+             "bundle_id": result.bundle_id,
++            "bundle_review_status": getattr(result, "bundle_review_status", None),
+             "cost_ledger": ledger,
+             "query_generation": request.generation,
+             "context_snapshot_schema": snap.get("schema_version") if snap else None,
+--- a/rat/ui/assistant_worker.py
++++ b/rat/ui/assistant_worker.py
+@@ -136,10 +136,19 @@
+             raise ValueError("missing_operation_callback")
+         return ArtifactWorker(operation, parent=parent, request=request)
+     try:
++        has_prior_reasoning = False
++        t_refs = request.context.get("turn_references") or []
++        t_ref = getattr(request, "turn_ref", None)
++        target_tid = getattr(t_ref, "target_turn_id", None) if hasattr(t_ref, "target_turn_id") else (t_ref.get("target_turn_id") if isinstance(t_ref, dict) else None)
++        if target_tid:
++            has_prior_reasoning = True
++        elif t_refs and any(r.get("execution_lane") == "reasoning" or r.get("status") == "completed" for r in t_refs[-2:]):
++            has_prior_reasoning = True
++
+         wants_reasoning = not request.document_path and (
+             request.lane == "reasoning" or
+             (request.lane == "auto" and reasoning_engine is not None
+-             and reasoning_engine.is_reasoning_query(request.query))
++             and (reasoning_engine.is_reasoning_query(request.query) or has_prior_reasoning))
+         )
+     except Exception:
+         return AssistantWorker(runtime, request.query, request=request,
+@@ -157,6 +166,12 @@
+                 startup_error=f"reasoning_policy_unavailable:{type(exc).__name__}", parent=parent)
+         from rat.ui.reasoning_worker import OnlineReasoningWorker
+         snapshot = request.context_snapshot() if hasattr(request, "context_snapshot") else None
++        try:
++            from rat.engine.execution import validate_referenced_context
++            validate_referenced_context(snapshot)
++        except (TypeError, ValueError, AttributeError):
++            return AssistantWorker(runtime, request.query, request=request,
++                startup_error="reasoning_context_unavailable", parent=parent)
+         worker = OnlineReasoningWorker(
+             reasoning_engine, request.query, execution_id=request.execution_id,
+             query_generation=request.generation, timeout_s=request.timeout_s,
+--- a/rat/ui/reasoning_worker.py
++++ b/rat/ui/reasoning_worker.py
+@@ -9,6 +9,7 @@
+ from __future__ import annotations
+ 
+ import hashlib
++import copy
+ import logging
+ from pathlib import Path
+ import time
+@@ -54,7 +55,7 @@
+         self.max_strategy_invocations = max_strategy_invocations
+         self.max_underlying_requests = max_underlying_requests
+         self.max_generated_tokens = max_generated_tokens
+-        self.context_snapshot = context_snapshot
++        self.context_snapshot = copy.deepcopy(context_snapshot)
+ 
+     def run(self) -> None:
+         started_t = time.monotonic()
+@@ -192,6 +193,9 @@
+                     res.steps.append("Document changed during reasoning execution; marked unresolved.")
+ 
+             res.backend_input = query_to_solve
++            res.query = self.query
++            res.context_snapshot = copy.deepcopy(self.context_snapshot)
++            res.bundle_review_status = getattr(getattr(self.engine._controller, "bundle", None), "review_status", None)
+             if self.isInterruptionRequested() or res.status == "cancelled":
+                 self.status_changed.emit("cancel")
+             elif res.status in ("timeout", "failed", "budget_exceeded"):
+@@ -259,4 +263,6 @@
+                 cost_ledger=ledger_dict,
+             )
+             failed_res.backend_input = query_to_solve
++            failed_res.context_snapshot = copy.deepcopy(self.context_snapshot)
++            failed_res.bundle_review_status = getattr(getattr(self.engine._controller, "bundle", None), "review_status", None)
+             self.response_ready.emit(failed_res)
+--- a/rat/ui/omnibar.py
++++ b/rat/ui/omnibar.py
+@@ -4457,15 +4457,23 @@
+             {"id": a.id, "kind": a.kind, "revision": a.revision, "title": a.title, "inputs": getattr(a, "inputs", {})}
+             for a in (art_store.list() if art_store is not None else [])
+         ]
++        if art_store is not None and target_artifact_id and target_revision is not None:
++            source_artifact = art_store.get(target_artifact_id, revision=target_revision)
++            if source_artifact is not None and not any(
++                a["id"] == source_artifact.id and a["revision"] == source_artifact.revision
++                for a in active_arts
++            ):
++                active_arts.append(source_artifact.to_dict())
++        host = QApplication.instance()
+         request = ExecutionRequest(
+             q, execution_id=execution_id, generation=self._chat_generation,
+             turn_ref=turn_ref, document_path=selected_document_path,
++            lane="reasoning" if not selected_document_path and host.property("ratReasoningConversation") is True else "auto",
+             context=dict(history=history_messages, previous_sources=list(self._assistant_sources),
+                          member_id=self.current_member.id, task_state=dict(self._assistant_task_state),
+                          turn_references=turn_references, artifact_refs=active_arts),
+         )
+         handle["execution_request"] = request
+-        host = QApplication.instance()
+         worker = create_execution_worker(self.assistant_runtime, request,
+             reasoning_engine=host.property("ratReasoningEngine"),
+             allow_synthetic_policy=host.property("ratAllowSyntheticPolicy") is True,
+@@ -4735,6 +4743,8 @@
+             answer = response.answer
+             self._complete_chat_turn(answer, handle=handle, response=response)
+             self.footer_status.setText("Đã trả lời · có thể hỏi tiếp")
++            if qa_tel.get("bundle_review_status") == "synthetic_development_only":
++                self.footer_status.setText("Bản thử nghiệm · kết quả fixture, chưa đánh giá model")
+         self._current_reasoner = None
+         self._assistant_handle = None
+         self._assistant_sources = list(response.sources or self._assistant_sources)[-12:]
+--- a/rat/os/app.py
++++ b/rat/os/app.py
+@@ -70,10 +70,14 @@
+     open_widget_signal = pyqtSignal()
+     open_natal_signal = pyqtSignal()
+ 
+-    def __init__(self, mode: str = "all") -> None:
++    def __init__(self, mode: str = "all", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
+         install_crash_shield()
+         self.app = QApplication.instance() or QApplication(sys.argv)
+         super().__init__()
++        if reasoning_engine is not None:
++            from rat.ui.reasoning_host import install_reasoning_engine
++            install_reasoning_engine(self.app, reasoning_engine,
++                                     allow_synthetic_policy=allow_synthetic_policy)
+         self.mode = mode
+         self.app.setApplicationName("rat — macOS Smart AI File Finder")
+         self.app.setQuitOnLastWindowClosed(False)  # Keep running in menu bar
+@@ -448,7 +452,7 @@
+         return self.app.exec()
+ 
+ 
+-def run_resident_app(mode: str = "finder") -> None:
++def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
+     """Launch the resident system with strict single-instance enforcement."""
+     # Ensure QApplication exists for socket IPC and event processing
+     app = QApplication.instance() or QApplication(sys.argv)
+@@ -464,5 +468,9 @@
+         logger.info(f"Cleaned up {killed} stale orphan rat process(es).")
+ 
+     # 3. Launch the single resident application
+-    res_app = ResidentApplication(mode=mode)
++    if reasoning_engine is None:
++        res_app = ResidentApplication(mode=mode)
++    else:
++        res_app = ResidentApplication(mode=mode, reasoning_engine=reasoning_engine,
++                                      allow_synthetic_policy=allow_synthetic_policy)
+     sys.exit(res_app.run())
+--- a/rat/main.py
++++ b/rat/main.py
+@@ -19,13 +19,17 @@
+     run_cli()
+ 
+ 
+-def run_resident_app(mode: str = "finder") -> None:
++def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
+     # Qt and resident services are needed only for a GUI launch. Install the
+     # GUI exception hooks before importing or constructing Qt components.
+     from rat.os.crash_shield import install_crash_shield
+     install_crash_shield()
+     from rat.os.app import run_resident_app as launch
+-    launch(mode=mode)
++    if reasoning_engine is None:
++        launch(mode=mode)
++    else:
++        launch(mode=mode, reasoning_engine=reasoning_engine,
++               allow_synthetic_policy=allow_synthetic_policy)
+ 
+ 
+ def main() -> None:
+--- a/reasoning/bundle.py
++++ b/reasoning/bundle.py
+@@ -317,6 +317,12 @@
+                             live_calibrators = getattr(policy, "calibrators", None)
+                             if "calibrators" in art_data:
+                                 cal_art = art_data["calibrators"]
++                                if bundle.calibrator_type == "isotonic":
++                                    errors.append("Approved isotonic calibration artifact binding is not supported; cannot execute this bundle.")
++                                if bundle.calibrator_type == "platt" and (
++                                    not isinstance(cal_art, list) or len(cal_art) != len(policy.tau)
++                                ):
++                                    errors.append(f"Artifact '{art_key}' calibrators must cover every stopping threshold.")
+                                 if not isinstance(cal_art, list) or (live_calibrators is not None and len(cal_art) != len(live_calibrators)):
+                                     errors.append(f"Artifact '{art_key}' calibrators count does not match live policy calibrators.")
+                                 elif live_calibrators is not None:
+@@ -326,6 +332,10 @@
+                                             continue
+                                         live_cal = live_calibrators[idx]
+                                         if isinstance(live_cal, PlattCalibrator):
++                                            if c_dict.get("type") != "platt":
++                                                errors.append(f"Artifact '{art_key}' calibrators[{idx}] type must be platt.")
++                                            if c_dict.get("is_fitted") is not True or getattr(live_cal, "is_fitted", None) is not True:
++                                                errors.append(f"Artifact '{art_key}' calibrators[{idx}] and live calibrator must both be fitted.")
+                                             for p_name in ("a", "b"):
+                                                 if p_name not in c_dict:
+                                                     errors.append(f"Artifact '{art_key}' calibrators[{idx}] missing '{p_name}'.")
+--- a/tests/test_dsa_multi_turn_flow.py
++++ b/tests/test_dsa_multi_turn_flow.py
+@@ -109,8 +109,10 @@
+     bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
+     engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
+ 
+-    app.setProperty("ratReasoningEngine", engine)
+-    app.setProperty("ratAllowSyntheticPolicy", True)
++    from rat.ui.reasoning_host import install_reasoning_engine
++    previous_host = {name: app.property(name) for name in (
++        "ratReasoningEngine", "ratAllowSyntheticPolicy", "ratReasoningConversation")}
++    install_reasoning_engine(app, engine, allow_synthetic_policy=True)
+ 
+     window = OmnibarWindow()
+     window.show_omnibar()
+@@ -121,8 +123,8 @@
+     window.shutdown()
+     window.hide()
+     window.deleteLater()
+-    app.setProperty("ratReasoningEngine", None)
+-    app.setProperty("ratAllowSyntheticPolicy", None)
++    for name, value in previous_host.items():
++        app.setProperty(name, value)
+     app.processEvents()
+ 
+ 
+@@ -151,7 +153,7 @@
+     telem = window.last_turn_telemetry
+     assert telem["execution_lane"] == "reasoning"
+     assert telem["execution_mode"] == "online_policy"
+-    assert telem["policy_source"] == "synthetic_specimen_dev"
++    assert telem["policy_source"] == test_env.bundle.bundle_id
+     assert telem["query_generation"] == 0
+     assert telem["user_displayed_query"] == q1
+     assert telem["context_snapshot_schema"] == CONTEXT_ADAPTER_SCHEMA_VERSION
+@@ -265,6 +267,10 @@
+     backend = test_env.backend
+     art_store = window.assistant_runtime.artifact_store
+ 
++    # Setup Turn 1
++    window._submit_chat_prompt("Giải thích binary search")
++    until(app, lambda: window._pending_chat_query is None)
++
+     # Setup Turn 2 with art-dsa-search@v1
+     art_v1 = Artifact(
+         id="art-dsa-search",
+@@ -276,9 +282,16 @@
+         title="Tìm 8",
+     )
+     art_store.put(art_v1)
+-    window._conversation.add_turn("Tìm 8", "Kết quả tìm 8", turn_id="turn-2", artifact_refs=[art_v1.to_dict()])
+-
+-    # Step 4: Change target to 6
++    window._submit_chat_prompt("Dùng mảng [2, 4, 6, 8, 10], tìm 8")
++    until(app, lambda: window._pending_chat_query is None)
++
++    # Attach artifact to Turn 2
++    turn_2_snap = window._conversation.get_turn("turn-2")
++    assert turn_2_snap is not None
++    turn_2_snap.artifact_refs = [art_v1.to_dict()]
++    window._conversation._turn_snapshots["turn-2"] = turn_2_snap
++
++    # Step 4: Change target to 6 (Turn 3)
+     q4 = "Đổi sang tìm 6 nhé."
+     backend.answer_text = "Tìm 6: mid=2, a[2]=6 == 6 => tìm thấy ngay tại index 2."
+     window._submit_chat_prompt(q4, target_turn_id="turn-2", target_artifact_id="art-dsa-search", target_revision=1)
+@@ -454,15 +467,29 @@
+ 
+ # --- Bước 7d: Hủy hoặc deadline khi đang chạy ---
+ 
+-def test_step_7d_deadline_timeout_stops_and_preserves_cost(test_env):
++def test_step_7d_deadline_timeout_stops_and_preserves_cost(app):
+     backend = RecordingBackend(delay_s=0.2)
+     bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
+     engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
+ 
+-    deadline = time.monotonic() + 0.05
+-    res = engine.solve("query ladder tight deadline", deadline_monotonic=deadline)
+-
++    worker = OnlineReasoningWorker(
++        engine,
++        "query ladder tight deadline",
++        execution_id="exec-timeout",
++        timeout_s=0.04,
++    )
++    responses = []
++    statuses = []
++    worker.status_changed.connect(statuses.append)
++    worker.response_ready.connect(responses.append)
++    worker.start()
++    until(app, lambda: worker.isFinished())
++    app.processEvents()
++
++    assert len(responses) == 1
++    res = responses[0]
+     assert res.status == "timeout"
++    assert "wait" in statuses
+     assert res.verification_status == "unverified"
+     assert res.cost_ledger is not None
+     assert res.cost_ledger["status"] == "timeout"
+--- a/tests/test_execution_flow.py
++++ b/tests/test_execution_flow.py
+@@ -26,7 +26,7 @@
+ def collect(app, worker, signal="response_ready"):
+     spy = QSignalSpy(getattr(worker, signal))
+     worker.start()
+-    assert spy.wait(5000), "worker did not deliver a response"
++    assert spy or spy.wait(5000), "worker did not deliver a response"
+     assert worker.wait(5000)
+     app.processEvents()
+     return spy[0][0]
+--- a/rat/engine/meta_reasoner.py
++++ b/rat/engine/meta_reasoner.py
+@@ -63,6 +63,9 @@
+     cost_ledger: Optional[Dict[str, Any]] = None
+     execution_id: Optional[str] = None
+     query_generation: Optional[int] = None
++    context_snapshot: Optional[Dict[str, Any]] = None
++    backend_input: Optional[str] = None
++    bundle_review_status: Optional[str] = None
+ 
+ 
+ # Domain Knowledge Base for TDTU Regulations & Academic Policies
+--- a/rat/ui/reasoning_host.py
++++ b/rat/ui/reasoning_host.py
+@@ -0,0 +1,20 @@
++"""Explicit composition of an existing engine into the RAT conversation host.
++
++No provider discovery, model loading, or policy approval occurs here.
++"""
++from __future__ import annotations
++
++
++def install_reasoning_engine(app, engine, *, allow_synthetic_policy=False):
++    from reasoning.bundle import validate_policy_bundle
++
++    controller = getattr(engine, "_controller", None)
++    if controller is None or controller.bundle is None:
++        raise ValueError("reasoning_policy_unavailable")
++    report = validate_policy_bundle(controller.bundle, controller.policy, controller.backend,
++                                    allow_synthetic=allow_synthetic_policy)
++    # Validate before publishing any property; failed configuration keeps the old host.
++    app.setProperty("ratReasoningEngine", engine)
++    app.setProperty("ratAllowSyntheticPolicy", allow_synthetic_policy is True)
++    app.setProperty("ratReasoningConversation", True)
++    return report
+--- a/tests/test_reasoning_conversation.py
++++ b/tests/test_reasoning_conversation.py
+@@ -0,0 +1,143 @@
++"""One RAT conversation with a composed fixture engine; no model service or weights."""
++from contextlib import contextmanager
++from types import SimpleNamespace
++from unittest.mock import Mock
++
++import numpy as np
++import pytest
++from PyQt6.QtCore import Qt
++from PyQt6.QtTest import QTest
++
++from tests.test_flow_interaction import app, window, until
++from tests.test_execution_flow import collect, runtime
++from rat.engine.execution import ExecutionRequest, execution_response, render_backend_input
++from rat.engine.meta_reasoner import build_composed_meta_reasoner
++from rat.ui.assistant_worker import create_execution_worker
++from rat.ui.reasoning_host import install_reasoning_engine
++from reasoning.bundle import BundleValidationError, create_synthetic_specimen_bundle
++
++
++class RecordingBackend:
++    hidden_size = 2
++
++    def __init__(self):
++        self.inputs = []
++        self.embeddings = []
++
++    def embed(self, query):
++        self.embeddings.append(query)
++        return np.zeros(2)
++
++    def run(self, strategy, query, **kwargs):
++        self.inputs.append(query)
++        return f'Authored fixture reply {len(self.inputs)}', .99, 2
++
++
++def composed():
++    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
++    backend = RecordingBackend()
++    return build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True), backend
++
++
++@contextmanager
++def installed(app, engine):
++    names = ('ratReasoningEngine', 'ratAllowSyntheticPolicy', 'ratReasoningConversation')
++    previous = {name: app.property(name) for name in names}
++    try:
++        install_reasoning_engine(app, engine, allow_synthetic_policy=True)
++        yield
++    finally:
++        for name, value in previous.items():
++            app.setProperty(name, value)
++
++
++def test_request_freezes_context_before_worker_and_evidence_uses_executed_snapshot(app):
++    engine, backend = composed()
++    target = runtime()
++    context = {'history': [{'role': 'user', 'content': 'array=[2,4,6,8,10], target=8', 'turn_id': 'turn-2'}],
++               'task_state': {'array': [2, 4, 6, 8, 10], 'target': 8}}
++    request = ExecutionRequest('Sao phải dùng mid + 1?', 'followup', 3,
++                               SimpleNamespace(turn_id='turn-3'), lane='reasoning', context=context)
++    original = request.context_snapshot()
++    context['history'][0]['content'] = 'MUTATED_AFTER_SUBMIT'
++    context['task_state']['target'] = 100
++    request.context['task_state']['array'].clear()
++    returned = request.context_snapshot()
++    returned['task_state']['target'] = -1
++    worker = create_execution_worker(target, request, reasoning_engine=engine, allow_synthetic_policy=True)
++    result = collect(app, worker)
++    response = execution_response(request, result)
++    assert 'MUTATED_AFTER_SUBMIT' not in backend.inputs[0]
++    assert '[2, 4, 6, 8, 10]' in backend.inputs[0] and 'target=8' in backend.inputs[0]
++    assert request.context_snapshot() == original == result.context_snapshot
++    assert response.qa_telemetry['context_snapshot_hash'] == original['snapshot_hash']
++    assert result.query == request.query == response.qa_telemetry['user_displayed_query']
++    assert response.answer_verification_status == 'UNKNOWN'
++    target.run.assert_not_called()
++
++
++def test_explicit_old_references_survive_recent_context_window():
++    request = ExecutionRequest('explain the selected result', turn_ref={
++        'target_turn_id': 'turn-1', 'target_artifact_id': 'selected', 'target_revision': 4},
++        context={'turn_references': [{'turn_id': f'turn-{i}', 'user_query': f'query {i}'} for i in range(1, 9)],
++                 'history': [{'role': 'assistant', 'content': 'array facts absent from clipped reference'}],
++                 'artifact_refs': [{'id': 'selected', 'revision': 4, 'inputs': {'target': 8}}] +
++                                  [{'id': f'other-{i}', 'revision': 1} for i in range(6)]})
++    text = render_backend_input(request.query, request.context_snapshot())
++    assert 'query 1' in text and 'selected@v4' in text
++    assert 'array facts absent from clipped reference' in text
++
++
++@pytest.mark.parametrize('turn_ref', [
++    {'target_turn_id': 'missing'},
++    {'target_artifact_id': 'missing', 'target_revision': 4},
++])
++def test_missing_required_reference_fails_before_any_dispatch(app, turn_ref):
++    engine, backend = composed()
++    target = runtime()
++    request = ExecutionRequest('explain that', lane='reasoning', turn_ref=turn_ref)
++    worker = create_execution_worker(target, request, reasoning_engine=engine, allow_synthetic_policy=True)
++    response = collect(app, worker)
++    assert response.error == 'reasoning_context_unavailable'
++    assert backend.inputs == backend.embeddings == []
++    target.run.assert_not_called()
++
++
++def test_host_rejects_unapproved_configuration_without_replacing_working_host(app):
++    engine, backend = composed()
++    with installed(app, engine):
++        with pytest.raises(BundleValidationError):
++            install_reasoning_engine(app, engine)
++        assert app.property('ratReasoningEngine') is engine
++        assert app.property('ratAllowSyntheticPolicy') is True
++        assert app.property('ratReasoningConversation') is True
++        assert backend.inputs == []
++
++
++def test_typed_multiturn_conversation_uses_one_engine_and_preserves_history(window, app):
++    engine, backend = composed()
++    target = window.assistant_runtime
++    target.run = Mock(side_effect=AssertionError('reasoning conversation fell back to assistant'))
++    queries = ['Giải thích binary search bằng ví dụ nhỏ, chưa đưa code.',
++               'Dùng mảng [2,4,6,8,10], tìm 8.', 'Sao phải dùng mid + 1?', 'Đổi sang tìm 6.']
++    with installed(app, engine):
++        for i, query in enumerate(queries, 1):
++            window.chat_composer_input.setText(query)
++            QTest.keyClick(window.chat_composer_input, Qt.Key.Key_Return)
++            until(app, lambda: window._pending_chat_query is None and len(backend.inputs) == i)
++            assert window.last_turn_telemetry['user_displayed_query'] == query
++            assert window.last_turn_telemetry['bundle_review_status'] == 'synthetic_development_only'
++        turns = window._conversation.turns()
++        assert [t.query for t in turns] == queries
++        assert [t.answer for t in turns] == [f'Authored fixture reply {i}' for i in range(1, 5)]
++        assert len({t.execution_id for t in turns}) == 4
++        assert len({t.turn_ref.conversation_id for t in turns}) == 1
++        assert all(t.status == 'completed' for t in turns)
++        assert '[2,4,6,8,10]' in backend.inputs[2]
++        assert 'binary search' in backend.inputs[2].lower()
++        assert 'fixture' in window.footer_status.text()
++        window.chat_composer_input.setText('Bản nháp đang soạn')
++        assert window.navigate_to_turn(turns[1].turn_id)
++        assert window.chat_composer_input.text() == 'Bản nháp đang soạn'
++        assert len(backend.inputs) == 4
++        target.run.assert_not_called()
+--- a/tests/test_policy_calibration_binding.py
++++ b/tests/test_policy_calibration_binding.py
+@@ -0,0 +1,72 @@
++"""Authored approved-metadata fixtures exercise validation, not policy approval or quality."""
++from dataclasses import replace
++import hashlib
++import json
++from pathlib import Path
++
++import pytest
++
++from reasoning.bundle import BundleValidationError, create_synthetic_specimen_bundle, validate_policy_bundle
++from reasoning.optimal_stopping import PlattCalibrator
++
++
++def approved_fixture(tmp_path):
++    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
++    policy.calibrators = [PlattCalibrator() for _ in policy.tau]
++    for calibrator in policy.calibrators:
++        calibrator.a, calibrator.b, calibrator.is_fitted = 0., -20., True
++    artifact = tmp_path / 'fitted-policy.json'
++    artifact.write_text(json.dumps({
++        'lambda': policy.lam, 'tau': policy.tau, 'mean_cost': policy.mean_cost,
++        'entry_cost_models': [{'coef': m.coef_.tolist(), 'intercept': float(m.intercept_)}
++                              for m in policy.entry_predictor.cost],
++        'entry_perf_models': [{'constant': m.value} for m in policy.entry_predictor.perf],
++        'calibrators': [{'type': 'platt', 'a': c.a, 'b': c.b, 'is_fitted': c.is_fitted}
++                        for c in policy.calibrators],
++    }))
++    source = Path(__file__).resolve()
++    bundle = replace(bundle, review_status='approved', is_production_approved=True,
++                     review_scope='authored validation fixture only', calibrator_type='platt',
++                     calibrator_semantics='platt_probability',
++                     source_hashes={str(source): hashlib.sha256(source.read_bytes()).hexdigest()},
++                     artifact_hashes={str(artifact): hashlib.sha256(artifact.read_bytes()).hexdigest()})
++    return bundle, policy, artifact
++
++
++def test_reference_calibrated_policy_validates(tmp_path):
++    bundle, policy, _ = approved_fixture(tmp_path)
++    assert validate_policy_bundle(bundle, policy).is_valid
++
++
++@pytest.mark.parametrize('mutation', ['a', 'b', 'fitted', 'count'])
++def test_live_calibration_changes_cannot_reuse_approved_artifact(tmp_path, mutation):
++    bundle, policy, _ = approved_fixture(tmp_path)
++    assert validate_policy_bundle(bundle, policy).is_valid
++    if mutation in ('a', 'b'):
++        setattr(policy.calibrators[0], mutation, 20.)
++    elif mutation == 'fitted':
++        policy.calibrators[0].is_fitted = False
++    else:
++        policy.calibrators.pop()
++    with pytest.raises(BundleValidationError, match='calibrator'):
++        validate_policy_bundle(bundle, policy)
++
++
++@pytest.mark.parametrize('mutation', ['type', 'fitted', 'count', 'missing', 'isotonic'])
++def test_unsupported_or_incomplete_calibration_artifacts_fail_closed(tmp_path, mutation):
++    bundle, policy, artifact = approved_fixture(tmp_path)
++    data = json.loads(artifact.read_text())
++    if mutation == 'type':
++        data['calibrators'][0]['type'] = 'isotonic'
++    elif mutation == 'fitted':
++        del data['calibrators'][0]['is_fitted']
++    elif mutation == 'count':
++        data['calibrators'].pop()
++    elif mutation == 'missing':
++        del data['calibrators']
++    else:
++        bundle = replace(bundle, calibrator_type='isotonic')
++    artifact.write_text(json.dumps(data))
++    bundle = replace(bundle, artifact_hashes={str(artifact): hashlib.sha256(artifact.read_bytes()).hexdigest()})
++    with pytest.raises(BundleValidationError, match='calibrat'):
++        validate_policy_bundle(bundle, policy)
+--- a/docs/rat_cot_end_to_end_next_20261022.md
++++ b/docs/rat_cot_end_to_end_next_20261022.md
+@@ -1,6 +1,30 @@
+ # Bước tiếp theo: hoàn thiện một luồng RAT–CoT xuyên suốt
+ 
+ Ngày 2026-10-22, Asia/Saigon. Chuẩn bị độc lập trong lúc Anti xử lý runtime; chưa thay đổi production, default model, policy approval hoặc research protocol.
++
++## Cập nhật sau tích hợp và phản hồi UI — 2026-10-22
++
++**Luồng vừa kiểm là Widgets, chưa phải UI Qt Quick người dùng đang hoàn thiện.**
++Các đường `~/github/nesy-docai` và checkout hiện tại trỏ cùng thư mục thật;
++sự khác nhau hiện nằm ở entry point và wiring, không phải ba phiên bản Git.
++
++| Bề mặt | Entry point | Đường thực thi hiện tại |
++| --- | --- | --- |
++| Widgets / Omnibar | `python main.py` | ExecutionRequest → factory → worker → composed reasoning khi cấu hình host; đã kiểm hội thoại bằng fixture. |
++| Prototype QML | `python scripts/preview_rat_quick.py` | PaperDesk.qml, dữ liệu/trạng thái fixture. |
++| Qt Quick PDF | `python main.py quick-pdf` | PDFDesk.qml → QuickPDFController → selected_pdf; đọc/tìm PDF thật, chưa gọi reasoning worker. |
++
++Bản Quick là hướng UI đang được phát triển theo ADR-005; default Widgets chưa
++được chuyển. **Bước tiếp theo phải nối runtime chung vào chính bề mặt Quick đã
++chọn**, giữ các sửa thiết kế/PDF hiện có. Tái sử dụng ExecutionRequest, model
++owner, policy validation và lifecycle; bổ sung adapter sự kiện QML, không tạo
++controller suy luận hay state store thứ hai. Không tự đổi default/packaging chỉ
++vì tests phần mềm đạt.
++
++Đơn vị nghiệm thu là cùng một entry point/cửa sổ: ghi rõ UI source, adapter,
++engine/bundle và backend mode. Test worker hoặc test Widgets không đủ để nói
++UI Quick đã tích hợp. Các mục bên dưới giữ source map/kịch bản của lần chuẩn
++bị; trạng thái source đã tiến thêm và cần đọc cùng cập nhật này.
+ 
+ ## Kết quả cần đạt
+ 

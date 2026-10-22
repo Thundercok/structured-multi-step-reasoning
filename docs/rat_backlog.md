@@ -136,9 +136,13 @@ chứng năng lực. Cấu hình model mặc định, pipeline NCKH và Stage 0 
 
 ## Ưu tiên cuối cùng: đánh giá chuyển giao diện sang Qt Quick/QML
 
-**RAT-ARCH-05 — Hoãn, xếp sau các mục RAT còn lại**, theo yêu cầu người dùng
-ngày 2026-10-15. Tiếp tục dùng PyQt hiện tại; chưa làm bản thử hoặc chuyển
-framework trong đợt công việc hiện tại.
+**RAT-ARCH-05 — Đang thử từng phần, cập nhật 2026-10-22.** Người dùng đã đồng ý
+thử Qt Quick/QML và chọn luồng PDF offline làm công năng đầu tiên. Có component
+dùng chung và entry point `python main.py quick-pdf`: chọn tệp → tìm trang →
+đọc đúng trang → chép trích dẫn, dùng backend đọc PDF hiện có. Xem
+[luồng Qt Quick PDF](rat_quick_pdf_20261022.md) và
+[ADR-005](adr-005-rat-quick-ui-preview.md). Default Widgets/rat.app chưa thay.
+Quyết định hoãn ngày 2026-10-15 là lịch sử trước yêu cầu mới này.
 
 Khi đến lượt, thử riêng Workbench gồm Chuột, hai bong bóng, ô nhập và thẻ file,
 giữ engine Python hiện có. Mục tiêu nền tảng là macOS, Windows và Linux.

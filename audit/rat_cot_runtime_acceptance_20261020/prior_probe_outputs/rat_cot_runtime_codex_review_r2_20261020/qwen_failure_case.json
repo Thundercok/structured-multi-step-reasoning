@@ -31,6 +31,17 @@
         "prompt_tokens": 9,
         "output": "Answer: 1",
         "finish_reason": "eos"
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "authored synthetic arithmetic fixture\nWrite concise steps in plain text without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer."
+          }
+        ],
+        "status": "failed",
+        "finish_reason": "error",
+        "tokens": 0
       }
     ],
     "tools": []

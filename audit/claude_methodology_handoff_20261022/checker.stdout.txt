@@ -1,0 +1,50 @@
+tagged lines checked: 132 | numeric tokens checked: 742 | NOT FOUND: 0 | untagged lines with decimal-comma numbers: 49
+  UNTAGGED   HANDOFF.md:37 | 3. **Các quần thể γ < 0 (B, A, S, V, X) trái với số pilot:** B, S, V, X có mean q ≤ {0,19} (pilot: CONT 8/12 =
+  UNTAGGED   HANDOFF.md:51 | | **S-p** | Synthetic nhưng **tham số bị ràng buộc bởi số P**: v_CONT ≤ 0,132 (cả PC0–PC4); mean q = 0,667 chỉ
+  UNTAGGED   HANDOFF.md:56 | - CONT accuracy 8/12 = 0,667; 0/12 flip giữa các draw ⇒ Clopper–Pearson 95% upper của xác suất flip = 0,2646 ⇒
+  UNTAGGED   HANDOFF.md:57 | - Tái dựng 12×2 (docstring `varcomp.py`): per-draw counts A 6/5, F 9/8; (b,c) mỗi draw (5,2), (3,0); d_null A 
+  UNTAGGED   HANDOFF.md:94 | - δ_prac = 0,10 (giá trị synthetic, **không phải lựa chọn của user**). "Biên" = true effect đúng bằng δ_prac. 
+  UNTAGGED   HANDOFF.md:96 | - Johnson: $T_J = T + \hat\gamma\,(2T^2+1)/(6\sqrt{n})$. γ0 cố định ≡ plain t với ngưỡng $T_{lo}(\gamma_0)$ = 
+  UNTAGGED   HANDOFF.md:97 | - Tango (m=1): score test cặp nhị phân tại δ_prac; z\* hiệu chỉnh để size worst-case theo discordance d ≤ 2,5%
+  UNTAGGED   HANDOFF.md:98 | - Sai số MC: ô 2,5% ≈ 0,03–0,12 pt tùy R (ghi ở header từng output; riêng `ct_*` với REPS = 4000: ≈ {0,25} pt)
+  UNTAGGED   HANDOFF.md:104 | | `gonogo.py` (v2) | Luật GO / NO-GO / UNDETERMINED bằng Tango tại δ_prac; calibrate z\*; n cho power 0,80 | `
+  UNTAGGED   HANDOFF.md:109 | | `mid_acc.py` | γ, κ khi mean q ≈ 0,5–0,7 (docstring gọi là "pilot regime", xem C13), mọi quần thể | — | tất 
+  UNTAGGED   HANDOFF.md:113 | | `skew_search2.py` | Tìm quần thể held-out / out-of-range cho γ0 = −1,6 | — | tất định | — | C |
+  UNTAGGED   HANDOFF.md:121 | | `beta_mc.py M R` | PC0–PC4 (Beta q-law, E2/E3); ngưỡng cố định 2,238 / 2,448 / 2,647 | `3 150000`; `5 150000
+  UNTAGGED   HANDOFF.md:122 | | `fixed_critical.py M R0 R1` | Johnson(γ0 = −1,6) ≡ plain t với 2,448; held-out V1–V4; out-of-range X1–X2 | `
+  UNTAGGED   HANDOFF.md:134 | | `pc4_insured.py R` | PC4 GO power tại e = 0,18 với ngưỡng bảo hiểm, m = 3 và 5 | `40000` | `31337+M` | — | C
+  UNTAGGED   HANDOFF.md:136 | | `power_rows_highd.py` | n cho power 0,80 khi d ≈ 0,5–0,6 | — | tất định | — | C |
+  UNTAGGED   HANDOFF.md:148 | | `betting_slack.py` | Vì sao betting test có size ≈ 0,2%? (CLT-regime) | REPS = 4000 | `Random(99)`, `Random(
+  UNTAGGED   HANDOFF.md:159 | | `reply7_check.py` | DEFF 1,87, Clopper–Pearson, lưới m\* | tham số `seed=1` (trong `calibrate`) | — | C |
+  UNTAGGED   HANDOFF.md:170 | | B | 0,05 (60%) hoặc 0,40 (40%) | p = q + 0,10 | fc, og, ce, ct, ct2, tp2, pc, wt, betting |
+  UNTAGGED   HANDOFF.md:171 | | A | q ~ U(0,2; 0,7) | p = q + 0,10 | như B |
+  UNTAGGED   HANDOFF.md:172 | | S2 | 0,05 (90%) / 0,60 (10%) | p = q + 0,10 | fc, og, ce, ct2, tp2 |
+  UNTAGGED   HANDOFF.md:173 | | S1 | 0,05 (90%) / 0,30 (10%) | p = q + 0,10 | như S2 |
+  UNTAGGED   HANDOFF.md:174 | | V1–V4 | (0,02; 0,20 @ 80/20), (0,03; 0,60 @ 97/3), (0,01; 0,20 @ 93/7), (0,05; 0,45 @ 95/5) | p = q + 0,10 |
+  UNTAGGED   HANDOFF.md:175 | | X1, X2 | (0,05; 0,20 @ 93/7), (0,03; 0,20 @ 97/3) | p = q + 0,10 | fc, tp2 — **out-of-range** (γ < −1,6 ở m=
+  UNTAGGED   HANDOFF.md:176 | | M1–M5 | nhiều điểm; mean q 0,45–0,58 | p = min(1, q + 0,10) | rt |
+  UNTAGGED   HANDOFF.md:177 | | H1–H3 | H1: 45% +0,30 và 7% −0,50; H2: 30% +0,50 và 1/6 −0,30; H3: q ~ U(0,25; 0,60), effect ~ U(−0,2; 0,4) 
+  UNTAGGED   HANDOFF.md:178 | | PC0–PC4 | q ~ Beta(μs, (1−μ)s): PC0 (0,50; 0,5; E3), PC1 (0,667; 1,0; E2), PC2 (0,667; 0,5; E3), PC3 (0,78; 
+  UNTAGGED   HANDOFF.md:179 | | NEG1 | q ~ U(0,05; 0,65) | p = q + 0,10 | pc, wt |
+  UNTAGGED   HANDOFF.md:181 | Ràng buộc pilot cho PC: v_CONT = E[q(1−q)] = μ(1−μ)·s/(s+1) ≤ 0,132 (từ 0/12 flip); tại μ = 0,667 ⇒ s ≤ 1,46 (
+  UNTAGGED   HANDOFF.md:187 | Ký hiệu: γ = skewness của x_i, κ = excess kurtosis (chính xác, enumeration). "Plain" = ngưỡng 2,001. "c cần" =
+  UNTAGGED   HANDOFF.md:189 | ### 5.1 q-law Beta thỏa v_CONT ≤ 0,132 (S-p): γ > 0 ⇒ NO-GO là đuôi bị lộ (`beta_mc.py`)
+  UNTAGGED   HANDOFF.md:195 | | PC (μ · s · mô hình) | γ | κ | plain GO % | plain NO-GO % | NO-GO size tại 2,238 / 2,448 / 2,647 | c cần GO 
+  UNTAGGED   HANDOFF.md:205 | | PC | γ | κ | plain GO % | plain NO-GO % | NO-GO size tại 2,238 / 2,448 / 2,647 | c cần GO / NO | Nguồn |
+  UNTAGGED   HANDOFF.md:219 | ### 5.2 Ngưỡng cố định (fixed-γ0 = −1,6 ⇒ 2,448) trên quần thể γ < 0 (`fixed_critical.py`)
+  UNTAGGED   HANDOFF.md:260 | c_GO = 2,156 (γ_min = {−0,7}); c_NO = 2,647 (γ_max = +2) — **cả hai là giả định, không dẫn xuất** (§6 C5, §7 O
+  UNTAGGED   HANDOFF.md:264 | | Quần thể | γ | GO size @2,156 | GO power: bảo hiểm / oracle / Tango n′=70 | NO-GO size @2,647 | NO-GO power 
+  UNTAGGED   HANDOFF.md:274 | | Quần thể | γ | GO size @2,156 | GO power: bảo hiểm / oracle / Tango n′=80 | NO-GO size @2,647 | NO-GO power 
+  UNTAGGED   HANDOFF.md:291 | **GO power tại e_high** (PC4: e_high = 0,18 vì headroom 0,22)
+  UNTAGGED   HANDOFF.md:330 | Gap quan sát (J(ĝ) − J(γ), pt) vs "flux" ước lượng (h = 0,15) từ `conditional_error.py` (R = 300000):
+  UNTAGGED   HANDOFF.md:357 | ### 5.7 Hai đuôi ở mean q 0,42–0,58 (S; thấp hơn 0,667 của pilot, xem C13): plain t (`regime_two_tails.py`)
+  UNTAGGED   HANDOFF.md:380 | | Pooled Tango lạm phát khi CONT dùng chung: ≈ 7,4% so với cluster t ≈ 2,5% tại n = 600 | `shared_n600.py` | C
+  UNTAGGED   HANDOFF.md:381 | | Betting / e-value test: size ≈ 0,2% (cấu trúc, CLT-regime); power thấp hơn cluster t | `betting_vs_t.py`, `b
+  UNTAGGED   HANDOFF.md:382 | | PC4 GO power tại e = 0,18 với ngưỡng bảo hiểm 2,156 = 25,7% (m=3) | `pc4_insured.py` | C | cột "bảo hiểm" củ
+  UNTAGGED   HANDOFF.md:434 | | O3 | **Chọn route:** (a) m=1 + Tango z\* (không giả định γ; size ≤ 2,4% ở mọi quần thể đã chạy); (b) m>1 + n
+  UNTAGGED   HANDOFF.md:436 | | O5 | z\* của Tango sawtooth theo n: 2,134 (60) / 2,028 (70) / 2,238 (80). `calibrate_z` là scan có kiểm chứn
+  UNTAGGED   HANDOFF.md:451 | **Thế giới "sparse deterministic":** q_i, p_i ∈ {0, 1} (CONT và F tất định theo câu; không flip giữa draw — tư
+  UNTAGGED   HANDOFF.md:454 | - n = 60, K = #(x_i = 1) ~ Bin(60; 0,10). T(K=2) = {−2,853}; T(K=3) = {−1,762}. NO-GO kích hoạt khi K ≤ 2 ở cả
+  UNTAGGED   HANDOFF.md:455 | - Nếu đúng: ngưỡng bảo hiểm c_NO = 2,647 **không** giữ {2,5%}; cần c > {2,853}.
+  UNTAGGED   HANDOFF.md:459 | Cũng là tính tay, chưa chạy: skewness vector pilot F−A (8×+0,5; 2×−0,5; 2×0): trung bình {0,25}; g1 ≈ {−1,12};
+  UNTAGGED   HANDOFF.md:465 | - **Appendix "recovered" mất.** Tôi chạy lại helper trích transcript sau khi transcript phiên bị nén (≈ 4,9 MB

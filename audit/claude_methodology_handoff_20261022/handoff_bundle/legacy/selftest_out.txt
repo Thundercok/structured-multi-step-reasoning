@@ -1,0 +1,12 @@
+[1] closed-form q-hat vs bisection q-hat, 4000 random cases: max |diff| = 1.06e-13
+[2] Z(delta) decreasing in delta, 1500 random tables: violations = 0
+[3] state from CI endpoints == state from Z(delta_prac): 3000 cases, mismatches = 0
+[4] cut-point shortcut vs full (b,c) enumeration, Z increasing in b at fixed s: mismatches = 0
+[5] enumeration 0.6762/0.0000/0.3237 vs Monte Carlo 0.6742/0.0000/0.3258 (n=150, +20pp, d=.3, delta_prac=.10)
+[6] boundaries: CI(b=n,c=0) upper = 1.0; CI(b=0,c=n) lower = -1.0
+[7] v1 row 4-0, n=12: CI [+0.010, +0.609]  exact p = 0.1250  Z(0) = 2.0000
+selftest OK
+
+real	0m1.111s
+user	0m1.069s
+sys	0m0.012s

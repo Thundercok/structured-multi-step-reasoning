@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-22",
+  "native_cocoa": true,
+  "renderer": "GraphicsApi.MetalRhi",
+  "logical_size": [
+    720,
+    263
+  ],
+  "surface_alpha": 8,
+  "image_format": "Format.Format_ARGB32_Premultiplied",
+  "outside_alpha": 0,
+  "qml_warnings": [],
+  "native_capture": "/Users/thundercock2/.codex/visualizations/2026/10/20/01a15810-a8b2-7c51-8873-e39fac2a87ed/quick-pdf-refined/native-simple.png",
+  "limits": "Renderer smoke only; not manual IME, picker, drag/drop, global shortcut, performance or UX acceptance.",
+  "validation": {
+    "command": "QT_QPA_PLATFORM=offscreen python -m pytest tests/test_quick_pdf.py -q -p no:cacheprovider",
+    "passed": 6,
+    "coverage": [
+      "PDF search/read/copy and source checks",
+      "Simple/unread acknowledgment",
+      "startup/worker/error states",
+      "page menu",
+      "long draft/page and dark 520px view",
+      "composer anchor during window growth"
+    ]
+  },
+  "sha256": {
+    "rat/ui/quick/PDFDesk.qml": "e64aa6083d20244b9c476aafea630e97daef37a792a66aa41df4f996eafc61ac",
+    "rat/ui/quick_app.py": "945326df084e2dea47ed7844ddb20b7599858818e6a413e034fa29c2812001e1",
+    "tests/test_quick_pdf.py": "bd7746a247b3d5bfee81298372992a1a74bbf40de13d9052d014965ccfa0b68e",
+    "rat/ui/quick_pdf_controller.py": "0e4c2e3bd2c2019173a9ae2a15f86e1ebb59ea3ccb966bb7803142e580a49e3c"
+  }
+}

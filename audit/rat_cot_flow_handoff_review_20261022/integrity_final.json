@@ -1,0 +1,63 @@
+{
+  "review_source_entries": 74,
+  "review_source_drift": {},
+  "submitted_source_entries": 61,
+  "submitted_source_mismatches": {},
+  "submitted_artifact_entries": 91,
+  "submitted_artifact_mismatches": {},
+  "incoming_changes_since_review_start": {},
+  "received_snapshot_changes_since_review_start": {},
+  "prior_reviews": {
+    "rat_cot_runtime_codex_review_20261020": {
+      "entries": 81,
+      "original_manifest_mismatches": {},
+      "changes_since_review_start": {},
+      "manifest": "audit/rat_cot_runtime_codex_review_20261020/artifact_manifest.json",
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r2_20261020": {
+      "entries": 102,
+      "original_manifest_mismatches": {},
+      "changes_since_review_start": {},
+      "manifest": "audit/rat_cot_runtime_codex_review_r2_20261020/artifact_manifest.json",
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r3_20261020": {
+      "entries": 115,
+      "original_manifest_mismatches": {},
+      "changes_since_review_start": {},
+      "manifest": "audit/rat_cot_runtime_codex_review_r3_20261020/artifact_manifest.json",
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r4_20261021": {
+      "entries": 147,
+      "original_manifest_mismatches": {
+        "baseline.xml": {
+          "expected": "5ddaf8a3417ff6016367e0988b59bae0a5cbf08e2f37393fe222323b6eef6cdb",
+          "actual": "548a8a33352b56f41aa85d06b5e7c17a6818aa637e33f9fde317bbae295125bb"
+        }
+      },
+      "changes_since_review_start": {},
+      "manifest": "audit/rat_cot_runtime_codex_review_r4_20261021/artifact_manifest.json",
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r5_20261021": {
+      "entries": 156,
+      "original_manifest_mismatches": {},
+      "changes_since_review_start": {},
+      "manifest": "audit/rat_cot_runtime_codex_review_r5_20261021/artifact_manifest.json",
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r6_20261021": {
+      "entries": 160,
+      "original_manifest_mismatches": {},
+      "changes_since_review_start": {},
+      "manifest": "audit/rat_cot_runtime_codex_review_r6_20261021/artifact_manifest.json",
+      "manifest_unchanged": true
+    }
+  },
+  "ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "ledger_unchanged": true,
+  "branch": "main",
+  "input_receipts_match": true
+}

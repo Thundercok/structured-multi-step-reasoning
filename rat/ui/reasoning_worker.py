@@ -9,6 +9,7 @@ between strategy LLMBackend and selected-document QA sessions.
 from __future__ import annotations
 
 import hashlib
+import copy
 import logging
 from pathlib import Path
 import time
@@ -41,6 +42,7 @@ class OnlineReasoningWorker(QThread):
         max_strategy_invocations: Optional[int] = None,
         max_underlying_requests: Optional[int] = None,
         max_generated_tokens: Optional[int] = None,
+        context_snapshot: Optional[Dict[str, Any]] = None,
         parent=None,
     ):
         super().__init__(parent)
@@ -53,6 +55,7 @@ class OnlineReasoningWorker(QThread):
         self.max_strategy_invocations = max_strategy_invocations
         self.max_underlying_requests = max_underlying_requests
         self.max_generated_tokens = max_generated_tokens
+        self.context_snapshot = copy.deepcopy(context_snapshot)
 
     def run(self) -> None:
         started_t = time.monotonic()
@@ -124,7 +127,11 @@ class OnlineReasoningWorker(QThread):
                 self.response_ready.emit(res)
                 return
         else:
-            query_to_solve = self.query
+            if self.context_snapshot:
+                from rat.engine.execution import render_backend_input
+                query_to_solve = render_backend_input(self.query, self.context_snapshot)
+            else:
+                query_to_solve = self.query
 
         # Check early cancellation
         if self.isInterruptionRequested():
@@ -185,6 +192,10 @@ class OnlineReasoningWorker(QThread):
                     res.answer = "Tài liệu bị thay đổi trong quá trình xử lý; không thể đảm bảo tính nhất quán."
                     res.steps.append("Document changed during reasoning execution; marked unresolved.")
 
+            res.backend_input = query_to_solve
+            res.query = self.query
+            res.context_snapshot = copy.deepcopy(self.context_snapshot)
+            res.bundle_review_status = getattr(getattr(self.engine._controller, "bundle", None), "review_status", None)
             if self.isInterruptionRequested() or res.status == "cancelled":
                 self.status_changed.emit("cancel")
             elif res.status in ("timeout", "failed", "budget_exceeded"):
@@ -251,4 +262,7 @@ class OnlineReasoningWorker(QThread):
                 bundle_id=getattr(exc, "bundle_id", getattr(self.engine._controller, "bundle_id", None)),
                 cost_ledger=ledger_dict,
             )
+            failed_res.backend_input = query_to_solve
+            failed_res.context_snapshot = copy.deepcopy(self.context_snapshot)
+            failed_res.bundle_review_status = getattr(getattr(self.engine._controller, "bundle", None), "review_status", None)
             self.response_ready.emit(failed_res)

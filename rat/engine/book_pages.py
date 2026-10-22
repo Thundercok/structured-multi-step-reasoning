@@ -7,6 +7,14 @@ import re
 import unicodedata
 
 
+class BookPageError(ValueError):
+    """Expected page-read failure with a stable, non-sensitive code."""
+
+    def __init__(self, code, message):
+        self.code = code
+        super().__init__(message)
+
+
 def normalized(text: str) -> str:
     text = unicodedata.normalize("NFD", text.casefold())
     return "".join(c for c in text if unicodedata.category(c) != "Mn").replace("đ", "d")
@@ -19,7 +27,7 @@ def open_pdf(path: Path):
     with path.open("rb") as stream:
         reader = PdfReader(stream)
         if reader.is_encrypted and not reader.decrypt(""):
-            raise ValueError("PDF có mật khẩu; cần bản đã mở khóa để đọc nội dung.")
+            raise BookPageError("encrypted_pdf", "PDF có mật khẩu; cần bản đã mở khóa để đọc nội dung.")
         yield reader
 
 
@@ -44,7 +52,7 @@ def search_pages(path, query, *, start_page=1, max_pages=400, limit=5, context=N
     with open_pdf(path) as reader:
         count = len(reader.pages)
         if not 1 <= start_page <= count:
-            raise ValueError(f"Trang bắt đầu phải nằm trong khoảng 1–{count}.")
+            raise BookPageError("invalid_page", f"Trang bắt đầu phải nằm trong khoảng 1–{count}.")
         end = min(count, start_page + max_pages - 1)
         labels = reader.page_labels
         matches, textless, failures = [], [], []
@@ -92,11 +100,11 @@ def read_page(path, page, *, max_chars=8000, context=None):
     with open_pdf(path) as reader:
         count = len(reader.pages)
         if not 1 <= page <= count:
-            raise ValueError(f"Trang phải nằm trong khoảng 1–{count}.")
+            raise BookPageError("invalid_page", f"Trang phải nằm trong khoảng 1–{count}.")
         text = (reader.pages[page - 1].extract_text() or "").strip()
         check_cancel(context or {})
         if not text:
-            raise ValueError("Trang này không có văn bản trích xuất. Cần OCR để đọc trang scan/ảnh.")
+            raise BookPageError("no_text_page", "Trang này không có văn bản trích xuất; có thể là trang trắng hoặc scan/ảnh. OCR chưa chạy.")
         content = text[:max_chars]
         metadata = page_metadata(path, reader, page, reader.page_labels[page - 1])
         return {**metadata, "title": f"{path.name} · Trang PDF {page}",

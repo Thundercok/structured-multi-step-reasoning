@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="4.242" timestamp="2026-10-22T18:33:03.777484+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_calibrated_approved_policy_binds_finite_calibrator_parameters" time="0.060"><failure message="AssertionError: {'accepted': True, 'report': {'is_valid': True, 'review_status': 'approved', 'is_approved': True, 'errors': [], ...}}&#10;assert not True">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1378/test_calibrated_approved_polic0')
+
+    def test_calibrated_approved_policy_binds_finite_calibrator_parameters(tmp_path):
+        bundle,policy,backend,artifact=helper.approved_fixture(tmp_path)
+        data=json.loads(artifact.read_text())
+        data['entry_perf_models']=[{'constant':model.value} for model in policy.entry_predictor.perf]
+        policy.calibrators=[]
+        for _ in policy.tau:
+            cal=PlattCalibrator().fit(np.array([0.,.2,.8,1.]),np.array([0,0,1,1]))
+            cal.a=0.;cal.b=-20.
+            policy.calibrators.append(cal)
+        data['calibrators']=[{'type':'platt','a':c.a,'b':c.b,'is_fitted':c.is_fitted} for c in policy.calibrators]
+        artifact.write_text(json.dumps(data))
+        bundle=replace(bundle,calibrator_type='platt',calibrator_semantics='platt_probability',artifact_hashes={str(artifact):hashlib.sha256(artifact.read_bytes()).hexdigest()})
+        try:
+            original=validate_policy_bundle(bundle,policy,backend)
+        except BundleValidationError as error:
+            # A validator may reject an unsupported calibration artifact/schema.
+            save('calibrator_parameter_binding.json',{'safe_initial_rejection':str(error)})
+            return
+        before=policy.should_escalate(0,0.)
+        policy.calibrators[0].b=20.
+        try:
+            changed=validate_policy_bundle(bundle,policy,backend)
+        except BundleValidationError as error:
+            outcome={'accepted':False,'error':str(error)}
+        else:
+            outcome={'accepted':True,'report':asdict(changed)}
+        save('calibrator_parameter_binding.json',{'original_report':asdict(original),'mutation_result':outcome,'artifact':artifact.read_text(),'artifact_sha256':hashlib.sha256(artifact.read_bytes()).hexdigest(),'declared_sha256':bundle.artifact_hashes[str(artifact)],'live_calibrators':[vars(c) for c in policy.calibrators],'should_escalate_at_zero_before':before,'should_escalate_at_zero_after':policy.should_escalate(0,0.)})
+&gt;       assert not outcome['accepted'],outcome
+E       AssertionError: {'accepted': True, 'report': {'is_valid': True, 'review_status': 'approved', 'is_approved': True, 'errors': [], ...}}
+E       assert not True
+
+audit/rat_cot_flow_handoff_review_20261022/test_remaining_flow_contracts.py:52: AssertionError</failure></testcase><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_reasoning_followup_receives_referenced_context" time="0.023"><failure message="AssertionError: [{'query': 'Sao phải dùng mid + 1?', 'kwargs': {'should_cancel': '&lt;built-in method isInterruptionRequested of OnlineReasoningWorker object at 0x1276a3610&gt;', 'deadline_monotonic': None}}]&#10;assert ('[2,4,6,8,10]' in '[{&quot;query&quot;:&quot;saophảidùngmid+1?&quot;,&quot;kwargs&quot;:{&quot;should_cancel&quot;:&quot;&lt;built-inmethodisinterruptionrequestedofonlinereasoningworkerobjectat0x1276a3610&gt;&quot;,&quot;deadline_monotonic&quot;:null}}]')">app = &lt;PyQt6.QtWidgets.QApplication object at 0x1276a32f0&gt;
+
+    def test_reasoning_followup_receives_referenced_context(app):
+        query='Sao phải dùng mid + 1?'
+        marker='AUTHORED_CONTEXT_ARRAY=[2,4,6,8,10]; target=8'
+        request=ExecutionRequest(query,'exec-followup',3,SimpleNamespace(turn_id='turn-3'),lane='reasoning',context={'history':[{'role':'user','content':marker,'turn_id':'turn-2'}],'task_state':{'topic':'binary search','array':[2,4,6,8,10],'target':8},'turn_references':[{'turn_id':'turn-2'}]})
+        original_context=copy.deepcopy(request.context)
+        backend,response,runtime=execute_request(app,request)
+        save('reasoning_context_transport.json',{'display_query':request.query,'supplied_context':request.context,'observed_backend_inputs':backend.inputs,'observed_backend_calls':backend.calls,'response_execution_id':response.execution_id,'response_turn_id':response.turn_id,'cost_ledger':response.qa_telemetry.get('cost_ledger'),'fallback_called':runtime.run.called})
+        assert request.query==query and response.turn_id=='turn-3'
+        assert request.context==original_context
+        # Accept text or structured context; do not require one exact prompt format.
+        transported=re.sub(r'\s+','',json.dumps(backend.calls,ensure_ascii=False,default=str)).casefold()
+&gt;       assert '[2,4,6,8,10]' in transported and re.search(r'(?:target[\"\']?[:=]|tìm)8',transported),backend.calls
+E       AssertionError: [{'query': 'Sao phải dùng mid + 1?', 'kwargs': {'should_cancel': '&lt;built-in method isInterruptionRequested of OnlineReasoningWorker object at 0x1276a3610&gt;', 'deadline_monotonic': None}}]
+E       assert ('[2,4,6,8,10]' in '[{"query":"saophảidùngmid+1?","kwargs":{"should_cancel":"&lt;built-inmethodisinterruptionrequestedofonlinereasoningworkerobjectat0x1276a3610&gt;","deadline_monotonic":null}}]')
+
+audit/rat_cot_flow_handoff_review_20261022/test_remaining_flow_contracts.py:88: AssertionError</failure></testcase><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_control_plain_request_preserves_identity" time="0.006" /><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_control_approved_uncalibrated_full_artifact_validates" time="0.006" /></testsuite></testsuites>

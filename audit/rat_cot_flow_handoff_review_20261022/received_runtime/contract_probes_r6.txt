@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 7 items
+
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_no_new_dispatch_is_invented_for_native_non_generation_error[between-samples] PASSED [ 14%]
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_no_new_dispatch_is_invented_for_native_non_generation_error[after-samples] PASSED [ 28%]
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_approved_full_artifact_rejects_unbound_live_state[live-nonfinite-constant] PASSED [ 42%]
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_approved_full_artifact_rejects_unbound_live_state[undeclared-active-calibrator] PASSED [ 57%]
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_control_matching_complete_artifact_and_live_state PASSED [ 71%]
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_control_native_normal_completion_has_no_phantom_requests PASSED [ 85%]
+audit/rat_cot_runtime_codex_review_r6_20261021/test_trace_and_calibrator.py::test_control_native_plain_predispatch_failure_costs_zero PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_acceptance_20261020/contract_probes_r6.xml -
+============================== 7 passed in 3.04s ===============================

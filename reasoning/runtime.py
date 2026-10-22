@@ -339,12 +339,14 @@ class OnlineReasoningController:
                     stop_status = "failed"
 
                 # If trace already contains recorded failed generations, do not add extra failed dispatch.
+                # Only if zero failures are recorded in trace and structured in_flight flag is True:
                 extra_failed = 0
-                if recorded_failed == 0 and isinstance(trace_after, dict):
-                    if trace_after.get("in_flight", False):
-                        extra_failed = 1
-                    elif len(gens) > 0 and stop_status == "failed":
-                        extra_failed = 1
+                if (
+                    recorded_failed == 0
+                    and isinstance(trace_after, dict)
+                    and trace_after.get("in_flight", False)
+                ):
+                    extra_failed = 1
 
                 rung_failed = recorded_failed + extra_failed
                 rung_dispatched = len(gens) + extra_failed

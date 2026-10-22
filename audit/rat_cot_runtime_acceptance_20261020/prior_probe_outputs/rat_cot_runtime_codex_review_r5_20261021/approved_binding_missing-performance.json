@@ -1,7 +1,7 @@
 {
   "outcome": {
     "accepted": false,
-    "error": "Policy bundle validation failed: Artifact '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1101/test_approved_bundle_requires_0/fitted-policy.json' missing required 'entry_perf_models' for non-default live performance model at index 0."
+    "error": "Policy bundle validation failed: Artifact '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1363/test_approved_bundle_requires_0/fitted-policy.json' missing required 'entry_perf_models' for non-default live performance model at index 0."
   },
   "artifacts": {
     "fitted-policy.json": {

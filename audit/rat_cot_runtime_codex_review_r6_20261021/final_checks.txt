@@ -1,0 +1,10 @@
+{
+  "source_snapshot_unchanged": 71,
+  "source_manifest_matches": "56/61",
+  "artifact_manifest_matches": "85/85",
+  "incoming_files_unchanged": 86,
+  "historical_known_lost_xml": 1,
+  "historical_changes_during_r6": 0,
+  "pinned_data_checks": 13,
+  "git_status_unchanged": false
+}

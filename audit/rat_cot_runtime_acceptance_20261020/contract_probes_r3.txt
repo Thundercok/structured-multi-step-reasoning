@@ -1,2 +1,30 @@
-...................                                                      [100%]
-19 passed in 3.70s
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 19 items
+
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_caller_name_does_not_change_identical_execution[test_unsupported_hard_cap_rejected_before_generation] PASSED [  5%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_caller_name_does_not_change_identical_execution[test_generated_token_ceiling_is_enforced_within_final_strategy] PASSED [ 10%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_capable_backend_is_not_rejected_by_caller_name PASSED [ 15%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_ordinary_unsupported_cap_fails_before_any_dispatch PASSED [ 21%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[missing-source] PASSED [ 26%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[malformed-source-digest] PASSED [ 31%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[malformed-artifact-digest] PASSED [ 36%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_provenance_rejects_unverifiable_references[unresolved-artifact-key] PASSED [ 42%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_execution_requires_backend_identity PASSED [ 47%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_strategy_settings_match_actual_backend PASSED [ 52%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_approved_artifact_binds_live_fitted_parameters PASSED [ 57%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_document_read_failure_does_not_fall_back_to_generic_answer PASSED [ 63%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_decode_exception_preserves_already_yielded_token_cost PASSED [ 68%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_cancel_after_stream_yield_accounts_for_generation_and_outcome[generated-tokens] PASSED [ 73%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_cancel_after_stream_yield_accounts_for_generation_and_outcome[outcome-success] PASSED [ 78%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_inter_sample_cancel_does_not_invent_new_dispatch PASSED [ 84%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_control_ordinary_ledger_keeps_observed_cost PASSED [ 89%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_control_matching_approved_fixture_validates PASSED [ 94%]
+audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py::test_control_native_generation_without_stop PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_acceptance_20261020/contract_probes_r3.xml -
+============================== 19 passed in 2.49s ==============================

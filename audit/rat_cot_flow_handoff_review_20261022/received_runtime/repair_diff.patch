@@ -1,0 +1,390 @@
+--- a/qwen_mlx_backend.py
++++ b/qwen_mlx_backend.py
+@@ -66,6 +66,7 @@
+     model_snapshot: str = "main"
+     sc_samples: int = 5
+     tot_branches: int = 3
++    react_max_turns: int = 4
+ 
+     def __init__(
+         self,
+@@ -76,6 +77,7 @@
+         model_snapshot: str = "main",
+         sc_samples: int = 5,
+         tot_branches: int = 3,
++        react_max_turns: int = 4,
+     ):
+         self.configure_prompt_profile(prompt_profile)
+         self.model, self.tokenizer = load(repo)
+@@ -85,6 +87,7 @@
+         self.model_snapshot = model_snapshot
+         self.sc_samples = sc_samples
+         self.tot_branches = tot_branches
++        self.react_max_turns = react_max_turns
+ 
+     # ---- LLMBackend protocol ----
+ 
+@@ -145,7 +148,7 @@
+             A.COT: lambda q: self._cot(q, should_cancel=should_cancel, deadline_monotonic=deadline_monotonic, max_tokens=max_tokens),
+             A.SELF_CONSISTENCY: lambda q: self._self_consistency(q, k=getattr(self, "sc_samples", 5), should_cancel=should_cancel, deadline_monotonic=deadline_monotonic, max_tokens=max_tokens),
+             A.TOT: lambda q: self._tot(q, branches=getattr(self, "tot_branches", 3), should_cancel=should_cancel, deadline_monotonic=deadline_monotonic, max_tokens=max_tokens),
+-            A.REACT: lambda q: self._react(q, should_cancel=should_cancel, deadline_monotonic=deadline_monotonic, max_tokens=max_tokens),
++            A.REACT: lambda q: self._react(q, max_turns=getattr(self, "react_max_turns", 4), should_cancel=should_cancel, deadline_monotonic=deadline_monotonic, max_tokens=max_tokens),
+             A.PAL: lambda q: self._pal(q, should_cancel=should_cancel, deadline_monotonic=deadline_monotonic, max_tokens=max_tokens),
+         }[strategy](query)
+ 
+@@ -298,27 +301,33 @@
+     def _react(
+         self,
+         query: str,
+-        max_turns: int = 4,
+-        *,
+-        should_cancel: Optional[Callable[[], bool]] = None,
+-        deadline_monotonic: Optional[float] = None,
+-        max_tokens: Optional[int] = None,
+-    ) -> tuple[str, float, int]:
++        max_turns: Optional[int] = None,
++        *,
++        should_cancel: Optional[Callable[[], bool]] = None,
++        deadline_monotonic: Optional[float] = None,
++        max_tokens: Optional[int] = None,
++    ) -> tuple[str, float, int]:
++        turns = max_turns if max_turns is not None else getattr(self, "react_max_turns", 4)
+         msgs = [
+             {"role": "system", "content": REACT_SYSTEM},
+             *REACT_EXAMPLE,
+             {"role": "user", "content": query},
+         ]
+         total_tok, last_conf = 0, 0.0
+-        for _ in range(max_turns):
++        text = ""
++        for _ in range(turns):
+             if should_cancel is not None and should_cancel():
+                 raise RuntimeError("Cooperative cancellation in react turns")
+             if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+                 raise TimeoutError("Deadline exceeded in react turns")
++            if max_tokens is not None and total_tok >= max_tokens:
++                break
++            rem_tokens = max(0, max_tokens - total_tok) if max_tokens is not None else None
++            sub_max = min(200, rem_tokens) if rem_tokens is not None else min(200, self.max_tokens)
+             text, conf, n_tok = self._chat(
+                 msgs,
+                 temp=0.0,
+-                max_tokens=min(200, max_tokens if max_tokens is not None else self.max_tokens),
++                max_tokens=sub_max,
+                 should_cancel=should_cancel,
+                 deadline_monotonic=deadline_monotonic,
+             )
+--- a/reasoning/runtime.py
++++ b/reasoning/runtime.py
+@@ -66,10 +66,11 @@
+             return int(settings["sc_samples"])
+         return 5
+     if strategy == ReasoningAction.TOT:
+-        branches = getattr(backend, "tot_branches", settings.get("tot_branches", 3))
++        branches = getattr(backend, "tot_branches", settings.get("tot_branches", 3) if settings else 3)
+         return int(branches) + 1
+     if strategy == ReasoningAction.REACT:
+-        return int(getattr(backend, "react_max_turns", settings.get("react_max_turns", 4)))
++        turns = getattr(backend, "react_max_turns", settings.get("react_max_turns", 4) if settings else 4)
++        return int(turns)
+     return 1
+ 
+ 
+@@ -130,6 +131,14 @@
+             self.policy_source = (policy_source or bundle.bundle_id).strip()
+             self.bundle_id = bundle.bundle_id
+             self.bundle_review_status = bundle.review_status
++            if isinstance(getattr(bundle, "strategy_settings", None), dict):
++                settings = bundle.strategy_settings
++                if "sc_samples" in settings and hasattr(backend, "sc_samples"):
++                    backend.sc_samples = int(settings["sc_samples"])
++                if "tot_branches" in settings and hasattr(backend, "tot_branches"):
++                    backend.tot_branches = int(settings["tot_branches"])
++                if "react_max_turns" in settings and hasattr(backend, "react_max_turns"):
++                    backend.react_max_turns = int(settings["react_max_turns"])
+         else:
+             if not isinstance(policy_source, str) or not policy_source.strip():
+                 raise ValueError("An explicit policy provenance label is required")
+@@ -322,30 +331,30 @@
+                 )
+                 recorded_failed = len(gens) - rung_succeeded
+ 
+-                # If trace already contains recorded failed generations, do not add extra failed dispatch.
+-                # Only if zero failures are recorded in trace, and structured in_flight flag or explicit
+-                # post-dispatch failure indicates a generation started and failed unrecorded:
+-                extra_failed = 0
+-                if recorded_failed == 0 and (
+-                    (isinstance(trace_after, dict) and trace_after.get("in_flight", False))
+-                    or "after dispatch" in str(exc).lower()
+-                ):
+-                    extra_failed = 1
+-
+-                rung_failed = recorded_failed + extra_failed
+-                rung_dispatched = len(gens) + extra_failed
+-
+-                dispatched_requests += rung_dispatched
+-                successful_requests += rung_succeeded
+-                failed_requests += rung_failed
+-                total_tokens += rung_tokens
+-
+                 if _is_interrupted() or "cancel" in str(exc).lower():
+                     stop_status = "cancelled"
+                 elif _is_timeout() or isinstance(exc, TimeoutError) or "deadline" in str(exc).lower() or "timeout" in str(exc).lower():
+                     stop_status = "timeout"
+                 else:
+                     stop_status = "failed"
++
++                # If trace already contains recorded failed generations, do not add extra failed dispatch.
++                # Only if zero failures are recorded in trace and structured in_flight flag is True:
++                extra_failed = 0
++                if (
++                    recorded_failed == 0
++                    and isinstance(trace_after, dict)
++                    and trace_after.get("in_flight", False)
++                ):
++                    extra_failed = 1
++
++                rung_failed = recorded_failed + extra_failed
++                rung_dispatched = len(gens) + extra_failed
++
++                dispatched_requests += rung_dispatched
++                successful_requests += rung_succeeded
++                failed_requests += rung_failed
++                total_tokens += rung_tokens
+ 
+                 partial_ledger = ExecutionCostLedger(
+                     strategy_invocations=dispatched_strategies,
+--- a/reasoning/bundle.py
++++ b/reasoning/bundle.py
+@@ -178,6 +178,7 @@
+         if not isinstance(bundle.artifact_hashes, dict) or not bundle.artifact_hashes:
+             errors.append("Approved bundle must define non-empty artifact_hashes dictionary.")
+         else:
++            found_authoritative_artifact = False
+             for art_key, art_h in bundle.artifact_hashes.items():
+                 if not (isinstance(art_h, str) and len(art_h) == 64 and all(c in "0123456789abcdefABCDEF" for c in art_h)):
+                     errors.append(f"Approved bundle artifact '{art_key}' digest '{art_h}' is not a valid 64-character SHA-256 hex string.")
+@@ -201,71 +202,119 @@
+                             continue
+ 
+                         required_keys = ("lambda", "tau", "mean_cost", "entry_cost_models")
+-                        has_any_policy_key = any(k in art_data for k in required_keys)
+-                        if has_any_policy_key or len(bundle.artifact_hashes) == 1 or "fitted" in art_key.lower() or "policy" in art_key.lower():
+-                            missing = [k for k in required_keys if k not in art_data]
+-                            if missing:
+-                                errors.append(f"Fitted policy artifact '{art_key}' missing required parameters: {missing}.")
++                        has_all_required = all(k in art_data for k in required_keys)
++                        if has_all_required:
++                            found_authoritative_artifact = True
++                            # Validate lambda
++                            lam_val = art_data["lambda"]
++                            if not isinstance(lam_val, (int, float)) or not np.isfinite(lam_val):
++                                errors.append(f"Artifact '{art_key}' lambda must be a finite number.")
++                            elif hasattr(policy, "lam") and abs(float(lam_val) - float(policy.lam)) > 1e-5:
++                                errors.append(f"Artifact '{art_key}' lambda ({lam_val}) does not match policy lambda ({policy.lam}).")
++
++                            # Validate tau
++                            tau_val = art_data["tau"]
++                            if not isinstance(tau_val, list) or not all(isinstance(x, (int, float)) and np.isfinite(x) for x in tau_val):
++                                errors.append(f"Artifact '{art_key}' stopping thresholds must be a list of finite numbers.")
++                            elif hasattr(policy, "tau"):
++                                if len(tau_val) != len(policy.tau) or not np.allclose(tau_val, policy.tau, atol=1e-5, equal_nan=False):
++                                    errors.append(f"Artifact '{art_key}' stopping thresholds do not match policy tau.")
++
++                            # Validate mean_cost
++                            mc_val = art_data["mean_cost"]
++                            if not isinstance(mc_val, list) or not all(isinstance(x, (int, float)) and np.isfinite(x) for x in mc_val):
++                                errors.append(f"Artifact '{art_key}' mean_cost must be a list of finite numbers.")
++                            elif hasattr(policy, "mean_cost"):
++                                if len(mc_val) != len(policy.mean_cost) or not np.allclose(mc_val, policy.mean_cost, atol=1e-5, equal_nan=False):
++                                    errors.append(f"Artifact '{art_key}' mean_cost does not match policy mean_cost.")
++
++                            # Validate entry_cost_models
++                            pred = getattr(policy, "entry_predictor", None)
++                            if pred is None or not hasattr(pred, "cost"):
++                                errors.append("Live policy has no entry predictor with cost models.")
+                             else:
+-                                if hasattr(policy, "lam"):
+-                                    if not isinstance(art_data["lambda"], (int, float)) or abs(art_data["lambda"] - policy.lam) > 1e-5:
+-                                        errors.append(f"Artifact '{art_key}' lambda ({art_data['lambda']}) does not match policy lambda ({policy.lam}).")
+-                                if hasattr(policy, "tau"):
+-                                    if not isinstance(art_data["tau"], list) or len(art_data["tau"]) != len(policy.tau) or any(abs(a - b) > 1e-5 for a, b in zip(art_data["tau"], policy.tau)):
+-                                        errors.append(f"Artifact '{art_key}' stopping thresholds do not match policy tau.")
+-                                if hasattr(policy, "mean_cost"):
+-                                    if not isinstance(art_data["mean_cost"], list) or len(art_data["mean_cost"]) != len(policy.mean_cost) or any(abs(a - b) > 1e-5 for a, b in zip(art_data["mean_cost"], policy.mean_cost)):
+-                                        errors.append(f"Artifact '{art_key}' mean_cost does not match policy mean_cost.")
+-
+-                                pred = getattr(policy, "entry_predictor", None)
+-                                if pred is None or not hasattr(pred, "cost"):
+-                                    errors.append("Live policy has no entry predictor with cost models.")
++                                cost_models_art = art_data["entry_cost_models"]
++                                if not isinstance(cost_models_art, list) or len(cost_models_art) != len(pred.cost) or len(cost_models_art) == 0:
++                                    errors.append(
++                                        f"Artifact '{art_key}' entry_cost_models count ({len(cost_models_art) if isinstance(cost_models_art, list) else 0}) "
++                                        f"does not match live policy cost models ({len(pred.cost)})."
++                                    )
+                                 else:
+-                                    cost_models_art = art_data["entry_cost_models"]
+-                                    if not isinstance(cost_models_art, list) or len(cost_models_art) != len(pred.cost) or len(cost_models_art) == 0:
+-                                        errors.append(
+-                                            f"Artifact '{art_key}' entry_cost_models count ({len(cost_models_art) if isinstance(cost_models_art, list) else 0}) "
+-                                            f"does not match live policy cost models ({len(pred.cost)})."
+-                                        )
+-                                    else:
+-                                        for idx, m_dict in enumerate(cost_models_art):
+-                                            if not isinstance(m_dict, dict):
+-                                                errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] must be an object.")
+-                                                continue
+-                                            live_m = pred.cost[idx]
+-                                            if "coef" not in m_dict:
+-                                                errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] missing 'coef'.")
++                                    for idx, m_dict in enumerate(cost_models_art):
++                                        if not isinstance(m_dict, dict):
++                                            errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] must be an object.")
++                                            continue
++                                        live_m = pred.cost[idx]
++                                        if "coef" not in m_dict:
++                                            errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] missing 'coef'.")
++                                        else:
++                                            coef_art = np.asarray(m_dict["coef"], dtype=float)
++                                            if not np.all(np.isfinite(coef_art)):
++                                                errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] coef must contain finite numbers.")
++                                            elif not hasattr(live_m, "coef_") or np.shape(coef_art) != np.shape(live_m.coef_):
++                                                errors.append(
++                                                    f"Artifact '{art_key}' entry_cost_models[{idx}] coef shape ({np.shape(coef_art)}) "
++                                                    f"does not match live model ({np.shape(live_m.coef_) if hasattr(live_m, 'coef_') else 'None'})."
++                                                )
++                                            elif not np.allclose(coef_art, live_m.coef_, atol=1e-5, equal_nan=False):
++                                                errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] coef does not match live policy model.")
++
++                                        if hasattr(live_m, "intercept_"):
++                                            if "intercept" not in m_dict:
++                                                errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] missing required 'intercept'.")
+                                             else:
+-                                                coef_art = m_dict["coef"]
+-                                                if not isinstance(coef_art, (list, tuple, np.ndarray)):
+-                                                    errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] coef must be a list of numbers.")
+-                                                elif not hasattr(live_m, "coef_") or len(coef_art) != len(live_m.coef_):
+-                                                    errors.append(
+-                                                        f"Artifact '{art_key}' entry_cost_models[{idx}] coef shape ({len(coef_art)}) "
+-                                                        f"does not match live model ({len(live_m.coef_) if hasattr(live_m, 'coef_') else 'None'})."
+-                                                    )
+-                                                elif not np.allclose(coef_art, live_m.coef_, atol=1e-5):
+-                                                    errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] coef does not match live policy model.")
+-                                            if "intercept" in m_dict and hasattr(live_m, "intercept_"):
+-                                                if abs(m_dict["intercept"] - float(live_m.intercept_)) > 1e-5:
++                                                int_art = np.asarray(m_dict["intercept"], dtype=float)
++                                                if not np.all(np.isfinite(int_art)):
++                                                    errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] intercept must be finite.")
++                                                elif not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
+                                                     errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] intercept does not match live policy model.")
+ 
+-                                # Check performance models if present
++                            # Validate entry_perf_models
++                            if pred is not None and hasattr(pred, "perf") and len(pred.perf) > 0:
+                                 if "entry_perf_models" in art_data:
+                                     perf_art = art_data["entry_perf_models"]
+-                                    if pred is None or not hasattr(pred, "perf") or not isinstance(perf_art, list) or len(perf_art) != len(pred.perf):
++                                    if not isinstance(perf_art, list) or len(perf_art) != len(pred.perf):
+                                         errors.append(f"Artifact '{art_key}' entry_perf_models count does not match live policy perf models.")
+                                     else:
+                                         for idx, m_dict in enumerate(perf_art):
++                                            if not isinstance(m_dict, dict):
++                                                errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] must be an object.")
++                                                continue
+                                             live_m = pred.perf[idx]
+-                                            if "constant" in m_dict:
++                                            if hasattr(live_m, "value"):
+                                                 live_val = getattr(live_m, "value", None)
+-                                                if live_val is None or abs(float(m_dict["constant"]) - float(live_val)) > 1e-5:
+-                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({m_dict['constant']}) does not match live model ({live_val}).")
+-                                            elif "coef" in m_dict:
+-                                                coef_art = m_dict["coef"]
+-                                                if not hasattr(live_m, "coef_") or len(coef_art) != len(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5):
+-                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] coef does not match live model.")
++                                                if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val):
++                                                    errors.append(f"Live performance model [{idx}] constant is non-finite: {live_val}")
++                                                elif "constant" not in m_dict:
++                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'constant'.")
++                                                else:
++                                                    c_val = m_dict["constant"]
++                                                    if not isinstance(c_val, (int, float)) or not np.isfinite(c_val) or abs(float(c_val) - float(live_val)) > 1e-5:
++                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({c_val}) does not match live model ({live_val}).")
++                                            elif hasattr(live_m, "coef_"):
++                                                if "coef" not in m_dict:
++                                                    errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'coef'.")
++                                                else:
++                                                    coef_art = np.asarray(m_dict["coef"], dtype=float)
++                                                    if not np.all(np.isfinite(coef_art)) or not np.all(np.isfinite(live_m.coef_)) or np.shape(coef_art) != np.shape(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5, equal_nan=False):
++                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] coef does not match live model.")
++                                                if hasattr(live_m, "intercept_"):
++                                                    if "intercept" not in m_dict:
++                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'intercept'.")
++                                                    else:
++                                                        int_art = np.asarray(m_dict["intercept"], dtype=float)
++                                                        if not np.all(np.isfinite(int_art)) or not np.all(np.isfinite(live_m.intercept_)) or not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
++                                                            errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] intercept does not match live model.")
++                                else:
++                                    # If entry_perf_models is omitted from artifact, live performance models must not deviate from baseline defaults [1.0, 0.0, 0.0]
++                                    expected_defaults = [1.0, 0.0, 0.0]
++                                    for idx, live_m in enumerate(pred.perf):
++                                        live_val = getattr(live_m, "value", None)
++                                        if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val) or idx >= len(expected_defaults) or abs(float(live_val) - expected_defaults[idx]) > 1e-5:
++                                            errors.append(f"Artifact '{art_key}' missing required 'entry_perf_models' for non-default live performance model at index {idx}.")
++
++            if not found_authoritative_artifact:
++                errors.append("Approved bundle must include an authoritative fitted policy artifact declaring complete parameters.")
+     else:
+         if isinstance(bundle.source_hashes, dict):
+             for src_path, expected_h in bundle.source_hashes.items():
+@@ -373,15 +422,34 @@
+                     errors.append(f"Mean cost [{i}] mismatch: bundle {b_cost} vs policy {p_cost}")
+ 
+         # Calibrator validation
+-        if bundle.calibrator_type is not None:
+-            if not getattr(policy, "calibrators", None):
++        live_calibrators = getattr(policy, "calibrators", None)
++        has_active_calibrators = (
++            live_calibrators is not None
++            and isinstance(live_calibrators, (list, tuple))
++            and len(live_calibrators) > 0
++            and any(c is not None for c in live_calibrators)
++        )
++        if bundle.calibrator_type is None or bundle.calibrator_semantics == "raw_confidence_uncalibrated":
++            if has_active_calibrators:
++                errors.append(
++                    f"Bundle specifies uncalibrated policy (calibrator_type={bundle.calibrator_type}), "
++                    f"but live policy has {len(live_calibrators)} active calibrator(s)."
++                )
++        else:
++            if not has_active_calibrators:
+                 errors.append(f"Bundle specifies calibrator_type='{bundle.calibrator_type}', but policy has no calibrators.")
+             else:
+-                for idx, cal in enumerate(policy.calibrators):
++                for idx, cal in enumerate(live_calibrators):
+                     if bundle.calibrator_type == "isotonic" and not isinstance(cal, IsotonicCalibrator):
+                         errors.append(f"Calibrator [{idx}] is not an IsotonicCalibrator.")
+                     elif bundle.calibrator_type == "platt" and not isinstance(cal, PlattCalibrator):
+                         errors.append(f"Calibrator [{idx}] is not a PlattCalibrator.")
++                    else:
++                        if isinstance(cal, PlattCalibrator):
++                            if hasattr(cal, "a") and not np.isfinite(cal.a):
++                                errors.append(f"PlattCalibrator [{idx}] parameter 'a' is non-finite: {cal.a}")
++                            if hasattr(cal, "b") and not np.isfinite(cal.b):
++                                errors.append(f"PlattCalibrator [{idx}] parameter 'b' is non-finite: {cal.b}")
+ 
+     # 4. Backend compatibility
+     if backend is not None:
+@@ -429,6 +497,11 @@
+                 if bundle.strategy_settings["tot_branches"] != backend.tot_branches:
+                     errors.append(
+                         f"Bundle strategy_settings tot_branches ({bundle.strategy_settings['tot_branches']}) does not match backend tot_branches ({backend.tot_branches})."
++                    )
++            if hasattr(backend, "react_max_turns") and "react_max_turns" in getattr(bundle, "strategy_settings", {}):
++                if bundle.strategy_settings["react_max_turns"] != backend.react_max_turns:
++                    errors.append(
++                        f"Bundle strategy_settings react_max_turns ({bundle.strategy_settings['react_max_turns']}) does not match backend react_max_turns ({backend.react_max_turns})."
+                     )
+ 
+     # 5. Schema completeness

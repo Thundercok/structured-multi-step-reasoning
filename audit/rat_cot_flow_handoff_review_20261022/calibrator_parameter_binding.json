@@ -1,0 +1,46 @@
+{
+  "original_report": {
+    "is_valid": true,
+    "review_status": "approved",
+    "is_approved": true,
+    "errors": [],
+    "warnings": [],
+    "diagnostics": {
+      "bundle_id": "synthetic-specimen-v1",
+      "review_status": "approved",
+      "is_production_approved": true
+    }
+  },
+  "mutation_result": {
+    "accepted": true,
+    "report": {
+      "is_valid": true,
+      "review_status": "approved",
+      "is_approved": true,
+      "errors": [],
+      "warnings": [],
+      "diagnostics": {
+        "bundle_id": "synthetic-specimen-v1",
+        "review_status": "approved",
+        "is_production_approved": true
+      }
+    }
+  },
+  "artifact": "{\"lambda\": 0.02, \"tau\": [0.36149257796234635, 0.6555697827774726], \"mean_cost\": [0.1, 0.1, 0.1], \"entry_cost_models\": [{\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0], \"intercept\": 0.10000000149011612}, {\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0], \"intercept\": 0.10000000149011612}, {\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0], \"intercept\": 0.10000000149011612}], \"entry_perf_models\": [{\"constant\": 1.0}, {\"constant\": 0.0}, {\"constant\": 0.0}], \"calibrators\": [{\"type\": \"platt\", \"a\": 0.0, \"b\": -20.0, \"is_fitted\": true}, {\"type\": \"platt\", \"a\": 0.0, \"b\": -20.0, \"is_fitted\": true}]}",
+  "artifact_sha256": "2eb9f31639436e5d08e41303a732f6c93a8e81e1f6b5faae9525d64cdbca8c0d",
+  "declared_sha256": "2eb9f31639436e5d08e41303a732f6c93a8e81e1f6b5faae9525d64cdbca8c0d",
+  "live_calibrators": [
+    {
+      "a": 0.0,
+      "b": 20.0,
+      "is_fitted": true
+    },
+    {
+      "a": 0.0,
+      "b": -20.0,
+      "is_fitted": true
+    }
+  ],
+  "should_escalate_at_zero_before": true,
+  "should_escalate_at_zero_after": false
+}

@@ -1,0 +1,9 @@
+== z calibration: worst-case size at the boundary, nominal z=1.96 -> calibrated z* (alpha=.025 per side) ==
+delta_prac=0.10 n=100: size GO/NO-GO 0.0399/0.0258 -> z*=2.002: 0.0240/0.0233
+delta_prac=0.10 n=150: size GO/NO-GO 0.0285/0.0258 -> z*=2.178: 0.0158/0.0151
+delta_prac=0.10 n=250: size GO/NO-GO 0.0299/0.0254 -> z*=2.110: 0.0198/0.0178 | power(+20pp, d=.3): 0.878 -> 0.849
+delta_prac=0.05 n=150: size GO/NO-GO 0.0386/0.0255 -> z*=2.062: 0.0243/0.0201
+
+== N=12 pilot, delta_prac=.10, d=.3 ==
+true effect +0.20: P(GO)=0.0374 P(NO-GO)=0.0014 P(UNDETERMINED)=0.9613
+true effect +0.00: P(GO)=0.0015 P(NO-GO)=0.0603 P(UNDETERMINED)=0.9382

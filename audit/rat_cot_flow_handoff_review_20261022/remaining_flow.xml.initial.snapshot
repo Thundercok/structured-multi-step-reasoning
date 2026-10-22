@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="3.558" timestamp="2026-10-22T18:28:20.430830+07:00" hostname="thien-than-bong-em.local"><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_calibrated_approved_policy_binds_finite_calibrator_parameters" time="0.031"><failure message="AssertionError: {'accepted': True, 'report': {'is_valid': True, 'review_status': 'approved', 'is_approved': True, 'errors': [], ...}}&#10;assert not True">tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1373/test_calibrated_approved_polic0')
+
+    def test_calibrated_approved_policy_binds_finite_calibrator_parameters(tmp_path):
+        bundle,policy,backend,artifact=helper.approved_fixture(tmp_path)
+        data=json.loads(artifact.read_text())
+        data['entry_perf_models']=[{'constant':model.value} for model in policy.entry_predictor.perf]
+        policy.calibrators=[]
+        for _ in policy.tau:
+            cal=PlattCalibrator().fit(np.array([0.,.2,.8,1.]),np.array([0,0,1,1]))
+            cal.a=0.;cal.b=-20.
+            policy.calibrators.append(cal)
+        data['calibrators']=[{'type':'platt','a':c.a,'b':c.b,'is_fitted':c.is_fitted} for c in policy.calibrators]
+        artifact.write_text(json.dumps(data))
+        bundle=replace(bundle,calibrator_type='platt',calibrator_semantics='platt_probability',artifact_hashes={str(artifact):hashlib.sha256(artifact.read_bytes()).hexdigest()})
+        try:
+            original=validate_policy_bundle(bundle,policy,backend)
+        except BundleValidationError as error:
+            # A validator may reject an unsupported calibration artifact/schema.
+            save('calibrator_parameter_binding.json',{'safe_initial_rejection':str(error)})
+            return
+        before=policy.should_escalate(0,0.)
+        policy.calibrators[0].b=20.
+        try:
+            changed=validate_policy_bundle(bundle,policy,backend)
+        except BundleValidationError as error:
+            outcome={'accepted':False,'error':str(error)}
+        else:
+            outcome={'accepted':True,'report':asdict(changed)}
+        save('calibrator_parameter_binding.json',{'original_report':asdict(original),'mutation_result':outcome,'artifact':artifact.read_text(),'artifact_sha256':hashlib.sha256(artifact.read_bytes()).hexdigest(),'declared_sha256':bundle.artifact_hashes[str(artifact)],'live_calibrators':[vars(c) for c in policy.calibrators],'should_escalate_at_zero_before':before,'should_escalate_at_zero_after':policy.should_escalate(0,0.)})
+&gt;       assert not outcome['accepted'],outcome
+E       AssertionError: {'accepted': True, 'report': {'is_valid': True, 'review_status': 'approved', 'is_approved': True, 'errors': [], ...}}
+E       assert not True
+
+audit/rat_cot_flow_handoff_review_20261022/test_remaining_flow_contracts.py:52: AssertionError</failure></testcase><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_reasoning_followup_receives_referenced_context" time="0.011"><failure message="AssertionError: assert (['Sao phải dùng mid + 1?'] and False)&#10; +  where ['Sao phải dùng mid + 1?'] = &lt;test_remaining_flow_contracts.execute_request.&lt;locals&gt;.Backend object at 0x13fc45220&gt;.inputs&#10; +  and   False = any(&lt;generator object test_reasoning_followup_receives_referenced_context.&lt;locals&gt;.&lt;genexpr&gt; at 0x13fd85b10&gt;)">app = &lt;PyQt6.QtWidgets.QApplication object at 0x13fd9b430&gt;
+
+    def test_reasoning_followup_receives_referenced_context(app):
+        query='Sao phải dùng mid + 1?'
+        marker='AUTHORED_CONTEXT_ARRAY=[2,4,6,8,10]; target=8'
+        request=ExecutionRequest(query,'exec-followup',3,SimpleNamespace(turn_id='turn-3'),lane='reasoning',context={'history':[{'role':'user','content':marker,'turn_id':'turn-2'}],'task_state':{'topic':'binary search','array':[2,4,6,8,10],'target':8},'turn_references':[{'turn_id':'turn-2'}]})
+        backend,response,runtime=execute_request(app,request)
+        save('reasoning_context_transport.json',{'display_query':request.query,'supplied_context':request.context,'observed_backend_inputs':backend.inputs,'response_execution_id':response.execution_id,'response_turn_id':response.turn_id,'cost_ledger':response.qa_telemetry.get('cost_ledger'),'fallback_called':runtime.run.called})
+        assert request.query==query and response.turn_id=='turn-3'
+&gt;       assert backend.inputs and any(marker in item for item in backend.inputs)
+E       AssertionError: assert (['Sao phải dùng mid + 1?'] and False)
+E        +  where ['Sao phải dùng mid + 1?'] = &lt;test_remaining_flow_contracts.execute_request.&lt;locals&gt;.Backend object at 0x13fc45220&gt;.inputs
+E        +  and   False = any(&lt;generator object test_reasoning_followup_receives_referenced_context.&lt;locals&gt;.&lt;genexpr&gt; at 0x13fd85b10&gt;)
+
+audit/rat_cot_flow_handoff_review_20261022/test_remaining_flow_contracts.py:83: AssertionError</failure></testcase><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_control_plain_request_preserves_identity" time="0.003" /><testcase classname="audit.rat_cot_flow_handoff_review_20261022.test_remaining_flow_contracts" name="test_control_approved_uncalibrated_full_artifact_validates" time="0.005" /></testsuite></testsuites>

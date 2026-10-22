@@ -1,0 +1,291 @@
+FFFF.......F.....................                                        [100%]
+=================================== FAILURES ===================================
+________ test_step_1_explain_binary_search_provenance_and_presentation _________
+
+test_env = namespace(window=<rat.ui.omnibar.OmnibarWindow object at 0x136576530>, backend=<tests.test_dsa_multi_turn_flow.Recordi...ptimal_stopping.OptimalStoppingPolicy object at 0x1365b4a40>, app=<PyQt6.QtWidgets.QApplication object at 0x136574370>)
+
+    def test_step_1_explain_binary_search_provenance_and_presentation(test_env):
+        window = test_env.window
+        app = test_env.app
+        backend = test_env.backend
+    
+        q1 = "Giải thích binary search bằng ví dụ nhỏ, chưa đưa code vội."
+        backend.answer_text = "Binary search là thuật toán tìm kiếm trên mảng đã sắp xếp bằng cách chia đôi khoảng tìm kiếm."
+    
+        window.chat_composer_input.setText(q1)
+        window._submit_chat_prompt(q1)
+    
+        until(app, lambda: window._pending_chat_query is None)
+    
+        # 1. UI displays the exact user query
+        assert window._last_assistant_query == q1
+        result_node = window.workbench_scene.current_snapshot.result_node
+        assert result_node.answer_text == backend.answer_text
+        assert "```" not in result_node.answer_text
+    
+        # 2. Telemetry and Provenance
+        telem = window.last_turn_telemetry
+        assert telem["execution_lane"] == "reasoning"
+        assert telem["execution_mode"] == "online_policy"
+>       assert telem["policy_source"] == "synthetic_specimen_dev"
+E       AssertionError: assert 'synthetic-specimen-v1' == 'synthetic_specimen_dev'
+E         
+E         - synthetic_specimen_dev
+E         ?          ^        ^^^
+E         + synthetic-specimen-v1
+E         ?          ^        ^ +
+
+tests/test_dsa_multi_turn_flow.py:154: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+------------------------------ Captured log call -------------------------------
+ERROR    rat.ui.omnibar:omnibar.py:3396 Cannot read initial index metadata
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 3394, in read_initial_data
+    "recent": self.db.get_recent_documents(limit=10)}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 355, in get_recent_documents
+    cursor.execute(
+sqlite3.OperationalError: no such column: category
+_______ test_step_2_pass_array_and_target_retains_facts_and_source_refs ________
+
+test_env = namespace(window=<rat.ui.omnibar.OmnibarWindow object at 0x1365db430>, backend=<tests.test_dsa_multi_turn_flow.Recordi...ptimal_stopping.OptimalStoppingPolicy object at 0x1465733b0>, app=<PyQt6.QtWidgets.QApplication object at 0x136574370>)
+
+    def test_step_2_pass_array_and_target_retains_facts_and_source_refs(test_env):
+        window = test_env.window
+        app = test_env.app
+        backend = test_env.backend
+    
+        # Turn 1
+        q1 = "Giải thích binary search bằng ví dụ nhỏ."
+        backend.answer_text = "Khái niệm Binary Search."
+        window._submit_chat_prompt(q1)
+        until(app, lambda: window._pending_chat_query is None)
+    
+        # Turn 2: Array and target
+        q2 = "Dùng mảng [2, 4, 6, 8, 10], tìm 8 đi."
+        backend.answer_text = "Bước 1: khoảng [0, 4], mid=2, a[2]=6 < 8 => xét [3, 4]. Bước 2: mid=3, a[3]=8 => tìm thấy tại index 3."
+        window._submit_chat_prompt(q2)
+        until(app, lambda: window._pending_chat_query is None)
+    
+        # Backend received context containing binary search topic from Turn 1 and array facts
+        last_call = backend.run_calls[-1]
+        backend_input = last_call["query"]
+        assert "binary search" in backend_input.lower()
+>       assert "[2, 4, 6, 8, 10]" in backend_input or "2, 4, 6, 8, 10" in backend_input
+E       AssertionError: assert ('[2, 4, 6, 8, 10]' in 'Giải thích binary search bằng ví dụ nhỏ.' or '2, 4, 6, 8, 10' in 'Giải thích binary search bằng ví dụ nhỏ.')
+
+tests/test_dsa_multi_turn_flow.py:195: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+------------------------------ Captured log call -------------------------------
+ERROR    rat.ui.omnibar:omnibar.py:3396 Cannot read initial index metadata
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 3394, in read_initial_data
+    "recent": self.db.get_recent_documents(limit=10)}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 355, in get_recent_documents
+    cursor.execute(
+sqlite3.OperationalError: no such column: category
+___ test_step_3_followup_question_receives_referenced_facts_without_reinput ____
+
+test_env = namespace(window=<rat.ui.omnibar.OmnibarWindow object at 0x1366907d0>, backend=<tests.test_dsa_multi_turn_flow.Recordi...ptimal_stopping.OptimalStoppingPolicy object at 0x1465e40b0>, app=<PyQt6.QtWidgets.QApplication object at 0x136574370>)
+
+    def test_step_3_followup_question_receives_referenced_facts_without_reinput(test_env):
+        window = test_env.window
+        app = test_env.app
+        backend = test_env.backend
+    
+        # Setup Turn 1 and Turn 2
+        window._conversation.add_turn("Giải thích binary search", "Khái niệm Binary Search.")
+        art_store = window.assistant_runtime.artifact_store
+        art = Artifact(
+            id="art-dsa-search",
+            kind="dsa_search",
+            revision=1,
+            payload={"array": [2, 4, 6, 8, 10], "target": 8, "result_index": 3},
+            inputs={"array": [2, 4, 6, 8, 10], "target": 8},
+            provenance={"owner_turn_id": "turn-2"},
+            title="Binary search tìm 8",
+        )
+        art_store.put(art)
+        window._conversation.add_turn("Dùng mảng [2, 4, 6, 8, 10], tìm 8", "Tìm 8 tại index 3", artifact_refs=[art.to_dict()])
+    
+        q3 = "Sao phải dùng mid + 1?"
+        backend.answer_text = "Vì a[mid] = 6 nhỏ hơn 8, nên 8 chắc chắn nằm ở nửa phải, ta loại trừ mid và bắt đầu từ mid + 1."
+    
+        window._submit_chat_prompt(q3, target_turn_id="turn-2", target_artifact_id="art-dsa-search", target_revision=1)
+        until(app, lambda: window._pending_chat_query is None)
+    
+        # Actual transport verified: backend received referenced facts of target 8 and array
+>       call = backend.run_calls[-1]
+               ^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/test_dsa_multi_turn_flow.py:249: IndexError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+------------------------------ Captured log setup ------------------------------
+ERROR    rat.ui.omnibar:omnibar.py:3396 Cannot read initial index metadata
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 3394, in read_initial_data
+    "recent": self.db.get_recent_documents(limit=10)}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 355, in get_recent_documents
+    cursor.execute(
+sqlite3.OperationalError: no such column: category
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_______ test_step_4_change_target_creates_new_revision_and_protects_old ________
+
+test_env = namespace(window=<rat.ui.omnibar.OmnibarWindow object at 0x1465f5130>, backend=<tests.test_dsa_multi_turn_flow.Recordi...ptimal_stopping.OptimalStoppingPolicy object at 0x14661a4b0>, app=<PyQt6.QtWidgets.QApplication object at 0x136574370>)
+
+    def test_step_4_change_target_creates_new_revision_and_protects_old(test_env):
+        window = test_env.window
+        app = test_env.app
+        backend = test_env.backend
+        art_store = window.assistant_runtime.artifact_store
+    
+        # Setup Turn 2 with art-dsa-search@v1
+        art_v1 = Artifact(
+            id="art-dsa-search",
+            kind="dsa_search",
+            revision=1,
+            payload={"array": [2, 4, 6, 8, 10], "target": 8, "result_index": 3},
+            inputs={"array": [2, 4, 6, 8, 10], "target": 8},
+            provenance={"owner_turn_id": "turn-2"},
+            title="Tìm 8",
+        )
+        art_store.put(art_v1)
+        window._conversation.add_turn("Tìm 8", "Kết quả tìm 8", turn_id="turn-2", artifact_refs=[art_v1.to_dict()])
+    
+        # Step 4: Change target to 6
+        q4 = "Đổi sang tìm 6 nhé."
+        backend.answer_text = "Tìm 6: mid=2, a[2]=6 == 6 => tìm thấy ngay tại index 2."
+        window._submit_chat_prompt(q4, target_turn_id="turn-2", target_artifact_id="art-dsa-search", target_revision=1)
+        until(app, lambda: window._pending_chat_query is None)
+    
+        # Commit new revision v2
+        art_v2 = Artifact(
+            id="art-dsa-search",
+            kind="dsa_search",
+            revision=2,
+            payload={"array": [2, 4, 6, 8, 10], "target": 6, "result_index": 2},
+            inputs={"array": [2, 4, 6, 8, 10], "target": 6},
+            provenance={"owner_turn_id": "turn-4", "source_artifact_id": "art-dsa-search", "source_revision": 1},
+            title="Tìm 6",
+        )
+        committed = art_store.put(art_v2, expected_revision=1)
+        assert committed.revision == 2
+    
+        # Snapshot of Turn 2 STILL holds revision 1
+        turn_2_snap = window._conversation.get_turn("turn-2")
+>       assert turn_2_snap.artifact_refs[0]["revision"] == 1
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/test_dsa_multi_turn_flow.py:302: IndexError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+------------------------------ Captured log setup ------------------------------
+ERROR    rat.ui.omnibar:omnibar.py:3396 Cannot read initial index metadata
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 3394, in read_initial_data
+    "recent": self.db.get_recent_documents(limit=10)}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 355, in get_recent_documents
+    cursor.execute(
+sqlite3.OperationalError: no such column: category
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+____________ test_step_7d_deadline_timeout_stops_and_preserves_cost ____________
+
+test_env = namespace(window=<rat.ui.omnibar.OmnibarWindow object at 0x14666ddb0>, backend=<tests.test_dsa_multi_turn_flow.Recordi...ptimal_stopping.OptimalStoppingPolicy object at 0x14669fe00>, app=<PyQt6.QtWidgets.QApplication object at 0x136574370>)
+
+    def test_step_7d_deadline_timeout_stops_and_preserves_cost(test_env):
+        backend = RecordingBackend(delay_s=0.2)
+        bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
+        engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
+    
+        deadline = time.monotonic() + 0.05
+>       res = engine.solve("query ladder tight deadline", deadline_monotonic=deadline)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_dsa_multi_turn_flow.py:463: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+rat/engine/meta_reasoner.py:156: in solve
+    observed = self._controller.solve(
+reasoning/runtime.py:317: in solve
+    answer, confidence, tokens = self.backend.run(strategy, query, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tests.test_dsa_multi_turn_flow.RecordingBackend object at 0x14661a0f0>
+strategy = <ReasoningAction.COT: 0>, query = 'query ladder tight deadline'
+should_cancel = None, deadline_monotonic = 1324231.612221416, max_tokens = None
+
+    def run(self, strategy, query: str, should_cancel=None, deadline_monotonic=None, max_tokens=None):
+        self.run_calls.append({
+            "strategy": strategy.name if hasattr(strategy, "name") else str(strategy),
+            "query": query,
+            "thread": threading.current_thread(),
+            "max_tokens": max_tokens,
+        })
+        if self.delay_s > 0:
+            t0 = time.monotonic()
+            while time.monotonic() - t0 < self.delay_s:
+                if should_cancel and should_cancel():
+                    raise RuntimeError("cancelled_in_backend")
+                if deadline_monotonic and time.monotonic() >= deadline_monotonic:
+>                   raise TimeoutError("timeout_in_backend")
+E                   TimeoutError: timeout_in_backend
+
+tests/test_dsa_multi_turn_flow.py:82: TimeoutError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+This plugin does not support setting window opacity
+------------------------------ Captured log setup ------------------------------
+ERROR    rat.ui.omnibar:omnibar.py:3396 Cannot read initial index metadata
+Traceback (most recent call last):
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/omnibar.py", line 3394, in read_initial_data
+    "recent": self.db.get_recent_documents(limit=10)}
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/crawler/db.py", line 355, in get_recent_documents
+    cursor.execute(
+sqlite3.OperationalError: no such column: category
+=========================== short test summary info ============================
+FAILED tests/test_dsa_multi_turn_flow.py::test_step_1_explain_binary_search_provenance_and_presentation
+FAILED tests/test_dsa_multi_turn_flow.py::test_step_2_pass_array_and_target_retains_facts_and_source_refs
+FAILED tests/test_dsa_multi_turn_flow.py::test_step_3_followup_question_receives_referenced_facts_without_reinput
+FAILED tests/test_dsa_multi_turn_flow.py::test_step_4_change_target_creates_new_revision_and_protects_old
+FAILED tests/test_dsa_multi_turn_flow.py::test_step_7d_deadline_timeout_stops_and_preserves_cost
+5 failed, 28 passed in 8.93s

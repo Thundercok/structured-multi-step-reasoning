@@ -1,0 +1,77 @@
+{
+  "source_snapshot_count": 71,
+  "source_changes_during_r6": {},
+  "submitted_source_matches": 56,
+  "submitted_source_count": 61,
+  "source_mismatches": {
+    "rat/ui/omnibar.py": {
+      "expected": "c9cd7a6471eff68ebede356506629e92d6034c0b78a5a2bfec1d1b8d9052ceb9",
+      "actual": "6c9964d7079bc22590db54b7b172ac5f6d4b7221a428004e4b74b5d2ff9fcf10"
+    },
+    "rat/ui/workbench.py": {
+      "expected": "55277391eeef72fa29f0dfc47bcbe74f2a77a2e6a18da756d0b57ba33efc317c",
+      "actual": "3c1d204ce5d97842e90ef5cf4d84dc87f78151cccdf8c81fc24acc2a8f195211"
+    },
+    "test_qwen_mlx_backend_mocked.py": {
+      "expected": "a5d09d4833357058ef626a765a4aa367053ff94d5a71c116dfd87ae175a175b9",
+      "actual": "5c3ecce277314a603bd23b2862f073cd5eeffa6ce6c44f92778c31ac744254d2"
+    },
+    "tests/test_rat_magic_ui.py": {
+      "expected": "3b30323c7e2784d9b6e01442dca04da2bf5ce5d1a0778e963a9c170acfd43db7",
+      "actual": "7f2aed02d406a1285134da27f6c150046a7403ecffa0285b59db97abf76fd523"
+    },
+    "tests/test_reranker_golden.py": {
+      "expected": "a7f4cea1a8223846b5d8a10128f3642b98558f74c19220caa056001d64f1c0bf",
+      "actual": "ca79933f695065e9e033dcda964676df83698c744a40af6bfe3608ec44dd6ca4"
+    }
+  },
+  "submitted_artifact_matches": 85,
+  "submitted_artifact_count": 85,
+  "artifact_mismatches": {},
+  "incoming_files_compared": 86,
+  "incoming_changes": {},
+  "incoming_added": [],
+  "prior_reviews": {
+    "rat_cot_runtime_codex_review_20261020": {
+      "entries": 81,
+      "mismatches_at_receipt": {},
+      "changes_during_r6": {},
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r2_20261020": {
+      "entries": 102,
+      "mismatches_at_receipt": {},
+      "changes_during_r6": {},
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r3_20261020": {
+      "entries": 115,
+      "mismatches_at_receipt": {},
+      "changes_during_r6": {},
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r4_20261021": {
+      "entries": 147,
+      "mismatches_at_receipt": {
+        "baseline.xml": {
+          "expected": "5ddaf8a3417ff6016367e0988b59bae0a5cbf08e2f37393fe222323b6eef6cdb",
+          "actual": "548a8a33352b56f41aa85d06b5e7c17a6818aa637e33f9fde317bbae295125bb"
+        }
+      },
+      "changes_during_r6": {},
+      "manifest_unchanged": true
+    },
+    "rat_cot_runtime_codex_review_r5_20261021": {
+      "entries": 156,
+      "mismatches_at_receipt": {},
+      "changes_during_r6": {},
+      "manifest_unchanged": true
+    }
+  },
+  "ledger_sha256": "556fadbbbf87312bc13c5a39b49af226378849579f17816f3cb6228d2e140b34",
+  "ledger_unchanged": true,
+  "branch": "main",
+  "git_status_unchanged": false,
+  "reviewer_production_edits": 0,
+  "reviewer_historical_edits": 0
+}

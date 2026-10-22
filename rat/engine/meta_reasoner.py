@@ -63,6 +63,9 @@ class MetaReasoningResult:
     cost_ledger: Optional[Dict[str, Any]] = None
     execution_id: Optional[str] = None
     query_generation: Optional[int] = None
+    context_snapshot: Optional[Dict[str, Any]] = None
+    backend_input: Optional[str] = None
+    bundle_review_status: Optional[str] = None
 
 
 # Domain Knowledge Base for TDTU Regulations & Academic Policies

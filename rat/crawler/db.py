@@ -142,6 +142,7 @@ class Database:
                     content_text TEXT,
                     summary TEXT,
                     normalized_text TEXT,
+                    category TEXT DEFAULT 'general',
                     indexed_at REAL NOT NULL
                 );
             """)
@@ -154,6 +155,11 @@ class Database:
                     cursor.execute("ALTER TABLE documents ADD COLUMN normalized_text TEXT;")
                 except Exception as e:
                     logger.debug(f"Migration note for normalized_text: {e}")
+            if "category" not in existing_cols:
+                try:
+                    cursor.execute("ALTER TABLE documents ADD COLUMN category TEXT DEFAULT 'general';")
+                except Exception as e:
+                    logger.debug(f"Migration note for category: {e}")
 
             # Fast compound indexes for instantaneous collection filtering & deduplication
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_doc_ext ON documents(file_ext);")

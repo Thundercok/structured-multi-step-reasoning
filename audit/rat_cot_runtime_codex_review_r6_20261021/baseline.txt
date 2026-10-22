@@ -1,0 +1,483 @@
+........................................................................ [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 51%]
+.....................FFFFF..F....................FF....EEE.............. [ 68%]
+..........F............................................................. [ 85%]
+............................................................             [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_v2_answer_stays_visibly_accessible_after_navigation[initial] _
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321ce20d0>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_v2_answer_stays_visibly_a0')
+
+    @pytest.fixture
+    def completed_short_qa(scene_window, tmp_path):
+        win = scene_window
+        db = Database(str(tmp_path / "fixture.db"))
+        path = tmp_path / "source.txt"
+        path.write_text("Verification code LOTUS-7319.")
+        db.upsert_document(dict(file_path=str(path), file_name=path.name, file_ext='.txt',
+            file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+            content_text=path.read_text(), summary="Synthetic source"))
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={"content": "LOTUS-7319"}, done_reason="stop",
+            prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt("What code?", selected_document_path=str(path))
+            handle = win._assistant_handle
+            response = answer_selected_document(runtime, "What code?", str(path), model_client=client,
+                turn_ref=handle["turn_ref"], execution_id=handle["execution_id"])
+            assert response.error is None and response.reconciliation.all_satisfied
+            win._on_assistant_response(handle, response)
+            base._pump(6)
+>           assert "LOTUS-7319" in win.workbench_speech_bubble.dialogue.text()
+E           AssertionError: assert 'LOTUS-7319' in 'Xong rồi. Mình để kết quả ở trên nhé.'
+E            +  where 'Xong rồi. Mình để kết quả ở trên nhé.' = <built-in method text of QLabel object at 0x321e0f9d0>()
+E            +    where <built-in method text of QLabel object at 0x321e0f9d0> = <PyQt6.QtWidgets.QLabel object at 0x321e0f9d0>.text
+E            +      where <PyQt6.QtWidgets.QLabel object at 0x321e0f9d0> = <rat.ui.workbench.WorkbenchRatBubble object at 0x321e0e5d0>.dialogue
+E            +        where <rat.ui.workbench.WorkbenchRatBubble object at 0x321e0e5d0> = <rat.ui.omnibar.OmnibarWindow object at 0x321ce20d0>.workbench_speech_bubble
+
+audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py:49: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_ ERROR at setup of test_v2_answer_stays_visibly_accessible_after_navigation[source-detail-back] _
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321ce2990>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_v2_answer_stays_visibly_a1')
+
+    @pytest.fixture
+    def completed_short_qa(scene_window, tmp_path):
+        win = scene_window
+        db = Database(str(tmp_path / "fixture.db"))
+        path = tmp_path / "source.txt"
+        path.write_text("Verification code LOTUS-7319.")
+        db.upsert_document(dict(file_path=str(path), file_name=path.name, file_ext='.txt',
+            file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+            content_text=path.read_text(), summary="Synthetic source"))
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={"content": "LOTUS-7319"}, done_reason="stop",
+            prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt("What code?", selected_document_path=str(path))
+            handle = win._assistant_handle
+            response = answer_selected_document(runtime, "What code?", str(path), model_client=client,
+                turn_ref=handle["turn_ref"], execution_id=handle["execution_id"])
+            assert response.error is None and response.reconciliation.all_satisfied
+            win._on_assistant_response(handle, response)
+            base._pump(6)
+>           assert "LOTUS-7319" in win.workbench_speech_bubble.dialogue.text()
+E           AssertionError: assert 'LOTUS-7319' in 'Xong rồi. Mình để kết quả ở trên nhé.'
+E            +  where 'Xong rồi. Mình để kết quả ở trên nhé.' = <built-in method text of QLabel object at 0x321e67930>()
+E            +    where <built-in method text of QLabel object at 0x321e67930> = <PyQt6.QtWidgets.QLabel object at 0x321e67930>.text
+E            +      where <PyQt6.QtWidgets.QLabel object at 0x321e67930> = <rat.ui.workbench.WorkbenchRatBubble object at 0x321e67570>.dialogue
+E            +        where <rat.ui.workbench.WorkbenchRatBubble object at 0x321e67570> = <rat.ui.omnibar.OmnibarWindow object at 0x321ce2990>.workbench_speech_bubble
+
+audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py:49: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_ ERROR at setup of test_v2_answer_stays_visibly_accessible_after_navigation[snapshot-refresh] _
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321ce22b0>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_v2_answer_stays_visibly_a2')
+
+    @pytest.fixture
+    def completed_short_qa(scene_window, tmp_path):
+        win = scene_window
+        db = Database(str(tmp_path / "fixture.db"))
+        path = tmp_path / "source.txt"
+        path.write_text("Verification code LOTUS-7319.")
+        db.upsert_document(dict(file_path=str(path), file_name=path.name, file_ext='.txt',
+            file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+            content_text=path.read_text(), summary="Synthetic source"))
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={"content": "LOTUS-7319"}, done_reason="stop",
+            prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt("What code?", selected_document_path=str(path))
+            handle = win._assistant_handle
+            response = answer_selected_document(runtime, "What code?", str(path), model_client=client,
+                turn_ref=handle["turn_ref"], execution_id=handle["execution_id"])
+            assert response.error is None and response.reconciliation.all_satisfied
+            win._on_assistant_response(handle, response)
+            base._pump(6)
+>           assert "LOTUS-7319" in win.workbench_speech_bubble.dialogue.text()
+E           AssertionError: assert 'LOTUS-7319' in 'Xong rồi. Mình để kết quả ở trên nhé.'
+E            +  where 'Xong rồi. Mình để kết quả ở trên nhé.' = <built-in method text of QLabel object at 0x321b7a670>()
+E            +    where <built-in method text of QLabel object at 0x321b7a670> = <PyQt6.QtWidgets.QLabel object at 0x321b7a670>.text
+E            +      where <PyQt6.QtWidgets.QLabel object at 0x321b7a670> = <rat.ui.workbench.WorkbenchRatBubble object at 0x321b7a2b0>.dialogue
+E            +        where <rat.ui.workbench.WorkbenchRatBubble object at 0x321b7a2b0> = <rat.ui.omnibar.OmnibarWindow object at 0x321ce22b0>.workbench_speech_bubble
+
+audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py:49: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+=================================== FAILURES ===================================
+____________ test_finder_action_buttons_remain_inside_viewport[620] ____________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x1701b1d10>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_finder_action_buttons_rem0')
+width = 620
+
+    @pytest.mark.parametrize("width", [620, 420])
+    def test_finder_action_buttons_remain_inside_viewport(scene_window, tmp_path, width):
+        box, snapshot, _ = install_hits(scene_window, tmp_path)
+        hit = replace(
+            snapshot.hits[0], title="so_tay_sinh_vien_2026.txt",
+            snippet="Sổ tay sinh viên 2026: Đăng ký học phần theo tiến chỉ và các quy định học vụ",
+        )
+        scene_window._on_finder_snapshot_delivered(replace(snapshot, hits=(hit,), complete=True))
+        scene_window.resize(width, 640)
+        original._pump(4)
+        assert scene_window.width() == width
+        row = box._rows[hit.resource_id]
+        for button in (row.btn_ask, row.btn_open, row.btn_preview, row.btn_reveal):
+>           original.assert_not_clipped(button, scene_window.workbench_scene, label=button.text())
+
+audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+widget = <PyQt6.QtWidgets.QPushButton object at 0x17ec49130>
+container = <rat.ui.workbench_scene.WorkbenchScene object at 0x3219fccd0>
+
+    def assert_not_clipped(widget: QWidget, container: QWidget, *, label: str = "") -> None:
+        """
+        Verify widget is visible, not clipped horizontally outside its container or viewport,
+        and vertically reachable via scroll area if present with a non-empty visibleRegion.
+        """
+        _pump(4)
+        tag = label or widget.objectName() or type(widget).__name__
+>       assert widget.isVisible(), f"{tag} should be visible"
+               ^^^^^^^^^^^^^^^^^^
+E       AssertionError: Hỏi should be visible
+
+tests/test_workbench_scene.py:69: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+____________ test_finder_action_buttons_remain_inside_viewport[420] ____________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x32046fcf0>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_finder_action_buttons_rem1')
+width = 420
+
+    @pytest.mark.parametrize("width", [620, 420])
+    def test_finder_action_buttons_remain_inside_viewport(scene_window, tmp_path, width):
+        box, snapshot, _ = install_hits(scene_window, tmp_path)
+        hit = replace(
+            snapshot.hits[0], title="so_tay_sinh_vien_2026.txt",
+            snippet="Sổ tay sinh viên 2026: Đăng ký học phần theo tiến chỉ và các quy định học vụ",
+        )
+        scene_window._on_finder_snapshot_delivered(replace(snapshot, hits=(hit,), complete=True))
+        scene_window.resize(width, 640)
+        original._pump(4)
+        assert scene_window.width() == width
+        row = box._rows[hit.resource_id]
+        for button in (row.btn_ask, row.btn_open, row.btn_preview, row.btn_reveal):
+>           original.assert_not_clipped(button, scene_window.workbench_scene, label=button.text())
+
+audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+widget = <PyQt6.QtWidgets.QPushButton object at 0x3219ff9d0>
+container = <rat.ui.workbench_scene.WorkbenchScene object at 0x321a43250>
+
+    def assert_not_clipped(widget: QWidget, container: QWidget, *, label: str = "") -> None:
+        """
+        Verify widget is visible, not clipped horizontally outside its container or viewport,
+        and vertically reachable via scroll area if present with a non-empty visibleRegion.
+        """
+        _pump(4)
+        tag = label or widget.objectName() or type(widget).__name__
+>       assert widget.isVisible(), f"{tag} should be visible"
+               ^^^^^^^^^^^^^^^^^^
+E       AssertionError: Hỏi should be visible
+
+tests/test_workbench_scene.py:69: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+______ test_keyboard_ask_activates_ask_instead_of_opening_file[16777220] _______
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x3215a1270>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_keyboard_ask_activates_as0')
+key = <Key.Key_Return: 16777220>
+
+    @pytest.mark.parametrize('key', [Qt.Key.Key_Return, Qt.Key.Key_Space])
+    def test_keyboard_ask_activates_ask_instead_of_opening_file(scene_window, tmp_path, key):
+        win = scene_window
+        box, snapshot, _ = prior.install_hits(win, tmp_path)
+        hit = snapshot.hits[1]
+        box._on_row_selected(hit.resource_id)
+        button = box._rows[hit.resource_id].btn_ask
+        button.setFocus()
+        prior.original._pump(2)
+>       assert button.hasFocus()
+E       assert False
+E        +  where False = <built-in method hasFocus of QPushButton object at 0x321a35630>()
+E        +    where <built-in method hasFocus of QPushButton object at 0x321a35630> = <PyQt6.QtWidgets.QPushButton object at 0x321a35630>.hasFocus
+
+audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:33: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_________ test_keyboard_ask_activates_ask_instead_of_opening_file[32] __________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321a37390>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_keyboard_ask_activates_as1')
+key = <Key.Key_Space: 32>
+
+    @pytest.mark.parametrize('key', [Qt.Key.Key_Return, Qt.Key.Key_Space])
+    def test_keyboard_ask_activates_ask_instead_of_opening_file(scene_window, tmp_path, key):
+        win = scene_window
+        box, snapshot, _ = prior.install_hits(win, tmp_path)
+        hit = snapshot.hits[1]
+        box._on_row_selected(hit.resource_id)
+        button = box._rows[hit.resource_id].btn_ask
+        button.setFocus()
+        prior.original._pump(2)
+>       assert button.hasFocus()
+E       assert False
+E        +  where False = <built-in method hasFocus of QPushButton object at 0x321a36a30>()
+E        +    where <built-in method hasFocus of QPushButton object at 0x321a36a30> = <PyQt6.QtWidgets.QPushButton object at 0x321a36a30>.hasFocus
+
+audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:33: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_________________ test_tabbed_row_shortcut_targets_focused_row _________________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x17f23fd90>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_tabbed_row_shortcut_targe0')
+
+    def test_tabbed_row_shortcut_targets_focused_row(scene_window, tmp_path):
+        box, snapshot, _ = prior.install_hits(scene_window, tmp_path)
+        first, second = snapshot.hits
+        first_ask = box._rows[first.resource_id].btn_ask
+        second_ask = box._rows[second.resource_id].btn_ask
+        first_ask.setFocus()
+        prior.original._pump(2)
+        for _ in range(10):
+            focused = QApplication.focusWidget()
+            if focused is second_ask:
+                break
+            assert focused is not None
+            QTest.keyClick(focused, Qt.Key.Key_Tab)
+            prior.original._pump(1)
+>       assert second_ask.hasFocus(), 'Second row actions must be reachable with Tab'
+E       AssertionError: Second row actions must be reachable with Tab
+E       assert False
+E        +  where False = <built-in method hasFocus of QPushButton object at 0x321ba7f70>()
+E        +    where <built-in method hasFocus of QPushButton object at 0x321ba7f70> = <PyQt6.QtWidgets.QPushButton object at 0x321ba7f70>.hasFocus
+
+audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:56: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_______________ test_progressive_update_preserves_focused_action _______________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321ba74d0>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_progressive_update_preser0')
+
+    def test_progressive_update_preserves_focused_action(scene_window, tmp_path):
+        box, snapshot, _ = prior.install_hits(scene_window, tmp_path)
+        hit = snapshot.hits[1]
+        box._on_row_selected(hit.resource_id)
+        button = box._rows[hit.resource_id].btn_ask
+        button.setFocus()
+        prior.original._pump(2)
+>       assert button.hasFocus()
+E       assert False
+E        +  where False = <built-in method hasFocus of QPushButton object at 0x321c3e7b0>()
+E        +    where <built-in method hasFocus of QPushButton object at 0x321c3e7b0> = <PyQt6.QtWidgets.QPushButton object at 0x321c3e7b0>.hasFocus
+
+audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py:106: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_______ test_v2_result_card_visibility_tracks_bubble[short-full-bubble] ________
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321d43c50>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_v2_result_card_visibility0')
+long_answer = False
+
+    @pytest.mark.parametrize("long_answer", [False, True], ids=["short-full-bubble", "long-truncated-control"])
+    def test_v2_result_card_visibility_tracks_bubble(scene_window, tmp_path, long_answer):
+        win = scene_window
+        db = Database(str(tmp_path / "index.db"))
+        path = tmp_path / "fixture.txt"
+        path.write_text("Verification code LOTUS-7319.")
+        db.upsert_document(dict(file_path=str(path), file_name=path.name, file_ext='.txt',
+            file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+            content_text=path.read_text(), summary="Synthetic source"))
+        answer_text = "LOTUS-7319" if not long_answer else "Code LOTUS-7319. " * 90
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={"content": answer_text}, done_reason="stop",
+            prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous_runtime = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt("What code?", selected_document_path=str(path))
+            handle = win._assistant_handle
+            response = answer_selected_document(runtime, "What code?", str(path), model_client=client,
+                turn_ref=handle["turn_ref"], execution_id=handle["execution_id"])
+            assert response.error is None and response.reconciliation.all_satisfied
+            win._on_assistant_response(handle, response)
+            base._pump(8)
+            scene, bubble = win.workbench_scene, win.workbench_speech_bubble
+            assert scene.mode == "overview" and scene.current_snapshot.phase == "done"
+            assert scene.result_card.answer_lbl.text() == answer_text.strip()
+            assert bubble._copy_text.strip() == answer_text.strip()
+            assert bubble._truncated is long_answer
+            assert all(a.kind in {"document_content", "book_page_content", "document_search", "book_page_search"}
+                       for a in response.artifacts)
+            assert not any(not r.isHidden() for r in scene.artifact_panel.renderers.values())
+>           assert scene.result_card.isHidden() is (not long_answer), (
+                f"Full short bubble must not duplicate the answer on the desk: "
+                f"truncated={bubble._truncated}, card_hidden={scene.result_card.isHidden()}"
+            )
+E           AssertionError: Full short bubble must not duplicate the answer on the desk: truncated=False, card_hidden=False
+E           assert False is not False
+E            +  where False = <built-in method isHidden of ResultDeskCard object at 0x321df4870>()
+E            +    where <built-in method isHidden of ResultDeskCard object at 0x321df4870> = <rat.ui.workbench_scene.ResultDeskCard object at 0x321df4870>.isHidden
+E            +      where <rat.ui.workbench_scene.ResultDeskCard object at 0x321df4870> = <rat.ui.workbench_scene.WorkbenchScene object at 0x321d9b070>.result_card
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py:62: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_____ test_v2_result_card_visibility_tracks_bubble[long-truncated-control] _____
+
+scene_window = <rat.ui.omnibar.OmnibarWindow object at 0x321c3d3b0>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1346/test_v2_result_card_visibility1')
+long_answer = True
+
+    @pytest.mark.parametrize("long_answer", [False, True], ids=["short-full-bubble", "long-truncated-control"])
+    def test_v2_result_card_visibility_tracks_bubble(scene_window, tmp_path, long_answer):
+        win = scene_window
+        db = Database(str(tmp_path / "index.db"))
+        path = tmp_path / "fixture.txt"
+        path.write_text("Verification code LOTUS-7319.")
+        db.upsert_document(dict(file_path=str(path), file_name=path.name, file_ext='.txt',
+            file_size=path.stat().st_size, created_at=1, modified_at=1, indexed_at=1,
+            content_text=path.read_text(), summary="Synthetic source"))
+        answer_text = "LOTUS-7319" if not long_answer else "Code LOTUS-7319. " * 90
+        client = Mock()
+        client.chat_with_meta.return_value = dict(message={"content": answer_text}, done_reason="stop",
+            prompt_tokens=20, completion_tokens=4, error=None)
+        runtime = AssistantRuntime(db=db, compositor=TimetableCompositor([]), use_live_model=True)
+        previous_runtime = win.assistant_runtime
+        win.assistant_runtime = runtime
+        try:
+            win._submit_chat_prompt("What code?", selected_document_path=str(path))
+            handle = win._assistant_handle
+            response = answer_selected_document(runtime, "What code?", str(path), model_client=client,
+                turn_ref=handle["turn_ref"], execution_id=handle["execution_id"])
+            assert response.error is None and response.reconciliation.all_satisfied
+            win._on_assistant_response(handle, response)
+            base._pump(8)
+            scene, bubble = win.workbench_scene, win.workbench_speech_bubble
+            assert scene.mode == "overview" and scene.current_snapshot.phase == "done"
+            assert scene.result_card.answer_lbl.text() == answer_text.strip()
+            assert bubble._copy_text.strip() == answer_text.strip()
+>           assert bubble._truncated is long_answer
+E           assert False is True
+E            +  where False = <rat.ui.workbench.WorkbenchRatBubble object at 0x321ccae90>._truncated
+
+audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py:58: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support propagateSizeHints()
+----------------------------- Captured stderr call -----------------------------
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+_________ test_200_golden_scores_hold_under_current_25_feature_schema __________
+
+    def test_200_golden_scores_hold_under_current_25_feature_schema():
+        # Preserve the existing 200 raw/clamped/additive score checks exactly;
+        # substitute only the feature-count contract claimed by this handoff.
+        source = ROOT / "tests/test_reranker_golden.py"
+        tree = copy.deepcopy(ast.parse(source.read_text(), filename=str(source)))
+        changed = 0
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assert) and ast.unparse(node.test) == "len(candidate['_feats']) == 20":
+                node.test.comparators[0].value = 25
+                changed += 1
+>       assert changed == 1
+E       assert 0 == 1
+
+audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py:111: AssertionError
+=========================== short test summary info ============================
+FAILED audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py::test_finder_action_buttons_remain_inside_viewport[620]
+FAILED audit/rat_finder_codex_review_20261016/test_finder_integration_probes.py::test_finder_action_buttons_remain_inside_viewport[420]
+FAILED audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py::test_keyboard_ask_activates_ask_instead_of_opening_file[16777220]
+FAILED audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py::test_keyboard_ask_activates_ask_instead_of_opening_file[32]
+FAILED audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py::test_tabbed_row_shortcut_targets_focused_row
+FAILED audit/rat_finder_codex_review_r2_20261017/test_keyboard_followups.py::test_progressive_update_preserves_focused_action
+FAILED audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v2_result_card_visibility_tracks_bubble[short-full-bubble]
+FAILED audit/rat_overnight_sweep_codex_review_20261019/test_visual_acceptance.py::test_v2_result_card_visibility_tracks_bubble[long-truncated-control]
+FAILED audit/rat_overnight_sweep_codex_review_r3_20261019/test_remaining_probes.py::test_200_golden_scores_hold_under_current_25_feature_schema
+ERROR audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py::test_v2_answer_stays_visibly_accessible_after_navigation[initial]
+ERROR audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py::test_v2_answer_stays_visibly_accessible_after_navigation[source-detail-back]
+ERROR audit/rat_overnight_sweep_repair_codex_review_20261019/test_followup_acceptance.py::test_v2_answer_stays_visibly_accessible_after_navigation[snapshot-refresh]
+9 failed, 408 passed, 3 errors in 44.88s

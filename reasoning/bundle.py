@@ -282,33 +282,74 @@ def validate_policy_bundle(
                                                 continue
                                             live_m = pred.perf[idx]
                                             if hasattr(live_m, "value"):
-                                                if "constant" not in m_dict:
+                                                live_val = getattr(live_m, "value", None)
+                                                if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val):
+                                                    errors.append(f"Live performance model [{idx}] constant is non-finite: {live_val}")
+                                                elif "constant" not in m_dict:
                                                     errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'constant'.")
                                                 else:
                                                     c_val = m_dict["constant"]
-                                                    if not isinstance(c_val, (int, float)) or not np.isfinite(c_val) or abs(float(c_val) - float(live_m.value)) > 1e-5:
-                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({c_val}) does not match live model ({live_m.value}).")
+                                                    if not isinstance(c_val, (int, float)) or not np.isfinite(c_val) or abs(float(c_val) - float(live_val)) > 1e-5:
+                                                        errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] constant ({c_val}) does not match live model ({live_val}).")
                                             elif hasattr(live_m, "coef_"):
                                                 if "coef" not in m_dict:
                                                     errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'coef'.")
                                                 else:
                                                     coef_art = np.asarray(m_dict["coef"], dtype=float)
-                                                    if not np.all(np.isfinite(coef_art)) or np.shape(coef_art) != np.shape(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5, equal_nan=False):
+                                                    if not np.all(np.isfinite(coef_art)) or not np.all(np.isfinite(live_m.coef_)) or np.shape(coef_art) != np.shape(live_m.coef_) or not np.allclose(coef_art, live_m.coef_, atol=1e-5, equal_nan=False):
                                                         errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] coef does not match live model.")
                                                 if hasattr(live_m, "intercept_"):
                                                     if "intercept" not in m_dict:
                                                         errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] missing 'intercept'.")
                                                     else:
                                                         int_art = np.asarray(m_dict["intercept"], dtype=float)
-                                                        if not np.all(np.isfinite(int_art)) or not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
+                                                        if not np.all(np.isfinite(int_art)) or not np.all(np.isfinite(live_m.intercept_)) or not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
                                                             errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] intercept does not match live model.")
                                 else:
                                     # If entry_perf_models is omitted from artifact, live performance models must not deviate from baseline defaults [1.0, 0.0, 0.0]
                                     expected_defaults = [1.0, 0.0, 0.0]
                                     for idx, live_m in enumerate(pred.perf):
                                         live_val = getattr(live_m, "value", None)
-                                        if live_val is None or idx >= len(expected_defaults) or abs(float(live_val) - expected_defaults[idx]) > 1e-5:
+                                        if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val) or idx >= len(expected_defaults) or abs(float(live_val) - expected_defaults[idx]) > 1e-5:
                                             errors.append(f"Artifact '{art_key}' missing required 'entry_perf_models' for non-default live performance model at index {idx}.")
+
+                            # Validate calibrators in authoritative artifact
+                            live_calibrators = getattr(policy, "calibrators", None)
+                            if "calibrators" in art_data:
+                                cal_art = art_data["calibrators"]
+                                if bundle.calibrator_type == "isotonic":
+                                    errors.append("Approved isotonic calibration artifact binding is not supported; cannot execute this bundle.")
+                                if bundle.calibrator_type == "platt" and (
+                                    not isinstance(cal_art, list) or len(cal_art) != len(policy.tau)
+                                ):
+                                    errors.append(f"Artifact '{art_key}' calibrators must cover every stopping threshold.")
+                                if not isinstance(cal_art, list) or (live_calibrators is not None and len(cal_art) != len(live_calibrators)):
+                                    errors.append(f"Artifact '{art_key}' calibrators count does not match live policy calibrators.")
+                                elif live_calibrators is not None:
+                                    for idx, c_dict in enumerate(cal_art):
+                                        if not isinstance(c_dict, dict):
+                                            errors.append(f"Artifact '{art_key}' calibrators[{idx}] must be an object.")
+                                            continue
+                                        live_cal = live_calibrators[idx]
+                                        if isinstance(live_cal, PlattCalibrator):
+                                            if c_dict.get("type") != "platt":
+                                                errors.append(f"Artifact '{art_key}' calibrators[{idx}] type must be platt.")
+                                            if c_dict.get("is_fitted") is not True or getattr(live_cal, "is_fitted", None) is not True:
+                                                errors.append(f"Artifact '{art_key}' calibrators[{idx}] and live calibrator must both be fitted.")
+                                            for p_name in ("a", "b"):
+                                                if p_name not in c_dict:
+                                                    errors.append(f"Artifact '{art_key}' calibrators[{idx}] missing '{p_name}'.")
+                                                else:
+                                                    art_val = c_dict[p_name]
+                                                    live_val = getattr(live_cal, p_name, None)
+                                                    if not isinstance(art_val, (int, float)) or not np.isfinite(art_val):
+                                                        errors.append(f"Artifact '{art_key}' calibrators[{idx}] '{p_name}' is non-finite: {art_val}")
+                                                    elif live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val):
+                                                        errors.append(f"Live calibrator [{idx}] '{p_name}' is non-finite: {live_val}")
+                                                    elif abs(float(art_val) - float(live_val)) > 1e-5:
+                                                        errors.append(f"Artifact '{art_key}' calibrators[{idx}] '{p_name}' ({art_val}) does not match live calibrator ({live_val}).")
+                            elif bundle.calibrator_type is not None and bundle.calibrator_semantics != "raw_confidence_uncalibrated":
+                                errors.append(f"Artifact '{art_key}' missing required 'calibrators' for calibrated policy.")
 
             if not found_authoritative_artifact:
                 errors.append("Approved bundle must include an authoritative fitted policy artifact declaring complete parameters.")
@@ -419,15 +460,34 @@ def validate_policy_bundle(
                     errors.append(f"Mean cost [{i}] mismatch: bundle {b_cost} vs policy {p_cost}")
 
         # Calibrator validation
-        if bundle.calibrator_type is not None:
-            if not getattr(policy, "calibrators", None):
+        live_calibrators = getattr(policy, "calibrators", None)
+        has_active_calibrators = (
+            live_calibrators is not None
+            and isinstance(live_calibrators, (list, tuple))
+            and len(live_calibrators) > 0
+            and any(c is not None for c in live_calibrators)
+        )
+        if bundle.calibrator_type is None or bundle.calibrator_semantics == "raw_confidence_uncalibrated":
+            if has_active_calibrators:
+                errors.append(
+                    f"Bundle specifies uncalibrated policy (calibrator_type={bundle.calibrator_type}), "
+                    f"but live policy has {len(live_calibrators)} active calibrator(s)."
+                )
+        else:
+            if not has_active_calibrators:
                 errors.append(f"Bundle specifies calibrator_type='{bundle.calibrator_type}', but policy has no calibrators.")
             else:
-                for idx, cal in enumerate(policy.calibrators):
+                for idx, cal in enumerate(live_calibrators):
                     if bundle.calibrator_type == "isotonic" and not isinstance(cal, IsotonicCalibrator):
                         errors.append(f"Calibrator [{idx}] is not an IsotonicCalibrator.")
                     elif bundle.calibrator_type == "platt" and not isinstance(cal, PlattCalibrator):
                         errors.append(f"Calibrator [{idx}] is not a PlattCalibrator.")
+                    else:
+                        if isinstance(cal, PlattCalibrator):
+                            if hasattr(cal, "a") and not np.isfinite(cal.a):
+                                errors.append(f"PlattCalibrator [{idx}] parameter 'a' is non-finite: {cal.a}")
+                            if hasattr(cal, "b") and not np.isfinite(cal.b):
+                                errors.append(f"PlattCalibrator [{idx}] parameter 'b' is non-finite: {cal.b}")
 
     # 4. Backend compatibility
     if backend is not None:

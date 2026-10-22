@@ -1,0 +1,35 @@
+[
+  {
+    "name": "baseline",
+    "command": "QT_QPA_PLATFORM=offscreen PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest tests/test_dsa_multi_turn_flow.py tests/test_execution_flow.py tests/test_policy_bundle.py -q --junitxml=audit/rat_cot_multiturn_implementation_20261022/baseline.xml",
+    "exit_code": 1,
+    "executions": 33,
+    "passed": 28,
+    "failed_or_errors": 5,
+    "stdout": "baseline.txt",
+    "junit": "baseline.xml",
+    "scope": "Offline authored/synthetic fixtures; real model calls=0"
+  },
+  {
+    "name": "implementation",
+    "command": "QT_QPA_PLATFORM=offscreen PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest tests/test_reasoning_conversation.py tests/test_policy_calibration_binding.py tests/test_execution_flow.py tests/test_online_reasoning_execution.py tests/test_policy_bundle.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q --junitxml=audit/rat_cot_multiturn_implementation_20261022/implementation.xml",
+    "exit_code": 1,
+    "executions": 74,
+    "passed": 73,
+    "failed_or_errors": 1,
+    "stdout": "implementation.txt",
+    "junit": "implementation.xml",
+    "scope": "Offline authored/synthetic fixtures; real model calls=0"
+  },
+  {
+    "name": "validation",
+    "command": "QT_QPA_PLATFORM=offscreen PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest tests/test_reasoning_conversation.py tests/test_policy_calibration_binding.py tests/test_dsa_multi_turn_flow.py tests/test_execution_flow.py tests/test_online_reasoning_execution.py tests/test_policy_bundle.py tests/test_rat_headless_cli.py tests/test_document_model_startup.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q --junitxml=audit/rat_cot_multiturn_implementation_20261022/validation.xml",
+    "exit_code": 0,
+    "executions": 115,
+    "passed": 115,
+    "failed_or_errors": 0,
+    "stdout": "validation.txt",
+    "junit": "validation.xml",
+    "scope": "Offline authored/synthetic fixtures; real model calls=0"
+  }
+]

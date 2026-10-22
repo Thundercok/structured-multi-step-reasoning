@@ -1,0 +1,341 @@
+{
+  "suites": [
+    {
+      "name": "consolidated_regression_suite",
+      "declared": {
+        "name": "consolidated_regression_suite",
+        "command": ".venv/bin/python audit/rat_cot_runtime_acceptance_20261020/run_consolidated.py",
+        "description": "372 consolidated tests including 331 prior regression tests and 41 runtime acceptance tests",
+        "total_tests": 372,
+        "passed": 372,
+        "failed": 0,
+        "duration_s": 37.51,
+        "exit_code": 0,
+        "raw_log": "regression.txt",
+        "junit_xml": "regression.xml"
+      },
+      "junit": {
+        "tests": 372,
+        "passed": 372,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "tests.test_progressive_search": 17,
+          "tests.test_mlx_document_session": 26,
+          "tests.test_selected_document_qa": 11,
+          "tests.test_selected_document_ui": 6,
+          "tests.test_workbench_scene": 15,
+          "tests.test_rat_completion_reconciliation": 14,
+          "tests.test_rat_completion_boundaries": 32,
+          "tests.test_document_model_startup": 9,
+          "tests.test_rat_magic_ui": 17,
+          "tests.test_research_study": 12,
+          "test_optimal_stopping": 12,
+          "test_entry_predictor": 5,
+          "tests.test_assistant_runtime": 26,
+          "tests.test_rat_headless_cli": 20,
+          "tests.test_resident_warmup": 5,
+          "audit.rat_finder_codex_review_20261016.test_finder_integration_probes": 12,
+          "audit.rat_finder_codex_review_r2_20261017.test_keyboard_followups": 6,
+          "audit.rat_milestones_abc_independent_review_20261018.test_review_probes": 8,
+          "audit.rat_milestones_abc_independent_review_20261018.test_ui_review_probes": 3,
+          "audit.rat_milestones_abc_review_r2_20261018.test_additional_headless": 3,
+          "audit.rat_milestones_abc_review_r2_20261018.test_additional_ui": 4,
+          "audit.rat_milestones_abc_review_r3_20261019.test_slide_summary_projection": 2,
+          "audit.rat_overnight_sweep_codex_review_20261019.test_visual_acceptance": 6,
+          "audit.rat_overnight_sweep_repair_codex_review_20261019.test_followup_acceptance": 5,
+          "tests.test_crash_shield.TestCrashShield": 8,
+          "tests.test_harness_regressions": 5,
+          "audit.rat_overnight_sweep_codex_review_r3_20261019.test_remaining_probes": 13,
+          "audit.rat_overnight_sweep_codex_review_r4_20261019.test_final_edges": 7,
+          "audit.rat_overnight_sweep_codex_review_r5_20261019.test_provenance_and_conclusion": 10,
+          "audit.rat_overnight_sweep_codex_review_r6_20261020.test_legacy_identity_and_real_history": 8,
+          "audit.rat_overnight_sweep_codex_review_r7_20261020.test_failed_request_reporting": 4,
+          "tests.test_online_reasoning": 14,
+          "tests.test_policy_bundle": 11,
+          "tests.test_online_reasoning_execution": 8,
+          "tests.test_native_acceptance_readiness": 8
+        },
+        "xml_time_s": 37.485
+      },
+      "raw_summary": [
+        "372",
+        "",
+        "37.51"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": true
+    },
+    {
+      "name": "mandatory_research_suite",
+      "declared": {
+        "name": "mandatory_research_suite",
+        "command": ".venv/bin/python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/mandatory_research.xml",
+        "description": "Mandatory research harness, entry predictor, and optimal stopping tests (29 tests)",
+        "total_tests": 29,
+        "passed": 29,
+        "failed": 0,
+        "duration_s": 4.24,
+        "exit_code": 0,
+        "raw_log": "mandatory_research.txt",
+        "junit_xml": "mandatory_research.xml"
+      },
+      "junit": {
+        "tests": 29,
+        "passed": 29,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "tests.test_research_study": 12,
+          "test_optimal_stopping": 12,
+          "test_entry_predictor": 5
+        },
+        "xml_time_s": 4.224
+      },
+      "raw_summary": [
+        "29",
+        "",
+        "4.24"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": true
+    },
+    {
+      "name": "parser_and_document_intake_suite",
+      "declared": {
+        "name": "parser_and_document_intake_suite",
+        "command": ".venv/bin/python -m pytest tests/test_document_intake.py tests/test_document_intake_robustness.py -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/parser_affected.xml",
+        "description": "Document intake and parser robustness tests (44 tests)",
+        "total_tests": 44,
+        "passed": 44,
+        "failed": 0,
+        "duration_s": 1.32,
+        "exit_code": 0,
+        "raw_log": "parser_affected.txt",
+        "junit_xml": "parser_affected.xml"
+      },
+      "junit": {
+        "tests": 44,
+        "passed": 44,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "tests.test_document_intake": 7,
+          "tests.test_document_intake_robustness": 37
+        },
+        "xml_time_s": 1.308
+      },
+      "raw_summary": [
+        "44",
+        "",
+        "1.32"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": true
+    },
+    {
+      "name": "codex_review_r3_boundary_contracts",
+      "declared": {
+        "name": "codex_review_r3_boundary_contracts",
+        "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r3_20261020/test_boundary_contracts.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/contract_probes_r3.xml",
+        "description": "Independent Codex review r3 boundary contracts suite (19 tests covering caller invariance, capability checking, provenance strictness, fail-closed doc QA, and stream yield accounting)",
+        "total_tests": 19,
+        "passed": 19,
+        "failed": 0,
+        "duration_s": 3.7,
+        "exit_code": 0,
+        "raw_log": "contract_probes_r3.txt",
+        "junit_xml": "contract_probes_r3.xml"
+      },
+      "junit": {
+        "tests": 19,
+        "passed": 19,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "audit.rat_cot_runtime_codex_review_r3_20261020.test_boundary_contracts": 19
+        },
+        "xml_time_s": 3.688
+      },
+      "raw_summary": [
+        "19",
+        "",
+        "3.70"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": true
+    },
+    {
+      "name": "codex_review_r2_qwen_replay",
+      "declared": {
+        "name": "codex_review_r2_qwen_replay",
+        "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r2_20261020/test_qwen_boundary_replay.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/qwen_boundary_replay.xml",
+        "description": "Independent Codex review r2 Qwen AST boundary replay probe suite (3 tests)",
+        "total_tests": 3,
+        "passed": 3,
+        "failed": 0,
+        "duration_s": 3.18,
+        "exit_code": 0,
+        "raw_log": "qwen_boundary_replay.txt",
+        "junit_xml": "qwen_boundary_replay.xml"
+      },
+      "junit": {
+        "tests": 3,
+        "passed": 3,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "audit.rat_cot_runtime_codex_review_r2_20261020.test_qwen_boundary_replay": 3
+        },
+        "xml_time_s": 2.941
+      },
+      "raw_summary": [
+        "3",
+        "",
+        "2.94"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": false
+    },
+    {
+      "name": "failed_request_reporting_r7",
+      "declared": {
+        "name": "failed_request_reporting_r7",
+        "command": ".venv/bin/python -m pytest audit/rat_overnight_sweep_codex_review_r7_20261020/test_failed_request_reporting.py -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/failed_request_reporting.xml",
+        "description": "G1 failed request reporting verification suite",
+        "total_tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "duration_s": 0.14,
+        "exit_code": 0,
+        "raw_log": "failed_request_reporting.txt",
+        "junit_xml": "failed_request_reporting.xml"
+      },
+      "junit": {
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "audit.rat_overnight_sweep_codex_review_r7_20261020.test_failed_request_reporting": 4
+        },
+        "xml_time_s": 0.143
+      },
+      "raw_summary": [
+        "4",
+        "",
+        "0.14"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": true
+    },
+    {
+      "name": "codex_review_r4_remaining_contracts",
+      "declared": {
+        "name": "codex_review_r4_remaining_contracts",
+        "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r4_20261021/test_remaining_contracts.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/contract_probes_r4.xml",
+        "description": "Independent Codex review r4 remaining contracts suite (14 tests covering configured SC/ToT sample control, hard token cap holding, structured dispatch accounting, pre-dispatch cancellation, and strict fitted policy parameter validation)",
+        "total_tests": 14,
+        "passed": 14,
+        "failed": 0,
+        "duration_s": 3.64,
+        "exit_code": 0,
+        "raw_log": "contract_probes_r4.txt",
+        "junit_xml": "contract_probes_r4.xml"
+      },
+      "junit": {
+        "tests": 14,
+        "passed": 14,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "audit.rat_cot_runtime_codex_review_r4_20261021.test_remaining_contracts": 14
+        },
+        "xml_time_s": 3.324
+      },
+      "raw_summary": [
+        "14",
+        "",
+        "3.33"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": false
+    },
+    {
+      "name": "codex_review_r5_binding_and_dispatch",
+      "declared": {
+        "name": "codex_review_r5_binding_and_dispatch",
+        "command": ".venv/bin/python -m pytest audit/rat_cot_runtime_codex_review_r5_20261021/test_binding_and_dispatch.py -p audit.rat_cot_runtime_acceptance_20261020.redirect_plugin -q --junitxml=audit/rat_cot_runtime_acceptance_20261020/contract_probes_r5.xml",
+        "description": "Independent Codex review r5 binding and dispatch suite (12 tests covering ReAct hard turn/token limits, pre-dispatch failure error text invariance, authoritative fitted policy artifact requirement, and numerical parameter finiteness/binding)",
+        "total_tests": 12,
+        "passed": 12,
+        "failed": 0,
+        "duration_s": 2.98,
+        "exit_code": 0,
+        "raw_log": "contract_probes_r5.txt",
+        "junit_xml": "contract_probes_r5.xml"
+      },
+      "junit": {
+        "tests": 12,
+        "passed": 12,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failures": [],
+        "error_cases": [],
+        "class_counts": {
+          "audit.rat_cot_runtime_codex_review_r5_20261021.test_binding_and_dispatch": 12
+        },
+        "xml_time_s": 4.184
+      },
+      "raw_summary": [
+        "12",
+        "",
+        "4.20"
+      ],
+      "counts_match": true,
+      "stdout_time_matches_declared": false
+    }
+  ],
+  "all_counts_match": true,
+  "all_stdout_durations_match_declared": false,
+  "submitted_execution_count": 497,
+  "distinct_class_and_test_name_identities": 464,
+  "repeated_executions": 33,
+  "reused_regression": {
+    "current_sha256": "de13ebdbbccfe16864884c777dd2433d6951266c195c44e8b6ea1773808f5d1e",
+    "r5_received_sha256": "de13ebdbbccfe16864884c777dd2433d6951266c195c44e8b6ea1773808f5d1e",
+    "byte_identical": true,
+    "timestamp": "2026-10-21T11:28:10.920684+07:00",
+    "scope": "This exact 372-test transcript was already received before the r5 repair. Do not associate it with a new source freeze without explicit historical labeling."
+  },
+  "r4_incident": {
+    "expected_original_sha256": "5ddaf8a3417ff6016367e0988b59bae0a5cbf08e2f37393fe222323b6eef6cdb",
+    "recorded_actual_sha256": "548a8a33fa8134789ba855799c8577da7b9ec598f8fc23ae7355153fb5ea6857",
+    "observed_actual_sha256": "548a8a33352b56f41aa85d06b5e7c17a6818aa637e33f9fde317bbae295125bb",
+    "recorded_actual_matches_file": false,
+    "recorded_loss_status": "closed_with_loss_recorded",
+    "original_xml_recovered": false
+  }
+}

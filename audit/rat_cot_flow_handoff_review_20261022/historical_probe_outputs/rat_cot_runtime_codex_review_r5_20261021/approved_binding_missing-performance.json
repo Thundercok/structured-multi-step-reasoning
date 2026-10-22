@@ -1,0 +1,23 @@
+{
+  "outcome": {
+    "accepted": false,
+    "error": "Policy bundle validation failed: Artifact '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1374/test_approved_bundle_requires_0/fitted-policy.json' missing required 'entry_perf_models' for non-default live performance model at index 0."
+  },
+  "artifacts": {
+    "fitted-policy.json": {
+      "sha256": "5e652fe0ff23f5068d546bc03dac13437ca79fcdcfbf0693dd39259cfc2104c0",
+      "content": "{\"lambda\": 0.02, \"tau\": [0.36149257796234635, 0.6555697827774726], \"mean_cost\": [0.1, 0.1, 0.1], \"entry_cost_models\": [{\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0], \"intercept\": 0.10000000149011612}, {\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0], \"intercept\": 0.10000000149011612}, {\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0], \"intercept\": 0.10000000149011612}]}"
+    }
+  },
+  "predictor_scores_before": [
+    0.9979999999701977,
+    -0.0020000000298023225,
+    -0.0020000000298023225
+  ],
+  "predictor_scores_after": [
+    -0.0020000000298023225,
+    -0.0020000000298023225,
+    -0.0020000000298023225
+  ],
+  "live_cost_intercept": 0.10000000149011612
+}

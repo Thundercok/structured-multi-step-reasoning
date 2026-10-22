@@ -1,0 +1,23 @@
+{
+  "outcome": {
+    "accepted": false,
+    "error": "Policy bundle validation failed: Artifact '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1363/test_approved_bundle_requires_1/fitted-policy.json' entry_cost_models[0] missing required 'intercept'.; Artifact '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1363/test_approved_bundle_requires_1/fitted-policy.json' entry_cost_models[1] missing required 'intercept'.; Artifact '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1363/test_approved_bundle_requires_1/fitted-policy.json' entry_cost_models[2] missing required 'intercept'."
+  },
+  "artifacts": {
+    "fitted-policy.json": {
+      "sha256": "71bccaa6c3bf46408bbf91d27dffbd2c05b016a5db2f8b5edae899e912af18a7",
+      "content": "{\"lambda\": 0.02, \"tau\": [0.36149257796234635, 0.6555697827774726], \"mean_cost\": [0.1, 0.1, 0.1], \"entry_cost_models\": [{\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0]}, {\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0]}, {\"coef\": [0.0, 0.0, 0.0, 0.0, 0.0]}]}"
+    }
+  },
+  "predictor_scores_before": [
+    0.9979999999701977,
+    -0.0020000000298023225,
+    -0.0020000000298023225
+  ],
+  "predictor_scores_after": [
+    0.8179999923706055,
+    -0.0020000000298023225,
+    -0.0020000000298023225
+  ],
+  "live_cost_intercept": 9.100000381469727
+}

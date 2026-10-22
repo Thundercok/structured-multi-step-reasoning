@@ -236,6 +236,8 @@ class ConversationHistory:
         if execution_id is not None and snap.execution_id != execution_id:
             raise ValueError("cancelled:execution_mismatch")
         if snap.status == "completed" and snap.answer == answer.strip():
+            if artifact_refs is not None:
+                snap.artifact_refs = copy.deepcopy(artifact_refs)
             return copy.deepcopy(snap)
         if snap.status not in ("in_progress", "needs_input"):
             raise ValueError("turn_already_finalized")

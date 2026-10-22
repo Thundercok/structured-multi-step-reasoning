@@ -1,0 +1,14 @@
+{
+  "files": {
+    "rat/engine/execution.py": "60f6c7877f7226d90e0852b51c5a3594c77d09e3de8f45b1b27caa7a6c47d4a0",
+    "rat/ui/assistant_worker.py": "d014207c04e15b2db55d3d5f40a3c6946e9a0d26e652916ba5b028d9726c6e24",
+    "rat/ui/reasoning_worker.py": "513e14627c0e06599b126a5499069416ef768e682298361dd0ab6cbf4b23557c",
+    "rat/ui/omnibar.py": "fb5171974c29f451f9604f04f07845798860550eb7f7b37a690d35e0fa57d7eb",
+    "rat/os/app.py": "cd6f93f7a743bb95d39b7686c88ade133e5acdc50b70d840daf613a74cb8289f",
+    "rat/main.py": "e06189252ebca0bcb8895c7b6f13ef5119bbfa7c78979a54a68e9208b870d126",
+    "reasoning/bundle.py": "0d9fda7ef9986fb42dffef47b4deb0c3c2420630f0760c5b0e58bffcf458facf",
+    "tests/test_dsa_multi_turn_flow.py": "50bdbd9fa0865cc12442c69ad56f84baf9be2ea9dc1f2dd345d44d222be3790b",
+    "tests/test_execution_flow.py": "090c1a36fb739bc7d5de9b04151def04e53df664f22ff1436e712299c46acdea",
+    "tests/test_policy_bundle.py": "c25cd70a59eb365fa7a16a2f204cb3168c2d6087f81de4c5267ec1d5f9ef857a"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "incident": "r4_baseline_xml_overwrite_and_unavailability",
+  "file": "audit/rat_cot_runtime_codex_review_r4_20261021/baseline.xml",
+  "expected_sha256": "5ddaf8a3417ff6016367e0988b59bae0a5cbf08e2f37393fe222323b6eef6cdb",
+  "actual_sha256": "548a8a33352b56f41aa85d06b5e7c17a6818aa637e33f9fde317bbae295125bb",
+  "root_cause": "Prior acceptance test runner executed run_baseline.py directly, overwriting baseline.xml in-place with new run timings before runner redirection plugin was established.",
+  "recovery_action": "Preserved original manifest entry 5ddaf8a3... in r4/artifact_manifest.json as immutable record; recorded evidence loss incident explicitly; did not synthesize or forge JUnit timestamps. Mandated that all future acceptance runners redirect JUnit XML targets and probe fixtures to prior_probe_outputs/.",
+  "status": "closed_with_loss_recorded"
+}

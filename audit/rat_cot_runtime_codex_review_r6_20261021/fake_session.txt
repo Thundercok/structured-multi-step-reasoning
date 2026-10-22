@@ -1,0 +1,18 @@
+[Qt] Populating font family aliases took 223 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+=== Starting Native Performance & Document QA Session ===
+Output directory: audit/rat_cot_runtime_acceptance_20261020/fake_session
+Backend mode: Fake Backend (Offline)
+Fake model directory created at: /var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_adlsy5s3
+psutil 7.2.2 imported from /opt/homebrew/lib/python3.14/site-packages/psutil/__init__.py
+Default font resolved: '.AppleSystemUIFont', Mono font resolved: 'Menlo'
+Append-only ledger: audit/rat_cot_runtime_acceptance_20261020/fake_session/calls.jsonl (Existing recorded attempts: 0/1)
+Loading session from /var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_fake_model_adlsy5s3...
+Session loaded in 0.00s (session report: 0.00s)
+Dispatching requests (Remaining budget: 1)...
+[01/1] Query: 'Sinh viên được đăng ký tối đa bao nhiêu tín chỉ trong một học kỳ chính?'
+      -> Status: success | Latency: 79.5ms
+Budget limit reached (1/1). Halting loop.
+Measuring host CPU for 1 second...
+Current Runner RSS: 95.7 MB, Peak RSS: 95.69 MB, Host CPU: 70.3%
+Saved native performance artifact to audit/rat_cot_runtime_acceptance_20261020/fake_session/native_performance.json
+=== Native Performance Session Complete ===

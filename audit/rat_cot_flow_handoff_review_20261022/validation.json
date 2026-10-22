@@ -1,0 +1,53 @@
+{
+  "verdict": "runtime_repair_partially_accepted_and_flow_implementation_handoff_ready",
+  "date_local": "2026-10-22",
+  "r3": "closed_within_reviewed_contracts",
+  "r5": "open_P1_finite_calibration_state_not_bound_to_authoritative_artifact",
+  "r10": "closed_within_crosschecked_metadata_and_lineage",
+  "r12": "resolved_with_historical_r4_XML_loss_recorded_not_full_original_integrity",
+  "context_transport": "confirmed_planned_integration_gap_not_implemented_by_preparation_handoff",
+  "flow_preparation": "specification_only_not_full_7_step_acceptance",
+  "decisions": {
+    "turn4": "new_chat_turn_references_source_artifact_revision_then_commits_new_revision",
+    "target_revision": "source_revision_not_preassigned_output_revision",
+    "postdispatch_failure_cost": "retain_actual_dispatched_requests_and_partial_generated_tokens",
+    "public_verification_without_DSA_checker": "UNKNOWN"
+  },
+  "current_contracts": {
+    "executions": 95,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 95,
+    "xml_duration_s": 7.217
+  },
+  "final_targeted_probes": {
+    "executions": 4,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 2,
+    "xml_duration_s": 4.242
+  },
+  "probe_instrumentation_incident": "v2 callback JSON TypeError retained; final v3 supports the conclusion",
+  "independent_full_checkout_regression": false,
+  "submitted_504_tests_are_not_504_distinct": {
+    "total_test_executions": 504,
+    "distinct_test_identities": 471,
+    "repeated_executions": 33
+  },
+  "incoming_source_hashes_verified": 61,
+  "incoming_artifact_entries_verified": 91,
+  "review_start_source_entries_unchanged": 74,
+  "fresh_data_hashes_verified": 13,
+  "production_edits_by_this_review": 0,
+  "new_real_model_calls": 0,
+  "model_weights_loaded": false,
+  "model_quality_evidence": "none_from_this_review",
+  "tokens": "synthetic authored generated-token counts; not full inference cost",
+  "timing": "pytest elapsed durations; not measured online model latency",
+  "stage_0_changed": false,
+  "human_data_review_completed_by_this_review": false,
+  "git_commits_branches_remote_mutations": 0,
+  "ledger_unchanged": true
+}
