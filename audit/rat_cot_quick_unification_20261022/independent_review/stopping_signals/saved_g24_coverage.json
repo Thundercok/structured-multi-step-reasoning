@@ -1,0 +1,104 @@
+{
+  "kind": "retrospective_public_answer_coverage",
+  "new_model_calls": 0,
+  "groups": 8,
+  "seed": 42,
+  "cap_per_call": 1024,
+  "run": "audit/development-pilot-measured-20261004-runtimefix",
+  "run_manifest_sha256": "f91b24d08eb7a988b3a3f8bcac727eec9a129f1f80e52198610f3316fcd7597c",
+  "input_artifact_sha256": {
+    "attempts.jsonl": "23bc746fddb9fcf18a6b26250d346166df5253657bd9ea588a82e278d1919845",
+    "dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "model_provenance.json": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+    "records.json": "1b1a79624c8b605627c6cb002fc473b62389f3da7700c39415772d62e7b4a3f0",
+    "report.md": "0e6e62fe6e8e3b1ce270ceb5697f8969b7ab25aabbb19558344b38cc63542168",
+    "selection.json": "58ec6d9a6dd8ae7ca8bb363dcfdbd504339ad4febeedaba7afd35173292caa95",
+    "summary.json": "76aea984467df78f8773acfbb5478b8b42d8b317ff0f4a1d5efc50c7ac5d2c8d"
+  },
+  "source_sha256": {
+    "scripts/verifiers.py": "aa613f9402649b36233f6d8a4a134899fa0cd8f1eb25149e39efb840d0c04bb1",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2"
+  },
+  "script_sha256": "60f0dd771855c0f8c0519827925cffa02272b1378856bca06ce5d9cea99d5418",
+  "historical_inputs_unchanged": true,
+  "statuses": {
+    "valid": 4,
+    "unverifiable": 3,
+    "invalid": 1
+  },
+  "status_by_stored_correctness": {
+    "valid|correct=True": 4,
+    "unverifiable|correct=False": 3,
+    "invalid|correct=False": 1
+  },
+  "items": [
+    {
+      "id": "procedural-tuning-v1/g24_0003_en_orig",
+      "group_id": "problem_g24_d99b8baba7c1ae5576a14a06d08f21802312a80e4a27eabda74d97ffac7de65e",
+      "checker_status": "valid",
+      "reason": "ok",
+      "stored_correct": true,
+      "length_stop": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0005_en_orig",
+      "group_id": "problem_g24_5f4a0af0af588ae50b4bbb9cc010d5cae31561c45cdac8cfe1f48b1af79b0c46",
+      "checker_status": "valid",
+      "reason": "ok",
+      "stored_correct": true,
+      "length_stop": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "group_id": "problem_g24_fd82477d08227a92c561dc3cd28c9f59a016586e427742f530edb5cb908a39dc",
+      "checker_status": "unverifiable",
+      "reason": "answer expression not parseable",
+      "stored_correct": false,
+      "length_stop": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "group_id": "problem_g24_466f407f10aefaff694c82fc6ba9b6f5dab106141a5412800828847fcdc45d4a",
+      "checker_status": "unverifiable",
+      "reason": "answer expression not parseable",
+      "stored_correct": false,
+      "length_stop": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0022_en_orig",
+      "group_id": "problem_g24_d12e53ce13c53b9d0d3a385ce05c7aac368ef613649f2f5bf0fccdde16f1defb",
+      "checker_status": "valid",
+      "reason": "ok",
+      "stored_correct": true,
+      "length_stop": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "group_id": "problem_g24_30266fbc58e3f5d463f658babdac2e5014d6b0d94babbe179ab389a23b76ab4c",
+      "checker_status": "invalid",
+      "reason": "expression does not make 24 using each input number exactly once",
+      "stored_correct": false,
+      "length_stop": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "group_id": "problem_g24_9eeb12c7cc8470e00becb7082af48dd1b8cb66413a905c6c4252291ae3be9fe7",
+      "checker_status": "unverifiable",
+      "reason": "answer expression not parseable",
+      "stored_correct": false,
+      "length_stop": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0029_en_orig",
+      "group_id": "problem_g24_197b52691f342362e2b7e0c6460336846564452a434b03a9c8198353b8cad3ae",
+      "checker_status": "valid",
+      "reason": "ok",
+      "stored_correct": true,
+      "length_stop": false
+    }
+  ],
+  "human_review_status": "pending",
+  "publication_ready": false,
+  "important_limit": "Checker and original procedural scorer share check24; their agreement is not independent accuracy/precision validation.",
+  "input_scope": "Stored parsed public expression + four declared numbers. Prefix Answer: is an adapter, not a raw-output format test."
+}

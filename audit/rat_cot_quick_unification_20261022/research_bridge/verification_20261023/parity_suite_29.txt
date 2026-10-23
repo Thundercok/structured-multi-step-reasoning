@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 29 items
+
+tests/test_online_reasoning.py::test_rat_executes_fitted_route_and_stopping_without_gold_or_legacy_branches[0-0.1-path0] PASSED [  3%]
+tests/test_online_reasoning.py::test_rat_executes_fitted_route_and_stopping_without_gold_or_legacy_branches[0-0.95-path1] PASSED [  6%]
+tests/test_online_reasoning.py::test_rat_executes_fitted_route_and_stopping_without_gold_or_legacy_branches[1-0.1-path2] PASSED [ 10%]
+tests/test_online_reasoning.py::test_rat_executes_fitted_route_and_stopping_without_gold_or_legacy_branches[2-0.1-path3] PASSED [ 13%]
+tests/test_online_reasoning.py::test_stopping_applies_fitted_confidence_calibration PASSED [ 17%]
+tests/test_online_reasoning.py::test_unfitted_or_inconsistent_policy_cannot_start_backend PASSED [ 20%]
+tests/test_online_reasoning.py::test_invalid_observation_fails_without_escalation_or_canned_answer[nan] PASSED [ 24%]
+tests/test_online_reasoning.py::test_invalid_observation_fails_without_escalation_or_canned_answer[1.1] PASSED [ 27%]
+tests/test_online_reasoning.py::test_invalid_observation_fails_without_escalation_or_canned_answer[True] PASSED [ 31%]
+tests/test_online_reasoning.py::test_backend_failure_is_not_replaced_by_a_legacy_response PASSED [ 34%]
+tests/test_online_reasoning.py::test_invalid_cost_does_not_become_a_reported_token_count[-1] PASSED [ 37%]
+tests/test_online_reasoning.py::test_invalid_cost_does_not_become_a_reported_token_count[True] PASSED [ 41%]
+tests/test_online_reasoning.py::test_invalid_cost_does_not_become_a_reported_token_count[1.5] PASSED [ 44%]
+tests/test_online_reasoning.py::test_invalid_embedding_prevents_strategy_calls PASSED [ 48%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_ladder_early_stopping_parity PASSED [ 51%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_ladder_intermediate_escalation_parity PASSED [ 55%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_ladder_terminal_escalation_parity PASSED [ 58%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_entry_router_react_parity PASSED [ 62%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_entry_router_pal_parity PASSED [ 65%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_exact_threshold_boundary_stopping_parity PASSED [ 68%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_isotonic_calibrator_parity PASSED [ 72%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_gold_label_independence PASSED [ 75%]
+tests/test_online_reasoning.py::TestHarnessEvaluateRecordsDirectParity::test_fixture_label_isolation PASSED [ 79%]
+tests/test_online_reasoning.py::TestFeaturePreprocessingContractAndRouteParity::test_real_collector_vector_sensitive_ladder_parity PASSED [ 82%]
+tests/test_online_reasoning.py::TestFeaturePreprocessingContractAndRouteParity::test_real_collector_vector_sensitive_react_parity PASSED [ 86%]
+tests/test_online_reasoning.py::TestFeaturePreprocessingContractAndRouteParity::test_real_collector_vector_sensitive_pal_parity PASSED [ 89%]
+tests/test_online_reasoning.py::TestFeaturePreprocessingContractAndRouteParity::test_legacy_bundle_unnormalized_raw_vector_semantics_preserved PASSED [ 93%]
+tests/test_online_reasoning.py::TestFeaturePreprocessingContractAndRouteParity::test_bundle_validation_embedding_normalization_contract PASSED [ 96%]
+tests/test_online_reasoning.py::TestFeaturePreprocessingContractAndRouteParity::test_approved_bundle_preprocessing_binding_and_conflict_rejection PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_quick_unification_20261022/research_bridge/verification_20261023/parity_suite_29.xml -
+============================== 29 passed in 5.62s ==============================

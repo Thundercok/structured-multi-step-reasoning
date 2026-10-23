@@ -1,0 +1,178 @@
+{
+  "received_manifest_artifact_hashes": {
+    "calls.jsonl": true,
+    "development_review_summary.json": true,
+    "dry_run_results.json": true,
+    "dry_run_summary.json": true,
+    "generation_ledger.json": true,
+    "proposed_execution_plan.json": true,
+    "pytest_results.xml": true,
+    "report.md": true,
+    "test_stdout.txt": true
+  },
+  "rebuilt_comparison": {
+    "ledger": {
+      "calls_started": 80,
+      "calls_succeeded": 80,
+      "calls_failed": 0,
+      "reserved_tokens": 8150,
+      "remaining_calls": 0,
+      "remaining_tokens": 73770
+    },
+    "paths": {
+      "fixed_cot": {
+        "items": 8,
+        "valid_count": 2,
+        "invalid_count": 0,
+        "unverifiable_count": 6,
+        "accuracy": 0.25,
+        "total_calls": 4,
+        "mean_calls": 0.5,
+        "total_generated_tokens": 480,
+        "total_prompt_tokens": 100,
+        "stop_reasons": {
+          "fixed_completed": 4,
+          "budget_exhausted": 4
+        },
+        "rescue_count": 0,
+        "harm_count": 0
+      },
+      "fixed_sc": {
+        "items": 8,
+        "valid_count": 3,
+        "invalid_count": 1,
+        "unverifiable_count": 4,
+        "accuracy": 0.375,
+        "total_calls": 20,
+        "mean_calls": 2.5,
+        "total_generated_tokens": 2050,
+        "total_prompt_tokens": 500,
+        "stop_reasons": {
+          "fixed_completed": 4,
+          "budget_exhausted": 4
+        },
+        "rescue_count": 0,
+        "harm_count": 0
+      },
+      "fixed_tot": {
+        "items": 8,
+        "valid_count": 3,
+        "invalid_count": 0,
+        "unverifiable_count": 5,
+        "accuracy": 0.375,
+        "total_calls": 12,
+        "mean_calls": 1.5,
+        "total_generated_tokens": 1160,
+        "total_prompt_tokens": 300,
+        "stop_reasons": {
+          "fixed_completed": 3,
+          "budget_exhausted": 5
+        },
+        "rescue_count": 0,
+        "harm_count": 0
+      },
+      "always_escalate": {
+        "items": 8,
+        "valid_count": 3,
+        "invalid_count": 0,
+        "unverifiable_count": 5,
+        "accuracy": 0.375,
+        "total_calls": 31,
+        "mean_calls": 3.875,
+        "total_generated_tokens": 3140,
+        "total_prompt_tokens": 775,
+        "stop_reasons": {
+          "ladder_exhausted": 3,
+          "budget_exhausted": 5
+        },
+        "rescue_count": 0,
+        "harm_count": 0
+      },
+      "checker_gated": {
+        "items": 8,
+        "valid_count": 3,
+        "invalid_count": 0,
+        "unverifiable_count": 5,
+        "accuracy": 0.375,
+        "total_calls": 13,
+        "mean_calls": 1.625,
+        "total_generated_tokens": 1320,
+        "total_prompt_tokens": 325,
+        "stop_reasons": {
+          "valid_early_stop": 3,
+          "budget_exhausted": 5
+        },
+        "rescue_count": 1,
+        "harm_count": 0
+      }
+    }
+  },
+  "report_still_claims_23_gated_calls": true,
+  "budget_validation": {
+    "oversize_dispatch": {
+      "accepted": true,
+      "declared": 2048,
+      "configured_per_call_cap": 1024
+    },
+    "oversize_outcome": {
+      "accepted": true,
+      "measured": 2048,
+      "declared": 1024,
+      "status": "succeeded"
+    },
+    "negative_outcome": {
+      "accepted": true,
+      "remaining_tokens": 82020,
+      "configured_total": 81920
+    }
+  },
+  "cancelled_checker_gated": {
+    "stop_reason": "cancelled",
+    "reported_calls": 1,
+    "ledger_calls": 3,
+    "reported_tokens": 50,
+    "ledger_tokens": 180,
+    "reported_reserved": 50,
+    "ledger_reserved": 180
+  },
+  "cancelled_always_escalate": {
+    "stop_reason": "cancelled",
+    "reported_calls": 1,
+    "ledger_calls": 3,
+    "reported_tokens": 50,
+    "ledger_tokens": 180,
+    "reported_reserved": 50,
+    "ledger_reserved": 180
+  },
+  "selector_contract": {
+    "selected_answer": "1+2+3+4",
+    "verification_status": "invalid",
+    "documented_backend_majority_answer": "(1+3)*(2+4)",
+    "selector_query": "Select best among 3 candidates",
+    "selector_has_question": false,
+    "selector_has_candidate_expressions": false
+  },
+  "interrupted_builder": {
+    "completed": 1,
+    "persisted_files_before_interruption": [],
+    "interruption_propagated": true,
+    "persisted_files_after_interruption": []
+  },
+  "duplicate_input": {
+    "duplicate_rejected": false,
+    "duplicate_id": "procedural-tuning-v1/g24_0003_en_orig",
+    "chosen_answer": "99",
+    "original_record_count": 96,
+    "modified_record_count": 97
+  },
+  "historical_inputs_before": {
+    "audit/development-pilot-measured-20261004-runtimefix/dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "audit/development-pilot-measured-20261004-runtimefix/records.json": "1b1a79624c8b605627c6cb002fc473b62389f3da7700c39415772d62e7b4a3f0"
+  },
+  "historical_inputs_after": {
+    "audit/development-pilot-measured-20261004-runtimefix/dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "audit/development-pilot-measured-20261004-runtimefix/records.json": "1b1a79624c8b605627c6cb002fc473b62389f3da7700c39415772d62e7b4a3f0"
+  },
+  "new_model_calls": 0,
+  "forbidden_imports": []
+}

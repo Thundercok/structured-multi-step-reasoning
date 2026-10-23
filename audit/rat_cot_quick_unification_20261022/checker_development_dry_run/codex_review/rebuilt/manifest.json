@@ -1,0 +1,21 @@
+{
+  "evidence": "development-checker-dry-run-20261023",
+  "schema_version": 1,
+  "mode": "checker_development_dry_run",
+  "status": "complete",
+  "timestamp_utc": "2026-10-23T05:01:10.074511+00:00",
+  "model_calls": false,
+  "tokens_consumed": 0,
+  "real_inference_budget": "0 VND",
+  "confirmatory": false,
+  "human_review_status": "pending",
+  "artifact_sha256": {
+    "development_review_summary.json": "0d3958f5a5b8fa02f159290b937a136cf15dfcb262a654018b0d3e9200ed6dd0",
+    "dry_run_results.json": "e94d4dfc638355adf6d2a237a9930d755d2fb13b17ea34710b913477fb1b14c6",
+    "dry_run_summary.json": "e712653d211bb25667004cd2d78f343a1abc0505de75aa8db65000c07001fbed",
+    "generation_ledger.json": "283e82cecf30f5ccf09e9a55a499e2b70bf943236af4a464adeefe8a209e34e6",
+    "calls.jsonl": "eb889d734f8682f9311fcf221c524eeddc6a4e62c4f8e792153cd7dc852adaa4",
+    "proposed_execution_plan.json": "c625d9670fe3415d9e96fdc7b37e5e8466e7e077188a4cc5a9f0c516f929dd6b",
+    "report.md": "ac9b559c363548b0f1f3c13e1297f092232ba5122b6c906e32fe13b913eea43e"
+  }
+}

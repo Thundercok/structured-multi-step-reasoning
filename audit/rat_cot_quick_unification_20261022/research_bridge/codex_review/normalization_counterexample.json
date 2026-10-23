@@ -1,0 +1,23 @@
+{
+  "evidence": "synthetic software counterexample",
+  "model_calls": 0,
+  "raw_embedding": [
+    3.0,
+    4.0
+  ],
+  "harness_embedding": [
+    0.6,
+    0.8
+  ],
+  "harness_path": [
+    "COT"
+  ],
+  "runtime_path": [
+    "REACT"
+  ],
+  "harness_tokens": 10,
+  "runtime_tokens": 10,
+  "synthetic_fitting_rows": 100,
+  "training_embeddings_unit_normalized": true,
+  "route_mismatch": true
+}

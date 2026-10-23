@@ -1,0 +1,2027 @@
+[
+  {
+    "item_id": "procedural-tuning-v1/g24_0003_en_orig",
+    "numbers": [
+      5,
+      8,
+      4,
+      7
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0003_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        5,
+        8,
+        4,
+        7
+      ],
+      "gold_answer": "((4+7)+(5+8))",
+      "final_output": "Answer: (8 + 4) * (7 - 5)",
+      "final_answer": "(8 + 4) * (7 - 5)",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: (8 + 4) * (7 - 5)",
+          "extracted_answer": "(8 + 4) * (7 - 5)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: (8 + 4) * (7 - 5)",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0003_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        5,
+        8,
+        4,
+        7
+      ],
+      "gold_answer": "((4+7)+(5+8))",
+      "final_output": "Answer: ((4+7)+(5+8))",
+      "final_answer": "((4+7)+(5+8))",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: ((4+7)+(5+8))",
+          "extracted_answer": "((4+7)+(5+8))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 5,
+          "generated_tokens": 550,
+          "prompt_tokens": 125,
+          "reserved_tokens": 550,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            }
+          ]
+        }
+      ],
+      "total_calls": 5,
+      "total_generated_tokens": 550,
+      "total_prompt_tokens": 125,
+      "total_reserved_tokens": 550,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0003_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        5,
+        8,
+        4,
+        7
+      ],
+      "gold_answer": "((4+7)+(5+8))",
+      "final_output": "Answer: ((4+7)+(5+8))",
+      "final_answer": "((4+7)+(5+8))",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((4+7)+(5+8))",
+          "extracted_answer": "((4+7)+(5+8))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 360,
+          "prompt_tokens": 100,
+          "reserved_tokens": 360,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 0",
+              "tokens": 15
+            }
+          ]
+        }
+      ],
+      "total_calls": 4,
+      "total_generated_tokens": 360,
+      "total_prompt_tokens": 100,
+      "total_reserved_tokens": 360,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0003_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        5,
+        8,
+        4,
+        7
+      ],
+      "gold_answer": "((4+7)+(5+8))",
+      "final_output": "Answer: ((4+7)+(5+8))",
+      "final_answer": "((4+7)+(5+8))",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "ladder_exhausted",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: (8 + 4) * (7 - 5)",
+          "extracted_answer": "(8 + 4) * (7 - 5)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: (8 + 4) * (7 - 5)",
+              "tokens": 120
+            }
+          ]
+        },
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: ((4+7)+(5+8))",
+          "extracted_answer": "((4+7)+(5+8))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 5,
+          "generated_tokens": 550,
+          "prompt_tokens": 125,
+          "reserved_tokens": 550,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 110
+            }
+          ]
+        },
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((4+7)+(5+8))",
+          "extracted_answer": "((4+7)+(5+8))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 360,
+          "prompt_tokens": 100,
+          "reserved_tokens": 360,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: ((4+7)+(5+8))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 0",
+              "tokens": 15
+            }
+          ]
+        }
+      ],
+      "total_calls": 10,
+      "total_generated_tokens": 1030,
+      "total_prompt_tokens": 250,
+      "total_reserved_tokens": 1030,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0003_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        5,
+        8,
+        4,
+        7
+      ],
+      "gold_answer": "((4+7)+(5+8))",
+      "final_output": "Answer: (8 + 4) * (7 - 5)",
+      "final_answer": "(8 + 4) * (7 - 5)",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "valid_early_stop",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: (8 + 4) * (7 - 5)",
+          "extracted_answer": "(8 + 4) * (7 - 5)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: (8 + 4) * (7 - 5)",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        5,
+        8,
+        4,
+        7
+      ],
+      "solvable": true,
+      "solution_count": 31,
+      "chosen_solution": "((4+7)+(5+8))",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 6.005292059853673,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0005_en_orig",
+    "numbers": [
+      4,
+      6,
+      4,
+      3
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0005_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        4,
+        6,
+        4,
+        3
+      ],
+      "gold_answer": "((4*3)*(6-4))",
+      "final_output": "Answer: (6 / (4 - 3)) * 4",
+      "final_answer": "(6 / (4 - 3)) * 4",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: (6 / (4 - 3)) * 4",
+          "extracted_answer": "(6 / (4 - 3)) * 4",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: (6 / (4 - 3)) * 4",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0005_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        4,
+        6,
+        4,
+        3
+      ],
+      "gold_answer": "((4*3)*(6-4))",
+      "final_output": "Answer: ((4*3)*(6-4))",
+      "final_answer": "((4*3)*(6-4))",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: ((4*3)*(6-4))",
+          "extracted_answer": "((4*3)*(6-4))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 5,
+          "generated_tokens": 550,
+          "prompt_tokens": 125,
+          "reserved_tokens": 550,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            }
+          ]
+        }
+      ],
+      "total_calls": 5,
+      "total_generated_tokens": 550,
+      "total_prompt_tokens": 125,
+      "total_reserved_tokens": 550,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0005_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        4,
+        6,
+        4,
+        3
+      ],
+      "gold_answer": "((4*3)*(6-4))",
+      "final_output": "Answer: ((4*3)*(6-4))",
+      "final_answer": "((4*3)*(6-4))",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((4*3)*(6-4))",
+          "extracted_answer": "((4*3)*(6-4))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 360,
+          "prompt_tokens": 100,
+          "reserved_tokens": 360,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 0",
+              "tokens": 15
+            }
+          ]
+        }
+      ],
+      "total_calls": 4,
+      "total_generated_tokens": 360,
+      "total_prompt_tokens": 100,
+      "total_reserved_tokens": 360,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0005_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        4,
+        6,
+        4,
+        3
+      ],
+      "gold_answer": "((4*3)*(6-4))",
+      "final_output": "Answer: ((4*3)*(6-4))",
+      "final_answer": "((4*3)*(6-4))",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "ladder_exhausted",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: (6 / (4 - 3)) * 4",
+          "extracted_answer": "(6 / (4 - 3)) * 4",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: (6 / (4 - 3)) * 4",
+              "tokens": 120
+            }
+          ]
+        },
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: ((4*3)*(6-4))",
+          "extracted_answer": "((4*3)*(6-4))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 5,
+          "generated_tokens": 550,
+          "prompt_tokens": 125,
+          "reserved_tokens": 550,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 110
+            }
+          ]
+        },
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((4*3)*(6-4))",
+          "extracted_answer": "((4*3)*(6-4))",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 360,
+          "prompt_tokens": 100,
+          "reserved_tokens": 360,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: ((4*3)*(6-4))",
+              "tokens": 115
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 0",
+              "tokens": 15
+            }
+          ]
+        }
+      ],
+      "total_calls": 10,
+      "total_generated_tokens": 1030,
+      "total_prompt_tokens": 250,
+      "total_reserved_tokens": 1030,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0005_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        4,
+        6,
+        4,
+        3
+      ],
+      "gold_answer": "((4*3)*(6-4))",
+      "final_output": "Answer: (6 / (4 - 3)) * 4",
+      "final_answer": "(6 / (4 - 3)) * 4",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "valid_early_stop",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: (6 / (4 - 3)) * 4",
+          "extracted_answer": "(6 / (4 - 3)) * 4",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: (6 / (4 - 3)) * 4",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        4,
+        6,
+        4,
+        3
+      ],
+      "solvable": true,
+      "solution_count": 21,
+      "chosen_solution": "((4*3)*(6-4))",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.765459034591913,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0014_en_orig",
+    "numbers": [
+      7,
+      2,
+      3,
+      9
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0014_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        7,
+        2,
+        3,
+        9
+      ],
+      "gold_answer": "((3*(7+9))/2)",
+      "final_output": "Answer: Try (9 - (7 - (3 + 2",
+      "final_answer": "Try (9 - (7 - (3 + 2",
+      "verification_status": "unverifiable",
+      "verification_reason": "answer expression not parseable",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: Try (9 - (7 - (3 + 2",
+          "extracted_answer": "Try (9 - (7 - (3 + 2",
+          "verification_status": "unverifiable",
+          "verification_reason": "answer expression not parseable",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: Try (9 - (7 - (3 + 2",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": false,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0014_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        7,
+        2,
+        3,
+        9
+      ],
+      "gold_answer": "((3*(7+9))/2)",
+      "final_output": "Answer: 9 + 7",
+      "final_answer": "9 + 7",
+      "verification_status": "invalid",
+      "verification_reason": "expression does not make 24 using each input number exactly once",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: 9 + 7",
+          "extracted_answer": "9 + 7",
+          "verification_status": "invalid",
+          "verification_reason": "expression does not make 24 using each input number exactly once",
+          "calls_made": 5,
+          "generated_tokens": 400,
+          "prompt_tokens": 125,
+          "reserved_tokens": 400,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            }
+          ]
+        }
+      ],
+      "total_calls": 5,
+      "total_generated_tokens": 400,
+      "total_prompt_tokens": 125,
+      "total_reserved_tokens": 400,
+      "correct": false,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0014_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        7,
+        2,
+        3,
+        9
+      ],
+      "gold_answer": "((3*(7+9))/2)",
+      "final_output": "Answer: ((3*(7+9))/2)",
+      "final_answer": "((3*(7+9))/2)",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((3*(7+9))/2)",
+          "extracted_answer": "((3*(7+9))/2)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 440,
+          "prompt_tokens": 100,
+          "reserved_tokens": 440,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: Answer: 9 + 2",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((3*(7+9))/2)",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: Answer: 9 + 2",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 1",
+              "tokens": 20
+            }
+          ]
+        }
+      ],
+      "total_calls": 4,
+      "total_generated_tokens": 440,
+      "total_prompt_tokens": 100,
+      "total_reserved_tokens": 440,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0014_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        7,
+        2,
+        3,
+        9
+      ],
+      "gold_answer": "((3*(7+9))/2)",
+      "final_output": "Answer: ((3*(7+9))/2)",
+      "final_answer": "((3*(7+9))/2)",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "ladder_exhausted",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: Try (9 - (7 - (3 + 2",
+          "extracted_answer": "Try (9 - (7 - (3 + 2",
+          "verification_status": "unverifiable",
+          "verification_reason": "answer expression not parseable",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: Try (9 - (7 - (3 + 2",
+              "tokens": 120
+            }
+          ]
+        },
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: 9 + 7",
+          "extracted_answer": "9 + 7",
+          "verification_status": "invalid",
+          "verification_reason": "expression does not make 24 using each input number exactly once",
+          "calls_made": 5,
+          "generated_tokens": 400,
+          "prompt_tokens": 125,
+          "reserved_tokens": 400,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            }
+          ]
+        },
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((3*(7+9))/2)",
+          "extracted_answer": "((3*(7+9))/2)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 440,
+          "prompt_tokens": 100,
+          "reserved_tokens": 440,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: Answer: 9 + 2",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((3*(7+9))/2)",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: Answer: 9 + 2",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 1",
+              "tokens": 20
+            }
+          ]
+        }
+      ],
+      "total_calls": 10,
+      "total_generated_tokens": 960,
+      "total_prompt_tokens": 250,
+      "total_reserved_tokens": 960,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0014_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        7,
+        2,
+        3,
+        9
+      ],
+      "gold_answer": "((3*(7+9))/2)",
+      "final_output": "Answer: ((3*(7+9))/2)",
+      "final_answer": "((3*(7+9))/2)",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "valid_early_stop",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: Try (9 - (7 - (3 + 2",
+          "extracted_answer": "Try (9 - (7 - (3 + 2",
+          "verification_status": "unverifiable",
+          "verification_reason": "answer expression not parseable",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: Try (9 - (7 - (3 + 2",
+              "tokens": 120
+            }
+          ]
+        },
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: 9 + 7",
+          "extracted_answer": "9 + 7",
+          "verification_status": "invalid",
+          "verification_reason": "expression does not make 24 using each input number exactly once",
+          "calls_made": 5,
+          "generated_tokens": 400,
+          "prompt_tokens": 125,
+          "reserved_tokens": 400,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: 9 + 7",
+              "tokens": 80
+            }
+          ]
+        },
+        {
+          "strategy": "TOT",
+          "output": "Answer: ((3*(7+9))/2)",
+          "extracted_answer": "((3*(7+9))/2)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 4,
+          "generated_tokens": 440,
+          "prompt_tokens": 100,
+          "reserved_tokens": 440,
+          "confidence": 0.8,
+          "generations": [
+            {
+              "call_kind": "tot_candidate",
+              "index": 0,
+              "output": "Answer: Answer: 9 + 2",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 1,
+              "output": "Answer: ((3*(7+9))/2)",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_candidate",
+              "index": 2,
+              "output": "Answer: Answer: 9 + 2",
+              "tokens": 140
+            },
+            {
+              "call_kind": "tot_selector",
+              "index": 0,
+              "output": "Best: 1",
+              "tokens": 20
+            }
+          ]
+        }
+      ],
+      "total_calls": 10,
+      "total_generated_tokens": 960,
+      "total_prompt_tokens": 250,
+      "total_reserved_tokens": 960,
+      "correct": true,
+      "rescue": true,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        7,
+        2,
+        3,
+        9
+      ],
+      "solvable": true,
+      "solution_count": 9,
+      "chosen_solution": "((3*(7+9))/2)",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.828667199239135,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0015_en_orig",
+    "numbers": [
+      13,
+      2,
+      3,
+      5
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0015_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        13,
+        2,
+        3,
+        5
+      ],
+      "gold_answer": "((13*(5-3))-2)",
+      "final_output": "Answer: Try (5 * (3 +",
+      "final_answer": "Try (5 * (3 +",
+      "verification_status": "unverifiable",
+      "verification_reason": "answer expression not parseable",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: Try (5 * (3 +",
+          "extracted_answer": "Try (5 * (3 +",
+          "verification_status": "unverifiable",
+          "verification_reason": "answer expression not parseable",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: Try (5 * (3 +",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": false,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0015_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        13,
+        2,
+        3,
+        5
+      ],
+      "gold_answer": "((13*(5-3))-2)",
+      "final_output": "Answer: ((13*(5-3))-2)",
+      "final_answer": "((13*(5-3))-2)",
+      "verification_status": "valid",
+      "verification_reason": "ok",
+      "stop_reason": "fixed_completed",
+      "steps_taken": [
+        {
+          "strategy": "SELF_CONSISTENCY",
+          "output": "Answer: ((13*(5-3))-2)",
+          "extracted_answer": "((13*(5-3))-2)",
+          "verification_status": "valid",
+          "verification_reason": "ok",
+          "calls_made": 5,
+          "generated_tokens": 550,
+          "prompt_tokens": 125,
+          "reserved_tokens": 550,
+          "confidence": 1.0,
+          "generations": [
+            {
+              "call_kind": "sc_sample",
+              "index": 0,
+              "output": "Answer: ((13*(5-3))-2)",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 1,
+              "output": "Answer: ((13*(5-3))-2)",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 2,
+              "output": "Answer: ((13*(5-3))-2)",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 3,
+              "output": "Answer: ((13*(5-3))-2)",
+              "tokens": 110
+            },
+            {
+              "call_kind": "sc_sample",
+              "index": 4,
+              "output": "Answer: ((13*(5-3))-2)",
+              "tokens": 110
+            }
+          ]
+        }
+      ],
+      "total_calls": 5,
+      "total_generated_tokens": 550,
+      "total_prompt_tokens": 125,
+      "total_reserved_tokens": 550,
+      "correct": true,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0015_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        13,
+        2,
+        3,
+        5
+      ],
+      "gold_answer": "((13*(5-3))-2)",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0015_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        13,
+        2,
+        3,
+        5
+      ],
+      "gold_answer": "((13*(5-3))-2)",
+      "final_output": "Answer: Try (5 * (3 +",
+      "final_answer": "Try (5 * (3 +",
+      "verification_status": "unverifiable",
+      "verification_reason": "answer expression not parseable",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: Try (5 * (3 +",
+          "extracted_answer": "Try (5 * (3 +",
+          "verification_status": "unverifiable",
+          "verification_reason": "answer expression not parseable",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: Try (5 * (3 +",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": false,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0015_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        13,
+        2,
+        3,
+        5
+      ],
+      "gold_answer": "((13*(5-3))-2)",
+      "final_output": "Answer: Try (5 * (3 +",
+      "final_answer": "Try (5 * (3 +",
+      "verification_status": "unverifiable",
+      "verification_reason": "answer expression not parseable",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [
+        {
+          "strategy": "COT",
+          "output": "Answer: Try (5 * (3 +",
+          "extracted_answer": "Try (5 * (3 +",
+          "verification_status": "unverifiable",
+          "verification_reason": "answer expression not parseable",
+          "calls_made": 1,
+          "generated_tokens": 120,
+          "prompt_tokens": 25,
+          "reserved_tokens": 120,
+          "confidence": 0.5,
+          "generations": [
+            {
+              "call_kind": "cot",
+              "output": "Answer: Try (5 * (3 +",
+              "tokens": 120
+            }
+          ]
+        }
+      ],
+      "total_calls": 1,
+      "total_generated_tokens": 120,
+      "total_prompt_tokens": 25,
+      "total_reserved_tokens": 120,
+      "correct": false,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        13,
+        2,
+        3,
+        5
+      ],
+      "solvable": true,
+      "solution_count": 11,
+      "chosen_solution": "((13*(5-3))-2)",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.858958000317216,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0022_en_orig",
+    "numbers": [
+      7,
+      9,
+      8,
+      6
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0022_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        7,
+        9,
+        8,
+        6
+      ],
+      "gold_answer": "((8*6)/(9-7))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0022_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        7,
+        9,
+        8,
+        6
+      ],
+      "gold_answer": "((8*6)/(9-7))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0022_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        7,
+        9,
+        8,
+        6
+      ],
+      "gold_answer": "((8*6)/(9-7))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0022_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        7,
+        9,
+        8,
+        6
+      ],
+      "gold_answer": "((8*6)/(9-7))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0022_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        7,
+        9,
+        8,
+        6
+      ],
+      "gold_answer": "((8*6)/(9-7))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        7,
+        9,
+        8,
+        6
+      ],
+      "solvable": true,
+      "solution_count": 5,
+      "chosen_solution": "((8*6)/(9-7))",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.880041979253292,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0023_en_orig",
+    "numbers": [
+      10,
+      4,
+      11,
+      8
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0023_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        10,
+        4,
+        11,
+        8
+      ],
+      "gold_answer": "(8*((10+4)-11))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0023_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        10,
+        4,
+        11,
+        8
+      ],
+      "gold_answer": "(8*((10+4)-11))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0023_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        10,
+        4,
+        11,
+        8
+      ],
+      "gold_answer": "(8*((10+4)-11))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0023_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        10,
+        4,
+        11,
+        8
+      ],
+      "gold_answer": "(8*((10+4)-11))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0023_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        10,
+        4,
+        11,
+        8
+      ],
+      "gold_answer": "(8*((10+4)-11))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        10,
+        4,
+        11,
+        8
+      ],
+      "solvable": true,
+      "solution_count": 5,
+      "chosen_solution": "(8*((10+4)-11))",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.910583073273301,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0025_en_orig",
+    "numbers": [
+      8,
+      13,
+      5,
+      1
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0025_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        8,
+        13,
+        5,
+        1
+      ],
+      "gold_answer": "((5*(13-8))-1)",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0025_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        8,
+        13,
+        5,
+        1
+      ],
+      "gold_answer": "((5*(13-8))-1)",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0025_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        8,
+        13,
+        5,
+        1
+      ],
+      "gold_answer": "((5*(13-8))-1)",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0025_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        8,
+        13,
+        5,
+        1
+      ],
+      "gold_answer": "((5*(13-8))-1)",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0025_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        8,
+        13,
+        5,
+        1
+      ],
+      "gold_answer": "((5*(13-8))-1)",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        8,
+        13,
+        5,
+        1
+      ],
+      "solvable": true,
+      "solution_count": 1,
+      "chosen_solution": "((5*(13-8))-1)",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.864958977326751,
+      "verification_status": "valid"
+    }
+  },
+  {
+    "item_id": "procedural-tuning-v1/g24_0029_en_orig",
+    "numbers": [
+      4,
+      8,
+      4,
+      13
+    ],
+    "fixed_cot": {
+      "item_id": "procedural-tuning-v1/g24_0029_en_orig",
+      "path_name": "fixed_cot",
+      "query_numbers": [
+        4,
+        8,
+        4,
+        13
+      ],
+      "gold_answer": "(4+(4*(13-8)))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_sc": {
+      "item_id": "procedural-tuning-v1/g24_0029_en_orig",
+      "path_name": "fixed_self_consistency",
+      "query_numbers": [
+        4,
+        8,
+        4,
+        13
+      ],
+      "gold_answer": "(4+(4*(13-8)))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "fixed_tot": {
+      "item_id": "procedural-tuning-v1/g24_0029_en_orig",
+      "path_name": "fixed_tot",
+      "query_numbers": [
+        4,
+        8,
+        4,
+        13
+      ],
+      "gold_answer": "(4+(4*(13-8)))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "always_escalate": {
+      "item_id": "procedural-tuning-v1/g24_0029_en_orig",
+      "path_name": "always_escalate",
+      "query_numbers": [
+        4,
+        8,
+        4,
+        13
+      ],
+      "gold_answer": "(4+(4*(13-8)))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "checker_gated": {
+      "item_id": "procedural-tuning-v1/g24_0029_en_orig",
+      "path_name": "checker_gated",
+      "query_numbers": [
+        4,
+        8,
+        4,
+        13
+      ],
+      "gold_answer": "(4+(4*(13-8)))",
+      "final_output": "",
+      "final_answer": null,
+      "verification_status": "unverifiable",
+      "verification_reason": "no_steps_executed",
+      "stop_reason": "budget_exhausted",
+      "steps_taken": [],
+      "total_calls": 0,
+      "total_generated_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_reserved_tokens": 0,
+      "correct": null,
+      "rescue": false,
+      "harm": false
+    },
+    "query_only_solver": {
+      "numbers": [
+        4,
+        8,
+        4,
+        13
+      ],
+      "solvable": true,
+      "solution_count": 3,
+      "chosen_solution": "(4+(4*(13-8)))",
+      "calls": 0,
+      "generated_tokens": 0,
+      "prompt_tokens": 0,
+      "cpu_time_ms": 5.778750171884894,
+      "verification_status": "valid"
+    }
+  }
+]

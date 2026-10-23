@@ -1,0 +1,23 @@
+{
+  "evidence": "development-checker-dry-run-20261023",
+  "schema_version": 1,
+  "mode": "checker_development_dry_run",
+  "status": "complete",
+  "timestamp_utc": "2026-10-22T18:32:18.504713+00:00",
+  "model_calls": false,
+  "tokens_consumed": 0,
+  "real_inference_budget": "0 VND",
+  "confirmatory": false,
+  "human_review_status": "pending",
+  "artifact_sha256": {
+    "calls.jsonl": "ed3e733e5b1dfa8b5a2e67c19f926f5dcb39c9ca901f6f8d3d89b71775945a44",
+    "development_review_summary.json": "fe1932905ec31daf1c444e7cada1d3273c0762dc0ae9372e38da9912c76ad993",
+    "dry_run_results.json": "26683919d7b5d30c0cca488e6d98072346a924790a1d80fb6fbd58f6bef8ef3c",
+    "dry_run_summary.json": "8dfa9b61760968d7f6981fc5632d86f2dfe59b0ff98493a4d73194ad1b808763",
+    "generation_ledger.json": "1055db032f96b3a8aa3e3cdce39444ef725cb5bb5f18c20334b51670d9720e40",
+    "proposed_execution_plan.json": "c625d9670fe3415d9e96fdc7b37e5e8466e7e077188a4cc5a9f0c516f929dd6b",
+    "pytest_results.xml": "f3446e8d908017b72e3c953f5cd8d7c0ff4a0fd27eab2e3aa527dff87ee3cc15",
+    "report.md": "3a9219e2790ad0b257ed8b9510f3b185766e141aedf3cb38bddfef8874403332",
+    "test_stdout.txt": "d3600f1781d9ba4925d8a070c83ddd311d7ffe02d8b6162e144d432f3cbadcef"
+  }
+}

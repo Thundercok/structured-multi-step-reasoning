@@ -105,6 +105,7 @@ class OnlineReasoningController:
         max_strategy_invocations: Optional[int] = None,
         max_underlying_requests: Optional[int] = None,
         max_generated_tokens: Optional[int] = None,
+        embedding_normalization: Optional[str] = None,
     ):
         # Strict backend protocol validation: must not be a QA-only session (e.g. MLXDocumentSession)
         if not hasattr(backend, "embed") or not callable(backend.embed):
@@ -158,6 +159,41 @@ class OnlineReasoningController:
 
         self.backend = backend
         self.policy = policy
+
+        # Embedding preprocessing contract resolution:
+        # Precedence & Conflict Enforcement:
+        # If a bundle is bound, its embedding_normalization is authoritative.
+        # Callers, policy hints, and predictor hints must not conflict with the bound bundle.
+        bundle_norm = getattr(bundle, "embedding_normalization", None) if bundle is not None else None
+
+        if bundle is not None:
+            if embedding_normalization is not None and embedding_normalization != bundle_norm:
+                raise ValueError(
+                    f"Conflicting embedding_normalization: caller specified '{embedding_normalization}', "
+                    f"which conflicts with bundle '{getattr(bundle, 'bundle_id', 'unknown')}' specification '{bundle_norm}'. "
+                    f"Overriding preprocessing for a bound bundle is not permitted."
+                )
+            policy_norm = getattr(policy, "embedding_normalization", None)
+            if policy_norm is not None and policy_norm != bundle_norm:
+                raise ValueError(
+                    f"Policy embedding_normalization '{policy_norm}' conflicts with bundle specification '{bundle_norm}'."
+                )
+            pred_norm = getattr(getattr(policy, "entry_predictor", None), "embedding_normalization", None)
+            if pred_norm is not None and pred_norm != bundle_norm:
+                raise ValueError(
+                    f"EntryPredictor embedding_normalization '{pred_norm}' conflicts with bundle specification '{bundle_norm}'."
+                )
+            norm_setting = bundle_norm
+        else:
+            norm_setting = embedding_normalization
+            if norm_setting is None:
+                norm_setting = getattr(policy, "embedding_normalization", None)
+            if norm_setting is None and getattr(policy, "entry_predictor", None) is not None:
+                norm_setting = getattr(policy.entry_predictor, "embedding_normalization", None)
+
+        if norm_setting is not None and norm_setting not in ("l2_unit", "none"):
+            raise ValueError(f"Unsupported embedding_normalization: '{norm_setting}'. Must be None, 'none', or 'l2_unit'.")
+        self.embedding_normalization = norm_setting
         self.max_strategy_invocations = max_strategy_invocations
         self.max_underlying_requests = max_underlying_requests
         self.max_generated_tokens = max_generated_tokens
@@ -230,9 +266,13 @@ class OnlineReasoningController:
                 cost_ledger=ledger, execution_id=execution_id, query_generation=query_generation,
             )
 
-        embedding = np.asarray(self.backend.embed(query))
+        embedding = np.asarray(self.backend.embed(query), dtype=float)
         if embedding.shape != (self.backend.hidden_size,) or not np.isfinite(embedding).all():
             raise ValueError("Backend embedding must be a finite hidden-size vector")
+
+        if self.embedding_normalization == "l2_unit":
+            norm = float(np.linalg.norm(embedding))
+            embedding = embedding / max(norm, 1e-12)
 
         # Feature versioning
         feat_version = 1

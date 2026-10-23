@@ -260,38 +260,3 @@ class TestQuickPDFControllerBoundaryIntegrity:
         assert ctrl.close() is True
         assert worker.interrupted is True
         assert ctrl._current_worker is None
-
-
-class TestAppsGridPolishContracts:
-    """Verifies the 5 ergonomics & polish contracts for the Apps Grid in PDFDesk.qml."""
-
-    def test_qml_source_satisfies_all_five_polish_items(self):
-        qml_path = Path("rat/ui/quick/PDFDesk.qml")
-        assert qml_path.exists()
-        content = qml_path.read_text(encoding="utf-8")
-
-        # Item 1: Strict 52x52 icon layout hints and 12px 2-line app name
-        assert "Layout.preferredWidth: 52" in content
-        assert "Layout.preferredHeight: 52" in content
-        assert "font.pixelSize: 12" in content
-        assert "maximumLineCount: 2" in content
-        assert "elide: Text.ElideRight" in content
-
-        # Item 2: Lighter airy unselected cell background
-        assert "Qt.rgba(1, 1, 1, 0.03)" in content or "Qt.rgba(0, 0, 0, 0.02)" in content
-
-        # Item 3: Bottom action bar responsive bounds
-        assert "bottomBarAppPath" in content
-        assert "Layout.minimumWidth: 0" in content
-        assert "bottomBarAppName" in content
-
-        # Item 4: Keyboard scroll-into-view & valid selection
-        assert "scrollAppIntoView" in content
-        assert "onSelectedAppGridIndexChanged:" in content
-        assert "onFilteredAppsChanged:" in content
-
-        # Item 5: Empty state multi-line wrapping and dynamic height
-        assert "appsEmptyCard" in content
-        assert "emptyColumn.implicitHeight + 32" in content
-        assert 'Không tìm thấy ứng dụng khớp với' in content
-

@@ -1,0 +1,85 @@
+{
+  "kind": "static_proposed_collection_envelope_not_authorization",
+  "new_model_calls": 0,
+  "held_out_content_read": false,
+  "inference_budget_allocated": 0,
+  "seed_count_assumption": 3,
+  "seed_list_frozen": false,
+  "candidate": {
+    "items": 179,
+    "groups": 177,
+    "train_items": 36,
+    "calibration_items": 72,
+    "test_items": 71,
+    "test_groups": 70,
+    "review_status": "pending"
+  },
+  "item_seed_pairs": 537,
+  "embedding_calls_in_current_collector": 537,
+  "method_count_per_test_item": 9,
+  "replayed_test_rows_at_three_seeds": 1917,
+  "scenarios": [
+    {
+      "cap": 512,
+      "status": "current backend default; not an execution freeze",
+      "calls_per_item_seed_upper": 15,
+      "generated_tokens_per_item_seed_upper": 6432,
+      "recipe_call_upper": {
+        "COT": 1,
+        "SELF_CONSISTENCY": 5,
+        "TOT": 4,
+        "REACT": 4,
+        "PAL": 1
+      },
+      "recipe_generated_token_upper": {
+        "COT": 512,
+        "SELF_CONSISTENCY": 2560,
+        "TOT": 2048,
+        "REACT": 800,
+        "PAL": 512
+      },
+      "total_generation_calls_upper": 8055,
+      "total_generated_tokens_upper": 3453984
+    },
+    {
+      "cap": 1024,
+      "status": "what-if only; main CLI does not expose pilot token-budget override",
+      "calls_per_item_seed_upper": 15,
+      "generated_tokens_per_item_seed_upper": 12064,
+      "recipe_call_upper": {
+        "COT": 1,
+        "SELF_CONSISTENCY": 5,
+        "TOT": 4,
+        "REACT": 4,
+        "PAL": 1
+      },
+      "recipe_generated_token_upper": {
+        "COT": 1024,
+        "SELF_CONSISTENCY": 5120,
+        "TOT": 4096,
+        "REACT": 800,
+        "PAL": 1024
+      },
+      "total_generation_calls_upper": 8055,
+      "total_generated_tokens_upper": 6478368
+    }
+  ],
+  "assumptions": [
+    "All declared items/recipes complete; no retries or extra strategies; early termination may lower counts.",
+    "Collector backend.run is called without an explicit aggregate max_tokens override.",
+    "ReAct has at most four turns at min(200, backend cap) per turn under current defaults.",
+    "Ceilings are completion-token bounds, not expected usage, full inference cost or latency.",
+    "Embeddings, prompt tokens, tool CPU, model loading and fitting compute are excluded from completion-token counts.",
+    "Nine policies replay a five-recipe bank; replay rows are not new model calls or independent problems.",
+    "Three seeds do not turn 70 original test groups into 210 independent groups.",
+    "The unapproved candidate and default backend/profile are not a reviewed real-run configuration."
+  ],
+  "source_metadata_sha256": {
+    "qwen_mlx_backend.py": "b2bcf97833cf5834721f3ef690195a632a060cd869c5fff7d938d0108748d9f7",
+    "experiments/research_study.py": "3759513bb6809aa6549a5c5d0824c6a9d167b9b6470ddb508766df6ba1f4225d",
+    "reasoning/reasoning_env.py": "a99c67d65752b59463adff7de9a737f70d476ed8b86be23d5313539bbc0e3a54",
+    "data/procedural_research_v1/report.md": "bbf61dea31ff384160f1da377c8f2c92460b2822163508906e034c911d430f96",
+    "docs/research_protocol.md": "57a43b7cc1956c08964f4b6ec98d896f9186d90e465e2975399cd6c34cc53f01"
+  },
+  "analysis_source_sha256": "cc7ae880ca5481d90a64d48965a666e2a3d518b309a06d8b12c80c7bae0dfef6"
+}

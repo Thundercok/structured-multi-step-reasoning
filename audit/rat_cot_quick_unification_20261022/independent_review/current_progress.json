@@ -1,5 +1,5 @@
 {
-  "head": "73a15ecd89f6d09901feb6d51920a992b9eec14f",
+  "head": "11c8496520785bf8f0bc6108dc21c94fbcc760de",
   "branch": "main",
   "reviewed_work_in_progress": false,
   "production_edits_by_this_review": 0,
@@ -14,7 +14,11 @@
     "rat/engine/execution.py": "971698f7b6f90a8d2960c9bf8c8b284a8b786bacdd5969897dc82f419f724834",
     "rat.spec": "54248930b6566c011cb2dd655aa3beec0545d9bf2cf014f12050ea4c4ac4902a",
     "tests/test_turn2_innard_and_icons.py": "3160db95a939940a011231d02e29327bf1ab4c498b8b3b5920639091cb5db685",
-    "tests/test_turn3_apps_grid_and_auditor_hardening.py": "e78675c4249e1874a3802319774385f801ebc012d0a0f83c1fafd2beef5f4f7c"
+    "tests/test_turn3_apps_grid_and_auditor_hardening.py": "e78675c4249e1874a3802319774385f801ebc012d0a0f83c1fafd2beef5f4f7c",
+    "tests/test_online_reasoning.py": "fee55944d169b46722c8c9ac16afec864baa3b70e7261184b782a8d8781233bc",
+    "docs/research_protocol.md": "e6faa7bfa09db6468dcca05c493c67caf6c755ca445d5c07c7ad7d6c645e9428",
+    "reasoning/bundle.py": "bb4cf2f039134d8cc999236e19066364574e7517fa454ca8e4c41a6382b45bd4",
+    "reasoning/runtime.py": "b0548f7323bb6d111c8152ada4ea1b30f474fe7dc95754aa5c5f67dbc1820cd5"
   },
   "turn3_suite": {
     "tests": 55,
@@ -25,31 +29,72 @@
     "reported_duration_seconds": 29.61,
     "qpa_platform": "offscreen",
     "quick_backend": "software",
-    "real_model_calls": 0
+    "real_model_calls": 0,
+    "note": "Anti-reported in Turn 3; UI not modified in research bridge repairs"
   },
-  "research_harness_suite": {
+  "research_study_suite": {
     "tests": 29,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "passed": 29,
-    "reported_duration_seconds": 10.68
+    "reported_duration_seconds": 12.68,
+    "stdout": "audit/rat_cot_quick_unification_20261022/research_bridge/research_study_suite.txt",
+    "junit": "audit/rat_cot_quick_unification_20261022/research_bridge/research_study_suite.xml"
   },
-  "review_status": "turn3_implemented_and_verified_55_passed",
-  "auditor_fixes": {
-    "finding_1_propositions_and_operational_events": "fixed_in_contradiction_auditor_and_worker",
-    "finding_2_numeric_typing_and_entities": "fixed_with_bound_types_and_known_entities"
+  "parity_suite": {
+    "tests": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 29,
+    "reported_duration_seconds": 5.62,
+    "stdout": "audit/rat_cot_quick_unification_20261022/research_bridge/verification_20261023/parity_suite_29.txt",
+    "junit": "audit/rat_cot_quick_unification_20261022/research_bridge/verification_20261023/parity_suite_29.xml",
+    "historical_pre_repair_junit": "audit/rat_cot_quick_unification_20261022/research_bridge/parity_suite.xml"
   },
-  "controller_boundaries": {
-    "telemetry_timing": "updated_before_target_artifact_evaluation",
-    "status_generation_matching": "enforced_on_eid_and_gen",
-    "safe_shutdown": "implemented_cooperative_worker_interrupt_and_turn_cancel"
+  "combined_non_gui_regression": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 58,
+    "reported_duration_seconds": 8.72,
+    "junit": "audit/rat_cot_quick_unification_20261022/research_bridge/verification_20261023/post_repair_regression.xml"
   },
-  "apps_grid_polish_items": {
-    "item_1_icon_and_name": "strict_52x52_layout_hints_12px_two_line_name_elide_right",
-    "item_2_hover_and_selection": "airy_unselected_bg_distinct_hover_and_selection_accent_bar",
-    "item_3_action_bar_responsive": "path_label_min_width_0_middle_elide_name_max_width_keycaps_protected",
-    "item_4_keyboard_scroll": "scrollAppIntoView_on_arrow_keys_and_filtered_selection_clamping",
-    "item_5_empty_state_long_query": "multiline_wrapping_dynamic_height_safe_enter_no_ai"
+  "total_suite": {
+    "tests": 113,
+    "passed": 113,
+    "duration_seconds": 43.95,
+    "breakdown": {
+      "ui_desktop_turn3_anti_reported": 55,
+      "research_harness_mandatory": 29,
+      "online_reasoning_and_route_parity": 29
+    }
+  },
+  "research_bridge_replay_parity": {
+    "results_json": {
+      "byte_match": true,
+      "sha256": "e6d9eba912efa579be25c1dab3f21628522f75f32fe0f052c8667b3ec28e1aed"
+    },
+    "summary_json": {
+      "byte_match": true,
+      "sha256": "5c705dd164af20ba02a0fcfee54f8dfd0d9bcbb15da970a20127440c7936ac80"
+    },
+    "policy_json": {
+      "byte_match": true,
+      "sha256": "1fbdb8cef06d3de0764c0438fe5931f72f1a16c46a8f574e546f4577e8d3da7e"
+    },
+    "real_model_calls": 0,
+    "status": "synthetic_smoke"
+  },
+  "data_candidate_manifest_verified": {
+    "candidate": "data/procedural_research_v1/",
+    "identity_version": "procedural-v1",
+    "main_sha256": "fa5d09d9a1074de0e65ae544ff977b6c2751a1a36c60fd721d51234a9b2b3ddc",
+    "tuning_sha256": "069ca68a4d34d40a3c2f559dffadaa255e73e1e9719e8e488f171a091e002d95",
+    "checks_sha256": "bacd68a801c4e8f70bf9033aaf13b5244ddd718b45e53f76baf3a5c8e2daedaa",
+    "report_sha256": "bbf61dea31ff384160f1da377c8f2c92460b2822163508906e034c911d430f96",
+    "human_review_status": "pending_human_sign_off"
   }
 }

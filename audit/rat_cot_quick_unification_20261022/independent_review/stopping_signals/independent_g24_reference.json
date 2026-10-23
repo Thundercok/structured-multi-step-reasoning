@@ -1,0 +1,135 @@
+{
+  "kind": "independent audit-only arithmetic reference",
+  "new_model_calls": 0,
+  "policy_fitting": false,
+  "held_out_data_read": false,
+  "manual_reference_controls": 10,
+  "synthetic_subspaces": [
+    {
+      "authored_numbers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "distinct_expressions": 7656,
+      "invalid_by_construction": 7414,
+      "checker_calls": 8140,
+      "valid_by_construction": 242
+    },
+    {
+      "authored_numbers": [
+        3,
+        3,
+        8,
+        8
+      ],
+      "distinct_expressions": 1890,
+      "invalid_by_construction": 1889,
+      "checker_calls": 1892,
+      "valid_by_construction": 1
+    },
+    {
+      "authored_numbers": [
+        5,
+        5,
+        5,
+        1
+      ],
+      "distinct_expressions": 1242,
+      "invalid_by_construction": 1240,
+      "checker_calls": 1246,
+      "valid_by_construction": 2
+    },
+    {
+      "authored_numbers": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct_expressions": 301,
+      "invalid_by_construction": 301,
+      "checker_calls": 301
+    }
+  ],
+  "checker_acceptance_mismatches": [],
+  "reference_coverage_on_saved_development": {
+    "valid": 4,
+    "unverifiable": 4
+  },
+  "saved_development_rows": [
+    {
+      "id": "procedural-tuning-v1/g24_0003_en_orig",
+      "reference_status": "valid",
+      "reference_reason": "exact target and operand multiset",
+      "checker_status": "valid",
+      "stored_correct": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0005_en_orig",
+      "reference_status": "valid",
+      "reference_reason": "exact target and operand multiset",
+      "checker_status": "valid",
+      "stored_correct": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0014_en_orig",
+      "reference_status": "unverifiable",
+      "reference_reason": "outside reference grammar",
+      "checker_status": "unverifiable",
+      "stored_correct": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0015_en_orig",
+      "reference_status": "unverifiable",
+      "reference_reason": "outside reference grammar",
+      "checker_status": "unverifiable",
+      "stored_correct": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0022_en_orig",
+      "reference_status": "valid",
+      "reference_reason": "exact target and operand multiset",
+      "checker_status": "valid",
+      "stored_correct": true
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0023_en_orig",
+      "reference_status": "unverifiable",
+      "reference_reason": "outside reference grammar",
+      "checker_status": "invalid",
+      "stored_correct": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0025_en_orig",
+      "reference_status": "unverifiable",
+      "reference_reason": "unsupported equality shape",
+      "checker_status": "unverifiable",
+      "stored_correct": false
+    },
+    {
+      "id": "procedural-tuning-v1/g24_0029_en_orig",
+      "reference_status": "valid",
+      "reference_reason": "exact target and operand multiset",
+      "checker_status": "valid",
+      "stored_correct": true
+    }
+  ],
+  "source_sha256": {
+    "scripts/verifiers.py": "aa613f9402649b36233f6d8a4a134899fa0cd8f1eb25149e39efb840d0c04bb1",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2"
+  },
+  "probe_sha256": "d3f49dc306e9952e5fea6e4b8cee98e9ab4d51aa6cc3b0b21bd01664f8e9c53e",
+  "historical_artifact_sha256": {
+    "attempts.jsonl": "23bc746fddb9fcf18a6b26250d346166df5253657bd9ea588a82e278d1919845",
+    "dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "model_provenance.json": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+    "records.json": "1b1a79624c8b605627c6cb002fc473b62389f3da7700c39415772d62e7b4a3f0",
+    "report.md": "0e6e62fe6e8e3b1ce270ceb5697f8969b7ab25aabbb19558344b38cc63542168",
+    "selection.json": "58ec6d9a6dd8ae7ca8bb363dcfdbd504339ad4febeedaba7afd35173292caa95",
+    "summary.json": "76aea984467df78f8773acfbb5478b8b42d8b317ff0f4a1d5efc50c7ac5d2c8d"
+  },
+  "publication_ready": false,
+  "scope": "Four authored number tuples, finite binary-expression grammar; eight exposed original groups. Not a proof for arbitrary input or model quality."
+}

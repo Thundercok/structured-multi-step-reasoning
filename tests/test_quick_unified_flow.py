@@ -210,8 +210,8 @@ def test_quick_step_1_explain_binary_search(quick_env):
 
     answer_item = root.findChild(QQuickItem, "answerText")
     assert answer_item is not None and answer_item.isVisible()
-    assert answer_item.property("text") == backend.answer_text
-    assert "```" not in answer_item.property("text")
+    assert answer_item.property("textDocument").textDocument().toPlainText() == backend.answer_text
+    assert controller.snapshot["answerText"] == backend.answer_text
 
     # 2. Telemetry and provenance
     telem = controller.snapshot["telemetry"]
@@ -319,7 +319,7 @@ def test_quick_step_3_followup_question_receives_referenced_facts(quick_env):
     # UI displays strictly q3 and answer in answerText
     assert controller.snapshot["userQuery"] == q3
     answer_item = root.findChild(QQuickItem, "answerText")
-    assert answer_item.property("text") == backend.answer_text
+    assert answer_item.property("textDocument").textDocument().toPlainText() == backend.answer_text
 
     # Copy answer test through QML copyCitation button
     click_item(view, root, "copyCitation")
@@ -432,12 +432,11 @@ def test_quick_step_6_cancellation_and_subsequent_query(quick_env):
     submit_draft(view, root, "Tìm kiếm lâu và bị hủy...")
     wait_for(lambda: controller.snapshot["busy"])
 
-    # Send button shows stop ("■")
+    # The live send control cancels through the actual QML click path.
     send_btn = root.findChild(QQuickItem, "sendButton")
-    assert send_btn.property("text") == "■"
+    assert send_btn.isVisible() and send_btn.isEnabled()
 
-    # Cancel via controller or stopRequest
-    controller.cancel()
+    click_item(view, root, "sendButton")
     wait_for(lambda: not controller.snapshot["busy"])
 
     # Cancelled turn records status='cancelled'

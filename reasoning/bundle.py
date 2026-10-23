@@ -58,6 +58,7 @@ class PolicyBundle:
     review_scope: str
     compatibility_conditions: Dict[str, Any]
     is_production_approved: bool = False
+    embedding_normalization: Optional[str] = None  # None / "none" (legacy raw) or "l2_unit" (research unit-norm)
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
@@ -106,6 +107,14 @@ def validate_policy_bundle(
     }
 
     VALID_PROMPT_PROFILES = {"legacy", "english-math-v1", "aligned-direct-cot-v1", "order-contract-v2"}
+    VALID_EMBEDDING_NORMALIZATIONS = {None, "none", "l2_unit"}
+
+    # Preprocessing contract validation
+    if bundle.embedding_normalization not in VALID_EMBEDDING_NORMALIZATIONS:
+        errors.append(
+            f"Unsupported embedding_normalization: '{bundle.embedding_normalization}'. "
+            "Must be None, 'none', or 'l2_unit'."
+        )
 
     # 1. Review status and identity validation
     if bundle.review_status == "approved":
@@ -205,6 +214,29 @@ def validate_policy_bundle(
                         has_all_required = all(k in art_data for k in required_keys)
                         if has_all_required:
                             found_authoritative_artifact = True
+                            # Validate embedding_normalization binding with authoritative artifact
+                            art_norm = art_data.get("embedding_normalization")
+                            if art_norm is not None:
+                                if art_norm not in VALID_EMBEDDING_NORMALIZATIONS:
+                                    errors.append(
+                                        f"Authoritative artifact '{art_key}' specifies unsupported embedding_normalization: '{art_norm}'."
+                                    )
+                                elif bundle.embedding_normalization is None:
+                                    errors.append(
+                                        f"Approved bundle missing explicit embedding_normalization; "
+                                        f"authoritative artifact '{art_key}' specifies '{art_norm}'."
+                                    )
+                                elif bundle.embedding_normalization != art_norm:
+                                    errors.append(
+                                        f"Bundle embedding_normalization ('{bundle.embedding_normalization}') "
+                                        f"conflicts with authoritative artifact '{art_key}' embedding_normalization ('{art_norm}')."
+                                    )
+                            elif bundle.review_status == "approved" and bundle.embedding_normalization == "l2_unit":
+                                errors.append(
+                                    f"Bundle claims embedding_normalization='l2_unit', but authoritative artifact '{art_key}' "
+                                    "does not declare unit normalization."
+                                )
+
                             # Validate lambda
                             lam_val = art_data["lambda"]
                             if not isinstance(lam_val, (int, float)) or not np.isfinite(lam_val):
@@ -588,6 +620,7 @@ def create_synthetic_specimen_bundle(
     lam: float = 0.02,
     *,
     bundle_id: str = "synthetic-specimen-v1",
+    embedding_normalization: Optional[str] = None,
 ) -> Tuple[PolicyBundle, OptimalStoppingPolicy]:
     """Create a verified synthetic specimen fitted strictly on disjoint synthetic data.
 
@@ -671,6 +704,7 @@ def create_synthetic_specimen_bundle(
             "max_ladder_depth": 3,
         },
         is_production_approved=False,
+        embedding_normalization=embedding_normalization,
     )
 
     return bundle, policy

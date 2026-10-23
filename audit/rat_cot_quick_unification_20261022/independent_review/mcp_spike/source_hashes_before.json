@@ -1,0 +1,13 @@
+{
+  "rat/kernel/registry.py": "f9b2788c7026a43d8c8c1c884ada28d8de3690a43f0ddc736b1035f32fc1bfd2",
+  "rat/kernel/dispatcher.py": "c9adb457d504a9d18d9cf266a6fe623d773118e6b951d1e498e399ea3265962d",
+  "rat/kernel/contracts.py": "a933a18931a69e679c0cf63e217f0fb2da7ebd85cbb522804e011226a4e1d8cc",
+  "rat/kernel/capabilities/documents.py": "1c3406fdcbf999f6b45c8bc1ac066a3b119aea9bff69bb9e72e9e428903876f4",
+  "rat/engine/task_state.py": "59b7a639d104bdf75c7c68f10fc6b688935d65085350634eefda1f0c7a98d406",
+  "rat/ui/quick/PDFDesk.qml": "3255ac81e7302a92a5cb247ccd7b3f536ea315b3abc88a78e65945e05c46bda6",
+  "rat/ui/quick_pdf_controller.py": "f50710e461c6017aada7eb82cef713c324bf38e4d6f2f09f3a944121de409672",
+  "reasoning/runtime.py": "fff8d4a814aea08ab46a8a0e6221478727d33e11c6bc9b1707cd30a495218893",
+  "experiments/research_study.py": "3759513bb6809aa6549a5c5d0824c6a9d167b9b6470ddb508766df6ba1f4225d",
+  "requirements.txt": "b13800aad37544c410050695cd8af280d8ed5d03552dd99ae7288c9c147d6304",
+  "requirements-research.txt": "5ed9750c9a43f220f8b99e4207fb738f16a5d356244d38a234facd779ff70008"
+}

@@ -39,6 +39,13 @@ Các giả thuyết đang chờ thực nghiệm. Thuật toán hiện tại tố
 bước khi giá trị downstream cố định; điều đó không bảo đảm tối ưu chung mọi
 policy hoặc tổng quát tốt trên dữ liệu mới.
 
+Bản [đối chiếu nghiên cứu cập nhật ngày 2026-10-23](research_comparison_brief_20261004.md#current-decision-brief--2026-10-23)
+ghi rõ từng baseline/ablation hiện có trả lời được câu hỏi nào. Full policy so
+với one-shot router là so sánh cả hệ, vì hai predictor được fit trên target
+khác nhau. So sánh với PAL/ReAct chưa tách riêng tác động của tool khỏi prompt
+và recipe. Giữ câu hỏi RQ2, nhưng chưa quy lợi ích cho riêng tool từ các đối
+chứng hiện tại. Đây là làm rõ giới hạn diễn giải, không đổi H1 hoặc freeze.
+
 ## Tính mới cần kiểm chứng
 
 Hướng đóng góp dự kiến là đánh giá sự kết hợp của entry routing và stopping
@@ -58,6 +65,106 @@ không gian hành động, tín hiệu quyết định, cách học policy và c
 thuật toán đã có trước, thu hẹp đóng góp sang đánh giá thực nghiệm và giới hạn
 trong bối cảnh đã chọn.
 
+## Quyết định tiếp theo — thiết kế có thể duyệt, 2026-10-23
+
+**Chốt một phép đo development vừa sức trước khi mở thực nghiệm chính.**
+Đây là bảng chuẩn bị quyết định trong kế hoạch hiện có, không phải protocol
+mới, execution freeze hoặc quyền inference. Anti đang sửa checker dry-run;
+phần nghiên cứu tiếp tục chuẩn bị đối chứng, cost và cách diễn giải. Giữ RAT–CoT
+là một hệ; không tạo thêm controller hoặc một phiên bản app để làm phép đo này.
+
+| Nội dung | Đã có | Còn phải chốt trước run thật |
+| --- | --- | --- |
+| Câu hỏi chính | H1: full policy so với one-shot router theo utility đã nêu trên; năm fixed recipes và component contrasts giữ vai trò đối chứng | Lambda và mức cải thiện có ý nghĩa thực tế; không chọn chúng từ test outcomes |
+| Tín hiệu stopping | Runtime hỗ trợ confidence threshold; checker G24 có contract tests | Chưa có tín hiệu thay thế được duyệt cho campaign. Confidence gate lịch sử vẫn FAIL; không tự fit lại logprob hoặc đổi checker status thành confidence |
+| Dữ liệu | Candidate procedural có group identities; GSM8K có pilot 23 nhóm đã xem và candidate development-validation riêng | Human/source/ownership, semantic gold, prior-exposure review và dataset hashes cho đúng phép đo; giữ test được bảo vệ |
+| Recipe/model | Backend và bridge đã có source fingerprints; lịch sử GSM8K dùng Qwen3-8B snapshot đã pin | Checkpoint/content, prompt profile, parser/voting/selector, caps và seeds cụ thể cho run mới; default code không phải cấu hình đã duyệt |
+| Đánh giá | Paired replay trên cùng outputs, group bootstrap, báo accuracy/tokens/utility và rescue/harm | Cỡ mẫu/precision cho đúng endpoint, practical margin và luật diễn giải trước collection; không dùng seed repetitions như câu độc lập |
+| Thực thi | Điểm vào `python -m experiments.research_study`, software smoke, bridge acceptance | Accounting/journal/failure của collector thật và ngân sách được cấp; pass mock không tự hoàn tất các mục này |
+
+### Trần tài nguyên: cần tính trên collection, không nhân số policy replay
+
+[Bản tính tĩnh có source/metadata hashes](../audit/rat_cot_quick_unification_20261022/independent_review/stopping_signals/collection_envelope.json)
+đọc code và report counts, không đọc câu hỏi/gold trong candidate. Giả định giữ
+đủ **179 items** của candidate và dùng **ba generation seeds chưa chọn cụ thể**:
+537 item-seed pairs. Backend defaults hiện tại gồm CoT 1 call, SC 5, candidate
+selection 3 + selector 1, ReAct tối đa 4 turns và PAL 1: **15 calls tối đa mỗi
+item-seed**, tổng **8.055 generation calls**, cộng **537 embedding calls** trong
+collector hiện có. Đây là trần kế hoạch, không phải số calls đã chạy hoặc được cấp.
+
+| Kịch bản để review | Cap CoT/SC/candidate/PAL mỗi call | ReAct | Trần token sinh toàn collection |
+| --- | ---: | --- | ---: |
+| Backend default hiện tại, chưa freeze | 512 | Tối đa 4 × 200 token | 3.453.984 |
+| What-if, chưa cấu hình/duyệt | 1.024 | Tối đa 4 × 200 token | 6.478.368 |
+
+Collector hiện gọi `backend.run(strategy, query)` mà không truyền aggregate
+request-token override; ReAct có cap từng turn như trên. Không áp bảng này
+cho một runtime call có total `max_tokens` override. Kịch bản 1.024 chỉ là
+sensitivity arithmetic: main CLI hiện không có pilot budget override tương ứng,
+chưa phải lệnh chạy có sẵn hoặc đề nghị đổi cấu hình. Early stop/failure có thể
+giảm số calls; không có retry được thêm vào trần. Prompt tokens, embeddings,
+tool CPU, loading và fitting compute chưa nằm trong token sinh; chưa có ước
+lượng full inference cost hay thời gian chạy.
+
+Năm recipes được thu một lần cho mỗi item-seed; chín policy rows được replay từ
+bank đó. **Chín policy không đòi chín lần collection.** Candidate test có 71
+items/70 groups: ba seeds cho 1.917 method rows, vẫn chỉ 70 original test groups,
+không phải 210 nhóm hoặc 1.917 quan sát độc lập. Không giảm số nhóm sau khi xem
+kết quả để tiết kiệm rồi giữ nguyên claim ban đầu; mọi thay đổi frame phải được
+review và chốt trước collection.
+
+### Cỡ mẫu và cách kết luận
+
+Power sensitivity McNemar đã có là tính cho **paired binary accuracy** dưới các
+giả định discordance; nó không xác nhận power của H1 utility. H1 còn phụ thuộc
+cost và tương quan giữa cải thiện độ đúng với chi phí. Với `A = accuracy_full −
+accuracy_reference`, `Z = (tokens_full − tokens_reference)/1000`:
+
+```text
+D = A − lambda × Z
+Var(D) = Var(A) + lambda² × Var(Z) − 2 × lambda × Cov(A, Z)
+```
+
+Đây là identity để xác định thông tin thiết kế cần có, không phải ước lượng
+power mới hoặc lý do tự chọn lambda. Chỉ được lấy giả định phương sai/effect
+cho planning từ development phù hợp hoặc nêu rõ sensitivity assumptions;
+không mở test outcomes để chọn cỡ mẫu, margin hay tín hiệu. Không gán power
+80% chỉ vì có 70 groups hoặc chạy ba seeds. Group bootstrap hiện có điều kiện
+trên fitted policies và tập seeds đã quan sát; chưa gồm fitting uncertainty.
+
+Trước run, cần ghi một primary contrast/lambda và practical margin. Báo Δutility
+kèm paired interval, accuracy và token riêng. Nếu interval còn bao gồm 0,
+kết luận chưa phân biệt được dấu của hiệu ứng ở độ chính xác hiện có; không
+đổi thành “hai phương pháp tương đương”. Interval hoàn toàn dương/âm hỗ trợ
+dấu tương ứng trong phạm vi phân tích đã chốt, chưa tự chứng minh deployment
+value hoặc vượt practical margin. Kết quả âm vẫn được giữ; không đổi baseline,
+family hoặc lambda hậu nghiệm để tạo H1 dương. Đây là hướng dẫn diễn giải,
+không tự bổ sung luật GO/NO-GO hoặc numerical margins cho protocol.
+
+### Thứ tự công việc sau gói sửa của Anti
+
+1. **Hoàn tất phần mềm offline:** Anti đóng các lỗi checker dry-run bằng probes
+   đã giao; chưa author thêm profile hoặc thu G24 outputs chỉ để có bảng đẹp.
+2. **Đối chứng nhỏ tiếp theo:** ưu tiên chuẩn bị fitter/evaluator cho
+   [protocol GSM8K development-validation đã có](gsm8k_development_validation_protocol_20261004.md).
+   Đó là 27 quy tắc query-only đã mô tả trước, chọn trên 48 fitting groups,
+   kiểm một lần trên 48 validation groups; không phải full policy hoặc H1 main.
+   Chọn cả fixed comparator trên fitting. Code có thể làm và kiểm bằng authored
+   fixtures ngay, không đọc candidate questions/outcomes hoặc gọi model.
+3. **Điều kiện cho phép đo thật:** review dữ liệu/model/settings và pin selection
+   artifacts trước validation; xác nhận journal/cost ở collector thực, rồi chốt
+   trần attempts/tokens cụ thể và quyền inference. 96 groups là development
+   screening, chưa là power justification cho publication. Không tự dùng
+   lambda 0,1 của phép đo development này làm lambda main study.
+4. **Sau development:** quyết định giữ/bỏ baseline phức tạp hoặc tín hiệu mới
+   từ evidence phù hợp; main study chỉ tiến khi các mục trong bảng trên được
+   giải quyết. Không chuyển candidate test thành development để lách review.
+
+Tài liệu [comparison brief](research_comparison_brief_20261004.md) giữ lập luận
+và bản nháp bài báo; mục này giữ quyết định cần chốt và thứ tự làm. Không mở
+thêm study/data release từ bản tính kế hoạch. **Ngân sách model/embedding thật
+hiện tại vẫn 0; Stage 0 không đổi.**
+
 ## Mốc hoàn thành & Tiến độ thực tế (Milestone Tracking)
 
 `gen02_tune`, Run 11 và GapB đều là development đã lộ theo
@@ -68,10 +175,10 @@ thành bằng chứng cho bài báo. Stage 0 của chiến dịch Qwen/Meta-Reas
 | --- | --- | :---: | --- |
 | **M0: Phạm vi & Prereg** | RQ, prior-art, protocols, decision rules | **ĐÃ ĐỒNG BỘ** | Decision rule P/signal/cascade đã hoàn tất. Analyzer signal (`scripts/analyze_calibration.py`) đã thực thi chuẩn repeated 5-fold CV ×20, baseline kèm completion length và `answer_first_lp`. Cổng confidence chính thức chấm GATE FAIL theo đúng preregistration. |
 | **M1: Dữ liệu chuẩn** | Dataset procedural có verifier độc lập | **ĐANG REVIEW** | `data/gen02_tune.json` v0.2.1 là pool development đã lộ, không phải held-out test. Bundle procedural mới đã tách development/test về cấu trúc nhưng human review, license/ownership, prior-exposure review và freeze publication còn chờ. |
-| **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng confidence và verifier | **CHƯA QUA GATE** | Có trace model thật và verifier development. Kết luận confidence chưa chấm đúng prereg; Recall 100% của verifier chỉ trên fixture lỗi trong-sample và cần fresh development replication. |
+| **M2: Pilot & Tín hiệu** | Pilot model thật, kiểm chứng confidence và verifier | **CHƯA QUA GATE** | Có trace model thật và verifier development. Confidence signal gate đã chấm FAIL theo prereg như M0; không fit ngưỡng logprob trên tín hiệu đã trượt. Recall 100% của verifier chỉ trên fixture lỗi trong-sample và cần fresh development replication. Chưa xác nhận tín hiệu thay thế đủ điều kiện cho chiến dịch tiếp theo. |
 | **M3: Thực nghiệm chính** | Sweep nhiều seed trên model/dataset đã freeze | **CHƯA CHẠY** | Run 11 đã đủ 571 bản ghi development nhưng dùng model session tuần tự, mixed sampling, token proxy thiếu input multi-call và SC có lỗi scoring semantics. Nó dùng để debug/thiết kế, không hoàn tất M3. |
 | **M4: Bài báo & Cascade** | Policy evaluation, ablation và tổng hợp bằng chứng | **ĐANG LÀM** | Policy V hiện là replay trong-sample; GapB là paired exploratory (9 rescues, 5 harms, McNemar exact hai phía p≈0,424) và có selection-by-extractability. Chưa có claim confirmatory. |
-| **M5: Triển khai phương pháp trong RAT** | Luồng ứng dụng thể hiện suy luận, kiểm tra, quyết định tiếp tục/dừng và kết quả có nguồn | **CẦN ĐỐI CHIẾU TRIỂN KHAI / BẰNG CHỨNG** | RAT là implementation chính; không hoãn toàn bộ RAT đến sau bài báo. Đối chiếu hành vi với protocol, kiểm tra phần mềm và đánh giá model riêng; thay đổi định hướng này không xác nhận chất lượng hay vượt Stage 0. |
+| **M5: Triển khai phương pháp trong RAT** | Luồng ứng dụng thể hiện suy luận, kiểm tra, quyết định tiếp tục/dừng và kết quả có nguồn | **ĐÃ ĐỐI CHIẾU MỘT PHẦN** | [Bridge được review ngày 23/10](../audit/rat_cot_quick_unification_20261022/research_bridge/codex_review/closeout/review.md): 79 tests độc lập pass cho các contracts đã giao, gồm fixture parity, preprocessing binding và label isolation. Chưa xác nhận toàn bộ native flow hoặc chất lượng model. RAT là implementation chính; checker dry-run là gói phần mềm riêng đang review, không đổi Stage 0. |
 
 ## Nhật ký Tiến trình Thực nghiệm (Chronological Execution Log)
 
@@ -123,7 +230,9 @@ mascot, animation và thêm cửa sổ chưa nằm trên đường hoàn thành 
 4. **Thực nghiệm:** nguồn dữ liệu, grouped split, model/prompt/version, baselines, chi phí và thống kê.
 5. **Kết quả:** accuracy–token, paired differences, ablation, biến thiên theo seed; không điền số minh hoạ.
 6. **Phân tích lỗi:** giới hạn confidence, escalation rescue/harm, overhead và tính tổng quát.
-7. **Demo:** phần ngắn hoặc phụ lục, chỉ các khả năng đã chạy được.
+7. **Triển khai trong RAT:** mapping phương pháp, contract thực thi và luồng ứng
+   dụng đã kiểm; phân biệt software/native acceptance với bằng chứng chất lượng
+   model. Độ dài trong bài tùy vai trò của kết quả, không gọi RAT là demo phụ.
 8. **Kết luận/tái lập:** phát hiện có bằng chứng, artifact và câu hỏi còn mở.
 
 ## Bàn giao cho cộng tác viên/Claude

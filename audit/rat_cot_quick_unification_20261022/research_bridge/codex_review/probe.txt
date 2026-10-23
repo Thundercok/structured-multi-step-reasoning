@@ -1,0 +1,73 @@
+{
+  "normalization_counterexample": {
+    "evidence": "synthetic software counterexample",
+    "model_calls": 0,
+    "raw_embedding": [
+      3.0,
+      4.0
+    ],
+    "harness_embedding": [
+      0.6,
+      0.8
+    ],
+    "harness_path": [
+      "COT"
+    ],
+    "runtime_path": [
+      "REACT"
+    ],
+    "harness_tokens": 10,
+    "runtime_tokens": 10,
+    "synthetic_fitting_rows": 100,
+    "training_embeddings_unit_normalized": true,
+    "route_mismatch": true
+  },
+  "suites": {
+    "received_parity": {
+      "cases": 22,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "548cf5e8ac73d72b69b093b89200bf42c534581107de268b4f81db66a8d6f292"
+    },
+    "received_research": {
+      "cases": 29,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "a7d046bb76daa3b78d562dee04472ed7c6224ad9f60fa065992c431110853391"
+    },
+    "codex_regression": {
+      "cases": 51,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "178e29077744a0595c7b045b7de489f96e1eed2d3da2b1112182324454a3c0ba"
+    }
+  },
+  "replay_parity": {
+    "results.json": {
+      "byte_match": true,
+      "sha256": "e6d9eba912efa579be25c1dab3f21628522f75f32fe0f052c8667b3ec28e1aed"
+    },
+    "summary.json": {
+      "byte_match": true,
+      "sha256": "5c705dd164af20ba02a0fcfee54f8dfd0d9bcbb15da970a20127440c7936ac80"
+    },
+    "policy.json": {
+      "byte_match": true,
+      "sha256": "1fbdb8cef06d3de0764c0438fe5931f72f1a16c46a8f574e546f4577e8d3da7e"
+    }
+  },
+  "candidate_hashes_match": {
+    "main.json": true,
+    "tuning.json": true,
+    "checks.json": true,
+    "report.md": true
+  },
+  "fixture_label_exposure": {
+    "gold_in_backend_record": true,
+    "correctness_flags_in_backend_record": true,
+    "scope": "synthetic test fixture; not evidence of real-backend label leakage"
+  }
+}

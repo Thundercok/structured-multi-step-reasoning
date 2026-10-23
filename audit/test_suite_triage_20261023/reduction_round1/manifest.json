@@ -1,0 +1,26 @@
+[
+  {
+    "path": ".github/workflows/ci.yml",
+    "reason": "Remove CI job for deleted rep_watch_bot; preserve research command.",
+    "before_sha256": "2f2ca0f786dae899cd961bd558743ac6e35c2a5e821e6da7bc64e6283b48992a",
+    "after_sha256": "aa20a176f7f929850465e952214e64c59d836e3cd11e9346c247c2f44ca3de11",
+    "lines_before": 44,
+    "lines_after": 20
+  },
+  {
+    "path": "tests/test_dsa_multi_turn_flow.py",
+    "reason": "Remove two exact duplicate engine test bodies; Quick copies remain unchanged (zero-cap parametrization plus dispatch failure).",
+    "before_sha256": "57863a36b95889366a35f98b276183761d42aa933c96a47aa634a1193d418e76",
+    "after_sha256": "5688c9636c30bdd57f800e943c23f5997e6e6fcabed60412100d937ac963109b",
+    "lines_before": 495,
+    "lines_after": 453
+  },
+  {
+    "path": "tests/test_turn3_apps_grid_and_auditor_hardening.py",
+    "reason": "Remove source-string polish test: exact QML sizes/colors/names do not verify user interaction. Not replaced with a functionality claim.",
+    "before_sha256": "e78675c4249e1874a3802319774385f801ebc012d0a0f83c1fafd2beef5f4f7c",
+    "after_sha256": "a26bf36ef486478cc63dca7429e3ebba648d8eb53e95b80c968b953a0da2d302",
+    "lines_before": 297,
+    "lines_after": 262
+  }
+]

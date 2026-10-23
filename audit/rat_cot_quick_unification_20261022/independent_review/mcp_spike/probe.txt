@@ -1,0 +1,5 @@
+Secure MCP Filesystem Server running on stdio
+Client does not support MCP Roots, using allowed directories set from server args: [
+  '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat-mcp-fixtures-lv1e38mf/allowed'
+]
+{"status": "mcp_reference_tool_probe_passed", "cases_passed": 13, "sdk_version": "2.3.0", "server_version": "1.0.0", "server_subprocess_reaped": true, "real_model_calls": 0}

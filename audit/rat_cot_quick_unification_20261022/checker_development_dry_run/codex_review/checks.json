@@ -1,0 +1,21 @@
+{
+  "status": "request_changes_for_checker_dry_run_only",
+  "bridge_prior_acceptance": "unchanged",
+  "source_hashes_stable": true,
+  "source_sha256": {
+    "experiments/checker_dry_run.py": "22105514b3273f48f3aa6c53779e03c41751598c768158167118764fa4873211",
+    "tests/test_checker_dry_run.py": "8635234c0edcbb25c2326d169165ea32c228be52fb56b1a28c621495e56ef0d9",
+    "experiments/research_study.py": "3759513bb6809aa6549a5c5d0824c6a9d167b9b6470ddb508766df6ba1f4225d",
+    "qwen_mlx_backend.py": "b2bcf97833cf5834721f3ef690195a632a060cd869c5fff7d938d0108748d9f7",
+    "docs/research_protocol.md": "57a43b7cc1956c08964f4b6ec98d896f9186d90e465e2975399cd6c34cc53f01"
+  },
+  "regression": {
+    "tests": 97,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_model_calls": 0,
+  "held_out_read": false,
+  "production_files_modified_by_reviewer": false
+}

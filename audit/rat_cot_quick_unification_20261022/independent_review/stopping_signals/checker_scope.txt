@@ -1,0 +1,1 @@
+G24 authored contract cases: 17/17 matched; scope limitations: 3 reproduced; model calls: 0.

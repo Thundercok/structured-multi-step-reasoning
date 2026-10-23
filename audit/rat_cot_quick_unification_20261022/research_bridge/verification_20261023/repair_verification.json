@@ -1,0 +1,39 @@
+{
+  "head": "11c8496520785bf8f0bc6108dc21c94fbcc760de",
+  "model_calls": 0,
+  "normalization_contract_verification": {
+    "raw_embedding": [
+      3.0,
+      4.0
+    ],
+    "harness_embedding": [
+      0.6,
+      0.8
+    ],
+    "harness_path": [
+      "COT"
+    ],
+    "runtime_normalized_path": [
+      "COT"
+    ],
+    "runtime_normalized_tokens": 10,
+    "runtime_legacy_raw_path": [
+      "REACT"
+    ],
+    "route_parity_achieved": true,
+    "route_mismatch": false,
+    "legacy_raw_preserved": true
+  },
+  "fixture_label_exposure": {
+    "gold_in_backend_record": false,
+    "correctness_flags_in_backend_record": false,
+    "scope": "synthetic test fixture; strictly isolated"
+  },
+  "regression_suite": {
+    "cases": 57,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "status": "PASS"
+}

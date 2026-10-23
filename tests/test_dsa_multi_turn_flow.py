@@ -393,35 +393,8 @@ def test_step_6_cancellation_and_subsequent_query_isolates_stale_callback(test_e
     assert new_snap.answer == backend.answer_text
 
 
-# --- Bước 7a: Quota cứng bằng 0 ---
-
-@pytest.mark.parametrize("cap_type", ["tokens", "requests", "strategies"])
-def test_step_7a_quota_caps_zero_dispatches_zero(test_env, cap_type):
-    backend = RecordingBackend()
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
-
-    kwargs = {}
-    if cap_type == "tokens":
-        kwargs["max_generated_tokens"] = 0
-    elif cap_type == "requests":
-        kwargs["max_underlying_requests"] = 0
-    elif cap_type == "strategies":
-        kwargs["max_strategy_invocations"] = 0
-
-    res = engine.solve("query requiring reasoning", **kwargs)
-    assert res.status == "budget_exceeded"
-    assert len(backend.embed_calls) == 0
-    assert len(backend.run_calls) == 0
-    assert res.cost_ledger["underlying_requests_dispatched"] == 0
-    assert res.cost_ledger["generated_tokens"] == 0
-    assert res.verification_status == "unverified"
-
-    # Ensure None does NOT act as 0
-    res_none = engine.solve("query with None cap", max_generated_tokens=None)
-    assert res_none.status == "completed"
-    assert len(backend.run_calls) > 0
-
+# Budget-zero and dispatch-exception engine contracts are retained once in
+# tests/test_quick_unified_flow.py; these Widgets tests cover UI-specific paths.
 
 # --- Bước 7b: Thiếu context bắt buộc hoặc failure trước dispatch ---
 
@@ -448,21 +421,6 @@ def test_step_7b_missing_or_unreadable_context_returns_unresolved(test_env):
     worker_standalone = create_execution_worker(window.assistant_runtime, req_standalone, reasoning_engine=test_env.engine, allow_synthetic_policy=True)
     assert isinstance(worker_standalone, OnlineReasoningWorker)
 
-
-# --- Bước 7c: Exception sau khi dispatch giữ chi phí thực tế ---
-
-def test_step_7c_exception_after_dispatch_preserves_partial_cost(test_env):
-    backend = RecordingBackend()
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    backend.fail_on_strategy = "COT"
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
-
-    with pytest.raises(RuntimeError, match="Simulated failure on strategy"):
-        engine.solve("query ladder that fails")
-
-    assert len(backend.run_calls) == 1
-    # Cost was not zeroed out: 1 request was dispatched
-    assert backend.run_calls[0]["strategy"] == "COT"
 
 
 # --- Bước 7d: Hủy hoặc deadline khi đang chạy ---

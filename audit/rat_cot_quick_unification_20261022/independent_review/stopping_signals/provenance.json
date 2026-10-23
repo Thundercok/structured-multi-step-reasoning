@@ -1,0 +1,16 @@
+{
+  "run": "audit/gsm8k-fixed-baseline-measured-20261004",
+  "run_manifest_sha256": "0b99564e57cbb2b96bfda1735bb215ca749f4db4598dde5591827361a3e7c066",
+  "artifact_sha256": {
+    "attempts.jsonl": "224d9137c645bdc12ddfea82573feba3540aeb31b137648da5432b37ca324bee",
+    "dataset.json": "ad5bdf47a85127ce4eb604d9fdbd7e01c79700e88fcc6e95e2fc06043cb8cd2a",
+    "model_provenance.json": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+    "records.json": "858af874dc7ba0393e0aef6a4d7ba39fc3fa2a6e67347b1bc09708ed38ddee54",
+    "report.md": "0d5cd6bd0f968ba5de6549c75403d413dd8c1fa5c9860baa8c06564692d760d2",
+    "selection.json": "82b9817a867963078327e8d49364bf54ad462d9fe26020e165d90b5f97f65019",
+    "summary.json": "932b5922f4527a140a21129cfd3d1cbf9f249ef6d1f28a00c5d72e5a968c9392"
+  },
+  "analysis_script_sha256": "acb296c2992b7b66bd42f397220f277dcb679895a5b5e12a83b1dc2ed8b9dff3",
+  "historical_inputs_unchanged": true,
+  "real_model_calls": 0
+}

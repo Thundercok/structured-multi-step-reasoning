@@ -207,7 +207,7 @@ def build_showcase(output_dir: Path):
     QTest.qWait(120)
     save_frame("03_finder_files.png", "Spotlight Files Search - Dynamic Breadcrumb Path [ Documents ], Lucide Vector Icons & Phím tắt Keycaps")
 
-    # --- Scene 3b: Smart AI Query Card ---
+    # --- Scene 3b: Question stays in the composer; no AI suggestion card ---
     if controller._finder_coordinator is not None:
         controller._finder_coordinator.cancel()
     controller._finder_hits = []
@@ -219,7 +219,7 @@ def build_showcase(output_dir: Path):
     editor.setProperty("text", "Sao phải dùng mid + 1 trong Binary Search?")
     root.setProperty("expanded", True)
     QTest.qWait(60)
-    save_frame("03b_smart_ai_card.png", "Spotlight AI Card - Tự động phát hiện câu hỏi tự nhiên và gợi ý suy luận CoT")
+    save_frame("03b_composer_question.png", "Câu hỏi ở composer - Enter gửi qua runtime chung, không có thẻ gợi ý AI")
 
     # --- Scene 3c: Active Context Chip ---
     from rat.engine.selected_pdf import SelectedPDF

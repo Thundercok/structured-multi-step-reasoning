@@ -81,6 +81,8 @@ class TurnSnapshot:
     reconciliation_status: str = "unchecked"
     # Historical declaration for continuity, never a journal or proof for a new execution.
     turn_contract: Optional[Dict[str, Any]] = None
+    source_refs: List[Dict[str, Any]] = field(default_factory=list)
+    answer_verification_status: str = "UNKNOWN"
 
     @property
     def turn_id(self) -> str:
@@ -140,6 +142,8 @@ class TurnSnapshot:
             "reconciliation": copy.deepcopy(self.reconciliation) if self.reconciliation is not None else None,
             "reconciliation_status": self.reconciliation_status,
             "turn_contract": copy.deepcopy(self.turn_contract),
+            "source_refs": copy.deepcopy(self.source_refs),
+            "answer_verification_status": self.answer_verification_status,
         }
 
 
@@ -224,6 +228,8 @@ class ConversationHistory:
         task_state: Optional[Dict[str, Any]] = None,
         reconciliation: Optional[Any] = None,
         turn_contract: Optional[Any] = None,
+        source_refs: Optional[List[Dict[str, Any]]] = None,
+        answer_verification_status: str = "UNKNOWN",
     ) -> TurnSnapshot:
         """Commit a completed turn; reject late callbacks from cancelled executions."""
         snap = self._turn_snapshots.get(turn_id)
@@ -244,6 +250,8 @@ class ConversationHistory:
 
         snap.answer = answer.strip()
         snap.status = "completed"
+        snap.source_refs = copy.deepcopy(source_refs or [])
+        snap.answer_verification_status = answer_verification_status
         if artifact_refs is not None:
             snap.artifact_refs = copy.deepcopy(artifact_refs)
         if note_ids is not None:

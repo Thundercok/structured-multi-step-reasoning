@@ -32,6 +32,7 @@ from rat.engine.execution import (
 )
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
+from rat.ui.answer_presentation import answer_excerpt, answer_html, source_rows
 from rat.ui.assistant_worker import create_execution_worker
 from rat.kernel.contracts import Artifact, SourceEvidence
 
@@ -187,6 +188,7 @@ class QuickPDFController(QObject):
         self._chat_generation = 0
         self._last_user_query = ""
         self._last_assistant_answer = ""
+        self._displayed_turn_id = None
         self._telemetry = {}
         self._assistant_sources = []
         self._assistant_task_state = {}
@@ -253,6 +255,12 @@ class QuickPDFController(QObject):
         view = "busy" if busy else self._view
         search = self._search or {}
         page = self._page or {}
+        displayed = self.conversation.get_turn(self._displayed_turn_id) if self._displayed_turn_id else None
+        references = source_rows(
+            displayed.source_refs if displayed else [],
+            self._selection.path if self._selection else None,
+            self._selection.page_count if self._selection else 0,
+        )
         if busy:
             if self._request:
                 title = {"select": "Đang mở PDF.", "search": "Đang tìm trang khớp.", "page": "Đang đọc trang đã chọn."}[self._request.kind]
@@ -305,6 +313,12 @@ class QuickPDFController(QObject):
             "query": self._last_user_query or search.get("query", ""),
             "userQuery": self._last_user_query,
             "answerText": self._last_assistant_answer,
+            "answerExcerpt": answer_excerpt(self._last_assistant_answer),
+            "answerOutcome": displayed.status if displayed else "unknown",
+            "answerHtml": answer_html(self._last_assistant_answer),
+            "answerHtmlDark": answer_html(self._last_assistant_answer, True),
+            "answerSources": references,
+            "answerVerification": displayed.answer_verification_status if displayed else "UNKNOWN",
             "telemetry": dict(self._telemetry),
             "turnId": self._current_turn_id or "",
             "executionId": self._current_execution_id or "",
@@ -394,6 +408,8 @@ class QuickPDFController(QObject):
     @pyqtSlot(int, result=bool)
     def jumpToPdfPage(self, page_number: int) -> bool:
         """Jump to a specific PDF page, e.g. from an in-text citation click."""
+        if self._closed or self._request is not None or self._current_worker is not None:
+            return False
         if self._selection is not None and 1 <= page_number <= self._selection.page_count:
             self.readPage(page_number)
             self._view = "page"
@@ -401,6 +417,14 @@ class QuickPDFController(QObject):
             self.changed.emit()
             return True
         return False
+
+    @pyqtSlot(int, result=bool)
+    def openAnswerSource(self, index: int) -> bool:
+        """Read only an explicit page ref for the currently selected PDF."""
+        rows = self.snapshot["answerSources"]
+        if not 0 <= index < len(rows) or not rows[index]["canOpen"]:
+            return False
+        return self.jumpToPdfPage(rows[index]["page"])
 
     @pyqtSlot(str)
     def submitQuery(self, query: str):
@@ -574,6 +598,7 @@ class QuickPDFController(QObject):
         self._view = "answer"
         self._last_user_query = snap.query
         self._last_assistant_answer = snap.answer or ""
+        self._displayed_turn_id = turn_id
         self._status = f"Lượt {turn_id} · {snap.status}"
         self._expanded = True
         self._unread = False
@@ -752,6 +777,7 @@ class QuickPDFController(QObject):
 
         self._current_worker = None
         turn_id = self._current_turn_id
+        self._displayed_turn_id = turn_id
 
         err = getattr(response, "error", None) or (getattr(response, "status", None) if getattr(response, "status", None) != "completed" else None)
         if err in ("cancelled", "budget_exceeded", "timeout", "failed", "unresolved") or err is not None:
@@ -759,7 +785,8 @@ class QuickPDFController(QObject):
             try:
                 self.conversation.fail_turn(
                     turn_id,
-                    status_kind,
+                    "cancelled" if status_kind == "cancelled" else "failed",
+                    error=status_kind,
                     execution_id=self._current_execution_id,
                     partial_answer=response.answer,
                 )
@@ -773,8 +800,10 @@ class QuickPDFController(QObject):
                 self._status = "Hết thời gian xử lý yêu cầu."
             elif status_kind == "unresolved":
                 self._status = "Không thể giải quyết yêu cầu với dữ kiện hiện có."
+            elif status_kind == "cancelled":
+                self._status = "Đã dừng · có thể gửi yêu cầu mới"
             else:
-                self._status = response.answer or f"Yêu cầu không thành công ({status_kind})."
+                self._status = "Yêu cầu chưa hoàn tất"
             self._view = "answer"
             self._unread = not self._expanded
             self._events.append(self._status)
@@ -799,12 +828,14 @@ class QuickPDFController(QObject):
             response.answer,
             execution_id=self._current_execution_id,
             artifact_refs=art_refs,
+            source_refs=[s.to_dict() if hasattr(s, "to_dict") else s for s in (response.sources or []) if isinstance(s, dict) or hasattr(s, "to_dict")],
+            answer_verification_status=response.answer_verification_status,
         )
 
         self._last_assistant_answer = response.answer
         self._view = "answer"
-        self._expanded = True
-        self._unread = False
+        # Respect the user's current mode; a completed answer updates the preview.
+        self._unread = not self._expanded
 
         c_rep = self._telemetry.get("contradiction_report")
         if c_rep and not c_rep.get("passed"):

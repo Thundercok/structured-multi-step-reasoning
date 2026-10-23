@@ -1,0 +1,68 @@
+{
+  "evidence": "synthetic software probe with authored approved-metadata fixture",
+  "real_policy_approved": false,
+  "real_model_calls": 0,
+  "source_sha256": {
+    "reasoning/bundle.py": "61c291df2011687b2728cbd8da93e380b2ccb46f16a17e092b8ca9285bfebaf3",
+    "reasoning/runtime.py": "34bc5b9dac2ce2dd086a2516db6e8f6bfa0d67755cc635d3cbe51712e90dc6ee",
+    "tests/test_online_reasoning.py": "b0baef00e69dcc9eaabde1aca8caeab1028cf032d8f78f8166d5759aebc8304c"
+  },
+  "script_sha256": "13e4597d32dda9fad08c37c4998f7738dd1817c13531989799e044cd58c00a4d",
+  "sources_unchanged": true,
+  "cases": {
+    "positive_matching_unit": {
+      "is_valid": true,
+      "is_approved_metadata": true,
+      "bundle_normalization": "l2_unit",
+      "artifact_normalization": "l2_unit",
+      "effective_normalization": "l2_unit",
+      "route": [
+        "COT"
+      ],
+      "backend_calls": [
+        "COT"
+      ]
+    },
+    "explicit_override_to_raw": {
+      "is_valid": true,
+      "is_approved_metadata": true,
+      "bundle_normalization": "l2_unit",
+      "artifact_normalization": "l2_unit",
+      "effective_normalization": "none",
+      "route": [
+        "REACT"
+      ],
+      "backend_calls": [
+        "REACT"
+      ]
+    },
+    "metadata_disagrees_with_artifact": {
+      "is_valid": true,
+      "is_approved_metadata": true,
+      "bundle_normalization": "none",
+      "artifact_normalization": "l2_unit",
+      "effective_normalization": "none",
+      "route": [
+        "REACT"
+      ],
+      "backend_calls": [
+        "REACT"
+      ]
+    },
+    "missing_declaration_but_unit_artifact": {
+      "is_valid": true,
+      "is_approved_metadata": true,
+      "bundle_normalization": null,
+      "artifact_normalization": "l2_unit",
+      "effective_normalization": null,
+      "route": [
+        "REACT"
+      ],
+      "backend_calls": [
+        "REACT"
+      ]
+    }
+  },
+  "gold_in_fixture": false,
+  "correctness_in_fixture": false
+}

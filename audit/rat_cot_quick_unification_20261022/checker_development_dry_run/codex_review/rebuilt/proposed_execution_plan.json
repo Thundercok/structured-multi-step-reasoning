@@ -1,0 +1,78 @@
+{
+  "status": "proposed, not authorized",
+  "title": "G24 Checker Development Campaign Execution Plan",
+  "campaign_kind": "development_diagnostic",
+  "human_review_status": "pending",
+  "human_authorization_required": true,
+  "authorized_by_user": false,
+  "real_model_inference_budget": "0 VND / 0 tokens",
+  "candidate_items": [
+    "procedural-tuning-v1/g24_0003_en_orig",
+    "procedural-tuning-v1/g24_0005_en_orig",
+    "procedural-tuning-v1/g24_0014_en_orig",
+    "procedural-tuning-v1/g24_0015_en_orig",
+    "procedural-tuning-v1/g24_0022_en_orig",
+    "procedural-tuning-v1/g24_0023_en_orig",
+    "procedural-tuning-v1/g24_0025_en_orig",
+    "procedural-tuning-v1/g24_0029_en_orig"
+  ],
+  "candidate_groups": [
+    "problem_g24_d99b8baba7c1ae5576a14a06d08f21802312a80e4a27eabda74d97ffac7de65e",
+    "problem_g24_5f4a0af0af588ae50b4bbb9cc010d5cae31561c45cdac8cfe1f48b1af79b0c46",
+    "problem_g24_fd82477d08227a92c561dc3cd28c9f59a016586e427742f530edb5cb908a39dc",
+    "problem_g24_466f407f10aefaff694c82fc6ba9b6f5dab106141a5412800828847fcdc45d4a",
+    "problem_g24_d12e53ce13c53b9d0d3a385ce05c7aac368ef613649f2f5bf0fccdde16f1defb",
+    "problem_g24_30266fbc58e3f5d463f658babdac2e5014d6b0d94babbe179ab389a23b76ab4c",
+    "problem_g24_9eeb12c7cc8470e00becb7082af48dd1b8cb66413a905c6c4252291ae3be9fe7",
+    "problem_g24_197b52691f342362e2b7e0c6460336846564452a434b03a9c8198353b8cad3ae"
+  ],
+  "random_seed": 42,
+  "candidate_model": {
+    "repository": "mlx-community/Qwen2.5-7B-Instruct-4bit",
+    "historical_reference_revision": "main",
+    "weights_format": "safetensors",
+    "requires_local_provenance_verification": true,
+    "weights_download_permitted": false
+  },
+  "backend_settings_analysis": {
+    "english_math_v1_status": "INCOMPATIBLE: qwen_mlx_backend.py raises ValueError('English math profile supports DIRECT, COT and PAL only') when called with SC or TOT.",
+    "aligned_direct_cot_v1_status": "INCOMPATIBLE: supports DIRECT and COT only.",
+    "legacy_status": "PARTIALLY COMPATIBLE: uses default COT_SUFFIX for SC; however, _tot contains hardcoded Vietnamese selector prompt ('Câu hỏi:... Các lời giải ứng viên:... Chọn lời giải đúng nhất').",
+    "remedy_required_before_execution": "Author a dedicated English G24 prompt profile with explicit English candidate-selector prompt before requesting authorization for any real-model run."
+  },
+  "sampling_parameters": {
+    "cot": {
+      "temperature": 0.0,
+      "max_tokens": 1024,
+      "finish_reason": "stop"
+    },
+    "self_consistency": {
+      "k": 5,
+      "temperature": 0.7,
+      "max_tokens": 1024
+    },
+    "candidate_selection_tot": {
+      "branches": 3,
+      "temperature": 0.8,
+      "selector_temperature": 0.0,
+      "max_tokens": 1024
+    }
+  },
+  "budget_caps": {
+    "max_total_generation_calls": 80,
+    "max_tokens_per_generation_call": 1024,
+    "max_total_generated_tokens": 81920
+  },
+  "failure_policy": {
+    "partial_failure_accounting": "Individual generation calls logged in ledger before dispatch. Completed calls preserved upon mid-sample or selector failure.",
+    "unknown_token_reservation": "Failed or interrupted calls with unknown token counts maintain conservative 1,024-token reservation.",
+    "retry_policy": "Zero silent retry. Unfinished attempts remain logged and cannot be silently re-run."
+  },
+  "solver_baseline_comparison": {
+    "solver": "sols24 (pure Python exact Fraction arithmetic)",
+    "accuracy": 1.0,
+    "cpu_time": "< 10 ms per item",
+    "model_tokens": 0,
+    "implication": "Deterministic solver baseline solves 100% of solvable items instantly at zero token cost. The utility of complex multi-call LLM reasoning on this task family is fundamentally constrained by the existence of exact symbolic algorithms."
+  }
+}

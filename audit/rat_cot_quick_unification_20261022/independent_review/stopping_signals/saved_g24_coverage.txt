@@ -1,0 +1,14 @@
+{
+  "groups": 8,
+  "statuses": {
+    "valid": 4,
+    "unverifiable": 3,
+    "invalid": 1
+  },
+  "status_by_stored_correctness": {
+    "valid|correct=True": 4,
+    "unverifiable|correct=False": 3,
+    "invalid|correct=False": 1
+  },
+  "new_model_calls": 0
+}

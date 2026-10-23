@@ -1,0 +1,11 @@
+{
+  "independent_raw_accounting_matches": true,
+  "paired_counts_match": true,
+  "exact_utility_identities_match": true,
+  "historical_input_hashes_match": true,
+  "source_and_figure_hashes_match": true,
+  "local_links_checked": 39,
+  "new_model_calls": 0,
+  "policy_or_lambda_fitted": false,
+  "held_out_read": false
+}

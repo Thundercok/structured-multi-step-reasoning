@@ -1,0 +1,15 @@
+{
+  "static_arithmetic_checked": true,
+  "source_and_metadata_hashes_unchanged": {
+    "qwen_mlx_backend.py": true,
+    "experiments/research_study.py": true,
+    "reasoning/reasoning_env.py": true,
+    "data/procedural_research_v1/report.md": true,
+    "docs/research_protocol.md": true
+  },
+  "links_checked": 46,
+  "held_out_content_read": false,
+  "new_model_calls": 0,
+  "power_analysis_performed": false,
+  "inference_budget_allocated": 0
+}

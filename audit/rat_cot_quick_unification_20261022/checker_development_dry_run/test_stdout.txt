@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collected 50 items
+
+tests/test_checker_dry_run.py ............                               [ 24%]
+tests/test_verifiers.py ......................................           [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_quick_unification_20261022/checker_development_dry_run/pytest_results.xml -
+============================== 50 passed in 1.89s ==============================

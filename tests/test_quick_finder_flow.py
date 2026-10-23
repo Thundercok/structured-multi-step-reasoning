@@ -500,3 +500,66 @@ def test_quick_finder_spotlight_sections_and_action_bar(finder_fixture):
 
     view.close()
     controller.close()
+
+
+def test_app_action_button_keyboard_activation_restores_draft(finder_fixture):
+    """The visible toolbar action supports focus/Space and opens its exact target."""
+    from PyQt6.QtCore import QEvent
+    from rat.ui.icon_provider import RatIconProvider
+    from rat.ui.quick_app import bind_desk_window
+
+    application = QApplication.instance() or QApplication([])
+    opened = []
+    controller = QuickPDFController(
+        finder_search=finder_fixture['search'],
+        finder_catalog=finder_fixture['catalog'],
+        auto_init_finder=False,
+        open_url=lambda url: opened.append(url.toLocalFile()) or True,
+    )
+    controller.ready()
+    view = QQuickView()
+    RatIconProvider.register(view.engine(), 'icon')
+    warnings = []
+    view.engine().warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({'liveController': controller, 'reduceMotion': True})
+    view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / 'rat/ui/quick/PDFDesk.qml')))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.resize(520, 500)
+    timer = bind_desk_window(view)
+    view.show()
+    try:
+        editor = root.findChild(QQuickItem, 'draftEditor')
+        draft = 'Bản nháp giữ lại khi mở ứng dụng'
+        editor.setProperty('text', draft)
+        _process_events(150)
+        controller.openAppsView(draft)
+        editor.setProperty('text', '')
+        _process_events(80)
+        pending = [root]
+        action = None
+        while pending:
+            item = pending.pop()
+            if item.objectName() == 'appOpenAction':
+                action = item
+                break
+            pending.extend(item.childItems())
+        assert action is not None and action.isVisible()
+        action.forceActiveFocus()
+        assert action.hasActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Space)
+        _process_events(100)
+        assert opened == [str(Path(finder_fixture['app_path']).resolve())]
+        assert controller.snapshot['view'] != 'apps'
+        assert editor.property('text') == draft
+        assert warnings == []
+    finally:
+        timer.stop()
+        controller.close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        application.processEvents()
