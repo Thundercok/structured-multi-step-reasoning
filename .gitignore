@@ -43,3 +43,10 @@ scratch/capture_overnight_specimens.py
 scratch/debug_capture.py
 scratch/generate_specimens.py
 scratch/inspect_narrow.py
+
+# Internal operational & migration artifacts
+docs/repository_migration.md
+audit/repository_migration_*/
+.migration-backups/
+AGENTS.md
+CLAUDE.md

@@ -31,6 +31,33 @@ def bind_desk_window(view):
     return timer
 
 
+def bind_desk_close(view, controller):
+    """Hide promptly, then close once native workers have actually finished."""
+    from PyQt6.QtCore import QCoreApplication, QTimer
+
+    timer = QTimer(view)
+    timer.setInterval(50)
+
+    def finish_close():
+        if controller.close():
+            timer.stop()
+            view.close()
+            QCoreApplication.quit()
+
+    def request_close():
+        if controller.snapshot["busy"]:
+            controller.cancel()
+        if controller.close():
+            view.close()
+        else:
+            view.hide()
+            timer.start()
+
+    timer.timeout.connect(finish_close)
+    view.rootObject().closeRequested.connect(request_close)
+    return timer
+
+
 def main(
     argv=None,
     *,
@@ -44,7 +71,18 @@ def main(
     parser.add_argument("document_pos", nargs="?", type=Path, help="Optional document path")
     parser.add_argument("--dark", action="store_true")
     parser.add_argument("--reduced-motion", action="store_true")
+    parser.add_argument("--local-assistant-model", help="Installed Ollama model for the assistant in this run")
+    parser.add_argument("--discover-tools", action="store_true", help="Start with core document tools; discover other operations as needed")
     args = parser.parse_args(argv)
+    if assistant_runtime is not None and (args.local_assistant_model or args.discover_tools):
+        parser.error("Assistant CLI options cannot override an injected assistant_runtime")
+    if args.local_assistant_model or args.discover_tools:
+        from rat.engine.assistant_runtime import AssistantRuntime
+        from rat.engine.slm import SLMEngine
+        assistant_runtime = AssistantRuntime(
+            model_client=SLMEngine(model=args.local_assistant_model) if args.local_assistant_model else None,
+            discover_tools=args.discover_tools,
+        )
     doc_target = args.document or args.document_pos
     os.environ["QT_QUICK_CONTROLS_STYLE"] = "Basic"
     from PyQt6.QtCore import QCoreApplication, QEvent, QTimer, QUrl, Qt
@@ -105,7 +143,7 @@ def main(
 
     resize_timer = bind_desk_window(view)
     root.moveRequested.connect(view.startSystemMove)
-    root.closeRequested.connect(view.close)
+    close_timer = bind_desk_close(view, controller)
     view.show()
 
     def initialize():
@@ -119,6 +157,7 @@ def main(
         return app.exec()
     finally:
         resize_timer.stop()
+        close_timer.stop()
         controller.close()
         view.setSource(QUrl())
         view.close()

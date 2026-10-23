@@ -1,0 +1,17 @@
+{
+  "status": "accepted_for_authored_research_software_scope",
+  "regression": {
+    "tests": 81,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_routing_tests": 26,
+  "source_hashes_stable": true,
+  "local_links_checked": 32,
+  "new_model_calls": 0,
+  "real_candidate_read": false,
+  "live_ui_acceptance": false,
+  "main_study_h1_evaluated": false,
+  "stage0_changed": false
+}

@@ -83,6 +83,8 @@ def answer_selected_document(runtime, question, file_path, *, model_client=None,
         calls += 1
         started = time.perf_counter()
         callbacks = {}
+        if getattr(model_client, 'supports_chat_callbacks', False) is True:
+            callbacks['should_cancel'] = should_cancel
         if getattr(model_client, 'supports_document_callbacks', False) is True:
             def forward_text(text):
                 if on_text and not (should_cancel and should_cancel()):

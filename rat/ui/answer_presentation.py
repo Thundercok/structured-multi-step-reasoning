@@ -5,17 +5,53 @@ The controller retains the original answer for full-copy and conversation histor
 """
 from __future__ import annotations
 
+import ast
 from functools import lru_cache
 from html import escape
 from pathlib import Path
 import re
 
 
-def answer_excerpt(text: str, limit: int = 360) -> str:
-    """Opening prose only, never a generated summary; full answer stays unchanged."""
-    paragraph = []
+@lru_cache(maxsize=8)
+def _bare_python_source(text: str) -> bool:
+    """Recognize complete unfenced Python definitions without executing them."""
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError, RecursionError):
+        return False
+    return any(isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+               for node in tree.body)
+
+
+def answer_starts_with_code(text: str) -> bool:
+    if _bare_python_source(text):
+        return True
     for line in text.splitlines():
         stripped = line.strip()
+        if not stripped or re.match(r'^#{1,6}\s+', stripped):
+            continue
+        return bool(re.match(r'^(`{3,}|~{3,})', stripped))
+    return False
+
+
+def answer_excerpt(text: str, limit: int = 360) -> str:
+    """Opening prose or first code lines, never a generated summary."""
+    if _bare_python_source(text):
+        lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+        excerpt = '\n'.join(lines[:3]) + ('…' if len(lines) > 3 else '')
+        return excerpt[:limit].rstrip() + '…' if len(excerpt) > limit else excerpt
+    paragraph = []
+    code_lines = None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if code_lines is not None:
+            if re.match(r'^(`{3,}|~{3,})', stripped):
+                break
+            if stripped:
+                code_lines.append(line.rstrip())
+                if len(code_lines) > 3:
+                    break
+            continue
         if not stripped:
             if paragraph:
                 break
@@ -23,9 +59,15 @@ def answer_excerpt(text: str, limit: int = 360) -> str:
         if re.match(r'^#{1,6}\s+', stripped) and not paragraph:
             continue
         if re.match(r'^(`{3,}|~{3,})', stripped):
+            if not paragraph:
+                code_lines = []
+                continue
             break
         paragraph.append(re.sub(r'^\s*(?:[-+*]|\d+[.)])\s+', '', stripped))
-    excerpt = ' '.join(paragraph)
+    if code_lines is not None:
+        excerpt = '\n'.join(code_lines[:3]) + ('…' if len(code_lines) > 3 else '')
+    else:
+        excerpt = ' '.join(paragraph)
     excerpt = re.sub(r'`([^`]+)`', r'\1', excerpt)
     excerpt = re.sub(r'\*\*(.+?)\*\*|__(.+?)__', lambda m: m.group(1) or m.group(2), excerpt)
     if len(excerpt) > limit:
@@ -55,6 +97,10 @@ def answer_html(text: str, dark: bool = False) -> str:
     out, paragraph, code = [], [], []
     fence = None
     code_bg = '#333b2f' if dark else '#eff3e9'
+    if _bare_python_source(text):
+        return ('<pre style="white-space:pre-wrap;font-family:Menlo,monospace;font-size:12px;'
+                'background-color:' + code_bg + ';margin-top:10px;margin-bottom:16px">'
+                + escape(text) + '</pre>')
 
     def flush():
         if paragraph:

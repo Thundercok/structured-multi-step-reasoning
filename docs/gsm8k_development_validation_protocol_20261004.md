@@ -1,7 +1,9 @@
 # Next development comparison — prepared 2026-10-04
 
-Status: data candidate and prospective design only. No new model generation,
-rule fitting, validation result or main-study claim has been produced.
+Updated 2026-10-23: the offline fitter/evaluator is implemented and software-tested
+on authored synthetic fixtures. The real data candidate and prospective design
+remain pending review. No new model generation, fitting on real candidate
+outcomes, measured validation result or main-study claim has been produced.
 
 ## Decision to answer
 
@@ -93,6 +95,58 @@ python -m scripts.prepare_gsm8k_development \
 python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_gsm8k_development.py -q
 ```
 
-Current deliverable: reviewable candidate and disjointness evidence. The rule
-fitter/evaluator is specified here and has not yet been implemented or run.
-Stage 0 and the publication/main-study review requirements are unchanged.
+## Offline implementation — 2026-10-23
+
+The supported entry point now exposes the analysis-only mode:
+
+```bash
+python -m experiments.research_study \
+  --gsm8k-routing-analysis PATH_TO_COMPLETE_COMPATIBLE_PILOT \
+  --output PATH_TO_NEW_ANALYSIS
+```
+
+These are placeholders for a completed compatible pilot, not a command to
+collect pending candidate data. No backend is instantiated. Collection flags,
+lambda/seed overrides and existing output directories are rejected. Existing
+pilot replay source/artifact guards remain enforced; do not update historical
+hashes to make older inputs appear compatible.
+
+Implementation: `experiments/gsm8k_routing_baseline.py`. The immutable menu uses
+IDs `constant_ACTION` and `words_le_NNN_ACTION_else_ACTION`, with NNN padded to
+three digits. Exact rational utility implements the declared tie order before
+the lexical-ID tie break. Selection includes all 27 fitting scores, the chosen
+rule/fixed reference, fitting IDs/groups and a fitting-only fingerprint.
+
+`selection.json` is written atomically and fsynced, then a `selection_saved`
+manifest is persisted **before validation scoring**. A validation failure keeps
+that selection and a failed manifest rather than manufacturing a successful
+summary. Completed analysis writes per-item public `results.json`, `summary.json`,
+`report.md` and artifact hashes. Input manifest/data/record hashes, protocol and
+analysis source fingerprints are retained. Repeating identical saved-input
+analysis in a new folder is reproducible; it does not create new validation
+questions or permission to redesign the selected rule.
+
+Record checks reconcile typed public answers (PAL uses its recorded execution
+output when successful), stored scores, query/group roles, recipe seeds, all
+single-call generated/prompt tokens and the fixed generation settings. A failed
+PAL execution remains a costed observation; it does not trigger an unrecorded
+retry. Only complete pilot banks with all three recipes are accepted. Source
+responses are never executed again. Reported strategy time is the stored
+duration, including tools where the collector measured them, not router latency.
+
+Measured input additionally requires the declared 96-item/96-group 48/48 frame,
+GSM8K source-train revision and verified historical Qwen snapshot. These guards
+do not independently approve source ownership, semantic gold, prior exposure or
+human review. The smaller authored fixture frame is admitted only under
+explicit synthetic-smoke evidence/backend labels; its tokens are synthetic
+units and its scores provide no model-quality evidence.
+
+[Software evidence](../audit/gsm8k_query_only_software_20261023/evidence/verification.json)
+covers validation-outcome blinding/poisoning, independent fixed-reference
+selection, group resampling with variants, failure-after-selection, costs,
+tamper/override rejection and a fresh-process supported entry point with model/
+Qt imports blocked. These research fixtures are not live RAT UI acceptance.
+
+Current deliverable: implemented offline software plus the existing reviewable
+data candidate. Real collection/analysis of the pending candidate is not run.
+Stage 0, human review and the publication/main-study requirements are unchanged.

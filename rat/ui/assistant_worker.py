@@ -68,6 +68,14 @@ class AssistantWorker(QThread):
         self.query = self.execution_request.query
         self.document_path = self.execution_request.document_path
         self.context = self.execution_request.assistant_context()
+        if not self.document_path:
+            # Reasoning-only evidence/artifact fields remain in the immutable
+            # request snapshot. AssistantRuntime accepts its own explicit context.
+            assistant_keys = {"history", "previous_sources", "member_id", "task_state",
+                              "turn_ref", "execution_id", "turn_references",
+                              "conversation_id", "contract"}
+            self.context = {key: value for key, value in self.context.items()
+                            if key in assistant_keys}
         self.startup_error = startup_error
 
     def run(self):

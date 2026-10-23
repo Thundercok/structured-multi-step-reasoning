@@ -77,3 +77,20 @@ material under the existing recovery policy. RAT–CoT remains one system.
 Use `main` as the working branch for this solo project. Do not create feature
 or checkpoint branches unless the user explicitly asks. Preserve unrelated
 uncommitted work and existing recovery material. Push only when requested.
+
+# RAT UI acceptance — user decision, 2026-10-23
+
+Test conversations through the real UI and real backend/model as a user would.
+Do not inject canned assistant answers or fake model results for UI/flow testing.
+Retain actual prompts, public responses, failures and screenshots so the user
+can inspect the conversation. If live execution is unavailable, report that
+limitation instead of substituting a fabricated successful conversation.
+Historical fixture tests/artifacts do not establish live UI acceptance. Keep
+research campaign gates separate; a local app smoke does not pass Stage 0.
+
+User decisions, 2026-10-24: use genuine PDFs with verifiable provenance for
+UI/flow acceptance; do not generate PDF fixtures for those runs. Record the
+source URL/origin and file hash. For each UI iteration, propose one visible
+minor UI change so the user can identify the version. When testing, provide
+clear screenshots of the actual live UI (min/full as relevant), including
+observed failures.

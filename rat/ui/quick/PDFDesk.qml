@@ -107,9 +107,9 @@ Rectangle {
     readonly property bool hasWorkbench: liveMode ? Boolean(liveSnapshot.hasWorkbench) : phase === "working" || phase === "result"
     readonly property bool hasAnswerPreview: liveMode && liveSnapshot.view === "answer"
     readonly property bool incompletePreview: hasAnswerPreview && liveSnapshot.answerOutcome !== "completed"
-    readonly property string previewBody: liveSnapshot.answerExcerpt || "Mở câu trả lời đầy đủ"
+    readonly property string previewBody: liveSnapshot.answerExcerpt || (incompletePreview ? (liveSnapshot.status || "Yêu cầu chưa hoàn tất") : "Mở câu trả lời đầy đủ")
     readonly property string previewMeta: incompletePreview ? (liveSnapshot.answerOutcome === "cancelled" ? "Đã dừng · chưa hoàn tất" : "Chưa hoàn tất · mở để xem thông báo")
-        : "Trích" + ((liveSnapshot.answerSources || []).length ? " · " + liveSnapshot.answerSources.length + " tham chiếu" : "")
+        : "Xem nhanh" + ((liveSnapshot.answerSources || []).length ? " · " + liveSnapshot.answerSources.length + " tham chiếu" : "")
           + " · " + (liveSnapshot.answerVerification === "PASS" ? "Đạt kiểm tra được báo cáo" : liveSnapshot.answerVerification === "FAIL" ? "Kiểm tra chưa đạt" : "Chưa xác minh")
     readonly property bool noticeVisible: liveMode ? unread && !expanded : phase === "result" && unread && !expanded
     readonly property string sceneKey: hasWorkbench ? (expanded ? phase : unread ? "unread" : "folded") : phase
@@ -177,7 +177,14 @@ Rectangle {
         editor.forceActiveFocus()
     }
     function submitDraft() {
-        if (liveMode) { if (!liveSnapshot.busy) liveController.search(editor.text); return }
+        if (liveMode) {
+            if (!liveSnapshot.busy) {
+                const pdfSearch = Boolean(liveSnapshot.fileName)
+                liveController.search(editor.text)
+                if (!pdfSearch && liveController.snapshot.busy) editor.text = ""
+            }
+            return
+        }
         if (phase === "receiving" || editor.text.trim().length === 0) return
         phase = "receiving"
         expanded = false
@@ -462,7 +469,9 @@ Rectangle {
                     visible: !desk.liveSnapshot.canBack && desk.liveSnapshot.view !== "apps"
                     text: desk.liveSnapshot.view === "page" ? "Đang đọc"
                         : (desk.liveSnapshot.view === "answer" ? "Câu trả lời"
+                        : (desk.liveSnapshot.view === "busy" ? "Đang xử lý"
                         : (desk.liveSnapshot.view === "finder" ? "Tìm kiếm" : "Trong tài liệu"))
+                        )
                     font.pixelSize: desk.liveSnapshot.view === "answer" ? 18 : 11
                     font.weight: desk.liveSnapshot.view === "answer" ? Font.Medium : Font.Normal
                     color: desk.liveSnapshot.view === "answer" ? desk.ink : desk.muted
@@ -727,7 +736,7 @@ Rectangle {
                         }
                     }
                     Label {
-                        visible: desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "apps"
+                        visible: desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "busy" && desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "apps"
                         Layout.fillWidth: true
                         text: desk.liveSnapshot.view === "page" ? (desk.liveSnapshot.fileName + " · nhãn " + desk.liveSnapshot.pageLabel + (desk.liveSnapshot.pageTruncated ? " · Đã cắt ở 8.000 ký tự" : "") + "\nBôi chọn đoạn cần lấy, rồi chép trích dẫn.") : (desk.liveSnapshot.view === "error" ? desk.liveSnapshot.errorText : desk.liveSnapshot.status) || ""
                         textFormat: Text.PlainText
@@ -1311,7 +1320,7 @@ Rectangle {
             x: 126
             y: composer.y - height + (desk.hasAnswerPreview ? 12 : 7)
             width: desk.hasAnswerPreview ? Math.min(360, composer.width - x) : Math.min(228, composer.width - x)
-            height: desk.hasAnswerPreview ? 112 : desk.noticeVisible ? 61 : 48
+            height: desk.hasAnswerPreview ? Math.max(76, Math.min(112, minPreviewContent.implicitHeight + topPadding + bottomPadding)) : desk.noticeVisible ? 61 : 48
             rotation: -1.2
             z: 3
             Accessible.name: desk.hasAnswerPreview ? (desk.noticeVisible ? "Kết quả mới. " : "") + desk.previewMeta + ". " + desk.previewBody + ". Mở câu trả lời đầy đủ" : desk.noticeVisible ? "Có kết quả mới, mở workbench" : "Mở lại workbench"
@@ -1323,6 +1332,7 @@ Rectangle {
                 border.color: note.visualFocus ? desk.accent : desk.edge
             }
             contentItem: ColumnLayout {
+                id: minPreviewContent
                 spacing: 6
                 RowLayout {
                     Layout.fillWidth: true
@@ -1334,7 +1344,8 @@ Rectangle {
                         textFormat: Text.PlainText
                         color: desk.hasAnswerPreview ? desk.ink : desk.accent
                         font.pixelSize: 13
-                        wrapMode: Text.Wrap
+                        font.family: desk.liveSnapshot.answerPreviewIsCode ? "Menlo" : Qt.application.font.family
+                        wrapMode: desk.liveSnapshot.answerPreviewIsCode ? Text.NoWrap : Text.Wrap
                         maximumLineCount: 3
                         elide: Text.ElideRight
                     }
@@ -1358,7 +1369,8 @@ Rectangle {
                     }
                 }
             }
-            bottomPadding: 17
+            topPadding: desk.hasAnswerPreview ? 10 : 6
+            bottomPadding: desk.hasAnswerPreview ? 22 : 17
             leftPadding: 16
             rightPadding: 16
         }
@@ -1752,7 +1764,7 @@ Rectangle {
                     Label {
                         visible: desk.liveMode && !desk.liveSnapshot.fileName
                         Layout.fillWidth: true
-                        text: desk.liveSnapshot.busy ? desk.liveSnapshot.status : "Kéo thả PDF"
+                        text: desk.liveSnapshot.busy && !desk.expanded ? desk.liveSnapshot.status : "Kéo thả PDF"
                         elide: Text.ElideRight
                         color: desk.muted
                         font.pixelSize: 11
@@ -1787,7 +1799,7 @@ Rectangle {
                 }
                 Loader {
                     Layout.fillWidth: true
-                    active: desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy)
+                    active: desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy && !desk.expanded)
                     visible: active
                     sourceComponent: DeskProgress { indeterminate: true; Accessible.name: "Đang nhận yêu cầu" }
                 }

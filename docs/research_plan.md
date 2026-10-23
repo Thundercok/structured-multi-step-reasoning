@@ -151,6 +151,10 @@ không tự bổ sung luật GO/NO-GO hoặc numerical margins cho protocol.
    kiểm một lần trên 48 validation groups; không phải full policy hoặc H1 main.
    Chọn cả fixed comparator trên fitting. Code có thể làm và kiểm bằng authored
    fixtures ngay, không đọc candidate questions/outcomes hoặc gọi model.
+   **Cập nhật 23/10:** fitter/evaluator đã được triển khai qua
+   `--gsm8k-routing-analysis`; [software evidence](../audit/gsm8k_query_only_software_20261023/evidence/verification.json)
+   dùng authored fixtures, chưa fit hoặc chấm candidate thật. Validation
+   outcomes không được đọc trong fitter; selection được lưu trước validation.
 3. **Điều kiện cho phép đo thật:** review dữ liệu/model/settings và pin selection
    artifacts trước validation; xác nhận journal/cost ở collector thực, rồi chốt
    trần attempts/tokens cụ thể và quyền inference. 96 groups là development

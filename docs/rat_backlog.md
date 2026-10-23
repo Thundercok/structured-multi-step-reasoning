@@ -1,6 +1,6 @@
 # RAT backlog
 
-Updated: 2026-10-16, Asia/Ho_Chi_Minh.
+Updated: 2026-10-23, Asia/Ho_Chi_Minh.
 
 Theo yêu cầu ngày 2026-10-13, bước RAT đang được bàn là **hoàn thiện một luồng
 core xuyên suốt bằng ví dụ hội thoại DSA**, với minor UI chỉ chỉnh cách đọc
@@ -35,6 +35,56 @@ không phải thông báo mọi khả năng đã hoạt động hay đã đượ
 Không gán deadline hoặc effort chưa được ước lượng. Source đã cập nhật ngày 2026-10-12; chưa build lại bản đóng gói. Bằng chứng và giới hạn: [audit UI](../audit/rat_one_box_ui_20261012/REPORT.md) và [audit companion](../audit/rat_companion_reasoning_20261012/REPORT.md).
 
 ## Backlog kiến trúc
+
+### RAT-EFF-01 — Đo chi phí toàn lượt và tối ưu context theo SoL-Pi
+
+**Backlog triển khai, thêm theo yêu cầu người dùng ngày 2026-10-23.**
+Tham khảo [SoL-Pi: Recursively Scaling Auto-Research Loops for Efficient Agent
+Harness](https://arxiv.org/pdf/2609.20519). Mục tiêu là giảm chi phí lặp lại
+context/tool observations trong RAT mà vẫn giữ kết quả, nguồn và trạng thái
+thực thi có thể kiểm tra. Đây là hạ tầng core của cùng hệ RAT–CoT; hiệu quả
+trên RAT/model nhỏ là giả thuyết cần đo, chưa phải kết quả chuyển giao từ paper.
+Ưu tiên sau baseline RAT chạy model thật ổn định và công việc routing/stopping
+hiện tại; chưa triển khai runtime từ việc ghi backlog này.
+
+Thứ tự triển khai:
+
+1. **Đo trước khi tối ưu.** Ghi chi phí từng model call và tổng mỗi request:
+   input/output tokens, cached input nếu backend cung cấp, số calls và thời
+   gian online gồm các bước model/tool/context maintenance. Chi phí nén hoặc
+   delegated reading cũng phải được cộng. Trường backend không cung cấp để
+   unknown kèm nguồn/phạm vi đo, không điền 0 hoặc suy ra từ token sinh.
+   Phân biệt số token, chi phí API và full inference cost; local MLX không tự
+   có giá API tương đương. Giữ tương thích số đo generated-token lịch sử.
+2. **Giảm tool observations trước.** Thử cơ chế opt-in giới hạn/lược bỏ phần
+   dư của output lớn, tham khảo ObservationPack; giữ raw artifact bất biến,
+   ID/revision, nguồn/trang, lỗi và trạng thái execution/verification. Cho phép
+   đọc lại phần gốc theo tham chiếu; không biến nội dung bị lược thành đã đọc
+   hoặc đã xác minh. Giữ cấu hình tắt làm đối chứng và đường rollback.
+3. **Nén lịch sử khi có số đo hỗ trợ.** Thử tại ranh giới subtask đã hoàn tất,
+   giữ yêu cầu hiện hành, ràng buộc, việc đang dở và evidence references.
+   Gate cần tính cả overhead nén và ảnh hưởng cache; tiết kiệm dự kiến phải
+   ghi là ước lượng rồi đối chiếu với số đo toàn lượt. Action Fusion và
+   Evidence-Preserving Reducer cho delegated reading là lát cắt sau, chỉ làm
+   khi trace cho thấy nhu cầu; chưa mở vòng auto-research tự sửa harness.
+
+Điều kiện nghiệm thu:
+
+- Có paired runs bật/tắt trên cùng model snapshot, tác vụ development,
+  prompt/settings, budget và seeds đã chốt; lưu cấu hình/source hashes, public
+  responses, tool artifacts, lỗi và số đo từng call. Báo riêng chất lượng,
+  source/verification failures, chi phí và online latency, gồm cả trường hợp
+  tối ưu làm kết quả xấu đi. Chốt tiêu chí chất lượng và mức tiết kiệm cần đạt
+  trước khi xem kết quả; chưa tự đặt numerical margins từ paper.
+- Kiểm tra hội thoại qua UI thật và backend/model thật, gồm follow-up cần
+  nguồn cũ, tool output dài, lỗi/cancel và truy hồi raw artifact; giữ prompts,
+  public responses và screenshots. Fixtures chỉ xác nhận hợp đồng phần mềm,
+  không thay live acceptance hoặc bằng chứng chất lượng model.
+- Không đổi routing/stopping, prompts nghiên cứu hoặc policy đã freeze trong
+  cùng phép so sánh để tránh lẫn nguyên nhân. Nếu đưa thay đổi vào research
+  harness, cần protocol/source freeze và regression theo AGENTS; historical
+  artifacts giữ nguyên. Mục này không cấp ngân sách inference, không mở test
+  được bảo vệ và không thay trạng thái Stage 0.
 
 **RAT-FIND-01 — Advanced Spotlight finder ngay trong khung chat.** Theo yêu cầu
 người dùng ngày 2026-10-16. Đã có lát cắt headless: catalog ứng dụng macOS theo

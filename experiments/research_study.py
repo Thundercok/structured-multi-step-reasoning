@@ -399,6 +399,7 @@ def main(argv=None):
     mode.add_argument("--backend", choices=("smoke", "mlx"))
     mode.add_argument("--replay", type=Path, help="Recompute a completed run without model calls or changing its settings")
     mode.add_argument("--aggregate", type=Path, nargs="+", metavar="RUN", help="Aggregate compatible completed runs with distinct generation seeds")
+    mode.add_argument("--gsm8k-routing-analysis", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train, save selection, then evaluate development validation; no model calls")
     mode.add_argument(
         "--direct-cot-analysis", type=Path, metavar="PILOT_RUN",
         help="Development-only replay of a fixed DIRECT-to-CoT policy; never calls a model",
@@ -446,6 +447,18 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True, help="New run directory; checkpointed pilot/smoke modes support exact compatible resume")
     args = parser.parse_args(argv)
     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
+    if args.gsm8k_routing_analysis:
+        overrides = [key for key, value in vars(args).items()
+                     if key not in ("gsm8k_routing_analysis", "output") and value is not None and value is not False]
+        if overrides:
+            parser.error("GSM8K routing analysis uses fixed recorded settings; overrides are forbidden: " + ", ".join(overrides))
+        from experiments.gsm8k_routing_baseline import write_analysis
+        try:
+            write_analysis(args.gsm8k_routing_analysis, args.output)
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            parser.error(str(error))
+        print(f"gsm8k_routing_development_analysis: {args.output / 'report.md'}")
+        return
     if args.cot_restart_fresh_smoke:
         overrides = sorted(
             "--" + key.replace("_", "-") for key, value in vars(args).items()

@@ -1,0 +1,81 @@
+{
+  "name": "authored-numeric-routing-software-fixture",
+  "version": "1",
+  "role": "development_tuning",
+  "source": "Project-authored fixtures; no GSM8K candidate questions",
+  "license": "Project test data",
+  "items": [
+    {
+      "id": "authored-train-0",
+      "group_id": "authored-train-0",
+      "split": "train",
+      "query": "authored-train-0 word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-train-1",
+      "group_id": "authored-train-1",
+      "split": "train",
+      "query": "authored-train-1 word word word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-train-2",
+      "group_id": "authored-train-2",
+      "split": "train",
+      "query": "authored-train-2 word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-train-3",
+      "group_id": "authored-train-3",
+      "split": "train",
+      "query": "authored-train-3 word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-calibration-0",
+      "group_id": "authored-calibration-0",
+      "split": "calibration",
+      "query": "authored-calibration-0 word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-calibration-1",
+      "group_id": "authored-calibration-1",
+      "split": "calibration",
+      "query": "authored-calibration-1 word word word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-calibration-2",
+      "group_id": "authored-calibration-2",
+      "split": "calibration",
+      "query": "authored-calibration-2 word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    },
+    {
+      "id": "authored-calibration-3",
+      "group_id": "authored-calibration-3",
+      "split": "calibration",
+      "query": "authored-calibration-3 word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+      "answer": "7",
+      "answer_type": "number",
+      "category": "authored"
+    }
+  ]
+}

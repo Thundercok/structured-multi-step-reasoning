@@ -27,6 +27,8 @@ DEFAULT_SLM_MODEL = "qwen2.5:1.5b"
 class SLMEngine:
     """Manager for local Small Language Models running on Apple Silicon / GPU."""
 
+    supports_chat_callbacks = True
+
     def __init__(self, ollama_url: Optional[str] = None, model: Optional[str] = None) -> None:
         self.ollama_url = (ollama_url or config.ollama_url or "http://localhost:11434").rstrip("/")
         self.model = model or config.ollama_model or DEFAULT_SLM_MODEL
@@ -105,7 +107,8 @@ class SLMEngine:
 
     def chat_with_meta(self, messages: List[Dict[str, Any]], tools: List[Dict[str, Any]],
                        timeout: float = 90.0, max_tokens: int = 640, thinking: bool = False,
-                       response_format: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+                       response_format: Optional[Dict[str, Any]] = None,
+                       should_cancel: Optional[Callable[[], bool]] = None) -> Dict[str, Any]:
         """Ollama native tool calling; retain token counts and the assistant message."""
         payload = {"model": self.model, "messages": messages, "stream": False, "think": thinking,
                    "options": {"temperature": 0.1, "num_predict": max_tokens, "num_ctx": 8192}}
@@ -117,8 +120,12 @@ class SLMEngine:
             data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}, method="POST")
         tick = time.perf_counter()
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as reply:
-                data = json.load(reply)
+            if should_cancel is not None:
+                from rat.engine.http_transport import post_json
+                data = post_json(req.full_url, payload, timeout=timeout, should_cancel=should_cancel)
+            else:
+                with urllib.request.urlopen(req, timeout=timeout) as reply:
+                    data = json.load(reply)
             error = data.get("error") or (None if data.get("done") is True else "incomplete_chat_response")
             usage_known = error is None and all(
                 type(data.get(key)) is int and data[key] >= 0
@@ -133,10 +140,15 @@ class SLMEngine:
                     "request": payload,
                     "duration_ms": (time.perf_counter() - tick) * 1000}
         except Exception as exc:
+            from rat.engine.http_transport import RequestCancelled
+            error = ("cancelled" if isinstance(exc, RequestCancelled) else
+                     "timeout" if isinstance(exc, TimeoutError) or
+                     isinstance(getattr(exc, "reason", None), TimeoutError) else str(exc))
             return {"message": {}, "prompt_tokens": 0, "completion_tokens": 0,
                     "raw_response": None, "token_usage_known": False,
                     "request": payload,
-                    "error": str(exc), "duration_ms": (time.perf_counter() - tick) * 1000}
+                    "error": error, "error_detail": str(exc),
+                    "duration_ms": (time.perf_counter() - tick) * 1000}
 
     def generate_with_meta(
         self,

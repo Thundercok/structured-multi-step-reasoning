@@ -32,7 +32,7 @@ from rat.engine.execution import (
 )
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
-from rat.ui.answer_presentation import answer_excerpt, answer_html, source_rows
+from rat.ui.answer_presentation import answer_excerpt, answer_html, answer_starts_with_code, source_rows
 from rat.ui.assistant_worker import create_execution_worker
 from rat.kernel.contracts import Artifact, SourceEvidence
 
@@ -183,6 +183,7 @@ class QuickPDFController(QObject):
         self._allow_synthetic_policy = allow_synthetic_policy
 
         self._current_worker = None
+        self._execution_workers = set()
         self._current_execution_id = None
         self._current_turn_id = None
         self._chat_generation = 0
@@ -314,6 +315,7 @@ class QuickPDFController(QObject):
             "userQuery": self._last_user_query,
             "answerText": self._last_assistant_answer,
             "answerExcerpt": answer_excerpt(self._last_assistant_answer),
+            "answerPreviewIsCode": answer_starts_with_code(self._last_assistant_answer),
             "answerOutcome": displayed.status if displayed else "unknown",
             "answerHtml": answer_html(self._last_assistant_answer),
             "answerHtmlDark": answer_html(self._last_assistant_answer, True),
@@ -328,7 +330,7 @@ class QuickPDFController(QObject):
             "pageNumber": page.get("page", 0),
             "pageLabel": page.get("page_label", ""),
             "pageTruncated": bool(page.get("truncated")),
-            "canCopy": (view in ("page", "answer")),
+            "canCopy": view == "page" or (view == "answer" and bool(self._last_assistant_answer)),
             "canBack": bool(self._search) and view in ("page", "error"),
             "errorCode": self._error,
             "errorText": ERROR_MESSAGES.get(self._error, "Không xử lý được yêu cầu này."),
@@ -546,6 +548,10 @@ class QuickPDFController(QObject):
                     self.conversation.cancel_turn(self._current_turn_id, execution_id=self._current_execution_id)
                 except Exception:
                     pass
+                self._displayed_turn_id = self._current_turn_id
+                self._last_assistant_answer = ""
+                self._view = "answer"
+                self._unread = False
             self._current_worker = None
 
         self._status = "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
@@ -752,12 +758,19 @@ class QuickPDFController(QObject):
         self._current_execution_id = execution_id
         self._current_turn_id = turn_ref.turn_id
         self._last_user_query = q
+        self._unread = False
         self._status = "Chuột đang xử lý yêu cầu…"
         self._events.append(f"Đã gửi yêu cầu: {q}")
         self.changed.emit()
 
+        # response_ready arrives before run() has returned. Hold even cancelled
+        # workers until QThread.finished, including cleanup after a model timeout.
+        self._execution_workers.add(worker)
+        worker.finished.connect(lambda w=worker: self._execution_workers.discard(w))
         worker.response_ready.connect(lambda res, req=request: self._execution_delivered.emit(req, res))
-        worker.status_changed.connect(
+        status_signal = (worker.status_changed if hasattr(worker, "status_changed")
+                         else worker.progress_changed)
+        status_signal.connect(
             lambda st, eid=execution_id, gen=self._chat_generation: self._execution_status_delivered.emit(eid, gen, st)
         )
         worker.start()
@@ -802,11 +815,14 @@ class QuickPDFController(QObject):
                 self._status = "Không thể giải quyết yêu cầu với dữ kiện hiện có."
             elif status_kind == "cancelled":
                 self._status = "Đã dừng · có thể gửi yêu cầu mới"
+            elif err == "empty_model_response":
+                self._status = "Model trả về nội dung rỗng. Bạn có thể thử gửi lại."
             else:
                 self._status = "Yêu cầu chưa hoàn tất"
             self._view = "answer"
             self._unread = not self._expanded
             self._events.append(self._status)
+            self._events.append("Lỗi thực thi: " + " ".join(str(err).split())[:500])
             self.changed.emit()
             return
 
@@ -852,12 +868,14 @@ class QuickPDFController(QObject):
 
     @pyqtSlot(str, int, str)
     def _on_execution_status(self, eid: str, gen: int, status: str):
-        if self._closed or eid != self._current_execution_id or gen != self._chat_generation:
+        if self._closed or self._current_worker is None or eid != self._current_execution_id or gen != self._chat_generation:
             return
         if status == "cancel":
             self._status = "Đang dừng xử lý…"
         elif status == "wait":
             self._status = "Đang chờ kết quả…"
+        elif status not in ("working", "done", "error"):
+            self._status = status
         self.changed.emit()
 
     def _update_cached_apps(self, catalog: ApplicationCatalog):
@@ -1138,12 +1156,9 @@ class QuickPDFController(QObject):
                     self.conversation.cancel_turn(self._current_turn_id, execution_id=self._current_execution_id)
                 except Exception:
                     pass
-            try:
-                if hasattr(self._current_worker, "wait"):
-                    self._current_worker.wait(200)
-            except Exception:
-                pass
             self._current_worker = None
+        for worker in self._execution_workers:
+            worker.requestInterruption()
         if self._finder_coordinator:
             self._finder_coordinator.close(timeout=0.25)
             self._finder_coordinator = None
@@ -1153,4 +1168,5 @@ class QuickPDFController(QObject):
             except Exception:
                 pass
             self._finder_search = None
-        return self._worker.close() if self._worker else True
+        pdf_closed = self._worker.close() if self._worker else True
+        return pdf_closed and all(not worker.isRunning() for worker in self._execution_workers)
