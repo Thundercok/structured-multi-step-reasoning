@@ -1,0 +1,162 @@
+[
+  {
+    "id": "gsm8k-dev-02975",
+    "split": "train",
+    "query_sha256": "ff756650606fecf394a8ad3ffbcc009d58179dbee1a8fc95eb5053bd6f9ce10a",
+    "expression": "(2+2*49)*(1+100)",
+    "independent_answer": "10100",
+    "derivation": "2rules+98proficiency+10000master",
+    "wording_notes": "Combined time to proficiency includes initial2hours.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03627",
+    "split": "calibration",
+    "query_sha256": "823f13f6f7b2b5af32082c68c9a615bde3b6001b7817d984ca678c4fd41ee073",
+    "expression": "F(90,80*F(1,4)+100*F(1,10))",
+    "independent_answer": "3",
+    "derivation": "Each machine20+10=30dollars",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03041",
+    "split": "train",
+    "query_sha256": "d06206ae986286bfd8effce73f7854960d2d6049c2b9783da4fd04e36bc527f1",
+    "expression": "5*3+2-5",
+    "independent_answer": "12",
+    "derivation": "Jenny17 minusTim5",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-04396",
+    "split": "calibration",
+    "query_sha256": "3e6491a981cdbaa800b246fad90e0e6af757d4a8e9b74e638856e6dc7da9bac9",
+    "expression": "(30-6)*F(3,2)",
+    "independent_answer": "36",
+    "derivation": "Xavier24 Yasmin12",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-07122",
+    "split": "train",
+    "query_sha256": "94cde7d9bf8472ff2fbb47c81460869d500f30ae583f2a8b52590cefe4b65979",
+    "expression": "20*(25-10)",
+    "independent_answer": "300",
+    "derivation": "Revenue500 expenses200",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01689",
+    "split": "calibration",
+    "query_sha256": "722311bfd5159a798c10e42f9897575fb3896020b94c61ce5155570d5f9ec4f5",
+    "expression": "(F(85,10)+F(95,10))*2",
+    "independent_answer": "36",
+    "derivation": "18pints times2cups/pint",
+    "wording_notes": "US customary2cups per pint.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06111",
+    "split": "train",
+    "query_sha256": "358a4d82f613a8d181298437b92719bfa376313d20d817035546c8a0c7df5470",
+    "expression": "(8+5)*2",
+    "independent_answer": "26",
+    "derivation": "16cups drank +10plants",
+    "wording_notes": "Question asks combined drink/use, not drink alone.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03109",
+    "split": "calibration",
+    "query_sha256": "67bcb24bdafdbdcba0f398c797783c30a8d63498fcdfe2dcf3177669cd91427e",
+    "expression": "120-8*4-6*3",
+    "independent_answer": "70",
+    "derivation": "120-32-18",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01175",
+    "split": "train",
+    "query_sha256": "d646e6bd4c9050c032cd103bf86f8c1a0219d20f4dbce3a5e89f6f87eba0a59e",
+    "expression": "(11-5)*F(2,3)",
+    "independent_answer": "4",
+    "derivation": "Blue+yellow6 split2:1 gives4blue",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06100",
+    "split": "calibration",
+    "query_sha256": "ac56f71d1d0faacb104927663550d6c28a726a7486ecd61ecd3d32a8bebd9266",
+    "expression": "50+(50+2)+3*(50+2)",
+    "independent_answer": "258",
+    "derivation": "Grandma50 sister52 Rene156",
+    "wording_notes": "Altogether includes all three mentioned people.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06323",
+    "split": "train",
+    "query_sha256": "c9804cd07e4b61b5517dfad23752d47429aa5a9be7847a6f1436ae819b68aa20",
+    "expression": "3*60-60",
+    "independent_answer": "120",
+    "derivation": "180-60",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-04317",
+    "split": "calibration",
+    "query_sha256": "3732e4b9d06d308c2793294ec1dc8f135ff5eeeca8c992d2698033beb47df3f8",
+    "expression": "12000+16000-1600",
+    "independent_answer": "26400",
+    "derivation": "Net receipts28000-1600",
+    "wording_notes": "Taken altogether interpreted net after refunds, not gross bookings.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03823",
+    "split": "train",
+    "query_sha256": "543001fd5abb3472e6904e9d3e7e04bd6cb6d08d4945a66ae887b24cdce69f9d",
+    "expression": "60*F(3,4)-(60*F(1,2)+F(60-30-5,5))",
+    "independent_answer": "10",
+    "derivation": "Goal45; promised30+5persuaded=35;needs10",
+    "wording_notes": "Five considering voting are not yet committed and excluded from opponents25.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-04007",
+    "split": "calibration",
+    "query_sha256": "dc6cfa3c89c85ead0b9f5b8c010cf8de5f6475081c5b988ecc0e4696586abcb6",
+    "expression": "16+3*16",
+    "independent_answer": "64",
+    "derivation": "Mouse16 keyboard48 total64",
+    "wording_notes": "Three times greater interpreted colloquially as three times as much; literal fourfold gives80total.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01483",
+    "split": "train",
+    "query_sha256": "ee4906640308bb2db8ecea81069caf5b623d6652d79232239bb2b03d42ad9a22",
+    "expression": "5*8+2*(3*8)",
+    "independent_answer": "88",
+    "derivation": "40weekday+48weekend",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-05581",
+    "split": "calibration",
+    "query_sha256": "6fd2e35fabec6ff5fd16254849c5b11a379025256fdf3f6db25df27ecf6f1981",
+    "expression": "10+F((100-10*6)*F(3,4),5)",
+    "independent_answer": "16",
+    "derivation": "10trucks cost60;30caps buys6cars",
+    "wording_notes": "",
+    "agent_review_only": true
+  }
+]

@@ -227,6 +227,7 @@ class TestQuickPDFControllerBoundaryIntegrity:
         ctrl = QuickPDFController(auto_init_finder=False)
         ctrl._current_execution_id = "exec-live"
         ctrl._chat_generation = 2
+        ctrl._current_worker = object()
         ctrl._status = "Chuột sẵn sàng."
 
         # Emit status with old execution ID

@@ -9,9 +9,6 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 
-from mlx_lm import load, stream_generate
-from mlx_lm.sample_utils import make_sampler
-
 from reasoning_env import ReasoningAction as A
 from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
 from reasoning_strategies import (
@@ -23,6 +20,21 @@ from reasoning_strategies import (
     run_python_sandboxed,
     safe_calculate,
 )
+
+
+def load(*args, **kwargs):
+    from mlx_lm import load as _load
+    return _load(*args, **kwargs)
+
+
+def stream_generate(*args, **kwargs):
+    from mlx_lm import stream_generate as _stream
+    return _stream(*args, **kwargs)
+
+
+def make_sampler(*args, **kwargs):
+    from mlx_lm.sample_utils import make_sampler as _sampler
+    return _sampler(*args, **kwargs)
 
 COT_SUFFIX = "\nWrite concise steps in plain text without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer."
 DIRECT_SUFFIX = "\nTrả lời trực tiếp, kết thúc bằng đúng 1 dòng 'Answer: ' rồi chỉ đáp án cuối (một số không đơn vị, một từ/tên, hoặc một biểu thức), không thêm câu chữ."
@@ -78,16 +90,30 @@ class QwenMLXBackend:
         sc_samples: int = 5,
         tot_branches: int = 3,
         react_max_turns: int = 4,
+        model: Any = None,
+        tokenizer: Any = None,
+        seed_setter: Optional[Callable[[int], None]] = None,
+        sampler_factory: Optional[Callable[..., Any]] = None,
+        array_converter: Optional[Callable[[Any], np.ndarray]] = None,
     ):
         self.configure_prompt_profile(prompt_profile)
-        self.model, self.tokenizer = load(repo)
-        self.hidden_size = self.model.args.hidden_size
+        if model is not None and tokenizer is not None:
+            self.model, self.tokenizer = model, tokenizer
+            self.hidden_size = getattr(getattr(self.model, "args", None), "hidden_size", 4096)
+        else:
+            from mlx_lm import load
+
+            self.model, self.tokenizer = load(repo)
+            self.hidden_size = self.model.args.hidden_size
         self.max_tokens = max_tokens
         self.model_id = repo
         self.model_snapshot = model_snapshot
         self.sc_samples = sc_samples
         self.tot_branches = tot_branches
         self.react_max_turns = react_max_turns
+        self.seed_setter = seed_setter
+        self.sampler_factory = sampler_factory
+        self.array_converter = array_converter
 
     # ---- LLMBackend protocol ----
 
@@ -109,6 +135,17 @@ class QwenMLXBackend:
         if answer_type not in ("number", "text", "expression") or decimal_separator not in (".", ","):
             raise ValueError("Invalid research answer format")
         self.answer_format = {"answer_type": answer_type, "decimal_separator": decimal_separator}
+
+    def set_seed(self, seed: int) -> None:
+        """Apply random seed at the generation boundary."""
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise ValueError(f"Seed must be an integer, got: {type(seed)}")
+        if getattr(self, "seed_setter", None) is not None:
+            self.seed_setter(seed)
+        else:
+            import mlx.core as mx
+            mx.random.seed(seed)
+        np.random.seed(seed % (2**32))
 
     def _parse_answer(self, text: str) -> tuple[str, str, bool]:
         return parse_answer_details(text, **getattr(self, "answer_format", {}))
@@ -387,10 +424,12 @@ class QwenMLXBackend:
         temp: float = 0.0,
         max_tokens: int | None = None,
         *,
+        seed: Optional[int] = None,
         should_cancel: Optional[Callable[[], bool]] = None,
         deadline_monotonic: Optional[float] = None,
     ) -> tuple[str, float, int]:
-        import mlx.core as mx
+        if seed is not None:
+            self.set_seed(seed)
 
         if should_cancel is not None and should_cancel():
             raise RuntimeError("Cooperative cancellation before generation start")
@@ -402,8 +441,18 @@ class QwenMLXBackend:
             enable_thinking=False,
             add_generation_prompt=True,
         )
-        p_tok = len(prompt) if isinstance(prompt, list) else len(self.tokenizer.encode(prompt))
-        sampler = make_sampler(temp=temp)
+        if isinstance(prompt, list):
+            prompt_token_ids = list(prompt)
+            p_tok = len(prompt_token_ids)
+            decoded_prompt = self.tokenizer.decode(prompt_token_ids) if hasattr(self.tokenizer, "decode") else None
+        else:
+            prompt_token_ids = list(self.tokenizer.encode(prompt)) if hasattr(self.tokenizer, "encode") else []
+            p_tok = len(prompt_token_ids) if prompt_token_ids else len(prompt)
+            decoded_prompt = str(prompt)
+        if getattr(self, "sampler_factory", None) is not None:
+            sampler = self.sampler_factory(temp=temp)
+        else:
+            sampler = make_sampler(temp=temp)
         text, n_tok = "", 0
         finish_reason = None
         logps, margins, entropies = [], [], []
@@ -417,7 +466,14 @@ class QwenMLXBackend:
                 if getattr(r, "finish_reason", None) is not None:
                     finish_reason = r.finish_reason
                 if getattr(r, "logprobs", None) is not None:
-                    lp_arr = np.asarray(mx.array(r.logprobs, dtype=mx.float32), dtype=np.float32)
+                    if getattr(self, "array_converter", None) is not None:
+                        lp_arr = self.array_converter(r.logprobs)
+                    else:
+                        try:
+                            import mlx.core as mx
+                            lp_arr = np.asarray(mx.array(r.logprobs, dtype=mx.float32), dtype=np.float32)
+                        except Exception:
+                            lp_arr = np.asarray(r.logprobs, dtype=np.float32)
                     if len(lp_arr) > r.token:
                         logps.append(float(lp_arr[r.token]))
                     m, h = compute_token_uncertainty(lp_arr)
@@ -475,6 +531,8 @@ class QwenMLXBackend:
                     "temperature": temp,
                     "enable_thinking": False,
                     "prompt_tokens": p_tok,
+                    "prompt_token_ids": prompt_token_ids,
+                    "raw_prompt": decoded_prompt,
                     "output": text,
                     "tokens": n_tok,
                     "finish_reason": finish_reason,
@@ -517,6 +575,137 @@ def extract_best_index(text: str, branches: int) -> int | None:
         return None
     index = int(match.group(1))
     return index if 0 <= index < branches else None
+
+
+class QwenMLXStagedRunner:
+    """Staged runner adapter for QwenMLXBackend separating generation and tool execution.
+
+    Implements StagedRunnerInterface for experiments.gsm8k_collector.
+    Decouples LLM generation from tool execution (e.g., Python sandbox for PAL),
+    while preserving identical prompting, chat template application, answer parsing,
+    confidence scoring, exact seed application, and diagnostic traces.
+    """
+
+    def __init__(
+        self,
+        backend: QwenMLXBackend,
+        seed_setter: Optional[Callable[[int], None]] = None,
+    ):
+        self.backend = backend
+        self.seed_setter = seed_setter if seed_setter is not None else getattr(backend, "set_seed", None)
+        self.last_applied_seed: Optional[int] = None
+
+    def apply_seed(self, seed: int) -> None:
+        """Apply random seed at the generation boundary before dispatch."""
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise ValueError(f"Seed must be an integer, got: {type(seed)}")
+        if self.seed_setter is not None:
+            self.seed_setter(seed)
+        self.last_applied_seed = seed
+
+    def run_generation(
+        self,
+        item: dict,
+        strategy: str,
+        max_tokens: int,
+        seed: int,
+    ):
+        """Run generation stage for DIRECT, COT, or PAL without executing tools.
+
+        The model receives ONLY query and format metadata; gold solutions are never provided.
+        """
+        from reasoning_env import ReasoningAction as A
+        from experiments.gsm8k_collector import StagedExecutionResult
+
+        action = getattr(A, strategy, None)
+        if action not in (A.DIRECT, A.COT, A.PAL):
+            raise ValueError(f"QwenMLXStagedRunner supports DIRECT, COT, and PAL only, got: {strategy}")
+
+        # 1. Apply supplied generation seed at the generation boundary before dispatch
+        self.apply_seed(seed)
+
+        # 2. Configure item format metadata (never gold!)
+        fmt = {
+            "answer_type": item.get("answer_type", "number"),
+            "decimal_separator": item.get("decimal_separator", "."),
+        }
+        self.backend.configure_answer_format(**fmt)
+
+        # 3. Build messages with exact strategy suffix
+        suffix = self.backend._suffix(action)
+        messages = [{"role": "user", "content": item["query"] + suffix}]
+
+        profile = getattr(self.backend, "prompt_profile", "legacy")
+        self.backend.last_trace = {
+            "strategy": strategy,
+            "prompt_profile": profile,
+            "generations": [],
+            "tools": [],
+        }
+
+        # 4. Execute generation through _chat (which renders template, encodes tokens, and applies seed)
+        gen_start = time.perf_counter()
+        text, conf, n_tok = self.backend._chat(
+            messages,
+            temp=0.0,
+            max_tokens=max_tokens,
+            seed=seed,
+        )
+        elapsed_ms = (time.perf_counter() - gen_start) * 1000
+
+        # 5. Capture prompt, messages, and token IDs directly from actual _chat invocation's trace
+        gen_info = self.backend.last_trace["generations"][-1] if self.backend.last_trace.get("generations") else {}
+        prompt_token_ids = gen_info.get("prompt_token_ids")
+        raw_prompt = gen_info.get("raw_prompt")
+        p_tok = gen_info.get("prompt_tokens", len(prompt_token_ids) if prompt_token_ids else 0)
+        actual_messages = gen_info.get("messages", messages)
+
+        finish_reason_raw = gen_info.get("finish_reason", "completed")
+        finish_reason = "length" if finish_reason_raw == "length" else "stop"
+
+        # Diagnostic parsing on generated text
+        _, parse_status, wordy = self.backend._parse_answer(text)
+
+        generation_trace = {
+            "strategy": strategy,
+            "prompt_profile": profile,
+            "parse_status": parse_status,
+            "wordy": wordy,
+            "finish_reason_raw": finish_reason_raw,
+            "applied_seed": seed,
+            "signals": dict(getattr(self.backend, "last_signals", {})),
+        }
+
+        return StagedExecutionResult(
+            text=text,
+            confidence=float(conf),
+            generated_tokens=int(n_tok),
+            prompt_tokens=int(p_tok),
+            finish_reason=finish_reason,
+            elapsed_ms=float(elapsed_ms),
+            raw_prompt=raw_prompt,
+            messages=actual_messages,
+            generation_trace=generation_trace,
+            prompt_token_ids=prompt_token_ids,
+        )
+
+    def run_tool(
+        self,
+        code: str,
+        timeout_seconds: float = 5.0,
+    ):
+        """Run Python tool execution stage in sandbox with timeout."""
+        from experiments.gsm8k_collector import ToolExecutionResult
+
+        tool_start = time.perf_counter()
+        ok, result = run_python_sandboxed(code, timeout=timeout_seconds)
+        tool_ms = (time.perf_counter() - tool_start) * 1000
+
+        return ToolExecutionResult(
+            ok=bool(ok),
+            output=str(result),
+            duration_ms=float(tool_ms),
+        )
 
 
 if __name__ == "__main__":

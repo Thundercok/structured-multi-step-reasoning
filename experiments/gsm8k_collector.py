@@ -35,6 +35,7 @@ from research_scoring import parse_typed_answer
 ACTIONS = ("DIRECT", "COT", "PAL")
 MAX_TOKENS_PER_CALL = 1024
 DEFAULT_PAL_TIMEOUT_SECONDS = 5.0
+ALLOWED_STAGED_EVIDENCE = ("synthetic_staged_pilot_collection", "synthetic_staged_collector_fixture")
 
 
 def require(condition: bool, message: str) -> None:
@@ -74,6 +75,10 @@ class StagedExecutionResult:
     prompt_tokens: int
     finish_reason: str
     elapsed_ms: float
+    raw_prompt: Optional[str] = None
+    messages: Optional[List[Dict[str, str]]] = None
+    generation_trace: Optional[Dict[str, Any]] = None
+    prompt_token_ids: Optional[List[int]] = None
 
 
 @dataclass
@@ -100,6 +105,18 @@ def validate_staged_generation_result(res: StagedExecutionResult, token_budget: 
         raise ValueError("Generation text must be a non-empty string")
     if isinstance(res.elapsed_ms, bool) or not isinstance(res.elapsed_ms, (int, float)) or not math.isfinite(res.elapsed_ms) or res.elapsed_ms < 0.0:
         raise ValueError(f"Elapsed ms must be non-negative finite number, got: {res.elapsed_ms}")
+    if res.raw_prompt is not None and not isinstance(res.raw_prompt, str):
+        raise ValueError(f"raw_prompt must be string or None, got: {type(res.raw_prompt)}")
+    if res.messages is not None:
+        if not isinstance(res.messages, list) or not all(isinstance(m, dict) and "role" in m and "content" in m for m in res.messages):
+            raise ValueError(f"messages must be list of dicts with role and content, got: {type(res.messages)}")
+    if res.generation_trace is not None and not isinstance(res.generation_trace, dict):
+        raise ValueError(f"generation_trace must be dict or None, got: {type(res.generation_trace)}")
+    if res.prompt_token_ids is not None:
+        if not isinstance(res.prompt_token_ids, list) or not all(isinstance(t, int) and not isinstance(t, bool) for t in res.prompt_token_ids):
+            raise ValueError(f"prompt_token_ids must be a list of integers, got: {type(res.prompt_token_ids)}")
+        if len(res.prompt_token_ids) != res.prompt_tokens:
+            raise ValueError(f"prompt_token_ids length ({len(res.prompt_token_ids)}) must match prompt_tokens ({res.prompt_tokens})")
 
 
 def validate_tool_execution_result(res: ToolExecutionResult) -> None:
@@ -188,6 +205,17 @@ class MockStagedRunner(StagedRunnerInterface):
         conf = float(resp.get("confidence", 0.9))
         finish_reason = resp.get("finish_reason", "stop")
         elapsed_ms = float(resp.get("elapsed_ms", 15.0))
+        strategy_suffixes = {
+            "DIRECT": "\nAnswer directly without showing steps. End with exactly one line 'Answer: ' followed only by the final number, without units.",
+            "COT": "\nWrite concise steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final number, without units.",
+            "PAL": "\nWrite Python code to solve this problem and assign the final numeric answer to `result`. Use arithmetic and built-in Python only, without imports. Return only code in one ```python``` block.",
+        }
+        messages = resp.get("messages")
+        if messages is None:
+            suffix = strategy_suffixes.get(strategy, "")
+            messages = [{"role": "user", "content": item.get("query", "") + suffix}]
+        raw_prompt = resp.get("raw_prompt", f"<|im_start|>user\n{messages[0]['content']}<|im_end|>\n<|im_start|>assistant\n")
+        prompt_token_ids = resp.get("prompt_token_ids", [1] * p_tokens)
         return StagedExecutionResult(
             text=text,
             confidence=conf,
@@ -195,6 +223,10 @@ class MockStagedRunner(StagedRunnerInterface):
             prompt_tokens=p_tokens,
             finish_reason=finish_reason,
             elapsed_ms=elapsed_ms,
+            raw_prompt=raw_prompt,
+            messages=messages,
+            generation_trace=resp.get("generation_trace"),
+            prompt_token_ids=prompt_token_ids,
         )
 
     def run_tool(
@@ -605,32 +637,60 @@ class GSM8KCollectorCheckpoint:
                 "duration_ms": tool_val["duration_ms"],
             }]
             if tool_val["ok"]:
-                parsed = parse_typed_answer(f"Answer: {tool_val['output']}", **fmt)[0]
+                parsed, parse_status, wordy = parse_typed_answer(f"Answer: {tool_val['output']}", **fmt)
                 eff_conf = gen_val["confidence"]
             else:
-                parsed = parse_typed_answer(gen_val["output_text"], **fmt)[0]
+                parsed, parse_status, wordy = parse_typed_answer(gen_val["output_text"], **fmt)
                 eff_conf = gen_val["confidence"] * 0.3
         else:
-            parsed = parse_typed_answer(gen_val["output_text"], **fmt)[0]
+            parsed, parse_status, wordy = parse_typed_answer(gen_val["output_text"], **fmt)
             eff_conf = gen_val["confidence"]
 
         correct = bool(check_answer(parsed, item))
         total_strategy_ms = gen_val["elapsed_ms"] + (tool_val["duration_ms"] if tool_val else 0.0)
 
+        actual_messages = gen_val.get("messages")
+        messages_provenance = "genuine_trace"
+        if actual_messages is None:
+            evidence_type = getattr(self, "identity", {}).get("evidence", "")
+            # On staged schema, fail closed: invented messages are strictly prohibited
+            if evidence_type in ALLOWED_STAGED_EVIDENCE or getattr(self, "identity", {}).get("mode") == "gsm8k_development_pilot_collection":
+                raise ValueError(
+                    f"Staged record assembly requires actual messages in generation evidence for {cond_key}; "
+                    "invented bare query fallback is strictly prohibited."
+                )
+            # Legacy synthetic fallback with explicit synthetic provenance label
+            actual_messages = [{"role": "user", "content": item["query"]}]
+            messages_provenance = "synthetic_legacy_fallback"
+
+        gen_entry = {
+            "output": gen_val["output_text"],
+            "tokens": gen_val["measured_generated_tokens"],
+            "prompt_tokens": gen_val["measured_prompt_tokens"],
+            "max_tokens": token_budget,
+            "temperature": 0.0,
+            "enable_thinking": False,
+            "finish_reason": gen_val["finish_reason"],
+            "messages": actual_messages,
+            "messages_provenance": messages_provenance,
+        }
+        if gen_val.get("prompt_token_ids") is not None:
+            gen_entry["prompt_token_ids"] = gen_val["prompt_token_ids"]
+        if gen_val.get("raw_prompt") is not None:
+            gen_entry["raw_prompt"] = gen_val["raw_prompt"]
+        if gen_val.get("generation_trace") is not None:
+            gen_entry["generation_trace"] = gen_val["generation_trace"]
+
         trace = {
-            "parse_status": "marker" if parsed is not None else "fail",
-            "generations": [{
-                "output": gen_val["output_text"],
-                "tokens": gen_val["measured_generated_tokens"],
-                "prompt_tokens": gen_val["measured_prompt_tokens"],
-                "max_tokens": token_budget,
-                "temperature": 0.0,
-                "enable_thinking": False,
-                "finish_reason": gen_val["finish_reason"],
-                "messages": [{"role": "user", "content": item["query"]}],
-            }],
+            "parse_status": parse_status,
+            "wordy": wordy,
+            "generations": [gen_entry],
             "tools": tools_list,
         }
+        if isinstance(gen_val.get("generation_trace"), dict):
+            for k, v in gen_val["generation_trace"].items():
+                if k not in trace and k not in ("generations", "tools"):
+                    trace[k] = v
 
         return {
             "id": item["id"],
@@ -866,6 +926,10 @@ def run_staged_collection(
             "elapsed_ms": gen_res.elapsed_ms,
             "budget_charge_tokens": gen_res.generated_tokens,
             "cost_status": "measured",
+            "raw_prompt": gen_res.raw_prompt,
+            "messages": gen_res.messages,
+            "generation_trace": gen_res.generation_trace,
+            "prompt_token_ids": gen_res.prompt_token_ids,
         }
         checkpoint.append_event("generation_outcome", attempt_id, cond_key, gen_payload)
         checkpoint.attempts[attempt_id]["generation_outcome"] = gen_payload

@@ -17,7 +17,7 @@ from rat.ui.chat_session import ConversationHistory
 from rat.ui.quick_pdf_controller import QuickPDFController
 from rat.ui.quick_app import bind_desk_window
 from rat.engine.assistant_runtime import AgentResponse
-from tests.test_quick_pdf import click, wait_for
+from tests.test_quick_pdf import click, wait_for, find_item
 from tests.test_selected_pdf import write_pdf
 
 
@@ -58,6 +58,28 @@ def test_answer_formatting_keeps_content_and_never_creates_resource_elements(app
     assert title_font.pixelSize() > body_font.pixelSize()
 
 
+def test_answer_html_renders_tables_blockquotes_and_code_cards_without_resource_tags(app):
+    raw = (
+        "## Bảng tổng hợp\n\n"
+        "| Tiêu chí | Học kỳ chính | Học kỳ hè |\n"
+        "| :--- | :---: | ---: |\n"
+        "| Tín chỉ tối đa | **24** | `12` |\n\n"
+        "> Lưu ý *quan trọng*: kiểm tra điều kiện tiên quyết.\n\n"
+        "```python\ndef check_limit(credits: int) -> bool:\n    return credits <= 24\n```"
+    )
+    for dark in (False, True):
+        rendered = answer_html(raw, dark=dark)
+        assert "<table" in rendered and "<th" in rendered and "<td" in rendered
+        assert "PYTHON" in rendered
+        for forbidden in ("<img", "<a ", "<script", "<iframe", "<object"):
+            assert forbidden not in rendered.lower()
+        doc = QTextDocument()
+        doc.setHtml(rendered)
+        plain = doc.toPlainText()
+        for expected in ("Bảng tổng hợp", "Tiêu chí", "Học kỳ chính", "24", "12", "Lưu ý quan trọng", "def check_limit"):
+            assert expected in plain
+
+
 def test_source_pages_are_explicit_and_scoped_to_the_selected_pdf(tmp_path):
     path = tmp_path / 'source.pdf'
     rows = source_rows([
@@ -74,7 +96,97 @@ def test_source_pages_are_explicit_and_scoped_to_the_selected_pdf(tmp_path):
     assert not rows[3]['canOpen'] and not rows[4]['canOpen'] and not rows[5]['canOpen']
 
 
-def complete_fixture(controller, query, answer, sources, verification='UNKNOWN'):
+def test_pdf_source_reference_labels_with_section_and_missing_pages(tmp_path):
+    path = tmp_path / 'Source.pdf'
+    rows = source_rows([
+        # 1. Page with section metadata
+        {'path': str(path), 'page': 3, 'section': '3. Phương pháp nghiên cứu'},
+        # 2. Page with section_title in provenance
+        {'path': str(path), 'page': 5, 'provenance': {'section_title': 'Kết quả thực nghiệm'}},
+        # 3. Page without section metadata -> never defaults to Abstract
+        {'path': str(path), 'page': 1},
+        # 4. Missing page number -> Chưa xác định trang, never defaults to 1
+        {'path': str(path), 'section': 'Tổng quan'},
+        {'path': str(path)},
+        # 5. Invalid page number (0 or bool)
+        {'path': str(path), 'page': 0},
+        {'path': str(path), 'page_num': True},
+    ], path, 10)
+
+    assert rows[0]['label'] == 'Trang 3 · 3. Phương pháp nghiên cứu'
+    assert rows[0]['section'] == '3. Phương pháp nghiên cứu'
+    assert rows[0]['canOpen'] is True
+
+    assert rows[1]['label'] == 'Trang 5 · Kết quả thực nghiệm'
+    assert rows[1]['section'] == 'Kết quả thực nghiệm'
+    assert rows[1]['canOpen'] is True
+
+    assert rows[2]['label'] == 'Trang 1'
+    assert rows[2]['section'] == ''
+    assert 'Abstract' not in rows[2]['label']
+    assert rows[2]['canOpen'] is True
+
+    assert rows[3]['label'] == 'Chưa xác định trang'
+    assert rows[3]['page'] == 0
+    assert rows[3]['canOpen'] is False
+
+    assert rows[4]['label'] == 'Chưa xác định trang'
+    assert rows[4]['page'] == 0
+    assert rows[4]['canOpen'] is False
+
+    assert rows[5]['label'] == 'Chưa xác định trang'
+    assert rows[5]['page'] == 0
+    assert rows[5]['canOpen'] is False
+
+    assert rows[6]['label'] == 'Chưa xác định trang'
+    assert rows[6]['page'] == 0
+    assert rows[6]['canOpen'] is False
+
+
+def test_qml_source_reference_button_text_and_disabled_state(app, tmp_path):
+    from PyQt6.QtQuick import QQuickItem, QQuickView
+    from PyQt6.QtCore import QUrl
+    from rat.ui.quick_app import bind_desk_window
+    
+    path = write_pdf(tmp_path / 'Doc.pdf', ['Page 1', 'Page 2'])
+    controller = QuickPDFController(auto_init_finder=False)
+    controller.ready()
+    controller.selectFile(str(path))
+    wait_for(lambda: not controller.snapshot['busy'])
+    complete_fixture(controller, 'Hỏi', 'Đáp', [
+        {'path': str(path), 'page': 2, 'section': 'Phương pháp'},
+        {'path': str(path)},  # missing page
+    ])
+    view = QQuickView()
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({'liveController': controller, 'reduceMotion': True})
+    view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / 'rat/ui/quick/PDFDesk.qml')))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.resize(600, 550)
+    timer = bind_desk_window(view)
+    view.show()
+    try:
+        QTest.qWait(50)
+        click(view, root, 'answerSourcesToggle')
+        QTest.qWait(50)
+        btn0 = find_item(root, 'openAnswerSource_0')
+        btn1 = find_item(root, 'openAnswerSource_1')
+        assert btn0 is not None and btn0.isVisible()
+        assert btn0.property('text') == 'Trang 2 · Phương pháp'
+        assert btn0.property('enabled') is True
+        
+        assert btn1 is not None and btn1.isVisible()
+        assert btn1.property('text') == 'Chưa xác định trang'
+        assert btn1.property('enabled') is False
+        assert not controller.openAnswerSource(1)
+    finally:
+        timer.stop()
+        controller.close()
+        view.close()
+
+
+def complete_fixture(controller, query, answer, sources, verification='UNKNOWN', expanded=True):
     turn = controller.conversation.begin_turn(query)
     controller._current_turn_id = turn.turn_id
     controller._current_execution_id = turn.execution_id
@@ -84,6 +196,8 @@ def complete_fixture(controller, query, answer, sources, verification='UNKNOWN')
         answer, [], 0, 0, 0, sources=sources, execution_id=turn.execution_id,
         answer_verification_status=verification,
     ))
+    if expanded:
+        controller.setExpanded(True)
     return turn.turn_id
 
 
@@ -170,10 +284,10 @@ def test_answer_copy_and_source_page_journey(app, tmp_path, width, dark):
         click(view, root, 'copyCitation')
         assert copied[-1] == original  # Markdown source is copied in full, not normalized HTML.
         click(view, root, 'documentMenu')
-        assert controller._page is None  # Merely opening the picker is never a page-1 citation.
-        popup = root.findChild(__import__('PyQt6.QtCore', fromlist=['QObject']).QObject, 'documentPopup')
-        QMetaObject.invokeMethod(popup, 'close')
-        QTest.qWait(20)
+        wait_for(lambda: controller.snapshot['view'] == 'page')
+        assert controller.snapshot['canBackToAnswer']
+        click(view, root, 'backToAnswer')
+        assert controller.snapshot['view'] == 'answer'
         click(view, root, 'answerSourcesToggle')
         assert root.property('answerSourcesOpen')
         editor = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'draftEditor')
@@ -184,13 +298,12 @@ def test_answer_copy_and_source_page_journey(app, tmp_path, width, dark):
         click(view, root, 'liveFoldButton')
         assert not paper.isVisible() and chip.isVisible() and menu.isVisible()
         assert view.height() < 310
-        # PDF controls still work in the mode users spend most of their time in.
+        # PDF controls still work in the mode users spend most of their time in: clicking chip returns to page.
         click(view, root, 'documentMenu')
-        assert popup.property('visible')
-        QTest.keyClick(view, Qt.Key.Key_Escape)
-        QTest.qWait(20)
-        assert not popup.property('visible')
-        click(view, root, 'notice')
+        wait_for(lambda: controller.snapshot['view'] == 'page')
+        assert paper.isVisible()
+        click(view, root, 'backToAnswer')
+        assert controller.snapshot['view'] == 'answer'
         assert paper.isVisible() and root.property('answerSourcesOpen')
         assert answer_item.property('selectedText') == selected
         assert editor.property('text') == 'Câu hỏi tiếp theo chưa gửi'
@@ -200,6 +313,9 @@ def test_answer_copy_and_source_page_journey(app, tmp_path, width, dark):
         wait_for(lambda: not controller.snapshot['busy'])
         assert controller.snapshot['pageNumber'] == 2
         assert 'Actual evidence' in controller.snapshot['pageText']
+        assert controller.snapshot['canBackToAnswer']
+        click(view, root, 'backToAnswer')
+        assert controller.snapshot['view'] == 'answer'
         assert warnings == []
     finally:
         timer.stop()

@@ -133,18 +133,20 @@ def test_real_qml_search_read_copy_back_error_and_draft(app, controller, tmp_pat
         assert "log n comparisons" in controller.snapshot["pageText"]
         if capture:
             assert view.grabWindow().save(str(Path(capture) / "pdf-page.png"))
-        page_text = root.findChild(QQuickItem, "pageText")
-        content = controller.snapshot["pageText"]
+        target_item = root.findChild(QQuickItem, "matchedExcerptText")
+        if target_item is None or not target_item.isVisible():
+            target_item = root.findChild(QQuickItem, "pageText")
+        content = controller.snapshot.get("rawMatchedSnippet") or controller.snapshot["pageText"]
         start = content.index("log n")
-        page_text.select(start, start + len("log n comparisons"))
+        target_item.select(start, start + len("log n comparisons"))
         click(view, root, "copyCitation")
         assert copied[-1].startswith("log n comparisons\n\n")
         assert "trang PDF 30" in copied[-1] and "Book-30" in copied[-1]
         assert str(path) in copied[-1]
-        selection = (page_text.property("selectionStart"), page_text.property("selectionEnd"))
+        selection = (target_item.property("selectionStart"), target_item.property("selectionEnd"))
         click(view, root, "liveFoldButton")
         click(view, root, "notice")
-        assert (page_text.property("selectionStart"), page_text.property("selectionEnd")) == selection
+        assert (target_item.property("selectionStart"), target_item.property("selectionEnd")) == selection
         click(view, root, "backToSearch")
         assert controller.snapshot["items"][0]["page"] == 30
         click(view, root, "liveFoldButton")
@@ -445,6 +447,9 @@ def test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot(app, tmp_path
         click(view, root, "sourceSnapshot_0")
         wait_for(lambda: not control.snapshot["busy"] and control.snapshot["view"] == "page")
         assert control.snapshot["pageNumber"] == 2
+        assert control.snapshot["canBackToAnswer"]
+        click(view, root, "backToAnswer")
+        assert control.snapshot["view"] == "answer"
         assert warnings == []
     finally:
         timer.stop()
@@ -455,3 +460,255 @@ def test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot(app, tmp_path
         view.deleteLater()
         control.deleteLater()
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
+def test_build10_seamless_reader_and_navigation_suite(app, controller, tmp_path):
+    """Build 2026.10.24.10: Seamless reader navigation, bounds check, full page snapshot, and return to answer."""
+    path = write_pdf(tmp_path / "MultiPage.pdf", ["Page 1 content", "Page 2 content", "Page 3 content"])
+    controller.openPdfDocument(str(path))
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page")
+    assert controller.snapshot["pageNumber"] == 1
+    assert controller.snapshot["pageCount"] == 3
+    assert controller.snapshot["expanded"]
+
+    # 1. Bounds check on prevPage (cannot go < 1)
+    assert not controller.prevPage()
+    assert controller.snapshot["pageNumber"] == 1
+
+    # 2. Next page advances to 2 and 3
+    assert controller.nextPage()
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["pageNumber"] == 2)
+    assert controller.nextPage()
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["pageNumber"] == 3)
+
+    # 3. Bounds check on nextPage (cannot go > pageCount)
+    assert not controller.nextPage()
+    assert controller.snapshot["pageNumber"] == 3
+
+    # 4. Prev page returns to 2
+    assert controller.prevPage()
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["pageNumber"] == 2)
+
+    # 5. Full page snapshot rendering & LRU cache
+    data_url = controller.fullPageSnapshot(str(path), 2, 800)
+    assert data_url.startswith("data:image/png;base64,")
+    # Security check: rejected for unauthorized path
+    other_path = write_pdf(tmp_path / "Unauthorized.pdf", ["Secret"])
+    assert controller.fullPageSnapshot(str(other_path), 1, 800) == ""
+
+    # 6. Jump to PDF page from Answer and return to Answer without model call
+    controller._last_assistant_answer = "Câu trả lời có sẵn"
+    controller._view = "answer"
+    controller.jumpToPdfPage(3)
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page")
+    assert controller.snapshot["pageNumber"] == 3
+    assert controller.snapshot["canBackToAnswer"]
+    controller.backToAnswer()
+    assert controller.snapshot["view"] == "answer"
+    assert controller.snapshot["answerText"] == "Câu trả lời có sẵn"
+
+
+def test_header_controls_bounds_and_mode_instructions(app, controller, tmp_path):
+    path = write_pdf(tmp_path / "BoundsDoc.pdf", ["Page 1 text", "Page 2 text", "Page 3 binary search log n"])
+    controller.selectFile(str(path), auto_read=True)
+    wait_for(lambda: not controller.snapshot["busy"])
+    view = QQuickView()
+    view.setColor(Qt.GlobalColor.transparent)
+    warnings = []
+    view.engine().warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(PROJECT / "rat/ui/quick/PDFDesk.qml")))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.resize(520, round(root.property("preferredWindowHeight")))
+    timer = bind_desk_window(view)
+    view.show()
+    try:
+        # Simulate opening from Answer source reference so canBackToAnswer is True
+        controller._last_assistant_answer = "Câu trả lời trước"
+        controller._last_answer_sources = [{"path": str(path), "page": 1, "snippet": "Page 1 text"}]
+        controller.openAnswerSource(0)
+        wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page")
+
+        # Test bounds at both narrow 520px and wider 700px
+        for width in [520, 700]:
+            view.resize(width, round(root.property("preferredWindowHeight")))
+            QTest.qWait(50)
+            paper = root.findChild(QQuickItem, "resultPaper")
+            copy = root.findChild(QQuickItem, "copyCitation")
+            fold = root.findChild(QQuickItem, "liveFoldButton")
+            assert paper is not None and copy is not None and fold is not None
+            paper_scene = paper.mapToScene(QPointF(0, 0))
+            paper_right = paper_scene.x() + paper.width()
+            copy_right = copy.mapToScene(QPointF(0, 0)).x() + copy.width()
+            fold_right = fold.mapToScene(QPointF(0, 0)).x() + fold.width()
+            assert copy_right <= paper_right + 1.0, f"copyCitation right ({copy_right}) exceeds paper right ({paper_right}) at width {width}"
+            assert fold_right <= paper_right + 1.0, f"liveFoldButton right ({fold_right}) exceeds paper right ({paper_right}) at width {width}"
+            assert fold_right <= view.width(), f"liveFoldButton exceeds window width at {width}"
+
+        # Test P2: Visual mode must NOT show selection instruction
+        root.setProperty("readerDisplayMode", "visual")
+        QTest.qWait(30)
+        page_instructions = [child for child in root.findChildren(QQuickItem)
+                             if hasattr(child, "property") and "Bôi chọn đoạn cần lấy" in str(child.property("text") or "")]
+        assert len(page_instructions) == 0, "Visual mode must not show text selection instruction"
+
+        # Switch to text mode: selection instruction is now appropriate
+        root.setProperty("readerDisplayMode", "text")
+        QTest.qWait(30)
+        page_instructions_text = [child for child in root.findChildren(QQuickItem)
+                                  if hasattr(child, "property") and "Bôi chọn đoạn cần lấy" in str(child.property("text") or "")]
+        assert len(page_instructions_text) > 0, "Text mode should show text selection instruction"
+    finally:
+        view.close()
+
+
+def test_source_metadata_title_and_composer_footer_presentation(app, controller, tmp_path):
+    """Test Build 2026.10.24.11 source title 'Nguồn · Trang N/M', filename subtitle, and clean composer footer."""
+    path = write_pdf(tmp_path / "SourceDoc.pdf", ["Page 1 intro", "Page 2 analysis", "Page 3 conclusion"])
+    controller.openPdfDocument(str(path))
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page")
+
+    view = QQuickView()
+    view.setColor(Qt.GlobalColor.transparent)
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(PROJECT / "rat/ui/quick/PDFDesk.qml")))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.resize(520, round(root.property("preferredWindowHeight")))
+    timer = bind_desk_window(view)
+    view.show()
+    try:
+        QTest.qWait(100)
+        title_item = root.findChild(QQuickItem, "pageSourceTitle")
+        assert title_item is not None
+        assert title_item.property("text") == "Nguồn · Trang 1/3"
+
+        meta_item = root.findChild(QQuickItem, "pageMetadataLabel")
+        assert meta_item is not None
+        assert meta_item.property("text") == "SourceDoc.pdf"
+
+        composer_status = root.findChild(QQuickItem, "composerDropStatus")
+        assert composer_status is not None
+        status_text = composer_status.property("text")
+        assert "Trang" not in status_text
+        assert status_text == "↵ hỏi Chuột · ⌘F tìm chữ trong PDF"
+    finally:
+        view.close()
+
+
+def test_search_hit_opens_matched_excerpt_mode_suite(app, controller, tmp_path):
+    """Test Build 2026.10.24.12: Search hit opens matched excerpt view, highlights keyword, copies snippet, and toggles visual page."""
+    path = write_pdf(tmp_path / "MatchDoc.pdf", [
+        "Page 1: Overview of concepts and principles.",
+        "Page 2: Deep analysis of routing heuristics for optimization.",
+        "Page 3: Evaluation results and benchmarks."
+    ])
+    controller.selectFile(str(path))
+    wait_for(lambda: not controller.snapshot["busy"])
+    controller.search("routing")
+    wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "search")
+    assert len(controller.snapshot["items"]) >= 1
+
+    copied_texts = []
+    controller.copyReady.connect(copied_texts.append)
+
+    view = QQuickView()
+    view.setColor(Qt.GlobalColor.transparent)
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(PROJECT / "rat/ui/quick/PDFDesk.qml")))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.resize(520, round(root.property("preferredWindowHeight")))
+    timer = bind_desk_window(view)
+    view.show()
+    try:
+        QTest.qWait(100)
+        # Type a draft in composer
+        draft_ed = root.findChild(QQuickItem, "draftEditor")
+        assert draft_ed is not None
+        draft_ed.setProperty("text", "Draft question being composed")
+
+        # Open workbench from min mode notice card
+        click(view, root, "notice")
+        assert root.property("expanded")
+
+        # 1. Click read hit button on page 2
+        click(view, root, "readHit_2")
+        wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page")
+        assert controller.snapshot["pageNumber"] == 2
+        assert controller.snapshot["hasMatchedSnippet"]
+        assert controller.snapshot["sourceKind"] == "search_hit"
+
+        # 2. Check title: 'Nguồn · Trang 2' and filename
+        title_item = root.findChild(QQuickItem, "pageSourceTitle")
+        assert title_item is not None
+        assert title_item.property("text") == "Nguồn · Trang 2"
+
+        meta_item = root.findChild(QQuickItem, "pageMetadataLabel")
+        assert meta_item is not None
+        assert meta_item.property("text") == "MatchDoc.pdf"
+
+        # 3. Check matched excerpt text contains keyword and highlight
+        excerpt_item = root.findChild(QQuickItem, "matchedExcerptText")
+        assert excerpt_item is not None and excerpt_item.isVisible()
+        excerpt_html = excerpt_item.property("text")
+        assert "routing" in excerpt_html.lower()
+        assert "background-color" in excerpt_html
+
+        # 4. Assert switcher does NOT exist and openOriginalExternal exists
+        assert root.findChild(QQuickItem, "readerModeToggle") is None
+        open_ext_btn = root.findChild(QQuickItem, "openOriginalExternal")
+        assert open_ext_btn is not None and open_ext_btn.isVisible()
+
+        # 5. Copy button is 'Chép đoạn'
+        copy_btn = root.findChild(QQuickItem, "copyCitation")
+        assert copy_btn is not None and copy_btn.isVisible()
+        assert copy_btn.property("text") == "Chép đoạn"
+
+        # 6. Click copy citation -> verify REAL clipboard contents
+        click(view, root, "copyCitation")
+        wait_for(lambda: len(copied_texts) == 1)
+        assert app.clipboard().text() == copied_texts[0]
+        assert "routing" in app.clipboard().text().lower()
+        assert "MatchDoc.pdf" in app.clipboard().text()
+        assert "trang PDF 2" in app.clipboard().text()
+        assert copy_btn.property("text") == "Đã chép"
+
+        # 7. Test partial text selection copying
+        excerpt_item.select(0, 13)
+        assert excerpt_item.property("selectedText") != ""
+        click(view, root, "copyCitation")
+        wait_for(lambda: len(copied_texts) == 2)
+        assert app.clipboard().text() == copied_texts[1]
+        assert excerpt_item.property("selectedText").strip() in app.clipboard().text()
+
+        # 8. Test reading page without matched hit -> shows fallback "Chưa có đoạn trích cho trang này."
+        controller.readPage(3)
+        wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["pageNumber"] == 3)
+        assert not controller.snapshot["hasMatchedSnippet"]
+        fallback_btn = root.findChild(QQuickItem, "openOriginalFallback")
+        assert fallback_btn is not None and fallback_btn.isVisible()
+
+        # 9. Test backToSearch preserves draft and keyword
+        click(view, root, "backToSearch")
+        wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "search")
+        assert draft_ed.property("text") == "Draft question being composed"
+        assert controller.snapshot["searchQuery"] == "routing"
+
+        # 10. Test openOriginal does not clear draft or disturb flow
+        opened_urls = []
+        controller._open_url = lambda url: opened_urls.append(url) or True
+        assert controller.openOriginal()
+        assert len(opened_urls) == 1
+        assert "MatchDoc.pdf" in opened_urls[0].toString()
+        assert draft_ed.property("text") == "Draft question being composed"
+    finally:
+        view.close()
+
+
+
+

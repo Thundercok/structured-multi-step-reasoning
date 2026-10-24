@@ -1,0 +1,33 @@
+{
+  "h1_dispatch_binding": {
+    "mismatch_rejected_with_value_error": true,
+    "runner_dispatches": 0,
+    "journal_events_written": 0,
+    "manifest_calls_started": 0
+  },
+  "h3_collection_cost_reporting": {
+    "full_collection_generation_calls": 6,
+    "actual_calls_completed": 6,
+    "full_collection_generated_tokens": 1500,
+    "actual_generated_tokens": 1500,
+    "validation_only_calls": 3,
+    "validation_only_tokens": 450,
+    "fitting_only_calls": 3,
+    "fitting_only_tokens": 1050,
+    "costs_differ": true
+  },
+  "h2_measured_gate_enforcement": {
+    "non_synthetic_staged_evidence_rejected": true,
+    "measured_seal_written": false
+  },
+  "source_sha256": {
+    "experiments/gsm8k_collector.py": "4464c25dc5958c8e29b33a92577ba83c430a9065597e031d376e0cec6b21dfe9",
+    "experiments/gsm8k_routing_baseline.py": "9c855b31b29cc34e55a803dc75c9e9fdea40fefa27864dc522544c2545012760",
+    "experiments/research_study.py": "11b1fa61852f6e6b3589d8c7b006692b412b085750a887ea12100187725a2ae4",
+    "tests/test_gsm8k_collector.py": "5842e24d12d87a81dffd21398fa1087c16f0536053597cf3e2704579f520ecac"
+  },
+  "new_model_calls": 0,
+  "candidate_content_read": false,
+  "stage0_changed": false,
+  "all_checks_passed": true
+}

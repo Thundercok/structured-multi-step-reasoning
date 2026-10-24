@@ -1,23 +1,17 @@
-"""
-rat.engine.contradiction_auditor — Unified Contradiction Auditor & Monotonic Step Integrity Guard.
+"""Contradiction auditor: CPU-only, no LLM verifier.
 
-Integrates:
-1. Exact Claude Reference Engine (normalize -> is_telemetry -> atoms -> extract -> match -> audit -> gate)
-2. CI Invariant checker & Unknown condition counter
-3. query condition inference (infer_query_condition)
-4. Full backward-compatibility adapter for ContradictionAuditor, ContradictionType, AuditFinding, ContradictionReport
+normalize (offset-preserving) -> telemetry gate -> atoms (condition / entity / outcome / spans)
+-> extract (Tup) -> audit (per-condition buckets over interval semantics) -> report (annotations + coverage).
 """
 from __future__ import annotations
 
-import logging
 import re
 import time
-from dataclasses import asdict, dataclass, field
+import unicodedata
+from dataclasses import dataclass, replace
 from enum import Enum, auto
 from math import inf
 from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Set, Tuple
-
-logger = logging.getLogger("rat.engine.contradiction_auditor")
 
 
 # ───────────────────────── types ─────────────────────────
@@ -73,6 +67,12 @@ class Atom:
     entity: Ent
     outcome: str | None
     neg: bool
+    start: int = -1                     # clause span in the ORIGINAL answer text
+    end: int = -1
+    scope_src: str | None = None        # HEADER (line above) | INLINE (cue inside the clause) | None
+    scope_start: int = -1               # span of the header line / the inline cue
+    scope_end: int = -1
+    per_semester: bool = False
 
 
 @dataclass(frozen=True)
@@ -80,6 +80,26 @@ class Finding:
     text: str
     tup: Tup | None
     result: Res
+    span: tuple = (-1, -1)
+    scope_src: str | None = None
+    scope_span: tuple = (-1, -1)
+
+
+@dataclass(frozen=True)
+class Annotation:
+    kind: str            # verdict name
+    reason: str
+    start: int
+    end: int
+    anchor: str          # HEADER: one label on the header line / CLAUSE: label on the clause
+
+
+@dataclass(frozen=True)
+class AuditReport:
+    findings: list
+    annotations: list
+    summary: dict
+    gate: str
 
 
 # ───────────────────────── lexicons ─────────────────────────
@@ -89,20 +109,31 @@ PROGRAM = {
     "vlvh": "part-time", "sau đại học": "postgrad", "thạc sĩ": "postgrad", "tiến sĩ": "postgrad",
     "liên thông": "transfer", "từ xa": "distance",
 }
-_HE = r"hệ\s+(?:" + "|".join(sorted(map(re.escape, PROGRAM), key=len, reverse=True)) + r")\b"
+_PROG_ALT = "|".join(sorted(map(re.escape, PROGRAM), key=len, reverse=True))
+_HE = rf"hệ\s+(?:{_PROG_ALT})\b"
 _LEAD = r"(?:đối\s+với|với|ở|còn|riêng|trong\s+khi)\s+(?:đối\s+với\s+)?"
+# words that may legitimately follow a programme name; anything else means the name is longer than the lexicon knows
+_PRED = (r"(?:học|đào\s+tạo|có|được|phải|cần|yêu\s+cầu|tối|ít|không|là|thì|sẽ|bắt\s+buộc|tốt\s+nghiệp|thời\s+gian"
+         r"|quy\s+định|cho\s+phép|kéo\s+dài|hoàn\s+thành|đạt|tích\s+lũy|sinh\s+viên|SV|chỉ|mới|vẫn|đã|nếu|khi|bị|xét"
+         r"|nợ|bảo\s+lưu|dưới|trên|từ|đủ|chuẩn|cpa|gpa|toeic|ielts|mức|điểm|số|tín\s+chỉ|năm|tháng|học\s+kỳ)")
 _CUE = re.compile(rf"^(?:{_LEAD})?(?P<h>{_HE})\s*[,:]?\s*", re.I)
-# canary: detection only. 'hệ <unknown>' -> UNKNOWN:<x>. Stoplist = other senses of "hệ" (finite, stable).
+_AFTER_PROG = re.compile(rf"^\s*(?:$|[,:;)]|\d|[<>≤≥=]|{_PRED}\b)", re.I)
+_EXT = re.compile(rf"(?P<w>(?:(?!{_PRED}\b)[^\s,:;()\d]+\s+){{0,3}}(?!{_PRED}\b)[^\s,:;()\d]+)", re.I)
+# canary: detection only. 'hệ <unknown>' -> UNKNOWN:<x>. Stoplist = other senses of "hệ" (finite, stable);
+# a digit is a programme name only when followed by năm/học kỳ ("hệ 5 năm"), else it is a grading scale ("hệ 4").
 _CANARY = re.compile(
-    rf"^(?:{_LEAD})?hệ\s+(?!thống\b|số\b|quả\b|\d)(?P<x>[^,:;\n\d]+?)"
+    rf"^(?:{_LEAD})?hệ\s+(?!thống\b|số\b|quả\b|\d+(?:[.,]\d+)?(?![.,]?\d)(?!\s*(?:năm|học\s+kỳ)\b))"
+    r"(?P<x>\d+(?:[.,]\d+)?\s*(?:năm|học\s+kỳ)\b[^,:;\n\d]*?|[^,:;\n\d]+?)"
     r"(?:\s*:\s*|\s*$|\s+(?=(?:tối|ít|không|phải|cần|được|có|là)\b))", re.I)
-_MID = re.compile(rf"(?:của|ở|cho|đối\s+với)\s+(?P<h>{_HE})", re.I)
+_MID = re.compile(rf"(?:của|ở|cho|đối\s+với|\()\s*(?P<h>{_HE})", re.I)
 
 _KEYMETRIC = [("toeic", re.compile(r"toeic", re.I), "score"),
               ("ielts", re.compile(r"ielts", re.I), "score"),
               ("cpa", re.compile(r"\b(?:cpa|gpa)\b", re.I), "point")]
 _UNITMAP = {"năm": ("duration", "year", 1), "tháng": ("duration", "year", 12),
             "học kỳ": ("duration", "semester", 1), "tín chỉ": ("credits", "credit", 1)}
+_PER = re.compile(r"(?:mỗi|một|/)\s*(?:học\s+kỳ|kỳ)\b", re.I)                       # "15 tín chỉ mỗi học kỳ"
+_REMAIN = re.compile(r"\bcòn(?:\s+lại)?(?:\s+(?:tối\s+đa|ít\s+nhất|khoảng))?\s*$", re.I)   # "còn tối đa 1 năm"
 
 _OUTCOMES = [("EXPEL", re.compile(r"buộc\s+thôi\s+học|thôi\s+học|đình\s+chỉ\s+học", re.I)),
              ("PASS", re.compile(r"đạt\s+chuẩn|đạt\s+yêu\s+cầu|đủ\s+điều\s+kiện|đủ\s+chuẩn|đáp\s+ứng", re.I)),
@@ -113,12 +144,14 @@ _SUBJ = re.compile(r"\b(?:SV|[Ss]inh viên)\b")
 # "có" is ambiguous ("Hệ X có thời gian…" vs "SV có CPA…") so it needs an explicit SV subject.
 _STRONG = re.compile(r"\b(?:đạt|đã|đang|hoàn thành|tích lũy)\b", re.I)
 _WEAK = re.compile(r"\bcó\b", re.I)
-_NAMED = re.compile(r"^(?:(?:SV|[Ss]inh viên)\s+)?(\w+)\s+(?:đạt|được|có|bị|đã|học|hoàn thành|tích lũy)\b")
+_NAMED = re.compile(r"^(?:(?:SV|[Ss]inh viên)\s+)?(\w+)\s+(?:chỉ\s+|mới\s+)?(?:đạt|được|có|bị|đã|học|hoàn thành|tích lũy)\b")
+_NOT_A_NAME = {"được", "bị", "có", "đã", "đang", "học", "đạt", "hoàn", "tích", "không", "chưa", "chẳng",
+               "sẽ", "cần", "phải", "nếu", "khi", "thì", "mỗi", "mọi", "các", "những", "một", "chỉ", "mới"}
 
 _CUES = [(re.compile(p, re.I), op) for p, op in [
     (r"không\s+(?:thấp|ít)\s+hơn|không\s+dưới|\btối\s+thiểu|\bít\s+nhất|\bphải\b"
      r"|\bcần(?:\s+(?:đạt|có))?\b|yêu\s+cầu(?:\s+(?:đạt|có))?|≥|>=", ">="),
-    (r"không\s+(?:quá|vượt\s+quá|cao\s+hơn)|\btối\s+đa|nhiều\s+nhất|≤|<=", "<="),
+    (r"không\s+(?:được\s+)?(?:\w+\s+){0,2}?(?:quá|vượt\s+quá|cao\s+hơn)|\btối\s+đa|nhiều\s+nhất|≤|<=", "<="),
     (r"\bdưới|thấp\s+hơn|<", "<"),
     (r"\btrên|vượt\s+quá|cao\s+hơn|>", ">"),
 ]]
@@ -135,21 +168,61 @@ _SENT = re.compile(r"(?<=[.!?])\s+")
 # comma splits only before whitespace so decimal commas ("1,2") survive
 _COORD = re.compile(r"\s+(?:và|hoặc|đồng thời)\s+|[,;]\s+|;|\s+(?=(?:còn|riêng|trong khi)\s+hệ\b)", re.I)
 _BUL = re.compile(r"^\s*(?:[-*•]\s|\d{1,2}[.)]\s)")
+
+# normalisation steps (each is length-tracked so spans map back to the original answer)
+_MD = re.compile(r"\*\*|__|`|^[ \t]*#{1,6}[ \t]*|^[ \t]*>[ \t]?", re.M)
 _ARROW = re.compile(r"\s*(?:=>|⇒|→|->)\s*")
 _CITE = re.compile(r"\b(?:Điều|Khoản|Mục|Chương)\s+\d+\b", re.I)
-_STEP_PREFIX = re.compile(r"\b(?:Bước|Step)\s+\d+[:.]?\s*", re.I)
 _NUMW = {"một": 1, "hai": 2, "ba": 3, "bốn": 4, "năm": 5, "sáu": 6, "bảy": 7, "tám": 8, "chín": 9, "mười": 10}
 _NUMW_RE = re.compile(r"\b(" + "|".join(_NUMW) + r")\s+(?=(?:năm|tháng|học kỳ|tín chỉ)\b)", re.I)
+_RUOI = re.compile(r"\b(\d+)\s+(năm|tháng)\s+rưỡi\b", re.I)                                  # "4 năm rưỡi" -> 4.5 năm
+_SCALE = re.compile(r"\b(?:thang\s+(?:điểm\s+)?|hệ\s+)(?:4|10|100)\b(?!\s*(?:năm|học\s+kỳ)\b)(?![.,]\d)", re.I)
+_RESTATE = re.compile(r"\(\s*(?:tương\s+đương|tức(?:\s+là)?|khoảng|xấp\s+xỉ|nghĩa\s+là|≈|~)[^)]*\)", re.I)
+_WS = re.compile(r"[ \t]+")
+_COMBINING = re.compile(r".[̀-ͯ]+", re.S)             # NFD (macOS file names, PDF extraction) -> NFC
+_ODD_SPACE = re.compile(r"[    ]")
+_ZERO_WIDTH = re.compile(r"[\u200b\u200c\u200d\ufeff]")
+_NORM_STEPS = [
+    (_COMBINING, lambda m: unicodedata.normalize("NFC", m[0])),
+    (_ODD_SPACE, " "),
+    (_ZERO_WIDTH, ""),
+    (_MD, ""),
+    (_ARROW, " nên "),
+    (_CITE, " "),
+    (_NUMW_RE, lambda m: f"{_NUMW[m[1].lower()]} "),
+    (_RUOI, lambda m: f"{m[1]}.5 {m[2]}"),
+    (_SCALE, " "),
+    (_RESTATE, " "),
+    (_WS, " "),
+]
 
 
-# ───────────────────────── stage 0-1: normalise + telemetry ─────────────────────────
+# ───────────────────────── stage 0-1: normalise (offset-preserving) + telemetry ─────────────────────────
+def _sub(rx, repl, s, sp):
+    out, osp, last = [], [], 0
+    for m in rx.finditer(s):
+        out.append(s[last:m.start()])
+        osp.extend(sp[last:m.start()])
+        r = repl(m) if callable(repl) else repl
+        out.append(r)
+        if r:
+            osp.extend([(sp[m.start()][0], sp[m.end() - 1][1])] * len(r))
+        last = m.end()
+    out.append(s[last:])
+    osp.extend(sp[last:])
+    return "".join(out), osp
+
+
+def normalize_map(t: str):
+    """Returns (normalised text, spans) where spans[i] = (start, end) of normalised char i in the ORIGINAL text."""
+    s, sp = t, [(i, i + 1) for i in range(len(t))]
+    for rx, repl in _NORM_STEPS:
+        s, sp = _sub(rx, repl, s, sp)
+    return s, sp
+
+
 def normalize(t: str) -> str:
-    t = _ARROW.sub(" nên ", t)
-    t = _CITE.sub(" ", t)
-    t = _STEP_PREFIX.sub(" ", t)
-    t = re.sub(r"\bchỉ\s+(đạt|được|có)\b", r"\1", t, flags=re.I)
-    t = _NUMW_RE.sub(lambda m: f"{_NUMW[m[1].lower()]} ", t)
-    return re.sub(r"[ \t]+", " ", t)
+    return normalize_map(t)[0]
 
 
 def is_telemetry(s: str) -> bool:
@@ -162,29 +235,43 @@ def _cid(raw: str) -> str:
     return PROGRAM[re.sub(r"\s+", " ", re.sub(r"^hệ\s+", "", raw.strip().lower()))]
 
 
-def _take_scope(p: str, cond: str | None):
-    """Consume a leading programme cue. Returns (condition, remainder)."""
+def _resolve_program(h: str, tail: str):
+    """Known programme -> its id. Programme followed by an unexpected word ('chính quy chất lượng cao') -> UNKNOWN."""
+    if _AFTER_PROG.match(tail):
+        return _cid(h), 0
+    ext = _EXT.match(tail)
+    if not ext:
+        return _cid(h), 0
+    name = re.sub(r"^hệ\s+", "", h.lower()) + " " + ext["w"].lower()
+    return "UNKNOWN:" + re.sub(r"\s+", " ", name), ext.end()
+
+
+def _scope_cue(p: str):
+    """Leading programme cue of a fragment -> (condition, end index) or None."""
     if m := _CUE.match(p):
-        return _cid(m["h"]), p[m.end():].strip()
+        cond, extra = _resolve_program(m["h"], p[m.end():])
+        end = m.end() + extra
+        end += len(re.match(r"\s*[,:]?\s*", p[end:])[0])
+        return cond, end
     if m := _CANARY.match(p):
-        return "UNKNOWN:" + re.sub(r"\s+", " ", m["x"].strip().lower()), p[m.end():].strip()
-    return cond, p
+        return "UNKNOWN:" + re.sub(r"\s+", " ", m["x"].strip().lower()), m.end()
+    return None
 
 
 def _header_scope(line: str) -> str | None:
-    c, rest = _take_scope(line.strip(), None)
-    return c if c and not rest else None
+    s = line.strip()
+    r = _scope_cue(s)
+    return r[0] if r and not s[r[1]:].strip() else None
 
 
-_NOT_A_NAME = {"được", "bị", "có", "đã", "đang", "học", "đạt", "hoàn", "tích", "không", "chưa", "chẳng",
-               "sẽ", "cần", "phải", "nếu", "khi", "thì", "mỗi", "mọi", "các", "những", "một"}
+_NAMED_STOP = _NOT_A_NAME
 
 
 def _named(p: str) -> Ent | None:
     """Capitalised token + achievement verb. Sentence-initial function words ('Được học…', 'Không đạt…') are not names."""
     m = _NAMED.match(p)
     if (m and m[1][0].isupper() and not (m[1].isupper() and len(m[1]) > 1)
-            and m[1].lower() not in _NOT_A_NAME):
+            and m[1].lower() not in _NAMED_STOP):
         return Ent(m[1].lower(), True, frozenset({"SV"}))   # assumption: a named person here is a student
     return None
 
@@ -196,41 +283,147 @@ def _outcome(p: str):
     return None
 
 
-def _sentence_atoms(sent: str, block: str | None) -> list[Atom]:
-    cond, rows, last = block, [], GENERIC_SV
-    for p in _COORD.split(sent):
-        if not p or not p.strip():
-            continue
-        cond, p = _take_scope(p.strip(), cond)       # inline cue persists for the rest of the sentence
+def _pieces(rx, s: str):
+    out, last = [], 0
+    for m in rx.finditer(s):
+        out.append((last, m.start()))
+        last = m.end()
+    out.append((last, len(s)))
+    return out
+
+
+def _sentence_atoms(sent: str, s0: int, block, override) -> list[Atom]:
+    """`s0` = offset of `sent` in the normalised text; `override` = fixed span (table rows)."""
+    cond, src, sspan = (block[0], "HEADER", block[1]) if block else (None, None, (-1, -1))
+    rows, last, per_carry = [], GENERIC_SV, False
+    for a, b in _pieces(_COORD, sent):
+        frag = sent[a:b]
+        p = frag.strip()
         if not p:
             continue
-        local = _cid(mm["h"]) if (mm := _MID.search(p)) else cond
+        f0 = s0 + a + (len(frag) - len(frag.lstrip()))
+        if r := _scope_cue(p):
+            cond, end = r
+            src, sspan = "INLINE", (f0, f0 + end)
+            tail = p[end:]
+            f0 += end + (len(tail) - len(tail.lstrip()))
+            p = tail.strip()
+            if not p:
+                continue
+        local, lsrc, lspan = cond, src, sspan
+        if mm := _MID.search(p):
+            local, _ = _resolve_program(mm["h"], p[mm.end():])
+            lsrc, lspan = "INLINE", (f0 + mm.start("h"), f0 + mm.end("h"))
         ent = _named(p)
         last = ent or last
-        rows.append((p, local, ent or last, _outcome(p)))
+        per_here, has_num = bool(_PER.search(p)), bool(_NUM.search(p))
+        per = per_here or (per_carry and has_num)
+        per_carry = per_here and not has_num if (has_num or per_here) else per_carry
+        if override:
+            lspan = override if lsrc == "INLINE" else lspan
+        rows.append((p, local, ent or last, _outcome(p), override or (f0, f0 + len(p)), lsrc, lspan, per))
     outs = {r[3][0] for r in rows if r[3]}
     shared = next((r[3] for r in rows if r[3]), None) if len(outs) == 1 else None
-    return [Atom(p, c, e, (o or shared)[0] if (o or shared) else None, (o or shared)[1] if (o or shared) else False)
-            for p, c, e, o in rows if _NUM.search(p)]
+    res = []
+    for p, c, e, o, sp_, lsrc, lspan, per in rows:
+        if not _NUM.search(p):
+            continue
+        oc = o or shared
+        res.append(Atom(p, c, e, oc[0] if oc else None, oc[1] if oc else False,
+                        sp_[0], sp_[1], lsrc, lspan[0], lspan[1], per))
+    return res
+
+
+def _line_atoms(line: str, lo: int, block, override, stats) -> list[Atom]:
+    res = []
+    for a, b in _pieces(_SENT, line):
+        sent = line[a:b]
+        if not sent.strip() or is_telemetry(sent):
+            continue
+        stats["sentences"] += 1
+        if _NUM.search(sent):
+            stats["numeric_sentences"] += 1
+        res += _sentence_atoms(sent, lo + a, block, override)
+    return res
+
+
+def _cells(line: str):
+    return [c.strip() for c in line.strip().strip("|").split("|")]
+
+
+def _prog_text(cell: str):
+    m = re.fullmatch(rf"(?:hệ\s+)?({_PROG_ALT})", cell.strip(), re.I)
+    return m[1] if m else None
+
+
+def _table_sentences(block):
+    """Markdown table -> one synthetic sentence per numeric cell, each carrying its row span."""
+    rows = [(pos, pos + len(line), _cells(line)) for pos, line in block]
+    data = [r for r in rows if not all(re.fullmatch(r":?-{2,}:?", c.replace(" ", "")) or c == "" for c in r[2])]
+    if len(data) < 2:
+        return []
+    header, out = data[0][2], []
+    for rs, re_, cells in data[1:]:
+        for j in range(1, min(len(cells), len(header))):
+            if not _NUM.search(cells[j]):
+                continue
+            if p := _prog_text(header[j]):          # columns are programmes
+                syn = f"Hệ {p}: {cells[0]} {cells[j]}"
+            elif p := _prog_text(cells[0]):         # rows are programmes
+                syn = f"Hệ {p}: {header[j]} {cells[j]}"
+            else:
+                syn = f"{cells[0]} {header[j]} {cells[j]}"
+            out.append((syn, rs, re_))
+    return out
+
+
+def _walk(text: str):
+    norm, sp = normalize_map(text)
+
+    def orig(a: int, b: int):
+        return (sp[a][0], sp[b - 1][1]) if 0 <= a < b <= len(sp) else (-1, -1)
+
+    lines, pos = [], 0
+    for ln in norm.split("\n"):
+        lines.append((pos, ln))
+        pos += len(ln) + 1
+    stats = {"sentences": 0, "numeric_sentences": 0}
+    out, block, in_list, i = [], None, False, 0
+    while i < len(lines):
+        pos, raw = lines[i]
+        if not raw.strip():
+            block, in_list, i = None, False, i + 1
+            continue
+        if raw.lstrip().startswith("|"):
+            j = i
+            while j < len(lines) and lines[j][1].lstrip().startswith("|"):
+                j += 1
+            for syn, rs, re_ in _table_sentences(lines[i:j]):
+                out += _line_atoms(syn, 0, block, (rs, re_), stats)
+            i = j
+            continue
+        mb = _BUL.match(raw)
+        is_b, line = bool(mb), raw[mb.end():] if mb else raw
+        lo = pos + (mb.end() if mb else 0)
+        if block and in_list and not is_b:
+            block = None                              # a non-bullet line after a list closes the header block
+        if h := _header_scope(line):
+            s = lo + (len(line) - len(line.lstrip()))
+            block, in_list, i = (h, (s, lo + len(line.rstrip()))), False, i + 1
+            continue
+        in_list = in_list or is_b
+        out += _line_atoms(line, lo, block, None, stats)
+        i += 1
+    mapped = []
+    for a in out:
+        s, e = orig(a.start, a.end)
+        ss, se = orig(a.scope_start, a.scope_end)
+        mapped.append(replace(a, start=s, end=e, scope_start=ss, scope_end=se))
+    return mapped, stats
 
 
 def atoms(text: str) -> list[Atom]:
-    out, block, in_list = [], None, False
-    for raw in normalize(text).split("\n"):
-        if not raw.strip():
-            block, in_list = None, False
-            continue
-        is_b, line = bool(_BUL.match(raw)), _BUL.sub("", raw)
-        if block and in_list and not is_b:
-            block = None                              # a non-bullet line after a list closes the header block
-        if (h := _header_scope(line)):
-            block, in_list = h, False
-            continue
-        in_list = in_list or is_b
-        for sent in _SENT.split(line):
-            if sent.strip() and not is_telemetry(sent):
-                out += _sentence_atoms(sent, block)
-    return out
+    return _walk(text)[0]
 
 
 # ───────────────────────── stage 3: slot extraction ─────────────────────────
@@ -257,18 +450,30 @@ def extract(a: Atom) -> Tup | str:
         v = round(v / div, 6)
     if metric is None:
         return "no_metric"
-    op = _find_op(a.text[:n.start()], a.text[n.end():])
+    pre, post = a.text[:n.start()], a.text[n.end():]
+    if metric == "credits" and (a.per_semester or _PER.match(post.lstrip())):
+        unit = "credit/semester"                      # a per-semester load is not the programme total
+    if _REMAIN.search(pre):
+        unit += "/remaining"                          # "còn tối đa 1 năm" is time left, not the cap
+    op = _find_op(pre, post)
     fact = op == "==" and (a.entity.instance or bool(_STRONG.search(a.text))
                            or bool(_WEAK.search(a.text) and _SUBJ.search(a.text)))
     return Tup(a.entity, metric, op, v, unit, role=Role.FACT if fact else Role.NORM, outcome=a.outcome,
                verdict=(not a.neg) if (fact and a.outcome) else None, condition=a.condition, text=a.text)
 
 
+def _extract_atoms(text: str):
+    pairs, stats = _walk(text)
+    return [(a, extract(a)) for a in pairs], stats
+
+
 def extract_all(text: str):
     tups, unparsed = [], []
-    for a in atoms(text):
-        r = extract(a)
-        (unparsed if isinstance(r, str) else tups).append((a.text, r) if isinstance(r, str) else r)
+    for a, r in _extract_atoms(text)[0]:
+        if isinstance(r, str):
+            unparsed.append((a.text, r))
+        else:
+            tups.append(r)
     return tups, unparsed
 
 
@@ -382,10 +587,43 @@ def audit(clm: Tup, kb: dict, query_condition: str | None = None) -> Res:
     return Res(V.AMBIGUOUS_SCOPE, ",".join(f"{c}:{r.verdict.name}" for c, r in agg.items() if c))
 
 
+def _evasion_pass(findings: list[Finding], kb: dict, query_condition: str | None) -> list[Finding]:
+    """The query pinned a programme the KB knows, but the only claim about that metric uses a label the lexicon does
+    not know ('hệ đại trà'). If its value violates the queried programme's rule, 'unverified' would let a wrong
+    number reach the student: block. If the answer also addresses the queried programme (or is unscoped) for the
+    same metric, the unknown label is extra information and stays unverified."""
+    if query_condition is None:
+        return findings
+    out = list(findings)
+    for i, f in enumerate(findings):
+        t = f.tup
+        if t is None or f.result.verdict is not V.OUT_OF_COVERAGE or not (t.condition or "").startswith("UNKNOWN:"):
+            continue
+        key = (t.metric, t.unit)
+        if any(g.tup and (g.tup.metric, g.tup.unit) == key and g.tup.condition in (query_condition, None)
+               for g in findings):
+            continue
+        kbk = kb.get(key, [])
+        pool = [s for s in kbk if s.condition == query_condition] or [s for s in kbk if s.condition is None]
+        if pool and _bucket([match(s, t) for s in pool]).verdict is V.GROUNDING_CONFLICT:
+            out[i] = replace(f, result=Res(V.GROUNDING_CONFLICT, "query_scope_evasion"))
+    return out
+
+
+def _findings(answer: str, kb: dict, query_condition: str | None):
+    pairs, stats = _extract_atoms(answer)
+    fs = []
+    for a, r in pairs:
+        span, sspan = (a.start, a.end), (a.scope_start, a.scope_end)
+        if isinstance(r, str):
+            fs.append(Finding(a.text, None, Res(V.NOT_COMPARABLE, f"unparsed:{r}"), span, a.scope_src, sspan))
+        else:
+            fs.append(Finding(r.text, r, audit(r, kb, query_condition), span, a.scope_src, sspan))
+    return _evasion_pass(fs, kb, query_condition), stats
+
+
 def audit_text(answer: str, kb: dict, query_condition: str | None = None) -> list[Finding]:
-    tups, unparsed = extract_all(answer)
-    return ([Finding(t.text, t, audit(t, kb, query_condition)) for t in tups]
-            + [Finding(txt, None, Res(V.NOT_COMPARABLE, f"unparsed:{why}")) for txt, why in unparsed])
+    return _findings(answer, kb, query_condition)[0]
 
 
 def gate(findings: list[Finding]) -> str:
@@ -399,57 +637,67 @@ def gate(findings: list[Finding]) -> str:
     return "PASS"
 
 
-# ───────────────────────── Section 6 additions ─────────────────────────
-def infer_query_condition(query: str | None) -> str | None:
-    """Find programmes matching _HE in query. Returns PROGRAM[...] if exactly one, else None."""
-    if not query:
-        return None
-    matches = set()
-    for m in re.finditer(_HE, query, re.I):
-        prog_raw = re.sub(r"^hệ\s+", "", m.group(0).strip().lower())
-        prog_raw = re.sub(r"\s+", " ", prog_raw)
-        if prog_raw in PROGRAM:
-            matches.add(PROGRAM[prog_raw])
-    return matches.pop() if len(matches) == 1 else None
+# ───────────────────────── stage 6: report for the UI ─────────────────────────
+_LABELLED = {V.GROUNDING_CONFLICT, V.AMBIGUOUS_SCOPE, V.OUT_OF_COVERAGE, V.SCOPE_ELIDED}
+_HEADER_ANCHORED = {V.OUT_OF_COVERAGE, V.SCOPE_ELIDED}     # one label on the header covers every line under it
 
 
-def check_kb_ci_invariant(kb: dict) -> list[str]:
-    """CI check: every condition in KB (except UNKNOWN:<x>) must belong to set(PROGRAM.values())."""
-    valid = set(PROGRAM.values())
-    violations = set()
-    for tups in kb.values():
-        for t in tups:
-            if t.condition is not None and not t.condition.startswith("UNKNOWN:"):
-                if t.condition not in valid:
-                    violations.add(t.condition)
-    return sorted(violations)
+def audit_answer(answer: str, kb: dict, query_condition: str | None = None) -> AuditReport:
+    """Span annotations + answer-level coverage. There is deliberately NO 'verified' state: only quantitative
+    claims are checked, and sentences without a number are never looked at."""
+    fs, stats = _findings(answer, kb, query_condition)
+    ann, seen = [], set()
+    for f in fs:
+        v = f.result.verdict
+        if v not in _LABELLED:
+            continue
+        if v in _HEADER_ANCHORED and f.scope_src == "HEADER" and f.scope_span[0] >= 0:
+            if f.scope_span in seen:
+                continue
+            seen.add(f.scope_span)
+            ann.append(Annotation(v.name, f.result.reason, f.scope_span[0], f.scope_span[1], "HEADER"))
+        else:
+            s0 = f.span[0]
+            if f.scope_src == "INLINE" and 0 <= f.scope_span[0] < s0:
+                s0 = f.scope_span[0]                      # label covers 'Hệ X: <clause>' so the reader sees the scope
+            ann.append(Annotation(v.name, f.result.reason, s0, f.span[1], "CLAUSE"))
+    n = lambda *vs: sum(1 for f in fs if f.result.verdict in vs)
+    unparsed = sum(1 for f in fs if f.tup is None)
+    summary = {
+        "quantitative_checked": sum(1 for f in fs if f.tup is not None),
+        "satisfied": n(V.SATISFIED_BOUND), "conflict": n(V.GROUNDING_CONFLICT), "ambiguous": n(V.AMBIGUOUS_SCOPE),
+        "unverified": n(V.OUT_OF_COVERAGE, V.SCOPE_ELIDED),
+        "not_comparable": n(V.NOT_COMPARABLE) - unparsed, "unparsed": unparsed,
+        "sentences": stats["sentences"],
+        "sentences_without_numbers": stats["sentences"] - stats["numeric_sentences"],
+    }
+    summary["note"] = (f"Đã đối chiếu {summary['quantitative_checked']} mệnh đề định lượng "
+                       f"({summary['satisfied']} khớp, {summary['conflict']} mâu thuẫn, {summary['unverified']} chưa kiểm chứng); "
+                       f"{summary['sentences_without_numbers']} câu không có số chưa được tự động kiểm chứng.")
+    return AuditReport(fs, ann, summary, gate(fs))
 
 
-class UnknownConditionCounter:
-    """Tracks frequency of UNKNOWN:<x> scopes and routes frequent ones to manual review queue."""
-    def __init__(self, threshold: int = 5):
-        self.counts: Dict[str, int] = {}
-        self.review_queue: List[str] = []
-        self.threshold = threshold
-
-    def record(self, condition: str) -> None:
-        if not condition.startswith("UNKNOWN:"):
-            return
-        tag = condition.split(":", 1)[1]
-        self.counts[tag] = self.counts.get(tag, 0) + 1
-        if self.counts[tag] >= self.threshold and tag not in self.review_queue:
-            self.review_queue.append(tag)
+def copy_footer(report: AuditReport) -> str:
+    """Plain-text line to append when the answer is copied, so the warning survives pasting into Zalo etc."""
+    if any(a.kind in ("OUT_OF_COVERAGE", "SCOPE_ELIDED") for a in report.annotations):
+        return "[Lưu ý: một phần nội dung nằm ngoài phạm vi quy chế đã đối chiếu, chưa được kiểm chứng tự động.]"
+    return ""
 
 
-# ───────────────────────── Backward-compatibility layer ─────────────────────────
-class ContradictionType(str, Enum):
-    GROUNDING_CONFLICT = "grounding_conflict"
-    PREMISE_INVERSION = "premise_inversion"
-    NUMERIC_COLLISION = "numeric_collision"
-    POLICY_VIOLATION = "policy_violation"
+# ───────────────────────── Backward Compatibility Adapter ─────────────────────────
+class ContradictionType(Enum):
+    GROUNDING_CONFLICT = auto()
+    PREMISE_INVERSION = auto()
+    NUMERIC_COLLISION = auto()
+    AMBIGUOUS_SCOPE = auto()
+    OUT_OF_COVERAGE = auto()
+    SCOPE_ELIDED = auto()
+    NOT_COMPARABLE = auto()
+    DISJOINT_ENTITIES = auto()
+    SATISFIED_BOUND = auto()
 
 
-@dataclass(frozen=True)
+@dataclass
 class AuditFinding:
     is_contradiction: bool
     conflict_type: ContradictionType
@@ -458,14 +706,14 @@ class AuditFinding:
     basis: str
     conflicting_source_id: Optional[str] = None
     conflicting_step_index: Optional[int] = None
-    severity: str = "blocking"  # "blocking" | "warning"
+    severity: str = "blocking"
     explanation: str = ""
     claim_origin: str = "step"  # "step" | "answer"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "is_contradiction": self.is_contradiction,
-            "conflict_type": self.conflict_type.value,
+            "conflict_type": self.conflict_type.name,
             "step_index": self.step_index,
             "claim": self.claim,
             "basis": self.basis,
@@ -480,10 +728,10 @@ class AuditFinding:
 @dataclass
 class ContradictionReport:
     passed: bool
-    findings: List[AuditFinding] = field(default_factory=list)
-    monotonicity_score: float = 1.0
-    audited_steps_count: int = 0
-    source_evidences_count: int = 0
+    findings: List[AuditFinding]
+    monotonicity_score: float
+    audited_steps_count: int
+    source_evidences_count: int
     duration_ms: float = 0.0
     coverage_status: str = "checked"  # "checked" | "not_evaluated" | "no_evidences"
     claims_checked_count: int = 0
@@ -493,10 +741,10 @@ class ContradictionReport:
         return {
             "passed": self.passed,
             "findings": [f.to_dict() for f in self.findings],
-            "monotonicity_score": round(self.monotonicity_score, 3),
+            "monotonicity_score": self.monotonicity_score,
             "audited_steps_count": self.audited_steps_count,
             "source_evidences_count": self.source_evidences_count,
-            "duration_ms": round(self.duration_ms, 2),
+            "duration_ms": self.duration_ms,
             "coverage_status": self.coverage_status,
             "claims_checked_count": self.claims_checked_count,
             "operational_events_count": self.operational_events_count,
@@ -543,11 +791,45 @@ def extract_topic_polarity(text: str, pos_raw: str, neg_raw: str) -> Optional[st
     return None
 
 
+def infer_query_condition(query: Optional[str]) -> Optional[str]:
+    """Infers the academic programme pinned by the user query, or None.
+    
+    Returns:
+        - condition_id (e.g. "full-time", "part-time") if query pins exactly one known programme.
+        - None if query mentions multiple programmes, no programme, or an unknown/extended programme.
+    """
+    if not query:
+        return None
+    q = unicodedata.normalize("NFC", query)
+    q = re.sub(r"[\u00a0\u200b\u200c\u200d\ufeff]", " ", q)
+    
+    found = set()
+    has_unknown = False
+    
+    # 1. Use the module canary to detect unknown programme mentions starting with "hệ ..."
+    for m in re.finditer(r"(?:\b|(?<=[\s,;:.?!]))hệ\s+", q, re.I):
+        sub = q[m.start():]
+        cm = _CANARY.match(sub)
+        if cm:
+            raw_x = cm["x"].strip().lower()
+            if not any(prog in raw_x for prog in PROGRAM):
+                has_unknown = True
+                
+    # 2. Extract known programmes directly (without _EXT guessing on query)
+    for prog, cid in sorted(PROGRAM.items(), key=lambda x: len(x[0]), reverse=True):
+        pattern = re.compile(rf"\b(?:hệ\s+)?{re.escape(prog)}\b", re.I)
+        if pattern.search(q):
+            found.add(cid)
+            
+    if has_unknown:
+        return None
+    if len(found) == 1:
+        return next(iter(found))
+    return None
+
+
 def is_operational_event(text: str) -> bool:
-    return is_telemetry(text)
-
-
-def is_operational_step(text: str) -> bool:
+    """Distinguishes internal runner execution logs from domain propositions."""
     if is_telemetry(text):
         return True
     t = text.strip().lower()
@@ -561,9 +843,12 @@ def is_operational_step(text: str) -> bool:
         return True
     return False
 
+is_operational_step = is_operational_event
+
+
 class ContradictionAuditor:
     """
-    Backward-compatible auditor facade integrating the Interval Tuple Engine
+    Backward-compatible auditor facade integrating interval engine
     with reasoning step monotonicity and public answer claims auditing.
     """
     def __init__(self, strict_numeric: bool = True) -> None:
@@ -604,13 +889,15 @@ class ContradictionAuditor:
             if is_operational_step(sc):
                 operational_events_count += 1
             else:
-                claims_to_audit.append((s_idx, sc, "step"))
+                # Strip step numbering prefix like 'Bước 1:' or 'Step 1:'
+                clean_step = re.sub(r"^\s*(?:Bước|Step)\s*\d+\s*[:.]?\s*", "", sc, flags=re.I).strip()
+                claims_to_audit.append((s_idx, clean_step or sc, "step"))
 
         if answer:
             # We split answer by sentences while preserving order
             for a_idx, sent in enumerate(re.split(r"(?<=[.!?\n])\s+", answer)):
                 sc = sent.strip()
-                if sc and not is_telemetry(sc):
+                if sc and not is_operational_step(sc):
                     claims_to_audit.append((len(steps) + a_idx, sc, "answer"))
 
         claims_checked_count = len(claims_to_audit)
@@ -622,7 +909,6 @@ class ContradictionAuditor:
                 ans_findings = audit_text(answer, kb, query_condition=query_cond)
                 for f in ans_findings:
                     if f.result.verdict is V.GROUNDING_CONFLICT:
-                        # Find corresponding source_id if possible
                         matched_ev_id = None
                         if f.tup:
                             cand = kb.get((f.tup.metric, f.tup.unit), [])
@@ -637,7 +923,7 @@ class ContradictionAuditor:
                             step_index=len(steps),
                             claim=f.text,
                             basis=f.result.reason,
-                            conflicting_source_id=matched_ev_id or (evidences[0].source_id if evidences and hasattr(evidences[0], 'source_id') else None),
+                            conflicting_source_id=matched_ev_id or (getattr(evidences[0], "source_id", None) if evidences and hasattr(evidences[0], 'source_id') else (evidences[0].get("source_id") if evidences and isinstance(evidences[0], dict) else None)),
                             severity="blocking",
                             explanation=f"Mâu thuẫn quy chuẩn [{f.result.reason}]: {f.text}",
                             claim_origin="answer",
@@ -667,7 +953,6 @@ class ContradictionAuditor:
                 excerpt = getattr(ev, "excerpt", "") or (ev.get("excerpt", "") if isinstance(ev, dict) else "")
                 if not excerpt:
                     continue
-                # Non-numeric polarity inversion check
                 target_label = "Nội dung câu trả lời" if origin == "answer" else f"Bước suy luận {c_idx + 1}"
                 for pos_raw, neg_raw, desc in INVERSION_PAIRS:
                     pol_src = extract_topic_polarity(excerpt, pos_raw, neg_raw)
@@ -691,7 +976,6 @@ class ContradictionAuditor:
             idx_j, text_j = step_claims[j]
             for i in range(j):
                 idx_i, text_i = step_claims[i]
-                # Polarity inversion between steps
                 for pos_raw, neg_raw, desc in INVERSION_PAIRS:
                     pol_i = extract_topic_polarity(text_i, pos_raw, neg_raw)
                     pol_j = extract_topic_polarity(text_j, pos_raw, neg_raw)
@@ -707,7 +991,6 @@ class ContradictionAuditor:
                             explanation=f"Bước {idx_j + 1} đảo ngược tiền đề tại Bước {idx_i + 1}: {desc}",
                             claim_origin="step",
                         ))
-                # Numeric step vs step collision via interval match
                 tups_i, _ = extract_all(text_i)
                 tups_j, _ = extract_all(text_j)
                 for ti in tups_i:
@@ -736,7 +1019,6 @@ class ContradictionAuditor:
         elif claims_checked_count == 0:
             coverage = "not_evaluated"
         else:
-            # Check if any verifiable topic/metric matched between claims and evidences
             any_matched = False
             for _, claim_text, _ in claims_to_audit:
                 c_tups, _ = extract_all(claim_text)

@@ -1,0 +1,27 @@
+{
+  "kind": "agent_candidate_data_review",
+  "created_utc": "2026-10-24T14:45:46.283181+00:00",
+  "artifacts": {
+    "README.md": "2c4a2269588d4eab6788faf2c8373c8735000d94f109ac27afe47cf210f2657f",
+    "derivation_lock.json": "8e579b035da24881caf9598bef1135627ade814c7aa5255492959bc14fbf8116",
+    "gold_comparison.json": "4aec79f59482310cf47989aae92e89b846ceade0d3c3502a0e67c40bba07ee67",
+    "lexical_overlap_screen.json": "a0c68b8e4bcd89b056eb1e15b2c4284c328ae5eac7c82473cea21f9e0e7a5787",
+    "model_content_recheck.json": "2d8fc23bdc576001d1368ffc66163810830039773e0e78f7fd201cede3435b10",
+    "query_derivations_01.json": "39c4a900562dc20e9ab9e63e35693386cf984eb1fc34d9759558bfe1b8404d32",
+    "query_derivations_02.json": "b99f82b03dfdce2599028cc364696349328d6cc078617e26faf6e77ec4c53e1f",
+    "query_derivations_03.json": "72738777d6e452dd4e36df4ece914d2f6f8eb9ba7c212d7f2d0115a5f15e933c",
+    "query_derivations_04.json": "f13075c0bf8b291ab505d2e13d335eee3dfffd5a4faee4e93a09ab14b4690087",
+    "query_derivations_05.json": "d84ab3db04ddf9eb1948cc39992c5f585d97fc5ecef0d676fc1a06a366eec84e",
+    "review_ledger.csv": "bf52d311f58669169a748932ea55aaa182052e6eabb9707b07f5bc5ebeaa6daa",
+    "structural_verification.json": "d3acdbdaba2ce20ddab0a5447f556d9ba61920eb1414176a6c9d282074bf0013",
+    "verify_review.py": "1fbff6d72ebdb24b25d828e3ec50142e141fd1d0a164f1eeb9d823d20591ad5b"
+  },
+  "candidate_content_opened": true,
+  "candidate_modified": false,
+  "rule_fit": false,
+  "new_generation_calls": 0,
+  "model_loaded": false,
+  "human_review": "pending",
+  "execution_authorized": false,
+  "stage0_changed": false
+}

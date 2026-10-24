@@ -1,0 +1,100 @@
+{
+  "kind": "read_only_local_content_recheck_not_model_acceptance",
+  "time_utc": "2026-10-24T14:42:57.491655+00:00",
+  "repository": "mlx-community/Qwen3-8B-4bit",
+  "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+  "local_model_path": "/Users/thundercock2/.cache/huggingface/hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192",
+  "saved_provenance_sha256": "de8e20882c1e75c64cca38b9ba5cd53685338d69ded8c52d8762efa33877825c",
+  "file_checks": [
+    {
+      "name": "README.md",
+      "exists": true,
+      "expected": "a0cd248b30da7a23710c9290fe42ca83a84dc06593978877b1e5b32f9bd33aaf",
+      "actual": "a0cd248b30da7a23710c9290fe42ca83a84dc06593978877b1e5b32f9bd33aaf",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "added_tokens.json",
+      "exists": true,
+      "expected": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+      "actual": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "config.json",
+      "exists": true,
+      "expected": "e5485285fd7e289e76e9cffa112f6dc2e3426519082f7db9b69041589f81a218",
+      "actual": "e5485285fd7e289e76e9cffa112f6dc2e3426519082f7db9b69041589f81a218",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "merges.txt",
+      "exists": true,
+      "expected": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "actual": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "model.safetensors",
+      "exists": true,
+      "expected": "f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8",
+      "actual": "f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "model.safetensors.index.json",
+      "exists": true,
+      "expected": "3fb25463b4078b1fc27159daa605190029c2e965f533bf0b1b594f96cbfceb8a",
+      "actual": "3fb25463b4078b1fc27159daa605190029c2e965f533bf0b1b594f96cbfceb8a",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "special_tokens_map.json",
+      "exists": true,
+      "expected": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+      "actual": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "tokenizer.json",
+      "exists": true,
+      "expected": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "actual": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "tokenizer_config.json",
+      "exists": true,
+      "expected": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+      "actual": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+      "matches_saved_provenance": true
+    },
+    {
+      "name": "vocab.json",
+      "exists": true,
+      "expected": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+      "actual": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+      "matches_saved_provenance": true
+    }
+  ],
+  "all_recorded_files_match": true,
+  "recorded_files": 10,
+  "extra_files_not_in_saved_provenance": [
+    ".gitattributes"
+  ],
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "package_metadata": {
+    "numpy": "2.5.1",
+    "mlx": "0.32.2",
+    "mlx-lm": "0.31.3",
+    "scikit-learn": "1.9.0",
+    "gymnasium": "1.3.0"
+  },
+  "network_used": false,
+  "native_mlx_imported": false,
+  "model_loaded": false,
+  "new_inference_calls": 0,
+  "not_execution_freeze": true
+}

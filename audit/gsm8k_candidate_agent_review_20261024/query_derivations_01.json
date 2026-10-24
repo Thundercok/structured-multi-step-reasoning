@@ -1,0 +1,202 @@
+[
+  {
+    "id": "gsm8k-dev-07140",
+    "split": "train",
+    "query_sha256": "17b24d80cc1f91549819cddaf202a4ca7d699116de6970d18fe11c9bffafebac",
+    "expression": "4",
+    "independent_answer": "4",
+    "derivation": "400/(2**4)=25 books/group",
+    "wording_notes": "Interpret a split as a simultaneous round; individual split operations would be 15.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01408",
+    "split": "calibration",
+    "query_sha256": "7e97754b7b4e0cf2c43cad01a911a6eba6525573d83c2e9d3c9a4e0e6bc7691d",
+    "expression": "22+22*F(3,2)",
+    "independent_answer": "55",
+    "derivation": "Second price 33, total 55",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01585",
+    "split": "train",
+    "query_sha256": "7326c832a1c39c09c280264f1db751a1c312847b1377ab10c3371479ec8c9f31",
+    "expression": "10+20+2*(10+20)",
+    "independent_answer": "90",
+    "derivation": "Third10 second20 first60",
+    "wording_notes": "Show duration counts only the three interview segments.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-00900",
+    "split": "calibration",
+    "query_sha256": "79ad33c4977987bce7ddc1788a4bc0468a3f7db05983f953a0fc53747f1fdc4c",
+    "expression": "F(8*10,5)",
+    "independent_answer": "16",
+    "derivation": "80 work hours / 5",
+    "wording_notes": "One shift/day; unfinished work carries over between days.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06257",
+    "split": "train",
+    "query_sha256": "ccf021af486665c8333dd0e91869563f2c711e15dd628e50f7a9d8ced6239f23",
+    "expression": "287-F(287*4*10-10440,4)",
+    "independent_answer": "27",
+    "derivation": "Record11480; required1040/4=260; gap27",
+    "wording_notes": "Treat given bowling scores as abstract totals; real-world scoring plausibility not verified.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-05676",
+    "split": "calibration",
+    "query_sha256": "72b4abb9501779d3be1fcffbb81e2bfdd2ce76bbe63f2838b410be62220c275c",
+    "expression": "70+70+5",
+    "independent_answer": "145",
+    "derivation": "70+75",
+    "wording_notes": "Treat stated sports counts as fictional premises.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03438",
+    "split": "train",
+    "query_sha256": "43b0289d9fb575d6e8dc3faabbd15321e340e8578d2b03a72faa59caedea0434",
+    "expression": "100-100*F(1,4)-40",
+    "independent_answer": "35",
+    "derivation": "100-25-40",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01439",
+    "split": "calibration",
+    "query_sha256": "59196bc4e91bf9b04b3ef4bab2c86ba0faa6a2201ebe90ed5fa311db7bff2d35",
+    "expression": "F(80,2**4)",
+    "independent_answer": "5",
+    "derivation": "Four halvings after preparation",
+    "wording_notes": "Fourth day after preparation means four complete daily halvings.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01658",
+    "split": "train",
+    "query_sha256": "d2f1a71c64aa6e3166eab0fc5afff34e74ee5212fd44d089291b3a569a68bdfb",
+    "expression": "F(1800,3)*(5+1+3)",
+    "independent_answer": "5400",
+    "derivation": "Purity600; Sheila3000; Rose1800",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06274",
+    "split": "calibration",
+    "query_sha256": "240458b67a949f30e98c62d4320c84b980098cc8f07d0f9df3b8b83ae4b8cb1f",
+    "expression": "50+6+1",
+    "independent_answer": "57",
+    "derivation": "Stacy growth7 inches",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-04757",
+    "split": "train",
+    "query_sha256": "7c4f46b4580abb756a2a016cad750afb7fc209ef0bf81bee0aec84c2d0a72adc",
+    "expression": "F(80*10-782,1)*6",
+    "independent_answer": "108",
+    "derivation": "1.8 degrees /0.1 =18 trees; times6",
+    "wording_notes": "Linear effect specified by question.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-04489",
+    "split": "calibration",
+    "query_sha256": "3255fb5ffd53ce5b9c39c5b96ba96eeb7dfd8202eabb4ad5517f0acb5f37e64e",
+    "expression": "F(60,12)-F(60,30)",
+    "independent_answer": "3",
+    "derivation": "5h minus2h",
+    "wording_notes": "Both depart same origin/time; follows has no explicit departure delay.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01064",
+    "split": "train",
+    "query_sha256": "71ef300761bb3fc3917c1a5a7b50170fc74703b4f640be6c844951680490b930",
+    "expression": "F(720,3*12)",
+    "independent_answer": "20",
+    "derivation": "Two layers plus12 cupcakes equals36 cupcake sugar units",
+    "wording_notes": "Sugar counted per cupcake-equivalent.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-00429",
+    "split": "calibration",
+    "query_sha256": "eff1b3ce0f7cc122c3138cdffae453437cff2c6f76c4b73e0655c6063b80bb1f",
+    "expression": "(50+2*50+(2*50+20))*3",
+    "independent_answer": "810",
+    "derivation": "50+100+120+540",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06487",
+    "split": "train",
+    "query_sha256": "d3c2d8c55921cc2edc39c02bc5ce784609cfb9ab21c1a92091750d367f68ecba",
+    "expression": "F(2*(30+50),20)",
+    "independent_answer": "8",
+    "derivation": "30east->50west->home gives160 miles",
+    "wording_notes": "Direct route; no extra travel.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-00937",
+    "split": "calibration",
+    "query_sha256": "8046c95cfb9edb3662662d76b5f46d012ab9f0cf25e37306f2b137daec934246",
+    "expression": "F(18*3,2)",
+    "independent_answer": "27",
+    "derivation": "Bobbie54; Lizzie27",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06412",
+    "split": "train",
+    "query_sha256": "4e9457649eaf6717179d848e34f60945a27f6f6cb4367ad3bf00a2607645a736",
+    "expression": "4*2*3",
+    "independent_answer": "24",
+    "derivation": "Each earring 1 button and3 gems;4 pairs",
+    "wording_notes": "A set of earrings means one pair.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-05200",
+    "split": "calibration",
+    "query_sha256": "82085324960b6eee415f70a11aca60464059ee9b4a2f2e026f125853020606cf",
+    "expression": "1000*F(30-20,100)",
+    "independent_answer": "100",
+    "derivation": "Difference10 percent",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01853",
+    "split": "train",
+    "query_sha256": "6ce8a71d11347024a1b41fddba6ed1ded39071d703389986466f62291b0f683e",
+    "expression": "F(100-20,2)",
+    "independent_answer": "40",
+    "derivation": "80/2=40 days",
+    "wording_notes": "Kameron comparison target fixed at current100.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-00748",
+    "split": "calibration",
+    "query_sha256": "dc1958a43149115d776b69a8fea4a07c278d1e66ee038c93d87b007262709a3f",
+    "expression": "500+2*500",
+    "independent_answer": "1500",
+    "derivation": "500+1000",
+    "wording_notes": "",
+    "agent_review_only": true
+  }
+]

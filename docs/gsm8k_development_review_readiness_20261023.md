@@ -1,5 +1,11 @@
 # GSM8K query-only — hồ sơ chuẩn bị review, 2026-10-23
 
+**Cập nhật 2026-10-24:** phần bên dưới là snapshot trước khi review nội dung.
+Theo yêu cầu tiếp tục của người dùng, agent đã đọc và giải đủ 96 query trước
+khi so gold: 93 khớp, 3 tranh luận; human sign-off vẫn pending. Xem
+[review dữ liệu và provenance mới](../audit/gsm8k_candidate_agent_review_20261024/README.md).
+Candidate gốc không đổi, chưa fit rule hoặc gọi model; budget vẫn 0.
+
 Trạng thái: **chuẩn bị review, chưa cho chạy**. Inference/embedding budget = 0.
 Không đọc nội dung câu hỏi, source solutions hoặc outcomes của candidate 48/48;
 không fit candidate. Chỉ đối chiếu source, metadata và software evidence.

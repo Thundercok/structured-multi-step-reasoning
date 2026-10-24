@@ -24,6 +24,22 @@ không phải thông báo mọi khả năng đã hoạt động hay đã đượ
 
 ## Ưu tiên hiện tại trong RAT
 
+### PDF và chứng cứ — quyết định người dùng 2026-10-24
+
+- **Hiện tại:** người dùng hỏi thông tin cần tìm, nội dung đó thế nào và ở
+  trang mấy; RAT trả lời gọn với nguồn trang + ảnh cắt đúng đoạn. Thiết kế
+  tương tác nằm ở `rat_information_evidence_design_20261024.md`. CoT/structured
+  reasoning phải giúp chọn việc đọc, đối chiếu chứng cứ và quyết định dừng hay
+  tìm tiếp; các nhãn bước UI không thay thế implementation/bằng chứng của nó.
+- **RAT-PDF-READER-01 — Deferred:** reader PDF đầy đủ (duyệt/lật/nhảy trang,
+  Trang gốc | Văn bản, toolbar đọc) chuyển vào backlog, chưa triển khai theo
+  kế hoạch Build .10 cũ. Người dùng mở PDF gốc khi cần xem toàn tài liệu; không
+  bắt họ đi qua một reader trong RAT để lấy đoạn thông tin/ảnh nguồn.
+- Thiết kế reader đề xuất trong `rat_pdf_reader_design_20261024.md` đã bị
+  thay về ưu tiên bởi quyết định này. Không dùng nó như thiết kế đã chốt để
+  tiếp tục triển khai. Giữ snapshot vùng khớp hiện có, không xóa recovery/code
+  reader như một phần quyết định hoãn.
+
 | ID | Kết quả cần đạt | Trạng thái | Phụ thuộc / điều kiện hoàn thành |
 | --- | --- | --- | --- |
 | RAT-UX-01 | Một box chat cho mọi chức năng, co giãn theo nội dung; compact/full dùng cùng bề mặt và cách thao tác. | Đã triển khai trong source và app chạy từ source | [Brief UI](rat_ui_fluidity.md). Bỏ khung lồng nhau và màn hình chức năng riêng; cần thử nội dung ngắn, hình và chi tiết ở cả hai mức. |

@@ -134,11 +134,13 @@ def _select_anchor_band(rects: list[QRectF], page_height: float) -> tuple[float,
 class PdfSnapshotRenderer:
     """Bounded LRU cache of QPdfDocument handles and rendered PNG data URLs."""
 
-    def __init__(self, *, max_docs: int = 4, max_snaps: int = 48):
+    def __init__(self, *, max_docs: int = 4, max_snaps: int = 48, max_full_pages: int = 8):
         self._max_docs = max_docs
         self._max_snaps = max_snaps
+        self._max_full_pages = max_full_pages
         self._docs: OrderedDict[tuple[str, int], tuple[QPdfDocument, QPdfSearchModel]] = OrderedDict()
         self._snaps: OrderedDict[tuple[str, int, int, str, str, int], str] = OrderedDict()
+        self._full_page_snaps: OrderedDict[tuple[str, int, int, int], str] = OrderedDict()
 
     def close(self) -> None:
         while self._docs:
@@ -149,6 +151,7 @@ class PdfSnapshotRenderer:
             except Exception:
                 pass
         self._snaps.clear()
+        self._full_page_snaps.clear()
 
     def _evict_stale_path(self, resolved_path: str, current_mtime_ns: int) -> None:
         stale_doc_keys = [k for k in self._docs if k[0] == resolved_path and k[1] != current_mtime_ns]
@@ -164,6 +167,9 @@ class PdfSnapshotRenderer:
         stale_snap_keys = [k for k in self._snaps if k[0] == resolved_path and k[1] != current_mtime_ns]
         for key in stale_snap_keys:
             self._snaps.pop(key, None)
+        stale_full_keys = [k for k in self._full_page_snaps if k[0] == resolved_path and k[1] != current_mtime_ns]
+        for key in stale_full_keys:
+            self._full_page_snaps.pop(key, None)
 
     def _get_document(self, resolved_path: str, mtime_ns: int):
         key = (resolved_path, mtime_ns)
@@ -330,4 +336,65 @@ class PdfSnapshotRenderer:
         self._snaps[snap_key] = data_url
         while len(self._snaps) > self._max_snaps:
             self._snaps.popitem(last=False)
+        return data_url
+
+    def render_full_page_data_url(
+        self,
+        path: str | Path,
+        page: int,
+        *,
+        width: int = 1200,
+    ) -> str:
+        """Render a full crisp PDF page to a base64 PNG data URL, LRU-cached by page."""
+        if not _QT_PDF_AVAILABLE or not path or type(page) is not int or page < 1:
+            return ""
+        try:
+            resolved = Path(path).expanduser().resolve(strict=True)
+            stat = resolved.stat()
+        except (OSError, RuntimeError, ValueError):
+            return ""
+        if resolved.suffix.casefold() != ".pdf" or not resolved.is_file():
+            return ""
+
+        resolved_str = str(resolved)
+        mtime_ns = stat.st_mtime_ns
+        snap_key = (resolved_str, mtime_ns, page, int(width))
+        if snap_key in self._full_page_snaps:
+            self._full_page_snaps.move_to_end(snap_key)
+            return self._full_page_snaps[snap_key]
+
+        entry = self._get_document(resolved_str, mtime_ns)
+        if entry is None:
+            return ""
+        doc, _ = entry
+        if page > doc.pageCount():
+            return ""
+
+        page_index = page - 1
+        pt_size = doc.pagePointSize(page_index)
+        pt_w, pt_h = float(pt_size.width()), float(pt_size.height())
+        if pt_w <= 2.0 or pt_h <= 2.0:
+            return ""
+
+        scale = float(width) / pt_w
+        render_w = max(64, int(round(width)))
+        render_h = max(64, int(round(pt_h * scale)))
+
+        page_img = doc.render(page_index, QSize(render_w, render_h))
+        if page_img.isNull():
+            return ""
+
+        buf = QBuffer()
+        if not buf.open(QIODevice.OpenModeFlag.WriteOnly):
+            return ""
+        if not page_img.save(buf, "PNG"):
+            buf.close()
+            return ""
+        raw_bytes = bytes(buf.data())
+        buf.close()
+
+        data_url = "data:image/png;base64," + base64.b64encode(raw_bytes).decode("ascii")
+        self._full_page_snaps[snap_key] = data_url
+        while len(self._full_page_snaps) > self._max_full_pages:
+            self._full_page_snaps.popitem(last=False)
         return data_url

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "gsm8k-dev-02630",
+    "split": "train",
+    "query_sha256": "51d7029fc0c5bfbd2e0af265e956716b0323a61f6d211274b7d796b1c3d56d53",
+    "expression": "24+(24+21)",
+    "independent_answer": "69",
+    "derivation": "Farah45 plusHajar24",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-02385",
+    "split": "calibration",
+    "query_sha256": "10f979a01982ca4019d4cf0cc10f24ca8112de57fdfcf71c6eba482d595a009a",
+    "expression": "F(54,6)-2",
+    "independent_answer": "7",
+    "derivation": "9pfennigs minus2",
+    "wording_notes": "Use fictional conversion explicitly given.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06770",
+    "split": "train",
+    "query_sha256": "93019110a315e4ec2f2f569f712fa545237022f330688ce31bd94b15fd83b08d",
+    "expression": "2*30-3+30",
+    "independent_answer": "87",
+    "derivation": "Ken57 Kendra30",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01320",
+    "split": "calibration",
+    "query_sha256": "99c442d7adabeec652b3a89f9108356af70868aa7cd74d238276ab25f3f62799",
+    "expression": "F(3*15+2*14+2*F(135,10),4)",
+    "independent_answer": "25",
+    "derivation": "100 dollars split4",
+    "wording_notes": "No taxes/tip specified.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03705",
+    "split": "train",
+    "query_sha256": "8a6ea627cb15ed829fd4d8a9d2c7a32b97c28b0869cef99dc091b0c68395c6b1",
+    "expression": "327+3*50",
+    "independent_answer": "477",
+    "derivation": "327 plus150",
+    "wording_notes": "Three years from currentBlackFriday.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-02476",
+    "split": "calibration",
+    "query_sha256": "3f3ac8860c15d72b3d6a2565bf18a03a5aec00d4a51b6c0726165ae5db0c5ec2",
+    "expression": "300*F(1,4)",
+    "independent_answer": "75",
+    "derivation": "3lollipops outof12 cost75cents",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01543",
+    "split": "train",
+    "query_sha256": "732efd628a6965b75d8dc9ff7225a64e0751723751c102292bf7180e041fa9ce",
+    "expression": "9*18+3*10",
+    "independent_answer": "192",
+    "derivation": "162+30 inches",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-00862",
+    "split": "calibration",
+    "query_sha256": "65120bf83789ecc8b5216f7844e203eae578d38a03b44e54a68caeae4c4c54a9",
+    "expression": "F(8,1)/F(1,2)*5*2",
+    "independent_answer": "160",
+    "derivation": "16patients/day*5*2",
+    "wording_notes": "One patient at a time, full8hours/day.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-07180",
+    "split": "train",
+    "query_sha256": "e5baf1f7003f0b183247a57590bbab39de630ef500cbd6ea89bbccab0e182615",
+    "expression": "6",
+    "independent_answer": "6",
+    "derivation": "Differences A2 B5 C6; greatest6",
+    "wording_notes": "Compare the two color counts within each basket.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-07151",
+    "split": "calibration",
+    "query_sha256": "533bb50756f473bd8d0695e90b90761bfa67ea6115dc7a2e647d915fddef2e2c",
+    "expression": "5+(5+4)+2*5+(2*5-2)",
+    "independent_answer": "32",
+    "derivation": "Cathy5 Lindsey9 Carol10 Susan8",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-02069",
+    "split": "train",
+    "query_sha256": "66a1e42186394e721ccfbcc5dc9c0c79d38a488828f685f87d0a61e043c1ab5e",
+    "expression": "4+13+36-4-29",
+    "independent_answer": "20",
+    "derivation": "53initial-4bad-29given",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03485",
+    "split": "calibration",
+    "query_sha256": "daafaa3979d6bbafc2c22e6c7ca56fd0b4e268b7ee40daae4f3ccc823d943e99",
+    "expression": "12",
+    "independent_answer": "12",
+    "derivation": "LCM(2,3,4)=12seconds",
+    "wording_notes": "Bulbs model periodic instantaneous events; earliest positive recurrence.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03106",
+    "split": "train",
+    "query_sha256": "2ba318213afb9cb58177932c70d19ee65635ef5f886e2e506c03140a6d3ba1a4",
+    "expression": "13*2*2",
+    "independent_answer": "52",
+    "derivation": "13rows*2sections*2students",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-07429",
+    "split": "calibration",
+    "query_sha256": "5bd7c2c7d9a41f8a0108b185f66416dbd57be0553f195b2b3f08654224fc4cc4",
+    "expression": "20*(1-F(1,4))",
+    "independent_answer": "15",
+    "derivation": "20-5",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-01241",
+    "split": "train",
+    "query_sha256": "ffc4d6e30438b5fabcffb84917bb9f98abaf794117e5a693428872d8986c7a79",
+    "expression": "F(200-42-18-14,1)/F(3,2)*113",
+    "independent_answer": "9492",
+    "derivation": "126remaining/1.5=84ounces;*113",
+    "wording_notes": "Use fictional linear helium/height relation; burner detail is irrelevant/inconsistent physics.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-02082",
+    "split": "calibration",
+    "query_sha256": "d22f2e9440048ecd5b7648f089bf0570414a9059e72b1179d7b9fdb729ec641c",
+    "expression": "14+3*4",
+    "independent_answer": "26",
+    "derivation": "14+12days",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06782",
+    "split": "train",
+    "query_sha256": "986f0ea7d2e368548cd4a58ac53a788dfffef40a8868cee970a2ef0caeac3993",
+    "expression": "7*18+15",
+    "independent_answer": "141",
+    "derivation": "126+15",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-06840",
+    "split": "calibration",
+    "query_sha256": "04054130b5dfb149fd6c2a0377ee87f2039516b1884bd63f9c1e967c22d3c39a",
+    "expression": "200*(1-F(1,4)-F(1,2))",
+    "independent_answer": "50",
+    "derivation": "200-50-100",
+    "wording_notes": "Both fractions refer to original200, not sequential balances.",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-03314",
+    "split": "train",
+    "query_sha256": "115efba305762da5cecc99513980d0ec7057ad966c6efaf9611ce748bb4a553b",
+    "expression": "F(28,1)/F(1,5)/7",
+    "independent_answer": "20",
+    "derivation": "140days/7",
+    "wording_notes": "",
+    "agent_review_only": true
+  },
+  {
+    "id": "gsm8k-dev-02527",
+    "split": "calibration",
+    "query_sha256": "6832b2e1c98c6c55fec9b4c3e2d17b852d520a46fbb771a591fc21cabf948e02",
+    "expression": "4*168+500",
+    "independent_answer": "1172",
+    "derivation": "672+500meters",
+    "wording_notes": "",
+    "agent_review_only": true
+  }
+]

@@ -171,6 +171,14 @@ hiện tại vẫn 0; Stage 0 không đổi.**
 
 ## Mốc hoàn thành & Tiến độ thực tế (Milestone Tracking)
 
+**Review dữ liệu GSM8K ngày 2026-10-24:** agent đã hoàn tất phép tính từ query
+cho 96 nhóm development; 93 khớp gold và 3 câu fitting cần adjudication
+(`02343`, `00484`, `03823`). [Hồ sơ đầy đủ](../audit/gsm8k_candidate_agent_review_20261024/README.md)
+giữ candidate gốc, derivations, exposure và ledger human-pending. Source/ranking
+tái lập đúng; 10 file model khớp provenance lưu trước đó qua rehash, chưa load.
+Không tự sửa gold/giảm frame/đổi rule, chưa fit hoặc inference. Đây là chuẩn bị
+dữ liệu, không phải kết quả measured hoặc thay Stage 0.
+
 `gen02_tune`, Run 11 và GapB đều là development đã lộ theo
 `research_protocol.md`. Hoàn thành một artifact kỹ thuật không đồng nghĩa đã hoàn
 thành bằng chứng cho bài báo. Stage 0 của chiến dịch Qwen/Meta-Reasoner chưa đổi.

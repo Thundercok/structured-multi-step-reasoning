@@ -23,10 +23,28 @@ from scripts.verifiers import VerificationStatus
 
 
 def test_no_forbidden_imports():
-    """Verify that importing checker_dry_run never imports MLX, embeddings, or Qt."""
-    forbidden = ["mlx", "mlx_lm", "sentence_transformers", "PyQt6", "PySide6"]
-    for mod in forbidden:
-        assert mod not in sys.modules, f"Forbidden module {mod} was imported!"
+    """Verify in a clean subprocess that importing checker_dry_run never imports MLX, embeddings, or Qt."""
+    import subprocess
+    code = """
+import sys, builtins
+sys.path.insert(0, ".")
+original_import = builtins.__import__
+forbidden = {'mlx', 'mlx_lm', 'sentence_transformers', 'PyQt6', 'PySide6'}
+def guarded_import(name, *args, **kwargs):
+    pkg = name.split('.')[0]
+    if pkg in forbidden:
+        raise AssertionError(f"Forbidden module {name} imported!")
+    return original_import(name, *args, **kwargs)
+builtins.__import__ = guarded_import
+
+import experiments.checker_dry_run
+for mod in forbidden:
+    assert mod not in sys.modules, f"Forbidden module {mod} was imported!"
+"""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    result = subprocess.run([sys.executable, "-c", code], cwd=str(root), capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
 
 
 def test_early_stop_on_valid():

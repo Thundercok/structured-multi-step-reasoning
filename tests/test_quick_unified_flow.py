@@ -201,11 +201,15 @@ def test_quick_step_1_explain_binary_search(quick_env):
 
     submit_draft(view, root, q1)
 
-    # Wait for execution to finish
+    # Wait for execution to finish (app stays folded in min mode, showing notice card)
     wait_for(lambda: not controller.snapshot["busy"])
 
-    # 1. Verification of QML elements
+    # 1. Verification of QML elements in min mode, then expand via notice click
     assert controller.snapshot["view"] == "answer"
+    assert controller.snapshot["expanded"] is False
+
+    click_item(view, root, "notice")
+    wait_for(lambda: controller.snapshot["expanded"])
     assert controller.snapshot["expanded"] is True
 
     answer_item = root.findChild(QQuickItem, "answerText")
@@ -318,7 +322,13 @@ def test_quick_step_3_followup_question_receives_referenced_facts(quick_env):
 
     # UI displays strictly q3 and answer in answerText
     assert controller.snapshot["userQuery"] == q3
+
+    # Open full workbench from notice before inspecting paper and copying citation
+    click_item(view, root, "notice")
+    wait_for(lambda: controller.snapshot["expanded"])
+
     answer_item = root.findChild(QQuickItem, "answerText")
+    assert answer_item is not None and answer_item.isVisible()
     assert answer_item.property("textDocument").textDocument().toPlainText() == backend.answer_text
 
     # Copy answer test through QML copyCitation button

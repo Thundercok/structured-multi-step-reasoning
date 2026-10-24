@@ -115,7 +115,7 @@ def parse_args(argv=None):
                         help="Record full desktop video during the session via macOS screencapture")
     parser.add_argument("--no-walkthrough", action="store_true",
                         help="Skip automatic walkthrough video generation from screenshots on close")
-    parser.add_argument("--scenario", choices=["finder-suggestions", "chatbox-pdf-snapshot"], default=None,
+    parser.add_argument("--scenario", choices=["finder-suggestions", "chatbox-pdf-snapshot", "turn2-finder-answer", "turn3-seamless-reader"], default=None,
                         help="Run an automated desktop acceptance scenario on the native window")
     args = parser.parse_args(argv)
     if args.max_model_calls < 0 or args.session_seconds < 1:
@@ -276,7 +276,17 @@ def main(argv=None):
         wanted = min(round(root.property("preferredWindowHeight")), view.screen().availableGeometry().height() - 32)
         paper = root.findChild(QQuickItem, "resultPaper")
         paper_top = paper.mapToScene(QPointF(0, 0)).y() if paper is not None else 0
-        clear_frame = abs(view.height() - wanted) <= 2 and (not snap["expanded"] or paper_top >= 0)
+        right_overflow = False
+        if paper is not None and snap.get("expanded") and paper.isVisible():
+            paper_right = paper.mapToScene(QPointF(0, 0)).x() + paper.width()
+            for obj_name in ("copyCitation", "liveFoldButton"):
+                ctrl = root.findChild(QQuickItem, obj_name)
+                if ctrl is not None and ctrl.isVisible():
+                    ctrl_right = ctrl.mapToScene(QPointF(0, 0)).x() + ctrl.width()
+                    if ctrl_right > paper_right + 1.5 or ctrl_right > view.width() + 1.0:
+                        right_overflow = True
+                        break
+        clear_frame = abs(view.height() - wanted) <= 2 and (not snap["expanded"] or (paper_top >= 0 and not right_overflow))
         if not clear_frame and attempt < 8:
             # Wait for the production window-fit timer and a new rendered frame.
             # Do not resize outside the production fit rules to hide a layout bug.
@@ -297,11 +307,12 @@ def main(argv=None):
             "min_label": label.property("text") if label else "",
             "clear_frame": clear_frame, "window_height": view.height(),
             "preferred_height": wanted, "paper_top": paper_top,
+            "right_overflow": right_overflow,
             "calls_started": len(ledger.summary()),
             "disk_matches_loaded_source": source_hashes() == state["source_versions"][-1]["hashes"]})
         if not clear_frame:
             event("capture_partial", file=name, window_height=view.height(),
-                  preferred_height=wanted, paper_top=paper_top)
+                  preferred_height=wanted, paper_top=paper_top, right_overflow=right_overflow)
         save()
 
     def changed():
@@ -650,6 +661,290 @@ def main(argv=None):
             QTimer.singleShot(600, step1_select_pdf)
 
         run_chatbox_pdf_snapshot_scenario()
+
+    elif args.scenario == "turn2-finder-answer":
+        def run_turn2_finder_answer_scenario():
+            view.resize(620, round(root.property("preferredWindowHeight")))
+
+            def find_item(name):
+                if root is None:
+                    return None
+                item = root.findChild(QQuickItem, name)
+                if item is not None:
+                    return item
+                pending = list(root.childItems())
+                while pending:
+                    cand = pending.pop()
+                    if cand.objectName() == name:
+                        return cand
+                    pending.extend(cand.childItems())
+                return None
+
+            def wait_until(predicate, next_step, *, polls=160, interval_ms=300):
+                if predicate() or polls <= 0:
+                    QTimer.singleShot(300, next_step)
+                else:
+                    QTimer.singleShot(interval_ms, lambda: wait_until(predicate, next_step, polls=polls - 1, interval_ms=interval_ms))
+
+            def step1_zero_hit_chat_stays_folded():
+                ed = editor()
+                prompt = (
+                    "So sánh ngắn gọn Binary Search và Linear Search bằng 1 bảng Markdown (3 cột: Thuật toán, Độ phức tạp, Điều kiện), "
+                    "1 dòng blockquote (> Lưu ý) và 1 đoạn code ```python ngắn."
+                )
+                if ed is not None:
+                    ed.setProperty("text", prompt)
+                    ed.forceActiveFocus()
+                QTimer.singleShot(450, step1b_verify_not_hijacked)
+
+            def step1b_verify_not_hijacked():
+                event("scenario_step", step="zero_hit_chat_stays_folded",
+                      view=controller.snapshot["view"],
+                      expanded=controller.snapshot["expanded"],
+                      window_height=view.height(),
+                      build_label=root.property("uiBuildLabel"))
+                capture(manual=True)
+                if args.max_model_calls >= 1:
+                    QTimer.singleShot(400, step2_live_model_submit)
+                else:
+                    QTimer.singleShot(450, step2_offline_spotlight_and_drawer)
+
+            def step2_live_model_submit():
+                event("scenario_step", step="submit_live_markdown_prompt")
+                root.submitDraft()
+                QTimer.singleShot(400, lambda: capture(manual=True))
+                wait_until(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "answer", step3_expand_live_answer, polls=240, interval_ms=500)
+
+            def step3_expand_live_answer():
+                controller.setExpanded(True)
+                QTimer.singleShot(550, step4_capture_answer_and_type_followup)
+
+            def step4_capture_answer_and_type_followup():
+                event("scenario_step", step="live_answer_sheet_rendered",
+                      answer_len=len(controller.snapshot.get("answerText", "")))
+                capture(manual=True)
+                capture_desktop()
+                ed = editor()
+                if ed is not None:
+                    ed.setProperty("text", "pro")
+                    ed.forceActiveFocus()
+                QTimer.singleShot(500, step5_verify_answer_unhijacked_and_drawer)
+
+            def step5_verify_answer_unhijacked_and_drawer():
+                tab = find_item("finderDrawerTab")
+                event("scenario_step", step="followup_preserves_answer_with_drawer_tab",
+                      view=controller.snapshot["view"],
+                      finder_hits=len(controller.snapshot.get("finderHits", [])),
+                      drawer_visible=bool(tab and tab.isVisible()))
+                capture(manual=True)
+                root.setProperty("darkMode", True)
+                QTimer.singleShot(450, step5b_dark_capture)
+
+            def step5b_dark_capture():
+                event("scenario_step", step="answer_and_drawer_dark_mode")
+                capture(manual=True)
+                root.setProperty("darkMode", False)
+                QTimer.singleShot(400, step6_open_drawer_and_return)
+
+            def step6_open_drawer_and_return():
+                controller.openFinderSuggestions()
+                QTimer.singleShot(450, step6b_capture_finder_and_reload)
+
+            def step6b_capture_finder_and_reload():
+                back_btn = find_item("backFromFinder")
+                event("scenario_step", step="drawer_opened_finder",
+                      view=controller.snapshot["view"],
+                      back_label=back_btn.property("text") if back_btn else "")
+                capture(manual=True)
+                reload_qml()
+                QTimer.singleShot(450, step6c_return_to_answer)
+
+            def step6c_return_to_answer():
+                controller.dismissFinder()
+                QTimer.singleShot(450, lambda: (
+                    event("scenario_step", step="returned_to_answer_intact",
+                          view=controller.snapshot["view"],
+                          draft=editor().property("text") if editor() else ""),
+                    capture(manual=True),
+                    QTimer.singleShot(600, finish_scenario),
+                ))
+
+            def step2_offline_spotlight_and_drawer():
+                ed = editor()
+                if ed is not None:
+                    ed.setProperty("text", "pro")
+                QTimer.singleShot(500, step2b_offline_finder_open)
+
+            def step2b_offline_finder_open():
+                event("scenario_step", step="short_query_opens_finder",
+                      view=controller.snapshot["view"],
+                      hits=len(controller.snapshot.get("finderHits", [])))
+                capture(manual=True)
+                ed = editor()
+                if ed is not None:
+                    ed.setProperty("text", "hãy mở pro")
+                QTimer.singleShot(500, step2c_offline_conversational_drawer)
+
+            def step2c_offline_conversational_drawer():
+                tab = find_item("finderDrawerTab")
+                event("scenario_step", step="conversational_query_folds_finder_into_drawer",
+                      view=controller.snapshot["view"],
+                      expanded=controller.snapshot["expanded"],
+                      drawer_visible=bool(tab and tab.isVisible()),
+                      hits=len(controller.snapshot.get("finderHits", [])))
+                capture(manual=True)
+                controller.openFinderSuggestions()
+                QTimer.singleShot(450, step2d_offline_open_drawer_and_reload)
+
+            def step2d_offline_open_drawer_and_reload():
+                event("scenario_step", step="drawer_clicked_opens_finder", view=controller.snapshot["view"])
+                capture(manual=True)
+                reload_qml()
+                QTimer.singleShot(450, finish_scenario)
+
+            def finish_scenario():
+                if root is not None:
+                    root.closeRequested.emit()
+                else:
+                    app.quit()
+
+            QTimer.singleShot(600, step1_zero_hit_chat_stays_folded)
+
+        run_turn2_finder_answer_scenario()
+
+    if args.scenario == "turn3-seamless-reader":
+        def run_turn3_seamless_reader_scenario():
+            def wait_until(predicate, next_step, *, polls=160, interval_ms=250):
+                if predicate() or polls <= 0:
+                    QTimer.singleShot(250, next_step)
+                else:
+                    QTimer.singleShot(interval_ms, lambda: wait_until(predicate, next_step, polls=polls - 1, interval_ms=interval_ms))
+
+            def step1_auto_open_page1():
+                event("scenario_step", step="open_pdf_document_page1", file=args.pdf.name)
+                controller.openPdfDocument(str(args.pdf))
+                wait_until(
+                    lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page",
+                    step1b_page1_ready,
+                    polls=60,
+                    interval_ms=200,
+                )
+
+            def step1b_page1_ready():
+                event("scenario_step", step="page1_displayed_in_result_paper",
+                      page=controller.snapshot.get("pageNumber"),
+                      total=controller.snapshot.get("pageCount"),
+                      expanded=controller.snapshot.get("expanded"))
+                ed = editor()
+                if ed is not None:
+                    ed.setProperty("text", "Câu hỏi đang soạn dở trong ô chat")
+                capture(manual=True)
+                QTimer.singleShot(600, step2_navigate_page)
+
+            def step2_navigate_page():
+                event("scenario_step", step="navigate_next_page")
+                controller.nextPage()
+                wait_until(
+                    lambda: not controller.snapshot["busy"] and controller.snapshot.get("pageNumber") == 2,
+                    step2b_page2_ready,
+                    polls=60,
+                    interval_ms=200,
+                )
+
+            def step2b_page2_ready():
+                event("scenario_step", step="page2_rendered",
+                      page=controller.snapshot.get("pageNumber"))
+                capture(manual=True)
+                QTimer.singleShot(600, step3_inline_find)
+
+            def step3_inline_find():
+                event("scenario_step", step="open_inline_find")
+                root.openPdfSearch()
+                search_field = root.findChild(QQuickItem, "pdfSearchField")
+                if search_field is not None:
+                    search_field.setProperty("text", "routing")
+                controller.search("routing")
+                wait_until(
+                    lambda: not controller.snapshot["busy"] and controller.snapshot.get("items"),
+                    step3b_inline_find_ready,
+                    polls=60,
+                    interval_ms=200,
+                )
+
+            def step3b_inline_find_ready():
+                event("scenario_step", step="inline_find_results_ready",
+                      query=controller.snapshot.get("searchQuery"),
+                      hits=len(controller.snapshot.get("items", [])))
+                capture(manual=True)
+                QTimer.singleShot(600, step4_reader_mode_text)
+
+            def step4_reader_mode_text():
+                controller.readPage(1)
+                wait_until(
+                    lambda: not controller.snapshot["busy"] and controller.snapshot.get("view") == "page",
+                    step4b_toggle_text_mode,
+                    polls=60,
+                    interval_ms=200,
+                )
+
+            def step4b_toggle_text_mode():
+                root.setProperty("readerDisplayMode", "text")
+                event("scenario_step", step="reader_mode_text_light",
+                      mode=root.property("readerDisplayMode"))
+                capture(manual=True)
+                root.setProperty("darkMode", True)
+                QTimer.singleShot(450, step5_text_mode_dark)
+
+            def step5_text_mode_dark():
+                event("scenario_step", step="reader_mode_text_dark")
+                capture(manual=True)
+                root.setProperty("darkMode", False)
+                root.setProperty("readerDisplayMode", "visual")
+                QTimer.singleShot(450, step6_min_full_and_context)
+
+            def step6_min_full_and_context():
+                controller.setExpanded(False)
+                root.setProperty("expanded", False)
+                event("scenario_step", step="min_mode_preserves_context",
+                      height=view.height(),
+                      draft=editor().property("text") if editor() else "")
+                capture(manual=True)
+                controller.setExpanded(True)
+                root.setProperty("expanded", True)
+                QTimer.singleShot(500, step7_citation_and_back_to_answer)
+
+            def step7_citation_and_back_to_answer():
+                controller._last_assistant_answer = "Nghiên cứu BEST-Route đề xuất giải thuật heuristic kết hợp học tăng cường trên VRP."
+                controller._last_answer_sources = [{"path": str(args.pdf), "page": 1, "excerpt": "BEST-Route heuristics"}]
+                controller.openAnswerSource(0)
+                wait_until(
+                    lambda: not controller.snapshot["busy"] and controller.snapshot.get("view") == "page",
+                    step7b_verify_back_to_answer,
+                    polls=60,
+                    interval_ms=200,
+                )
+
+            def step7b_verify_back_to_answer():
+                event("scenario_step", step="citation_page_opened",
+                      page=controller.snapshot.get("pageNumber"),
+                      can_back=controller.snapshot.get("canBackToAnswer"))
+                capture(manual=True)
+                controller.backToAnswer()
+                event("scenario_step", step="returned_to_answer_intact",
+                      view=controller.snapshot.get("view"))
+                capture(manual=True)
+                reload_qml()
+                QTimer.singleShot(600, finish_scenario)
+
+            def finish_scenario():
+                if root is not None:
+                    root.closeRequested.emit()
+                else:
+                    app.quit()
+
+            QTimer.singleShot(600, step1_auto_open_page1)
+
+        run_turn3_seamless_reader_scenario()
 
     print(json.dumps({"ready": True, "output": str(output), "model_cap": args.max_model_calls}), flush=True)
     try:

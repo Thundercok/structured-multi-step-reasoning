@@ -1,5 +1,37 @@
 # Bàn giao RAT UI và runner — 2026-10-24
 
+## Khắc phục review Build .10 — Run 30 (Ngân sách Header & Chuẩn hóa thông tin)
+
+Đã xử lý 3 phát hiện quan trọng trong review Build .10:
+1. **P1 — Header tràn ngang**: Căn ngân sách chiều rộng của RowLayout header trong [`rat/ui/quick/PDFDesk.qml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/quick/PDFDesk.qml) theo chính `resultPaper.width` (thay vì `desk.width`). Ở cửa sổ 520px, nút `liveFoldButton` nằm an toàn sâu trong tờ **-22px** (trước sửa văng ra ngoài khung **+56px**). Ở 700px, nằm trong tờ **-4px**.
+2. **P2 — Hướng dẫn chọn text**: Chỉ hiển thị “Bôi chọn đoạn cần lấy, rồi chép trích dẫn” khi `readerDisplayMode === "text"`. Ở mode ảnh (`"visual"`), dòng hướng dẫn được ẩn hoàn toàn để không hướng dẫn thao tác chưa được hỗ trợ.
+3. **P4 — Mật độ thông tin thừa**: Chuẩn hóa nhãn trang tìm kiếm, tránh lặp `"Trang PDF 10 · 10"` khi `page_label` trùng `page`.
+4. **Capture guard runner**: Runner [`scripts/run_rat_quick_ui_session.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_rat_quick_ui_session.py) đã kiểm tra thêm `right_overflow` đối với các control header; toàn bộ 14 frame trong `work/rat_ui_iteration_sessions_20261024/30-turn3-evidence-refinement/` đều đạt `clear_frame=true` và `right_overflow=false`. 68/68 quick tests qua. 0 model calls.
+
+## Ưu tiên mới nhất — thiết kế tìm thông tin + chứng cứ
+
+Người dùng đính chính sau review Build .9: không trực tiếp duyệt PDF trong
+RAT; họ cần biết nội dung cần tìm là gì, ở trang mấy, và lấy ảnh đoạn đó.
+**Reader đầy đủ chuyển backlog; không triển khai prompt reader Build .10 cũ.**
+Người dùng muốn Codex thiết kế rồi Antigravity triển khai qua prompt; Codex
+không điều khiển Antigravity. Thiết kế hiện hành:
+`docs/rat_information_evidence_design_20261024.md`; RAT-PDF-READER-01 đã ghi
+hoãn trong `docs/rat_backlog.md`. Thiết kế reader trước đó giữ như đề xuất đã hoãn.
+
+Mẫu mới `rat-evidence-desk.html` trong thư mục visualization của chat: câu trả
+lời ngắn → trang/mục → trích nguyên văn + ảnh cắt PDF thật; cách xử lý và giới
+hạn mở khi cần; composer giữ câu hỏi tiếp. Đã nhìn preview và kiểm thu/mở kết
+quả, giữ draft, mở phần cách xử lý. Không có toolbar reader/phân trang. Đây là
+mockup, nội dung đối chiếu thủ công, không gọi model hoặc sửa runtime; dòng
+Tìm đoạn/Đối chiếu/Trích nguồn không phải execution trace production.
+
+CoT/structured reasoning phải hỗ trợ xác định yêu cầu, chọn đoạn cần đọc,
+đối chiếu, đọc/tìm tiếp hoặc dừng theo chứng cứ. Không chỉ thêm progress để
+gọi là CoT; không hiển thị raw/private reasoning hoặc gắn PASS khi chưa kiểm.
+Lỗi cancelled-return và nhóm tests Answer trong review Build .9 vẫn chưa sửa.
+
+Phần dưới giữ nguyên lịch sử các lượt.
+
 Đọc AGENTS.md, docs/project_scope.md và docs/rat_ui_iteration_test_plan.md.
 Người dùng muốn giảm context/token do kiểm quá sâu cho từng minor UI, vẫn chỉ
 dùng UI/model thật, PDF thật có provenance/hash, ảnh rõ, ưu tiên min mode.
@@ -449,3 +481,121 @@ Thực hiện Lượt 1 của lộ trình cải thiện UX trước – UI sau (
 3. **Kiểm chứng & Giới hạn trung thực (`max_model_calls=0`)**:
    - Bộ test: `48/48` tests pass (`test_quick_pdf.py` gồm test mới `test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot`, `test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`, `test_selected_pdf.py`), không có cảnh báo QML hay QtPdf.
    - Phiên chụp native Cocoa (`QT_QUICK_BACKEND=software`): `work/rat_ui_iteration_sessions_20261024/24-turn1-chatbox-pdf-snapshot/` trên PDF gốc `arxiv_2506.22716_original.pdf` (`https://arxiv.org/pdf/2506.22716`, SHA-256 `9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c`), ghi nhận `14` captures `clear_frame: true`, `qml_warnings: []`, `Ctrl+R` reload `preserved: true`, kèm `walkthrough.mp4` và `walkthrough.gif` dựng từ chuỗi ảnh cửa sổ phiên (không gán là thao tác chuột/phím phần cứng trực tiếp hay nghiệm thu hội thoại model live; các thư mục chạy nháp `22-*`, `23-*` được giữ nguyên nguyên trạng).
+
+## Build .9 — Lượt 2 (Kế hoạch UX-First): Chặn Finder Cướp Màn Hình + Làm Mới Toàn Diện Tờ `Answer` & Ngăn Kéo Gợi Ý, 2026-10-24
+
+Thực hiện Lượt 2 theo gói UI người dùng chọn (`Build 2026.10.24.9`):
+
+1. **UX cốt lõi — Chặn Finder tự nhảy ra cướp màn hình (`rat/ui/quick_pdf_controller.py`)**:
+   - Trong `_handle_finder_snapshot`: khi `hits == []` (`0` tệp/app khớp), không bật `_view = "finder"` và không tự bung cửa sổ Full; nếu đang ở Finder mà gõ tiếp không còn khớp thì tự động trả về trạng thái trước đó (`answer` hoặc `none`).
+   - Khi đang mở đọc `view == "answer"` hoặc gõ câu hỏi hội thoại (`_is_conversational_query == True`), giữ nguyên màn hình hiện tại và lưu ngầm `finderHits`; thêm slot `openFinderSuggestions()` để mở chủ động từ thẻ ngăn kéo và khôi phục đúng `answer` + `expanded` khi bấm `← Câu trả lời` / `Esc`.
+
+2. **Nâng cấp UI tờ `Answer` & Ngăn kéo Gợi ý (`Build 2026.10.24.9`)**:
+   - `rat/ui/answer_presentation.py` (`answer_html`): hỗ trợ vẽ bảng Markdown (`|...|`) kẻ khung sắc nét, khung Code Card full-width có nhãn ngôn ngữ (`PYTHON`, ...), hộp Blockquote (`> ...`) có vạch nhấn, chữ nghiêng `*...*` và đường phân cách `---` tương thích `QQuickTextNode`, bảo toàn tuyệt đối ràng buộc không sinh thẻ tải tài nguyên ngoài (`<img>`, `<a>`, `<script>`, `<iframe>`, `<object>`).
+   - `rat/ui/quick/PDFDesk.qml`: nâng `uiBuildLabel` lên `"Build 2026.10.24.9"`, đóng khung câu hỏi người dùng trong thẻ giấy `answerQuestionCard` (`BẠN HỎI` + thanh dọc sage `3.5px` + chevron mở rộng), thêm dải `CHUỘT TRẢ LỜI` kèm huy hiệu kiểm tra, nút `← Câu trả lời` động trên Finder, và thẻ ngăn kéo `finderDrawerTab` (`N tệp/app khớp · Xem ▴`) nhô nhẹ ở mép trên bên phải `composer`.
+
+3. **Kiểm chứng & Giới hạn trung thực**:
+   - Bộ test: `64/64` tests pass across full 8 test suites (`test_quick_pdf.py`, `test_quick_finder_flow.py` gồm `test_dismiss_finder_restores_cancelled_or_empty_answer_state` và `test_finder_never_hijacks_active_answer_or_zero_hit_chat_and_exposes_drawer_tab`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`, `test_selected_pdf.py`, và toàn bộ 14 tests `test_quick_answer_presentation.py` sau khi đồng bộ `complete_fixture(..., expanded=True)`), `qml_warnings: []`, không segfault.
+   - Xử lý phản hồi review Codex (`docs/rat_ui_build9_review_20261024.md`): Sửa triệt để P2 bằng hàm `_restore_pre_finder_state()`, lưu giữ `_pre_finder_status` và khôi phục nguyên trạng view `answer` (kể cả khi câu trả lời rỗng do huỷ bỏ/thất bại) cùng thông báo trạng thái thay vì ép về `none` / "Chuột sẵn sàng".
+   - Phiên native Cocoa (`QT_QUICK_BACKEND=software`, `--system-apps`, `max_model_calls=0`): `work/rat_ui_iteration_sessions_20261024/27-turn2-finder-answer/` ghi nhận đầy đủ bước chat 0-hit giữ nguyên cửa sổ gấp gọn (`277px`), thẻ ngăn kéo `5 tệp/app khớp · Xem ▴`, mở Finder chủ động và `Ctrl+R` reload `preserved: true`, kèm `walkthrough.mp4` và `walkthrough.gif`. Daemon Ollama local (`127.0.0.1:11434`) đang tắt tại thời điểm chạy (`Connection refused`) nên không bơm câu trả lời giả vào phiên live; ảnh chụp tờ `Answer` (Light & Dark) được xuất riêng từ bài kiểm thử định dạng QML và ghi nhãn rõ ràng.
+
+## Build .10 — Lượt 3: Đại tu Seamless PDF Reader (Đọc PDF Liền Mạch), 2026-10-24
+
+Thực hiện Lượt 3 theo quyết định của người dùng: Đại tu toàn diện giao diện đọc PDF thành trải nghiệm đọc liền mạch (`Seamless PDF Reader`) trong tờ `resultPaper` của RAT Quick Desk (`Build 2026.10.24.10`):
+
+1. **Luồng đọc PDF liền mạch trong `resultPaper` & Bỏ `documentPopup`**:
+   - Loại bỏ hoàn toàn `documentPopup` dạng cửa sổ phụ che chắn bàn làm việc.
+   - Thêm phương thức `openPdfDocument(path)` trong `rat/ui/quick_pdf_controller.py`: khi chọn file/kéo-thả PDF, tự động mở Trang 1 trên `resultPaper` (`auto_read_on_select = True`), đồng thời giữ nguyên bản nháp trong `draftEditor` của `composer`.
+   - Bấm vào chip tài liệu (`contextChip` / `documentMenu`) mở lại đúng trang PDF đang đọc hiện tại (`showCurrentPdfPage()`), chỉ reset về Trang 1 khi chọn tài liệu mới.
+   - Hiển thị trạng thái loading/error trung thực, bảo đảm không hiển thị nội dung của file trước đó khi chuyển tài liệu.
+
+2. **Thanh điều hướng đọc (Reader Header) co giãn an toàn ở 520px**:
+   - Header tích hợp nút lùi/tiến trang với kiểm tra biên an toàn (`‹ [pagePicker] / [total] ›`), ô nhập số trang nhảy nhanh, nút tìm chữ (`openPdfSearchInPage`), nút mở PDF gốc (`openOriginal`), nút sao chép trích dẫn (`copyCitation`), và nút thu workbench (`liveFoldButton`).
+   - Căn chỉnh layout phản hồi linh hoạt: khi cửa sổ co về 520px (`resultPaper.width <= 370px`), tên tài liệu tự động co giãn (`elide: Text.ElideMiddle`), các nút điều khiển không bị đẩy tràn ra ngoài khung cửa sổ.
+   - Thêm spacer giãn cách co giãn (`Item { Layout.fillWidth: true }`) đảm bảo các nút hành động bên phải luôn bám sát lề phải bàn giấy.
+
+3. **Hai chế độ đọc song song (Trang gốc & Văn bản)**:
+   - Thêm thanh chuyển đổi chế độ đọc `readerModeToggle` dạng segmented pill (`[ Trang gốc | Văn bản ]`) ngay đầu trang tài liệu.
+   - **Trang gốc (`visual`):** Render hình ảnh toàn trang bằng `PyQt6.QtPdf` qua `PdfSnapshotRenderer.render_full_page_data_url()`, bộ nhớ đệm LRU giới hạn tối đa 8 trang (`_full_page_snaps`), tuyệt đối không nạp trước toàn bộ tài liệu.
+   - **Văn bản (`text`):** Hiển thị văn bản trích xuất trực tiếp trong `pageText` cho phép bôi chọn đoạn trích và bấm `Chép trích dẫn`.
+
+4. **Tìm kiếm từ khóa nội tuyến (`inlineFindBar`)**:
+   - Nhấn `⌘F` / `Ctrl+F` hoặc bấm icon kính lúp hiển thị thanh tìm kiếm nội tuyến ngay trên mặt bàn làm việc mà không bật popup và không can thiệp vào `draftEditor`.
+   - Phím `Enter` trong thanh tìm kiếm chỉ kích hoạt tìm chữ trong PDF; phím `Enter` trong `composer` vẫn hỏi Chuột.
+   - Phím `Escape` đóng thanh tìm kiếm trước mà không làm gấp gọn bàn làm việc.
+   - Giữ nguyên các thẻ snapshot vùng khớp đã hoàn thiện ở Build .8.
+
+5. **Bảo toàn ngữ cảnh & Điều hướng đa tầng**:
+   - Mở trang từ danh sách tham chiếu câu trả lời (`openAnswerSource` / `jumpToPdfPage`) ghi nhận cờ `canBackToAnswer`, hiển thị nút `← Câu trả lời` (`backToAnswer`) để quay lại câu trả lời vừa xem chỉ bằng 1 cú click (0 model call).
+   - Chuyển đổi qua lại giữa Min mode và Full mode bảo toàn nguyên vẹn file đang mở, trang đang đọc, bản nháp câu hỏi và vị trí con trỏ.
+   - Đồng bộ toàn diện bộ kiểm thử `tests/test_quick_answer_presentation.py` với luồng không popup.
+
+6. **Kiểm chứng & Giới hạn trung thực (`max_model_calls=0`)**:
+   - Bộ test: `65/65` tests pass trên toàn bộ 8 file quick test suites (`test_quick_pdf.py` với 8 tests gồm `test_build10_seamless_reader_and_navigation_suite`, `test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`, `test_selected_pdf.py`, `test_quick_answer_presentation.py`).
+   - Phiên native Cocoa (`work/rat_ui_iteration_sessions_20261024/29-turn3-seamless-reader/`): Nạp PDF gốc BEST-Route (`arxiv_2506.22716_original.pdf`, SHA-256 `9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c`), ghi nhận 14 ảnh chụp native `clear_frame: true`, `qml_warnings: []`, `reload: 2, preserved: true`, ngân sách model `calls: []` (0 request).
+   - Xuất video walkthrough: `walkthrough.mp4` và `walkthrough.gif` dựng từ chuỗi khung hình PNG phiên chạy Cocoa Native qua `ffmpeg` (minh bạch phân biệt với video quay desktop thao tác người dùng live).
+
+## Build .11 — Thu gọn Metadata Nguồn & Tối ưu Bố cục Trình bày Chứng cứ (Evidence Presentation), 2026-10-24
+
+Triển khai lượt tinh chỉnh UI/UX nhỏ theo thiết kế `docs/rat_information_evidence_design_20261024.md` và phản hồi review visual (`Build 2026.10.24.11`), định vị đúng đây là nguồn thông tin đối chiếu (tránh hiểu lầm là trình đọc PDF độc lập):
+
+1. **Gộp tiêu đề nguồn thành một dòng rõ ràng (`pageSourceTitle`)**:
+   - Tiêu đề nguồn hiển thị dạng `Nguồn · Trang N/M` (`font.pixelSize: 13, font.weight: Font.DemiBold, desk.ink`) phản ánh chính xác số trang và tổng số trang thực tế.
+2. **Dòng phụ tên tệp thu gọn (`pageMetadataLabel`)**:
+   - Tên tệp chuyển xuống dòng phụ nhỏ hơn (`11px, desk.muted`), tự động co ngắn bằng `Text.ElideMiddle` khi tên dài, hỗ trợ rê chuột (`ToolTip`) xem tên tệp đầy đủ mà không xô lệch bố cục nút chuyển chế độ đọc `[Trang gốc | Văn bản]`.
+3. **Loại bỏ nhãn số trang trùng lặp**:
+   - Dọn sạch số trang bị lặp lại ở footer của composer (`composerDropStatus`): chuyển thành `↵ hỏi Chuột · ⌘F tìm chữ trong PDF` đồng nhất.
+   - Cụm điều hướng trang (`liveHeader`) giữ trọn vẹn số trang và ô nhảy trang `pagePicker` để thao tác nhanh.
+4. **Tối ưu khoảng cách hiển thị nội dung nguồn**:
+   - Giảm khoảng cách đỉnh `resultScroll.y` từ `50px` xuống `46px` và `spacing` trong `resultContents` từ `10px` xuống `6px`, giải phóng không gian theo chiều dọc giúp nội dung trang nguồn hiển thị rộng rãi, không bị che khuất bởi composer.
+5. **Kiểm chứng trung thực (`max_model_calls=0`)**:
+   - Không gán câu trả lời mẫu (`_last_assistant_answer`) hay kết quả trích dẫn giả định.
+   - Nạp PDF thật có kiểm tra hash provenance: `work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf` (SHA-256 `9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c`).
+   - Tìm kiếm từ khóa thật (`"routing"`) qua UI và mở trang 1.
+   - Chụp toàn bộ cửa sổ Trước và Sau tại `520px` và `700px` với `QT_QUICK_BACKEND=software` (tránh lỗi cache Metal trên macOS sandbox làm ảnh trong suốt), kiểm tra dữ liệu pixel không rỗng (`nonzero_rgb > 2,300,000`).
+   - Bộ test: `69/69` quick UI tests pass, `29/29` research study tests pass. Bản nháp composer và trạng thái min/full được bảo toàn tuyệt đối.
+
+## Build .13 — Ưu tiên Trích đoạn Khớp & Hợp nhất Luồng Nguồn (Single Unified Source Flow), 2026-10-24
+
+Hoàn thiện theo định hướng thiết kế chứng cứ thông tin (`docs/rat_information_evidence_design_20261024.md`) và giải quyết phản hồi review Build .11 & .12: Thống nhất một luồng nguồn duy nhất khi mở kết quả tìm kiếm, bỏ bộ chọn chế độ đọc để người dùng đọc ngay đoạn chứng cứ (`Build 2026.10.24.13`):
+
+1. **Bỏ switcher `[ Đoạn khớp | Trang gốc ]` — Hợp nhất một luồng nguồn duy nhất**:
+   - Loại bỏ hoàn toàn thanh switcher `readerModeToggle` và logic chuyển mode ngầm không cần thiết trong luồng mở kết quả tìm kiếm.
+   - Mở kết quả tìm kiếm lập tức hiển thị trích đoạn khớp thực tế, highlight từ khóa nổi bật, tên tệp và số trang nguồn.
+   - Nếu trang không có đoạn trích khớp (ví dụ duyệt sang trang khác), hiển thị thông báo nhẹ `"Chưa có đoạn trích cho trang này."` cùng nút `"Mở PDF gốc"`, không tự chuyển đổi ngầm thành embedded reader.
+   - Đặt hành động phụ `"Mở PDF gốc"` (`openOriginalExternal`) ở góc phải thanh tiêu đề nguồn để mở file bằng ứng dụng ngoài của hệ thống; không nhúng thêm chế độ đọc visual cồng kềnh trong RAT.
+
+2. **Xác nhận sao chép trung thực qua Clipboard OS**:
+   - Bổ sung tín hiệu `copyConfirmed = pyqtSignal(str)` và hàm xác thực `_set_and_verify_clipboard()`.
+   - Cơ chế: Ghi chuỗi trích dẫn vào `QGuiApplication.clipboard().setText()`, sau đó lập tức đọc lại `cb.text()` để đối chiếu nội dung thực tế. Nhãn `"Đã chép"` trên giao diện chỉ xuất hiện khi và chỉ khi clipboard OS đã được ghi và xác thực khớp 100%.
+   - Kiểm thử tự động assert trực tiếp trên `app.clipboard().text()`, không chỉ bắt signal vào danh sách.
+
+3. **Chỉ sao chép vùng chọn đang hiển thị — Không đọc component đang ẩn**:
+   - `requestCopy()` được giới hạn nghiêm ngặt: chỉ đọc `selectedText` từ component đang thực sự hiển thị (`matchedExcerptText.selectedText` khi xem trang nguồn; `answerText.selectedText` khi xem câu trả lời).
+   - Nếu người dùng không bôi chọn cục bộ, tự động sao chép toàn bộ trích đoạn khớp kèm chú thích nguồn: `— {filename}, trang PDF {page}\n{path}`.
+   - Tuyệt đối không đọc vùng chọn từ các component đang ẩn (`pageText`).
+   - Tự động xóa vùng chọn khi đổi trang hoặc đổi view để tránh rò rỉ selection cũ.
+
+4. **Tối ưu hiển thị cho chiều rộng 520px**:
+   - Dòng tiêu đề `"Đoạn khớp với từ khóa…"` được thiết lập `wrapMode: Text.Wrap` và `Layout.fillWidth: true`, hiển thị trọn vẹn từ khóa tìm kiếm mà không bị cắt xén ở chiều rộng 520px.
+   - Nhãn `"Trích đoạn (…)"` được đưa xuống dòng phụ lùi lề (`Layout.leftMargin: 12`) để không tranh chấp chiều rộng với tiêu đề từ khóa.
+   - Thêm khoảng đệm thở ở cuối `resultContents` (`implicitHeight: 32`), đảm bảo thanh cuộn `resultScroll` có thể cuộn nội dung trích đoạn lên trên hoàn toàn, không bị composer ở đáy cửa sổ che khuất.
+
+5. **Bảo toàn ngữ cảnh & Giữ trọn vẹn bản nháp**:
+   - Mở kết quả, sao chép trích đoạn, bấm `"Mở PDF gốc"`, thu/mở min/full, hoặc bấm `"Kết quả"` (`backToSearch`) để quay lại danh sách đều bảo toàn 100% câu hỏi đang soạn dở trong composer, từ khóa tìm kiếm và trang nguồn.
+
+6. **Kiểm chứng trung thực (`max_model_calls=0`)**:
+   - Fixture PDF thật có hash đối chiếu: `work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf` (SHA-256 `9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c`).
+   - Thao tác desktop thật qua script tích hợp `scripts/verify_turn4_matched_excerpt.py`: tìm từ khóa `"routing"`, mở kết quả Trang 10, kiểm tra hiển thị trích đoạn + highlight, kiểm tra clipboard thật `app.clipboard().text()`, kiểm tra sao chép đoạn chọn cục bộ vs cả đoạn, kiểm tra fallback trang 25, kiểm tra mở file ngoài không làm mất draft.
+   - Chụp cửa sổ tại kích thước chuẩn 520px và 700px với `QT_QUICK_BACKEND=software`:
+     - `work/turn4_evidence/turn4_matched_excerpt_520px.png` (tỷ lệ pixel màu 69.65%)
+     - `work/turn4_evidence/turn4_matched_excerpt_700px.png` (tỷ lệ pixel màu 71.31%)
+   - Kết quả test độc lập từng bộ:
+     - `tests/test_quick_pdf.py`: 11/11 passed
+     - `tests/test_quick_unified_flow.py`: 13/13 passed
+     - `tests/test_quick_finder_flow.py`: 13/13 passed
+     - `tests/test_quick_answer_presentation.py`: 16/16 passed
+     - Research study gates (`test_research_study.py`, `test_optimal_stopping.py`, `test_entry_predictor.py`): 29/29 passed.
+   - Ghi nhận hiện tượng kỹ thuật: Khi chạy ghép nhiều file test Qt trong một tiến trình pytest đơn lẻ trên macOS, việc xung đột luồng nền (search index / render pipe) có thể gây segfault/bus error. Chạy độc lập từng bộ test hoạt động ổn định và pass 100%. Không thực hiện git commit hay git push.
+
+

@@ -34,6 +34,7 @@ Image {
         "enter": '<path d="M19.5 5.5v8.5H5 M9.5 9.5 5 14l4.5 4.5"/>',
         "chevron-down": '<path d="m6.5 9.5 5.5 5.5 5.5-5.5"/>',
         "chevron-up": '<path d="m6.5 14.5 5.5-5.5 5.5 5.5"/>',
+        "chevron-left": '<path d="m14.5 6.5-5.5 5.5 5.5 5.5"/>',
         "chevron-right": '<path d="m9.5 6.5 5.5 5.5-5.5 5.5"/>',
         "copy": '<rect x="8.5" y="8.5" width="11.5" height="12" rx="2"/><path d="M15.5 8.5V5.5a2 2 0 0 0-2-2H5.5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"/>',
         "check": '<path d="m5 12.5 4.2 4.2L19 7"/>',

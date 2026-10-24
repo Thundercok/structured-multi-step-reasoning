@@ -610,7 +610,7 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
 
     try:
         root = view.rootObject()
-        assert root.property("uiBuildLabel") == "Build 2026.10.24.8"
+        assert root.property("uiBuildLabel") in ("Build 2026.10.24.9", "Build 2026.10.24.10", "Build 2026.10.24.11", "Build 2026.10.24.12", "Build 2026.10.24.13")
 
         editor = root.findChild(QQuickItem, "draftEditor")
         assert editor is not None
@@ -730,3 +730,161 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
         controller.deleteLater()
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         app.processEvents()
+
+
+def test_finder_never_hijacks_active_answer_or_zero_hit_chat_and_exposes_drawer_tab(finder_fixture):
+    """Build 2026.10.24.9: 0-hit chat stays folded, active Answer stays visible on follow-up typing, and drawer tab opens/returns cleanly."""
+    from PyQt6.QtCore import QPointF
+    from rat.engine.assistant_runtime import AgentResponse
+    from rat.ui.icon_provider import RatIconProvider
+    from rat.ui.quick_app import bind_desk_window
+
+    app = QApplication.instance() or QApplication([])
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+    )
+    view = QQuickView()
+    RatIconProvider.register(view.engine(), "icon")
+    warnings = []
+    view.engine().warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(Path("rat/ui/quick/PDFDesk.qml").resolve())))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    root = view.rootObject()
+    view.resize(620, round(root.property("preferredWindowHeight")))
+    timer = bind_desk_window(view)
+    view.show()
+    _process_events(80)
+
+    try:
+        editor = root.findChild(QQuickItem, "draftEditor")
+        drawer_tab = root.findChild(QQuickItem, "finderDrawerTab")
+        assert editor is not None and drawer_tab is not None
+        assert not drawer_tab.isVisible()
+
+        # 1. Zero-hit normal chat does NOT hijack view or auto-expand window
+        editor.setProperty("text", "Xin chào Chuột, giải thích giúp mình quy hoạch động")
+        _process_events(250)
+        assert controller.snapshot["view"] == "none"
+        assert controller.snapshot["expanded"] is False
+        assert view.height() < 310
+        assert not drawer_tab.isVisible()
+
+        editor.setProperty("text", "")
+        _process_events(80)
+
+        # 2. Active Answer view stays on screen while typing follow-up that matches local files/apps
+        turn = controller.conversation.begin_turn("So sánh Binary Search và Linear Search kèm điều kiện áp dụng?")
+        controller._current_turn_id = turn.turn_id
+        controller._current_execution_id = turn.execution_id
+        controller._current_worker = object()
+        controller._last_user_query = "So sánh Binary Search và Linear Search kèm điều kiện áp dụng?"
+        controller._on_execution_response(AgentResponse(
+            "| Thuật toán | Thời gian | Điều kiện mảng |\n"
+            "| :--- | :---: | :--- |\n"
+            "| **Binary Search** | `O(log n)` | Đã sắp xếp tăng dần |\n"
+            "| **Linear Search** | `O(n)` | Không cần sắp xếp |\n\n"
+            "> Lưu ý *quan trọng*: Dùng `mid = (lo + hi) // 2` tránh tràn chỉ số.\n\n"
+            "```python\ndef binary_search(a: list[int], x: int) -> int:\n"
+            "    lo, hi = 0, len(a) - 1\n"
+            "    return (lo + hi) // 2 if a else -1\n```",
+            [],
+            0,
+            0,
+            0,
+            execution_id=turn.execution_id,
+            answer_verification_status="PASS",
+        ))
+        controller.setExpanded(True)
+        _process_events(120)
+        assert controller.snapshot["view"] == "answer"
+        q_card = root.findChild(QQuickItem, "answerQuestionCard")
+        assert q_card is not None and q_card.isVisible()
+
+        capture_dir = os.environ.get("RAT_QUICK_CAPTURE_DIR")
+
+        # Typing "calc" while reading Answer must NOT overwrite Answer view; drawer tab peeks up instead
+        editor.setProperty("text", "calc")
+        _process_events(250)
+        assert controller.snapshot["view"] == "answer"
+        assert controller.snapshot["expanded"] is True
+        assert len(controller.snapshot["finderHits"]) >= 1
+        assert drawer_tab.isVisible()
+
+        if capture_dir:
+            out_p = Path(capture_dir)
+            out_p.mkdir(parents=True, exist_ok=True)
+            _process_events(80)
+            assert view.grabWindow().save(str(out_p / "turn2-answer-sheet-drawer-light.png"))
+            root.setProperty("darkMode", True)
+            _process_events(80)
+            assert view.grabWindow().save(str(out_p / "turn2-answer-sheet-drawer-dark.png"))
+            root.setProperty("darkMode", False)
+            _process_events(80)
+
+        # 3. Clicking the drawer tab explicitly opens Finder, and "← Câu trả lời" returns to Answer
+        pos = drawer_tab.mapToScene(QPointF(drawer_tab.width() / 2, drawer_tab.height() / 2)).toPoint()
+        QTest.mouseClick(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, pos)
+        _process_events(100)
+        assert controller.snapshot["view"] == "finder"
+        back_btn = root.findChild(QQuickItem, "backFromFinder")
+        assert back_btn is not None and back_btn.isVisible()
+        assert back_btn.property("text") == "Câu trả lời"
+
+        back_pos = back_btn.mapToScene(QPointF(back_btn.width() / 2, back_btn.height() / 2)).toPoint()
+        QTest.mouseClick(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, back_pos)
+        _process_events(100)
+        assert controller.snapshot["view"] == "answer"
+        assert controller.snapshot["expanded"] is True
+        assert editor.property("text") == "calc"
+        assert warnings == []
+    finally:
+        timer.stop()
+        controller.close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+
+
+def test_dismiss_finder_restores_cancelled_or_empty_answer_state():
+    controller = QuickPDFController(auto_init_finder=False)
+    controller.ready()
+    try:
+        # Simulate a cancelled turn with empty assistant answer
+        turn = controller.conversation.begin_turn("Câu hỏi bị dừng")
+        controller._current_turn_id = turn.turn_id
+        controller._current_execution_id = turn.execution_id
+        controller._last_user_query = "Câu hỏi bị dừng"
+        controller._last_assistant_answer = ""
+        controller._view = "answer"
+        controller._expanded = True
+        controller._status = "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+
+        assert controller.snapshot["view"] == "answer"
+        assert controller.snapshot["status"] == "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+
+        # Fake finder hits arrived
+        controller._finder_hits = [{"kind": "application", "title": "Calculator", "path": "/Applications/Calculator.app"}]
+        controller._finder_query = "calc"
+
+        # Explicitly open suggestions
+        opened = controller.openFinderSuggestions()
+        assert opened is True
+        assert controller.snapshot["view"] == "finder"
+        assert controller.snapshot["expanded"] is True
+
+        # Dismiss finder: must restore cancelled/empty answer view, expanded mode and original status
+        controller.dismissFinder()
+        assert controller.snapshot["view"] == "answer"
+        assert controller.snapshot["expanded"] is True
+        assert controller.snapshot["status"] == "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+    finally:
+        controller.close()
+
