@@ -1,0 +1,165 @@
+{
+  "kind": "dry_run_summary",
+  "selected_groups": 8,
+  "proposal_envelope": {
+    "max_total_calls": 80,
+    "max_tokens_per_call": 1024,
+    "max_total_generated_tokens": 81920
+  },
+  "collection_usage": {
+    "calls_started": 80,
+    "calls_succeeded": 80,
+    "calls_failed": 0,
+    "reserved_tokens": 8285,
+    "remaining_calls": 0,
+    "remaining_tokens": 73635
+  },
+  "ledger_usage": {
+    "calls_started": 80,
+    "calls_succeeded": 80,
+    "calls_failed": 0,
+    "reserved_tokens": 8285,
+    "remaining_calls": 0,
+    "remaining_tokens": 73635
+  },
+  "paths": {
+    "fixed_cot": {
+      "is_synthetic": true,
+      "data_provenance": "synthetic replay (authored cost tokens, historical answer text)",
+      "items": 8,
+      "valid_count": 4,
+      "invalid_count": 1,
+      "unverifiable_count": 3,
+      "accuracy": 0.5,
+      "total_calls": 8,
+      "mean_calls": 1.0,
+      "total_generated_tokens": 960,
+      "total_prompt_tokens": 200,
+      "stop_reasons": {
+        "fixed_completed": 8
+      },
+      "rescue_count": 0,
+      "harm_count": 0,
+      "ledger_usage": {
+        "calls_started": 8,
+        "calls_succeeded": 8,
+        "calls_failed": 0,
+        "reserved_tokens": 960,
+        "remaining_calls": 72,
+        "remaining_tokens": 80960
+      }
+    },
+    "fixed_sc": {
+      "is_synthetic": true,
+      "data_provenance": "synthetic double (authored mock tokens)",
+      "items": 8,
+      "valid_count": 7,
+      "invalid_count": 1,
+      "unverifiable_count": 0,
+      "accuracy": 0.875,
+      "total_calls": 40,
+      "mean_calls": 5.0,
+      "total_generated_tokens": 4350,
+      "total_prompt_tokens": 1200,
+      "stop_reasons": {
+        "fixed_completed": 8
+      },
+      "rescue_count": 0,
+      "harm_count": 0,
+      "ledger_usage": {
+        "calls_started": 40,
+        "calls_succeeded": 40,
+        "calls_failed": 0,
+        "reserved_tokens": 4350,
+        "remaining_calls": 40,
+        "remaining_tokens": 77570
+      }
+    },
+    "fixed_tot": {
+      "is_synthetic": true,
+      "data_provenance": "synthetic double (authored mock tokens)",
+      "items": 8,
+      "valid_count": 8,
+      "invalid_count": 0,
+      "unverifiable_count": 0,
+      "accuracy": 1.0,
+      "total_calls": 32,
+      "mean_calls": 4.0,
+      "total_generated_tokens": 2975,
+      "total_prompt_tokens": 1540,
+      "stop_reasons": {
+        "fixed_completed": 8
+      },
+      "rescue_count": 0,
+      "harm_count": 0,
+      "ledger_usage": {
+        "calls_started": 32,
+        "calls_succeeded": 32,
+        "calls_failed": 0,
+        "reserved_tokens": 2975,
+        "remaining_calls": 48,
+        "remaining_tokens": 78945
+      }
+    },
+    "always_escalate": {
+      "is_synthetic": true,
+      "data_provenance": "synthetic double (authored mock tokens)",
+      "items": 8,
+      "valid_count": 8,
+      "invalid_count": 0,
+      "unverifiable_count": 0,
+      "accuracy": 1.0,
+      "total_calls": 80,
+      "mean_calls": 10.0,
+      "total_generated_tokens": 8285,
+      "total_prompt_tokens": 2940,
+      "stop_reasons": {
+        "ladder_exhausted": 8
+      },
+      "rescue_count": 4,
+      "harm_count": 0,
+      "ledger_usage": {
+        "calls_started": 80,
+        "calls_succeeded": 80,
+        "calls_failed": 0,
+        "reserved_tokens": 8285,
+        "remaining_calls": 0,
+        "remaining_tokens": 73635
+      }
+    },
+    "checker_gated": {
+      "is_synthetic": true,
+      "data_provenance": "synthetic double (authored mock tokens)",
+      "items": 8,
+      "valid_count": 8,
+      "invalid_count": 0,
+      "unverifiable_count": 0,
+      "accuracy": 1.0,
+      "total_calls": 32,
+      "mean_calls": 4.0,
+      "total_generated_tokens": 3550,
+      "total_prompt_tokens": 1010,
+      "stop_reasons": {
+        "valid_early_stop": 8
+      },
+      "rescue_count": 4,
+      "harm_count": 0,
+      "ledger_usage": {
+        "calls_started": 32,
+        "calls_succeeded": 32,
+        "calls_failed": 0,
+        "reserved_tokens": 3550,
+        "remaining_calls": 48,
+        "remaining_tokens": 78370
+      }
+    }
+  },
+  "query_only_solver": {
+    "sample_accuracy": 1.0,
+    "accuracy": 1.0,
+    "total_calls": 0,
+    "total_tokens": 0,
+    "mean_wall_time_ms": 16.808083339128643,
+    "evaluated_items": 8
+  }
+}

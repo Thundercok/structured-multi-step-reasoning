@@ -32,7 +32,7 @@ from rat.engine.execution import (
 )
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
-from rat.ui.answer_presentation import answer_excerpt, answer_html, answer_starts_with_code, source_rows
+from rat.ui.answer_presentation import answer_excerpt, answer_html, answer_starts_with_code, source_rows, page_reading_text
 from rat.ui.assistant_worker import create_execution_worker
 from rat.kernel.contracts import Artifact, SourceEvidence
 
@@ -276,7 +276,7 @@ class QuickPDFController(QObject):
             title = self._last_user_query or "Câu trả lời"
         elif view == "finder":
             found = len(self._finder_hits)
-            title = f"Tìm thấy {found} kết quả" if found else "Không có kết quả khớp"
+            title = f"Gợi ý tìm kiếm ({found})" if found else "Không có gợi ý khớp"
         elif view == "error":
             title = "Cần xem lại PDF hoặc yêu cầu."
         else:
@@ -320,6 +320,7 @@ class QuickPDFController(QObject):
             "answerHtml": answer_html(self._last_assistant_answer),
             "answerHtmlDark": answer_html(self._last_assistant_answer, True),
             "answerSources": references,
+            "answerReadScope": " · ".join(dict.fromkeys(row["readScope"] for row in references if row["readScope"])),
             "answerVerification": displayed.answer_verification_status if displayed else "UNKNOWN",
             "telemetry": dict(self._telemetry),
             "turnId": self._current_turn_id or "",
@@ -327,6 +328,7 @@ class QuickPDFController(QObject):
             "items": search.get("items", []) if view == "search" else [],
             "nextPage": (search.get("next_start_page") or 0) if view == "search" else 0,
             "pageText": page.get("content", "") if view == "page" else "",
+            "pageReadingText": page_reading_text(page.get("content", "")) if view == "page" else "",
             "pageNumber": page.get("page", 0),
             "pageLabel": page.get("page_label", ""),
             "pageTruncated": bool(page.get("truncated")),
@@ -639,6 +641,12 @@ class QuickPDFController(QObject):
         q = query.strip()
         if not q or self.snapshot["busy"] or self._closed:
             return False
+        if self._selection is not None:
+            try:
+                check_current(self._selection)
+            except SelectedPDFError as exc:
+                self._show_error(exc.code)
+                return False
 
         # Clear finder query and cancel any pending finder jobs
         self._finder_query = ""
@@ -675,15 +683,16 @@ class QuickPDFController(QObject):
         if not allow_synth and app_inst is not None:
             allow_synth = app_inst.property("ratAllowSyntheticPolicy") is True
 
-        lane = "reasoning" if engine is not None else "auto"
+        lane = "document" if self._selection is not None else ("reasoning" if engine is not None else "auto")
 
         source_evidence = []
         if self._selection is not None:
             pdf_path_str = str(self._selection.path)
             try:
-                pdf_sha = hashlib.sha256(self._selection.path.read_bytes()[:65536]).hexdigest()
+                pdf_sha = hashlib.sha256(self._selection.path.read_bytes()).hexdigest()
             except Exception:
                 pdf_sha = ""
+            history_messages = self.conversation.document_messages(pdf_path_str, pdf_sha) if pdf_sha else []
             current_pg = self._page.get("page", 1) if self._page else 1
             excerpt = (self._page.get("content", "") if self._page else "")[:1000]
             source_evidence.append({
@@ -714,6 +723,7 @@ class QuickPDFController(QObject):
             generation=self._chat_generation,
             turn_ref=turn_ref,
             lane=lane,
+            document_path=str(self._selection.path) if self._selection is not None else None,
             context={
                 "history": history_messages,
                 "turn_references": turn_references,
@@ -779,6 +789,13 @@ class QuickPDFController(QObject):
     @pyqtSlot(object, object)
     def _handle_execution_delivered(self, req, raw_result):
         resp = raw_result if isinstance(raw_result, AgentResponse) else execution_response(req, raw_result)
+        if req.document_path and not resp.error:
+            evidence = next((s for s in req.context_snapshot()["source_evidence"]
+                             if s.get("path") == req.document_path and s.get("sha256")), None)
+            if evidence and any(s.get("path") == req.document_path and s.get("read") is True
+                                for s in resp.sources if isinstance(s, dict)):
+                resp.qa_telemetry = {**(resp.qa_telemetry or {}), "document_scope": {
+                    "path": req.document_path, "sha256": evidence["sha256"]}}
         self._on_execution_response(resp)
 
     @pyqtSlot(object)
@@ -844,6 +861,7 @@ class QuickPDFController(QObject):
             response.answer,
             execution_id=self._current_execution_id,
             artifact_refs=art_refs,
+            task_state={"document_scope": curr_telem["document_scope"]} if curr_telem.get("document_scope") else None,
             source_refs=[s.to_dict() if hasattr(s, "to_dict") else s for s in (response.sources or []) if isinstance(s, dict) or hasattr(s, "to_dict")],
             answer_verification_status=response.answer_verification_status,
         )
@@ -933,6 +951,20 @@ class QuickPDFController(QObject):
         if self._finder_coordinator is not None:
             self._finder_coordinator.submit(q, limit=10)
 
+    @pyqtSlot()
+    def dismissFinder(self):
+        """Dismisses finder suggestions and restores previous workbench state, preserving composer draft."""
+        if self._closed:
+            return
+        if self._finder_coordinator is not None:
+            self._finder_coordinator.cancel()
+        self._finder_hits = []
+        self._finder_query = ""
+        if self._view == "finder":
+            self._view = "answer" if self._last_assistant_answer else "none"
+            self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
+            self.changed.emit()
+
     @pyqtSlot(object)
     def _handle_finder_snapshot(self, snapshot: SearchSnapshot):
         if self._closed:
@@ -988,7 +1020,7 @@ class QuickPDFController(QObject):
         self._finder_hits = hits
         self._view = "finder"
         count = len(hits)
-        self._status = f"Tìm thấy {count} kết quả cho '{snapshot.query}'" if count else f"Không tìm thấy tệp hoặc ứng dụng nào khớp với '{snapshot.query}'"
+        self._status = f"Tìm thấy {count} gợi ý cho '{snapshot.query}'" if count else f"Không tìm thấy tệp hoặc ứng dụng nào khớp với '{snapshot.query}'"
         self._expanded = True
         self._unread = False
         self.changed.emit()

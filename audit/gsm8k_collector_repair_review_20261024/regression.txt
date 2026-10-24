@@ -1,0 +1,3 @@
+Fresh nine-file research/collector/baseline/checker suite from repair handoff.
+165 passed in 9.63s; exit code 0.
+See README.md and verification.json for reviewed scope and additional_results.json for remaining counterexamples.

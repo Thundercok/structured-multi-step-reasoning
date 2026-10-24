@@ -53,8 +53,6 @@ def answer_excerpt(text: str, limit: int = 360) -> str:
                     break
             continue
         if not stripped:
-            if paragraph:
-                break
             continue
         if re.match(r'^#{1,6}\s+', stripped) and not paragraph:
             continue
@@ -63,16 +61,43 @@ def answer_excerpt(text: str, limit: int = 360) -> str:
                 code_lines = []
                 continue
             break
-        paragraph.append(re.sub(r'^\s*(?:[-+*]|\d+[.)])\s+', '', stripped))
+        paragraph.append(re.sub(r'^\s*[-+*]\s+', '', stripped))
     if code_lines is not None:
         excerpt = '\n'.join(code_lines[:3]) + ('…' if len(code_lines) > 3 else '')
     else:
-        excerpt = ' '.join(paragraph)
+        excerpt = '\n'.join(paragraph)
     excerpt = re.sub(r'`([^`]+)`', r'\1', excerpt)
     excerpt = re.sub(r'\*\*(.+?)\*\*|__(.+?)__', lambda m: m.group(1) or m.group(2), excerpt)
     if len(excerpt) > limit:
         excerpt = excerpt[:limit].rsplit(' ', 1)[0].rstrip() + '…'
     return excerpt
+
+
+@lru_cache(maxsize=8)
+def page_reading_text(text: str) -> str:
+    """Join only obvious prose continuations; keep source text separately.
+
+    Each change replaces one newline with one space. Headings, new bullets,
+    paragraph boundaries, indented code and likely formulas/tables stay intact.
+    This is a conservative reading aid, not PDF layout reconstruction.
+    """
+    if '\r' in text or '```' in text or '~~~' in text:
+        return text
+    lines = text.splitlines(keepends=True)
+    result = []
+    for index, line in enumerate(lines):
+        current = line.strip()
+        following = lines[index + 1].strip() if index + 1 < len(lines) else ''
+        pair = line + (lines[index + 1] if index + 1 < len(lines) else '')
+        protected = (re.search(r'[=<>∑∫∀∃¬∧∨→↔|{}\[\]\t]', pair)
+                     or re.search(r'\S {2,}\S', pair)
+                     or line.startswith('    ')
+                     or (index + 1 < len(lines) and lines[index + 1].startswith('    ')))
+        join = (line.endswith('\n') and len(current) >= 38 and following
+                and following[0].islower() and current[-1] not in '.!?:;'
+                and not protected)
+        result.append(line[:-1] + ' ' if join else line)
+    return ''.join(result)
 
 
 def _inline(text: str, code_bg: str) -> str:
@@ -170,7 +195,14 @@ def source_rows(sources, selected_path=None, page_count=0):
         provenance = source.get('provenance')
         title = source.get('title') or source.get('filename') or source.get('file_name') or source.get('name') or (provenance.get('title') if isinstance(provenance, dict) else None) or Path(path).name or source.get('source_id') or 'Nguồn'
         matches = bool(path and selected and resolved(path) == selected)
+        read_scope = ''
+        if source.get('truncated') is True:
+            chars = source.get('read_chars')
+            read_scope = 'Trích đoạn'
+            if type(chars) is int and chars > 0:
+                read_scope += ' · ' + f'{chars:,}'.replace(',', '.') + ' ký tự'
         rows.append({'title': str(title), 'page': page or 0,
                      'location': f'Trang PDF {page}' if page else 'Chưa có vị trí trang',
+                     'readScope': read_scope,
                      'canOpen': bool(matches and page and page <= page_count)})
     return rows

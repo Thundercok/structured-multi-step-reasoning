@@ -1,0 +1,231 @@
+{
+  "received_manifest_artifact_hashes": {
+    "calls.jsonl": true,
+    "development_review_summary.json": true,
+    "dry_run_results.json": true,
+    "dry_run_summary.json": true,
+    "generation_ledger.json": true,
+    "proposed_execution_plan.json": true,
+    "pytest_results.xml": true,
+    "report.md": true,
+    "test_stdout.txt": true
+  },
+  "rebuilt_comparison": {
+    "ledger": {
+      "calls_started": 80,
+      "calls_succeeded": 80,
+      "calls_failed": 0,
+      "reserved_tokens": 8285,
+      "remaining_calls": 0,
+      "remaining_tokens": 73635
+    },
+    "paths": {
+      "fixed_cot": {
+        "is_synthetic": false,
+        "data_provenance": "historical pilot measured",
+        "items": 8,
+        "valid_count": 4,
+        "invalid_count": 1,
+        "unverifiable_count": 3,
+        "accuracy": 0.5,
+        "total_calls": 8,
+        "mean_calls": 1.0,
+        "total_generated_tokens": 960,
+        "total_prompt_tokens": 200,
+        "stop_reasons": {
+          "fixed_completed": 8
+        },
+        "rescue_count": 0,
+        "harm_count": 0,
+        "ledger_usage": {
+          "calls_started": 8,
+          "calls_succeeded": 8,
+          "calls_failed": 0,
+          "reserved_tokens": 960,
+          "remaining_calls": 72,
+          "remaining_tokens": 80960
+        }
+      },
+      "fixed_sc": {
+        "is_synthetic": true,
+        "data_provenance": "synthetic double",
+        "items": 8,
+        "valid_count": 7,
+        "invalid_count": 1,
+        "unverifiable_count": 0,
+        "accuracy": 0.875,
+        "total_calls": 40,
+        "mean_calls": 5.0,
+        "total_generated_tokens": 4350,
+        "total_prompt_tokens": 1200,
+        "stop_reasons": {
+          "fixed_completed": 8
+        },
+        "rescue_count": 0,
+        "harm_count": 0,
+        "ledger_usage": {
+          "calls_started": 40,
+          "calls_succeeded": 40,
+          "calls_failed": 0,
+          "reserved_tokens": 4350,
+          "remaining_calls": 40,
+          "remaining_tokens": 77570
+        }
+      },
+      "fixed_tot": {
+        "is_synthetic": true,
+        "data_provenance": "synthetic double",
+        "items": 8,
+        "valid_count": 8,
+        "invalid_count": 0,
+        "unverifiable_count": 0,
+        "accuracy": 1.0,
+        "total_calls": 32,
+        "mean_calls": 4.0,
+        "total_generated_tokens": 2975,
+        "total_prompt_tokens": 1540,
+        "stop_reasons": {
+          "fixed_completed": 8
+        },
+        "rescue_count": 0,
+        "harm_count": 0,
+        "ledger_usage": {
+          "calls_started": 32,
+          "calls_succeeded": 32,
+          "calls_failed": 0,
+          "reserved_tokens": 2975,
+          "remaining_calls": 48,
+          "remaining_tokens": 78945
+        }
+      },
+      "always_escalate": {
+        "is_synthetic": true,
+        "data_provenance": "synthetic double",
+        "items": 8,
+        "valid_count": 8,
+        "invalid_count": 0,
+        "unverifiable_count": 0,
+        "accuracy": 1.0,
+        "total_calls": 80,
+        "mean_calls": 10.0,
+        "total_generated_tokens": 8285,
+        "total_prompt_tokens": 2940,
+        "stop_reasons": {
+          "ladder_exhausted": 8
+        },
+        "rescue_count": 4,
+        "harm_count": 0,
+        "ledger_usage": {
+          "calls_started": 80,
+          "calls_succeeded": 80,
+          "calls_failed": 0,
+          "reserved_tokens": 8285,
+          "remaining_calls": 0,
+          "remaining_tokens": 73635
+        }
+      },
+      "checker_gated": {
+        "is_synthetic": true,
+        "data_provenance": "synthetic double",
+        "items": 8,
+        "valid_count": 8,
+        "invalid_count": 0,
+        "unverifiable_count": 0,
+        "accuracy": 1.0,
+        "total_calls": 32,
+        "mean_calls": 4.0,
+        "total_generated_tokens": 3550,
+        "total_prompt_tokens": 1010,
+        "stop_reasons": {
+          "valid_early_stop": 8
+        },
+        "rescue_count": 4,
+        "harm_count": 0,
+        "ledger_usage": {
+          "calls_started": 32,
+          "calls_succeeded": 32,
+          "calls_failed": 0,
+          "reserved_tokens": 3550,
+          "remaining_calls": 48,
+          "remaining_tokens": 78370
+        }
+      }
+    }
+  },
+  "report_still_claims_23_gated_calls": false,
+  "budget_validation": {
+    "oversize_dispatch": {
+      "accepted": false,
+      "rejected": true,
+      "error": "Declared max tokens 2048 exceeds configured per-call cap 1024",
+      "configured_per_call_cap": 1024
+    },
+    "oversize_outcome": {
+      "accepted": false,
+      "rejected": true,
+      "error": "Measured tokens 2048 exceeds declared per-call cap 1024",
+      "status": "started"
+    },
+    "negative_outcome": {
+      "accepted": false,
+      "rejected": true,
+      "error": "Measured tokens must be a non-negative integer, got: -100",
+      "remaining_tokens": 80896
+    }
+  },
+  "cancelled_checker_gated": {
+    "stop_reason": "cancelled",
+    "reported_calls": 3,
+    "ledger_calls": 3,
+    "reported_tokens": 180,
+    "ledger_tokens": 180,
+    "reported_reserved": 180,
+    "ledger_reserved": 180
+  },
+  "cancelled_always_escalate": {
+    "stop_reason": "cancelled",
+    "reported_calls": 3,
+    "ledger_calls": 3,
+    "reported_tokens": 180,
+    "ledger_tokens": 180,
+    "reported_reserved": 180,
+    "ledger_reserved": 180
+  },
+  "selector_contract": {
+    "selected_answer": "(1+3)*(2+4)",
+    "verification_status": "valid",
+    "documented_backend_majority_answer": "(1+3)*(2+4)",
+    "selector_query": "Question: Make 24 using 1, 2, 3, 4.\n\nCandidate solutions:\n[0] Answer: 1+2+3+4\n\n[1] Answer: (1+3)*(2+4)\n\n[2] Answer: (1+3)*(2+4)\n\nSelect the best solution. Return only: Best: 0, Best: 1, Best: 2.",
+    "selector_has_question": true,
+    "selector_has_candidate_expressions": true
+  },
+  "interrupted_builder": {
+    "completed": 1,
+    "persisted_files_before_interruption": [
+      "calls.jsonl",
+      "manifest.json"
+    ],
+    "interruption_propagated": true,
+    "persisted_files_after_interruption": [
+      "calls.jsonl",
+      "manifest.json"
+    ]
+  },
+  "duplicate_input": {
+    "duplicate_rejected": true,
+    "duplicate_id": "procedural-tuning-v1/g24_0003_en_orig",
+    "error": "Duplicate record key detected in historical records: ('procedural-tuning-v1/g24_0003_en_orig', 'COT', 1024)",
+    "original_record_count": 96,
+    "modified_record_count": 97
+  },
+  "historical_inputs_before": {
+    "audit/development-pilot-measured-20261004-runtimefix/dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "audit/development-pilot-measured-20261004-runtimefix/records.json": "1b1a79624c8b605627c6cb002fc473b62389f3da7700c39415772d62e7b4a3f0"
+  },
+  "historical_inputs_after": {
+    "audit/development-pilot-measured-20261004-runtimefix/dataset.json": "9f6b491895af9890f88a7990de0c3bee277847208d92afe7a5b3ad17513e0ec4",
+    "audit/development-pilot-measured-20261004-runtimefix/records.json": "1b1a79624c8b605627c6cb002fc473b62389f3da7700c39415772d62e7b4a3f0"
+  },
+  "new_model_calls": 0,
+  "forbidden_imports": []
+}

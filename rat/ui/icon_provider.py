@@ -65,7 +65,21 @@ class RatIconProvider(QQuickImageProvider):
         return pix, pix.size()
 
     def _load_icon_pixmap(self, path: Path, target_size: QSize) -> QPixmap:
-        # On macOS, prioritize AppKit NSWorkspace to extract the genuine 1024x1024 .icns icon
+        # Ask the native provider for the display size first. Serializing every
+        # app's largest NSImage representation to TIFF blocks the catalog UI.
+        try:
+            if path.exists():
+                provider = self._get_provider()
+                if provider is not None:
+                    icon = provider.icon(QFileInfo(str(path)))
+                    if not icon.isNull():
+                        pix = icon.pixmap(target_size)
+                        if not pix.isNull():
+                            return pix
+        except Exception as e:
+            logger.debug("Failed loading native icon for %s: %s", path, e)
+
+        # Fall back to AppKit when Qt cannot supply a native icon.
         if sys.platform == "darwin" and (path.suffix == ".app" or "Applications" in str(path)):
             try:
                 from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
@@ -87,18 +101,6 @@ class RatIconProvider(QQuickImageProvider):
                                 )
             except Exception as e:
                 logger.debug("AppKit native icon extraction fallback: %s", e)
-
-        try:
-            if path.exists():
-                provider = self._get_provider()
-                if provider is not None:
-                    icon = provider.icon(QFileInfo(str(path)))
-                    if not icon.isNull():
-                        pix = icon.pixmap(target_size)
-                        if not pix.isNull():
-                            return pix
-        except Exception as e:
-            logger.debug("Failed loading native icon for %s: %s", path, e)
 
         # Fallback pixmap if file missing or icon extraction unavailable
         fallback = QPixmap(target_size)

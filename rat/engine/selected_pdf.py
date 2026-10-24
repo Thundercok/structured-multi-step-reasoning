@@ -119,13 +119,30 @@ def read_selected_page(selection, page, *, should_cancel=None):
         context={"should_cancel": should_cancel}), should_cancel=should_cancel)
 
 
+def selected_source_text(content, selected_text):
+    """Map a reading selection back to exact source bytes apart from whitespace.
+
+    Words/punctuation must match. Only display whitespace may differ, and the
+    returned quote always contains the original extracted spacing/newlines.
+    """
+    excerpt = selected_text.replace("\u2029", "\n")
+    if excerpt and excerpt in content:
+        return excerpt
+    parts = excerpt.split()
+    if parts:
+        match = re.search(r'\s+'.join(re.escape(part) for part in parts), content)
+        if match:
+            return match.group()
+    raise SelectedPDFError("invalid_citation")
+
+
 def citation_text(selection, page_result, selected_text=""):
     check_current(selection)
     if (page_result.get("path") != str(selection.path)
             or page_result.get("page_numbering") != "pdf_1_based"):
         raise SelectedPDFError("invalid_citation")
     content = page_result.get("content", "")
-    excerpt = selected_text.replace("\u2029", "\n") if selected_text else page_result["citation"]["snippet"]
+    excerpt = selected_source_text(content, selected_text) if selected_text else page_result["citation"]["snippet"]
     if not excerpt or excerpt not in content:
         raise SelectedPDFError("invalid_citation")
     page = page_result["page"]

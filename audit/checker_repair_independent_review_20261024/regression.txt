@@ -1,0 +1,2 @@
+Command: .venv/bin/python -m pytest tests/test_research_pilot.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_verifiers.py tests/test_checker_dry_run.py -q
+Observed: 104 passed in 46.51s; exit 0.

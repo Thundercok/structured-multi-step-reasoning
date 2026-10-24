@@ -202,7 +202,7 @@ class OnlineReasoningWorker(QThread):
                 from rat.engine.contradiction_auditor import ContradictionAuditor
                 auditor = ContradictionAuditor()
                 evs = self.context_snapshot.get("source_evidence") or []
-                audit_rep = auditor.audit_trace(res.steps, evs, answer=res.answer)
+                audit_rep = auditor.audit_trace(res.steps, evs, answer=res.answer, query=self.query)
                 res.contradiction_report = audit_rep.to_dict()
                 if not audit_rep.passed:
                     res.verification_status = "contradiction_detected"

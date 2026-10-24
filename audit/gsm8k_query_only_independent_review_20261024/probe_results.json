@@ -1,0 +1,17 @@
+{
+  "kind": "independent_authored_fixture_review",
+  "random_banks": 100,
+  "rule_boundary_checks": 324,
+  "bootstrap_draws_checked": 2000,
+  "source_sha256": {
+    "experiments/gsm8k_routing_baseline.py": "1bee503f21c16f47cf25f6af812ab5016a339da397a8e2c3b2f0ce389dd8e000",
+    "experiments/research_study.py": "c24c94e1027e2df4ed19c83a41345769644376a10b1541bb663ccb71700bc99a",
+    "experiments/research_pilot.py": "02d6fdacf0adc2178de8d539bdea77e242f4f71014c7d17ee81f882cc751fba4",
+    "tests/test_gsm8k_routing_baseline.py": "f8846e90a185f430cbb00504a37ac2a5ce253a0d6af55b5310035c26e5c3d558",
+    "docs/gsm8k_development_validation_protocol_20261004.md": "4562807b485f0be23e81860a9540d5154b378f4563feadb139cabbf923bbc061"
+  },
+  "candidate_content_read": false,
+  "new_model_calls": 0,
+  "stage0_changed": false,
+  "model_quality_evidence": false
+}

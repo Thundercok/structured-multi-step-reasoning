@@ -400,6 +400,8 @@ def main(argv=None):
     mode.add_argument("--replay", type=Path, help="Recompute a completed run without model calls or changing its settings")
     mode.add_argument("--aggregate", type=Path, nargs="+", metavar="RUN", help="Aggregate compatible completed runs with distinct generation seeds")
     mode.add_argument("--gsm8k-routing-analysis", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train, save selection, then evaluate development validation; no model calls")
+    mode.add_argument("--gsm8k-routing-fit", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train and seal selection; no model calls")
+    mode.add_argument("--gsm8k-routing-validate", type=Path, metavar="SEALED_SELECTION_DIR", help="Evaluate sealed selection on development validation without refitting; no model calls")
     mode.add_argument(
         "--direct-cot-analysis", type=Path, metavar="PILOT_RUN",
         help="Development-only replay of a fixed DIRECT-to-CoT policy; never calls a model",
@@ -458,6 +460,30 @@ def main(argv=None):
         except (ValueError, OSError, KeyError, TypeError) as error:
             parser.error(str(error))
         print(f"gsm8k_routing_development_analysis: {args.output / 'report.md'}")
+        return
+    if args.gsm8k_routing_fit:
+        overrides = [key for key, value in vars(args).items()
+                     if key not in ("gsm8k_routing_fit", "output") and value is not None and value is not False]
+        if overrides:
+            parser.error("GSM8K routing fit uses fixed recorded settings; overrides are forbidden: " + ", ".join(overrides))
+        from experiments.gsm8k_routing_baseline import write_fitting_seal
+        try:
+            write_fitting_seal(args.gsm8k_routing_fit, args.output)
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            parser.error(str(error))
+        print(f"gsm8k_routing_fitting_seal: {args.output / 'manifest.json'}")
+        return
+    if args.gsm8k_routing_validate:
+        overrides = [key for key, value in vars(args).items()
+                     if key not in ("gsm8k_routing_validate", "output") and value is not None and value is not False]
+        if overrides:
+            parser.error("GSM8K routing validate uses fixed recorded settings; overrides are forbidden: " + ", ".join(overrides))
+        from experiments.gsm8k_routing_baseline import write_validation_evaluation
+        try:
+            write_validation_evaluation(args.gsm8k_routing_validate, args.output)
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            parser.error(str(error))
+        print(f"gsm8k_routing_validation_evaluation: {args.output / 'report.md'}")
         return
     if args.cot_restart_fresh_smoke:
         overrides = sorted(

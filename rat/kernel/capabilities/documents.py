@@ -100,7 +100,8 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
             }
 
         database = get_db(context)
-        if not database.get_document_by_path(str(p)):
+        selected = context.get("selected_document_path")
+        if str(p) != selected and not database.get_document_by_path(str(p)):
             return {"found": False, "error": "Tệp chưa có trong chỉ mục RAT", "path": file_path}
 
         try:

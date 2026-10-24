@@ -880,3 +880,87 @@ không gọi scripted-only acceptance là real-run readiness.
 Chưa cần xin quyền authoring prompt profile, duyệt dữ liệu hoặc cấp inference
 để làm những sửa offline này. Human review giữ pending, model/embedding budget
 **0**; không sửa UI, mở lại bridge, đổi main study hoặc commit/push.
+
+### Bàn giao kết quả Repair Checker Development Dry-Run (R1–R5) — 2026-10-24
+
+Đã xử lý trọn vẹn năm điểm review R1–R5 theo đúng các yêu cầu và giới hạn kỹ thuật:
+
+1. **R1 — Tách biệt collection và replay với budget isolation & dynamic report**:
+   - Giai đoạn thu thập (collection phase) dispatch trọn 80 calls worst-case (10 calls/item × 8 items) theo proposal envelope ghi trực tiếp vào `collection_ledger` và stream liên tục sang `calls.jsonl`.
+   - Giai đoạn đánh giá (replay phase) chạy 5 paths độc lập (`fixed_cot`, `fixed_sc`, `fixed_tot`, `always_escalate`, `checker_gated`), mỗi path sở hữu một `GenerationLedger` riêng (80 calls / 81.920 tokens). Không còn hiện tượng path trước tiêu hết ngân sách làm đói path sau.
+   - Kết quả checker-gated đạt **32 calls** và **3.550 tokens**, giải 8/8 items (valid sớm 4 items ở CoT, 3 items rescue ở SC, 1 item rescue ở TOT). Giảm **60,0% calls** và **57,2% tokens** so với `always_escalate` (80 calls, 8.285 tokens).
+   - Đã chứng minh tính độc lập thứ tự (item-order invariance): đánh giá theo thứ tự xuôi hay ngược đều ra đúng kết quả từng item và tổng số calls/tokens.
+   - Toàn bộ số liệu trong `report.md` được render trực tiếp từ JSON đã tính; các dòng sử dụng dữ liệu giả lập được gắn nhãn rõ ràng `[SYNTHETIC DOUBLE]`, tách bạch với dữ liệu CoT đo đạc lịch sử.
+
+2. **R2 — Chi phí từng phần qua ledger deltas & nhật ký bền vững trên đĩa**:
+   - Tính toán chi phí từng lần đánh giá dựa trên ledger delta (`ledger.attempts[attempt_idx_start:]`), phản ánh đầy đủ các cuộc gọi của rungs dang dở (ví dụ bị hủy giữa SC ở sample thứ 2).
+   - `GenerationLedger` ghi nhật ký bền vững (append file `calls.jsonl`) ngay khi attempt bắt đầu (`status: started`) và khi hoàn thành (`status: succeeded` / `failed`).
+   - Khối builder được bọc `try ... except BaseException` ghi `manifest.json` trạng thái `"interrupted"` nếu bị ngắt tiến trình (ví dụ `KeyboardInterrupt`), không để lại thư mục rỗng.
+
+3. **R3 — Xác thực nghiêm ngặt trần ngân sách và số token**:
+   - Chặn ngay trước khi dispatch nếu `declared_max_tokens` vượt quá cấu hình `max_tokens_per_call` (1.024), hoặc nếu tham số không phải số nguyên dương (chặn bool, âm, 0).
+   - Chặn trong `record_success` và `record_failure` nếu `measured_tokens` là số âm hoặc vượt quá `declared_max_tokens`.
+   - Chặn recipe name không xác định trước khi trừ ngân sách.
+   - Khi validation thất bại, reservation và evidence được bảo toàn an toàn, không tạo credit khống.
+
+4. **R4 — Chuẩn hóa ngữ nghĩa candidate selection & majority fallback**:
+   - Prompt của TOT selector truyền đầy đủ câu hỏi gốc (`Question: {query}`) và nội dung các phương án ứng viên (`[0] Answer: ...`).
+   - Khi selector model không trả về index hợp lệ (ví dụ chuỗi không parse được), hệ thống kích hoạt cơ chế fallback đa số (majority vote across candidate answers) khớp với semantics backend thật `qwen_mlx_backend.py`.
+
+5. **R5 — Xác thực dữ liệu lịch sử & khôi phục model provenance**:
+   - Kiểm tra và từ chối ngay lập tức các bản ghi trùng lặp khóa `(id, strategy, token_budget)` trong dữ liệu lịch sử bằng `ValueError`.
+   - Tự động suy biến `missing_recipes` từ tập dữ liệu thực tế (`["SELF_CONSISTENCY", "TOT"]`), không hardcode.
+   - Khôi phục định danh model tham chiếu lịch sử: `mlx-community/Qwen3-8B-4bit` (revision `545dc4251c05440727734bcd94334791f6ab0192`), ghi nhận `Qwen2.5-7B-Instruct-4bit` là đề xuất thay thế chưa được duyệt.
+   - Đo đạc thời gian bằng `wall_time_ms` (đo bằng `time.perf_counter()`), không gọi wall time là CPU time.
+   - Bổ sung `input_sha256` và `source_sha256` vào `manifest.json`.
+
+6. **Bằng chứng và kết quả kiểm thử**:
+   - Thư mục bằng chứng mới: [`audit/rat_cot_quick_unification_20261022/checker_development_dry_run_repair_20261023/`](../audit/rat_cot_quick_unification_20261022/checker_development_dry_run_repair_20261023/), giữ nguyên thư mục cũ `checker_development_dry_run/`.
+   - Chạy lại probe của reviewer thành công 100%:
+     ```bash
+     .venv/bin/python audit/rat_cot_quick_unification_20261022/checker_development_dry_run/codex_review/review_probes.py --output /private/tmp/checker-review-repeat-20261023
+     # Exited 0; all manifest hashes matched; report_still_claims_23_gated_calls: false; budget_validation: all rejected; cancelled counts match ledger (3 calls / 180 tokens); selector majority fallback: passed; interrupted builder: persisted; duplicate input: rejected; historical inputs: unchanged.
+     ```
+   - Bộ test nghiên cứu bắt buộc và test suite dry-run (104 tests) đều PASS:
+     ```bash
+     .venv/bin/python -m pytest tests/test_research_pilot.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_verifiers.py tests/test_checker_dry_run.py -q
+     # 104 passed in 16.51s
+     ```
+   - Ngân sách inference mô hình thật: Strictly **0 VND / 0 tokens**. Không thay đổi mã UI; giữ nguyên các tệp uncommitted của UI; không commit hoặc push.
+
+### Bàn giao kết quả Follow-up Review C1–C3 & Thư mục Evidence Repair — 2026-10-24
+
+Đã xử lý dứt điểm 3 phát hiện độc lập C1, C2, C3 cùng các giới hạn báo cáo bổ sung theo review ngày 2026-10-24:
+
+1. **C1 — [P1] Từ chối tái sử dụng thư mục evidence đang có dữ liệu trước khi ghi byte nào**:
+   - `build_checker_development_dry_run_artifacts` kiểm tra `output_dir.exists() and any(output_dir.iterdir())` ngay ở đầu hàm và ném ngoại lệ `ValueError("Refusing to reuse occupied evidence directory...")`.
+   - Ngăn chặn hoàn toàn hiện tượng append đè lên `calls.jsonl` (320 sự kiện thay vì 160) hoặc ghi đè `manifest.json`.
+   - Đảm bảo 100% byte không bị thay đổi (`bytes_unchanged=True`) khi bị từ chối; đã được kiểm chứng bằng test `test_refuse_reuse_occupied_evidence_directory_c1` và `counterexamples.py`.
+
+2. **C2 — [P2] Gắn nhãn synthetic replay cho đường chạy fixed-CoT và chi phí token**:
+   - Phân tách rõ ràng giữa câu trả lời trích xuất từ dữ liệu đo đạc lịch sử với số lượng token chi phí do kịch bản mock gán (120 generated tokens / 25 prompt tokens mỗi call).
+   - Hàng `paths_summary["fixed_cot"]` được gán nhãn `is_synthetic=True`, `data_provenance="synthetic replay (authored cost tokens, historical answer text)"`.
+   - Trong bảng tổng hợp `report.md`, cột CoT đổi thành `Fixed CoT [SYNTHETIC REPLAY]`, kèm ghi chú từ chối coi phần trăm tiết kiệm trên trace bank giả lập là hiệu năng mô hình vật lý đo đạc.
+   - Bảng phân tích lịch sử trong `development_review_summary.json` giữ nhãn `data_provenance="historical pilot measured"`.
+
+3. **C3 — [P2] Đồng nhất ngữ nghĩa biểu thức toán học trong TOT selector fallback**:
+   - Thay thế việc đếm chuỗi thô `Counter(answers)` bằng cơ chế bỏ phiếu đa số chia sẻ với backend thực tế: `reasoning.reasoning_strategies.majority_vote(answers, answer_type="expression")` kết hợp `research_scoring.typed_vote_key(a, "expression")`.
+   - Chuẩn hóa khoảng trắng và dấu toán học (ví dụ `(1+3)*(2+4)` và `(1 + 3) * (2 + 4)` được gom cùng khóa). Khi selector trả về chuỗi không parse được, cơ chế fallback gom được 2 phiếu cho biểu thức hợp lệ thay vì hòa 1-1-1 rồi chọn nhầm phương án 0 không hợp lệ. Đã kiểm chứng qua `test_selector_expression_whitespace_normalization_c3` và `counterexamples.py`.
+
+4. **Xử lý giới hạn báo cáo bổ sung (Solver Metrics Scope & CPU Alias)**:
+   - Loại bỏ hoàn toàn các trường alias `cpu_time_ms` và `mean_cpu_time_ms` không được đo đạc độc lập; chuẩn hóa toàn diện trên `wall_time_ms` và `mean_wall_time_ms` (đo qua `time.perf_counter()`).
+   - Giới hạn phạm vi tuyên bố độ chính xác của solver trong mẫu kiểm thử 8 câu cụ thể (`sample_accuracy`, `solver_solvable_count / solver_total_count`).
+
+5. **Thư mục Evidence mới & Kiểm thử toàn diện**:
+   - Thư mục bằng chứng mới: [`audit/rat_cot_quick_unification_20261022/checker_development_dry_run_repair_20261024/`](../audit/rat_cot_quick_unification_20261022/checker_development_dry_run_repair_20261024/), bảo toàn nguyên vẹn 2 thư mục cũ (`checker_development_dry_run/` và `checker_development_dry_run_repair_20261023/`).
+   - Sinh đầy đủ 9 artifacts và [`manifest.json`](../audit/rat_cot_quick_unification_20261022/checker_development_dry_run_repair_20261024/manifest.json) với mã SHA-256 cập nhật.
+   - File tái hiện counterexamples [`counterexamples.py`](../audit/checker_repair_independent_review_20261024/counterexamples.py) chạy thành công 100%, ghi nhận:
+     - `same_directory_rerun`: `rejected_occupied=True`, `bytes_unchanged=True`, `manifest_replaced=False`, `is_synthetic=True`.
+     - `selector_whitespace_variants`: `dry_run_answer="(1+3)*(2+4)"`, `dry_run_verification_status="valid"`, khớp `backend_vote_expression_key="(1+3)*(2+4)"`.
+     - `new_model_calls=0`, `gsm8k_candidate_read=False`.
+   - Bộ test nghiên cứu bắt buộc đạt **107/107 passed in 17.95s**:
+     ```bash
+     .venv/bin/python -m pytest tests/test_research_pilot.py tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py tests/test_verifiers.py tests/test_checker_dry_run.py -q
+     # 107 passed in 17.95s
+     ```
+   - Ngân sách inference mô hình thật: Strictly **0 VND / 0 tokens / 0 model calls**.

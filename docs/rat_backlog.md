@@ -1,6 +1,6 @@
 # RAT backlog
 
-Updated: 2026-10-23, Asia/Ho_Chi_Minh.
+Updated: 2026-10-24, Asia/Ho_Chi_Minh.
 
 Theo yêu cầu ngày 2026-10-13, bước RAT đang được bàn là **hoàn thiện một luồng
 core xuyên suốt bằng ví dụ hội thoại DSA**, với minor UI chỉ chỉnh cách đọc
@@ -86,7 +86,7 @@ Thứ tự triển khai:
   artifacts giữ nguyên. Mục này không cấp ngân sách inference, không mở test
   được bảo vệ và không thay trạng thái Stage 0.
 
-**RAT-FIND-01 — Advanced Spotlight finder ngay trong khung chat.** Theo yêu cầu
+**RAT-FIND-01 — Hỗ trợ tìm và mở file/app khi không nhớ tên, ngay trong chat.** Theo yêu cầu
 người dùng ngày 2026-10-16. Đã có lát cắt headless: catalog ứng dụng macOS theo
 tên/alias, tìm metadata/FTS trước, API bổ sung ngữ nghĩa và coordinator chỉ giữ
 truy vấn mới nhất. Xem [triển khai backend](rat_progressive_finder_20261016.md).
@@ -98,6 +98,24 @@ Mục tiêu sử dụng offline, phản hồi tìm kiếm nhanh; chỉ gọi mod
 Thiết kế chi tiết và acceptance cho bàn phím, lọc kết quả, chọn tệp và tiếp nối
 hội thoại sẽ chốt trong lần làm sau. Không thêm một cửa sổ/chế độ tìm kiếm mới
 hoặc mở rộng indexing cá nhân trong lát cắt backend này.
+
+**Giới hạn người dùng chốt ngày 2026-10-24:** không định làm một launcher đầy
+đủ. Nhu cầu là giúp người dùng tìm/mở file hoặc ứng dụng khi không nhớ tên;
+định hướng này thay mọi cách hiểu mở rộng từ tên “Advanced Spotlight finder”.
+
+- Ưu tiên hiểu mô tả không đầy đủ (công dụng, nội dung nhớ được, một phần tên),
+  gợi ý vài mục có thật rồi cho người dùng chọn/mở. Hiển thị tên và vị trí đủ
+  để phân biệt; nếu chưa rõ thì hỏi ngắn, không đoán ra file/app không tồn tại.
+- Một composer; không cần nút “Ứng dụng” thường trực. Nút mở hộp thoại file có
+  thể là icon với tooltip/accessibility. Catalog/grid hiện có là implementation
+  tạm, không phải mục tiêu tiếp tục mở rộng.
+- Không thêm launcher dashboard, quản lý/cài đặt ứng dụng, dock, widget, hay
+  tính năng launcher khác nếu chưa có yêu cầu mới. Không tự mở rộng indexing
+  tệp cá nhân để phục vụ mục này.
+- Backlog chính: truy hồi khi không nhớ tên và chọn/mở đúng mục qua hội thoại.
+  Lệnh `/apps`/“ứng dụng” hiện chỉ mở catalog, chưa đáp ứng đầy đủ nhu cầu mô tả
+  mơ hồ. Chỉ coi hoàn tất sau khi thử mô tả thật với file/app thật và giữ bằng
+  chứng lựa chọn/mở đúng; tests routing hoặc screenshot grid không thay thế ca đó.
 
 | ID | Hướng phát triển | Trạng thái | Phụ thuộc / bằng chứng cần có |
 | --- | --- | --- | --- |

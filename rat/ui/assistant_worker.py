@@ -68,14 +68,17 @@ class AssistantWorker(QThread):
         self.query = self.execution_request.query
         self.document_path = self.execution_request.document_path
         self.context = self.execution_request.assistant_context()
-        if not self.document_path:
-            # Reasoning-only evidence/artifact fields remain in the immutable
-            # request snapshot. AssistantRuntime accepts its own explicit context.
-            assistant_keys = {"history", "previous_sources", "member_id", "task_state",
-                              "turn_ref", "execution_id", "turn_references",
-                              "conversation_id", "contract"}
-            self.context = {key: value for key, value in self.context.items()
-                            if key in assistant_keys}
+        # Evidence/artifact fields remain in the immutable request snapshot.
+        # Both assistant and document lanes use Runtime's explicit context API.
+        assistant_keys = {"history", "previous_sources", "member_id", "task_state",
+                          "turn_ref", "execution_id", "turn_references",
+                          "conversation_id", "contract"}
+        self.context = {key: value for key, value in self.context.items()
+                        if key in assistant_keys}
+        if self.document_path:
+            # A user-selected file grants a read of this exact path for this
+            # execution only; it does not enroll the file in personal indexing.
+            self.context["selected_document_path"] = self.document_path
         self.startup_error = startup_error
 
     def run(self):

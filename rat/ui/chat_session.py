@@ -524,6 +524,28 @@ class ConversationHistory:
         """Include failed/cancelled user requests with explicitly attributed status."""
         return self._bounded_messages(self._context_turns)
 
+    def document_messages(self, path: str, sha256: str) -> List[Dict[str, Any]]:
+        """Consecutive completed public turns for the same selected-file revision.
+
+        Never borrow another document's answers or clipped assistant summaries.
+        The document prompt builder applies its own byte budget to whole pairs.
+        """
+        pairs = []
+        for tid in reversed(self._context_turn_ids):
+            snap = self._turn_snapshots.get(tid)
+            if snap is None or snap.status != "completed":
+                continue
+            scope = snap.task_state.get("document_scope", {})
+            if scope != {"path": path, "sha256": sha256}:
+                break
+            if snap.query and snap.answer:
+                pairs.append((tid, snap.query, snap.answer))
+            if len(pairs) == 2:
+                break
+        return [{"role": role, "content": content, "turn_id": tid}
+                for tid, query, answer in reversed(pairs)
+                for role, content in (("user", query), ("assistant", answer))]
+
     def messages_with_turn_ids(self) -> List[Dict[str, Any]]:
         """Actual dialogue only; execution status belongs in turn references.
 

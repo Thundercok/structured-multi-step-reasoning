@@ -536,6 +536,7 @@ class AssistantRuntime:
         execution_id=None,
         note_context=None,
         should_cancel=None,
+        selected_document_path=None,
     ) -> Any:
         ctx = {
             "db": self.db,
@@ -548,6 +549,7 @@ class AssistantRuntime:
             "execution_id": execution_id,
             "note_context": note_context,
             "should_cancel": should_cancel,
+            "selected_document_path": selected_document_path,
         }
         op = self.registry.get_operation(name)
         if op is not None:
@@ -991,7 +993,8 @@ class AssistantRuntime:
             max_verification_repairs: int = 2, turn_ref: Any = None,
             execution_id: Optional[str] = None, conversation_id: Optional[str] = None,
             turn_references: Optional[List[Dict[str, Any]]] = None,
-            contract: Optional[Any] = None, decision_callable=None) -> AgentResponse:
+            contract: Optional[Any] = None, decision_callable=None,
+            selected_document_path: Optional[str] = None) -> AgentResponse:
         """Live decisions with bounded execution, observable actions and real usage.
 
         Injected model callables are fixture evidence. A stopped controller asks
@@ -1400,6 +1403,7 @@ class AssistantRuntime:
                     execution_id=active_exec_id,
                     note_context=note_ctx,
                     should_cancel=should_cancel,
+                    selected_document_path=selected_document_path,
                 )
             except Exception as exc:
                 result = {"error": str(exc)}

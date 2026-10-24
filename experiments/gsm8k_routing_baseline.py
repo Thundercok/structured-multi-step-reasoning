@@ -6,6 +6,7 @@ evaluates on calibration (development validation). Never invokes a model.
 from __future__ import annotations
 
 from collections import Counter
+import copy
 from dataclasses import asdict, dataclass
 from fractions import Fraction
 import hashlib
@@ -13,6 +14,7 @@ import json
 import math
 from pathlib import Path
 import sys
+import time
 
 import numpy as np
 
@@ -237,40 +239,216 @@ def render_report(summary, evidence):
     return "\n".join(lines)
 
 
-def write_analysis(run, output):
+def load_fitting_bank(run: Path) -> Tuple[Dict[str, Any], List[Dict[str, Any]], Dict[str, Any]]:
+    """Fitting-only bank reader with strict validation-outcome isolation (G4)."""
+    manifest_path = run / "manifest.json"
+    require(manifest_path.is_file(), f"Missing manifest.json in {run}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    # Check if this is a staged collection run with separate fitting bank
+    fitting_records_path = run / "records_fitting.json"
+    if fitting_records_path.is_file():
+        expected_sha = manifest.get("artifact_sha256", {}).get("records_fitting.json")
+        require(expected_sha is not None, "Manifest lacks checksum for records_fitting.json")
+        actual_sha = sha256_file(fitting_records_path)
+        require(actual_sha == expected_sha, f"Checksum mismatch for records_fitting.json: {actual_sha} vs {expected_sha}")
+
+        dataset_path = run / "dataset.json"
+        require(dataset_path.is_file(), f"Missing dataset.json in {run}")
+        expected_ds_sha = manifest.get("artifact_sha256", {}).get("dataset.json")
+        if expected_ds_sha:
+            require(sha256_file(dataset_path) == expected_ds_sha, "Checksum mismatch for dataset.json")
+        dataset = json.loads(dataset_path.read_text(encoding="utf-8"))
+
+        records_fitting = json.loads(fitting_records_path.read_text(encoding="utf-8"))
+        # Strict isolation check: every record must belong to train role
+        for r in records_fitting:
+            require(r.get("split") == "train", f"Validation record leaked into records_fitting.json: {r.get('id')}")
+
+        return dataset, records_fitting, manifest
+
+    # Fallback for legacy pilot runs
+    dataset, records, manifest = verify_replay(run, manifest)
+    fit_items = [i for i in dataset["items"] if i["split"] == "train"]
+    fit_ids = {i["id"] for i in fit_items}
+    records_fitting = [r for r in records if r["id"] in fit_ids]
+    return dataset, records_fitting, manifest
+
+
+def write_fitting_seal(run: Path, output: Path) -> Dict[str, Any]:
+    """Fit rule menu on train items only, write selection.json, and seal manifest with selection_sha256 (G4, G5)."""
     if output.exists():
-        raise FileExistsError(output)
-    manifest = json.loads((run / "manifest.json").read_text())
-    require(manifest.get("evidence") in ("synthetic_pilot_smoke", "measured_development_pilot"), "Unknown input evidence")
-    synthetic = manifest["evidence"] == "synthetic_pilot_smoke"
-    require(manifest.get("backend") == ("smoke" if synthetic else "mlx"), "Backend/evidence mismatch")
-    require(manifest.get("seed") == 42 and manifest.get("prompt_profile") == "english-math-v1", "Unexpected seed/profile")
-    require(set(manifest.get("strategies", [])) == set(ACTIONS) and len(manifest["strategies"]) == 3, "Expected DIRECT/COT/PAL only")
-    require(manifest.get("token_budgets") == [1024], "Expected single matched cap 1024")
-    dataset, records, _ = verify_replay(run, manifest)
-    items = dataset["items"]
+        raise FileExistsError(f"Output directory {output} already exists")
+    manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+
+    is_staged = manifest.get("mode") == "gsm8k_development_pilot_collection"
+    if is_staged:
+        require(manifest.get("status") == "complete", f"Staged run not complete: {manifest.get('status')}")
+        identity = manifest.get("identity", {})
+        evidence = identity.get("evidence", "synthetic_staged_pilot_collection")
+        synthetic = evidence.startswith("synthetic")
+        require(identity.get("seed") == 42 and identity.get("prompt_profile") == "english-math-v1", "Unexpected seed/profile")
+        require(set(identity.get("strategies", [])) == set(ACTIONS) and len(identity["strategies"]) == 3, "Expected DIRECT/COT/PAL only")
+        require(identity.get("max_tokens") == 1024, "Expected single matched cap 1024")
+        source_sha256 = identity.get("source_hashes", {})
+        dataset, fit_records, _ = load_fitting_bank(run)
+        items = dataset["items"]
+    else:
+        require(manifest.get("evidence") in ("synthetic_pilot_smoke", "measured_development_pilot"), "Unknown input evidence")
+        evidence = manifest["evidence"]
+        synthetic = manifest["evidence"] == "synthetic_pilot_smoke"
+        require(manifest.get("backend") == ("smoke" if synthetic else "mlx"), "Backend/evidence mismatch")
+        require(manifest.get("seed") == 42 and manifest.get("prompt_profile") == "english-math-v1", "Unexpected seed/profile")
+        require(set(manifest.get("strategies", [])) == set(ACTIONS) and len(manifest["strategies"]) == 3, "Expected DIRECT/COT/PAL only")
+        require(manifest.get("token_budgets") == [1024], "Expected single matched cap 1024")
+        source_sha256 = manifest.get("source_sha256", {})
+        dataset, fit_records, _ = load_fitting_bank(run)
+        items = dataset["items"]
+        if not synthetic:
+            require(manifest.get("model_revision_verified") is True and manifest.get("model_repository") == "mlx-community/Qwen3-8B-4bit"
+                    and manifest.get("model_revision") == "545dc4251c05440727734bcd94334791f6ab0192", "Review model provenance for this development comparison")
+            require(len(items) == len({i["group_id"] for i in items}) == 96 and Counter(i["split"] for i in items) == {"train": 48, "calibration": 48}, "Measured comparison requires its declared 48/48 frame")
+            require(all(i.get("category") == "gsm8k" and i.get("source_provenance", {}).get("original_split") == "train"
+                        and i["source_provenance"].get("revision") == "3101c7d5072418e28b9008a6636bde82a006892c" for i in items), "Expected pinned GSM8K source-train provenance")
+
     frame(items)
-    if not synthetic:
-        require(manifest.get("model_revision_verified") is True and manifest.get("model_repository") == "mlx-community/Qwen3-8B-4bit"
-                and manifest.get("model_revision") == "545dc4251c05440727734bcd94334791f6ab0192", "Review model provenance for this development comparison")
-        require(len(items) == len({i["group_id"] for i in items}) == 96 and Counter(i["split"] for i in items) == {"train": 48, "calibration": 48}, "Measured comparison requires its declared 48/48 frame")
-        require(all(i.get("category") == "gsm8k" and i.get("source_provenance", {}).get("original_split") == "train"
-                    and i["source_provenance"].get("revision") == "3101c7d5072418e28b9008a6636bde82a006892c" for i in items), "Expected pinned GSM8K source-train provenance")
-    selection = fit_selection(items, records)
+    selection = fit_selection(items, fit_records)
     output.mkdir(parents=True, exist_ok=False)
     atomic_json(output / "selection.json", selection)
-    state = {"kind": "query_only_gsm8k_development_analysis", "status": "selection_saved", "new_model_calls": 0,
-             "evidence": "synthetic_routing_software_check" if synthetic else "measured_development_saved_output_analysis",
-             "input_run": str(run.resolve()), "collection_source_sha256": manifest["source_sha256"],
-             "input_manifest_sha256": sha256_file(run / "manifest.json"), "input_artifact_sha256": manifest["artifact_sha256"],
-             "analysis_source_sha256": sha256_file(Path(__file__)), "protocol_sha256": sha256_file(PROTOCOL),
-             "atomic_writer_sha256": sha256_file(ROOT / "experiments/order_pilot_checkpoint.py"),
-             "analysis_python": sys.version, "analysis_numpy": np.__version__,
-             "cost_scope": "synthetic token units" if synthetic else "generated tokens summed over selected calls; prompt tokens separate; full inference costs excluded",
-             "rule_version": RULE_VERSION, "selection_sha256": sha256_file(output / "selection.json"),
-             "publication_ready": False, "human_review_status": "pending", "main_h1_evaluated": False}
+    selection_file_sha = sha256_file(output / "selection.json")
+
+    state = {
+        "kind": "query_only_gsm8k_development_analysis",
+        "status": "selection_saved",
+        "new_model_calls": 0,
+        "evidence": "synthetic_routing_software_check" if synthetic else "measured_development_saved_output_analysis",
+        "input_run": str(run.resolve()),
+        "collection_source_sha256": source_sha256,
+        "input_manifest_sha256": sha256_file(run / "manifest.json"),
+        "input_artifact_sha256": manifest["artifact_sha256"],
+        "analysis_source_sha256": sha256_file(Path(__file__)),
+        "protocol_sha256": sha256_file(PROTOCOL),
+        "atomic_writer_sha256": sha256_file(ROOT / "experiments/order_pilot_checkpoint.py"),
+        "analysis_python": sys.version,
+        "analysis_numpy": np.__version__,
+        "cost_scope": "synthetic token units" if synthetic else "generated tokens summed over selected calls; prompt tokens separate; full inference costs excluded",
+        "rule_version": RULE_VERSION,
+        "selection_sha256": selection_file_sha,
+        "publication_ready": False,
+        "human_review_status": "pending",
+        "main_h1_evaluated": False,
+    }
+    atomic_json(output / "exposure_ledger.json", [{
+        "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "action": "fitting_sealed",
+        "accessor": "gsm8k_routing_baseline.write_fitting_seal",
+        "files_accessed": ["records_fitting.json", "dataset.json"] if is_staged else ["records.json", "dataset.json"],
+    }])
     atomic_json(output / "manifest.json", state)
+    return state
+
+
+def write_validation_evaluation(selection_dir: Path, output: Path) -> Dict[str, Any]:
+    """Evaluate sealed selection on validation items without re-fitting candidate rules (D4, D5, G3)."""
+    if output.exists():
+        raise FileExistsError(f"Output directory {output} already exists")
+    manifest_path = selection_dir / "manifest.json"
+    require(manifest_path.is_file(), f"Missing manifest.json in {selection_dir}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    require(manifest.get("status") in ("selection_saved", "selection_sealed", "complete"), f"Invalid manifest status for validation: {manifest.get('status')}")
+    require("selection_sha256" in manifest, "Manifest missing selection_sha256 seal")
+
+    selection_path = selection_dir / "selection.json"
+    require(selection_path.is_file(), f"Missing selection.json in {selection_dir}")
+    require(sha256_file(selection_path) == manifest["selection_sha256"], "Selection file tampered or differs from manifest seal")
+
+    # Source code and protocol binding verification (G3)
+    require(sha256_file(Path(__file__)) == manifest.get("analysis_source_sha256"), "Analysis source altered since sealing")
+    require(sha256_file(PROTOCOL) == manifest.get("protocol_sha256"), "Protocol document altered since sealing")
+    require(sha256_file(ROOT / "experiments/order_pilot_checkpoint.py") == manifest.get("atomic_writer_sha256"), "Atomic writer source altered since sealing")
+
+    selection = json.loads(selection_path.read_text(encoding="utf-8"))
+
+    # Load input run and verify strict bank binding (G3)
+    run = Path(manifest["input_run"])
+    require(run.is_dir(), f"Input run directory {run} not found")
+
+    actual_manifest_sha = sha256_file(run / "manifest.json")
+    require(
+        actual_manifest_sha == manifest.get("input_manifest_sha256"),
+        f"Input run manifest hash {actual_manifest_sha} differs from sealed hash {manifest.get('input_manifest_sha256')}"
+    )
+
+    for artifact_name, expected_sha in manifest.get("input_artifact_sha256", {}).items():
+        art_path = run / artifact_name
+        require(art_path.is_file(), f"Input artifact {artifact_name} missing in {run}")
+        actual_art_sha = sha256_file(art_path)
+        require(
+            actual_art_sha == expected_sha,
+            f"Input artifact {artifact_name} checksum {actual_art_sha} differs from sealed checksum {expected_sha}"
+        )
+
+    # Load dataset and validation records
+    input_manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+    if (run / "records_validation.json").is_file():
+        dataset = json.loads((run / "dataset.json").read_text(encoding="utf-8"))
+        val_records = json.loads((run / "records_validation.json").read_text(encoding="utf-8"))
+        for r in val_records:
+            require(r.get("split") == "calibration", "Non-calibration record in validation bank")
+        items = dataset["items"]
+        accessed_files = ["records_validation.json", "dataset.json", "selection.json"]
+    else:
+        dataset, all_records, _ = verify_replay(run, input_manifest)
+        items = dataset["items"]
+        val_records = [r for r in all_records if r.get("split") == "calibration"]
+        accessed_files = ["records.json", "dataset.json", "selection.json"]
+
+    frame(items)
+    val_items = [i for i in items if i["split"] == "calibration"]
+    val_ids = {i["id"] for i in val_items}
+    summary, rows = evaluate_selection(selection, val_items, [r for r in val_records if r["id"] in val_ids])
+
+    output.mkdir(parents=True, exist_ok=False)
+    summary["cost_scope"] = manifest["cost_scope"]
+    summary["full_collection"] = {
+        "generation_calls": len(val_records),
+        "generated_tokens": sum(r["tokens"] for r in val_records),
+        "prompt_tokens": sum(r["trace"]["generations"][0]["prompt_tokens"] for r in val_records),
+    }
+
+    atomic_json(output / "summary.json", summary)
+    atomic_json(output / "results.json", rows)
+    atomic_text(output / "report.md", render_report(summary, manifest["evidence"]))
+
+    # Copy verified selection into output
+    atomic_json(output / "selection.json", selection)
+    atomic_json(output / "exposure_ledger.json", [{
+        "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "action": "validation_evaluated",
+        "accessor": "gsm8k_routing_baseline.write_validation_evaluation",
+        "files_accessed": accessed_files,
+    }])
+
+    state = copy.deepcopy(manifest)
+    state.update({
+        "status": "complete",
+        "validation_evaluated_timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "artifact_sha256": {
+            name: sha256_file(output / name)
+            for name in ("selection.json", "summary.json", "results.json", "report.md", "exposure_ledger.json")
+        },
+    })
+    atomic_json(output / "manifest.json", state)
+    return state
+
+
+def write_analysis(run, output):
+    state = write_fitting_seal(run, output)
     try:
+        manifest = json.loads((run / "manifest.json").read_text())
+        dataset, records, _ = verify_replay(run, manifest)
+        items = dataset["items"]
+        selection = json.loads((output / "selection.json").read_text())
         val_items = [i for i in items if i["split"] == "calibration"]
         val_ids = {i["id"] for i in val_items}
         summary, rows = evaluate_selection(selection, val_items, [r for r in records if r["id"] in val_ids])

@@ -639,11 +639,14 @@ class G24CheckerLadderEvaluator:
         answers = [_extract_g24_answer(c) or c.strip() for c in candidates]
 
         if idx is None:
-            # Documented backend majority fallback: majority_vote across candidate answers
-            from collections import Counter
-            counts = Counter(answers)
-            majority_answer = counts.most_common(1)[0][0]
-            idx = next((i for i, a in enumerate(answers) if a == majority_answer), 0)
+            # Shared backend expression vote semantics (qwen_mlx_backend.py:286)
+            from reasoning.reasoning_strategies import majority_vote
+            from research_scoring import typed_vote_key
+            winner_key, _ = majority_vote(answers, answer_type="expression")
+            idx = next(
+                (i for i, a in enumerate(answers) if typed_vote_key(a, "expression") == winner_key),
+                0,
+            )
 
         chosen_candidate = candidates[idx]
         extracted = _extract_g24_answer(chosen_candidate)
@@ -938,7 +941,6 @@ def run_query_only_solver_baseline(numbers: List[int]) -> Dict[str, Any]:
         "generated_tokens": 0,
         "prompt_tokens": 0,
         "wall_time_ms": elapsed_ms,
-        "cpu_time_ms": elapsed_ms,
         "verification_status": "valid" if first_sol else "invalid",
     }
 
@@ -973,6 +975,11 @@ def build_checker_development_dry_run_artifacts(
     output_dir: Path,
 ) -> Dict[str, Any]:
     """Generates all offline checker development dry-run artifacts and manifests."""
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise ValueError(
+            f"Refusing to reuse occupied evidence directory: {output_dir}. "
+            "Evidence directories must be empty or newly created to prevent artifact contamination."
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
     calls_jsonl_path = output_dir / "calls.jsonl"
     manifest_path = output_dir / "manifest.json"
@@ -980,7 +987,7 @@ def build_checker_development_dry_run_artifacts(
     # Persistent journal setup: touch calls.jsonl and write initial running manifest
     calls_jsonl_path.touch(exist_ok=True)
     initial_manifest = {
-        "evidence": "development-checker-dry-run-20261023",
+        "evidence": "development-checker-dry-run-repair-20261024",
         "schema_version": 1,
         "mode": "checker_development_dry_run",
         "status": "running",
@@ -1079,6 +1086,10 @@ def build_checker_development_dry_run_artifacts(
             })
 
         mean_solver_wall_ms = sum(d["solver_baseline"]["wall_time_ms"] for d in dev_summary_items) / len(dev_summary_items)
+        solver_solvable_count = sum(1 for d in dev_summary_items if d["solver_baseline"]["solvable"])
+        solver_unsolvable_count = sum(1 for d in dev_summary_items if not d["solver_baseline"]["solvable"])
+        solver_total_count = len(dev_summary_items)
+        solver_sample_accuracy = solver_solvable_count / solver_total_count if solver_total_count > 0 else 0.0
 
         dev_review_summary = {
             "kind": "development_review_summary",
@@ -1093,13 +1104,13 @@ def build_checker_development_dry_run_artifacts(
                 "invalid": sum(1 for d in dev_summary_items if d["historical_cot_1024"]["verification_status"] == "invalid"),
                 "unverifiable": sum(1 for d in dev_summary_items if d["historical_cot_1024"]["verification_status"] == "unverifiable"),
                 "missing_recipes": missing_recipes,
+                "data_provenance": "historical pilot measured",
             },
             "query_only_solver_summary": {
-                "solvable_count": sum(1 for d in dev_summary_items if d["solver_baseline"]["solvable"]),
-                "unsolvable_count": sum(1 for d in dev_summary_items if not d["solver_baseline"]["solvable"]),
-                "accuracy": 1.0,
+                "solvable_count": solver_solvable_count,
+                "unsolvable_count": solver_unsolvable_count,
+                "sample_accuracy": solver_sample_accuracy,
                 "mean_wall_time_ms": mean_solver_wall_ms,
-                "mean_cpu_time_ms": mean_solver_wall_ms,
                 "total_tokens": 0,
                 "total_calls": 0,
             },
@@ -1291,11 +1302,17 @@ def build_checker_development_dry_run_artifacts(
             results: List[EvaluatorResult],
             p_ledger: GenerationLedger,
             is_synthetic: bool,
+            data_provenance: Optional[str] = None,
         ) -> Dict[str, Any]:
             n = len(results)
+            prov = (
+                data_provenance
+                if data_provenance is not None
+                else ("synthetic double" if is_synthetic else "historical pilot measured")
+            )
             return {
                 "is_synthetic": is_synthetic,
-                "data_provenance": "synthetic double" if is_synthetic else "historical pilot measured",
+                "data_provenance": prov,
                 "items": n,
                 "valid_count": sum(1 for r in results if r.verification_status == "valid"),
                 "invalid_count": sum(1 for r in results if r.verification_status == "invalid"),
@@ -1322,11 +1339,36 @@ def build_checker_development_dry_run_artifacts(
             }
 
         paths_summary = {
-            "fixed_cot": summarize_path_results(cot_results, cot_ledger, is_synthetic=False),
-            "fixed_sc": summarize_path_results(sc_results, sc_ledger, is_synthetic=True),
-            "fixed_tot": summarize_path_results(tot_results, tot_ledger, is_synthetic=True),
-            "always_escalate": summarize_path_results(always_results, always_ledger, is_synthetic=True),
-            "checker_gated": summarize_path_results(gated_results, gated_ledger, is_synthetic=True),
+            "fixed_cot": summarize_path_results(
+                cot_results,
+                cot_ledger,
+                is_synthetic=True,
+                data_provenance="synthetic replay (authored cost tokens, historical answer text)",
+            ),
+            "fixed_sc": summarize_path_results(
+                sc_results,
+                sc_ledger,
+                is_synthetic=True,
+                data_provenance="synthetic double (authored mock tokens)",
+            ),
+            "fixed_tot": summarize_path_results(
+                tot_results,
+                tot_ledger,
+                is_synthetic=True,
+                data_provenance="synthetic double (authored mock tokens)",
+            ),
+            "always_escalate": summarize_path_results(
+                always_results,
+                always_ledger,
+                is_synthetic=True,
+                data_provenance="synthetic double (authored mock tokens)",
+            ),
+            "checker_gated": summarize_path_results(
+                gated_results,
+                gated_ledger,
+                is_synthetic=True,
+                data_provenance="synthetic double (authored mock tokens)",
+            ),
         }
 
         collection_usage = {
@@ -1350,11 +1392,12 @@ def build_checker_development_dry_run_artifacts(
             "ledger_usage": collection_usage,
             "paths": paths_summary,
             "query_only_solver": {
-                "accuracy": 1.0,
+                "sample_accuracy": solver_sample_accuracy,
+                "accuracy": solver_sample_accuracy,
                 "total_calls": 0,
                 "total_tokens": 0,
                 "mean_wall_time_ms": mean_solver_wall_ms,
-                "mean_cpu_time_ms": mean_solver_wall_ms,
+                "evaluated_items": solver_total_count,
             },
         }
 
@@ -1406,10 +1449,17 @@ def build_checker_development_dry_run_artifacts(
             },
             "solver_baseline_comparison": {
                 "solver": "sols24 (pure Python exact Fraction arithmetic)",
-                "accuracy": 1.0,
-                "wall_time": f"< 10 ms per item (mean {mean_solver_wall_ms:.2f} ms)",
+                "sample_accuracy": solver_sample_accuracy,
+                "evaluated_items": solver_total_count,
+                "mean_wall_time_ms": mean_solver_wall_ms,
                 "model_tokens": 0,
-                "implication": "Deterministic solver baseline solves 100% of solvable items instantly at zero token cost. The utility of complex multi-call LLM reasoning on this task family is fundamentally constrained by the existence of exact symbolic algorithms.",
+                "implication": (
+                    f"Deterministic solver baseline solves {solver_solvable_count}/{solver_total_count} "
+                    f"({solver_sample_accuracy*100:.1f}%) items in the evaluated development sample in "
+                    f"mean {mean_solver_wall_ms:.2f} ms wall time at zero token cost. The utility of complex "
+                    "multi-call LLM reasoning on this task family is fundamentally constrained by the existence "
+                    "of exact symbolic algorithms."
+                ),
             },
         }
 
@@ -1436,7 +1486,7 @@ def build_checker_development_dry_run_artifacts(
         report_md = f"""# Game-of-24 Checker Development Dry-Run Report
 
 **Date**: {datetime.now(timezone.utc).isoformat()}  
-**Evidence Identifier**: `development-checker-dry-run-20261023`  
+**Evidence Identifier**: `development-checker-dry-run-repair-20261024`  
 **Execution Status**: Offline Software Verification Complete / Model Inference Budget = 0  
 **Human Review Status**: `pending` (Unauthorized for model execution)  
 
@@ -1449,7 +1499,7 @@ This audit report documents the dry-run software evaluation for the Game-of-24 l
 - **Inference Budget Consumed**: Strictly **0 real tokens / 0 VND / 0 model calls**.
 - **Evaluator Contract**: Evaluates the ladder (`CoT` $\\to$ `Self-Consistency` $\\to$ `Candidate Selection [TOT]`) using `scripts.verifiers.verify_g24_rationale` and `VerificationStatus`. Public expressions and query-bound numbers only; strictly zero access to gold solutions or private reasoning traces.
 - **Generation Ledger & Trace Bank**: Collected an immutable trace bank of **{collection_ledger.total_calls_started} generation calls** under the proposal envelope ({MAX_TOTAL_CALLS} calls, {MAX_TOKENS_PER_CALL} tokens/call, {MAX_TOTAL_GENERATED_TOKENS} tokens). Replayed each policy independently with budget isolation.
-- **Query-Only Solver Baseline**: Evaluated `scripts.gen_tasks.sols24` across all 8 items. Solves **8/8 ({dev_review_summary['query_only_solver_summary']['accuracy']*100:.1f}%)** in mean **{mean_solver_wall_ms:.2f} ms** wall time with **0 tokens** and **0 calls**.
+- **Query-Only Solver Baseline**: Evaluated `scripts.gen_tasks.sols24` across all {solver_total_count} items. Solves **{solver_solvable_count}/{solver_total_count} ({solver_sample_accuracy*100:.1f}%)** on the exposed development sample in mean **{mean_solver_wall_ms:.2f} ms** wall time with **0 tokens** and **0 calls**.
 
 ---
 
@@ -1476,18 +1526,18 @@ The dry-run evaluated 5 comparative paths across the ladder:
 
 ### Path Comparison Summary
 
-*Notice: Rows labeled [SYNTHETIC DOUBLE] use pinned synthetic responses to verify software and ledger mechanics offline without model inference.*
+*Notice: All replay rows labeled [SYNTHETIC REPLAY] or [SYNTHETIC DOUBLE] use pinned synthetic responses to verify software and ledger mechanics offline without model inference.*
 
-| Metric | Fixed CoT [Historical/Synth] | Fixed SC [SYNTHETIC DOUBLE] | Fixed TOT [SYNTHETIC DOUBLE] | Always Escalate [SYNTHETIC DOUBLE] | Checker Gated [SYNTHETIC DOUBLE] | Query-Only Solver [Deterministic] |
+| Metric | Fixed CoT [SYNTHETIC REPLAY] | Fixed SC [SYNTHETIC DOUBLE] | Fixed TOT [SYNTHETIC DOUBLE] | Always Escalate [SYNTHETIC DOUBLE] | Checker Gated [SYNTHETIC DOUBLE] | Query-Only Solver [Deterministic Sample] |
 |---|---|---|---|---|---|---|
-| **Accuracy** | {p_cot['accuracy']*100:.1f}% ({p_cot['valid_count']}/{p_cot['items']}) | {p_sc['accuracy']*100:.1f}% ({p_sc['valid_count']}/{p_sc['items']})* | {p_tot['accuracy']*100:.1f}% ({p_tot['valid_count']}/{p_tot['items']})* | {p_always['accuracy']*100:.1f}% ({p_always['valid_count']}/{p_always['items']})* | {p_gated['accuracy']*100:.1f}% ({p_gated['valid_count']}/{p_gated['items']})* | **{dry_run_summary['query_only_solver']['accuracy']*100:.1f}% ({p_cot['items']}/{p_cot['items']})** |
+| **Accuracy** | {p_cot['accuracy']*100:.1f}% ({p_cot['valid_count']}/{p_cot['items']})* | {p_sc['accuracy']*100:.1f}% ({p_sc['valid_count']}/{p_sc['items']})* | {p_tot['accuracy']*100:.1f}% ({p_tot['valid_count']}/{p_tot['items']})* | {p_always['accuracy']*100:.1f}% ({p_always['valid_count']}/{p_always['items']})* | {p_gated['accuracy']*100:.1f}% ({p_gated['valid_count']}/{p_gated['items']})* | **{solver_sample_accuracy*100:.1f}% ({solver_solvable_count}/{solver_total_count})** |
 | **Total Calls** | {p_cot['total_calls']} | {p_sc['total_calls']} | {p_tot['total_calls']} | {p_always['total_calls']} | **{p_gated['total_calls']}** | **0** |
 | **Mean Calls/Item** | {p_cot['mean_calls']:.2f} | {p_sc['mean_calls']:.2f} | {p_tot['mean_calls']:.2f} | {p_always['mean_calls']:.2f} | **{p_gated['mean_calls']:.2f}** | **0.00** |
 | **Gen Tokens** | {p_cot['total_generated_tokens']:,} | {p_sc['total_generated_tokens']:,} | {p_tot['total_generated_tokens']:,} | {p_always['total_generated_tokens']:,} | **{p_gated['total_generated_tokens']:,}** | **0** |
 | **Rescue Count** | - | - | - | {p_always['rescue_count']} | **{p_gated['rescue_count']}** | - |
 | **Harm Count** | - | - | - | {p_always['harm_count']} | **{p_gated['harm_count']}** | - |
 
-*Note: SC, TOT, and Ladder escalation on failing items used pinned synthetic doubles for software verification.*
+*Note: All replay paths (Fixed CoT, Fixed SC, Fixed TOT, Always Escalate, Checker Gated) run on scripted mock generation with authored token costs (e.g. 120 tokens/call for CoT). Percent savings reflect software execution call reduction against the authored trace bank, not measured physical model efficiency.*
 
 **Key Takeaways**:
 - The **checker-gated path** achieves {p_gated['accuracy']*100:.1f}% accuracy on the synthetic trace bank while consuming only **{p_gated['total_calls']} calls ({p_gated['mean_calls']:.2f} calls/item)** and **{p_gated['total_generated_tokens']:,} generated tokens**, compared to **{p_always['total_calls']} calls and {p_always['total_generated_tokens']:,} tokens** for `always_escalate` (a **{call_reduction_pct:.1f}% call reduction** and **{token_reduction_pct:.1f}% token reduction**).
@@ -1560,7 +1610,7 @@ Before any real-model campaign on Game-of-24 could be authorized:
             "report.md",
         ]
         manifest = {
-            "evidence": "development-checker-dry-run-20261023",
+            "evidence": "development-checker-dry-run-repair-20261024",
             "schema_version": 1,
             "mode": "checker_development_dry_run",
             "status": "complete",
@@ -1592,7 +1642,7 @@ Before any real-model campaign on Game-of-24 could be authorized:
 
     except BaseException as exc:
         manifest = {
-            "evidence": "development-checker-dry-run-20261023",
+            "evidence": "development-checker-dry-run-repair-20261024",
             "schema_version": 1,
             "mode": "checker_development_dry_run",
             "status": "interrupted",

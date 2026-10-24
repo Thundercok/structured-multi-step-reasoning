@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-9.1.1, pluggy-1.6.0 -- /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning
+configfile: pytest.ini
+plugins: anyio-4.14.2, timeout-2.4.0
+collecting ... collected 19 items
+
+tests/test_checker_dry_run.py::test_no_forbidden_imports PASSED          [  5%]
+tests/test_checker_dry_run.py::test_early_stop_on_valid PASSED           [ 10%]
+tests/test_checker_dry_run.py::test_invalid_rescued_by_fallback PASSED   [ 15%]
+tests/test_checker_dry_run.py::test_unverifiable_rescued_by_fallback PASSED [ 21%]
+tests/test_checker_dry_run.py::test_ladder_exhausted_terminal_unverified PASSED [ 26%]
+tests/test_checker_dry_run.py::test_budget_preflight_blocks_recipe PASSED [ 31%]
+tests/test_checker_dry_run.py::test_cancellation_and_deadline_timeout PASSED [ 36%]
+tests/test_checker_dry_run.py::test_gold_field_independence PASSED       [ 42%]
+tests/test_checker_dry_run.py::test_generation_ledger_mid_sc_failure PASSED [ 47%]
+tests/test_checker_dry_run.py::test_generation_ledger_selector_failure PASSED [ 52%]
+tests/test_checker_dry_run.py::test_query_only_solver_baseline PASSED    [ 57%]
+tests/test_checker_dry_run.py::test_build_checker_development_dry_run_artifacts PASSED [ 63%]
+tests/test_checker_dry_run.py::test_budget_strict_validation_r3 PASSED   [ 68%]
+tests/test_checker_dry_run.py::test_partial_cost_accounting_on_interruption_r2 PASSED [ 73%]
+tests/test_checker_dry_run.py::test_candidate_selection_semantics_and_majority_fallback_r4 PASSED [ 78%]
+tests/test_checker_dry_run.py::test_duplicate_record_rejection_r5 PASSED [ 84%]
+tests/test_checker_dry_run.py::test_interrupted_builder_persistence_r2 PASSED [ 89%]
+tests/test_checker_dry_run.py::test_report_numbers_match_json_dynamically_r1 PASSED [ 94%]
+tests/test_checker_dry_run.py::test_order_invariance_and_budget_isolation_r1 PASSED [100%]
+
+- generated xml file: /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_quick_unification_20261022/checker_development_dry_run_repair_20261023/pytest_results.xml -
+============================== 19 passed in 6.68s ==============================
+

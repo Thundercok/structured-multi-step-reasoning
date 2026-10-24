@@ -13,7 +13,7 @@ os.environ.setdefault("QT_QUICK_BACKEND", "software")
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
 import pytest
-from PyQt6.QtCore import QCoreApplication, QUrl, Qt
+from PyQt6.QtCore import QCoreApplication, QEvent, QUrl, Qt
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication
@@ -563,3 +563,152 @@ def test_app_action_button_keyboard_activation_restores_draft(finder_fixture):
         controller.deleteLater()
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         application.processEvents()
+
+
+def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
+    """Build 2026.10.24.3: max 3 suggestions slice, see-more toggle, and min/full draft preservation."""
+    from rat.ui.icon_provider import RatIconProvider
+    from rat.ui.quick_app import bind_desk_window
+
+    app = QApplication.instance() or QApplication([])
+
+    # Create 5 synthetic documents
+    db_path = tmp_path / "test_slice.db"
+    db = Database(str(db_path))
+    for i in range(1, 6):
+        p = tmp_path / f"document_note_{i}.txt"
+        p.write_text(f"Content of document {i}")
+        db.upsert_document({
+            "file_path": str(p),
+            "file_name": p.name,
+            "file_ext": ".txt",
+            "file_size": p.stat().st_size,
+            "created_at": 1000.0 + i,
+            "modified_at": 1000.0 + i,
+            "indexed_at": 1000.0 + i,
+            "content_text": f"Document note {i} sample text",
+            "summary": f"Summary note {i}",
+        })
+
+    search = ProgressiveSearch(db_path, catalog=ApplicationCatalog())
+    controller = QuickPDFController(
+        finder_search=search,
+        auto_init_finder=False,
+    )
+
+    view = QQuickView()
+    RatIconProvider.register(view.engine(), "icon")
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(Path("rat/ui/quick/PDFDesk.qml").resolve())))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.resize(520, 500)
+    timer = bind_desk_window(view)
+    view.show()
+    _process_events(100)
+
+    try:
+        root = view.rootObject()
+        assert root.property("uiBuildLabel") == "Build 2026.10.24.3"
+
+        editor = root.findChild(QQuickItem, "draftEditor")
+        assert editor is not None
+
+        # Type 'note' to match 5 documents
+        draft = "note"
+        editor.setProperty("text", draft)
+        _process_events(300)
+
+        snap = controller.snapshot
+        assert snap["view"] == "finder"
+        hits = snap["finderHits"]
+        assert len(hits) == 5
+
+        def to_list(val):
+            return val.toVariant() if hasattr(val, "toVariant") else list(val)
+
+        # By default, only max 3 suggestions are visible
+        visible_hits = to_list(root.property("visibleFinderHits"))
+        assert len(visible_hits) == 3
+        assert root.property("remainingFinderHits") == 2
+        assert root.property("showAllFinderHits") is False
+
+        # Verify finderResults is visible
+        finder_results = root.findChild(QQuickItem, "finderResults")
+        assert finder_results is not None
+        assert finder_results.isVisible()
+
+        # Verify "see more" button exists and has correct count
+        see_more_btn = root.findChild(QQuickItem, "seeMoreFinderHits")
+        assert see_more_btn is not None
+        assert see_more_btn.isVisible()
+        assert "2" in see_more_btn.property("text")
+
+        # Click "see more" -> reveals all 5 suggestions
+        see_more_btn.forceActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Space)
+        _process_events(100)
+
+        assert root.property("showAllFinderHits") is True
+        assert len(to_list(root.property("visibleFinderHits"))) == 5
+        assert "Thu gọn" in see_more_btn.property("text")
+
+        # Test min/full mode toggling: draft is preserved
+        root.setProperty("expanded", False)
+        _process_events(100)
+        assert root.property("expanded") is False
+        assert root.property("hasFinderPreview") is True
+
+        notice = root.findChild(QQuickItem, "notice")
+        assert notice is not None
+        assert notice.isVisible()
+        min_excerpt = root.findChild(QQuickItem, "minAnswerExcerpt")
+        assert min_excerpt is not None
+        assert "Gợi ý" in min_excerpt.property("text")
+        min_meta = root.findChild(QQuickItem, "minAnswerMetadata")
+        assert min_meta is not None
+        assert "5 kết quả" in min_meta.property("text")
+        assert editor.property("text") == draft
+
+        # Click notice to expand back to full mode
+        notice.forceActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Space)
+        _process_events(100)
+        assert root.property("expanded") is True
+        assert editor.property("text") == draft
+
+        # Test "← Bàn làm việc" / backFromFinder button
+        back_btn = root.findChild(QQuickItem, "backFromFinder")
+        assert back_btn is not None
+        assert back_btn.isVisible()
+        back_btn.forceActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Space)
+        _process_events(100)
+
+        assert controller.snapshot["view"] == "none"
+        assert editor.property("text") == draft
+
+        # Type again to bring suggestions back
+        editor.setProperty("text", "note 1")
+        _process_events(300)
+        assert controller.snapshot["view"] == "finder"
+
+        # Test Escape dismisses suggestions while keeping draft
+        editor.forceActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Escape)
+        _process_events(100)
+        assert controller.snapshot["view"] == "none"
+        assert editor.property("text") == "note 1"
+
+    finally:
+        timer.stop()
+        controller.close()
+        search.close_connection()
+        db.get_connection().close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()

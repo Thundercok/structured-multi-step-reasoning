@@ -30,20 +30,34 @@ def read(path):
 
 def budget_cases():
     ledger = module.GenerationLedger()
-    large = ledger.record_attempt("authored", "COT", "cot", 0, 2048)
-    oversize = {"accepted": True, "declared": large.declared_max_tokens,
-                "configured_per_call_cap": ledger.max_tokens_per_call}
+    try:
+        large = ledger.record_attempt("authored", "COT", "cot", 0, 2048)
+        oversize = {"accepted": True, "declared": large.declared_max_tokens,
+                    "configured_per_call_cap": ledger.max_tokens_per_call}
+    except ValueError as exc:
+        oversize = {"accepted": False, "rejected": True, "error": str(exc),
+                    "configured_per_call_cap": ledger.max_tokens_per_call}
+
     ledger2 = module.GenerationLedger()
     attempt = ledger2.record_attempt("authored", "COT", "cot", 0)
-    ledger2.record_success(attempt, "Answer: 24", 2048, 1)
-    overreported = {"accepted": True, "measured": attempt.measured_tokens,
-                    "declared": attempt.declared_max_tokens,
-                    "status": attempt.status}
+    try:
+        ledger2.record_success(attempt, "Answer: 24", 2048, 1)
+        overreported = {"accepted": True, "measured": attempt.measured_tokens,
+                        "declared": attempt.declared_max_tokens,
+                        "status": attempt.status}
+    except ValueError as exc:
+        overreported = {"accepted": False, "rejected": True, "error": str(exc),
+                        "status": attempt.status}
+
     ledger3 = module.GenerationLedger()
     negative_attempt = ledger3.record_attempt("authored", "COT", "cot", 0)
-    ledger3.record_success(negative_attempt, "Answer: 24", -100, 1)
-    negative = {"accepted": True, "remaining_tokens": ledger3.remaining_tokens,
-                "configured_total": ledger3.max_total_tokens}
+    try:
+        ledger3.record_success(negative_attempt, "Answer: 24", -100, 1)
+        negative = {"accepted": True, "remaining_tokens": ledger3.remaining_tokens,
+                    "configured_total": ledger3.max_total_tokens}
+    except ValueError as exc:
+        negative = {"accepted": False, "rejected": True, "error": str(exc),
+                    "remaining_tokens": ledger3.remaining_tokens}
     return {"oversize_dispatch": oversize, "oversize_outcome": overreported,
             "negative_outcome": negative}
 
@@ -134,12 +148,17 @@ def duplicate_input():
         records.append(duplicate)
         (fixture_root / base / "records.json").write_text(json.dumps(records))
         target = fixture_root / "output"
-        module.build_checker_development_dry_run_artifacts(fixture_root, target)
-        summary = read(target / "development_review_summary.json")
-        row = next(row for row in summary["items"] if row["id"] == duplicate["id"])
-        return {"duplicate_rejected": False, "duplicate_id": duplicate["id"],
-                "chosen_answer": row["historical_cot_1024"]["answer"],
-                "original_record_count": len(records) - 1, "modified_record_count": len(records)}
+        try:
+            module.build_checker_development_dry_run_artifacts(fixture_root, target)
+            summary = read(target / "development_review_summary.json")
+            row = next(row for row in summary["items"] if row["id"] == duplicate["id"])
+            return {"duplicate_rejected": False, "duplicate_id": duplicate["id"],
+                    "chosen_answer": row["historical_cot_1024"]["answer"],
+                    "original_record_count": len(records) - 1, "modified_record_count": len(records)}
+        except ValueError as exc:
+            return {"duplicate_rejected": True, "duplicate_id": duplicate["id"],
+                    "error": str(exc),
+                    "original_record_count": len(records) - 1, "modified_record_count": len(records)}
 
 
 def main():
