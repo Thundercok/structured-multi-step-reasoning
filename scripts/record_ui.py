@@ -40,7 +40,7 @@ def record_desktop(duration: float, output_path: Path):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     cmd = ["/usr/sbin/screencapture", "-v", "-k", "-C"]
     if duration > 0:
-        cmd.extend(["-V", str(int(duration))])
+        cmd.append(f"-V{int(duration)}")
     cmd.append(str(output_path))
     dur_str = f"{duration}s" if duration > 0 else "until Ctrl+C"
     print(f"Recording desktop to {output_path} ({dur_str})...")
@@ -60,7 +60,8 @@ def render_screenshots(screenshots_dir: Path, output_base: Path, fps: int = 1) -
         print("Error: ffmpeg not found.", file=sys.stderr)
         return False
     screenshots_dir = screenshots_dir.expanduser().resolve()
-    pngs = sorted(screenshots_dir.glob("*.png"))
+    glob_pattern = "r*.png" if list(screenshots_dir.glob("r*.png")) else "*.png"
+    pngs = sorted(screenshots_dir.glob(glob_pattern))
     if not pngs:
         print(f"No PNG files found in {screenshots_dir}", file=sys.stderr)
         return False
@@ -71,8 +72,8 @@ def render_screenshots(screenshots_dir: Path, output_base: Path, fps: int = 1) -
     # Render MP4 with canvas padding for mixed dimensions
     cmd_mp4 = [
         ffmpeg, "-y", "-framerate", str(fps),
-        "-pattern_type", "glob", "-i", str(screenshots_dir / "*.png"),
-        "-vf", "scale=560:600:force_original_aspect_ratio=decrease,pad=560:600:(ow-iw)/2:(oh-ih)/2:color=black",
+        "-pattern_type", "glob", "-i", str(screenshots_dir / glob_pattern),
+        "-vf", "scale=640:640:force_original_aspect_ratio=decrease,pad=640:640:(ow-iw)/2:(oh-ih)/2:color=#181c16",
         "-c:v", "libx264", "-pix_fmt", "yuv420p", str(out_mp4)
     ]
     subprocess.run(cmd_mp4, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -81,8 +82,8 @@ def render_screenshots(screenshots_dir: Path, output_base: Path, fps: int = 1) -
     # Render GIF
     cmd_gif = [
         ffmpeg, "-y", "-framerate", str(fps),
-        "-pattern_type", "glob", "-i", str(screenshots_dir / "*.png"),
-        "-vf", "scale=520:560:force_original_aspect_ratio=decrease,pad=520:560:(ow-iw)/2:(oh-ih)/2:color=black,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse",
+        "-pattern_type", "glob", "-i", str(screenshots_dir / glob_pattern),
+        "-vf", "scale=620:620:force_original_aspect_ratio=decrease,pad=620:620:(ow-iw)/2:(oh-ih)/2:color=#181c16,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse",
         str(out_gif)
     ]
     subprocess.run(cmd_gif, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

@@ -239,6 +239,10 @@ def render_report(summary, evidence):
     return "\n".join(lines)
 
 
+ALLOWED_LEGACY_EVIDENCE = ("synthetic_pilot_smoke", "measured_development_pilot")
+ALLOWED_STAGED_EVIDENCE = ("synthetic_staged_pilot_collection", "synthetic_staged_collector_fixture")
+
+
 def load_fitting_bank(run: Path) -> Tuple[Dict[str, Any], List[Dict[str, Any]], Dict[str, Any]]:
     """Fitting-only bank reader with strict validation-outcome isolation (G4)."""
     manifest_path = run / "manifest.json"
@@ -276,7 +280,7 @@ def load_fitting_bank(run: Path) -> Tuple[Dict[str, Any], List[Dict[str, Any]], 
 
 
 def write_fitting_seal(run: Path, output: Path) -> Dict[str, Any]:
-    """Fit rule menu on train items only, write selection.json, and seal manifest with selection_sha256 (G4, G5)."""
+    """Fit rule menu on train items only, write selection.json, and seal manifest with selection_sha256 (G4, G5, H2)."""
     if output.exists():
         raise FileExistsError(f"Output directory {output} already exists")
     manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
@@ -284,24 +288,48 @@ def write_fitting_seal(run: Path, output: Path) -> Dict[str, Any]:
     is_staged = manifest.get("mode") == "gsm8k_development_pilot_collection"
     if is_staged:
         require(manifest.get("status") == "complete", f"Staged run not complete: {manifest.get('status')}")
-        identity = manifest.get("identity", {})
-        evidence = identity.get("evidence", "synthetic_staged_pilot_collection")
-        synthetic = evidence.startswith("synthetic")
+        identity = manifest.get("identity")
+        require(isinstance(identity, dict), "Staged run manifest missing identity dictionary")
+        require("evidence" in identity, "Staged run identity missing required 'evidence' field")
+        evidence = identity["evidence"]
+        require(isinstance(evidence, str) and bool(evidence), "Staged evidence must be a non-empty string")
+
+        # H2: Reject non-synthetic staged evidence as deferred until real model adapter exists
+        if evidence in ("measured_development_pilot", "measured_staged_pilot_collection") or not evidence.startswith("synthetic"):
+            raise ValueError(
+                "Measured staged collection is deferred; non-synthetic evidence is not permitted on staged schema "
+                "until real model adapter is implemented and reviewed."
+            )
+        require(evidence in ALLOWED_STAGED_EVIDENCE, f"Unsupported staged collection evidence: {evidence}")
+        synthetic = True
+
         require(identity.get("seed") == 42 and identity.get("prompt_profile") == "english-math-v1", "Unexpected seed/profile")
         require(set(identity.get("strategies", [])) == set(ACTIONS) and len(identity["strategies"]) == 3, "Expected DIRECT/COT/PAL only")
         require(identity.get("max_tokens") == 1024, "Expected single matched cap 1024")
-        source_sha256 = identity.get("source_hashes", {})
+
+        backend = identity.get("backend", "mock")
+        require(backend in ("mock", "smoke"), f"Unsupported staged collection backend: {backend}")
+
+        source_hashes = identity.get("source_hashes")
+        require(isinstance(source_hashes, dict) and bool(source_hashes), "Staged identity missing source_hashes dictionary")
+        for path_name, h in source_hashes.items():
+            require(
+                isinstance(h, str) and len(h) == 64 and all(c in "0123456789abcdef" for c in h.lower()),
+                f"Invalid sha256 source hash for {path_name}: {h}",
+            )
+        require("experiments/research_study.py" in source_hashes, "Missing experiments/research_study.py in staged source_hashes")
+        source_sha256 = source_hashes
         dataset, fit_records, _ = load_fitting_bank(run)
         items = dataset["items"]
     else:
-        require(manifest.get("evidence") in ("synthetic_pilot_smoke", "measured_development_pilot"), "Unknown input evidence")
+        require(manifest.get("evidence") in ALLOWED_LEGACY_EVIDENCE, f"Unknown input evidence: {manifest.get('evidence')}")
         evidence = manifest["evidence"]
         synthetic = manifest["evidence"] == "synthetic_pilot_smoke"
         require(manifest.get("backend") == ("smoke" if synthetic else "mlx"), "Backend/evidence mismatch")
         require(manifest.get("seed") == 42 and manifest.get("prompt_profile") == "english-math-v1", "Unexpected seed/profile")
         require(set(manifest.get("strategies", [])) == set(ACTIONS) and len(manifest["strategies"]) == 3, "Expected DIRECT/COT/PAL only")
         require(manifest.get("token_budgets") == [1024], "Expected single matched cap 1024")
-        source_sha256 = manifest.get("source_sha256", {})
+        source_sha256 = manifest.get("source_hashes", manifest.get("source_sha256", {}))
         dataset, fit_records, _ = load_fitting_bank(run)
         items = dataset["items"]
         if not synthetic:
@@ -349,7 +377,7 @@ def write_fitting_seal(run: Path, output: Path) -> Dict[str, Any]:
 
 
 def write_validation_evaluation(selection_dir: Path, output: Path) -> Dict[str, Any]:
-    """Evaluate sealed selection on validation items without re-fitting candidate rules (D4, D5, G3)."""
+    """Evaluate sealed selection on validation items without re-fitting candidate rules (D4, D5, G3, H3)."""
     if output.exists():
         raise FileExistsError(f"Output directory {output} already exists")
     manifest_path = selection_dir / "manifest.json"
@@ -408,12 +436,45 @@ def write_validation_evaluation(selection_dir: Path, output: Path) -> Dict[str, 
     val_ids = {i["id"] for i in val_items}
     summary, rows = evaluate_selection(selection, val_items, [r for r in val_records if r["id"] in val_ids])
 
+    # H3: Complete collection cost across both fitting and validation roles
+    if (run / "records.json").is_file():
+        full_collection_records = json.loads((run / "records.json").read_text(encoding="utf-8"))
+    else:
+        full_collection_records = all_records
+
+    total_gen_tokens = sum(r["tokens"] for r in full_collection_records)
+    total_prompt_tokens = sum(r["trace"]["generations"][0]["prompt_tokens"] for r in full_collection_records)
+    total_calls = len(full_collection_records)
+
+    budget_charged = total_gen_tokens
+    if (run / "summary.json").is_file():
+        col_summary = json.loads((run / "summary.json").read_text(encoding="utf-8"))
+        budget_charged = col_summary.get("budget_charged_tokens", total_gen_tokens)
+
+    val_gen_tokens = sum(r["tokens"] for r in val_records)
+    val_prompt_tokens = sum(r["trace"]["generations"][0]["prompt_tokens"] for r in val_records)
+
+    fit_records = [r for r in full_collection_records if r.get("split") == "train"]
+    fit_gen_tokens = sum(r["tokens"] for r in fit_records)
+    fit_prompt_tokens = sum(r["trace"]["generations"][0]["prompt_tokens"] for r in fit_records)
+
     output.mkdir(parents=True, exist_ok=False)
     summary["cost_scope"] = manifest["cost_scope"]
     summary["full_collection"] = {
+        "generation_calls": total_calls,
+        "generated_tokens": total_gen_tokens,
+        "prompt_tokens": total_prompt_tokens,
+        "budget_charged_tokens": budget_charged,
+    }
+    summary["validation_only_collection"] = {
         "generation_calls": len(val_records),
-        "generated_tokens": sum(r["tokens"] for r in val_records),
-        "prompt_tokens": sum(r["trace"]["generations"][0]["prompt_tokens"] for r in val_records),
+        "generated_tokens": val_gen_tokens,
+        "prompt_tokens": val_prompt_tokens,
+    }
+    summary["fitting_only_collection"] = {
+        "generation_calls": len(fit_records),
+        "generated_tokens": fit_gen_tokens,
+        "prompt_tokens": fit_prompt_tokens,
     }
 
     atomic_json(output / "summary.json", summary)

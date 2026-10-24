@@ -804,3 +804,154 @@ def test_integrity_record_assembled_without_tool_outcome_for_pal_rejected(tmp_pa
 
     with pytest.raises(ValueError, match="record_assembled for PAL without terminal tool_outcome"):
         GSM8KCollectorCheckpoint(run_dir, identity, dataset, settings, resume=True)
+
+
+def test_h1_dispatch_arguments_mismatch_rejected_before_dispatches(tmp_path: Path):
+    """H1: Passing mismatched token_budget, seed, strategies, or dataset to run_staged_collection fails closed with 0 dispatches."""
+    dataset = make_test_dataset(num_items=2)
+    identity = make_test_identity(dataset, evidence="synthetic_staged_pilot_collection")
+    settings = {"temperature": 0.0, "thinking": False}
+
+    run_dir = tmp_path / "run_h1_mismatch"
+    cp = GSM8KCollectorCheckpoint(run_dir, identity, dataset, settings)
+    runner = MockStagedRunner()
+
+    # 1. Mismatched token_budget (2048 != 1024)
+    with pytest.raises(ValueError, match="Dispatch token_budget .* differs from pinned identity"):
+        run_staged_collection(cp, runner, dataset, token_budget=2048)
+    assert runner.generation_dispatches == 0
+
+    # 2. Mismatched master_seed (999 != 42)
+    with pytest.raises(ValueError, match="Dispatch master_seed .* differs from pinned identity"):
+        run_staged_collection(cp, runner, dataset, master_seed=999)
+    assert runner.generation_dispatches == 0
+
+    # 3. Mismatched strategies (["DIRECT"] != ["DIRECT", "COT", "PAL"])
+    with pytest.raises(ValueError, match="Dispatch strategies .* differ from pinned identity"):
+        run_staged_collection(cp, runner, dataset, strategies=["DIRECT"])
+    assert runner.generation_dispatches == 0
+
+    # 4. Mismatched dataset
+    altered_ds = copy.deepcopy(dataset)
+    altered_ds["items"][0]["query"] = "Altered query text"
+    with pytest.raises(ValueError, match="Dispatch dataset differs from pinned checkpoint dataset"):
+        run_staged_collection(cp, runner, altered_ds)
+    assert runner.generation_dispatches == 0
+
+    # Verify journal is completely empty (zero events appended)
+    calls_text = (run_dir / "calls.jsonl").read_text(encoding="utf-8").strip()
+    assert calls_text == ""
+    cp.close()
+
+
+def test_h1_identity_completeness_at_checkpoint_creation(tmp_path: Path):
+    """H1: Identity completeness and valid types are enforced at checkpoint creation time."""
+    dataset = make_test_dataset(num_items=2)
+    identity = make_test_identity(dataset, evidence="synthetic_staged_pilot_collection")
+    settings = {"temperature": 0.0, "thinking": False}
+
+    # Missing required key
+    bad_id = copy.deepcopy(identity)
+    del bad_id["prompt_profile"]
+    with pytest.raises(ValueError, match="Identity missing required keys"):
+        GSM8KCollectorCheckpoint(tmp_path / "run_missing_key", bad_id, dataset, settings)
+
+    # Boolean max_tokens (True is not a valid integer cap)
+    bad_id2 = copy.deepcopy(identity)
+    bad_id2["max_tokens"] = True
+    with pytest.raises(ValueError, match="max_tokens must be positive non-bool integer"):
+        GSM8KCollectorCheckpoint(tmp_path / "run_bool_tokens", bad_id2, dataset, settings)
+
+
+def test_h2_staged_measured_evidence_rejected_as_deferred(tmp_path: Path):
+    """H2: Relabeling a staged run as measured evidence is rejected as deferred."""
+    dataset = make_test_dataset(num_items=2)
+    identity = make_test_identity(dataset, evidence="synthetic_staged_pilot_collection")
+    settings = {"temperature": 0.0, "thinking": False}
+
+    run_dir = tmp_path / "run_h2_staged"
+    cp = GSM8KCollectorCheckpoint(run_dir, identity, dataset, settings)
+    run_staged_collection(cp, MockStagedRunner(), dataset)
+    cp.close()
+
+    # Relabel manifest evidence to measured
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    manifest["identity"]["evidence"] = "measured_development_pilot"
+    (run_dir / "manifest.json").write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    seal_dir = tmp_path / "seal_h2"
+    with pytest.raises(ValueError, match="Measured staged collection is deferred"):
+        routing.write_fitting_seal(run_dir, seal_dir)
+
+
+def test_h2_staged_invalid_source_hashes_rejected(tmp_path: Path):
+    """H2: Staged run with invalid sha256 in source_hashes is rejected during sealing."""
+    dataset = make_test_dataset(num_items=2)
+    identity = make_test_identity(dataset, evidence="synthetic_staged_pilot_collection")
+    settings = {"temperature": 0.0, "thinking": False}
+
+    run_dir = tmp_path / "run_h2_bad_hash"
+    cp = GSM8KCollectorCheckpoint(run_dir, identity, dataset, settings)
+    run_staged_collection(cp, MockStagedRunner(), dataset)
+    cp.close()
+
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    manifest["identity"]["source_hashes"] = {"authored_unverified_source": "not-a-sha256"}
+    (run_dir / "manifest.json").write_text(json.dumps(manifest) + "\n", encoding="utf-8")
+
+    seal_dir = tmp_path / "seal_h2_bad"
+    with pytest.raises(ValueError, match="Invalid sha256 source hash"):
+        routing.write_fitting_seal(run_dir, seal_dir)
+
+
+def test_h3_full_collection_cost_reported_across_fitting_and_validation(tmp_path: Path):
+    """H3: write_validation_evaluation reports true total collection cost across both fitting and validation roles."""
+    dataset = make_test_dataset(num_items=2)  # 1 train, 1 calibration
+    identity = make_test_identity(dataset, evidence="synthetic_staged_pilot_collection")
+    settings = {"temperature": 0.0, "thinking": False}
+
+    run_dir = tmp_path / "run_h3_cost"
+    cp = GSM8KCollectorCheckpoint(run_dir, identity, dataset, settings)
+
+    # Configure differing token counts for train vs calibration
+    responses = {
+        ("item_calibration_0", "DIRECT"): {"tokens": 100},
+        ("item_calibration_0", "COT"): {"tokens": 150},
+        ("item_calibration_0", "PAL"): {"tokens": 200},
+        ("item_train_0", "DIRECT"): {"tokens": 300},
+        ("item_train_0", "COT"): {"tokens": 350},
+        ("item_train_0", "PAL"): {"tokens": 400},
+    }
+    runner = MockStagedRunner(responses=responses)
+    run_staged_collection(cp, runner, dataset)
+    cp.close()
+
+    actual_col = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+    total_calls_actual = actual_col["calls_completed"]  # 6 calls
+    total_tokens_actual = actual_col["measured_generated_tokens"]  # 100+150+200+300+350+400 = 1500 tokens
+
+    # 2. Seal
+    seal_dir = tmp_path / "seal_h3"
+    routing.write_fitting_seal(run_dir, seal_dir)
+
+    # 3. Validate
+    val_dir = tmp_path / "val_h3"
+    routing.write_validation_evaluation(seal_dir, val_dir)
+
+    val_summary = json.loads((val_dir / "summary.json").read_text(encoding="utf-8"))
+
+    # H3 Assertions:
+    # 1. full_collection must report total 6 calls, NOT 3 calls!
+    assert val_summary["full_collection"]["generation_calls"] == total_calls_actual == 6
+    assert val_summary["full_collection"]["generated_tokens"] == total_tokens_actual == 1500
+
+    # 2. validation_only_collection must report exactly 3 calls / 450 tokens
+    assert val_summary["validation_only_collection"]["generation_calls"] == 3
+    assert val_summary["validation_only_collection"]["generated_tokens"] == 100 + 150 + 200 == 450
+
+    # 3. fitting_only_collection must report exactly 3 calls / 1050 tokens
+    assert val_summary["fitting_only_collection"]["generation_calls"] == 3
+    assert val_summary["fitting_only_collection"]["generated_tokens"] == 300 + 350 + 400 == 1050
+
+    # 4. Fitting and validation costs differ
+    assert val_summary["fitting_only_collection"]["generated_tokens"] != val_summary["validation_only_collection"]["generated_tokens"]

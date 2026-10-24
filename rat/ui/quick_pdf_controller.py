@@ -34,6 +34,7 @@ from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
 from rat.ui.answer_presentation import answer_excerpt, answer_html, answer_starts_with_code, source_rows, page_reading_text
 from rat.ui.assistant_worker import create_execution_worker
+from rat.ui.pdf_snapshot_provider import PdfSnapshotRenderer
 from rat.kernel.contracts import Artifact, SourceEvidence
 
 logger = logging.getLogger("rat.ui.quick_pdf_controller")
@@ -170,6 +171,7 @@ class QuickPDFController(QObject):
         self._open_url = open_url
         self._reveal_file = reveal_file
         self._preview_file = preview_file
+        self._snapshot_renderer = PdfSnapshotRenderer()
         self._delivered.connect(self._finish, Qt.ConnectionType.QueuedConnection)
         self._execution_delivered.connect(self._handle_execution_delivered, Qt.ConnectionType.QueuedConnection)
         self._execution_status_delivered.connect(self._on_execution_status, Qt.ConnectionType.QueuedConnection)
@@ -325,6 +327,7 @@ class QuickPDFController(QObject):
             "telemetry": dict(self._telemetry),
             "turnId": self._current_turn_id or "",
             "executionId": self._current_execution_id or "",
+            "searchQuery": search.get("query", "") if view == "search" else "",
             "items": search.get("items", []) if view == "search" else [],
             "nextPage": (search.get("next_start_page") or 0) if view == "search" else 0,
             "pageText": page.get("content", "") if view == "page" else "",
@@ -430,6 +433,24 @@ class QuickPDFController(QObject):
             return False
         return self.jumpToPdfPage(rows[index]["page"])
 
+    @pyqtSlot(str, int, str, str, result=str)
+    def pageSnapshot(self, path: str, page: int, query: str = "", snippet: str = "") -> str:
+        """Render a cropped match snapshot only for the currently selected PDF."""
+        if self._closed or self._selection is None or not path or page < 1:
+            return ""
+        try:
+            resolved = Path(path).expanduser().resolve()
+        except (OSError, RuntimeError, ValueError):
+            return ""
+        if resolved != self._selection.path or page > self._selection.page_count:
+            return ""
+        return self._snapshot_renderer.render_data_url(
+            self._selection.path,
+            page,
+            query,
+            snippet,
+        )
+
     @pyqtSlot(str)
     def submitQuery(self, query: str):
         self.submit(query)
@@ -501,7 +522,7 @@ class QuickPDFController(QObject):
             return
         if request.kind == "select":
             self._selection = data
-            self._status = f"{data.path.name} · {data.page_count} trang PDF. Nhập từ khóa hoặc chọn số trang để đọc."
+            self._status = f"{data.path.name} · {data.page_count} trang PDF. Hỏi trực tiếp trong ô chat hoặc bấm ⌘F để tìm từ khóa."
             self._view = "none"
         elif request.kind == "search":
             self._search = data
@@ -1085,11 +1106,20 @@ class QuickPDFController(QObject):
             self._show_error("file_not_found")
             return False
         if p.suffix.lower() == ".pdf":
-            self.selectFile(str(p))
             q = query.strip()
-            if q:
-                self.submitQuery(q)
-            return True
+            if not q:
+                self.selectFile(str(p))
+                return True
+            if self._request:
+                self._request.cancelled.set()
+                self._request = None
+            try:
+                self._selection = select_pdf(p)
+            except SelectedPDFError as exc:
+                self._show_error(exc.code)
+                return False
+            self._search = self._page = None
+            return self.submit(q)
         else:
             try:
                 content = p.read_text(encoding="utf-8", errors="replace")[:4000]
@@ -1200,5 +1230,6 @@ class QuickPDFController(QObject):
             except Exception:
                 pass
             self._finder_search = None
+        self._snapshot_renderer.close()
         pdf_closed = self._worker.close() if self._worker else True
         return pdf_closed and all(not worker.isRunning() for worker in self._execution_workers)

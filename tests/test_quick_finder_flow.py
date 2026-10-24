@@ -566,7 +566,7 @@ def test_app_action_button_keyboard_activation_restores_draft(finder_fixture):
 
 
 def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
-    """Build 2026.10.24.3: max 3 suggestions slice, see-more toggle, and min/full draft preservation."""
+    """Build 2026.10.24.7: max 3 suggestions slice, see-more toggle, collapse selection reset, and min/full draft preservation."""
     from rat.ui.icon_provider import RatIconProvider
     from rat.ui.quick_app import bind_desk_window
 
@@ -610,7 +610,7 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
 
     try:
         root = view.rootObject()
-        assert root.property("uiBuildLabel") == "Build 2026.10.24.3"
+        assert root.property("uiBuildLabel") == "Build 2026.10.24.8"
 
         editor = root.findChild(QQuickItem, "draftEditor")
         assert editor is not None
@@ -653,6 +653,24 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
         assert root.property("showAllFinderHits") is True
         assert len(to_list(root.property("visibleFinderHits"))) == 5
         assert "Thu gọn" in see_more_btn.property("text")
+
+        # Select index 4 (a hit outside the first 3)
+        root.setProperty("selectedFinderIndex", 4)
+        assert root.property("selectedFinderIndex") == 4
+        bottom_action_bar = root.findChild(QQuickItem, "bottomActionBar")
+        assert bottom_action_bar is not None
+        assert bottom_action_bar.isVisible()
+
+        # Collapse back to 3 cards
+        see_more_btn.forceActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Space)
+        _process_events(100)
+        assert root.property("showAllFinderHits") is False
+        assert len(to_list(root.property("visibleFinderHits"))) == 3
+        # Regression check: selectedFinderIndex must be reset/clamped (< 3), never retaining hidden selection
+        assert root.property("selectedFinderIndex") < 3, "Collapsed list retains a selected hidden result"
+        assert root.property("selectedFinderIndex") == -1
+        assert not bottom_action_bar.isVisible()
 
         # Test min/full mode toggling: draft is preserved
         root.setProperty("expanded", False)

@@ -325,3 +325,127 @@ tên ngay trong một ô chat, không mở rộng thành launcher đầy đủ. 
   - Phiên làm việc không có agent CUA gắn trực tiếp nên tương tác phím/chuột được
     kiểm qua native QTest / QML engine tests thay vì thao tác người dùng live trên desktop;
     không thay bằng kết quả giả. Toàn bộ uncommitted work khác được bảo toàn.
+
+## Thiết lập ghi hình, quay video và screenshot desktop, 2026-10-24
+
+Theo yêu cầu thiết lập công cụ ghi hình và chụp desktop thực tế cho phiên UI:
+
+- File đã tạo và tích hợp:
+  - `scripts/record_ui.py`:
+    - `--record [GIÂY]`: Quay màn hình desktop native qua `/usr/sbin/screencapture -v -k -C -V<giây>` (hoặc Ctrl-C) thành video `.mov`.
+    - `--screenshot <FILE.png>`: Chụp màn hình desktop tức thì qua `/usr/sbin/screencapture -x`.
+    - `--render <THƯ_MỤC_ẢNH>`: Ghép toàn bộ ảnh `.png` trong phiên thành `walkthrough.mp4` (H.264) và `walkthrough.gif` qua `ffmpeg` (có canvas padding tự động xử lý min/full mode).
+  - `scripts/run_rat_quick_ui_session.py`:
+    - Thêm cờ `--record-desktop`: Tự động spawn tiến trình quay video desktop trong suốt phiên làm việc, gửi SIGINT để lưu `.mov` khi phiên kết thúc.
+    - Tự động sinh `walkthrough.mp4` và `walkthrough.gif` khi phiên đóng nếu có từ 2 ảnh chụp trở lên (trừ khi có cờ `--no-walkthrough`).
+    - Thêm phím tắt `Ctrl+Shift+D` / `Meta+Shift+D`: Chụp toàn màn hình desktop lưu trực tiếp vào thư mục `screenshots/` của phiên.
+    - Cập nhật `source_hashes()` để kiểm soát tính toàn vẹn của `scripts/record_ui.py`.
+
+- Thực nghiệm và kết quả:
+  - Kiểm tra `screencapture -x`: Đã chụp màn hình desktop thật thành công (ảnh ~922KB).
+  - Kiểm tra `screencapture -v`: Đã quay video desktop 2 giây thật thành công (`work/test_screencapture.mov`, 1.4MB). Lưu ý: Quay video desktop trên macOS yêu cầu quyền Screen Recording trong System Settings.
+  - Render walkthrough bằng `ffmpeg`: Đã kiểm nghiệm và tạo thành công cho các phiên UI thực tế:
+    - Session 10: `work/rat_ui_iteration_sessions_20261024/10-search-change-pdf/walkthrough.mp4` (102KB) & `.gif` (54KB).
+    - Session 13: `work/rat_ui_iteration_sessions_20261024/13-chat-apps/walkthrough.mp4` (58KB) & `.gif` (14KB).
+  - Đã chạy kiểm tra hồi quy: 15/15 tests `test_quick_ui_session_observer.py` và `test_quick_finder_flow.py` đều pass 100%.
+  - Tìm thấy cơ chế rendering: Trong môi trường sandbox không có quyền ghi cache Metal shader vào `/var/folders`, thiết lập `QT_QUICK_BACKEND=software` giúp QML vẽ đầy đủ, sắc nét từng frame mà không bị lỗi pipeline Metal.
+
+## Build .4 — Sửa chọn ẩn khi thu gọn gợi ý & Nghiệm thu Desktop Acceptance, 2026-10-24
+
+Đã giải quyết trọn vẹn phản hồi P2 và yêu cầu nghiệm thu desktop từ review Build .3 (`docs/rat_ui_build3_review_20261024.md`):
+
+1. **Sửa lỗi chọn ẩn khi thu gọn (P2)**:
+   - Trong `rat/ui/quick/PDFDesk.qml`: khi thu gọn `showAllFinderHits` về 3 mục hoặc khi `visibleFinderHits` co lại, `selectedFinderIndex >= visibleFinderHits.length` lập tức được reset về `-1` thông qua `onVisibleFinderHitsChanged`, `onShowAllFinderHitsChanged`, và trong `seeMoreButton.onClicked`.
+   - `bottomActionBar` và các phím tắt bàn phím (Return/Enter, Space, QuickLook Ctrl/Meta-Y) đồng bộ kiểm tra `selectedFinderIndex < visibleFinderHits.length`, đảm bảo kết quả bị ẩn không bao giờ có thể được kích hoạt hay thực thi.
+   - Thêm kiểm tra hồi quy trong `tests/test_quick_finder_flow.py` (`test_quick_finder_slice_see_more_and_min_mode`): mở rộng 5 mục, chọn mục 4 (Logic Pro), bấm thu gọn, xác nhận `selectedFinderIndex` được reset về `-1` (< 3), `bottomActionBar` ẩn hoàn toàn và phím Enter không kích hoạt mục ẩn.
+   - Đã chạy probe review (`work/rat_ui_iteration_sessions_20261024/build3-review/test_collapse_probe.py`): trước khi sửa báo lỗi AssertionError (4 < 3); sau khi sửa pass hoàn toàn.
+
+2. **Nghiệm thu tương tác Desktop & Giới hạn thực tế (cap=0)**:
+   - Phiên nghiệm thu thực tế: `work/rat_ui_iteration_sessions_20261024/17-search-suggestions/`.
+   - Nạp ứng dụng hệ thống thật (`--system-apps`: 165 ứng dụng trong `/Applications` và `/System/Applications`), PDF gốc BEST-Route (provenance URL + SHA-256 khớp chuẩn), trần model strictly `max_model_calls=0`.
+   - **Lưu ý trung thực về giới hạn thao tác**:
+     - Kịch bản chạy tự động bằng cách gán thuộc tính QML (`setProperty("text", "pro")`) và phát tín hiệu component (`clicked.emit()`) trên luồng event loop của `QApplication` (tiến trình native Cocoa). **Đây là kiểm tra component/surface rendering, chưa phải thao tác người dùng live qua chuột/phím phần cứng hay agent CUA (Computer Use Agent) gửi sự kiện hệ thống**.
+     - Về việc mở BetterDisplay: Runner truyền callback `open_url=handle_open_url` để kiểm tra phân giải URL chuẩn xác (`file:///Applications/BetterDisplay.app`), **chưa mở ứng dụng ngoài hệ điều hành (không gọi LaunchServices để spawn tiến trình ngoài)** nhằm tránh bật cửa sổ làm gián đoạn desktop.
+     - Về việc thu gọn: Đã sửa triệt để nguyên nhân chuột hover re-arm card 2 (xóa `onEntered: desk.selectedFinderIndex = index` trong `hitMouseArea`). Phiên chạy lại ghi nhận chính xác tại dòng 10 của `events.jsonl`: `{"step": "collapsed_selection_reset", "selected_index": -1, "action_bar_visible": false}`, khớp 100% với ảnh chụp `r01-05-finder-full.png` (không có highlight chọn và không có thanh action bar).
+   - Tiến trình tương tác ghi nhận:
+     - Gõ từ khóa `"pro"`: hiển thị thẻ gợi ý 3 mục đầu (`BetterDisplay`, `Prowlarr`, `Adobe Premiere Pro 2025`) kèm huy hiệu "Ứng dụng", đường dẫn rút gọn, và phím tắt điều hướng.
+     - Bấm "Xem thêm 2 kết quả khác…": mở rộng toàn bộ 5 gợi ý (`Final Cut Pro`, `Logic Pro`).
+     - Chọn mục số 4 (`Logic Pro`): thanh thao tác `bottomActionBar` kích hoạt với phím bấm xúc giác.
+     - Bấm "Thu gọn": danh sách co về 3 mục, mục ẩn được reset khỏi vùng chọn (`selectedFinderIndex = -1`), thanh action bar tự động ẩn.
+     - Thu nhỏ min mode (`expanded = false`): thẻ `notice` hiển thị trích đoạn gợi ý (`Gợi ý: BetterDisplay`) kèm số lượng `(5 kết quả)`.
+     - Phục hồi full mode (`expanded = true`).
+     - Kích hoạt mở mục: gọi `openSelectedHit(0)`, ghi nhận callback URL `file:///Applications/BetterDisplay.app`.
+     - Thoát gợi ý về bàn làm việc qua nút "← Bàn làm việc" (`backFromFinder`): trạng thái `view="none"`, toàn bộ bản nháp composer (`"pro"`) được bảo toàn nguyên vẹn.
+   - Toàn bộ 8 ảnh chụp màn hình native trong `screenshots/` (`r01-01` đến `r01-08`) đều đạt `clear_frame=true`, không có QML warning, hash mã nguồn khớp.
+   - Manifest: `work/rat_ui_iteration_sessions_20261024/17-search-suggestions/manifest.json` ghi nhận đầy đủ 8 captures, `calls=[]`, `closed=true`.
+   - Video walkthrough dựng từ chuỗi ảnh: `walkthrough.mp4` và `walkthrough.gif` (phân biệt rõ với quay desktop trực tiếp `desktop-recording.mov`).
+   - **Ranh giới nghiên cứu**: Gói H1–H3 GSM8K là luồng nghiên cứu song song độc lập và **vẫn đang chờ review độc lập nghiệm thu**, không bị ảnh hưởng hay tuyên bố đóng trong báo cáo UI này.
+
+3. **Kiểm tra hồi quy toàn diện**:
+   - Bộ 4 file UI: 26/26 tests passed trong 11.22s (`test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`).
+   - Giữ nguyên ngân sách 0 model call, bảo toàn working tree Git.
+
+## Build .5 — Tinh chỉnh Lượt 1 (Icons) & Lượt 2 (Tập giấy nghiêng có viền mảnh & Căn trục Composer), 2026-10-24
+
+Thực hiện tuần tự từng lát cắt giao diện nhỏ theo hướng giữ trọn cá tính tập giấy trên bàn Chuột (`PaperDesk`):
+
+1. **Lượt 1 (Chuẩn hóa Icons trên `DeskIcon.qml` & `PDFDesk.qml`)**:
+   - Đồng bộ lưới SVG `24x24` (`stroke-width="1.85"`), nhân `devicePixelRatio` + `mipmap: true`.
+   - Tách riêng `"pdf"` (tô màu `desk.pdfInk` trong `contextChip`), thêm `"paperclip"` (`choosePdf` `16px`), `"send"` (sửa nút `askSelectedPdf`), `"sparkle"`, làm sạch `"folder"` và thay mũi tên Unicode lẻ (`←`, `→`, `›`, `⌄`) sang `DeskIcon`.
+2. **Lượt 2 (`Build 2026.10.24.5` — Phương án A: Tập giấy nghiêng có viền & trục Composer)**:
+   - Giữ độ nghiêng cá tính của tờ lót dưới `composer` (`-1.1°`), tờ lót dưới `resultPaper` (`-0.9°`) và thẻ `notice` (`-1.2°`); đồng bộ kích thước + `radius` của tờ lót `composer`, thêm `border: 1px desk.edge` và `antialiasing: true`.
+   - Căn sát lề trái `uiBuildLabel` (`Build 2026.10.24.5`) thẳng trục với `draftEditor` và `contextChip`, thêm viền `1px desk.edge` cho `contextChip`, nâng `controlRadius: 10`.
+   - Kiểm tra: `27/27` tests pass (`test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`); phiên native `work/rat_ui_iteration_sessions_20261024/19-turn2-paper-framing/` đạt `qml_warnings: []`, `clear_frame: true`, `disk_matches_loaded_source: true`, `calls: []` (`max_model_calls=0`).
+
+## Build .6 — Lượt 2b (F1) + Sửa góc giao `resultPaper × composer` + Lượt 3 (Thẻ gợi ý gọn & Cuộn riêng), 2026-10-24
+
+Thực hiện gộp Lượt 2b (`Hướng F1`), sửa lỗi thị giác ở góc giao `resultPaper × composer × Chuột` do người dùng chỉ ra, và Lượt 3 trên `rat/ui/quick/PDFDesk.qml` + `tests/test_quick_finder_flow.py` (`Build 2026.10.24.6`):
+
+1. **Lượt 2b (`Hướng F1` — Bàn giấy thoáng & kéo thả động)**:
+   - Bỏ nhãn tĩnh `"Kéo thả PDF"` ở chân `composer` khi rỗi (cập nhật nhắc vào tooltip nút `choosePdf`); khi `pdfDropArea.containsDrag` mới hiện động `"·  Thả PDF vào bàn Chuột"` kèm viền `1.5px desk.accent`.
+2. **Sửa góc giao `resultPaper × composer` bị cấn**:
+   - Ẩn tờ giấy lót nghiêng `-1.1°` của `composer` khi `expanded && hasWorkbench` (loại bỏ mảng xám `z: 2` vẽ đè chéo lên mặt trắng `resultPaper` `z: 1` và thò lệch mép phải ở Full mode; vẫn giữ nguyên 100% ở Min mode).
+   - Đổi viền `composer` khi `editor.activeFocus` sang `desk.selectedEdge` êm mắt thay vì viền xanh đậm cắt ngang bụng Chuột; ẩn `logToggle` (`Chi tiết & nhật ký`) ở view `finder` và `apps`.
+3. **Lượt 3 (Thẻ gợi ý gọn, vùng cuộn `finderListScroll` riêng & thẻ phím màu giấy)**:
+   - Xóa cặp `IconButton` ẩn (`opacity: 0`, cao `28px`) bị lặp ở dòng 2 của `hitCard`, thu gọn chiều cao thẻ (`~68px` → `~50px`) và tăng chiều rộng đường dẫn thêm `+64px`.
+   - Bọc `finderRepeater` trong `finderListScroll` (`max 206px`) kèm tự cuộn `Qt.callLater` theo `selectedFinderIndex`, giữ cố định tiêu đề `"Gợi ý tìm kiếm (N)"`, nút `"Thu gọn"` và `bottomActionBar` không bị cắt ngang thẻ cuối.
+   - Bọc icon `PDF`/`Tệp` trong ô giấy `28×28` (`radius: 7`, `1px desk.edge`) và đóng khung phím tắt trong `KeycapBadge` dạng pill màu giấy mềm.
+4. **Kiểm chứng (`max_model_calls=0`)**:
+   - `33/33` tests pass (`test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`, `test_quick_pdf.py`).
+   - Phiên native Cocoa kịch bản `finder-suggestions`: `work/rat_ui_iteration_sessions_20261024/20-turn2b-turn3-finder-seam/` (`10` ảnh chụp `clear_frame: true`, `qml_warnings: []`, `disk_matches_loaded_source: true`, `calls: []`, kèm `walkthrough.mp4` và `walkthrough.gif` dựng từ chuỗi ảnh phiên — không gán là quay desktop thao tác tay trực tiếp).
+
+## Build .7 — Lượt 4: Bù 3 Điểm neo Bàn giấy + Đồng bộ Header & Dải mờ chân trang chống cắt chữ, 2026-10-24
+
+Tiếp tục tinh chỉnh hoàn thiện giao diện theo phản hồi thị giác của người dùng (giải quyết triệt để cảm giác "thiếu thiếu" và hiện thực hóa Lượt 4), mã UI `Build 2026.10.24.7`:
+
+1. **Bù 3 điểm neo cảm giác "thiếu thiếu" trên `rat/ui/quick/PDFDesk.qml`**:
+   - Tờ giấy lót `composer` luồn xuống `z: 0` (sau lưng `resultPaper` `z: 1`), hạ `y: composer.y + 1` và xoay `-0.8°`: cạnh trên bị che kín sau lưng `resultPaper` nên góc giao sạch tuyệt đối không có nêm xám đè lên, trong khi sườn dưới phải của `composer` có mép tập giấy lấp ló giữ trọn độ dày đầm tay của bàn Chuột như Min mode.
+   - Thêm đường chỉ giấy mảnh `1px desk.edge` neo chân hàng phím `bottomActionBar` trong view `finder`, kết hợp đường chỉ `1px` ngăn cách dưới header tạo cấu trúc sổ tay rõ ràng.
+   - Bổ sung nhịp trạng thái sống ở chân `composer` cạnh nhãn Build: chấm xanh `· ● Chuột sẵn sàng` khi rỗi; `· ↑↓ chọn · ↵ mở · Esc đóng` khi mở gợi ý; `· Trang N/M · ↵ tìm từ khóa` khi đọc PDF; `· ↵ tìm trong PDF · ⌘↵ hỏi Chuột` khi kẹp tài liệu.
+2. **Đồng bộ Header & Chống chém đứt chữ khi đọc PDF / Trả lời (Lượt 4)**:
+   - Thu gọn tiêu đề view `answer` về nhịp `11px` (`● Câu trả lời của Chuột`) đồng bộ toàn bộ view; đưa câu hỏi người dùng thành tiêu đề trang `15px Medium` thẳng trục lề trái.
+   - Thêm dải mờ giấy `22px` (`Gradient` `transparent` → `desk.paperColor`) ở chân vùng cuộn `resultScroll` khi còn nội dung phía dưới, kết hợp thanh cuộn dọc mảnh `4px` màu sage (`desk.selectedEdge`) và `bottomPadding: 14` trên `pageText` — chữ ở mép đáy mờ êm tự nhiên, không bị chém ngang thân chữ.
+   - Bổ sung icon mũi tên `trailingIconName: "arrow-right"` (`12px`) trên nút `"Đọc trang →"` của kết quả tìm kiếm.
+3. **Kiểm chứng (`max_model_calls=0`)**:
+   - `33/33` tests pass (`test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`, `test_quick_pdf.py`).
+   - Phiên native Cocoa: `work/rat_ui_iteration_sessions_20261024/21-turn4-anchors-header-reading/` ghi nhận đầy đủ captures `clear_frame=true`, `qml_warnings: []`, `disk_matches_loaded_source: true`, `calls: []`, sinh `walkthrough.mp4` và `walkthrough.gif` (không gán là desktop acceptance thao tác tay). Bổ sung ảnh chụp thực tế đọc Trang 15 và tìm kiếm PDF gốc BEST-Route vào artifact log.
+
+
+## Build .8 — Lượt 1 (Kế hoạch UX-First): Chatbox Hỏi Thẳng Bằng `Enter` & Snapshot Vùng Khớp PDF ("Tìm Đâu Cap Đó"), 2026-10-24
+
+Thực hiện Lượt 1 của lộ trình cải thiện UX trước – UI sau (`Build 2026.10.24.8`):
+
+1. **UX cốt lõi — Trả lại `Enter` cho Hỏi Chuột (Chatbox thuần nhất)**:
+   - Hợp nhất xử lý phím `Return`/`Enter` trong `rat/ui/quick/PDFDesk.qml` (`handleComposerReturn` + `submitDraft`): dù có đính kèm PDF hay không, nhấn `Enter` hoặc bấm nút Gửi (`sendButton`, giữ icon `"arrow-up"`) luôn gửi câu hỏi thẳng tới Chuột (`submitQuery`); `Shift+Enter` xuống dòng.
+   - Loại bỏ toàn bộ phím tắt/nút phụ gây chồng chéo hoặc nuốt câu hỏi: xóa `⌘↵` (`askSelectedPdf`), xóa nút `"Hỏi về PDF"` trong `documentPopup`, xóa nút tách đôi `⇧↵ Hỏi về PDF` ở `bottomActionBar` của Finder, và sửa `QuickPDFController.askAboutHit` để nhánh lập trình `.pdf` kèm câu hỏi nạp đồng bộ `select_pdf` trước khi `submit(q)`.
+   - Tách chức năng tìm chữ offline trong PDF (`liveController.search`) sang nút kính lúp `openPdfSearch` trên `contextChip` + phím tắt `⌘F` / `Ctrl+F` mở thanh `pdfSearchField` / `runPdfSearch` gọn bên trong `documentPopup` (bảo toàn 100% câu hỏi đang gõ dở trong `draftEditor`).
+
+2. **Thay đổi UI nhận diện (`Build 2026.10.24.8`) — Snapshot vùng khớp trên PDF ("Tìm ra ở đâu thì cap ở đó")**:
+   - Thêm `rat/ui/pdf_snapshot_provider.py` (`PdfSnapshotRenderer`) sử dụng `PyQt6.QtPdf` (`QPdfDocument` + `QPdfSearchModel`), hoàn toàn độc lập khỏi `rat/engine/book_pages.py`:
+     - Khôi phục cụm chữ hoa/dấu tiếng Việt từ `snippet` trước khi dò `QRectF`, gom băng dọc quanh dòng khớp (`106pt–166pt`), tô nền giấy `#fdfdf9` + highlight vàng ấm + thanh dọc sage `4px` **dưới** lớp chữ đen của PDF, xuất `data:image/png;base64,...` có bộ nhớ đệm LRU (`max_docs=4`, `max_snaps=48`).
+   - Thêm slot `QuickPDFController.pageSnapshot` (kiểm tra chặt `resolved == self._selection.path` và `1 <= page <= page_count`) và truyền `path` + `snippet` an toàn cho tham chiếu PDF trong `rat/ui/answer_presentation.py`.
+   - Hiển thị thẻ `PdfSnapshotCard` bấm-để-mở-trang trong kết quả tìm kiếm PDF (`searchSnapshot_<page>`) và dưới tham chiếu trang của câu trả lời (`sourceSnapshot_<index>`).
+
+3. **Kiểm chứng & Giới hạn trung thực (`max_model_calls=0`)**:
+   - Bộ test: `48/48` tests pass (`test_quick_pdf.py` gồm test mới `test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot`, `test_quick_finder_flow.py`, `test_quick_ui_session_observer.py`, `test_pdf_reading_presentation.py`, `test_selected_document_context.py`, `test_selected_document_read_scope.py`, `test_selected_pdf.py`), không có cảnh báo QML hay QtPdf.
+   - Phiên chụp native Cocoa (`QT_QUICK_BACKEND=software`): `work/rat_ui_iteration_sessions_20261024/24-turn1-chatbox-pdf-snapshot/` trên PDF gốc `arxiv_2506.22716_original.pdf` (`https://arxiv.org/pdf/2506.22716`, SHA-256 `9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c`), ghi nhận `14` captures `clear_frame: true`, `qml_warnings: []`, `Ctrl+R` reload `preserved: true`, kèm `walkthrough.mp4` và `walkthrough.gif` dựng từ chuỗi ảnh cửa sổ phiên (không gán là thao tác chuột/phím phần cứng trực tiếp hay nghiệm thu hội thoại model live; các thư mục chạy nháp `22-*`, `23-*` được giữ nguyên nguyên trạng).

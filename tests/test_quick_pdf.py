@@ -36,16 +36,21 @@ def wait_for(predicate, timeout=5):
     QTest.qWait(20)
 
 
-def click(view, root, name):
+def find_item(root, name):
     item = root.findChild(QQuickItem, name)
-    if item is None:
-        pending = list(root.childItems())
-        while pending:
-            candidate = pending.pop()
-            if candidate.objectName() == name:
-                item = candidate
-                break
-            pending.extend(candidate.childItems())
+    if item is not None:
+        return item
+    pending = list(root.childItems())
+    while pending:
+        candidate = pending.pop()
+        if candidate.objectName() == name:
+            return candidate
+        pending.extend(candidate.childItems())
+    return None
+
+
+def click(view, root, name):
+    item = find_item(root, name)
     assert item is not None and item.isVisible(), name
     point = item.mapToScene(QPointF(item.width() / 2, item.height() / 2))
     assert 0 <= point.x() <= view.width() and 0 <= point.y() <= view.height(), (name, point)
@@ -98,24 +103,32 @@ def test_real_qml_search_read_copy_back_error_and_draft(app, controller, tmp_pat
         wait_for(lambda: not controller.snapshot["busy"])
         assert controller.snapshot["pageCount"] == 30 and not controller.snapshot["unread"]
         editor = root.findChild(QQuickItem, "draftEditor")
-        editor.setProperty("text", "binary search")
-        editor.forceActiveFocus()
-        QTest.keyClick(view, Qt.Key.Key_Return)
+        editor.setProperty("text", "Câu hỏi đang soạn dở trong chatbox")
+        click(view, root, "openPdfSearch")
+        pdf_search_field = root.findChild(QQuickItem, "pdfSearchField")
+        assert pdf_search_field is not None and pdf_search_field.isVisible()
+        pdf_search_field.setProperty("text", "binary search")
+        click(view, root, "runPdfSearch")
         wait_for(lambda: not controller.snapshot["busy"])
         assert controller.snapshot["items"][0]["page"] == 30
+        assert controller.snapshot["searchQuery"] == "binary search"
         assert root.property("noticeVisible")
         assert view.height() < 310
         if capture:
             assert view.grabWindow().save(str(Path(capture) / "pdf-unread.png"))
-        assert editor.property("text") == "binary search"
+        assert editor.property("text") == "Câu hỏi đang soạn dở trong chatbox"
         click(view, root, "notice")
         assert not controller.snapshot["unread"]
         assert abs(view.y() + composer.mapToScene(QPointF(0, composer.height())).y() - anchor) <= 1
+        snap_card = find_item(root, "searchSnapshot_30")
+        assert snap_card is not None and snap_card.isVisible()
+        wait_for(lambda: bool(snap_card.property("snapshotReady")))
+        assert snap_card.height() >= 58
         capture = os.environ.get("RAT_QUICK_CAPTURE_DIR")
         if capture:
             Path(capture).mkdir(parents=True, exist_ok=True)
             assert view.grabWindow().save(str(Path(capture) / "pdf-search.png"))
-        click(view, root, "readHit_30")
+        click(view, root, "searchSnapshot_30")
         wait_for(lambda: controller.snapshot["view"] == "page")
         assert "log n comparisons" in controller.snapshot["pageText"]
         if capture:
@@ -152,7 +165,7 @@ def test_real_qml_search_read_copy_back_error_and_draft(app, controller, tmp_pat
         click(view, root, "readPage")
         wait_for(lambda: not controller.snapshot["busy"])
         assert controller.snapshot["pageNumber"] == 30
-        assert editor.property("text") == "binary search"
+        assert editor.property("text") == "Câu hỏi đang soạn dở trong chatbox"
         editor.setProperty("text", "word\n" * 100)
         QTest.qWait(30)
         assert root.findChild(QQuickItem, "composer").height() <= 150
@@ -338,3 +351,107 @@ def test_copy_rechecks_changed_source(controller, tmp_path):
     assert controller.copyCitation("") is False
     assert controller.snapshot["errorCode"] == "pdf_changed"
     assert copied == []
+
+
+def test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot(app, tmp_path):
+    """Build 2026.10.24.8: Enter in composer asks Chuột directly even when a PDF is attached."""
+    from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
+
+    dispatched = []
+
+    class StubDocModel:
+        def chat_with_meta(self, messages, tools, **kwargs):
+            dispatched.append(messages)
+            return {
+                "message": {"content": "Tài liệu nêu binary search dùng O(log n) phép so sánh."},
+                "prompt_tokens": 24,
+                "completion_tokens": 12,
+            }
+
+        def close(self):
+            pass
+
+    pdf_path = write_pdf(tmp_path / "Algo.pdf", ["Intro page", "Binary search uses log n comparisons."])
+    stub_model = StubDocModel()
+    runtime = AssistantRuntime(model_client=stub_model, discover_tools=True)
+    runtime.document_model_client = stub_model
+    control = QuickPDFController(assistant_runtime=runtime, auto_init_finder=False)
+    control.ready()
+    view = QQuickView()
+    warnings = []
+    view.engine().warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({"liveController": control, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(PROJECT / "rat/ui/quick/PDFDesk.qml")))
+    assert view.status() == QQuickView.Status.Ready
+    root = view.rootObject()
+    view.resize(640, 520)
+    timer = bind_desk_window(view)
+    view.show()
+    try:
+        control.selectFile(str(pdf_path))
+        wait_for(lambda: not control.snapshot["busy"])
+        send_btn = root.findChild(QQuickItem, "sendButton")
+        assert send_btn.property("iconName") == "arrow-up"
+
+        # 1. Pure chatbox: pressing Enter directly asks Chuột about the selected PDF (no Cmd+Enter needed).
+        editor = root.findChild(QQuickItem, "draftEditor")
+        editor.setProperty("text", "Binary search tốn bao nhiêu phép so sánh?")
+        editor.forceActiveFocus()
+        QTest.keyClick(view, Qt.Key.Key_Return)
+        wait_for(lambda: not control.snapshot["busy"] and control.snapshot["view"] == "answer")
+        assert editor.property("text") == ""
+        assert len(dispatched) == 1
+        assert dispatched[0][-1]["content"] == "Binary search tốn bao nhiêu phép so sánh?"
+        assert "O(log n)" in control.snapshot["answerText"]
+
+        # 2. Explicit page citation renders a clickable cropped snapshot card in answerSources.
+        turn = control.conversation.begin_turn("Trang nào nêu phép so sánh?")
+        control._current_turn_id = turn.turn_id
+        control._current_execution_id = turn.execution_id
+        control._current_worker = object()
+        control._last_user_query = "Trang nào nêu phép so sánh?"
+        control._on_execution_response(AgentResponse(
+            "Xem chi tiết tại trang 2.",
+            [],
+            0,
+            0,
+            0,
+            sources=[{
+                "path": str(pdf_path),
+                "page": 2,
+                "excerpt": "Binary search uses log n comparisons.",
+            }],
+            execution_id=turn.execution_id,
+            answer_verification_status="PASS",
+        ))
+        click(view, root, "notice")
+        click(view, root, "answerSourcesToggle")
+        src_snap = find_item(root, "sourceSnapshot_0")
+        assert src_snap is not None and src_snap.isVisible()
+        wait_for(lambda: bool(src_snap.property("snapshotReady")))
+        assert src_snap.height() >= 58
+
+        # Security check: pageSnapshot rejects any unselected path
+        other_pdf = write_pdf(tmp_path / "Other.pdf", ["Secret"])
+        assert control.pageSnapshot(str(other_pdf), 1, "Secret", "Secret") == ""
+
+        # Accent-insensitive recovery check: unaccented query recovers accented span from snippet
+        from rat.ui.pdf_snapshot_provider import _candidate_phrases_and_words
+        phrases, words = _candidate_phrases_and_words("quy che", "Điều 5: Quy chế học vụ tối đa 24 tín chỉ.")
+        assert phrases[0] == "Quy chế"
+        assert "Quy" in words and "chế" in words
+
+        click(view, root, "sourceSnapshot_0")
+        wait_for(lambda: not control.snapshot["busy"] and control.snapshot["view"] == "page")
+        assert control.snapshot["pageNumber"] == 2
+        assert warnings == []
+    finally:
+        timer.stop()
+        control.close()
+        runtime.close()
+        view.setSource(QUrl())
+        view.close()
+        view.deleteLater()
+        control.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)

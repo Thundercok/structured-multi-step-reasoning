@@ -117,19 +117,63 @@ hoặc mở rộng indexing cá nhân trong lát cắt backend này.
   mơ hồ. Chỉ coi hoàn tất sau khi thử mô tả thật với file/app thật và giữ bằng
   chứng lựa chọn/mở đúng; tests routing hoặc screenshot grid không thay thế ca đó.
 
+### RAT-MAIL-01 — Đọc email ra lịch trình/plan, tạo bản nháp email và kiểm chứng tiền điện tháng
+
+**Backlog triển khai, thêm theo yêu cầu người dùng ngày 2026-10-24.**
+Mục tiêu là bổ sung một lát cắt ứng dụng thực tế gắn trực tiếp với suy luận nhiều
+bước và kiểm chứng (CoT + Verification, nối hướng `RAT-AI-03`) ngay trên cùng một
+box chat (`RAT-UX-01`), không mở màn hình quản lý email hay hóa đơn riêng. Ưu tiên
+sau baseline RAT chạy model thật ổn định và chiến dịch nghiên cứu NCKH hiện tại;
+chưa triển khai runtime từ việc ghi backlog này.
+
+Phạm vi chức năng:
+
+1. **Đọc email → lịch trình / plan có đối chiếu.** Bóc sạch nội dung email bằng
+   Python parser chuẩn (`From`, `Subject`, `Date`, `text/plain`, loại bỏ HTML rác
+   và phần quote lặp) để neo mốc thời gian tương đối cho model nhỏ; đối chiếu với
+   lịch hiện có (`timetable`) nhằm phát hiện trùng giờ, tìm khung trống và xuất
+   kế hoạch kèm trích dẫn email nguồn.
+2. **Soạn email dừng ở bản nháp (`email_draft`).** Tạo artifact bản nháp (`To`,
+   `Subject`, `Body`) trong cuộc trò chuyện kèm thao tác Copy hoặc mở bản nháp
+   ngoài (`mailto:` / `Mail.app`) để người dùng tự duyệt và bấm gửi. **Không tự
+   động gửi (no auto-send)** để phòng gửi nhầm người/giờ hoặc prompt injection từ
+   email đến.
+3. **Kiểm chứng tiền điện tháng này.** Đọc từ email thông báo tiền điện hoặc tệp
+   PDF/ảnh phiếu báo qua `document_intake` / `documents` hiện có; trích xuất kỳ
+   thanh toán, chỉ số cũ – mới, `kWh` tiêu thụ, đơn giá/bậc thang, thành tiền và
+   hạn đóng. Chạy verifier số học Python độc lập kiểm tra phép trừ chỉ số và tổng
+   tiền (báo rõ trường thiếu hoặc sai lệch thay vì tự điền số), hỗ trợ ghép bảng
+   so sánh với kỳ trước qua `compose_result_table` (`RAT-AI-02`).
+
+Ranh giới kỹ thuật và điều kiện nghiệm thu:
+
+- Nguồn email ưu tiên tệp `.eml`/PDF/nội dung đính kèm (Mức 1) hoặc đọc on-demand
+  giới hạn qua `Mail.app` local / IMAP theo truy vấn (Mức 2). Không xây email
+  client đầy đủ, không đồng bộ/index ngầm toàn bộ hộp thư cá nhân và không triển
+  khai luồng Google Cloud Gmail OAuth2 phức tạp trong lát cắt này.
+- Không viết bot đăng nhập hoặc cào trực tiếp cổng web/app EVN.
+- Giữ ranh giới `DOCAI-01`: chỉ dùng schema gọn và verifier số học cho phiếu/email
+  tiền điện; không khôi phục `modules/docai/` hay nối XML/solver hóa đơn Z3 vào
+  startup RAT.
+- Phân biệt nội dung thực sự đọc từ email/PDF với phần kế hoạch/bản nháp do model
+  đề xuất. Nghiệm thu qua UI thật và backend/model thật với email/tệp `.eml` thật
+  và PDF có provenance/hash xác minh được theo `AGENTS.md`; không thay đổi Stage 0.
+
 | ID | Hướng phát triển | Trạng thái | Phụ thuộc / bằng chứng cần có |
 | --- | --- | --- | --- |
 | RAT-AI-01 | Model điều khiển làm rõ, tiếp tục, đổi ý và tham chiếu công việc. | Backlog | [ADR-002](adr-002-rat-adaptive-interaction.md); cần kiểm tra model thật, không chỉ scripted tool calls. |
 | RAT-AI-02 | Model ghép phần kết quả và UI khai báo theo yêu cầu, hỗ trợ nhiều artifact/revision. | Có lát cắt bảng tham chiếu nguồn trong source; phần rộng hơn vẫn backlog | `compose_result_table` ghép các ô từ artifact/revision thật; có regression phần mềm. Chưa review model thật, chưa sinh UI phong phú hoặc xác nhận độ đúng diễn giải. [Phạm vi triển khai](rat_book_features.md). |
-| RAT-AI-03 | Phối hợp lịch, tài liệu và phép biến đổi dữ liệu để xử lý yêu cầu chưa có workflow riêng. | Backlog | Dữ liệu và thao tác thực, đánh giá yêu cầu mới; tránh thêm một màn hình riêng cho mỗi ví dụ. |
+| RAT-AI-03 | Phối hợp lịch, tài liệu và phép biến đổi dữ liệu để xử lý yêu cầu chưa có workflow riêng. | Backlog | Dữ liệu và thao tác thực, đánh giá yêu cầu mới (ví dụ lát cắt `RAT-MAIL-01`); tránh thêm một màn hình riêng cho mỗi ví dụ. |
 | RAT-AI-04 | Model đề xuất recipe, thành phần hoặc logic mới trong môi trường tách biệt. | Xa hơn | Sau nền tảng và evidence phù hợp; chưa chọn runtime/SDK hoặc triển khai code tùy ý. |
 
 ## DocAI — giữ độc lập, dùng sau
 
 **DOCAI-01 — Hoãn; source dư đã gỡ theo yêu cầu ngày 2026-10-17.**
-`modules/docai/` đã được đóng gói phục hồi và gỡ khỏi cây source. Người dùng hiện không
-có nhu cầu đọc hóa đơn; chưa nối XML, sinh ứng viên số hoặc solver hóa đơn Z3
-vào RAT hay pipeline CoT. Chỉ mở lại khi có yêu cầu sử dụng cụ thể.
+`modules/docai/` đã được đóng gói phục hồi và gỡ khỏi cây source. Nghiệp vụ hóa đơn
+tổng quát (XML, sinh ứng viên số, solver hóa đơn Z3) chưa nối vào RAT hay pipeline
+CoT và chỉ mở lại khi có yêu cầu cụ thể; nhu cầu đọc/kiểm chứng số học gọn cho
+phiếu hoặc email tiền điện được theo dõi riêng ở `RAT-MAIL-01` mà không khôi phục
+module cũ.
 
 Thư viện `document_intake/` đã hợp nhất PDF, Apple Vision và Tesseract tiếp tục
 được dùng chung; việc giữ DocAI độc lập không hoàn tác phần tái sử dụng này.

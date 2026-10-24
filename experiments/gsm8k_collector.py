@@ -319,6 +319,7 @@ class GSM8KCollectorCheckpoint:
                     self.was_complete = True
                     self._verify_completed_artifacts()
             else:
+                self._validate_initial_contract()
                 self.manifest = {
                     "schema_version": 1,
                     "mode": "gsm8k_development_pilot_collection",
@@ -348,6 +349,47 @@ class GSM8KCollectorCheckpoint:
                 pass
             self.lock.close()
             self.lock = None
+
+    def _validate_initial_contract(self) -> None:
+        """Validate execution identity completeness and dataset integrity before directory creation (H1)."""
+        require(isinstance(self.identity, dict), "Checkpoint identity must be a dictionary")
+        missing = self.REQUIRED_IDENTITY_KEYS - set(self.identity.keys())
+        require(not missing, f"Identity missing required keys: {sorted(missing)}")
+
+        require(
+            isinstance(self.identity["max_tokens"], int)
+            and not isinstance(self.identity["max_tokens"], bool)
+            and self.identity["max_tokens"] > 0,
+            "max_tokens must be positive non-bool integer",
+        )
+        require(
+            isinstance(self.identity["seed"], int)
+            and not isinstance(self.identity["seed"], bool),
+            "seed must be non-bool integer",
+        )
+        require(
+            isinstance(self.identity["strategies"], list)
+            and set(self.identity["strategies"]) == set(ACTIONS),
+            "strategies must match ACTIONS list",
+        )
+        expected_ds_sha = hashlib.sha256(json.dumps(self.dataset, sort_keys=True).encode("utf-8")).hexdigest()
+        require(
+            self.identity["dataset_sha256"] in (expected_ds_sha, digest(self.dataset)),
+            "Identity dataset_sha256 mismatch with provided dataset",
+        )
+        require(
+            isinstance(self.identity["source_hashes"], dict) and bool(self.identity["source_hashes"]),
+            "source_hashes must be a non-empty dictionary",
+        )
+        for path_name, h in self.identity["source_hashes"].items():
+            require(
+                isinstance(h, str) and len(h) == 64 and all(c in "0123456789abcdef" for c in h.lower()),
+                f"Invalid source hash for {path_name}: {h}",
+            )
+
+        require(isinstance(self.dataset.get("items"), list) and bool(self.dataset["items"]), "Dataset missing items list")
+        item_ids = [i["id"] for i in self.dataset["items"]]
+        require(len(item_ids) == len(set(item_ids)), f"Duplicate item IDs in dataset: {item_ids}")
 
     def _verify_identity_contract(self) -> None:
         """Verify full environment and configuration contract (D6, G1, integrity)."""
@@ -679,15 +721,50 @@ class GSM8KCollectorCheckpoint:
 def run_staged_collection(
     checkpoint: GSM8KCollectorCheckpoint,
     runner: StagedRunnerInterface,
-    dataset: Dict[str, Any],
-    strategies: List[str] = list(ACTIONS),
-    token_budget: int = MAX_TOKENS_PER_CALL,
-    master_seed: int = 42,
+    dataset: Optional[Dict[str, Any]] = None,
+    strategies: Optional[List[str]] = None,
+    token_budget: Optional[int] = None,
+    master_seed: Optional[int] = None,
     max_total_calls: int = 288,
     max_total_tokens: int = 294912,
     fail_on_interruption: bool = False,
 ) -> Dict[str, Any]:
     """Execute staged GSM8K collection under strict accounting and no-retry rules."""
+    # H1: Immutable execution contract binding before any dispatch or journal mutation
+    if dataset is not None:
+        require(dataset == checkpoint.dataset, "Dispatch dataset differs from pinned checkpoint dataset")
+    dataset = checkpoint.dataset
+
+    expected_cap = checkpoint.identity.get("max_tokens", MAX_TOKENS_PER_CALL)
+    if token_budget is not None:
+        require(
+            token_budget == expected_cap,
+            f"Dispatch token_budget ({token_budget}) differs from pinned identity ({expected_cap})",
+        )
+    token_budget = expected_cap
+
+    expected_seed = checkpoint.identity.get("seed", 42)
+    if master_seed is not None:
+        require(
+            master_seed == expected_seed,
+            f"Dispatch master_seed ({master_seed}) differs from pinned identity ({expected_seed})",
+        )
+    master_seed = expected_seed
+
+    expected_strategies = list(checkpoint.identity.get("strategies", ACTIONS))
+    if strategies is not None:
+        require(
+            list(strategies) == expected_strategies,
+            f"Dispatch strategies ({strategies}) differ from pinned identity ({expected_strategies})",
+        )
+    strategies = expected_strategies
+
+    # Check for duplicate item IDs in dataset
+    items = dataset.get("items", [])
+    require(bool(items), "Dataset items list is empty")
+    item_ids = [i["id"] for i in items]
+    require(len(item_ids) == len(set(item_ids)), f"Duplicate item IDs in dataset: {item_ids}")
+
     # Check for quarantine (D1)
     if checkpoint.has_unknown_outcomes():
         checkpoint._sync_manifest("quarantined", error="Contains started-only attempts with unknown outcomes.")

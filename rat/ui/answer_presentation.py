@@ -194,15 +194,20 @@ def source_rows(sources, selected_path=None, page_count=0):
             page = None
         provenance = source.get('provenance')
         title = source.get('title') or source.get('filename') or source.get('file_name') or source.get('name') or (provenance.get('title') if isinstance(provenance, dict) else None) or Path(path).name or source.get('source_id') or 'Nguồn'
-        matches = bool(path and selected and resolved(path) == selected)
+        resolved_path = resolved(path) if path else ''
+        matches = bool(resolved_path and selected and resolved_path == selected)
         read_scope = ''
         if source.get('truncated') is True:
             chars = source.get('read_chars')
             read_scope = 'Trích đoạn'
             if type(chars) is int and chars > 0:
                 read_scope += ' · ' + f'{chars:,}'.replace(',', '.') + ' ký tự'
+        raw_snippet = source.get('excerpt') or source.get('snippet') or ''
+        snippet = str(raw_snippet)[:300] if isinstance(raw_snippet, str) else ''
         rows.append({'title': str(title), 'page': page or 0,
                      'location': f'Trang PDF {page}' if page else 'Chưa có vị trí trang',
                      'readScope': read_scope,
+                     'path': resolved_path if matches else '',
+                     'snippet': snippet if matches else '',
                      'canOpen': bool(matches and page and page <= page_count)})
     return rows

@@ -13,6 +13,8 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import signal
+import subprocess
 import sys
 import threading
 import time
@@ -47,10 +49,12 @@ def source_hashes():
     paths += [ROOT / name for name in (
         "rat/ui/quick_pdf_controller.py", "rat/ui/quick_app.py", "rat/ui/chat_session.py",
         "rat/ui/answer_presentation.py", "rat/ui/assistant_worker.py", "rat/ui/icon_provider.py",
+        "rat/ui/pdf_snapshot_provider.py",
         "rat/engine/assistant_runtime.py", "rat/engine/selected_document_qa.py",
         "rat/engine/selected_pdf.py", "rat/engine/slm.py", "rat/engine/http_transport.py",
         "rat/engine/app_resolver.py",
         "rat/kernel/capabilities/documents.py", "scripts/run_rat_quick_ui_session.py",
+        "scripts/record_ui.py",
     )]
     return {str(path.relative_to(ROOT)): fingerprint(path) for path in sorted(paths)}
 
@@ -107,6 +111,12 @@ def parse_args(argv=None):
     parser.add_argument("--session-seconds", type=int, default=1800)
     parser.add_argument("--system-apps", action="store_true",
                         help="Read real .app metadata in /Applications and /System/Applications only")
+    parser.add_argument("--record-desktop", action="store_true",
+                        help="Record full desktop video during the session via macOS screencapture")
+    parser.add_argument("--no-walkthrough", action="store_true",
+                        help="Skip automatic walkthrough video generation from screenshots on close")
+    parser.add_argument("--scenario", choices=["finder-suggestions", "chatbox-pdf-snapshot"], default=None,
+                        help="Run an automated desktop acceptance scenario on the native window")
     args = parser.parse_args(argv)
     if args.max_model_calls < 0 or args.session_seconds < 1:
         parser.error("Invalid model budget/session duration")
@@ -189,8 +199,12 @@ def main(argv=None):
                              for item in catalog.applications],
             "scope": "Real application metadata only; no personal-file indexing",
         })
+    def handle_open_url(url):
+        event("open_url", url=url.toString())
+        return True
+
     controller = QuickPDFController(assistant_runtime=runtime, auto_init_finder=False,
-                                    finder_catalog=catalog)
+                                    finder_catalog=catalog, open_url=handle_open_url)
     QQmlEngine.setObjectOwnership(controller, QQmlEngine.ObjectOwnership.CppOwnership)
     controller.copyReady.connect(app.clipboard().setText)
     controller.copyReady.connect(lambda text: (output / "copied-source.txt").write_text(text, encoding="utf-8"))
@@ -246,6 +260,9 @@ def main(argv=None):
             "source_versions": [{"revision": item["revision"], "at": item["at"]}
                                 for item in state["source_versions"]],
             "source_hashes_file": "source-versions.json", "closed": state["closed"],
+            "walkthrough_mp4": "walkthrough.mp4" if (output / "walkthrough.mp4").exists() else None,
+            "walkthrough_gif": "walkthrough.gif" if (output / "walkthrough.gif").exists() else None,
+            "desktop_recording": "desktop-recording.mov" if (output / "desktop-recording.mov").exists() else None,
             "acceptance_scope": "Observed local UI session; no automatic semantic grading or Stage 0 claim",
         })
 
@@ -370,11 +387,22 @@ def main(argv=None):
 
     view.engine().warnings.connect(warnings)
     load_qml()
+    def capture_desktop():
+        dt_name = f"desktop-r{state['revision']:02d}-{len(state['captures']) + 1:02d}-{int(time.time())}.png"
+        dt_path = output / "screenshots" / dt_name
+        try:
+            from scripts.record_ui import take_screenshot
+            take_screenshot(dt_path)
+            event("desktop_screenshot", file="screenshots/" + dt_name)
+        except Exception as exc:
+            event("desktop_screenshot_failed", error=str(exc))
+
     view.resize(520, round(root.property("preferredWindowHeight")))
     view.setPosition(150, 350)
     shortcuts = []
     for key, callback in (("Ctrl+R", reload_qml), ("Meta+R", reload_qml),
-                          ("Ctrl+Shift+S", lambda: capture(True)), ("Meta+Shift+S", lambda: capture(True))):
+                          ("Ctrl+Shift+S", lambda: capture(True)), ("Meta+Shift+S", lambda: capture(True)),
+                          ("Ctrl+Shift+D", capture_desktop), ("Meta+Shift+D", capture_desktop)):
         shortcut = QShortcut(QKeySequence(key), view)
         shortcut.activated.connect(callback)
         shortcuts.append(shortcut)
@@ -386,16 +414,268 @@ def main(argv=None):
     expiry.setSingleShot(True)
     expiry.timeout.connect(lambda: view.rootObject().closeRequested.emit() if root is not None else app.quit())
     expiry.start(args.session_seconds * 1000)
+
+    desktop_recording_proc = None
+    if args.record_desktop:
+        dt_rec_path = output / "desktop-recording.mov"
+        try:
+            desktop_recording_proc = subprocess.Popen([
+                "/usr/sbin/screencapture", "-v", "-k", "-C", str(dt_rec_path)
+            ])
+            event("desktop_recording_started", file="desktop-recording.mov")
+        except Exception as exc:
+            event("desktop_recording_start_failed", error=str(exc))
+
+    if args.scenario == "finder-suggestions":
+        def run_finder_suggestions_scenario():
+            def step1():
+                ed = editor()
+                if ed is None:
+                    return
+                event("scenario_step", step="type_query", query="pro")
+                ed.setProperty("text", "pro")
+                QTimer.singleShot(400, step2)
+
+            def step2():
+                snap = controller.snapshot
+                event("scenario_step", step="suggestions_shown", hits=len(snap.get("finderHits", [])))
+                capture(manual=True)
+                QTimer.singleShot(500, step3)
+
+            def step3():
+                see_more = root.findChild(QQuickItem, "seeMoreFinderHits")
+                if see_more is not None:
+                    event("scenario_step", step="expand_see_more")
+                    see_more.clicked.emit()
+                QTimer.singleShot(400, step4)
+
+            def step4():
+                event("scenario_step", step="expanded_shown", visible_count=len(root.property("visibleFinderHits") or []))
+                capture(manual=True)
+                event("scenario_step", step="select_hit_4")
+                root.setProperty("selectedFinderIndex", 4)
+                QTimer.singleShot(400, step5)
+
+            def step5():
+                bar = root.findChild(QQuickItem, "bottomActionBar")
+                event("scenario_step", step="action_bar_visible", visible=bool(bar and bar.isVisible()))
+                capture(manual=True)
+                see_more = root.findChild(QQuickItem, "seeMoreFinderHits")
+                if see_more is not None:
+                    event("scenario_step", step="click_collapse")
+                    see_more.clicked.emit()
+                QTimer.singleShot(400, step6)
+
+            def step6():
+                idx = root.property("selectedFinderIndex")
+                bar = root.findChild(QQuickItem, "bottomActionBar")
+                event("scenario_step", step="collapsed_selection_reset", selected_index=idx, action_bar_visible=bool(bar and bar.isVisible()))
+                capture(manual=True)
+                QTimer.singleShot(500, step7)
+
+            def step7():
+                event("scenario_step", step="toggle_min_mode")
+                controller.setExpanded(False)
+                root.setProperty("expanded", False)
+                QTimer.singleShot(400, step8)
+
+            def step8():
+                capture(manual=True)
+                event("scenario_step", step="restore_full_mode")
+                controller.setExpanded(True)
+                root.setProperty("expanded", True)
+                QTimer.singleShot(500, step9)
+
+            def step9():
+                # Demonstrate opening a real hit
+                event("scenario_step", step="open_real_hit_0")
+                ok = controller.openSelectedHit(0)
+                event("scenario_step", step="opened_hit_result", success=ok)
+                QTimer.singleShot(400, step10)
+
+            def step10():
+                back_btn = root.findChild(QQuickItem, "backFromFinder")
+                if back_btn is not None:
+                    event("scenario_step", step="click_back_to_workbench")
+                    back_btn.clicked.emit()
+                QTimer.singleShot(400, step11)
+
+            def step11():
+                ed = editor()
+                draft_text = ed.property("text") if ed else ""
+                event("scenario_step", step="workbench_restored", draft_text=draft_text, view=controller.snapshot["view"])
+                capture(manual=True)
+                QTimer.singleShot(600, lambda: view.rootObject().closeRequested.emit() if root is not None else app.quit())
+
+            QTimer.singleShot(600, step1)
+
+        run_finder_suggestions_scenario()
+
+    elif args.scenario == "chatbox-pdf-snapshot":
+        def run_chatbox_pdf_snapshot_scenario():
+            view.resize(620, round(root.property("preferredWindowHeight")))
+
+            def find_item(name):
+                if root is None:
+                    return None
+                item = root.findChild(QQuickItem, name)
+                if item is not None:
+                    return item
+                pending = list(root.childItems())
+                while pending:
+                    cand = pending.pop()
+                    if cand.objectName() == name:
+                        return cand
+                    pending.extend(cand.childItems())
+                return None
+
+            def wait_until(predicate, next_step, *, polls=120, interval_ms=250):
+                if predicate() or polls <= 0:
+                    QTimer.singleShot(300, next_step)
+                else:
+                    QTimer.singleShot(interval_ms, lambda: wait_until(predicate, next_step, polls=polls - 1, interval_ms=interval_ms))
+
+            def step1_select_pdf():
+                event("scenario_step", step="select_genuine_pdf", pdf=str(args.pdf))
+                controller.selectFile(str(args.pdf))
+                wait_until(lambda: not controller.snapshot["busy"] and bool(controller.snapshot["fileName"]), step2_type_chat_draft)
+
+            def step2_type_chat_draft():
+                ed = editor()
+                if ed is not None:
+                    ed.setProperty("text", "BEST-Route chọn số mẫu sinh theo nguyên tắc nào ở trang đầu?")
+                    ed.forceActiveFocus()
+                send_btn = find_item("sendButton")
+                event("scenario_step", step="pure_chatbox_ready",
+                      send_icon=send_btn.property("iconName") if send_btn else "",
+                      build_label=root.property("uiBuildLabel"))
+                QTimer.singleShot(350, lambda: (capture(manual=True), QTimer.singleShot(450, step3_open_pdf_search)))
+
+            def step3_open_pdf_search():
+                search_btn = find_item("openPdfSearch")
+                if search_btn is not None:
+                    search_btn.clicked.emit()
+                QTimer.singleShot(250, step3b_fill_pdf_search)
+
+            def step3b_fill_pdf_search():
+                field = find_item("pdfSearchField")
+                if field is not None:
+                    field.setProperty("text", "BEST-Route")
+                event("scenario_step", step="pdf_search_popup_open", keyword="BEST-Route")
+                QTimer.singleShot(300, lambda: (capture(manual=True), QTimer.singleShot(450, step4_run_pdf_search)))
+
+            def step4_run_pdf_search():
+                run_btn = find_item("runPdfSearch")
+                if run_btn is not None:
+                    run_btn.clicked.emit()
+                wait_until(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "search", step5_capture_min_and_expand)
+
+            def step5_capture_min_and_expand():
+                ed = editor()
+                event("scenario_step", step="pdf_search_unread_min",
+                      matched_items=len(controller.snapshot.get("items", [])),
+                      chat_draft_preserved=bool(ed and ed.property("text")))
+                capture(manual=True)
+                controller.setExpanded(True)
+                QTimer.singleShot(550, step6_capture_snapshots_light_and_dark)
+
+            def step6_capture_snapshots_light_and_dark():
+                items = controller.snapshot.get("items", [])
+                first_page = items[0]["page"] if items else 1
+                snap_card = find_item(f"searchSnapshot_{first_page}")
+                event("scenario_step", step="pdf_snapshots_rendered_light",
+                      first_page=first_page,
+                      snapshot_ready=bool(snap_card and snap_card.property("snapshotReady")),
+                      snapshot_height=snap_card.height() if snap_card else 0)
+                capture(manual=True)
+                capture_desktop()
+                root.setProperty("darkMode", True)
+                QTimer.singleShot(450, lambda: step6b_restore_light(first_page))
+
+            def step6b_restore_light(first_page):
+                event("scenario_step", step="pdf_snapshots_rendered_dark", first_page=first_page)
+                capture(manual=True)
+                root.setProperty("darkMode", False)
+                QTimer.singleShot(350, lambda: step6c_verify_reload(first_page))
+
+            def step6c_verify_reload(first_page):
+                reload_qml()
+                QTimer.singleShot(450, lambda: step7_open_snapshot_page(first_page))
+
+            def step7_open_snapshot_page(first_page):
+                snap_card = find_item(f"searchSnapshot_{first_page}")
+                event("scenario_step", step="click_snapshot_to_read_page", page=first_page)
+                if snap_card is not None:
+                    snap_card.activated.emit()
+                else:
+                    controller.readPage(first_page)
+                wait_until(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "page", step8_after_page_read)
+
+            def step8_after_page_read():
+                event("scenario_step", step="page_opened_from_snapshot", page=controller.snapshot["pageNumber"])
+                capture(manual=True)
+                if args.max_model_calls >= 1:
+                    QTimer.singleShot(500, step9_submit_direct_chat_question)
+                else:
+                    QTimer.singleShot(600, finish_scenario)
+
+            def step9_submit_direct_chat_question():
+                ed = editor()
+                query_text = ed.property("text") if ed else ""
+                event("scenario_step", step="submit_chatbox_enter_direct", query=query_text)
+                root.submitDraft()
+                QTimer.singleShot(350, lambda: capture(manual=True))
+                wait_until(lambda: not controller.snapshot["busy"] and controller.snapshot["view"] == "answer", step10_expand_answer_sources, polls=240, interval_ms=500)
+
+            def step10_expand_answer_sources():
+                controller.setExpanded(True)
+                QTimer.singleShot(400, step10b_toggle_sources)
+
+            def step10b_toggle_sources():
+                capture(manual=True)
+                toggle = find_item("answerSourcesToggle")
+                if toggle is not None and toggle.isVisible():
+                    toggle.clicked.emit()
+                    event("scenario_step", step="expand_answer_sources_snapshot")
+                    QTimer.singleShot(500, lambda: (capture(manual=True), capture_desktop(), QTimer.singleShot(600, finish_scenario)))
+                else:
+                    QTimer.singleShot(600, finish_scenario)
+
+            def finish_scenario():
+                if root is not None:
+                    root.closeRequested.emit()
+                else:
+                    app.quit()
+
+            QTimer.singleShot(600, step1_select_pdf)
+
+        run_chatbox_pdf_snapshot_scenario()
+
     print(json.dumps({"ready": True, "output": str(output), "model_cap": args.max_model_calls}), flush=True)
     try:
         code = app.exec()
     finally:
         state["closed"] = True
+        if desktop_recording_proc is not None:
+            try:
+                desktop_recording_proc.send_signal(signal.SIGINT)
+                desktop_recording_proc.wait(timeout=5)
+                event("desktop_recording_finished", file="desktop-recording.mov")
+            except Exception as exc:
+                desktop_recording_proc.kill()
+                event("desktop_recording_stop_failed", error=str(exc))
         for timer in timers:
             timer.stop()
         controller.close()
         runtime.close()
         event("closed", pdf_hash_unchanged=fingerprint(args.pdf) == provenance["sha256"])
+        if not args.no_walkthrough and len(state["captures"]) >= 2:
+            try:
+                from scripts.record_ui import render_screenshots
+                render_screenshots(output / "screenshots", output / "walkthrough", fps=1)
+                event("walkthrough_rendered", mp4="walkthrough.mp4", gif="walkthrough.gif")
+            except Exception as exc:
+                event("walkthrough_render_failed", error=str(exc))
         save()
         view.setSource(QUrl())
         view.close()
