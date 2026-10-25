@@ -1,0 +1,40 @@
+{
+  "model": "qwen3:4b-instruct",
+  "endpoint": "http://localhost:11434",
+  "latency_seconds": 9.84,
+  "user_query": "Tóm tắt cơ chế định tuyến thích ứng và ngưỡng Pareto của BEST-Route trong bài báo này",
+  "answer_text": "Excerpt lacks information on the adaptive routing mechanism and Pareto thresholds of BEST-Route.",
+  "verification_status": "UNKNOWN",
+  "status_label_text": "Trích đoạn · 3.000 ký tự · Đã đọc nguồn · Chưa xác minh nội dung",
+  "sources_count": 1,
+  "telemetry": {
+    "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+    "filename": "arxiv_2506.22716_original.pdf",
+    "read_ms": 6412.073,
+    "queue_ms": null,
+    "load_ms": null,
+    "loaded_for_request": null,
+    "lock_wait_ms": null,
+    "tokenize_ms": null,
+    "prefill_ms": null,
+    "cache_copy_ms": null,
+    "generation_ms": null,
+    "first_token_ms": null,
+    "decode_after_first_token_ms": null,
+    "model_duration_ms": 3044.733,
+    "total_ms": 9602.071,
+    "prompt_tokens": 965,
+    "completion_tokens": 19,
+    "reused_prefix_tokens": null,
+    "newly_submitted_tokens": null,
+    "prefix_already_prepared": null,
+    "model_calls": 1,
+    "history_turns": 0,
+    "execution_lane": "document",
+    "query_generation": 0,
+    "document_scope": {
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "sha256": "9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c"
+    }
+  }
+}

@@ -1,10 +1,10 @@
 # RAT — một hệ điều phối reasoning agentic cho mọi khả năng
 
 Ngày: 2026-10-25, Asia/Ho_Chi_Minh.
-Trạng thái: Đã hoàn tất triển khai mã nguồn và kiểm chứng phần mềm cho Đợt 0, 1, 2, 3, 4.
-Sẵn sàng cho Đợt 5 (Live Acceptance). Xem
-[bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md) và
-[bằng chứng tổng hợp Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md).
+Trạng thái: Đã hoàn tất triển khai và nghiệm thu thực tế toàn bộ lộ trình Đợt 0–5 (2026-10-25).
+Xem [bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md),
+[bằng chứng tổng hợp Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md), và
+[biên bản nghiệm thu trực tiếp Đợt 5](../audit/rat_agentic_live_acceptance_20261025/README.md).
 
 Quy tắc: **“TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC.”**
 Tài liệu này cụ thể hóa quy tắc trong `AGENTS.md` và `project_scope.md`.
@@ -225,7 +225,7 @@ Minor UI đề xuất cho lần triển khai đầu: dưới answer hiển thị
 | 2 — lát cắt PDF | Chuyển selected QA thành tool recipe/subplan trong runtime; locator-aware expand (`expand_document_context`); answer/check/reconcile chung | Câu hỏi cần đọc thêm thực sự thêm tool; thiếu dữ kiện giữ UNKNOWN/hỏi thêm | **ĐÃ XONG** (14 tests pass) |
 | 3 — Reading/Natal | Chuyển sang Plugin Tool Packs (`divination`, `astrology`), gọi model client trong `synthesize_reading_draft`, trả `model_unavailable` khi offline, `scoped_reading_verifier` | Câu hỏi/context tới model; không gán Mercury–Saturn thiếu dữ liệu; giữ bản người dùng sửa | **ĐÃ XONG** (11 tests pass) |
 | 4 — Finder và phần còn lại | Preview subplan (offline reranker/coordinator) + committed Agent search (Tab adopt & submit); app/math/lịch/config qua cùng boundary | Inventory mọi entry point có contract, tool, checker, projection và bằng chứng | **ĐÃ XONG** (48 tests pass) |
-| 5 — acceptance | Hội thoại production UI/backend thật, lưu prompt/response/failure/screenshots | Kiểm từng journey thật; không dùng fixture hay ảnh prototype thay acceptance | **SẴN SÀNG THỰC HIỆN** |
+| 5 — acceptance | Hội thoại production UI/backend thật, lưu prompt/response/failure/screenshots | Kiểm từng journey thật; không dùng fixture hay ảnh prototype thay acceptance | **ĐÃ XONG** (Xem `audit/rat_agentic_live_acceptance_20261025`) |
 
 Không thêm domain mới trong migration. Không xóa code/recovery để đạt số LOC.
 Chỉ gỡ adapter cũ khi có replacement, callers và hành vi đã kiểm; giữ lịch sử.

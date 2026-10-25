@@ -116,7 +116,7 @@ Rectangle {
     readonly property bool emptyCancelledAnswer: cancelledAnswer && !(liveSnapshot.answerText || "").trim().length
     readonly property bool hasPagePreview: liveMode && liveSnapshot.view === "page" && !liveSnapshot.busy && !liveSnapshot.errorCode
     readonly property string pagePreviewTitle: "Đang đọc trang " + liveSnapshot.pageLabel
-    readonly property string uiBuildLabel: "Build 2026.10.25.24 · Qt Quick"
+    readonly property string uiBuildLabel: "Build 2026.10.25.25 · Agentic Live"
     property string readerDisplayMode: "matched"
     property bool processDetailsOpen: false
     property bool contextExpanded: false
