@@ -548,3 +548,18 @@ def test_invalid_agent_proposal_cannot_commit():
     result = dispatcher.execute_operation("synthesize_smart_note", {"raw_content": raw, "structured_note": proposal})
     assert result.status == "error"
     assert not store.list()
+
+
+def test_extractive_checklist_has_no_stale_duplicate_after_toggle():
+    store = ArtifactStore()
+    dispatcher = ActionDispatcher(build_default_registry(), store)
+    created = dispatcher.execute_operation('synthesize_smart_note', {
+        'raw_content': 'BEST-Route has a router. Việc cần làm: Đọc Section 3.'})
+    assert created.status == 'success'
+    assert created.result['action_items'] == [{'task': 'Việc cần làm: Đọc Section 3.', 'done': False}]
+    updated = dispatcher.execute_operation('update_note_action_item', {
+        'artifact_id': created.artifact.id, 'revision': 1, 'item_index': 1, 'done': True})
+    assert updated.status == 'success'
+    assert '- [x] Việc cần làm: Đọc Section 3.' in updated.result['markdown_rendered']
+    assert '- [ ]' not in updated.result['markdown_rendered']
+    assert created.artifact.payload['action_items'][0]['done'] is False

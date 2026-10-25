@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-25T21:44:14.367444+07:00",
+  "timestamp": "2026-10-25T23:03:59.984016+07:00",
   "evidence_kind": "synthetic_software_fixture",
   "live_inference": false,
   "ui_acceptance": false,
@@ -61,9 +61,9 @@
   ],
   "fixture_runtime_error": null,
   "representation_sizes": {
-    "full_json_bytes": 4732,
-    "packed_json_bytes": 760,
-    "byte_reduction_pct": 83.94,
+    "full_json_bytes": 3816,
+    "packed_json_bytes": 785,
+    "byte_reduction_pct": 79.43,
     "semantic_equivalence_checked": false,
     "model_token_savings_measured": false
   },
@@ -79,7 +79,7 @@
     "total_tokens": 925,
     "cached_tokens": null
   },
-  "canonical_artifact_id": "art-892194e1be1a4952b53590b084838078",
+  "canonical_artifact_id": "art-3b1dff6c6a6e477da226bf7db9cdba3f",
   "latest_revision": 3,
   "passed": true
 }

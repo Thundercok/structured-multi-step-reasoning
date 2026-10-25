@@ -159,14 +159,17 @@ def test_direct_native_loop_reads_and_hands_over_real_file_without_planner(runti
         'search_documents', 'read_document', 'search_book_pages', 'read_book_page',
         'deliver_document', 'inspect_artifact', 'request_operation_tools', 'synthesize_smart_note'}
     assert 'calculate' not in {t['function']['name'] for t in calls[1].args[1]}
-    # Each native tool exchange extends the same request prefix. Updating the
-    # canonical context must not force the backend to reread older exchanges.
+    # System/history stay stable. Observed context changes with tool receipts
+    # and precedes the current request so small models do not repeat old work.
     for before, after in zip(calls, calls[1:]):
-        prefix = list(before.args[0])
-        if prefix[-1]['content'].startswith('Work context '):
-            prefix.pop()
-        assert after.args[0][:len(prefix)] == prefix
-    facts = json.loads(calls[-1].args[0][-1]['content'].split(': ', 1)[1])
+        assert after.args[0][0] == before.args[0][0]
+        host = lambda call: next(m for m in call.args[0] if m.get('content', '').startswith('Host runtime context '))
+        assert host(before) == host(after)
+        request_index = next(i for i, m in enumerate(after.args[0]) if m.get('content') == 'Đọc và đưa tệp đó cho tôi.')
+        context_index = next(i for i, m in enumerate(after.args[0]) if m.get('content', '').startswith('Work context '))
+        assert context_index < request_index
+    context_frame = next(m for m in calls[-1].args[0] if m.get('content', '').startswith('Work context '))
+    facts = json.loads(context_frame['content'].split(': ', 1)[1])
     assert [effect['operation'] for effect in facts['current_effects']] == [
         'search_documents', 'read_document', 'deliver_document']
     assert any(ref['id'] == delivered.id and ref['revision'] == delivered.revision

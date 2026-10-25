@@ -105,7 +105,7 @@ Rectangle {
     readonly property bool emptyCancelledAnswer: cancelledAnswer && !(liveSnapshot.answerText || "").trim().length
     readonly property bool hasPagePreview: liveMode && liveSnapshot.view === "page" && !liveSnapshot.busy && !liveSnapshot.errorCode
     readonly property string pagePreviewTitle: "Đang đọc trang " + liveSnapshot.pageLabel
-    readonly property string uiBuildLabel: "Build 2026.10.25.31 · Smart Notes Desk"
+    readonly property string uiBuildLabel: "Build 2026.10.25.31"
     readonly property string currentWorkspaceMode: liveMode ? (liveSnapshot.workspaceMode || "single") : "single"
     readonly property bool isSideBySidePdfActive: desk.liveMode && desk.expanded && desk.hasWorkbench && desk.liveSnapshot.view === "answer" && Boolean(desk.liveSnapshot.fileName) && (desk.currentWorkspaceMode === "multi" || desk.roomyActive)
     property string readerDisplayMode: "matched"
@@ -2247,6 +2247,7 @@ Rectangle {
         Item {
             id: mascotItem
             objectName: "mascotCrop"
+            visible: !desk.expanded && !desk.liveSnapshot.busy
             x: Math.max(4, composer.x - 110)
             y: composer.y - 116 + (mascotWobble.running ? mascotWobble.offsetY : 0)
             width: 122
@@ -2419,8 +2420,8 @@ Rectangle {
         Rectangle {
             id: composer
             objectName: "composer"
-            width: Math.min(580, unit.width)
-            anchors.horizontalCenter: parent.horizontalCenter
+            x: desk.isSideBySidePdfActive ? resultPaper.x : Math.max(0, Math.floor((unit.width - width) / 2))
+            width: desk.isSideBySidePdfActive ? resultPaper.width : Math.min(580, unit.width)
             anchors.bottom: parent.bottom
             height: desk.phase === "startup" ? 94 : Math.min(148, Math.max(94, editorColumn.implicitHeight + 18))
             radius: 18
@@ -2428,6 +2429,7 @@ Rectangle {
             border.width: pdfDropArea.containsDrag ? 1.5 : 1
             border.color: pdfDropArea.containsDrag ? desk.accent : (editor.activeFocus ? desk.selectedEdge : desk.edge)
             z: 5
+            clip: true
             Behavior on height {
                 enabled: desk.readyForMotion && !desk.reduceMotion
                 NumberAnimation { id: composerResize; duration: 160; easing.type: Easing.OutCubic }
@@ -2573,7 +2575,10 @@ Rectangle {
                     objectName: "ambientPromptsRow"
                     visible: desk.liveMode && Boolean(desk.liveSnapshot.fileName) && !desk.liveSnapshot.busy && Boolean(desk.liveSnapshot.quickPrompts && desk.liveSnapshot.quickPrompts.length > 0)
                     Layout.fillWidth: true
+                    Layout.maximumWidth: editorColumn.width
+                    implicitHeight: 20
                     spacing: 6
+                    clip: true
 
                     Label {
                         text: "Gợi ý hỏi:"
@@ -2614,10 +2619,12 @@ Rectangle {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 12
+                    Layout.maximumWidth: editorColumn.width
+                    spacing: 8
+                    clip: true
                     ScrollView {
                         Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
+                        Layout.alignment: Qt.AlignVCenter
                         Layout.preferredHeight: Math.min(contextChip.visible ? 56 : 78, Math.max(30, editor.contentHeight + 4))
                         contentWidth: availableWidth
                         clip: true
@@ -2776,9 +2783,11 @@ Rectangle {
                         bottomPadding: 0
                         Accessible.name: desk.liveMode ? (desk.liveSnapshot.busy ? "Dừng yêu cầu" : (desk.liveSnapshot.view === "apps" ? "Mở ứng dụng đã chọn" : "Gửi câu hỏi cho Chuột")) : desk.phase === "receiving" ? "Dừng yêu cầu minh họa" : "Gửi yêu cầu minh họa"
                         primary: true
-                        implicitWidth: 34
-                        implicitHeight: 34
-                        Layout.alignment: Qt.AlignTop
+                        implicitWidth: 32
+                        implicitHeight: 32
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
+                        Layout.alignment: Qt.AlignVCenter
                         font.pixelSize: 18
                         onClicked: {
                             if (desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy)) {

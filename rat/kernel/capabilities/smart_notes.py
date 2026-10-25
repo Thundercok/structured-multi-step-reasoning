@@ -223,7 +223,7 @@ def deterministic_note_synthesizer(
 
     # 5. Action Items Extraction
     action_items: List[Dict[str, Any]] = []
-    for line in re.split(r"[,\n;]+", text):
+    for line in re.split(r"(?<=[.!?])\s+|[,\n;]+", text):
         s = line.strip()
         if any(act in s.lower() for act in ("cần", "đọc", "xem", "đặt", "mua", "soạn", "làm", "chuẩn bị", "kiểm tra", "tinh chỉnh", "đi", "hẹn", "order")):
             action_items.append({"task": s, "done": False})
@@ -241,12 +241,6 @@ def deterministic_note_synthesizer(
             "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n" +
                        "\n".join(f"- **{f['fact']}** (nguồn: `{f['source']}`)" for f in key_facts),
             "badges": ["fact_grounded", "verified_input"],
-        },
-        {
-            "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
-            "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n" +
-                       "\n".join(f"- [ ] {item['task']}" for item in action_items),
-            "badges": ["actionable", "plan"],
         },
     ]
 

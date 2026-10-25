@@ -103,7 +103,10 @@ def main():
     def record_response(response):
         try:
             append("responses.jsonl", public_value(response))
-            (out / "artifacts.json").write_text(json.dumps([a.to_dict() for a in runtime.artifact_store.list()], ensure_ascii=False, indent=2))
+            artifacts = runtime.artifact_store.list()
+            (out / "artifacts.json").write_text(json.dumps([a.to_dict() for a in artifacts], ensure_ascii=False, indent=2))
+            (out / "artifact_history.json").write_text(json.dumps({a.id: [r.to_dict() for r in runtime.artifact_store.get_history(a.id)]
+                for a in artifacts}, ensure_ascii=False, indent=2))
         except Exception as exc:
             append("observer_errors.jsonl", {"error": str(exc)})
     controller._execution_delivered.connect(lambda request, response: record_response(response))

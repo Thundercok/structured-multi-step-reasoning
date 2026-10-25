@@ -7,6 +7,9 @@ ColumnLayout {
     required property var host
     readonly property var session: host.liveSnapshot.readingSession || ({})
     property int selectedCard: -1
+    property int hoveredCardIndex: -1
+    property string activeCardTagHover: ""
+    property bool allCardsFaceUp: true
     property bool isEditingDraft: false
     spacing: 14
 
@@ -136,6 +139,13 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Label { text: "TRẢI BÀI"; color: reading.host.accent; font.pixelSize: 10; font.letterSpacing: 2; Layout.fillWidth: true }
+        Button {
+            text: reading.allCardsFaceUp ? "Úp toàn bộ bài" : "Lật mở toàn bộ"
+            visible: Boolean((reading.session.cards || []).length)
+            onClicked: reading.allCardsFaceUp = !reading.allCardsFaceUp
+            background: Rectangle { radius: 6; color: parent.hovered ? reading.host.selectedSurface : reading.host.utilitySurface; border.color: reading.host.edge }
+            contentItem: Text { text: parent.text; color: reading.host.accent; font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+        }
         Label { text: (reading.session.cards || []).length + " lá · nhập tay"; color: reading.host.muted; font.pixelSize: 11 }
     }
     RowLayout {
@@ -182,6 +192,7 @@ ColumnLayout {
                 id: cardColumn
                 required property var modelData
                 required property int index
+                property bool cardFaceUp: reading.allCardsFaceUp
                 width: (spread.width - (spread.columns - 1) * spread.spacing) / spread.columns
                 spacing: 5
                 Label {
@@ -195,64 +206,144 @@ ColumnLayout {
                     height: Math.max(152, width * 1.35)
                     radius: 10
                     color: reading.host.darkMode ? "#303329" : "#f9f5eb"
-                    border.color: reading.selectedCard === cardColumn.index ? reading.host.accent : (reading.host.darkMode ? "#74654a" : "#c9b58c")
-                    border.width: reading.selectedCard === cardColumn.index ? 2 : 1
+                    readonly property bool isHighlighted: reading.selectedCard === cardColumn.index || reading.hoveredCardIndex === cardColumn.index || (reading.activeCardTagHover.length > 0 && cardColumn.modelData.title.toLowerCase().indexOf(reading.activeCardTagHover.toLowerCase()) !== -1)
+                    border.color: isHighlighted ? reading.host.accent : (reading.selectedCard === cardColumn.index ? reading.host.accent : (reading.host.darkMode ? "#74654a" : "#c9b58c"))
+                    border.width: isHighlighted ? 2.5 : (reading.selectedCard === cardColumn.index ? 2 : 1)
                     Accessible.name: cardColumn.modelData.title + (cardColumn.modelData.reversed ? ", ngược" : ", xuôi")
                     Accessible.role: Accessible.Button
                     activeFocusOnTab: true
-                    Keys.onReturnPressed: reading.selectedCard = cardColumn.index
-                    Keys.onSpacePressed: reading.selectedCard = cardColumn.index
+                    Keys.onReturnPressed: { cardColumn.cardFaceUp = !cardColumn.cardFaceUp; reading.selectedCard = cardColumn.index }
+                    Keys.onSpacePressed: { cardColumn.cardFaceUp = !cardColumn.cardFaceUp; reading.selectedCard = cardColumn.index }
+
+                    // Ambient Highlight Glow Box
                     Rectangle {
-                        anchors.fill: parent; anchors.margins: 6; radius: 6; color: "transparent"
-                        border.color: reading.host.darkMode ? "#534b3b" : "#e4d8c0"
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        radius: 14
+                        color: "transparent"
+                        border.color: reading.host.accent
+                        border.width: 2
+                        opacity: cardSurface.isHighlighted ? 0.75 : 0
+                        Behavior on opacity { NumberAnimation { duration: 220 } }
                     }
-                    Label {
-                        anchors.top: parent.top; anchors.topMargin: 12; anchors.horizontalCenter: parent.horizontalCenter
-                        text: cardColumn.modelData.numeral; font.family: "Georgia"; font.pixelSize: 16; color: reading.host.accent
+
+                    transform: Rotation {
+                        id: cardFlipRot
+                        origin.x: cardSurface.width / 2
+                        origin.y: cardSurface.height / 2
+                        axis.x: 0
+                        axis.y: 1
+                        axis.z: 0
+                        angle: cardColumn.cardFaceUp ? 0 : 180
+                        Behavior on angle {
+                            NumberAnimation { duration: 320; easing.type: Easing.OutCubic }
+                        }
                     }
-                    Canvas {
-                        anchors.centerIn: parent
-                        width: parent.width * 0.58; height: parent.height * 0.44
-                        rotation: cardColumn.modelData.reversed ? 180 : 0
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset(); ctx.strokeStyle = reading.host.darkMode ? "#c7b58e" : "#8a7144"; ctx.lineWidth = 1.4
-                            var x = width/2, y = height/2, r = Math.min(width,height)*0.36
-                            ctx.beginPath()
-                            if (cardColumn.modelData.suit === "Pentacles") {
-                                ctx.arc(x,y,r,0,Math.PI*2); ctx.stroke(); ctx.beginPath()
-                                for (var i=0;i<6;i++) { var a=-Math.PI/2+i*4*Math.PI/5; if(i===0)ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)); else ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a)) }
-                            } else if (cardColumn.modelData.suit === "Cups") {
-                                ctx.arc(x,y-r/2,r,0,Math.PI); ctx.lineTo(x+r,y-r/2); ctx.moveTo(x,y+r/2); ctx.lineTo(x,y+r*1.3); ctx.moveTo(x-r*0.6,y+r*1.3); ctx.lineTo(x+r*0.6,y+r*1.3)
-                            } else if (cardColumn.modelData.suit === "Wands") {
-                                ctx.moveTo(x-r*0.5,y+r); ctx.lineTo(x+r*0.5,y-r); ctx.moveTo(x,y); ctx.quadraticCurveTo(x-r,y-r,x+r*0.2,y-r*0.5)
-                            } else if (cardColumn.modelData.suit === "Swords") {
-                                ctx.moveTo(x,y-r); ctx.lineTo(x+r*0.2,y+r*0.4); ctx.lineTo(x-r*0.2,y+r*0.4); ctx.closePath(); ctx.moveTo(x-r*0.5,y+r*0.5); ctx.lineTo(x+r*0.5,y+r*0.5); ctx.moveTo(x,y+r*0.5); ctx.lineTo(x,y+r)
-                            } else {
-                                ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.stroke(); ctx.beginPath()
-                                for(var j=0;j<8;j++){var b=j*Math.PI/4;ctx.moveTo(x+r*0.8*Math.cos(b),y+r*0.8*Math.sin(b));ctx.lineTo(x+r*1.2*Math.cos(b),y+r*1.2*Math.sin(b))}
+
+                    // Card Back (When flipped face-down)
+                    Item {
+                        anchors.fill: parent
+                        visible: cardFlipRot.angle >= 90
+                        transform: Rotation {
+                            origin.x: width / 2
+                            origin.y: height / 2
+                            axis.x: 0
+                            axis.y: 1
+                            axis.z: 0
+                            angle: 180
+                        }
+                        Rectangle {
+                            anchors.fill: parent; anchors.margins: 6; radius: 6
+                            color: reading.host.darkMode ? "#242720" : "#eee6d4"
+                            border.color: reading.host.darkMode ? "#58624e" : "#c4b595"
+                            border.width: 1
+                            Canvas {
+                                anchors.fill: parent
+                                onPaint: {
+                                    var ctx = getContext("2d")
+                                    ctx.reset(); ctx.strokeStyle = reading.host.darkMode ? "#6e7960" : "#a89b7b"; ctx.lineWidth = 1
+                                    var cx = width / 2, cy = height / 2, r = Math.min(width, height) * 0.35
+                                    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke()
+                                    ctx.beginPath()
+                                    ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r*0.5, cy); ctx.lineTo(cx, cy + r); ctx.lineTo(cx - r*0.5, cy); ctx.closePath()
+                                    ctx.stroke()
+                                }
                             }
-                            ctx.stroke()
-                        }
-                    }
-                    Column {
-                        anchors.bottom: parent.bottom; anchors.bottomMargin: 12
-                        anchors.left: parent.left; anchors.right: parent.right; anchors.margins: 9
-                        spacing: 4
-                        Label {
-                            width: parent.width; text: cardColumn.modelData.title; textFormat: Text.PlainText
-                            horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap
-                            font.family: "Georgia"; font.pixelSize: 12; color: reading.host.ink
                         }
                         Label {
-                            width: parent.width; text: cardColumn.modelData.reversed ? "NGƯỢC ↻" : "XUÔI"
-                            horizontalAlignment: Text.AlignHCenter; font.pixelSize: 9; color: reading.host.muted
+                            anchors.centerIn: parent
+                            text: "RAT"
+                            font.pixelSize: 11
+                            font.letterSpacing: 2
+                            font.family: "Georgia"
+                            color: reading.host.accent
+                        }
+                        Label {
+                            anchors.bottom: parent.bottom; anchors.bottomMargin: 14; anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Bấm để lật"
+                            font.pixelSize: 9
+                            color: reading.host.muted
                         }
                     }
+
+                    // Card Front (When face-up)
+                    Item {
+                        anchors.fill: parent
+                        visible: cardFlipRot.angle < 90
+                        Rectangle {
+                            anchors.fill: parent; anchors.margins: 6; radius: 6; color: "transparent"
+                            border.color: reading.host.darkMode ? "#534b3b" : "#e4d8c0"
+                        }
+                        Label {
+                            anchors.top: parent.top; anchors.topMargin: 12; anchors.horizontalCenter: parent.horizontalCenter
+                            text: cardColumn.modelData.numeral; font.family: "Georgia"; font.pixelSize: 16; color: reading.host.accent
+                        }
+                        Canvas {
+                            anchors.centerIn: parent
+                            width: parent.width * 0.58; height: parent.height * 0.44
+                            rotation: cardColumn.modelData.reversed ? 180 : 0
+                            onPaint: {
+                                var ctx = getContext("2d")
+                                ctx.reset(); ctx.strokeStyle = reading.host.darkMode ? "#c7b58e" : "#8a7144"; ctx.lineWidth = 1.4
+                                var x = width/2, y = height/2, r = Math.min(width,height)*0.36
+                                ctx.beginPath()
+                                if (cardColumn.modelData.suit === "Pentacles") {
+                                    ctx.arc(x,y,r,0,Math.PI*2); ctx.stroke(); ctx.beginPath()
+                                    for (var i=0;i<6;i++) { var a=-Math.PI/2+i*4*Math.PI/5; if(i===0)ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)); else ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a)) }
+                                } else if (cardColumn.modelData.suit === "Cups") {
+                                    ctx.arc(x,y-r/2,r,0,Math.PI); ctx.lineTo(x+r,y-r/2); ctx.moveTo(x,y+r/2); ctx.lineTo(x,y+r*1.3); ctx.moveTo(x-r*0.6,y+r*1.3); ctx.lineTo(x+r*0.6,y+r*1.3)
+                                } else if (cardColumn.modelData.suit === "Wands") {
+                                    ctx.moveTo(x-r*0.5,y+r); ctx.lineTo(x+r*0.5,y-r); ctx.moveTo(x,y); ctx.quadraticCurveTo(x-r,y-r,x+r*0.2,y-r*0.5)
+                                } else if (cardColumn.modelData.suit === "Swords") {
+                                    ctx.moveTo(x,y-r); ctx.lineTo(x+r*0.2,y+r*0.4); ctx.lineTo(x-r*0.2,y+r*0.4); ctx.closePath(); ctx.moveTo(x-r*0.5,y+r*0.5); ctx.lineTo(x+r*0.5,y+r*0.5); ctx.moveTo(x,y+r*0.5); ctx.lineTo(x,y+r)
+                                } else {
+                                    ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.stroke(); ctx.beginPath()
+                                    for(var j=0;j<8;j++){var b=j*Math.PI/4;ctx.moveTo(x+r*0.8*Math.cos(b),y+r*0.8*Math.sin(b));ctx.lineTo(x+r*1.2*Math.cos(b),y+r*1.2*Math.sin(b))}
+                                }
+                                ctx.stroke()
+                            }
+                        }
+                        Column {
+                            anchors.bottom: parent.bottom; anchors.bottomMargin: 12
+                            anchors.left: parent.left; anchors.right: parent.right; anchors.margins: 9
+                            spacing: 4
+                            Label {
+                                width: parent.width; text: cardColumn.modelData.title; textFormat: Text.PlainText
+                                horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap
+                                font.family: "Georgia"; font.pixelSize: 12; color: reading.host.ink
+                            }
+                            Label {
+                                width: parent.width; text: cardColumn.modelData.reversed ? "NGƯỢC ↻" : "XUÔI"
+                                horizontalAlignment: Text.AlignHCenter; font.pixelSize: 9; color: reading.host.muted
+                            }
+                        }
+                    }
+
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
+                            cardColumn.cardFaceUp = !cardColumn.cardFaceUp
                             reading.selectedCard = cardColumn.index
                             if (reading.host.liveController) {
                                 reading.host.liveController.selectPreviewCard(cardColumn.index)
@@ -343,6 +434,74 @@ ColumnLayout {
                     onClicked: reading.host.liveController.synthesizeReadingDraft("")
                     background: Rectangle { radius: 8; color: parent.hovered ? reading.host.selectedSurface : reading.host.utilitySurface; border.color: reading.host.edge }
                     contentItem: Text { text: parent.text; color: reading.host.accent; font.pixelSize: 11; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                }
+            }
+        }
+
+        // Bidirectional Card Reference Ribbon
+        RowLayout {
+            visible: Boolean((reading.session.cards || []).length)
+            Layout.fillWidth: true
+            spacing: 8
+            Label {
+                text: "LÁ TRONG BẢN LUẬN:"
+                font.pixelSize: 10
+                font.letterSpacing: 1.2
+                color: reading.host.muted
+            }
+            Flow {
+                Layout.fillWidth: true
+                spacing: 6
+                Repeater {
+                    model: reading.session.cards || []
+                    Rectangle {
+                        id: ribbonTag
+                        required property var modelData
+                        required property int index
+                        implicitWidth: tagRow.implicitWidth + 14
+                        implicitHeight: 22
+                        radius: 11
+                        color: (reading.selectedCard === index || reading.hoveredCardIndex === index) ? reading.host.selectedSurface : reading.host.utilitySurface
+                        border.color: (reading.selectedCard === index || reading.hoveredCardIndex === index) ? reading.host.accent : reading.host.edge
+                        RowLayout {
+                            id: tagRow
+                            anchors.centerIn: parent
+                            spacing: 4
+                            Label {
+                                text: modelData.numeral || ""
+                                font.pixelSize: 10
+                                color: reading.host.accent
+                                font.weight: Font.Medium
+                            }
+                            Label {
+                                text: modelData.title + (modelData.reversed ? " (ngược)" : "")
+                                font.pixelSize: 11
+                                color: reading.host.ink
+                            }
+                        }
+                        HoverHandler {
+                            onHoveredChanged: {
+                                if (hovered) {
+                                    reading.hoveredCardIndex = index
+                                    reading.activeCardTagHover = modelData.title
+                                } else {
+                                    if (reading.hoveredCardIndex === index) reading.hoveredCardIndex = -1
+                                    if (reading.activeCardTagHover === modelData.title) reading.activeCardTagHover = ""
+                                }
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                reading.selectedCard = index
+                                reading.hoveredCardIndex = index
+                                if (reading.host.liveController) {
+                                    reading.host.liveController.selectPreviewCard(index)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-10-25T23:02:28+0700",
-  "build_label": "Build 2026.10.25.31 · Smart Notes Desk",
+  "timestamp": "2026-10-25T23:21:50+0700",
+  "build_label": "Build 2026.10.25.31",
   "pdf_source": {
     "filename": "arxiv_2506.22716_original.pdf",
     "url": "https://arxiv.org/pdf/2506.22716",
@@ -10,18 +10,18 @@
     "engine": "SLMEngine",
     "model_name": "qwen3:4b-instruct",
     "live_execution": true,
-    "latency_seconds": 26.6,
+    "latency_seconds": 78.02,
     "prompt": "Tóm tắt cơ chế allocation of compute và memory efficient trong BEST-Route bài báo này",
     "response_excerpt": "Cơ chế allocation của compute trong BEST-Route được mô tả như sau:\n\n- Một **multi-headed router** động đánh giá mức độ khó của câu hỏi và chọn mô hình phù hợp, đồng thời **phân bổ tài nguyên tính toán"
   },
   "smart_notes": {
-    "artifact_id": "art-877d72d571e84a8a9589a46d0de686ff",
+    "artifact_id": "art-76599523a3024d568161c4defa3a5d04",
     "revision": 3,
     "title": "Ghi chú Quà Tặng 20/10",
     "domain": "decision",
     "key_facts_count": 10,
     "action_items_count": 3,
-    "analysis_sections_count": 3,
+    "analysis_sections_count": 2,
     "operations_verified": [
       "synthesize_smart_note",
       "update_note_action_item",
@@ -33,7 +33,7 @@
       "file": "01_live_mode1_minimal_ticker.png",
       "dimensions": [
         1040,
-        624
+        280
       ]
     },
     {
@@ -61,7 +61,7 @@
       "file": "05_live_mode3_tarot_spread.png",
       "dimensions": [
         2080,
-        1782
+        1804
       ]
     },
     {

@@ -89,7 +89,7 @@ root = view.rootObject()
 assert root is not None, "Failed to load QML root"
 actual_build_label = root.property("uiBuildLabel")
 print(f"[OK] UI Build Label verified: {actual_build_label}")
-assert actual_build_label == "Build 2026.10.25.31 · Smart Notes Desk", f"Unexpected build label: {actual_build_label}"
+assert actual_build_label == "Build 2026.10.25.31", f"Unexpected build label: {actual_build_label}"
 
 view.resize(560, round(root.property("preferredWindowHeight")))
 window_timer = bind_desk_window(view)

@@ -29,7 +29,9 @@ ColumnLayout {
         clip: true
         ColumnLayout {
             id: finderListColumn
-            width: finderListScroll.availableWidth - (finderListScroll.contentHeight > finderListScroll.height ? 10 : 0)
+            // Reserve a stable gutter. Toggling it from contentHeight feeds
+            // wrapped text height back into the width during list collapse.
+            width: Math.max(0, finderListScroll.availableWidth - 10)
             spacing: 4
 
             Repeater {
@@ -213,6 +215,8 @@ ColumnLayout {
                     ? "Thu gọn danh sách gợi ý còn 3 mục"
                     : ("Xem thêm " + desk.remainingFinderHits + " kết quả tìm kiếm còn lại")
                 onClicked: {
+                    if (desk.showAllFinderHits && finderListScroll.contentItem)
+                        finderListScroll.contentItem.contentY = 0
                     desk.showAllFinderHits = !desk.showAllFinderHits
                     if (desk.selectedFinderIndex >= (desk.visibleFinderHits || []).length) {
                         desk.selectedFinderIndex = -1

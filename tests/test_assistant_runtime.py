@@ -238,3 +238,14 @@ def test_birth_place_lookup_keeps_candidates_and_calculated_chart_source(runtime
     assert len(points) == 14 and len(observation['house_cusps']) == 12
     assert 'distance_au' in sources[0]['chart']['positions'][0]
     assert 'distance_au' not in points[0]  # Export-only fields stay out of the inference context.
+
+
+def test_note_and_discovery_observations_are_not_document_citations():
+    for name in ('synthesize_smart_note', 'update_note_action_item', 'expand_note_section', 'request_operation_tools'):
+        assert observed_sources(AgentStep(1, '', tool_name=name, tool_result={'artifact_id': 'fixture'})) == []
+    source = observed_sources(AgentStep(1, '', tool_name='read_book_page', tool_result={
+        'found': True, 'path': '/tmp/fixture.pdf', 'filename': 'fixture.pdf', 'page': 3,
+        'content': 'Actual observed text', 'truncated': False}))
+    assert source == [{'type': 'pdf_page', 'path': '/tmp/fixture.pdf', 'filename': 'fixture.pdf',
+                       'page': 3, 'snippet': 'Actual observed text', 'full_excerpt': 'Actual observed text',
+                       'read': True, 'truncated': False, 'read_chars': 20}]

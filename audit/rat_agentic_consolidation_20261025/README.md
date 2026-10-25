@@ -1,3 +1,5 @@
+> **Scope correction, 2026-10-25:** This is a historical slice report, not acceptance of every capability or the complete PDF → note → checklist journey. Current source/live review finds remaining direct Finder/PDF paths and note completion failures. See `../rat_agentic_integrity_20261025/README.md` for contract/UI/model-loop status and retained failures. No Stage-0 or measured-quality claim follows from this report.
+
 # Báo cáo kỹ thuật trung thực — Hoàn tất Đợt 1 đến Đợt 5 (2026-10-25)
 
 Triển khai hợp nhất kiến trúc theo nguyên tắc bất biến:

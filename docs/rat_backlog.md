@@ -38,11 +38,15 @@ không phải thông báo mọi khả năng đã hoạt động hay đã đượ
 
 ## Ưu tiên hiện tại trong RAT
 
+### RAT-INTEGRITY-01 — khép kín outcome và bằng chứng, 2026-10-25
+
+Ưu tiên hoàn tất hành trình PDF → Smart Note → sửa/đánh dấu checklist bằng UI/model thật. Đã sửa contracts/grounding/revision và một số lỗi UI; chưa gọi toàn hành trình đạt chỉ vì có artifact. Lưu mọi thất bại và đối chiếu tất cả outcomes. Không dùng số token fixture, phần trăm giảm byte hoặc stopping replay với chi phí nội suy để kết luận tiết kiệm inference. Xem integrity review ở trên. Stage 0 giữ nguyên.
+
 ### RAT-AGENT-UNIFIED-01 — thiết kế lại execution, 2026-10-25
 
 Theo yêu cầu người dùng, thiết kế một vòng Agent chung cho chat và mọi thao tác
 nghiệp vụ UI: [execution agentic thống nhất](rat_agentic_execution_redesign_20261025.md).
-Trạng thái: **Đợt 0, 1, 2, 3, 4, 5 ĐÃ HOÀN TẤT VÀ THÔNG QUA NGHIỆM THU LIVE THỰC TẾ**.
+Trạng thái hiện tại: **MỘT PHẦN**. [Integrity review](../audit/rat_agentic_integrity_20261025/README.md) phát hiện báo cáo token fixture bị gọi là đo thật, note bỏ sót checklist và các đường Finder/PDF còn bypass. Bằng chứng các đợt dưới đây chỉ áp dụng cho lát cắt đã thử.
 - **Đợt 0:** Sửa tính trung thực, loại bỏ hoàn toàn việc gán PASS giả và trang 1 giả trong selected QA; chặn synthesis template khi chưa có model client. Xem [bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md).
 - **Đợt 1–4:** Hợp nhất `AgentExecutionService` 6 pha, loại bỏ bypass `op.handler`, tích hợp subplan mở rộng ngữ cảnh tài liệu (`expand_document_context`), thay thế template soạn bản luận bằng vòng gọi model loop thật với `ReadingVerifier` (gắn nhãn rõ `UNKNOWN` cho nội dung diễn giải biểu tượng), và đóng gói công cụ thành plugin packs. Xem [báo cáo kỹ thuật Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md).
 - **Đợt 5:** Nghiệm thu UI live thực tế trên giao diện QML `PDFDesk.qml` với PDF thật (`arxiv_2506.22716_original.pdf`) và mô hình cục bộ `qwen3:4b-instruct` qua Ollama. Xem [biên bản nghiệm thu thực tế Đợt 5](../audit/rat_agentic_live_acceptance_20261025/README.md).

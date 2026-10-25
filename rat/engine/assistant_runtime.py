@@ -164,6 +164,20 @@ def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
         sources = [s for s in sources if s.get("path") != result.get("path")]
         sources.append({"type": "document", "path": result["path"], "filename": result["filename"],
                         "snippet": result.get("content", "")[:240], "read": True})
+    elif name == "search_book_pages" and isinstance(result, dict):
+        for item in result.get("items", []):
+            if isinstance(item, dict):
+                sources.append({"type": "pdf_page", "path": result.get("path"),
+                                "filename": result.get("filename"), **item, "read": False})
+    elif name == "read_book_page" and isinstance(result, dict) and result.get("found"):
+        sources = [s for s in sources if not (s.get("path") == result.get("path")
+                   and s.get("page") == result.get("page"))]
+        sources.append({"type": "pdf_page", "path": result.get("path"),
+                        "filename": result.get("filename"), "page": result.get("page"),
+                        "snippet": result.get("content", "")[:600],
+                        "full_excerpt": result.get("content", ""), "read": True,
+                        "truncated": result.get("truncated", False),
+                        "read_chars": len(result.get("content", ""))})
     elif name == "read_web_page" and isinstance(result, dict) and result.get("found"):
         url = result.get("final_url") or result.get("requested_url", "")
         sources = [s for s in sources if s.get("url") != url]
@@ -181,7 +195,9 @@ def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
     elif isinstance(result, dict) and result.get("chart"):
         sources = [s for s in sources if s.get("type") != "natal_chart"]
         sources.append({"type": "natal_chart", "chart": result["chart"]})
-    elif name and name not in ("update_task_state", "calculate", "locate_room", "get_group_availability") and result is not None:
+    elif name and name not in ("update_task_state", "calculate", "locate_room", "get_group_availability",
+                              "synthesize_smart_note", "update_note_action_item", "expand_note_section",
+                              "request_operation_tools") and result is not None:
         sources.append({"type": name, "result": result})
     return sources
 

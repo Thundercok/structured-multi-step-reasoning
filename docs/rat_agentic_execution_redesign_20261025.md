@@ -1,7 +1,8 @@
 # RAT — một hệ điều phối reasoning agentic cho mọi khả năng
 
 Ngày: 2026-10-25, Asia/Ho_Chi_Minh.
-Trạng thái: Đợt 0, 1, 2, 3, 4, 5 ĐÃ HOÀN TẤT VÀ THÔNG QUA NGHIỆM THU LIVE THỰC TẾ.
+Trạng thái hiện tại: **MỘT PHẦN — chưa nghiệm thu toàn bộ hành trình và chưa hết bypass**.
+Đối chiếu mới nhất: [integrity review](../audit/rat_agentic_integrity_20261025/README.md). Các báo cáo đợt cũ dưới đây là bằng chứng có phạm vi, không xác nhận mọi chức năng đã hoàn tất.
 Xem [bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md),
 [báo cáo kỹ thuật trung thực Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md), và
 [biên bản nghiệm thu thực tế Đợt 5](../audit/rat_agentic_live_acceptance_20261025/README.md).
@@ -218,6 +219,10 @@ Minor UI đề xuất cho lần triển khai đầu: dưới answer hiển thị
 
 ## 8. Lộ trình triển khai và điều kiện giao
 
+Bảng dưới là snapshot khảo sát ban đầu, có dòng đã được sửa sau đó. Trạng thái
+hiện tại và bằng chứng mới nằm trong integrity review ở đầu tài liệu; không
+dùng bảng lịch sử này hoặc một báo cáo PASSED riêng để suy hoàn tất toàn hệ.
+
 | Đợt | Thay đổi cụ thể | Điều kiện xong | Trạng thái (2026-10-25) |
 | --- | --- | --- | --- |
 | 0 — sửa tính trung thực | Bỏ gán PASS trong selected QA; bỏ bước UI giả; đánh dấu synthesis template hiện tại chưa có model loop | Negative probes không nhận PASS; docs không gọi registration là Agent thật | **ĐÃ XONG** (Xem `audit/rat_agentic_phase0_20261025`) |
@@ -262,6 +267,9 @@ Nếu backend không sẵn, báo blocked acceptance và giữ software evidence 
 
 ## 10. Bàn giao bắt buộc
 
+Inventory bên dưới được giữ như snapshot khảo sát ban đầu. Xem inventory
+contract/UI/model-loop hiện tại trong integrity review ở đầu tài liệu.
+
 Bảng kiểm kê (Inventory) các Entry Point sản xuất theo mã nguồn thực tế:
 
 | Entry Point | Mục tiêu | Hợp đồng (Contract) | Operation / Dispatcher | Planner / Model | Observation & Receipts | Checker thực tế | Stopping & Budget | UI Projection | Bằng chứng phần mềm | Bằng chứng thực tế (Live) | Giới hạn thực tế |
@@ -288,7 +296,7 @@ Cleanup sau Đợt 0: template không còn trong runtime, script Reading kiểm 
 `model_unavailable` thay cho sáu bước CoT giả, và import presentation không tự
 nạp Qt. Evidence và recovery: [cleanup](../audit/rat_agentic_phase0_20261025/cleanup/README.md).
 
-Cập nhật Đợt 1–5 ngày 2026-10-25:
+Ghi nhận trung gian Đợt 1–5 (lịch sử khảo sát; không phải trạng thái cuối):
 Đã thiết lập khung điều phối `AgentExecutionService`, `rat.agent_request/v1`,
 các plugin packs động (`divination`, `astrology`, `timetable`) và `ReadingVerifier`.
 Tuy nhiên, Đợt 2 (mở rộng PDF trong runtime) và Đợt 4 (Finder qua service) chưa đạt;

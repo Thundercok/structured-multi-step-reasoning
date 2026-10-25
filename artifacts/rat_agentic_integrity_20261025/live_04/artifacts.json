@@ -1,0 +1,397 @@
+[
+  {
+    "id": "art-ce1933b6e94340f5b1808bd69a928f74",
+    "kind": "document_content",
+    "revision": 1,
+    "payload": {
+      "found": true,
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "filename": "arxiv_2506.22716_original.pdf",
+      "content": "Title: BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute\n\nAuthor: Dujian Ding; Ankur Mallick; Shaokun Zhang; Chi Wang; Daniel Madrigal; Mirian Del Carmen Hipolito Garcia; Menglin Xia; Laks V. S. Lakshmanan; Qingyun Wu; Victor Rühle\n\n--- Page 1 ---\narXiv:2506.22716v1 [cs.LG] 28 Jun 2025\nBEST-Route: Adaptive LLM Routing with Test-Time Optimal\nCompute\nDujian Ding∗†1, Ankur Mallick2, Shaokun Zhang3, Chi Wang‡4, Daniel Madrigal2\n,\nMirian Del Carmen Hipolito Garcia2, Menglin Xia2, Laks V.S. Lakshmanan1, Qingyun Wu3,5\n,\nand Victor R¨uhle2\n1The University of British Columbia\n2Microsoft\n3Pennsylvania State University\n4Google DeepMind\n5AG2AI, Inc.\nAbstract\nLarge language models (LLMs) are powerful tools but are often expensive to deploy at scale.\nLLM query routing mitigates this by dynamically assigning queries to models of varying cost\nand quality to obtain a desired trade-off. Prior query routing approaches generate only one\nresponse from the selected model and a single response from a small (inexpensive) model was\noften not good enough to beat a response from a large (expensive) model due to which they end\nup overusing the large model and missing out on potential cost savings. However, it is well known\nthat for small models, generating multiple responses and selecting the best can enhance quality\nwhile remaining cheaper than a single large-model response. We leverage this idea to propose\nBEST-Route, a novel routing framework that chooses a model and the number of responses to\nsample from it based on query difficulty and the quality thresholds. Experiments on real-world\ndatasets demonstrate that our method reduces costs by up to 60% with less than 1% performance\ndrop.\n1 Introduction\nLarge language models (LLMs) have revolutionized natural language processing (NLP) by\ndelivering state-of-the-art performance across a wide range of tasks, from language understanding\nto creative writing, code generation, and beyond [Zhao et al., 2023]. Their widespread deployment\nin applications like ChatGPT [OpenAI, a] and other conversational agents [Zheng et al., 2023,\nZhang et al., 2024a,b] has made them a cornerstone of modern NLP systems. However, the superior\nperformance of these models often comes with substantial computational costs, driven by their\nlarge sizes and auto-regressive text generation, making their deployment a challenge for both\n∗Work performed during internship at Microsoft.\n†Corresponding author dujian.ding@gmail.com.\n‡Work performed while at Microsoft.\n1\n\n--- Page 2 ---\nBEST-Route Multi-Head Router\n1. Match Probability Prediction\nLLMs\n2. Best-of-N Sampling\nQuery q\nSelected\nLLM\nQuery q $ $$ $$$\nN=1\nN=2\nBest Response\n... ... ... ... N=N\nSelect the optimal\nLLM and Best-of-N\ncombination\n...\nResponse 1 Response N\nN Responses\nProxy RM\nBest Response\nQuery q\n3. Score each response\nusing proxy reward model\nand return the best.\nFigure 1: System overview of BEST-Route: Best-of-n Enhanced Sampling and Test-time Route\nOptimization.\ndevelopers and us",
+      "total_chars": 59820,
+      "truncated": true
+    },
+    "inputs": {
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "max_chars": 3000
+    },
+    "provenance": {
+      "operation_name": "read_document",
+      "owner_turn_id": "turn-1",
+      "execution_id": "exec-77fd46aeebda"
+    },
+    "title": "Read an indexed PDF, PPTX, DOCX, TXT or MD file",
+    "status": "ready",
+    "created_at": 1792943249.152336
+  },
+  {
+    "id": "art-b699c9e5f4b248f39a8e39635ca00eb3",
+    "kind": "document_expanded_context",
+    "revision": 1,
+    "payload": {
+      "found": true,
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "filename": "arxiv_2506.22716_original.pdf",
+      "content": "Title: BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute\n\nAuthor: Dujian Ding; Ankur Mallick; Shaokun Zhang; Chi Wang; Daniel Madrigal; Mirian Del Carmen Hipolito Garcia; Menglin Xia; Laks V. S. Lakshmanan; Qingyun Wu; Victor Rühle\n\n--- Page 1 ---\narXiv:2506.22716v1 [cs.LG] 28 Jun 2025\nBEST-Route: Adaptive LLM Routing with Test-Time Optimal\nCompute\nDujian Ding∗†1, Ankur Mallick2, Shaokun Zhang3, Chi Wang‡4, Daniel Madrigal2\n,\nMirian Del Carmen Hipolito Garcia2, Menglin Xia2, Laks V.S. Lakshmanan1, Qingyun Wu3,5\n,\nand Victor R¨uhle2\n1The University of British Columbia\n2Microsoft\n3Pennsylvania State University\n4Google DeepMind\n5AG2AI, Inc.\nAbstract\nLarge language models (LLMs) are powerful tools but are often expensive to deploy at scale.\nLLM query routing mitigates this by dynamically assigning queries to models of varying cost\nand quality to obtain a desired trade-off. Prior query routing approaches generate only one\nresponse from the selected model and a single response from a small (inexpensive) model was\noften not good enough to beat a response from a large (expensive) model due to which they end\nup overusing the large model and missing out on potential cost savings. However, it is well known\nthat for small models, generating multiple responses and selecting the best can enhance quality\nwhile remaining cheaper than a single large-model response. We leverage this idea to propose\nBEST-Route, a novel routing framework that chooses a model and the number of responses to\nsample from it based on query difficulty and the quality thresholds. Experiments on real-world\ndatasets demonstrate that our method reduces costs by up to 60% with less than 1% performance\ndrop.\n1 Introduction\nLarge language models (LLMs) have revolutionized natural language processing (NLP) by\ndelivering state-of-the-art performance across a wide range of tasks, from language understanding\nto creative writing, code generation, and beyond [Zhao et al., 2023]. Their widespread deployment\nin applications like ChatGPT [OpenAI, a] and other conversational agents [Zheng et al., 2023,\nZhang et al., 2024a,b] has made them a cornerstone of modern NLP systems. However, the superior\nperformance of these models often comes with substantial computational costs, driven by their\nlarge sizes and auto-regressive text generation, making their deployment a challenge for both\n∗Work performed during internship at Microsoft.\n†Corresponding author dujian.ding@gmail.com.\n‡Work performed while at Microsoft.\n1\n\n--- Page 2 ---\nBEST-Route Multi-Head Router\n1. Match Probability Prediction\nLLMs\n2. Best-of-N Sampling\nQuery q\nSelected\nLLM\nQuery q $ $$ $$$\nN=1\nN=2\nBest Response\n... ... ... ... N=N\nSelect the optimal\nLLM and Best-of-N\ncombination\n...\nResponse 1 Response N\nN Responses\nProxy RM\nBest Response\nQuery q\n3. Score each response\nusing proxy reward model\nand return the best.\nFigure 1: System overview of BEST-Route: Best-of-n Enhanced Sampling and Test-time Route\nOptimization.\ndevelopers and us",
+      "total_chars": 59820,
+      "start_offset": 0,
+      "expanded_chars": 3000,
+      "page": null,
+      "expanded": true,
+      "truncated": true
+    },
+    "inputs": {
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "query": "chọn hình phản",
+      "max_chars": 3000
+    },
+    "provenance": {
+      "operation_name": "expand_document_context",
+      "owner_turn_id": "turn-1",
+      "execution_id": "exec-77fd46aeebda"
+    },
+    "title": "Expand the reading window of an indexed document to capture surrounding context around a target excerpt, page or offset",
+    "status": "ready",
+    "created_at": 1792943249.385515
+  },
+  {
+    "id": "art-0db36cb6ec50458a8f7d384e6af71dfc",
+    "kind": "structured_note",
+    "revision": 1,
+    "payload": {
+      "artifact_kind": "structured_note",
+      "note_id": "art-0db36cb6ec50458a8f7d384e6af71dfc",
+      "revision": 1,
+      "title": "BEST-Route: Chọn Mô Hình và Số Phản Hồi",
+      "domain": "decision",
+      "summary": "Ghi chú có cấu trúc cho chủ đề 'BEST-Route: Chọn Mô Hình và Số Phản Hồi' thuộc nhóm decision. Ghi nhận 1 dữ kiện nền tảng, 0 lưu ý/rào cản và 0 đầu việc hành động.",
+      "key_facts": [
+        {
+          "fact": "BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng.",
+          "source": "user_input"
+        }
+      ],
+      "analysis_sections": [
+        {
+          "heading": "Hiện trạng & Dữ kiện Quan sát",
+          "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng.** (nguồn: `user_input`)",
+          "badges": [
+            "fact_grounded",
+            "verified_input"
+          ]
+        },
+        {
+          "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+          "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n",
+          "badges": [
+            "actionable",
+            "plan"
+          ]
+        }
+      ],
+      "risks_and_constraints": [],
+      "action_items": [],
+      "raw_content": "BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng.",
+      "source_sha256": "9d78644a57f4a577ca7b8770e9c989fbaf48e5e71e5f2810279b0dfcf64d874f",
+      "synthesis_mode": "extractive",
+      "_op_name": "synthesize_smart_note",
+      "markdown_rendered": "# 📋 BEST-Route: Chọn Mô Hình và Số Phản Hồi\n> **Lĩnh vực:** `DECISION` | **Trạng thái:** `Có cấu trúc · xem phạm vi kiểm chứng`\n\n**Tóm tắt cốt lõi:** Ghi chú có cấu trúc cho chủ đề 'BEST-Route: Chọn Mô Hình và Số Phản Hồi' thuộc nhóm decision. Ghi nhận 1 dữ kiện nền tảng, 0 lưu ý/rào cản và 0 đầu việc hành động.\n\n---\n\n### 🔍 Dữ kiện Nền tảng (Grounded Facts)\n| STT | Dữ kiện quan sát | Phân loại nguồn |\n| :---: | :--- | :---: |\n| 1 | BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. | `user_input` |\n\n### 📊 Phân tích Chi tiết\n#### Hiện trạng & Dữ kiện Quan sát `[fact_grounded]` `[verified_input]`\nCác dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng.** (nguồn: `user_input`)\n\n#### Kế hoạch Hành động & Khuyến nghị Tối ưu `[actionable]` `[plan]`\nCác đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n\n",
+      "raw_char_count": 91,
+      "structured_char_count": 948,
+      "artifact_id": "art-0db36cb6ec50458a8f7d384e6af71dfc"
+    },
+    "inputs": {
+      "raw_content": "BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng.",
+      "domain": "decision",
+      "title": "BEST-Route: Chọn Mô Hình và Số Phản Hồi",
+      "focus_question": "Dựa vào yếu tố nào để chọn mô hình và số phản hồi trong BEST-Route?"
+    },
+    "provenance": {
+      "operation_name": "synthesize_smart_note",
+      "owner_turn_id": "turn-2",
+      "execution_id": "exec-c4a04dfb13e1"
+    },
+    "title": "BEST-Route: Chọn Mô Hình và Số Phản Hồi",
+    "status": "ready",
+    "created_at": 1792943353.836552
+  },
+  {
+    "id": "art-dc1301b609f1482e881277052fdf81b9",
+    "kind": "book_page_search",
+    "revision": 1,
+    "payload": {
+      "title": "Trang sách · arxiv_2506.22716_original.pdf · Section 3",
+      "query": "Section 3",
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "filename": "arxiv_2506.22716_original.pdf",
+      "items": [
+        {
+          "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+          "filename": "arxiv_2506.22716_original.pdf",
+          "page": 5,
+          "page_label": "5",
+          "page_count": 25,
+          "page_numbering": "pdf_1_based",
+          "extraction": "pdf_text",
+          "snippet": "lly utilize smaller models, frequently\ndefaulting to querying the largest model. Our experiments in Section 5 confirm this trend. A\ncommon technique for enhancing small-model response quality is best-of- n sampling, where multiple\nresponses are generated, and the best one is selected Stiennon et al. [2020], Nakano et al. [2021].\nHowever, prior approaches are often too costly and time-consuming for real-time inference due to\nthe extensive usage of large (LLM-based) reward models Lambert et al. [2024]. To address this,\nwe first develop a low-cost best-of- n sampling method to enhance small-model",
+          "snippet_start": 1551,
+          "matched_terms": [
+            "section",
+            "3"
+          ],
+          "phrase_match": false,
+          "occurrences": 4
+        },
+        {
+          "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+          "filename": "arxiv_2506.22716_original.pdf",
+          "page": 3,
+          "page_label": "3",
+          "page_count": 25,
+          "page_numbering": "pdf_1_based",
+          "extraction": "pdf_text",
+          "snippet": "rall routing\nframework is illustrated in Figure 1. Experiments on large-scale, real-world datasets (Section 5)\ndemonstrate that our method achieves up to 60% cost reduction with less than 1% performance\ndegradation, significantly improving upon prior routing techniques and contributing toward more\nefficient LLM service deployment.\nThe main contributions of this work are: 1) Cost-efficient router design: We propose a query\ndifficulty-aware routing framework that allocates computational resources dynamically to achieve\neffective cost-accuracy trade-offs while adding minimal overhead. 2) T est-ti",
+          "snippet_start": 1050,
+          "matched_terms": [
+            "section",
+            "3"
+          ],
+          "phrase_match": false,
+          "occurrences": 3
+        }
+      ],
+      "matched_pages": 2,
+      "results_truncated": false,
+      "page_count": 25,
+      "searched_range": [
+        1,
+        5
+      ],
+      "pages_examined": 5,
+      "next_start_page": 6,
+      "textless_pages": [],
+      "unreadable_pages": [],
+      "search_mode": "all_query_words_accent_insensitive",
+      "notice": "Số trang tính từ 1 trong tệp PDF. Nhãn trang do PDF khai báo, có thể khác số in trên sách. Các trang không có văn bản trích xuất cần OCR để tìm nội dung."
+    },
+    "inputs": {
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "query": "Section 3",
+      "max_pages": 5
+    },
+    "provenance": {
+      "operation_name": "search_book_pages",
+      "owner_turn_id": "turn-2",
+      "execution_id": "exec-c4a04dfb13e1"
+    },
+    "title": "Trang sách · arxiv_2506.22716_original.pdf · Section 3",
+    "status": "ready",
+    "created_at": 1792943414.320415
+  },
+  {
+    "id": "art-0118c95dccf844a99eeb8d3a0faf1340",
+    "kind": "book_page_content",
+    "revision": 1,
+    "payload": {
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "filename": "arxiv_2506.22716_original.pdf",
+      "page": 3,
+      "page_label": "3",
+      "page_count": 25,
+      "page_numbering": "pdf_1_based",
+      "extraction": "pdf_text",
+      "title": "arxiv_2506.22716_original.pdf · Trang PDF 3",
+      "found": true,
+      "content": "the appropriate model and allocate computational resources. Second, a test-time optimal compute\nstrategy leverages best-of- n sampling Stiennon et al. [2020], Nakano et al. [2021] to enhance small-\nmodel performance. This ensures that easy queries are routed to smaller, cheaper models with\nminimal sampling, while harder queries benefit from the advanced capabilities of larger models.\nOur framework employs a flexible model orchestration pipeline to adapt to varying cost-quality\nrequirements. Specifically, our router predicts the likelihood that a small model, with best-of- n\nsampling, can generate responses comparable to a powerful reference model (e.g., GPT-4o). This\nenables the selection of the optimal small-model and sampling strategy combination, ensuring\nhigh-quality responses at minimal cost. Unlike prior work with static sampling policies, our router\nadaptively determines the number of samples (and hence the compute allocation) needed for a small\nmodel to match the quality of the reference large model at the lowest cost. The overall routing\nframework is illustrated in Figure 1. Experiments on large-scale, real-world datasets (Section 5)\ndemonstrate that our method achieves up to 60% cost reduction with less than 1% performance\ndegradation, significantly improving upon prior routing techniques and contributing toward more\nefficient LLM service deployment.\nThe main contributions of this work are: 1) Cost-efficient router design: We propose a query\ndifficulty-aware routing framework that allocates computational resources dynamically to achieve\neffective cost-accuracy trade-offs while adding minimal overhead. 2) T est-time optimal compute\nstrategy: We introduce a best-of- n sampling mechanism, allowing the router to select the most\neffective response which improves performance while still saving costs. 3) Scalable real-world\nevaluations: We demonstrate the effectiveness of our approach on large-scale datasets, achieving\nsignificant cost savings with minimal response quality drop.\nOur work provides a robust solution for both LLM service providers and end-users, offering a\nflexible framework that balances cost and performance. By leveraging adaptive routing and test-time\noptimization, we advance the field of cost-efficient LLM inference, enabling broader accessibility\nand adoption of LLM-backed applications.\n2 Related Work\nEfficient Machine Learning (ML) Inference. Large language models (LLMs) have rev-\nolutionized natural language processing and related fields, offering remarkable effectiveness and\ngeneralizability. However, their increasing size comes at the cost of significant computational\ndemands and prohibitive expenses for both training and deployment Treviso et al. [2023], Bender\net al. [2021]. To address inference costs, prior research has focused on static efficiency optimizations\nsuch as model pruning Hassibi et al. [1993], LeCun et al. [1989], quantization Jacob et al. [2018],\nVanhoucke et al. [2011], knowledge distillation Hinton et ",
+      "total_chars": 3867,
+      "truncated": true,
+      "citation": {
+        "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+        "filename": "arxiv_2506.22716_original.pdf",
+        "page": 3,
+        "page_label": "3",
+        "page_count": 25,
+        "page_numbering": "pdf_1_based",
+        "extraction": "pdf_text",
+        "snippet": "the appropriate model and allocate computational resources. Second, a test-time optimal compute\nstrategy leverages best-of- n sampling Stiennon et al. [2020], Nakano et al. [2021] to enhance small-\nmodel performance. This ensures that easy queries are routed to smaller, cheaper models with\nminimal sampling, while harder queries benefit from the advanced capabilities of larger models.\nOur framework employs a flexible model orchestration pipeline to adapt to varying cost-quality\nrequirements. Spec"
+      },
+      "notice": "Văn bản trích xuất từ trang PDF; nhãn PDF không xác nhận số trang in trên sách."
+    },
+    "inputs": {
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "page": 3,
+      "max_chars": 3000
+    },
+    "provenance": {
+      "operation_name": "read_book_page",
+      "owner_turn_id": "turn-2",
+      "execution_id": "exec-c4a04dfb13e1"
+    },
+    "title": "arxiv_2506.22716_original.pdf · Trang PDF 3",
+    "status": "ready",
+    "created_at": 1792943459.5514722
+  },
+  {
+    "id": "art-9f7d032804ac49b79674740a80dc44ed",
+    "kind": "structured_note",
+    "revision": 1,
+    "payload": {
+      "artifact_kind": "structured_note",
+      "note_id": "art-9f7d032804ac49b79674740a80dc44ed",
+      "revision": 1,
+      "title": "Giới hạn trong đánh giá tính tiết kiệm compute của RAT",
+      "domain": "analysis",
+      "summary": "Ghi chú có cấu trúc cho chủ đề 'Giới hạn trong đánh giá tính tiết kiệm compute của RAT' thuộc nhóm analysis. Ghi nhận 2 dữ kiện nền tảng, 0 lưu ý/rào cản và 0 đầu việc hành động.",
+      "key_facts": [
+        {
+          "fact": "sun",
+          "source": "user_input"
+        },
+        {
+          "fact": "sun",
+          "source": "user_input"
+        }
+      ],
+      "analysis_sections": [
+        {
+          "heading": "Hiện trạng & Dữ kiện Quan sát",
+          "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **sun** (nguồn: `user_input`)\n- **sun** (nguồn: `user_input`)",
+          "badges": [
+            "fact_grounded",
+            "verified_input"
+          ]
+        },
+        {
+          "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+          "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n",
+          "badges": [
+            "actionable",
+            "plan"
+          ]
+        }
+      ],
+      "risks_and_constraints": [],
+      "action_items": [],
+      "raw_content": "Trong note art-05361aa787f14ab8840a2d46ecbd880b revision 3, bổ sung mục Giới hạn: giải thích ngắn vì sao các dữ kiện hiện có chưa chứng minh RAT tiết kiệm compute. Ghi rõ đây là phân tích chưa có số đo kiểm chứng, không thêm dữ kiện mới. Lưu phần bổ sung vào ghi chú.",
+      "source_sha256": "4955b3034a3b86e718d0907659a907dd4221274850ee09fd7fed5c84d6c686a4",
+      "synthesis_mode": "extractive",
+      "_op_name": "synthesize_smart_note",
+      "markdown_rendered": "# 📋 Giới hạn trong đánh giá tính tiết kiệm compute của RAT\n> **Lĩnh vực:** `ANALYSIS` | **Trạng thái:** `Có cấu trúc · xem phạm vi kiểm chứng`\n\n**Tóm tắt cốt lõi:** Ghi chú có cấu trúc cho chủ đề 'Giới hạn trong đánh giá tính tiết kiệm compute của RAT' thuộc nhóm analysis. Ghi nhận 2 dữ kiện nền tảng, 0 lưu ý/rào cản và 0 đầu việc hành động.\n\n---\n\n### 🔍 Dữ kiện Nền tảng (Grounded Facts)\n| STT | Dữ kiện quan sát | Phân loại nguồn |\n| :---: | :--- | :---: |\n| 1 | sun | `user_input` |\n| 2 | sun | `user_input` |\n\n### 📊 Phân tích Chi tiết\n#### Hiện trạng & Dữ kiện Quan sát `[fact_grounded]` `[verified_input]`\nCác dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **sun** (nguồn: `user_input`)\n- **sun** (nguồn: `user_input`)\n\n#### Kế hoạch Hành động & Khuyến nghị Tối ưu `[actionable]` `[plan]`\nCác đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n\n",
+      "raw_char_count": 267,
+      "structured_char_count": 861,
+      "artifact_id": "art-9f7d032804ac49b79674740a80dc44ed"
+    },
+    "inputs": {
+      "raw_content": "Trong note art-05361aa787f14ab8840a2d46ecbd880b revision 3, bổ sung mục Giới hạn: giải thích ngắn vì sao các dữ kiện hiện có chưa chứng minh RAT tiết kiệm compute. Ghi rõ đây là phân tích chưa có số đo kiểm chứng, không thêm dữ kiện mới. Lưu phần bổ sung vào ghi chú.",
+      "domain": "analysis",
+      "title": "Giới hạn trong đánh giá tính tiết kiệm compute của RAT",
+      "focus_question": "Tại sao các dữ kiện hiện có chưa chứng minh được RAT tiết kiệm compute?"
+    },
+    "provenance": {
+      "operation_name": "synthesize_smart_note",
+      "owner_turn_id": "turn-6",
+      "execution_id": "exec-f3a4f9af7fa3"
+    },
+    "title": "Giới hạn trong đánh giá tính tiết kiệm compute của RAT",
+    "status": "ready",
+    "created_at": 1792944102.101127
+  },
+  {
+    "id": "art-05361aa787f14ab8840a2d46ecbd880b",
+    "kind": "structured_note",
+    "revision": 4,
+    "payload": {
+      "artifact_kind": "structured_note",
+      "note_id": "art-05361aa787f14ab8840a2d46ecbd880b",
+      "revision": 4,
+      "title": "Công việc cần thực hiện theo BEST-Route",
+      "domain": "action_plan",
+      "summary": "Ghi chú có cấu trúc cho chủ đề 'Công việc cần thực hiện theo BEST-Route' thuộc nhóm action_plan. Ghi nhận 1 dữ kiện nền tảng, 0 lưu ý/rào cản và 1 đầu việc hành động.",
+      "key_facts": [
+        {
+          "fact": "3 c",
+          "source": "user_input"
+        }
+      ],
+      "analysis_sections": [
+        {
+          "heading": "Hiện trạng & Dữ kiện Quan sát",
+          "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **3 c** (nguồn: `user_input`)",
+          "badges": [
+            "fact_grounded",
+            "verified_input"
+          ]
+        },
+        {
+          "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+          "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. Việc cần làm: Đọc Section 3 của bài BEST-Route. Việc đọc này CHƯA hoàn thành",
+          "badges": [
+            "actionable",
+            "plan"
+          ]
+        },
+        {
+          "heading": "Mở rộng: risks_and_constraints",
+          "content": "**Bổ sung do Agent soạn (chưa xác minh diễn giải):**\nPhân tích: Chưa có số đo RAT nên chưa thể kết luận tiết kiệm compute. Do đó, việc đánh giá hiệu suất tính toán vẫn đang ở mức chưa đủ dữ liệu để đưa ra kết luận cụ thể.",
+          "badges": [
+            "follow_up",
+            "expanded"
+          ]
+        }
+      ],
+      "risks_and_constraints": [],
+      "action_items": [
+        {
+          "task": "BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. Việc cần làm: Đọc Section 3 của bài BEST-Route. Việc đọc này CHƯA hoàn thành",
+          "done": true
+        }
+      ],
+      "raw_content": "BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. Việc cần làm: Đọc Section 3 của bài BEST-Route. Việc đọc này CHƯA hoàn thành; chỉ ghi thành một mục chưa đánh dấu, không đọc PDF nữa.",
+      "source_sha256": "7f4fe53fdf7be117c8f425b3627038f706beb924d1cbb050ec790ff79c6f630c",
+      "synthesis_mode": "extractive",
+      "_op_name": "expand_note_section",
+      "markdown_rendered": "# 📋 Công việc cần thực hiện theo BEST-Route\n> **Lĩnh vực:** `ACTION_PLAN` | **Trạng thái:** `Có cấu trúc · xem phạm vi kiểm chứng`\n\n**Tóm tắt cốt lõi:** Ghi chú có cấu trúc cho chủ đề 'Công việc cần thực hiện theo BEST-Route' thuộc nhóm action_plan. Ghi nhận 1 dữ kiện nền tảng, 0 lưu ý/rào cản và 1 đầu việc hành động.\n\n---\n\n### 🔍 Dữ kiện Nền tảng (Grounded Facts)\n| STT | Dữ kiện quan sát | Phân loại nguồn |\n| :---: | :--- | :---: |\n| 1 | 3 c | `user_input` |\n\n### 📊 Phân tích Chi tiết\n#### Hiện trạng & Dữ kiện Quan sát `[fact_grounded]` `[verified_input]`\nCác dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **3 c** (nguồn: `user_input`)\n\n#### Kế hoạch Hành động & Khuyến nghị Tối ưu `[actionable]` `[plan]`\nCác đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. Việc cần làm: Đọc Section 3 của bài BEST-Route. Việc đọc này CHƯA hoàn thành\n\n#### Mở rộng: risks_and_constraints `[follow_up]` `[expanded]`\n**Bổ sung do Agent soạn (chưa xác minh diễn giải):**\nPhân tích: Chưa có số đo RAT nên chưa thể kết luận tiết kiệm compute. Do đó, việc đánh giá hiệu suất tính toán vẫn đang ở mức chưa đủ dữ liệu để đưa ra kết luận cụ thể.\n\n\n### ✅ Kế hoạch Hành động (Action Checklist)\n- [x] BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. Việc cần làm: Đọc Section 3 của bài BEST-Route. Việc đọc này CHƯA hoàn thành",
+      "raw_char_count": 225,
+      "structured_char_count": 1172,
+      "artifact_id": "art-05361aa787f14ab8840a2d46ecbd880b",
+      "_previous_note": {
+        "revision": 3,
+        "analysis_sections": [
+          {
+            "heading": "Hiện trạng & Dữ kiện Quan sát",
+            "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **3 c** (nguồn: `user_input`)",
+            "badges": [
+              "fact_grounded",
+              "verified_input"
+            ]
+          },
+          {
+            "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+            "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] BEST-Route chọn mô hình và số phản hồi dựa vào mức độ khó của câu hỏi và ngưỡng chất lượng. Việc cần làm: Đọc Section 3 của bài BEST-Route. Việc đọc này CHƯA hoàn thành",
+            "badges": [
+              "actionable",
+              "plan"
+            ]
+          }
+        ]
+      },
+      "expansion_request": "Thêm mục Giới hạn với phân tích: Chưa có số đo RAT nên chưa thể kết luận tiết kiệm compute.",
+      "expansion_content": "Phân tích: Chưa có số đo RAT nên chưa thể kết luận tiết kiệm compute. Do đó, việc đánh giá hiệu suất tính toán vẫn đang ở mức chưa đủ dữ liệu để đưa ra kết luận cụ thể."
+    },
+    "inputs": {
+      "expansion_content": "Phân tích: Chưa có số đo RAT nên chưa thể kết luận tiết kiệm compute. Do đó, việc đánh giá hiệu suất tính toán vẫn đang ở mức chưa đủ dữ liệu để đưa ra kết luận cụ thể.",
+      "expansion_query": "Thêm mục Giới hạn với phân tích: Chưa có số đo RAT nên chưa thể kết luận tiết kiệm compute.",
+      "section_heading": "risks_and_constraints"
+    },
+    "provenance": {
+      "operation_name": "expand_note_section",
+      "parent_revision": 3,
+      "owner_turn_id": "turn-7",
+      "execution_id": "exec-9121c7892c5d",
+      "replaces_turn_id": "turn-5"
+    },
+    "title": "Công việc cần thực hiện theo BEST-Route",
+    "status": "ready",
+    "created_at": 1792944240.9438012
+  }
+]
