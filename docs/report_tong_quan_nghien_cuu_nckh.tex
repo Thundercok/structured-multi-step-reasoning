@@ -52,16 +52,18 @@
     \Large\color{secondary} Điều phối Chiến lược Suy luận Đa bước, Quyết định Dừng theo Ngân sách \\ và Đánh giá Khả năng Kháng Mã (Program Resistance) trên Qwen3-8B
 }
 \author{\textbf{Nhóm Nghiên cứu Đề tài NCKH Sinh viên}}
-\date{Ngày cập nhật: 06 tháng 10 năm 2026}
+\date{Ngày cập nhật: 25 tháng 10 năm 2026 (Hiệu đính Phân loại Phát triển / Thăm dò)}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-Báo cáo này tổng hợp toàn bộ lộ trình nghiên cứu, dữ liệu thực nghiệm đã kiểm chứng, và phân tích cơ chế sâu sắc từ chuỗi chiến dịch khảo sát trên mô hình ngôn ngữ nhỏ (\texttt{Qwen3-8B-4bit}, MLX Apple Silicon). Trọng tâm nghiên cứu là giải quyết bài toán: \textit{Khi nào mô hình cần suy luận từng bước, khi nào nên dừng/leo thang, tín hiệu tự tin nào đáng tin cậy, và ranh giới thực sự giữa suy luận ngôn ngữ tự nhiên (Chain-of-Thought / Tree-of-Thoughts) với việc sinh mã chương trình (Program-Aided Language) nằm ở đâu?}
+Báo cáo này tổng hợp toàn bộ lộ trình nghiên cứu, dữ liệu khảo sát phát triển/thăm dò (\textit{exploratory development sweeps} trên tập dữ liệu đã lộ \texttt{gen02\_tune}, Runs 11--13), và phân tích cơ chế sâu sắc từ chuỗi chiến dịch khảo sát trên mô hình ngôn ngữ nhỏ (\texttt{Qwen3-8B-4bit}, MLX Apple Silicon). Trọng tâm nghiên cứu là giải quyết bài toán: \textit{Khi nào mô hình cần suy luận từng bước, khi nào nên dừng/leo thang, tín hiệu tự tin nào đáng tin cậy, và ranh giới thực sự giữa suy luận ngôn ngữ tự nhiên (Chain-of-Thought / Tree-of-Thoughts) với việc sinh mã chương trình (Program-Aided Language) nằm ở đâu?}
 
-Tài liệu cung cấp số liệu đối chiếu chi tiết từ 571 lượt sinh chuẩn (Run 11), 31 lượt đối chứng diễn đạt Gap B, 100 lượt sinh PAL-v2 (Run 12), và 29 lượt sinh PAL-v3 (Run 13); chẩn đoán nguyên nhân thất bại ở cấp độ từng manh mối bài toán; giải mã nghịch lý chi phí của cơ chế cascade; và thiết lập 4 tiêu chí cốt lõi định nghĩa một họ bài toán ``kháng giải bằng mã'' (program-resistant) làm tiền đề xây dựng tập dữ liệu kiểm chứng độc lập (\texttt{gen02\_v2}).
+Tài liệu cung cấp số liệu đối chiếu chi tiết từ 571 lượt sinh thăm dò (Run 11), 31 lượt đối chứng diễn đạt Gap B, 100 lượt sinh PAL-v2 (Run 12), và 29 lượt sinh PAL-v3 (Run 13); chẩn đoán nguyên nhân thất bại ở cấp độ từng manh mối bài toán; giải mã nghịch lý chi phí của cơ chế cascade; và thiết lập 4 tiêu chí cốt lõi định nghĩa một họ bài toán ``kháng giải bằng mã'' (program-resistant) làm tiền đề xây dựng tập dữ liệu kiểm chứng độc lập (\texttt{gen02\_v2}).
+
+\textbf{Lưu ý liêm chính học thuật quan trọng:} Toàn bộ số liệu trong các bảng thực nghiệm Run 11--13 là số liệu đo đạc trên tập phát triển thăm dò (\textit{development/tuning pool}) phục vụ gỡ lỗi và thiết kế giả thuyết, \textbf{chưa phải kết quả kiểm chứng độc lập (confirmatory evaluation)} trên tập kiểm thử chưa lộ. Chi phí token trong Run 11 là token proxy (chưa tính prompt tokens trong các lượt gọi đa bước), và phương thức Self-Consistency trong Run 11 tồn tại lỗi chấm điểm fail-closed (một nhánh bị trần độ dài khiến toàn bộ arm bị đánh dấu sai, ảnh hưởng 31/100 bản ghi). Các kết quả này không được sử dụng làm bằng chứng chất lượng mô hình sau cùng mà chỉ có giá trị chẩn đoán phương pháp luận.
 \end{abstract}
 
 \tableofcontents
@@ -114,10 +116,76 @@ Nghiên cứu khảo sát và chuẩn hóa 7 chiến lược suy luận đại d
 
 \newpage
 
+\chapter{Tổng quan Nghiên cứu Liên quan (Related Work)}
+
+\section{Cây Phân loại Văn hiến (Literature Taxonomy)}
+
+Các nghiên cứu tối ưu hóa chi phí và độ chính xác của mô hình ngôn ngữ lớn và nhỏ (LLM/SLM) tại thời điểm suy luận (\textit{test-time compute optimization}) được chia thành 5 trường phái kỹ thuật cốt lõi:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Định tuyến Đầu vào (Entry Routing \& Mode Selection):}  
+    Các phương pháp như \textit{Route to Reason} (Pan et al., 2025) và \textit{BEST-Route} (Ding et al., 2025) đưa ra quyết định một lần (\textit{one-shot}) tại thời điểm $t=0$ trước khi sinh token, dựa trên biểu diễn embedding hoặc các đặc trưng bề mặt của câu hỏi để phân bổ mô hình và chiến lược giải (ví dụ: Direct vs CoT, hoặc số mẫu $n$). Điểm yếu của hướng tiếp cận này là đưa ra phán quyết toàn cục khi mô hình chưa thực sự bước vào quá trình suy luận, dễ bị đánh lừa bởi các bài toán có câu chữ ngắn gọn nhưng bẫy logic sâu.
+
+    \item \textbf{Lấy mẫu Thích ứng (Adaptive Sampling):}  
+    Các công trình như \textit{Adaptive-Consistency} (Aggarwal et al., 2023), \textit{ESC} (Li et al., 2024), và \textit{ReASC} (Kim et al., 2026) tối ưu hóa phương pháp Self-Consistency (SC) bằng cách dừng lấy mẫu sớm (\textit{early exit}) ngay khi tần suất đồng thuận hoặc xác suất hậu nghiệm Bayes đạt ngưỡng tin cậy, thay vì cố định sinh đủ $K$ mẫu. Hướng tiếp cận này chỉ can thiệp sau mỗi đường sinh hoàn chỉnh của một chiến lược cố định, chưa hỗ trợ chuyển đổi linh hoạt giữa các biểu diễn khác nhau (như từ văn bản tự nhiên sang mã chương trình).
+
+    \item \textbf{Cắt tỉa Trong chuỗi Sinh (Within-Chain Stopping):}  
+    Gần đây, các công trình như \textit{Settle} (Brown et al., 2026), \textit{SABER} (Cheng et al., 2026), và \textit{s1 budget forcing} (Muennighoff et al., 2025) đề xuất can thiệp trực tiếp vào quá trình giải mã token, ép mô hình phát tín hiệu kết thúc chuỗi suy luận $\langle\text{end-of-reasoning}\rangle$ khi phát hiện phân phối token đã hội tụ. Tuy nhiên, hướng tiếp cận này đòi hỏi phải huấn luyện lại trọng số (SFT/RL) hoặc can thiệp sâu vào tầng logits nội tại, làm mất đi tính tổng quát trên các mô hình đóng băng (frozen models).
+
+    \item \textbf{Tìm kiếm Cấu trúc \& Kiểm chứng Hình thức (Structured Search \& Verification):}  
+    \textit{Tree of Thoughts} (Yao et al., 2023), \textit{Graph of Thoughts} (Besta et al., 2024), và các hệ thống kiểm chứng ngoài như \textit{CRITIC} (Gou et al., 2024) tổ chức không gian tìm kiếm đa nhánh và sử dụng công cụ hình thức để kiểm tra tính hợp lệ. Ưu điểm là vượt trội về khả năng thám hiểm không gian trạng thái, nhưng chi phí suy luận tăng theo hàm số mũ nếu không có cơ chế dừng có kiểm soát.
+
+    \item \textbf{Suy luận Học sâu trong Không gian Tiềm ẩn (Learned Latent Reasoning):}  
+    Các mô hình như \textit{Coconut} (Hao et al., 2024) hay \textit{AdapThink} (Snell et al., 2024) tối ưu hóa các vector trạng thái ẩn liên tục thay vì sinh token ngôn ngữ tự nhiên. Đây là hướng đi dài hạn nhưng đòi hỏi hạ tầng huấn luyện phức tạp và đánh mất khả năng diễn giải trực quan cho người dùng.
+\end{enumerate}
+
+\section{Bảng Đối chiếu Đa chiều với Các Công trình Trọng yếu}
+
+Bảng \ref{tab:taxonomy_matrix} so sánh định vị phương pháp tiếp cận của đề tài (\textbf{RAT-CoT Dual-Stage}) với các công trình tiêu biểu đại diện cho các trường phái:
+
+\begin{table}[h!]
+\centering\scriptsize
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Tiêu chí So sánh} & \textbf{Entry Routing (RTR, BEST-Route)} & \textbf{Adaptive Sampling (ESC, ReASC)} & \textbf{Phương pháp Đề xuất (RAT-CoT)} \\
+\midrule
+\textbf{Vị trí Can thiệp} & Trước khi sinh ($t=0$, Entry Level) & Sau mỗi mẫu $k=1..N$ của SC & \textbf{2 Giai đoạn:} (1) $t=0$ \& (2) Giữa các bậc chiến lược \\
+\textbf{Không gian Hành động} & Chọn cặp $(\text{Model}, \text{Strategy})$ hoặc số mẫu $n$ & Quyết định nhị phân: Tiếp tục / Dừng lấy mẫu & \textbf{Bậc thang Chiến lược:} $\text{Direct} \to \text{CoT} \to \text{Tools/Verifier}$ \\
+\textbf{Trạng thái Mô hình} & Frozen SLM (chỉ học router nhẹ ngoài) & Frozen SLM & \textbf{Frozen SLM} (bảo toàn trọng số gốc an toàn) \\
+\textbf{Tín hiệu Dừng} & Không có (chạy hết cấu hình đã chọn) & Tần suất đồng thuận (Beta Bayesian) & \textbf{Calibrated Confidence} kết hợp \textbf{Symbolic Verifier} \\
+\textbf{Hàm Mục tiêu} & Proxy reward hoặc cân bằng acc/tokens & Giữ nguyên accuracy của full SC & \textbf{Hữu dụng Kinh tế (Pareto Utility):} $U = \mathbb{E}[Y] - \lambda \cdot \mathbb{E}[\text{Cost}]$ \\
+\textbf{Dừng sớm / Leo thang} & Không (One-shot) & Dừng lấy mẫu khi vượt ngưỡng tích lũy & \textbf{Ngưỡng dừng Bellman} $\tau_k$ hiệu chuẩn ngoại tuyến \\
+\textbf{Kiểm chứng Ngoài} & Không & Không & \textbf{Hỗ trợ Symbolic Verifier / Python Execution Sandbox} \\
+\bottomrule
+\end{tabularx}
+\caption{Đối chiếu đa chiều giữa các trường phái tối ưu hóa tính toán và phương pháp RAT-CoT.}\label{tab:taxonomy_matrix}
+\end{table}
+
+\section{Ranh giới Đóng góp Khoa học của Đề tài}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Khắc phục điểm nghẽn của One-Shot Routing:} Thay vì phán quyết vội vàng ở $t=0$, RAT-CoT chỉ dùng entry router để chọn \textit{điểm xuất phát kinh tế nhất}, sau đó dựa vào bằng chứng quan sát được và độ tin cậy được hiệu chuẩn (\textit{calibrated posterior confidence}) để quyết định leo thang hay dừng lại.
+    \item \textbf{Giải quyết nghịch lý Overconfidence \& Overthinking:} Các công trình gần đây (Huang et al., 2024; Caldarella et al., 2026; Mei et al., 2026) cảnh báo rằng các mô hình nhỏ không thể tự sửa lỗi một cách mù quáng và suy nghĩ càng dài càng làm tăng nguy cơ sinh sai lệch. RAT-CoT sử dụng các bộ kiểm chứng ký hiệu hình thức (\textit{symbolic verifiers}) và hình phạt chi phí $\lambda \cdot \text{Cost}$ để chặn đứng hiện tượng lãng phí tài nguyên này.
+\end{itemize}
+
+\newpage
+
 \chapter{Bảng Kết quả Thực nghiệm Toàn diện}
 
-\section{Bảng Kết quả 6 Arms Chuẩn (Run 11, $N=571$)}
-Bảng dưới đây ghi nhận toàn bộ số liệu đo đạc thực tế từ trace \texttt{audit/run11\_sweep\_trace.jsonl}:
+\section{Bảng Kết quả 6 Arms Chuẩn trên Tập Thăm dò (Run 11, $N=571$)}
+
+\begin{tcolorbox}[title=Minh bạch Phương pháp Luận về Dữ liệu Run 11]
+\textbf{Phân loại dữ liệu:} Số liệu Run 11 là kết quả khảo sát thăm dò trên tập phát triển đã lộ (\texttt{gen02\_tune.json}, $N=100$), dùng để phân tích cơ chế và thiết kế các quy tắc dừng, \textbf{không cấu thành kết quả đánh giá xác nhận (confirmatory evaluation)} cho bài báo khoa học.
+
+\textbf{Các giới hạn đo lường cần lưu ý khi trích dẫn:}
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Phiên mô hình tuần tự (Sequential Model Session):} Mô hình được nạp một lần và tái sử dụng qua các câu hỏi, chưa áp dụng cơ chế xóa bộ nhớ đệm độc lập giữa các lượt sinh.
+    \item \textbf{Token Proxy:} Chi phí token chỉ tính Completion Tokens và Prompt Tokens một lượt, chưa phản ánh chi phí suy luận toàn phần (Full Inference Cost) bao gồm cả các lượt gọi prompt phụ trong TOT hay ReAct.
+    \item \textbf{Định nghĩa TOT:} Chiến lược TOT trong khảo sát này là cơ chế chọn lọc ứng viên (Best-of-3 độc lập cộng với một lượt Judge) chứ không phải tìm kiếm duyệt cây đầy đủ (full tree search với heuristic value function tại từng bước).
+    \item \textbf{Lỗi ngữ nghĩa tính điểm của Self-Consistency (SC Scoring Semantics Bug):} Trong Run 11, bộ parser áp dụng quy tắc fail-closed quá mức: khi có ít nhất một trong $K=5$ nhánh sinh bị chạm trần độ dài (\%Length), toàn bộ arm SC của câu hỏi đó bị đánh dấu sai ngay lập tức, bất kể các nhánh còn lại có đa số phiếu đúng hay không. Lỗi này làm sai lệch kết quả của 31/100 bản ghi có nhãn \texttt{parsed}, khiến độ chính xác thực tế của SC bị hạ thấp nhân tạo.
+\end{enumerate}
+\end{tcolorbox}
+
+Bảng dưới đây ghi nhận số liệu thô quan sát được từ trace \texttt{audit/run11\_sweep\_trace.jsonl}:
 
 \begin{table}[h!]
 \centering\small
@@ -235,9 +303,17 @@ Cả PAL, PAL-v2 và PAL-v3 đều đạt \textbf{0/29 (0.0\%)} trên Game-of-24
 
 \chapter{Phân tích Cơ chế \& Kiểm định Tín hiệu}
 
-\section{Đánh giá Cổng Preregistered Oracle: Sự Thật Đằng sau Con số 90.3\%}
+\section{Phân tích Hậu nghiệm Cổng Oracle: Sự Thật Đằng sau Con số 90.3\% Thăm dò}
 
-Trong Prompt AE, khi bổ sung PAL-v2 thành arm thứ 7, Oracle trên họ Ordering ghi nhận bước nhảy vọt lên \textbf{90.3\% (28/31 đúng), Gap = +22.6 pp, CI [+9.7 pp; +38.7 pp]} và được hệ thống báo \textbf{GO}. Tuy nhiên, phân tích sâu ở AF2 đã bóc tách bản chất của con số này:
+Trong phân tích thăm dò sau khi thu thập dữ liệu (Prompt AE), khi bổ sung PAL-v2 làm arm thứ 7 trên tập phát triển Ordering ($N=31$ câu đã lộ), chỉ số Oracle phối hợp lý thuyết ghi nhận con số \textbf{90.3\% (28/31 đúng), Gap = +22.6 pp, CI [+9.7 pp; +38.7 pp]}. Nếu nhìn thoáng qua, con số này dường như vượt ngưỡng để bật cờ \textbf{GO}. Tuy nhiên, đây là một \textbf{phân tích hậu nghiệm (post-hoc)} trên tập đã lộ và cần được bóc tách bản chất một cách nghiêm cẩn:
+
+\begin{tcolorbox}[title=Bản chất Khoa học: Phán quyết Thực tế là NO-GO]
+\textbf{1. Không phải kết quả đăng ký trước chính thức:} PAL-v2 được bổ sung sau khi phân tích lỗi của PAL-v1 ở Run 11. Việc tính Oracle trên 7 arms (bao gồm cả PAL-v2) trên cùng tập dữ liệu 31 câu đã lộ là một thao tác chẩn đoán thăm dò, không phải kết quả kiểm chứng đăng ký trước mù (blind preregistered confirmatory result).
+
+\textbf{2. Đánh giá khắt khe theo đúng tiêu chí cổng đăng ký trước:} Khi loại bỏ hai arm có hiệu năng ở mức đoán mò là DIRECT-v2 (22.6\%) và REACT (19.4\%), Oracle thực chất trên các arm mạnh chỉ đạt \textbf{80.6\% đến 83.9\%}. Cả hai tập hợp này đều có \textbf{cận dưới khoảng tin cậy 95\% rơi xuống +3.2 pp ($< 5.0$ pp)}, do đó theo đúng tiêu chí khắt khe của preregistration, cổng Ordering \textbf{chính thức là NO-GO}.
+
+\textbf{3. Cảnh báo về hiệu ứng cộng dồn may rủi:} Con số 90.3\% trước đó được hưởng lợi từ việc DIRECT-v2 đoán ngẫu nhiên trúng 2 câu (\texttt{order\_0010} và \texttt{0031}) mà cả ba arm mạnh đều giải sai. Việc kiểm định lại trên tập arm mạnh đã ngăn chặn kết luận sai lầm do hiệu ứng cộng dồn may rủi. Không được trích dẫn con số 90.3\% này như một bằng chứng về tính khả thi của router mà không kèm theo phân tích NO-GO bắt buộc này.
+\end{tcolorbox}
 
 \begin{table}[h!]
 \centering\small
@@ -250,14 +326,10 @@ Trong Prompt AE, khi bổ sung PAL-v2 thành arm thứ 7, Oracle trên họ Orde
 \textbf{\{TOT, PAL-v2\}} (AF2) & TOT (67.7\%) & 80.6\% (25/31) & 703.0 & +12.9 pp & [+3.2 pp; +25.8 pp] (\textbf{NO-GO}) \\
 \bottomrule
 \end{tabularx}
-\caption{Đối chiếu Oracle khi loại bỏ các arm đoán mò (DIRECT-v2, REACT) trên họ Ordering.}
+\caption{Đối chiếu Oracle khi loại bỏ các arm đoán mò (DIRECT-v2, REACT) trên họ Ordering.}\label{tab:oracle_comparison}
 \end{table}
 
-\begin{tcolorbox}[title=Nhận định Khoa học về Cổng Oracle]
-Khi loại bỏ hai arm ở mức đoán mò là DIRECT-v2 (22.6\%) và REACT (19.4\%), Oracle thực chất trên các arm mạnh chỉ đạt \textbf{80.6\% đến 83.9\%}. Cả hai tập hợp này đều có \textbf{cận dưới khoảng tin cậy 95\% rơi xuống +3.2 pp ($< 5.0$ pp)}, do đó theo đúng tiêu chí khắt khe của preregistration, cổng Ordering \textbf{chưa đạt điều kiện GO}. 
-
-Con số 90.3\% trước đó được hưởng lợi từ việc DIRECT-v2 đoán ngẫu nhiên trúng 2 câu (\texttt{order\_0010} và \texttt{0031}) mà cả ba arm mạnh đều giải sai. Việc kiểm định lại trên tập arm mạnh đã ngăn chặn kết luận sai lầm do hiệu ứng cộng dồn may rủi.
-\end{tcolorbox}
+\paragraph{Ý nghĩa đối chiếu:} Bảng \ref{tab:oracle_comparison} (phía trên) cho thấy rõ ràng: khi loại bỏ hai arm đoán mò DIRECT-v2 và REACT, khoảng cách cải thiện thực tế bị thu hẹp đáng kể và cận dưới khoảng tin cậy đều không vượt qua ngưỡng tối thiểu $+5.0$ pp của quy tắc đăng ký trước. Phân tích này bảo vệ nghiên cứu khỏi việc chấp nhận một giả thuyết sai lệch do may rủi thống kê trên mẫu nhỏ ($N=31$).
 
 \section{Tại sao Oracle Quan sát (90.3\%) < Oracle Độc lập (97.5\%) Bác bỏ ``Max trên Nhiễu''?}
 
@@ -335,7 +407,7 @@ Một họ bài toán được xác định là \textbf{Program-Resistant} khi t
 
 \section{Lộ trình Triển khai cho Đề tài NCKH (Giai đoạn Confirmatory)}
 
-Dựa trên các phát hiện thực nghiệm đã được kiểm chứng độc lập, nhóm nghiên cứu đề xuất lộ trình hành động cụ thể cho giai đoạn tiếp theo:
+Dựa trên các phân tích thăm dò trên tập phát triển và chẩn đoán cơ chế sâu sắc từ các chuỗi chạy Run 11--13, nhóm nghiên cứu đề xuất lộ trình hành động cụ thể cho giai đoạn tiếp theo:
 
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Bổ sung Họ Bài toán Program-Resistant vào Bộ Sinh dữ liệu:}  
@@ -348,9 +420,79 @@ Dựa trên các phát hiện thực nghiệm đã được kiểm chứng độ
     \text{Bài toán ngữ nghĩa/không gian tìm kiếm mở} & \longrightarrow \text{Suy luận nội tại (CoT / ToT)}
     \end{cases}$$
 
-    \item \textbf{Chạy Kiểm định Độc lập Đa Hạt giống trên \texttt{gen02\_v2}:}  
-    Thực hiện kiểm định xác nhận (\textit{confirmatory evaluation}) với các seed độc lập, đóng băng hoàn toàn các ngưỡng quyết định và quy tắc verifier đã fit trên tập \texttt{tune}, bảo đảm tính khách quan tuyệt đối cho bài báo khoa học.
+    \item \textbf{Chạy Kiểm định Độc lập Đa Hạt giống trên Tập Kiểm thử Độc lập (\texttt{gen02\_v2}):}  
+    Thực hiện kiểm định xác nhận (\textit{confirmatory evaluation}) với các seed độc lập dưới điều kiện khởi động nguội nghiêm ngặt (\textit{strict independent cold-starts}). Tuyệt đối không tái sử dụng trạng thái hoặc nạp bộ nhớ đệm lời giải từ các sweep trước; đóng băng hoàn toàn các ngưỡng quyết định và quy tắc verifier đã fit trên tập \texttt{tune}, bảo đảm tính khách quan tuyệt đối cho bài báo khoa học.
 \end{enumerate}
+
+\newpage
+
+\chapter{Thiết kế Phương pháp Thực nghiệm Prospective: Định tuyến Độ dài Câu hỏi GSM8K}
+
+\section{Bối cảnh \& Thiết kế Prospective (Đang chờ Đo đạc)}
+
+\begin{tcolorbox}[title=Quy tắc Trình bày Phương pháp Luận]
+Phần này mô tả \textbf{thiết kế prospective đang chờ thực hiện}, được viết nghiêm ngặt ở \textbf{thì tương lai}. Toàn bộ các bảng kết quả được để trống và chưa có số đo mô hình nào được điền trước. Thiết kế này tuân thủ các cam kết liêm chính học thuật đã được chuẩn hóa tại gói review ngày 24/10/2026.
+\end{tcolorbox}
+
+Chúng tôi dự kiến đánh giá một baseline định tuyến chỉ sử dụng đặc trưng độ dài câu hỏi (\textit{query-only length baseline}) trên mô hình nền tảng cố định \texttt{Qwen3-8B-4bit}. Mục tiêu là đo lường xem một chính sách định tuyến tối giản (không sử dụng embedding phức tạp hay bộ phân loại tốn kém) có thể mang lại sự đánh đổi tối ưu giữa độ chính xác và ngân sách token sinh hay không.
+
+\section{Tập Dữ liệu \& Phân vùng 48/48 Khép kín}
+
+Từ bản sửa đổi chính thức đã khóa của tập huấn luyện GSM8K (commit git: \texttt{3101c7d5072418e28b9008a6636bde82a006892c}), thiết kế lựa chọn 96 nhóm câu hỏi chưa từng xuất hiện trong 24 định danh đã chuẩn hóa của pilot trước đó, sử dụng thuật toán xếp hạng băm SHA-256 với hạt giống ngẫu nhiên (seed) 42.
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Phân chia xen kẽ:} 96 câu hỏi tại các vị trí chẵn/lẻ được chia đều thành:
+    \begin{itemize}
+        \item \textbf{48 nhóm fitting:} Dùng để khớp quy tắc định tuyến và chọn chiến lược đối chứng cố định tốt nhất.
+        \item \textbf{48 nhóm development validation:} Dùng để đo lường hiệu năng của quy tắc đã chọn.
+    \end{itemize}
+    Cả hai tập này đều thuộc phạm vi phát triển (\textit{development}); tập kiểm thử chính thức (\textit{official test set}) tuyệt đối không được đụng tới.
+    \item \textbf{Kiểm duyệt dữ liệu độc lập:} Toàn bộ 96 câu hỏi đã được nhóm nghiên cứu giải độc lập trước khi đối chiếu đáp án gốc: ghi nhận 93 câu hoàn toàn trùng khớp logic và 3 câu thuộc tập fitting đang chờ phê duyệt điều chỉnh câu chữ làm rõ (adjudication proposal). Quy mô 96 nhóm là bài toán sàng lọc (\textit{screening}), chưa cấu thành kiểm định công suất (\textit{power calculation}) của bài báo chính thức.
+\end{itemize}
+
+\section{Không gian Quyết định \& Hàm Hữu dụng Tối ưu}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Không gian Chiến lược:} Gồm 3 lựa chọn cơ bản: \textbf{DIRECT}, \textbf{CoT}, và \textbf{PAL}.
+    \item \textbf{Đặc trưng Đầu vào duy nhất:} Số từ được tách bằng khoảng trắng (\textit{whitespace-delimited word count}) trong câu hỏi gốc, trước khi nối hậu tố chỉ dẫn chiến lược.
+    \item \textbf{Menu 27 Quy tắc Cố định:} Gồm 24 quy tắc 2 nhánh tại các ngưỡng cắt (cutoffs) 20, 40, 60, và 80 từ (mỗi nhánh chọn 1 trong 3 chiến lược), cùng với 3 quy tắc hằng (luôn DIRECT, luôn CoT, luôn PAL). Không sử dụng cơ chế leo thang trong chuỗi, không sử dụng embedding hay cổng tự tin trong baseline này.
+    \item \textbf{Hàm Hữu dụng Lựa chọn (Utility):} Trên tập fitting, quy tắc tối ưu và chiến lược đối chứng cố định tốt nhất sẽ được lựa chọn theo hàm hữu dụng:
+    $$\text{Utility} = \text{Accuracy} - 0.1 \times \frac{\text{Mean Generated Tokens}}{1000}$$
+    Hệ số phạt $\lambda = 0.1$ được cố định trước cho phép đo này.
+    \item \textbf{Quy tắc Phân xử Hòa (Tie-breaking):} Khi có điểm Utility bằng nhau, thứ tự ưu tiên lần lượt là: (1) Accuracy cao hơn $\to$ (2) Token sinh thấp hơn $\to$ (3) Quy tắc hằng $\to$ (4) Thứ tự từ điển của mã quy tắc.
+    \item \textbf{Niêm phong Quyết định (Sealed Selection):} Quy tắc được chọn và điểm số trên tập fitting bắt buộc phải được tính toán, lưu trữ và băm bất biến (SHA-256 seal) trước khi mở xem bất kỳ kết quả hay điểm số nào trên tập validation.
+\end{itemize}
+
+\section{Quy trình Đo đạc \& Khung Bảng Kết quả Dự kiến}
+
+Ba chiến lược được dự kiến thu thập một lần duy nhất trên mỗi câu hỏi với cùng snapshot mô hình \texttt{Qwen3-8B-4bit} đã định danh, prompt profile \texttt{english-math-v1}, nhiệt độ $T=0$, tắt chế độ thinking, seed sinh 42, và giới hạn trần 1.024 tokens cho mỗi lượt gọi. Chiến lược PAL có một lần thực thi mã trong sandbox an toàn với thời gian chờ (timeout) 5 giây. Mô hình hoàn toàn không nhận được lời giải hoặc đáp án chuẩn từ đề bài.
+
+Bảng \ref{tab:gsm8k_prospective_results} là khung báo cáo kết quả dự kiến trên tập development validation (48 nhóm). Toàn bộ các giá trị hiện đang ở trạng thái \textbf{Chưa thu}:
+
+\begin{table}[h!]
+\centering\small
+\begin{tabularx}{\textwidth}{lrrrrrr}
+\toprule
+\textbf{Phương pháp (Method)} & \textbf{Accuracy} & \textbf{Mean Gen Tok} & \textbf{Mean Prompt Tok} & \textbf{Utility} & \textbf{PAL Failures} \\
+\midrule
+Query-only selected rule & Chưa thu & Chưa thu & Chưa thu & Chưa thu & Chưa thu \\
+Fitting-selected fixed reference & Chưa thu & Chưa thu & Chưa thu & Chưa thu & Chưa thu \\
+DIRECT & Chưa thu & Chưa thu & Chưa thu & Chưa thu & Không dùng tool \\
+CoT & Chưa thu & Chưa thu & Chưa thu & Chưa thu & Không dùng tool \\
+PAL & Chưa thu & Chưa thu & Chưa thu & Chưa thu & Chưa thu \\
+\bottomrule
+\end{tabularx}
+\caption{Khung bảng kết quả đánh giá prospective trên tập GSM8K Development Validation ($N=48$, chưa thu thập số liệu).}\label{tab:gsm8k_prospective_results}
+\end{table}
+
+\section{Phân tích Thống kê \& Các Cảnh báo Giới hạn Bắt buộc}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Khoảng tin cậy Bootstrap:} Khoảng tin cậy phân vị 95\% (95\% Percentile Bootstrap CI) dự kiến được tính toán từ 2.000 lượt lấy mẫu lại có hoàn lại (\textit{group-bootstrap draws}) theo đơn vị nhóm câu hỏi trên tập validation, với seed 42 cố định.
+    \item \textbf{Tính có điều kiện:} Khoảng tin cậy này có điều kiện dựa trên quy tắc đã chọn và seed quan sát được, không bao gồm độ bất định trong bước khớp quy tắc (\textit{fitting uncertainty}) và không chứng minh tính vững chắc trên nhiều seed ngẫu nhiên khác nhau.
+    \item \textbf{Cảnh báo về Suy diễn Tương đương:} Một khoảng tin cậy chứa giá trị 0 không chứng minh tính tương đương giữa hai phương pháp. Mọi kết quả, kể cả kết quả âm tính (negative results), đều phải được báo cáo trung thực mà không được phép điều chỉnh ngưỡng cắt, quy tắc hoặc bộ so sánh sau khi đã quan sát tập validation.
+    \item \textbf{Phạm vi Đo lường Chi phí:} Token sinh được đo đạc chỉ phản ánh kích thước đầu ra giải mã của mô hình, không đại diện cho toàn bộ chi phí suy luận thực tế (full inference compute), thời gian chờ hệ thống, hay lượng năng lượng tiêu thụ.
+\end{itemize}
 
 \newpage
 

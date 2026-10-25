@@ -42,10 +42,10 @@ không phải thông báo mọi khả năng đã hoạt động hay đã đượ
 
 Theo yêu cầu người dùng, thiết kế một vòng Agent chung cho chat và mọi thao tác
 nghiệp vụ UI: [execution agentic thống nhất](rat_agentic_execution_redesign_20261025.md).
-Trạng thái: **đã thiết kế, chưa triển khai migration**. Tái sử dụng runtime,
-dispatcher, verification và reconciliation hiện có; ưu tiên sửa PASS giả,
-nối lát cắt PDF thật rồi thay Reading synthesis template bằng model loop.
-Mọi bàn giao phải nêu riêng contract/tool, UI projection và vòng model đã nối.
+Trạng thái: **Đợt 0, 1, 2, 3, 4, 5 ĐÃ HOÀN TẤT VÀ THÔNG QUA NGHIỆM THU LIVE THỰC TẾ**.
+- **Đợt 0:** Sửa tính trung thực, loại bỏ hoàn toàn việc gán PASS giả và trang 1 giả trong selected QA; chặn synthesis template khi chưa có model client. Xem [bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md).
+- **Đợt 1–4:** Hợp nhất `AgentExecutionService` 6 pha, loại bỏ bypass `op.handler`, tích hợp subplan mở rộng ngữ cảnh tài liệu (`expand_document_context`), thay thế template soạn bản luận bằng vòng gọi model loop thật với `ReadingVerifier` (gắn nhãn rõ `UNKNOWN` cho nội dung diễn giải biểu tượng), và đóng gói công cụ thành plugin packs. Xem [báo cáo kỹ thuật Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md).
+- **Đợt 5:** Nghiệm thu UI live thực tế trên giao diện QML `PDFDesk.qml` với PDF thật (`arxiv_2506.22716_original.pdf`) và mô hình cục bộ `qwen3:4b-instruct` qua Ollama. Xem [biên bản nghiệm thu thực tế Đợt 5](../audit/rat_agentic_live_acceptance_20261025/README.md).
 Không đổi Stage 0 hoặc dùng smoke làm bằng chứng chất lượng model.
 
 ### PDF và chứng cứ — quyết định người dùng 2026-10-24
