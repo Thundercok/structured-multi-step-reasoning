@@ -50,3 +50,14 @@ def test_absent_usage_is_distinguished_from_reported_zero_tokens():
             result = SLMEngine().chat_with_meta([], [])
         assert result['token_usage_known'] is known
         assert result['raw_response'] == payload
+
+
+def test_explicit_zero_cached_tokens_are_distinct_from_missing_usage():
+    for fields, expected in (({}, None), ({'cached_tokens': 0}, 0),
+                             ({'prompt_cache_hit_tokens': 0, 'cached_tokens': 9}, 0),
+                             ({'cached_tokens': True}, None)):
+        payload = {'message': {'role': 'assistant', 'content': 'hello'}, 'done': True,
+                   'prompt_eval_count': 31, 'eval_count': 7, **fields}
+        with patch('urllib.request.urlopen', return_value=BytesIO(json.dumps(payload).encode())):
+            result = SLMEngine().chat_with_meta([], [])
+        assert result['cached_tokens'] == expected

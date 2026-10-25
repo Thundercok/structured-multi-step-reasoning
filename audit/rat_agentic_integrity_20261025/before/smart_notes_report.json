@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-10-25T21:17:13+0700",
+  "milestone": "RAT-EFF-01",
+  "feature": "Universal Smart Notes & Interactive Follow-up (SoL-Pi)",
+  "scenarios": [
+    {
+      "name": "tarot_consultation_2010",
+      "domain": "analysis",
+      "title": "Ghi chú: Mua gì tặng bạn gái 20/10",
+      "key_facts_count": 10,
+      "action_items_count": 3,
+      "risks_count": 1,
+      "synthesis_latency_ms": 0.86,
+      "verification_status": "PASS",
+      "verification_checked": [
+        "title_present",
+        "summary_present",
+        "fact_grounding",
+        "action_items_valid"
+      ],
+      "uncompressed_bytes": 7928,
+      "packed_bytes": 1086,
+      "context_compression_pct": 86.3,
+      "final_artifact_revision": 3
+    },
+    {
+      "name": "technical_latency_investigation",
+      "domain": "technical",
+      "title": "Điều tra Latency SLM",
+      "key_facts_count": 1,
+      "action_items_count": 1,
+      "risks_count": 1,
+      "synthesis_latency_ms": 0.33,
+      "verification_status": "PASS",
+      "verification_checked": [
+        "title_present",
+        "summary_present",
+        "fact_grounding",
+        "action_items_valid"
+      ],
+      "uncompressed_bytes": 5145,
+      "packed_bytes": 1188,
+      "context_compression_pct": 76.91
+    }
+  ],
+  "interactive_follow_ups": [
+    {
+      "operation": "update_note_action_item",
+      "target_artifact_id": "art-dbd6b008c7e44afcacf696c0f01077ba",
+      "before_revision": 1,
+      "after_revision": 2,
+      "toggled_task": "spa",
+      "done_status": true,
+      "latency_ms": 0.33,
+      "verification_status": "PASS"
+    },
+    {
+      "operation": "expand_note_section",
+      "target_artifact_id": "art-dbd6b008c7e44afcacf696c0f01077ba",
+      "before_revision": 2,
+      "after_revision": 3,
+      "expanded_section": "Phân tích Logic",
+      "latency_ms": 0.27,
+      "verification_status": "PASS"
+    }
+  ],
+  "sol_pi_paired_compression_summary": {
+    "avg_compression_ratio_pct": 81.6,
+    "evidence_preserved": true,
+    "raw_artifact_hash_linked": true
+  },
+  "runtime_telemetry": {
+    "prompt_tokens": 800,
+    "completion_tokens": 125,
+    "total_tokens": 925,
+    "cached_tokens": null,
+    "token_usage_known": true,
+    "observation_pack_enabled": true,
+    "latencies_ms": {
+      "total_ms": 30.418707989156246,
+      "model_ms": 0.0,
+      "tool_ms": 0.30483282171189785,
+      "verification_ms": 0.3298330120742321
+    }
+  },
+  "passed": true
+}

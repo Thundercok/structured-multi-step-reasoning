@@ -155,6 +155,12 @@ class ActionDispatcher:
                 # Store resolved birth data, including geocoded values, rather than partial invocation inputs.
                 if isinstance(payload.get("chart"), dict):
                     artifact.inputs = copy.deepcopy(payload["chart"]["birth"])
+                if artifact.kind == "structured_note":
+                    # One canonical reference, allocated and committed here;
+                    # the capability must not create a second orphan artifact.
+                    payload.update(artifact_id=artifact.id, note_id=artifact.id,
+                                   revision=artifact.revision)
+                    result = copy.deepcopy(payload)
                 if target and not update:
                     artifact.provenance["source_artifact_id"] = target.id
                     artifact.provenance["source_revision"] = target.revision

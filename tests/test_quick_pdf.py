@@ -727,12 +727,16 @@ def test_search_hit_opens_matched_excerpt_mode_suite(app, controller, tmp_path):
         assert app.clipboard().text() == copied_texts[1]
         assert excerpt_item.property("selectedText").strip() in app.clipboard().text()
 
-        # 8. Test reading page without matched hit -> shows fallback "Chưa có đoạn trích cho trang này."
+        # 8. A page without a matched hit still displays the actual extracted page text.
         controller.readPage(3)
         wait_for(lambda: not controller.snapshot["busy"] and controller.snapshot["pageNumber"] == 3)
         assert not controller.snapshot["hasMatchedSnippet"]
         fallback_btn = root.findChild(QQuickItem, "openOriginalFallback")
-        assert fallback_btn is not None and fallback_btn.isVisible()
+        assert fallback_btn is not None and not fallback_btn.isVisible()
+        page_text = root.findChild(QQuickItem, "pageText")
+        assert page_text is not None and page_text.isVisible()
+        assert page_text.property("text") == controller.snapshot["pageReadingText"]
+        assert page_text.property("text").strip()
 
         # 9. Test backToSearch preserves draft and keyword
         click(view, root, "backToSearch")

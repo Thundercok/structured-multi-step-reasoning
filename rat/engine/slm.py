@@ -130,9 +130,13 @@ class SLMEngine:
             usage_known = error is None and all(
                 type(data.get(key)) is int and data[key] >= 0
                 for key in ("prompt_eval_count", "eval_count"))
+            cached_tokens = next((data[key] for key in (
+                "prompt_cache_hit_tokens", "cached_tokens", "prompt_eval_count_cached")
+                if type(data.get(key)) is int and data[key] >= 0), None)
             return {"message": data.get("message", {}),
                     "prompt_tokens": int(data.get("prompt_eval_count") or 0),
                     "completion_tokens": int(data.get("eval_count") or 0),
+                    "cached_tokens": cached_tokens,
                     "done_reason": data.get("done_reason"), "error": error,
                     # Preserve server phases for diagnosis without logging
                     # prompts/replies or issuing an extra inference request.

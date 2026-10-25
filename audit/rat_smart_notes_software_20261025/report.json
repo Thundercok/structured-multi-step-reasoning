@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-10-25T21:44:14.367444+07:00",
+  "evidence_kind": "synthetic_software_fixture",
+  "live_inference": false,
+  "ui_acceptance": false,
+  "source_kind": "authored_test_input",
+  "source_sha256": "69aaf3a8571bb609604bf6e8ca9feca9380d755299ef9e3ca0b3d21fcf82eb17",
+  "checks": [
+    {
+      "status": "PASS",
+      "scope": "synthesize_smart_note_structure",
+      "reason": "Đã kiểm tra cấu trúc, hash nguồn và dữ kiện trích dẫn. Chưa xác minh tóm tắt, diễn giải hoặc đề xuất.",
+      "evidence_ids": [
+        "0"
+      ],
+      "checked": [
+        "source_hash",
+        "fact_grounding",
+        "action_items_valid"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    },
+    {
+      "status": "PASS",
+      "scope": "update_note_action_item_structure",
+      "reason": "Đã kiểm tra cấu trúc, hash nguồn và dữ kiện trích dẫn. Chưa xác minh tóm tắt, diễn giải hoặc đề xuất.",
+      "evidence_ids": [
+        "1"
+      ],
+      "checked": [
+        "source_hash",
+        "fact_grounding",
+        "action_items_valid",
+        "requested_action_applied",
+        "revision_incremented"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    },
+    {
+      "status": "PASS",
+      "scope": "expand_note_section_structure",
+      "reason": "Đã kiểm tra cấu trúc, hash nguồn và dữ kiện trích dẫn. Chưa xác minh tóm tắt, diễn giải hoặc đề xuất.",
+      "evidence_ids": [
+        "2"
+      ],
+      "checked": [
+        "source_hash",
+        "fact_grounding",
+        "action_items_valid",
+        "expansion_content_stored",
+        "revision_incremented"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "fixture_runtime_error": null,
+  "representation_sizes": {
+    "full_json_bytes": 4732,
+    "packed_json_bytes": 760,
+    "byte_reduction_pct": 83.94,
+    "semantic_equivalence_checked": false,
+    "model_token_savings_measured": false
+  },
+  "document_observation_pack_sizes": {
+    "full_json_bytes": 2589,
+    "packed_json_bytes": 824,
+    "byte_reduction_pct": 68.17
+  },
+  "synthetic_runtime_telemetry": {
+    "provenance": "assigned_by_fixture_model",
+    "prompt_tokens": 800,
+    "completion_tokens": 125,
+    "total_tokens": 925,
+    "cached_tokens": null
+  },
+  "canonical_artifact_id": "art-892194e1be1a4952b53590b084838078",
+  "latest_revision": 3,
+  "passed": true
+}

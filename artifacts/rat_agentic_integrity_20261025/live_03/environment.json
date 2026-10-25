@@ -1,0 +1,11 @@
+{
+  "model": "qwen3:4b-instruct",
+  "model_digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+  "pdf_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+  "pdf_origin": "https://arxiv.org/pdf/2506.22716",
+  "pdf_sha256": "9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c",
+  "build": "Build 2026.10.25.29 · Evidence scope",
+  "script": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/scripts/run_agentic_integrity_live.py",
+  "mode": "live_ui_acceptance",
+  "canned_responses": false
+}

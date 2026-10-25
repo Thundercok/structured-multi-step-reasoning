@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-25",
+  "phase": "Đợt 6 — RAT Universal 3-Mode Hierarchy & Side-by-Side Reference Preview",
+  "status": "PASSED",
+  "build_label": "Build 2026.10.25.27",
+  "pdf_provenance": {
+    "file": "arxiv_2506.22716_original.pdf",
+    "origin": "https://arxiv.org/pdf/2506.22716",
+    "sha256": "9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c"
+  },
+  "model_backend": {
+    "model": "qwen3:4b-instruct",
+    "service": "Ollama local",
+    "live_inference": true,
+    "canned_responses": false,
+    "latency_seconds": 22.69
+  },
+  "features_verified": [
+    "Mode 1: Minimal Ticker (ambientTicker with 1-line answer)",
+    "Mode 2: Single Column Focus Desk (clean text-only reading)",
+    "Mode 3: Multi-Column Studio Desk (Left PDF Page Viewer, Center Answer, Right Evidence)",
+    "Side-by-Side Reference Preview: Glancing cited page without interrupting answer view",
+    "Domain-Adaptive Reading Desk: Interactive spread workbench with card dealing and glyphs",
+    "Non-transparency ratio >= 40% across all full desktop captures"
+  ],
+  "screenshots": [
+    "01_live_mode1_minimal_ticker.png",
+    "02_live_mode2_single_column.png",
+    "03_live_mode3_multi_column.png",
+    "04_live_mode3_citation_glance.png",
+    "05_live_mode3_tarot_spread.png"
+  ]
+}

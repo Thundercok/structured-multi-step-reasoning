@@ -157,7 +157,7 @@ def test_direct_native_loop_reads_and_hands_over_real_file_without_planner(runti
     assert not any(c.kwargs.get('response_format') for c in calls)
     assert {t['function']['name'] for t in calls[0].args[1]} == {
         'search_documents', 'read_document', 'search_book_pages', 'read_book_page',
-        'deliver_document', 'inspect_artifact', 'request_operation_tools'}
+        'deliver_document', 'inspect_artifact', 'request_operation_tools', 'synthesize_smart_note'}
     assert 'calculate' not in {t['function']['name'] for t in calls[1].args[1]}
     # Each native tool exchange extends the same request prefix. Updating the
     # canonical context must not force the backend to reread older exchanges.

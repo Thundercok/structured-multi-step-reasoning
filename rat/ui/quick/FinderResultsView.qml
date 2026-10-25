@@ -9,6 +9,17 @@ ColumnLayout {
     Layout.fillWidth: true
     spacing: 6
 
+    function scrollSelectionIntoView(index) {
+        var item = finderRepeater.itemAt(index)
+        var flick = finderListScroll.contentItem
+        if (!item || !flick || finderListScroll.contentHeight <= finderListScroll.height) return
+        var maxY = Math.max(0, finderListScroll.contentHeight - finderListScroll.height)
+        if (item.y < flick.contentY)
+            flick.contentY = Math.max(0, Math.min(maxY, item.y))
+        else if (item.y + item.height > flick.contentY + finderListScroll.height)
+            flick.contentY = Math.min(maxY, item.y + item.height - finderListScroll.height)
+    }
+
     ScrollView {
         id: finderListScroll
         Layout.fillWidth: true

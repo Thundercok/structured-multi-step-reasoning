@@ -11,10 +11,18 @@ Baselines implemented:
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 from collections import Counter
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Tuple
+import json
+import os
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.special import betainc
@@ -279,3 +287,289 @@ def compute_pareto_frontier(df: pd.DataFrame) -> pd.DataFrame:
             frontier.append(row)
             max_acc = row["accuracy"]
     return pd.DataFrame(frontier)
+
+
+# =============================================================================
+# DATA LOADER & FULL OFFLINE EXPERIMENT RUNNER
+# =============================================================================
+
+def load_question_pools_from_run11(trace_path: str = "audit/run11_sweep_trace.jsonl") -> List[QuestionPool]:
+    """Loads Self-Consistency (arm='SC') records from run11 sweep trace into QuestionPools."""
+    pools = []
+    with open(trace_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            d = json.loads(line)
+            if d.get("arm") == "SC":
+                cands = d.get("sc_candidates") or []
+                if not cands:
+                    continue
+                gold = str(d.get("gold", "")).strip()
+                comp_tokens = int(d.get("completion_tokens", 0))
+                per_cand_tok = max(1, comp_tokens // len(cands))
+                samples = [
+                    SamplePoint(answer=str(c).strip(), tokens=per_cand_tok, correct=(str(c).strip() == gold))
+                    for c in cands
+                ]
+                pools.append(QuestionPool(
+                    id=str(d.get("id", "")),
+                    query=str(d.get("raw_output", d.get("id", ""))),
+                    gold=gold,
+                    split="dev",
+                    samples=samples,
+                ))
+    return pools
+
+
+def plot_pareto_curve(df: pd.DataFrame, output_path: str) -> None:
+    """Plots publication-quality Accuracy vs. Generated Tokens Pareto trade-off curve."""
+    plt.figure(figsize=(9, 6), dpi=300)
+    plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
+
+    # Color palette by family
+    family_colors = {
+        "Oracle": "#8e44ad",
+        "Fixed-k": "#2980b9",
+        "Margin": "#e67e22",
+        "Beta-Top2": "#27ae60",
+        "Beta-Rest": "#16a085",
+        "ESC-Window": "#d35400",
+    }
+    family_markers = {
+        "Oracle": "*",
+        "Fixed-k": "o",
+        "Margin": "s",
+        "Beta-Top2": "^",
+        "Beta-Rest": "v",
+        "ESC-Window": "D",
+    }
+
+    # Plot empirical non-oracle points
+    for family in df["family"].unique():
+        fam_df = df[df["family"] == family]
+        color = family_colors.get(family, "#7f8c8d")
+        marker = family_markers.get(family, "o")
+        size = 140 if family == "Oracle" else 75
+        plt.scatter(
+            fam_df["tokens"],
+            fam_df["accuracy"],
+            label=family,
+            color=color,
+            marker=marker,
+            s=size,
+            alpha=0.9,
+            edgecolors="black",
+            linewidth=0.6,
+            zorder=3,
+        )
+
+    # Plot Pareto frontier line (for empirical non-oracle rules)
+    non_oracle_pareto = df[(df["family"] != "Oracle") & (df["is_pareto"])].sort_values("tokens")
+    if not non_oracle_pareto.empty:
+        plt.plot(
+            non_oracle_pareto["tokens"],
+            non_oracle_pareto["accuracy"],
+            linestyle="--",
+            color="#2c3e50",
+            linewidth=1.8,
+            label="Empirical Pareto Frontier",
+            zorder=2,
+        )
+
+    # Annotations for notable points
+    for _, row in df.iterrows():
+        rule_name = row["rule"]
+        if row["is_pareto"] or rule_name in ["Oracle (Omniscient)", "Fixed-k=5", "Beta-Top2 (θ=0.80)", "ESC-Window (w=2)"]:
+            offset_y = 0.0008 if rule_name != "Fixed-k=4" else -0.0012
+            plt.annotate(
+                rule_name,
+                (row["tokens"], row["accuracy"]),
+                textcoords="offset points",
+                xytext=(0, 6 if offset_y > 0 else -12),
+                ha="center",
+                fontsize=8,
+                weight="bold" if row["is_pareto"] else "normal",
+                color="#2c3e50",
+                bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.7),
+            )
+
+    plt.xlabel("Imputed completion-token proxy per question", fontsize=11, fontweight="bold")
+    plt.ylabel("Mean Accuracy (Majority Vote)", fontsize=11, fontweight="bold")
+    plt.title("Offline Stopping Rules Evaluation & Pareto Frontier (Run 11 SC Sweep, R=30)", fontsize=12, fontweight="bold", pad=12)
+    plt.legend(frameon=True, facecolor="white", edgecolor="#bdc3c7", loc="lower right", fontsize=9)
+    plt.tight_layout()
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
+    plt.close()
+
+
+def run_offline_stopping_study(
+    trace_path: str = "audit/run11_sweep_trace.jsonl",
+    output_dir: str = "audit/stopping_study_20261025",
+    n_perms: int = 30,
+    seed: int = 42,
+) -> Tuple[pd.DataFrame, pd.DataFrame, str]:
+    """Export exploratory historical replay with imputed costs and literal scoring.
+
+    This loader does not provide valid general-task accuracy or measured online
+    costs. Do not promote these diagnostics to held-out research conclusions.
+    """
+    pools = load_question_pools_from_run11(trace_path)
+    if not pools:
+        raise ValueError(f"No valid QuestionPools loaded from {trace_path}")
+
+    # Build evaluation rules
+    rules: List[Tuple[str, str, Callable[[List[QuestionPool]], List[Tuple[float, float]]]]] = []
+    rules.append(("Oracle", "Oracle (Omniscient)", lambda p: eval_family_0_oracle(p)))
+    for k in range(1, 6):
+        rules.append(("Fixed-k", f"Fixed-k={k}", lambda p, k=k: eval_family_1_fixed_k(p, k=k)))
+    for m in [1, 2, 3]:
+        rules.append(("Margin", f"Margin-m={m}", lambda p, m=m: eval_family_2_margin(p, m=m)))
+    for th in [0.70, 0.80, 0.85, 0.90, 0.95]:
+        rules.append(("Beta-Top2", f"Beta-Top2 (θ={th:.2f})", lambda p, th=th: eval_family_2_adaptive_consistency(p, threshold=th)))
+    for th in [0.70, 0.80, 0.85, 0.90, 0.95]:
+        rules.append(("Beta-Rest", f"Beta-Rest (θ={th:.2f})", lambda p, th=th: eval_family_2_beta_top_vs_rest(p, threshold=th)))
+    for w in [2, 3]:
+        rules.append(("ESC-Window", f"ESC-Window (w={w})", lambda p, w=w: eval_family_2_esc_window(p, w=w)))
+
+    # Evaluate all rules under permutation replay
+    raw_evals: Dict[str, List[Tuple[float, float]]] = {}
+    for family, name, fn in rules:
+        raw_evals[name] = eval_rule_with_permutations(fn, pools, n_perms=n_perms, seed=seed)
+
+    ref_name = "Fixed-k=5"
+    ref_res = raw_evals[ref_name]
+    ref_tok = float(np.mean([x[1] for x in ref_res]))
+
+    rng = np.random.default_rng(seed)
+    N = len(pools)
+    boot_indices = rng.integers(0, N, size=(2000, N))
+
+    rows = []
+    for family, name, fn in rules:
+        res = raw_evals[name]
+        acc_arr = np.array([x[0] for x in res])
+        tok_arr = np.array([x[1] for x in res])
+        mean_acc = float(acc_arr.mean())
+        mean_tok = float(tok_arr.mean())
+
+        boot_acc = acc_arr[boot_indices].mean(axis=1)
+        boot_tok = tok_arr[boot_indices].mean(axis=1)
+        ci95_acc = (float(np.percentile(boot_acc, 2.5)), float(np.percentile(boot_acc, 97.5)))
+        ci95_tok = (float(np.percentile(boot_tok, 2.5)), float(np.percentile(boot_tok, 97.5)))
+
+        diff_dict = paired_bootstrap_diff(res, ref_res, n_boot=2000, seed=seed)
+        savings_pct = (1.0 - mean_tok / ref_tok) * 100.0
+
+        rows.append({
+            "family": family,
+            "rule": name,
+            "accuracy": mean_acc,
+            "ci95_acc_low": ci95_acc[0],
+            "ci95_acc_high": ci95_acc[1],
+            "tokens": mean_tok,
+            "ci95_tok_low": ci95_tok[0],
+            "ci95_tok_high": ci95_tok[1],
+            "delta_acc": diff_dict["mean_diff_acc"],
+            "ci95_delta_acc_low": diff_dict["ci95_diff_acc"][0],
+            "ci95_delta_acc_high": diff_dict["ci95_diff_acc"][1],
+            "delta_tok": diff_dict["mean_diff_tok"],
+            "ci95_delta_tok_low": diff_dict["ci95_diff_tok"][0],
+            "ci95_delta_tok_high": diff_dict["ci95_diff_tok"][1],
+            "savings_pct": savings_pct,
+        })
+
+    df = pd.DataFrame(rows)
+
+    # Determine empirical Pareto frontier (excluding oracle)
+    non_oracle_df = df[df["family"] != "Oracle"].copy()
+    pareto_empirical = compute_pareto_frontier(non_oracle_df)
+    pareto_rules = set(pareto_empirical["rule"])
+    df["is_pareto"] = df["rule"].apply(lambda r: r in pareto_rules)
+
+    # Export paths
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    plot_path = str(out_dir / "stopping_pareto_curve.png")
+    plot_pareto_curve(df, plot_path)
+
+    # Export JSON
+    json_path = str(out_dir / "results.json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(df.to_dict(orient="records"), f, indent=2)
+
+    # Generate Markdown Report
+    lines = [
+        "# Báo cáo Thực nghiệm Offline Stopping Rules & Phân tích Đánh đổi Pareto",
+        "",
+        f"- **Tập dữ liệu nguồn:** `{trace_path}` ({len(pools)} câu hỏi, development đã lộ, cánh Self-Consistency)",
+        f"- **Số lượt hoán vị ngẫu nhiên ($R$):** {n_perms}",
+        f"- **Phương pháp tái lập:** Paired Bootstrap CI 95% ($B=2.000$ draws), seed {seed}",
+        "- **Giới hạn:** chi phí proxy chia đều completion tokens cho từng candidate; không phải số đo per-call hoặc full inference cost.",
+        "- **Scoring:** literal string equality; chưa xử lý tương đương đáp án (đặc biệt Game24). Không dùng accuracy này làm kết luận nghiên cứu.",
+        "- **Replay:** hoán vị lại cùng các đầu ra; không đo online latency, không tăng số câu độc lập; Stage 0 không đổi.",
+        f"- **Biểu đồ Pareto:** Lưu tại `stopping_pareto_curve.png`",
+        "",
+        "## Bảng Kết quả Chi tiết",
+        "",
+        "| Họ (Family) | Quy tắc Dừng (Rule) | Accuracy (95% CI) | Tokens (95% CI) | Δ Acc vs k=5 | Δ Tokens vs k=5 | Tiết kiệm (%) | Pareto? |",
+        "| :--- | :--- | :--- | :--- | :--- | :--- | :---: | :---: |",
+    ]
+    for _, r in df.iterrows():
+        acc_str = f"{r['accuracy']:.4f} [{r['ci95_acc_low']:.4f}, {r['ci95_acc_high']:.4f}]"
+        tok_str = f"{r['tokens']:.1f} [{r['ci95_tok_low']:.1f}, {r['ci95_tok_high']:.1f}]"
+        d_acc_str = f"{r['delta_acc']:+.4f} [{r['ci95_delta_acc_low']:+.4f}, {r['ci95_delta_acc_high']:+.4f}]"
+        d_tok_str = f"{r['delta_tok']:+.1f} [{r['ci95_delta_tok_low']:+.1f}, {r['ci95_delta_tok_high']:+.1f}]"
+        pareto_str = "**CÓ**" if r["is_pareto"] else "Không"
+        lines.append(
+            f"| {r['family']} | {r['rule']} | {acc_str} | {tok_str} | {d_acc_str} | {d_tok_str} | {r['savings_pct']:.1f}% | {pareto_str} |"
+        )
+
+    lines.extend([
+        "", "## Phạm vi diễn giải",
+        "Bảng trên mô tả replay với scoring literal và chi phí nội suy. Không có kết luận tương đương, noninferiority hoặc cải thiện chất lượng được xác nhận.",
+        "Fixed-k=3 có chi phí proxy bằng 3/5 fixed-k=5 do giả định chia đều chi phí; không phải bằng chứng tiết kiệm inference thực tế.",
+        "Oracle dùng gold và không triển khai được. CI không bao phủ lỗi scoring, sai lệch nguồn hoặc giả định chi phí.",
+    ])
+    metadata = {
+        "evidence_kind": "exploratory_replay_diagnostic", "held_out": False,
+        "trace_sha256": hashlib.sha256(Path(trace_path).read_bytes()).hexdigest(),
+        "question_count": len(pools), "permutations": n_perms, "seed": seed,
+        "scoring": "literal_string_equality_not_validated_for_general_task_correctness",
+        "cost_scope": "equal_share_imputed_completion_token_proxy",
+        "per_candidate_tokens_observed": False, "prompt_cost_included": False,
+        "online_latency_measured": False, "stage0_changed": False,
+    }
+    (out_dir / "metadata.json").write_text(json.dumps(metadata, indent=2))
+    report_md = "\n".join(lines)
+    readme_path = str(out_dir / "README.md")
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(report_md)
+
+    return df, pareto_empirical, report_md
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Offline evaluation of stopping rules for Multi-step Reasoning.")
+    parser.add_argument("--trace", type=str, default="audit/run11_sweep_trace.jsonl", help="Path to sweep trace JSONL.")
+    parser.add_argument("--output-dir", type=str, default="audit/stopping_study_20261025", help="Output directory.")
+    parser.add_argument("--perms", type=int, default=30, help="Number of random permutations.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    args = parser.parse_args()
+
+    print(f"Running offline stopping study on {args.trace}...")
+    df, pareto, report = run_offline_stopping_study(
+        trace_path=args.trace,
+        output_dir=args.output_dir,
+        n_perms=args.perms,
+        seed=args.seed,
+    )
+    print("\nStudy completed successfully!")
+    print(f"Results written to: {args.output_dir}")
+    print("\nEmpirical Pareto Frontier:")
+    print(pareto[["rule", "accuracy", "tokens", "savings_pct"]].to_string(index=False))
+
+
+if __name__ == "__main__":
+    main()

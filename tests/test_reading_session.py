@@ -209,3 +209,75 @@ def test_connected_model_synthesizes_reading_draft_and_scoped_verifier(tmp_path)
         sha256="",
     ))
     assert rep_fail.status == VerificationStatus.FAIL
+
+
+def test_adaptive_consensus_stopping_in_reading_verifier_and_runtime():
+    """Verify Hướng 3: Adaptive Stopping & Consensus Verification logic in RAT agentic loop."""
+    from rat.engine.verification import (
+        ReadingVerifier,
+        VerificationStatus,
+        evaluate_consensus_stopping,
+    )
+
+    # 1. Direct mathematical verification of consensus stopping
+    # Case A: Strong consensus reached early (A=3, B=0)
+    v_early = evaluate_consensus_stopping(["A", "A", "A"], threshold=0.85, margin=2)
+    assert v_early.stop_early is True
+    assert v_early.winner == "A"
+    assert v_early.margin == 3
+    assert v_early.beta_prob > 0.85
+
+    # Case B: Disagreement, cannot stop early (A=2, B=2)
+    v_split = evaluate_consensus_stopping(["A", "B", "A", "B"], threshold=0.85, margin=2)
+    assert v_split.stop_early is False
+    assert v_split.margin == 0
+
+    # 2. ReadingVerifier.check_consensus integration
+    verifier = ReadingVerifier()
+    rep_pass = verifier.check_consensus(["A", "A", "A"], threshold=0.85, margin=2)
+    assert rep_pass.status == VerificationStatus.PASS
+    assert "Đạt ngưỡng đồng thuận" in rep_pass.reason
+    assert rep_pass.retryable is False
+
+    rep_unknown = verifier.check_consensus(["A", "B"], threshold=0.85, margin=2)
+    assert rep_unknown.status == VerificationStatus.UNKNOWN
+    assert "Chưa đạt ngưỡng" in rep_unknown.reason
+    assert rep_unknown.retryable is True
+
+    # 3. Multi-sample consensus in synthesize_reading_draft
+    from rat.kernel.capabilities.reading import create_reading_capability
+    from rat.kernel.contracts import ArtifactStore
+    from rat.kernel.dispatcher import ActionDispatcher
+    from rat.kernel.registry import CapabilityRegistry
+    from rat.engine.reading_session import parse_cards
+
+    class StubModel:
+        def chat_with_meta(self, messages, tools, **kwargs):
+            return {
+                "message": {"content": "Bản luận tổng hợp: 4 Pentacles biểu trưng cho sự ổn định."},
+                "prompt_tokens": 100,
+                "completion_tokens": 30,
+            }
+
+    registry = CapabilityRegistry()
+    registry.register_capability(create_reading_capability())
+    store = ArtifactStore()
+    dispatcher = ActionDispatcher(registry, store)
+
+    cards = parse_cards("4 pent, world")
+    candidates = [
+        "Ổn định tài chính vững chắc",
+        "Ổn định tài chính vững chắc",
+        "Ổn định tài chính vững chắc",
+    ]
+    res = dispatcher.execute_operation(
+        "synthesize_reading_draft",
+        {"query": "Tài chính"},
+        context={"reading_cards": cards, "model_client": StubModel(), "candidate_drafts": candidates},
+    )
+    assert res.status == "success"
+    payload = res.artifact.payload
+    assert payload["verification_status"] == "PASS"
+    assert payload["consensus_metadata"]["stop_early"] is True
+    assert "Đạt ngưỡng đồng thuận" in payload["consensus_metadata"]["reason"]
+

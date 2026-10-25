@@ -79,6 +79,8 @@ class AgentStep:
     tool_duration_ms: float = 0.0
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    cached_tokens: Optional[int] = None
+    verifier_duration_ms: float = 0.0
     raw_completion: str = ""
     error: Optional[str] = None
     model_input: Dict[str, Any] = field(default_factory=dict)
@@ -99,6 +101,7 @@ class ModelDecision:
     raw_completion: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    cached_tokens: Optional[int] = None
     model_duration_ms: float = 0.0
     error: Optional[str] = None
     extra_tool_calls: List[Dict[str, Any]] = field(default_factory=list)
@@ -143,6 +146,8 @@ class AgentResponse:
     turn_contract: Optional[Any] = None
     execution_journal: Optional[Any] = None
     qa_telemetry: Optional[Dict[str, Any]] = None
+    cached_tokens: Optional[int] = None
+    telemetry_breakdown: Dict[str, Any] = field(default_factory=dict)
 
 
 def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
@@ -181,14 +186,33 @@ def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
     return sources
 
 
-def model_observation(value):
-    """Format large chart observations without changing the full recorded source."""
+def model_observation(value, registry=None, enable_observation_pack=False, op_name=None):
+    """Format large chart or tool observations (Observation Pack) without changing the full recorded source."""
     if isinstance(value, dict) and isinstance(value.get('chart'), dict):
         try:
             from rat.astrology.chart import interpretation_context
             return {**value, 'chart': interpretation_context(value['chart'])}
         except ImportError:
             return value
+
+    if isinstance(value, dict) and "observation" in value and "verification" in value:
+        return {**value, "observation": model_observation(value["observation"], registry,
+                enable_observation_pack, op_name)}
+
+    if enable_observation_pack and isinstance(value, dict):
+        if value.get("artifact_kind") == "structured_note" or value.get("_op_name") == "synthesize_smart_note":
+            try:
+                from rat.kernel.capabilities.smart_notes import observation_pack_formatter
+                return observation_pack_formatter(value)
+            except ImportError:
+                pass
+        target_op_name = op_name or value.get("operation_name") or value.get("_op_name") or value.get("name")
+        if not target_op_name and "content" in value and "total_chars" in value and ("path" in value or "filename" in value):
+            target_op_name = "read_document"
+        if registry is not None and target_op_name:
+            op = registry.get_operation(target_op_name)
+            if op and getattr(op, "observation_formatter", None):
+                return op.observation_formatter(value)
     return value
 
 
@@ -248,7 +272,9 @@ class AssistantRuntime:
         document_model_path=None,
         document_max_context_tokens: int = 4096,
         active_tool_packs: Optional[Sequence[str]] = None,
+        enable_observation_pack: bool = False,
     ) -> None:
+        self.enable_observation_pack = enable_observation_pack
         if db is not None:
             self.db = db
         else:
@@ -338,6 +364,9 @@ class AssistantRuntime:
 
     def __exit__(self, *exc):
         self.close()
+
+    def _model_observation(self, value, op_name=None):
+        return model_observation(value, registry=self.registry, enable_observation_pack=getattr(self, "enable_observation_pack", False), op_name=op_name)
 
     # -------------------------------------------------------------------------
     # MECHANICAL TOOL IMPLEMENTATIONS
@@ -577,6 +606,8 @@ class AssistantRuntime:
             "note_context": note_context,
             "should_cancel": should_cancel,
             "selected_document_path": selected_document_path,
+            "artifact_store": self.artifact_store,
+            "runtime": self,
         }
         op = self.registry.get_operation(name)
         if op is not None:
@@ -659,7 +690,9 @@ class AssistantRuntime:
                     # schemas are available from the first call, without an
                     # extra discovery round trip or user-text routing.
                     selected.update({'read_document', 'search_book_pages',
-                                     'read_book_page', 'deliver_document'})
+                                     'read_book_page', 'deliver_document', 'synthesize_smart_note'})
+                    if self.artifact_store.find_by_kind('structured_note'):
+                        selected.update({'update_note_action_item', 'expand_note_section'})
                 if snapshot and snapshot['observed_state']['lifecycle'].get('pending_input'):
                     selected.add('dismiss_pending_input')
                 from rat.engine.context_snapshot import is_value_ref, resolve_value_ref
@@ -751,6 +784,7 @@ class AssistantRuntime:
         decision.model_input = meta.get("request", {})
         decision.prompt_tokens = meta.get("prompt_tokens", 0)
         decision.completion_tokens = meta.get("completion_tokens", 0)
+        decision.cached_tokens = meta.get("cached_tokens")
         decision.model_duration_ms = (time.perf_counter() - t0) * 1000
         decision.context_boundary = copy.deepcopy(context.get('context_snapshot', {}).get('boundary', {}))
         # A truncated generation is a recorded failure, even when its prefix parses.
@@ -818,7 +852,11 @@ class AssistantRuntime:
             )
         system += (
             " Earlier assistant replies are drafts and can be wrong. When the user requests a change, "
-            "apply the latest constraints to the draft; repeating it is not a completed edit."
+            "apply the latest constraints to the draft; repeating it is not a completed edit. "
+            "Create a requested Smart Note artifact with synthesize_smart_note; record_work_note only records session memory. "
+            "Prepare structured_note for synthesis in this model loop. Its facts must quote raw_content exactly. "
+            "A checklist task is future work, not permission to execute that task now. "
+            "When organizing the preceding answer, use it as a draft source and preserve its uncertainty; do not reread the document unless needed."
         )
         chat_history = (history or [])[-12:]
         messages = [{"role": "system", "content": system}, *chat_history]
@@ -856,7 +894,7 @@ class AssistantRuntime:
         if task_state and context_snapshot is None:
             messages.append({"role": "user", "content": "Previous model-authored task state (data, may be stale; reconcile with this request): " + json.dumps(task_state, ensure_ascii=False)})
         if previous_sources and context_snapshot is None:
-            messages.append({"role": "user", "content": "Previously retrieved source metadata (data only): " + json.dumps([model_observation(s) for s in previous_sources[-8:]], ensure_ascii=False, separators=(',', ':'))})
+            messages.append({"role": "user", "content": "Previously retrieved source metadata (data only): " + json.dumps([self._model_observation(s) for s in previous_sources[-8:]], ensure_ascii=False, separators=(',', ':'))})
         if turn_references and context_snapshot is None:
             messages.append({"role": "user", "content": "Prior turn references (data only, with turn_id and status): " + json.dumps(turn_references[-8:], ensure_ascii=False)})
         artifact_context = [] if context_snapshot is not None else [{"id": a.id, "kind": a.kind, "revision": a.revision,
@@ -895,18 +933,19 @@ class AssistantRuntime:
                         observation = None
                     else:
                         consumed = offset + 1
+                    call_name = call['function']['name']
                     result = observation.tool_result if observation else {"error": "not_executed"}
                     if observation and observation.verification:
-                        result = {"observation": model_observation(result), "verification": observation.verification}
+                        result = {"observation": self._model_observation(result, op_name=call_name), "verification": observation.verification}
                     if context_snapshot is not None and self.structured_context and observation:
                         receipt_index = next((i for i, r in enumerate(context_snapshot['observed_state']['receipts'])
                                               if r.get('operation_call_id') == f'step-{observation.step_number}'), None)
                         if receipt_index is not None:
                             result = {"observation_in_context": f"/observed_state/receipts/{receipt_index}",
                                       "receipt_id": context_snapshot['observed_state']['receipts'][receipt_index]['receipt_id']}
-                    messages.append({"role": "tool", "tool_name": call["function"]["name"],
+                    messages.append({"role": "tool", "tool_name": call_name,
                                      **({"tool_call_id": call['id']} if call.get('id') else {}),
-                                     "content": json.dumps(model_observation(result), ensure_ascii=False, separators=(',', ':'))})
+                                     "content": json.dumps(self._model_observation(result, op_name=call_name), ensure_ascii=False, separators=(',', ':'))})
                 index += consumed
             elif isinstance(step.tool_result, dict) and step.tool_result.get('completion_feedback'):
                 messages.append({"role": "assistant", "content": step.tool_result['candidate_answer']})
@@ -925,7 +964,7 @@ class AssistantRuntime:
                     json.dumps([{k: r[k] for k in ('status', 'scope', 'reason', 'checked')} for r in step.verification], ensure_ascii=False)})
                 index += 1
             else:
-                messages.append({"role": "user", "content": json.dumps({"observation": model_observation(step.tool_result), "error": step.error,
+                messages.append({"role": "user", "content": json.dumps({"observation": self._model_observation(step.tool_result, op_name=step.tool_name), "error": step.error,
                     **({"verification": step.verification} if step.verification else {})}, ensure_ascii=False, separators=(',', ':'))})
                 index += 1
         if finish_only:
@@ -1021,7 +1060,8 @@ class AssistantRuntime:
             execution_id: Optional[str] = None, conversation_id: Optional[str] = None,
             turn_references: Optional[List[Dict[str, Any]]] = None,
             contract: Optional[Any] = None, decision_callable=None,
-            selected_document_path: Optional[str] = None) -> AgentResponse:
+            selected_document_path: Optional[str] = None,
+            enable_observation_pack: Optional[bool] = None) -> AgentResponse:
         """Live decisions with bounded execution, observable actions and real usage.
 
         Injected model callables are fixture evidence. A stopped controller asks
@@ -1029,6 +1069,9 @@ class AssistantRuntime:
         """
         if not goal.strip() or not 1 <= max_steps <= 20 or max_tokens < 1 or type(max_verification_repairs) is not int or not 0 <= max_verification_repairs <= 4:
             raise ValueError("Invalid request or execution budget")
+        active_obs_pack = self.enable_observation_pack if enable_observation_pack is None else enable_observation_pack
+        orig_obs_pack = self.enable_observation_pack
+        self.enable_observation_pack = active_obs_pack
         started = time.perf_counter()
         # One request clock for model and tools. Regenerating the timestamp on
         # every actor call invalidates the prefix even when nothing else changed.
@@ -1096,6 +1139,7 @@ class AssistantRuntime:
                 verification.observe(prior.tool_name, prior.tool_args, prior.tool_result, prior.step_number)
         finish_only = False
         total_prompt = total_completion = 0
+        total_cached: Optional[int] = None
         model_time = tool_time = 0.0
         context = dict(history=history, previous_sources=previous_sources, member_id=member_id,
                        now_dt=now_dt, task_state=task_memory, turn_references=turn_references,
@@ -1152,6 +1196,21 @@ class AssistantRuntime:
                 "reconciliation_status": reconciliation.declared_scope_completion,
                 "unresolved_reasons": reconciliation.unresolved_reasons,
             }
+            self.enable_observation_pack = orig_obs_pack
+            telemetry = {
+                "prompt_tokens": total_prompt,
+                "completion_tokens": total_completion,
+                "total_tokens": total_prompt + total_completion,
+                "cached_tokens": total_cached,
+                "token_usage_known": (total_prompt > 0 or total_completion > 0),
+                "latencies": {
+                    "total_ms": (time.perf_counter() - started) * 1000,
+                    "model_ms": model_time,
+                    "tool_ms": tool_time,
+                    "verification_ms": verification.duration_ms,
+                },
+                "observation_pack_enabled": active_obs_pack,
+            }
             return AgentResponse(answer=answer, steps=trajectory,
                 total_time_ms=(time.perf_counter() - started) * 1000,
                 tool_call_count=sum(s.tool_name is not None and s.tool_result is not None
@@ -1159,6 +1218,8 @@ class AssistantRuntime:
                     for s in trajectory),
                 token_estimate=total_prompt + total_completion, prompt_tokens=total_prompt,
                 completion_tokens=total_completion, total_tokens=total_prompt + total_completion,
+                cached_tokens=total_cached,
+                telemetry_breakdown=telemetry,
                 model_time_ms=model_time, tool_time_ms=tool_time,
                 is_live_model=self.use_live_model and self.model_callable is None,
                 sources=sources, artifacts=artifacts_now,
@@ -1188,8 +1249,11 @@ class AssistantRuntime:
             duration = (time.perf_counter() - tick) * 1000
             total_prompt += meta.get("prompt_tokens", 0)
             total_completion += meta.get("completion_tokens", 0)
+            if meta.get("cached_tokens") is not None:
+                total_cached = (total_cached or 0) + meta.get("cached_tokens")
             model_time += duration
             step = AgentStep(1, "", prompt_tokens=meta.get("prompt_tokens", 0), completion_tokens=meta.get("completion_tokens", 0),
+                cached_tokens=meta.get("cached_tokens"),
                 raw_completion=json.dumps(meta.get("message", {}), ensure_ascii=False), model_input=meta.get("request", {}),
                 model_duration_ms=duration, duration_ms=duration, turn_id=active_turn_id, execution_id=active_exec_id)
             trajectory.append(step)
@@ -1287,13 +1351,15 @@ class AssistantRuntime:
                     turn_contract = proposal
             total_prompt += decision.prompt_tokens
             total_completion += decision.completion_tokens
+            if decision.cached_tokens is not None:
+                total_cached = (total_cached or 0) + decision.cached_tokens
             model_time += decision.model_duration_ms
             if should_cancel and should_cancel():
                 return response(error="cancelled")
             state.step_number = base_steps + number
             state.total_tokens = sum(s.prompt_tokens + s.completion_tokens for s in (initial_steps or [])) + total_prompt + total_completion
             step = AgentStep(step_number=state.step_number, thought="", prompt_tokens=decision.prompt_tokens,
-                completion_tokens=decision.completion_tokens, raw_completion=decision.raw_completion,
+                completion_tokens=decision.completion_tokens, cached_tokens=decision.cached_tokens, raw_completion=decision.raw_completion,
                 model_duration_ms=decision.model_duration_ms, error=decision.error, model_input=decision.model_input,
                 turn_id=active_turn_id, execution_id=active_exec_id)
             step.context_boundary = copy.deepcopy(decision.context_boundary)
@@ -1438,7 +1504,9 @@ class AssistantRuntime:
             tool_time += duration
             step.tool_name, step.tool_args, step.tool_result = name, args, result
             step.note_events = self.notebook.events_since(step_note_cursor, self.notebook.conversation_id)
+            v_tick = time.perf_counter()
             step.verification = verification.observe(name, args, result, step.step_number)
+            step.verifier_duration_ms = (time.perf_counter() - v_tick) * 1000
             if name == "update_task_state" and isinstance(result, dict) and "task_state" in result:
                 task_memory = result["task_state"]
                 task_updated = True
@@ -1485,3 +1553,18 @@ class AssistantRuntime:
                 finish_only = True
                 pending_calls.clear()
         return response(error="step_budget_exhausted")
+
+    def evaluate_stopping_condition(
+        self,
+        samples: list[str],
+        threshold: float = 0.90,
+        margin: int = 2,
+    ) -> dict:
+        """Evaluate whether an agentic multi-sample reasoning loop can stop early.
+
+        Follows the rule: 'TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC.'
+        """
+        from rat.engine.verification import evaluate_consensus_stopping
+        verdict = evaluate_consensus_stopping(samples, threshold=threshold, margin=margin)
+        return verdict.to_dict()
+

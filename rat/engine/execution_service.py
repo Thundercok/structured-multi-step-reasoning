@@ -140,8 +140,8 @@ class AgentExecutionService:
         if request.continuation:
             target_aid = request.continuation.get("artifact_id") or request.continuation.get("target_artifact_id")
             target_rev = request.continuation.get("revision") or request.continuation.get("target_revision")
-            if target_aid and hasattr(self.runtime, "store"):
-                art = self.runtime.store.get(target_aid)
+            if target_aid:
+                art = self.runtime.artifact_store.get(target_aid)
                 if not art or (target_rev is not None and art.revision != target_rev):
                     err = f"stale_continuation: Artifact {target_aid} không tồn tại hoặc revision đã đổi"
                     emit("turn_failed", error=err)
@@ -204,8 +204,8 @@ class AgentExecutionService:
 
             # Phase 6: DECIDING
             emit("deciding", payload={"verification": v_status, "dispatch_status": dispatch_res.status})
-            success = dispatch_res.status == "success"
-            err = dispatch_res.error if not success else None
+            success = dispatch_res.status == "success" and v_status != "FAIL"
+            err = (dispatch_res.error or "verification_failed") if not success else None
 
             step = AgentStep(
                 step_number=1,

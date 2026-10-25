@@ -29,6 +29,7 @@ ColumnLayout {
 
     GridLayout {
         objectName: "readingSurfaceGrid"
+        visible: !Boolean(reading.session.draft && reading.session.draft.draft_markdown) || reading.host.currentWorkspaceMode === "multi" || reading.width >= 760
         columns: reading.width >= 760 ? 2 : 1
         columnSpacing: 28
         rowSpacing: 18
@@ -248,7 +249,17 @@ ColumnLayout {
                             horizontalAlignment: Text.AlignHCenter; font.pixelSize: 9; color: reading.host.muted
                         }
                     }
-                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { reading.selectedCard = cardColumn.index; cardSurface.forceActiveFocus() } }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            reading.selectedCard = cardColumn.index
+                            if (reading.host.liveController) {
+                                reading.host.liveController.selectPreviewCard(cardColumn.index)
+                            }
+                            cardSurface.forceActiveFocus()
+                        }
+                    }
                 }
             }
         }

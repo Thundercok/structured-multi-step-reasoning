@@ -38,7 +38,7 @@ from rat.engine.execution import (
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
 from rat.ui.answer_presentation import (
-    answer_excerpt, answer_html, answer_starts_with_code, source_rows, page_reading_text, format_process_steps
+    answer_excerpt, answer_html, answer_starts_with_code, answer_one_line, source_rows, page_reading_text, format_process_steps
 )
 from rat.ui.assistant_worker import create_execution_worker
 from rat.ui.pdf_snapshot_provider import PdfSnapshotRenderer
@@ -216,6 +216,10 @@ class QuickPDFController(QObject):
         self._page = None
         self._view = "none"
         self._expanded = False
+        self._workspace_mode = "single"
+        self._preview_page = 1
+        self._preview_snippet = ""
+        self._preview_card_index = -1
         self._unread = False
         self._status = "Chuột sẵn sàng. Bạn cần gì?"
         self._error = ""
@@ -308,7 +312,7 @@ class QuickPDFController(QObject):
     @property
     def assistant_runtime(self) -> AssistantRuntime:
         if self._assistant_runtime is None:
-            self._assistant_runtime = AssistantRuntime()
+            self._assistant_runtime = AssistantRuntime(discover_tools=True)
         return self._assistant_runtime
 
     @property
@@ -338,7 +342,7 @@ class QuickPDFController(QObject):
             if self._request:
                 title = {"select": "Đang mở PDF.", "search": "Đang tìm trang khớp.", "page": "Đang đọc trang đã chọn."}[self._request.kind]
             else:
-                title = "Chuột đang xử lý yêu cầu…"
+                title = self._status or "Đang suy nghĩ…"
         elif view == "search":
             found = search.get("matched_pages", 0)
             title = f"Tìm thấy {found} trang khớp." if found else "Chưa có trang khớp trong phần đã tìm."
@@ -388,10 +392,39 @@ class QuickPDFController(QObject):
             self._cached_matched_info = matched_info
             self._cached_matched_key = cache_key
 
+        quick_prompts = []
+        if self._selection is not None:
+            quick_prompts = [
+                {
+                    "label": "Cách giải quyết",
+                    "text": "Tác giả đi từng bước giải quyết vấn đề như thế nào?",
+                },
+                {
+                    "label": "Bằng chứng số liệu",
+                    "text": "Bằng chứng hay số liệu nào trong bài chứng minh điều đó?",
+                },
+                {
+                    "label": "So sánh trước đây",
+                    "text": "So với các phương pháp trước đây thì cách này hơn thua ở đâu?",
+                },
+                {
+                    "label": "Điểm yếu hạn chế",
+                    "text": "Phương pháp này có điểm yếu hoặc hạn chế nào chưa giải quyết được không?",
+                },
+                {
+                    "label": "Luận điểm cốt lõi",
+                    "text": "Luận điểm cốt lõi và kết luận quan trọng nhất của bài là gì?",
+                },
+            ]
+
         return {
             "phase": "startup" if not self._ready else "working" if busy else "result" if self._view != "none" else "idle",
             "busy": busy,
             "expanded": self._expanded,
+            "workspaceMode": self._workspace_mode,
+            "previewPageNumber": self._preview_page,
+            "previewSnippet": self._preview_snippet,
+            "previewCardIndex": self._preview_card_index,
             "unread": self._unread,
             "hasWorkbench": busy or self._view != "none",
             "view": view,
@@ -404,11 +437,13 @@ class QuickPDFController(QObject):
             "userQuery": self._last_user_query,
             "answerText": self._last_assistant_answer,
             "answerExcerpt": answer_excerpt(self._last_assistant_answer),
+            "oneLineAnswer": answer_one_line(self._last_assistant_answer),
             "answerPreviewIsCode": answer_starts_with_code(self._last_assistant_answer),
             "answerOutcome": displayed.status if displayed else "unknown",
             "answerHtml": answer_html(self._last_assistant_answer),
             "answerHtmlDark": answer_html(self._last_assistant_answer, True),
             "answerSources": references,
+            "quickPrompts": quick_prompts,
             "processSteps": process_steps,
             "answerReadScope": " · ".join(dict.fromkeys(row["readScope"] for row in references if row["readScope"])),
             "answerVerification": displayed.answer_verification_status if displayed else "UNKNOWN",
@@ -612,6 +647,40 @@ class QuickPDFController(QObject):
         if not 0 <= index < len(rows) or not rows[index]["canOpen"]:
             return False
         return self.jumpToPdfPage(rows[index]["page"])
+
+    @pyqtSlot(str)
+    def setWorkspaceMode(self, mode: str) -> None:
+        """Set the workspace mode: 'minimal', 'single', or 'multi'."""
+        if mode in ("minimal", "single", "multi") and self._workspace_mode != mode:
+            self._workspace_mode = mode
+            if mode == "minimal":
+                self._expanded = False
+            else:
+                self._expanded = True
+            self.changed.emit()
+
+    @pyqtSlot(int, result=bool)
+    def previewPdfPage(self, page_number: int) -> bool:
+        """Preview a PDF page in side-by-side mode without changing the active answer view."""
+        return self.previewPdfPageWithSnippet(page_number, "")
+
+    @pyqtSlot(int, str, result=bool)
+    def previewPdfPageWithSnippet(self, page_number: int, snippet: str = "") -> bool:
+        """Preview a PDF page and highlight snippet in side-by-side mode without altering answer view."""
+        if self._closed or self._selection is None:
+            return False
+        if not 1 <= page_number <= self._selection.page_count:
+            return False
+        self._preview_page = page_number
+        self._preview_snippet = snippet
+        self.changed.emit()
+        return True
+
+    @pyqtSlot(int)
+    def selectPreviewCard(self, index: int) -> None:
+        """Select a tarot or reading card for interactive inspection."""
+        self._preview_card_index = index
+        self.changed.emit()
 
     @pyqtSlot(str, int, str, str, result=str)
     def pageSnapshot(self, path: str, page: int, query: str = "", snippet: str = "") -> str:
@@ -893,12 +962,6 @@ class QuickPDFController(QObject):
                                 return str(res.get("content", ""))
                     except Exception:
                         pass
-                page = s.get("page")
-                if page and self._selection:
-                    data = read_selected_page(self._selection, page)
-                    content = (data.get("content") or "").strip()
-                    if content:
-                        return content[:1800]
                 return s.get("snippet", "")
         except Exception:
             pass
@@ -1148,7 +1211,8 @@ class QuickPDFController(QObject):
             except Exception:
                 pass
             self._last_assistant_answer = response.answer or ""
-            self._telemetry = getattr(response, "qa_telemetry", {}) or {}
+            self._telemetry = {**(getattr(response, "telemetry_breakdown", {}) or {}),
+                               **(getattr(response, "qa_telemetry", {}) or {})}
             if status_kind == "budget_exceeded":
                 self._status = "Đã vượt hạn mức ngân sách (0 tokens/requests/strategies)."
             elif status_kind == "timeout":
@@ -1168,7 +1232,8 @@ class QuickPDFController(QObject):
             self.changed.emit()
             return
 
-        curr_telem = getattr(response, "qa_telemetry", {}) or {}
+        curr_telem = {**(getattr(response, "telemetry_breakdown", {}) or {}),
+                      **(getattr(response, "qa_telemetry", {}) or {})}
         self._telemetry = curr_telem
 
         art_refs = None
@@ -1211,6 +1276,11 @@ class QuickPDFController(QObject):
 
         self._last_assistant_answer = response.answer
         self._view = "answer"
+        refs = [s for s in (response.sources or []) if hasattr(s, "page") or (isinstance(s, dict) and "page" in s)]
+        if refs:
+            p = getattr(refs[0], "page", None) if hasattr(refs[0], "page") else refs[0].get("page")
+            if isinstance(p, int) and p > 0:
+                self._preview_page = p
         # Respect the user's current mode; a completed answer updates the preview.
         self._unread = not self._expanded
 
@@ -1492,69 +1562,28 @@ class QuickPDFController(QObject):
         return accepted
 
     def _open_application(self, path: Path) -> bool:
-        # Route through unified AgentExecutionService to enforce application_launch contract,
-        # verification, and execution journal recording.
-        if getattr(self, "assistant_runtime", None) is not None:
-            try:
-                from rat.engine.execution import ExecutionRequest
-                from rat.engine.execution_service import AgentExecutionService
-
-                def _ui_launcher(app):
-                    opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
-                    return bool(opener(QUrl.fromLocalFile(app.path)))
-
-                req = ExecutionRequest(
-                    f"Mở ứng dụng {path.stem}",
-                    execution_id=f"app-{uuid4().hex[:12]}",
-                    origin="ui_action",
-                    requested_action={
-                        "name": "open_application",
-                        "args": {"path": str(path)},
-                    },
-                    context={
-                        "catalog": self._finder_catalog,
-                        "app_launcher": _ui_launcher,
-                    },
-                )
-                service = AgentExecutionService(self.assistant_runtime)
-                resp = service.execute(req)
-                if not resp.error and resp.artifacts:
-                    art = resp.artifacts[0]
-                    p_data = art.payload
-                    self._launch_feedback = f"{p_data.get('name', path.stem)} · {p_data.get('status_label', 'Đã gửi yêu cầu mở ứng dụng tới macOS')}"
-                    self._launch_feedback_error = False
-                    self.changed.emit()
-                    return True
-                else:
-                    self._launch_feedback = resp.error or f"Không thể mở {path.stem}: ứng dụng đã bị gỡ hoặc bản cài không còn hợp lệ."
-                    self._launch_feedback_error = True
-                    self.changed.emit()
-                    return False
-            except Exception as exc:
-                logger.debug(f"Direct open_application fallback: {exc}")
-
-        # Recheck the selected installation immediately before handing it to OS.
-        expected = next((a for a in (self._finder_catalog.applications if self._finder_catalog else ())
-                         if a.path == str(path.absolute())), None)
+        """Project a checked launch receipt from the shared execution service."""
         try:
-            target = revalidate_application_bundle(
-                path, expected_bundle_id=expected.bundle_id if expected else None,
+            from rat.engine.execution_service import AgentExecutionService
+
+            def ui_launcher(app):
+                opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
+                return bool(opener(QUrl.fromLocalFile(app.path)))
+
+            request = ExecutionRequest(
+                f"Mở ứng dụng {path.stem}", execution_id=f"app-{uuid4().hex[:12]}", origin="ui_action",
+                requested_action={"name": "open_application", "args": {"path": str(path)}},
+                context={"catalog": self._finder_catalog, "app_launcher": ui_launcher},
             )
-        except (OSError, ValueError, TypeError, AttributeError, ExpatError):
-            self._launch_feedback = f"Không thể mở {path.stem}: ứng dụng đã bị gỡ hoặc bản cài không còn hợp lệ."
-            self._launch_feedback_error = True
-            self.changed.emit()
-            return False
-        try:
-            opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
-            accepted = bool(opener(QUrl.fromLocalFile(target.path)))
+            response = AgentExecutionService(self.assistant_runtime).execute(request)
+            accepted = not response.error and bool(response.artifacts)
+            name = response.artifacts[0].payload.get("name", path.stem) if accepted else path.stem
         except Exception:
-            accepted = False
+            logger.exception("Application launch through execution service failed")
+            accepted, name = False, path.stem
         self._launch_feedback_error = not accepted
-        self._launch_feedback = (
-            f"Đã gửi yêu cầu mở {target.name}." if accepted
-            else f"Không thể gửi yêu cầu mở {target.name}. Bạn có thể thử lại."
-        )
+        self._launch_feedback = (f"Đã gửi yêu cầu mở {name}." if accepted else
+                                 f"Không thể mở {name}. Kiểm tra bản cài đặt hoặc thử lại.")
         self.changed.emit()
         return accepted
 

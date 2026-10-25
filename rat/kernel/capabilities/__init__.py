@@ -11,6 +11,7 @@ from rat.engine.task_state import TASK_STATE_SCHEMA, validate_task_state
 from rat.kernel.capabilities.applications import create_applications_capability
 from rat.kernel.capabilities.documents import create_documents_capability
 from rat.kernel.capabilities.result_tables import create_result_tables_capability
+from rat.kernel.capabilities.smart_notes import create_smart_notes_capability
 from rat.kernel.capabilities.web import create_web_capability
 from rat.kernel.registry import Capability, CapabilityRegistry, OperationDefinition
 from rat.timetable.compositor import TimetableCompositor
@@ -37,6 +38,7 @@ def build_core_registry(
     registry.register_capability(create_documents_capability(db=db))
     registry.register_capability(create_applications_capability())
     registry.register_capability(create_result_tables_capability())
+    registry.register_capability(create_smart_notes_capability())
 
     if enable_web:
         registry.register_capability(create_web_capability(enabled=True))

@@ -173,3 +173,28 @@ def test_headless_integrity_no_qt_required():
     from rat.engine.execution import ExecutionRequest
     assert AgentExecutionService is not None
     assert ExecutionRequest is not None
+
+
+def test_continuation_rejects_stale_note_revision_before_dispatch(service_env):
+    service, runtime, _ = service_env
+    created = runtime.dispatcher.execute_operation("synthesize_smart_note", {"raw_content": "Cần kiểm tra cache."})
+    req = ExecutionRequest(query="Cập nhật ghi chú", continuation={"artifact_id": created.artifact.id, "revision": 9},
+        requested_action={"name": "update_note_action_item", "args": {"artifact_id": created.artifact.id, "revision": 1, "item_index": 1}})
+    resp = service.execute(req)
+    assert resp.error == "stale_continuation"
+    assert runtime.artifact_store.get(created.artifact.id).revision == 1
+
+
+def test_requested_action_verification_fail_does_not_emit_completed(service_env):
+    from rat.engine.verification import VerificationReport, VerificationStatus
+    service, runtime, _ = service_env
+    class Reject:
+        def check_execution(self, evidence):
+            return VerificationReport(VerificationStatus.FAIL, "fixture_check", "Deliberate software fixture rejection")
+    runtime.registry.get_operation("calculate").verifier = Reject()
+    events = []
+    resp = service.execute(ExecutionRequest(query="Tính 1+1", requested_action={"name": "calculate", "args": {"expression": "1+1"}}), on_event=events.append)
+    assert resp.error == "verification_failed"
+    assert resp.answer_verification_status == "FAIL"
+    assert events[-1].type == "turn_failed"
+    assert not any(e.type == "turn_completed" for e in events)

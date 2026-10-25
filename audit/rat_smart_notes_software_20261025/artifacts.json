@@ -1,0 +1,237 @@
+[
+  {
+    "id": "art-892194e1be1a4952b53590b084838078",
+    "kind": "structured_note",
+    "revision": 1,
+    "payload": {
+      "artifact_kind": "structured_note",
+      "note_id": "art-892194e1be1a4952b53590b084838078",
+      "revision": 1,
+      "title": "Ghi chú kỹ thuật",
+      "domain": "technical",
+      "summary": "Ghi chú có cấu trúc cho chủ đề 'Ghi chú kỹ thuật' thuộc nhóm technical. Ghi nhận 1 dữ kiện nền tảng, 1 lưu ý/rào cản và 1 đầu việc hành động.",
+      "key_facts": [
+        {
+          "fact": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "source": "user_input"
+        }
+      ],
+      "analysis_sections": [
+        {
+          "heading": "Hiện trạng & Dữ kiện Quan sát",
+          "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)",
+          "badges": [
+            "fact_grounded",
+            "verified_input"
+          ]
+        },
+        {
+          "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+          "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "badges": [
+            "actionable",
+            "plan"
+          ]
+        }
+      ],
+      "risks_and_constraints": [
+        "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt."
+      ],
+      "action_items": [
+        {
+          "task": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "done": false
+        }
+      ],
+      "raw_content": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "source_sha256": "69aaf3a8571bb609604bf6e8ca9feca9380d755299ef9e3ca0b3d21fcf82eb17",
+      "synthesis_mode": "extractive",
+      "_op_name": "synthesize_smart_note",
+      "markdown_rendered": "# 📋 Ghi chú kỹ thuật\n> **Lĩnh vực:** `TECHNICAL` | **Trạng thái:** `Có cấu trúc · xem phạm vi kiểm chứng`\n\n**Tóm tắt cốt lõi:** Ghi chú có cấu trúc cho chủ đề 'Ghi chú kỹ thuật' thuộc nhóm technical. Ghi nhận 1 dữ kiện nền tảng, 1 lưu ý/rào cản và 1 đầu việc hành động.\n\n---\n\n### 🔍 Dữ kiện Nền tảng (Grounded Facts)\n| STT | Dữ kiện quan sát | Phân loại nguồn |\n| :---: | :--- | :---: |\n| 1 | Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt. | `user_input` |\n\n### 📊 Phân tích Chi tiết\n#### Hiện trạng & Dữ kiện Quan sát `[fact_grounded]` `[verified_input]`\nCác dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)\n\n#### Kế hoạch Hành động & Khuyến nghị Tối ưu `[actionable]` `[plan]`\nCác đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.\n\n\n### ⚠️ Rủi ro & Vùng cấm cần tránh\n- 🚫 **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.**\n\n### ✅ Kế hoạch Hành động (Action Checklist)\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "raw_char_count": 83,
+      "structured_char_count": 1240,
+      "artifact_id": "art-892194e1be1a4952b53590b084838078"
+    },
+    "inputs": {
+      "raw_content": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "title": "Ghi chú kỹ thuật"
+    },
+    "provenance": {
+      "operation_name": "synthesize_smart_note"
+    },
+    "title": "Ghi chú kỹ thuật",
+    "status": "ready",
+    "created_at": 1792939454.339351
+  },
+  {
+    "id": "art-892194e1be1a4952b53590b084838078",
+    "kind": "structured_note",
+    "revision": 2,
+    "payload": {
+      "artifact_kind": "structured_note",
+      "note_id": "art-892194e1be1a4952b53590b084838078",
+      "revision": 2,
+      "title": "Ghi chú kỹ thuật",
+      "domain": "technical",
+      "summary": "Ghi chú có cấu trúc cho chủ đề 'Ghi chú kỹ thuật' thuộc nhóm technical. Ghi nhận 1 dữ kiện nền tảng, 1 lưu ý/rào cản và 1 đầu việc hành động.",
+      "key_facts": [
+        {
+          "fact": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "source": "user_input"
+        }
+      ],
+      "analysis_sections": [
+        {
+          "heading": "Hiện trạng & Dữ kiện Quan sát",
+          "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)",
+          "badges": [
+            "fact_grounded",
+            "verified_input"
+          ]
+        },
+        {
+          "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+          "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "badges": [
+            "actionable",
+            "plan"
+          ]
+        }
+      ],
+      "risks_and_constraints": [
+        "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt."
+      ],
+      "action_items": [
+        {
+          "task": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "done": true
+        }
+      ],
+      "raw_content": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "source_sha256": "69aaf3a8571bb609604bf6e8ca9feca9380d755299ef9e3ca0b3d21fcf82eb17",
+      "synthesis_mode": "extractive",
+      "_op_name": "update_note_action_item",
+      "markdown_rendered": "# 📋 Ghi chú kỹ thuật\n> **Lĩnh vực:** `TECHNICAL` | **Trạng thái:** `Có cấu trúc · xem phạm vi kiểm chứng`\n\n**Tóm tắt cốt lõi:** Ghi chú có cấu trúc cho chủ đề 'Ghi chú kỹ thuật' thuộc nhóm technical. Ghi nhận 1 dữ kiện nền tảng, 1 lưu ý/rào cản và 1 đầu việc hành động.\n\n---\n\n### 🔍 Dữ kiện Nền tảng (Grounded Facts)\n| STT | Dữ kiện quan sát | Phân loại nguồn |\n| :---: | :--- | :---: |\n| 1 | Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt. | `user_input` |\n\n### 📊 Phân tích Chi tiết\n#### Hiện trạng & Dữ kiện Quan sát `[fact_grounded]` `[verified_input]`\nCác dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)\n\n#### Kế hoạch Hành động & Khuyến nghị Tối ưu `[actionable]` `[plan]`\nCác đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.\n\n\n### ⚠️ Rủi ro & Vùng cấm cần tránh\n- 🚫 **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.**\n\n### ✅ Kế hoạch Hành động (Action Checklist)\n- [x] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "raw_char_count": 83,
+      "structured_char_count": 1240,
+      "artifact_id": "art-892194e1be1a4952b53590b084838078",
+      "_previous_note": {
+        "revision": 1,
+        "action_items": [
+          {
+            "task": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+            "done": false
+          }
+        ]
+      }
+    },
+    "inputs": {
+      "item_index": 1,
+      "done": true
+    },
+    "provenance": {
+      "operation_name": "update_note_action_item",
+      "parent_revision": 1
+    },
+    "title": "Ghi chú kỹ thuật",
+    "status": "ready",
+    "created_at": 1792939454.339597
+  },
+  {
+    "id": "art-892194e1be1a4952b53590b084838078",
+    "kind": "structured_note",
+    "revision": 3,
+    "payload": {
+      "artifact_kind": "structured_note",
+      "note_id": "art-892194e1be1a4952b53590b084838078",
+      "revision": 3,
+      "title": "Ghi chú kỹ thuật",
+      "domain": "technical",
+      "summary": "Ghi chú có cấu trúc cho chủ đề 'Ghi chú kỹ thuật' thuộc nhóm technical. Ghi nhận 1 dữ kiện nền tảng, 1 lưu ý/rào cản và 1 đầu việc hành động.",
+      "key_facts": [
+        {
+          "fact": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "source": "user_input"
+        }
+      ],
+      "analysis_sections": [
+        {
+          "heading": "Hiện trạng & Dữ kiện Quan sát",
+          "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)",
+          "badges": [
+            "fact_grounded",
+            "verified_input"
+          ]
+        },
+        {
+          "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+          "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "badges": [
+            "actionable",
+            "plan"
+          ]
+        },
+        {
+          "heading": "Mở rộng: Phân tích",
+          "content": "**Bổ sung do Agent soạn (chưa xác minh diễn giải):**\nĐề xuất kiểm tra cache; chưa có số đo cache để kết luận nguyên nhân.",
+          "badges": [
+            "follow_up",
+            "expanded"
+          ]
+        }
+      ],
+      "risks_and_constraints": [
+        "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt."
+      ],
+      "action_items": [
+        {
+          "task": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+          "done": true
+        }
+      ],
+      "raw_content": "Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "source_sha256": "69aaf3a8571bb609604bf6e8ca9feca9380d755299ef9e3ca0b3d21fcf82eb17",
+      "synthesis_mode": "extractive",
+      "_op_name": "expand_note_section",
+      "markdown_rendered": "# 📋 Ghi chú kỹ thuật\n> **Lĩnh vực:** `TECHNICAL` | **Trạng thái:** `Có cấu trúc · xem phạm vi kiểm chứng`\n\n**Tóm tắt cốt lõi:** Ghi chú có cấu trúc cho chủ đề 'Ghi chú kỹ thuật' thuộc nhóm technical. Ghi nhận 1 dữ kiện nền tảng, 1 lưu ý/rào cản và 1 đầu việc hành động.\n\n---\n\n### 🔍 Dữ kiện Nền tảng (Grounded Facts)\n| STT | Dữ kiện quan sát | Phân loại nguồn |\n| :---: | :--- | :---: |\n| 1 | Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt. | `user_input` |\n\n### 📊 Phân tích Chi tiết\n#### Hiện trạng & Dữ kiện Quan sát `[fact_grounded]` `[verified_input]`\nCác dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)\n\n#### Kế hoạch Hành động & Khuyến nghị Tối ưu `[actionable]` `[plan]`\nCác đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.\n\n#### Mở rộng: Phân tích `[follow_up]` `[expanded]`\n**Bổ sung do Agent soạn (chưa xác minh diễn giải):**\nĐề xuất kiểm tra cache; chưa có số đo cache để kết luận nguyên nhân.\n\n\n### ⚠️ Rủi ro & Vùng cấm cần tránh\n- 🚫 **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.**\n\n### ✅ Kế hoạch Hành động (Action Checklist)\n- [x] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+      "raw_char_count": 83,
+      "structured_char_count": 1240,
+      "artifact_id": "art-892194e1be1a4952b53590b084838078",
+      "_previous_note": {
+        "revision": 2,
+        "analysis_sections": [
+          {
+            "heading": "Hiện trạng & Dữ kiện Quan sát",
+            "content": "Các dữ kiện đầu vào được bóc tách và đối chiếu từ nội dung cung cấp:\n- **Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.** (nguồn: `user_input`)",
+            "badges": [
+              "fact_grounded",
+              "verified_input"
+            ]
+          },
+          {
+            "heading": "Kế hoạch Hành động & Khuyến nghị Tối ưu",
+            "content": "Các đề xuất cụ thể nhằm giải tỏa điểm nghẽn:\n- [ ] Điều tra latency 4500ms. Cần kiểm tra cache. Tránh gửi bảng dữ liệu dài vào prompt.",
+            "badges": [
+              "actionable",
+              "plan"
+            ]
+          }
+        ]
+      },
+      "expansion_request": "Cần đo thêm gì?",
+      "expansion_content": "Đề xuất kiểm tra cache; chưa có số đo cache để kết luận nguyên nhân."
+    },
+    "inputs": {
+      "section_heading": "Phân tích",
+      "expansion_query": "Cần đo thêm gì?",
+      "expansion_content": "Đề xuất kiểm tra cache; chưa có số đo cache để kết luận nguyên nhân."
+    },
+    "provenance": {
+      "operation_name": "expand_note_section",
+      "parent_revision": 2
+    },
+    "title": "Ghi chú kỹ thuật",
+    "status": "ready",
+    "created_at": 1792939454.3398871
+  }
+]

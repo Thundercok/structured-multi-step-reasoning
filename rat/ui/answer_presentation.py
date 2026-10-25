@@ -73,6 +73,18 @@ def answer_excerpt(text: str, limit: int = 360) -> str:
     return excerpt
 
 
+def answer_one_line(text: str, limit: int = 120) -> str:
+    """Extract a single concise sentence or line for minimal ticker mode."""
+    excerpt = answer_excerpt(text, limit=limit * 2)
+    first_line = excerpt.split('\n')[0].strip()
+    match = re.split(r'(?<=[.!?。])\s+', first_line)
+    candidate = match[0] if match else first_line
+    candidate = re.sub(r'\s+', ' ', candidate).strip()
+    if len(candidate) > limit:
+        candidate = candidate[:limit].rsplit(' ', 1)[0].rstrip() + '…'
+    return candidate
+
+
 @lru_cache(maxsize=8)
 def page_reading_text(text: str) -> str:
     """Join only obvious prose continuations; keep source text separately.
@@ -425,6 +437,7 @@ def format_process_steps(
         p_name = Path(args.get("file_path", "")).name if args.get("file_path") else ""
         dur = read_step.get("duration_ms", 0) if isinstance(read_step, dict) else getattr(read_step, "duration_ms", 0)
         detail = f"Đọc đoạn trích {p_name}" if p_name else "Đọc dữ kiện từ tài liệu được chọn"
+        thought = read_step.get("thought", "") if isinstance(read_step, dict) else getattr(read_step, "thought", "")
         if dur:
             detail += f" ({dur}ms)"
         stages.append({
@@ -434,6 +447,7 @@ def format_process_steps(
             "iconName": "search",
             "status": "done",
             "detail": detail,
+            "thought": thought or "",
         })
         step_idx += 1
     elif src_list:
@@ -448,10 +462,12 @@ def format_process_steps(
             "iconName": "search",
             "status": "done",
             "detail": detail,
+            "thought": "",
         })
         step_idx += 1
 
     if expand_step:
+        thought = expand_step.get("thought", "") if isinstance(expand_step, dict) else getattr(expand_step, "thought", "")
         stages.append({
             "stepNumber": step_idx,
             "shortTitle": "Mở rộng",
@@ -459,12 +475,14 @@ def format_process_steps(
             "iconName": "maximize",
             "status": "done",
             "detail": "Mở rộng văn bản xung quanh vị trí tìm thấy",
+            "thought": thought or "",
         })
         step_idx += 1
 
     if calc_step:
         args = calc_step.get("tool_args", {}) if isinstance(calc_step, dict) else getattr(calc_step, "tool_args", {}) or {}
         expr = args.get("expression", "")
+        thought = calc_step.get("thought", "") if isinstance(calc_step, dict) else getattr(calc_step, "thought", "")
         stages.append({
             "stepNumber": step_idx,
             "shortTitle": "Tính",
@@ -472,19 +490,20 @@ def format_process_steps(
             "iconName": "calculator",
             "status": "done",
             "detail": f"Tính biểu thức {expr}" if expr else "Tính toán số học",
+            "thought": thought or "",
         })
         step_idx += 1
 
     # Verification / Grounding stage
     if answer_verification == "PASS":
         v_status = "verified_pass"
-        v_detail = "✓ Đạt kiểm tra đối chiếu nguồn gốc"
+        v_detail = "Đạt kiểm tra đối chiếu nguồn gốc"
     elif answer_verification == "FAIL":
         v_status = "verified_fail"
-        v_detail = "! Kiểm tra không khớp nội dung"
+        v_detail = "Kiểm tra không khớp nội dung"
     else:
         v_status = "unverified"
-        v_detail = "Chưa xác minh nội dung đối chiếu"
+        v_detail = "Tổng hợp từ tài liệu"
 
     stages.append({
         "stepNumber": step_idx,
@@ -493,6 +512,7 @@ def format_process_steps(
         "iconName": "check",
         "status": v_status,
         "detail": v_detail,
+        "thought": "",
     })
     step_idx += 1
 
@@ -509,6 +529,7 @@ def format_process_steps(
             "iconName": "file-text",
             "status": "done",
             "detail": f"Trích dẫn nguyên văn và số trang{src_title}",
+            "thought": "",
         })
 
     return stages

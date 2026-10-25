@@ -9,6 +9,7 @@ Registers:
 """
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
@@ -17,6 +18,43 @@ from rat.crawler.db import Database, remove_vietnamese_accents
 from rat.crawler.extractors import extract_document_content
 from rat.kernel.contracts import Artifact, ArtifactAction
 from rat.kernel.registry import Capability, OperationDefinition
+
+
+def document_read_observation_pack(res: Any) -> Any:
+    """Format full document reading result into a compact SoL-Pi Observation Pack for prompt context."""
+    if not isinstance(res, dict):
+        return res
+    if not res.get("found", False) or "content" not in res:
+        return res
+
+    content = res.get("content", "")
+    total_chars = res.get("total_chars", len(content))
+    # If content is short (<= 400 chars), keeping it in full is cheap and preserves direct details
+    if len(content) <= 400:
+        return res
+
+    head_chars = 250
+    tail_chars = 150
+    omitted = len(content) - (head_chars + tail_chars)
+    if omitted <= 0:
+        return res
+
+    head_snippet = content[:head_chars].strip()
+    tail_snippet = content[-tail_chars:].strip()
+
+    compressed_content = (
+        f"{head_snippet}\n\n"
+        f"... [SoL-Pi Observation Pack: lược bớt {omitted} ký tự trung gian; "
+        f"bản gốc đầy đủ ({total_chars} ký tự) đã lưu an toàn trong ArtifactStore. "
+        f"Dùng expand_document_context nếu cần trích xuất cụ thể] ...\n\n"
+        f"{tail_snippet}"
+    )
+
+    pack = copy.deepcopy(res)
+    pack["content"] = compressed_content
+    pack["observation_pack_status"] = "compressed_sol_pi"
+    pack["omitted_chars"] = omitted
+    return pack
 
 
 def create_documents_capability(db: Optional[Database] = None) -> Capability:
@@ -292,7 +330,8 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         {"type": "object", "properties": {
             "file_path": path_schema, "page": {"type": "integer", "minimum": 1},
             "max_chars": {"type": "integer", "minimum": 1, "maximum": 12000, "default": 8000},
-        }, "required": ["file_path", "page"]}, handle_page_read, artifact_kind="book_page_content"))
+        }, "required": ["file_path", "page"]}, handle_page_read, artifact_kind="book_page_content",
+        observation_formatter=document_read_observation_pack))
 
     capability.register_operation(OperationDefinition("open_document",
         "Open an exact indexed file in its default application only when the user explicitly requests opening it.",
@@ -379,6 +418,7 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         },
         handler=handle_read,
         artifact_kind="document_content",
+        observation_formatter=document_read_observation_pack,
     ))
 
     capability.register_operation(OperationDefinition(

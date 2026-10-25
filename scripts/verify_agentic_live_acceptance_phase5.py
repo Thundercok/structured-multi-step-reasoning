@@ -47,7 +47,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 CONV_DIR = Path("/Users/thundercock2/.gemini/antigravity/brain/45a2b001-8ba3-4d01-ab61-18ee427fb60d")
 
-print("=== Starting RAT Phase 5 Live UI Acceptance (Build 2026.10.25.25) ===")
+print("=== Starting RAT Phase 5 Live UI Acceptance (Build 2026.10.25.26) ===")
 
 # 1. Verify Genuine PDF Provenance & Hash
 assert PDF_PATH.exists(), f"Missing authentic PDF at {PDF_PATH}"
@@ -92,7 +92,7 @@ root = view.rootObject()
 assert root is not None, "Failed to load QML root"
 actual_build_label = root.property("uiBuildLabel")
 print(f"[OK] UI Build Label verified: {actual_build_label}")
-assert actual_build_label == "Build 2026.10.25.25 · Agentic Live", f"Unexpected build label: {actual_build_label}"
+assert actual_build_label == "Build 2026.10.25.26", f"Unexpected build label: {actual_build_label}"
 
 view.resize(520, round(root.property("preferredWindowHeight")))
 window_timer = bind_desk_window(view)
@@ -332,7 +332,7 @@ acceptance_report = {
     },
     "ui_iteration": {
         "build_label": actual_build_label,
-        "minor_visible_change": "Build 2026.10.25.25 · Agentic Live + verification status indicator",
+        "minor_visible_change": "Build 2026.10.25.26 + ambient CoT prompts + softened status indicator",
     },
     "conversation": {
         "prompt": user_query,

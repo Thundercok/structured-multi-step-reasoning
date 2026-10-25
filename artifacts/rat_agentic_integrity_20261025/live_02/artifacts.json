@@ -1,0 +1,57 @@
+[
+  {
+    "id": "art-cfdb61f89fe349079c98a41e1210b39f",
+    "kind": "document_content",
+    "revision": 1,
+    "payload": {
+      "found": true,
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "filename": "arxiv_2506.22716_original.pdf",
+      "content": "Title: BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute\n\nAuthor: Dujian Ding; Ankur Mallick; Shaokun Zhang; Chi Wang; Daniel Madrigal; Mirian Del Carmen Hipolito Garcia; Menglin Xia; Laks V. S. Lakshmanan; Qingyun Wu; Victor Rühle\n\n--- Page 1 ---\narXiv:2506.22716v1 [cs.LG] 28 Jun 2025\nBEST-Route: Adaptive LLM Routing with Test-Time Optimal\nCompute\nDujian Ding∗†1, Ankur Mallick2, Shaokun Zhang3, Chi Wang‡4, Daniel Madrigal2\n,\nMirian Del Carmen Hipolito Garcia2, Menglin Xia2, Laks V.S. Lakshmanan1, Qingyun Wu3,5\n,\nand Victor R¨uhle2\n1The University of British Columbia\n2Microsoft\n3Pennsylvania State University\n4Google DeepMind\n5AG2AI, Inc.\nAbstract\nLarge language models (LLMs) are powerful tools but are often expensive to deploy at scale.\nLLM query routing mitigates this by dynamically assigning queries to models of varying cost\nand quality to obtain a desired trade-off. Prior query routing approaches generate only one\nresponse from the selected model and a single response from a small (inexpensive) model was\noften not good enough to beat a response from a large (expensive) model due to which they end\nup overusing the large model and missing out on potential cost savings. However, it is well known\nthat for small models, generating multiple responses and selecting the best can enhance quality\nwhile remaining cheaper than a single large-model response. We leverage this idea to propose\nBEST-Route, a novel routing framework that chooses a model and the number of responses to\nsample from it based on query difficulty and the quality thresholds. Experiments on real-world\ndatasets demonstrate that our method reduces costs by up to 60% with less than 1% performance\ndrop.\n1 Introduction\nLarge language models (LLMs) have revolutionized natural language processing (NLP) by\ndelivering state-of-the-art performance across a wide range of tasks, from language understanding\nto creative writing, code generation, and beyond [Zhao et al., 2023]. Their widespread deployment\nin applications like ChatGPT [OpenAI, a] and other conversational agents [Zheng et al., 2023,\nZhang et al., 2024a,b] has made them a cornerstone of modern NLP systems. However, the superior\nperformance of these models often comes with substantial computational costs, driven by their\nlarge sizes and auto-regressive text generation, making their deployment a challenge for both\n∗Work performed during internship at Microsoft.\n†Corresponding author dujian.ding@gmail.com.\n‡Work performed while at Microsoft.\n1\n\n--- Page 2 ---\nBEST-Route Multi-Head Router\n1. Match Probability Prediction\nLLMs\n2. Best-of-N Sampling\nQuery q\nSelected\nLLM\nQuery q $ $$ $$$\nN=1\nN=2\nBest Response\n... ... ... ... N=N\nSelect the optimal\nLLM and Best-of-N\ncombination\n...\nResponse 1 Response N\nN Responses\nProxy RM\nBest Response\nQuery q\n3. Score each response\nusing proxy reward model\nand return the best.\nFigure 1: System overview of BEST-Route: Best-of-n Enhanced Sampling and Test-time Route\nOptimization.\ndevelopers and us",
+      "total_chars": 59820,
+      "truncated": true
+    },
+    "inputs": {
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "max_chars": 3000
+    },
+    "provenance": {
+      "operation_name": "read_document",
+      "owner_turn_id": "turn-1",
+      "execution_id": "exec-a52cc086abb7"
+    },
+    "title": "Read an indexed PDF, PPTX, DOCX, TXT or MD file",
+    "status": "ready",
+    "created_at": 1792942325.309206
+  },
+  {
+    "id": "art-4061d430959b4189be447de3c401e1d2",
+    "kind": "document_expanded_context",
+    "revision": 1,
+    "payload": {
+      "found": true,
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "filename": "arxiv_2506.22716_original.pdf",
+      "content": "Title: BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute\n\nAuthor: Dujian Ding; Ankur Mallick; Shaokun Zhang; Chi Wang; Daniel Madrigal; Mirian Del Carmen Hipolito Garcia; Menglin Xia; Laks V. S. Lakshmanan; Qingyun Wu; Victor Rühle\n\n--- Page 1 ---\narXiv:2506.22716v1 [cs.LG] 28 Jun 2025\nBEST-Route: Adaptive LLM Routing with Test-Time Optimal\nCompute\nDujian Ding∗†1, Ankur Mallick2, Shaokun Zhang3, Chi Wang‡4, Daniel Madrigal2\n,\nMirian Del Carmen Hipolito Garcia2, Menglin Xia2, Laks V.S. Lakshmanan1, Qingyun Wu3,5\n,\nand Victor R¨uhle2\n1The University of British Columbia\n2Microsoft\n3Pennsylvania State University\n4Google DeepMind\n5AG2AI, Inc.\nAbstract\nLarge language models (LLMs) are powerful tools but are often expensive to deploy at scale.\nLLM query routing mitigates this by dynamically assigning queries to models of varying cost\nand quality to obtain a desired trade-off. Prior query routing approaches generate only one\nresponse from the selected model and a single response from a small (inexpensive) model was\noften not good enough to beat a response from a large (expensive) model due to which they end\nup overusing the large model and missing out on potential cost savings. However, it is well known\nthat for small models, generating multiple responses and selecting the best can enhance quality\nwhile remaining cheaper than a single large-model response. We leverage this idea to propose\nBEST-Route, a novel routing framework that chooses a model and the number of responses to\nsample from it based on query difficulty and the quality thresholds. Experiments on real-world\ndatasets demonstrate that our method reduces costs by up to 60% with less than 1% performance\ndrop.\n1 Introduction\nLarge language models (LLMs) have revolutionized natural language processing (NLP) by\ndelivering state-of-the-art performance across a wide range of tasks, from language understanding\nto creative writing, code generation, and beyond [Zhao et al., 2023]. Their widespread deployment\nin applications like ChatGPT [OpenAI, a] and other conversational agents [Zheng et al., 2023,\nZhang et al., 2024a,b] has made them a cornerstone of modern NLP systems. However, the superior\nperformance of these models often comes with substantial computational costs, driven by their\nlarge sizes and auto-regressive text generation, making their deployment a challenge for both\n∗Work performed during internship at Microsoft.\n†Corresponding author dujian.ding@gmail.com.\n‡Work performed while at Microsoft.\n1\n\n--- Page 2 ---\nBEST-Route Multi-Head Router\n1. Match Probability Prediction\nLLMs\n2. Best-of-N Sampling\nQuery q\nSelected\nLLM\nQuery q $ $$ $$$\nN=1\nN=2\nBest Response\n... ... ... ... N=N\nSelect the optimal\nLLM and Best-of-N\ncombination\n...\nResponse 1 Response N\nN Responses\nProxy RM\nBest Response\nQuery q\n3. Score each response\nusing proxy reward model\nand return the best.\nFigure 1: System overview of BEST-Route: Best-of-n Enhanced Sampling and Test-time Route\nOptimization.\ndevelopers and us",
+      "total_chars": 59820,
+      "start_offset": 0,
+      "expanded_chars": 3000,
+      "page": null,
+      "expanded": true,
+      "truncated": true
+    },
+    "inputs": {
+      "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "query": "phân điều trích",
+      "max_chars": 3000
+    },
+    "provenance": {
+      "operation_name": "expand_document_context",
+      "owner_turn_id": "turn-1",
+      "execution_id": "exec-a52cc086abb7"
+    },
+    "title": "Expand the reading window of an indexed document to capture surrounding context around a target excerpt, page or offset",
+    "status": "ready",
+    "created_at": 1792942325.536885
+  }
+]

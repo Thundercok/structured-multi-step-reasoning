@@ -259,4 +259,44 @@ def test_permutation_replay_preserves_monotonicity(mock_pool):
     assert diff_tok <= 4.0 * se_mc_tok, f"|diff_tok| {diff_tok:.3f} exceeds 4*SE_MC {4.0 * se_mc_tok:.3f}"
 
 
+def test_load_question_pools_from_run11(tmp_path):
+    """Test loader parses real or synthetic run11 trace correctly."""
+    from experiments.offline_stopping_study import load_question_pools_from_run11
+
+    # Test on real trace if present
+    trace_file = "audit/run11_sweep_trace.jsonl"
+    pools = load_question_pools_from_run11(trace_file)
+    assert len(pools) == 100
+    for p in pools:
+        assert len(p.samples) == 5
+        assert p.gold != ""
+        assert all(s.tokens > 0 for s in p.samples)
+
+
+def test_run_offline_stopping_study_smoke(tmp_path):
+    """Smoke test for complete study runner exporting table and plot."""
+    from experiments.offline_stopping_study import run_offline_stopping_study
+
+    out_dir = str(tmp_path / "study_smoke")
+    df, pareto, report = run_offline_stopping_study(
+        trace_path="audit/run11_sweep_trace.jsonl",
+        output_dir=out_dir,
+        n_perms=2,  # Quick 2 perms for test speed
+        seed=7,
+    )
+    assert not df.empty
+    assert "is_pareto" in df.columns
+    assert (tmp_path / "study_smoke" / "results.json").exists()
+    assert (tmp_path / "study_smoke" / "stopping_pareto_curve.png").exists()
+    assert (tmp_path / "study_smoke" / "README.md").exists()
+    import json
+    metadata = json.loads((tmp_path / "study_smoke" / "metadata.json").read_text())
+    assert metadata["seed"] == 7 and metadata["held_out"] is False
+    assert metadata["cost_scope"] == "equal_share_imputed_completion_token_proxy"
+    assert metadata["per_candidate_tokens_observed"] is False
+    assert "seed 7" in report and "seed ngẫu nhiên 42" not in report
+    assert "0.4320" not in report.split("## Phạm vi diễn giải")[1]
+
+
+
 

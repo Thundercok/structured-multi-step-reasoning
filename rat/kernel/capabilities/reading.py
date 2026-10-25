@@ -5,6 +5,26 @@ from rat.engine.verification import ReadingVerifier
 from rat.kernel.registry import Capability, OperationDefinition
 
 
+def reading_draft_observation_pack(res):
+    """Compact Observation Pack view for reading draft artifacts (SoL-Pi)."""
+    if not isinstance(res, dict):
+        return res
+    cards = res.get("cards", [])
+    card_summaries = [f"{c.get('title')} ({'rev' if c.get('reversed') else 'upright'})" for c in cards if isinstance(c, dict)]
+    markdown = res.get("draft_markdown", "")
+    snippet = markdown[:250].strip() + ("..." if len(markdown) > 250 else "")
+    return {
+        "title": res.get("title"),
+        "query": res.get("query"),
+        "cards_count": len(cards),
+        "cards_summary": card_summaries,
+        "draft_preview": snippet,
+        "verification_status": res.get("verification_status", "UNKNOWN"),
+        "user_edited": res.get("user_edited", False),
+        "status": "raw_reading_draft_saved_in_artifact_store",
+    }
+
+
 def create_reading_capability():
     capability = Capability('reading', 'Bàn xem', 'Chuẩn bị dữ kiện trải bài và hồ sơ lá số; soạn bản luận qua vòng Agent/model.')
     verifier = ReadingVerifier()
@@ -81,6 +101,20 @@ def create_reading_capability():
         if error or not content.strip():
             raise RuntimeError(f"model_generation_failed: {error or 'Model trả về phản hồi rỗng.'}")
 
+        candidate_drafts = context.get("candidate_drafts") or args.get("candidate_drafts")
+        consensus_meta = None
+        v_status = "UNKNOWN"
+        v_scope = "Chưa xác minh nội dung diễn giải (diễn giải mang tính biểu tượng/tham khảo)"
+        if candidate_drafts and isinstance(candidate_drafts, list):
+            c_report = verifier.check_consensus(candidate_drafts)
+            v_status = c_report.status.value
+            v_scope = c_report.scope
+            consensus_meta = {
+                "samples": candidate_drafts,
+                "stop_early": (v_status == "PASS"),
+                "reason": c_report.reason,
+            }
+
         return {
             "title": f"Bản luận: {query[:60]}",
             "query": query,
@@ -91,8 +125,9 @@ def create_reading_capability():
                 {"step": 1, "thought": "Tổng hợp các lá bài và tọa độ hành tinh đã quan sát", "status": "completed"},
                 {"step": 2, "thought": "Soạn bản luận giải thích ý nghĩa biểu tượng theo ngữ cảnh", "status": "completed"},
             ],
-            "verification_status": "UNKNOWN",
-            "verification_scope": "Chưa xác minh nội dung diễn giải (diễn giải mang tính biểu tượng/tham khảo)",
+            "verification_status": v_status,
+            "verification_scope": v_scope,
+            **({"consensus_metadata": consensus_meta} if consensus_meta else {}),
             "user_edited": False,
         }
 
@@ -138,5 +173,6 @@ def create_reading_capability():
                     }},
         handler=synthesize, artifact_kind='reading_draft',
         verifier=verifier,
+        observation_formatter=reading_draft_observation_pack,
     ))
     return capability

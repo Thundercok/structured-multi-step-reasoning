@@ -84,10 +84,20 @@ Harness](https://arxiv.org/pdf/2609.20519). Mục tiêu là giảm chi phí lặ
 context/tool observations trong RAT mà vẫn giữ kết quả, nguồn và trạng thái
 thực thi có thể kiểm tra. Đây là hạ tầng core của cùng hệ RAT–CoT; hiệu quả
 trên RAT/model nhỏ là giả thuyết cần đo, chưa phải kết quả chuyển giao từ paper.
-Ưu tiên sau baseline RAT chạy model thật ổn định và công việc routing/stopping
-hiện tại; chưa triển khai runtime từ việc ghi backlog này.
 
-Thứ tự triển khai:
+**Tiến độ cập nhật (2026-10-25):**
+1. **Giai đoạn 1 — Đo chi phí & Telemetry (Đã hoàn tất)**:
+   - Mở rộng hợp đồng `AgentStep`, `ModelDecision`, `AgentResponse` với `cached_tokens: Optional[int]`, `verifier_duration_ms: float`, `telemetry_breakdown`.
+   - `slm.py` trích xuất `cached_tokens` trung thực (giữ `None` khi backend không trả cache, không gán 0).
+   - Kiểm thử tự động tại `tests/test_smart_notes.py:test_telemetry_tracking_in_runtime`.
+2. **Giai đoạn 2 — Tool Observation Pack (Đã hoàn tất cho Smart Notes, Reading & Documents)**:
+   - Opt-in `enable_observation_pack=True` trong `AssistantRuntime`: nén representation gửi vào prompt context mà không thay đổi raw artifact trong `ArtifactStore`.
+   - `synthesize_smart_note`: Giảm ~83.9% byte representation trong context, giữ trích đoạn key facts & pending action items.
+   - `synthesize_reading_draft`: Giảm ~75% byte representation, tóm lược bài rút và liên kết draft.
+   - `read_document` & `read_book_page`: Giảm ~68.2% byte representation (giữ excerpt head-tail và hướng dẫn dùng `expand_document_context` khi cần đào sâu).
+   - Bằng chứng kiểm thử: 13 bài test pass tại `tests/test_smart_notes.py` và software fixture audit tại `audit/rat_smart_notes_software_20261025/`.
+
+Thứ tự triển khai tiếp theo:
 
 1. **Đo trước khi tối ưu.** Ghi chi phí từng model call và tổng mỗi request:
    input/output tokens, cached input nếu backend cung cấp, số calls và thời

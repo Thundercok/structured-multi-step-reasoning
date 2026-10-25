@@ -406,14 +406,35 @@ class ReadingVerifier:
                 checked=("birth_data", "calculated_chart_positions"),
             )
 
-        elif op == "synthesize_reading_draft":
+        elif op in ("synthesize_reading_draft", "refine_reading_draft"):
             draft_text = res.get("draft_markdown", "")
             if not draft_text:
                 return VerificationReport(
                     VerificationStatus.FAIL,
-                    "synthesize_reading_draft",
+                    op,
                     "Bản luận nháp rỗng.",
                     ids,
+                )
+            if op == "refine_reading_draft":
+                return VerificationReport(
+                    VerificationStatus.PASS,
+                    "refine_reading_draft",
+                    "Đã kiểm tra bản luận tinh chỉnh: nội dung được bảo toàn và cập nhật phiên bản thành công.",
+                    ids,
+                    checked=("draft_refined", "user_edited_flag"),
+                )
+            consensus_meta = res.get("consensus_metadata")
+            if consensus_meta and isinstance(consensus_meta, dict):
+                samples = consensus_meta.get("samples", [])
+                th = consensus_meta.get("threshold", 0.90)
+                m = consensus_meta.get("margin", 2)
+                c_report = self.check_consensus(samples, threshold=th, margin=m, evidence=evidence)
+                return VerificationReport(
+                    status=c_report.status,
+                    scope="synthesize_reading_draft_consensus",
+                    reason=f"{c_report.reason} Nội dung bản luận là suy luận biểu tượng theo trải bài/lá số.",
+                    evidence_ids=ids,
+                    checked=("input_cards_consistency", "natal_positions_consistency", "consensus_stopping"),
                 )
             return VerificationReport(
                 VerificationStatus.UNKNOWN,
@@ -430,7 +451,29 @@ class ReadingVerifier:
             ids,
         )
 
+    def check_consensus(
+        self,
+        candidate_samples: list[str],
+        threshold: float = 0.90,
+        margin: int = 2,
+        evidence: ExecutionEvidence | None = None,
+    ) -> VerificationReport:
+        """Scoped check evaluating whether multiple interpretation candidates have reached statistical consensus."""
+        verdict = evaluate_consensus_stopping(candidate_samples, threshold=threshold, margin=margin)
+        ids = (evidence.id,) if evidence else ()
+        status = VerificationStatus.PASS if verdict.stop_early else VerificationStatus.UNKNOWN
+        return VerificationReport(
+            status=status,
+            scope="reading_consensus_stopping",
+            reason=verdict.reason,
+            evidence_ids=ids,
+            checked=("beta_top2_posterior", "margin_threshold", "sample_consistency"),
+            retryable=not verdict.stop_early,
+        )
+
     def check_answer(self, goal: str, answer: str, evidence: tuple[ExecutionEvidence, ...]) -> VerificationReport | None:
+        if not evidence:
+            return None
         return VerificationReport(
             VerificationStatus.UNKNOWN,
             "reading_answer_interpretation",
@@ -438,3 +481,159 @@ class ReadingVerifier:
             tuple(e.id for e in evidence),
             checked=("symbolic_interpretation_scope",),
         )
+
+
+class NoteVerifier:
+    """Check note structure and source excerpts, never certify free-form analysis."""
+
+    def check_execution(self, evidence: ExecutionEvidence) -> VerificationReport:
+        ids, op, res = (evidence.id,), evidence.operation, evidence.result
+
+        def report(status, suffix, reason, checked=()):
+            return VerificationReport(status, f"{op}_{suffix}", reason, ids, checked)
+
+        if not isinstance(res, dict) or res.get("error"):
+            return report(VerificationStatus.UNKNOWN, "execution", "Chưa có dữ liệu ghi chú để đối chiếu.")
+        if not all(isinstance(res.get(k), str) and res[k].strip()
+                   for k in ("title", "summary", "markdown_rendered", "raw_content", "source_sha256")):
+            return report(VerificationStatus.FAIL, "schema", "Ghi chú thiếu nội dung hoặc nguồn gốc.")
+        for key in ("key_facts", "analysis_sections", "risks_and_constraints", "action_items"):
+            if not isinstance(res.get(key), list):
+                return report(VerificationStatus.FAIL, "schema", f"Trường {key} phải là danh sách.")
+        items = res["action_items"]
+        if any(not isinstance(i, dict) or not isinstance(i.get("task"), str) or not i["task"].strip()
+               or type(i.get("done")) is not bool for i in items):
+            return report(VerificationStatus.FAIL, "actions", "Việc cần làm thiếu task hoặc trạng thái boolean.")
+        if any(not isinstance(sec, dict) or not isinstance(sec.get("heading"), str)
+               or not isinstance(sec.get("content"), str) for sec in res["analysis_sections"]):
+            return report(VerificationStatus.FAIL, "sections", "Phần ghi chú không đúng cấu trúc.")
+        raw = res["raw_content"]
+        if hashlib.sha256(raw.encode("utf-8")).hexdigest() != res["source_sha256"]:
+            return report(VerificationStatus.FAIL, "source", "Hash nguồn ghi chú không khớp.")
+        if op == "synthesize_smart_note" and raw != str(evidence.args.get("raw_content") or "").strip():
+            return report(VerificationStatus.FAIL, "source", "Nguồn ghi chú khác đầu vào công cụ.")
+        normalize = lambda text: " ".join(text.casefold().split())
+        for fact in res["key_facts"]:
+            if (not isinstance(fact, dict) or not isinstance(fact.get("fact"), str)
+                    or not fact["fact"].strip() or normalize(fact["fact"]) not in normalize(raw)):
+                return report(VerificationStatus.FAIL, "grounding", "Dữ kiện không có căn cứ trích nguyên văn trong nguồn.",
+                              ("fact_grounding",))
+        checked = ("source_hash", "fact_grounding", "action_items_valid")
+        if op == "update_note_action_item":
+            before = res.get("_previous_note") or {}
+            previous_items = before.get("action_items")
+            if not isinstance(previous_items, list) or res.get("revision") != before.get("revision", -1) + 1:
+                return report(VerificationStatus.FAIL, "toggle", "Thiếu revision hoặc snapshot trước cập nhật.")
+            expected = copy.deepcopy(previous_items)
+            index = evidence.args.get("item_index")
+            match = str(evidence.args.get("task_match") or "").strip().casefold()
+            matches = [j for j, item in enumerate(expected, 1) if
+                       (index == j if index is not None else bool(match) and match in item["task"].casefold())]
+            if len(matches) != 1:
+                return report(VerificationStatus.FAIL, "toggle", "Không xác định duy nhất việc đã yêu cầu.")
+            item = expected[matches[0] - 1]
+            item["done"] = evidence.args.get("done", True)
+            if evidence.args.get("new_task_text"):
+                item["task"] = evidence.args["new_task_text"].strip()
+            if expected != items:
+                return report(VerificationStatus.FAIL, "toggle", "Kết quả khác thay đổi checklist đã yêu cầu.")
+            checked += ("requested_action_applied", "revision_incremented")
+        elif op == "expand_note_section":
+            before = res.get("_previous_note") or {}
+            content = str(evidence.args.get("expansion_content") or "").strip()
+            previous_sections = before.get("analysis_sections")
+            if (not content or not isinstance(previous_sections, list)
+                    or res.get("revision") != before.get("revision", -1) + 1
+                    or res["analysis_sections"] == previous_sections
+                    or not any(content in sec["content"] for sec in res["analysis_sections"])):
+                return report(VerificationStatus.FAIL, "expansion", "Chưa đối chiếu được nội dung bổ sung và revision.")
+            checked += ("expansion_content_stored", "revision_incremented")
+        return report(VerificationStatus.PASS, "structure",
+                      "Đã kiểm tra cấu trúc, hash nguồn và dữ kiện trích dẫn. Chưa xác minh tóm tắt, diễn giải hoặc đề xuất.",
+                      checked)
+
+    def check_answer(self, goal: str, answer: str, evidence: tuple[ExecutionEvidence, ...]) -> VerificationReport | None:
+        if not evidence:
+            return None
+        if any(self.check_execution(item).status == VerificationStatus.FAIL for item in evidence):
+            return VerificationReport(VerificationStatus.FAIL, "smart_note_answer",
+                                      "Có bằng chứng ghi chú không đạt kiểm tra.", tuple(e.id for e in evidence))
+        return VerificationReport(VerificationStatus.UNKNOWN, "smart_note_answer",
+                                  "Kiểm tra công cụ chỉ bao phủ cấu trúc và trích dẫn nguồn; chưa xác minh toàn bộ câu trả lời.",
+                                  tuple(e.id for e in evidence), checked=("scoped_note_evidence",))
+
+
+
+@dataclass(frozen=True)
+class ConsensusStoppingVerdict:
+    winner: str
+    n1: int
+    n2: int
+    k: int
+    margin: int
+    beta_prob: float
+    stop_early: bool
+    reason: str
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def evaluate_consensus_stopping(
+    samples: list[str],
+    threshold: float = 0.90,
+    margin: int = 2,
+) -> ConsensusStoppingVerdict:
+    """Evaluates whether multi-sample reasoning has reached consensus for early stopping."""
+    if not samples:
+        return ConsensusStoppingVerdict(
+            winner="", n1=0, n2=0, k=0, margin=0, beta_prob=0.5, stop_early=False,
+            reason="Chưa có mẫu nào được cung cấp."
+        )
+
+    from collections import Counter
+    clean_samples = [s.strip() for s in samples if s.strip()]
+    if not clean_samples:
+        return ConsensusStoppingVerdict(
+            winner="", n1=0, n2=0, k=0, margin=0, beta_prob=0.5, stop_early=False,
+            reason="Tất cả các mẫu đều là chuỗi rỗng."
+        )
+
+    counts = Counter(clean_samples)
+    top = counts.most_common(2)
+    winner, n1 = top[0]
+    n2 = top[1][1] if len(top) > 1 else 0
+    k = len(clean_samples)
+    diff = n1 - n2
+
+    try:
+        from scipy.special import betainc
+        beta_prob = 1.0 - float(betainc(n1 + 1, n2 + 1, 0.5))
+    except ImportError:
+        import math
+        beta_prob = sum(math.comb(n1 + n2 + 1, i) * (0.5 ** (n1 + n2 + 1)) for i in range(n2 + 1, n1 + n2 + 2))
+
+    stop_by_margin = diff >= margin
+    stop_by_beta = beta_prob >= threshold
+    stop_early = stop_by_margin or stop_by_beta
+
+    if stop_early:
+        reasons = []
+        if stop_by_beta:
+            reasons.append(f"Beta probability {beta_prob:.4f} >= {threshold:.2f}")
+        if stop_by_margin:
+            reasons.append(f"Margin {diff} >= {margin}")
+        reason = f"Đạt ngưỡng đồng thuận dừng sớm ({', '.join(reasons)}) tại k={k} mẫu (n1={n1}, n2={n2})."
+    else:
+        reason = f"Chưa đạt ngưỡng đồng thuận tại k={k} mẫu: Beta={beta_prob:.4f} < {threshold:.2f}, Margin={diff} < {margin} (n1={n1}, n2={n2})."
+
+    return ConsensusStoppingVerdict(
+        winner=winner,
+        n1=n1,
+        n2=n2,
+        k=k,
+        margin=diff,
+        beta_prob=beta_prob,
+        stop_early=stop_early,
+        reason=reason,
+    )

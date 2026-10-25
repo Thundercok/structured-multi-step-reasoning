@@ -12,15 +12,15 @@
     "service": "Ollama local",
     "live_inference": true,
     "canned_responses": false,
-    "latency_seconds": 74.88
+    "latency_seconds": 23.46
   },
   "ui_iteration": {
-    "build_label": "Build 2026.10.25.25 · Agentic Live",
-    "minor_visible_change": "Build 2026.10.25.25 · Agentic Live + verification status indicator"
+    "build_label": "Build 2026.10.25.26",
+    "minor_visible_change": "Build 2026.10.25.26 + ambient CoT prompts + softened status indicator"
   },
   "conversation": {
     "prompt": "Tóm tắt cơ chế allocation of compute và memory efficient trong BEST-Route bài báo này",
-    "answer_length": 863,
+    "answer_length": 868,
     "verification_status": "UNKNOWN",
     "sources_used": 2
   },
