@@ -105,7 +105,7 @@ Rectangle {
     readonly property bool emptyCancelledAnswer: cancelledAnswer && !(liveSnapshot.answerText || "").trim().length
     readonly property bool hasPagePreview: liveMode && liveSnapshot.view === "page" && !liveSnapshot.busy && !liveSnapshot.errorCode
     readonly property string pagePreviewTitle: "Đang đọc trang " + liveSnapshot.pageLabel
-    readonly property string uiBuildLabel: "Build 2026.10.25.32"
+    readonly property string uiBuildLabel: "Build 2026.10.25.33"
     readonly property string currentWorkspaceMode: liveMode ? (liveSnapshot.workspaceMode || "single") : "single"
     readonly property bool isSideBySidePdfActive: desk.liveMode && desk.expanded && desk.hasWorkbench && desk.liveSnapshot.view === "answer" && Boolean(desk.liveSnapshot.fileName) && (desk.currentWorkspaceMode === "multi" || desk.roomyActive)
     property string readerDisplayMode: "matched"

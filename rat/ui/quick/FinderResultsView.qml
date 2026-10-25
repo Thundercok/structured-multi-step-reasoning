@@ -82,13 +82,26 @@ ColumnLayout {
                             }
                         }
 
+                        Rectangle {
+                            id: selectionAccentBar
+                            visible: hitCard.isSelected
+                            width: 3
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.margins: 4
+                            radius: 1.5
+                            color: desk.accent
+                            z: 2
+                        }
+
                         RowLayout {
                             id: hitRow
                             z: 1
                             anchors.fill: parent
                             anchors.topMargin: 7
                             anchors.bottomMargin: 7
-                            anchors.leftMargin: 10
+                            anchors.leftMargin: hitCard.isSelected ? 13 : 10
                             anchors.rightMargin: 10
                             spacing: 10
 
