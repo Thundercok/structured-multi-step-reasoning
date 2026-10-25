@@ -872,7 +872,7 @@ class AssistantRuntime:
             "apply the latest constraints to the draft; repeating it is not a completed edit. "
             "Create a requested Smart Note artifact with synthesize_smart_note; record_work_note only records session memory. "
             "Prepare structured_note for synthesis in this model loop. Its facts must quote raw_content exactly. "
-            "A checklist task is future work, not permission to execute that task now. "
+            "A checklist task is future work, not permission to execute that task now; include any requested tasks or 'việc cần làm' in raw_content and in structured_note.action_items (with done: false). "
             "When organizing the preceding answer, use it as a draft source and preserve its uncertainty; do not reread the document unless needed."
         )
         chat_history = (history or [])[-12:]

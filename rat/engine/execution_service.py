@@ -261,7 +261,11 @@ class AgentExecutionService:
             if bound_doc:
                 doc_path = bound_doc.get("path") or bound_doc.get("file_path")
 
-        if doc_path:
+        is_tool_or_note_query = any(k in request.query.lower() for k in (
+            "smart note", "tạo note", "tạo ghi chú", "lưu note", "ghi chép", "checklist", "việc cần làm"
+        ))
+
+        if doc_path and not is_tool_or_note_query:
             emit("dispatching", operation_name="read_document", payload={"file_path": doc_path})
             from rat.engine.selected_document_qa import answer_selected_document
 
@@ -311,6 +315,8 @@ class AgentExecutionService:
         # Case D: General multi-step structured reasoning loop
         emit("dispatching", payload={"lane": "assistant"})
         run_ctx = request.assistant_context()
+        if doc_path and "selected_document_path" not in run_ctx:
+            run_ctx["selected_document_path"] = doc_path
         resp = self.runtime.run(
             request.query,
             max_steps=8,

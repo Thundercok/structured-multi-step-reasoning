@@ -162,5 +162,57 @@
   {
     "path": "artifacts/rat_agentic_integrity_20261025/live_04/ui_snapshots.jsonl",
     "sha256": "3921326f6d7d18405faccb2792b9d15d97fb6bc12107d149d91ba17b988fb9f2"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/01_finder_vague_query_accent.png",
+    "sha256": "431c2d6ef2a264acd98fd15a7fa9e3a88a864bdef90ef85d2eb5816f1b47450c"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/02_finder_item_opened_desk.png",
+    "sha256": "5c666012e2383145292c38bf6bd7a8069cefbdda50af0b03b0bac4643cf2e62e"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/03_qa_turn1_answer.png",
+    "sha256": "bd83f1fe4c4ee7ad11285ea0bff643484b2d410ca0a0b9e3f37fafefc15dd75e"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/04_smart_note_single_turn_with_checklist.png",
+    "sha256": "9b8d8d692c7c882dd2437a5bd40b13c35f3f4a66edbb253805255666e4e6bba8"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/artifact_history.json",
+    "sha256": "93ad91ae50fab4016223416beed52c3976f2436b7f8d6dd7f34a71ebc0a6d24c"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/artifacts.json",
+    "sha256": "0ce9aa791ce8af4a019eff1b574e16e61252cafbebc5f6e3d97b4a8864a51787"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/conversation.md",
+    "sha256": "a289953460436e47786517db4f9c7a1922515e0fb959df5e1791996974218474"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/environment.json",
+    "sha256": "9ecbcbf9e3bda2cfe7359b74bcf43e1c45af1ad99f25dc88efab9c160f318d46"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/latest_snapshot.json",
+    "sha256": "958c186b220f2884cbb9c05f56347588472891954c194fe55a7d6f6f67ca32bc"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/model_calls.jsonl",
+    "sha256": "12bfa5cbbc0a149ccdffd0c37c46770d6e6689f82f2e22409410a252b9485f57"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/model_requests.jsonl",
+    "sha256": "87206d9d25228693600365e7a8196cc11f3f3e68c746b04cca7de32bca1c4fb6"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/responses.jsonl",
+    "sha256": "711537abf8a04d4e0599cf4d46a7ac99ab28c6304eebbd515f5972fadc0c3ab7"
+  },
+  {
+    "path": "artifacts/rat_agentic_integrity_20261025/live_05/ui_snapshots.jsonl",
+    "sha256": "367d0eabc0f928267b6b89cb7adc24ce8384d60d3f9eeab7ab80021728e2cf0a"
   }
 ]
