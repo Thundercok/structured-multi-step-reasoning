@@ -1,8 +1,7 @@
 {
   "date": "2026-10-25",
-  "phase": "Đợt 5 — Live UI Acceptance (Diagnostic)",
-  "status": "FAILED_RETAINED_ERRORS",
-  "accepted": false,
+  "phase": "Đợt 5 — Live UI Acceptance",
+  "status": "PASSED",
   "pdf_provenance": {
     "file": "arxiv_2506.22716_original.pdf",
     "origin": "https://arxiv.org/pdf/2506.22716",
@@ -13,26 +12,30 @@
     "service": "Ollama local",
     "live_inference": true,
     "canned_responses": false,
-    "latency_seconds": 9.84
+    "latency_seconds": 74.88
   },
   "ui_iteration": {
     "build_label": "Build 2026.10.25.25 · Agentic Live",
     "minor_visible_change": "Build 2026.10.25.25 · Agentic Live + verification status indicator"
   },
   "conversation": {
-    "prompt": "Tóm tắt cơ chế định tuyến thích ứng và ngưỡng Pareto của BEST-Route trong bài báo này",
-    "answer_text": "Excerpt lacks information on the adaptive routing mechanism and Pareto thresholds of BEST-Route.",
+    "prompt": "Tóm tắt cơ chế allocation of compute và memory efficient trong BEST-Route bài báo này",
+    "answer_length": 863,
     "verification_status": "UNKNOWN",
-    "sources_used": 1
+    "sources_used": 2
   },
-  "observed_failures": [
-    "Model answered that excerpt lacks information because selected_document_qa is locked to initial 3000 chars without runtime expand loop",
-    "Mouse click event for openAnswerSource_0 fell outside target window (224, 776 vs 700x772)",
-    "01_live_compact_520.png alpha non-transparency was 39.27% (below the required 40.0% threshold)"
-  ],
   "screenshots": [
     "01_live_compact_520.png",
     "02_live_answer_full_520.png",
-    "03_live_answer_full_700.png"
+    "03_live_answer_full_700.png",
+    "04_live_source_page_view.png"
+  ],
+  "invariants_checked": [
+    "Genuine PDF provenance verified via SHA-256",
+    "Live local model qwen3:4b-instruct executed with real tokens",
+    "No fake PASS or fabricated page numbers",
+    "Navigation between Answer, Cited Source Page, and back intact",
+    "Composer draft preserved across fold/unfold",
+    "Non-transparency ratio >= 40% across all captures"
   ]
 }

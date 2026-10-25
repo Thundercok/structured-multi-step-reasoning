@@ -172,7 +172,13 @@ class AgentExecutionService:
             if callable(on_progress):
                 on_progress(f"Đang thực hiện thao tác {action_name}…")
 
-            ctx = {**request.assistant_context(), "should_cancel": should_cancel}
+            ctx = {
+                **request.context,
+                **request.assistant_context(),
+                "should_cancel": should_cancel,
+                "runtime": self.runtime,
+                "model_client": getattr(self.runtime, 'document_model_client', None) or getattr(self.runtime, 'model_client', None),
+            }
             dispatch_res = self.runtime.dispatcher.execute_operation(action_name, action_args, context=ctx)
 
             art_id = dispatch_res.artifact.id if dispatch_res.artifact else None

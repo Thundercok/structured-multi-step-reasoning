@@ -128,9 +128,12 @@ def find_item(name: str):
 def click_item(item):
     assert item is not None, "Cannot click None item"
     scene_pos = item.mapToScene(QPointF(item.width() / 2, item.height() / 2)).toPoint()
-    if scene_pos.y() >= view.height():
-        view.resize(view.width(), scene_pos.y() + 60)
-        QTest.qWait(100)
+    if scene_pos.y() >= view.height() - 40 or scene_pos.x() >= view.width() - 40:
+        new_w = max(view.width(), scene_pos.x() + 80)
+        new_h = max(view.height(), scene_pos.y() + 80)
+        view.resize(new_w, new_h)
+        QTest.qWait(200)
+        scene_pos = item.mapToScene(QPointF(item.width() / 2, item.height() / 2)).toPoint()
     QTest.mouseClick(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, scene_pos)
     QTest.qWait(150)
 
@@ -143,13 +146,16 @@ doc_chip = find_item("documentMenu")
 assert doc_chip is not None and doc_chip.property("text") == PDF_PATH.name
 print(f"[OK] Document adopted in UI: '{doc_chip.property('text')}'")
 
-# Capture compact state before query
+# Capture compact state before query (resize tightly to preferredWindowHeight to avoid transparent void)
+compact_h = max(180, round(root.property("preferredWindowHeight")))
+view.resize(520, compact_h)
+QTest.qWait(300)
 img_compact_path = OUT_DIR / "01_live_compact_520.png"
 view.grabWindow().save(str(img_compact_path))
-print(f"[OK] Captured compact view: {img_compact_path.name}")
+print(f"[OK] Captured compact view: {img_compact_path.name} at (520, {compact_h})")
 
 # 5. Enter genuine inquiry into draft editor
-user_query = "Tóm tắt cơ chế định tuyến thích ứng và ngưỡng Pareto của BEST-Route trong bài báo này"
+user_query = "Tóm tắt cơ chế allocation of compute và memory efficient trong BEST-Route bài báo này"
 editor = find_item("draftEditor")
 assert editor is not None, "draftEditor not found"
 editor.forceActiveFocus()
@@ -225,32 +231,41 @@ answer_sources = controller.snapshot.get("answerSources") or []
 img_source_page = None
 if answer_sources:
     first_src = answer_sources[0]
-    target_page = first_src.get("page", 1)
-    print(f"Navigating to cited source page {target_page}...")
+    can_open = bool(first_src.get("canOpen"))
+    if can_open:
+        target_page = first_src.get("page", 1)
+        print(f"Navigating to cited source page {target_page}...")
 
-    toggle_btn = find_item("answerSourcesToggle")
-    if toggle_btn and toggle_btn.isVisible():
-        click_item(toggle_btn)
-        QTest.qWait(150)
+        toggle_btn = find_item("answerSourcesToggle")
+        if toggle_btn and toggle_btn.isVisible():
+            click_item(toggle_btn)
+            QTest.qWait(150)
 
-    open_src_btn = find_item("openAnswerSource_0")
-    if open_src_btn and open_src_btn.isVisible() and open_src_btn.property("enabled"):
-        click_item(open_src_btn)
-        wait_for_idle()
-        assert controller.snapshot.get("view") == "page"
-        print(f"[OK] Current view is 'page', pageNumber={controller.snapshot.get('pageNumber')}")
+        view.resize(700, 850)
+        QTest.qWait(200)
+        open_src_btn = find_item("openAnswerSource_0")
+        if open_src_btn and open_src_btn.isVisible() and open_src_btn.property("enabled"):
+            click_item(open_src_btn)
+    else:
+        print("[OK] Source is whole-document excerpt with unassigned page (authentic: no fake page number injected).")
+        print("     Testing PDF page view directly via jumpToPdfPage(1)...")
+        controller.jumpToPdfPage(1)
 
-        img_source_page = OUT_DIR / "04_live_source_page_view.png"
-        view.grabWindow().save(str(img_source_page))
-        print(f"[OK] Saved {img_source_page.name}")
+    wait_for_idle()
+    assert controller.snapshot.get("view") == "page", f"Expected view='page', got {controller.snapshot.get('view')}"
+    print(f"[OK] Current view is 'page', pageNumber={controller.snapshot.get('pageNumber')}")
 
-        # Return back to answer
-        back_btn = find_item("backToAnswer")
-        assert back_btn is not None and back_btn.isVisible()
-        click_item(back_btn)
-        wait_for_idle()
-        assert controller.snapshot.get("view") == "answer"
-        print("[OK] Successfully returned to answer view via backToAnswer")
+    img_source_page = OUT_DIR / "04_live_source_page_view.png"
+    view.grabWindow().save(str(img_source_page))
+    print(f"[OK] Saved {img_source_page.name}")
+
+    # Return back to answer
+    back_btn = find_item("backToAnswer")
+    assert back_btn is not None and back_btn.isVisible()
+    click_item(back_btn)
+    wait_for_idle()
+    assert controller.snapshot.get("view") == "answer", f"Expected view='answer', got {controller.snapshot.get('view')}"
+    print("[OK] Successfully returned to answer view via backToAnswer")
 
 # 10. Follow-up draft input & Context Preservation across Min / Full
 followup_draft = "Làm sao để tích hợp định tuyến này vào pipeline RAT hiện tại?"

@@ -1,11 +1,17 @@
 """
 rat.timetable.compositor — Calculation Engine for Multi-Member Timetable Merging.
-Calculates availability matrices, extracts Golden Windows, and exports to iCalendar / Chat format.
+Calculates availability matrices, extracts Golden Windows, detects conflicts,
+and exports to iCalendar / Chat format.
+
+Supports both:
+- Period / Shift Mode (Vietnam & East Asian academic systems)
+- Clock / Time-Block Mode (US Universities & continuous time intervals)
 """
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from rat.timetable.model import (
@@ -18,7 +24,11 @@ from rat.timetable.model import (
     MemberSchedule,
     ScheduleConflict,
     ShiftAvailability,
+    minutes_to_time,
+    normalize_day_code,
+    time_to_minutes,
 )
+from rat.timetable.ics import export_to_ics, import_from_ics
 
 
 def availability_to_color(ratio: float) -> Dict[str, str]:
@@ -71,7 +81,7 @@ def degree_to_style(degree_level: str) -> Dict[str, str]:
     """
     Gentle color distinction for undergraduate and master classes.
     """
-    if degree_level.lower() in ("master", "ths", "caohoc", "postgrad"):
+    if degree_level.lower() in ("master", "ths", "caohoc", "postgrad", "grad"):
         return {
             "bg": "#f1ebf8",
             "bg_hover": "#e7def2",
@@ -140,13 +150,14 @@ class TimetableCompositor:
                         busy_sessions = m.is_busy_in_shift(day_code, start_p, end_p)
                         if busy_sessions:
                             for s in busy_sessions:
+                                p_str = f"Tiết {s.start_period}-{s.end_period}" if s.start_period > 0 else s.time_range_str
                                 busy_details.append({
                                     "member": m.name,
                                     "member_id": m.id,
                                     "color": m.color_hex,
                                     "course": s.course_name,
                                     "room": s.room or "Chưa rõ phòng",
-                                    "periods": f"Tiết {s.start_period}-{s.end_period}",
+                                    "periods": p_str,
                                 })
                         else:
                             free_members.append(m.name)
@@ -333,7 +344,7 @@ class TimetableCompositor:
 
     def generate_chat_message(self) -> str:
         """
-        Generates a beautifully formatted, aesthetic Zalo / Messenger announcement message.
+        Generates a beautifully formatted, aesthetic announcement message.
         """
         active = self.active_members
         total = len(active)
@@ -402,34 +413,28 @@ class TimetableCompositor:
 
                 # 2. Text query filter
                 if q:
-                    haystack = f"{s.course_name} {s.room} {s.course_code} {s.lecturer} {s.notes}".lower()
+                    haystack = f"{s.course_name} {s.room} {s.course_code} {s.lecturer} {s.notes} {s.building}".lower()
                     if q not in haystack:
                         continue
 
                 filtered.append(s)
 
-            # Sort ascending by start period
-            filtered.sort(key=lambda s: s.start_period)
+            # Sort ascending by start time / start period
+            filtered.sort(key=lambda s: s.start_minutes)
             unified[day_code] = filtered
 
         return unified
 
     def detect_schedule_conflicts(self, member: MemberSchedule) -> List[ScheduleConflict]:
         """
-        Identifies class session overlaps and tight turnaround warnings between Undergraduate and Master courses.
+        Identifies class session overlaps and tight turnaround warnings.
+        Supports both period overlaps and clock-time overlaps.
         """
         conflicts: List[ScheduleConflict] = []
         weekday_dict = dict([(d[0], d[1]) for d in DAYS])
 
-        def parse_time_to_minutes(hhmm: str) -> int:
-            try:
-                h, m = hhmm.split(":")
-                return int(h) * 60 + int(m)
-            except Exception:
-                return 0
-
         for day_code, day_name in weekday_dict.items():
-            sessions = sorted(member.schedule.get(day_code, []), key=lambda s: s.start_period)
+            sessions = sorted(member.schedule.get(day_code, []), key=lambda s: s.start_minutes)
             n = len(sessions)
             for i in range(n):
                 for j in range(i + 1, n):
@@ -437,30 +442,40 @@ class TimetableCompositor:
                     s2 = sessions[j]
 
                     # Direct Overlap
-                    if s1.overlaps_range(s2.start_period, s2.end_period):
+                    is_overlap = False
+                    if s1.start_period > 0 and s2.start_period > 0:
+                        is_overlap = s1.overlaps_range(s2.start_period, s2.end_period)
+                    else:
+                        is_overlap = s1.overlaps_time(s2.start_minutes, s2.end_minutes)
+
+                    if is_overlap:
+                        p1_str = f"Tiết {s1.start_period}-{s1.end_period}" if s1.start_period > 0 else s1.time_range_str
+                        p2_str = f"Tiết {s2.start_period}-{s2.end_period}" if s2.start_period > 0 else s2.time_range_str
                         conflicts.append(ScheduleConflict(
                             day_code=day_code,
                             day_name=day_name,
                             session_a=s1,
                             session_b=s2,
                             conflict_type="overlap",
-                            message=f"Trùng lịch học {day_name}: [{s1.badge_text}] {s1.course_name} (Tiết {s1.start_period}-{s1.end_period}) trùng với [{s2.badge_text}] {s2.course_name} (Tiết {s2.start_period}-{s2.end_period})!"
+                            message=f"Trùng lịch học {day_name}: [{s1.badge_text}] {s1.course_name} ({p1_str}) trùng với [{s2.badge_text}] {s2.course_name} ({p2_str})!"
                         ))
                     else:
-                        # Tight turnaround check across distinct degree levels
-                        if s1.degree_level != s2.degree_level:
-                            s1_end_t = TDTU_PERIODS.get(s1.end_period, ("00:00", "00:00", "", ""))[1]
-                            s2_start_t = TDTU_PERIODS.get(s2.start_period, ("00:00", "00:00", "", ""))[0]
-                            gap = parse_time_to_minutes(s2_start_t) - parse_time_to_minutes(s1_end_t)
-                            if 0 <= gap <= 15:
-                                conflicts.append(ScheduleConflict(
-                                    day_code=day_code,
-                                    day_name=day_name,
-                                    session_a=s1,
-                                    session_b=s2,
-                                    conflict_type="tight_turnaround",
-                                    message=f"Chuyển ca gấp {day_name} ({gap} phút): [{s1.badge_text}] {s1.course_name} xong lúc {s1_end_t} ➔ [{s2.badge_text}] {s2.course_name} ({s2.room}) vào học lúc {s2_start_t}!"
-                                ))
+                        # Turnaround check
+                        gap = s2.start_minutes - s1.end_minutes
+                        if 0 <= gap <= 15:
+                            # If across distinct degree levels or distinct campus buildings
+                            is_cross_level = (s1.degree_level != s2.degree_level)
+                            is_diff_building = (s1.building and s2.building and s1.building != s2.building)
+                            
+                            c_type = "campus_travel" if is_diff_building else "tight_turnaround"
+                            conflicts.append(ScheduleConflict(
+                                day_code=day_code,
+                                day_name=day_name,
+                                session_a=s1,
+                                session_b=s2,
+                                conflict_type=c_type,
+                                message=f"Chuyển ca gấp {day_name} ({gap} phút): [{s1.badge_text}] {s1.course_name} xong lúc {s1.end_time or minutes_to_time(s1.end_minutes)} ➔ [{s2.badge_text}] {s2.course_name} ({s2.room}) vào học lúc {s2.start_time or minutes_to_time(s2.start_minutes)}!"
+                            ))
 
         return conflicts
 
@@ -488,22 +503,13 @@ class TimetableCompositor:
         now_mins = current_dt.hour * 60 + current_dt.minute
         time_str = current_dt.strftime("%H:%M:%S")
 
-        def parse_time_to_minutes(hhmm: str) -> int:
-            try:
-                h, m = hhmm.split(":")
-                return int(h) * 60 + int(m)
-            except Exception:
-                return 0
-
         day_sessions = member.schedule.get(day_code, [])
-        sorted_sessions = sorted(day_sessions, key=lambda s: s.start_period)
+        sorted_sessions = sorted(day_sessions, key=lambda s: s.start_minutes)
 
         # 1. Check if currently inside any class session
         for s in sorted_sessions:
-            p_start_str = TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
-            p_end_str = TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
-            start_m = parse_time_to_minutes(p_start_str)
-            end_m = parse_time_to_minutes(p_end_str)
+            start_m = s.start_minutes
+            end_m = s.end_minutes
 
             if start_m <= now_mins <= end_m:
                 rem = end_m - now_mins
@@ -523,8 +529,7 @@ class TimetableCompositor:
         # 2. Check upcoming session today
         upcoming: List[Tuple[int, ClassSession]] = []
         for s in sorted_sessions:
-            p_start_str = TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
-            start_m = parse_time_to_minutes(p_start_str)
+            start_m = s.start_minutes
             if start_m > now_mins:
                 upcoming.append((start_m - now_mins, s))
 
@@ -576,7 +581,7 @@ class TimetableCompositor:
             "CALSCALE:GREGORIAN",
             "METHOD:PUBLISH",
             f"X-WR-CALNAME:TKB Hop Nhat - {member.name}",
-            "X-WR-TIMEZONE:Asia/Ho_Chi_Minh",
+            f"X-WR-TIMEZONE:{member.timezone or 'Asia/Ho_Chi_Minh'}",
         ]
 
         now_utc = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -588,8 +593,8 @@ class TimetableCompositor:
 
             for s in sessions:
                 event_idx += 1
-                t_start_str = TDTU_PERIODS.get(s.start_period, ("07:00", "07:00", "", ""))[0]
-                t_end_str = TDTU_PERIODS.get(s.end_period, ("08:00", "08:00", "", ""))[1]
+                t_start_str = s.start_time or (TDTU_PERIODS.get(s.start_period, ("07:00", ""))[0] if s.start_period > 0 else "08:00")
+                t_end_str = s.end_time or (TDTU_PERIODS.get(s.end_period, ("", "08:00"))[1] if s.end_period > 0 else "09:00")
 
                 dt_start = f"{dt_date}T{t_start_str.replace(':', '')}00"
                 dt_end = f"{dt_date}T{t_end_str.replace(':', '')}00"
@@ -601,7 +606,7 @@ class TimetableCompositor:
                 desc_parts = [
                     f"Mon hoc: {s.course_name}",
                     f"Bac dao tao: {'Thac si / Cao hoc' if s.is_master else 'Dai hoc'}",
-                    f"Tiet: {s.start_period} - {s.end_period} ({t_start_str} - {t_end_str})",
+                    f"Thoi gian: {s.time_range_str}",
                 ]
                 if s.course_code:
                     desc_parts.append(f"Ma mon: {s.course_code}")
@@ -609,6 +614,8 @@ class TimetableCompositor:
                     desc_parts.append(f"Giang vien: {s.lecturer}")
                 if s.room:
                     desc_parts.append(f"Phong hoc: {s.room}")
+                if s.building:
+                    desc_parts.append(f"Toa nha: {s.building}")
                 if s.notes:
                     desc_parts.append(f"Ghi chu: {s.notes}")
 
@@ -618,11 +625,11 @@ class TimetableCompositor:
                     "BEGIN:VEVENT",
                     f"UID:rat-tkb-{member.id}-{dt_start}-{event_idx}@rat.local",
                     f"DTSTAMP:{now_utc}",
-                    f"DTSTART;TZID=Asia/Ho_Chi_Minh:{dt_start}",
-                    f"DTEND;TZID=Asia/Ho_Chi_Minh:{dt_end}",
+                    f"DTSTART;TZID={member.timezone or 'Asia/Ho_Chi_Minh'}:{dt_start}",
+                    f"DTEND;TZID={member.timezone or 'Asia/Ho_Chi_Minh'}:{dt_end}",
                     f"SUMMARY:{title}",
                     f"DESCRIPTION:{desc}",
-                    f"LOCATION:{s.room or 'TDTU'}",
+                    f"LOCATION:{s.room or s.building or member.institution}",
                     "STATUS:CONFIRMED",
                     "END:VEVENT",
                 ])
@@ -632,12 +639,13 @@ class TimetableCompositor:
 
     def generate_unified_clipboard_text(self, member: MemberSchedule, filter_level: str = "all") -> str:
         """
-        Formats a comprehensive markdown summary of the member's dual-degree schedule for easy copying.
+        Formats a comprehensive markdown summary of the member's schedule for easy copying.
         """
         lines = [
             f"🎓 **THỜI KHÓA BIỂU HỢP NHẤT — {member.name.upper()}**",
+            f"📌 Cơ sở đào tạo: {member.institution or 'TDTU'}",
             f"📌 Bậc đào tạo: {('Song bằng Đại học & Thạc sĩ' if member.is_dual_degree else 'Đại học')}",
-            f"🆔 MSSV ĐH: {member.mssv or 'N/A'} • Chuyên ngành: {member.major or 'N/A'}",
+            f"🆔 MSSV / ID: {member.mssv or 'N/A'} • Chuyên ngành: {member.major or 'N/A'}",
         ]
         if member.is_dual_degree:
             lines.append(f"🏛️ Học viên ThS: {member.master_mssv or 'N/A'} • Chuyên ngành: {member.master_major or 'N/A'}")
@@ -663,8 +671,9 @@ class TimetableCompositor:
                 lecturer_txt = f" • GV: {s.lecturer}" if s.lecturer else ""
                 code_txt = f"[{s.course_code}] " if s.course_code else ""
                 room_txt = f" (Phòng {s.room})" if s.room else ""
+                p_info = f"Tiết {s.start_period}-{s.end_period} " if s.start_period > 0 else ""
                 lines.append(f"  • {s.badge_text} **{code_txt}{s.course_name}**{room_txt}")
-                lines.append(f"    🕒 Tiết {s.start_period}-{s.end_period} ({s.time_range_str}){lecturer_txt}")
+                lines.append(f"    🕒 {p_info}({s.time_range_str}){lecturer_txt}")
 
         lines.extend([
             "",
@@ -676,7 +685,7 @@ class TimetableCompositor:
 
     def compute_workload_stats(self, member: MemberSchedule) -> Dict[str, Any]:
         """
-        Calculates weekly workload metrics: total periods, undergrad vs master breakdown,
+        Calculates weekly workload metrics: total periods/hours, undergrad vs master breakdown,
         shift distribution (morning, afternoon, evening), and stress level.
         """
         total_periods = 0
@@ -689,16 +698,22 @@ class TimetableCompositor:
         for day_code, _, _ in DAYS:
             sessions = member.schedule.get(day_code, [])
             for s in sessions:
-                periods = s.end_period - s.start_period + 1
+                if s.start_period > 0 and s.end_period > 0:
+                    periods = s.end_period - s.start_period + 1
+                else:
+                    # Clock mode: approximate 50 mins = 1 period
+                    periods = max(1, round(s.duration_minutes / 50))
+                
                 total_periods += periods
                 if s.is_master:
                     ms_periods += periods
                 else:
                     ug_periods += periods
 
-                if s.start_period <= 6:
+                start_min = s.start_minutes
+                if start_min < 720:  # Before 12:00
                     morning_shifts += 1
-                elif s.start_period <= 12:
+                elif start_min < 1080:  # Before 18:00
                     afternoon_shifts += 1
                 else:
                     evening_shifts += 1
@@ -752,21 +767,12 @@ class TimetableCompositor:
         day_code = weekday_map[current_dt.weekday()]
         now_mins = current_dt.hour * 60 + current_dt.minute
 
-        def parse_mins(hhmm: str) -> int:
-            try:
-                h, m = hhmm.split(":")
-                return int(h) * 60 + int(m)
-            except Exception:
-                return 0
-
-        sessions = sorted(member.schedule.get(day_code, []), key=lambda s: s.start_period)
+        sessions = sorted(member.schedule.get(day_code, []), key=lambda s: s.start_minutes)
         agenda = []
 
         for s in sessions:
-            p_start_str = TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
-            p_end_str = TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
-            start_m = parse_mins(p_start_str)
-            end_m = parse_mins(p_end_str)
+            start_m = s.start_minutes
+            end_m = s.end_minutes
 
             if now_mins > end_m:
                 status = "completed"
@@ -791,8 +797,163 @@ class TimetableCompositor:
                 "status": status,
                 "badge": badge,
                 "countdown": countdown_txt,
-                "start_time": p_start_str,
-                "end_time": p_end_str,
+                "start_time": s.start_time or minutes_to_time(start_m),
+                "end_time": s.end_time or minutes_to_time(end_m),
             })
 
         return agenda
+
+    # =========================================================================
+    # UNIVERSAL MULTI-MODE / US & CONTINUOUS CLOCK TIMELINE CAPABILITIES
+    # =========================================================================
+
+    def find_free_slots_clock(
+        self,
+        day_code: str,
+        min_minutes: int = 60,
+        day_start_time: str = "08:00",
+        day_end_time: str = "21:00",
+        member_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Finds continuous free time blocks on a clock timeline (e.g. 08:00 to 21:00).
+        If member_id is None, finds slots where ALL active members are free.
+        """
+        norm_day = normalize_day_code(day_code)
+        active = [m for m in self.active_members if (member_id is None or m.id == member_id)]
+        if not active:
+            return []
+
+        day_start_m = time_to_minutes(day_start_time)
+        day_end_m = time_to_minutes(day_end_time)
+
+        # Collect all busy intervals across target members
+        busy_intervals: List[Tuple[int, int]] = []
+        for m in active:
+            for s in m.schedule.get(norm_day, []):
+                s_start = max(day_start_m, s.start_minutes)
+                s_end = min(day_end_m, s.end_minutes)
+                if s_start < s_end:
+                    busy_intervals.append((s_start, s_end))
+
+        # Merge overlapping busy intervals
+        busy_intervals.sort(key=lambda x: x[0])
+        merged_busy: List[Tuple[int, int]] = []
+        for start, end in busy_intervals:
+            if not merged_busy or merged_busy[-1][1] < start:
+                merged_busy.append((start, end))
+            else:
+                merged_busy[-1] = (merged_busy[-1][0], max(merged_busy[-1][1], end))
+
+        # Find gaps between merged busy intervals
+        free_slots: List[Dict[str, Any]] = []
+        curr = day_start_m
+
+        for b_start, b_end in merged_busy:
+            gap = b_start - curr
+            if gap >= min_minutes:
+                free_slots.append({
+                    "day_code": norm_day,
+                    "start_time": minutes_to_time(curr),
+                    "end_time": minutes_to_time(b_start),
+                    "duration_minutes": gap,
+                    "description": f"Trống {gap} phút ({minutes_to_time(curr)} - {minutes_to_time(b_start)})",
+                })
+            curr = max(curr, b_end)
+
+        if (day_end_m - curr) >= min_minutes:
+            gap = day_end_m - curr
+            free_slots.append({
+                "day_code": norm_day,
+                "start_time": minutes_to_time(curr),
+                "end_time": minutes_to_time(day_end_m),
+                "duration_minutes": gap,
+                "description": f"Trống {gap} phút ({minutes_to_time(curr)} - {minutes_to_time(day_end_m)})",
+            })
+
+        return free_slots
+
+    def auto_arrange_event(
+        self,
+        title: str,
+        duration_minutes: int,
+        target_day: str = "T2",
+        preferred_window: str = "afternoon",  # "morning" (08:00-12:00) | "afternoon" (13:00-18:00) | "evening" (18:00-21:00) | "any"
+        member_id: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Auto-arranges a new study block, group meeting, or project session in an optimal free window.
+        """
+        window_bounds = {
+            "morning": ("08:00", "12:00"),
+            "afternoon": ("13:00", "18:00"),
+            "evening": ("18:00", "21:30"),
+            "any": ("08:00", "21:30"),
+        }
+        w_start, w_end = window_bounds.get(preferred_window, ("08:00", "21:30"))
+        slots = self.find_free_slots_clock(
+            day_code=target_day,
+            min_minutes=duration_minutes,
+            day_start_time=w_start,
+            day_end_time=w_end,
+            member_id=member_id
+        )
+
+        if not slots and preferred_window != "any":
+            # Fallback to any window
+            slots = self.find_free_slots_clock(
+                day_code=target_day,
+                min_minutes=duration_minutes,
+                day_start_time="08:00",
+                day_end_time="21:30",
+                member_id=member_id
+            )
+
+        if not slots:
+            return None
+
+        # Pick the first suitable slot
+        best = slots[0]
+        start_min = time_to_minutes(best["start_time"])
+        end_min = start_min + duration_minutes
+
+        return {
+            "title": title,
+            "day": normalize_day_code(target_day),
+            "start_time": minutes_to_time(start_min),
+            "end_time": minutes_to_time(end_min),
+            "duration_minutes": duration_minutes,
+            "original_free_slot": best,
+            "success": True,
+            "recommendation": f"Sắp xếp thành công '{title}' vào {best['day_code']} ({minutes_to_time(start_min)} - {minutes_to_time(end_min)})",
+        }
+
+    def import_schedule_from_ics(self, ics_text: str, member_id: str, member_name: str) -> MemberSchedule:
+        """Imports an iCalendar file (.ics) and returns a MemberSchedule."""
+        sessions = import_from_ics(ics_text)
+        sched: Dict[str, List[ClassSession]] = {}
+        for s in sessions:
+            if s.day not in sched:
+                sched[s.day] = []
+            sched[s.day].append(s)
+
+        return MemberSchedule(
+            id=member_id,
+            name=member_name,
+            schedule=sched,
+            active=True
+        )
+
+    def export_schedule_to_ics(self, member: MemberSchedule) -> str:
+        """Exports member schedule using the universal RFC 5545 exporter."""
+        all_sessions = []
+        for day, sessions in member.schedule.items():
+            for s in sessions:
+                if not s.day:
+                    s.day = day
+                all_sessions.append(s)
+        return export_to_ics(
+            sessions=all_sessions,
+            calendar_name=f"Schedule - {member.name}",
+            timezone=member.timezone or "Asia/Ho_Chi_Minh"
+        )

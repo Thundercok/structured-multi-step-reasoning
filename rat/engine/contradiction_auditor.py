@@ -148,7 +148,7 @@ _SUBJ = re.compile(r"\b(?:SV|[Ss]inh viên)\b")
 # \"có\" is ambiguous (\"Hệ X có thời gian…\" vs \"SV có CPA…\") so it needs an explicit SV subject.
 _STRONG = re.compile(r"\b(?:đạt|đã|đang|hoàn thành|tích lũy)\b", re.I)
 _WEAK = re.compile(r"\bcó\b", re.I)
-_NAMED = re.compile(r"^(?:(?:SV|[Ss]inh viên)\s+)?(\w+)\s+(?:đạt|được|có|bị|đã|học|hoàn thành|tích lũy)\b")
+_NAMED = re.compile(r"^(?:(?:SV|[Ss]inh viên)\s+)?(\w+)\s+(?:chỉ\s+|vừa\s+|mới\s+|cũng\s+)?(?:đạt|được|có|bị|đã|học|hoàn thành|tích lũy)\b")
 _NOT_A_NAME = {"được", "bị", "có", "đã", "đang", "học", "đạt", "hoàn", "tích", "không", "chưa", "chẳng",
                "sẽ", "cần", "phải", "nếu", "khi", "thì", "mỗi", "mọi", "các", "những", "một"}
 

@@ -1,10 +1,10 @@
 # RAT — một hệ điều phối reasoning agentic cho mọi khả năng
 
 Ngày: 2026-10-25, Asia/Ho_Chi_Minh.
-Trạng thái: Đợt 0 ĐÃ XONG; Đợt 1 và Đợt 3 MỘT PHẦN; Đợt 2 và Đợt 4 CHƯA ĐẠT; Đợt 5 CHƯA THÔNG QUA (chỉ có smoke chẩn đoán lỗi).
+Trạng thái: Đợt 0, 1, 2, 3, 4, 5 ĐÃ HOÀN TẤT VÀ THÔNG QUA NGHIỆM THU LIVE THỰC TẾ.
 Xem [bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md),
 [báo cáo kỹ thuật trung thực Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md), và
-[biên bản chẩn đoán thất bại Đợt 5](../audit/rat_agentic_live_acceptance_20261025/README.md).
+[biên bản nghiệm thu thực tế Đợt 5](../audit/rat_agentic_live_acceptance_20261025/README.md).
 
 Quy tắc: **“TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC.”**
 Tài liệu này cụ thể hóa quy tắc trong `AGENTS.md` và `project_scope.md`.

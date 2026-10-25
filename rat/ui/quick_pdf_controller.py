@@ -877,25 +877,37 @@ class QuickPDFController(QObject):
                 ext = (s.get("extendedSnippet") or "").strip()
                 if ext and len(ext) > len((s.get("snippet") or "").strip()):
                     return ext
-                # Invoke registered expand_document_context operation via dispatcher
+                # Invoke registered expand_document_context operation via AgentExecutionService
                 file_path = s.get("path") or (str(self._selection.path) if self._selection else "")
                 if file_path and getattr(self, "assistant_runtime", None) is not None:
-                    disp = getattr(self.assistant_runtime, "dispatcher", None)
-                    if disp is not None:
-                        try:
-                            ctx = {"selected_document_path": file_path}
-                            dispatch_res = disp.execute_operation("expand_document_context", {
-                                "file_path": file_path,
-                                "target_excerpt": s.get("snippet", ""),
-                                "page": s.get("page"),
-                                "max_chars": 2000,
-                            }, context=ctx)
-                            if dispatch_res.status == "success" and isinstance(dispatch_res.result, dict):
-                                res = dispatch_res.result
-                                if res.get("found"):
-                                    return str(res.get("content", ""))
-                        except Exception:
-                            pass
+                    try:
+                        from rat.engine.execution import ExecutionRequest
+                        from rat.engine.execution_service import AgentExecutionService
+
+                        req = ExecutionRequest(
+                            "Mở rộng ngữ cảnh đoạn trích",
+                            execution_id=f"expand-{uuid4().hex[:12]}",
+                            origin="ui_action",
+                            requested_action={
+                                "name": "expand_document_context",
+                                "args": {
+                                    "file_path": file_path,
+                                    "target_excerpt": s.get("snippet", ""),
+                                    "page": s.get("page"),
+                                    "max_chars": 2000,
+                                },
+                            },
+                            context={"selected_document_path": file_path},
+                        )
+                        service = AgentExecutionService(self.assistant_runtime)
+                        resp = service.execute(req)
+                        if not resp.error and resp.artifacts:
+                            art = resp.artifacts[0]
+                            res = art.payload
+                            if isinstance(res, dict) and res.get("found"):
+                                return str(res.get("content", ""))
+                    except Exception:
+                        pass
                 page = s.get("page")
                 if page and self._selection:
                     data = read_selected_page(self._selection, page)
@@ -1030,6 +1042,19 @@ class QuickPDFController(QObject):
                 "provenance": {"name": src.get("name", "")},
             })
 
+        resource_bindings = []
+        if self._selection is not None and getattr(self._selection, "path", None) and self._selection.path.is_file():
+            try:
+                doc_sha = hashlib.sha256(self._selection.path.read_bytes()).hexdigest()
+                resource_bindings.append({
+                    "kind": "document",
+                    "path": str(self._selection.path),
+                    "file_path": str(self._selection.path),
+                    "sha256": doc_sha,
+                })
+            except Exception:
+                pass
+
         request = ExecutionRequest(
             q,
             execution_id=execution_id,
@@ -1038,6 +1063,7 @@ class QuickPDFController(QObject):
             lane=lane,
             origin=origin,
             document_path=str(self._selection.path) if self._selection is not None else None,
+            resource_bindings=resource_bindings,
             context={
                 "history": history_messages,
                 "turn_references": turn_references,
@@ -1481,6 +1507,47 @@ class QuickPDFController(QObject):
         return accepted
 
     def _open_application(self, path: Path) -> bool:
+        # Route through unified AgentExecutionService to enforce application_launch contract,
+        # verification, and execution journal recording.
+        if getattr(self, "assistant_runtime", None) is not None:
+            try:
+                from rat.engine.execution import ExecutionRequest
+                from rat.engine.execution_service import AgentExecutionService
+
+                def _ui_launcher(app):
+                    opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
+                    return bool(opener(QUrl.fromLocalFile(app.path)))
+
+                req = ExecutionRequest(
+                    f"Mở ứng dụng {path.stem}",
+                    execution_id=f"app-{uuid4().hex[:12]}",
+                    origin="ui_action",
+                    requested_action={
+                        "name": "open_application",
+                        "args": {"path": str(path)},
+                    },
+                    context={
+                        "catalog": self._finder_catalog,
+                        "app_launcher": _ui_launcher,
+                    },
+                )
+                service = AgentExecutionService(self.assistant_runtime)
+                resp = service.execute(req)
+                if not resp.error and resp.artifacts:
+                    art = resp.artifacts[0]
+                    p_data = art.payload
+                    self._launch_feedback = f"{p_data.get('name', path.stem)} · {p_data.get('status_label', 'Đã gửi yêu cầu mở ứng dụng tới macOS')}"
+                    self._launch_feedback_error = False
+                    self.changed.emit()
+                    return True
+                else:
+                    self._launch_feedback = resp.error or f"Không thể mở {path.stem}: ứng dụng đã bị gỡ hoặc bản cài không còn hợp lệ."
+                    self._launch_feedback_error = True
+                    self.changed.emit()
+                    return False
+            except Exception as exc:
+                logger.debug(f"Direct open_application fallback: {exc}")
+
         # Recheck the selected installation immediately before handing it to OS.
         expected = next((a for a in (self._finder_catalog.applications if self._finder_catalog else ())
                          if a.path == str(path.absolute())), None)
@@ -1605,23 +1672,35 @@ class QuickPDFController(QObject):
         return True
 
     def _execute_reading_tool(self, name, args, *, selected_path=None, extra_context=None):
-        # Explicit user action is the plan input. Domain execution uses the same
-        # validated operation/artifact/event contract exposed to the Agent.
+        # Explicit user action is the plan input. Domain execution uses the unified
+        # AgentExecutionService with envelope validation and journal lifecycle.
+        from rat.engine.execution import ExecutionRequest
+        from rat.engine.execution_service import AgentExecutionService
+
+        exec_id = 'reading-' + uuid4().hex
         ctx = {
             'selected_document_path': selected_path,
-            'execution_id': 'reading-' + uuid4().hex,
-            'reading_cards': self._reading_cards,
-            'reading_chart': self._reading_chart,
-            'context_notes': self._saved_draft,
-            'runtime': self.assistant_runtime,
-            'model_client': getattr(self.assistant_runtime, 'document_model_client', None) or getattr(self.assistant_runtime, 'model_client', None),
+            'reading_cards': list(self._reading_cards),
+            'reading_chart': copy.deepcopy(self._reading_chart) if self._reading_chart else None,
+            'context_notes': str(self._saved_draft or ""),
         }
         if extra_context:
-            ctx.update(extra_context)
-        result = self.assistant_runtime.dispatcher.execute_operation(name, args, context=ctx)
-        if result.status != 'success' or result.artifact is None:
-            raise ValueError(result.error or 'Chưa chuẩn bị được dữ liệu phiên xem.')
-        artifact = result.artifact
+            for k, v in extra_context.items():
+                if k not in ("runtime", "model_client", "db"):
+                    ctx[k] = v
+
+        req = ExecutionRequest(
+            f"Thực thi {name}",
+            execution_id=exec_id,
+            origin="ui_action",
+            requested_action={"name": name, "args": args},
+            context=ctx,
+        )
+        service = AgentExecutionService(self.assistant_runtime)
+        resp = service.execute(req)
+        if resp.error or not resp.artifacts:
+            raise ValueError(resp.error or 'Chưa chuẩn bị được dữ liệu phiên xem.')
+        artifact = resp.artifacts[0]
         self._reading_result_refs[name] = {'artifact_id': artifact.id, 'revision': artifact.revision}
         return artifact.payload
 
@@ -1763,7 +1842,7 @@ class QuickPDFController(QObject):
                 self._expanded = True
                 self._status = f"Chuột đang đọc {p.name} và phân tích câu hỏi…"
                 self.changed.emit()
-                return self.submit(clean_terms)
+                return self.submit(clean_terms, origin="ui_action")
             else:
                 self.selectFile(str(p), auto_read=is_pdf)
                 self._finder_hits = []

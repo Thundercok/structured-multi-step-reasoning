@@ -7,6 +7,7 @@ and distinguishes OS launch acceptance from in-app/in-game login state.
 """
 from __future__ import annotations
 
+from pathlib import Path
 import subprocess
 import sys
 from typing import Any, Callable, Dict, Optional
@@ -102,12 +103,19 @@ def create_applications_capability(
 
         target_app: Optional[Application] = None
         if resource_id or path_arg:
-            matches = [
-                a
-                for a in cat.applications
-                if (resource_id and a.resource_id == resource_id)
-                or (path_arg and a.path == path_arg)
-            ]
+            matches = []
+            for a in cat.applications:
+                if resource_id and a.resource_id == resource_id:
+                    matches.append(a)
+                elif path_arg:
+                    if a.path == path_arg:
+                        matches.append(a)
+                    else:
+                        try:
+                            if Path(a.path).resolve() == Path(path_arg).resolve():
+                                matches.append(a)
+                        except Exception:
+                            pass
             if not matches:
                 raise ValueError("Ứng dụng được chọn không nằm trong danh mục .app đã xác thực.")
             if len(matches) > 1:

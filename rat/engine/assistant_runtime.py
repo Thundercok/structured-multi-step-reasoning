@@ -390,8 +390,8 @@ class AssistantRuntime:
             if live_or_upcoming:
                 s = live_or_upcoming[0]["session"]
                 st = live_or_upcoming[0]["status"]
-                p_start = TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
-                p_end = TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
+                p_start = s.start_time or TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
+                p_end = s.end_time or TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
                 return [{
                     "course_name": s.course_name,
                     "course_code": s.course_code,
@@ -450,8 +450,8 @@ class AssistantRuntime:
         now_mins = now.hour * 60 + now.minute
 
         for s in raw_sessions:
-            p_start = TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
-            p_end = TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
+            p_start = s.start_time or TDTU_PERIODS.get(s.start_period, ("00:00", "00:00", "", ""))[0]
+            p_end = s.end_time or TDTU_PERIODS.get(s.end_period, ("23:59", "23:59", "", ""))[1]
 
             status = "scheduled"
             if is_today:
