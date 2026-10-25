@@ -164,3 +164,29 @@ def test_read_success_does_not_certify_answer_or_invent_page(env, answer):
     assert all(not source.get('page') and not source.get('page_num') for source in response.sources)
     assert any(r.operation_name == 'read_document' and r.committed
                for r in response.execution_journal.receipts)
+
+
+def test_agentic_expand_dispatches_when_initial_excerpt_lacks_terms(env):
+    runtime, path, client = env
+    # 3500 chars of introductory padding, followed by the target passage
+    intro = "Phần mở đầu giới thiệu tổng quan không có thuật ngữ chuyên sâu. " * 50
+    target_section = " Cơ chế Pareto Cascade tối ưu hóa chi phí định tuyến thích ứng cho các mô hình ngôn ngữ lớn."
+    path.write_text(intro + target_section, encoding="utf-8")
+
+    client.chat_with_meta.return_value['message']['content'] = "Pareto Cascade tối ưu hóa chi phí bằng định tuyến thích ứng."
+
+    response = answer_selected_document(
+        runtime,
+        "Giải thích cơ chế Pareto Cascade trong văn bản này",
+        str(path),
+        model_client=client,
+    )
+    assert response.error is None
+    # Verify that expand_document_context was dispatched as an agentic step
+    step_tools = [s.tool_name for s in response.steps]
+    assert "read_document" in step_tools
+    assert "expand_document_context" in step_tools
+    # Verify model prompt received the expanded snippet containing the target section
+    called_messages = client.chat_with_meta.call_args.args[0]
+    doc_msg = next(m['content'] for m in called_messages if 'Document excerpt' in m['content'])
+    assert "Pareto Cascade" in doc_msg

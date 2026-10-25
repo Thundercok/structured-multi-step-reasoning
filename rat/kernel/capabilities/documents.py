@@ -136,6 +136,7 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         target_excerpt = args.get("target_excerpt", "")
         page_num = args.get("page")
         offset = args.get("offset")
+        query_term = (args.get("query") or args.get("keyword") or "").strip()
         p = Path(file_path).absolute()
         if not p.is_file():
             return {"found": False, "error": f"Tệp không tồn tại: {file_path}", "file_path": file_path}
@@ -158,6 +159,29 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
                 start_idx = max(0, match_pos - lead)
                 end_idx = min(total_chars, match_pos + len(target_excerpt.strip()) + (max_chars - lead))
                 expanded_snippet = content[start_idx:end_idx].strip()
+            elif query_term:
+                # Case-insensitive term location across document
+                c_lower = content.lower()
+                q_lower = query_term.lower()
+                match_pos = c_lower.find(q_lower)
+                if match_pos == -1:
+                    # Try individual meaningful words (>= 4 chars)
+                    words = [w for w in re.findall(r"[^\W_]+", q_lower) if len(w) >= 4]
+                    for w in words:
+                        pos = c_lower.find(w)
+                        if pos != -1:
+                            match_pos = pos
+                            break
+                if match_pos != -1:
+                    lead = max_chars // 3
+                    start_idx = max(0, match_pos - lead)
+                    end_idx = min(total_chars, start_idx + max_chars)
+                    expanded_snippet = content[start_idx:end_idx].strip()
+                elif offset is not None and 0 <= offset < total_chars:
+                    start_idx = offset
+                    expanded_snippet = content[start_idx:min(total_chars, start_idx + max_chars)].strip()
+                else:
+                    expanded_snippet = content[:max_chars].strip()
             elif offset is not None and 0 <= offset < total_chars:
                 start_idx = offset
                 expanded_snippet = content[start_idx:min(total_chars, start_idx + max_chars)].strip()
@@ -173,6 +197,7 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
                 "expanded_chars": len(expanded_snippet),
                 "page": page_num,
                 "expanded": True,
+                "truncated": bool(total_chars > len(expanded_snippet)),
             }
         except Exception as e:
             return {"found": False, "error": str(e), "file_path": file_path}
@@ -369,6 +394,10 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
                 "target_excerpt": {
                     "type": "string",
                     "description": "Observed excerpt to expand context around.",
+                },
+                "query": {
+                    "type": "string",
+                    "description": "Search keyword or topic query to locate relevant context within document.",
                 },
                 "page": {
                     "type": "integer",

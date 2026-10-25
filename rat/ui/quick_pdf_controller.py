@@ -877,25 +877,25 @@ class QuickPDFController(QObject):
                 ext = (s.get("extendedSnippet") or "").strip()
                 if ext and len(ext) > len((s.get("snippet") or "").strip()):
                     return ext
-                # Invoke registered expand_document_context operation if available
+                # Invoke registered expand_document_context operation via dispatcher
                 file_path = s.get("path") or (str(self._selection.path) if self._selection else "")
                 if file_path and getattr(self, "assistant_runtime", None) is not None:
-                    reg = getattr(self.assistant_runtime, "registry", None)
-                    if reg is not None:
-                        op = reg.get_operation("expand_document_context")
-                        if op is not None:
-                            try:
-                                ctx = {"selected_document_path": file_path}
-                                res = op.handler({
-                                    "file_path": file_path,
-                                    "target_excerpt": s.get("snippet", ""),
-                                    "page": s.get("page"),
-                                    "max_chars": 2000,
-                                }, **ctx)
-                                if isinstance(res, dict) and res.get("found"):
+                    disp = getattr(self.assistant_runtime, "dispatcher", None)
+                    if disp is not None:
+                        try:
+                            ctx = {"selected_document_path": file_path}
+                            dispatch_res = disp.execute_operation("expand_document_context", {
+                                "file_path": file_path,
+                                "target_excerpt": s.get("snippet", ""),
+                                "page": s.get("page"),
+                                "max_chars": 2000,
+                            }, context=ctx)
+                            if dispatch_res.status == "success" and isinstance(dispatch_res.result, dict):
+                                res = dispatch_res.result
+                                if res.get("found"):
                                     return str(res.get("content", ""))
-                            except Exception:
-                                pass
+                        except Exception:
+                            pass
                 page = s.get("page")
                 if page and self._selection:
                     data = read_selected_page(self._selection, page)

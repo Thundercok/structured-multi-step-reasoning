@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 import time
 from urllib.parse import urlparse
 
@@ -92,10 +93,36 @@ def answer_selected_document(runtime, question, file_path, *, model_client=None,
             return ModelDecision('', error='cancelled')
         if calls:
             return ModelDecision('', error='selected_document_call_budget_exhausted')
-        read = next((s for s in reversed(trajectory) if s.tool_name == 'read_document'
-                     and s.tool_args.get('file_path') == path_text), None)
-        data = read.tool_result if read is not None and isinstance(read.tool_result, dict) else {}
-        if read is None or read.error or data.get('found') is not True or data.get('path') != path_text:
+
+        expand_step = next((s for s in reversed(trajectory) if s.tool_name == 'expand_document_context'
+                            and s.tool_args.get('file_path') == path_text), None)
+        read_step = next((s for s in reversed(trajectory) if s.tool_name == 'read_document'
+                          and s.tool_args.get('file_path') == path_text), None)
+
+        if expand_step and isinstance(expand_step.tool_result, dict) and expand_step.tool_result.get('found'):
+            data = dict(expand_step.tool_result)
+            data['path'] = path_text
+        elif read_step and isinstance(read_step.tool_result, dict) and read_step.tool_result.get('found'):
+            data = dict(read_step.tool_result)
+            # If initial excerpt is truncated, check if specific topical keywords are missing.
+            # If missing, dispatch expand_document_context as an agentic subplan before answering.
+            if data.get('truncated') and not expand_step:
+                q_words = [w.lower() for w in re.findall(r"[^\W_]+", goal) if len(w) >= 4]
+                stopwords = {"tóm", "tắt", "cho", "mình", "trong", "bài", "báo", "này", "được", "không", "như", "thế", "nào", "dung", "content", "summary", "summarize", "about", "what", "where", "which"}
+                key_terms = [t for t in q_words if t not in stopwords]
+                content_lower = (data.get('content') or '').lower()
+                missing = [t for t in key_terms if t not in content_lower]
+                if len(missing) >= 2:
+                    search_query = " ".join(missing[:3])
+                    return ModelDecision(
+                        f"Đoạn trích ban đầu thiếu thông tin về '{search_query}'. Đang mở rộng ngữ cảnh qua expand_document_context…",
+                        tool_name="expand_document_context",
+                        tool_args={"file_path": path_text, "query": search_query, "max_chars": MAX_READ_CHARS},
+                    )
+        else:
+            data = {}
+
+        if not data or data.get('path') != path_text:
             return ModelDecision('', error='selected_document_read_failed')
         text = data.get('content', '')
         if not isinstance(text, str) or not text.strip():
@@ -168,20 +195,28 @@ def answer_selected_document(runtime, question, file_path, *, model_client=None,
             ],
         }
 
-    response = runtime.run(question, max_steps=2,
+    response = runtime.run(question, max_steps=4,
         initial_decision=ModelDecision('', tool_name='read_document',
                                       tool_args={'file_path': path_text, 'max_chars': MAX_READ_CHARS}),
         decision_callable=answer, should_cancel=should_cancel, max_verification_repairs=0, **run_context)
-    read_step = next((s for s in response.steps if s.tool_name == 'read_document'), None)
+    read_step = next((s for s in response.steps if s.tool_name in ('expand_document_context', 'read_document')), None)
     for source in response.sources:
         if source.get('path') == path_text:
-            read = next((s for s in response.steps if s.tool_name == 'read_document'
-                         and isinstance(s.tool_result, dict) and s.tool_result.get('found')), None)
-            if read:
-                source['truncated'] = bool(read.tool_result.get('truncated'))
-                source['read_chars'] = len(read.tool_result.get('content', ''))
-                source['total_chars'] = read.tool_result.get('total_chars')
-                content = read.tool_result.get('content', '')
+            exp = next((s for s in response.steps if s.tool_name == 'expand_document_context'
+                        and isinstance(s.tool_result, dict) and s.tool_result.get('found')), None)
+            rd = next((s for s in response.steps if s.tool_name == 'read_document'
+                       and isinstance(s.tool_result, dict) and s.tool_result.get('found')), None)
+            active_step = exp or rd
+            if active_step:
+                source['truncated'] = bool(active_step.tool_result.get('truncated'))
+                source['read_chars'] = len(active_step.tool_result.get('content', ''))
+                source['total_chars'] = active_step.tool_result.get('total_chars')
+                if active_step.tool_result.get('page'):
+                    source['page'] = active_step.tool_result.get('page')
+                content = active_step.tool_result.get('content', '')
+                if not source.get('excerpt'):
+                    source['excerpt'] = content[:600]
+                source['full_excerpt'] = content[:2000]
                 if not source.get('excerpt'):
                     source['excerpt'] = content[:600]
                 source['full_excerpt'] = content[:2000]
