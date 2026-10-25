@@ -476,6 +476,7 @@ class QuickPDFController(QObject):
             "finderQuery": self._finder_query,
             "finderFeedback": self._finder_feedback,
             "readingSession": self._reading_coordinator.snapshot_data,
+            "activeNote": self._reading_coordinator.active_note,
             "installedApps": list(self._cached_apps_list),
             "isAppsView": (view == "apps"),
             "savedDraft": self._saved_draft,
@@ -1646,6 +1647,39 @@ class QuickPDFController(QObject):
     @pyqtSlot(str, result=bool)
     def saveReadingDraft(self, text: str) -> bool:
         return self._reading_coordinator.save_draft(text)
+
+    @pyqtSlot(str, str, str, result=str)
+    @pyqtSlot(str, str, result=str)
+    @pyqtSlot(str, result=str)
+    def synthesizeSmartNote(self, raw_content: str, domain: str = "auto", title: str = "") -> str:
+        return self._reading_coordinator.synthesize_smart_note(raw_content, domain, title)
+
+    @pyqtSlot(result=str)
+    @pyqtSlot(str, result=str)
+    def synthesizeNoteFromReadingDraft(self, domain: str = "decision") -> str:
+        return self._reading_coordinator.synthesize_from_current_draft(domain=domain)
+
+    @pyqtSlot(str, str, bool, result=bool)
+    @pyqtSlot(str, bool, result=bool)
+    def updateNoteActionItem(self, artifact_id_or_match: str, task_match_or_done: Any = True, done: bool = True) -> bool:
+        if isinstance(task_match_or_done, bool):
+            return self._reading_coordinator.update_note_action_item(task_match=artifact_id_or_match, done=task_match_or_done)
+        return self._reading_coordinator.update_note_action_item(artifact_id=artifact_id_or_match, task_match=str(task_match_or_done), done=done)
+
+    @pyqtSlot(int, bool, result=bool)
+    @pyqtSlot(str, int, bool, result=bool)
+    def updateNoteActionItemByIndex(self, artifact_id_or_index: Any, item_index_or_done: Any = True, done: bool = True) -> bool:
+        if isinstance(artifact_id_or_index, int):
+            return self._reading_coordinator.update_note_action_item(item_index=artifact_id_or_index, done=bool(item_index_or_done))
+        return self._reading_coordinator.update_note_action_item(artifact_id=str(artifact_id_or_index), item_index=int(item_index_or_done), done=done)
+
+    @pyqtSlot(str, str, str, str, result=bool)
+    @pyqtSlot(str, str, str, result=bool)
+    @pyqtSlot(str, str, result=bool)
+    def expandNoteSection(self, section_or_art: str, heading_or_content: str, query_or_art: str = "", content: str = "") -> bool:
+        if content:
+            return self._reading_coordinator.expand_note_section(section_heading=heading_or_content, expansion_content=content, expansion_query=query_or_art, artifact_id=section_or_art)
+        return self._reading_coordinator.expand_note_section(section_heading=section_or_art, expansion_content=heading_or_content, expansion_query=query_or_art)
 
     @pyqtSlot(str)
     def openPdfHit(self, path: str):

@@ -177,6 +177,7 @@ class AgentExecutionService:
                 **request.assistant_context(),
                 "should_cancel": should_cancel,
                 "runtime": self.runtime,
+                "artifact_store": getattr(self.runtime, "artifact_store", None),
                 "model_client": getattr(self.runtime, 'document_model_client', None) or getattr(self.runtime, 'model_client', None),
             }
             dispatch_res = self.runtime.dispatcher.execute_operation(action_name, action_args, context=ctx)

@@ -281,3 +281,81 @@ def test_adaptive_consensus_stopping_in_reading_verifier_and_runtime():
     assert payload["consensus_metadata"]["stop_early"] is True
     assert "Đạt ngưỡng đồng thuận" in payload["consensus_metadata"]["reason"]
 
+
+def test_quick_pdf_controller_smart_notes_dispatcher_integration(tmp_path):
+    """Verify that Reading Desk and QuickPDFController connect to smart_notes operations via Dispatcher."""
+    from rat.ui.quick_pdf_controller import QuickPDFController
+
+    controller = QuickPDFController(auto_init_finder=False)
+    controller.ready()
+    try:
+        controller.openReadingDesk()
+        assert controller.snapshot["view"] == "reading"
+
+        # 1. Operation 1: synthesize_smart_note via Dispatcher
+        raw_text = (
+            "mua gì tặng bạn gái tôi vào ngày 20/10. "
+            "9 wands, 2 pentacles rev, hierophant rev, the world rev, 10 pentacles rev. "
+            "bạn gái đang stress deadline, đau vai gáy nhiều ngày, nhà đang giục cưới. "
+            "dị ứng mấy món quà hình thức hoa to sáo rỗng. "
+            "tính đi fine dining, làm spa và một night together."
+        )
+        note_id = controller.synthesizeSmartNote(raw_text, "decision", "Ghi chú Quà Tặng 20/10")
+        assert note_id and note_id.startswith("art-")
+
+        # Snapshot projections
+        active_note = controller.snapshot["activeNote"]
+        assert active_note is not None
+        assert active_note["note_id"] == note_id
+        assert active_note["revision"] == 1
+        assert active_note["title"] == "Ghi chú Quà Tặng 20/10"
+        assert len(active_note["action_items"]) >= 1
+
+        reading_note = controller.snapshot["readingSession"]["activeNote"]
+        assert reading_note["note_id"] == note_id
+
+        # Canonical store check
+        art_store = controller.assistant_runtime.artifact_store
+        stored_art = art_store.get(note_id)
+        assert stored_art is not None
+        assert stored_art.revision == 1
+
+        # 2. Operation 2: update_note_action_item via Dispatcher
+        ok_update = controller.updateNoteActionItem(note_id, "spa", True)
+        assert ok_update is True
+
+        updated_note = controller.snapshot["activeNote"]
+        assert updated_note["revision"] == 2
+        spa_item = next(item for item in updated_note["action_items"] if "spa" in item["task"].lower())
+        assert spa_item["done"] is True
+
+        # Canonical store revision check
+        stored_art_rev2 = art_store.get(note_id)
+        assert stored_art_rev2.revision == 2
+
+        # 3. Operation 3: expand_note_section via Dispatcher
+        ok_expand = controller.expandNoteSection(
+            note_id,
+            "Phân tích",
+            "Nghiên cứu thêm về bẫy gò bó của Fine Dining",
+            "Phân tích bổ sung: Fine dining gây áp lực ngồi giữ kẽ 2 tiếng, không hợp bạn gái đang mệt mỏi.",
+        )
+        assert ok_expand is True
+
+        expanded_note = controller.snapshot["activeNote"]
+        assert expanded_note["revision"] == 3
+        assert "fine dining" in expanded_note["markdown_rendered"].lower()
+        stored_art_rev3 = art_store.get(note_id)
+        assert stored_art_rev3.revision == 3
+
+        # 4. Synthesize note from reading cards / draft
+        controller.setReadingCards("4 pent, world rev")
+        draft_note_id = controller.synthesizeNoteFromReadingDraft("decision")
+        assert draft_note_id and draft_note_id.startswith("art-")
+        assert controller.snapshot["activeNote"]["note_id"] == draft_note_id
+        assert "world" in controller.snapshot["activeNote"]["markdown_rendered"].lower() or "pentacles" in controller.snapshot["activeNote"]["markdown_rendered"].lower()
+
+    finally:
+        controller.close()
+
+

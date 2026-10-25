@@ -225,7 +225,7 @@ def deterministic_note_synthesizer(
     action_items: List[Dict[str, Any]] = []
     for line in re.split(r"[,\n;]+", text):
         s = line.strip()
-        if any(act in s.lower() for act in ("đặt", "mua", "soạn", "làm", "chuẩn bị", "kiểm tra", "tinh chỉnh", "đi", "hẹn", "order")):
+        if any(act in s.lower() for act in ("cần", "đọc", "xem", "đặt", "mua", "soạn", "làm", "chuẩn bị", "kiểm tra", "tinh chỉnh", "đi", "hẹn", "order")):
             action_items.append({"task": s, "done": False})
 
     # 6. Summary Synthesis
@@ -324,7 +324,7 @@ def create_smart_notes_capability(store=None) -> Capability:
         target_art = context.get("target_artifact")
         if target_art is None:
             art_id = args.get("artifact_id")
-            s = context.get("artifact_store") or store
+            s = context.get("artifact_store") or getattr(context.get("runtime"), "artifact_store", None) or store
             if s and art_id:
                 target_art = s.get(art_id)
         if target_art is None:
@@ -374,7 +374,7 @@ def create_smart_notes_capability(store=None) -> Capability:
         target_art = context.get("target_artifact")
         if target_art is None:
             art_id = args.get("artifact_id")
-            s = context.get("artifact_store") or store
+            s = context.get("artifact_store") or getattr(context.get("runtime"), "artifact_store", None) or store
             if s and art_id:
                 target_art = s.get(art_id)
         if target_art is None:

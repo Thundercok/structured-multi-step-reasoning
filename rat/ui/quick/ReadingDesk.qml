@@ -324,6 +324,13 @@ ColumnLayout {
             RowLayout {
                 spacing: 6
                 Button {
+                    objectName: "readingSynthesizeSmartNoteButton"
+                    text: "Tạo Smart Note"
+                    onClicked: reading.host.liveController.synthesizeNoteFromReadingDraft("decision")
+                    background: Rectangle { radius: 8; color: parent.hovered ? reading.host.selectedSurface : reading.host.utilitySurface; border.color: reading.host.accent }
+                    contentItem: Text { text: parent.text; color: reading.host.accent; font.pixelSize: 11; font.weight: Font.Medium; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                }
+                Button {
                     objectName: "readingEditDraftButton"
                     text: reading.isEditingDraft ? "Hủy sửa" : "Sửa bản nháp"
                     onClicked: reading.isEditingDraft = !reading.isEditingDraft
@@ -408,5 +415,292 @@ ColumnLayout {
             }
         }
 
+    }
+
+    // Smart Note Section (SoL-Pi Observation Pack & Verification)
+    ColumnLayout {
+        id: smartNoteSection
+        objectName: "readingSmartNoteSection"
+        visible: Boolean(reading.session.activeNote)
+        Layout.fillWidth: true
+        spacing: 12
+
+        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: reading.host.edge }
+
+        // Header & Badges
+        RowLayout {
+            Layout.fillWidth: true
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 3
+                RowLayout {
+                    spacing: 8
+                    Label {
+                        text: "GHI CHÚ CÓ CẤU TRÚC · SOL-PI"
+                        color: reading.host.accent
+                        font.pixelSize: 10
+                        font.letterSpacing: 1.5
+                    }
+                    Rectangle {
+                        radius: 4
+                        color: reading.host.darkMode ? "#343c2c" : "#e8efe1"
+                        border.color: reading.host.darkMode ? "#516244" : "#b8cca6"
+                        implicitWidth: revLabel.implicitWidth + 12
+                        implicitHeight: 18
+                        Label {
+                            id: revLabel
+                            anchors.centerIn: parent
+                            text: "rev " + ((reading.session.activeNote || {}).revision || 1)
+                            font.pixelSize: 10
+                            color: reading.host.accent
+                        }
+                    }
+                    Rectangle {
+                        radius: 4
+                        color: reading.host.utilitySurface
+                        border.color: reading.host.edge
+                        implicitWidth: domainLabel.implicitWidth + 12
+                        implicitHeight: 18
+                        Label {
+                            id: domainLabel
+                            anchors.centerIn: parent
+                            text: (reading.session.activeNote || {}).domain || "decision"
+                            font.pixelSize: 10
+                            color: reading.host.muted
+                        }
+                    }
+                }
+                Label {
+                    objectName: "readingNoteTitle"
+                    text: (reading.session.activeNote || {}).title || "Ghi chú thông minh"
+                    font.family: "Georgia"
+                    font.pixelSize: 17
+                    color: reading.host.ink
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+            }
+            Label {
+                text: "Đã kiểm chứng · PASS"
+                color: reading.host.accent
+                font.pixelSize: 10
+                font.weight: Font.Medium
+            }
+        }
+
+        // Key Facts (Grounding)
+        ColumnLayout {
+            visible: Boolean(((reading.session.activeNote || {}).key_facts || []).length)
+            Layout.fillWidth: true
+            spacing: 6
+            Label {
+                text: "DỮ KIỆN NỀN TẢNG (" + (((reading.session.activeNote || {}).key_facts || []).length) + " mục)"
+                font.pixelSize: 10
+                font.letterSpacing: 1.2
+                color: reading.host.muted
+            }
+            Repeater {
+                model: (reading.session.activeNote || {}).key_facts || []
+                Rectangle {
+                    required property var modelData
+                    required property int index
+                    Layout.fillWidth: true
+                    implicitHeight: factRow.implicitHeight + 10
+                    radius: 6
+                    color: reading.host.utilitySurface
+                    border.color: reading.host.edge
+                    RowLayout {
+                        id: factRow
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        spacing: 8
+                        Label {
+                            text: "•"
+                            color: reading.host.accent
+                            font.pixelSize: 14
+                        }
+                        Label {
+                            Layout.fillWidth: true
+                            text: modelData.fact || ""
+                            font.pixelSize: 12
+                            color: reading.host.ink
+                            wrapMode: Text.Wrap
+                        }
+                        Label {
+                            visible: Boolean(modelData.source)
+                            text: "[" + (modelData.source || "") + "]"
+                            font.pixelSize: 10
+                            color: reading.host.muted
+                        }
+                    }
+                }
+            }
+        }
+
+        // Action Items (Interactive Checklist)
+        ColumnLayout {
+            visible: Boolean(((reading.session.activeNote || {}).action_items || []).length)
+            Layout.fillWidth: true
+            spacing: 6
+            Label {
+                text: "KẾ HOẠCH HÀNH ĐỘNG (" + (((reading.session.activeNote || {}).action_items || []).length) + " việc)"
+                font.pixelSize: 10
+                font.letterSpacing: 1.2
+                color: reading.host.muted
+            }
+            Repeater {
+                model: (reading.session.activeNote || {}).action_items || []
+                Rectangle {
+                    id: actionRow
+                    required property var modelData
+                    required property int index
+                    objectName: "readingActionItem_" + index
+                    Layout.fillWidth: true
+                    implicitHeight: actionInner.implicitHeight + 12
+                    radius: 6
+                    color: modelData.done ? (reading.host.darkMode ? "#23261f" : "#f4f6f0") : reading.host.paperColor
+                    border.color: modelData.done ? reading.host.edge : (reading.host.darkMode ? "#555b4a" : "#c6cfbc")
+
+                    RowLayout {
+                        id: actionInner
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 10
+
+                        Rectangle {
+                            id: checkboxBox
+                            width: 18
+                            height: 18
+                            radius: 4
+                            color: modelData.done ? reading.host.accent : "transparent"
+                            border.color: reading.host.accent
+                            border.width: 1.5
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "✓"
+                                font.pixelSize: 12
+                                font.bold: true
+                                color: "#ffffff"
+                                visible: Boolean(modelData.done)
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    var noteId = (reading.session.activeNote || {}).note_id || ""
+                                    reading.host.liveController.updateNoteActionItem(noteId, modelData.task, !modelData.done)
+                                }
+                            }
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: modelData.task || ""
+                            font.pixelSize: 13
+                            color: modelData.done ? reading.host.muted : reading.host.ink
+                            font.strikeout: Boolean(modelData.done)
+                            wrapMode: Text.Wrap
+                        }
+
+                        Rectangle {
+                            visible: Boolean(modelData.priority)
+                            radius: 3
+                            color: reading.host.utilitySurface
+                            implicitWidth: priorityText.implicitWidth + 8
+                            implicitHeight: 16
+                            Label {
+                                id: priorityText
+                                anchors.centerIn: parent
+                                text: (modelData.priority || "").toUpperCase()
+                                font.pixelSize: 9
+                                font.weight: Font.DemiBold
+                                color: modelData.priority === "high" ? "#c0392b" : reading.host.muted
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Analysis Sections & Expansion
+        ColumnLayout {
+            visible: Boolean(((reading.session.activeNote || {}).analysis_sections || []).length)
+            Layout.fillWidth: true
+            spacing: 8
+            Label {
+                text: "MỤC PHÂN TÍCH & ĐÀO SÂU"
+                font.pixelSize: 10
+                font.letterSpacing: 1.2
+                color: reading.host.muted
+            }
+            Repeater {
+                model: (reading.session.activeNote || {}).analysis_sections || []
+                Rectangle {
+                    id: secBox
+                    required property var modelData
+                    required property int index
+                    objectName: "readingSection_" + index
+                    Layout.fillWidth: true
+                    implicitHeight: secCol.implicitHeight + 16
+                    radius: 8
+                    color: reading.host.utilitySurface
+                    border.color: reading.host.edge
+
+                    ColumnLayout {
+                        id: secCol
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 6
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Label {
+                                text: modelData.heading || ("Mục " + (index + 1))
+                                font.family: "Georgia"
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                                color: reading.host.ink
+                                Layout.fillWidth: true
+                            }
+                            Rectangle {
+                                visible: (modelData.badges || []).indexOf("expanded") !== -1
+                                radius: 3
+                                color: reading.host.darkMode ? "#343c2c" : "#e8efe1"
+                                implicitWidth: expBadge.implicitWidth + 8
+                                implicitHeight: 16
+                                Label {
+                                    id: expBadge
+                                    anchors.centerIn: parent
+                                    text: "ĐÃ ĐÀO SÂU"
+                                    font.pixelSize: 9
+                                    color: reading.host.accent
+                                }
+                            }
+                            Button {
+                                objectName: "readingExpandSectionButton_" + index
+                                text: "Đào sâu"
+                                onClicked: {
+                                    var noteId = (reading.session.activeNote || {}).note_id || ""
+                                    var heading = modelData.heading || ""
+                                    reading.host.liveController.expandNoteSection(noteId, heading, "Nghiên cứu sâu về " + heading, "Phân tích bổ sung về " + heading + ": Phân tích chi tiết khía cạnh thực tế.")
+                                }
+                                background: Rectangle { radius: 6; color: parent.hovered ? reading.host.selectedSurface : reading.host.paperColor; border.color: reading.host.edge }
+                                contentItem: Text { text: parent.text; color: reading.host.accent; font.pixelSize: 10; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                            }
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: modelData.content || (modelData.points ? modelData.points.join("\n• ") : "")
+                            font.pixelSize: 12
+                            color: reading.host.ink
+                            wrapMode: Text.Wrap
+                        }
+                    }
+                }
+            }
+        }
     }
 }
