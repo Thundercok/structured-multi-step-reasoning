@@ -15,6 +15,7 @@ from dataclasses import asdict, dataclass, replace
 from enum import Enum
 from fractions import Fraction
 from typing import Any, Protocol
+from pathlib import Path
 
 
 class VerificationStatus(str, Enum):
@@ -561,6 +562,54 @@ class NoteVerifier:
         return VerificationReport(VerificationStatus.UNKNOWN, "smart_note_answer",
                                   "Kiểm tra công cụ chỉ bao phủ cấu trúc và trích dẫn nguồn; chưa xác minh toàn bộ câu trả lời.",
                                   tuple(e.id for e in evidence), checked=("scoped_note_evidence",))
+
+
+class FinderVerifier:
+    """Verify progressive finder and application discovery results; never certify non-existent paths."""
+
+    def check_execution(self, evidence: ExecutionEvidence) -> VerificationReport:
+        ids, op, res = (evidence.id,), evidence.operation, evidence.result
+
+        def report(status, suffix, reason, checked=()):
+            return VerificationReport(status, f"{op}_{suffix}", reason, ids, checked)
+
+        if not isinstance(res, dict) or res.get("error"):
+            return report(VerificationStatus.UNKNOWN, "execution", "Chưa có kết quả tìm kiếm để đối chiếu.")
+
+        if "query" not in res or not isinstance(res.get("hits"), list) or "hit_count" not in res:
+            return report(VerificationStatus.FAIL, "schema", "Kết quả tìm kiếm thiếu trường query, hits hoặc hit_count.")
+
+        hits = res["hits"]
+        if len(hits) != res["hit_count"]:
+            return report(VerificationStatus.FAIL, "count", f"hit_count ({res['hit_count']}) không khớp số lượng hits thực tế ({len(hits)}).")
+
+        from rat.engine.app_resolver import revalidate_application_bundle
+
+        for hit in hits:
+            if not isinstance(hit, dict) or "path" not in hit or "kind" not in hit or "title" not in hit:
+                return report(VerificationStatus.FAIL, "hit_schema", "Mỗi kết quả phải có path, kind và title.")
+            p = Path(hit["path"])
+            kind = hit["kind"]
+            if kind == "application":
+                try:
+                    revalidate_application_bundle(p)
+                except Exception as exc:
+                    return report(VerificationStatus.FAIL, "unverified_app", f"Ứng dụng {p.name} không hợp lệ: {exc}", ("bundle_revalidation",))
+            elif kind == "file":
+                if not p.exists() or not p.is_file():
+                    return report(VerificationStatus.FAIL, "missing_file", f"Tệp tin {p.name} không tồn tại trên ổ đĩa.", ("file_existence",))
+            else:
+                return report(VerificationStatus.FAIL, "invalid_kind", f"Loại tài nguyên không hợp lệ: {kind}")
+
+        checked = ("bundle_revalidation", "file_existence", "schema_valid")
+        return report(VerificationStatus.PASS, "grounding", "Toàn bộ tệp và ứng dụng đề xuất đều tồn tại thực tế trên hệ thống.", checked)
+
+    def check_answer(self, goal: str, answer: str, evidence: tuple[ExecutionEvidence, ...]) -> VerificationReport | None:
+        if not evidence:
+            return None
+        if any(self.check_execution(item).status == VerificationStatus.FAIL for item in evidence):
+            return VerificationReport(VerificationStatus.FAIL, "finder_answer", "Có kết quả tìm kiếm chứa đường dẫn không tồn tại.", tuple(e.id for e in evidence))
+        return VerificationReport(VerificationStatus.PASS, "finder_answer", "Tất cả tài nguyên đề xuất trong câu trả lời đều có căn cứ tệp/ứng dụng thực tế.", tuple(e.id for e in evidence), checked=("scoped_finder_evidence",))
 
 
 

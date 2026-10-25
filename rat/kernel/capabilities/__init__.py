@@ -10,6 +10,7 @@ from rat.crawler.db import Database
 from rat.engine.task_state import TASK_STATE_SCHEMA, validate_task_state
 from rat.kernel.capabilities.applications import create_applications_capability
 from rat.kernel.capabilities.documents import create_documents_capability
+from rat.kernel.capabilities.finder import create_finder_capability
 from rat.kernel.capabilities.result_tables import create_result_tables_capability
 from rat.kernel.capabilities.smart_notes import create_smart_notes_capability
 from rat.kernel.capabilities.web import create_web_capability
@@ -37,6 +38,7 @@ def build_core_registry(
     # General Reasoning Desktop Shell Core Capabilities
     registry.register_capability(create_documents_capability(db=db))
     registry.register_capability(create_applications_capability())
+    registry.register_capability(create_finder_capability(db=db))
     registry.register_capability(create_result_tables_capability())
     registry.register_capability(create_smart_notes_capability())
 
@@ -116,6 +118,7 @@ def build_core_registry(
         view_document_file,
         view_document_search,
         view_file_export,
+        view_finder_results,
         view_web_page_snapshot,
     )
     core_factories = {
@@ -127,6 +130,7 @@ def build_core_registry(
         "document_file": view_document_file,
         "web_page_snapshot": view_web_page_snapshot,
         "application_launch": view_application_launch,
+        "finder_results": view_finder_results,
     }
 
     for op in registry.list_operations():

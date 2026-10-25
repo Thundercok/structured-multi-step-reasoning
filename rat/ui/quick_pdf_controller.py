@@ -1681,6 +1681,38 @@ class QuickPDFController(QObject):
             return self._reading_coordinator.expand_note_section(section_heading=heading_or_content, expansion_content=content, expansion_query=query_or_art, artifact_id=section_or_art)
         return self._reading_coordinator.expand_note_section(section_heading=section_or_art, expansion_content=heading_or_content, expansion_query=query_or_art)
 
+    @pyqtSlot(str, str, result=str)
+    @pyqtSlot(str, result=str)
+    def findFileOrApp(self, query: str, resource_kind: str = "any") -> str:
+        """Dispatches find_file_or_app through ActionDispatcher, returning artifact_id."""
+        if not self._runtime or not self._runtime.dispatcher:
+            return ""
+        try:
+            from rat.crawler.db import Database
+            active_db = Database(self._db_path) if self._db_path else None
+            res = self._runtime.dispatcher.execute_operation(
+                "find_file_or_app",
+                {"query": query, "resource_kind": resource_kind},
+                context={
+                    "db": active_db,
+                    "catalog": self._finder_catalog,
+                    "platform": sys.platform,
+                },
+            )
+            if res.status != "success" or not res.artifact:
+                return ""
+            art = res.artifact
+            hits = art.payload.get("hits", [])
+            self._finder_hits = hits
+            self._finder_query = query
+            self._view = "finder"
+            self._status = f"Tìm thấy {len(hits)} gợi ý cho '{query}'"
+            self.snapshotChanged.emit()
+            return art.id
+        except Exception as exc:
+            logger.warning("findFileOrApp dispatch failed: %s", exc)
+            return ""
+
     @pyqtSlot(str)
     def openPdfHit(self, path: str):
         self.openPdfDocument(path)

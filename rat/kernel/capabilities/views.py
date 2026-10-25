@@ -156,3 +156,33 @@ def view_web_page_snapshot(artifact, context) -> ViewSpec:
     ]
     return ViewSpec(1, artifact.id, artifact.revision, title=title, blocks=blocks)
 
+def view_finder_results(artifact, context) -> ViewSpec:
+    data = artifact.payload
+    query = data.get('query', artifact.inputs.get('query', ''))
+    hits = data.get('hits', [])
+    hit_rows = []
+    for h in hits:
+        kind_label = "Ứng dụng" if h.get("kind") == "application" else ("Tài liệu PDF" if h.get("is_pdf") else "Tệp tin")
+        hit_rows.append([kind_label, h.get("title", ""), h.get("snippet", ""), h.get("path", "")])
+    blocks = [
+        ViewBlock(
+            'summary',
+            {
+                'title': f'Truy hồi: {query}',
+                'text': f'Tìm thấy {len(hits)} kết quả đã xác thực trên hệ thống.',
+                'badge': f'{len(hits)} mục',
+            },
+        ),
+        ViewBlock(
+            'table',
+            {
+                'headers': ['Phân loại', 'Tên', 'Mô tả / Trích đoạn', 'Đường dẫn'],
+                'rows': hit_rows,
+                'hits': hits,
+            },
+        ),
+    ]
+    if data.get('clarification_prompt'):
+        blocks.append(ViewBlock('summary', {'title': 'Cần làm rõ', 'text': data['clarification_prompt']}))
+    return ViewSpec(1, artifact.id, artifact.revision, title=f'Truy hồi · {query}', blocks=blocks)
+
