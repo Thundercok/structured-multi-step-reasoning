@@ -260,3 +260,45 @@ def test_view_finder_results_spec(finder_env):
     assert len(view_spec.blocks) >= 2
     assert view_spec.blocks[0].type == "summary"
     assert view_spec.blocks[1].type == "table"
+
+
+def test_assistant_runtime_agent_loop_calls_finder(finder_env):
+    """Verify find_file_or_app is reachable and executable from the Agent loop in AssistantRuntime."""
+    from unittest.mock import patch
+    from rat.engine.assistant_runtime import AssistantRuntime
+
+    db = finder_env["db"]
+    cat = finder_env["catalog"]
+    registry = build_default_registry(db=db)
+    runtime = AssistantRuntime(db=db, registry=registry)
+    runtime.use_live_model = True
+    # inject mock catalog for testing
+    finder_cap = create_finder_capability(db=db, catalog=cat)
+    runtime.registry.get_operation("find_file_or_app").handler = (
+        lambda args, **ctx: finder_cap.operations["find_file_or_app"].handler(args, **{**ctx, "catalog": cat})
+    )
+
+    tool_call = {
+        "function": {
+            "name": "find_file_or_app",
+            "arguments": {"query": "Liên Minh", "resource_kind": "any"},
+        }
+    }
+    replies = [
+        {"message": {"role": "assistant", "content": "", "tool_calls": [tool_call]}, "prompt_tokens": 100, "completion_tokens": 20},
+        {"message": {"role": "assistant", "content": "Tôi đã tìm thấy ứng dụng League of Legends."}, "prompt_tokens": 150, "completion_tokens": 30},
+    ]
+    with patch("rat.engine.slm.slm_engine.chat_with_meta", side_effect=replies):
+        result = runtime.run("Mở hoặc tìm game Liên Minh giúp tôi")
+
+    assert result.error is None
+    assert result.tool_call_count == 1
+    assert "League of Legends" in result.answer
+    # Check verification report
+    assert any(v["status"] == "PASS" and "grounding" in v["scope"] for v in result.steps[0].verification)
+    # Check that artifact is committed to artifact store
+    arts = runtime.artifact_store.find_by_kind("finder_results")
+    assert len(arts) >= 1
+    assert arts[0].payload["query"] == "Liên Minh"
+    assert any(h["title"] == "League of Legends" for h in arts[0].payload["hits"])
+

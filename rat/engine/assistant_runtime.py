@@ -702,11 +702,12 @@ class AssistantRuntime:
                 # retrieval/state support. No user-text feature classifier.
                 selected.update({'search_documents', 'inspect_artifact', 'request_operation_tools'})
                 if self.discover_tools:
-                    # Local document I/O is the companion's fixed core. These
+                    # Local document I/O and Finder are the companion's fixed core. These
                     # schemas are available from the first call, without an
                     # extra discovery round trip or user-text routing.
                     selected.update({'read_document', 'search_book_pages',
-                                     'read_book_page', 'deliver_document', 'synthesize_smart_note'})
+                                     'read_book_page', 'deliver_document', 'synthesize_smart_note',
+                                     'find_file_or_app', 'reveal_in_finder'})
                     if self.artifact_store.find_by_kind('structured_note'):
                         selected.update({'update_note_action_item', 'expand_note_section'})
                 if snapshot and snapshot['observed_state']['lifecycle'].get('pending_input'):
