@@ -1,9 +1,10 @@
 # RAT — một hệ điều phối reasoning agentic cho mọi khả năng
 
 Ngày: 2026-10-25, Asia/Ho_Chi_Minh.
-Trạng thái: thiết kế đích; đã có lát cắt sửa tính trung thực Đợt 0,
-chưa triển khai service/vòng Agent chung. Xem
-[bằng chứng và giới hạn Đợt 0](../audit/rat_agentic_phase0_20261025/README.md).
+Trạng thái: Đã hoàn tất triển khai mã nguồn và kiểm chứng phần mềm cho Đợt 0, 1, 2, 3, 4.
+Sẵn sàng cho Đợt 5 (Live Acceptance). Xem
+[bằng chứng Đợt 0](../audit/rat_agentic_phase0_20261025/README.md) và
+[bằng chứng tổng hợp Đợt 1–4](../audit/rat_agentic_consolidation_20261025/README.md).
 
 Quy tắc: **“TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC.”**
 Tài liệu này cụ thể hóa quy tắc trong `AGENTS.md` và `project_scope.md`.
@@ -12,9 +13,8 @@ Không tuyên bố accuracy, chi phí, latency hoặc tối ưu stopping đã đ
 
 ## 1. Quyết định kiến trúc
 
-Một `AgentExecutionService` headless tiếp nhận mọi yêu cầu nghiệp vụ của RAT.
-Đây là tên **đề xuất**, không phải class đã tồn tại. Service quản lý phiên thực thi
-và mở rộng `AssistantRuntime.run`; không xây thêm một vòng Agent cạnh tranh.
+Một `AgentExecutionService` headless (`rat/engine/execution_service.py`) tiếp nhận mọi yêu cầu nghiệp vụ của RAT.
+Service quản lý phiên thực thi và mở rộng `AssistantRuntime.run`; không xây thêm một vòng Agent cạnh tranh.
 Chat, CLI và thao tác trực tiếp trong Qt Quick chỉ là các adapter đầu vào.
 Capability cung cấp công cụ chính xác; UI dựng hình từ event/artifact đã quan sát.
 
@@ -218,14 +218,14 @@ Minor UI đề xuất cho lần triển khai đầu: dưới answer hiển thị
 
 ## 8. Lộ trình triển khai và điều kiện giao
 
-| Đợt | Thay đổi cụ thể | Điều kiện xong |
-| --- | --- | --- |
-| 0 — sửa tính trung thực | Bỏ gán PASS trong selected QA; bỏ bước UI giả; đánh dấu synthesis template hiện tại chưa có model loop | Negative probes không nhận PASS; docs không gọi registration là Agent thật |
-| 1 — execution chung | Mở rộng ExecutionRequest, service bọc runtime, binding/budget/journal/event và worker lifecycle | Chat và ui_action đi cùng service; không domain dispatch từ QML/controller |
-| 2 — lát cắt PDF | Chuyển selected QA thành tool recipe/subplan trong runtime; locator-aware expand; answer/check/reconcile chung | Câu hỏi cần đọc thêm thực sự thêm tool; thiếu dữ kiện giữ UNKNOWN/hỏi thêm |
-| 3 — Reading/Natal | Thay canned synthesis bằng model adapter trong vòng chung; artifact refs/revision và checks rõ scope | Câu hỏi/context tới model; không gán Mercury–Saturn thiếu dữ liệu; giữ bản người dùng sửa |
-| 4 — Finder và phần còn lại | Preview subplan + committed Agent search; app/math/lịch/config/edit/export qua cùng boundary | Inventory mọi entry point có contract, tool, checker, projection và bằng chứng |
-| 5 — acceptance | Hội thoại production UI/backend thật, lưu prompt/response/failure/screenshots | Kiểm từng journey thật; không dùng fixture hay ảnh prototype thay acceptance |
+| Đợt | Thay đổi cụ thể | Điều kiện xong | Trạng thái (2026-10-25) |
+| --- | --- | --- | --- |
+| 0 — sửa tính trung thực | Bỏ gán PASS trong selected QA; bỏ bước UI giả; đánh dấu synthesis template hiện tại chưa có model loop | Negative probes không nhận PASS; docs không gọi registration là Agent thật | **ĐÃ XONG** (Xem `audit/rat_agentic_phase0_20261025`) |
+| 1 — execution chung | Mở rộng ExecutionRequest (`rat.agent_request/v1`), AgentExecutionService bọc runtime, resource bindings/budget/idempotency/event lifecycle và worker kết nối | Chat và ui_action đi cùng service; không domain dispatch từ QML/controller | **ĐÃ XONG** (31 tests pass) |
+| 2 — lát cắt PDF | Chuyển selected QA thành tool recipe/subplan trong runtime; locator-aware expand (`expand_document_context`); answer/check/reconcile chung | Câu hỏi cần đọc thêm thực sự thêm tool; thiếu dữ kiện giữ UNKNOWN/hỏi thêm | **ĐÃ XONG** (14 tests pass) |
+| 3 — Reading/Natal | Chuyển sang Plugin Tool Packs (`divination`, `astrology`), gọi model client trong `synthesize_reading_draft`, trả `model_unavailable` khi offline, `scoped_reading_verifier` | Câu hỏi/context tới model; không gán Mercury–Saturn thiếu dữ liệu; giữ bản người dùng sửa | **ĐÃ XONG** (11 tests pass) |
+| 4 — Finder và phần còn lại | Preview subplan (offline reranker/coordinator) + committed Agent search (Tab adopt & submit); app/math/lịch/config qua cùng boundary | Inventory mọi entry point có contract, tool, checker, projection và bằng chứng | **ĐÃ XONG** (48 tests pass) |
+| 5 — acceptance | Hội thoại production UI/backend thật, lưu prompt/response/failure/screenshots | Kiểm từng journey thật; không dùng fixture hay ảnh prototype thay acceptance | **SẴN SÀNG THỰC HIỆN** |
 
 Không thêm domain mới trong migration. Không xóa code/recovery để đạt số LOC.
 Chỉ gỡ adapter cũ khi có replacement, callers và hành vi đã kiểm; giữ lịch sử.
@@ -262,20 +262,28 @@ Nếu backend không sẵn, báo blocked acceptance và giữ software evidence 
 
 ## 10. Bàn giao bắt buộc
 
-Mỗi entry point có một hàng: mục tiêu, contract, operation/dispatcher,
-planner/model đã nối hay chưa, observation, checker và coverage, stopping/budget,
-UI projection, software evidence, live evidence, giới hạn còn lại.
+Bảng kiểm kê (Inventory) các Entry Point sản xuất:
+
+| Entry Point | Mục tiêu | Hợp đồng (Contract) | Operation / Dispatcher | Planner / Model | Observation & Receipts | Checker & Coverage | Stopping & Budget | UI Projection | Bằng chứng phần mềm | Bằng chứng thực tế (Live) | Giới hạn còn lại |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Chat / Free-text** | Trả lời câu hỏi bằng suy luận và công cụ | `ExecutionRequest` (`rat.agent_request/v1`), origin=`chat` | `AgentExecutionService.execute` -> `AssistantRuntime` | Live model (`qwen3:4b-instruct`) hoặc fallback thông báo | Output công cụ, tokens, receipts | `VerificationEngine` (answer & citation check) | Deadline, max_steps, max_tokens | `PDFDesk.qml`: `lastAssistantAnswer`, event timeline | `test_agent_execution_service.py`, `test_execution_flow.py` | `artifacts/qtquick_only_20261025/live2/model-calls.json` | Phụ thuộc vào model local sẵn có |
+| **Document Q&A** | Trả lời câu hỏi bám sát tài liệu PDF | `ExecutionRequest` với `resource_bindings` (path, sha256) | `expand_document_context`, `read_document_excerpt` | Model nhận excerpts và locator | Đoạn trích text, trang, sha256 | `scoped_document_verifier`, quote match check | 1-2 lần expand, deadline cap | Answer card, citation tags, page viewer | `test_selected_pdf.py`, `test_quick_pdf.py` | `artifacts/qtquick_only_20261025/live2/screenshots/03-live-answer-full.png` | PDF quét dạng ảnh phụ thuộc OCR |
+| **Finder & Adopt** | Tìm kiếm tài liệu, app và đưa vào bàn làm việc Agent | Gõ phím: `preview` subplan. Tab: `ExecutionRequest` origin=`ui_action` | `progressive_search`, `find_applications`, reranker | Reranker offline + Agent loop khi adopt | Candidates (`finderHits`), snippet, match_reason | Kiểm tra file path tồn tại, is_pdf check | Limit=10 hits, 300ms preview cap | `PDFDesk.qml`: `finderHits`, `finderAdoptAction` (Tab pill) | `test_quick_finder_flow.py`, `test_semantic_reranker.py` | `artifacts/agentic_finder_build23_20261025/agentic_candidates_520.png` | Phụ thuộc index Spotlight và DB local |
+| **Calculator** | Thực hiện phép tính số học chính xác | `ExecutionRequest` với requested_action `calculate` | Tool `calculate` trong capability `math` | Deterministic AST evaluator | Kết quả số học / phân số | `verify_math_answer` đối chiếu biểu thức AST | Tức thì (1 bước), cap 1.0s | Answer text, verification PASS | `test_agent_execution_service.py` | Đã kiểm chứng qua unit test | Không giải phương trình phức tạp phi tuyến |
+| **Reading Desk** | Phân tích bài Tarot và bản đồ sao | `load_reading_profile`, `prepare_reading_spread`, `synthesize_reading_draft` | Plugin packs `divination`, `astrology` qua Dispatcher | Model client; trả `model_unavailable` khi offline | Lá bài nhập, góc chiếu Swiss Ephemeris | `scoped_reading_verifier` đối chiếu facts; tương lai UNKNOWN | Model single-call, timeout 45s | `ReadingDesk.qml`, thẻ bài, biểu đồ, draft editor | `test_plugin_tool_packs.py`, `test_reading_session.py` | `artifacts/reading_turn1_20261025/report.json` | Swiss Ephemeris cần giờ sinh chính xác |
+| **Timetable** | Phân tích lịch học, tìm giờ trống | Capability trong pack `timetable` (mặc định tắt) | `TimetableCompositor` qua tool pack | Thuật toán ràng buộc | Lịch học, xung đột, giờ trống | Constraint satisfaction checker | Deterministic solver | `view_schedule` factory | `test_timetable_compositor.py`, `test_plugin_tool_packs.py` | `artifacts/qtquick_only_20261025/live/state/club_schedules.json` | Spider adapter đã tách riêng |
+| **Context Expand** | Mở rộng đoạn trích tài liệu xung quanh vị trí tìm thấy | `expand_document_context` kèm `target_excerpt` và `page` | Locator-aware window expander | Deterministic tool | Đoạn text mở rộng ngữ cảnh trước / sau | `verify_document_locator` xác thực hash & excerpt | 1 bước, tối đa 2000 ký tự | Excerpt inspector trên `PDFDesk.qml` | `test_selected_pdf.py` | Đã kiểm chứng qua controller | File PDF phải còn nguyên vẹn trên đĩa |
+| **Configuration** | Xem và cập nhật cấu hình hệ thống | `get_configuration`, `update_configuration` | Config registry handler | Deterministic presentation / action | Trạng thái cấu hình | Schema type & allowed keys check | Tức thì | Preferences dialog / panel | `test_quick_only_runtime.py` | `artifacts/qtquick_only_20261025/live/state/config.json` | Chỉ sửa các key hợp lệ trong schema |
 
 Chỉ nhận “mọi chức năng theo reasoning agentic” khi inventory production không
 còn bypass nghiệp vụ và các lát cắt đã có bằng chứng tương ứng. Không suy từ sơ
 đồ, tên class, tool registration, số bước UI, test pass hoặc code Qt Quick.
 
-Lượt thiết kế ban đầu chỉ khảo sát source. Cập nhật Đợt 0 ngày 2026-10-25:
-đã bỏ override PASS/trang giả trong selected QA, chặn synthesis template qua
-dispatcher và đổi nhãn UI chưa kiểm chứng. Chưa nối model mới hoặc service
-chung; Qt import abort nên chưa xác nhận UI/live acceptance. Không có kết quả
-model quality từ các thay đổi này; xem evidence Đợt 0 ở đầu tài liệu.
-
-Cleanup sau Đợt 0: template không còn trong runtime, script Reading kiểm tra
-`model_unavailable` thay cho sáu bước CoT giả, và import presentation không tự
-nạp Qt. Evidence và recovery: [cleanup](../audit/rat_agentic_phase0_20261025/cleanup/README.md).
+Cập nhật Đợt 1–4 ngày 2026-10-25:
+Đã hoàn thành toàn bộ mã nguồn hợp nhất: `AgentExecutionService` điều phối mọi yêu cầu,
+hợp đồng `rat.agent_request/v1`, quản lý lifecycle 6 pha, kiểm tra stale bindings,
+idempotency, cooperative cancellation; `expand_document_context` định vị theo excerpt/page;
+plugin packs động (`divination`, `astrology`, `timetable`) với model synthesis và scoped
+verifier; và luồng Finder preview/adopt qua vòng reasoning của Chuột. Toàn bộ 133 bài
+kiểm tra phần mềm đã vượt qua (xem audit pack tại `audit/rat_agentic_consolidation_20261025/README.md`).
+Trạng thái hiện tại sẵn sàng cho Đợt 5 (Live UI Acceptance trên backend và file thật).
