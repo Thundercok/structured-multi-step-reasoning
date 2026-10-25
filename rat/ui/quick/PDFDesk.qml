@@ -105,7 +105,7 @@ Rectangle {
     readonly property bool emptyCancelledAnswer: cancelledAnswer && !(liveSnapshot.answerText || "").trim().length
     readonly property bool hasPagePreview: liveMode && liveSnapshot.view === "page" && !liveSnapshot.busy && !liveSnapshot.errorCode
     readonly property string pagePreviewTitle: "Đang đọc trang " + liveSnapshot.pageLabel
-    readonly property string uiBuildLabel: "Build 2026.10.25.31"
+    readonly property string uiBuildLabel: "Build 2026.10.25.32"
     readonly property string currentWorkspaceMode: liveMode ? (liveSnapshot.workspaceMode || "single") : "single"
     readonly property bool isSideBySidePdfActive: desk.liveMode && desk.expanded && desk.hasWorkbench && desk.liveSnapshot.view === "answer" && Boolean(desk.liveSnapshot.fileName) && (desk.currentWorkspaceMode === "multi" || desk.roomyActive)
     property string readerDisplayMode: "matched"
@@ -156,6 +156,17 @@ Rectangle {
     readonly property color hoverSurface: darkMode ? "#2a3125" : "#f1f6ed"
     readonly property int cardRadius: 10
     readonly property int controlRadius: 10
+
+    function cleanSnippetText(raw) {
+        if (!raw) return ""
+        var s = String(raw).replace(/(\w+)-\s*\n\s*(\w+)/g, "$1$2")
+        s = s.replace(/\r\n/g, "\n")
+        var paragraphs = s.split(/\n\s*\n+/)
+        for (var i = 0; i < paragraphs.length; i++) {
+            paragraphs[i] = paragraphs[i].replace(/[ \t]*\n[ \t]*/g, " ").replace(/[ \t]+/g, " ").trim()
+        }
+        return paragraphs.join("\n\n")
+    }
 
     signal copyRequested(string text)
     signal moveRequested()
@@ -696,7 +707,7 @@ Rectangle {
                     id: snippetLabel
                     anchors.fill: parent
                     anchors.margins: 5
-                    text: "Đối chiếu: “" + (desk.liveSnapshot.previewSnippet || "") + "”"
+                    text: "Đối chiếu: “" + desk.cleanSnippetText(desk.liveSnapshot.previewSnippet || "") + "”"
                     font.pixelSize: 10
                     color: desk.accent
                     elide: Text.ElideRight
@@ -1644,16 +1655,18 @@ Rectangle {
                                 QuietButton {
                                     id: expandContextButton
                                     objectName: "expandContextButton"
-                                    text: desk.contextExpanded ? "Thu gọn" : (resultPaper.width < 400 ? "+ Ngữ cảnh" : "Mở rộng ngữ cảnh")
+                                    text: resultPaper.width < 520 ? "" : (desk.contextExpanded ? "Thu gọn" : (resultPaper.width < 620 ? "+ Ngữ cảnh" : "Mở rộng ngữ cảnh"))
                                     iconName: desk.contextExpanded ? "minus" : "plus"
                                     iconSize: 11
                                     topPadding: 3
                                     bottomPadding: 3
-                                    leftPadding: 6
-                                    rightPadding: 6
+                                    leftPadding: resultPaper.width < 520 ? 4 : 6
+                                    rightPadding: resultPaper.width < 520 ? 4 : 6
                                     font.pixelSize: 11
                                     Accessible.name: desk.contextExpanded ? "Thu gọn về đoạn trích ngắn" : "Mở rộng ngữ cảnh xung quanh đoạn trích"
                                     Accessible.role: Accessible.Button
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: desk.contextExpanded ? "Thu gọn về đoạn trích ngắn" : "Mở rộng ngữ cảnh xung quanh đoạn trích"
                                     onClicked: {
                                         if (!desk.contextExpanded && desk.liveController)
                                             desk.expandedEvidenceText = desk.liveController.getExpandedContext(0)
@@ -1664,16 +1677,18 @@ Rectangle {
                                 QuietButton {
                                     id: copyCitationButton
                                     objectName: "copyCitationButton"
-                                    text: desk.sourceCopied ? "Đã chép" : (resultPaper.width < 400 ? "Chép" : "Chép trích dẫn")
+                                    text: resultPaper.width < 520 ? "" : (desk.sourceCopied ? "Đã chép" : (resultPaper.width < 620 ? "Chép" : "Chép trích dẫn"))
                                     iconName: desk.sourceCopied ? "check" : "copy"
                                     iconSize: 11
                                     topPadding: 3
                                     bottomPadding: 3
-                                    leftPadding: 6
-                                    rightPadding: 6
+                                    leftPadding: resultPaper.width < 520 ? 4 : 6
+                                    rightPadding: resultPaper.width < 520 ? 4 : 6
                                     font.pixelSize: 11
                                     Accessible.name: "Sao chép trích dẫn và nguồn"
                                     Accessible.role: Accessible.Button
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: desk.sourceCopied ? "Đã sao chép vào bộ nhớ tạm" : "Sao chép trích dẫn và nguồn"
                                     onClicked: {
                                         const citation = evidenceSourceSnippet.text + (evidenceSourceTitle.text ? ("\n\n— " + evidenceSourceTitle.text) : "")
                                         if (desk.liveController.copyCitation(citation)) {
@@ -1686,16 +1701,20 @@ Rectangle {
                                 QuietButton {
                                     id: openExternalPdfButton
                                     objectName: "openExternalPdfButton"
-                                    text: resultPaper.width < 400 ? "Mở PDF" : "Mở PDF gốc"
-                                    trailingIconName: "external"
+                                    text: resultPaper.width < 520 ? "" : (resultPaper.width < 620 ? "Mở PDF" : "Mở PDF gốc")
+                                    iconName: resultPaper.width < 520 ? "external" : ""
+                                    trailingIconName: resultPaper.width < 520 ? "" : "external"
+                                    iconSize: 11
                                     trailingIconSize: 11
                                     topPadding: 3
                                     bottomPadding: 3
-                                    leftPadding: 6
-                                    rightPadding: 6
+                                    leftPadding: resultPaper.width < 520 ? 4 : 6
+                                    rightPadding: resultPaper.width < 520 ? 4 : 6
                                     font.pixelSize: 11
                                     Accessible.name: "Mở tài liệu bằng ứng dụng PDF bên ngoài"
                                     Accessible.role: Accessible.Button
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: "Mở tài liệu bằng ứng dụng PDF bên ngoài"
                                     onClicked: desk.liveController.openOriginal()
                                 }
                             }
@@ -1741,17 +1760,22 @@ Rectangle {
                                         objectName: "evidenceSourceSnippet"
                                         Layout.fillWidth: true
                                         text: {
+                                            var raw = "Chưa có đoạn nguồn cho tham chiếu này."
                                             if (desk.liveSnapshot.answerSources && desk.liveSnapshot.answerSources.length > 0) {
                                                 const s = desk.liveSnapshot.answerSources[0]
                                                 if (desk.contextExpanded) {
                                                     if (s.extendedSnippet && s.extendedSnippet.length > (s.snippet || "").length) {
-                                                        return s.extendedSnippet
+                                                        raw = s.extendedSnippet
+                                                    } else if (desk.expandedEvidenceText) {
+                                                        raw = desk.expandedEvidenceText
+                                                    } else {
+                                                        raw = s.snippet || raw
                                                     }
-                                                    if (desk.expandedEvidenceText) return desk.expandedEvidenceText
+                                                } else {
+                                                    raw = s.snippet || raw
                                                 }
-                                                return s.snippet || "Chưa có đoạn nguồn cho tham chiếu này."
                                             }
-                                            return "Chưa có đoạn nguồn cho tham chiếu này."
+                                            return desk.cleanSnippetText(raw)
                                         }
                                         font.pixelSize: 12
                                         lineHeight: 1.3
@@ -2591,6 +2615,8 @@ Rectangle {
                         model: desk.liveSnapshot.quickPrompts || []
                         RowLayout {
                             spacing: 6
+                            opacity: (x + width) <= (ambientPromptsRow.width - 24) ? 1.0 : 0.0
+                            Behavior on opacity { NumberAnimation { duration: 120 } }
                             Label {
                                 text: modelData.label || ""
                                 font.pixelSize: 11
