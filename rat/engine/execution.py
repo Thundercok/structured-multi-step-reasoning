@@ -250,12 +250,19 @@ class ExecutionRequest:
             budget=self.budget, continuation=self.continuation, idempotency_key=self.idempotency_key,
         ))
 
-    def assistant_context(self):
+    def assistant_context(self) -> Dict[str, Any]:
         ctx = {**copy.deepcopy(self._submitted_context), "turn_ref": self.turn_ref,
                "execution_id": self.execution_id, "conversation_id": self.conversation_id}
         if self.document_path:
             ctx["selected_document_path"] = self.document_path
-        return ctx
+        valid_keys = {
+            "history", "previous_sources", "member_id", "task_state",
+            "turn_ref", "execution_id", "turn_references", "conversation_id",
+            "contract", "selected_document_path", "now_dt", "max_tokens",
+            "initial_steps", "initial_decision", "stop_before_tool",
+            "max_verification_repairs", "decision_callable",
+        }
+        return {k: v for k, v in ctx.items() if k in valid_keys}
 
     def context_snapshot(self) -> Dict[str, Any]:
         """Produce the immutable, hash-pinned context snapshot for this request."""
