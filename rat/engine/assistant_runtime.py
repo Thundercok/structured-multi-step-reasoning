@@ -184,8 +184,11 @@ def observed_sources(step: AgentStep, existing=None) -> List[Dict[str, Any]]:
 def model_observation(value):
     """Format large chart observations without changing the full recorded source."""
     if isinstance(value, dict) and isinstance(value.get('chart'), dict):
-        from rat.astrology.chart import interpretation_context
-        return {**value, 'chart': interpretation_context(value['chart'])}
+        try:
+            from rat.astrology.chart import interpretation_context
+            return {**value, 'chart': interpretation_context(value['chart'])}
+        except ImportError:
+            return value
     return value
 
 
@@ -208,6 +211,25 @@ class AssistantRuntime:
         self.notebook.cancel_execution(execution_id)
         self.dispatcher.cancel_execution(execution_id)
 
+    def load_tool_pack(self, pack_id: str) -> bool:
+        """Dynamically load an optional domain tool pack into this assistant runtime."""
+        from rat.plugins import get_plugin_manager
+        return get_plugin_manager().load_pack(
+            pack_id,
+            self.registry,
+            context={"db": self.db, "compositor": self.compositor},
+        )
+
+    def unload_tool_pack(self, pack_id: str) -> bool:
+        """Dynamically unload a domain tool pack from this assistant runtime."""
+        from rat.plugins import get_plugin_manager
+        return get_plugin_manager().unload_pack(pack_id, self.registry)
+
+    def is_tool_pack_loaded(self, pack_id: str) -> bool:
+        """Check if a domain tool pack is currently loaded in this assistant runtime."""
+        from rat.plugins import get_plugin_manager
+        return get_plugin_manager().is_pack_loaded(pack_id, self.registry)
+
     def __init__(
         self,
         db: Optional[Database] = None,
@@ -225,6 +247,7 @@ class AssistantRuntime:
         planner_operations_only: bool = False,
         document_model_path=None,
         document_max_context_tokens: int = 4096,
+        active_tool_packs: Optional[Sequence[str]] = None,
     ) -> None:
         if db is not None:
             self.db = db
@@ -251,7 +274,11 @@ class AssistantRuntime:
             artifact = json.loads(Path(os.environ["RAT_ASSISTANT_CONTROLLER"]).read_text())
             self.controller = AgentStoppingController.from_dict(artifact)
         from rat.kernel import ActionDispatcher, ArtifactStore, build_default_registry
-        self.registry = registry or build_default_registry(db=self.db, compositor=self.compositor)
+        self.registry = registry or build_default_registry(
+            db=self.db,
+            compositor=self.compositor,
+            active_tool_packs=active_tool_packs,
+        )
         register_work_notes(self.registry, self.notebook)
         self.artifact_store = artifact_store or ArtifactStore()
         self.dispatcher = dispatcher or ActionDispatcher(self.registry, self.artifact_store)

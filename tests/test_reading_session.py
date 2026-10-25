@@ -124,3 +124,88 @@ def test_quick_pdf_controller_reading_draft_flow(tmp_path):
         assert not controller.saveReadingDraft('Không có draft để lưu.')
     finally:
         controller.close()
+
+
+def test_connected_model_synthesizes_reading_draft_and_scoped_verifier(tmp_path):
+    from rat.kernel.capabilities.reading import create_reading_capability
+    from rat.kernel.contracts import ArtifactStore
+    from rat.kernel.dispatcher import ActionDispatcher
+    from rat.kernel.registry import CapabilityRegistry
+    from rat.engine.reading_session import parse_cards
+    from rat.engine.verification import ExecutionEvidence, ReadingVerifier, VerificationStatus
+
+    dispatched_messages = []
+
+    class StubModel:
+        def chat_with_meta(self, messages, tools, **kwargs):
+            dispatched_messages.append(messages)
+            return {
+                "message": {
+                    "content": "Bản luận: 4 Pentacles nhắc nhở về sự vững vàng tài chính, trong khi The World ngược cảnh báo về sự trì hoãn."
+                },
+                "prompt_tokens": 120,
+                "completion_tokens": 40,
+            }
+
+    registry = CapabilityRegistry()
+    registry.register_capability(create_reading_capability())
+    store = ArtifactStore()
+    dispatcher = ActionDispatcher(registry, store)
+
+    cards = parse_cards("4 pent, world rev")
+    chart = {
+        "positions": [
+            {"name": "Mặt Trời", "position": "15° Bọ Cạp"},
+            {"name": "Mặt Trăng", "position": "22° Kim Ngưu"},
+        ]
+    }
+    stub = StubModel()
+
+    res = dispatcher.execute_operation(
+        "synthesize_reading_draft",
+        {"query": "Định hướng tháng tới"},
+        context={"reading_cards": cards, "reading_chart": chart, "model_client": stub},
+    )
+    assert res.status == "success"
+    assert res.artifact is not None
+    payload = res.artifact.payload
+    assert "4 Pentacles" in payload["draft_markdown"]
+    assert payload["verification_status"] == "UNKNOWN"
+    assert payload["user_edited"] is False
+    assert len(dispatched_messages) == 1
+    prompt_text = dispatched_messages[0][1]["content"]
+    assert "4 of Pentacles" in prompt_text
+    assert "World" in prompt_text
+    assert "15° Bọ Cạp" in prompt_text
+
+    # Scoped verification checks
+    verifier = ReadingVerifier()
+    rep = verifier.check_execution(ExecutionEvidence(
+        id="test-synth-ev",
+        operation="synthesize_reading_draft",
+        args={"query": "Định hướng"},
+        result=payload,
+        sha256="",
+    ))
+    assert rep.status == VerificationStatus.UNKNOWN
+    assert "chưa xác minh" in rep.reason
+
+    # Prepare spread verification
+    rep_spread = verifier.check_execution(ExecutionEvidence(
+        id="test-spread-ev",
+        operation="prepare_reading_spread",
+        args={"text": "4 pent, world rev"},
+        result={"cards": cards},
+        sha256="",
+    ))
+    assert rep_spread.status == VerificationStatus.PASS
+
+    # Negative probe: duplicate cards in spread must FAIL
+    rep_fail = verifier.check_execution(ExecutionEvidence(
+        id="test-fail-ev",
+        operation="prepare_reading_spread",
+        args={"text": "4 pent, 4 pent"},
+        result={"cards": [cards[0], cards[0]]},
+        sha256="",
+    ))
+    assert rep_fail.status == VerificationStatus.FAIL

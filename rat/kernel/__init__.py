@@ -36,7 +36,7 @@ from rat.kernel.view_spec import (
     ViewSpec,
     validate_view_spec,
 )
-from rat.kernel.capabilities import build_default_registry
+from rat.kernel.capabilities import build_core_registry, build_default_registry
 
 __all__ = [
     "Artifact",
@@ -57,5 +57,6 @@ __all__ = [
     "ViewSpec",
     "StandardViewProvider",
     "validate_view_spec",
+    "build_core_registry",
     "build_default_registry",
 ]

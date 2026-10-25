@@ -8,6 +8,7 @@ rather than hardcoding them in central loops.
 from __future__ import annotations
 
 import copy
+import threading
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
@@ -75,47 +76,65 @@ class CapabilityRegistry:
     """Central registry for capabilities, operations, and tool definitions."""
 
     def __init__(self) -> None:
+        self._lock = threading.RLock()
         self._capabilities: Dict[str, Capability] = {}
         self._operations: Dict[str, OperationDefinition] = {}
         self._op_to_cap: Dict[str, str] = {}
 
     def register_capability(self, capability: Capability) -> None:
-        self._capabilities[capability.name] = capability
-        for op_name, op in capability.operations.items():
-            self._operations[op_name] = op
-            self._op_to_cap[op_name] = capability.name
+        with self._lock:
+            self._capabilities[capability.name] = capability
+            for op_name, op in capability.operations.items():
+                self._operations[op_name] = op
+                self._op_to_cap[op_name] = capability.name
+
+    def unregister_capability(self, name: str) -> Optional[Capability]:
+        """Remove a capability and all its operations from the registry."""
+        with self._lock:
+            cap = self._capabilities.pop(name, None)
+            if cap:
+                for op_name in list(cap.operations.keys()):
+                    self._operations.pop(op_name, None)
+                    self._op_to_cap.pop(op_name, None)
+            return cap
 
     def register_operation(self, operation: OperationDefinition, capability_name: Optional[str] = None) -> None:
-        self._operations[operation.name] = operation
-        cap_name = capability_name or "default"
-        if cap_name not in self._capabilities:
-            self._capabilities[cap_name] = Capability(
-                name=cap_name,
-                title=cap_name.capitalize(),
-                description=f"Capability bundle for {cap_name}",
-            )
-        self._capabilities[cap_name].register_operation(operation)
-        self._op_to_cap[operation.name] = cap_name
+        with self._lock:
+            self._operations[operation.name] = operation
+            cap_name = capability_name or "default"
+            if cap_name not in self._capabilities:
+                self._capabilities[cap_name] = Capability(
+                    name=cap_name,
+                    title=cap_name.capitalize(),
+                    description=f"Capability bundle for {cap_name}",
+                )
+            self._capabilities[cap_name].register_operation(operation)
+            self._op_to_cap[operation.name] = cap_name
 
     def get_operation(self, name: str) -> Optional[OperationDefinition]:
-        return self._operations.get(name)
+        with self._lock:
+            return self._operations.get(name)
 
     def has_operation(self, name: str) -> bool:
-        return name in self._operations
+        with self._lock:
+            return name in self._operations
 
     def get_capability(self, name: str) -> Optional[Capability]:
-        return self._capabilities.get(name)
-
+        with self._lock:
+            return self._capabilities.get(name)
 
     def get_capability_for_operation(self, name: str) -> Optional[Capability]:
-        cap_name = self._op_to_cap.get(name)
-        return self._capabilities.get(cap_name) if cap_name else None
+        with self._lock:
+            cap_name = self._op_to_cap.get(name)
+            return self._capabilities.get(cap_name) if cap_name else None
 
     def list_operations(self) -> List[OperationDefinition]:
-        return list(self._operations.values())
+        with self._lock:
+            return list(self._operations.values())
 
     def list_capabilities(self) -> List[Capability]:
-        return list(self._capabilities.values())
+        with self._lock:
+            return list(self._capabilities.values())
 
     def operation_for_artifact(self, artifact):
         origin = self.get_operation(artifact.provenance.get("operation_name", ""))

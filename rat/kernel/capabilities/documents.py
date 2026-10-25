@@ -132,10 +132,17 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
 
     def handle_expand_context(args: Dict[str, Any], **context) -> Dict[str, Any]:
         file_path = args.get("file_path", "")
-        max_chars = args.get("max_chars", 1800)
+        max_chars = args.get("max_chars", 2000)
+        target_excerpt = args.get("target_excerpt", "")
+        page_num = args.get("page")
+        offset = args.get("offset")
         p = Path(file_path).absolute()
         if not p.is_file():
             return {"found": False, "error": f"Tệp không tồn tại: {file_path}", "file_path": file_path}
+        database = get_db(context)
+        selected = context.get("selected_document_path")
+        if str(p) != selected and not database.get_document_by_path(str(p)):
+            return {"found": False, "error": "Tệp chưa có trong chỉ mục RAT", "file_path": file_path}
         try:
             content = extract_document_content(str(p))
             if not content.strip():
@@ -144,13 +151,27 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
                 except Exception:
                     content = ""
             total_chars = len(content)
-            expanded_snippet = content[:max_chars].strip()
+            start_idx = 0
+            if target_excerpt and target_excerpt.strip() in content:
+                match_pos = content.find(target_excerpt.strip())
+                lead = max_chars // 3
+                start_idx = max(0, match_pos - lead)
+                end_idx = min(total_chars, match_pos + len(target_excerpt.strip()) + (max_chars - lead))
+                expanded_snippet = content[start_idx:end_idx].strip()
+            elif offset is not None and 0 <= offset < total_chars:
+                start_idx = offset
+                expanded_snippet = content[start_idx:min(total_chars, start_idx + max_chars)].strip()
+            else:
+                expanded_snippet = content[:max_chars].strip()
             return {
                 "found": True,
                 "file_path": str(p),
                 "filename": p.name,
                 "content": expanded_snippet,
                 "total_chars": total_chars,
+                "start_offset": start_idx,
+                "expanded_chars": len(expanded_snippet),
+                "page": page_num,
                 "expanded": True,
             }
         except Exception as e:
@@ -337,18 +358,32 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
 
     capability.register_operation(OperationDefinition(
         name="expand_document_context",
-        description="Expand the reading window of an indexed document to capture surrounding context.",
+        description="Expand the reading window of an indexed document to capture surrounding context around a target excerpt, page or offset.",
         parameters={
             "type": "object",
             "properties": {
                 "file_path": {
                     "type": "string",
-                    "description": "Exact indexed path of the document.",
+                    "description": "Exact path of the document.",
+                },
+                "target_excerpt": {
+                    "type": "string",
+                    "description": "Observed excerpt to expand context around.",
+                },
+                "page": {
+                    "type": "integer",
+                    "description": "Page number if known.",
+                    "minimum": 1,
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "Character offset to start reading from.",
+                    "minimum": 0,
                 },
                 "max_chars": {
                     "type": "integer",
-                    "description": "Maximum characters of text content to read (default 1800).",
-                    "default": 1800,
+                    "description": "Maximum characters of text content to read (default 2000).",
+                    "default": 2000,
                     "minimum": 500,
                     "maximum": 8000,
                 },

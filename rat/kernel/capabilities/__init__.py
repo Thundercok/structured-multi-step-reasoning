@@ -1,48 +1,45 @@
 """
-rat.kernel.capabilities — Bundled capability implementations.
+rat.kernel.capabilities — Bundled capability implementations and core registry builder.
 """
 from __future__ import annotations
 
-from typing import Optional
+import os
+from typing import List, Optional, Sequence
 
 from rat.crawler.db import Database
 from rat.engine.task_state import TASK_STATE_SCHEMA, validate_task_state
 from rat.kernel.capabilities.applications import create_applications_capability
 from rat.kernel.capabilities.documents import create_documents_capability
-from rat.kernel.capabilities.natal import create_natal_capability
 from rat.kernel.capabilities.result_tables import create_result_tables_capability
-from rat.kernel.capabilities.reading import create_reading_capability
-from rat.kernel.capabilities.timetable import create_timetable_capability
 from rat.kernel.capabilities.web import create_web_capability
 from rat.kernel.registry import Capability, CapabilityRegistry, OperationDefinition
 from rat.timetable.compositor import TimetableCompositor
 
 
-def build_default_registry(
+def build_core_registry(
     db: Optional[Database] = None,
-    compositor: Optional[TimetableCompositor] = None,
     enable_web: bool = False,
 ) -> CapabilityRegistry:
-    """Build and populate a CapabilityRegistry with all core RAT capabilities.
+    """
+    Build and populate a CapabilityRegistry for the General Reasoning Desktop Shell.
 
-    NOTE on P1 Network Gate: enable_web defaults to False (fail-closed) because
-    the underlying Spider CLI backend lacks per-hop destination IP and redirect
-    enforcement at the network layer. To prevent SSRF via redirects or DNS rebinding,
-    the web capability is NOT enabled or registered in the default registry.
+    Contains only general reasoning and desktop shell tools:
+    - Document search, content reading, and PDF evidence extraction
+    - System application discovery and launching
+    - Formatted result tables
+    - Core reasoning utilities (task state, calculate, inspect artifact)
+
+    No specialized domain verticals (astrology, divination, timetable) are registered.
     """
     registry = CapabilityRegistry()
 
-    # Core capabilities
+    # General Reasoning Desktop Shell Core Capabilities
     registry.register_capability(create_documents_capability(db=db))
     registry.register_capability(create_applications_capability())
-    registry.register_capability(create_timetable_capability(compositor=compositor))
-    registry.register_capability(create_natal_capability())
-    registry.register_capability(create_reading_capability())
     registry.register_capability(create_result_tables_capability())
 
     if enable_web:
         registry.register_capability(create_web_capability(enabled=True))
-
 
     # Utility operations: update_task_state & calculate
     def handle_update_task_state(args, **context):
@@ -85,18 +82,30 @@ def build_default_registry(
     ))
     from rat.engine.verification import CalculationVerifier
     util_cap.operations["calculate"].verifier = CalculationVerifier()
+
     def inspect_artifact(args, **context):
         artifact = context["artifact_store"].get(args["artifact_id"], args.get("revision"))
         if artifact is None:
             raise ValueError("Kết quả không còn trong cuộc hội thoại hoặc phiên bản không tồn tại.")
         return {"artifact_id": artifact.id, "revision": artifact.revision, **artifact.payload}
 
-    util_cap.register_operation(OperationDefinition("inspect_artifact",
-        "Read actual data of an existing result by its observed artifact_id and optional revision. Use before discussing an earlier result whose contents are not in current observations.",
-        {"type": "object", "properties": {"artifact_id": {"type": "string"}, "revision": {"type": "integer", "minimum": 1}}, "required": ["artifact_id"]},
-        inspect_artifact))
+    util_cap.register_operation(OperationDefinition(
+        "inspect_artifact",
+        "Read actual data of an existing result by its observed artifact_id and optional revision. "
+        "Use before discussing an earlier result whose contents are not in current observations.",
+        {
+            "type": "object",
+            "properties": {
+                "artifact_id": {"type": "string"},
+                "revision": {"type": "integer", "minimum": 1},
+            },
+            "required": ["artifact_id"],
+        },
+        inspect_artifact,
+    ))
     registry.register_capability(util_cap)
 
+    # Core view factories
     from rat.kernel.capabilities.views import (
         view_application_launch,
         view_book_page_content,
@@ -105,16 +114,53 @@ def build_default_registry(
         view_document_file,
         view_document_search,
         view_file_export,
-        view_natal_chart,
-        view_schedule,
         view_web_page_snapshot,
     )
-    factories = {"natal_chart": view_natal_chart, "schedule": view_schedule,
-                 "document_search": view_document_search, "document_content": view_document_content, "file_export": view_file_export,
-                 "book_page_search": view_book_page_search, "book_page_content": view_book_page_content,
-                 "document_file": view_document_file, "web_page_snapshot": view_web_page_snapshot,
-                 "application_launch": view_application_launch}
+    core_factories = {
+        "document_search": view_document_search,
+        "document_content": view_document_content,
+        "file_export": view_file_export,
+        "book_page_search": view_book_page_search,
+        "book_page_content": view_book_page_content,
+        "document_file": view_document_file,
+        "web_page_snapshot": view_web_page_snapshot,
+        "application_launch": view_application_launch,
+    }
 
     for op in registry.list_operations():
-        op.view_factory = factories.get(op.artifact_kind, op.view_factory)
+        op.view_factory = core_factories.get(op.artifact_kind, op.view_factory)
+
+    return registry
+
+
+def build_default_registry(
+    db: Optional[Database] = None,
+    compositor: Optional[TimetableCompositor] = None,
+    enable_web: bool = False,
+    active_tool_packs: Optional[Sequence[str]] = None,
+) -> CapabilityRegistry:
+    """
+    Build a CapabilityRegistry with core desktop shell capabilities, optionally
+    loading specified dynamic domain tool packs via PluginManager.
+    """
+    registry = build_core_registry(db=db, enable_web=enable_web)
+
+    # Resolve tool packs to load
+    packs_to_load: List[str]
+    if active_tool_packs is not None:
+        packs_to_load = list(active_tool_packs)
+    else:
+        env_packs = os.getenv("RAT_TOOL_PACKS")
+        if env_packs is not None:
+            packs_to_load = [p.strip() for p in env_packs.split(",") if p.strip() and p.strip() not in ("none", "core")]
+        else:
+            packs_to_load = ["astrology", "divination", "timetable"]
+
+    if packs_to_load:
+        from rat.plugins import get_plugin_manager
+        manager = get_plugin_manager()
+        context = {"db": db, "compositor": compositor}
+        for pack_id in packs_to_load:
+            manager.load_pack(pack_id, registry, context=context)
+
     return registry

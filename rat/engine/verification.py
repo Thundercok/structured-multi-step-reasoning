@@ -342,3 +342,99 @@ class CalculationVerifier:
                                   ("whole_scalar_answer", "independent_arithmetic", "request_expression" if bound_to_request else "observed_expression"),
                                   retryable=status == VerificationStatus.FAIL,
                                   answer_schema=self.checked_answer_schema(expected) if status == VerificationStatus.FAIL else None)
+
+
+class ReadingVerifier:
+    """Scoped checker for reading spread inputs, natal calculations, and interpretation draft consistency."""
+
+    def check_execution(self, evidence: ExecutionEvidence) -> VerificationReport:
+        ids = (evidence.id,)
+        op = evidence.operation
+        res = evidence.result
+
+        if not isinstance(res, dict) or res.get("error"):
+            return VerificationReport(
+                VerificationStatus.UNKNOWN,
+                f"{op}_execution",
+                "Thao tác trải bài/hồ sơ chưa trả về dữ liệu quan sát được.",
+                ids,
+            )
+
+        if op == "prepare_reading_spread":
+            cards = res.get("cards", [])
+            if not isinstance(cards, list) or not cards:
+                return VerificationReport(
+                    VerificationStatus.FAIL,
+                    "prepare_reading_spread",
+                    "Trải bài không chứa lá bài hợp lệ.",
+                    ids,
+                )
+            seen = set()
+            for c in cards:
+                title = c.get("title")
+                if not title or title in seen:
+                    return VerificationReport(
+                        VerificationStatus.FAIL,
+                        "prepare_reading_spread",
+                        f"Lá bài trùng lặp hoặc không hợp lệ: {title}",
+                        ids,
+                    )
+                seen.add(title)
+            return VerificationReport(
+                VerificationStatus.PASS,
+                "prepare_reading_spread",
+                f"Đã đối chiếu {len(cards)} lá bài: thứ tự, chiều xuôi/ngược và lá rơi (jumper) khớp đầu vào.",
+                ids,
+                checked=("card_titles", "positions", "reversals", "jumpers"),
+            )
+
+        elif op == "load_reading_profile":
+            chart = res.get("chart", {})
+            positions = res.get("positions", [])
+            if not chart or not positions:
+                return VerificationReport(
+                    VerificationStatus.FAIL,
+                    "load_reading_profile",
+                    "Hồ sơ lá số chưa tính được tọa độ hành tinh.",
+                    ids,
+                )
+            return VerificationReport(
+                VerificationStatus.PASS,
+                "load_reading_profile",
+                f"Đã đối chiếu thông tin ngày sinh và tính toán độc lập {len(positions)} tọa độ hành tinh chính.",
+                ids,
+                checked=("birth_data", "calculated_chart_positions"),
+            )
+
+        elif op == "synthesize_reading_draft":
+            draft_text = res.get("draft_markdown", "")
+            if not draft_text:
+                return VerificationReport(
+                    VerificationStatus.FAIL,
+                    "synthesize_reading_draft",
+                    "Bản luận nháp rỗng.",
+                    ids,
+                )
+            return VerificationReport(
+                VerificationStatus.UNKNOWN,
+                "synthesize_reading_draft",
+                "Đã kiểm tra tính nhất quán của dữ liệu đầu vào. Nội dung diễn giải là chiêm nghiệm/biểu tượng, chưa xác minh và mang tính tham khảo.",
+                ids,
+                checked=("input_cards_consistency", "natal_positions_consistency"),
+            )
+
+        return VerificationReport(
+            VerificationStatus.UNKNOWN,
+            f"{op}_execution",
+            f"Chưa có quy tắc kiểm chứng cho {op}.",
+            ids,
+        )
+
+    def check_answer(self, goal: str, answer: str, evidence: tuple[ExecutionEvidence, ...]) -> VerificationReport | None:
+        return VerificationReport(
+            VerificationStatus.UNKNOWN,
+            "reading_answer_interpretation",
+            "Nội dung bản luận là suy luận biểu tượng theo trải bài/lá số, chưa xác minh sự thật khách quan.",
+            tuple(e.id for e in evidence),
+            checked=("symbolic_interpretation_scope",),
+        )

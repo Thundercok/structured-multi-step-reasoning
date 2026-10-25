@@ -1,8 +1,8 @@
 """Registered standard presentation factories for the bundled capabilities."""
 from rat.kernel.view_spec import ViewSpec, ViewBlock
-from rat.astrology.chart import degree_text
 
 def view_natal_chart(artifact, context) -> ViewSpec:
+    from rat.astrology.chart import degree_text, SIGNS
     chart_data = artifact.payload.get('chart', artifact.payload)
     birth = chart_data.get('birth', artifact.inputs)
     name = birth.get('name', 'Lá số cá nhân')
@@ -16,7 +16,6 @@ def view_natal_chart(artifact, context) -> ViewSpec:
     asc = angles.get('ASC')
     asc_sign = ''
     if asc is not None and isinstance(asc, (int, float)):
-        from rat.astrology.chart import SIGNS
         sign_idx = int(asc // 30) % 12
         asc_sign = SIGNS[sign_idx][0]
     blocks: List[ViewBlock] = []

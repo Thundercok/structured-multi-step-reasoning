@@ -369,7 +369,7 @@ class ResidentApplication(QObject):
 
         # Synchronous bounded check (aboutToQuit cannot defer exit back to event loop)
         import time
-        deadline = time.monotonic() + 1.0
+        deadline = time.monotonic() + 1.5
         while not self.all_workers_finished() and time.monotonic() < deadline:
             self.app.processEvents()
             time.sleep(0.02)

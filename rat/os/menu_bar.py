@@ -91,13 +91,16 @@ class SystemTrayManager:
             action_finder.triggered.connect(self.on_open_finder)
         menu.addAction(action_finder)
 
-        action_natal = QAction("🔮 Bàn xem Chiêm tinh & Tarot...", menu)
+        menu.addSeparator()
+
+        # Optional Domain Verticals (Dynamic Tool Packs)
+        action_natal = QAction("🔮 Gói mở rộng: Bàn xem Chiêm tinh & Tarot...", menu)
         if self.on_open_natal:
             action_natal.triggered.connect(self.on_open_natal)
         menu.addAction(action_natal)
 
         if self.on_open_schedule:
-            action_schedule = QAction("🍵 Ghép Lịch & Khung Giờ...", menu)
+            action_schedule = QAction("🍵 Gói mở rộng: Ghép Lịch & Khung Giờ...", menu)
             action_schedule.triggered.connect(self.on_open_schedule)
             menu.addAction(action_schedule)
 

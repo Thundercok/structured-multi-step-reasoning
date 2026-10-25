@@ -885,7 +885,13 @@ class QuickPDFController(QObject):
                         op = reg.get_operation("expand_document_context")
                         if op is not None:
                             try:
-                                res = op.handler({"file_path": file_path, "max_chars": 1800})
+                                ctx = {"selected_document_path": file_path}
+                                res = op.handler({
+                                    "file_path": file_path,
+                                    "target_excerpt": s.get("snippet", ""),
+                                    "page": s.get("page"),
+                                    "max_chars": 2000,
+                                }, **ctx)
                                 if isinstance(res, dict) and res.get("found"):
                                     return str(res.get("content", ""))
                             except Exception:
@@ -940,6 +946,7 @@ class QuickPDFController(QObject):
         target_turn_id: Optional[str] = None,
         target_artifact_id: Optional[str] = None,
         target_revision: Optional[int] = None,
+        origin: str = "chat",
     ) -> bool:
         """Submit a query through the shared execution factory and workers."""
         q = query.strip()
@@ -1029,6 +1036,7 @@ class QuickPDFController(QObject):
             generation=self._chat_generation,
             turn_ref=turn_ref,
             lane=lane,
+            origin=origin,
             document_path=str(self._selection.path) if self._selection is not None else None,
             context={
                 "history": history_messages,
@@ -1537,6 +1545,13 @@ class QuickPDFController(QObject):
     def openReadingDesk(self):
         if self._closed or self.snapshot['busy']:
             return
+        # Dynamically load optional domain tool pack into the runtime
+        try:
+            if hasattr(self, "assistant_runtime") and self.assistant_runtime:
+                self.assistant_runtime.load_tool_pack("divination")
+                self.assistant_runtime.load_tool_pack("astrology")
+        except Exception as e:
+            logger.debug(f"Note dynamically loading reading pack: {e}")
         if self._view != 'reading':
             self._reading_return_view = self._view
             self._reading_return_expanded = self._expanded
@@ -1598,6 +1613,8 @@ class QuickPDFController(QObject):
             'reading_cards': self._reading_cards,
             'reading_chart': self._reading_chart,
             'context_notes': self._saved_draft,
+            'runtime': self.assistant_runtime,
+            'model_client': getattr(self.assistant_runtime, 'document_model_client', None) or getattr(self.assistant_runtime, 'model_client', None),
         }
         if extra_context:
             ctx.update(extra_context)
@@ -1672,7 +1689,7 @@ class QuickPDFController(QObject):
                 self._show_error(exc.code)
                 return False
             self._search = self._page = None
-            return self.submit(q)
+            return self.submit(q, origin="ui_action")
         else:
             try:
                 content = p.read_text(encoding="utf-8", errors="replace")[:4000]
