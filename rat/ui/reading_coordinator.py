@@ -7,9 +7,10 @@ from __future__ import annotations
 import copy
 import logging
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+from PyQt6.QtCore import QUrl
 from rat.engine.execution import ExecutionRequest
 from rat.engine.execution_service import AgentExecutionService
 from rat.ui.reading_presentation import reading_profile_view
@@ -22,23 +23,33 @@ class ReadingDeskCoordinator:
 
     def __init__(self, controller) -> None:
         self.controller = controller
-        self.cards: List[str] = []
+        self.cards: List[Any] = []
         self.chart: Optional[Dict[str, Any]] = None
-        self.saved_draft: str = ""
-        self.return_view: str = "chat"
+        self.draft: Dict[str, Any] = {}
+        self.cot_steps: List[Dict[str, Any]] = []
+        self.grounds: List[Dict[str, Any]] = []
+        self.error: str = ""
+        self.return_view: str = "none"
+        self.return_expanded: bool = False
         self.result_refs: Dict[str, Dict[str, Any]] = {}
 
     @property
-    def profile_name(self) -> str:
-        if self.chart:
-            b = self.chart.get("birth", {})
-            return str(b.get("name") or "Lá số cá nhân")
-        return ""
+    def snapshot_data(self) -> Dict[str, Any]:
+        return {
+            "cards": list(self.cards),
+            "chart": self.chart,
+            "draft": dict(self.draft),
+            "cotSteps": list(self.cot_steps),
+            "grounds": list(self.grounds),
+            "error": self.error,
+            "resultRefs": dict(self.result_refs),
+        }
 
     def open_desk(self) -> None:
         ctrl = self.controller
         if ctrl._closed or ctrl.snapshot["busy"]:
             return
+        # Dynamically load optional domain tool pack into the runtime
         try:
             if hasattr(ctrl, "assistant_runtime") and ctrl.assistant_runtime:
                 ctrl.assistant_runtime.load_tool_pack("divination")
@@ -47,69 +58,72 @@ class ReadingDeskCoordinator:
             logger.debug(f"Note dynamically loading reading pack: {e}")
         if ctrl._view != "reading":
             self.return_view = ctrl._view
+            self.return_expanded = ctrl._expanded
+        if ctrl._finder_coordinator:
+            ctrl._finder_coordinator.cancel()
         ctrl._view = "reading"
         ctrl._expanded = True
-        ctrl._unread = False
-        ctrl._status = "Đang mở Bàn đọc bài · chuẩn bị lá bài và lá số…"
+        ctrl._status = "Bàn xem · bài và lá số"
         ctrl.changed.emit()
 
     def close_desk(self) -> None:
         ctrl = self.controller
-        if ctrl._closed:
-            return
-        ctrl._view = self.return_view if self.return_view != "reading" else "chat"
-        ctrl._status = "Chuột sẵn sàng. Bạn cần gì?" if not ctrl._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
-        ctrl.changed.emit()
+        if ctrl._view == "reading":
+            ctrl._view = self.return_view
+            ctrl._expanded = self.return_expanded
+            ctrl._status = "Chuột sẵn sàng. Bạn cần gì?"
+            ctrl.changed.emit()
 
     def set_cards(self, text: str) -> bool:
         ctrl = self.controller
         if ctrl._closed:
             return False
-        raw = (text or "").strip()
-        if not raw:
-            self.cards = []
-            ctrl._status = "Đã xóa danh sách lá bài."
-            ctrl.changed.emit()
-            return True
         try:
-            payload = self.execute_reading_tool("prepare_reading_spread", {"text": raw})
-            self.cards = [c["name"] for c in payload.get("cards", [])]
-            ctrl._status = f"Đã ghi nhận {len(self.cards)} lá: {', '.join(self.cards)}"
-            ctrl.changed.emit()
-            return True
-        except Exception as e:
-            ctrl._status = f"Chưa nhận diện được lá bài: {e}"
+            result = self.execute_reading_tool("prepare_reading_spread", {"text": text})
+        except ValueError as exc:
+            self.error = str(exc)
             ctrl.changed.emit()
             return False
+        self.cards = result["cards"]
+        self.error = ""
+        ctrl.changed.emit()
+        return True
 
     def import_profile(self, path: str) -> bool:
         ctrl = self.controller
-        if ctrl._closed or not path:
+        if ctrl._closed:
             return False
-        p = Path(path)
-        if not p.is_file():
-            ctrl._status = f"Tệp lá số không tồn tại: {path}"
-            ctrl.changed.emit()
-            return False
+        url = QUrl(path)
+        local = url.toLocalFile() if url.isLocalFile() else path
         try:
-            payload = self.execute_reading_tool("load_reading_profile", {"file_path": str(p)})
-            self.chart = reading_profile_view(payload)
-            ctrl._status = f"Đã nạp lá số: {self.profile_name}"
-            ctrl.changed.emit()
-            return True
-        except Exception as e:
-            ctrl._status = f"Không đọc được tệp lá số: {e}"
+            result = self.execute_reading_tool("load_reading_profile", {"file_path": local}, selected_path=local)
+            chart = reading_profile_view(result)
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            self.error = "Không mở được hồ sơ: " + str(exc)
             ctrl.changed.emit()
             return False
+        self.chart = chart
+        self.error = ""
+        ctrl.changed.emit()
+        return True
 
-    def execute_reading_tool(self, name: str, args: Dict[str, Any], *, selected_path: Optional[str] = None, extra_context: Optional[Dict[str, Any]] = None) -> Any:
+    def execute_reading_tool(
+        self,
+        name: str,
+        args: Dict[str, Any],
+        *,
+        selected_path: Optional[str] = None,
+        extra_context: Optional[Dict[str, Any]] = None,
+    ) -> Any:
+        # Explicit user action is the plan input. Domain execution uses the unified
+        # AgentExecutionService with envelope validation and journal lifecycle.
         ctrl = self.controller
         exec_id = "reading-" + uuid4().hex
         ctx = {
             "selected_document_path": selected_path,
             "reading_cards": list(self.cards),
             "reading_chart": copy.deepcopy(self.chart) if self.chart else None,
-            "context_notes": str(self.saved_draft or ""),
+            "context_notes": str(self.draft.get("draft_markdown", "") if isinstance(self.draft, dict) else ""),
         }
         if extra_context:
             for k, v in extra_context.items():
@@ -136,26 +150,23 @@ class ReadingDeskCoordinator:
         if ctrl._closed or ctrl.snapshot["busy"]:
             return False
         if not self.cards:
-            ctrl._status = "Cần ít nhất một lá bài để tổng hợp luận giải."
+            self.error = "Hãy đặt bài lên bàn trước khi soạn bản luận."
             ctrl.changed.emit()
             return False
-        ctrl._status = "Đang tổng hợp bản nháp luận giải từ các lá bài và lá số…"
-        ctrl.changed.emit()
+        self.error = ""
+        q = query.strip() or "Soạn bản luận cho trải bài hiện tại"
         try:
-            payload = self.execute_reading_tool(
-                "synthesize_reading_draft",
-                {"query": (query or "").strip()},
-                selected_path=str(ctrl._selection.path) if ctrl._selection else None,
-            )
-            draft = payload.get("draft") or ""
-            if not draft:
-                raise ValueError("Bản nháp luận giải rỗng.")
-            self.saved_draft = draft
-            ctrl._status = "Đã tổng hợp bản nháp luận giải."
+            result = self.execute_reading_tool("synthesize_reading_draft", {"query": q})
+            self.draft = result
+            self.cot_steps = result.get("cot_steps", [])
+            self.grounds = result.get("grounds", [])
+            self.error = ""
+            ctrl._status = "Đã soạn bản luận có cấu trúc"
+            ctrl._events.append(f"Đã soạn bản luận CoT: {result.get('title', '')}")
             ctrl.changed.emit()
             return True
-        except Exception as e:
-            ctrl._status = f"Lỗi tổng hợp bản nháp: {e}"
+        except Exception as exc:
+            self.error = f"Lỗi soạn bản luận: {exc}"
             ctrl.changed.emit()
             return False
 
@@ -163,7 +174,10 @@ class ReadingDeskCoordinator:
         ctrl = self.controller
         if ctrl._closed:
             return False
-        self.saved_draft = text or ""
-        ctrl._status = "Đã lưu bản nháp."
-        ctrl.changed.emit()
-        return True
+        if self.draft:
+            self.draft["draft_markdown"] = text
+            self.draft["user_edited"] = True
+            ctrl._events.append("Người dùng đã chỉnh sửa và lưu bản luận nháp")
+            ctrl.changed.emit()
+            return True
+        return False

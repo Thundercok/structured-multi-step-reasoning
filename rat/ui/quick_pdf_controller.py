@@ -42,6 +42,7 @@ from rat.ui.answer_presentation import (
 )
 from rat.ui.assistant_worker import create_execution_worker
 from rat.ui.pdf_snapshot_provider import PdfSnapshotRenderer
+from rat.ui.reading_coordinator import ReadingDeskCoordinator
 from rat.kernel.contracts import Artifact, SourceEvidence
 
 logger = logging.getLogger("rat.ui.quick_pdf_controller")
@@ -256,15 +257,7 @@ class QuickPDFController(QObject):
         self._finder_hits: List[Dict[str, Any]] = []
         self._finder_query: str = ""
         self._finder_feedback = ""
-        self._reading_cards = []
-        self._reading_chart = None
-        self._reading_draft: Dict[str, Any] = {}
-        self._reading_cot_steps: List[Dict[str, Any]] = []
-        self._reading_grounds: List[Dict[str, Any]] = []
-        self._reading_error = ""
-        self._reading_return_view = "none"
-        self._reading_return_expanded = False
-        self._reading_result_refs = {}
+        self._reading_coordinator = ReadingDeskCoordinator(self)
         self._db_path = db_path or str(config.db_path)
         self._finder_semantic = SemanticFuzzyReranker(self._db_path)
         self._cached_apps_list: List[Dict[str, Any]] = []
@@ -447,15 +440,7 @@ class QuickPDFController(QObject):
             "finderHits": list(self._finder_hits),
             "finderQuery": self._finder_query,
             "finderFeedback": self._finder_feedback,
-            "readingSession": {
-                "cards": list(self._reading_cards),
-                "chart": self._reading_chart,
-                "draft": dict(self._reading_draft),
-                "cotSteps": list(self._reading_cot_steps),
-                "grounds": list(self._reading_grounds),
-                "error": self._reading_error,
-                "resultRefs": dict(self._reading_result_refs),
-            },
+            "readingSession": self._reading_coordinator.snapshot_data,
             "installedApps": list(self._cached_apps_list),
             "isAppsView": (view == "apps"),
             "savedDraft": self._saved_draft,
@@ -1610,139 +1595,28 @@ class QuickPDFController(QObject):
 
     @pyqtSlot()
     def openReadingDesk(self):
-        if self._closed or self.snapshot['busy']:
-            return
-        # Dynamically load optional domain tool pack into the runtime
-        try:
-            if hasattr(self, "assistant_runtime") and self.assistant_runtime:
-                self.assistant_runtime.load_tool_pack("divination")
-                self.assistant_runtime.load_tool_pack("astrology")
-        except Exception as e:
-            logger.debug(f"Note dynamically loading reading pack: {e}")
-        if self._view != 'reading':
-            self._reading_return_view = self._view
-            self._reading_return_expanded = self._expanded
-        if self._finder_coordinator:
-            self._finder_coordinator.cancel()
-        self._view = 'reading'
-        self._expanded = True
-        self._status = 'Bàn xem · bài và lá số'
-        self.changed.emit()
+        self._reading_coordinator.open_desk()
 
     @pyqtSlot()
     def closeReadingDesk(self):
-        if self._view == 'reading':
-            self._view = self._reading_return_view
-            self._expanded = self._reading_return_expanded
-            self._status = 'Chuột sẵn sàng. Bạn cần gì?'
-            self.changed.emit()
+        self._reading_coordinator.close_desk()
 
     @pyqtSlot(str, result=bool)
     def setReadingCards(self, text: str) -> bool:
-        if self._closed:
-            return False
-        try:
-            result = self._execute_reading_tool('prepare_reading_spread', {'text': text})
-        except ValueError as exc:
-            self._reading_error = str(exc)
-            self.changed.emit()
-            return False
-        self._reading_cards = result['cards']
-        self._reading_error = ''
-        self.changed.emit()
-        return True
+        return self._reading_coordinator.set_cards(text)
 
     @pyqtSlot(str, result=bool)
     def importReadingProfile(self, path: str) -> bool:
-        if self._closed:
-            return False
-        from rat.ui.reading_presentation import reading_profile_view
-        url = QUrl(path)
-        local = url.toLocalFile() if url.isLocalFile() else path
-        try:
-            result = self._execute_reading_tool('load_reading_profile', {'file_path': local}, selected_path=local)
-            chart = reading_profile_view(result)
-        except (ValueError, KeyError, TypeError, OSError) as exc:
-            self._reading_error = 'Không mở được hồ sơ: ' + str(exc)
-            self.changed.emit()
-            return False
-        self._reading_chart = chart
-        self._reading_error = ''
-        self.changed.emit()
-        return True
-
-    def _execute_reading_tool(self, name, args, *, selected_path=None, extra_context=None):
-        # Explicit user action is the plan input. Domain execution uses the unified
-        # AgentExecutionService with envelope validation and journal lifecycle.
-        from rat.engine.execution import ExecutionRequest
-        from rat.engine.execution_service import AgentExecutionService
-
-        exec_id = 'reading-' + uuid4().hex
-        ctx = {
-            'selected_document_path': selected_path,
-            'reading_cards': list(self._reading_cards),
-            'reading_chart': copy.deepcopy(self._reading_chart) if self._reading_chart else None,
-            'context_notes': str(self._saved_draft or ""),
-        }
-        if extra_context:
-            for k, v in extra_context.items():
-                if k not in ("runtime", "model_client", "db"):
-                    ctx[k] = v
-
-        req = ExecutionRequest(
-            f"Thực thi {name}",
-            execution_id=exec_id,
-            origin="ui_action",
-            requested_action={"name": name, "args": args},
-            context=ctx,
-        )
-        service = AgentExecutionService(self.assistant_runtime)
-        resp = service.execute(req)
-        if resp.error or not resp.artifacts:
-            raise ValueError(resp.error or 'Chưa chuẩn bị được dữ liệu phiên xem.')
-        artifact = resp.artifacts[0]
-        self._reading_result_refs[name] = {'artifact_id': artifact.id, 'revision': artifact.revision}
-        return artifact.payload
+        return self._reading_coordinator.import_profile(path)
 
     @pyqtSlot(result=bool)
     @pyqtSlot(str, result=bool)
     def synthesizeReadingDraft(self, query: str = "") -> bool:
-        if self._closed or self.snapshot["busy"]:
-            return False
-        if not self._reading_cards:
-            self._reading_error = "Hãy đặt bài lên bàn trước khi soạn bản luận."
-            self.changed.emit()
-            return False
-        self._reading_error = ""
-        q = query.strip() or "Soạn bản luận cho trải bài hiện tại"
-        try:
-            result = self._execute_reading_tool("synthesize_reading_draft", {
-                "query": q,
-            })
-            self._reading_draft = result
-            self._reading_cot_steps = result.get("cot_steps", [])
-            self._reading_grounds = result.get("grounds", [])
-            self._reading_error = ""
-            self._status = "Đã soạn bản luận có cấu trúc"
-            self._events.append(f"Đã soạn bản luận CoT: {result.get('title', '')}")
-            self.changed.emit()
-            return True
-        except Exception as exc:
-            self._reading_error = f"Lỗi soạn bản luận: {exc}"
-            self.changed.emit()
-            return False
+        return self._reading_coordinator.synthesize_draft(query)
 
     @pyqtSlot(str, result=bool)
     def saveReadingDraft(self, text: str) -> bool:
-        if self._closed:
-            return False
-        if self._reading_draft:
-            self._reading_draft["draft_markdown"] = text
-            self._reading_draft["user_edited"] = True
-            self._events.append("Người dùng đã chỉnh sửa và lưu bản luận nháp")
-            self.changed.emit()
-            return True
-        return False
+        return self._reading_coordinator.save_draft(text)
 
     @pyqtSlot(str)
     def openPdfHit(self, path: str):
