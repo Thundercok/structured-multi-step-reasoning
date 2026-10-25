@@ -1,0 +1,415 @@
+....F...........F..............FF......F..............F................. [ 87%]
+..........                                                               [100%]
+=================================== FAILURES ===================================
+__ TestCrashShield.test_resident_app_request_quit_timeout_reports_incomplete ___
+
+self = <tests.test_crash_shield.TestCrashShield testMethod=test_resident_app_request_quit_timeout_reports_incomplete>
+
+    def test_resident_app_request_quit_timeout_reports_incomplete(self):
+        """Verify that when a worker refuses to stop within timeout, incomplete shutdown is reported."""
+        from rat.os.app import ResidentApplication
+        from PyQt6.QtCore import QThread
+        import time
+    
+        class StuckWorker(QThread):
+            def __init__(self):
+                super().__init__()
+                self.force_stop = False
+    
+            def run(self):
+                # Ignores isInterruptionRequested() until force_stop is set
+                while not self.force_stop:
+                    time.sleep(0.01)
+    
+        worker = StuckWorker()
+        worker.start()
+    
+        res_app = ResidentApplication(mode="daemon")
+        self.addCleanup(self._dispose_resident, res_app)
+        view, ctrl = res_app._ensure_desk()
+        ctrl._execution_workers.add(worker)
+    
+        outcome = []
+        # Short timeout to trigger timeout probe
+        res_app.request_quit(timeout=0.1, on_finished=lambda clean: outcome.append(clean))
+    
+        deadline = time.monotonic() + 1.0
+        while not outcome and time.monotonic() < deadline:
+            app.processEvents()
+            time.sleep(0.02)
+    
+        self.assertTrue(res_app._shutdown_timer.isActive())
+        self.assertFalse(res_app._teardown_done)
+        self.assertTrue(worker.isRunning())
+        timer = res_app._shutdown_timer
+        res_app.request_quit(timeout=0.1)
+        self.assertIs(res_app._shutdown_timer, timer)
+    
+        # Cleanup stuck worker
+        worker.force_stop = True
+        worker.wait(1000)
+    
+        # Must report incomplete shutdown (clean == False)
+>       self.assertEqual(outcome, [False])
+E       AssertionError: Lists differ: [] != [False]
+E       
+E       Second list contains 1 additional elements.
+E       First extra element 0:
+E       False
+E       
+E       - []
+E       + [False]
+
+tests/test_crash_shield.py:217: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  rat.os.app:app.py:269 ResidentApplication: Shutdown timed out after 0.1s with active workers: ['DeskWorker(StuckWorker)']. Keeping application alive and holding worker ownership until all workers finish.
+________ test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot ________
+
+app = <PyQt6.QtGui.QGuiApplication object at 0x1050b4550>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1944/test_pure_chatbox_enter_asks_p0')
+
+    def test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot(app, tmp_path):
+        """Build 2026.10.24.8: Enter in composer asks Chuột directly even when a PDF is attached."""
+        from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
+    
+        dispatched = []
+    
+        class StubDocModel:
+            def chat_with_meta(self, messages, tools, **kwargs):
+                dispatched.append(messages)
+                return {
+                    "message": {"content": "Tài liệu nêu binary search dùng O(log n) phép so sánh."},
+                    "prompt_tokens": 24,
+                    "completion_tokens": 12,
+                }
+    
+            def close(self):
+                pass
+    
+        pdf_path = write_pdf(tmp_path / "Algo.pdf", ["Intro page", "Binary search uses log n comparisons."])
+        stub_model = StubDocModel()
+        runtime = AssistantRuntime(model_client=stub_model, discover_tools=True)
+        runtime.document_model_client = stub_model
+        control = QuickPDFController(assistant_runtime=runtime, auto_init_finder=False)
+        control.ready()
+        view = QQuickView()
+        warnings = []
+        view.engine().warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+        view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+        view.setInitialProperties({"liveController": control, "reduceMotion": True})
+        view.setSource(QUrl.fromLocalFile(str(PROJECT / "rat/ui/quick/PDFDesk.qml")))
+        assert view.status() == QQuickView.Status.Ready
+        root = view.rootObject()
+        view.resize(640, 520)
+        timer = bind_desk_window(view)
+        view.show()
+        try:
+            control.selectFile(str(pdf_path))
+            wait_for(lambda: not control.snapshot["busy"])
+            send_btn = root.findChild(QQuickItem, "sendButton")
+            assert send_btn.property("iconName") == "arrow-up"
+    
+            # 1. Pure chatbox: pressing Enter directly asks Chuột about the selected PDF (no Cmd+Enter needed).
+            editor = root.findChild(QQuickItem, "draftEditor")
+            editor.setProperty("text", "Binary search tốn bao nhiêu phép so sánh?")
+            editor.forceActiveFocus()
+            QTest.keyClick(view, Qt.Key.Key_Return)
+            wait_for(lambda: not control.snapshot["busy"] and control.snapshot["view"] == "answer")
+            assert editor.property("text") == ""
+            assert len(dispatched) == 1
+            assert dispatched[0][-1]["content"] == "Binary search tốn bao nhiêu phép so sánh?"
+            assert "O(log n)" in control.snapshot["answerText"]
+    
+            # 2. Explicit page citation renders a clickable cropped snapshot card in answerSources.
+            turn = control.conversation.begin_turn("Trang nào nêu phép so sánh?")
+            control._current_turn_id = turn.turn_id
+            control._current_execution_id = turn.execution_id
+            control._current_worker = object()
+            control._last_user_query = "Trang nào nêu phép so sánh?"
+            control._on_execution_response(AgentResponse(
+                "Xem chi tiết tại trang 2.",
+                [],
+                0,
+                0,
+                0,
+                sources=[{
+                    "path": str(pdf_path),
+                    "page": 2,
+                    "excerpt": "Binary search uses log n comparisons.",
+                }],
+                execution_id=turn.execution_id,
+                answer_verification_status="PASS",
+            ))
+            click(view, root, "notice")
+            click(view, root, "answerSourcesToggle")
+            src_snap = find_item(root, "sourceSnapshot_0")
+            assert src_snap is not None and src_snap.isVisible()
+            wait_for(lambda: bool(src_snap.property("snapshotReady")))
+            assert src_snap.height() >= 58
+    
+            # Security check: pageSnapshot rejects any unselected path
+            other_pdf = write_pdf(tmp_path / "Other.pdf", ["Secret"])
+            assert control.pageSnapshot(str(other_pdf), 1, "Secret", "Secret") == ""
+    
+            # Accent-insensitive recovery check: unaccented query recovers accented span from snippet
+            from rat.ui.pdf_snapshot_provider import _candidate_phrases_and_words
+            phrases, words = _candidate_phrases_and_words("quy che", "Điều 5: Quy chế học vụ tối đa 24 tín chỉ.")
+            assert phrases[0] == "Quy chế"
+            assert "Quy" in words and "chế" in words
+    
+            click(view, root, "sourceSnapshot_0")
+            wait_for(lambda: not control.snapshot["busy"] and control.snapshot["view"] == "page")
+            assert control.snapshot["pageNumber"] == 2
+            assert control.snapshot["canBackToAnswer"]
+>           click(view, root, "backToAnswer")
+
+tests/test_quick_pdf.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+view = <PyQt6.QtQuick.QQuickView object at 0x1615ae2b0>
+root = <PyQt6.QtQuick.QQuickItem object at 0x1615ae7b0>, name = 'backToAnswer'
+
+    def click(view, root, name):
+        item = find_item(root, name)
+        assert item is not None and item.isVisible(), name
+        point = item.mapToScene(QPointF(item.width() / 2, item.height() / 2))
+>       assert 0 <= point.x() <= view.width() and 0 <= point.y() <= view.height(), (name, point)
+E       AssertionError: ('backToAnswer', PyQt6.QtCore.QPointF(219.5, -56.0))
+E       assert (219.5 <= 640 and 0 <= -56.0)
+E        +  where 219.5 = <built-in method x of QPointF object at 0x16153b050>()
+E        +    where <built-in method x of QPointF object at 0x16153b050> = PyQt6.QtCore.QPointF(219.5, -56.0).x
+E        +  and   640 = <built-in method width of QQuickView object at 0x1615ae2b0>()
+E        +    where <built-in method width of QQuickView object at 0x1615ae2b0> = <PyQt6.QtQuick.QQuickView object at 0x1615ae2b0>.width
+E        +  and   -56.0 = <built-in method y of QPointF object at 0x16153b050>()
+E        +    where <built-in method y of QPointF object at 0x16153b050> = PyQt6.QtCore.QPointF(219.5, -56.0).y
+
+tests/test_quick_pdf.py:56: AssertionError
+_______ test_described_file_can_open_outside_and_missing_file_is_inline ________
+
+finder_fixture = {'db': <rat.crawler.db.Database object at 0x17ec918e0>, 'db_path': '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql74800...le calculator')),), issues=()), 'search': <rat.engine.progressive_search.ProgressiveSearch object at 0x17ec92930>, ...}
+
+    def test_described_file_can_open_outside_and_missing_file_is_inline(finder_fixture):
+        app = QGuiApplication.instance() or QGuiApplication([])
+        opened = []
+        controller = QuickPDFController(
+            finder_catalog=finder_fixture['catalog'], db_path=finder_fixture['db_path'],
+            auto_init_finder=False, open_url=lambda url: opened.append(url.toLocalFile()) or True,
+        )
+        controller.ready()
+        try:
+            controller.onComposerTextChanged('tim file co noi dung danh sach sinh vien')
+            _process_events(250)
+>           assert [h['path'] for h in controller.snapshot['finderHits']] == [finder_fixture['txt_path']]
+E           AssertionError: assert [] == ['/private/va...sach_lop.txt']
+E             
+E             Right contains one more item: '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1944/test_described_file_can_open_o0/danh_sach_lop.txt'
+E             Use -v to get more diff
+
+tests/test_quick_finder_flow.py:293: AssertionError
+_______________________ test_quick_finder_ask_about_file _______________________
+
+finder_fixture = {'db': <rat.crawler.db.Database object at 0x17ec69ac0>, 'db_path': '/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql74800...le calculator')),), issues=()), 'search': <rat.engine.progressive_search.ProgressiveSearch object at 0x17ec8b470>, ...}
+
+    def test_quick_finder_ask_about_file(finder_fixture):
+        """Clicking 'Hỏi về tệp' attaches the file context to assistant reasoning."""
+        app = QGuiApplication.instance() or QGuiApplication([])
+    
+        backend = RecordingBackend()
+        bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
+        engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
+    
+        controller = QuickPDFController(
+            finder_search=finder_fixture["search"],
+            finder_catalog=finder_fixture["catalog"],
+            reasoning_engine=engine,
+            allow_synthetic_policy=True,
+            auto_init_finder=False,
+        )
+        controller.ready()
+    
+        ok = controller.askAboutHit(finder_fixture["txt_path"], "Tóm tắt danh sách lớp")
+        assert ok is True
+        _process_events(350)
+    
+        snap = controller.snapshot
+>       assert snap["view"] == "answer"
+E       AssertionError: assert 'busy' == 'answer'
+E         
+E         - answer
+E         + busy
+
+tests/test_quick_finder_flow.py:332: AssertionError
+________________ test_quick_finder_slice_see_more_and_min_mode _________________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1944/test_quick_finder_slice_see_mo0')
+
+    def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
+        """Build 2026.10.24.7: max 3 suggestions slice, see-more toggle, collapse selection reset, and min/full draft preservation."""
+        from rat.ui.icon_provider import RatIconProvider
+        from rat.ui.quick_app import bind_desk_window
+    
+        app = QGuiApplication.instance() or QGuiApplication([])
+    
+        # Create 5 synthetic documents
+        db_path = tmp_path / "test_slice.db"
+        db = Database(str(db_path))
+        for i in range(1, 6):
+            p = tmp_path / f"document_note_{i}.txt"
+            p.write_text(f"Content of document {i}")
+            db.upsert_document({
+                "file_path": str(p),
+                "file_name": p.name,
+                "file_ext": ".txt",
+                "file_size": p.stat().st_size,
+                "created_at": 1000.0 + i,
+                "modified_at": 1000.0 + i,
+                "indexed_at": 1000.0 + i,
+                "content_text": f"Document note {i} sample text",
+                "summary": f"Summary note {i}",
+            })
+    
+        search = ProgressiveSearch(db_path, catalog=ApplicationCatalog())
+        controller = QuickPDFController(
+            finder_search=search,
+            auto_init_finder=False,
+        )
+    
+        view = QQuickView()
+        RatIconProvider.register(view.engine(), "icon")
+        view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+        view.setInitialProperties({"liveController": controller, "reduceMotion": True})
+        view.setSource(QUrl.fromLocalFile(str(Path("rat/ui/quick/PDFDesk.qml").resolve())))
+        assert view.status() == QQuickView.Status.Ready
+        controller.ready()
+        view.resize(520, 500)
+        timer = bind_desk_window(view)
+        view.show()
+        _process_events(100)
+    
+        try:
+            root = view.rootObject()
+>           assert root.property("uiBuildLabel") in ("Build 2026.10.24.9", "Build 2026.10.24.10", "Build 2026.10.24.11", "Build 2026.10.24.12", "Build 2026.10.24.13", "Build 2026.10.24.14", "Build 2026.10.24.15", "Build 2026.10.24.16", "Build 2026.10.25.17", "Build 2026.10.25.18", "Build 2026.10.25.19", "Build 2026.10.25.20", "Build 2026.10.25.21", "Build 2026.10.25.22", "Build 2026.10.25.23", "Build 2026.10.25.24")
+E           AssertionError: assert 'Build 2026.10.25.24 · Qt Quick' in ('Build 2026.10.24.9', 'Build 2026.10.24.10', 'Build 2026.10.24.11', 'Build 2026.10.24.12', 'Build 2026.10.24.13', 'Build 2026.10.24.14', ...)
+E            +  where 'Build 2026.10.25.24 · Qt Quick' = <built-in method property of QQuickItem object at 0x17ece99f0>('uiBuildLabel')
+E            +    where <built-in method property of QQuickItem object at 0x17ece99f0> = <PyQt6.QtQuick.QQuickItem object at 0x17ece99f0>.property
+
+tests/test_quick_finder_flow.py:711: AssertionError
+_____________ test_answer_copy_and_source_page_journey[700-False] ______________
+
+app = <PyQt6.QtGui.QGuiApplication object at 0x1050b4550>
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1944/test_answer_copy_and_source_pa2')
+width = 700, dark = False
+
+    @pytest.mark.parametrize('width,dark', [(520, False), (520, True), (700, False), (700, True)])
+    def test_answer_copy_and_source_page_journey(app, tmp_path, width, dark):
+        path = write_pdf(tmp_path / 'Source.pdf', ['Page one', 'Actual evidence on page two', 'Page three'])
+        controller = QuickPDFController(auto_init_finder=False)
+        controller.ready()
+        controller.selectFile(str(path))
+        wait_for(lambda: not controller.snapshot['busy'])
+        original = '**Kết quả**\n\n`value = 2`'
+        complete_fixture(controller, 'Đọc nguồn', original, [
+            {'path': str(path), 'page': 2}, {'path': str(path)},
+        ])
+        copied = []
+        controller.copyReady.connect(copied.append)
+        view = QQuickView()
+        warnings = []
+        view.engine().warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+        view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+        view.setInitialProperties({'liveController': controller, 'reduceMotion': True})
+        view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / 'rat/ui/quick/PDFDesk.qml')))
+        assert view.status() == QQuickView.Status.Ready, [e.toString() for e in view.errors()]
+        root = view.rootObject()
+        view.resize(width, 550)
+        timer = bind_desk_window(view)
+        view.show()
+        try:
+            QTest.qWait(60)
+            root.setProperty('darkMode', dark)
+            QTest.qWait(20)
+            answer_item = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'answerText')
+            doc_label = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'answerDocumentLabel')
+            assert doc_label is not None and doc_label.isVisible()
+            assert doc_label.property('text') == 'Source.pdf'
+    
+            # Information Evidence Sheet verification (Build 2026.10.25.18)
+            process_card = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceProcessCard')
+            assert process_card is not None and process_card.isVisible()
+            source_card = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceSourceCard')
+            assert source_card is not None and source_card.isVisible()
+            source_title = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceSourceTitle')
+            assert source_title is not None and 'Source.pdf' in source_title.property('text')
+            source_snippet = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceSourceSnippet')
+            assert source_snippet is not None and source_snippet.isVisible()
+            copy_btn = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'copyCitationButton')
+            assert copy_btn is not None and copy_btn.isVisible()
+            open_ext_btn = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'openExternalPdfButton')
+            assert open_ext_btn is not None and open_ext_btn.isVisible()
+            expand_btn = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'expandContextButton')
+            assert expand_btn is not None and expand_btn.isVisible()
+    
+            # Toggle expanded context
+            assert not root.property('contextExpanded')
+            click(view, root, 'expandContextButton')
+            assert root.property('contextExpanded')
+            click(view, root, 'expandContextButton')
+            assert not root.property('contextExpanded')
+    
+            # Toggle process details
+            assert not root.property('processDetailsOpen')
+            click(view, root, 'processDetailsToggle')
+            assert root.property('processDetailsOpen')
+            details_content = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'processDetailsContent')
+            assert details_content is not None and details_content.isVisible()
+            click(view, root, 'processDetailsToggle')
+            assert not root.property('processDetailsOpen')
+    
+            # Click copy citation button
+            click(view, root, 'copyCitationButton')
+            assert root.property('sourceCopied') is True
+    
+            code_format = answer_item.property('textDocument').textDocument().find('value = 2').charFormat()
+            assert code_format.background().color().name() == ('#333b2f' if dark else '#eff3e9')
+            menu = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'documentMenu')
+            composer = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'composer')
+            chip = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'contextChip')
+            assert menu.isVisible() and menu.width() < chip.width() <= composer.width() - 28
+            paper = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'resultPaper')
+            assert abs(paper.mapToScene(QPointF(paper.width(), 0)).x() - composer.mapToScene(QPointF(composer.width(), 0)).x()) <= 1
+            click(view, root, 'copyCitation')
+            assert copied[-1] == original  # Markdown source is copied in full, not normalized HTML.
+            click(view, root, 'documentMenu')
+            wait_for(lambda: controller.snapshot['view'] == 'page')
+            assert controller.snapshot['canBackToAnswer']
+>           click(view, root, 'backToAnswer')
+
+tests/test_quick_answer_presentation.py:329: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+view = <PyQt6.QtQuick.QQuickView object at 0x161626ad0>
+root = <PyQt6.QtQuick.QQuickItem object at 0x1616259f0>, name = 'backToAnswer'
+
+    def click(view, root, name):
+        item = find_item(root, name)
+        assert item is not None and item.isVisible(), name
+        point = item.mapToScene(QPointF(item.width() / 2, item.height() / 2))
+>       assert 0 <= point.x() <= view.width() and 0 <= point.y() <= view.height(), (name, point)
+E       AssertionError: ('backToAnswer', PyQt6.QtCore.QPointF(219.5, -56.0))
+E       assert (219.5 <= 700 and 0 <= -56.0)
+E        +  where 219.5 = <built-in method x of QPointF object at 0x161686ad0>()
+E        +    where <built-in method x of QPointF object at 0x161686ad0> = PyQt6.QtCore.QPointF(219.5, -56.0).x
+E        +  and   700 = <built-in method width of QQuickView object at 0x161626ad0>()
+E        +    where <built-in method width of QQuickView object at 0x161626ad0> = <PyQt6.QtQuick.QQuickView object at 0x161626ad0>.width
+E        +  and   -56.0 = <built-in method y of QPointF object at 0x161686ad0>()
+E        +    where <built-in method y of QPointF object at 0x161686ad0> = PyQt6.QtCore.QPointF(219.5, -56.0).y
+
+tests/test_quick_pdf.py:56: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_crash_shield.py::TestCrashShield::test_resident_app_request_quit_timeout_reports_incomplete
+FAILED tests/test_quick_pdf.py::test_pure_chatbox_enter_asks_pdf_and_renders_citation_snapshot
+FAILED tests/test_quick_finder_flow.py::test_described_file_can_open_outside_and_missing_file_is_inline
+FAILED tests/test_quick_finder_flow.py::test_quick_finder_ask_about_file - As...
+FAILED tests/test_quick_finder_flow.py::test_quick_finder_slice_see_more_and_min_mode
+FAILED tests/test_quick_answer_presentation.py::test_answer_copy_and_source_page_journey[700-False]
+6 failed, 76 passed in 160.11s (0:02:40)

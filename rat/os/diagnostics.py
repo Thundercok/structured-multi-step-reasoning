@@ -62,7 +62,7 @@ def run_session(argv=None):
     SLMEngine.list_installed_models = lambda self: []
     SLMEngine.is_service_running = lambda self: False
     from PyQt6.QtCore import QTimer, qInstallMessageHandler
-    from PyQt6.QtWidgets import QApplication
+    from PyQt6.QtGui import QGuiApplication
     from rat.os import single_instance
     single_instance.SINGLE_INSTANCE_SERVER_NAME += f'_diagnostic_{os.getpid()}'
     from rat.os.permissions import accessibility_status, runtime_identity
@@ -74,7 +74,7 @@ def run_session(argv=None):
         with (session / 'qt_messages.jsonl').open('a', encoding='utf-8') as stream:
             stream.write(json.dumps({'kind': str(kind), 'message': message}, ensure_ascii=False) + '\n')
     previous_handler = qInstallMessageHandler(qt_message)
-    app = QApplication.instance() or QApplication(sys.argv)
+    app = QGuiApplication.instance() or QGuiApplication(sys.argv)
     app.setProperty('rat_diagnostic_session', str(session))
     identity = runtime_identity()
     (session / 'identity.json').write_text(json.dumps(identity, indent=2) + '\n')
@@ -86,7 +86,7 @@ def run_session(argv=None):
     def snapshot():
         nonlocal last
         manager = resident.hotkey_manager if resident else None
-        window = resident.omnibar_window if resident else None
+        window = resident.desk_view if resident else None
         value = {'accessibility': accessibility_status().to_dict(),
                  'hotkey_status': getattr(manager, 'status', 'not_started'),
                  'hotkey_error': getattr(manager, 'last_error', None),
@@ -98,7 +98,7 @@ def run_session(argv=None):
     timer.timeout.connect(snapshot)
     timer.start(500)
     if args.seconds:
-        QTimer.singleShot(args.seconds * 1000, app.quit)
+        QTimer.singleShot(args.seconds * 1000, lambda: resident.request_quit() if resident else None)
     outcome = {'status': 'starting'}
     try:
         resident = ResidentApplication(mode='spotlight')

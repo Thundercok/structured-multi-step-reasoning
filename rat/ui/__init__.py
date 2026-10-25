@@ -1,14 +1,17 @@
-"""RAT UI exports, loaded only when a widget is requested."""
-from importlib import import_module
+"""Qt Quick UI exports, loaded only when explicitly requested.
 
-__all__ = ["OmnibarWindow", "SpotlightWindow", "PreviewPanel", "SettingsDialog"]
-_MODULES = {"OmnibarWindow": "omnibar", "SpotlightWindow": "spotlight_window",
-            "PreviewPanel": "preview_panel", "SettingsDialog": "settings_dialog"}
+Importing a presentation helper must not initialize the application or Qt.
+"""
+from __future__ import annotations
+
+__all__ = ["QuickPDFController", "quick_main"]
 
 
 def __getattr__(name):
-    if name not in _MODULES:
-        raise AttributeError(name)
-    value = getattr(import_module(f"rat.ui.{_MODULES[name]}"), name)
-    globals()[name] = value
-    return value
+    if name == "QuickPDFController":
+        from rat.ui.quick_pdf_controller import QuickPDFController
+        return QuickPDFController
+    if name == "quick_main":
+        from rat.ui.quick_app import main
+        return main
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

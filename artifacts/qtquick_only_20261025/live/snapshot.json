@@ -1,0 +1,2196 @@
+{
+  "phase": "result",
+  "busy": false,
+  "expanded": true,
+  "unread": false,
+  "hasWorkbench": true,
+  "view": "answer",
+  "fileName": "arxiv_2506.22716_original.pdf",
+  "pageCount": 25,
+  "activeContext": {
+    "type": "pdf",
+    "title": "arxiv_2506.22716_original.pdf",
+    "subtitle": "Trang 1/25",
+    "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf"
+  },
+  "title": "Tiêu đề của bài báo này là gì? Chỉ trả lời tiêu đề.",
+  "status": "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ.",
+  "query": "Tiêu đề của bài báo này là gì? Chỉ trả lời tiêu đề.",
+  "userQuery": "Tiêu đề của bài báo này là gì? Chỉ trả lời tiêu đề.",
+  "answerText": "BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute",
+  "answerExcerpt": "BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute",
+  "answerPreviewIsCode": false,
+  "answerOutcome": "completed",
+  "answerHtml": "<p style=\"margin-top:0;margin-bottom:12px;line-height:145%\">BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute</p>",
+  "answerHtmlDark": "<p style=\"margin-top:0;margin-bottom:12px;line-height:145%\">BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute</p>",
+  "answerSources": [
+    {
+      "title": "arxiv_2506.22716_original.pdf",
+      "page": 0,
+      "section": "",
+      "label": "Chưa xác định trang",
+      "location": "Chưa xác định trang",
+      "readScope": "Trích đoạn · 3.000 ký tự",
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "snippet": "Title: BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute\n\nAuthor: Dujian Ding; Ankur Mallick; Shaokun Zhang; Chi Wang; Daniel Madrigal; Mirian Del Carmen Hipolito Garcia; Menglin Xia; Laks V. S. Lakshmanan; Qingyun Wu; Victor Rühle\n\n--- Page 1 ---\narXiv:2506.22716v1 [cs.LG] 28 Jun 2025\nBEST-Route: Adaptive LLM Routing with Test-Time Optimal\nCompute\nDujian Ding∗†1, Ankur Mallick2, Shaokun Zhang3, Chi Wang‡4, Daniel Madrigal2\n,\nMirian Del Carmen Hipolito Garcia2, Menglin Xia2, Laks V.S. Lakshmanan1, Qingyun Wu3,5\n,\nand Victor R¨uhle2\n1The University of British Columbia\n2Microsoft\n3",
+      "extendedSnippet": "Title: BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute\n\nAuthor: Dujian Ding; Ankur Mallick; Shaokun Zhang; Chi Wang; Daniel Madrigal; Mirian Del Carmen Hipolito Garcia; Menglin Xia; Laks V. S. Lakshmanan; Qingyun Wu; Victor Rühle\n\n--- Page 1 ---\narXiv:2506.22716v1 [cs.LG] 28 Jun 2025\nBEST-Route: Adaptive LLM Routing with Test-Time Optimal\nCompute\nDujian Ding∗†1, Ankur Mallick2, Shaokun Zhang3, Chi Wang‡4, Daniel Madrigal2\n,\nMirian Del Carmen Hipolito Garcia2, Menglin Xia2, Laks V.S. Lakshmanan1, Qingyun Wu3,5\n,\nand Victor R¨uhle2\n1The University of British Columbia\n2Microsoft\n3Pennsylvania State University\n4Google DeepMind\n5AG2AI, Inc.\nAbstract\nLarge language models (LLMs) are powerful tools but are often expensive to deploy at scale.\nLLM query routing mitigates this by dynamically assigning queries to models of varying cost\nand quality to obtain a desired trade-off. Prior query routing approaches generate only one\nresponse from the selected model and a single response from a small (inexpensive) model was\noften not good enough to beat a response from a large (expensive) model due to which they end\nup overusing the large model and missing out on potential cost savings. However, it is well known\nthat for small models, generating multiple responses and selecting the best can enhance quality\nwhile remaining cheaper than a single large-model response. We leverage this idea to propose\nBEST-Route, a novel routing framework that chooses a model and the number of responses to\nsample from it based on query difficulty and the quality thresholds. Experiments on real-world\ndatasets demonstrate that our method reduces costs by up to 60% with less than 1% performance\ndrop.\n1 Introduction\nLarge language models (LLMs) have revolutionized natural language processing (NLP)",
+      "hasMoreContext": true,
+      "canOpen": false
+    }
+  ],
+  "processSteps": [
+    {
+      "stepNumber": 1,
+      "shortTitle": "Tìm",
+      "fullTitle": "1. Tìm đoạn",
+      "iconName": "search",
+      "status": "done",
+      "detail": "Đọc đoạn trích arxiv_2506.22716_original.pdf (11116.25ms)"
+    },
+    {
+      "stepNumber": 2,
+      "shortTitle": "Đối chiếu",
+      "fullTitle": "2. Đối chiếu",
+      "iconName": "check",
+      "status": "done",
+      "detail": "Đối chiếu nội dung đoạn trích với câu hỏi"
+    },
+    {
+      "stepNumber": 3,
+      "shortTitle": "Nguồn",
+      "fullTitle": "3. Trích nguồn",
+      "iconName": "file-text",
+      "status": "done",
+      "detail": "Trích dẫn nguyên văn và số trang (arxiv_2506.22716_original.pdf)"
+    }
+  ],
+  "answerReadScope": "Trích đoạn · 3.000 ký tự",
+  "answerVerification": "UNKNOWN",
+  "telemetry": {
+    "file_path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+    "filename": "arxiv_2506.22716_original.pdf",
+    "read_ms": 11115.552,
+    "queue_ms": null,
+    "load_ms": null,
+    "loaded_for_request": null,
+    "lock_wait_ms": null,
+    "tokenize_ms": null,
+    "prefill_ms": null,
+    "cache_copy_ms": null,
+    "generation_ms": null,
+    "first_token_ms": null,
+    "decode_after_first_token_ms": null,
+    "model_duration_ms": 49158.782,
+    "total_ms": 61551.488,
+    "prompt_tokens": 959,
+    "completion_tokens": 15,
+    "reused_prefix_tokens": null,
+    "newly_submitted_tokens": null,
+    "prefix_already_prepared": null,
+    "model_calls": 1,
+    "history_turns": 0,
+    "execution_lane": "document",
+    "query_generation": 0,
+    "document_scope": {
+      "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/work/rat_reading_live_20261024/arxiv_2506.22716_original.pdf",
+      "sha256": "9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c"
+    }
+  },
+  "turnId": "turn-1",
+  "executionId": "exec-d0cfdd2d89c5",
+  "searchQuery": "",
+  "items": [],
+  "nextPage": 0,
+  "pageText": "",
+  "pageReadingText": "",
+  "pageNumber": 1,
+  "pageLabel": "1",
+  "pageTruncated": false,
+  "hasMatchedSnippet": false,
+  "matchedSnippet": "",
+  "rawMatchedSnippet": "",
+  "matchedSnippetHtml": "",
+  "matchedSnippetTruncated": false,
+  "matchedQuery": "",
+  "sourceKind": "direct",
+  "canCopy": true,
+  "canBack": false,
+  "canBackToAnswer": false,
+  "errorCode": "",
+  "errorText": "Không xử lý được yêu cầu này.",
+  "events": [
+    "Đã nhận yêu cầu.",
+    "Đang đọc trang PDF 1…",
+    "Đang đọc trang PDF 1…",
+    "Đã đọc trang PDF 1 · nhãn PDF 1. Bôi chọn đoạn muốn chép; nếu chưa chọn, dùng tối đa 500 ký tự đầu trang.",
+    "Đã gửi yêu cầu: Tiêu đề của bài báo này là gì? Chỉ trả lời tiêu đề.",
+    "Đã trả lời · có thể hỏi tiếp",
+    "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+  ],
+  "contradictionReport": null,
+  "finderHits": [],
+  "finderQuery": "",
+  "finderFeedback": "",
+  "readingSession": {
+    "cards": [],
+    "chart": null,
+    "draft": {},
+    "cotSteps": [],
+    "grounds": [],
+    "error": "",
+    "resultRefs": {}
+  },
+  "installedApps": [
+    {
+      "resource_id": "app:b88997847a4e2a62a3597c19",
+      "name": "Activity Monitor",
+      "path": "/System/Applications/Utilities/Activity Monitor.app",
+      "bundle_id": "com.apple.ActivityMonitor",
+      "version": "10.14",
+      "names": [
+        "activity monitor",
+        "com apple activitymonitor"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Activity Monitor.app"
+    },
+    {
+      "resource_id": "app:d4d99ccc31eaf16bf475b983",
+      "name": "Adobe Photoshop 2025",
+      "path": "/Applications/Adobe Photoshop 2025/Adobe Photoshop 2025.app",
+      "bundle_id": "com.adobe.Photoshop",
+      "version": "26.0.0",
+      "names": [
+        "adobe photoshop 2025",
+        "com adobe photoshop"
+      ],
+      "icon_url": "image://icon//Applications/Adobe Photoshop 2025/Adobe Photoshop 2025.app"
+    },
+    {
+      "resource_id": "app:5605fc30f4d5923463059385",
+      "name": "Adobe Premiere Pro 2025",
+      "path": "/Applications/Adobe Premiere Pro 2025/Adobe Premiere Pro 2025.app",
+      "bundle_id": "com.adobe.PremierePro.25",
+      "version": "25.1",
+      "names": [
+        "adobe premiere pro 2025",
+        "com adobe premierepro 25"
+      ],
+      "icon_url": "image://icon//Applications/Adobe Premiere Pro 2025/Adobe Premiere Pro 2025.app"
+    },
+    {
+      "resource_id": "app:bc428cc60fb3af76e6dcbe77",
+      "name": "AirPort Utility",
+      "path": "/System/Applications/Utilities/AirPort Utility.app",
+      "bundle_id": "com.apple.airport.airportutility",
+      "version": "6.3.9",
+      "names": [
+        "airport utility",
+        "com apple airport airportutility"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/AirPort Utility.app"
+    },
+    {
+      "resource_id": "app:6ff4fda601ce117e1fdc5d1e",
+      "name": "Antigravity",
+      "path": "/Applications/Antigravity.app",
+      "bundle_id": "com.google.antigravity",
+      "version": "2.26.0",
+      "names": [
+        "antigravity",
+        "com google antigravity"
+      ],
+      "icon_url": "image://icon//Applications/Antigravity.app"
+    },
+    {
+      "resource_id": "app:e9f0d09d6c6daabeb64e8496",
+      "name": "Antigravity IDE",
+      "path": "/Applications/Antigravity IDE.app",
+      "bundle_id": "com.google.antigravity-ide",
+      "version": "2.5.5",
+      "names": [
+        "antigravity ide",
+        "com google antigravity ide"
+      ],
+      "icon_url": "image://icon//Applications/Antigravity IDE.app"
+    },
+    {
+      "resource_id": "app:0d22e80d72eca418a7fcc4fa",
+      "name": "AnythingLLM",
+      "path": "/Applications/AnythingLLM.app",
+      "bundle_id": "com.anythingllm",
+      "version": "1.16.0",
+      "names": [
+        "anythingllm",
+        "com anythingllm"
+      ],
+      "icon_url": "image://icon//Applications/AnythingLLM.app"
+    },
+    {
+      "resource_id": "app:82b585ff858fb2caaca963e4",
+      "name": "App Store",
+      "path": "/System/Applications/App Store.app",
+      "bundle_id": "com.apple.AppStore",
+      "version": "3.0",
+      "names": [
+        "app store",
+        "com apple appstore"
+      ],
+      "icon_url": "image://icon//System/Applications/App Store.app"
+    },
+    {
+      "resource_id": "app:b3b49557bc9ea152a9543e08",
+      "name": "Apps",
+      "path": "/System/Applications/Apps.app",
+      "bundle_id": "com.apple.apps.launcher",
+      "version": "1.0",
+      "names": [
+        "apps",
+        "com apple apps launcher"
+      ],
+      "icon_url": "image://icon//System/Applications/Apps.app"
+    },
+    {
+      "resource_id": "app:04c5462360c9b3e8033779e8",
+      "name": "Audio MIDI Setup",
+      "path": "/System/Applications/Utilities/Audio MIDI Setup.app",
+      "bundle_id": "com.apple.audio.AudioMIDISetup",
+      "version": "3.8",
+      "names": [
+        "audio midi setup",
+        "com apple audio audiomidisetup"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Audio MIDI Setup.app"
+    },
+    {
+      "resource_id": "app:2b6a7bdebbc1b7eca944ee44",
+      "name": "Automator",
+      "path": "/System/Applications/Automator.app",
+      "bundle_id": "com.apple.Automator",
+      "version": "2.10",
+      "names": [
+        "automator",
+        "com apple automator"
+      ],
+      "icon_url": "image://icon//System/Applications/Automator.app"
+    },
+    {
+      "resource_id": "app:5435793ba65acdcb63a586bb",
+      "name": "Azure Data Studio",
+      "path": "/Applications/Azure Data Studio.app",
+      "bundle_id": "com.azuredatastudio.oss",
+      "version": "1.49.1",
+      "names": [
+        "azure data studio",
+        "com azuredatastudio oss"
+      ],
+      "icon_url": "image://icon//Applications/Azure Data Studio.app"
+    },
+    {
+      "resource_id": "app:3f3795229ef33cff1b766b9c",
+      "name": "BetterDisplay",
+      "path": "/Applications/BetterDisplay.app",
+      "bundle_id": "pro.betterdisplay.BetterDisplay",
+      "version": "4.1.5",
+      "names": [
+        "betterdisplay",
+        "pro betterdisplay betterdisplay"
+      ],
+      "icon_url": "image://icon//Applications/BetterDisplay.app"
+    },
+    {
+      "resource_id": "app:0f819d48f39b5177b987fff2",
+      "name": "BibDesk",
+      "path": "/Applications/TeX/BibDesk.app",
+      "bundle_id": "edu.ucsd.cs.mmccrack.bibdesk",
+      "version": "1.9.10",
+      "names": [
+        "bibdesk",
+        "edu ucsd cs mmccrack bibdesk"
+      ],
+      "icon_url": "image://icon//Applications/TeX/BibDesk.app"
+    },
+    {
+      "resource_id": "app:67efe3ec21b1b6f9e4404a13",
+      "name": "Blackmagic Proxy Generator",
+      "path": "/Applications/Blackmagic Proxy Generator.app",
+      "bundle_id": "com.blackmagic-design.BlackmagicProxyGeneratorStudio",
+      "version": "18.5.1",
+      "names": [
+        "blackmagic proxy generator",
+        "com blackmagic design blackmagicproxygeneratorstudio"
+      ],
+      "icon_url": "image://icon//Applications/Blackmagic Proxy Generator.app"
+    },
+    {
+      "resource_id": "app:fcc765682f62cf496d4487c3",
+      "name": "Blackmagic RAW Player",
+      "path": "/Applications/Blackmagic RAW/Blackmagic RAW Player.app",
+      "bundle_id": "com.blackmagic-design.BlackmagicRawPlayer",
+      "version": "3.3",
+      "names": [
+        "blackmagic raw player",
+        "com blackmagic design blackmagicrawplayer"
+      ],
+      "icon_url": "image://icon//Applications/Blackmagic RAW/Blackmagic RAW Player.app"
+    },
+    {
+      "resource_id": "app:edb0905157a8cca61442a83a",
+      "name": "Blackmagic RAW Speed Test",
+      "path": "/Applications/Blackmagic RAW/Blackmagic RAW Speed Test.app",
+      "bundle_id": "com.blackmagic-design.BlackmagicRawSpeedTest",
+      "version": "3.3",
+      "names": [
+        "blackmagic raw speed test",
+        "com blackmagic design blackmagicrawspeedtest"
+      ],
+      "icon_url": "image://icon//Applications/Blackmagic RAW/Blackmagic RAW Speed Test.app"
+    },
+    {
+      "resource_id": "app:d07346ed9e6125737996f7fd",
+      "name": "Blender",
+      "path": "/Applications/Blender.app",
+      "bundle_id": "org.blenderfoundation.blender",
+      "version": "5.1.2",
+      "names": [
+        "blender",
+        "org blenderfoundation blender"
+      ],
+      "icon_url": "image://icon//Applications/Blender.app"
+    },
+    {
+      "resource_id": "app:fbd7162940680f6e086eee50",
+      "name": "Bluetooth File Exchange",
+      "path": "/System/Applications/Utilities/Bluetooth File Exchange.app",
+      "bundle_id": "com.apple.BluetoothFileExchange",
+      "version": "9.0",
+      "names": [
+        "bluetooth file exchange",
+        "com apple bluetoothfileexchange"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Bluetooth File Exchange.app"
+    },
+    {
+      "resource_id": "app:fd961ed64c08e7529a8a987a",
+      "name": "Books",
+      "path": "/System/Applications/Books.app",
+      "bundle_id": "com.apple.iBooksX",
+      "version": "8.5",
+      "names": [
+        "books",
+        "com apple ibooksx"
+      ],
+      "icon_url": "image://icon//System/Applications/Books.app"
+    },
+    {
+      "resource_id": "app:b3cfa440b9e1c5864ff8768d",
+      "name": "Boot Camp Assistant",
+      "path": "/System/Applications/Utilities/Boot Camp Assistant.app",
+      "bundle_id": "com.apple.bootcampassistant",
+      "version": "6.1.0",
+      "names": [
+        "boot camp assistant",
+        "com apple bootcampassistant"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Boot Camp Assistant.app"
+    },
+    {
+      "resource_id": "app:ca3a402b32a32825b8946eeb",
+      "name": "Bruno",
+      "path": "/Applications/Bruno.app",
+      "bundle_id": "com.usebruno.app",
+      "version": "3.3.0",
+      "names": [
+        "bruno",
+        "com usebruno app"
+      ],
+      "icon_url": "image://icon//Applications/Bruno.app"
+    },
+    {
+      "resource_id": "app:a58c3dcaf497f5c03da2a9e3",
+      "name": "Calculator",
+      "path": "/System/Applications/Calculator.app",
+      "bundle_id": "com.apple.calculator",
+      "version": "12.0",
+      "names": [
+        "calculator",
+        "com apple calculator"
+      ],
+      "icon_url": "image://icon//System/Applications/Calculator.app"
+    },
+    {
+      "resource_id": "app:199acae1270eee58cb75d338",
+      "name": "Calendar",
+      "path": "/System/Applications/Calendar.app",
+      "bundle_id": "com.apple.iCal",
+      "version": "16.0",
+      "names": [
+        "calendar",
+        "com apple ical"
+      ],
+      "icon_url": "image://icon//System/Applications/Calendar.app"
+    },
+    {
+      "resource_id": "app:28e38fd0ed87043f34336f78",
+      "name": "CapCut",
+      "path": "/Applications/CapCut.app",
+      "bundle_id": "com.lemon.lvoverseas",
+      "version": "5.3.0",
+      "names": [
+        "capcut",
+        "com lemon lvoverseas"
+      ],
+      "icon_url": "image://icon//Applications/CapCut.app"
+    },
+    {
+      "resource_id": "app:b48019b71516040ffa6a6a3c",
+      "name": "Celeste",
+      "path": "/Applications/Celeste.app",
+      "bundle_id": "com.celeste",
+      "version": "1.0",
+      "names": [
+        "celeste",
+        "com celeste"
+      ],
+      "icon_url": "image://icon//Applications/Celeste.app"
+    },
+    {
+      "resource_id": "app:404f3389062b069e869efbd3",
+      "name": "ChatGPT",
+      "path": "/Applications/ChatGPT.app",
+      "bundle_id": "com.openai.codex",
+      "version": "26.1021.31345",
+      "names": [
+        "chatgpt",
+        "com openai codex"
+      ],
+      "icon_url": "image://icon//Applications/ChatGPT.app"
+    },
+    {
+      "resource_id": "app:3d56918d27bc2dc627412ce1",
+      "name": "Chess",
+      "path": "/System/Applications/Chess.app",
+      "bundle_id": "com.apple.Chess",
+      "version": "3.18",
+      "names": [
+        "chess",
+        "com apple chess"
+      ],
+      "icon_url": "image://icon//System/Applications/Chess.app"
+    },
+    {
+      "resource_id": "app:a43e929f2a077946130253a2",
+      "name": "Cisco Packet Tracer",
+      "path": "/Applications/Cisco Packet Tracer 8.2.2/Cisco Packet Tracer 8.2.2.app",
+      "bundle_id": "com.netacad.PacketTracer8.2.2",
+      "version": "",
+      "names": [
+        "cisco packet tracer",
+        "cisco packet tracer 8 2 2",
+        "com netacad packettracer8 2 2"
+      ],
+      "icon_url": "image://icon//Applications/Cisco Packet Tracer 8.2.2/Cisco Packet Tracer 8.2.2.app"
+    },
+    {
+      "resource_id": "app:70e95a27f734865ed126bc16",
+      "name": "Claude",
+      "path": "/Applications/Claude.app",
+      "bundle_id": "com.anthropic.claudefordesktop",
+      "version": "3.6556.2",
+      "names": [
+        "claude",
+        "com anthropic claudefordesktop"
+      ],
+      "icon_url": "image://icon//Applications/Claude.app"
+    },
+    {
+      "resource_id": "app:91d2a6cf14cbc737144c46a8",
+      "name": "Clock",
+      "path": "/System/Applications/Clock.app",
+      "bundle_id": "com.apple.clock",
+      "version": "1.1",
+      "names": [
+        "clock",
+        "com apple clock"
+      ],
+      "icon_url": "image://icon//System/Applications/Clock.app"
+    },
+    {
+      "resource_id": "app:a33c31280f1179f352e6bd39",
+      "name": "Cloudflare WARP",
+      "path": "/Applications/Cloudflare WARP.app",
+      "bundle_id": "com.cloudflare.1dot1dot1dot1.macos",
+      "version": "2024.9.346.0",
+      "names": [
+        "cloudflare warp",
+        "com cloudflare 1dot1dot1dot1 macos"
+      ],
+      "icon_url": "image://icon//Applications/Cloudflare WARP.app"
+    },
+    {
+      "resource_id": "app:cfcbdd06ceb07db8ecca138f",
+      "name": "ColorSync Utility",
+      "path": "/System/Applications/Utilities/ColorSync Utility.app",
+      "bundle_id": "com.apple.ColorSyncUtility",
+      "version": "12.2.0",
+      "names": [
+        "colorsync utility",
+        "com apple colorsyncutility"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/ColorSync Utility.app"
+    },
+    {
+      "resource_id": "app:59257b931e90394f3a8f7576",
+      "name": "Comet",
+      "path": "/Applications/Comet.app",
+      "bundle_id": "ai.perplexity.comet",
+      "version": "145.0.7632.2407",
+      "names": [
+        "ai perplexity comet",
+        "comet"
+      ],
+      "icon_url": "image://icon//Applications/Comet.app"
+    },
+    {
+      "resource_id": "app:22310a2028ed0a018ad7e06a",
+      "name": "Console",
+      "path": "/System/Applications/Utilities/Console.app",
+      "bundle_id": "com.apple.Console",
+      "version": "1.1",
+      "names": [
+        "com apple console",
+        "console"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Console.app"
+    },
+    {
+      "resource_id": "app:6c70a74c39928f47b712a7d9",
+      "name": "Contacts",
+      "path": "/System/Applications/Contacts.app",
+      "bundle_id": "com.apple.AddressBook",
+      "version": "14.0",
+      "names": [
+        "com apple addressbook",
+        "contacts"
+      ],
+      "icon_url": "image://icon//System/Applications/Contacts.app"
+    },
+    {
+      "resource_id": "app:f6f5049cd639642dd15b2536",
+      "name": "Cortex Control",
+      "path": "/Applications/Neural DSP/Cortex Control.app",
+      "bundle_id": "com.NeuralDSP.CortexControl",
+      "version": "1.2.0",
+      "names": [
+        "com neuraldsp cortexcontrol",
+        "cortex control"
+      ],
+      "icon_url": "image://icon//Applications/Neural DSP/Cortex Control.app"
+    },
+    {
+      "resource_id": "app:ba4c3ceda370e205123f5a83",
+      "name": "Cuphead",
+      "path": "/Applications/Cuphead.app",
+      "bundle_id": "unity.Studio MDHR.Cuphead",
+      "version": "1.3.3",
+      "names": [
+        "cuphead",
+        "unity studio mdhr cuphead"
+      ],
+      "icon_url": "image://icon//Applications/Cuphead.app"
+    },
+    {
+      "resource_id": "app:771e98656fffda984f3657f8",
+      "name": "DataGrip",
+      "path": "/Applications/DataGrip.app",
+      "bundle_id": "com.jetbrains.datagrip",
+      "version": "2024.3",
+      "names": [
+        "com jetbrains datagrip",
+        "datagrip"
+      ],
+      "icon_url": "image://icon//Applications/DataGrip.app"
+    },
+    {
+      "resource_id": "app:6c1b3bc9ea378a707c02ea65",
+      "name": "DBngin",
+      "path": "/Applications/DBngin.app",
+      "bundle_id": "com.tinyapp.DBngin",
+      "version": "7.2",
+      "names": [
+        "com tinyapp dbngin",
+        "dbngin"
+      ],
+      "icon_url": "image://icon//Applications/DBngin.app"
+    },
+    {
+      "resource_id": "app:990ac083d595927f16c3335d",
+      "name": "Dictionary",
+      "path": "/System/Applications/Dictionary.app",
+      "bundle_id": "com.apple.Dictionary",
+      "version": "2.3.0",
+      "names": [
+        "com apple dictionary",
+        "dictionary"
+      ],
+      "icon_url": "image://icon//System/Applications/Dictionary.app"
+    },
+    {
+      "resource_id": "app:c1fda7c7b1fb353ff69db390",
+      "name": "Digital Color Meter",
+      "path": "/System/Applications/Utilities/Digital Color Meter.app",
+      "bundle_id": "com.apple.DigitalColorMeter",
+      "version": "6.11",
+      "names": [
+        "com apple digitalcolormeter",
+        "digital color meter"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Digital Color Meter.app"
+    },
+    {
+      "resource_id": "app:7b2c5da2f49a1a52bfc7170c",
+      "name": "Disco Elysium",
+      "path": "/Applications/Disco.app",
+      "bundle_id": "com.zaumstudio.discoelysium",
+      "version": "1.0",
+      "names": [
+        "com zaumstudio discoelysium",
+        "disco",
+        "disco elysium"
+      ],
+      "icon_url": "image://icon//Applications/Disco.app"
+    },
+    {
+      "resource_id": "app:99106dc1d8572298b8750d20",
+      "name": "Discord",
+      "path": "/Applications/Discord.app",
+      "bundle_id": "com.hnc.Discord",
+      "version": "0.0.409",
+      "names": [
+        "com hnc discord",
+        "discord"
+      ],
+      "icon_url": "image://icon//Applications/Discord.app"
+    },
+    {
+      "resource_id": "app:d5f63c5bf9d14ee4f947fef4",
+      "name": "Disk Utility",
+      "path": "/System/Applications/Utilities/Disk Utility.app",
+      "bundle_id": "com.apple.DiskUtility",
+      "version": "22.7",
+      "names": [
+        "com apple diskutility",
+        "disk utility"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Disk Utility.app"
+    },
+    {
+      "resource_id": "app:7ed043c2f7a9d7cd525f81b8",
+      "name": "Docker",
+      "path": "/Applications/Docker.app",
+      "bundle_id": "com.docker.docker",
+      "version": "4.75.0",
+      "names": [
+        "com docker docker",
+        "docker"
+      ],
+      "icon_url": "image://icon//Applications/Docker.app"
+    },
+    {
+      "resource_id": "app:6339e87b2e31108e19302a0d",
+      "name": "draw.io",
+      "path": "/Applications/draw.io.app",
+      "bundle_id": "com.jgraph.drawio.desktop",
+      "version": "29.6.6",
+      "names": [
+        "com jgraph drawio desktop",
+        "draw io"
+      ],
+      "icon_url": "image://icon//Applications/draw.io.app"
+    },
+    {
+      "resource_id": "app:5cdcc6a1f71ee200ebb5ea4a",
+      "name": "DyingLightGame",
+      "path": "/Applications/DyingLightGame.app",
+      "bundle_id": "pl.techland.dyinglight",
+      "version": "1.12.0",
+      "names": [
+        "dyinglightgame",
+        "pl techland dyinglight"
+      ],
+      "icon_url": "image://icon//Applications/DyingLightGame.app"
+    },
+    {
+      "resource_id": "app:95673965bb37d7ee4c76a641",
+      "name": "FaceTime",
+      "path": "/System/Applications/FaceTime.app",
+      "bundle_id": "com.apple.FaceTime",
+      "version": "36",
+      "names": [
+        "com apple facetime",
+        "facetime"
+      ],
+      "icon_url": "image://icon//System/Applications/FaceTime.app"
+    },
+    {
+      "resource_id": "app:a490ad32b4a77787cd0bd606",
+      "name": "FastRawViewer",
+      "path": "/Applications/FastRawViewer.app",
+      "bundle_id": "com.libraw-llc.FastRawViewer",
+      "version": "2.0.9",
+      "names": [
+        "com libraw llc fastrawviewer",
+        "fastrawviewer"
+      ],
+      "icon_url": "image://icon//Applications/FastRawViewer.app"
+    },
+    {
+      "resource_id": "app:b62f4162ee1f1e063c110ccd",
+      "name": "Feedback Assistant",
+      "path": "/System/Library/CoreServices/Applications/Feedback Assistant.app",
+      "bundle_id": "com.apple.appleseed.FeedbackAssistant",
+      "version": "5.1",
+      "names": [
+        "com apple appleseed feedbackassistant",
+        "feedback assistant"
+      ],
+      "icon_url": "image://icon//System/Library/CoreServices/Applications/Feedback Assistant.app"
+    },
+    {
+      "resource_id": "app:609db5f8c2de4c32a44fe191",
+      "name": "Figma",
+      "path": "/Applications/Figma.app",
+      "bundle_id": "com.figma.Desktop",
+      "version": "126.2.10",
+      "names": [
+        "com figma desktop",
+        "figma"
+      ],
+      "icon_url": "image://icon//Applications/Figma.app"
+    },
+    {
+      "resource_id": "app:9ba4ca7b01e8205de12db814",
+      "name": "Final Cut Pro",
+      "path": "/Applications/Final Cut Pro.app",
+      "bundle_id": "com.apple.FinalCut",
+      "version": "11.1",
+      "names": [
+        "com apple finalcut",
+        "final cut pro"
+      ],
+      "icon_url": "image://icon//Applications/Final Cut Pro.app"
+    },
+    {
+      "resource_id": "app:19401611aa908b072c43eb1f",
+      "name": "FindMy",
+      "path": "/System/Applications/FindMy.app",
+      "bundle_id": "com.apple.findmy",
+      "version": "4.0",
+      "names": [
+        "com apple findmy",
+        "findmy"
+      ],
+      "icon_url": "image://icon//System/Applications/FindMy.app"
+    },
+    {
+      "resource_id": "app:6705e1dc3da09cdc5fa6c826",
+      "name": "Font Book",
+      "path": "/System/Applications/Font Book.app",
+      "bundle_id": "com.apple.FontBook",
+      "version": "11.0",
+      "names": [
+        "com apple fontbook",
+        "font book"
+      ],
+      "icon_url": "image://icon//System/Applications/Font Book.app"
+    },
+    {
+      "resource_id": "app:c0d44330667bb3176d05d27c",
+      "name": "Free Fire",
+      "path": "/Users/thundercock2/Applications/WebCatalog Apps/Free Fire.app",
+      "bundle_id": "com.webcatalog.juli.now-gg-1398-free-fire",
+      "version": "49.0.1",
+      "names": [
+        "com webcatalog juli now gg 1398 free fire",
+        "free fire"
+      ],
+      "icon_url": "image://icon//Users/thundercock2/Applications/WebCatalog Apps/Free Fire.app"
+    },
+    {
+      "resource_id": "app:7cecbe98f4a6504f10e8b5ac",
+      "name": "Freeform",
+      "path": "/System/Applications/Freeform.app",
+      "bundle_id": "com.apple.freeform",
+      "version": "4.5",
+      "names": [
+        "com apple freeform",
+        "freeform"
+      ],
+      "icon_url": "image://icon//System/Applications/Freeform.app"
+    },
+    {
+      "resource_id": "app:8b87ef9be44b1134d8b263f6",
+      "name": "Games",
+      "path": "/System/Applications/Games.app",
+      "bundle_id": "com.apple.games",
+      "version": "1.0",
+      "names": [
+        "com apple games",
+        "games"
+      ],
+      "icon_url": "image://icon//System/Applications/Games.app"
+    },
+    {
+      "resource_id": "app:aefc1fcb0fdedc7ceaa583c6",
+      "name": "GarageBand",
+      "path": "/Applications/GarageBand.app",
+      "bundle_id": "com.apple.garageband10",
+      "version": "10.4.12",
+      "names": [
+        "com apple garageband10",
+        "garageband"
+      ],
+      "icon_url": "image://icon//Applications/GarageBand.app"
+    },
+    {
+      "resource_id": "app:2ab05e4d42d6488cad36958f",
+      "name": "GestureFlow",
+      "path": "/Applications/GestureFlow.app",
+      "bundle_id": "com.user.GestureFlow",
+      "version": "1.1",
+      "names": [
+        "com user gestureflow",
+        "gestureflow"
+      ],
+      "icon_url": "image://icon//Applications/GestureFlow.app"
+    },
+    {
+      "resource_id": "app:c37d2c80604b83c4291bfac3",
+      "name": "GitHub Desktop",
+      "path": "/Applications/GitHub Desktop.app",
+      "bundle_id": "com.github.GitHubClient",
+      "version": "3.6.4",
+      "names": [
+        "com github githubclient",
+        "github desktop"
+      ],
+      "icon_url": "image://icon//Applications/GitHub Desktop.app"
+    },
+    {
+      "resource_id": "app:bfa04b72c56ab94bdb32b9d5",
+      "name": "Google Chrome",
+      "path": "/Applications/Google Chrome.app",
+      "bundle_id": "com.google.Chrome",
+      "version": "155.0.8059.85",
+      "names": [
+        "com google chrome",
+        "google chrome"
+      ],
+      "icon_url": "image://icon//Applications/Google Chrome.app"
+    },
+    {
+      "resource_id": "app:871200391aca7dd51d7ab4f2",
+      "name": "Google Docs",
+      "path": "/Applications/Google Docs.app",
+      "bundle_id": "com.google.drivefs.shortcuts.docs",
+      "version": "132.0",
+      "names": [
+        "com google drivefs shortcuts docs",
+        "google docs"
+      ],
+      "icon_url": "image://icon//Applications/Google Docs.app"
+    },
+    {
+      "resource_id": "app:4a54a751f3f782316e18ca45",
+      "name": "Google Drive",
+      "path": "/Applications/Google Drive.app",
+      "bundle_id": "com.google.drivefs",
+      "version": "132.0",
+      "names": [
+        "com google drivefs",
+        "google drive"
+      ],
+      "icon_url": "image://icon//Applications/Google Drive.app"
+    },
+    {
+      "resource_id": "app:1990ea661e3188944aeac6c5",
+      "name": "Google Sheets",
+      "path": "/Applications/Google Sheets.app",
+      "bundle_id": "com.google.drivefs.shortcuts.sheets",
+      "version": "132.0",
+      "names": [
+        "com google drivefs shortcuts sheets",
+        "google sheets"
+      ],
+      "icon_url": "image://icon//Applications/Google Sheets.app"
+    },
+    {
+      "resource_id": "app:610eb6f6a8b95cddedf8a6d6",
+      "name": "Google Slides",
+      "path": "/Applications/Google Slides.app",
+      "bundle_id": "com.google.drivefs.shortcuts.slides",
+      "version": "132.0",
+      "names": [
+        "com google drivefs shortcuts slides",
+        "google slides"
+      ],
+      "icon_url": "image://icon//Applications/Google Slides.app"
+    },
+    {
+      "resource_id": "app:b8aa013d506768fb397baf74",
+      "name": "Grapher",
+      "path": "/System/Applications/Utilities/Grapher.app",
+      "bundle_id": "com.apple.grapher",
+      "version": "2.8",
+      "names": [
+        "com apple grapher",
+        "grapher"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Grapher.app"
+    },
+    {
+      "resource_id": "app:0b0ec620e208393bdc621d7e",
+      "name": "Hand Mirror",
+      "path": "/Applications/Hand Mirror.app",
+      "bundle_id": "net.rafaelconde.Hand-Mirror",
+      "version": "3.2",
+      "names": [
+        "hand mirror",
+        "net rafaelconde hand mirror"
+      ],
+      "icon_url": "image://icon//Applications/Hand Mirror.app"
+    },
+    {
+      "resource_id": "app:c9a738d02923a5c4edbeb607",
+      "name": "hintview",
+      "path": "/Applications/TeX/hintview.app",
+      "bundle_id": "edu.hm.cs.hint.hintview",
+      "version": "Version 2.0",
+      "names": [
+        "edu hm cs hint hintview",
+        "hintview"
+      ],
+      "icon_url": "image://icon//Applications/TeX/hintview.app"
+    },
+    {
+      "resource_id": "app:5398af48d488a89ce24b125d",
+      "name": "Hollow Knight",
+      "path": "/Applications/Hollow Knight.app",
+      "bundle_id": "unity.Team Cherry.Hollow Knight",
+      "version": "1.0",
+      "names": [
+        "hollow knight",
+        "unity team cherry hollow knight"
+      ],
+      "icon_url": "image://icon//Applications/Hollow Knight.app"
+    },
+    {
+      "resource_id": "app:bb056c6ffd383a640ed1710d",
+      "name": "Home",
+      "path": "/System/Applications/Home.app",
+      "bundle_id": "com.apple.Home",
+      "version": "10.0",
+      "names": [
+        "com apple home",
+        "home"
+      ],
+      "icon_url": "image://icon//System/Applications/Home.app"
+    },
+    {
+      "resource_id": "app:e68d9ec74bcc627930b5f4c9",
+      "name": "IDLE",
+      "path": "/Applications/Python 3.12/IDLE.app",
+      "bundle_id": "org.python.IDLE",
+      "version": "3.12.6",
+      "names": [
+        "idle",
+        "org python idle"
+      ],
+      "icon_url": "image://icon//Applications/Python 3.12/IDLE.app"
+    },
+    {
+      "resource_id": "app:41a855a3f7eab550c235d4fd",
+      "name": "Image Capture",
+      "path": "/System/Applications/Image Capture.app",
+      "bundle_id": "com.apple.Image_Capture",
+      "version": "8.0",
+      "names": [
+        "com apple image capture",
+        "image capture"
+      ],
+      "icon_url": "image://icon//System/Applications/Image Capture.app"
+    },
+    {
+      "resource_id": "app:55a883abfd2bc29288b51c8e",
+      "name": "Image Playground",
+      "path": "/System/Applications/Image Playground.app",
+      "bundle_id": "com.apple.GenerativePlaygroundApp",
+      "version": "1.0",
+      "names": [
+        "com apple generativeplaygroundapp",
+        "image playground"
+      ],
+      "icon_url": "image://icon//System/Applications/Image Playground.app"
+    },
+    {
+      "resource_id": "app:a34994e7d1f483f3dd2a4d8d",
+      "name": "IntelliJ IDEA",
+      "path": "/Applications/IntelliJ IDEA.app",
+      "bundle_id": "com.jetbrains.intellij",
+      "version": "2026.1",
+      "names": [
+        "com jetbrains intellij",
+        "intellij idea"
+      ],
+      "icon_url": "image://icon//Applications/IntelliJ IDEA.app"
+    },
+    {
+      "resource_id": "app:34eb3b25ea382caa79efe5da",
+      "name": "iPhone Mirroring",
+      "path": "/System/Applications/iPhone Mirroring.app",
+      "bundle_id": "com.apple.ScreenContinuity",
+      "version": "1.6",
+      "names": [
+        "com apple screencontinuity",
+        "iphone mirroring"
+      ],
+      "icon_url": "image://icon//System/Applications/iPhone Mirroring.app"
+    },
+    {
+      "resource_id": "app:22dd0a8b39b37f6e2831a2e8",
+      "name": "Journal",
+      "path": "/System/Applications/Journal.app",
+      "bundle_id": "com.apple.journal",
+      "version": "2.0",
+      "names": [
+        "com apple journal",
+        "journal"
+      ],
+      "icon_url": "image://icon//System/Applications/Journal.app"
+    },
+    {
+      "resource_id": "app:2f385b9dc44924be55418664",
+      "name": "Keep Going with Apps",
+      "path": "/Applications/Keep Going with Apps.app",
+      "bundle_id": "swift-playgrounds-app.Keep-Going-with-Apps",
+      "version": "1.0",
+      "names": [
+        "keep going with apps",
+        "swift playgrounds app keep going with apps"
+      ],
+      "icon_url": "image://icon//Applications/Keep Going with Apps.app"
+    },
+    {
+      "resource_id": "app:9897ae2665989ed60e493b3d",
+      "name": "Keka",
+      "path": "/Applications/Keka.app",
+      "bundle_id": "com.aone.keka",
+      "version": "1.6.0",
+      "names": [
+        "com aone keka",
+        "keka"
+      ],
+      "icon_url": "image://icon//Applications/Keka.app"
+    },
+    {
+      "resource_id": "app:ce221df45c4dd1056f90b789",
+      "name": "Keynote",
+      "path": "/Applications/Keynote.app",
+      "bundle_id": "com.apple.iWork.Keynote",
+      "version": "14.2",
+      "names": [
+        "com apple iwork keynote",
+        "keynote"
+      ],
+      "icon_url": "image://icon//Applications/Keynote.app"
+    },
+    {
+      "resource_id": "app:2e9b8dd919127b0195754466",
+      "name": "Kiro",
+      "path": "/Applications/Kiro.app",
+      "bundle_id": "dev.kiro.desktop",
+      "version": "1.0.138",
+      "names": [
+        "dev kiro desktop",
+        "kiro"
+      ],
+      "icon_url": "image://icon//Applications/Kiro.app"
+    },
+    {
+      "resource_id": "app:d3d312f4cf56a701667cd636",
+      "name": "Lapce",
+      "path": "/Applications/Lapce.app",
+      "bundle_id": "io.lapce",
+      "version": "0.4.2",
+      "names": [
+        "io lapce",
+        "lapce"
+      ],
+      "icon_url": "image://icon//Applications/Lapce.app"
+    },
+    {
+      "resource_id": "app:93227e8ff9d39a39ac78c0c6",
+      "name": "LaTeXiT",
+      "path": "/Applications/TeX/LaTeXiT.app",
+      "bundle_id": "fr.chachatelier.pierre.LaTeXiT",
+      "version": "2.16.6",
+      "names": [
+        "fr chachatelier pierre latexit",
+        "latexit"
+      ],
+      "icon_url": "image://icon//Applications/TeX/LaTeXiT.app"
+    },
+    {
+      "resource_id": "app:fee1a1f17e9ad16e5c3316d0",
+      "name": "Lidarr",
+      "path": "/Applications/Lidarr.app",
+      "bundle_id": "com.osx.lidarr.audio",
+      "version": "3.1.0.4875",
+      "names": [
+        "com osx lidarr audio",
+        "lidarr"
+      ],
+      "icon_url": "image://icon//Applications/Lidarr.app"
+    },
+    {
+      "resource_id": "app:d634e98eb45107ae762209c0",
+      "name": "Lies of P",
+      "path": "/Applications/LiesofP.app",
+      "bundle_id": "com.neowiz.game.lop",
+      "version": "1.5.0",
+      "names": [
+        "com neowiz game lop",
+        "lies of p",
+        "liesofp"
+      ],
+      "icon_url": "image://icon//Applications/LiesofP.app"
+    },
+    {
+      "resource_id": "app:e444cca81606bd8518283ac8",
+      "name": "Linguist",
+      "path": "/Applications/Cisco Packet Tracer 8.2.2/Linguist.app",
+      "bundle_id": "org.qt-project.Linguist",
+      "version": "",
+      "names": [
+        "linguist",
+        "org qt project linguist"
+      ],
+      "icon_url": "image://icon//Applications/Cisco Packet Tracer 8.2.2/Linguist.app"
+    },
+    {
+      "resource_id": "app:298ae557f6ff8000276e158d",
+      "name": "Logi Options+ Driver Installer",
+      "path": "/Applications/Utilities/Logi Options+ Driver Installer.bundle/Logi Options+ Driver Installer.app",
+      "bundle_id": "com.logi.optionsplus.driverhost",
+      "version": "1.0.3",
+      "names": [
+        "com logi optionsplus driverhost",
+        "logi options driver installer"
+      ],
+      "icon_url": "image://icon//Applications/Utilities/Logi Options+ Driver Installer.bundle/Logi Options+ Driver Installer.app"
+    },
+    {
+      "resource_id": "app:95a0585d403a1f2b12486e01",
+      "name": "Logic Pro",
+      "path": "/Applications/Logic Pro.app",
+      "bundle_id": "com.apple.logic10",
+      "version": "11.1.2",
+      "names": [
+        "com apple logic10",
+        "logic pro"
+      ],
+      "icon_url": "image://icon//Applications/Logic Pro.app"
+    },
+    {
+      "resource_id": "app:52ac085cebdcc42c93ead6ca",
+      "name": "logioptionsplus",
+      "path": "/Applications/logioptionsplus.app",
+      "bundle_id": "com.logi.optionsplus",
+      "version": "2.9.994631",
+      "names": [
+        "com logi optionsplus",
+        "logioptionsplus"
+      ],
+      "icon_url": "image://icon//Applications/logioptionsplus.app"
+    },
+    {
+      "resource_id": "app:805ef3d181a36549bcf5572d",
+      "name": "LogiPluginService",
+      "path": "/Applications/Utilities/LogiPluginService.app",
+      "bundle_id": "com.logi.pluginservice",
+      "version": "6.4.2.3414",
+      "names": [
+        "com logi pluginservice",
+        "logipluginservice"
+      ],
+      "icon_url": "image://icon//Applications/Utilities/LogiPluginService.app"
+    },
+    {
+      "resource_id": "app:c01d555261f702b096ca4a03",
+      "name": "macRAR",
+      "path": "/Users/thundercock2/Applications/macRAR.app",
+      "bundle_id": "com.macrar.app",
+      "version": "1.0",
+      "names": [
+        "com macrar app",
+        "macrar"
+      ],
+      "icon_url": "image://icon//Users/thundercock2/Applications/macRAR.app"
+    },
+    {
+      "resource_id": "app:b6630ba08103a306954300df",
+      "name": "Magnifier",
+      "path": "/System/Applications/Utilities/Magnifier.app",
+      "bundle_id": "com.apple.Magnifier",
+      "version": "1.0",
+      "names": [
+        "com apple magnifier",
+        "magnifier"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Magnifier.app"
+    },
+    {
+      "resource_id": "app:66f54eee03d3997cc3b41dc5",
+      "name": "Mail",
+      "path": "/System/Applications/Mail.app",
+      "bundle_id": "com.apple.mail",
+      "version": "16.0",
+      "names": [
+        "com apple mail",
+        "mail"
+      ],
+      "icon_url": "image://icon//System/Applications/Mail.app"
+    },
+    {
+      "resource_id": "app:514a92be6da60afbe99fc4d2",
+      "name": "maintenancetool",
+      "path": "/Applications/Cisco Packet Tracer 8.2.2/maintenancetool.app",
+      "bundle_id": "com.yourcompany.installerbase",
+      "version": "4.5.2",
+      "names": [
+        "com yourcompany installerbase",
+        "maintenancetool"
+      ],
+      "icon_url": "image://icon//Applications/Cisco Packet Tracer 8.2.2/maintenancetool.app"
+    },
+    {
+      "resource_id": "app:33917b1b13d0c52e25f9ff19",
+      "name": "Maps",
+      "path": "/System/Applications/Maps.app",
+      "bundle_id": "com.apple.Maps",
+      "version": "3.0",
+      "names": [
+        "com apple maps",
+        "maps"
+      ],
+      "icon_url": "image://icon//System/Applications/Maps.app"
+    },
+    {
+      "resource_id": "app:0bf026f923d8f6b214fad923",
+      "name": "Messages",
+      "path": "/System/Applications/Messages.app",
+      "bundle_id": "com.apple.MobileSMS",
+      "version": "26.0",
+      "names": [
+        "com apple mobilesms",
+        "messages"
+      ],
+      "icon_url": "image://icon//System/Applications/Messages.app"
+    },
+    {
+      "resource_id": "app:daf61f3b3a9661539ac0bf5f",
+      "name": "Microsoft Excel",
+      "path": "/Applications/Microsoft Excel.app",
+      "bundle_id": "com.microsoft.Excel",
+      "version": "16.114.1",
+      "names": [
+        "com microsoft excel",
+        "microsoft excel"
+      ],
+      "icon_url": "image://icon//Applications/Microsoft Excel.app"
+    },
+    {
+      "resource_id": "app:ac9ee488f92ab3d04c7780fd",
+      "name": "Microsoft OneNote",
+      "path": "/Applications/Microsoft OneNote.app",
+      "bundle_id": "com.microsoft.onenote.mac",
+      "version": "16.114.1",
+      "names": [
+        "com microsoft onenote mac",
+        "microsoft onenote"
+      ],
+      "icon_url": "image://icon//Applications/Microsoft OneNote.app"
+    },
+    {
+      "resource_id": "app:660e077bb0efd9a9314d9929",
+      "name": "Microsoft Outlook",
+      "path": "/Applications/Microsoft Outlook.app",
+      "bundle_id": "com.microsoft.Outlook",
+      "version": "16.114.1",
+      "names": [
+        "com microsoft outlook",
+        "microsoft outlook"
+      ],
+      "icon_url": "image://icon//Applications/Microsoft Outlook.app"
+    },
+    {
+      "resource_id": "app:c5b65115cea38460baba4bb9",
+      "name": "Microsoft PowerPoint",
+      "path": "/Applications/Microsoft PowerPoint.app",
+      "bundle_id": "com.microsoft.Powerpoint",
+      "version": "16.114.1",
+      "names": [
+        "com microsoft powerpoint",
+        "microsoft powerpoint"
+      ],
+      "icon_url": "image://icon//Applications/Microsoft PowerPoint.app"
+    },
+    {
+      "resource_id": "app:5049d89985b6adc0032faa8c",
+      "name": "Microsoft Word",
+      "path": "/Applications/Microsoft Word.app",
+      "bundle_id": "com.microsoft.Word",
+      "version": "16.114.1",
+      "names": [
+        "com microsoft word",
+        "microsoft word"
+      ],
+      "icon_url": "image://icon//Applications/Microsoft Word.app"
+    },
+    {
+      "resource_id": "app:7968d79ae3312a6acc75b6b6",
+      "name": "Migration Assistant",
+      "path": "/System/Applications/Utilities/Migration Assistant.app",
+      "bundle_id": "com.apple.MigrateAssistant",
+      "version": "26.5",
+      "names": [
+        "com apple migrateassistant",
+        "migration assistant"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Migration Assistant.app"
+    },
+    {
+      "resource_id": "app:91847d9ee4c9852999f76a27",
+      "name": "Minecraft Launcher",
+      "path": "/Applications/Minecraft.app",
+      "bundle_id": "com.mojang.minecraftlauncher",
+      "version": "1.11.6",
+      "names": [
+        "com mojang minecraftlauncher",
+        "minecraft",
+        "minecraft launcher"
+      ],
+      "icon_url": "image://icon//Applications/Minecraft.app"
+    },
+    {
+      "resource_id": "app:89771884ee8ffc3116b8ccfd",
+      "name": "Mission Control",
+      "path": "/System/Applications/Mission Control.app",
+      "bundle_id": "com.apple.exposelauncher",
+      "version": "1.2",
+      "names": [
+        "com apple exposelauncher",
+        "mission control"
+      ],
+      "icon_url": "image://icon//System/Applications/Mission Control.app"
+    },
+    {
+      "resource_id": "app:9fd6b2c4cac31a29f3ca7a89",
+      "name": "MuseDash",
+      "path": "/Applications/MuseDash_Mac_Steam.app",
+      "bundle_id": "com.prpr.musedash",
+      "version": "4.6.0",
+      "names": [
+        "com prpr musedash",
+        "musedash",
+        "musedash mac steam"
+      ],
+      "icon_url": "image://icon//Applications/MuseDash_Mac_Steam.app"
+    },
+    {
+      "resource_id": "app:b3815efba956022d8be0aff9",
+      "name": "Music",
+      "path": "/System/Applications/Music.app",
+      "bundle_id": "com.apple.Music",
+      "version": "1.6.5",
+      "names": [
+        "com apple music",
+        "music"
+      ],
+      "icon_url": "image://icon//System/Applications/Music.app"
+    },
+    {
+      "resource_id": "app:7a922158682fe4f601929c91",
+      "name": "MySQLWorkbench",
+      "path": "/Applications/MySQLWorkbench.app",
+      "bundle_id": "com.oracle.workbench.MySQLWorkbench",
+      "version": "8.0.41.CE",
+      "names": [
+        "com oracle workbench mysqlworkbench",
+        "mysqlworkbench"
+      ],
+      "icon_url": "image://icon//Applications/MySQLWorkbench.app"
+    },
+    {
+      "resource_id": "app:14dd389da7cf4c600b65f877",
+      "name": "News",
+      "path": "/System/Applications/News.app",
+      "bundle_id": "com.apple.news",
+      "version": "11.5",
+      "names": [
+        "com apple news",
+        "news"
+      ],
+      "icon_url": "image://icon//System/Applications/News.app"
+    },
+    {
+      "resource_id": "app:a3f7ea9541b37707e7c7efaa",
+      "name": "Notes",
+      "path": "/System/Applications/Notes.app",
+      "bundle_id": "com.apple.Notes",
+      "version": "4.13",
+      "names": [
+        "com apple notes",
+        "notes"
+      ],
+      "icon_url": "image://icon//System/Applications/Notes.app"
+    },
+    {
+      "resource_id": "app:d3a95164b5deddb6b965f49c",
+      "name": "OBS Studio",
+      "path": "/Applications/OBS.app",
+      "bundle_id": "com.obsproject.obs-studio",
+      "version": "31.0.3",
+      "names": [
+        "com obsproject obs studio",
+        "obs",
+        "obs studio"
+      ],
+      "icon_url": "image://icon//Applications/OBS.app"
+    },
+    {
+      "resource_id": "app:6b3a17846b26ee8120652a15",
+      "name": "Obsidian",
+      "path": "/Applications/Obsidian.app",
+      "bundle_id": "md.obsidian",
+      "version": "1.12.4",
+      "names": [
+        "md obsidian",
+        "obsidian"
+      ],
+      "icon_url": "image://icon//Applications/Obsidian.app"
+    },
+    {
+      "resource_id": "app:12e7f134353ad629826fff9c",
+      "name": "Ollama",
+      "path": "/Applications/Ollama.app",
+      "bundle_id": "com.electron.ollama",
+      "version": "0.34.3",
+      "names": [
+        "com electron ollama",
+        "ollama"
+      ],
+      "icon_url": "image://icon//Applications/Ollama.app"
+    },
+    {
+      "resource_id": "app:d0c0f3f728ccbfe02f6e616c",
+      "name": "OneDrive",
+      "path": "/Applications/OneDrive.app",
+      "bundle_id": "com.microsoft.OneDrive",
+      "version": "26.173.0906",
+      "names": [
+        "com microsoft onedrive",
+        "onedrive"
+      ],
+      "icon_url": "image://icon//Applications/OneDrive.app"
+    },
+    {
+      "resource_id": "app:db32521153709319ad096411",
+      "name": "OpenMTP",
+      "path": "/Applications/OpenMTP.app",
+      "bundle_id": "io.ganeshrvel.openmtp",
+      "version": "3.2.25",
+      "names": [
+        "io ganeshrvel openmtp",
+        "openmtp"
+      ],
+      "icon_url": "image://icon//Applications/OpenMTP.app"
+    },
+    {
+      "resource_id": "app:fbf1398b6c42b82ef744c689",
+      "name": "osu!",
+      "path": "/Applications/osu! 2.app",
+      "bundle_id": "sh.ppy.osu.lazer",
+      "version": "lazer",
+      "names": [
+        "osu",
+        "osu 2",
+        "sh ppy osu lazer"
+      ],
+      "icon_url": "image://icon//Applications/osu! 2.app"
+    },
+    {
+      "resource_id": "app:45055aa7ea38f14e2eb0e5c4",
+      "name": "Passwords",
+      "path": "/System/Applications/Passwords.app",
+      "bundle_id": "com.apple.Passwords",
+      "version": "2.5.2",
+      "names": [
+        "com apple passwords",
+        "passwords"
+      ],
+      "icon_url": "image://icon//System/Applications/Passwords.app"
+    },
+    {
+      "resource_id": "app:077bb8fe4d72b69fe8158414",
+      "name": "Pencil",
+      "path": "/Applications/Pencil.app",
+      "bundle_id": "dev.pencil.desktop",
+      "version": "1.1.51",
+      "names": [
+        "dev pencil desktop",
+        "pencil"
+      ],
+      "icon_url": "image://icon//Applications/Pencil.app"
+    },
+    {
+      "resource_id": "app:ece4b00b6898d35662a36eac",
+      "name": "Perplexity",
+      "path": "/Applications/Perplexity.app",
+      "bundle_id": "ai.perplexity.mac",
+      "version": "2.260206.0",
+      "names": [
+        "ai perplexity mac",
+        "perplexity"
+      ],
+      "icon_url": "image://icon//Applications/Perplexity.app"
+    },
+    {
+      "resource_id": "app:9a47fc036e3835a67593b192",
+      "name": "Phone",
+      "path": "/System/Applications/Phone.app",
+      "bundle_id": "com.apple.mobilephone",
+      "version": "1.0",
+      "names": [
+        "com apple mobilephone",
+        "phone"
+      ],
+      "icon_url": "image://icon//System/Applications/Phone.app"
+    },
+    {
+      "resource_id": "app:2ba5c8053105aefe737d9e26",
+      "name": "Photo Booth",
+      "path": "/System/Applications/Photo Booth.app",
+      "bundle_id": "com.apple.PhotoBooth",
+      "version": "13.1",
+      "names": [
+        "com apple photobooth",
+        "photo booth"
+      ],
+      "icon_url": "image://icon//System/Applications/Photo Booth.app"
+    },
+    {
+      "resource_id": "app:f15510eda766ca10d6197b75",
+      "name": "Photos",
+      "path": "/System/Applications/Photos.app",
+      "bundle_id": "com.apple.Photos",
+      "version": "11.0",
+      "names": [
+        "com apple photos",
+        "photos"
+      ],
+      "icon_url": "image://icon//System/Applications/Photos.app"
+    },
+    {
+      "resource_id": "app:0450320e15bff96072a59940",
+      "name": "PiPifier",
+      "path": "/Applications/PiPifier.app",
+      "bundle_id": "de.APPenzeller.PiPifier",
+      "version": "1.3.1",
+      "names": [
+        "de appenzeller pipifier",
+        "pipifier"
+      ],
+      "icon_url": "image://icon//Applications/PiPifier.app"
+    },
+    {
+      "resource_id": "app:2c8cc84e3ea1f3ce81fd7fa0",
+      "name": "Plash",
+      "path": "/Applications/Plash.app",
+      "bundle_id": "com.sindresorhus.Plash",
+      "version": "2.16.0",
+      "names": [
+        "com sindresorhus plash",
+        "plash"
+      ],
+      "icon_url": "image://icon//Applications/Plash.app"
+    },
+    {
+      "resource_id": "app:32d347e0ad0e8dadcc9538b9",
+      "name": "Podcasts",
+      "path": "/System/Applications/Podcasts.app",
+      "bundle_id": "com.apple.podcasts",
+      "version": "1.1.0",
+      "names": [
+        "com apple podcasts",
+        "podcasts"
+      ],
+      "icon_url": "image://icon//System/Applications/Podcasts.app"
+    },
+    {
+      "resource_id": "app:de94d9d4c799e03092e16c70",
+      "name": "Preview",
+      "path": "/System/Applications/Preview.app",
+      "bundle_id": "com.apple.Preview",
+      "version": "11.0",
+      "names": [
+        "com apple preview",
+        "preview"
+      ],
+      "icon_url": "image://icon//System/Applications/Preview.app"
+    },
+    {
+      "resource_id": "app:b4a3956e11c93d691e6a16c2",
+      "name": "Print Center",
+      "path": "/System/Applications/Utilities/Print Center.app",
+      "bundle_id": "com.apple.printcenter",
+      "version": "1.0",
+      "names": [
+        "com apple printcenter",
+        "print center"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Print Center.app"
+    },
+    {
+      "resource_id": "app:d2a12f7de5ad64586332c544",
+      "name": "Prowlarr",
+      "path": "/Applications/Prowlarr.app",
+      "bundle_id": "com.osx.prowlarr.com",
+      "version": "2.4.0.5397",
+      "names": [
+        "com osx prowlarr com",
+        "prowlarr"
+      ],
+      "icon_url": "image://icon//Applications/Prowlarr.app"
+    },
+    {
+      "resource_id": "app:c83d71754cec686f16197495",
+      "name": "Python Launcher",
+      "path": "/Applications/Python 3.12/Python Launcher.app",
+      "bundle_id": "org.python.PythonLauncher",
+      "version": "3.12.6",
+      "names": [
+        "org python pythonlauncher",
+        "python launcher"
+      ],
+      "icon_url": "image://icon//Applications/Python 3.12/Python Launcher.app"
+    },
+    {
+      "resource_id": "app:45ea976497699002b8c680fb",
+      "name": "qBittorrent",
+      "path": "/Applications/qbittorrent.app",
+      "bundle_id": "org.qbittorrent.qBittorrent",
+      "version": "4.6.5",
+      "names": [
+        "org qbittorrent qbittorrent",
+        "qbittorrent"
+      ],
+      "icon_url": "image://icon//Applications/qbittorrent.app"
+    },
+    {
+      "resource_id": "app:80975fb5692e88bd9192be56",
+      "name": "QuickTime Player",
+      "path": "/System/Applications/QuickTime Player.app",
+      "bundle_id": "com.apple.QuickTimePlayerX",
+      "version": "10.5",
+      "names": [
+        "com apple quicktimeplayerx",
+        "quicktime player"
+      ],
+      "icon_url": "image://icon//System/Applications/QuickTime Player.app"
+    },
+    {
+      "resource_id": "app:c8bde3c658a2b95b163e072f",
+      "name": "REAPER",
+      "path": "/Applications/REAPER.app",
+      "bundle_id": "com.cockos.reaper",
+      "version": "7.39.0_6eea58fu",
+      "names": [
+        "com cockos reaper",
+        "reaper"
+      ],
+      "icon_url": "image://icon//Applications/REAPER.app"
+    },
+    {
+      "resource_id": "app:768f7a5f92fc9dc9891d6f0c",
+      "name": "Reminders",
+      "path": "/System/Applications/Reminders.app",
+      "bundle_id": "com.apple.reminders",
+      "version": "7.0",
+      "names": [
+        "com apple reminders",
+        "reminders"
+      ],
+      "icon_url": "image://icon//System/Applications/Reminders.app"
+    },
+    {
+      "resource_id": "app:851fdcfe3b0ce85cfe6e0f42",
+      "name": "Resident Evil Village",
+      "path": "/Applications/Resident Evil Village.app",
+      "bundle_id": "jp.co.capcom.VillageUS",
+      "version": "1.1.2",
+      "names": [
+        "jp co capcom villageus",
+        "resident evil village"
+      ],
+      "icon_url": "image://icon//Applications/Resident Evil Village.app"
+    },
+    {
+      "resource_id": "app:3003e924cdfec8b7d29104f4",
+      "name": "Riot Client",
+      "path": "/Users/Shared/Riot Games/Riot Client.app",
+      "bundle_id": "com.riotgames.RiotGames.RiotClient",
+      "version": "1.0",
+      "names": [
+        "com riotgames riotgames riotclient",
+        "riot client"
+      ],
+      "icon_url": "image://icon//Users/Shared/Riot Games/Riot Client.app"
+    },
+    {
+      "resource_id": "app:2eec832d8135a4792b15268a",
+      "name": "Rockstar Games Launcher",
+      "path": "/Users/thundercock2/Applications/CrossOver/Rockstar Games/Rockstar Games Launcher.app",
+      "bundle_id": "com.codeweavers.CrossOverHelper.4DB4563826BAD0EB2F60EE6E42D0EA4B.E9A67ADD4CE98DB313E0FF40375A2EEC",
+      "version": "1.0",
+      "names": [
+        "com codeweavers crossoverhelper 4db4563826bad0eb2f60ee6e42d0ea4b e9a67add4ce98db313e0ff40375a2eec",
+        "rockstar games launcher"
+      ],
+      "icon_url": "image://icon//Users/thundercock2/Applications/CrossOver/Rockstar Games/Rockstar Games Launcher.app"
+    },
+    {
+      "resource_id": "app:50736835ba7bc760d7157f55",
+      "name": "RStudio",
+      "path": "/Applications/RStudio.app",
+      "bundle_id": "com.rstudio.desktop",
+      "version": "2026.08.1+195",
+      "names": [
+        "com rstudio desktop",
+        "rstudio"
+      ],
+      "icon_url": "image://icon//Applications/RStudio.app"
+    },
+    {
+      "resource_id": "app:e2d0da2092b02591bdbcfd2c",
+      "name": "Safari",
+      "path": "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app",
+      "bundle_id": "com.apple.Safari",
+      "version": "26.5.2",
+      "names": [
+        "com apple safari",
+        "safari"
+      ],
+      "icon_url": "image://icon//System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
+    },
+    {
+      "resource_id": "app:7b11d8dcef82285f883c8d7b",
+      "name": "Screen Sharing",
+      "path": "/System/Applications/Utilities/Screen Sharing.app",
+      "bundle_id": "com.apple.ScreenSharing",
+      "version": "6.1",
+      "names": [
+        "com apple screensharing",
+        "screen sharing"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Screen Sharing.app"
+    },
+    {
+      "resource_id": "app:42eb769f113c3238fc8fb208",
+      "name": "Screenshot",
+      "path": "/System/Applications/Utilities/Screenshot.app",
+      "bundle_id": "com.apple.screenshot.launcher",
+      "version": "1.0",
+      "names": [
+        "com apple screenshot launcher",
+        "screenshot"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Screenshot.app"
+    },
+    {
+      "resource_id": "app:d374761ec00073326d7fb2dd",
+      "name": "Script Editor",
+      "path": "/System/Applications/Utilities/Script Editor.app",
+      "bundle_id": "com.apple.ScriptEditor2",
+      "version": "2.11",
+      "names": [
+        "com apple scripteditor2",
+        "script editor"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Script Editor.app"
+    },
+    {
+      "resource_id": "app:8877872151e2c839b8ee7a2c",
+      "name": "Shazam",
+      "path": "/Applications/Shazam.app",
+      "bundle_id": "com.shazam.mac.Shazam",
+      "version": "2.11.0",
+      "names": [
+        "com shazam mac shazam",
+        "shazam"
+      ],
+      "icon_url": "image://icon//Applications/Shazam.app"
+    },
+    {
+      "resource_id": "app:031d4a7b65b54d7a58cc5a2d",
+      "name": "Shortcuts",
+      "path": "/System/Applications/Shortcuts.app",
+      "bundle_id": "com.apple.shortcuts",
+      "version": "7.0",
+      "names": [
+        "com apple shortcuts",
+        "shortcuts"
+      ],
+      "icon_url": "image://icon//System/Applications/Shortcuts.app"
+    },
+    {
+      "resource_id": "app:f6cb3e03729f245b0014ba57",
+      "name": "Siri",
+      "path": "/System/Applications/Siri.app",
+      "bundle_id": "com.apple.siri.launcher",
+      "version": "1.0",
+      "names": [
+        "com apple siri launcher",
+        "siri"
+      ],
+      "icon_url": "image://icon//System/Applications/Siri.app"
+    },
+    {
+      "resource_id": "app:e21947b32711bef754fadd3b",
+      "name": "Skim",
+      "path": "/Applications/Skim.app",
+      "bundle_id": "net.sourceforge.skim-app.skim",
+      "version": "1.7.15",
+      "names": [
+        "net sourceforge skim app skim",
+        "skim"
+      ],
+      "icon_url": "image://icon//Applications/Skim.app"
+    },
+    {
+      "resource_id": "app:16c9b470fbaa59efc03a7249",
+      "name": "StarUML",
+      "path": "/Applications/StarUML.app",
+      "bundle_id": "io.staruml.staruml",
+      "version": "7.0.0",
+      "names": [
+        "io staruml staruml",
+        "staruml"
+      ],
+      "icon_url": "image://icon//Applications/StarUML.app"
+    },
+    {
+      "resource_id": "app:9c0c157236ecc22c4d681ed5",
+      "name": "Steam",
+      "path": "/Applications/Steam.app",
+      "bundle_id": "com.valvesoftware.steam",
+      "version": "6.1",
+      "names": [
+        "com valvesoftware steam",
+        "steam"
+      ],
+      "icon_url": "image://icon//Applications/Steam.app"
+    },
+    {
+      "resource_id": "app:d2ec0f4c830a6eda2899bd4c",
+      "name": "Steam",
+      "path": "/Users/thundercock2/Applications/CrossOver/Steam/Steam.app",
+      "bundle_id": "com.codeweavers.CrossOverHelper.4DB4563826BAD0EB2F60EE6E42D0EA4B.D7B460B2ACE2473B3D92C221DB864590",
+      "version": "1.0",
+      "names": [
+        "com codeweavers crossoverhelper 4db4563826bad0eb2f60ee6e42d0ea4b d7b460b2ace2473b3d92c221db864590",
+        "steam"
+      ],
+      "icon_url": "image://icon//Users/thundercock2/Applications/CrossOver/Steam/Steam.app"
+    },
+    {
+      "resource_id": "app:0b47e742d45b06aa738c47d5",
+      "name": "Steam Support Center",
+      "path": "/Users/thundercock2/Applications/CrossOver/Steam/Steam Support Center.app",
+      "bundle_id": "com.codeweavers.CrossOverHelper.4DB4563826BAD0EB2F60EE6E42D0EA4B.FC8279405550B3B35332D0AC81541AFF",
+      "version": "1.0",
+      "names": [
+        "com codeweavers crossoverhelper 4db4563826bad0eb2f60ee6e42d0ea4b fc8279405550b3b35332d0ac81541aff",
+        "steam support center"
+      ],
+      "icon_url": "image://icon//Users/thundercock2/Applications/CrossOver/Steam/Steam Support Center.app"
+    },
+    {
+      "resource_id": "app:e5bc0d8f501dda3689a770be",
+      "name": "Stickies",
+      "path": "/System/Applications/Stickies.app",
+      "bundle_id": "com.apple.Stickies",
+      "version": "10.3",
+      "names": [
+        "com apple stickies",
+        "stickies"
+      ],
+      "icon_url": "image://icon//System/Applications/Stickies.app"
+    },
+    {
+      "resource_id": "app:1fdd06f36d2dbafbe4b2cf72",
+      "name": "Stocks",
+      "path": "/System/Applications/Stocks.app",
+      "bundle_id": "com.apple.stocks",
+      "version": "8.5",
+      "names": [
+        "com apple stocks",
+        "stocks"
+      ],
+      "icon_url": "image://icon//System/Applications/Stocks.app"
+    },
+    {
+      "resource_id": "app:c19ea83df742a3341c78122d",
+      "name": "System Information",
+      "path": "/System/Applications/Utilities/System Information.app",
+      "bundle_id": "com.apple.SystemProfiler",
+      "version": "11.0",
+      "names": [
+        "com apple systemprofiler",
+        "system information"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/System Information.app"
+    },
+    {
+      "resource_id": "app:e8da624c5287bdd5497fff9b",
+      "name": "System Settings",
+      "path": "/System/Applications/System Settings.app",
+      "bundle_id": "com.apple.systempreferences",
+      "version": "15.0",
+      "names": [
+        "com apple systempreferences",
+        "system settings"
+      ],
+      "icon_url": "image://icon//System/Applications/System Settings.app"
+    },
+    {
+      "resource_id": "app:e80732f939f1a782a208f591",
+      "name": "Taiko Pop Tap",
+      "path": "/Applications/Taiko Pop Tap.app",
+      "bundle_id": "jp.co.bandainamcoent.BNEI0361",
+      "version": "1.11.0",
+      "names": [
+        "jp co bandainamcoent bnei0361",
+        "taiko pop tap"
+      ],
+      "icon_url": "image://icon//Applications/Taiko Pop Tap.app"
+    },
+    {
+      "resource_id": "app:b5513d0f8ab1beb730d9e67c",
+      "name": "Terminal",
+      "path": "/System/Applications/Utilities/Terminal.app",
+      "bundle_id": "com.apple.Terminal",
+      "version": "2.15",
+      "names": [
+        "com apple terminal",
+        "terminal"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/Terminal.app"
+    },
+    {
+      "resource_id": "app:d4799d6b9173f5d29f08b925",
+      "name": "TeX Live Utility",
+      "path": "/Applications/TeX/TeX Live Utility.app",
+      "bundle_id": "com.googlecode.mactlmgr.tlu",
+      "version": "1.55",
+      "names": [
+        "com googlecode mactlmgr tlu",
+        "tex live utility"
+      ],
+      "icon_url": "image://icon//Applications/TeX/TeX Live Utility.app"
+    },
+    {
+      "resource_id": "app:0760789ae394b10a69550226",
+      "name": "TeXShop",
+      "path": "/Applications/TeX/TeXShop.app",
+      "bundle_id": "TeXShop",
+      "version": "5.57",
+      "names": [
+        "texshop"
+      ],
+      "icon_url": "image://icon//Applications/TeX/TeXShop.app"
+    },
+    {
+      "resource_id": "app:3450a38b95e1d9a593d21c44",
+      "name": "TextEdit",
+      "path": "/System/Applications/TextEdit.app",
+      "bundle_id": "com.apple.TextEdit",
+      "version": "1.20",
+      "names": [
+        "com apple textedit",
+        "textedit"
+      ],
+      "icon_url": "image://icon//System/Applications/TextEdit.app"
+    },
+    {
+      "resource_id": "app:03146da8aad36b197e72efb1",
+      "name": "The Unarchiver",
+      "path": "/Applications/The Unarchiver.app",
+      "bundle_id": "cx.c3.theunarchiver",
+      "version": "4.3.8",
+      "names": [
+        "cx c3 theunarchiver",
+        "the unarchiver"
+      ],
+      "icon_url": "image://icon//Applications/The Unarchiver.app"
+    },
+    {
+      "resource_id": "app:0e7fb45745a46daab5edb451",
+      "name": "Time Machine",
+      "path": "/System/Applications/Time Machine.app",
+      "bundle_id": "com.apple.backup.launcher",
+      "version": "1.3",
+      "names": [
+        "com apple backup launcher",
+        "time machine"
+      ],
+      "icon_url": "image://icon//System/Applications/Time Machine.app"
+    },
+    {
+      "resource_id": "app:3987fd0fa294915fb993d2cc",
+      "name": "Tips",
+      "path": "/System/Applications/Tips.app",
+      "bundle_id": "com.apple.helpviewer",
+      "version": "26.5",
+      "names": [
+        "com apple helpviewer",
+        "tips"
+      ],
+      "icon_url": "image://icon//System/Applications/Tips.app"
+    },
+    {
+      "resource_id": "app:957aa381851427f4f172281a",
+      "name": "TV",
+      "path": "/System/Applications/TV.app",
+      "bundle_id": "com.apple.TV",
+      "version": "1.6.5",
+      "names": [
+        "com apple tv",
+        "tv"
+      ],
+      "icon_url": "image://icon//System/Applications/TV.app"
+    },
+    {
+      "resource_id": "app:56356d817a6dcfa690c00717",
+      "name": "Unity Hub",
+      "path": "/Applications/Unity Hub.app",
+      "bundle_id": "com.unity3d.unityhub",
+      "version": "3.20.0",
+      "names": [
+        "com unity3d unityhub",
+        "unity hub"
+      ],
+      "icon_url": "image://icon//Applications/Unity Hub.app"
+    },
+    {
+      "resource_id": "app:9f0da278b541410b80aaf2da",
+      "name": "VoiceMemos",
+      "path": "/System/Applications/VoiceMemos.app",
+      "bundle_id": "com.apple.VoiceMemos",
+      "version": "3.2",
+      "names": [
+        "com apple voicememos",
+        "voicememos"
+      ],
+      "icon_url": "image://icon//System/Applications/VoiceMemos.app"
+    },
+    {
+      "resource_id": "app:8f202fcc5585115cbeac9ca8",
+      "name": "VoiceOver Utility",
+      "path": "/System/Applications/Utilities/VoiceOver Utility.app",
+      "bundle_id": "com.apple.VoiceOverUtility",
+      "version": "10",
+      "names": [
+        "com apple voiceoverutility",
+        "voiceover utility"
+      ],
+      "icon_url": "image://icon//System/Applications/Utilities/VoiceOver Utility.app"
+    },
+    {
+      "resource_id": "app:7e67227cc1ab71dc5983e5ce",
+      "name": "Weather",
+      "path": "/System/Applications/Weather.app",
+      "bundle_id": "com.apple.weather",
+      "version": "6.0",
+      "names": [
+        "com apple weather",
+        "weather"
+      ],
+      "icon_url": "image://icon//System/Applications/Weather.app"
+    },
+    {
+      "resource_id": "app:40191bbe8e691f8f5c2c3707",
+      "name": "WebStorm",
+      "path": "/Applications/WebStorm.app",
+      "bundle_id": "com.jetbrains.WebStorm",
+      "version": "2024.3",
+      "names": [
+        "com jetbrains webstorm",
+        "webstorm"
+      ],
+      "icon_url": "image://icon//Applications/WebStorm.app"
+    },
+    {
+      "resource_id": "app:26f05850dc8cef708e5e990a",
+      "name": "Windows App",
+      "path": "/Applications/Windows App.app",
+      "bundle_id": "com.microsoft.rdc.macos",
+      "version": "11.3.3",
+      "names": [
+        "com microsoft rdc macos",
+        "windows app"
+      ],
+      "icon_url": "image://icon//Applications/Windows App.app"
+    },
+    {
+      "resource_id": "app:8906e9be5db3fca2c4398713",
+      "name": "Xcode",
+      "path": "/Applications/Xcode.app",
+      "bundle_id": "com.apple.dt.Xcode",
+      "version": "26.2",
+      "names": [
+        "com apple dt xcode",
+        "xcode"
+      ],
+      "icon_url": "image://icon//Applications/Xcode.app"
+    },
+    {
+      "resource_id": "app:bbd5cd827ebe0b9825ef9368",
+      "name": "Yousician Launcher",
+      "path": "/Applications/Yousician Launcher.app",
+      "bundle_id": "com.yousician.launcher",
+      "version": "2.11.51",
+      "names": [
+        "com yousician launcher",
+        "yousician launcher"
+      ],
+      "icon_url": "image://icon//Applications/Yousician Launcher.app"
+    },
+    {
+      "resource_id": "app:157075560784c592700b5682",
+      "name": "Zalo",
+      "path": "/Applications/Zalo.app",
+      "bundle_id": "com.vng.zalo",
+      "version": "26.10.20",
+      "names": [
+        "com vng zalo",
+        "zalo"
+      ],
+      "icon_url": "image://icon//Applications/Zalo.app"
+    }
+  ],
+  "isAppsView": false,
+  "savedDraft": "",
+  "launchFeedback": "",
+  "launchFeedbackError": false,
+  "isQuestionQuery": false
+}

@@ -4,7 +4,7 @@ import sys
 import tempfile
 from pathlib import Path
 from PyQt6.QtCore import QSize
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 
 from rat.engine.contradiction_auditor import (
     ContradictionAuditor,
@@ -16,7 +16,7 @@ from rat.ui.icon_provider import RatIconProvider
 
 
 def get_or_create_app():
-    return QApplication.instance() or QApplication([sys.argv[0]])
+    return QGuiApplication.instance() or QGuiApplication([sys.argv[0]])
 
 
 class TestContradictionAuditor:

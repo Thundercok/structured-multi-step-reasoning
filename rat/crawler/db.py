@@ -596,6 +596,7 @@ class Database:
         fields = ('d.file_path, d.file_name, d.file_ext, d.file_size, d.modified_at, d.created_at, '
                   "substr(coalesce(d.summary, ''), 1, 200) AS summary")
         if fts_parts:
+            fields += ", snippet(documents_fts, 1, '', '', ' … ', 24) AS matched_excerpt"
             clauses.append('documents_fts MATCH ?')
             args.append(' AND '.join(fts_parts))
             source = 'documents_fts JOIN documents d ON d.id = documents_fts.rowid'

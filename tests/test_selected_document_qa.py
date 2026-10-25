@@ -150,3 +150,17 @@ def test_selected_document_qa_populates_telemetry_streams_progress_and_reconcile
     assert response.qa_telemetry['prefix_already_prepared'] is True
     assert response.qa_telemetry['model_calls'] == 1
 
+
+
+@pytest.mark.parametrize('answer', ['WRONG-9999', 'Không đủ dữ kiện để trả lời.'])
+def test_read_success_does_not_certify_answer_or_invent_page(env, answer):
+    runtime, path, client = env
+    client.chat_with_meta.return_value['message']['content'] = answer
+    response = answer_selected_document(runtime, 'Mã xác nhận?', str(path), model_client=client)
+    assert response.answer == answer
+    assert response.answer_verification_status != 'PASS'
+    assert not any(r.get('verifier') == 'document_grounding' and r.get('status') == 'PASS'
+                   for r in response.verification_reports)
+    assert all(not source.get('page') and not source.get('page_num') for source in response.sources)
+    assert any(r.operation_name == 'read_document' and r.committed
+               for r in response.execution_journal.receipts)

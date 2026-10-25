@@ -1,0 +1,51 @@
+{
+  "model_requests": 0,
+  "profile_sha256": "703cfdffc935ae6faf4e160d5171a3c3a72c82c57983455cf99c6f34ef232e60",
+  "profile_origin": "Explicit local birth profile from user-provided birth inputs; recalculated by Swiss Ephemeris.",
+  "cards_origin": "Manually supplied cards; no random draw or canned interpretation.",
+  "input_scope": "Native Qt click/paste/key events; import via public slot, not native file picker acceptance.",
+  "screenshots": [
+    "reading_empty.png",
+    "reading_full_700.png",
+    "reading_full_520.png",
+    "workbench_expanded.png",
+    "workbench_restored.png",
+    "workbench_folded.png",
+    "workbench_reopened.png",
+    "reading_cards_520.png",
+    "reading_import_error.png",
+    "reading_compact.png",
+    "reading_synthesized_draft.png",
+    "reading_cot_expanded.png",
+    "reading_draft_edited.png",
+    "document_expanded.png",
+    "document_restored.png"
+  ],
+  "reasoning_tools": [
+    "load_reading_profile",
+    "prepare_reading_spread",
+    "synthesize_reading_draft"
+  ],
+  "architecture_scope": "Full Chain-of-Thought reasoning loop connected to divination workbench using shared agent dispatcher, validated operations, versioned artifacts, boundary audit, and user editing.",
+  "expanded_geometry": [
+    409,
+    28,
+    1100,
+    1024
+  ],
+  "space_preserves_session_artifacts_draft": true,
+  "conversation_scope": "Conversation object and existing messages unchanged; no model conversation injected or generated.",
+  "cot_draft_synthesized": true,
+  "cot_boundary_audit": {
+    "passed": true,
+    "notes": "XÁC MINH RANH GIỚI: Queen of Cups ngược thuộc vị trí ranh giới của người hỏi. Đã kiểm tra và bảo đảm bản luận không gán lá này thành phán xét tính cách hay thái độ của đối phương."
+  },
+  "cot_steps_count": 6,
+  "cot_grounds_count": 5,
+  "draft_preserved": true,
+  "invalid_import_preserves_session": true,
+  "pdf_preserved": true,
+  "pdf_sha256": "9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c",
+  "pdf_origin": "https://arxiv.org/pdf/2506.22716; existing original PDF with repository provenance manifest",
+  "passed": true
+}

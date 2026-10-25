@@ -1,0 +1,91 @@
+..........................FFF.......F...............                     [100%]
+=================================== FAILURES ===================================
+________ test_synthesize_reading_interpretation_cot_and_boundary_audit _________
+
+    def test_synthesize_reading_interpretation_cot_and_boundary_audit():
+        from rat.engine.reading_session import synthesize_reading_interpretation, parse_cards
+        cards = parse_cards('rơi: 9 pent; 4 wands rev, 5 cups, queen cups rev')
+        synth = synthesize_reading_interpretation('mối quan hệ', cards, chart={
+            'name': 'Huy',
+            'fileName': 'huy.json',
+            'positions': [{'name': 'Moon', 'position': '14° Taurus'}, {'name': 'Mercury', 'position': '22° Gemini'}],
+        })
+        assert synth['has_jumper'] and synth['has_chart']
+        assert len(synth['cot_steps']) == 6
+>       assert all(step['status'] == 'UNKNOWN' for step in synth['cot_steps'])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert False
+E        +  where False = all(<generator object test_synthesize_reading_interpretation_cot_and_boundary_audit.<locals>.<genexpr> at 0x14298e8e0>)
+
+tests/test_reading_session.py:82: AssertionError
+______________ test_reading_synthesize_tool_dispatch_and_artifact ______________
+
+        assert 'Queen of Cups' in synth['draft_markdown']
+    
+    
+    def test_reading_synthesize_tool_dispatch_and_artifact():
+        from rat.kernel.capabilities.reading import create_reading_capability
+        from rat.kernel.contracts import ArtifactStore
+        from rat.kernel.dispatcher import ActionDispatcher
+        from rat.kernel.registry import CapabilityRegistry
+        from rat.engine.reading_session import parse_cards
+        registry = CapabilityRegistry()
+        registry.register_capability(create_reading_capability())
+        store = ArtifactStore()
+        dispatcher = ActionDispatcher(registry, store)
+    
+        cards = parse_cards('4 pent, 8 cups rev')
+>       res = dispatcher.execute_operation('synthesize_reading_draft', {
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'query': 'công việc',
+        }, context={'reading_cards': cards})
+E       AssertionError: assert 'error' == 'success'
+E         
+E         - success
+E         + error
+
+tests/test_reading_session.py:109: AssertionError
+_________________ test_quick_pdf_controller_reading_draft_flow _________________
+
+tmp_path = PosixPath('/private/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/pytest-of-thundercock2/pytest-1935/test_quick_pdf_controller_read0')
+
+    
+    def test_quick_pdf_controller_reading_draft_flow(tmp_path):
+        from rat.ui.quick_pdf_controller import QuickPDFController
+        controller = QuickPDFController(auto_init_finder=False)
+        controller.ready()
+        try:
+            controller.openReadingDesk()
+            assert controller.snapshot['view'] == 'reading'
+>           assert controller.setReadingCards('roi: 9 pent; 4 wands rev, 5 cups, queen cups rev')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: assert False
+E            +  where False = synthesizeReadingDraft('câu hỏi kết nối')
+E            +    where synthesizeReadingDraft = <rat.ui.quick_pdf_controller.QuickPDFController object at 0x142a1d3b0>.synthesizeReadingDraft
+
+tests/test_reading_session.py:123: AssertionError
+__ TestContradictionAuditor.test_positive_control_same_entity_fact_collision ___
+
+self = <tests.test_turn2_innard_and_icons.TestContradictionAuditor object at 0x137498740>
+
+    def test_positive_control_same_entity_fact_collision(self):
+        """Finding 2b positive control: contradictory facts for the SAME subject entity trigger collision."""
+        auditor = ContradictionAuditor(strict_numeric=True)
+        evidence = SourceEvidence(
+            source_id="src-an-score-2",
+            kind="pdf_page",
+            excerpt="Sinh viên An đạt điểm TOEIC 650 trong kỳ thi sát hạch.",
+        )
+        answer = "Sinh viên An chỉ đạt TOEIC 500 điểm nên chưa đạt chuẩn."
+        report = auditor.audit_trace([], [evidence], answer=answer)
+>       assert not report.passed
+E       AssertionError: assert not True
+E        +  where True = ContradictionReport(passed=True, findings=[], monotonicity_score=1.0, audited_steps_count=0, source_evidences_count=1, duration_ms=0.5910396575927734, coverage_status='checked', claims_checked_count=1, operational_events_count=0).passed
+
+tests/test_turn2_innard_and_icons.py:148: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_reading_session.py::test_synthesize_reading_interpretation_cot_and_boundary_audit
+FAILED tests/test_reading_session.py::test_reading_synthesize_tool_dispatch_and_artifact
+FAILED tests/test_reading_session.py::test_quick_pdf_controller_reading_draft_flow
+FAILED tests/test_turn2_innard_and_icons.py::TestContradictionAuditor::test_positive_control_same_entity_fact_collision
+4 failed, 48 passed in 43.78s

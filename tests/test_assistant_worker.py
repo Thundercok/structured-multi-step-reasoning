@@ -3,7 +3,7 @@ import threading
 import time
 
 from PyQt6.QtTest import QTest
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 
 from rat.crawler.db import Database
 from rat.engine.assistant_runtime import AssistantRuntime, ModelDecision
@@ -12,7 +12,7 @@ from rat.ui.assistant_worker import AssistantWorker
 
 
 def test_worker_does_not_block_ui_and_cancellation_discards_inflight_answer(tmp_path):
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     db = Database(str(tmp_path / 'index.db'))
     gui_connection = db.get_connection()
     release, entered = threading.Event(), threading.Event()

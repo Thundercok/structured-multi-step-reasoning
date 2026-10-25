@@ -343,7 +343,7 @@ class DispatchResult:
 class ExecutionEvent:
     """Runtime execution event distinct from model-authored descriptions."""
 
-    type: str  # "waiting_input", "operation_started", "operation_progress", "operation_completed", "operation_failed", "artifact_created", "artifact_updated", "turn_completed"
+    type: str  # "accepted", "planning", "dispatching", "observing", "checking", "deciding", "waiting_input", "operation_started", "operation_progress", "operation_completed", "operation_failed", "artifact_created", "artifact_updated", "turn_completed", "turn_failed"
     operation_name: Optional[str] = None
     artifact_id: Optional[str] = None
     payload: Any = None
@@ -351,6 +351,9 @@ class ExecutionEvent:
     error: Optional[str] = None
     turn_id: Optional[str] = None
     execution_id: Optional[str] = None
+    generation: Optional[int] = None
+    sequence: int = 0
+    artifact_refs: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -362,6 +365,9 @@ class ExecutionEvent:
             "error": self.error,
             "turn_id": self.turn_id,
             "execution_id": self.execution_id,
+            "generation": self.generation,
+            "sequence": self.sequence,
+            "artifact_refs": list(self.artifact_refs),
         }
 
 

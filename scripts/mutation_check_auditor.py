@@ -19,7 +19,11 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 ENGINE_SRC = REPO_ROOT / "rat" / "engine" / "contradiction_auditor.py"
 TEST1_SRC = REPO_ROOT / "tests" / "test_contradiction_auditor.py"
 TEST2_SRC = REPO_ROOT / "tests" / "test_report_and_edges.py"
-XFAIL = ["test_contradiction_auditor.py::test_gap_exception_clause", "test_contradiction_auditor.py::test_gap_semester_unit"]
+XFAIL = [
+    "test_contradiction_auditor.py::test_gap_exception_clause",
+    "test_contradiction_auditor.py::test_gap_semester_unit",
+    "test_report_and_edges.py::test_gap_unknown_label_without_he_in_query",
+]
 
 MUTANTS = [
     ("M01 '<=' loses its closed upper flag",        [('"<=": (-inf, v, False, True)', '"<=": (-inf, v, False, False)')]),
@@ -75,6 +79,15 @@ MUTANTS = [
     ("M47 NFD text not recomposed",                 [('(_COMBINING, lambda m: unicodedata.normalize("NFC", m[0])),', "(_COMBINING, lambda m: m[0]),")]),
     ("M48 non-breaking space not normalised",       [('(_ODD_SPACE, " "),', "(_ODD_SPACE, lambda m: m[0]),")]),
     ("M49 zero-width characters not removed",       [('(_ZERO_WIDTH, ""),', "(_ZERO_WIDTH, lambda m: m[0]),")]),
+    ("M50 query: interrogatives read as part of the name", [("{_PRED}|bao|mấy|nào|", "{_PRED}|")]),
+    ("M51 query: extended name of a known programme pins",  [("if nxt and not re.fullmatch(_Q_STOP, nxt, re.I):", "if False:")]),
+    ("M52 query: unknown `hệ <label>` does not veto",       [("        if not _Q_ALIAS.match(rest):", "        if False:")]),
+    ("M53 query: grading scale vetoes the pin",             [("if _Q_NOT_A_PROGRAMME.match(rest) or _Q_SCALE.match(rest):", "if _Q_NOT_A_PROGRAMME.match(rest):")]),
+    ("M54 query: 'hệ thống' vetoes the pin",                [("if _Q_NOT_A_PROGRAMME.match(rest) or _Q_SCALE.match(rest):", "if _Q_SCALE.match(rest):")]),
+    ("M55 query: zero-width characters not removed",        [('q = _ODD_SPACE.sub(" ", _ZERO_WIDTH.sub("", q))', "q = q")]),
+    ("M56 query: several programmes pin an arbitrary one",  [("return next(iter(ids)) if len(ids) == 1 else None", "return next(iter(ids)) if ids else None")]),
+    ("M57 'đăng ký' no longer marks a per-term load",       [("or (_REG.search(text) and not _TOTAL.search(text))", "")]),
+    ("M58 total/graduation wording does not cancel 'đăng ký'", [("or (_REG.search(text) and not _TOTAL.search(text))", "or _REG.search(text)")]),
 ]
 
 

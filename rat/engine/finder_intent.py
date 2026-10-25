@@ -324,6 +324,7 @@ def _extract_time_windows(
 
 def _looks_like_document_target(target: str) -> bool:
     folded = _fold_ascii(target)
+    folded = re.sub(r"^(?:cai|ban|cuon)\s+", "", folded)
     if not folded:
         return False
     if any(folded.endswith(ext) for ext in _DOC_EXTENSIONS):
@@ -527,7 +528,20 @@ def parse_finder_intent(
             "Sắp xếp theo thời gian sửa đổi mới nhất (modified_at DESC) trước khi giới hạn số lượng trên kho chỉ mục cục bộ."
         )
 
-    # 6. Strip remaining leading/trailing search filler words ONLY when a structured rule was triggered
+    # Explicit search/file prefixes also establish a file query without requiring
+    # a format or date. Strip only the prefix; preserve meaningful subject words.
+    explicit_search = bool(re.match(
+        r"^(?:(?:hãy|hay|giúp\s+tôi|giup\s+toi|giúp\s+mình|giup\s+minh|giúp|giup|"
+        r"giùm\s+tôi|gium\s+toi|giùm\s+mình|gium\s+minh|giùm|gium|"
+        r"hộ\s+tôi|ho\s+toi|hộ\s+mình|ho\s+minh|hộ|ho|"
+        r"cho\s+tôi|cho\s+toi|cho\s+mình|cho\s+minh)\s+)*"
+        r"(?:(?:cái|cai)\s+)?(?:tìm|tim|find|search|file|tệp|tep|tài\s+liệu|tai\s+lieu|bài\s+báo|bai\s+bao)\b",
+        working, flags=re.IGNORECASE,
+    ))
+    if explicit_search and resource_kind == "any":
+        resource_kind = "file"
+
+    # 6. Strip leading filler for structured or explicit search commands.
     has_structured = bool(
         slide_rule
         or report_rule
@@ -535,14 +549,22 @@ def parse_finder_intent(
         or date_min is not None
         or sort != "relevance"
         or needs_clarification
+        or explicit_search
     )
     if has_structured:
         filler_lead_tokens = (
             r"(?:"
-            r"hãy|hay|giúp\s+tôi|giup\s+toi|cho\s+tôi|cho\s+toi|"
+            r"hãy|hay|giúp\s+tôi|giup\s+toi|giúp\s+mình|giup\s+minh|giúp|giup|"
+            r"giùm\s+tôi|gium\s+toi|giùm\s+mình|gium\s+minh|giùm|gium|"
+            r"hộ\s+tôi|ho\s+toi|hộ\s+mình|ho\s+minh|hộ|ho|"
+            r"cho\s+tôi|cho\s+toi|cho\s+mình|cho\s+minh|"
             r"tìm\s+kiếm|tim\s+kiem|tìm|tim|xem|lấy|lay|liệt\s+kê|liet\s+ke|hiển\s+thị|hien\s+thi|search|find|show|get|"
+            r"cái|cai|nói\s+về|noi\s+ve|có\s+nội\s+dung|co\s+noi\s+dung|"
+            r"có\s+nhắc\s+đến|co\s+nhac\s+den|nhắc\s+đến|nhac\s+den|"
+            r"liên\s+quan\s+đến|lien\s+quan\s+den|chứa|chua|về\s+việc|ve\s+viec|"
             r"các|cac|những|nhung|mọi|moi|tất\s+cả|tat\s+ca|bản|ban|cuốn|cuon|bộ|bo|"
-            r"tài\s+liệu|tai\s+lieu|tệp\s+tin|tep\s+tin|tệp|tep|file|files|documents?|"
+            r"bài\s+báo\s+về|bai\s+bao\s+ve|bài\s+báo|bai\s+bao|paper|"
+            r"tài\s+liệu\s+về|tai\s+lieu\s+ve|tài\s+liệu|tai\s+lieu|tệp\s+tin|tep\s+tin|tệp|tep|file|files|documents?|"
             r"về|ve|môn|mon|của|cua|cho|for|about|on"
             r")"
         )

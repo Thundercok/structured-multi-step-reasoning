@@ -1,15 +1,10 @@
-"""Open the atlas without personal indexing, a background daemon or a model."""
+"""Open the atlas via the unified QtQuick Desk."""
 import sys
-from PyQt6.QtWidgets import QApplication
-from rat.ui.natal_chart import NatalChartWindow
+from rat.ui.quick_app import main as quick_main
 
 
 def main():
-    app = QApplication.instance() or QApplication(sys.argv)
-    app.setApplicationName("RAT · Natal Atlas")
-    window = NatalChartWindow()
-    window.show()
-    sys.exit(app.exec())
+    sys.exit(quick_main(sys.argv[1:]))
 
 
 if __name__ == "__main__":

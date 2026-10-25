@@ -50,7 +50,55 @@ def get_ext_badge_info(ext: str) -> dict:
     return {"bg": "#8c7e6f", "fg": "#ffffff", "border": "#75685a", "label": label[:4]}
 
 
-from rat.ui.workbench import get_system_font_family, get_system_mono_font_family
+def get_system_font_family() -> str:
+    """Return a single concrete font family that Qt can resolve reliably across platforms."""
+    import sys
+    try:
+        from PyQt6.QtGui import QFontDatabase, QGuiApplication
+        if QGuiApplication.instance() is not None:
+            families = set(QFontDatabase.families())
+            for candidate in (
+                ".AppleSystemUIFont",
+                "Helvetica Neue",
+                "Arial",
+                "Segoe UI",
+                "Noto Sans",
+                "DejaVu Sans",
+            ):
+                if candidate in families:
+                    return candidate
+    except Exception:
+        pass
+    if sys.platform == "darwin":
+        return ".AppleSystemUIFont"
+    elif sys.platform == "win32":
+        return "Segoe UI"
+    return "Helvetica Neue"
+
+
+def get_system_mono_font_family() -> str:
+    """Return a single concrete monospace font family that Qt can resolve reliably across platforms."""
+    import sys
+    try:
+        from PyQt6.QtGui import QFontDatabase, QGuiApplication
+        if QGuiApplication.instance() is not None:
+            families = set(QFontDatabase.families())
+            for candidate in (
+                "Menlo",
+                "Monaco",
+                "Courier New",
+                "Consolas",
+                "JetBrains Mono",
+                "Fira Code",
+            ):
+                if candidate in families:
+                    return candidate
+    except Exception:
+        pass
+    if sys.platform == "darwin":
+        return "Menlo"
+    return "monospace"
+
 
 FONT_FAMILY = get_system_font_family()
 MONO_FONT_FAMILY = get_system_mono_font_family()

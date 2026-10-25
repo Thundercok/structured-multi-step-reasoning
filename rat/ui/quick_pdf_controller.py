@@ -11,15 +11,18 @@ import re
 import subprocess
 import sys
 import threading
+from xml.parsers.expat import ExpatError
+from uuid import uuid4
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import QCoreApplication, QObject, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QDesktopServices, QGuiApplication
-from PyQt6.QtWidgets import QApplication
 
 from rat.config import config
-from rat.engine.app_resolver import ApplicationCatalog
+from rat.engine.app_resolver import ApplicationCatalog, revalidate_application_bundle
+from rat.engine.finder_intent import parse_finder_intent
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
+from rat.engine.semantic_reranker import SemanticFuzzyReranker
 from rat.engine.selected_pdf import (
     SelectedPDFError, check_current, citation_text, read_selected_page,
     search_selected_pdf, select_pdf,
@@ -34,7 +37,9 @@ from rat.engine.execution import (
 )
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
-from rat.ui.answer_presentation import answer_excerpt, answer_html, answer_starts_with_code, source_rows, page_reading_text
+from rat.ui.answer_presentation import (
+    answer_excerpt, answer_html, answer_starts_with_code, source_rows, page_reading_text, format_process_steps
+)
 from rat.ui.assistant_worker import create_execution_worker
 from rat.ui.pdf_snapshot_provider import PdfSnapshotRenderer
 from rat.kernel.contracts import Artifact, SourceEvidence
@@ -217,6 +222,8 @@ class QuickPDFController(QObject):
         self._open_url = open_url
         self._reveal_file = reveal_file
         self._preview_file = preview_file
+        self._launch_feedback = ""
+        self._launch_feedback_error = False
         self._snapshot_renderer = PdfSnapshotRenderer()
         self._delivered.connect(self._finish, Qt.ConnectionType.QueuedConnection)
         self._execution_delivered.connect(self._handle_execution_delivered, Qt.ConnectionType.QueuedConnection)
@@ -248,7 +255,18 @@ class QuickPDFController(QObject):
         self._finder_catalog = finder_catalog
         self._finder_hits: List[Dict[str, Any]] = []
         self._finder_query: str = ""
+        self._finder_feedback = ""
+        self._reading_cards = []
+        self._reading_chart = None
+        self._reading_draft: Dict[str, Any] = {}
+        self._reading_cot_steps: List[Dict[str, Any]] = []
+        self._reading_grounds: List[Dict[str, Any]] = []
+        self._reading_error = ""
+        self._reading_return_view = "none"
+        self._reading_return_expanded = False
+        self._reading_result_refs = {}
         self._db_path = db_path or str(config.db_path)
+        self._finder_semantic = SemanticFuzzyReranker(self._db_path)
         self._cached_apps_list: List[Dict[str, Any]] = []
         self._saved_draft: str = ""
         self._prior_view: str = "none"
@@ -271,7 +289,7 @@ class QuickPDFController(QObject):
                     on_update=lambda snap: self._finder_delivered.emit(snap),
                 )
             elif self._finder_catalog is not None:
-                self._finder_search = ProgressiveSearch(self._db_path, catalog=self._finder_catalog)
+                self._finder_search = ProgressiveSearch(self._db_path, catalog=self._finder_catalog, semantic=self._finder_semantic)
                 self._finder_coordinator = SearchCoordinator(
                     self._finder_search,
                     on_update=lambda snap: self._finder_delivered.emit(snap),
@@ -317,6 +335,11 @@ class QuickPDFController(QObject):
             displayed.source_refs if displayed else [],
             self._selection.path if self._selection else None,
             self._selection.page_count if self._selection else 0,
+        )
+        process_steps = format_process_steps(
+            displayed.steps if displayed else [],
+            displayed.answer_verification_status if displayed else "UNKNOWN",
+            references,
         )
         if busy:
             if self._request:
@@ -393,6 +416,7 @@ class QuickPDFController(QObject):
             "answerHtml": answer_html(self._last_assistant_answer),
             "answerHtmlDark": answer_html(self._last_assistant_answer, True),
             "answerSources": references,
+            "processSteps": process_steps,
             "answerReadScope": " · ".join(dict.fromkeys(row["readScope"] for row in references if row["readScope"])),
             "answerVerification": displayed.answer_verification_status if displayed else "UNKNOWN",
             "telemetry": dict(self._telemetry),
@@ -414,7 +438,7 @@ class QuickPDFController(QObject):
             "matchedQuery": (self._search.get("query", "") if self._search else ""),
             "sourceKind": "search_hit" if self._active_search_hit else ("citation" if self._page_return_view == "answer" else "direct"),
             "canCopy": view == "page" or (view == "answer" and bool(self._last_assistant_answer)),
-            "canBack": bool(self._search) and view in ("page", "error"),
+            "canBack": bool(self._search) and self._page_return_view == "search" and view in ("page", "error"),
             "canBackToAnswer": (view == "page" and self._page_return_view == "answer" and bool(self._last_assistant_answer or self._last_user_query)),
             "errorCode": self._error,
             "errorText": ERROR_MESSAGES.get(self._error, "Không xử lý được yêu cầu này."),
@@ -422,9 +446,21 @@ class QuickPDFController(QObject):
             "contradictionReport": self._telemetry.get("contradiction_report"),
             "finderHits": list(self._finder_hits),
             "finderQuery": self._finder_query,
+            "finderFeedback": self._finder_feedback,
+            "readingSession": {
+                "cards": list(self._reading_cards),
+                "chart": self._reading_chart,
+                "draft": dict(self._reading_draft),
+                "cotSteps": list(self._reading_cot_steps),
+                "grounds": list(self._reading_grounds),
+                "error": self._reading_error,
+                "resultRefs": dict(self._reading_result_refs),
+            },
             "installedApps": list(self._cached_apps_list),
             "isAppsView": (view == "apps"),
             "savedDraft": self._saved_draft,
+            "launchFeedback": self._launch_feedback,
+            "launchFeedbackError": self._launch_feedback_error,
             "isQuestionQuery": self._is_conversational_query(self._finder_query),
         }
 
@@ -546,6 +582,9 @@ class QuickPDFController(QObject):
             return False
         if self._view == "answer":
             self._page_return_view = "answer"
+        else:
+            self._page_return_view = "none"
+        self._active_search_hit = None
         curr = self._page.get("page", 1) if self._page else 1
         if self._view != "page":
             self.readPage(curr)
@@ -773,7 +812,7 @@ class QuickPDFController(QObject):
         self.changed.emit()
 
     def _set_and_verify_clipboard(self, text: str) -> bool:
-        app_inst = QApplication.instance() or QGuiApplication.instance()
+        app_inst = QGuiApplication.instance()
         if app_inst is None:
             return False
         cb = app_inst.clipboard()
@@ -828,6 +867,40 @@ class QuickPDFController(QObject):
             self._show_error("open_failed")
         return accepted
 
+    @pyqtSlot(int, result=str)
+    def getExpandedContext(self, source_index: int = 0) -> str:
+        """Return extended surrounding context for the primary source reference using registered tool contract."""
+        try:
+            sources = self.snapshot.get("answerSources", [])
+            if 0 <= source_index < len(sources):
+                s = sources[source_index]
+                ext = (s.get("extendedSnippet") or "").strip()
+                if ext and len(ext) > len((s.get("snippet") or "").strip()):
+                    return ext
+                # Invoke registered expand_document_context operation if available
+                file_path = s.get("path") or (str(self._selection.path) if self._selection else "")
+                if file_path and getattr(self, "assistant_runtime", None) is not None:
+                    reg = getattr(self.assistant_runtime, "registry", None)
+                    if reg is not None:
+                        op = reg.get_operation("expand_document_context")
+                        if op is not None:
+                            try:
+                                res = op.handler({"file_path": file_path, "max_chars": 1800})
+                                if isinstance(res, dict) and res.get("found"):
+                                    return str(res.get("content", ""))
+                            except Exception:
+                                pass
+                page = s.get("page")
+                if page and self._selection:
+                    data = read_selected_page(self._selection, page)
+                    content = (data.get("content") or "").strip()
+                    if content:
+                        return content[:1800]
+                return s.get("snippet", "")
+        except Exception:
+            pass
+        return ""
+
     @pyqtSlot(str, result=bool)
     def navigateToTurn(self, turn_id: str) -> bool:
         """View a historical turn without redispatching model or clearing user's composer draft."""
@@ -872,6 +945,8 @@ class QuickPDFController(QObject):
         q = query.strip()
         if not q or self.snapshot["busy"] or self._closed:
             return False
+        if self._view == 'reading':
+            return self.synthesizeReadingDraft(query=q)
         if self._selection is not None:
             try:
                 check_current(self._selection)
@@ -906,7 +981,7 @@ class QuickPDFController(QObject):
         turn_ref = turn_snap.turn_ref
         execution_id = turn_snap.execution_id
 
-        app_inst = QApplication.instance() or QGuiApplication.instance()
+        app_inst = QGuiApplication.instance()
         engine = self._reasoning_engine
         if engine is None and app_inst is not None:
             engine = app_inst.property("ratReasoningEngine")
@@ -1087,6 +1162,23 @@ class QuickPDFController(QObject):
                 if art:
                     art_refs = [art.to_dict()]
 
+        steps_data = []
+        for s in (response.steps or []):
+            if hasattr(s, "to_dict"):
+                steps_data.append(s.to_dict())
+            elif hasattr(s, "__dataclass_fields__"):
+                steps_data.append({
+                    "step_number": getattr(s, "step_number", 1),
+                    "thought": getattr(s, "thought", "") or "",
+                    "tool_name": getattr(s, "tool_name", "") or "",
+                    "tool_args": dict(getattr(s, "tool_args", {}) or {}),
+                    "tool_result": s.tool_result if isinstance(s.tool_result, (dict, list, str, int, float, bool)) else None,
+                    "duration_ms": round(float(getattr(s, "duration_ms", 0.0) or getattr(s, "tool_duration_ms", 0.0) or 0.0), 2),
+                    "error": getattr(s, "error", "") or "",
+                })
+            elif isinstance(s, dict):
+                steps_data.append(s)
+
         self.conversation.complete_turn(
             turn_id,
             response.answer,
@@ -1095,6 +1187,7 @@ class QuickPDFController(QObject):
             task_state={"document_scope": curr_telem["document_scope"]} if curr_telem.get("document_scope") else None,
             source_refs=[s.to_dict() if hasattr(s, "to_dict") else s for s in (response.sources or []) if isinstance(s, dict) or hasattr(s, "to_dict")],
             answer_verification_status=response.answer_verification_status,
+            steps=steps_data,
         )
 
         self._last_assistant_answer = response.answer
@@ -1146,7 +1239,7 @@ class QuickPDFController(QObject):
         if self._closed or self._finder_coordinator is not None:
             return
         self._finder_catalog = catalog
-        self._finder_search = ProgressiveSearch(self._db_path, catalog=catalog)
+        self._finder_search = ProgressiveSearch(self._db_path, catalog=catalog, semantic=self._finder_semantic)
         self._finder_coordinator = SearchCoordinator(
             self._finder_search,
             on_update=lambda snap: self._finder_delivered.emit(snap),
@@ -1160,6 +1253,12 @@ class QuickPDFController(QObject):
     def onComposerTextChanged(self, text: str):
         if self._closed:
             return
+        if self._view == "reading":
+            return
+        if self._launch_feedback:
+            self._launch_feedback = ""
+            self._launch_feedback_error = False
+            self.changed.emit()
         if self._view == "apps":
             self._finder_query = text.strip()
             self.changed.emit()
@@ -1169,7 +1268,16 @@ class QuickPDFController(QObject):
         if self.snapshot["busy"]:
             return
         q = text.strip()
+        had_feedback = bool(self._finder_feedback)
+        self._finder_feedback = ""
+        query_changed = q != self._finder_query
         self._finder_query = q
+        # Do not let Enter open an old query's row while the latest query runs.
+        if q and query_changed and self._finder_hits:
+            self._finder_hits = []
+            self.changed.emit()
+        elif had_feedback:
+            self.changed.emit()
         if not q:
             if self._finder_coordinator is not None:
                 self._finder_coordinator.cancel()
@@ -1280,6 +1388,7 @@ class QuickPDFController(QObject):
                 "file_name": p.name,
                 "display_path": display_path,
                 "origin": h.origin,
+                "match_reason": h.match_reason or ("Khớp tên ứng dụng" if h.kind == "application" else "Khớp chỉ mục tài liệu"),
                 "snippet": snippet,
                 "bundle_id": h.bundle_id or "",
                 "is_pdf": h.path.lower().endswith(".pdf"),
@@ -1302,12 +1411,18 @@ class QuickPDFController(QObject):
 
         count = len(hits)
         if count == 0:
+            if snapshot.intent and snapshot.intent.resource_kind in ("file", "slide", "report"):
+                self._finder_feedback = (
+                    "Chưa truy cập được chỉ mục tệp. Bạn có thể chọn tệp bằng nút đính kèm."
+                    if 'file_index_unavailable' in snapshot.errors else
+                    "Chưa thấy tệp khớp trong chỉ mục. Bạn nhớ thêm chủ đề, loại tệp hoặc thời gian không?"
+                )
             had_hits = bool(self._finder_hits)
             self._finder_hits = []
             if self._view == "finder":
                 self._restore_pre_finder_state()
                 self.changed.emit()
-            elif had_hits:
+            elif had_hits or self._finder_feedback:
                 self.changed.emit()
             return
 
@@ -1339,13 +1454,48 @@ class QuickPDFController(QObject):
         if not path:
             return False
         p = Path(path)
+        if p.suffix.casefold() == ".app":
+            return self._open_application(p)
         if not p.exists():
-            self._show_error("file_not_found")
+            self._launch_feedback = f"Không thể mở {p.name}: tệp không còn ở vị trí đã tìm thấy."
+            self._launch_feedback_error = True
+            self.changed.emit()
             return False
         opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
-        accepted = bool(opener(QUrl.fromLocalFile(str(p.resolve()))))
-        if not accepted:
-            self._show_error("open_failed")
+        try:
+            accepted = bool(opener(QUrl.fromLocalFile(str(p.resolve()))))
+        except Exception:
+            accepted = False
+        self._launch_feedback = (f"Đã gửi yêu cầu mở {p.name}." if accepted
+                                 else f"Không thể gửi yêu cầu mở {p.name}. Bạn có thể thử lại.")
+        self._launch_feedback_error = not accepted
+        self.changed.emit()
+        return accepted
+
+    def _open_application(self, path: Path) -> bool:
+        # Recheck the selected installation immediately before handing it to OS.
+        expected = next((a for a in (self._finder_catalog.applications if self._finder_catalog else ())
+                         if a.path == str(path.absolute())), None)
+        try:
+            target = revalidate_application_bundle(
+                path, expected_bundle_id=expected.bundle_id if expected else None,
+            )
+        except (OSError, ValueError, TypeError, AttributeError, ExpatError):
+            self._launch_feedback = f"Không thể mở {path.stem}: ứng dụng đã bị gỡ hoặc bản cài không còn hợp lệ."
+            self._launch_feedback_error = True
+            self.changed.emit()
+            return False
+        try:
+            opener = self._open_url if self._open_url is not None else QDesktopServices.openUrl
+            accepted = bool(opener(QUrl.fromLocalFile(target.path)))
+        except Exception:
+            accepted = False
+        self._launch_feedback_error = not accepted
+        self._launch_feedback = (
+            f"Đã gửi yêu cầu mở {target.name}." if accepted
+            else f"Không thể gửi yêu cầu mở {target.name}. Bạn có thể thử lại."
+        )
+        self.changed.emit()
         return accepted
 
     @pyqtSlot(str)
@@ -1382,6 +1532,121 @@ class QuickPDFController(QObject):
         if self._closed or not path:
             return False
         return self.openHit(path)
+
+    @pyqtSlot()
+    def openReadingDesk(self):
+        if self._closed or self.snapshot['busy']:
+            return
+        if self._view != 'reading':
+            self._reading_return_view = self._view
+            self._reading_return_expanded = self._expanded
+        if self._finder_coordinator:
+            self._finder_coordinator.cancel()
+        self._view = 'reading'
+        self._expanded = True
+        self._status = 'Bàn xem · bài và lá số'
+        self.changed.emit()
+
+    @pyqtSlot()
+    def closeReadingDesk(self):
+        if self._view == 'reading':
+            self._view = self._reading_return_view
+            self._expanded = self._reading_return_expanded
+            self._status = 'Chuột sẵn sàng. Bạn cần gì?'
+            self.changed.emit()
+
+    @pyqtSlot(str, result=bool)
+    def setReadingCards(self, text: str) -> bool:
+        if self._closed:
+            return False
+        try:
+            result = self._execute_reading_tool('prepare_reading_spread', {'text': text})
+        except ValueError as exc:
+            self._reading_error = str(exc)
+            self.changed.emit()
+            return False
+        self._reading_cards = result['cards']
+        self._reading_error = ''
+        self.changed.emit()
+        return True
+
+    @pyqtSlot(str, result=bool)
+    def importReadingProfile(self, path: str) -> bool:
+        if self._closed:
+            return False
+        from rat.ui.reading_presentation import reading_profile_view
+        url = QUrl(path)
+        local = url.toLocalFile() if url.isLocalFile() else path
+        try:
+            result = self._execute_reading_tool('load_reading_profile', {'file_path': local}, selected_path=local)
+            chart = reading_profile_view(result)
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            self._reading_error = 'Không mở được hồ sơ: ' + str(exc)
+            self.changed.emit()
+            return False
+        self._reading_chart = chart
+        self._reading_error = ''
+        self.changed.emit()
+        return True
+
+    def _execute_reading_tool(self, name, args, *, selected_path=None, extra_context=None):
+        # Explicit user action is the plan input. Domain execution uses the same
+        # validated operation/artifact/event contract exposed to the Agent.
+        ctx = {
+            'selected_document_path': selected_path,
+            'execution_id': 'reading-' + uuid4().hex,
+            'reading_cards': self._reading_cards,
+            'reading_chart': self._reading_chart,
+            'context_notes': self._saved_draft,
+        }
+        if extra_context:
+            ctx.update(extra_context)
+        result = self.assistant_runtime.dispatcher.execute_operation(name, args, context=ctx)
+        if result.status != 'success' or result.artifact is None:
+            raise ValueError(result.error or 'Chưa chuẩn bị được dữ liệu phiên xem.')
+        artifact = result.artifact
+        self._reading_result_refs[name] = {'artifact_id': artifact.id, 'revision': artifact.revision}
+        return artifact.payload
+
+    @pyqtSlot(result=bool)
+    @pyqtSlot(str, result=bool)
+    def synthesizeReadingDraft(self, query: str = "") -> bool:
+        if self._closed or self.snapshot["busy"]:
+            return False
+        if not self._reading_cards:
+            self._reading_error = "Hãy đặt bài lên bàn trước khi soạn bản luận."
+            self.changed.emit()
+            return False
+        self._reading_error = ""
+        q = query.strip() or "Soạn bản luận cho trải bài hiện tại"
+        try:
+            result = self._execute_reading_tool("synthesize_reading_draft", {
+                "query": q,
+            })
+            self._reading_draft = result
+            self._reading_cot_steps = result.get("cot_steps", [])
+            self._reading_grounds = result.get("grounds", [])
+            self._reading_error = ""
+            self._status = "Đã soạn bản luận có cấu trúc"
+            self._events.append(f"Đã soạn bản luận CoT: {result.get('title', '')}")
+            self.changed.emit()
+            return True
+        except Exception as exc:
+            self._reading_error = f"Lỗi soạn bản luận: {exc}"
+            self.changed.emit()
+            return False
+
+    @pyqtSlot(str, result=bool)
+    def saveReadingDraft(self, text: str) -> bool:
+        if self._closed:
+            return False
+        if self._reading_draft:
+            self._reading_draft["draft_markdown"] = text
+            self._reading_draft["user_edited"] = True
+            self._events.append("Người dùng đã chỉnh sửa và lưu bản luận nháp")
+            self.changed.emit()
+            return True
+        return False
 
     @pyqtSlot(str)
     def openPdfHit(self, path: str):
@@ -1430,6 +1695,65 @@ class QuickPDFController(QObject):
                 return True
             else:
                 return self.openHit(hit["path"])
+        return False
+
+    @pyqtSlot(int, str, result=bool)
+    @pyqtSlot(int, result=bool)
+    def adoptSelectedHit(self, index: int, query: str = "") -> bool:
+        """Adopt the selected hit into the active document desk, auto-analyzing draft question if provided."""
+        if 0 <= index < len(self._finder_hits):
+            hit = self._finder_hits[index]
+            path = hit.get("path")
+            p = Path(path) if path else None
+            if not p or not p.exists():
+                self._show_error("file_not_found")
+                return False
+
+            is_pdf = bool(hit.get("is_pdf") or str(path).lower().endswith(".pdf"))
+            clean_q = (query or "").strip()
+
+            # If user has an active drafted question, automatically begin agentic analysis
+            if clean_q:
+                plan = parse_finder_intent(clean_q)
+                clean_terms = plan.query_terms.strip() if plan.query_terms else clean_q
+                if not clean_terms:
+                    clean_terms = f"Tóm tắt các điểm chính trong tài liệu {p.name}"
+
+                if is_pdf:
+                    try:
+                        self._selection = select_pdf(p)
+                    except SelectedPDFError as exc:
+                        self._show_error(exc.code)
+                        return False
+                    self._auto_read_on_select = False
+                    self._page = None
+                    self._search = None
+                else:
+                    try:
+                        content = p.read_text(encoding="utf-8", errors="replace")[:4000]
+                    except Exception:
+                        content = ""
+                    self._assistant_sources.append({
+                        "path": str(p),
+                        "name": p.name,
+                        "content": content,
+                    })
+
+                self._finder_hits = []
+                self._finder_query = ""
+                if self._finder_coordinator is not None:
+                    self._finder_coordinator.cancel()
+                self._expanded = True
+                self._status = f"Chuột đang đọc {p.name} và phân tích câu hỏi…"
+                self.changed.emit()
+                return self.submit(clean_terms)
+            else:
+                self.selectFile(str(p), auto_read=is_pdf)
+                self._finder_hits = []
+                self._finder_query = ""
+                self._status = f"Đã chọn tài liệu: {p.name}"
+                self.changed.emit()
+                return True
         return False
 
     @pyqtSlot(int, str, result=bool)

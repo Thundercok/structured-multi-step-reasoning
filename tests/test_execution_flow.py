@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from PyQt6.QtCore import QThread
 from PyQt6.QtTest import QSignalSpy
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 
 from rat.engine.assistant_runtime import AgentResponse
 from rat.engine.execution import ExecutionRequest, execution_response
@@ -20,7 +20,7 @@ from reasoning.bundle import create_synthetic_specimen_bundle
 
 @pytest.fixture(scope="module")
 def app():
-    return QApplication.instance() or QApplication([])
+    return QGuiApplication.instance() or QGuiApplication([])
 
 
 def collect(app, worker, signal="response_ready"):

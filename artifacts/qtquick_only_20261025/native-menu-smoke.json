@@ -1,0 +1,8 @@
+{
+  "platform": "cocoa",
+  "native_status_created": true,
+  "native_action_bridge": [
+    true
+  ],
+  "widgets_loaded": false
+}

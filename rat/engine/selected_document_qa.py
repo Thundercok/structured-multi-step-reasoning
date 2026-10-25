@@ -163,7 +163,7 @@ def answer_selected_document(runtime, question, file_path, *, model_client=None,
                     'outcome_id': 'answer_from_excerpt',
                     'kind': 'response',
                     'dependency_ids': ['read_selected_doc'],
-                    'description': f'Trả lời câu hỏi từ trích đoạn đã đọc của {path.name}',
+                    'description': f'Trả lời câu hỏi từ trích đoạn của {path.name}',
                 },
             ],
         }
@@ -181,6 +181,10 @@ def answer_selected_document(runtime, question, file_path, *, model_client=None,
                 source['truncated'] = bool(read.tool_result.get('truncated'))
                 source['read_chars'] = len(read.tool_result.get('content', ''))
                 source['total_chars'] = read.tool_result.get('total_chars')
+                content = read.tool_result.get('content', '')
+                if not source.get('excerpt'):
+                    source['excerpt'] = content[:600]
+                source['full_excerpt'] = content[:2000]
 
     raw_resp = last_meta.get('raw_response') if isinstance(last_meta.get('raw_response'), dict) else {}
     phases = dict(last_meta.get('phases') or raw_resp.get('phases') or {})

@@ -1,10 +1,13 @@
 """Tests for the v2 layer: offset-preserving spans, UI annotations, answer-level summary, and the four edge bugs
 (extended programme names / inline canary / digit programmes vs grading scales / query-scope evasion)."""
 import pytest
+import unicodedata
 try:
-    from contradiction_auditor import V, atoms, audit_answer, audit_text, build_index, copy_footer, gate, normalize_map, infer_query_condition
+    from contradiction_auditor import (PROGRAM, V, atoms, audit_answer, audit_text, build_index, copy_footer, gate, infer_query_condition,
+                                       normalize_map)
 except ImportError:
-    from rat.engine.contradiction_auditor import V, atoms, audit_answer, audit_text, build_index, copy_footer, gate, normalize_map, infer_query_condition
+    from rat.engine.contradiction_auditor import (PROGRAM, V, atoms, audit_answer, audit_text, build_index, copy_footer, gate, infer_query_condition,
+                                                 normalize_map)
 
 KB = build_index("""Điều 12. Thời gian học tập
 Hệ chính quy: thời gian tối đa là 6 năm.
@@ -128,7 +131,7 @@ def test_markdown_table_rows_are_atoms_with_row_spans():
     assert [t[x.start:x.end] for x in r.annotations] == ["| Chính quy | 7 năm |"]
 
 
-# ── answer-level summary: never a green "verified" ───────────────────────────────────────────────────────
+# ── answer-level summary: never a green \"verified\" ───────────────────────────────────────────────────────
 def test_summary_counts_and_sentences_without_numbers():
     r = audit_answer("Quy chế khá phức tạp. Thời gian tối đa 6 năm. Bạn nên hỏi phòng đào tạo.", DUR)
     s = r.summary
@@ -190,9 +193,7 @@ def test_summary_separates_unparsed_from_not_comparable():
 
 
 # ── unicode: NFD text (macOS, PDF extraction) and odd spaces must behave exactly like NFC ─────────────────
-import unicodedata  # noqa: E402
-
-NFD = lambda s: unicodedata.normalize("NFD", s)  # noqa: E731
+NFD = lambda s: unicodedata.normalize("NFD", s)
 
 
 def test_nfd_answer_and_nfd_source_behave_like_nfc():
@@ -208,51 +209,94 @@ def test_nfd_spans_index_the_original_text():
 
 
 def test_nbsp_and_zero_width_do_not_split_a_programme_name():
-    assert audit_answer("Hệ chính quy được học tối đa 7 năm.", KB).gate == "BLOCK"
-    assert audit_answer("Hệ \u200bchính quy được học tối đa 6 năm.", KB).gate == "PASS"
+    assert audit_answer("Hệ\u00a0chính\u00a0quy được học tối đa 7\u00a0năm.", KB).gate == "BLOCK"
+    assert audit_answer("Hệ chính\u200b quy được học tối đa 6 năm.", KB).gate == "PASS"
 
 
-@pytest.mark.parametrize(
-    "query,expected",
-    [
-        ("học phí hệ chính quy là bao nhiêu?", "full-time"),
-        ("hệ chính quy bao nhiêu năm?", "full-time"),
-        # Nhãn lạ không có từ khoá 'hệ' ("còn đại trà?") là giới hạn đã biết:
-        ("hệ chính quy là gì? còn đại trà?", "full-time"),
-        ("thời gian tối đa hệ vừa làm vừa học", "part-time"),
-        ("thời gian đào tạo bậc thạc sĩ", "postgrad"),
-        ("học phí hệ từ xa", "distance"),
-        ("sinh viên chính quy được học tối đa mấy năm?", "full-time"),
-    ],
-)
-def test_infer_query_condition_single_programme(query, expected):
-    assert infer_query_condition(query) == expected
+# ── query side: a FALSE PIN is the dangerous error, None is always safe ──────────────────────────────────
+@pytest.mark.parametrize("q,exp", [
+    ("học phí hệ chính quy là bao nhiêu?", "full-time"),
+    ("hệ chính quy bao nhiêu năm?", "full-time"),                              # interrogative is not a longer name
+    ("Hệ Chính Quy BAO NHIÊU năm?", "full-time"),
+    ("sinh viên chính quy được học tối đa mấy năm?", "full-time"),             # bare name, no 'hệ'
+    ("học phí hệ từ xa", "distance"),                                          # name starting with a stop word
+    ("thời gian đào tạo bậc thạc sĩ", "postgrad"),
+    ("thạc sĩ và tiến sĩ học bao lâu", "postgrad"),                            # two names, one programme id
+    ("CPA hệ 4 của hệ chính quy là bao nhiêu?", "full-time"),                  # grading scale is not a programme
+    ("hệ thống quản lý học vụ của hệ chính quy là gì?", "full-time"),          # other sense of 'hệ'
+    ("hệ chính quy là gì? còn đại trà?", "full-time"),                         # documented limit, see gap test below
+])
+def test_query_pins_exactly_one_known_programme(q, exp):
+    assert infer_query_condition(q) == exp
 
 
-@pytest.mark.parametrize(
-    "query",
-    [
-        "so sánh thời gian giữa hệ chính quy và hệ vừa làm vừa học",
-        "sự khác biệt giữa chính quy và từ xa",
-        "hệ chính quy hay vừa làm vừa học học lâu hơn?",
-        "hệ chính quy là gì và hệ 4,5 năm là gì?",
-    ],
-)
-def test_infer_query_condition_multiple_programmes(query):
-    assert infer_query_condition(query) is None
+@pytest.mark.parametrize("q", [
+    "so sánh hệ chính quy và hệ vừa làm vừa học",
+    "hệ chính quy hay vừa làm vừa học học lâu hơn?",
+    "sự khác biệt giữa chính quy và từ xa",
+    "thời gian đào tạo hệ chính quy chất lượng cao là mấy năm?",              # extended name of a known programme
+    "hệ chính quy chất lượng cao cần TOEIC bao nhiêu?",
+    "hệ vừa làm vừa học từ xa tối đa mấy năm?",
+    "thời gian học hệ đại trà là bao lâu?",                                    # unknown label
+    "hệ liên kết quốc tế cần bao nhiêu tín chỉ?",
+    "điều kiện tốt nghiệp hệ 5 năm",                                           # digit programme
+    "hệ chính quy là gì và hệ 4,5 năm là gì?",                                 # decimal digit programme next to a known one
+    "hệ đại trà khác hệ chính quy ở điểm nào?",                                # unknown label FIRST, known label later
+    "hệ đại trà và hệ chính quy khác nhau thế nào?",
+    "hệ 5 năm và hệ chính quy khác nhau thế nào?",
+    "hệ chính quy chất lượng cao có khác hệ chính quy thường không?",
+    "thang điểm hệ 4 là gì?", "sinh viên năm 3 cần đạt bao nhiêu tín chỉ?", "", None,
+])
+def test_query_does_not_pin_when_in_doubt(q):
+    assert infer_query_condition(q) is None
 
 
-@pytest.mark.parametrize(
-    "query",
-    [
-        "thời gian học hệ đại trà là bao lâu?",
-        "hệ liên kết quốc tế cần bao nhiêu tín chỉ?",
-        "điều kiện tốt nghiệp hệ 5 năm",
-        "thang điểm hệ 4 là gì?",
-        "sinh viên năm 3 cần đạt bao nhiêu tín chỉ?",
-        "",
-        None,
-    ],
-)
-def test_infer_query_condition_unknown_or_no_programme(query):
-    assert infer_query_condition(query) is None
+def test_query_invisible_characters_do_not_hide_the_programme():
+    assert infer_query_condition("thời gian hệ chính\u200b quy bao lâu") == "full-time"
+    assert infer_query_condition("thời gian hệ\u00a0chính\u00a0quy bao lâu") == "full-time"
+
+
+@pytest.mark.xfail(strict=True, reason="unknown label WITHOUT the word 'hệ' needs a label lexicon")
+def test_gap_unknown_label_without_he_in_query():
+    assert infer_query_condition("so sánh hệ chính quy và đại trà") is None
+
+
+def test_a_false_pin_would_turn_annotate_into_block():
+    """Why the query side must prefer None: with the pin the honest answer about another programme is BLOCKed."""
+    a = "Đối với hệ chính quy chất lượng cao: tối đa 9 năm."
+    q = "thời gian đào tạo hệ chính quy chất lượng cao là mấy năm?"
+    assert audit_answer(a, KB, "full-time").gate == "BLOCK"                    # what a false pin would do
+    assert audit_answer(a, KB, infer_query_condition(q)).gate == "ANNOTATE"    # what the query side actually returns
+
+
+# ── found on a real-log smoke test: a grounded per-term load was BLOCKed against the graduation total ─────
+LOAD_SRC = ("Điều 2. Sinh viên học lực bình thường phải đăng ký tối thiểu 14 tín chỉ trong mỗi học kỳ chính.\n"
+            "Điều 25. Sinh viên phải tích lũy tối thiểu 120 tín chỉ để tốt nghiệp.")
+LOAD_SRC_NO_PHRASE = LOAD_SRC.replace(" trong mỗi học kỳ chính", "")
+
+
+@pytest.mark.parametrize("src", [LOAD_SRC, LOAD_SRC_NO_PHRASE])
+def test_registration_load_is_not_compared_with_the_graduation_total(src):
+    a = "Theo Điều 2, số tín chỉ tối thiểu sinh viên học lực bình thường phải đăng ký là 14 tín chỉ."
+    assert audit_answer(a, build_index(src)).gate == "PASS"
+
+
+def test_a_wrong_registration_load_is_still_blocked():
+    a = "Sinh viên học lực bình thường phải đăng ký tối thiểu 10 tín chỉ."
+    assert audit_answer(a, build_index(LOAD_SRC_NO_PHRASE)).gate == "BLOCK"
+
+
+def test_total_wording_cancels_the_registration_cue():
+    kb = build_index(LOAD_SRC)
+    assert audit_answer("Để tốt nghiệp, sinh viên đăng ký và tích lũy tối thiểu 130 tín chỉ.", kb).gate == "BLOCK"
+    assert audit_answer("Sinh viên đăng ký xét tốt nghiệp khi tích lũy tối thiểu 120 tín chỉ.", kb).gate == "PASS"
+
+
+# ── Priority 3: CI invariant test for PROGRAM ────────────────────────────────────────────────────────────
+def test_program_lexicon_ci_invariants():
+    """CI invariant: PROGRAM keys must be non-empty, NFC normalised, values must be valid ids with no spaces."""
+    valid_ids = {"full-time", "part-time", "postgrad", "transfer", "distance"}
+    for k, v in PROGRAM.items():
+        assert k and k == unicodedata.normalize("NFC", k), f"Key {k!r} not NFC normalized"
+        assert v in valid_ids, f"Value {v!r} not in valid IDs"
+        assert " " not in v, f"Value {v!r} must not contain spaces"

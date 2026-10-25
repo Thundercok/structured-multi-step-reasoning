@@ -89,17 +89,15 @@ class AssistantWorker(QThread):
             elif self.isInterruptionRequested():
                 response = AgentResponse(answer="", steps=[], total_time_ms=0,
                     tool_call_count=0, token_estimate=0, error="cancelled")
-            elif self.document_path:
-                from rat.engine.selected_document_qa import answer_selected_document
-                response = answer_selected_document(self.runtime, self.query, self.document_path,
-                    **self.context, on_progress=self.progress_changed.emit,
-                    on_step=self.step_completed.emit, on_text=self.text_streamed.emit,
-                    should_cancel=self.isInterruptionRequested)
             else:
-                response = self.runtime.run(
-                    self.query, max_steps=8, **self.context,
-                    on_progress=self.progress_changed.emit, on_step=self.step_completed.emit,
+                from rat.engine.execution_service import AgentExecutionService
+                service = AgentExecutionService(self.runtime)
+                response = service.execute(
+                    self.execution_request,
                     should_cancel=self.isInterruptionRequested,
+                    on_progress=self.progress_changed.emit,
+                    on_step=self.step_completed.emit,
+                    on_text=self.text_streamed.emit,
                 )
         except Exception as exc:
             response = AgentResponse(answer="", steps=[], total_time_ms=0, tool_call_count=0,
@@ -122,15 +120,22 @@ class ArtifactWorker(QThread):
     """Run direct registered actions off the UI thread using the same dispatcher."""
     result_ready = pyqtSignal(object)
 
-    def __init__(self, callback, parent=None, *, request=None):
+    def __init__(self, callback, parent=None, *, request=None, runtime=None):
         super().__init__(parent)
         self.callback = callback
         self.execution_request = request
+        self.runtime = runtime
 
     def run(self):
         from rat.kernel.contracts import DispatchResult
         try:
-            self.result_ready.emit(self.callback())
+            if self.runtime is not None and self.execution_request is not None and self.execution_request.requested_action:
+                from rat.engine.execution_service import AgentExecutionService
+                service = AgentExecutionService(self.runtime)
+                resp = service.execute(self.execution_request, should_cancel=self.isInterruptionRequested)
+                self.result_ready.emit(resp)
+            else:
+                self.result_ready.emit(self.callback())
         except Exception as exc:
             self.result_ready.emit(DispatchResult("error", error=str(exc)))
 
@@ -145,7 +150,7 @@ def create_execution_worker(runtime, request: ExecutionRequest, *, reasoning_eng
     if request.lane == "operation":
         if operation is None:
             raise ValueError("missing_operation_callback")
-        return ArtifactWorker(operation, parent=parent, request=request)
+        return ArtifactWorker(operation, parent=parent, request=request, runtime=runtime)
     try:
         has_prior_reasoning = False
         t_refs = request.context.get("turn_references") or []

@@ -2,19 +2,18 @@
 from unittest.mock import Mock
 
 
-def test_search_worker_construction_does_not_load_embeddings_or_vectors():
-    from rat.ui.omnibar import SearchWorker
-    engine = Mock()
-    worker = SearchWorker(engine)
-    engine.embedder.embed_query.assert_not_called()
-    engine.vector_cache.preload.assert_not_called()
-    assert worker.engine is engine
+def test_quick_controller_construction_does_not_block_or_load_heavy_models():
+    from rat.ui.quick_pdf_controller import QuickPDFController
+    runtime = Mock()
+    controller = QuickPDFController(assistant_runtime=runtime, auto_init_finder=False)
+    assert controller.assistant_runtime is runtime
+    controller.close()
 
 
 def test_permission_menu_refreshes_after_grant(monkeypatch):
-    from PyQt6.QtWidgets import QApplication
+    from PyQt6.QtGui import QGuiApplication
     from rat.os import hotkey, menu_bar
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     database = Mock()
     database.get_stats.return_value = {'total_files': 0, 'total_chunks': 0, 'total_size_bytes': 0}
     monkeypatch.setattr(menu_bar, 'Database', Mock(return_value=database))

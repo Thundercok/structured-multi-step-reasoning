@@ -158,7 +158,7 @@ def main(argv=None):
     from PyQt6.QtGui import QFont, QKeySequence, QShortcut
     from PyQt6.QtQml import QQmlEngine
     from PyQt6.QtQuick import QQuickItem, QQuickView, QQuickWindow
-    from PyQt6.QtWidgets import QApplication
+    from PyQt6.QtGui import QGuiApplication
     from rat.engine.slm import SLMEngine
     from rat.engine.assistant_runtime import AssistantRuntime
     from rat.ui.quick_pdf_controller import QuickPDFController
@@ -181,7 +181,7 @@ def main(argv=None):
         def close(self):
             pass  # HTTP resources are owned per request, not by this observer.
 
-    app = QApplication([])
+    app = QGuiApplication([])
     app.setFont(QFont("Helvetica Neue", 13))
     if app.platformName() in {"offscreen", "minimal"}:
         raise RuntimeError("Native desktop required; do not label offscreen rendering as acceptance")

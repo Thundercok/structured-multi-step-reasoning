@@ -13,6 +13,7 @@ import copy
 import logging
 from pathlib import Path
 import time
+import traceback
 from typing import Any, Callable, Dict, List, Optional
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -223,7 +224,7 @@ class OnlineReasoningWorker(QThread):
             self.response_ready.emit(res)
 
         except Exception as exc:
-            logger.warning(f"OnlineReasoningWorker exception: {exc}")
+            logger.warning(f"OnlineReasoningWorker exception: {exc}\n{traceback.format_exc()}")
             cost_ledger = getattr(exc, "cost_ledger", None)
 
             if self.isInterruptionRequested() or (cost_ledger is not None and cost_ledger.status == "cancelled") or "cancel" in str(exc).lower():

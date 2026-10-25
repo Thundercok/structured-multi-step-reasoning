@@ -162,3 +162,61 @@ draft, chưa chứng minh app ngoài thực sự mở. openOriginal chỉ gửi 
 chưa nhảy tới trang. Không gọi đây là thao tác desktop thật hoặc mở đúng
 trang đã xác nhận. Nguyên nhân crash khi ghép Qt suite chưa được chứng minh;
 không kết luận chắc là xung đột luồng nền chỉ từ việc chạy riêng pass.
+
+## Review Build .14 — header nguồn gọn
+
+Mở hai ảnh artifact matched_excerpt_520px/700px: không còn cụm lật trang
+trong nguồn search, header có Kết quả/Chép đoạn/Thu gọn; chỉ còn một nút mở
+PDF gốc cạnh metadata. Chấp nhận thay đổi bố cục ở hai trạng thái này.
+Source backToSearch giữ search và mở full. Chưa nghiệm thu desktop.
+
+520px excerpt dài vẫn cần cuộn; ảnh chỉ ghi đầu đoạn và script chưa có
+wheel/scroll để chứng minh đọc được cuối đoạn. Next nhỏ nên hoàn tất khả
+năng đọc/cuộn ở kích thước production, không thêm chức năng. Script vẫn
+setProperty/call controller/QTest, không gọi đó là thao tác desktop thật.
+Các số test Ant báo là software tests; 29 research tests pass không chứng
+minh research campaign gate đã qua.
+
+## Review Build .15 — đọc hết đoạn ở 520px
+
+Đã mở ảnh 520px top/bottom trong artifact directory. Ảnh cuối cho thấy phần
+cuối excerpt, dấu … và hướng dẫn chép đều ở trên composer; scrollbar có
+thumb xuống đáy. Chấp nhận bố cục/cuộn trong các capture này, không cần
+tiếp tục sửa scrollbar. Source đổi width 6, tăng contrast và ẩn khi không
+overflow như bàn giao. Review này không chạy lại các bộ test đã báo.
+
+Giới hạn: verify_turn4_matched_excerpt.py dùng QTest.mousePress/Move/Release,
+và matched_text.select(...) để chọn chữ. Đó là tích hợp Qt với sự kiện tổng
+hợp, không phải thao tác desktop bằng chuột/trackpad thật. Ảnh đủ chứng minh
+render trạng thái cuối; chưa chứng minh wheel/trackpad hoặc kéo chọn dòng
+cuối bằng desktop. Sửa tên mục nghiệm thu, không cần lặp sửa layout chỉ vì
+giới hạn chứng cứ. Không gọi model hoặc sửa product source.
+
+## Review Build .16 — composer hỏi tiếp
+
+Đã đọc QML/controller/script và mở ảnh 520px top mới: chip chỉ còn tên tệp,
+nguồn vẫn ở trên composer; placeholder binding dùng Hỏi tiếp về tài liệu
+này… khi fileName có giá trị. Có thể chốt phần trình bày này. Không chạy lại
+82 test trong review; chưa nghiệm thu gửi câu hỏi/model.
+
+Khoảng trống chứng cứ cần ghi đúng: script phần paste ghi clipboard nhưng
+gán editor.setProperty("text", pasted_query), không thực hiện thao tác paste.
+Gán văn bản tiếng Việt cũng không kiểm bộ gõ/IME. Đây mới kiểm binding và
+giữ draft đã gán, chưa xác nhận luồng gõ/paste, kể cả trong kiểm thử tích
+hợp. Bàn giao đã thừa nhận desktop chưa xác nhận; giữ giới hạn đó và sửa
+mô tả test. Không cần tiếp tục chỉnh UI nếu nghiệm thu nhập chưa có.
+
+## Follow-up Build .16 — primitive nhập và giới hạn desktop
+
+Bàn giao đã phân biệt paste/undo/redo qua API TextEdit, gán draft để kiểm
+retention và nghiệm thu bộ gõ/phím tắt OS chưa xác nhận. Đã đọc script cập
+nhật: đây là tiến bộ về kiểm chứng primitive, chưa đủ kết luận hoàn tất nhập
+liệu desktop. Giữ build .16; không cần lặp sửa layout hoặc chạy lại harness
+research cho công việc này. Review không chạy lại 82 tests được báo cáo và
+không gọi model. Không dùng cụm “0 regressions” như kết luận toàn bộ sản phẩm
+chỉ từ các suite chọn lọc pass.
+
+Chốt phần trình bày nguồn và integration trong phạm vi đã thử. Để riêng IME,
+Cmd+V/Undo/Redo thực và mở PDF ngoài vào danh sách nghiệm thu chưa xác nhận.
+Bước tiếp có giá trị là hội thoại PDF thật hỏi tiếp → trả lời → mở nguồn;
+chỉ chạy khi có ngân sách model cho ca đó, không dùng câu trả lời mẫu thay thế.

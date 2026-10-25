@@ -2,8 +2,8 @@ import sys
 import os
 import shutil
 from pathlib import Path
-from PyQt6.QtCore import QPointF, QUrl, Qt
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QPoint, QPointF, QUrl, Qt
+from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 from PIL import Image
@@ -14,7 +14,7 @@ from rat.ui.quick_app import bind_desk_window
 
 os.environ["QT_QUICK_BACKEND"] = "software"
 
-app = QApplication.instance() or QApplication(sys.argv)
+app = QGuiApplication.instance() or QGuiApplication(sys.argv)
 controller = QuickPDFController(auto_init_finder=False)
 controller.ready()
 
@@ -117,10 +117,27 @@ meta_text = meta_item.property("text")
 print(f"pageMetadataLabel text: {meta_text!r}")
 assert meta_text == "arxiv_2506.22716_original.pdf", f"Expected filename in meta, got {meta_text!r}"
 
-# 7. Assert switcher is completely removed, secondary action 'Mở PDF gốc' exists
+# 7. Assert switcher is completely removed, header only has backToSearch/copyCitation/liveFoldButton, and only ONE openOriginalExternal exists next to metadata
 assert find_item(root, "readerModeToggle") is None, "readerModeToggle switcher must be removed"
 open_external_btn = find_item(root, "openOriginalExternal")
 assert open_external_btn is not None and open_external_btn.isVisible(), "openOriginalExternal button must be visible"
+
+# Verify header cleanliness in this search hit flow: prev, next, pagePicker, readPage, and header openOriginal are NOT present
+page_picker = find_item(root, "pagePicker")
+assert page_picker is None or not page_picker.isVisible(), "pagePicker must be hidden in search hit source flow"
+prev_btn = find_item(root, "prevPage")
+assert prev_btn is None or not prev_btn.isVisible(), "prevPage must be hidden in search hit source flow"
+next_btn = find_item(root, "nextPage")
+assert next_btn is None or not next_btn.isVisible(), "nextPage must be hidden in search hit source flow"
+read_btn_jump = find_item(root, "readPage")
+assert read_btn_jump is None or not read_btn_jump.isVisible(), "readPage must be hidden in search hit source flow"
+assert find_item(root, "openOriginal") is None, "Duplicate openOriginal icon must not exist on header"
+
+back_btn_check = find_item(root, "backToSearch")
+assert back_btn_check is not None and back_btn_check.isVisible(), "backToSearch must be visible on header"
+assert back_btn_check.property("text") in ("Quay lại kết quả", "Kết quả"), f"Unexpected back button text: {back_btn_check.property('text')!r}"
+fold_btn_check = find_item(root, "liveFoldButton")
+assert fold_btn_check is not None and fold_btn_check.isVisible(), "liveFoldButton must be visible on header"
 
 # 8. Verify matched excerpt element and keyword highlight
 matched_wrapper = find_item(root, "matchedExcerptWrapper")
@@ -171,20 +188,92 @@ if "routing" in displayed_snippet.lower():
     assert sel_text in app.clipboard().text()
     print("Partial selection copy passed:", sel_text)
 
-# 12. Check fallback state: read a page that has NO matched snippet (page 25)
+# 12. Desktop Scroll from Top to Bottom of 'routing' snippet at 520px
+os.makedirs("work/turn4_evidence", exist_ok=True)
+artifact_dir = Path("/Users/thundercock2/.gemini/antigravity/brain/c521fb94-cdbc-4b76-8354-89e731c844c7")
+
+scroll = find_item(root, "resultScroll")
+assert scroll is not None, "resultScroll must exist"
+content_item = scroll.property("contentItem")
+assert content_item is not None, "contentItem must exist"
+
+# Capture top of snippet at 520px
+top_img_path = "work/turn4_evidence/turn4_matched_excerpt_520px_top.png"
+view.grabWindow().save(top_img_path)
+view.grabWindow().save("work/turn4_evidence/turn4_matched_excerpt_520px.png")
+shutil.copy2(top_img_path, str(artifact_dir / "turn4_matched_excerpt_520px_top.png"))
+shutil.copy2(top_img_path, str(artifact_dir / "turn4_matched_excerpt_520px.png"))
+print(f"Captured 520px top image: {top_img_path}")
+
+# Verify ScrollBar is visible and distinct (width=6) when content exceeds
+v_bar = find_item(root, "resultVerticalScroll")
+assert v_bar is not None and v_bar.isVisible(), "resultVerticalScroll must be visible when content overflows"
+assert v_bar.width() == 6, f"ScrollBar width must be 6px for visibility, got {v_bar.width()}"
+thumb = v_bar.property("contentItem")
+assert thumb is not None and thumb.isVisible(), "ScrollBar thumb must be visible"
+
+# Perform genuine desktop mouse drag on scrollbar thumb to scroll to bottom
+thumb_scene = thumb.mapToScene(QPointF(thumb.width() / 2, thumb.height() / 2)).toPoint()
+QTest.mousePress(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, thumb_scene)
+QTest.qWait(50)
+for step in range(10, 180, 20):
+    curr_pt = QPoint(thumb_scene.x(), thumb_scene.y() + step)
+    QTest.mouseMove(view, curr_pt)
+    QTest.qWait(25)
+target_drag_pt = QPoint(thumb_scene.x(), thumb_scene.y() + 180)
+QTest.mouseMove(view, target_drag_pt)
+QTest.qWait(50)
+QTest.mouseRelease(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, target_drag_pt)
+QTest.qWait(100)
+
+scrolled_y = content_item.property("contentY")
+print(f"Scrolled to bottom via desktop mouse drag: contentY = {scrolled_y}")
+assert scrolled_y >= 150.0, f"Expected contentY >= 150, got {scrolled_y}"
+
+# Verify no occlusion: scroll bottom is strictly above composer top
+composer = find_item(root, "composer")
+composer_top = composer.mapToScene(QPointF(0, 0)).y()
+scroll_bottom = scroll.mapToScene(QPointF(0, scroll.height())).y()
+print(f"scroll_bottom: {scroll_bottom}, composer_top: {composer_top}, clearance: {composer_top - scroll_bottom}px")
+assert scroll_bottom <= composer_top, "scroll viewport must not extend into composer"
+assert composer_top - scroll_bottom >= 10, "composer must not occlude or block scroll viewport"
+
+# Verify reading and selecting the last line
+last_line_marker = "Model Cascade"
+assert last_line_marker in displayed_snippet, "Last line marker must be in displayed snippet"
+last_line_idx = displayed_snippet.index(last_line_marker)
+matched_text.select(last_line_idx, last_line_idx + len(last_line_marker))
+selected_last = matched_text.property("selectedText").strip()
+print(f"Selected last line text: {selected_last!r}")
+assert selected_last == last_line_marker, f"Expected {last_line_marker!r}, got {selected_last!r}"
+
+click_item(copy_btn)
+QTest.qWait(100)
+assert last_line_marker in app.clipboard().text(), "OS clipboard must contain selected text from last line"
+print(f"Verified OS clipboard has last line: {app.clipboard().text()[:40]}...")
+
+# Capture bottom of snippet at 520px
+bottom_img_path = "work/turn4_evidence/turn4_matched_excerpt_520px_bottom.png"
+view.grabWindow().save(bottom_img_path)
+shutil.copy2(bottom_img_path, str(artifact_dir / "turn4_matched_excerpt_520px_bottom.png"))
+print(f"Captured 520px bottom image: {bottom_img_path}")
+
+# 13. Check fallback state: read a page that has NO matched snippet (page 25)
 controller.readPage(25)
 wait_for_idle()
 assert controller.snapshot.get("pageNumber") == 25
 assert controller.snapshot.get("hasMatchedSnippet") is False
 fallback_btn = find_item(root, "openOriginalFallback")
 assert fallback_btn is not None and fallback_btn.isVisible(), "openOriginalFallback must be visible on page with no snippet"
-print("Page 25 fallback state verified successfully.")
+# In fallback state without overflow, scrollbar must not be shown
+assert not v_bar.isVisible(), "ScrollBar must hide when content does not overflow"
+print("Page 25 fallback state and ScrollBar hiding verified successfully.")
 
-# Return to target page for screenshots
+# Return to target page
 controller.readPage(target_page)
 wait_for_idle()
 
-# 13. Test openOriginal does not mutate draft or view
+# 14. Test openOriginal does not mutate draft or view
 opened_urls = []
 controller._open_url = lambda url: opened_urls.append(url) or True
 assert controller.openOriginal()
@@ -192,7 +281,7 @@ assert len(opened_urls) == 1
 assert "arxiv_2506.22716_original.pdf" in opened_urls[0].toString()
 assert editor.property("text") == initial_draft, "Draft was mutated after openOriginal!"
 
-# 14. Test backToSearch returns cleanly to search hits
+# 15. Test backToSearch returns cleanly to search hits
 back_btn = find_item(root, "backToSearch")
 assert back_btn is not None and back_btn.isVisible(), "backToSearch must be visible"
 click_item(back_btn)
@@ -207,31 +296,101 @@ read_btn = find_item(root, f"readHit_{target_page}")
 click_item(read_btn)
 wait_for_idle()
 
-# 15. Test min/full mode transition
+# 16. Test follow-up composer UX while reading source
+doc_chip = find_item(root, "documentMenu")
+assert doc_chip is not None, "documentMenu chip must exist"
+doc_chip_text = doc_chip.property("text")
+print(f"Document chip text: {doc_chip_text!r}")
+assert doc_chip_text == "arxiv_2506.22716_original.pdf", f"Expected clean filename without page restriction, got {doc_chip_text!r}"
+
+# 16. Composer Interaction: Focus, Placeholder, and Text Editing Primitives
+# Focus composer while reading source -> verify source does NOT close, finder does NOT open
+editor_pos = editor.mapToScene(QPointF(editor.width() / 2, editor.height() / 2)).toPoint()
+QTest.mouseClick(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, editor_pos)
+QTest.qWait(50)
+assert editor.hasActiveFocus(), "editor must receive focus on click"
+assert controller.snapshot.get("view") == "page", "Focusing composer must not close page view"
+assert matched_wrapper.isVisible(), "Source excerpt must remain visible when composer is focused"
+finder_section = find_item(root, "finderSection")
+assert finder_section is None or not finder_section.isVisible(), "Focusing composer while reading source must not open Finder"
+
+# Test placeholder when draft is empty
+editor.setProperty("text", "")
+QTest.qWait(50)
+assert editor.property("text") == "", "Draft must remain empty"
+placeholder_text = editor.property("placeholderText")
+print(f"Empty draft placeholder: {placeholder_text!r}")
+assert placeholder_text == "Hỏi tiếp về tài liệu này…", f"Expected follow-up placeholder, got {placeholder_text!r}"
+
+# Test Qt Quick text editing primitives (paste, undo, redo)
+test_clipboard_text = "Chi phí triển khai LLM"
+app.clipboard().setText(test_clipboard_text)
+editor.paste()
+QTest.qWait(50)
+print(f"Text after editor.paste(): {editor.property('text')!r}")
+assert editor.property("text") == test_clipboard_text, f"Expected {test_clipboard_text!r}, got {editor.property('text')!r}"
+assert controller.snapshot.get("view") == "page", "Pasting must not dismiss source page"
+
+editor.undo()
+QTest.qWait(50)
+print(f"Text after editor.undo(): {editor.property('text')!r}")
+assert editor.property("text") == "", "Undo must revert pasted text"
+
+editor.redo()
+QTest.qWait(50)
+print(f"Text after editor.redo(): {editor.property('text')!r}")
+assert editor.property("text") == test_clipboard_text, "Redo must restore pasted text"
+
+# Ghi chú kỹ thuật: setProperty chỉ dùng để kiểm tra data binding và tính năng lưu giữ bản nháp
+# (draft retention contract) qua các trạng thái điều hướng, KHÔNG PHẢI là thao tác gõ phím bằng bộ gõ hay dán bằng Cmd+V.
+pasted_query = "Tìm chi phí triển khai LLM - Model Cascade"
+editor.setProperty("text", pasted_query)
+QTest.qWait(50)
+assert editor.property("text") == pasted_query
+
+# 17. Test draft preservation across backToSearch, re-open hit, and min/full
+back_btn = find_item(root, "backToSearch")
+click_item(back_btn)
+wait_for_idle()
+assert controller.snapshot.get("view") == "search"
+assert editor.property("text") == pasted_query, "Draft was mutated after backToSearch!"
+
+read_btn = find_item(root, f"readHit_{target_page}")
+click_item(read_btn)
+wait_for_idle()
+assert controller.snapshot.get("view") == "page"
+assert editor.property("text") == pasted_query, "Draft was mutated after re-opening search hit!"
+
 click_item(find_item(root, "liveFoldButton"))
 assert not root.property("expanded"), "Expected workbench folded in min mode"
-assert editor.property("text") == initial_draft, "Draft was mutated after folding!"
+assert editor.property("text") == pasted_query, "Draft was mutated after folding to min mode!"
 notice_card = find_item(root, "notice")
 assert notice_card is not None and notice_card.isVisible(), "notice card must be visible in min mode"
 click_item(notice_card)
 assert root.property("expanded"), "Expected workbench expanded in full mode"
-assert editor.property("text") == initial_draft, "Draft was mutated after expanding!"
-print("Min/full mode transitions verified successfully.")
+assert editor.property("text") == pasted_query, "Draft was mutated after expanding to full mode!"
+print("Follow-up composer draft preserved 100% across all navigation states.")
 
-# 16. Capture screenshots at 520px and 700px production dimensions
-os.makedirs("work/turn4_evidence", exist_ok=True)
-artifact_dir = Path("/Users/thundercock2/.gemini/antigravity/brain/c521fb94-cdbc-4b76-8354-89e731c844c7")
-captures = {}
+# Zero model requests assertion
+assert controller._request is None, "Must not dispatch requests to model"
+assert not controller.snapshot.get("busy"), "Controller must remain idle"
+assert controller._current_worker is None, "No worker should be executing"
+print("Zero model requests strictly verified (0 calls).")
 
-for w in [520, 700]:
-    view.resize(w, round(root.property("preferredWindowHeight")))
-    QTest.qWait(350)
-    img_path = f"work/turn4_evidence/turn4_matched_excerpt_{w}px.png"
-    ok = view.grabWindow().save(img_path)
-    assert ok, f"Failed to save {img_path}"
-    captures[f"matched_{w}"] = img_path
-    shutil.copy2(img_path, str(artifact_dir / f"turn4_matched_excerpt_{w}px.png"))
-    print(f"Saved and copied to artifact: {img_path} ({w}px)")
+# 18. Capture screenshots at 520px and 700px production dimensions
+captures = {
+    "top_520": top_img_path,
+    "bottom_520": bottom_img_path,
+}
+
+view.resize(700, round(root.property("preferredWindowHeight")))
+QTest.qWait(350)
+img_700_path = "work/turn4_evidence/turn4_matched_excerpt_700px.png"
+ok = view.grabWindow().save(img_700_path)
+assert ok, f"Failed to save {img_700_path}"
+captures["matched_700"] = img_700_path
+shutil.copy2(img_700_path, str(artifact_dir / "turn4_matched_excerpt_700px.png"))
+print(f"Saved and copied to artifact: {img_700_path} (700px)")
 
 # 17. Image quality and non-transparency verification
 for name, p in captures.items():
@@ -245,4 +404,6 @@ for name, p in captures.items():
     print(f"Image {p}: size={im.size}, non-transparent ratio={ratio:.2%}")
     assert ratio > 0.40, f"Image {p} is too transparent: ratio={ratio:.2%}"
 
-print("\n--- ALL BUILD 2026.10.24.13 VERIFICATIONS PASSED SUCCESSFULLY ---")
+print("Giới hạn kiểm thử mở ngoài: controller._open_url được mock trong script để kiểm tra QUrl gửi đi. Điều này chứng minh URL file cục bộ chính xác đã được chuyển đến opener, nhưng chưa chứng minh tiến trình ứng dụng ngoài thực sự được kích hoạt trên desktop macOS, và không mở đúng trang vì hiện chỉ gửi file URL.")
+print("Giới hạn kiểm thử nhập liệu: setProperty chỉ kiểm tra binding dữ liệu và lưu giữ bản nháp (draft retention contract) qua các trạng thái điều hướng, KHÔNG PHẢI là thao tác gõ phím hay dán bằng Cmd+V. Thao tác gõ tiếng Việt bằng bộ gõ hệ điều hành (macOS IME) và dán/undo/redo bằng phím tắt vật lý OS (Cmd+V, Cmd+Z, Cmd+Shift+Z) được ghi nhận là CHƯA XÁC NHẬN trên môi trường tự động (cần người dùng tương tác trực tiếp trên desktop).")
+print("\n--- ALL BUILD 2026.10.24.16 VERIFICATIONS PASSED SUCCESSFULLY ---")

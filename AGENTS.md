@@ -1,5 +1,20 @@
 # Project priorities
 
+## Nguyên tắc bất biến — quyết định người dùng, 2026-10-25
+
+**“TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC.”**
+
+Không xây tính năng thành tiện ích độc lập. Mọi khả năng nghiệp vụ của RAT
+(tìm file/app, đọc, tính toán, kiểm chứng, tarot/natal và các khả năng sau này)
+phải là Reasoning Tools trong hệ điều phối suy luận có cấu trúc của Agent.
+UI nhập liệu/trình bày và các thao tác trực tiếp phải dùng chung hợp đồng tool,
+dispatcher, kết quả quan sát được và bước kiểm tra với Agent; không tạo đường
+thực thi nghiệp vụ riêng chỉ dành cho UI. Công cụ xác định vẫn thực hiện phép
+tính chính xác. Không suy ra vòng Agent/model đã được nối chỉ vì đã đăng ký
+tool: bàn giao phải nêu rõ phần hợp đồng, UI projection và vòng suy luận đã/chưa
+triển khai, cùng bằng chứng thật. Không thay đổi Stage 0 hoặc tuyên bố nghiên cứu.
+
+
 The primary outcome is a student research paper (NCKH) supported by a reproducible
 experiment pipeline. RAT is the primary application implementation of the CoT /
 structured-reasoning method, not a disposable secondary demo. RAT uses CoT; CoT

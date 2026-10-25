@@ -17,6 +17,14 @@ def build_execution_context_snapshot(
     execution_id: Optional[str] = None,
     generation: Optional[int] = None,
     context: Optional[Dict[str, Any]] = None,
+    origin: Optional[str] = None,
+    goal: Optional[str] = None,
+    requested_action: Optional[Dict[str, Any]] = None,
+    resource_bindings: Optional[list] = None,
+    expected_outcomes: Optional[list] = None,
+    budget: Optional[Dict[str, Any]] = None,
+    continuation: Optional[Dict[str, Any]] = None,
+    idempotency_key: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Compile an immutable, hash-pinned context snapshot at submission time.
 
@@ -61,6 +69,14 @@ def build_execution_context_snapshot(
         "artifact_refs": artifact_refs,
         "source_evidence": source_evidence,
         "requires_grounding": requires_grounding,
+        "origin": origin or ctx.get("origin", "chat"),
+        "goal": goal or ctx.get("goal") or str(query),
+        "requested_action": copy.deepcopy(requested_action if requested_action is not None else ctx.get("requested_action")),
+        "resource_bindings": copy.deepcopy(resource_bindings if resource_bindings is not None else ctx.get("resource_bindings", [])),
+        "expected_outcomes": copy.deepcopy(expected_outcomes if expected_outcomes is not None else ctx.get("expected_outcomes", [])),
+        "budget": copy.deepcopy(budget if budget is not None else ctx.get("budget", {})),
+        "continuation": copy.deepcopy(continuation if continuation is not None else ctx.get("continuation")),
+        "idempotency_key": idempotency_key or ctx.get("idempotency_key"),
     }
 
     canonical_bytes = json.dumps(snapshot, sort_keys=True, ensure_ascii=False, default=str).encode("utf-8")
@@ -177,6 +193,17 @@ class ExecutionRequest:
     max_strategy_invocations: int | None = None
     max_underlying_requests: int | None = None
     max_generated_tokens: int | None = None
+    # Envelope extensions (rat.agent_request/v1)
+    conversation_id: str | None = None
+    turn_id: str | None = None
+    origin: str = "chat"
+    goal: str | None = None
+    requested_action: dict | None = None
+    resource_bindings: list[dict] = field(default_factory=list)
+    expected_outcomes: list[dict] = field(default_factory=list)
+    budget: dict = field(default_factory=dict)
+    continuation: dict | None = None
+    idempotency_key: str | None = None
     _submitted_context: dict = field(init=False, repr=False, compare=False)
     _snapshot: dict = field(init=False, repr=False, compare=False)
 
@@ -185,20 +212,73 @@ class ExecutionRequest:
             raise ValueError("unknown_execution_lane")
         if self.document_path and self.lane in {"reasoning", "operation"}:
             raise ValueError("document_requires_qa_lane")
+
+        if self.goal is None:
+            object.__setattr__(self, "goal", self.query)
+        if self.turn_id is None and self.turn_ref is not None:
+            t_id = getattr(self.turn_ref, "turn_id", None) or (self.turn_ref.get("turn_id") if isinstance(self.turn_ref, dict) else None)
+            if t_id:
+                object.__setattr__(self, "turn_id", str(t_id))
+        if self.conversation_id is None and self.turn_ref is not None:
+            c_id = getattr(self.turn_ref, "conversation_id", None) or (self.turn_ref.get("conversation_id") if isinstance(self.turn_ref, dict) else None)
+            if c_id:
+                object.__setattr__(self, "conversation_id", str(c_id))
+
+        merged_bindings = list(self.resource_bindings)
+        if self.document_path and not any(r.get("path") == self.document_path or r.get("file_path") == self.document_path for r in merged_bindings):
+            merged_bindings.append({"kind": "document", "path": self.document_path})
+            object.__setattr__(self, "resource_bindings", merged_bindings)
+
+        merged_budget = dict(self.budget)
+        if self.timeout_s is not None and "deadline_s" not in merged_budget:
+            merged_budget["deadline_s"] = self.timeout_s
+        if self.max_generated_tokens is not None and "max_generated_tokens" not in merged_budget:
+            merged_budget["max_generated_tokens"] = self.max_generated_tokens
+        if self.max_strategy_invocations is not None and "max_strategy_invocations" not in merged_budget:
+            merged_budget["max_strategy_invocations"] = self.max_strategy_invocations
+        if self.max_underlying_requests is not None and "max_underlying_requests" not in merged_budget:
+            merged_budget["max_underlying_requests"] = self.max_underlying_requests
+        object.__setattr__(self, "budget", merged_budget)
+
         submitted = copy.deepcopy(self.context)
         object.__setattr__(self, "_submitted_context", submitted)
         object.__setattr__(self, "_snapshot", build_execution_context_snapshot(
             self.query, turn_ref=self.turn_ref, execution_id=self.execution_id,
             generation=self.generation, context=submitted,
+            origin=self.origin, goal=self.goal, requested_action=self.requested_action,
+            resource_bindings=self.resource_bindings, expected_outcomes=self.expected_outcomes,
+            budget=self.budget, continuation=self.continuation, idempotency_key=self.idempotency_key,
         ))
 
     def assistant_context(self):
-        return {**copy.deepcopy(self._submitted_context), "turn_ref": self.turn_ref,
-                "execution_id": self.execution_id}
+        ctx = {**copy.deepcopy(self._submitted_context), "turn_ref": self.turn_ref,
+               "execution_id": self.execution_id, "conversation_id": self.conversation_id}
+        if self.document_path:
+            ctx["selected_document_path"] = self.document_path
+        return ctx
 
     def context_snapshot(self) -> Dict[str, Any]:
         """Produce the immutable, hash-pinned context snapshot for this request."""
         return copy.deepcopy(self._snapshot)
+
+    def to_agent_request_dict(self) -> Dict[str, Any]:
+        """Serialize into rat.agent_request/v1 schema."""
+        return {
+            "schema_version": "rat.agent_request/v1",
+            "conversation_id": self.conversation_id,
+            "turn_id": self.turn_id,
+            "execution_id": self.execution_id,
+            "generation": self.generation,
+            "origin": self.origin,
+            "goal": self.goal,
+            "requested_action": copy.deepcopy(self.requested_action),
+            "resource_bindings": copy.deepcopy(self.resource_bindings),
+            "expected_outcomes": copy.deepcopy(self.expected_outcomes),
+            "budget": copy.deepcopy(self.budget),
+            "continuation": copy.deepcopy(self.continuation),
+            "idempotency_key": self.idempotency_key,
+            "context_snapshot": self.context_snapshot(),
+        }
 
 
 def execution_response(request, result):

@@ -6,7 +6,7 @@ import os
 import unittest
 from unittest.mock import patch
 from PyQt6.QtCore import QCoreApplication, QTimer
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 
 from rat.os.single_instance import (
     SingleInstanceServer,
@@ -20,7 +20,7 @@ class TestSingleInstance(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.app = QApplication.instance() or QApplication([])
+        cls.app = QGuiApplication.instance() or QGuiApplication([])
 
     def test_no_instance_running(self) -> None:
         """When no instance is listening, try_activate_existing_instance returns False."""

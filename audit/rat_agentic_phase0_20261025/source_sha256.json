@@ -1,0 +1,8 @@
+{
+  "rat/engine/selected_document_qa.py": "aa6f6948fbfc28e5a168ac71c6fa7dff0576b39f3336cdcce7c49c6ed1cb6a70",
+  "rat/engine/reading_session.py": "df0ae42694968022d1cd1d5a2d8dfcf62f38a31776ab8f31dbe9d489f3855089",
+  "rat/kernel/capabilities/reading.py": "6417e48b0e550393572270987e3fea4c30ff3fed124ee3646f9414f7375f5482",
+  "rat/ui/quick/ReadingDesk.qml": "9efe26ead3b70186ac25fb53645b7659f6da925353dae80f610d0c1411e16b24",
+  "tests/test_selected_document_qa.py": "890204a9ac5eca0657182801557c1c61a47754134aa35ae5456c765ff2a7ffb6",
+  "tests/test_reading_session.py": "54d9ee03fee9f4a887b782d10d3537b6f3cabe0a860b8ca092959757fef4e3b2"
+}

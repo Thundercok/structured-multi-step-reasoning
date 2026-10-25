@@ -62,8 +62,8 @@ def global_excepthook(exc_type: Any, exc_value: Any, exc_tb: Any) -> None:
 
     # In Qt applications, do not exit; allow UI to stay alive
     try:
-        from PyQt6.QtWidgets import QApplication
-        app = QApplication.instance()
+        from PyQt6.QtGui import QGuiApplication
+        app = QGuiApplication.instance()
         if app is not None:
             logger.warning("CrashShield intercepted unhandled exception — keeping Qt event loop alive.")
             return
@@ -100,8 +100,8 @@ def install_crash_shield() -> None:
         sig_name = signal.Signals(signum).name
         logger.info(f"CrashShield: Received signal {sig_name} ({signum}). Initiating clean shutdown...")
         try:
-            from PyQt6.QtWidgets import QApplication
-            app = QApplication.instance()
+            from PyQt6.QtGui import QGuiApplication
+            app = QGuiApplication.instance()
             if app is not None:
                 app.quit()
                 return

@@ -40,6 +40,29 @@ def name_key(text):
 
 DEFAULT_ALIASES = {'league of legends': ('Liên Minh Huyền Thoại', 'Liên Minh', 'LoL')}
 
+# Resolve purposes against installed bundle identities, never invented app paths.
+# Kept separate from cached names so vocabulary updates apply to warm catalogs.
+FUNCTIONAL_APPS = {
+    'tính toán': ('com.apple.calculator',),
+    'máy tính': ('com.apple.calculator',),
+    'trình duyệt': ('com.apple.safari', 'com.google.chrome', 'org.mozilla.firefox', 'com.microsoft.edgemac'),
+    'lướt web': ('com.apple.safari', 'com.google.chrome', 'org.mozilla.firefox', 'com.microsoft.edgemac'),
+    'gõ code': ('com.microsoft.vscode', 'com.apple.dt.xcode', 'com.todesktop.230313mzl4w4u92'),
+    'viết code': ('com.microsoft.vscode', 'com.apple.dt.xcode', 'com.todesktop.230313mzl4w4u92'),
+    'soạn thảo': ('com.apple.iwork.pages', 'com.microsoft.word', 'com.apple.textedit'),
+    'ghi chú': ('com.apple.notes',),
+}
+_FUNCTIONAL_IDS = {name_key(purpose): ids for purpose, ids in FUNCTIONAL_APPS.items()}
+
+
+def functional_app_ids(query: str) -> tuple[str, ...]:
+    key = name_key(query)
+    for prefix in ('cai app ', 'cai ung dung ', 'app ', 'ung dung ', 'cai '):
+        if key.startswith(prefix):
+            key = key[len(prefix):]
+            break
+    return _FUNCTIONAL_IDS.get(key, ())
+
 
 @dataclass(frozen=True)
 class Application:
@@ -251,10 +274,13 @@ class ApplicationCatalog:
         if not key:
             return ()
         matches = []
+        functional_ids = functional_app_ids(query)
         for app in self.applications:
             quality = min((0 if key == name else 1 if name.startswith(key)
                            else 2 if all(word in name.split() for word in key.split()) else 3)
                           for name in app.names)
+            if app.bundle_id.casefold() in functional_ids:
+                quality = min(quality, 2)
             if quality < 3 and (Path(app.path) / 'Contents' / 'Info.plist').is_file():
                 matches.append((quality, app.name.casefold(), app.path, app))
         return tuple(item[-1] for item in sorted(matches)[:limit])

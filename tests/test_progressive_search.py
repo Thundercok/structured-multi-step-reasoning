@@ -73,6 +73,59 @@ def test_catalog_scan_budget_and_symlink_dedup(tmp_path):
     assert 'application_catalog_scan_limit' in limited.issues
 
 
+def test_functional_lookup_uses_installed_identity_and_preserves_choices(tmp_path):
+    calc = app_bundle(tmp_path, 'Calculator', 'com.apple.calculator')
+    safari = app_bundle(tmp_path, 'Safari', 'com.apple.Safari')
+    chrome = app_bundle(tmp_path, 'Google Chrome', 'com.google.Chrome')
+    app_bundle(tmp_path, 'Pretend Calculator', 'com.example.unrelated')
+    catalog = ApplicationCatalog.scan([tmp_path])
+    engine = ProgressiveSearch(tmp_path / 'absent.db', catalog=catalog)
+    try:
+        for query in ('mở cái app tính toán', 'mo app tinh toan', 'mở máy tính'):
+            snap = engine.initial(SearchRequest(1, query))
+            assert [h.path for h in snap.hits] == [str(calc.resolve())]
+            assert snap.hits[0].match_reason == 'Khớp công dụng'
+            assert not snap.errors  # app purpose lookup never waits on the DB
+        browsers = engine.initial(SearchRequest(2, 'mở trình duyệt'))
+        assert {h.path for h in browsers.hits} == {str(safari.resolve()), str(chrome.resolve())}
+        assert browsers.intent.needs_clarification
+        assert not engine.initial(SearchRequest(3, 'đừng mở app tính toán')).hits
+        assert not catalog.search('gõ code')  # do not invent uninstalled apps
+        shutil.rmtree(calc)
+        assert not catalog.search('tính toán')
+    finally:
+        engine.close_connection()
+
+
+def test_plain_file_search_strips_only_command_prefix(finder):
+    engine, add, _, _, _ = finder
+    target = add('quy_che.txt', 'quy chế tín chỉ của trường')
+    for query in ('tìm file quy chế tín chỉ', 'tim file quy che tin chi', 'mở file quy chế tín chỉ'):
+        snap = engine.initial(SearchRequest(1, query))
+        assert [h.path for h in snap.hits] == [str(target)]
+        assert snap.intent.query_terms in ('quy chế tín chỉ', 'quy che tin chi')
+        assert snap.intent.resource_kind == 'file'
+    assert not engine.initial(SearchRequest(2, 'tìm file')).hits
+    # Subject words in an ordinary query are not globally removed.
+    from rat.engine.finder_intent import parse_finder_intent
+    assert parse_finder_intent('cách tìm đường').query_terms == 'cách tìm đường'
+
+
+def test_described_content_finds_file_without_subject_in_filename(finder):
+    engine, add, _, _, _ = finder
+    target = add('notes_2026.txt', 'Introduction. ' * 40 + 'quy chế tín chỉ điều kiện đăng ký học vượt')
+    for query in ('tìm cái file nói về quy chế tín chỉ',
+                  'mở cái file có nhắc đến quy chế tín chỉ',
+                  'tim tai lieu co noi dung quy che tin chi'):
+        snapshot = engine.initial(SearchRequest(1, query))
+        assert [h.path for h in snapshot.hits] == [str(target)]
+        assert snapshot.intent.resource_kind == 'file'
+        assert 'quy chế tín chỉ' in snapshot.hits[0].snippet
+        assert snapshot.hits[0].snippet != 'Synthetic index summary'
+        assert len(snapshot.hits[0].snippet) <= 240
+    assert not engine.initial(SearchRequest(2, 'tìm file nói về nonexistenttopic')).hits
+
+
 def test_app_and_file_results_are_real_references_not_read_receipts(finder):
     engine, _, first, _, app = finder
     snapshot = engine.initial(SearchRequest(1, 'Liên Minh'))

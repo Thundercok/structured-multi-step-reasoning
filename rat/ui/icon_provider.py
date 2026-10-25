@@ -1,4 +1,4 @@
-"""Native macOS application & file icon provider for QML via QFileIconProvider."""
+"""Native macOS application & file icon provider for QML via QAbstractFileIconProvider."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Dict, Optional, Tuple
 from PyQt6.QtCore import QFileInfo, QSize
 from PyQt6.QtGui import QColor, QPainter, QPixmap
 from PyQt6.QtQuick import QQuickImageProvider
-from PyQt6.QtWidgets import QApplication, QFileIconProvider
+from PyQt6.QtGui import QGuiApplication, QAbstractFileIconProvider
 
 logger = logging.getLogger("rat.ui.icon_provider")
 
@@ -19,24 +19,24 @@ logger = logging.getLogger("rat.ui.icon_provider")
 class RatIconProvider(QQuickImageProvider):
     """
     Supplies native macOS application and file icons to QML via `image://icon/<file_path>`.
-    Utilizes system icon services (via QFileIconProvider) with high-res Retina scaling
+    Utilizes system icon services (via QAbstractFileIconProvider) with high-res Retina scaling
     and an LRU in-memory cache.
     """
 
     def __init__(self, max_cache_entries: int = 256) -> None:
         super().__init__(QQuickImageProvider.ImageType.Pixmap)
-        self._provider: Optional[QFileIconProvider] = None
+        self._provider: Optional[QAbstractFileIconProvider] = None
         self._cache: Dict[Tuple[str, int, int], QPixmap] = {}
         self._max_cache = max_cache_entries
 
-    def _get_provider(self) -> Optional[QFileIconProvider]:
+    def _get_provider(self) -> Optional[QAbstractFileIconProvider]:
         if self._provider is None:
-            app = QApplication.instance()
-            if app is not None and isinstance(app, QApplication):
+            app = QGuiApplication.instance()
+            if app is not None and isinstance(app, QGuiApplication):
                 try:
-                    self._provider = QFileIconProvider()
+                    self._provider = QAbstractFileIconProvider()
                 except Exception as e:
-                    logger.debug("Could not instantiate QFileIconProvider: %s", e)
+                    logger.debug("Could not instantiate QAbstractFileIconProvider: %s", e)
         return self._provider
 
     def requestPixmap(self, id_str: str, requested_size: QSize) -> Tuple[QPixmap, QSize]:

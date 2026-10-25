@@ -130,6 +130,32 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
                 "path": file_path,
             }
 
+    def handle_expand_context(args: Dict[str, Any], **context) -> Dict[str, Any]:
+        file_path = args.get("file_path", "")
+        max_chars = args.get("max_chars", 1800)
+        p = Path(file_path).absolute()
+        if not p.is_file():
+            return {"found": False, "error": f"Tệp không tồn tại: {file_path}", "file_path": file_path}
+        try:
+            content = extract_document_content(str(p))
+            if not content.strip():
+                try:
+                    content = p.read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    content = ""
+            total_chars = len(content)
+            expanded_snippet = content[:max_chars].strip()
+            return {
+                "found": True,
+                "file_path": str(p),
+                "filename": p.name,
+                "content": expanded_snippet,
+                "total_chars": total_chars,
+                "expanded": True,
+            }
+        except Exception as e:
+            return {"found": False, "error": str(e), "file_path": file_path}
+
     def handle_open(args, **context):
         import subprocess
         path = Path(args["file_path"]).absolute()
@@ -307,6 +333,30 @@ def create_documents_capability(db: Optional[Database] = None) -> Capability:
         },
         handler=handle_read,
         artifact_kind="document_content",
+    ))
+
+    capability.register_operation(OperationDefinition(
+        name="expand_document_context",
+        description="Expand the reading window of an indexed document to capture surrounding context.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Exact indexed path of the document.",
+                },
+                "max_chars": {
+                    "type": "integer",
+                    "description": "Maximum characters of text content to read (default 1800).",
+                    "default": 1800,
+                    "minimum": 500,
+                    "maximum": 8000,
+                },
+            },
+            "required": ["file_path"],
+        },
+        handler=handle_expand_context,
+        artifact_kind="document_expanded_context",
     ))
 
     return capability

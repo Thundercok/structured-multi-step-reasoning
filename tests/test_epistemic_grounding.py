@@ -103,8 +103,8 @@ def test_execution_snapshot_source_evidence_grounding():
 
 def test_controller_active_context_and_jump():
     """Verify QuickPDFController activeContext, clearActiveContext, and jumpToPdfPage."""
-    from PyQt6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication([])
+    from PyQt6.QtGui import QGuiApplication
+    app = QGuiApplication.instance() or QGuiApplication([])
 
     controller = QuickPDFController(auto_init_finder=False)
     controller.ready()

@@ -1,5 +1,19 @@
 # RAT backlog
 
+## RAT-UX — Workbench mở rộng theo tác vụ, 2026-10-25
+
+**Backlog cho lần sau — yêu cầu người dùng, chưa triển khai.** Workbench cần
+có thể mở rộng thành vùng làm việc lớn trên màn hình khi tác vụ cần thêm
+không gian, thay vì bị giới hạn ở khung compact hiện tại. Giữ chế độ gọn cho
+tác vụ ngắn; cho phép mở rộng và thu lại khi đọc tài liệu, xem bằng chứng,
+bảng hoặc kết quả dài. Kích thước cụ thể và việc dùng maximize/toàn màn hình
+sẽ chốt ở lượt thiết kế tiếp theo.
+
+Tiêu chí nghiệm thu: chuyển gọn ↔ mở rộng giữ nguyên hội thoại, tài liệu,
+nguồn đang xem và draft; nội dung thích ứng với diện tích màn hình, không bị
+cắt hoặc bị composer che. Khi triển khai, đề xuất một thay đổi UI nhỏ dễ
+nhận diện và kiểm tra bằng UI thật, kèm ảnh ở cả hai trạng thái.
+
 Updated: 2026-10-24, Asia/Ho_Chi_Minh.
 
 Theo yêu cầu ngày 2026-10-13, bước RAT đang được bàn là **hoàn thiện một luồng
@@ -23,6 +37,16 @@ hành vi có thể thuộc core, còn trang trí và tiện ích riêng là mở
 không phải thông báo mọi khả năng đã hoạt động hay đã được đo bằng model thật.
 
 ## Ưu tiên hiện tại trong RAT
+
+### RAT-AGENT-UNIFIED-01 — thiết kế lại execution, 2026-10-25
+
+Theo yêu cầu người dùng, thiết kế một vòng Agent chung cho chat và mọi thao tác
+nghiệp vụ UI: [execution agentic thống nhất](rat_agentic_execution_redesign_20261025.md).
+Trạng thái: **đã thiết kế, chưa triển khai migration**. Tái sử dụng runtime,
+dispatcher, verification và reconciliation hiện có; ưu tiên sửa PASS giả,
+nối lát cắt PDF thật rồi thay Reading synthesis template bằng model loop.
+Mọi bàn giao phải nêu riêng contract/tool, UI projection và vòng model đã nối.
+Không đổi Stage 0 hoặc dùng smoke làm bằng chứng chất lượng model.
 
 ### PDF và chứng cứ — quyết định người dùng 2026-10-24
 
@@ -115,9 +139,13 @@ Thiết kế chi tiết và acceptance cho bàn phím, lọc kết quả, chọn
 hội thoại sẽ chốt trong lần làm sau. Không thêm một cửa sổ/chế độ tìm kiếm mới
 hoặc mở rộng indexing cá nhân trong lát cắt backend này.
 
-**Giới hạn người dùng chốt ngày 2026-10-24:** không định làm một launcher đầy
+**Giới hạn người dùng chốt ngày 2026-10-24 & Định hình Agentic 2026-10-25:** không định làm một launcher đầy
 đủ. Nhu cầu là giúp người dùng tìm/mở file hoặc ứng dụng khi không nhớ tên;
 định hướng này thay mọi cách hiểu mở rộng từ tên “Advanced Spotlight finder”.
+Theo nguyên tắc **“Tất cả chức năng đều đi theo reasoning agentic” (2026-10-25)**:
+Finder là một Reasoning Tool phục vụ quy trình suy luận của Agent, không phải
+tiện ích desktop độc lập. Agent phân tích câu hỏi mơ hồ, suy luận tiêu chí truy hồi,
+gọi tool tìm kiếm, đối chiếu nội dung ứng viên và quyết định dừng hoặc hỏi làm rõ.
 
 - Ưu tiên hiểu mô tả không đầy đủ (công dụng, nội dung nhớ được, một phần tên),
   gợi ý vài mục có thật rồi cho người dùng chọn/mở. Hiển thị tên và vị trí đủ

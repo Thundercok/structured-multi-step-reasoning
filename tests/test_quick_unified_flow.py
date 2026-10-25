@@ -83,8 +83,8 @@ class RecordingBackend:
 
 @pytest.fixture(scope="module")
 def app():
-    from PyQt6.QtWidgets import QApplication
-    application = QApplication.instance() or QApplication([])
+    from PyQt6.QtGui import QGuiApplication
+    application = QGuiApplication.instance() or QGuiApplication([])
     application.setFont(QFont("Helvetica Neue", 13))
     yield application
 

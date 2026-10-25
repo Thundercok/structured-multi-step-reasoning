@@ -2,7 +2,7 @@ import sys
 import os
 from pathlib import Path
 from PyQt6.QtCore import QPointF, QUrl, Qt
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 from PIL import Image
@@ -13,7 +13,7 @@ from rat.ui.quick_app import bind_desk_window
 
 os.environ["QT_QUICK_BACKEND"] = "software"
 
-app = QApplication.instance() or QApplication(sys.argv)
+app = QGuiApplication.instance() or QGuiApplication(sys.argv)
 controller = QuickPDFController(auto_init_finder=False)
 controller.ready()
 

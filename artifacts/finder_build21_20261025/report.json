@@ -1,0 +1,40 @@
+{
+  "build": "2026.10.25.21",
+  "model_requests": 0,
+  "input": "native QTest ASCII key events, not Vietnamese IME acceptance",
+  "screenshots": [
+    "browser_selected_520.png",
+    "browser_opened_520.png",
+    "browser_opened_700.png",
+    "browser_opened_compact.png",
+    "missing_app_error.png"
+  ],
+  "candidates": [
+    {
+      "title": "Google Chrome",
+      "bundle_id": "com.google.Chrome"
+    },
+    {
+      "title": "Safari",
+      "bundle_id": "com.apple.Safari"
+    }
+  ],
+  "launch": {
+    "target": "Safari",
+    "bundle_id": "com.apple.Safari",
+    "already_running": true,
+    "request_accepted": true,
+    "feedback": "Đã gửi yêu cầu mở Safari.",
+    "key_to_checked_feedback_ms": 348.7570001743734,
+    "timing_note": "Includes 100ms observation wait; not app startup latency.",
+    "running_after": true
+  },
+  "missing_app": {
+    "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/artifacts/finder_build21_20261025/RAT Missing Application.app",
+    "feedback": "Không thể mở RAT Missing Application: ứng dụng đã bị gỡ hoặc bản cài không còn hợp lệ.",
+    "scope": "public launch slot; not selection from a fabricated stale result"
+  },
+  "draft_preserved": true,
+  "feedback_clears_on_edit": true,
+  "passed": true
+}

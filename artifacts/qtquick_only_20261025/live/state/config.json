@@ -1,0 +1,1 @@
+{"indexed_directories": [], "auto_watch": false, "first_run_completed": true, "ollama_model": "qwen3:4b-instruct", "ollama_url": "http://127.0.0.1:11434", "llm_provider": "ollama", "memory_sentinel_enabled": false}

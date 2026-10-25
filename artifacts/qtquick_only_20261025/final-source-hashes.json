@@ -1,0 +1,15 @@
+{
+  "rat/os/app.py": "57a507d6059d30e4796a00b336272a11db8eee0c47c85a4bd95f1dd5524c192d",
+  "rat/os/native_menu.py": "3c56dc454e1654f052be5111e7cde47c236a176def2813ce04ffe7643789a56d",
+  "rat/os/menu_bar.py": "ac4630d5da60cc33b7c228c2fd043e587e4b0ae2332f52ebf7283da8b5d372e2",
+  "rat/os/crash_shield.py": "a38390173e1de58a49a3ac59d5f8f54511bb0fe79e7b4c078eb12322b1ae2517",
+  "rat/os/diagnostics.py": "898076ff89895ff61dd10f5083e6523cc99cebf920d2a5b09e8c336234fec552",
+  "rat/ui/quick_app.py": "f947b2089a6df5bbc9c470b6e3a123c82f913af7cb90b51d70105f8911103881",
+  "rat/ui/icon_provider.py": "11cadf50da02fad2017b5cd20c288951fcfcece101b1714cc9e054a8c26385f4",
+  "rat/ui/quick_pdf_controller.py": "c3e107540511dc80e2dc9bd80f99a3b7ec581b9a04b39c61f604930902845b1d",
+  "rat/ui/quick/PDFDesk.qml": "095d072c3c3f5356bf5c328a1eee7e58f9a871b40b1efe7ab498a21c48af8306",
+  "tests/test_quick_only_runtime.py": "cfe1d4ff80a212f6566db4fa1158e99970fb4a488d133191a8f72ab7b6d08c2e",
+  "tests/test_crash_shield.py": "7c9b372170a6b176d5e1396fcdbb26b912e454cb40f3ea2f5a051126ede6fa42",
+  "tests/test_quick_pdf.py": "1138fa76757010b8f78b6959b507e7d736240482c4f2cd5e353c8af92819c189",
+  "rat.spec": "2ab956a8af9e017d0efc2670c4552732a725a00627030729728d944b619cfee8"
+}

@@ -2,11 +2,27 @@
 
 Cập nhật: 2026-10-16, Asia/Ho_Chi_Minh.
 
+Bổ sung người dùng 2026-10-25: **“TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING
+AGENTIC.”** Mọi khả năng nghiệp vụ là Reasoning Tools trong hệ điều phối của
+Agent; không phát triển utility độc lập. UI và Agent dùng chung hợp đồng thực
+thi/kết quả/kiểm tra. Xem `AGENTS.md`; khi bàn giao phải phân biệt tool đã đăng
+ký, UI projection và vòng lập kế hoạch/suy luận đã thực sự được nối. Nguyên tắc
+này không thay research gates hay biến mọi domain thành đóng góp nghiên cứu.
+
 ## Quyết định áp dụng cho mọi chat
 
 **Câu chốt của người dùng: RAT SỬ DỤNG CoT; CoT ĐƯỢC THỂ HIỆN BẰNG RAT.**
 Khi visualize hoặc debloat, gom runtime, phương pháp, hạ tầng và harness thành
 các vai trò trong cùng một hệ; không đặt RAT và CoT thành hai dự án ngang hàng.
+
+Người dùng xác nhận (2026-10-25): **“TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC.”**
+Không xây dựng bất kỳ tính năng nào dưới dạng tiện ích độc lập (isolated dumb utility).
+Mọi khả năng trong RAT (tìm tệp/ứng dụng, đọc trích đoạn, tính toán, kiểm chứng số học)
+đều là các công cụ (Agentic Tools) được điều phối và kiểm soát trong vòng lặp suy
+luận có cấu trúc (Structured Reasoning / CoT Loop):
+`[Mục tiêu / Yêu cầu]` → `[CoT phân rã & Lập kế hoạch]` → `[Điều phối Tool]` →
+`[Quan sát thực tế (Observation)]` → `[Đối chiếu kiểm chứng (Verification & Grounding)]` →
+`[Dừng tối ưu (Optimal Stopping)]` → `[Kết luận / Hành động có bằng chứng]`.
 
 Người dùng xác nhận: **“RAT là implementation chính của CoT.”** Đây là đính
 chính cho cách diễn giải trước đó coi toàn bộ RAT là demo phụ, chỉ làm sau

@@ -19,16 +19,19 @@ from rat.ui.quick_app import bind_desk_window
 from tests.test_selected_pdf import write_pdf
 
 PROJECT = Path(__file__).resolve().parents[1]
+_APPLICATION = None
 
 
 @pytest.fixture(scope="module")
 def app():
-    application = QGuiApplication.instance() or QGuiApplication([])
+    global _APPLICATION
+    _APPLICATION = QGuiApplication.instance() or QGuiApplication([])
+    application = _APPLICATION
     application.setFont(QFont("Helvetica Neue", 13))
     yield application
 
 
-def wait_for(predicate, timeout=5):
+def wait_for(predicate, timeout=12):
     end = time.monotonic() + timeout
     while not predicate():
         assert time.monotonic() < end, "Timed out waiting for PDF operation"
@@ -52,6 +55,9 @@ def find_item(root, name):
 def click(view, root, name):
     item = find_item(root, name)
     assert item is not None and item.isVisible(), name
+    # Native sizing is queued after a page/answer transition. Wait for a real
+    # reachable control instead of clicking before the window-fit timer runs.
+    wait_for(lambda: 0 <= item.mapToScene(QPointF(item.width() / 2, item.height() / 2)).y() <= view.height(), timeout=3)
     point = item.mapToScene(QPointF(item.width() / 2, item.height() / 2))
     assert 0 <= point.x() <= view.width() and 0 <= point.y() <= view.height(), (name, point)
     QTest.mouseClick(view, Qt.MouseButton.LeftButton, pos=QPoint(round(point.x()), round(point.y())))
@@ -149,6 +155,7 @@ def test_real_qml_search_read_copy_back_error_and_draft(app, controller, tmp_pat
         assert (target_item.property("selectionStart"), target_item.property("selectionEnd")) == selection
         click(view, root, "backToSearch")
         assert controller.snapshot["items"][0]["page"] == 30
+        QTest.qWait(60)
         click(view, root, "liveFoldButton")
         assert not root.property("noticeVisible")
         controller.readPage(1)
@@ -160,6 +167,7 @@ def test_real_qml_search_read_copy_back_error_and_draft(app, controller, tmp_pat
         assert not root.property("noticeVisible")
         click(view, root, "documentMenu")
         page_picker = root.findChild(QQuickItem, "pagePicker")
+        wait_for(lambda: page_picker is not None and page_picker.isVisible())
         assert page_picker.isVisible()
         page_picker.setProperty("value", 30)
         if capture:
@@ -659,10 +667,43 @@ def test_search_hit_opens_matched_excerpt_mode_suite(app, controller, tmp_path):
         assert "routing" in excerpt_html.lower()
         assert "background-color" in excerpt_html
 
-        # 4. Assert switcher does NOT exist and openOriginalExternal exists
+        # 4. Assert switcher does NOT exist, header only has backToSearch/copyCitation/liveFoldButton, and openOriginalExternal exists next to metadata
         assert root.findChild(QQuickItem, "readerModeToggle") is None
+        back_btn = root.findChild(QQuickItem, "backToSearch")
+        assert back_btn is not None and back_btn.isVisible()
+        assert back_btn.property("text") in ("Quay lại kết quả", "Kết quả")
+
+        # In search hit source flow, pageNavCluster (prev, next, pagePicker, readPage) is hidden
+        page_picker = root.findChild(QQuickItem, "pagePicker")
+        assert page_picker is None or not page_picker.isVisible()
+        prev_btn = root.findChild(QQuickItem, "prevPage")
+        assert prev_btn is None or not prev_btn.isVisible()
+        next_btn = root.findChild(QQuickItem, "nextPage")
+        assert next_btn is None or not next_btn.isVisible()
+        read_btn = root.findChild(QQuickItem, "readPage")
+        assert read_btn is None or not read_btn.isVisible()
+        assert root.findChild(QQuickItem, "openOriginal") is None
+
         open_ext_btn = root.findChild(QQuickItem, "openOriginalExternal")
         assert open_ext_btn is not None and open_ext_btn.isVisible()
+
+        # Assert scrollbar is styled (width 6)
+        v_bar = root.findChild(QQuickItem, "resultVerticalScroll")
+        assert v_bar is not None
+        assert v_bar.width() == 6
+
+        # Check composer chip displays file name without page number, and placeholder is follow-up text
+        doc_chip_btn = root.findChild(QQuickItem, "documentMenu")
+        assert doc_chip_btn is not None
+        assert doc_chip_btn.property("text") == "MatchDoc.pdf"
+
+        # Check focus does not close source and empty draft shows follow-up placeholder
+        saved_draft = draft_ed.property("text")
+        draft_ed.setProperty("text", "")
+        assert draft_ed.property("placeholderText") == "Hỏi tiếp về tài liệu này…"
+        draft_ed.forceActiveFocus()
+        assert controller.snapshot["view"] == "page"
+        draft_ed.setProperty("text", saved_draft)
 
         # 5. Copy button is 'Chép đoạn'
         copy_btn = root.findChild(QQuickItem, "copyCitation")

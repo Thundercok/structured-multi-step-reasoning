@@ -124,15 +124,19 @@ def cmd_search(
         console.print(Panel(trace.render_markdown(), title="🧠 FR-CoT Multi-Step Reasoning Trace", border_style="cyan"))
 
     if open_first and results:
-        from rat.ui.preview_panel import open_file_default
         first = results[0]
         console.print(f"[bold green]⚡ Đang mở tệp:[/bold green] {first.file_path}")
-        open_file_default(first.file_path)
+        if sys.platform == "darwin":
+            subprocess.run(["open", first.file_path], check=False)
+        else:
+            subprocess.run(["xdg-open", first.file_path], check=False)
     elif reveal_first and results:
-        from rat.ui.preview_panel import reveal_in_finder
         first = results[0]
         console.print(f"[bold green]📁 Đang mở trong Finder:[/bold green] {first.file_path}")
-        reveal_in_finder(first.file_path)
+        if sys.platform == "darwin":
+            subprocess.run(["open", "-R", first.file_path], check=False)
+        else:
+            subprocess.run(["xdg-open", os.path.dirname(first.file_path)], check=False)
 
 
 def cmd_ask(file_query: str, question: str) -> None:

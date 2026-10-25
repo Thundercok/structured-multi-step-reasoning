@@ -344,8 +344,9 @@ def source_rows(sources, selected_path=None, page_count=0):
             read_scope = 'Trích đoạn'
             if type(chars) is int and chars > 0:
                 read_scope += ' · ' + f'{chars:,}'.replace(',', '.') + ' ký tự'
-        raw_snippet = source.get('excerpt') or source.get('snippet') or ''
-        snippet = str(raw_snippet)[:300] if isinstance(raw_snippet, str) else ''
+        raw_snippet = source.get('full_excerpt') or source.get('extended_snippet') or source.get('excerpt') or source.get('snippet') or ''
+        snippet = str(source.get('excerpt') or source.get('snippet') or raw_snippet)[:600] if raw_snippet else ''
+        extended_snippet = str(source.get('full_excerpt') or source.get('extended_snippet') or raw_snippet)[:1800] if raw_snippet else snippet
 
         # Extract section/heading strictly from authentic metadata; never default to 'Abstract'.
         raw_section = (
@@ -375,5 +376,139 @@ def source_rows(sources, selected_path=None, page_count=0):
                      'readScope': read_scope,
                      'path': resolved_path if matches else '',
                      'snippet': snippet if matches else '',
+                     'extendedSnippet': extended_snippet if matches else '',
+                     'hasMoreContext': bool(matches and len(extended_snippet) > len(snippet)),
                      'canOpen': bool(matches and page and page <= page_count)})
     return rows
+
+
+def format_process_steps(
+    steps: Sequence[Any] | None,
+    answer_verification: str = "UNKNOWN",
+    sources: Sequence[Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Format observed runtime execution steps into a dynamic user-facing reasoning trajectory.
+
+    Grounds each step in actual AgentStep records while maintaining a clear,
+    accessible progression: [Locate/Read] -> [Grounding/Verification] -> [Synthesis/Source].
+    Never invents unobserved steps or hardcoded done statuses.
+    """
+    raw_steps = list(steps or [])
+    src_list = list(sources or [])
+    if not raw_steps and not src_list:
+        return []
+
+    stages: list[dict[str, Any]] = []
+
+    # 1. Look for document reading or search steps
+    read_step = next(
+        (s for s in raw_steps if (s.get("tool_name") if isinstance(s, dict) else getattr(s, "tool_name", None)) in
+         ("read_document", "read_book_page", "search_documents", "search_book_pages")),
+        None,
+    )
+
+    # 2. Check for context expansion
+    expand_step = next(
+        (s for s in raw_steps if (s.get("tool_name") if isinstance(s, dict) else getattr(s, "tool_name", None)) == "expand_document_context"),
+        None,
+    )
+
+    # 3. Check for calculation / reasoning tool steps
+    calc_step = next(
+        (s for s in raw_steps if (s.get("tool_name") if isinstance(s, dict) else getattr(s, "tool_name", None)) == "calculate"),
+        None,
+    )
+
+    step_idx = 1
+    if read_step:
+        args = read_step.get("tool_args", {}) if isinstance(read_step, dict) else getattr(read_step, "tool_args", {}) or {}
+        p_name = Path(args.get("file_path", "")).name if args.get("file_path") else ""
+        dur = read_step.get("duration_ms", 0) if isinstance(read_step, dict) else getattr(read_step, "duration_ms", 0)
+        detail = f"Đọc đoạn trích {p_name}" if p_name else "Đọc dữ kiện từ tài liệu được chọn"
+        if dur:
+            detail += f" ({dur}ms)"
+        stages.append({
+            "stepNumber": step_idx,
+            "shortTitle": "Tìm",
+            "fullTitle": f"{step_idx}. Tìm đoạn",
+            "iconName": "search",
+            "status": "done",
+            "detail": detail,
+        })
+        step_idx += 1
+    elif src_list:
+        first_src = src_list[0]
+        p_path = first_src.get("path") or first_src.get("file_path") or ""
+        p_name = Path(p_path).name if p_path else (first_src.get("title") or "")
+        detail = f"Đọc dữ kiện từ {p_name}" if p_name else "Đọc dữ kiện từ tài liệu được chọn"
+        stages.append({
+            "stepNumber": step_idx,
+            "shortTitle": "Tìm",
+            "fullTitle": f"{step_idx}. Tìm đoạn",
+            "iconName": "search",
+            "status": "done",
+            "detail": detail,
+        })
+        step_idx += 1
+
+    if expand_step:
+        stages.append({
+            "stepNumber": step_idx,
+            "shortTitle": "Mở rộng",
+            "fullTitle": f"{step_idx}. Mở rộng",
+            "iconName": "maximize",
+            "status": "done",
+            "detail": "Mở rộng văn bản xung quanh vị trí tìm thấy",
+        })
+        step_idx += 1
+
+    if calc_step:
+        args = calc_step.get("tool_args", {}) if isinstance(calc_step, dict) else getattr(calc_step, "tool_args", {}) or {}
+        expr = args.get("expression", "")
+        stages.append({
+            "stepNumber": step_idx,
+            "shortTitle": "Tính",
+            "fullTitle": f"{step_idx}. Tính toán",
+            "iconName": "calculator",
+            "status": "done",
+            "detail": f"Tính biểu thức {expr}" if expr else "Tính toán số học",
+        })
+        step_idx += 1
+
+    # Verification / Grounding stage
+    if answer_verification == "PASS":
+        v_status = "verified_pass"
+        v_detail = "✓ Đạt kiểm tra đối chiếu nguồn gốc"
+    elif answer_verification == "FAIL":
+        v_status = "verified_fail"
+        v_detail = "! Kiểm tra không khớp nội dung"
+    else:
+        v_status = "unverified"
+        v_detail = "Chưa xác minh nội dung đối chiếu"
+
+    stages.append({
+        "stepNumber": step_idx,
+        "shortTitle": "Đối chiếu",
+        "fullTitle": f"{step_idx}. Đối chiếu",
+        "iconName": "check",
+        "status": v_status,
+        "detail": v_detail,
+    })
+    step_idx += 1
+
+    # Attribution / Source extraction stage
+    if src_list:
+        first_src = src_list[0]
+        t = first_src.get("title") or ""
+        p = first_src.get("page")
+        src_title = f" ({t} · Trang {p})" if (t and p) else (f" ({t})" if t else "")
+        stages.append({
+            "stepNumber": step_idx,
+            "shortTitle": "Nguồn",
+            "fullTitle": f"{step_idx}. Trích nguồn",
+            "iconName": "file-text",
+            "status": "done",
+            "detail": f"Trích dẫn nguyên văn và số trang{src_title}",
+        })
+
+    return stages

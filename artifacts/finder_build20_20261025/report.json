@@ -1,0 +1,85 @@
+{
+  "build": "2026.10.25.20",
+  "catalog_scan_ms": 237.78816708363593,
+  "installed_apps": 170,
+  "index_bytes": 602628096,
+  "model_requests": 0,
+  "app_launches": 0,
+  "timing_scope": "Local measured lookup and input-to-QML delivery; not model latency or IME acceptance.",
+  "queries": {
+    "mở cái app tính toán": {
+      "first_ms": 3.914250060915947,
+      "warm": {
+        "n": 30,
+        "median_ms": 1.7215830739587545,
+        "p95_ms": 2.1732919849455357,
+        "max_ms": 2.182625001296401
+      },
+      "hits": 1,
+      "errors": []
+    },
+    "mở trình duyệt": {
+      "first_ms": 2.2986249532550573,
+      "warm": {
+        "n": 30,
+        "median_ms": 2.1737918723374605,
+        "p95_ms": 2.2338328417390585,
+        "max_ms": 2.2447078954428434
+      },
+      "hits": 2,
+      "errors": []
+    },
+    "mở app gõ code": {
+      "first_ms": 2.125333994626999,
+      "warm": {
+        "n": 30,
+        "median_ms": 2.0671249367296696,
+        "p95_ms": 2.095875097438693,
+        "max_ms": 2.108749933540821
+      },
+      "hits": 1,
+      "errors": []
+    },
+    "tìm file quy chế tín chỉ": {
+      "first_ms": 89.50687502510846,
+      "warm": {
+        "n": 30,
+        "median_ms": 21.86341700144112,
+        "p95_ms": 27.37733395770192,
+        "max_ms": 28.20025011897087
+      },
+      "hits": 5,
+      "errors": []
+    },
+    "slide mạng máy tính": {
+      "first_ms": 24.191583041101694,
+      "warm": {
+        "n": 30,
+        "median_ms": 8.915542159229517,
+        "p95_ms": 10.327375028282404,
+        "max_ms": 10.330458171665668
+      },
+      "hits": 5,
+      "errors": []
+    },
+    "tìm file": {
+      "first_ms": 0.298250000923872,
+      "warm": {
+        "n": 30,
+        "median_ms": 0.1561250537633896,
+        "p95_ms": 0.21529104560613632,
+        "max_ms": 0.2401249948889017
+      },
+      "hits": 0,
+      "errors": []
+    }
+  },
+  "input_to_qml": {
+    "n": 10,
+    "median_ms": 21.42558293417096,
+    "p95_ms": 58.01387503743172,
+    "max_ms": 58.01387503743172
+  },
+  "escape_preserves_draft": true,
+  "ui_verified": true
+}

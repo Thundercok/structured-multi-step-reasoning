@@ -83,6 +83,7 @@ class TurnSnapshot:
     turn_contract: Optional[Dict[str, Any]] = None
     source_refs: List[Dict[str, Any]] = field(default_factory=list)
     answer_verification_status: str = "UNKNOWN"
+    steps: List[Dict[str, Any]] = field(default_factory=list)
 
     @property
     def turn_id(self) -> str:
@@ -144,6 +145,7 @@ class TurnSnapshot:
             "turn_contract": copy.deepcopy(self.turn_contract),
             "source_refs": copy.deepcopy(self.source_refs),
             "answer_verification_status": self.answer_verification_status,
+            "steps": copy.deepcopy(self.steps),
         }
 
 
@@ -230,6 +232,7 @@ class ConversationHistory:
         turn_contract: Optional[Any] = None,
         source_refs: Optional[List[Dict[str, Any]]] = None,
         answer_verification_status: str = "UNKNOWN",
+        steps: Optional[List[Dict[str, Any]]] = None,
     ) -> TurnSnapshot:
         """Commit a completed turn; reject late callbacks from cancelled executions."""
         snap = self._turn_snapshots.get(turn_id)
@@ -252,6 +255,8 @@ class ConversationHistory:
         snap.status = "completed"
         snap.source_refs = copy.deepcopy(source_refs or [])
         snap.answer_verification_status = answer_verification_status
+        if steps is not None:
+            snap.steps = copy.deepcopy(steps)
         if artifact_refs is not None:
             snap.artifact_refs = copy.deepcopy(artifact_refs)
         if note_ids is not None:

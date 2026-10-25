@@ -1,17 +1,17 @@
 """
 rat.os.app — Unified macOS Resident Application Controller.
-Coordinates the Global Hotkey, Menu Bar Status Item, Floating Spotlight HUD,
-Full AI Finder, and Background Filesystem Watcher in a unified zero-overhead loop.
+Coordinates the Global Hotkey, Menu Bar Status Item, and the unified hardware-accelerated
+QtQuick RAT Desk in a zero-overhead resident loop.
 """
 
 from __future__ import annotations
 
 import logging
 import sys
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
-from PyQt6.QtCore import QObject, Qt, QTimer, pyqtSignal, pyqtSlot
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QEvent, QObject, Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QGuiApplication
 
 from rat.config import config
 from rat.crawler.watcher import Watcher
@@ -23,8 +23,6 @@ from rat.os.single_instance import (
     kill_stale_orphan_instances,
     try_activate_existing_instance,
 )
-from rat.ui.finder_window import FinderWindow
-from rat.ui.omnibar import OmnibarWindow
 
 logger = logging.getLogger("rat.os.app")
 
@@ -61,7 +59,7 @@ class InitialIndexWorker(QObject):
 
 
 class ResidentApplication(QObject):
-    """Unified macOS Resident Background System."""
+    """Unified macOS Resident Background System running the hardware-accelerated QtQuick Desk."""
 
     toggle_spotlight_signal = pyqtSignal()
     open_finder_signal = pyqtSignal()
@@ -72,29 +70,35 @@ class ResidentApplication(QObject):
 
     def __init__(self, mode: str = "all", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
         install_crash_shield()
-        self.app = QApplication.instance() or QApplication(sys.argv)
+        self.app = QGuiApplication.instance() or QGuiApplication(sys.argv)
         super().__init__()
         if reasoning_engine is not None:
             from rat.ui.reasoning_host import install_reasoning_engine
             install_reasoning_engine(self.app, reasoning_engine,
                                      allow_synthetic_policy=allow_synthetic_policy)
         self.mode = mode
-        self.app.setApplicationName("rat — macOS Smart AI File Finder")
-        self.app.setQuitOnLastWindowClosed(False)  # Keep running in menu bar
+        self.app.setApplicationName("RAT · Trợ lý thông minh & PDF Desk")
+        self.app.setQuitOnLastWindowClosed(False)  # Keep running resident in menu bar
+
+        # Lifecycle State Machine: "idle" -> "quitting" -> ("waiting_past_timeout") -> "terminated"
+        self._shutdown_state: str = "idle"
         self.app._is_quitting = False
+        self._teardown_done: bool = False
+        self._clean_shutdown: Optional[bool] = None
+        self._shutdown_timer: Optional[QTimer] = None
+        self._shutdown_on_finished: Optional[Any] = None
 
         self.single_instance_server: Optional[SingleInstanceServer] = None
-        self.omnibar_window: Optional[OmnibarWindow] = None
-        self.spotlight_window: Optional[Any] = None
-        self.finder_window: Optional[FinderWindow] = None
-        self.schedule_window: Optional[Any] = None
-        self.claude_widget_window: Optional[Any] = None
+        self.desk_view: Optional[Any] = None
+        self.desk_controller: Optional[Any] = None
         self.tray_manager: Optional[SystemTrayManager] = None
         self.hotkey_manager: Optional[GlobalHotkeyManager] = None
         self.watcher: Optional[Watcher] = None
         self.memory_sentinel: Optional[Any] = None
         self.warmup_worker: Optional[Any] = None
         self.warmup_thread: Optional[Any] = None
+        self._index_thread: Optional[Any] = None
+        self._index_worker: Optional[Any] = None
 
         # Cross-thread safe signal dispatching to main event loop
         self.toggle_spotlight_signal.connect(self._do_toggle_spotlight, Qt.ConnectionType.QueuedConnection)
@@ -104,99 +108,296 @@ class ResidentApplication(QObject):
         self.open_widget_signal.connect(self._do_open_widget, Qt.ConnectionType.QueuedConnection)
         self.open_natal_signal.connect(self._do_open_natal, Qt.ConnectionType.QueuedConnection)
         self.app.aboutToQuit.connect(self._on_app_quit)
+        self.app.installEventFilter(self)
 
-    def _on_app_quit(self) -> None:
-        """Comprehensive zero-crash shutdown of all background services and UI threads."""
-        logger.info("ResidentApplication: Initiating zero-crash graceful teardown...")
+    @property
+    def is_quitting(self) -> bool:
+        return self._shutdown_state != "idle"
+
+    @property
+    def _is_quitting(self) -> bool:
+        return self._shutdown_state != "idle"
+
+    def eventFilter(self, watched, event):
+        if watched is self.app and event.type() == QEvent.Type.Quit and self._shutdown_state != "terminated":
+            self.request_quit()
+            return True
+        return super().eventFilter(watched, event)
+
+    def get_active_workers(self) -> list[str]:
+        """Return human-readable names of all currently running background workers and threads."""
+        active = []
+        if self.warmup_thread and self.warmup_thread.isRunning():
+            active.append("SemesterWarmupWorker")
+        if self._index_thread and self._index_thread.isRunning():
+            active.append("InitialIndexWorker")
+        if self.tray_manager and getattr(self.tray_manager, "rescan_worker", None):
+            if self.tray_manager.rescan_worker.isRunning():
+                active.append("TrayRescanWorker")
+        if self.desk_controller:
+            ctrl = self.desk_controller
+            if hasattr(ctrl, "_execution_workers"):
+                for w in ctrl._execution_workers:
+                    if w.isRunning():
+                        name = getattr(w, "objectName", lambda: "")() or w.__class__.__name__
+                        active.append(f"DeskWorker({name})")
+            if hasattr(ctrl, "_worker") and ctrl._worker:
+                if hasattr(ctrl._worker, "_thread") and ctrl._worker._thread.is_alive():
+                    active.append("PDFWorker")
+        return active
+
+    def all_workers_finished(self) -> bool:
+        """Return True if and only if all background workers and threads have fully stopped."""
+        desk_clean = True
+        if self.desk_controller:
+            try:
+                desk_clean = self.desk_controller.close()
+            except Exception as e:
+                logger.debug(f"Error checking desk_controller.close: {e}")
+                desk_clean = False
+        return desk_clean and len(self.get_active_workers()) == 0
+
+    def _ensure_desk(self) -> Tuple[Any, Any]:
+        """Lazily initialize the unified QtQuick Desk window and controller."""
+        if self.desk_view is None:
+            from rat.ui.quick_app import create_quick_desk
+            self.desk_view, self.desk_controller = create_quick_desk(
+                quit_on_close=False,
+            )
+        return self.desk_view, self.desk_controller
+
+    def request_quit(self, timeout: float = 3.0, on_finished: Optional[Any] = None) -> None:
+        """
+        Intercept quit BEFORE Qt's aboutToQuit event.
+        Cancels active inference/workers, promptly hides user surfaces, and defers
+        application exit until workers cleanly finish.
+
+        If timeout expires before workers finish, transitions to 'waiting_past_timeout',
+        retains worker ownership, warns about incomplete shutdown, and keeps the Qt event
+        loop alive until all workers fully exit. Only then calls app.quit().
+        """
+        if self._shutdown_state != "idle":
+            logger.debug(
+                f"ResidentApplication: request_quit called while state is '{self._shutdown_state}'. Ignoring duplicate request."
+            )
+            if on_finished and self._shutdown_state == "terminated":
+                try:
+                    on_finished(bool(self._clean_shutdown))
+                except Exception:
+                    pass
+            return
+
+        self._shutdown_state = "quitting"
         self.app._is_quitting = True
+        self._shutdown_on_finished = on_finished
+        logger.info("ResidentApplication: Shutdown requested. Cancelling active work and deferring exit...")
 
-        # 1. Stop UI Windows & their background QThreads
-        if self.omnibar_window:
+        # 1. Hide view immediately for prompt UI response
+        if self.desk_view:
             try:
-                self.omnibar_window.shutdown()
-            except Exception as e:
-                logger.debug(f"Error shutting down omnibar_window: {e}")
+                self.desk_view.hide()
+            except Exception:
+                pass
 
-        if self.spotlight_window:
+        # 2. Cancel active inference and PDF tasks immediately
+        if self.desk_controller:
             try:
-                if hasattr(self.spotlight_window, "shutdown"):
-                    self.spotlight_window.shutdown()
-                elif hasattr(self.spotlight_window, "search_thread") and self.spotlight_window.search_thread:
-                    if self.spotlight_window.search_thread.isRunning():
-                        self.spotlight_window.search_thread.quit()
-                        self.spotlight_window.search_thread.wait(1000)
+                self.desk_controller.cancel()
+                self.desk_controller.close()
             except Exception as e:
-                logger.debug(f"Error shutting down spotlight_window: {e}")
-
-        if self.finder_window:
-            try:
-                if hasattr(self.finder_window, "shutdown"):
-                    self.finder_window.shutdown()
-                else:
-                    if hasattr(self.finder_window, "search_thread") and self.finder_window.search_thread and self.finder_window.search_thread.isRunning():
-                        self.finder_window.search_thread.quit()
-                        self.finder_window.search_thread.wait(1000)
-                    if hasattr(self.finder_window, "qa_thread") and self.finder_window.qa_thread and self.finder_window.qa_thread.isRunning():
-                        self.finder_window.qa_thread.quit()
-                        self.finder_window.qa_thread.wait(1000)
-            except Exception as e:
-                logger.debug(f"Error shutting down finder_window: {e}")
-
-        if self.schedule_window:
-            try:
-                if hasattr(self.schedule_window, "shutdown"):
-                    self.schedule_window.shutdown()
-            except Exception as e:
-                logger.debug(f"Error shutting down schedule_window: {e}")
-
-        # 2. Stop Menu Bar Tray & worker
-        if self.tray_manager:
-            try:
-                if hasattr(self.tray_manager, "shutdown"):
-                    self.tray_manager.shutdown()
-            except Exception as e:
-                logger.debug(f"Error shutting down tray_manager: {e}")
+                logger.debug(f"Error cancelling desk_controller: {e}")
 
         # 3. Stop background system services
-        if self.memory_sentinel:
-            try:
-                self.memory_sentinel.stop()
-            except Exception as e:
-                logger.debug(f"Error stopping memory_sentinel: {e}")
+        for attr, method in [
+            ("hotkey_manager", "stop"),
+            ("watcher", "stop"),
+            ("memory_sentinel", "stop"),
+            ("single_instance_server", "stop"),
+            ("warmup_worker", "stop"),
+        ]:
+            obj = getattr(self, attr, None)
+            if obj and hasattr(obj, method):
+                try:
+                    getattr(obj, method)()
+                except Exception as e:
+                    logger.debug(f"Error stopping {attr}: {e}")
 
-        if self.watcher:
-            try:
-                self.watcher.stop()
-            except Exception as e:
-                logger.debug(f"Error stopping watcher: {e}")
-
-        if self.hotkey_manager:
-            try:
-                self.hotkey_manager.stop()
-            except Exception as e:
-                logger.debug(f"Error stopping hotkey_manager: {e}")
-
-        # 4. Stop Single Instance IPC Server
-        if self.single_instance_server:
-            try:
-                self.single_instance_server.stop()
-            except Exception as e:
-                logger.debug(f"Error stopping single_instance_server: {e}")
-
-        # 5. Stop Semester Document Warmup
-        if self.warmup_worker:
-            try:
-                self.warmup_worker.stop()
-            except Exception as e:
-                logger.debug(f"Error stopping warmup_worker: {e}")
         if self.warmup_thread and self.warmup_thread.isRunning():
             try:
                 self.warmup_thread.quit()
-                self.warmup_thread.wait(1000)
             except Exception as e:
-                logger.debug(f"Error waiting for warmup_thread: {e}")
+                logger.debug(f"Error requesting warmup_thread quit: {e}")
 
-        logger.info("ResidentApplication: Teardown complete. Exiting cleanly.")
+        if self._index_thread and self._index_thread.isRunning():
+            try:
+                self._index_thread.quit()
+            except Exception as e:
+                logger.debug(f"Error requesting _index_thread quit: {e}")
+
+        if self.tray_manager:
+            try:
+                if hasattr(self.tray_manager, "request_shutdown"):
+                    self.tray_manager.request_shutdown()
+                else:
+                    self.tray_manager.shutdown()
+            except Exception as e:
+                logger.debug(f"Error requesting tray shutdown: {e}")
+
+        # 4. Check if all workers are already clean/finished
+        if self.all_workers_finished():
+            self._finish_teardown(clean=True)
+            return
+
+        # 5. Controller or background threads have active workers: defer application exit and poll
+        import time
+        deadline = time.monotonic() + max(0.05, timeout)
+        self._shutdown_timer = QTimer(self)
+        self._shutdown_timer.setInterval(30)
+
+        def _poll_shutdown():
+            if self.all_workers_finished():
+                if self._shutdown_timer:
+                    self._shutdown_timer.stop()
+                clean = (self._shutdown_state == "quitting")
+                self._finish_teardown(clean=clean)
+                return
+
+            if time.monotonic() >= deadline and self._shutdown_state == "quitting":
+                self._shutdown_state = "waiting_past_timeout"
+                self._clean_shutdown = False
+                active = self.get_active_workers()
+                logger.warning(
+                    f"ResidentApplication: Shutdown timed out after {timeout:.1f}s with active workers: {active}. "
+                    "Keeping application alive and holding worker ownership until all workers finish."
+                )
+                if self._shutdown_timer:
+                    self._shutdown_timer.setInterval(100)
+                # DO NOT CALL self.app.quit() OR self._finish_teardown() HERE!
+                # The app remains in event loop so background workers can complete safely.
+
+        self._shutdown_timer.timeout.connect(_poll_shutdown)
+        self._shutdown_timer.start()
+
+    def _finish_teardown(self, clean: bool) -> None:
+        """Finalize teardown and quit app once all workers have finished."""
+        if self._shutdown_state == "terminated":
+            return
+        self._shutdown_state = "terminated"
+        self._clean_shutdown = clean
+        self._teardown_done = True
+
+        if self._shutdown_timer and self._shutdown_timer.isActive():
+            self._shutdown_timer.stop()
+
+        if self.desk_view:
+            try:
+                self.desk_view.close()
+            except Exception as e:
+                logger.debug(f"Error closing desk_view: {e}")
+
+        if self.tray_manager:
+            try:
+                self.tray_manager.shutdown()
+            except Exception as e:
+                logger.debug(f"Error shutting down tray_manager: {e}")
+
+        if clean:
+            logger.info("ResidentApplication: Teardown complete. Exiting cleanly.")
+        else:
+            logger.warning("ResidentApplication: Teardown complete after timeout delay. Exiting now.")
+
+        cb = self._shutdown_on_finished
+        self._shutdown_on_finished = None
+        if cb:
+            try:
+                cb(clean)
+            except Exception as e:
+                logger.debug(f"Error in on_finished callback: {e}")
+
+        self.app.quit()
+
+    def _on_app_quit(self) -> None:
+        """Fallback handler if quit was triggered externally before request_quit finished."""
+        if self._shutdown_state == "terminated":
+            return
+
+        self._shutdown_state = "quitting"
+        self.app._is_quitting = True
+        logger.info("ResidentApplication: aboutToQuit received; finalizing teardown...")
+
+        # Cancel active work
+        if self.desk_controller:
+            try:
+                self.desk_controller.cancel()
+                self.desk_controller.close()
+            except Exception:
+                pass
+
+        # Stop services
+        for attr, method in [
+            ("hotkey_manager", "stop"),
+            ("watcher", "stop"),
+            ("memory_sentinel", "stop"),
+            ("single_instance_server", "stop"),
+            ("warmup_worker", "stop"),
+        ]:
+            obj = getattr(self, attr, None)
+            if obj and hasattr(obj, method):
+                try:
+                    getattr(obj, method)()
+                except Exception:
+                    pass
+
+        if self.warmup_thread and self.warmup_thread.isRunning():
+            try:
+                self.warmup_thread.quit()
+            except Exception:
+                pass
+
+        if self._index_thread and self._index_thread.isRunning():
+            try:
+                self._index_thread.quit()
+            except Exception:
+                pass
+
+        if self.tray_manager:
+            try:
+                if hasattr(self.tray_manager, "request_shutdown"):
+                    self.tray_manager.request_shutdown()
+            except Exception:
+                pass
+
+        # Synchronous bounded check (aboutToQuit cannot defer exit back to event loop)
+        import time
+        deadline = time.monotonic() + 1.0
+        while not self.all_workers_finished() and time.monotonic() < deadline:
+            self.app.processEvents()
+            time.sleep(0.02)
+
+        is_clean = self.all_workers_finished()
+        self._clean_shutdown = is_clean
+        self._shutdown_state = "terminated"
+        self._teardown_done = True
+
+        if self.tray_manager:
+            try:
+                self.tray_manager.shutdown()
+            except Exception:
+                pass
+
+        if self.desk_view:
+            try:
+                self.desk_view.close()
+            except Exception:
+                pass
+
+        if is_clean:
+            logger.info("ResidentApplication: Teardown complete. Exiting cleanly.")
+        else:
+            active = self.get_active_workers()
+            logger.warning(
+                f"ResidentApplication: aboutToQuit executed with active workers: {active}. Incomplete shutdown."
+            )
 
     def toggle_spotlight(self) -> None:
         """Thread-safe trigger (can be called from background hotkey threads)."""
@@ -207,15 +408,15 @@ class ResidentApplication(QObject):
         self.open_finder_signal.emit()
 
     def open_settings(self) -> None:
-        """Thread-safe trigger to open Settings dialog."""
+        """Thread-safe trigger to open Settings."""
         self.open_settings_signal.emit()
 
     def open_schedule(self) -> None:
-        """Thread-safe trigger to open Club Timetable Compositor window."""
+        """Thread-safe trigger for schedule query."""
         self.open_schedule_signal.emit()
 
     def open_widget(self) -> None:
-        """Thread-safe trigger to open Claude Timetable Widget."""
+        """Thread-safe trigger for compact desk."""
         self.open_widget_signal.emit()
 
     def open_natal(self) -> None:
@@ -223,68 +424,115 @@ class ResidentApplication(QObject):
 
     @pyqtSlot()
     def _do_open_natal(self) -> None:
-        if not self.omnibar_window:
-            self.omnibar_window = OmnibarWindow()
-        self.omnibar_window.show_omnibar()
-        self.omnibar_window.open_natal_chart()
+        """Open Tarot / Reading view on the unified QtQuick Desk."""
+        if self.is_quitting:
+            return
+        try:
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
+            view.show()
+            view.raise_()
+            view.requestActivate()
+            activate_macos_app()
+            if controller is not None and hasattr(controller, "openReadingDesk"):
+                controller.openReadingDesk()
+        except Exception as e:
+            logger.error(f"Error opening reading on RAT Desk: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_toggle_spotlight(self) -> None:
-        """Toggle or summon the unified Omnibar on the main Qt GUI thread."""
+        """Toggle or summon the unified QtQuick RAT Desk."""
+        if self.is_quitting:
+            return
         try:
-            if not self.omnibar_window:
-                self.omnibar_window = OmnibarWindow()
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
 
-            if self.omnibar_window.isVisible() and self.omnibar_window.isActiveWindow():
-                self.omnibar_window.hide()
+            if view.isVisible() and view.isActive():
+                view.hide()
             else:
-                self.omnibar_window.show_omnibar(initial_section=0)
+                view.show()
+                view.raise_()
+                view.requestActivate()
+                activate_macos_app()
         except Exception as e:
-            logger.error(f"Error toggling Omnibar: {e}", exc_info=True)
+            logger.error(f"Error toggling RAT Desk: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_open_finder(self) -> None:
-        """Open or bring the Omnibar Files section to front."""
+        """Summon the unified QtQuick Desk for document / file interaction."""
+        if self.is_quitting:
+            return
         try:
-            if not self.omnibar_window:
-                self.omnibar_window = OmnibarWindow()
-
-            self.omnibar_window.show_omnibar(initial_section=1)
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
+            view.show()
+            view.raise_()
+            view.requestActivate()
+            activate_macos_app()
+            if controller is not None:
+                controller.setExpanded(True)
         except Exception as e:
-            logger.error(f"Error opening Omnibar Files: {e}", exc_info=True)
+            logger.error(f"Error opening RAT Desk Finder: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_open_settings(self) -> None:
-        """Open Settings dialog on the main Qt GUI thread."""
+        """Ensure RAT Desk is visible and present configuration status (dedicated QtQuick card pending)."""
+        if self.is_quitting:
+            return
         try:
-            from rat.ui.settings_dialog import SettingsDialog
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
+            view.show()
+            view.raise_()
+            view.requestActivate()
             activate_macos_app()
-            dlg = SettingsDialog()
-            dlg.exec()
+            if controller is not None:
+                controller._status = "Tùy chọn: Giao diện cấu hình QtQuick chuyên biệt đang được phát triển."
+                controller.changed.emit()
         except Exception as e:
-            logger.error(f"Error opening Settings dialog: {e}", exc_info=True)
+            logger.error(f"Error opening settings on RAT Desk: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_open_schedule(self) -> None:
-        """Open the integrated Schedule section on the main Qt GUI thread."""
+        """Ensure RAT Desk is visible for schedule queries (dedicated QtQuick card pending)."""
+        if self.is_quitting:
+            return
         try:
-            if not self.omnibar_window:
-                self.omnibar_window = OmnibarWindow()
-
-            self.omnibar_window.show_omnibar(initial_section=2)
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
+            view.show()
+            view.raise_()
+            view.requestActivate()
+            activate_macos_app()
+            if controller is not None:
+                controller._status = "Thời khóa biểu: Thẻ sắp xếp lịch CoT trên Desk đang được phát triển."
+                controller.changed.emit()
         except Exception as e:
-            logger.error(f"Error opening Omnibar Schedule: {e}", exc_info=True)
+            logger.error(f"Error opening schedule on RAT Desk: {e}", exc_info=True)
 
     @pyqtSlot()
     def _do_open_widget(self) -> None:
-        """The mini entry point opens the same compact conversation."""
+        """Ensure RAT Desk is visible in compact mode."""
+        if self.is_quitting:
+            return
         try:
-            if not self.omnibar_window:
-                self.omnibar_window = OmnibarWindow()
-            self.omnibar_window.set_expanded(False)
-            self.omnibar_window.show_omnibar()
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
+            view.show()
+            view.raise_()
+            view.requestActivate()
+            activate_macos_app()
+            if controller is not None:
+                controller.setExpanded(False)
         except Exception as e:
-            logger.error(f"Error opening Claude Widget: {e}", exc_info=True)
+            logger.error(f"Error opening compact desk: {e}", exc_info=True)
 
     def _start_initial_index(self) -> None:
         """Launch background initial indexing after first-run onboarding."""
@@ -297,16 +545,16 @@ class ResidentApplication(QObject):
         def _on_progress(completed: int, total: int, name: str) -> None:
             if self.tray_manager and completed % 100 == 0:
                 self.tray_manager.tray_icon.setToolTip(
-                    f"rat — Đang quét lần đầu: {completed}/{total} tệp..."
+                    f"RAT — Đang quét lần đầu: {completed}/{total} tệp..."
                 )
 
         def _on_finished(indexed: int, total: int) -> None:
             logger.info(f"Initial index complete: {indexed}/{total} files.")
             if self.tray_manager:
-                self.tray_manager.tray_icon.setToolTip("rat — Sẵn sàng")
+                self.tray_manager.tray_icon.setToolTip("RAT — Sẵn sàng")
                 self.tray_manager.tray_icon.showMessage(
-                    "rat — Quét xong! ✅",
-                    f"Đã lập chỉ mục {total} tệp tin. Bấm {config.get_hotkey_display()} để tìm kiếm!",
+                    "RAT — Quét xong! ✅",
+                    f"Đã lập chỉ mục {total} tệp tin. Bấm {config.get_hotkey_display()} để mở RAT Desk!",
                     self.tray_manager.tray_icon.MessageIcon.Information,
                     5000,
                 )
@@ -346,44 +594,27 @@ class ResidentApplication(QObject):
         """Handle command relayed from a subsequent rat launch attempt."""
         logger.info(f"ResidentApplication received remote single-instance command: '{cmd}'")
         activate_macos_app()
-        if cmd == "finder":
+        if cmd in ("quit", "exit", "--quit", "stop"):
+            self.request_quit()
+        elif cmd == "finder":
             self.open_finder()
         elif cmd in ("schedule", "tkb", "lich"):
             self.open_schedule()
         elif cmd in ("widget", "mini", "claude"):
             self.open_widget()
-        elif cmd == "settings":
-            self.open_settings()
+        elif cmd in ("astrology", "natal", "la-so", "reading"):
+            self.open_natal()
         else:
             self.toggle_spotlight()
 
     def run(self) -> int:
         """Start resident daemon services and application event loop."""
-        logger.info("Initializing macOS Resident AI Finder System...")
+        logger.info("Initializing macOS Resident AI System (QtQuick Scenegraph)...")
 
         # 0. Start Single Instance Server to prevent duplicates
         self.single_instance_server = SingleInstanceServer(self)
         self.single_instance_server.command_received.connect(self._on_single_instance_command)
         self.single_instance_server.start()
-
-        # 0.5. First-run Onboarding & Permissions Wizard
-        if not config.first_run_completed:
-            try:
-                from rat.ui.onboarding_dialog import OnboardingDialog
-                activate_macos_app()
-                wizard = OnboardingDialog()
-                wizard.exec()
-            except Exception as e:
-                logger.warning(f"Error presenting OnboardingDialog: {e}")
-
-            # Auto-index existing files in background after first-run setup
-            self._start_initial_index()
-
-        # Pre-initialize unified Omnibar on the main thread
-        try:
-            self.omnibar_window = OmnibarWindow()
-        except Exception as e:
-            logger.warning(f"Deferred OmnibarWindow initialization: {e}")
 
         # 1. Start Global Hotkey Manager IMMEDIATELY
         self.hotkey_manager = GlobalHotkeyManager(on_trigger=self.toggle_spotlight)
@@ -397,6 +628,7 @@ class ResidentApplication(QObject):
             on_open_schedule=self.open_schedule,
             on_open_widget=self.open_widget,
             on_open_natal=self.open_natal,
+            on_quit=self.request_quit,
         )
         self.tray_manager.tray_icon.show()
 
@@ -405,8 +637,8 @@ class ResidentApplication(QObject):
             QTimer.singleShot(
                 1200,
                 lambda: self.tray_manager.tray_icon.showMessage(
-                    "rat — Phím tắt toàn cầu (Global Hotkey)",
-                    "Để dùng phím tắt ⌘ ⇧ Space trên mọi app, hãy click icon rat trên Menu Bar và chọn 'Cấp quyền Phím tắt (Accessibility)'.",
+                    "RAT — Phím tắt toàn cầu (Global Hotkey)",
+                    "Để dùng phím tắt ⌘ ⇧ Space trên mọi app, hãy click icon RAT trên Menu Bar và chọn 'Cấp quyền Phím tắt (Accessibility)'.",
                     self.tray_manager.tray_icon.MessageIcon.Information,
                     6000,
                 )
@@ -440,12 +672,8 @@ class ResidentApplication(QObject):
         # 5. Open initial window based on mode
         if self.mode == "finder":
             self.open_finder()
-        elif self.mode == "spotlight":
+        elif self.mode in ("spotlight", "desk", "quick"):
             self.toggle_spotlight()
-        elif self.mode == "schedule":
-            self.open_schedule()
-        elif self.mode in ("widget", "mini", "claude"):
-            self.open_widget()
         elif self.mode == "daemon":
             logger.info("Running in pure background resident daemon mode (Menu Bar & Global Hotkey active).")
 
@@ -454,8 +682,7 @@ class ResidentApplication(QObject):
 
 def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
     """Launch the resident system with strict single-instance enforcement."""
-    # Ensure QApplication exists for socket IPC and event processing
-    app = QApplication.instance() or QApplication(sys.argv)
+    app = QGuiApplication.instance() or QGuiApplication(sys.argv)
 
     # 1. Attempt to delegate to existing running instance
     if try_activate_existing_instance(command=mode):

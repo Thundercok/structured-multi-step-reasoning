@@ -14,7 +14,7 @@ import threading
 import time
 
 from rat.crawler.db import Database
-from rat.engine.app_resolver import ApplicationCatalog
+from rat.engine.app_resolver import ApplicationCatalog, functional_app_ids
 from rat.engine.finder_intent import (
     FinderIntentPlan,
     is_report_row,
@@ -71,6 +71,7 @@ class SearchHit:
     read: bool = False
     version: str = ''
     modified_at: float | None = None
+    match_reason: str = ''
 
 
 @dataclass(frozen=True)
@@ -105,18 +106,42 @@ class ProgressiveSearch:
         self.now_fn = now_fn
 
     @staticmethod
-    def _file_hit(row, origin):
+    def _file_hit(row, origin, filters=None):
         path = row['file_path']
-        if not Path(path).is_absolute() or not Path(path).is_file():
+        p = Path(path)
+        if not p.is_absolute() or not p.is_file():
             return None
+        try:
+            if p.stat().st_size == 0:
+                return None
+        except OSError:
+            return None
+        match_reason = 'Khớp chỉ mục tài liệu'
+        if origin == 'semantic_index':
+            match_reason = 'Khớp chủ đề ngữ nghĩa (Semantic)'
+        elif filters and filters.slide_rule and (row.get('_slide_rule_matched') or is_slide_row(row)):
+            match_reason = 'Khớp bài giảng / slide'
+        elif filters and filters.report_rule:
+            match_reason = 'Khớp báo cáo / tài liệu'
+        elif row.get('matched_excerpt'):
+            excerpt = row['matched_excerpt'].strip()
+            if len(excerpt) > 70:
+                excerpt = excerpt[:67] + '…'
+            match_reason = f'Khớp nội dung: {excerpt}'
+        elif row.get('summary'):
+            summary = row['summary'].strip()
+            if len(summary) > 70:
+                summary = summary[:67] + '…'
+            match_reason = f'Khớp tóm tắt: {summary}'
         return SearchHit(
             'file:' + hashlib.sha256(path.encode()).hexdigest()[:24],
             'file',
             row['file_name'],
             path,
             origin,
-            (row.get('summary') or '')[:200],
+            (row.get('matched_excerpt') or row.get('summary') or '')[:240],
             modified_at=row.get('modified_at'),
+            match_reason=match_reason,
         )
 
     def _snapshot(self, request, phase, hits, *, complete, errors=(), intent=None):
@@ -174,6 +199,11 @@ class ProgressiveSearch:
                     snippet=a.path,
                     bundle_id=a.bundle_id,
                     version=a.version,
+                    match_reason=(
+                        'Khớp công dụng'
+                        if a.bundle_id.casefold() in functional_app_ids(intent.target_app_query)
+                        else 'Khớp tên ứng dụng'
+                    ),
                 )
                 for a in app_matches
             ]
@@ -207,7 +237,7 @@ class ProgressiveSearch:
             or eff_filters.report_rule
             or eff_filters.sort != 'relevance'
         )
-        if not has_file_only_filter:
+        if not has_file_only_filter and intent.resource_kind != 'file':
             hits.extend(
                 SearchHit(
                     a.resource_id,
@@ -218,6 +248,11 @@ class ProgressiveSearch:
                     snippet=a.path,
                     bundle_id=a.bundle_id,
                     version=a.version,
+                    match_reason=(
+                        'Khớp công dụng'
+                        if a.bundle_id.casefold() in functional_app_ids(request.query)
+                        else 'Khớp tên ứng dụng'
+                    ),
                 )
                 for a in self.catalog.search(request.query, limit=request.limit)
             )
@@ -241,7 +276,7 @@ class ProgressiveSearch:
                 for row in rows:
                     if not eff_filters.accepts(row):
                         continue
-                    hit = self._file_hit(row, 'lexical_index')
+                    hit = self._file_hit(row, 'lexical_index', filters=eff_filters)
                     if hit and len(hits) < request.limit:
                         hits.append(hit)
         except InterruptedError:
@@ -284,7 +319,7 @@ class ProgressiveSearch:
                 row = dict(row) if row is not None else None
                 if not row or not eff_filters.accepts(row):
                     continue
-                hit = self._file_hit(row, 'semantic_index')
+                hit = self._file_hit(row, 'semantic_index', filters=eff_filters)
                 if hit and hit.resource_id not in seen:
                     hits.append(hit)
                     seen.add(hit.resource_id)

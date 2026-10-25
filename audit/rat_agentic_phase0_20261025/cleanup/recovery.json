@@ -1,0 +1,12 @@
+{
+  "archive_sha256": "0e027948ecd292b92b0fe2f19da2f315532c19f7a80fbbb26a4eea18871eca48",
+  "files": {
+    "rat/engine/reading_session.py": "df0ae42694968022d1cd1d5a2d8dfcf62f38a31776ab8f31dbe9d489f3855089",
+    "rat/ui/__init__.py": "ebbf7319b9add978a3ccd22db5cd33339828b9389cadd0df62d9a0d7cd963b06",
+    "rat/ui/quick/ReadingDesk.qml": "9efe26ead3b70186ac25fb53645b7659f6da925353dae80f610d0c1411e16b24",
+    "tests/test_reading_session.py": "54d9ee03fee9f4a887b782d10d3537b6f3cabe0a860b8ca092959757fef4e3b2",
+    "scripts/verify_reading_turn1.py": "0a5857d10316f9e68660d6e63462b681adde171e17fbce494f93caf1d60a2dc8",
+    "docs/rat_divination_assistant_design_20261025.md": "794951d34f0733fbd571a6bd4a62be668e168ee4ac97c37a1c25d82f5ae3cee2",
+    "docs/rat_agentic_execution_redesign_20261025.md": "168e20e5995a0f6ad47810c16e8c91ff8893d09184dfef0ce2b91f7977bd6ee3"
+  }
+}

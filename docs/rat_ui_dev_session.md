@@ -1,3 +1,54 @@
+# Bàn giao RAT UI và runner — 2026-10-25
+
+## Build 2026.10.25.23: Mở rộng Semantic / Fuzzy Reranker & Nối vòng Agentic Suy Luận
+
+Thực hiện yêu cầu mở rộng hai năng lực liên kết theo chỉ thị bất biến:
+> **"TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC"**
+
+1. **Semantic & Fuzzy Reranker Offline (`rat/engine/semantic_reranker.py`)**:
+   - Triển khai `SemanticFuzzyReranker` với cơ chế mở rộng chủ đề offline (`OFFLINE_TOPIC_CLUSTERS`), chuỗi ký tự 3-gram (`char_trigrams`, `trigram_similarity`), và chuẩn hóa ASCII không dấu (`fold_ascii`).
+   - Xử lý các câu hỏi mang khái niệm mơ hồ (vague concepts) mà người dùng không nhớ từ khóa hoặc tên file chính xác (ví dụ: *"bài toán vận tải và giao hàng"* tự động khớp với các tài liệu VRPTW, ALNS, Double DQN, NAMI).
+   - Tối ưu FTS5 bằng truy vấn OR với `ORDER BY rank LIMIT 40` phối hợp đa yếu tố chấm điểm nội bộ (`compute_fuzzy_score`), đạt độ trễ cực nhanh **~27–33ms** trên cơ sở dữ liệu thực 15.381 tài liệu, 0 token mô hình.
+   - Khi không khớp cụm chủ đề mơ hồ, trả về rỗng để giữ nguyên vẹn kết quả tìm kiếm từ khóa chính xác của FTS5.
+
+2. **Nối vòng Agentic suy luận tự động khi bấm Tab (`adoptSelectedHit`)**:
+   - Nâng cấp `adoptSelectedHit(index, query)` trong [`rat/ui/quick_pdf_controller.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/quick_pdf_controller.py): Khi người dùng đang soạn câu hỏi trong composer và bấm phím **Tab** trên một tài liệu ứng viên:
+     - Tự động nạp tài liệu vào bàn làm việc của Chuột.
+     - Tự động làm sạch các cụm từ tìm kiếm phụ qua `parse_finder_intent` và kích hoạt vòng suy luận Agentic Reasoning Loop (`lane="document"`).
+     - Tự động mở rộng bàn làm việc (`self._expanded = True`) để người dùng theo dõi trực tiếp trạng thái Chuột xử lý và đối chiếu trích dẫn.
+   - Cập nhật [`rat/ui/quick/PDFDesk.qml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/quick/PDFDesk.qml):
+     - Gắn phím tắt `Tab` trên `draftEditor` và toàn cửa sổ: `adoptSelectedHit(idx, editor.text)`.
+     - Cập nhật keycap badge `finderAdoptAction` thành `"Tab · Đưa vào bàn & Hỏi Chuột"` (hoặc `"Hỏi Chuột"` khi giao diện thu hẹp).
+     - Nhãn build hiển thị: `"Build 2026.10.25.23"`.
+
+3. **Kiểm chứng phần mềm & Đo lường giao diện**:
+   - Vượt qua **115/115** bài kiểm thử độc lập (5 tests semantic reranker, 21 tests finder flow, 20 tests progressive search, 16 tests presentation, 11 tests quick pdf, 13 tests unified flow, 29 tests research study). 0 model tokens trong test suite.
+   - Bộ ảnh chụp xác thực đạt tỷ lệ điểm ảnh hiển thị rõ ràng (non-transparency >= 40%):
+     - `agentic_candidates_520.png`: 65.30%
+     - `agentic_answer_grounded_520.png`: 64.82%
+     - `agentic_answer_grounded_700.png`: 69.69%
+
+## Cải tổ toàn diện (Build 2026.10.25.23): Nguyên tắc bất biến — "TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC"
+
+Thực hiện nghiêm ngặt nguyên tắc người dùng xác lập (2026-10-25):
+> **"TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC. Không xây tính năng thành tiện ích độc lập. Mọi khả năng nghiệp vụ của RAT (tìm file/app, đọc, tính toán, kiểm chứng...) phải là Reasoning Tools trong hệ điều phối suy luận có cấu trúc của Agent."**
+
+Đã thực hiện massive overhaul triệt để nhằm xóa bỏ hoàn toàn các chip tiến trình tĩnh (mock chips) và tiện ích cô lập:
+1. **Hợp nhất hợp đồng Tool (`expand_document_context`)**:
+   - Khai báo handler và đăng ký thao tác `expand_document_context` vào `create_documents_capability` trong [`rat/kernel/capabilities/documents.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/kernel/capabilities/documents.py).
+   - Thao tác mở rộng ngữ cảnh văn bản được điều phối qua `CapabilityRegistry` chuẩn của Agent runtime, không chạy logic cắt chuỗi cục bộ ngầm bên ngoài.
+2. **Lưu vết và chuyển giao AgentStep động trong Chat Session**:
+   - Mở rộng [`rat/ui/chat_session.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/chat_session.py): `TurnSnapshot` và `complete_turn(...)` lưu trữ đầy đủ `steps: List[Dict[str, Any]]` từ phản hồi của Agent runtime.
+3. **Bộ định dạng tiến trình suy luận động (`format_process_steps`)**:
+   - Triển khai hàm `format_process_steps(steps, answer_verification, sources)` trong [`rat/ui/answer_presentation.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/answer_presentation.py).
+   - Ánh xạ trực tiếp từ `AgentStep` thực tế trong trace suy luận sang các bước hiển thị người dùng: `[1. Tìm đoạn]`, `[2. Đối chiếu]`, `[3. Trích nguồn]` và các bước động `[Mở rộng]`, `[Tính toán]`, phản ánh chính xác trạng thái kiểm chứng `answer_verification`.
+4. **Điều khiển và UI QML động (Build 2026.10.25.23)**:
+   - [`rat/ui/quick_pdf_controller.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/quick_pdf_controller.py): Cung cấp `processSteps` động trong `liveSnapshot`; tích hợp `getExpandedContext` gọi trực tiếp operation đăng ký qua `CapabilityRegistry`.
+   - [`rat/ui/quick/PDFDesk.qml`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/ui/quick/PDFDesk.qml): Nâng nhãn build lên `Build 2026.10.25.23`. Thay thế toàn bộ 3 Rectangle cứng nhắc bằng `Repeater { id: processStepsRepeater; model: desk.liveSnapshot.processSteps }` và Repeater trong ngăn chi tiết kiểm chứng `processDetailsContent`.
+5. **Sửa lỗi tồn đọng & Kiểm chứng bộ Test**:
+   - Phát hiện và khắc phục `NameError: time` trong [`rat/engine/contradiction_auditor.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/rat/engine/contradiction_auditor.py).
+   - Toàn bộ 90/90 bài kiểm thử vượt qua tuyệt đối (21 tests finder, 13 tests unified flow, 16 tests presentation, 11 tests quick pdf, 29 tests research study/stopping). 0 token/model request trong test phần mềm.
+
 # Bàn giao RAT UI và runner — 2026-10-24
 
 ## Khắc phục review Build .10 — Run 30 (Ngân sách Header & Chuẩn hóa thông tin)
@@ -598,4 +649,324 @@ Hoàn thiện theo định hướng thiết kế chứng cứ thông tin (`docs/
      - Research study gates (`test_research_study.py`, `test_optimal_stopping.py`, `test_entry_predictor.py`): 29/29 passed.
    - Ghi nhận hiện tượng kỹ thuật: Khi chạy ghép nhiều file test Qt trong một tiến trình pytest đơn lẻ trên macOS, việc xung đột luồng nền (search index / render pipe) có thể gây segfault/bus error. Chạy độc lập từng bộ test hoạt động ổn định và pass 100%. Không thực hiện git commit hay git push.
 
+## Build .14 — Dọn Header Luồng Nguồn Trích đoạn Khớp & Hoàn thiện UX Một Mode, 2026-10-24
 
+Dọn dẹp header của luồng nguồn mở từ kết quả tìm kiếm để hoàn thiện UX một mode thống nhất (`Build 2026.10.24.14`):
+
+1. **Header tối giản**:
+   - Header chỉ giữ 3 thành phần: `"Quay lại kết quả"` (`backToSearch`), `"Chép đoạn"` (`copyCitation`), và nút `"-"` (`liveFoldButton`, `"Thu gọn"`).
+   - Ẩn hoàn toàn cụm điều hướng trang `pageNavCluster`: không còn prev/next, ô nhập số trang `pagePicker`, hay nút nhảy trang `readPage` trong luồng này.
+   - Số trang chỉ là thông tin hiển thị tại `"Nguồn · Trang N"`.
+   - Bỏ icon mở tệp bị trùng trên header (`openOriginal`); chỉ giữ duy nhất một nút `"Mở PDF gốc"` (`openOriginalExternal`) đặt cạnh tiêu đề nguồn và tên tệp trong `resultContents`.
+   - Không thêm điều hướng hoặc tính năng mới. Bảo toàn draft, từ khóa và hành vi quay lại danh sách kết quả.
+
+2. **Nghiệm thu thao tác desktop thật (`scripts/verify_turn4_matched_excerpt.py`)**:
+   - Tìm kiếm từ khóa `"routing"` trên tệp PDF thật `arxiv_2506.22716_original.pdf`.
+   - Mở đoạn trích trang 10 -> Header chỉ có 3 nút: Quay lại kết quả, Chép đoạn, Thu gọn.
+   - Sao chép toàn bộ đoạn & bôi chọn cục bộ -> Xác nhận clipboard OS thật (`app.clipboard().text()`).
+   - Bấm `"Quay lại kết quả"` -> Trở về danh sách tìm kiếm, bản nháp giữ nguyên vẹn.
+   - Báo cáo rõ giới hạn: `_open_url` được mock trong script để kiểm tra QUrl gửi đi, chứng minh đường dẫn file URL cục bộ chính xác đã được chuyển đến opener (`QDesktopServices.openUrl`), nhưng chưa chứng minh ứng dụng ngoài thực sự được kích hoạt trên desktop và không mở đúng trang vì chỉ truyền file URL.
+   - Chụp ảnh 520px và 700px tại `work/turn4_evidence/turn4_matched_excerpt_520px.png` và `turn4_matched_excerpt_700px.png`.
+   - Toàn bộ 82/82 tests pass (11 test_quick_pdf + 13 test_quick_unified_flow + 13 test_quick_finder_flow + 16 test_quick_answer_presentation + 29 research study). 0 model calls. Không thực hiện git commit hoặc git push.
+
+## Build .15 — Chốt Khả năng Đọc Đoạn Dài ở 520px & Tinh chỉnh Thanh Cuộn, 2026-10-24
+
+Chốt khả năng đọc và cuộn văn bản dài tại bề rộng production 520px, hoàn thiện thanh cuộn (`Build 2026.10.24.15`):
+
+1. **Cuộn desktop thật và xác nhận không bị che khuất**:
+   - Sử dụng thao tác kéo chuột thực tế (`QTest.mousePress`, `QTest.mouseMove`, `QTest.mouseRelease`) trên con trượt (thumb) thanh cuộn để cuộn từ `contentY = 0.0` đến `193.0`.
+   - Vùng cuộn `resultScroll` kết thúc tại `y = 410.0`, cách đỉnh `composer` (`y = 422.0`) một khoảng đệm an toàn `12.0px`.
+   - Bôi chọn và sao chép dòng cuối `"Model Cascade"` thành công, clipboard OS xác thực đúng dữ liệu.
+
+2. **Tinh chỉnh thanh cuộn (Minor UI)**:
+   - Nâng độ rộng thanh cuộn dọc `resultVerticalScroll` lên `6px`, bo tròn `radius: 3`, màu tương phản nhận diện tốt trên nền giấy (`#809277` light mode / `#6a7761` dark mode, `#4a5940` khi hover).
+   - Thêm track nền mờ khi tương tác; ẩn hoàn toàn (`policy: ScrollBar.AlwaysOff`) khi nội dung không tràn khung (trang 25 fallback).
+
+3. **Kiểm thử và bàn giao ảnh**:
+   - Chụp 520px đầu đoạn (`turn4_matched_excerpt_520px_top.png`), cuối đoạn (`turn4_matched_excerpt_520px_bottom.png`) và 700px (`turn4_matched_excerpt_700px.png`).
+   - Kiểm tra quay lại danh sách (`backToSearch`) -> mở lại đoạn -> thu/mở min/full bảo toàn 100% bản nháp.
+   - Toàn bộ 82/82 test pass, 0 model request, không thực hiện git commit/push.
+
+## Build .16 — UX Hỏi Tiếp trong Composer & Bảo Toàn Đoạn Nguồn Khi Focus, 2026-10-24
+
+Hoàn thiện UX hỏi tiếp trong composer khi người dùng đang đọc tài liệu (`Build 2026.10.24.16`):
+
+1. **Bảo toàn đoạn nguồn khi composer nhận focus**:
+   - Khi focus vào ô soạn thảo (`draftEditor`), view trích đoạn nguồn (`view == "page"`) giữ nguyên trạng thái hiển thị, không tự ý đóng nguồn hay mở Finder/Spotlight.
+   - Sửa đổi kiểm tra trong `PDFDesk.qml` để `onComposerTextChanged` không kích hoạt tìm kiếm file tài liệu nếu đã có tài liệu được chọn (`_selection is not None`).
+
+2. **Placeholder ngữ cảnh hỏi tiếp linh hoạt**:
+   - Khi draft trống và tài liệu đang được chọn (`desk.liveSnapshot.fileName` tồn tại), `placeholderText` hiển thị `"Hỏi tiếp về tài liệu này…"`.
+   - Placeholder là văn bản gợi ý thuần túy, tuyệt đối không tự chèn vào draft và không tự động gửi câu hỏi.
+
+3. **Chip ngữ cảnh hiển thị tên tệp sạch**:
+   - Nút chip tài liệu `documentButton` chỉ hiển thị `desk.liveSnapshot.activeContext.title` (tên tệp), loại bỏ nhãn số trang khỏi chip để người dùng hiểu rõ câu hỏi áp dụng cho toàn bộ tài liệu chứ không bị giới hạn trong trang đơn lẻ.
+
+4. **Bảo toàn bản nháp 100% qua mọi điều hướng**:
+   - Bản nháp được bảo toàn qua các luồng: `backToSearch` -> mở lại search hit -> thu nhỏ min mode -> mở rộng full mode.
+
+5. **Kiểm thử tích hợp & Báo cáo giới hạn minh bạch**:
+   - Kịch bản `scripts/verify_turn4_matched_excerpt.py` kiểm tra focus bằng mouse click thật trên QML item, kiểm tra các primitive `paste()`, `undo()`, `redo()`, cuộn chuột desktop ở 520px và bảo toàn draft.
+   - Sửa rõ bản chất của `setProperty`: `setProperty` chỉ kiểm tra data binding và tính năng lưu giữ bản nháp (draft retention contract) qua các trạng thái điều hướng, KHÔNG PHẢI là thao tác gõ phím bằng bộ gõ hay dán bằng Cmd+V.
+   - Phân định rõ ràng: Nghiệm thu gõ tiếng Việt bằng bộ gõ hệ điều hành (macOS IME) và dán/undo/redo bằng phím tắt vật lý OS (Cmd+V, Cmd+Z, Cmd+Shift+Z) được ghi nhận là CHƯA XÁC NHẬN trong môi trường tự động (cần người dùng tương tác trực tiếp trên desktop).
+   - 0 request model tiêu tốn (không gửi câu hỏi).
+   - 82/82 software test độc lập pass 100% (11 quick_pdf + 13 quick_unified + 13 quick_finder + 16 answer_presentation + 29 research study).
+   - 0 request model, không can thiệp backend/routing, không sửa research, không git commit/push.
+
+## Build .17 — Hiển Thị Tên Nguồn Cạnh Câu Trả Lời & Chuẩn Bị Luồng Hội Thoại PDF Thật, 2026-10-25
+
+Triển khai minor UI đặt tên tài liệu nguồn ngay cạnh câu trả lời để người dùng biết RAT vừa dựa vào tài liệu nào (`Build 2026.10.25.17`):
+
+1. **Tên tài liệu nguồn cạnh câu trả lời (`answerDocumentLabel`)**:
+   - Đặt nhãn tên tệp nguồn thực tế (từ `answerSources[0].title` hoặc `fileName`) ngay sau `"CHUỘT TRẢ LỜI"` trên thanh tiêu đề câu trả lời trong `PDFDesk.qml`.
+   - Có dấu phân cách `·`, màu `desk.accent`, font cỡ 11, hiển thị tooltip với tên đầy đủ khi hover qua `HoverHandler`.
+   - Rõ ràng, dễ nhận biết giúp người dùng đối chiếu ngay tài liệu làm căn cứ trả lời.
+
+2. **Kiểm thử phần mềm độc lập**:
+   - Bổ sung ca kiểm thử trong `tests/test_quick_answer_presentation.py` xác thực `answerDocumentLabel` hiển thị đúng `"Source.pdf"`.
+   - Cập nhật nhãn build cho phép `"Build 2026.10.25.17"` trong `tests/test_quick_finder_flow.py`.
+   - Toàn bộ 82/82 software test độc lập pass 100%.
+
+3. **Bảo toàn trạng thái ngân sách 0 request model**:
+   - Chưa gửi request model thật nào trong lượt này; giữ nguyên 0 request cho đến khi người dùng cấp ngân sách cụ thể cho ca hội thoại trực tiếp.
+
+## Build .19 — Mở Rộng Ngữ Cảnh Nguồn & Tinh Gọn Giao Diện Bàn Giấy (Decluttering), 2026-10-25
+
+Triển khai tính năng "Mở rộng ngữ cảnh" theo Mục 6 của hợp đồng thiết kế `docs/rat_information_evidence_design_20261024.md` và giải quyết triệt để phản hồi thị giác giao diện bị rối/chồng chéo ("box-in-box") (`Build 2026.10.25.19`):
+
+1. **Tính năng Mở rộng ngữ cảnh (`expandContextButton`)**:
+   - Backend & Controller: `rat/engine/selected_document_qa.py` bổ sung trường `full_excerpt` trong kết quả trích đoạn; `rat/ui/answer_presentation.py` cung cấp `extendedSnippet` (lên tới 1800 ký tự) và cờ `hasMoreContext`; `QuickPDFController.getExpandedContext()` cho phép QML truy xuất ngữ cảnh đầy đủ quanh vị trí tìm thấy.
+   - QML UI: Nút `expandContextButton` hiển thị `+ Ngữ cảnh` (khi đang thu gọn) hoặc `Thu gọn` (khi đang mở rộng). Nhấp nút toggle mượt mà giữa đoạn trích cô đọng (181 ký tự) và đoạn mở rộng (610 ký tự), đồng thời hiển thị tag nhận diện `"Ngữ cảnh mở rộng"`.
+   - Nút `copyCitationButton` (Chép trích dẫn) tự động sao chép văn bản mở rộng kèm trích dẫn nguồn khi đang ở trạng thái mở rộng.
+
+2. **Tinh giản & Tái cấu trúc Giao diện (Decluttering & Typography)**:
+   - Khắc phục triệt để hội chứng "hộp lồng trong hộp" (box-in-box): Loại bỏ khung viền phụ bên trong `evidenceSnippetBox`, sáp nhập thành một thẻ tiện ích liền mạch duy nhất `evidenceSourceCard`.
+   - Bổ sung đường dẫn chỉ thị màu sage (`desk.accent`, rộng 3px) dọc cạnh trái trích đoạn, tạo điểm nhấn cấu trúc báo chí chuyên nghiệp.
+   - Tối ưu hóa khoảng cách (spacing), padding (8px), bo góc (8px), và điều chỉnh giãn dòng `lineHeight: 1.3` cho toàn bộ văn bản nguồn.
+   - Sửa lỗi đè lớp tương tác: Đặt `ScrollBar.horizontal.policy: ScrollBar.AlwaysOff` và vô hiệu hóa tương tác chuột trên gradient bóng mờ đáy trang (`enabled: false`), loại bỏ hoàn toàn hiện tượng click target bị nuốt.
+
+3. **Kiểm chứng & Xuất bằng chứng**:
+   - Xuất thêm ảnh nghiệm thu `turn5_evidence_sheet_context_expanded.png` (520x670) với tỉ lệ pixel không trong suốt 100.00%.
+   - Cập nhật test suite: 16 test trong `tests/test_quick_answer_presentation.py` kiểm tra trọn vẹn chu kỳ click `expandContextButton` -> mở rộng -> chép -> thu gọn.
+   - 82/82 software test độc lập pass 100% (53 quick desktop tests + 29 research study tests).
+   - 0 request model / 0 token trong toàn bộ đợt kiểm thử và xuất ảnh.
+   - Không commit/push git.
+
+
+
+## Build .20 — Finder theo công dụng, 2026-10-25
+
+Tiếp tục RAT-FIND-01 theo bàn giao; PDF vẫn done for now. Minor UI: nhãn
+“Khớp công dụng” / “Khớp tên ứng dụng” / “Khớp chỉ mục tài liệu” trên dòng
+gợi ý, cạnh đường dẫn; giữ tooltip đường dẫn đầy đủ.
+
+- Functional lookup theo bundle ID đã cài: tính toán/máy tính, trình duyệt/lướt
+  web, gõ/viết code, soạn thảo, ghi chú. Không tạo đường dẫn app giả; nhiều
+  app phù hợp vẫn giữ các lựa chọn. Mapping áp dụng cả catalog cache cũ.
+- Chuẩn hóa tiền tố tìm file kể cả khi không chỉ rõ định dạng/thời gian, ví dụ
+  “tìm file quy chế tín chỉ”; giữ từ khóa chủ đề và không mở rộng crawl.
+  “tìm file” trống không liệt kê tùy tiện toàn bộ kho.
+- Giữ kiến trúc lexical/semantic độc lập và latest-query cancellation hiện có.
+  Không thêm LLM, embedding, OCR hay scan catalog vào đường gõ phím.
+- Không đổi shortcut hiện có (PDF Enter chọn tài liệu, Shift+Enter hỏi tệp,
+  Cmd+Enter hiện trong Finder); Tab vẫn phục vụ điều hướng focus. Không tuyên
+  bố toàn bộ plan cũ đã triển khai/nghiệm thu.
+
+Bằng chứng local: `artifacts/finder_build20_20261025/report.json`, ảnh compact,
+full 520/700, dismissed và logs. Script tái lập: `scripts/verify_finder_build20.py`.
+Backend thật: 170 app đã cài, chỉ mục SQLite hiện có 602,628,096 byte (read-only).
+Không fixture kết quả UI, không PDF mới, không request model, không launch app.
+
+Số đo cuối (mỗi query 1 lượt đầu + 30 lượt warm, không phải nghiên cứu model):
+
+| Truy vấn | Lượt đầu ms | Warm median ms | Warm p95 ms |
+| --- | ---: | ---: | ---: |
+| mở cái app tính toán | 3.91 | 1.72 | 2.17 |
+| mở trình duyệt | 2.30 | 2.17 | 2.23 |
+| mở app gõ code | 2.13 | 2.07 | 2.10 |
+| tìm file quy chế tín chỉ | 89.51 | 21.86 | 27.38 |
+| slide mạng máy tính | 24.19 | 8.92 | 10.33 |
+| tìm file | 0.30 | 0.16 | 0.22 |
+
+Scan catalog không cache: 237.79 ms, ngoài đường gõ phím.
+10 lượt gõ ASCII tương đương “mo cai app tinh toan” bằng native QTest key events:
+input-to-QML median 21.43 ms, p95 58.01 ms.
+Số này gồm thời gian phát chuỗi phím và event delivery, chưa đo compositor/frame
+presentation, IME tiếng Việt, cold OS cache hoặc latency model. Đã click drawer
+thật, xác nhận label visible, chụp cửa sổ Qt thật ở 520/700, Down/Esc giữ draft.
+Chưa nghiệm thu mở app qua OS hoặc hội thoại model trong lượt này.
+
+Kiểm tra: 20 backend/catalog + 13 quick_finder + 11 quick_pdf + 16
+answer_presentation + 13 quick_unified = 73 passed, chạy riêng từng bộ Qt.
+Lượt gộp Qt trước đó bus error trong answer_presentation; giữ giới hạn này,
+không diễn giải việc rerun riêng pass là đã sửa nguyên nhân bus error. Sandbox
+ban đầu làm Qt abort do phát hiện CPU neon; chạy ngoài sandbox import được.
+Smoke lần đầu dùng native style không phù hợp; lần sau shortcut Meta+A của
+QTest không chọn hết nên nối hai câu. Đã sửa script dùng Basic và Qt
+ControlModifier (ánh xạ Command trên macOS); giữ log thất bại
+`live_run.log` cùng các log retry. Đây là lỗi hạ tầng smoke, không phải hội thoại
+model thất bại. Ảnh cuối đã xem trực tiếp, có nhãn công dụng và đường dẫn thật.
+Không commit/push. Các thay đổi và artifacts có trước được giữ nguyên.
+
+
+## Build .21 — Mở app thật và xác nhận tại composer, 2026-10-25
+
+User đồng ý bước tiếp theo: tìm trình duyệt → ↑↓ chọn → Enter mở qua OS,
+giữ draft, báo lỗi rõ, có minor UI nhận diện Build .21.
+
+- Thêm `applicationLaunchFeedback` dưới composer, wrap text ở cửa sổ hẹp.
+  Thành công ghi “Đã gửi yêu cầu mở <tên>.”, không suy ra app đã tải xong.
+  Lỗi gửi yêu cầu hoặc app bị gỡ/bundle không hợp lệ hiển thị inline, không
+  chuyển sang màn lỗi PDF. Feedback hết khi người dùng sửa câu đang gõ.
+- Trước khi mở `.app`, kiểm tra lại Info.plist, executable và bundle ID đối
+  chiếu bản catalog nếu có. Không xác nhận code signature hoặc chống mọi race
+  filesystem. Các lỗi OS chi tiết không đưa nguyên văn ra UI.
+- Phát hiện và sửa stale-row window: khi query thay đổi, bỏ hàng cũ ngay trước
+  khi chờ kết quả mới; Enter không thể mở index của truy vấn trước.
+
+Live smoke: `scripts/verify_finder_build21.py`, artifacts tại
+`artifacts/finder_build21_20261025/`. Dùng catalog thật và index hiện có,
+QTest native ASCII keys “mo trinh duyet” (chưa nghiệm thu IME tiếng Việt),
+không injected model answers/search hits, 0 model requests.
+
+Lượt thành công: thấy Google Chrome + Safari, Down chọn Safari, Enter gọi
+QDesktopServices.openUrl thật. API nhận yêu cầu; NSWorkspace xác nhận Safari
+đang chạy sau đó. Safari đã chạy từ trước, nên đây là mở/kích hoạt app đang chạy,
+KHÔNG phải xác nhận cold-start/latency khởi động. Report có thời gian quan sát
+kèm qWait 100ms; không dùng làm benchmark startup. Ảnh đã xem trực tiếp:
+`browser_selected_520.png`, `browser_opened_520.png`, `browser_opened_700.png`,
+`browser_opened_compact.png`. Draft giữ nguyên sau mở và thu gọn.
+
+Failure UI: `missing_app_error.png` hiển thị lỗi với đường dẫn `.app` thực sự
+không tồn tại trong thư mục artifacts; gọi public launch slot, KHÔNG tạo kết quả
+Finder giả và KHÔNG xóa app đã cài. Trường hợp app bị gỡ/đổi ID/mất executable/
+plist hỏng, OS từ chối hoặc ném exception dùng unit contract fixtures, không
+được tính là acceptance OS thật. Đã xác nhận sửa draft xóa feedback.
+
+Lượt smoke đầu thất bại do đọc hàng cũ trước khi final query hoàn thành và đã
+mở một tệp Markdown local cũ thay vì trình duyệt. Giữ report/log/ảnh thất bại ở
+`attempt1_stale_results/`; không sửa raw evidence. Sửa cả controller (vô hiệu
+hàng cũ) và script (chờ query đúng cùng application candidates), thêm regression
+test chứng minh mở row 0 bị chặn trước khi event loop giao kết quả mới.
+
+Kiểm tra riêng từng bộ Qt: 20 finder + 11 quick_pdf + 16 answer_presentation +
+13 quick_unified = 60 passed. `git diff --check` sạch. Không sửa research scope,
+Stage 0, PDF behavior hoặc thêm model request. Không commit/push; giữ nguyên
+các thay đổi và artifacts của công việc khác.
+
+
+## Bàn xem lượt 1 / Build .23 — 2026-10-25
+
+Mục tiêu cuối do người dùng chốt: trải nghiệm như phiên chat xem bài/lá số hiện
+có nhưng đẹp hơn, linh hoạt, ưu tiên phần nhìn thấy bài và chart trước bản luận.
+Làm từng bước nhỏ, cải thiện file handling một ít mỗi lượt. Người dùng bổ sung
+nguyên tắc bất biến mọi khả năng đi theo reasoning agentic; đã ghi ở AGENTS và
+project_scope. Không tiếp tục luồng Finder .22 đang dở như một task riêng.
+
+Triển khai lát cắt đầu:
+- `/reading` hoặc Cmd+Shift+R mở ReadingDesk trong workbench hiện có. Dữ liệu
+  giữ trong phiên khi thu/mở hoặc quay về; composer draft không bị xóa bởi các
+  thao tác điều hướng. Lệnh `/reading` chỉ tiêu thụ chính chuỗi lệnh đó.
+- Mở hồ sơ rat-natal-v1 từ Natal Atlas; tính lại bằng Swiss Ephemeris, không tin
+  positions JSON nhập. Wheel và 5 vị trí cá nhân nằm trước phần bản luận.
+- Bàn bài nhập tay: major/minor, 12 lá tối đa, aliases, xuôi/ngược và lá rơi không
+  làm lệch số vị trí; reject lá không nhận diện hoặc trùng thay vì bỏ qua ngầm.
+  Ký hiệu line-art do RAT dựng, chưa phải bộ ảnh minh họa deck hoàn chỉnh.
+- Layout 2/3 cột theo chiều rộng, có click và keyboard focus/Enter/Space chọn lá.
+  Compact hiện số lá và tên hồ sơ. Bản luận hiển thị chưa tạo, nút gửi bị khóa.
+- Minor file handling: nút đính kèm theo ngữ cảnh hồ sơ JSON; filter picker/drop,
+  giới hạn 20KB, schema rõ, nguồn file hiển thị; lỗi không xóa chart/cards cũ.
+- Khắc phục Qt SVG dò font fallback list như một font bị thiếu, gây lần load
+  rất chậm: presentation dùng Helvetica Neue trên macOS; không sửa phép tính.
+
+Theo steering agentic, đã chuyển domain logic vào rat.engine.reading_session,
+đăng ký prepare_reading_spread/load_reading_profile ở default registry. Controller
+chỉ gọi dispatcher dùng chung với Agent, dùng result contract, lưu artifacts /
+execution events và refs; load profile cần selected_document_path tường minh.
+rat.ui.reading_presentation chỉ dựng SVG từ chart tool đã tính, không tự đọc file
+hoặc tính lại. Không phải vòng model agentic hoàn chỉnh: planning/interpretation
+chưa nối vào view, không có inference, không giả lập câu trả lời thành công.
+Không coi tool registration là đã hoàn tất nguyên tắc toàn hệ; còn phải nối
+vòng Agent ở lượt sau và kiểm tra các đường nghiệp vụ cũ trong task riêng.
+
+Bằng chứng: scripts/verify_reading_turn1.py, artifacts/reading_turn1_20261025/.
+Dùng profile local từ dữ liệu sinh người dùng thực sự cung cấp, SHA256 trong
+report; cards nhập từ những lá người dùng báo trong chat. Không chép dữ liệu sinh
+vào source/test fixtures. Capture Qt window thật empty, full 520/700, card section
+520, import error, compact. Nhập bài/draft, apply, fold, mở compact và back dùng
+Qt click/paste/key events; chọn profile dùng public slot, CHƯA nghiệm thu native
+file picker/drop hoặc IME tiếng Việt. Card-section screenshot đặt contentY bằng
+property để xem phần cuối, không phải bằng chứng wheel/trackpad input. 0 model
+requests. Report cuối passed, refs gồm hai operation và draft-preservation check.
+
+Kiểm tra:
+- 30 headless tests pass: reading session/tools, natal chart, places, interaction
+  kernel sau khi nối hợp đồng. tools_tests_final.log.
+- Các suite Qt đã chạy riêng trong lượt UI: finder 21, quick_pdf 11 (retry),
+  answer_presentation 16, unified 13. Trước cập nhật hợp đồng tools; final live
+  smoke kiểm tra lại import/prepare qua dispatcher và artifact refs sau steering.
+- Mở rộng assistant_runtime suite có 3 lỗi: thiếu message Runtime context trong
+  test_context_includes_followup_and_selected_member; hai case {} và content rỗng
+  trả empty_model_response trong khi tests kỳ vọng invalid_model_output. Cả ba
+  tái hiện khi monkeypatch bỏ hai operation mới khỏi registry trong tiến trình
+  kiểm tra (3 failed, 5 passed). Không sửa runtime/test expectations ngoài scope.
+- Lượt Qt đầu có failure rồi abort; quick_pdf chạy lại riêng -x có 11 passed.
+  Không khẳng định đã sửa nguyên nhân Qt lifecycle abort.
+- Giữ attempts lỗi: Qt Image.Status enum không chuyển được sang Python; shortcut
+  mở compact không kích hoạt trong smoke; SVG font alias load timeout; schema
+  result contract ban đầu thiếu items. Đã sửa script/presentation/result schema,
+  chạy lại final smoke pass. Các ảnh/log cũ ở attempt1/2/3/5_tool_contract và
+  before_agentic_contract không được coi là nghiệm thu hợp đồng cuối.
+
+Còn thiếu theo chủ ý lát cắt: nhập/sửa dữ liệu sinh trực tiếp, khoảng giờ sinh,
+đối chiếu nhiều hồ sơ, câu hỏi từng vị trí/liên kết lá bổ sung, deck artwork hoàn
+chỉnh, soạn/sửa/chốt bản luận và live-model agentic acceptance. Hồ sơ/cards hiện
+chỉ giữ trong memory phiên. Không thay Stage 0, không commit/push, giữ các thay
+đổi của công việc khác.
+
+
+## Build .22 — Tìm & Xử lý Tệp theo Định hướng Reasoning Agentic (RAT-FIND-01), 2026-10-25
+
+Triển khai toàn diện theo chỉ đạo tối cao của người dùng: *"TẤT CẢ CHỨC NĂNG ĐỀU ĐI THEO REASONING AGENTIC"* (Mọi tính năng RAT đều đóng vai trò công cụ suy luận trong vòng lặp CoT, không phải tiện ích thụ động cô lập) và yêu cầu thực thi một turn kỹ thuật chuyên sâu (`Build 2026.10.25.22`):
+
+1. **Chuẩn hóa Truy vấn Hội thoại Tự nhiên (`rat/engine/finder_intent.py`)**:
+   - Tách và khử các từ đệm hội thoại tự nhiên tiếng Việt & tiếng Anh (`tìm giùm tôi`, `giúp mình`, `hộ tôi`, `cho tôi`, `cái slide`, `cái file`, `bài báo về`, `tài liệu về`, `please find for me`, `can you get the slide on...`).
+   - Ví dụ: Truy vấn `"tìm giùm tôi cái slide về dự án NAMI"` lập tức chuẩn hóa thành terms `"dự án NAMI"` + `slide_rule: True` chỉ trong < 0.5ms bằng biểu thức chính quy tối ưu, khắc phục triệt để lỗi 0-hit FTS5 do từ đệm trước đây.
+
+2. **Lý do Khớp Ngữ cảnh Minh bạch (`rat/engine/progressive_search.py`)**:
+   - Bổ sung trường `match_reason` giàu ngữ cảnh cho từng SearchHit:
+     - `Khớp bài giảng / slide` (khi khớp quy tắc slide).
+     - `Khớp báo cáo / tài liệu` (khi khớp quy tắc báo cáo/bài báo).
+     - `Khớp nội dung: <trích đoạn ngắn>` (khi khớp văn bản trích dẫn bên trong tài liệu).
+     - `Khớp tóm tắt: <tóm tắt>` (khi khớp metadata tóm tắt).
+     - `Khớp chỉ mục tài liệu` (mặc định).
+   - Loại trừ hoàn toàn các tệp rỗng/zombie (`st_size == 0`) khỏi kết quả tìm kiếm và danh sách ứng viên, ngăn chặn việc nạp phải các file hỏng/dở dang từ thư mục Downloads.
+
+3. **Cơ chế Đưa Tài liệu vào Bàn Chuột (`adoptSelectedHit`) & Giữ Trọn Bản Nháp**:
+   - `rat/ui/quick_pdf_controller.py`: Bổ sung `@pyqtSlot(int, result=bool) def adoptSelectedHit(self, index)`. Cho phép người dùng đưa tài liệu được tìm thấy vào bàn làm việc của Chuột (`activeContext`) để hỏi tiếp ngay lập tức mà **tuyệt đối không xóa bản nháp** trong ô composer (`editor.text` được bảo toàn 100%).
+   - QML UI (`rat/ui/quick/PDFDesk.qml`):
+     - Phím tắt `Tab` trên `draftEditor` được nâng quyền ưu tiên (`Keys.priority: Keys.BeforeItem`) kết hợp window `Shortcut { sequence: "Tab" }`: khi đang chọn một ứng viên trong danh sách gợi ý, bấm `Tab` sẽ lập tức nạp tài liệu vào bàn làm việc.
+     - Thanh hành động đáy (`bottomActionBar`) bổ sung tactile keycap badge `finderAdoptAction`: hiển thị nhãn `"Tab · Đưa vào bàn Chuột để hỏi"` (hoặc `"Đưa vào bàn"` ở màn hình hẹp), hỗ trợ cả nhấp chuột lẫn phím bấm.
+     - Nhãn hướng dẫn composer (`composerDropStatus`): `"↑↓ chọn · ↵ mở · Tab đưa vào bàn Chuột · Esc đóng"`.
+
+4. **Chế độ Ngăn kéo Tinh tế (Subtle Drawer Tab) cho Câu hỏi Hội thoại**:
+   - Khi người dùng gõ câu hỏi hội thoại tự nhiên (>= 5 từ), Finder không tự động chiếm trọn toàn bộ không gian soạn thảo. Thay vào đó, kết quả xuất hiện dưới dạng một tab ngăn kéo tinh tế (`finderDrawerTab`: `3 gợi ý · ▾`) nằm kín đáo phía trên composer. Người dùng có thể tiếp tục gõ mà không bị gián đoạn, hoặc bấm tab / dùng phím mũi tên để mở danh sách ứng viên khi muốn.
+
+5. **Nghiệm thu Tự động Desktop Thật (`scripts/verify_finder_build22.py`)**:
+   - Kịch bản kiểm chứng tự động toàn diện trên dữ liệu tệp và chỉ mục thật:
+     - Thử nghiệm 1 (Slide bài giảng): Gõ `"tìm giùm tôi cái slide về dự án NAMI"`, phát hiện ứng viên `Dự án NAMI - Hybrid RL-ALNS.pptx`, hiển thị tab ngăn kéo `3 gợi ý · ▾`, nhãn `Khớp bài giảng / slide`.
+     - Thử nghiệm 2 (Tài liệu nghiên cứu): Gõ `"tìm tài liệu pdf về ALNS Double DQN"`, phát hiện ứng viên PDF hợp lệ `Phản biện học thuật “Tối ưu hóa lựa chọn toán tử trong ALNS bằng Double DQN cho bài toán VRPTW”.pdf`. Bấm phím `Tab` nạp tài liệu thành công vào bàn làm việc (`_selection` và `fileName` cập nhật), bản nháp câu hỏi được giữ nguyên vẹn 100%.
+     - Kiểm tra trực quan: Chụp 3 ảnh màn hình desktop thật với `QT_QUICK_BACKEND=software` tại các kích thước 520px và 700px. Kiểm tra độ phủ pixel không trong suốt đạt từ 64.94% đến 70.84% (vượt xa ngưỡng quy định >= 40%):
+       - `artifacts/finder_build22_20261025/agentic_finder_candidates_520.png` (1040x950)
+       - `artifacts/finder_build22_20261025/agentic_file_adopted_desk.png` (1040x610)
+       - `artifacts/finder_build22_20261025/agentic_finder_candidates_700.png` (1400x882)
+       - Sao chép toàn bộ sang thư mục artifacts hội thoại.
+
+6. **Kết quả Bộ Test Độc lập Toàn hệ thống (110 passed, 0 failed)**:
+   - `tests/test_quick_finder_flow.py`: 21 passed
+   - `tests/test_progressive_search.py`: 20 passed
+   - `tests/test_quick_pdf.py`: 11 passed
+   - `tests/test_quick_unified_flow.py`: 13 passed
+   - `tests/test_quick_answer_presentation.py`: 16 passed
+   - Research study gates (`test_research_study.py`, `test_optimal_stopping.py`, `test_entry_predictor.py`): 29 passed.
+   - Ngân sách suy luận: 0 request model / 0 token trong toàn bộ quá trình tìm kiếm và nạp tệp (tính toán hoàn toàn cục bộ, đáp ứng < 30ms cho tương tác gõ phím). Không vi phạm solo Git workflow (không commit, không push).

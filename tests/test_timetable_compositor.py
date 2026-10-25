@@ -10,16 +10,15 @@ import unittest
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 
-app = QApplication.instance()
+app = QGuiApplication.instance()
 if app is None:
-    app = QApplication(sys.argv)
+    app = QGuiApplication(sys.argv)
 
 from rat.timetable.compositor import TimetableCompositor, availability_to_color
 from rat.timetable.data import get_default_club_members
 from rat.timetable.model import DAYS, SHIFTS, TDTU_PERIODS, ClassSession, MemberSchedule
-from rat.ui.schedule_window import ScheduleCompositorWindow
 
 
 class TestTimetableCompositorEngine(unittest.TestCase):
@@ -249,113 +248,6 @@ class TestTimetableCompositorEngine(unittest.TestCase):
         statuses = [item["status"] for item in agenda]
         self.assertIn("live", statuses)
         self.assertIn("upcoming", statuses)
-
-
-class TestScheduleCompositorWindowUI(unittest.TestCase):
-    def setUp(self):
-        self.window = ScheduleCompositorWindow()
-        self.window._select_all_members()
-
-    def tearDown(self):
-        self.window.close()
-        self.window.deleteLater()
-        app.processEvents()
-
-    def test_ui_initialization(self):
-        self.assertIn("Ghép Lịch & Khung Giờ Vàng CLB", self.window.windowTitle())
-        self.assertEqual(self.window.compositor.active_members.__len__(), 6)
-        # 8 columns (1 header + 7 days) * 6 rows (1 header + 5 shifts) = 48 items in grid
-        self.assertEqual(self.window.grid_layout.count(), 48)
-
-    def test_toggle_member_chip(self):
-        self.window._on_toggle_member("m1")
-        app.processEvents()
-        self.assertEqual(len(self.window.compositor.active_members), 5)
-        self.assertIn("5/6", self.window.stats_pill.text())
-
-    def test_select_and_clear_all_members(self):
-        self.window._clear_all_members()
-        app.processEvents()
-        self.assertEqual(len(self.window.compositor.active_members), 0)
-
-        self.window._select_all_members()
-        app.processEvents()
-        self.assertEqual(len(self.window.compositor.active_members), 6)
-
-    def test_cell_click_renders_details(self):
-        self.window._set_mode("group")
-        shift_matrix = self.window.compositor.compute_shift_matrix()
-        test_shift = shift_matrix["T2"]["ca1"]
-        self.window._on_cell_clicked(test_shift)
-        app.processEvents()
-        
-        self.assertIn("Thứ 2", self.window.detail_title.text())
-        self.assertIn("Ca 1", self.window.detail_title.text())
-
-    def test_mode_switching_and_degree_filters(self):
-        # Switch to Unified mode
-        self.window._set_mode("unified")
-        self.assertEqual(self.window.current_mode, "unified")
-        self.assertFalse(self.window.live_banner.isHidden())
-        self.assertFalse(self.window.conflict_bar.isHidden())
-        self.assertFalse(self.window.unified_toolbar_card.isHidden())
-        self.assertTrue(self.window.golden_bar.isHidden())
-
-        # Filter undergrad
-        self.window._set_degree_filter("undergrad")
-        self.assertEqual(self.window.filter_level, "undergrad")
-
-        # Filter master
-        self.window._set_degree_filter("master")
-        self.assertEqual(self.window.filter_level, "master")
-
-        # Search query
-        self.window._on_search_text_changed("Giải tích")
-        self.assertEqual(self.window.search_query, "Giải tích")
-
-        # Switch back to Group mode
-        self.window._set_mode("group")
-        self.assertEqual(self.window.current_mode, "group")
-        self.assertFalse(self.window.golden_bar.isHidden())
-        self.assertTrue(self.window.live_banner.isHidden())
-
-    def test_class_session_inspector_details(self):
-        test_session = ClassSession(
-            start_period=13,
-            end_period=15,
-            course_name="Xử lý ngôn ngữ tự nhiên & Mô hình LLMs",
-            room="C305",
-            degree_level="master",
-            course_code="840108",
-            lecturer="TS. Lê Hoàng",
-            notes="Viện Sau đại học (Tối Ca 5)"
-        )
-        self.window._on_class_session_clicked(test_session)
-        app.processEvents()
-
-        self.assertIn("Xử lý ngôn ngữ tự nhiên", self.window.detail_title.text())
-        self.assertEqual(self.window.selected_class_session, test_session)
-
-    def test_today_spotlight_view_and_utilities(self):
-        # Switch to today spotlight view
-        self.window._set_view_mode("today")
-        self.assertEqual(self.window.view_mode, "today")
-        self.assertEqual(self.window.views_stack.currentIndex(), 1)
-
-        # Room query navigator test
-        self.window._on_room_query_changed("C302")
-        self.assertIn("Tòa C", self.window.room_result_lbl.text())
-        self.assertIn("Viện Sau Đại Học", self.window.room_result_lbl.text())
-
-        # Course notes scratchpad test
-        self.window.course_notes_edit.setText("Link tài liệu môn học: https://drive.google.com/test")
-        self.window._save_current_course_note()
-        self.assertIn("Link tài liệu", self.window.course_notes.get("general", ""))
-
-        # Switch back to weekly grid
-        self.window._set_view_mode("weekly")
-        self.assertEqual(self.window.view_mode, "weekly")
-        self.assertEqual(self.window.views_stack.currentIndex(), 0)
 
 
 if __name__ == "__main__":

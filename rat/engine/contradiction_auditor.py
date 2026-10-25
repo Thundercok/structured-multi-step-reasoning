@@ -11,7 +11,7 @@ import unicodedata
 from dataclasses import dataclass, replace
 from enum import Enum, auto
 from math import inf
-from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Set, Tuple
+from typing import NamedTuple
 
 
 # ───────────────────────── types ─────────────────────────
@@ -119,8 +119,8 @@ _PRED = (r"(?:học|đào\s+tạo|có|được|phải|cần|yêu\s+cầu|tối|�
 _CUE = re.compile(rf"^(?:{_LEAD})?(?P<h>{_HE})\s*[,:]?\s*", re.I)
 _AFTER_PROG = re.compile(rf"^\s*(?:$|[,:;)]|\d|[<>≤≥=]|{_PRED}\b)", re.I)
 _EXT = re.compile(rf"(?P<w>(?:(?!{_PRED}\b)[^\s,:;()\d]+\s+){{0,3}}(?!{_PRED}\b)[^\s,:;()\d]+)", re.I)
-# canary: detection only. 'hệ <unknown>' -> UNKNOWN:<x>. Stoplist = other senses of "hệ" (finite, stable);
-# a digit is a programme name only when followed by năm/học kỳ ("hệ 5 năm"), else it is a grading scale ("hệ 4").
+# canary: detection only. 'hệ <unknown>' -> UNKNOWN:<x>. Stoplist = other senses of \"hệ\" (finite, stable);
+# a digit is a programme name only when followed by năm/học kỳ (\"hệ 5 năm\"), else it is a grading scale (\"hệ 4\").
 _CANARY = re.compile(
     rf"^(?:{_LEAD})?hệ\s+(?!thống\b|số\b|quả\b|\d+(?:[.,]\d+)?(?![.,]?\d)(?!\s*(?:năm|học\s+kỳ)\b))"
     r"(?P<x>\d+(?:[.,]\d+)?\s*(?:năm|học\s+kỳ)\b[^,:;\n\d]*?|[^,:;\n\d]+?)"
@@ -132,21 +132,25 @@ _KEYMETRIC = [("toeic", re.compile(r"toeic", re.I), "score"),
               ("cpa", re.compile(r"\b(?:cpa|gpa)\b", re.I), "point")]
 _UNITMAP = {"năm": ("duration", "year", 1), "tháng": ("duration", "year", 12),
             "học kỳ": ("duration", "semester", 1), "tín chỉ": ("credits", "credit", 1)}
-_PER = re.compile(r"(?:mỗi|một|/)\s*(?:học\s+kỳ|kỳ)\b", re.I)                       # "15 tín chỉ mỗi học kỳ"
-_REMAIN = re.compile(r"\bcòn(?:\s+lại)?(?:\s+(?:tối\s+đa|ít\s+nhất|khoảng))?\s*$", re.I)   # "còn tối đa 1 năm"
+_PER = re.compile(r"(?:mỗi|một|/)\s*(?:học\s+kỳ|kỳ)\b", re.I)                       # \"15 tín chỉ mỗi học kỳ\"
+# \"phải đăng ký tối thiểu 14 tín chỉ\" is a per-term load even when \"mỗi học kỳ\" is dropped; applied to source AND claim,
+# so the two stay comparable. Any total/graduation/exam wording in the same clause cancels it.
+_REG = re.compile(r"\bđăng\s+ký\b", re.I)
+_TOTAL = re.compile(r"\b(?:tổng|tích\s+lũy|toàn\s+khóa|tốt\s+nghiệp|xét|dự\s+thi|bảo\s+vệ|đồ\s+án|luận)\b", re.I)
+_REMAIN = re.compile(r"\bcòn(?:\s+lại)?(?:\s+(?:tối\s+đa|ít\s+nhất|khoảng))?\s*$", re.I)   # \"còn tối đa 1 năm\"
 
 _OUTCOMES = [("EXPEL", re.compile(r"buộc\s+thôi\s+học|thôi\s+học|đình\s+chỉ\s+học", re.I)),
              ("PASS", re.compile(r"đạt\s+chuẩn|đạt\s+yêu\s+cầu|đủ\s+điều\s+kiện|đủ\s+chuẩn|đáp\s+ứng", re.I)),
              ("GRADUATE", re.compile(r"tốt\s+nghiệp", re.I))]
 _NEG = re.compile(r"\b(?:không|chưa|chẳng)\b", re.I)
 _SUBJ = re.compile(r"\b(?:SV|[Ss]inh viên)\b")
-# achievement verbs: STRONG ones imply an individual even when the subject is elided ("Không đạt TOEIC 550…");
-# "có" is ambiguous ("Hệ X có thời gian…" vs "SV có CPA…") so it needs an explicit SV subject.
+# achievement verbs: STRONG ones imply an individual even when the subject is elided (\"Không đạt TOEIC 550…\");
+# \"có\" is ambiguous (\"Hệ X có thời gian…\" vs \"SV có CPA…\") so it needs an explicit SV subject.
 _STRONG = re.compile(r"\b(?:đạt|đã|đang|hoàn thành|tích lũy)\b", re.I)
 _WEAK = re.compile(r"\bcó\b", re.I)
-_NAMED = re.compile(r"^(?:(?:SV|[Ss]inh viên)\s+)?(\w+)\s+(?:chỉ\s+|mới\s+)?(?:đạt|được|có|bị|đã|học|hoàn thành|tích lũy)\b")
+_NAMED = re.compile(r"^(?:(?:SV|[Ss]inh viên)\s+)?(\w+)\s+(?:đạt|được|có|bị|đã|học|hoàn thành|tích lũy)\b")
 _NOT_A_NAME = {"được", "bị", "có", "đã", "đang", "học", "đạt", "hoàn", "tích", "không", "chưa", "chẳng",
-               "sẽ", "cần", "phải", "nếu", "khi", "thì", "mỗi", "mọi", "các", "những", "một", "chỉ", "mới"}
+               "sẽ", "cần", "phải", "nếu", "khi", "thì", "mỗi", "mọi", "các", "những", "một"}
 
 _CUES = [(re.compile(p, re.I), op) for p, op in [
     (r"không\s+(?:thấp|ít)\s+hơn|không\s+dưới|\btối\s+thiểu|\bít\s+nhất|\bphải\b"
@@ -165,7 +169,7 @@ _DOMAIN = re.compile(r"CPA|GPA|TOEIC|IELTS|tín chỉ|học kỳ|\bnăm\b|tháng
 
 # structure
 _SENT = re.compile(r"(?<=[.!?])\s+")
-# comma splits only before whitespace so decimal commas ("1,2") survive
+# comma splits only before whitespace so decimal commas (\"1,2\") survive
 _COORD = re.compile(r"\s+(?:và|hoặc|đồng thời)\s+|[,;]\s+|;|\s+(?=(?:còn|riêng|trong khi)\s+hệ\b)", re.I)
 _BUL = re.compile(r"^\s*(?:[-*•]\s|\d{1,2}[.)]\s)")
 
@@ -175,13 +179,13 @@ _ARROW = re.compile(r"\s*(?:=>|⇒|→|->)\s*")
 _CITE = re.compile(r"\b(?:Điều|Khoản|Mục|Chương)\s+\d+\b", re.I)
 _NUMW = {"một": 1, "hai": 2, "ba": 3, "bốn": 4, "năm": 5, "sáu": 6, "bảy": 7, "tám": 8, "chín": 9, "mười": 10}
 _NUMW_RE = re.compile(r"\b(" + "|".join(_NUMW) + r")\s+(?=(?:năm|tháng|học kỳ|tín chỉ)\b)", re.I)
-_RUOI = re.compile(r"\b(\d+)\s+(năm|tháng)\s+rưỡi\b", re.I)                                  # "4 năm rưỡi" -> 4.5 năm
+_RUOI = re.compile(r"\b(\d+)\s+(năm|tháng)\s+rưỡi\b", re.I)                                  # \"4 năm rưỡi\" -> 4.5 năm
 _SCALE = re.compile(r"\b(?:thang\s+(?:điểm\s+)?|hệ\s+)(?:4|10|100)\b(?!\s*(?:năm|học\s+kỳ)\b)(?![.,]\d)", re.I)
 _RESTATE = re.compile(r"\(\s*(?:tương\s+đương|tức(?:\s+là)?|khoảng|xấp\s+xỉ|nghĩa\s+là|≈|~)[^)]*\)", re.I)
 _WS = re.compile(r"[ \t]+")
 _COMBINING = re.compile(r".[̀-ͯ]+", re.S)             # NFD (macOS file names, PDF extraction) -> NFC
 _ODD_SPACE = re.compile(r"[    ]")
-_ZERO_WIDTH = re.compile(r"[\u200b\u200c\u200d\ufeff]")
+_ZERO_WIDTH = re.compile(r"[​‌‍﻿]")
 _NORM_STEPS = [
     (_COMBINING, lambda m: unicodedata.normalize("NFC", m[0])),
     (_ODD_SPACE, " "),
@@ -292,6 +296,10 @@ def _pieces(rx, s: str):
     return out
 
 
+def _per_term(text: str) -> bool:
+    return bool(_PER.search(text) or (_REG.search(text) and not _TOTAL.search(text)))
+
+
 def _sentence_atoms(sent: str, s0: int, block, override) -> list[Atom]:
     """`s0` = offset of `sent` in the normalised text; `override` = fixed span (table rows)."""
     cond, src, sspan = (block[0], "HEADER", block[1]) if block else (None, None, (-1, -1))
@@ -316,7 +324,7 @@ def _sentence_atoms(sent: str, s0: int, block, override) -> list[Atom]:
             lsrc, lspan = "INLINE", (f0 + mm.start("h"), f0 + mm.end("h"))
         ent = _named(p)
         last = ent or last
-        per_here, has_num = bool(_PER.search(p)), bool(_NUM.search(p))
+        per_here, has_num = _per_term(p), bool(_NUM.search(p))
         per = per_here or (per_carry and has_num)
         per_carry = per_here and not has_num if (has_num or per_here) else per_carry
         if override:
@@ -454,7 +462,7 @@ def extract(a: Atom) -> Tup | str:
     if metric == "credits" and (a.per_semester or _PER.match(post.lstrip())):
         unit = "credit/semester"                      # a per-semester load is not the programme total
     if _REMAIN.search(pre):
-        unit += "/remaining"                          # "còn tối đa 1 năm" is time left, not the cap
+        unit += "/remaining"                          # \"còn tối đa 1 năm\" is time left, not the cap
     op = _find_op(pre, post)
     fact = op == "==" and (a.entity.instance or bool(_STRONG.search(a.text))
                            or bool(_WEAK.search(a.text) and _SUBJ.search(a.text)))
@@ -540,7 +548,7 @@ def match(src: Tup, clm: Tup) -> Res:
     C = iv(clm.op, clm.value)                         # rule vs rule
     if C == S:
         return Res(V.SATISFIED_BOUND)
-    if clm.op == "==":                                # "thời gian là X năm": lenient, X must lie inside the bound
+    if clm.op == "==":                                # \"thời gian là X năm\": lenient, X must lie inside the bound
         return Res(V.SATISFIED_BOUND) if contains(S, clm.value) else Res(V.GROUNDING_CONFLICT, "point_outside")
     if C[:2] == S[:2]:
         return Res(V.GROUNDING_CONFLICT, "boundary_only")
@@ -579,7 +587,7 @@ def audit(clm: Tup, kb: dict, query_condition: str | None = None) -> Res:
         return _bucket(list(agg.values()))
     if len(kinds) == 1:
         return next(r for r in agg.values() if r.verdict in kinds)
-    if query_condition is not None and query_condition in agg:   # None = "no query context", NOT the general bucket
+    if query_condition is not None and query_condition in agg:   # None = \"no query context\", NOT the general bucket
         # query context may only TIGHTEN, never relax
         q = agg[query_condition]
         return Res(V.GROUNDING_CONFLICT, "query_scope_conflict") if q.verdict is V.GROUNDING_CONFLICT \
@@ -682,6 +690,48 @@ def copy_footer(report: AuditReport) -> str:
     if any(a.kind in ("OUT_OF_COVERAGE", "SCOPE_ELIDED") for a in report.annotations):
         return "[Lưu ý: một phần nội dung nằm ngoài phạm vi quy chế đã đối chiếu, chưa được kiểm chứng tự động.]"
     return ""
+
+
+# ───────────────────────── stage 7: query side ─────────────────────────
+# Questions are not predicate-shaped (\"hệ chính quy bao nhiêu năm?\"), so the terminator set is _PRED plus
+# interrogatives and connectors. Anything ELSE after a programme name still means \"a longer name\" -> no pin.
+_Q_STOP = (rf"(?:{_PRED}|bao|mấy|nào|sao|thế|ra|gì|hay|và|hoặc|so|với|khác|thì|còn|hơn|bằng|của|để|cho|nên|mà|vậy"
+           r"|ở|tại|trong|bậc|ngành)")
+_Q_ALIAS = re.compile(rf"\b(?P<a>{_PROG_ALT})\b", re.I)
+_Q_HE = re.compile(r"\bhệ\s+", re.I)
+_Q_NOT_A_PROGRAMME = re.compile(r"(?:thống|số|quả)\b", re.I)
+_Q_SCALE = re.compile(r"\d+(?:[.,]\d+)?(?![.,]?\d)(?!\s*(?:năm|học\s+kỳ)\b)", re.I)
+_Q_NEXT = re.compile(r"\s*(?P<w>[^\s,;:.?!()\[\]\"']+)?")
+
+
+def _query_norm(q: str) -> str:
+    q = unicodedata.normalize("NFC", q)
+    q = _ODD_SPACE.sub(" ", _ZERO_WIDTH.sub("", q))
+    return re.sub(r"\s+", " ", q).strip().lower()
+
+
+def infer_query_condition(query: str | None) -> str | None:
+    """The one programme the QUERY pins, else None. None is the safe answer: it only disables query tightening.
+    A false pin is the dangerous error (it can turn an honest ANNOTATE into a BLOCK), so every doubt resolves to None:
+    more than one programme, a `hệ <label>` that is not exactly a known programme (including digit names such as
+    'hệ 5 năm'), or a known name followed by an unexpected word ('chính quy chất lượng cao').
+    Known limit: an unknown label WITHOUT the word 'hệ' ('còn đại trà?') cannot be seen without a label lexicon."""
+    if not query:
+        return None
+    q = _query_norm(query)
+    for m in _Q_HE.finditer(q):                            # every `hệ <x>`: x must be a known programme, a scale or not a programme
+        rest = q[m.end():]
+        if _Q_NOT_A_PROGRAMME.match(rest) or _Q_SCALE.match(rest):
+            continue                                       # hệ thống / hệ số / hệ 4 (grading scale)
+        if not _Q_ALIAS.match(rest):
+            return None                                    # unknown label, or digit name 'hệ 5 năm' / 'hệ 4,5 năm'
+    ids: set[str] = set()
+    for m in _Q_ALIAS.finditer(q):                         # every known name, with or without 'hệ'
+        nxt = _Q_NEXT.match(q, m.end())["w"]
+        if nxt and not re.fullmatch(_Q_STOP, nxt, re.I):
+            return None                                    # extended name
+        ids.add(PROGRAM[m["a"]])
+    return next(iter(ids)) if len(ids) == 1 else None
 
 
 # ───────────────────────── Backward Compatibility Adapter ─────────────────────────
@@ -788,43 +838,6 @@ def extract_topic_polarity(text: str, pos_raw: str, neg_raw: str) -> Optional[st
     pos_re = re.compile(f"{guard}{pos_raw}", re.IGNORECASE)
     if pos_re.search(text):
         return "positive"
-    return None
-
-
-def infer_query_condition(query: Optional[str]) -> Optional[str]:
-    """Infers the academic programme pinned by the user query, or None.
-    
-    Returns:
-        - condition_id (e.g. "full-time", "part-time") if query pins exactly one known programme.
-        - None if query mentions multiple programmes, no programme, or an unknown/extended programme.
-    """
-    if not query:
-        return None
-    q = unicodedata.normalize("NFC", query)
-    q = re.sub(r"[\u00a0\u200b\u200c\u200d\ufeff]", " ", q)
-    
-    found = set()
-    has_unknown = False
-    
-    # 1. Use the module canary to detect unknown programme mentions starting with "hệ ..."
-    for m in re.finditer(r"(?:\b|(?<=[\s,;:.?!]))hệ\s+", q, re.I):
-        sub = q[m.start():]
-        cm = _CANARY.match(sub)
-        if cm:
-            raw_x = cm["x"].strip().lower()
-            if not any(prog in raw_x for prog in PROGRAM):
-                has_unknown = True
-                
-    # 2. Extract known programmes directly (without _EXT guessing on query)
-    for prog, cid in sorted(PROGRAM.items(), key=lambda x: len(x[0]), reverse=True):
-        pattern = re.compile(rf"\b(?:hệ\s+)?{re.escape(prog)}\b", re.I)
-        if pattern.search(q):
-            found.add(cid)
-            
-    if has_unknown:
-        return None
-    if len(found) == 1:
-        return next(iter(found))
     return None
 
 

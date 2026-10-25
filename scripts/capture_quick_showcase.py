@@ -16,7 +16,7 @@ os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 from PIL import Image
 from PyQt6.QtCore import QCoreApplication, QEvent, QPoint, QPointF, QTimer, QUrl, Qt
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 
@@ -85,7 +85,7 @@ def build_showcase(output_dir: Path):
     tmp_scratch = output_dir / "tmp_data"
     tmp_scratch.mkdir(parents=True, exist_ok=True)
 
-    app = QApplication.instance() or QApplication([sys.argv[0]])
+    app = QGuiApplication.instance() or QGuiApplication([sys.argv[0]])
     app.setApplicationName("RAT Showcase")
     if sys.platform == "darwin":
         app.setFont(QFont("Helvetica Neue", 13))

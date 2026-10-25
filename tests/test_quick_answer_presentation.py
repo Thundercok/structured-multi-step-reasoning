@@ -11,7 +11,7 @@ from PyQt6.QtCore import QCoreApplication, QEvent, QMetaObject, QPointF, QUrl, Q
 from PyQt6.QtGui import QFont, QGuiApplication, QTextDocument
 from PyQt6.QtQuick import QQuickView
 from PyQt6.QtTest import QTest
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 from rat.ui.answer_presentation import answer_html, source_rows
 from rat.ui.chat_session import ConversationHistory
 from rat.ui.quick_pdf_controller import QuickPDFController
@@ -28,7 +28,7 @@ _APPLICATION = None
 def app():
     # Keep one Qt application alive across the subsequent UI test modules.
     global _APPLICATION
-    _APPLICATION = QGuiApplication.instance() or QApplication([])
+    _APPLICATION = QGuiApplication.instance() or QGuiApplication([])
     return _APPLICATION
 
 
@@ -273,6 +273,46 @@ def test_answer_copy_and_source_page_journey(app, tmp_path, width, dark):
         root.setProperty('darkMode', dark)
         QTest.qWait(20)
         answer_item = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'answerText')
+        doc_label = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'answerDocumentLabel')
+        assert doc_label is not None and doc_label.isVisible()
+        assert doc_label.property('text') == 'Source.pdf'
+
+        # Information Evidence Sheet verification (Build 2026.10.25.18)
+        process_card = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceProcessCard')
+        assert process_card is not None and process_card.isVisible()
+        source_card = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceSourceCard')
+        assert source_card is not None and source_card.isVisible()
+        source_title = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceSourceTitle')
+        assert source_title is not None and 'Source.pdf' in source_title.property('text')
+        source_snippet = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'evidenceSourceSnippet')
+        assert source_snippet is not None and source_snippet.isVisible()
+        copy_btn = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'copyCitationButton')
+        assert copy_btn is not None and copy_btn.isVisible()
+        open_ext_btn = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'openExternalPdfButton')
+        assert open_ext_btn is not None and open_ext_btn.isVisible()
+        expand_btn = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'expandContextButton')
+        assert expand_btn is not None and expand_btn.isVisible()
+
+        # Toggle expanded context
+        assert not root.property('contextExpanded')
+        click(view, root, 'expandContextButton')
+        assert root.property('contextExpanded')
+        click(view, root, 'expandContextButton')
+        assert not root.property('contextExpanded')
+
+        # Toggle process details
+        assert not root.property('processDetailsOpen')
+        click(view, root, 'processDetailsToggle')
+        assert root.property('processDetailsOpen')
+        details_content = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'processDetailsContent')
+        assert details_content is not None and details_content.isVisible()
+        click(view, root, 'processDetailsToggle')
+        assert not root.property('processDetailsOpen')
+
+        # Click copy citation button
+        click(view, root, 'copyCitationButton')
+        assert root.property('sourceCopied') is True
+
         code_format = answer_item.property('textDocument').textDocument().find('value = 2').charFormat()
         assert code_format.background().color().name() == ('#333b2f' if dark else '#eff3e9')
         menu = root.findChild(__import__('PyQt6.QtQuick', fromlist=['QQuickItem']).QQuickItem, 'documentMenu')

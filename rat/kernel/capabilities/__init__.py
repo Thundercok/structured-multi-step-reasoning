@@ -11,6 +11,7 @@ from rat.kernel.capabilities.applications import create_applications_capability
 from rat.kernel.capabilities.documents import create_documents_capability
 from rat.kernel.capabilities.natal import create_natal_capability
 from rat.kernel.capabilities.result_tables import create_result_tables_capability
+from rat.kernel.capabilities.reading import create_reading_capability
 from rat.kernel.capabilities.timetable import create_timetable_capability
 from rat.kernel.capabilities.web import create_web_capability
 from rat.kernel.registry import Capability, CapabilityRegistry, OperationDefinition
@@ -36,6 +37,7 @@ def build_default_registry(
     registry.register_capability(create_applications_capability())
     registry.register_capability(create_timetable_capability(compositor=compositor))
     registry.register_capability(create_natal_capability())
+    registry.register_capability(create_reading_capability())
     registry.register_capability(create_result_tables_capability())
 
     if enable_web:

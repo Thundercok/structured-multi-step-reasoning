@@ -1,0 +1,693 @@
+[
+  {
+    "id": "m1",
+    "name": "Huỳnh Nhật Huy",
+    "mssv": "523C0012",
+    "major": "Công nghệ Thông tin",
+    "color_hex": "#3b82f6",
+    "active": true,
+    "is_dual_degree": true,
+    "master_major": "ThS Khoa học Máy tính & AI",
+    "master_mssv": "824C0005",
+    "schedule": {
+      "T2": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Thực hành Giải tích ứng dụng CNTT 2",
+          "room": "A608",
+          "degree_level": "undergrad",
+          "course_code": "501043",
+          "lecturer": "ThS. Hoàng Nam",
+          "notes": "Lab máy tính A608"
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Giải tích ứng dụng CNTT 2",
+          "room": "F702",
+          "degree_level": "undergrad",
+          "course_code": "501042",
+          "lecturer": "TS. Vũ Hải",
+          "notes": "Giảng đường F"
+        },
+        {
+          "start": 13,
+          "end": 15,
+          "course": "Học máy nâng cao & Khai phá dữ liệu",
+          "room": "C302",
+          "degree_level": "master",
+          "course_code": "840101",
+          "lecturer": "PGS.TS. Trần Minh",
+          "notes": "Viện Sau đại học (Tối Ca 5)"
+        }
+      ],
+      "T3": [
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Lập trình hàm",
+          "room": "F712",
+          "degree_level": "undergrad",
+          "course_code": "502011",
+          "lecturer": "TS. Lê Khắc",
+          "notes": "Lý thuyết"
+        },
+        {
+          "start": 10,
+          "end": 12,
+          "course": "Thực hành Lập trình hàm",
+          "room": "A607",
+          "degree_level": "undergrad",
+          "course_code": "502012",
+          "lecturer": "ThS. Đỗ Thắng",
+          "notes": "Lab thực hành"
+        }
+      ],
+      "T4": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Cấu trúc dữ liệu & giải thuật",
+          "room": "F702",
+          "degree_level": "undergrad",
+          "course_code": "502033",
+          "lecturer": "TS. Phạm Trung",
+          "notes": "Giảng đường F"
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Cấu trúc dữ liệu & giải thuật (Bù)",
+          "room": "C404",
+          "degree_level": "undergrad",
+          "course_code": "502033",
+          "lecturer": "TS. Phạm Trung",
+          "notes": "Buổi học bù"
+        },
+        {
+          "start": 13,
+          "end": 15,
+          "course": "Xử lý ngôn ngữ tự nhiên & Mô hình LLMs",
+          "room": "C305",
+          "degree_level": "master",
+          "course_code": "840108",
+          "lecturer": "TS. Lê Hoàng",
+          "notes": "Viện Sau đại học (Tối Ca 5)"
+        }
+      ],
+      "T5": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Kỹ năng soạn thảo VB kỹ thuật",
+          "room": "C406",
+          "degree_level": "undergrad",
+          "course_code": "503001",
+          "lecturer": "ThS. Mai Anh",
+          "notes": "Phòng đa năng"
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Giải tích ứng dụng CNTT",
+          "room": "F610",
+          "degree_level": "undergrad",
+          "course_code": "501041",
+          "lecturer": "TS. Vũ Hải",
+          "notes": "Lý thuyết"
+        }
+      ],
+      "T6": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Thực hành Giải tích ứng dụng CNTT",
+          "room": "A610",
+          "degree_level": "undergrad",
+          "course_code": "501041",
+          "lecturer": "ThS. Hoàng Nam",
+          "notes": "Lab A610"
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Thực hành Cấu trúc dữ liệu",
+          "room": "A707",
+          "degree_level": "undergrad",
+          "course_code": "502034",
+          "lecturer": "ThS. Bùi Dũng",
+          "notes": "Lab CNTT"
+        },
+        {
+          "start": 13,
+          "end": 15,
+          "course": "Phương pháp NCKH & Viết bài báo quốc tế",
+          "room": "B301",
+          "degree_level": "master",
+          "course_code": "840100",
+          "lecturer": "GS.TS. Nguyễn Văn A",
+          "notes": "Chuyên đề Sau đại học"
+        }
+      ],
+      "T7": [
+        {
+          "start": 7,
+          "end": 10,
+          "course": "Thị giác máy tính nâng cao (Deep Learning)",
+          "room": "C402",
+          "degree_level": "master",
+          "course_code": "840115",
+          "lecturer": "TS. Phạm Thanh",
+          "notes": "Chuyên đề Cao học thứ 7"
+        }
+      ],
+      "CN": [
+        {
+          "start": 2,
+          "end": 5,
+          "course": "Tối ưu hóa trong Trí tuệ nhân tạo",
+          "room": "C301",
+          "degree_level": "master",
+          "course_code": "840120",
+          "lecturer": "TS. Đặng Tuấn",
+          "notes": "Chuyên đề Cao học Chủ Nhật"
+        }
+      ]
+    }
+  },
+  {
+    "id": "m2",
+    "name": "Thành viên QTKD",
+    "mssv": "K27-QTKD",
+    "major": "Quản trị Kinh doanh / Tài chính",
+    "color_hex": "#10b981",
+    "active": true,
+    "is_dual_degree": false,
+    "master_major": "",
+    "master_mssv": "",
+    "schedule": {
+      "T2": [],
+      "T3": [
+        {
+          "start": 2,
+          "end": 6,
+          "course": "Quản lý sự thay đổi",
+          "room": "C411-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 11,
+          "course": "Ứng dụng Big Data trong quản lý",
+          "room": "D0401-B",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T4": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "HFIATA - Module 4 (Contract & Finance)",
+          "room": "C303",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Khởi nghiệp & đổi mới sáng tạo",
+          "room": "D0306",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T5": [],
+      "T6": [],
+      "T7": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "HFIATA - Module 4",
+          "room": "F707",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "CN": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "HFIATA - Module 4 (Online Bù)",
+          "room": "HOCTRUCTUYEN-3",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "m3",
+    "name": "Phạm Vũ Thảo Nguyên",
+    "mssv": "62500106",
+    "major": "Khoa học Ứng dụng",
+    "color_hex": "#ec4899",
+    "active": true,
+    "is_dual_degree": false,
+    "master_major": "",
+    "master_mssv": "",
+    "schedule": {
+      "T2": [
+        {
+          "start": 10,
+          "end": 12,
+          "course": "GDTC 2 - Karate",
+          "room": "TRET-NTD-2",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 13,
+          "end": 15,
+          "course": "Sinh hoạt chủ nhiệm KHUD",
+          "room": "B406-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T3": [
+        {
+          "start": 3,
+          "end": 6,
+          "course": "Hóa vô cơ",
+          "room": "C401",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Hóa lý kỹ thuật 1",
+          "room": "B204",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T4": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Vẽ kỹ thuật",
+          "room": "B406-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Nhập môn Phân tích Dữ liệu",
+          "room": "B406-B",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Thực hành Vẽ kỹ thuật",
+          "room": "A703",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T5": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Kinh tế chính trị Mác-Lênin",
+          "room": "B204",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Toán cao cấp trong KH sự sống",
+          "room": "C308",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T6": [
+        {
+          "start": 1,
+          "end": 6,
+          "course": "Thí nghiệm Hóa đại cương",
+          "room": "C511",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T7": [],
+      "CN": []
+    }
+  },
+  {
+    "id": "m4",
+    "name": "Thành viên Kiến trúc",
+    "mssv": "K27-KT",
+    "major": "Kiến trúc / Quy hoạch",
+    "color_hex": "#f59e0b",
+    "active": true,
+    "is_dual_degree": false,
+    "master_major": "",
+    "master_mssv": "",
+    "schedule": {
+      "T2": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Vật liệu trong kiến trúc",
+          "room": "D0101-B",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Nhập môn quy hoạch",
+          "room": "D0105-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T3": [],
+      "T4": [
+        {
+          "start": 10,
+          "end": 12,
+          "course": "Lịch sử kiến trúc Phương Đông & VN",
+          "room": "D0102-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T5": [],
+      "T6": [
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Chuyên đề thiết nội thất",
+          "room": "D0101-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 10,
+          "end": 12,
+          "course": "Khoa học môi trường kiến trúc",
+          "room": "D0101-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T7": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Chuyên đề kiến trúc nhà công nghiệp",
+          "room": "D0101-A",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "CN": []
+    }
+  },
+  {
+    "id": "m5",
+    "name": "Thành viên CNSH",
+    "mssv": "K27-CNSH",
+    "major": "Công nghệ Sinh học / Y sinh",
+    "color_hex": "#8b5cf6",
+    "active": true,
+    "is_dual_degree": false,
+    "master_major": "",
+    "master_mssv": "",
+    "schedule": {
+      "T2": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Tiếng Anh 3",
+          "room": "P15H03",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Vật liệu sinh học",
+          "room": "F702",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T3": [
+        {
+          "start": 1,
+          "end": 6,
+          "course": "Thí nghiệm Genomic phân tử",
+          "room": "C511",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "course": "Vi sinh vật và bệnh học",
+          "room": "F410",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T4": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Tiếng Anh 3",
+          "room": "P15H03",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T5": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Thiết kế & phân tích thí nghiệm",
+          "room": "F507",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T6": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Tiếng Anh 3",
+          "room": "P15H03",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 11,
+          "course": "Miễn dịch học",
+          "room": "F610",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T7": [],
+      "CN": []
+    }
+  },
+  {
+    "id": "m6",
+    "name": "Thông Ngọc Lan Anh",
+    "mssv": "624H0001",
+    "major": "Kỹ thuật Hóa học",
+    "color_hex": "#06b6d4",
+    "active": true,
+    "is_dual_degree": false,
+    "master_major": "",
+    "master_mssv": "",
+    "schedule": {
+      "T2": [
+        {
+          "start": 1,
+          "end": 6,
+          "course": "Thí nghiệm Hóa hữu cơ",
+          "room": "C513",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T3": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Hóa học xanh",
+          "room": "F412",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Lịch sử Đảng Cộng sản VN",
+          "room": "B411",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T4": [
+        {
+          "start": 1,
+          "end": 3,
+          "course": "Hóa phân tích",
+          "room": "F512",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Quản trị công nghiệp",
+          "room": "F701",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T5": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Hóa sinh",
+          "room": "C205",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T6": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Kỹ thuật phân riêng",
+          "room": "F712",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "T7": [
+        {
+          "start": 4,
+          "end": 6,
+          "course": "Vật liệu học",
+          "room": "F302",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        },
+        {
+          "start": 7,
+          "end": 12,
+          "course": "Thí nghiệm Hóa lý kỹ thuật",
+          "room": "C512",
+          "degree_level": "undergrad",
+          "course_code": "",
+          "lecturer": "",
+          "notes": ""
+        }
+      ],
+      "CN": []
+    }
+  }
+]

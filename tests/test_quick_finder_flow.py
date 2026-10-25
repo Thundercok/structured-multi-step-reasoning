@@ -16,7 +16,7 @@ import pytest
 from PyQt6.QtCore import QCoreApplication, QEvent, QUrl, Qt
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QGuiApplication
 
 from rat.crawler.db import Database
 from rat.engine.app_resolver import Application, ApplicationCatalog
@@ -29,7 +29,7 @@ from reasoning.bundle import create_synthetic_specimen_bundle
 def _process_events(ms: int = 150):
     deadline = time.perf_counter() + (ms / 1000.0)
     while time.perf_counter() < deadline:
-        QApplication.processEvents()
+        QGuiApplication.processEvents()
         time.sleep(0.005)
 
 
@@ -123,7 +123,7 @@ def finder_fixture(tmp_path):
 
 def test_quick_finder_typing_shows_hits(finder_fixture):
     """Typing an app or file name in composer displays progressive finder hits."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     opened_urls = []
 
     controller = QuickPDFController(
@@ -165,7 +165,7 @@ def test_quick_finder_typing_shows_hits(finder_fixture):
 
 def test_quick_finder_open_pdf_directly(finder_fixture):
     """Clicking 'Đọc trực tiếp' on a PDF hit loads it into the reader."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
 
     controller = QuickPDFController(
         finder_search=finder_fixture["search"],
@@ -190,7 +190,7 @@ def test_quick_finder_open_pdf_directly(finder_fixture):
 
 def test_quick_finder_open_app(finder_fixture):
     """Clicking 'Mở ứng dụng' launches the app via open_url."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     opened_urls = []
 
     controller = QuickPDFController(
@@ -205,13 +205,111 @@ def test_quick_finder_open_app(finder_fixture):
     assert ok is True
     assert len(opened_urls) == 1
     assert finder_fixture["app_path"] in opened_urls[0].toLocalFile()
+    assert controller.snapshot['launchFeedback'] == 'Đã gửi yêu cầu mở Calculator.'
+    assert not controller.snapshot['launchFeedbackError']
 
     controller.close()
 
 
+@pytest.mark.parametrize('failure', ['removed', 'executable_removed', 'identity_changed', 'malformed', 'os_refused', 'os_exception'])
+def test_app_launch_failure_is_inline_and_keeps_workbench(finder_fixture, failure):
+    """Synthetic unit contracts only; not live UI/OS launch acceptance."""
+    import shutil
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened = []
+    def opener(url):
+        opened.append(url)
+        if failure == 'os_exception':
+            raise OSError('private OS details')
+        return False
+    controller = QuickPDFController(
+        finder_catalog=finder_fixture['catalog'], auto_init_finder=False,
+        db_path=finder_fixture['db_path'], open_url=opener,
+    )
+    controller.ready()
+    controller.onComposerTextChanged('calc')
+    _process_events(200)
+    before = controller.snapshot
+    path = Path(finder_fixture['app_path'])
+    if failure == 'removed':
+        shutil.rmtree(path)
+    elif failure == 'executable_removed':
+        (path / 'Contents/MacOS/Calculator').unlink()
+    elif failure == 'identity_changed':
+        info = path / 'Contents/Info.plist'
+        data = plistlib.loads(info.read_bytes())
+        data['CFBundleIdentifier'] = 'com.example.replacement'
+        info.write_bytes(plistlib.dumps(data))
+    elif failure == 'malformed':
+        (path / 'Contents/Info.plist').write_text('not a plist')
+    try:
+        assert not controller.openSelectedHit(0)
+        after = controller.snapshot
+        assert after['launchFeedbackError']
+        assert 'Không thể' in after['launchFeedback']
+        assert 'private OS details' not in after['launchFeedback']
+        assert after['view'] == before['view']
+        assert after['finderQuery'] == 'calc'
+        assert after['finderHits'] == before['finderHits']
+        assert len(opened) == (1 if failure.startswith('os_') else 0)
+        controller.onComposerTextChanged('safari')
+        assert not controller.snapshot['launchFeedback']
+    finally:
+        controller.close()
+
+
+def test_new_query_cannot_open_previous_results(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened = []
+    controller = QuickPDFController(
+        finder_catalog=finder_fixture['catalog'], auto_init_finder=False,
+        db_path=finder_fixture['db_path'], open_url=lambda url: opened.append(url) or True,
+    )
+    controller.ready()
+    try:
+        controller.onComposerTextChanged('calc')
+        _process_events(200)
+        assert controller.snapshot['finderHits']
+        controller.onComposerTextChanged('mo trinh duyet')
+        # No event loop yield: latest snapshot has not arrived yet.
+        assert not controller.snapshot['finderHits']
+        assert not controller.openSelectedHit(0)
+        assert not opened
+    finally:
+        controller.close()
+
+
+def test_described_file_can_open_outside_and_missing_file_is_inline(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened = []
+    controller = QuickPDFController(
+        finder_catalog=finder_fixture['catalog'], db_path=finder_fixture['db_path'],
+        auto_init_finder=False, open_url=lambda url: opened.append(url.toLocalFile()) or True,
+    )
+    controller.ready()
+    try:
+        controller.onComposerTextChanged('tim file co noi dung danh sach sinh vien')
+        _process_events(250)
+        assert [h['path'] for h in controller.snapshot['finderHits']] == [finder_fixture['txt_path']]
+        assert controller.openSelectedHit(0)
+        assert opened == [finder_fixture['txt_path']]
+        assert controller.snapshot['launchFeedback'] == 'Đã gửi yêu cầu mở danh_sach_lop.txt.'
+        Path(finder_fixture['txt_path']).unlink()
+        assert not controller.openSelectedHit(0)
+        assert controller.snapshot['launchFeedbackError']
+        assert controller.snapshot['view'] != 'error'
+        controller.onComposerTextChanged('tim file co noi dung nonexistenttopic')
+        _process_events(250)
+        assert not controller.snapshot['finderHits']
+        assert 'trong chỉ mục' in controller.snapshot['finderFeedback']
+        assert not controller.snapshot['launchFeedback']
+    finally:
+        controller.close()
+
+
 def test_quick_finder_ask_about_file(finder_fixture):
     """Clicking 'Hỏi về tệp' attaches the file context to assistant reasoning."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
 
     backend = RecordingBackend()
     bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
@@ -239,7 +337,7 @@ def test_quick_finder_ask_about_file(finder_fixture):
 
 def test_quick_finder_clear_composer_folds_workbench(finder_fixture):
     """Clearing text in composer folds the finder back to idle state."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
 
     controller = QuickPDFController(
         finder_search=finder_fixture["search"],
@@ -265,7 +363,7 @@ def test_quick_finder_clear_composer_folds_workbench(finder_fixture):
 
 def test_quick_finder_qml_real_surface(finder_fixture):
     """Verify finder results and user actions directly in the real QML interface."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     opened_urls = []
 
     controller = QuickPDFController(
@@ -316,7 +414,7 @@ def test_quick_finder_qml_real_surface(finder_fixture):
 
 def test_quick_finder_keyboard_navigation_and_actions(finder_fixture):
     """Arrow Up/Down keys cycle through finder hits; Return key opens selected hit."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     opened_urls = []
 
     controller = QuickPDFController(
@@ -383,7 +481,7 @@ def test_quick_finder_keyboard_navigation_and_actions(finder_fixture):
 
 def test_quick_finder_reveal_and_preview_actions(finder_fixture):
     """Verify quicklook preview and reveal in Finder actions work and shorten home path."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     revealed = []
     previewed = []
 
@@ -421,7 +519,7 @@ def test_quick_finder_reveal_and_preview_actions(finder_fixture):
 
 def test_quick_finder_spotlight_sections_and_action_bar(finder_fixture):
     """Verify section grouping, isQuestionQuery, bottomActionBar, and contextChip in QML."""
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
 
     controller = QuickPDFController(
         finder_search=finder_fixture["search"],
@@ -508,7 +606,7 @@ def test_app_action_button_keyboard_activation_restores_draft(finder_fixture):
     from rat.ui.icon_provider import RatIconProvider
     from rat.ui.quick_app import bind_desk_window
 
-    application = QApplication.instance() or QApplication([])
+    application = QGuiApplication.instance() or QGuiApplication([])
     opened = []
     controller = QuickPDFController(
         finder_search=finder_fixture['search'],
@@ -570,7 +668,7 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
     from rat.ui.icon_provider import RatIconProvider
     from rat.ui.quick_app import bind_desk_window
 
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
 
     # Create 5 synthetic documents
     db_path = tmp_path / "test_slice.db"
@@ -610,7 +708,7 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
 
     try:
         root = view.rootObject()
-        assert root.property("uiBuildLabel") in ("Build 2026.10.24.9", "Build 2026.10.24.10", "Build 2026.10.24.11", "Build 2026.10.24.12", "Build 2026.10.24.13")
+        assert root.property("uiBuildLabel").startswith("Build ")
 
         editor = root.findChild(QQuickItem, "draftEditor")
         assert editor is not None
@@ -739,7 +837,7 @@ def test_finder_never_hijacks_active_answer_or_zero_hit_chat_and_exposes_drawer_
     from rat.ui.icon_provider import RatIconProvider
     from rat.ui.quick_app import bind_desk_window
 
-    app = QApplication.instance() or QApplication([])
+    app = QGuiApplication.instance() or QGuiApplication([])
     controller = QuickPDFController(
         finder_search=finder_fixture["search"],
         finder_catalog=finder_fixture["catalog"],

@@ -104,16 +104,23 @@ Rectangle {
         }
     }
     property bool floatingWindow: liveMode
-    property real maxPaperHeight: 420
+    property bool spaciousWorkbench: false
+    readonly property bool roomyActive: spaciousWorkbench && expanded && hasWorkbench
+    readonly property real composerHeight: composer.height
+    property real maxPaperHeight: 520
     readonly property real preferredWindowHeight: 48 + composer.height + Math.max(116, expanded && hasWorkbench ? resultPaper.height - 22 : 0)
     readonly property bool hasWorkbench: liveMode ? Boolean(liveSnapshot.hasWorkbench) : phase === "working" || phase === "result"
     readonly property bool hasAnswerPreview: liveMode && liveSnapshot.view === "answer"
+    readonly property bool hasReadingPreview: liveMode && liveSnapshot.view === "reading"
     readonly property bool cancelledAnswer: hasAnswerPreview && liveSnapshot.answerOutcome === "cancelled"
     readonly property bool emptyCancelledAnswer: cancelledAnswer && !(liveSnapshot.answerText || "").trim().length
     readonly property bool hasPagePreview: liveMode && liveSnapshot.view === "page" && !liveSnapshot.busy && !liveSnapshot.errorCode
     readonly property string pagePreviewTitle: "Đang đọc trang " + liveSnapshot.pageLabel
-    readonly property string uiBuildLabel: "Build 2026.10.24.13"
+    readonly property string uiBuildLabel: "Build 2026.10.25.24 · Qt Quick"
     property string readerDisplayMode: "matched"
+    property bool processDetailsOpen: false
+    property bool contextExpanded: false
+    property bool sourceCopied: false
     property bool inlineFindOpen: false
     property bool showAllFinderHits: false
     readonly property var allFinderHits: liveSnapshot.finderHits || []
@@ -191,6 +198,7 @@ Rectangle {
         if (next.answerText !== liveSnapshot.answerText || next.userQuery !== liveSnapshot.userQuery) {
             answerSourcesOpen = false
             answerQuestionOpen = false
+            contextExpanded = false
         }
         liveSnapshot = next
         phase = next.phase
@@ -243,6 +251,12 @@ Rectangle {
     function submitDraft() {
         if (liveMode) {
             if (!liveSnapshot.busy) {
+                if (editor.text.trim().toLowerCase() === "/reading") {
+                    liveController.openReadingDesk()
+                    editor.text = ""
+                    editor.forceActiveFocus()
+                    return
+                }
                 if (isAppsCommand(editor.text)) {
                     liveController.openAppsView("")
                     if (liveController.snapshot.view === "apps") editor.text = ""
@@ -365,12 +379,24 @@ Rectangle {
         nameFilters: ["PDF (*.pdf *.PDF)"]
         onAccepted: { if (desk.liveMode) desk.liveController.openPdfDocument(String(selectedFile)) }
     }
+    function openReadingProfileDialog() { readingProfileDialog.open() }
+    FileDialog {
+        id: readingProfileDialog
+        objectName: "readingProfileDialog"
+        title: "Mở hồ sơ lá số đã lưu từ Natal Atlas"
+        nameFilters: ["Hồ sơ lá số JSON (*.json *.JSON)"]
+        onAccepted: { if (desk.liveMode) desk.liveController.importReadingProfile(String(selectedFile)) }
+    }
     DropArea {
         id: pdfDropArea
         anchors.fill: parent
         enabled: desk.liveMode
         onDropped: drop => {
             if (drop.hasUrls && drop.urls.length === 1) {
+                if (desk.liveSnapshot.view === "reading" && /\.json$/i.test(String(drop.urls[0]))) {
+                    drop.accepted = desk.liveController.importReadingProfile(String(drop.urls[0]))
+                    return
+                }
                 desk.liveController.openPdfDocument(String(drop.urls[0]))
                 drop.accepted = true
             } else drop.accepted = false
@@ -382,6 +408,13 @@ Rectangle {
         interval: 1600
         repeat: false
         onTriggered: desk.copied = false
+    }
+
+    Timer {
+        id: sourceCopyFeedback
+        interval: 1600
+        repeat: false
+        onTriggered: desk.sourceCopied = false
     }
 
     component DeskProgress: ProgressBar {
@@ -662,7 +695,7 @@ Rectangle {
         anchors.rightMargin: desk.liveMode ? 24 : 32
         anchors.bottomMargin: desk.liveMode ? 24 : 28
         height: parent.height - (desk.liveMode ? 48 : 100)
-        readonly property int paperOffset: width < 520 ? 110 : 128
+        readonly property int paperOffset: desk.roomyActive ? 0 : (width < 520 ? 110 : 128)
 
         Rectangle {
             visible: desk.expanded && desk.hasWorkbench
@@ -702,7 +735,7 @@ Rectangle {
                 width: parent.width - 44
                 spacing: 4
                 RowLayout {
-                    visible: !desk.liveSnapshot.canBack && desk.liveSnapshot.view !== "apps" && desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "page"
+                    visible: !desk.liveSnapshot.canBack && desk.liveSnapshot.view !== "apps" && desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "page" && desk.liveSnapshot.view !== "reading"
                     spacing: 6
                     Rectangle {
                         implicitWidth: 6
@@ -734,12 +767,20 @@ Rectangle {
                 QuietButton {
                     objectName: "backToSearch"
                     visible: Boolean(desk.liveSnapshot.canBack)
-                    text: resultPaper.width < 400 ? "" : "Kết quả"
+                    text: resultPaper.width < 360 ? "Kết quả" : "Quay lại kết quả"
                     iconName: "arrow-left"
                     iconSize: 14
                     leftPadding: 6
-                    rightPadding: resultPaper.width < 400 ? 6 : 9
+                    rightPadding: 8
+                    Accessible.name: "Quay lại kết quả"
                     onClicked: desk.liveController.backToSearch()
+                }
+                QuietButton {
+                    objectName: "backFromReading"
+                    visible: desk.liveSnapshot.view === "reading"
+                    text: "Bàn làm việc"
+                    iconName: "arrow-left"
+                    onClicked: { desk.liveController.closeReadingDesk(); editor.forceActiveFocus() }
                 }
                 QuietButton {
                     objectName: "backFromApps"
@@ -771,7 +812,7 @@ Rectangle {
 
                 RowLayout {
                     id: pageNavCluster
-                    visible: desk.liveSnapshot.view === "page"
+                    visible: desk.liveSnapshot.view === "page" && !desk.liveSnapshot.canBack && desk.liveSnapshot.sourceKind !== "search_hit"
                     spacing: 2
 
                     IconButton {
@@ -857,34 +898,6 @@ Rectangle {
                         ToolTip.visible: hovered
                         ToolTip.text: "Đọc trang"
                     }
-
-                    IconButton {
-                        objectName: "openPdfSearchInPage"
-                        visible: resultPaper.width >= 420
-                        glyph: "search"
-                        iconSize: 12
-                        implicitWidth: 20
-                        implicitHeight: 20
-                        padding: 3
-                        Accessible.name: "Tìm từ khóa trong PDF (⌘F)"
-                        onClicked: desk.openPdfSearch()
-                        ToolTip.visible: hovered
-                        ToolTip.text: "Tìm chữ (⌘F)"
-                    }
-
-                    IconButton {
-                        objectName: "openOriginal"
-                        visible: resultPaper.width >= 420
-                        glyph: "external"
-                        iconSize: 12
-                        implicitWidth: 20
-                        implicitHeight: 20
-                        padding: 3
-                        Accessible.name: "Mở PDF gốc"
-                        onClicked: { if (desk.liveController) desk.liveController.openOriginal() }
-                        ToolTip.visible: hovered
-                        ToolTip.text: "Mở PDF gốc"
-                    }
                 }
 
                 Item {
@@ -909,12 +922,22 @@ Rectangle {
                     onClicked: desk.requestCopy()
                 }
                 QuietButton {
+                    objectName: "workspaceSizeButton"
+                    text: desk.roomyActive ? "Về gọn" : (resultPaper.width < 440 ? "↗" : "Mở rộng")
+                    Accessible.name: desk.roomyActive ? "Đưa workbench về kích thước trước" : "Mở rộng workbench theo màn hình"
+                    ToolTip.visible: hovered
+                    ToolTip.text: desk.roomyActive ? "Giữ phiên làm việc, trở về kích thước trước" : "Thêm không gian cho tài liệu và bàn xem"
+                    onClicked: desk.spaciousWorkbench = !desk.spaciousWorkbench
+                }
+                QuietButton {
                     objectName: "liveFoldButton"
                     text: ""
                     iconName: "minus"
                     leftPadding: 6
                     rightPadding: 6
-                    Accessible.name: "Thu workbench"
+                    Accessible.name: "Thu gọn"
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Thu gọn"
                     onClicked: desk.foldWorkbench()
                 }
             }
@@ -934,6 +957,7 @@ Rectangle {
                 width: parent.width - 52
                 height: 22
                 z: 4
+                enabled: false
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: "transparent" }
                     GradientStop { position: 0.75; color: Qt.rgba(desk.paperColor.r, desk.paperColor.g, desk.paperColor.b, 0.88) }
@@ -950,20 +974,28 @@ Rectangle {
                 contentWidth: availableWidth
                 contentHeight: resultContents.implicitHeight
                 clip: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 ScrollBar.vertical: ScrollBar {
+                    id: resultVerticalScroll
+                    objectName: "resultVerticalScroll"
                     parent: resultScroll
                     x: resultScroll.width - width
                     y: 2
                     height: resultScroll.availableHeight - 4
-                    width: 4
-                    policy: (resultScroll.contentHeight > resultScroll.height && desk.liveSnapshot.view !== "finder") ? ScrollBar.AlwaysOn : ScrollBar.AsNeeded
+                    width: 6
+                    policy: (resultScroll.contentHeight > resultScroll.height + 4 && desk.liveSnapshot.view !== "finder") ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
                     contentItem: Rectangle {
-                        implicitWidth: 4
-                        radius: 2
-                        color: desk.selectedEdge
-                        opacity: 0.85
+                        implicitWidth: 6
+                        radius: 3
+                        color: resultVerticalScroll.pressed ? desk.accent : (resultVerticalScroll.hovered ? (desk.darkMode ? "#c8d4bf" : "#4a5940") : (desk.darkMode ? "#6a7761" : "#809277"))
+                        opacity: 0.92
                     }
-                    background: Item {}
+                    background: Rectangle {
+                        implicitWidth: 6
+                        radius: 3
+                        color: desk.darkMode ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.04)
+                        visible: resultVerticalScroll.hovered || resultVerticalScroll.pressed
+                    }
                 }
             ColumnLayout {
                 id: resultContents
@@ -1036,7 +1068,7 @@ Rectangle {
                     }
                 }
                 Label {
-                    visible: !desk.liveMode || (desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "page")
+                    visible: !desk.liveMode || (desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "page" && desk.liveSnapshot.view !== "reading")
                     Layout.fillWidth: true
                     text: desk.liveMode ? (
                         desk.liveSnapshot.view === "finder" ? (desk.liveSnapshot.title || "Gợi ý tìm kiếm")
@@ -1048,6 +1080,12 @@ Rectangle {
                     font.pixelSize: desk.liveMode ? 16 : 20
                     font.weight: Font.Medium
                     wrapMode: Text.Wrap
+                }
+                ReadingDesk {
+                    objectName: "readingWorkbench"
+                    host: desk
+                    visible: desk.liveMode && desk.liveSnapshot.view === "reading"
+                    Layout.fillWidth: true
                 }
                 Label {
                     visible: !desk.liveMode && desk.phase === "result"
@@ -1193,6 +1231,192 @@ Rectangle {
                             }
                         }
 
+                        Rectangle {
+                            id: evidenceProcessCard
+                            objectName: "evidenceProcessCard"
+                            visible: Boolean(desk.liveSnapshot.processSteps && desk.liveSnapshot.processSteps.length > 0)
+                            Layout.fillWidth: true
+                            implicitHeight: evidenceProcessCol.implicitHeight + 12
+                            radius: desk.cardRadius
+                            color: desk.utilitySurface
+                            border.width: 1
+                            border.color: desk.edge
+
+                            ColumnLayout {
+                                id: evidenceProcessCol
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.top: parent.top
+                                anchors.leftMargin: 8
+                                anchors.rightMargin: 8
+                                anchors.topMargin: 6
+                                spacing: 6
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 4
+
+                                    Repeater {
+                                        id: processStepsRepeater
+                                        objectName: "processStepsRepeater"
+                                        model: desk.liveSnapshot.processSteps || []
+
+                                        RowLayout {
+                                            spacing: 4
+                                            Rectangle {
+                                                radius: 5
+                                                color: (modelData.status === "verified_fail") ? Qt.rgba(desk.warningInk.r, desk.warningInk.g, desk.warningInk.b, 0.14) :
+                                                       (modelData.status === "unverified") ? desk.utilitySurface :
+                                                       desk.selectedSurface
+                                                border.width: 1
+                                                border.color: (modelData.status === "verified_fail") ? desk.warningInk :
+                                                              (modelData.status === "unverified") ? desk.edge :
+                                                              desk.selectedEdge
+                                                implicitHeight: 20
+                                                implicitWidth: chipInnerRow.implicitWidth + 8
+                                                RowLayout {
+                                                    id: chipInnerRow
+                                                    anchors.centerIn: parent
+                                                    spacing: 3
+                                                    DeskIcon {
+                                                        name: modelData.iconName || "check"
+                                                        color: (modelData.status === "verified_fail") ? desk.warningInk :
+                                                               (modelData.status === "unverified") ? desk.muted :
+                                                               desk.accent
+                                                        width: 10
+                                                        height: 10
+                                                        Layout.preferredWidth: 10
+                                                        Layout.preferredHeight: 10
+                                                    }
+                                                    Label {
+                                                        text: evidenceProcessCard.width < 340 ? (modelData.shortTitle || "") : (modelData.fullTitle || "")
+                                                        font.pixelSize: 10
+                                                        font.weight: Font.Medium
+                                                        color: (modelData.status === "verified_fail") ? desk.warningInk :
+                                                               (modelData.status === "unverified") ? desk.muted :
+                                                               desk.accent
+                                                    }
+                                                }
+                                            }
+
+                                            Label {
+                                                visible: index < (processStepsRepeater.count - 1)
+                                                text: "→"
+                                                color: desk.muted
+                                                font.pixelSize: 10
+                                            }
+                                        }
+                                    }
+
+                                    Item { Layout.fillWidth: true }
+
+                                    QuietButton {
+                                        id: processDetailsToggle
+                                        objectName: "processDetailsToggle"
+                                        text: evidenceProcessCard.width < 340 ? "" : "Chi tiết"
+                                        trailingIconName: desk.processDetailsOpen ? "chevron-up" : "chevron-down"
+                                        trailingIconSize: 10
+                                        topPadding: 2
+                                        bottomPadding: 2
+                                        leftPadding: 4
+                                        rightPadding: 4
+                                        font.pixelSize: 10
+                                        Accessible.name: (desk.processDetailsOpen ? "Thu gọn" : "Xem") + " chi tiết đối chiếu"
+                                        Accessible.role: Accessible.Button
+                                        checkable: true
+                                        checked: desk.processDetailsOpen
+                                        onClicked: desk.processDetailsOpen = !desk.processDetailsOpen
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    id: processDetailsContent
+                                    objectName: "processDetailsContent"
+                                    visible: desk.processDetailsOpen
+                                    Layout.fillWidth: true
+                                    spacing: 4
+
+                                    Rectangle { Layout.fillWidth: true; height: 1; color: desk.edge; opacity: 0.6 }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        Label {
+                                            text: "Mục tiêu tìm:"
+                                            font.pixelSize: 11
+                                            font.weight: Font.Medium
+                                            color: desk.muted
+                                        }
+                                        Label {
+                                            text: desk.liveSnapshot.userQuery || "Trích xuất thông tin đối chiếu"
+                                            font.pixelSize: 11
+                                            color: desk.ink
+                                            Layout.fillWidth: true
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        Label {
+                                            text: "Phạm vi đọc:"
+                                            font.pixelSize: 11
+                                            font.weight: Font.Medium
+                                            color: desk.muted
+                                        }
+                                        Label {
+                                            text: desk.liveSnapshot.answerReadScope || (desk.liveSnapshot.fileName ? desk.liveSnapshot.fileName + " · Toàn văn / Đoạn trích" : "Tài liệu được chọn")
+                                            font.pixelSize: 11
+                                            color: desk.ink
+                                            Layout.fillWidth: true
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        Label {
+                                            text: "Kiểm chứng:"
+                                            font.pixelSize: 11
+                                            font.weight: Font.Medium
+                                            color: desk.muted
+                                        }
+                                        Label {
+                                            text: desk.liveSnapshot.answerVerification === "PASS" ? "✓ Đạt kiểm tra đối chiếu nguồn gốc" : (desk.liveSnapshot.answerVerification === "FAIL" ? "! Kiểm tra không khớp nội dung" : "Chưa xác minh độc lập")
+                                            font.pixelSize: 11
+                                            color: desk.liveSnapshot.answerVerification === "FAIL" ? desk.warningInk : desk.accent
+                                            font.weight: Font.Medium
+                                            Layout.fillWidth: true
+                                        }
+                                    }
+
+                                    Repeater {
+                                        model: desk.liveSnapshot.processSteps || []
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 6
+                                            visible: Boolean(modelData.detail)
+                                            Label {
+                                                text: (modelData.shortTitle || "Bước") + ":"
+                                                font.pixelSize: 11
+                                                font.weight: Font.Medium
+                                                color: desk.muted
+                                            }
+                                            Label {
+                                                text: modelData.detail || ""
+                                                font.pixelSize: 11
+                                                color: desk.ink
+                                                Layout.fillWidth: true
+                                                elide: Text.ElideRight
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 6
@@ -1202,6 +1426,33 @@ Rectangle {
                                 font.weight: Font.DemiBold
                                 font.letterSpacing: 0.5
                                 color: desk.muted
+                            }
+                            Label {
+                                id: answerDocSep
+                                visible: Boolean(answerDocumentLabel.text)
+                                text: "·"
+                                font.pixelSize: 11
+                                color: desk.muted
+                                opacity: 0.7
+                            }
+                            Label {
+                                id: answerDocumentLabel
+                                objectName: "answerDocumentLabel"
+                                visible: Boolean(text)
+                                text: {
+                                    if (desk.liveSnapshot.answerSources && desk.liveSnapshot.answerSources.length > 0 && desk.liveSnapshot.answerSources[0].title) {
+                                        return desk.liveSnapshot.answerSources[0].title
+                                    }
+                                    return desk.liveSnapshot.fileName || ""
+                                }
+                                font.pixelSize: 11
+                                font.weight: Font.Medium
+                                color: desk.accent
+                                elide: Text.ElideMiddle
+                                Layout.maximumWidth: resultPaper.width < 500 ? 160 : 260
+                                HoverHandler { id: docLabelHover }
+                                ToolTip.visible: docLabelHover.hovered
+                                ToolTip.text: answerDocumentLabel.text
                             }
                             Label {
                                 visible: Boolean(answerStatus.text)
@@ -1215,7 +1466,12 @@ Rectangle {
                                 objectName: "answerStatus"
                                 visible: Boolean(text)
                                 Layout.fillWidth: true
-                                text: (desk.liveSnapshot.answerReadScope ? desk.liveSnapshot.answerReadScope + " · " : "") + (desk.liveSnapshot.status || "")
+                                text: {
+                                    if (desk.liveSnapshot.answerSources && desk.liveSnapshot.answerSources.length > 0 && desk.liveSnapshot.answerVerification === "UNKNOWN") {
+                                        return (desk.liveSnapshot.answerReadScope ? desk.liveSnapshot.answerReadScope + " · " : "") + "Đã đọc nguồn · Chưa xác minh nội dung"
+                                    }
+                                    return (desk.liveSnapshot.answerReadScope ? desk.liveSnapshot.answerReadScope + " · " : "") + (desk.liveSnapshot.status || "")
+                                }
                                 textFormat: Text.PlainText
                                 wrapMode: Text.NoWrap
                                 elide: Text.ElideRight
@@ -1261,6 +1517,171 @@ Rectangle {
                         padding: 0
                         background: null
                         Accessible.name: "Câu trả lời của trợ lý"
+                    }
+                    Rectangle {
+                        id: evidenceSourceCard
+                        objectName: "evidenceSourceCard"
+                        visible: desk.liveSnapshot.view === "answer" && !desk.emptyCancelledAnswer && (desk.liveSnapshot.answerSources || []).length > 0
+                        Layout.fillWidth: true
+                        implicitHeight: evidenceSourceCol.implicitHeight + 18
+                        radius: desk.cardRadius
+                        color: desk.utilitySurface
+                        border.width: 1
+                        border.color: desk.edge
+
+                        ColumnLayout {
+                            id: evidenceSourceCol
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            anchors.topMargin: 10
+                            spacing: 8
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+
+                                DeskIcon { name: "file"; color: desk.accent; width: 13; height: 13; Layout.preferredWidth: 13; Layout.preferredHeight: 13 }
+
+                                Label {
+                                    id: evidenceSourceTitle
+                                    objectName: "evidenceSourceTitle"
+                                    text: {
+                                        if (desk.liveSnapshot.answerSources && desk.liveSnapshot.answerSources.length > 0) {
+                                            const s = desk.liveSnapshot.answerSources[0]
+                                            return "Nguồn: " + (s.title || desk.liveSnapshot.fileName || "Tài liệu") + (s.page > 0 ? (" · Trang " + s.page) : "") + (s.section ? (" · " + s.section) : "")
+                                        }
+                                        return "Nguồn: " + (desk.liveSnapshot.fileName || "")
+                                    }
+                                    font.pixelSize: 11
+                                    font.weight: Font.Medium
+                                    color: desk.ink
+                                    elide: Text.ElideMiddle
+                                    Layout.fillWidth: true
+                                }
+
+                                QuietButton {
+                                    id: expandContextButton
+                                    objectName: "expandContextButton"
+                                    text: desk.contextExpanded ? "Thu gọn" : (resultPaper.width < 400 ? "+ Ngữ cảnh" : "Mở rộng ngữ cảnh")
+                                    iconName: desk.contextExpanded ? "minus" : "plus"
+                                    iconSize: 11
+                                    topPadding: 3
+                                    bottomPadding: 3
+                                    leftPadding: 6
+                                    rightPadding: 6
+                                    font.pixelSize: 11
+                                    Accessible.name: desk.contextExpanded ? "Thu gọn về đoạn trích ngắn" : "Mở rộng ngữ cảnh xung quanh đoạn trích"
+                                    Accessible.role: Accessible.Button
+                                    onClicked: desk.contextExpanded = !desk.contextExpanded
+                                }
+
+                                QuietButton {
+                                    id: copyCitationButton
+                                    objectName: "copyCitationButton"
+                                    text: desk.sourceCopied ? "Đã chép" : (resultPaper.width < 400 ? "Chép" : "Chép trích dẫn")
+                                    iconName: desk.sourceCopied ? "check" : "copy"
+                                    iconSize: 11
+                                    topPadding: 3
+                                    bottomPadding: 3
+                                    leftPadding: 6
+                                    rightPadding: 6
+                                    font.pixelSize: 11
+                                    Accessible.name: "Sao chép trích dẫn và nguồn"
+                                    Accessible.role: Accessible.Button
+                                    onClicked: {
+                                        const citation = evidenceSourceSnippet.text + (evidenceSourceTitle.text ? ("\n\n— " + evidenceSourceTitle.text) : "")
+                                        if (desk.liveController.copyCitation(citation)) {
+                                            desk.sourceCopied = true
+                                            sourceCopyFeedback.restart()
+                                        }
+                                    }
+                                }
+
+                                QuietButton {
+                                    id: openExternalPdfButton
+                                    objectName: "openExternalPdfButton"
+                                    text: resultPaper.width < 400 ? "Mở PDF" : "Mở PDF gốc"
+                                    trailingIconName: "external"
+                                    trailingIconSize: 11
+                                    topPadding: 3
+                                    bottomPadding: 3
+                                    leftPadding: 6
+                                    rightPadding: 6
+                                    font.pixelSize: 11
+                                    Accessible.name: "Mở tài liệu bằng ứng dụng PDF bên ngoài"
+                                    Accessible.role: Accessible.Button
+                                    onClicked: desk.liveController.openOriginal()
+                                }
+                            }
+
+                            Rectangle { Layout.fillWidth: true; height: 1; color: desk.edge; opacity: 0.6 }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Rectangle {
+                                    Layout.preferredWidth: 3
+                                    Layout.fillHeight: true
+                                    radius: 1.5
+                                    color: desk.accent
+                                    opacity: 0.8
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 4
+
+                                    Rectangle {
+                                        visible: desk.contextExpanded
+                                        radius: 4
+                                        color: desk.selectedSurface
+                                        border.width: 1
+                                        border.color: desk.selectedEdge
+                                        implicitHeight: 18
+                                        implicitWidth: expandedTagLabel.implicitWidth + 8
+                                        Label {
+                                            id: expandedTagLabel
+                                            anchors.centerIn: parent
+                                            text: "Ngữ cảnh mở rộng"
+                                            font.pixelSize: 10
+                                            font.weight: Font.Medium
+                                            color: desk.accent
+                                        }
+                                    }
+
+                                    Label {
+                                        id: evidenceSourceSnippet
+                                        objectName: "evidenceSourceSnippet"
+                                        Layout.fillWidth: true
+                                        text: {
+                                            if (desk.liveSnapshot.answerSources && desk.liveSnapshot.answerSources.length > 0) {
+                                                const s = desk.liveSnapshot.answerSources[0]
+                                                if (desk.contextExpanded) {
+                                                    if (s.extendedSnippet && s.extendedSnippet.length > (s.snippet || "").length) {
+                                                        return s.extendedSnippet
+                                                    }
+                                                    if (desk.liveController && typeof desk.liveController.getExpandedContext === "function") {
+                                                        const ctx = desk.liveController.getExpandedContext(0)
+                                                        if (ctx && ctx.trim().length > 0) return ctx
+                                                    }
+                                                }
+                                                return s.snippet || desk.liveSnapshot.answerExcerpt || ""
+                                            }
+                                            return desk.liveSnapshot.answerExcerpt || ""
+                                        }
+                                        font.pixelSize: 12
+                                        lineHeight: 1.3
+                                        color: desk.ink
+                                        wrapMode: Text.Wrap
+                                        textFormat: Text.PlainText
+                                    }
+                                }
+                            }
+                        }
                     }
                     ColumnLayout {
                         id: answerReferences
@@ -1352,7 +1773,7 @@ Rectangle {
                         }
                     }
                     Label {
-                        visible: desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "busy" && desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "apps" && (desk.liveSnapshot.view !== "page" || desk.readerDisplayMode === "text" || desk.liveSnapshot.pageTruncated)
+                        visible: desk.liveSnapshot.view !== "answer" && desk.liveSnapshot.view !== "busy" && desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "apps" && desk.liveSnapshot.view !== "reading" && (desk.liveSnapshot.view !== "page" || desk.readerDisplayMode === "text" || desk.liveSnapshot.pageTruncated)
                         Layout.fillWidth: true
                         text: desk.liveSnapshot.view === "page" ? ((desk.liveSnapshot.pageTruncated ? "Đã cắt ở 8.000 ký tự. " : "") + (desk.readerDisplayMode === "text" ? "Bôi chọn đoạn cần lấy, rồi chép trích dẫn." : "")) : (desk.liveSnapshot.view === "error" ? desk.liveSnapshot.errorText : desk.liveSnapshot.status) || ""
                         textFormat: Text.PlainText
@@ -1725,7 +2146,8 @@ Rectangle {
                                             }
 
                                             Label {
-                                                text: modelData.display_path || modelData.path || modelData.snippet || ""
+                                                objectName: "finderMatchReason_" + index
+                                                text: (modelData.match_reason ? modelData.match_reason + " · " : "") + (modelData.display_path || modelData.path || modelData.snippet || "")
                                                 textFormat: Text.PlainText
                                                 color: desk.muted
                                                 font.pixelSize: 11
@@ -1734,6 +2156,19 @@ Rectangle {
                                                 Layout.minimumWidth: 0
                                                 ToolTip.visible: hitMouseArea.containsMouse
                                                 ToolTip.text: modelData.path || ""
+                                            }
+                                            Label {
+                                                objectName: "finderContentExcerpt_" + index
+                                                visible: modelData.kind === "file" && Boolean(modelData.snippet)
+                                                text: "Trích từ chỉ mục · " + (modelData.snippet || "")
+                                                textFormat: Text.PlainText
+                                                color: desk.ink
+                                                font.pixelSize: 11
+                                                wrapMode: Text.Wrap
+                                                maximumLineCount: 2
+                                                elide: Text.ElideRight
+                                                Layout.fillWidth: true
+                                                Layout.minimumWidth: 0
                                             }
                                         }
                                     }
@@ -1802,17 +2237,28 @@ Rectangle {
                                 spacing: 5
 
                                 KeycapBadge {
+                                    objectName: "finderAdoptAction"
+                                    visible: Boolean(bottomActionBar.selectedHit.is_pdf) || bottomActionBar.selectedHit.kind === "file"
+                                    keyText: "Tab"
+                                    labelText: bottomActionBar.width < 400 ? "Hỏi Chuột" : "Đưa vào bàn & Hỏi Chuột"
+                                    primary: true
+                                    onClicked: {
+                                        var idx = desk.selectedFinderIndex
+                                        desk.selectedFinderIndex = -1
+                                        desk.liveController.adoptSelectedHit(idx, editor.text)
+                                        editor.forceActiveFocus()
+                                    }
+                                }
+                                KeycapBadge {
                                     objectName: "finderReadAction"
                                     visible: Boolean(bottomActionBar.selectedHit.is_pdf)
                                     keyText: "↵"
                                     labelText: bottomActionBar.width < 400 ? "Chọn PDF" : "Chọn PDF để đọc / hỏi"
                                     Accessible.name: "Chọn PDF để đọc hoặc hỏi Chuột, Enter"
-                                    primary: true
                                     onClicked: {
                                         var idx = desk.selectedFinderIndex
                                         desk.selectedFinderIndex = -1
                                         desk.liveController.openSelectedHit(idx)
-                                        editor.text = ""
                                         editor.forceActiveFocus()
                                     }
                                 }
@@ -1822,6 +2268,13 @@ Rectangle {
                                     labelText: bottomActionBar.width < 400 ? "Mở" : "Mở ứng dụng"
                                     primary: true
                                     onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
+                                }
+                                KeycapBadge {
+                                    objectName: "finderOpenExternalAction"
+                                    visible: Boolean(bottomActionBar.selectedHit.is_pdf)
+                                    keyText: ""
+                                    labelText: "Mở bằng ứng dụng"
+                                    onClicked: desk.liveController.openHit(bottomActionBar.selectedHit.path)
                                 }
                                 KeycapBadge {
                                     visible: bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
@@ -2123,7 +2576,7 @@ Rectangle {
                         QuietButton { objectName: "nextBatch"; visible: desk.liveSnapshot.nextPage > 0; text: "Tìm tiếp từ trang " + desk.liveSnapshot.nextPage; onClicked: desk.liveController.nextBatch() }
                     }
                     RowLayout {
-                        visible: desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "apps"
+                        visible: desk.liveSnapshot.view !== "finder" && desk.liveSnapshot.view !== "apps" && desk.liveSnapshot.view !== "reading"
                         Layout.fillWidth: true
                         QuietButton {
                             objectName: "logToggle"
@@ -2140,7 +2593,7 @@ Rectangle {
                     }
                     Label { visible: desk.logOpen && desk.liveSnapshot.view === "page"; text: desk.liveSnapshot.status || ""; textFormat: Text.PlainText; wrapMode: Text.Wrap; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true }
                     Repeater {
-                        model: desk.logOpen ? (desk.liveSnapshot.events || []) : []
+                        model: desk.logOpen && desk.liveSnapshot.view !== "reading" ? (desk.liveSnapshot.events || []) : []
                         Label { required property string modelData; text: "· " + modelData; textFormat: Text.PlainText; wrapMode: Text.Wrap; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true }
                     }
                     Item { Layout.fillWidth: true; implicitHeight: desk.liveMode ? 32 : 8 }
@@ -2217,6 +2670,7 @@ Rectangle {
                         Layout.fillWidth: true
                         text: desk.hasFinderPreview
                             ? ("Gợi ý: " + (desk.allFinderHits[0].title || "Tìm kiếm"))
+                            : desk.hasReadingPreview ? "Bàn xem · " + ((desk.liveSnapshot.readingSession || {}).cards || []).length + " lá"
                             : desk.hasAnswerPreview ? desk.previewBody : desk.liveMode && desk.liveSnapshot.busy ? desk.liveSnapshot.status : desk.liveMode && desk.liveSnapshot.errorCode ? "Xem thông báo" : desk.hasPagePreview ? desk.pagePreviewTitle : desk.phase === "working" ? "Xem tiến trình" : "Xem kết quả"
                         textFormat: Text.PlainText
                         color: desk.hasAnswerPreview || desk.hasFinderPreview ? desk.ink : desk.accent
@@ -2229,7 +2683,7 @@ Rectangle {
                     DeskIcon { name: "chevron-up"; color: desk.accent; Layout.preferredWidth: 14; Layout.preferredHeight: 14; Layout.alignment: Qt.AlignTop }
                 }
                 RowLayout {
-                    visible: desk.hasAnswerPreview || desk.hasPagePreview || desk.hasFinderPreview || desk.noticeVisible
+                    visible: desk.hasAnswerPreview || desk.hasPagePreview || desk.hasFinderPreview || desk.hasReadingPreview || desk.noticeVisible
                     Layout.fillWidth: true
                     spacing: 5
                     Rectangle { visible: desk.noticeVisible; implicitWidth: 5; implicitHeight: 5; radius: 3; color: desk.accent }
@@ -2238,6 +2692,7 @@ Rectangle {
                         Layout.fillWidth: true
                         text: desk.hasFinderPreview
                             ? ((desk.allFinderHits[0].kind === "application" ? "Ứng dụng" : "Tệp") + " · " + (desk.allFinderHits[0].display_path || desk.allFinderHits[0].path || "") + " (" + desk.allFinderHits.length + " kết quả)")
+                            : desk.hasReadingPreview ? (((desk.liveSnapshot.readingSession || {}).chart || {}).name || "Chưa mở hồ sơ lá số")
                             : desk.hasAnswerPreview ? desk.previewMeta : desk.hasPagePreview ? desk.liveSnapshot.fileName : "Kết quả mới"
                         textFormat: Text.PlainText
                         font.pixelSize: 10
@@ -2488,7 +2943,7 @@ Rectangle {
                             objectName: "documentMenu"
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
-                            text: desk.liveSnapshot.activeContext ? (desk.liveSnapshot.activeContext.title + " · " + desk.liveSnapshot.activeContext.subtitle) : ""
+                            text: desk.liveSnapshot.activeContext ? desk.liveSnapshot.activeContext.title : ""
                             iconName: desk.liveSnapshot.fileName ? "pdf" : "file"
                             iconColor: desk.liveSnapshot.fileName ? desk.pdfInk : "transparent"
                             trailingIconName: ""
@@ -2545,6 +3000,7 @@ Rectangle {
                         id: editor
                         objectName: "draftEditor"
                         Accessible.name: "Nhập yêu cầu"
+                        Keys.priority: Keys.BeforeItem
                         KeyNavigation.priority: KeyNavigation.BeforeItem
                         KeyNavigation.tab: sendControl
                         padding: 0
@@ -2556,7 +3012,8 @@ Rectangle {
                         placeholderTextColor: desk.muted
                         placeholderText: desk.liveMode ? (
                             desk.liveSnapshot.view === "apps" ? "Tìm ứng dụng…"
-                            : (desk.liveSnapshot.fileName ? ("Hỏi Chuột về " + desk.liveSnapshot.fileName + "…") : "Tìm tệp, mở app hoặc hỏi Chuột…")
+                            : desk.liveSnapshot.view === "reading" ? "Bản nháp của phiên xem · chưa nối soạn luận…"
+                            : (desk.liveSnapshot.fileName ? "Hỏi tiếp về tài liệu này…" : "Tìm tệp, mở app hoặc hỏi Chuột…")
                         ) : desk.phase === "idle" ? "Chuột nghe đây. Bạn cần gì?" : "Hỏi tiếp hoặc sửa điều gì đó…"
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
@@ -2644,6 +3101,11 @@ Rectangle {
                             event.accepted = false
                         }
                         Keys.onEscapePressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "reading") {
+                                event.accepted = true
+                                desk.liveController.closeReadingDesk()
+                                return
+                            }
                             if (desk.liveMode && desk.liveSnapshot.view === "apps") {
                                 event.accepted = true
                                 var restored = desk.liveController.closeAppsView()
@@ -2661,6 +3123,17 @@ Rectangle {
                             }
                             event.accepted = false
                         }
+                        Keys.onTabPressed: event => {
+                            if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0 && desk.selectedFinderIndex < (desk.visibleFinderHits || []).length) {
+                                event.accepted = true
+                                var idx = desk.selectedFinderIndex
+                                desk.selectedFinderIndex = -1
+                                desk.liveController.adoptSelectedHit(idx, editor.text)
+                                editor.forceActiveFocus()
+                                return
+                            }
+                            event.accepted = false
+                        }
                         Keys.onReturnPressed: event => desk.handleComposerReturn(event)
                         Keys.onEnterPressed: event => desk.handleComposerReturn(event)
                     }
@@ -2668,6 +3141,7 @@ Rectangle {
                     QuietButton {
                         id: sendControl
                         objectName: "sendButton"
+                        enabled: !desk.hasReadingPreview
                         text: ""
                         iconName: desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy) ? "stop" : (desk.liveMode && desk.liveSnapshot.view === "apps" ? "enter" : "arrow-up")
                         iconSize: 16
@@ -2739,7 +3213,8 @@ Rectangle {
                             Layout.fillWidth: true
                             text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status
-                                : desk.liveSnapshot.view === "finder" ? "↑↓ chọn · ↵ mở · Esc đóng"
+                                : desk.liveSnapshot.view === "reading" ? "Bàn xem · đang chuẩn bị dữ liệu"
+                                : desk.liveSnapshot.view === "finder" ? "↑↓ chọn · ↵ mở · Tab đưa vào bàn & hỏi Chuột · Esc đóng"
                                 : (desk.liveSnapshot.view === "page" || desk.liveSnapshot.fileName) ? "↵ hỏi Chuột · ⌘F tìm chữ trong PDF"
                                 : desk.liveSnapshot.view === "answer" ? (desk.hasLatentFinderHits ? "↵ hỏi tiếp Chuột · Bấm ngăn trên mở tệp" : "↵ hỏi tiếp Chuột")
                                 : "Chuột sẵn sàng"
@@ -2761,10 +3236,10 @@ Rectangle {
                         bottomPadding: 0
                         implicitWidth: 30
                         implicitHeight: 30
-                        Accessible.name: desk.liveSnapshot.fileName ? "Đổi PDF" : "Chọn PDF"
+                        Accessible.name: desk.liveSnapshot.view === "reading" ? "Mở hồ sơ lá số JSON" : (desk.liveSnapshot.fileName ? "Đổi PDF" : "Chọn PDF")
                         ToolTip.visible: hovered
-                        ToolTip.text: desk.liveSnapshot.fileName ? "Đổi hoặc kéo thả PDF khác" : "Chọn hoặc kéo thả PDF"
-                        onClicked: pdfDialog.open()
+                        ToolTip.text: desk.liveSnapshot.view === "reading" ? "Mở hoặc thả hồ sơ lá số JSON" : (desk.liveSnapshot.fileName ? "Đổi hoặc kéo thả PDF khác" : "Chọn hoặc kéo thả PDF")
+                        onClicked: { if (desk.liveSnapshot.view === "reading") readingProfileDialog.open(); else pdfDialog.open() }
                     }
                     QuietButton {
                         objectName: "closeDesk"
@@ -2789,6 +3264,28 @@ Rectangle {
                     }
                     Item { visible: !desk.liveMode; Layout.fillWidth: true }
                 }
+                Label {
+                    objectName: "applicationLaunchFeedback"
+                    visible: desk.liveMode && Boolean(desk.liveSnapshot.launchFeedback)
+                    text: desk.liveSnapshot.launchFeedback || ""
+                    textFormat: Text.PlainText
+                    color: desk.liveSnapshot.launchFeedbackError ? desk.pdfInk : desk.accent
+                    font.pixelSize: 11
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                    Accessible.name: text
+                }
+                Label {
+                    objectName: "finderSearchFeedback"
+                    visible: desk.liveMode && Boolean(desk.liveSnapshot.finderFeedback)
+                    text: desk.liveSnapshot.finderFeedback || ""
+                    textFormat: Text.PlainText
+                    color: desk.muted
+                    font.pixelSize: 11
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                    Accessible.name: text
+                }
                 Loader {
                     Layout.fillWidth: true
                     active: desk.phase === "receiving" || (desk.liveMode && desk.liveSnapshot.busy && !desk.expanded)
@@ -2797,6 +3294,11 @@ Rectangle {
                 }
             }
         }
+    }
+    Shortcut {
+        sequences: ["Ctrl+Shift+R", "Meta+Shift+R"]
+        enabled: desk.liveMode && !desk.liveSnapshot.busy
+        onActivated: { desk.liveController.openReadingDesk(); editor.forceActiveFocus() }
     }
     Shortcut {
         sequence: "Ctrl+F"
@@ -2881,5 +3383,15 @@ Rectangle {
         sequence: "Meta+Y"
         enabled: desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0 && desk.selectedFinderIndex < (desk.visibleFinderHits || []).length
         onActivated: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)
+    }
+    Shortcut {
+        sequence: "Tab"
+        enabled: desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0 && desk.selectedFinderIndex < (desk.visibleFinderHits || []).length
+        onActivated: {
+            var idx = desk.selectedFinderIndex
+            desk.selectedFinderIndex = -1
+            desk.liveController.adoptSelectedHit(idx, editor.text)
+            editor.forceActiveFocus()
+        }
     }
 }
