@@ -385,8 +385,12 @@ class _LatestWorker:
 
 class SearchCoordinator:
     """Callbacks run on workers; UI must also check query_id at event delivery."""
-    def __init__(self, search, on_update):
+    def __init__(self, search, on_update, *, execution_service=None):
         self.search, self.on_update = search, on_update
+        if execution_service is None:
+            from rat.engine.execution_service import AgentExecutionService
+            execution_service = AgentExecutionService(None)
+        self.execution_service = execution_service
         self._lock = threading.Lock()
         self._current = None
         self._counter = 0
@@ -421,7 +425,12 @@ class SearchCoordinator:
         if not self.is_current(request.query_id):
             return
         try:
-            initial = self.search.initial(request)
+            initial = self.execution_service.execute_subplan(
+                "finder_preview",
+                {"search": self.search, "request": request},
+                should_cancel=request.cancelled.is_set,
+                generation=request.query_id,
+            )
             self._publish(request, initial)
             with self._lock:
                 if not initial.complete and not self._closed and self._current is request \
@@ -434,7 +443,13 @@ class SearchCoordinator:
         if not self.is_current(request.query_id):
             return
         try:
-            self._publish(request, self.search.refine(request, initial))
+            refined = self.execution_service.execute_subplan(
+                "finder_refine",
+                {"search": self.search, "request": request, "initial": initial},
+                should_cancel=request.cancelled.is_set,
+                generation=request.query_id,
+            )
+            self._publish(request, refined)
         except InterruptedError:
             pass
 

@@ -24,8 +24,7 @@ from rat.engine.finder_intent import parse_finder_intent
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
 from rat.engine.semantic_reranker import SemanticFuzzyReranker
 from rat.engine.selected_pdf import (
-    SelectedPDFError, check_current, citation_text, read_selected_page,
-    search_selected_pdf, select_pdf,
+    SelectedPDFError, check_current, citation_text, select_pdf,
 )
 from rat.engine.execution import (
     CONTEXT_ADAPTER_SCHEMA_VERSION,
@@ -117,11 +116,15 @@ class _Request:
 
 
 class _LatestPDFWorker:
-    def __init__(self, deliver):
+    def __init__(self, deliver, execution_service=None):
         self._condition = threading.Condition()
         self._pending = None
         self._closed = False
         self._deliver = deliver
+        if execution_service is None:
+            from rat.engine.execution_service import AgentExecutionService
+            execution_service = AgentExecutionService(None)
+        self._execution_service = execution_service
         self._thread = threading.Thread(target=self._run, name="rat-quick-pdf", daemon=True)
         self._thread.start()
 
@@ -142,14 +145,27 @@ class _LatestPDFWorker:
                     return
                 request, self._pending = self._pending, None
             try:
-                kwargs = {"should_cancel": request.cancelled.is_set}
+                kwargs = {"should_cancel": request.cancelled.is_set, "generation": request.serial}
                 if request.kind == "select":
-                    data = select_pdf(*request.args, **kwargs)
+                    data = self._execution_service.execute_subplan(
+                        "pdf_select",
+                        {"path": request.args[0], "select_fn": select_pdf},
+                        **kwargs,
+                    )
                 elif request.kind == "search":
                     selection, query, start = request.args
-                    data = search_selected_pdf(selection, query, start_page=start, **kwargs)
+                    data = self._execution_service.execute_subplan(
+                        "pdf_search",
+                        {"selection": selection, "query": query, "start_page": start},
+                        **kwargs,
+                    )
                 else:
-                    data = read_selected_page(*request.args, **kwargs)
+                    selection, page_number = request.args
+                    data = self._execution_service.execute_subplan(
+                        "pdf_read_page",
+                        {"selection": selection, "page_number": page_number},
+                        **kwargs,
+                    )
                 outcome, value = "ok", data
             except InterruptedError:
                 outcome, value = "cancelled", None
@@ -284,12 +300,14 @@ class QuickPDFController(QObject):
                 self._finder_coordinator = SearchCoordinator(
                     self._finder_search,
                     on_update=lambda snap: self._finder_delivered.emit(snap),
+                    execution_service=self._get_execution_service(),
                 )
             elif self._finder_catalog is not None:
                 self._finder_search = ProgressiveSearch(self._db_path, catalog=self._finder_catalog, semantic=self._finder_semantic)
                 self._finder_coordinator = SearchCoordinator(
                     self._finder_search,
                     on_update=lambda snap: self._finder_delivered.emit(snap),
+                    execution_service=self._get_execution_service(),
                 )
             elif auto_init_finder:
                 def scan_catalog():
@@ -508,6 +526,10 @@ class QuickPDFController(QObject):
         self._ready = True
         self.changed.emit()
 
+    def _get_execution_service(self):
+        from rat.engine.execution_service import AgentExecutionService
+        return AgentExecutionService(self.assistant_runtime)
+
     def _begin(self, kind, *args):
         if self._closed:
             return
@@ -519,7 +541,7 @@ class QuickPDFController(QObject):
         self._unread = False
         self._events = ["Đã nhận yêu cầu.", self._status]
         if self._worker is None:
-            self._worker = _LatestPDFWorker(self._delivered.emit)
+            self._worker = _LatestPDFWorker(self._delivered.emit, execution_service=self._get_execution_service())
         self._worker.submit(self._request)
         self.changed.emit()
 
@@ -1333,6 +1355,7 @@ class QuickPDFController(QObject):
         self._finder_coordinator = SearchCoordinator(
             self._finder_search,
             on_update=lambda snap: self._finder_delivered.emit(snap),
+            execution_service=self._get_execution_service(),
         )
         self._update_cached_apps(catalog)
         self.changed.emit()
@@ -1732,7 +1755,8 @@ class QuickPDFController(QObject):
                 self._request.cancelled.set()
                 self._request = None
             try:
-                self._selection = select_pdf(p)
+                service = self._get_execution_service()
+                self._selection = service.execute_subplan("pdf_select", {"path": p})
             except SelectedPDFError as exc:
                 self._show_error(exc.code)
                 return False
@@ -1786,7 +1810,8 @@ class QuickPDFController(QObject):
 
                 if is_pdf:
                     try:
-                        self._selection = select_pdf(p)
+                        service = self._get_execution_service()
+                        self._selection = service.execute_subplan("pdf_select", {"path": p})
                     except SelectedPDFError as exc:
                         self._show_error(exc.code)
                         return False

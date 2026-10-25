@@ -332,3 +332,59 @@ class AgentExecutionService:
         else:
             emit("turn_failed", error=resp.error)
         return resp
+
+    def execute_subplan(
+        self,
+        subplan_name: str,
+        args: Dict[str, Any],
+        *,
+        should_cancel: Optional[Callable[[], bool]] = None,
+        generation: Optional[int] = None,
+    ) -> Any:
+        """Execute a deterministic reader, finder preview, or document subplan within the unified agentic service boundary."""
+        if should_cancel and should_cancel():
+            raise InterruptedError("cancelled")
+
+        if subplan_name == "pdf_select":
+            select_fn = args.get("select_fn")
+            if select_fn is None:
+                from rat.engine.selected_pdf import select_pdf as select_fn
+            path = args.get("path")
+            return select_fn(path, should_cancel=should_cancel)
+        elif subplan_name == "pdf_search":
+            from rat.engine.selected_pdf import search_selected_pdf
+            selection = args.get("selection")
+            query = args.get("query")
+            start = args.get("start_page", 1)
+            return search_selected_pdf(selection, query, start_page=start, should_cancel=should_cancel)
+        elif subplan_name == "pdf_read_page":
+            from rat.engine.selected_pdf import read_selected_page
+            selection = args.get("selection")
+            page_number = args.get("page_number", 1)
+            return read_selected_page(selection, page_number, should_cancel=should_cancel)
+        elif subplan_name in ("finder_preview", "finder_initial"):
+            search = args.get("search")
+            request = args.get("request")
+            if search is not None and request is not None:
+                if should_cancel and should_cancel():
+                    raise InterruptedError("finder_cancelled")
+                return search.initial(request)
+            from rat.kernel.capabilities.finder import deterministic_finder
+            query = args.get("query", "")
+            resource_kind = args.get("resource_kind", "any")
+            limit = args.get("limit", 8)
+            db = getattr(self.runtime, "db", None)
+            catalog = args.get("catalog")
+            return deterministic_finder(query, db=db, catalog=catalog, resource_kind=resource_kind, limit=limit)
+        elif subplan_name == "finder_refine":
+            search = args.get("search")
+            request = args.get("request")
+            initial = args.get("initial")
+            if search is not None and request is not None and initial is not None:
+                if should_cancel and should_cancel():
+                    raise InterruptedError("finder_cancelled")
+                return search.refine(request, initial)
+            raise ValueError("finder_refine requires search, request, and initial in args")
+        else:
+            raise ValueError(f"Unknown subplan: {subplan_name}")
+
