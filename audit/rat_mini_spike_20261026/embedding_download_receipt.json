@@ -1,8 +1,0 @@
-{
-  "repo_id": "intfloat/multilingual-e5-small",
-  "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
-  "bytes": 135430819,
-  "all_source_checksums_verified": true,
-  "purpose": "development embedding smoke, not research campaign",
-  "weights_in_repository": false
-}

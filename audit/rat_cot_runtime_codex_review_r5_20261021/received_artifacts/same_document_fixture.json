@@ -1,7 +1,0 @@
-{
-  "kind": "synthetic counterexample derived from captured fake records",
-  "source": "audit/rat_overnight_sweep_codex_review_r5_20261019/legacy_fake_calls.jsonl",
-  "only_modified_field": "document_path",
-  "replacement": "/var/folders/xb/k2ck7tjx0j5gskqznf3ql7480000gn/T/rat_native_perf_f9mhsshs/so_tay_quy_che_dao_tao_2026.txt",
-  "no_real_inference": true
-}

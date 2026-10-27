@@ -1,3 +1,0 @@
-Command: .venv/bin/python -m pytest tests/test_rat_mini_tools.py -k ocr_correction_contract -q
-Actual tool result: 2 passed, 10 deselected in 5.39s
-Scope: dispatcher result contract, source preservation, repeated parent/root chain; seeded software fixtures. No provider, OCR or UI acceptance.

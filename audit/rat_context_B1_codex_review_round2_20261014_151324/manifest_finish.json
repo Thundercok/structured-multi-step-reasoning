@@ -1,9 +1,0 @@
-{
-  "rat/engine/context_snapshot.py": "8dea28d860d5cb207afb952dfef727628c963442ffc3eaf0d1513aa0d86ab598",
-  "rat/engine/completion.py": "d7b974b2862f08144eb69b82e792bdccb8943737d13cdae3665aea20218f9e3c",
-  "rat/kernel/contracts.py": "784fd28626dbd2174574139dfc1de2c73f979f9fe53faddc2bc1a5739bff2972",
-  "rat/kernel/dispatcher.py": "16181378861b9ab1ca937d13ff61d282db2a22057371c2ee84c4737c67e72412",
-  "tests/test_rat_context_snapshot.py": "d1903fdfb891dfcc3c5246fe6f7e3f9355466845f299b968ba52884face5f666",
-  "tests/test_artifact_store_lifecycle.py": "f38847182e18158504c086e34c47f5492dd3f3dba60ef1d9cea8b94b726e7ecf",
-  "audit/rat_context_B1_codex_review_20261014_123157/review_probes.py": "6efea8afad295d0e692ff0199469ff26573c7e28cc082324a675527ac206eab8"
-}

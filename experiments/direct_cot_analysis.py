@@ -24,7 +24,7 @@ from experiments.research_study import (
     ROOT, check_answer, git_value, seed_for, validate_dataset, write_json,
 )
 from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 
 
 PROMPT_PROFILE = "aligned-direct-cot-v1"
@@ -42,7 +42,7 @@ ANALYSIS_SOURCE_FILES = (
     "research_identity.py",
     "research_prompt_profiles.py",
     "research_scoring.py",
-    "reasoning_strategies.py",
+    "reasoning/reasoning_strategies.py",
     "scripts/gen_tasks.py",
 )
 DIRECT_MAX_VISIBLE_RATIONALE_RATE = 0.05

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from experiments.research_pilot import sha256_file, verify_replay
 from experiments.research_study import check_answer, write_json
-from reasoning_strategies import extract_code
+from reasoning.reasoning_strategies import extract_code
 from research_scoring import parse_typed_answer
 
 
@@ -16,7 +16,7 @@ def summarize(dataset, records, manifest):
     if manifest.get("prompt_profile") != "english-math-v1" or set(manifest["strategies"]) != {"DIRECT", "COT", "PAL"}:
         raise ValueError("Expected the English fixed math strategies")
     from qwen_mlx_backend import MATH_EN_SUFFIXES
-    from reasoning_env import ReasoningAction
+    from reasoning.reasoning_env import ReasoningAction
     items = {item["id"]: item for item in dataset["items"]}
     for row in records:
         item = items[row["id"]]

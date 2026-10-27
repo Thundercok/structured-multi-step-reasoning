@@ -1,5 +1,0 @@
-qt.qpa.fonts: Populating font family aliases took 380 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
-{"case": "edit_new_version_from_old", "expected_editor_open": true, "actual_editor_open": false}
-{"case": "compact_during_edit", "draft_preserved": true, "editor_visible": false, "editor_focused": false}
-{"case": "revision_link_after_edit", "current_text": "Có 35 phút · Chỉ ôn TCP.", "old_forward_label": "Xem bản mới (20 → 30 phút)"}
-{"case": "reduced_motion", "reduce_motion": true, "highlight_animation_running": true}

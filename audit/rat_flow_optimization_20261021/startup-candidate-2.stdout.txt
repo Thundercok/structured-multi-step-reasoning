@@ -1,1 +1,0 @@
-{"revision": "candidate", "import_ms": 440.04524988122284, "constructor_ms": 2155.444792006165, "show_and_events_ms": 96.69187502004206, "widgets_after_construct": 252}

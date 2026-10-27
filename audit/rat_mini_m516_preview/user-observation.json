@@ -1,9 +1,0 @@
-{
-  "origin": "user-provided screenshot, 2026-10-27 21:20:17",
-  "image": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_mini_m516_preview/user-translation-error.png",
-  "sha256": "a414ea601d8e0d3ff07b0bb70e914cec035ebb3031627d41db6ed3f4d4ba5803",
-  "observed": "M5.16 source UI visible; translation displays local-pack unavailable error",
-  "status": "translation_failure_open",
-  "cause": "not_yet_diagnosed",
-  "automated_acceptance": false
-}

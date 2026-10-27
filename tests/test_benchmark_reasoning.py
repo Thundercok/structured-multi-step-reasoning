@@ -17,7 +17,7 @@ from experiments.benchmark_reasoning import (
     get_expanded_benchmark,
     summarize_method_results,
 )
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 
 
 class TestBenchmarkReasoning(unittest.TestCase):

@@ -1,6 +1,0 @@
-{
-  "pid": 96408,
-  "verified_command": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/rat.app/Contents/MacOS/rat --diagnostics /Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_native_permissions_20261020/bundle-sessions --seconds 600",
-  "signal": "SIGTERM",
-  "purpose": "user deferred further permission work; close only the diagnostic app"
-}

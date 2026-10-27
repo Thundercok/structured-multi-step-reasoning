@@ -18,8 +18,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from entry_predictor import EntryChoice, EntryPredictor
-from optimal_stopping import OptimalStoppingPolicy
+from reasoning.entry_predictor import EntryChoice, EntryPredictor
+from reasoning.optimal_stopping import OptimalStoppingPolicy
 from reasoning.runtime import OnlineReasoningController
 from rat.engine.vgc import (
     VGCCertificate,
@@ -28,8 +28,8 @@ from rat.engine.vgc import (
     VGCVerifier,
     vgc_engine,
 )
-from reasoning_env import LADDER, ReasoningAction as A, complexity_features
-from reasoning_strategies import (
+from reasoning.reasoning_env import LADDER, ReasoningAction as A, complexity_features
+from reasoning.reasoning_strategies import (
     extract_answer,
     extract_code,
     majority_vote,

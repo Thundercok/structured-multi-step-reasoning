@@ -1,1 +1,0 @@
-Networks NET101. TCP retransmits missing segments. Exercise: explain timeout backoff. After consecutive timeouts, double the retransmission timeout; use acknowledgment and retry limits. IP routing is in a separate chapter.

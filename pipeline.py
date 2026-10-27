@@ -22,10 +22,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 
 from benchmark_dataset import get_curated_benchmark, get_train_test_split
-from entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data
-from optimal_stopping import OptimalStoppingPolicy, collect_calibration_data
-from reasoning_env import LADDER, LLMBackend, ReasoningAction as A, complexity_features
-from reasoning_strategies import numeric_match
+from reasoning.entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data
+from reasoning.optimal_stopping import OptimalStoppingPolicy, collect_calibration_data
+from reasoning.reasoning_env import LADDER, LLMBackend, ReasoningAction as A, complexity_features
+from reasoning.reasoning_strategies import numeric_match
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("pipeline")
@@ -162,7 +162,7 @@ class OllamaLocalBackend:
             return "", 0
 
     def run(self, strategy: A, query: str) -> Tuple[str, float, int]:
-        from reasoning_strategies import extract_answer, extract_code, parse_action, run_python_sandboxed, safe_calculate
+        from reasoning.reasoning_strategies import extract_answer, extract_code, parse_action, run_python_sandboxed, safe_calculate
         if strategy == A.COT:
             prompt = f"Question: {query}\nSolve step by step. Conclude with exactly 'Answer: <final result>'."
             txt, tok = self._query_ollama(prompt, temp=0.0)

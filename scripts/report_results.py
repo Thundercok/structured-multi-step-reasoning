@@ -31,7 +31,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.verifiers import order_verifier
 from scripts.gen_tasks import check24
-from reasoning_strategies import majority_vote
+from reasoning.reasoning_strategies import majority_vote
 
 AUDIT_DIR = ROOT / "audit"
 TRACE_PATH = AUDIT_DIR / "run11_sweep_trace.jsonl"

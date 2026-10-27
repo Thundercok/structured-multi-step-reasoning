@@ -215,7 +215,7 @@ def replay_completion(record: dict, tokenizer: Any, cap: int, *, prefix_text: st
 
 def score_replay(record: dict, tokenizer: Any, cap: int, item: dict, *, prefix_text: str = "") -> dict:
     """Use the existing typed parser/checker on only the retained response."""
-    from reasoning_strategies import parse_answer_details
+    from reasoning.reasoning_strategies import parse_answer_details
     from scripts.gen_tasks import check
 
     result = replay_completion(record, tokenizer, cap, prefix_text=prefix_text)

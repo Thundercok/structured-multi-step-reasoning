@@ -1,4 +1,4 @@
-from reasoning_strategies import (
+from reasoning.reasoning_strategies import (
     extract_answer, extract_number, numeric_match, parse_action,
     majority_vote, safe_calculate, run_python_sandboxed, extract_code,
 )
@@ -88,7 +88,7 @@ def test_sandbox_timeout():
 
 
 def test_extract_item_answer():
-    from reasoning_strategies import extract_item_answer
+    from reasoning.reasoning_strategies import extract_item_answer
 
     # Number item
     num_item = {"answer_type": "number", "answer": "129.6"}

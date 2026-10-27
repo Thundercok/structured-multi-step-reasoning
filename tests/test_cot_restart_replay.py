@@ -13,7 +13,7 @@ from experiments.cot_restart_pilot import MockLLM, execute_llm_call
 from experiments.cot_restart_replay import (
     CAP_SWEEP_SEED_POLICY, derive_cap_sweep_seed, replay_completion, score_replay,
 )
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 from scripts.audit_cot_restart_tokens import audit_rows
 
 

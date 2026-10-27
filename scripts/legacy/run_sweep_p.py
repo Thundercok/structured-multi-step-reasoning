@@ -22,7 +22,7 @@ if str(ROOT) not in sys.path:
 import mlx_lm
 from mlx_lm.sample_utils import make_sampler
 from scripts.gen_tasks import check as gen_check
-from reasoning_strategies import parse_answer_details, extract_answer
+from reasoning.reasoning_strategies import parse_answer_details, extract_answer
 from qwen_mlx_backend import COT_SUFFIX
 
 DATA_TUNE_PATH = ROOT / "data" / "gen02_tune.json"

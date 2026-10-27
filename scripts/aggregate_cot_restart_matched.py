@@ -23,7 +23,7 @@ INTERVAL_POINTS = ("M", "D_w0", "D_w1")
 METRICS = ("correct", "completion_tokens", "path_token_cost")
 ANALYSIS_SOURCES = (
     "scripts/analyze_cot_restart_matched.py", "experiments/cot_restart_replay.py",
-    "reasoning_strategies.py", "research_scoring.py", "scripts/gen_tasks.py",
+    "reasoning/reasoning_strategies.py", "research_scoring.py", "scripts/gen_tasks.py",
 )
 
 

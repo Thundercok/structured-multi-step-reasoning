@@ -309,3 +309,7 @@ session on capture cancellation, and revises the bubble/copy and C/B sprites.
 Details and verification limits are in `rat_mini_look_modes.md`. The existing
 packaged app predates these changes; this revision has not been built or tested.
 Real model-driven CoT, visual acceptance and main integration remain unconfirmed.
+
+Latest continuation: `docs/rat_mini_look_handoff_20261028.md`. The repair was later
+built as 20261028.7 and sent an open command; the newer near-text floating head,
+Wall presentation and corner indicator concept remains unimplemented.

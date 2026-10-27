@@ -15,7 +15,7 @@ from pathlib import Path
 import re
 import statistics
 
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 from research_identity import problem_fingerprint
 from scripts.gen_tasks import check
 
@@ -30,7 +30,7 @@ MENU = (0.0, 0.25, 0.5, 0.75)
 ANSWER_TYPES = {"arith": "number", "order": "text", "g24": "expression"}
 SOURCES = (
     "scripts/prepare_cot_restart.py", "research_identity.py",
-    "reasoning_strategies.py", "research_scoring.py", "scripts/gen_tasks.py",
+    "reasoning/reasoning_strategies.py", "research_scoring.py", "scripts/gen_tasks.py",
     "docs/cot_restart_preflight_protocol_20261009.md",
 )
 FINAL_MARKER = re.compile(

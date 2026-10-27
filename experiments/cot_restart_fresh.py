@@ -31,7 +31,7 @@ SOURCE_FILES = (
     "experiments/cot_restart_fresh.py", "experiments/cot_restart_pilot.py",
     "experiments/cot_restart_replay.py", "experiments/order_pilot_checkpoint.py",
     "experiments/research_study.py", "research_identity.py",
-    "research_prompt_profiles.py", "reasoning_strategies.py", "scripts/gen_tasks.py",
+    "research_prompt_profiles.py", "scripts/gen_tasks.py",
     "reasoning/__init__.py", "reasoning/reasoning_strategies.py",
     "reasoning/reasoning_env.py", "reasoning/entry_predictor.py", "reasoning/optimal_stopping.py",
 )

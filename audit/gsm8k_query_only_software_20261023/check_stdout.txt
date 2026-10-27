@@ -1,8 +1,0 @@
-{
-  "selection_identical": true,
-  "synthetic_utility_differences": {
-    "base": 0.0245,
-    "validation_changed": -0.9754999999999999
-  },
-  "new_model_calls": 0
-}

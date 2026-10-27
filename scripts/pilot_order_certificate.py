@@ -27,7 +27,7 @@ from experiments.order_certificate_study import (
     format_selector_candidates,
 )
 from experiments.order_pilot_checkpoint import PilotCheckpoint, atomic_json, atomic_text, digest
-from reasoning_strategies import extract_code, run_python_sandboxed
+from reasoning.reasoning_strategies import extract_code, run_python_sandboxed
 from scripts.verified_pal_order import solve_order_query
 from experiments.research_study import seed_for
 
@@ -193,7 +193,7 @@ def _source_hashes():
         "scripts/pilot_order_certificate.py", "experiments/order_pilot_checkpoint.py",
         "experiments/order_certificate_study.py", "experiments/research_study.py",
         "scripts/verified_pal_order.py", "scripts/gen_tasks.py", "research_identity.py",
-        "reasoning_strategies.py",
+        "reasoning/reasoning_strategies.py",
     )
     return {name: file_hash(ROOT / name) for name in names}
 

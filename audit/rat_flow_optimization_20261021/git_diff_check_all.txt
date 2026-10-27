@@ -1,7 +1,0 @@
-rat/engine/work_trace.py:635: new blank line at EOF.
-rat/kernel/capabilities/views.py:159: new blank line at EOF.
-rat/ui/compact_results.py:150: trailing whitespace.
-+ 
-rat/ui/theme.py:396: new blank line at EOF.
-tests/test_rat_context_snapshot.py:1320: new blank line at EOF.
-tests/test_rat_magic_ui.py:263: new blank line at EOF.

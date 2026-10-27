@@ -20,7 +20,7 @@ from experiments.research_study import (
     ROOT, STRATEGY_LABELS, check_answer, git_value, seed_for, smoke_dataset,
     source_hashes, validate_dataset, write_json,
 )
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
 
 

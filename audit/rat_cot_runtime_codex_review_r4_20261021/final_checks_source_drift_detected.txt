@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_cot_runtime_codex_review_r4_20261021/build_validation.py", line 142, in <module>
-    assert not source_changed and not source_mismatch and not artifact_mismatch
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError

@@ -1,6 +1,6 @@
 import time
 import mlx_lm
-from reasoning_strategies import run_python_sandboxed
+from reasoning.reasoning_strategies import run_python_sandboxed
 
 REPO = "mlx-community/Qwen2.5-0.5B-Instruct-4bit"
 

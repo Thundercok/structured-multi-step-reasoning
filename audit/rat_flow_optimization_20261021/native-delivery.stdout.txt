@@ -1,1 +1,0 @@
-{"diagnostic_session": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_flow_optimization_20261021/native-sessions/20261021T041439Z-6c2634cd", "identity": {"pid": 63592, "executable": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/bin/python", "mode": "source", "bundle_id": null, "bundle_path": null, "version": null}}

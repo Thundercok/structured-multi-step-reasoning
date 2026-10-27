@@ -1,6 +1,0 @@
-{
-  "rat/ui/turn_notes.py": "9965f1fd4823ddd7f9f2aa51cd75d2ac89c756b7ef56ec5aa590c6eff59ea5ac",
-  "rat/ui/turn_notes_preview.py": "47b0d485e07f2891beafd840730988ad93cf288e964cfb476d308bc27cc71629",
-  "scripts/preview_turn_notes.py": "79da0db62a63f4050be2fef52ce33cca7e36c59d5c6429cce5c23244e8d13999",
-  "tests/test_turn_notes_preview.py": "acf8740d4c432947f3631f667d6e9265f546d9321f00ebdbb112b6ded5b007c0"
-}

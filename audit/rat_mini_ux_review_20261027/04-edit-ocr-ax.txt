@@ -1,8 +1,0 @@
-The following is a diff from the previous accessibility tree for Window: "RAT Mini · M5.13" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
-+	32 text Value: Chữ trong ảnh · có thể sửa Đã nối các dòng chữ cùng đoạn để dịch. Chữ nhận ban đầu vẫn được giữ., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.Label_QMLTYPE_8, Secondary Actions: Raise
-+	33 text field (settable) Chữ trong ảnh, có thể sửa trước khi dịch lại, Value: I u s Helv Hello world. This is a short public text for translation., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.ScrollView_QMLTYPE_9.ocrSourceEditor, Secondary Actions: Raise
-+	34 scroll bar (settable) ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.ScrollView_QMLTYPE_9.ScrollBar_QMLTYPE_10, Secondary Actions: Raise
-+	35 button Dịch lại, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
-+	36 button Xem chữ ban đầu, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
-+	37 button Thu gọn, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
-The focused UI element is 33 text field (settable) Chữ trong ảnh, có thể sửa trước khi dịch lại, Value: I u s Helv Hello world. This is a short public text for translation., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.ScrollView_QMLTYPE_9.ocrSourceEditor, Secondary Actions: Raise

@@ -34,7 +34,7 @@ from experiments.cot_restart_addendum import (
     run_cot_restart_addendum,
     verify_historical_run,
 )
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 from research_identity import problem_fingerprint
 
 

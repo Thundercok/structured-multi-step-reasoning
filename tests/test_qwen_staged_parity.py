@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 from qwen_mlx_backend import (
     MATH_EN_SUFFIXES,
     QwenMLXBackend,
@@ -732,7 +732,7 @@ def guarded_import(name, *a, **kw):
 builtins.__import__ = guarded_import
 
 import numpy as np
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 from qwen_mlx_backend import QwenMLXBackend, QwenMLXStagedRunner
 from tests.test_qwen_staged_parity import (
     FakeModel,

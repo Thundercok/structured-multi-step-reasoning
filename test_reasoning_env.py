@@ -2,7 +2,7 @@ import zlib
 
 import numpy as np
 
-from reasoning_env import A, LADDER, ReasoningEnv
+from reasoning.reasoning_env import A, LADDER, ReasoningEnv
 
 
 class MockLLM:
@@ -109,7 +109,7 @@ def test_truncation_without_answer_is_wrong():
 
 
 def test_expanded_complexity_features():
-    from reasoning_env import complexity_features, expanded_complexity_features
+    from reasoning.reasoning_env import complexity_features, expanded_complexity_features
 
     q1 = "What is 5 + 7?"
     f_v1 = complexity_features(q1, version=1)

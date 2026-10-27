@@ -1,5 +1,0 @@
-{
-  "verified_original_copies": 2,
-  "baseline_xml_backups_found": [],
-  "old_files_modified": false
-}

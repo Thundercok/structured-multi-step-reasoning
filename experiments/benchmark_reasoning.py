@@ -34,18 +34,18 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data
-from optimal_stopping import (
+from reasoning.entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data
+from reasoning.optimal_stopping import (
     CalibrationData,
     OptimalStoppingPolicy,
     collect_calibration_data,
 )
-from reasoning_env import (
+from reasoning.reasoning_env import (
     LADDER,
     ReasoningAction as A,
     complexity_features,
 )
-from reasoning_strategies import (
+from reasoning.reasoning_strategies import (
     extract_answer,
     majority_vote,
     run_python_sandboxed,

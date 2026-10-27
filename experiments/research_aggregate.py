@@ -13,7 +13,7 @@ import numpy as np
 from experiments.research_study import (
     ROOT, STRATEGY_LABELS, summarize, summarize_methods, validate_dataset, write_json,
 )
-from reasoning_env import LADDER, STRATEGIES
+from reasoning.reasoning_env import LADDER, STRATEGIES
 
 
 METHODS = {f"fixed_{strategy.name.lower()}" for strategy in STRATEGIES} | {

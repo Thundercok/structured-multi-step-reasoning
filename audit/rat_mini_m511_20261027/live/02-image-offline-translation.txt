@@ -1,9 +1,0 @@
-The following is a diff from the previous accessibility tree for Window: "RAT Mini · M5.11" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
-Removed element IDs: 13
-~	11 text Value: Bản dịch, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_10.resultStatus, Secondary Actions: Raise
-+	23 text field (settable) Bản dịch, Value: I u Helv Chào cả thế giới. Đây là một đoạn ngắn Văn bản công cho Dịch đi., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_10.translationText, Secondary Actions: Raise
-+	24 text Value: Ảnh đã chọn · Dịch trên máy · Tiếng Anh → Tiếng Việt, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_10.Label_QMLTYPE_4, Secondary Actions: Raise
-+	25 button Sao chép bản dịch, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_10.QuietButton_QMLTYPE_6, Secondary Actions: Raise
-+	26 button Sửa chữ trong ảnh, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_10.QuietButton_QMLTYPE_6, Secondary Actions: Raise
-~	20 button Gửi yêu cầu, ID: QGuiApplication.QQuickView.sendButton, Secondary Actions: Raise
-The focused UI element is 10 dialog RAT Mini · M5.11, Secondary Actions: Raise

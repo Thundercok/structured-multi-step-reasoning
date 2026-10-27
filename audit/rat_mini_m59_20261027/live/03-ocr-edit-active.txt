@@ -1,2 +1,0 @@
-There has been no change in the accessibility tree for Window: "RAT Mini · M5.9".
-The focused UI element is 17 text field (settable) Chữ trong ảnh, có thể sửa trước khi dịch lại, Value: Hello world. This is a short public text for translation., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_11.ScrollView_QMLTYPE_11.ocrSourceEditor, Secondary Actions: Raise

@@ -14,7 +14,7 @@ MARKER = re.compile(r"(?P<outer>\*\*)?(?:final\s+)?answer(?P<label_close>\*\*)?\
 
 def _presentation(candidate):
     """Remove whole-answer bold and contiguous repeated labels, not prose."""
-    from reasoning_strategies import normalize_answer
+    from reasoning.reasoning_strategies import normalize_answer
 
     return normalize_answer(candidate)
 

@@ -1,1 +1,0 @@
-{"revision": "baseline", "import_ms": 338.64895813167095, "constructor_ms": 5786.404625046998, "show_and_events_ms": 88.17583392374218, "widgets_after_construct": 356}

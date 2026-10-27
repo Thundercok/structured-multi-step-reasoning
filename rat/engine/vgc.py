@@ -14,7 +14,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from rat.engine.context_parser import remove_accents
-from reasoning_strategies import run_python_sandboxed, safe_calculate
+from reasoning.reasoning_strategies import run_python_sandboxed, safe_calculate
 
 logger = logging.getLogger("rat.engine.vgc")
 

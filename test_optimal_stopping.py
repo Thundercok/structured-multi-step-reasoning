@@ -1,7 +1,7 @@
 import numpy as np
 
-from optimal_stopping import CalibrationData, OptimalStoppingPolicy, collect_calibration_data, fit_threshold
-from reasoning_env import LADDER, ReasoningAction as A
+from reasoning.optimal_stopping import CalibrationData, OptimalStoppingPolicy, collect_calibration_data, fit_threshold
+from reasoning.reasoning_env import LADDER, ReasoningAction as A
 
 
 class MockLadderLLM:
@@ -124,7 +124,7 @@ def test_policy_beats_cheapest_and_costs_less_than_priciest():
 
 
 def test_brier_score_and_ece():
-    from optimal_stopping import brier_score, expected_calibration_error
+    from reasoning.optimal_stopping import brier_score, expected_calibration_error
 
     # Perfect confidence
     conf = np.array([1.0, 1.0, 0.0, 0.0])
@@ -140,7 +140,7 @@ def test_brier_score_and_ece():
 
 
 def test_calibrators_reduce_calibration_error():
-    from optimal_stopping import IsotonicCalibrator, PlattCalibrator, expected_calibration_error
+    from reasoning.optimal_stopping import IsotonicCalibrator, PlattCalibrator, expected_calibration_error
 
     rng = np.random.default_rng(42)
     N = 100
@@ -163,7 +163,7 @@ def test_calibrators_reduce_calibration_error():
 
 
 def test_bootstrap_thresholds_returns_valid_intervals():
-    from optimal_stopping import bootstrap_thresholds
+    from reasoning.optimal_stopping import bootstrap_thresholds
 
     backend = MockLadderLLM(GOLD, seed=4)
     calib = collect_calibration_data(backend, DATA[:100], CHECK)

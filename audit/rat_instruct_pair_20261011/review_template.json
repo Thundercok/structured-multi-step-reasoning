@@ -1,8 +1,0 @@
-{
-  "continue_quality": null,
-  "notes": "",
-  "pair_trace_sha256": "1fd017bb2fe5ce7aa446073981c00f5c14cf131e785bf65b43ba688589220397",
-  "reviewer": "",
-  "rubric": "0..1: fulfill requested work, grounded in read content, respect 20-minute limit and skip already-known IP routing",
-  "stop_quality": null
-}

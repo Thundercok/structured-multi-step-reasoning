@@ -291,3 +291,13 @@ no live model turn was run here. Telemetry distinguishes requests from received
 model responses and completion events retain the actual completion status. A
 response counter alone is not evidence of a successful multi-step plan, semantic
 correctness, or user acceptance. Main integration and Stage 0 remain gated.
+
+## Latest handoff and build — 2026-10-28
+
+See [current handoff](rat_mini_look_handoff_20261028.md). The repair source above
+has since been packaged as 0.5.17 / 20261028.7 in
+`dist/mini-look-20261028-repair/`; `open -n` was issued successfully. No live UI
+acceptance or real model run was performed. The user's newer floating-head near
+copied text / Wall presentation / corner RAT direction is recorded there and
+has not been implemented. Actual checkout at handoff is `rescue/human-control`,
+despite the instruction to work on main; no branch switch was performed here.

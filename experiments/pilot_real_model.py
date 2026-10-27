@@ -27,7 +27,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from qwen_mlx_backend import QwenMLXBackend, COT_SUFFIX, REACT_SYSTEM, PAL_SUFFIX
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 from experiments.research_study import check_answer
 
 

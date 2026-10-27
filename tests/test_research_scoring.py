@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from experiments.research_study import check_answer, collect_records, smoke_dataset, validate_dataset
-from reasoning_strategies import extract_answer, majority_vote, parse_answer_details
+from reasoning.reasoning_strategies import extract_answer, majority_vote, parse_answer_details
 from research_scoring import numeric_literal
 from scripts.gen_tasks import check
 
@@ -119,7 +119,7 @@ def test_collection_supplies_format_without_gold_to_backend():
     ],
 )
 def test_k_raw_fixtures_normalization(raw, expected):
-    from reasoning_strategies import normalize_answer
+    from reasoning.reasoning_strategies import normalize_answer
 
     assert normalize_answer(raw) == expected
 

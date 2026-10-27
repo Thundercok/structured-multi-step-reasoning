@@ -12,7 +12,7 @@ import statistics
 import subprocess
 import types
 
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 from research_identity import problem_fingerprint
 from scripts.audit_development_data import solve_procedural_query
 from scripts.gen_tasks import check

@@ -11,8 +11,8 @@ Each test is anchored to a real raw trace fixture from previous pilot runs:
 import pytest
 import qwen_mlx_backend
 from qwen_mlx_backend import QwenMLXBackend, REACT_SYSTEM
-from reasoning_env import ReasoningAction as A
-from reasoning_strategies import (
+from reasoning.reasoning_env import ReasoningAction as A
+from reasoning.reasoning_strategies import (
     extract_answer,
     extract_code,
     run_python_sandboxed,

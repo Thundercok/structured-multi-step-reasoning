@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 from research_identity import (
     FAMILIES,
     canonical_problem_id,
@@ -104,7 +104,7 @@ SOURCE_FILES = (
     "experiments/cot_restart_addendum.py",
     "experiments/cot_restart_replay.py",
     "experiments/research_study.py",
-    "reasoning_strategies.py",
+    "reasoning/reasoning_strategies.py",
     "research_identity.py",
     "research_prompt_profiles.py",
     "scripts/gen_tasks.py",

@@ -1,8 +1,8 @@
 import numpy as np
 
-from entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data, simulate_ladder_outcome
-from optimal_stopping import CalibrationData, OptimalStoppingPolicy, collect_calibration_data
-from reasoning_env import ReasoningAction as A
+from reasoning.entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data, simulate_ladder_outcome
+from reasoning.optimal_stopping import CalibrationData, OptimalStoppingPolicy, collect_calibration_data
+from reasoning.reasoning_env import ReasoningAction as A
 
 
 def test_simulate_ladder_outcome_matches_manual_trace():
@@ -99,7 +99,7 @@ def test_predictor_learns_correct_routing_per_cluster():
     for t, want in expect.items():
         for i in range(n):
             q = f"{t}_test{i}"
-            got = predictor.choose(test_backend.embed(q), __import__("reasoning_env").complexity_features(q))
+            got = predictor.choose(test_backend.embed(q), __import__("reasoning.reasoning_env", fromlist=["x"]).complexity_features(q))
             correct_routes += int(got == want)
     assert correct_routes / (n * 3) > 0.9  # >90% route đúng loại, không phải đoán mò (1/3 ~ 33%)
 

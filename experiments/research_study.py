@@ -17,9 +17,9 @@ from pathlib import Path
 
 import numpy as np
 
-from entry_predictor import EntryPredictor, EntryTrainingData
-from optimal_stopping import CalibrationData, OptimalStoppingPolicy
-from reasoning_env import LADDER, ReasoningAction as A, STRATEGIES, complexity_features
+from reasoning.entry_predictor import EntryPredictor, EntryTrainingData
+from reasoning.optimal_stopping import CalibrationData, OptimalStoppingPolicy
+from reasoning.reasoning_env import LADDER, ReasoningAction as A, STRATEGIES, complexity_features
 from research_identity import FAMILIES, IDENTITY_VERSION, canonical_problem_id, problem_fingerprint
 
 
@@ -344,10 +344,6 @@ def git_value(*arguments):
 def source_hashes():
     names = (
         "experiments/research_study.py",
-        "optimal_stopping.py",
-        "entry_predictor.py",
-        "reasoning_env.py",
-        "reasoning_strategies.py",
         "reasoning/__init__.py",
         "reasoning/entry_predictor.py",
         "reasoning/optimal_stopping.py",

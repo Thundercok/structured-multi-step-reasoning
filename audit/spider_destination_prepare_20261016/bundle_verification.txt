@@ -1,5 +1,0 @@
-The bundle contains this ref:
-e21fcef0d26f22216a195e81a0fcf4041e2349aa refs/heads/main
-The bundle records a complete history.
-The bundle uses this hash algorithm: sha1
-/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/spider_destination_prepare_20261016/destination_import.bundle is okay

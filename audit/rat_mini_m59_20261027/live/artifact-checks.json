@@ -1,6 +1,0 @@
-{
-  "checks": "real live artifact parent/root/hash/provenance and exact ASCII Finder query verified",
-  "correction_structure": "PASS",
-  "translation": "translation_rate_limited",
-  "new_model_calls": 0
-}

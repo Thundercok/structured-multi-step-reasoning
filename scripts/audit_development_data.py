@@ -323,7 +323,7 @@ def main(argv=None):
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "source_sha256": {
             name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-            for name in ("scripts/audit_development_data.py", "research_identity.py", "research_scoring.py", "experiments/research_study.py", "scripts/gen_tasks.py", "reasoning_strategies.py", "qwen_mlx_backend.py")
+            for name in ("scripts/audit_development_data.py", "research_identity.py", "research_scoring.py", "experiments/research_study.py", "scripts/gen_tasks.py", "reasoning/reasoning_strategies.py", "qwen_mlx_backend.py")
         },
         "review_evidence_sha256": {
             name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()

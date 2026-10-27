@@ -7,7 +7,7 @@ from decimal import Decimal, InvalidOperation
 
 from experiments.research_study import check_answer
 from qwen_mlx_backend import QwenMLXBackend
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 
 REPO = "mlx-community/Qwen2.5-0.5B-Instruct-4bit"
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

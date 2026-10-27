@@ -12,7 +12,12 @@ from dataclasses import dataclass
 from enum import IntEnum
 
 import numpy as np
+from sklearn.compose import ColumnTransformer
+from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.model_selection import GridSearchCV, KFold, StratifiedKFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 try:
     from reasoning.optimal_stopping import CalibrationData, OptimalStoppingPolicy
@@ -74,21 +79,77 @@ class _ConstantClassifier:
         return p
 
 
+# Regularization grids. With d >> N the data is almost surely linearly separable, so the
+# penalty strength is THE hyperparameter - it is chosen by CV, never left at sklearn defaults.
+_C_GRID = np.logspace(-4, 1, 11)       # LogisticRegression: smaller C = stronger L2
+_ALPHA_GRID = np.logspace(-1, 5, 13)   # Ridge: larger alpha = stronger L2
+_FALLBACK_C = 0.01                     # used only when CV is impossible (too few samples/class)
+_FALLBACK_ALPHA = 1e3
+
+
 class EntryPredictor:
-    def __init__(self, lam: float = 0.05):
+    """Per-candidate accuracy (logistic) + cost (ridge) heads on [LLM embedding | complexity].
+
+    Anti-overfitting design for N ~ 100-200, d ~ 4096:
+      * embedding block and complexity block are standardized SEPARATELY (else 4096 dims drown 3);
+      * optional PCA(whiten) on the embedding block (n_components=None disables it);
+      * L2 strength tuned by inner CV; scaler/PCA are refit inside every fold (no leakage).
+    """
+
+    def __init__(self, lam: float = 0.05, n_components: int | None = 32, seed: int = 0, cv_folds: int = 5):
         self.lam = lam
+        self.n_components = n_components
+        self.seed = seed
+        self.cv_folds = cv_folds
         self.perf: list = []
         self.cost: list = []
 
     def _features(self, embed: np.ndarray, complexity: np.ndarray) -> np.ndarray:
         return np.concatenate([embed, complexity], axis=-1)
 
+    def _pipeline(self, d: int, c: int, n_comp: int | None, head) -> Pipeline:
+        embed_steps = [("scale", StandardScaler())]
+        if n_comp:
+            embed_steps.append(("pca", PCA(n_components=n_comp, whiten=True, random_state=self.seed)))
+        pre = ColumnTransformer([
+            ("embed", Pipeline(embed_steps), list(range(d))),
+            ("complexity", StandardScaler(), list(range(d, d + c))),
+        ])
+        return Pipeline([("pre", pre), ("head", head)])
+
+    def _fit_classifier(self, X, y, d, c, n_comp):
+        classes, counts = np.unique(y, return_counts=True)
+        if len(classes) < 2:
+            return _ConstantClassifier(y[0])
+        n_splits = min(self.cv_folds, int(counts.min()))
+        pipe = self._pipeline(d, c, n_comp, LogisticRegression(max_iter=2000))
+        if n_splits < 2:  # a class has a single example: CV impossible, fall back to strong fixed L2
+            return pipe.set_params(head__C=_FALLBACK_C).fit(X, y)
+        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
+        return GridSearchCV(pipe, {"head__C": _C_GRID}, cv=cv, scoring="neg_log_loss", error_score="raise").fit(X, y)
+
+    def _fit_regressor(self, X, y, d, c, n_comp):
+        n_splits = min(self.cv_folds, len(y))
+        pipe = self._pipeline(d, c, n_comp, Ridge())
+        if n_splits < 2:
+            return pipe.set_params(head__alpha=_FALLBACK_ALPHA).fit(X, y)
+        cv = KFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
+        return GridSearchCV(pipe, {"head__alpha": _ALPHA_GRID}, cv=cv, scoring="neg_mean_squared_error", error_score="raise").fit(X, y)
+
     def fit(self, data: EntryTrainingData) -> "EntryPredictor":
+        N, d = data.embed.shape
+        c = data.complexity.shape[1]
         X = self._features(data.embed, data.complexity)
-        for c in range(len(EntryChoice)):
-            y_acc = data.accuracy[:, c]
-            self.perf.append(_ConstantClassifier(y_acc[0]) if len(np.unique(y_acc)) < 2 else LogisticRegression(max_iter=2000).fit(X, y_acc))
-            self.cost.append(Ridge(alpha=1.0).fit(X, data.cost[:, c]))
+        # PCA components must fit inside the smallest CV-train fold (and below d).
+        n_comp = None
+        if self.n_components:
+            n_comp = max(1, min(self.n_components, d, int(N * (1 - 1 / max(self.cv_folds, 2))) - 1))
+        perf, cost = [], []  # built locally: a failed fit() leaves the previous state intact
+        for k in range(len(EntryChoice)):
+            y_acc = (data.accuracy[:, k] > 0.5).astype(int)
+            perf.append(self._fit_classifier(X, y_acc, d, c, n_comp))
+            cost.append(self._fit_regressor(X, data.cost[:, k], d, c, n_comp))
+        self.perf, self.cost = perf, cost  # replaces, never appends -> re-fit is safe
         return self
 
     def score(self, embed: np.ndarray, complexity: np.ndarray) -> np.ndarray:

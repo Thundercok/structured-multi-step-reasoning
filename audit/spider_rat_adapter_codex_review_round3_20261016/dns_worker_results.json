@@ -1,6 +1,0 @@
-{
-  "timeouts": 6,
-  "workers_still_running_after_timeouts": 6,
-  "network_requests": false,
-  "workers_running_after_probe_release": 0
-}

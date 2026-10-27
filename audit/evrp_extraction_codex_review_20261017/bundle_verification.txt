@@ -1,9 +1,0 @@
-The bundle contains these 5 refs:
-2c8fa69f8f3cfeae475792159ff0ebcf20529044 refs/heads/backup-2026-before-trim
-2c8fa69f8f3cfeae475792159ff0ebcf20529044 refs/heads/main
-9b685bdc8e5147cbbbe37bf239365b731832378b refs/remotes/origin/HEAD
-9b685bdc8e5147cbbbe37bf239365b731832378b refs/remotes/origin/main
-2c8fa69f8f3cfeae475792159ff0ebcf20529044 HEAD
-The bundle records a complete history.
-The bundle uses this hash algorithm: sha1
-.migration-backups/20261013_evrp/evrp-optimizer.bundle is okay

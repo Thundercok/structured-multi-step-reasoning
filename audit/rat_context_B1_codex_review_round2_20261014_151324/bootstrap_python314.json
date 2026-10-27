@@ -1,7 +1,0 @@
-{
-  "reason": "Default python3 is Homebrew Python 3.14, which lacks pytest; rerun uses the project validation interpreter Python 3.12.",
-  "outputs": {
-    "existing_regressions": "/opt/homebrew/opt/python@3.14/bin/python3.14: No module named pytest\n",
-    "provenance_probes": "/opt/homebrew/opt/python@3.14/bin/python3.14: No module named pytest\n"
-  }
-}

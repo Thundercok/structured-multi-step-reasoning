@@ -1,5 +1,0 @@
-{
-  "rat/ui/omnibar.py": "2026-10-20T00:27:06.507329+00:00",
-  "regression.txt": "2026-10-20T00:24:51.251273+00:00",
-  "note": "Source hash check immediately after 319 completion found no change; later final audit found only omnibar.py changed. Reviewer made no production edits."
-}

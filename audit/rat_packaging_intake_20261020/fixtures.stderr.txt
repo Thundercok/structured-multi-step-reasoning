@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_packaging_intake_20261020/generate_fixtures.py", line 12, in <module>
-    spec.loader.exec_module(helpers)
-  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
-  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/tests/test_document_intake_robustness.py", line 12, in <module>
-    from document_intake.pdf import PDFReadError, read_pdf
-ImportError: cannot import name 'PDFReadError' from 'document_intake.pdf' (/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/.venv/lib/python3.12/site-packages/document_intake/pdf.py)

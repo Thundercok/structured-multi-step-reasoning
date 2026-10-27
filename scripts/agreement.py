@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reasoning_strategies import normalize_answer
+from reasoning.reasoning_strategies import normalize_answer
 from research_scoring import numeric_literal, typed_vote_key
 from scripts.gen_tasks import check24
 

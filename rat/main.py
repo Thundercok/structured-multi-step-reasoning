@@ -118,7 +118,7 @@ def main() -> None:
             calc_cand = re.sub(r"^(?:tính|tinh|calc|calculate|\=)\s*", "", query, flags=re.I).strip()
             if re.search(r"\d", calc_cand) and any(op in calc_cand for op in ["+", "*", "/", "%", "^", " - "]):
                 try:
-                    from reasoning_strategies import safe_calculate
+                    from reasoning.reasoning_strategies import safe_calculate
                     res = safe_calculate(calc_cand)
                     if res and "Lỗi" not in res and res != "None":
                         print(f"🧮 Kết quả tính toán: {res}")

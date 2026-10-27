@@ -16,7 +16,7 @@ from pathlib import Path
 from experiments.cot_restart_matched import ARMS, read_plan
 from experiments.cot_restart_pilot import ROOT, encoded_json, file_sha256, text_sha256
 import experiments.cot_restart_replay as replay_module
-from reasoning_strategies import parse_answer_details
+from reasoning.reasoning_strategies import parse_answer_details
 from scripts.gen_tasks import check
 
 Z95 = 1.959963984540054
@@ -233,7 +233,7 @@ def analyze(run: Path, plan_dir: Path, output: Path) -> dict:
     (output / "report.md").write_text("\n".join(lines) + "\n")
     sources = {name: file_sha256(ROOT / name) for name in (
         "scripts/analyze_cot_restart_matched.py", "experiments/cot_restart_replay.py",
-        "reasoning_strategies.py", "research_scoring.py", "scripts/gen_tasks.py",
+        "reasoning/reasoning_strategies.py", "research_scoring.py", "scripts/gen_tasks.py",
     )}
     audit = {"plan_sha256": plan["plan_sha256"], "source_sha256": sources,
              "tokenizer_renderer_source_sha256": file_sha256(tokenizer_source),

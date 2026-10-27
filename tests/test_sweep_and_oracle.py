@@ -122,7 +122,7 @@ def test_get_git_info_untracked_dirty(tmp_path):
 
 
 def test_pal_v2_sandboxed_allowlist():
-    from reasoning_strategies import run_python_sandboxed
+    from reasoning.reasoning_strategies import run_python_sandboxed
     allowed = ("itertools", "math", "fractions", "functools", "collections")
 
     # 1. itertools.permutations works

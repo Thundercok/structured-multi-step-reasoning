@@ -1,1 +1,0 @@
-{"status": "complete", "evidence": "synthetic_fresh_restart_smoke", "original_groups": 3, "completed_mock_calls": 12, "real_model_calls": 0, "total_synthetic_collection_tokens": 1405, "confirmatory": false, "stage_0_changed": false}

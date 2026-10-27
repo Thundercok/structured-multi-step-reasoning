@@ -1,3 +1,0 @@
-{"query": "Ghi lại đúng lời mình cho việc ôn tập: Tôi có 20 phút, chỉ ôn TCP. Lượt này chỉ ghi chú, chưa tìm tài liệu.", "error": "timed out", "answer": "", "actions": ["update_task_state", null], "notes": 6, "tokens": 412}
-{"query": "Bạn đang ghi điều gì cho việc ôn tập của mình?", "error": "timed out", "answer": "", "actions": ["update_task_state", null], "notes": 6, "tokens": 878}
-{"query": "Tôi có 30 phút, chỉ ôn TCP. Sửa ghi chú thời gian cũ theo đúng lời này rồi tính 30*60 giúp mình.", "error": "timed out", "answer": "", "actions": ["update_task_state", null], "notes": 7, "tokens": 935}

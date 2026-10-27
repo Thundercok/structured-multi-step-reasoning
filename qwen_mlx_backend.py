@@ -9,9 +9,9 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 
-from reasoning_env import ReasoningAction as A
+from reasoning.reasoning_env import ReasoningAction as A
 from research_prompt_profiles import ALIGNED_DIRECT_COT_SUFFIX_TEXT
-from reasoning_strategies import (
+from reasoning.reasoning_strategies import (
     extract_answer,
     extract_code,
     majority_vote,
@@ -79,6 +79,9 @@ class QwenMLXBackend:
     sc_samples: int = 5
     tot_branches: int = 3
     react_max_turns: int = 4
+    # True -> _chat raises if any generated token lacks a usable logprob vector (instead of
+    # silently degrading confidence). Leave False for mocked tests; use True for real MLX runs.
+    strict_telemetry: bool = False
 
     def __init__(
         self,
@@ -456,6 +459,9 @@ class QwenMLXBackend:
         text, n_tok = "", 0
         finish_reason = None
         logps, margins, entropies = [], [], []
+        full_ent_nats: list[float] = []   # true full-vocab Shannon entropy per generated token
+        max_abs_lse = 0.0                 # |logsumexp(logprobs)|: ~0 iff logprobs is a proper log-softmax
+        bad_logprob_steps = 0             # generated tokens with missing / unusable logprobs
         eff_max_tokens = max_tokens if max_tokens is not None else self.max_tokens
         if hasattr(self, "last_trace") and isinstance(self.last_trace, dict):
             self.last_trace["in_flight"] = True
@@ -474,11 +480,22 @@ class QwenMLXBackend:
                             lp_arr = np.asarray(mx.array(r.logprobs, dtype=mx.float32), dtype=np.float32)
                         except Exception:
                             lp_arr = np.asarray(r.logprobs, dtype=np.float32)
-                    if len(lp_arr) > r.token:
-                        logps.append(float(lp_arr[r.token]))
-                    m, h = compute_token_uncertainty(lp_arr)
-                    margins.append(m)
-                    entropies.append(h)
+                    # Flatten any (1, V) / (V, 1) batch-dim shape first: with the old len() checks a
+                    # (1, V) array looked like a length-1 vector -> uncertainty silently became (0, 0).
+                    lp_arr = np.asarray(lp_arr).reshape(-1)
+                    if lp_arr.size < 2:
+                        bad_logprob_steps += 1
+                    else:
+                        if 0 <= r.token < lp_arr.size:
+                            logps.append(float(lp_arr[r.token]))
+                        m, h = compute_token_uncertainty(lp_arr)
+                        margins.append(m)
+                        entropies.append(h)
+                        h_full, lse = shannon_entropy_nats(lp_arr)
+                        full_ent_nats.append(h_full)
+                        max_abs_lse = max(max_abs_lse, abs(lse))
+                else:
+                    bad_logprob_steps += 1
                 if should_cancel is not None and should_cancel():
                     finish_reason = "cancelled"
                     break
@@ -514,6 +531,13 @@ class QwenMLXBackend:
                 "mean_margin": mean_margin,
                 "mean_entropy": mean_entropy,
                 "confidence": conf,
+                # --- telemetry for H(Y_t | y_<t, x); generated tokens only (prompt excluded) ---
+                "mean_entropy_nats": float(np.mean(full_ent_nats)) if full_ent_nats else None,
+                "max_entropy_nats": float(np.max(full_ent_nats)) if full_ent_nats else None,
+                "logprob_steps": len(full_ent_nats),
+                "bad_logprob_steps": bad_logprob_steps,
+                "logprob_coverage": (len(full_ent_nats) / n_tok) if n_tok else None,
+                "max_abs_logsumexp": max_abs_lse,
             }
             if hasattr(self, "last_trace") and self.last_trace is not None:
                 req_status = (
@@ -539,7 +563,32 @@ class QwenMLXBackend:
                     "status": req_status,
                     "signals": dict(self.last_signals),
                 })
+        if self.strict_telemetry and n_tok > 0 and (bad_logprob_steps or len(full_ent_nats) != n_tok):
+            raise RuntimeError(
+                f"logprob telemetry incomplete: {len(full_ent_nats)}/{n_tok} generated tokens usable "
+                f"({bad_logprob_steps} bad) - confidence/entropy would be silently wrong"
+            )
+        if self.strict_telemetry and max_abs_lse > 1e-2:
+            raise RuntimeError(f"logprobs are not a normalized log-softmax (|logsumexp|={max_abs_lse:.3g})")
         return text, conf, n_tok
+
+
+def shannon_entropy_nats(logprobs: np.ndarray) -> tuple[float, float]:
+    """Exact Shannon entropy H = -sum_v p(v) log p(v) in nats of ONE next-token distribution,
+    over the FULL vocabulary (mlx-lm's `logprobs` is the log-softmax over every token).
+    Returns (H, lse) where lse = logsumexp(logprobs) (~0 for a proper log-softmax); the
+    distribution is renormalized by lse so H is always a valid entropy. 0 <= H <= log(V)."""
+    lp = np.asarray(logprobs, dtype=np.float64).reshape(-1)
+    if lp.size < 2:
+        raise ValueError(f"need a logprob vector over the vocabulary, got shape {np.shape(logprobs)}")
+    mx_ = lp.max()
+    if not np.isfinite(mx_):
+        raise ValueError("logprobs contain no finite entry")
+    lse = float(mx_ + np.log(np.exp(lp - mx_).sum()))
+    lp = lp - lse
+    p = np.exp(lp)
+    safe_lp = np.where(p > 0.0, lp, 0.0)  # avoid 0 * -inf = nan for masked tokens
+    return max(0.0, -float(np.sum(p * safe_lp))), lse
 
 
 def compute_token_uncertainty(logprobs: np.ndarray, top_k: int = 10) -> tuple[float, float]:
@@ -614,7 +663,7 @@ class QwenMLXStagedRunner:
 
         The model receives ONLY query and format metadata; gold solutions are never provided.
         """
-        from reasoning_env import ReasoningAction as A
+        from reasoning.reasoning_env import ReasoningAction as A
         from experiments.gsm8k_collector import StagedExecutionResult
 
         action = getattr(A, strategy, None)

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from meta_controller.agent import MaskedDoubleDQNAgent, MaskedQNetwork, train_agent
-from reasoning_env import A, ReasoningEnv
+from reasoning.reasoning_env import A, ReasoningEnv
 from test_reasoning_env import DATA, GOLD, MockLLM
 
 

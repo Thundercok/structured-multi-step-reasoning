@@ -1,3 +1,0 @@
-Optional Qt/VGC suite: 6 passed, 1 failed. test_meta_reasoner_delivers_vgc_certificates_and_citations expected valid, got unverifiable for legacy CPA query.
-Reproduction: executed git show HEAD:rat/engine/meta_reasoner.py in a separate temporary module with current dependencies, no source overwrite, same CPA query; unchanged HEAD also returned verification_status=unverifiable.
-Initial sandbox Qt collection aborted on native PyQt6 import; rerun outside sandbox completed with the above assertion.

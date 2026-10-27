@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.gen_tasks import check as gen_check
-from reasoning_strategies import parse_answer_details, extract_answer, majority_vote
+from reasoning.reasoning_strategies import parse_answer_details, extract_answer, majority_vote
 
 COT_SUFFIX = "\nWrite concise steps in plain text without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer."
 

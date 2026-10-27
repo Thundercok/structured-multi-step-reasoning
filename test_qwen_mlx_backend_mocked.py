@@ -80,7 +80,7 @@ sys.modules["mlx_lm"] = fake_mlx_lm
 sys.modules["mlx_lm.sample_utils"] = fake_sample_utils
 
 from qwen_mlx_backend import QwenMLXBackend  # noqa: E402
-from reasoning_env import ReasoningAction as A  # noqa: E402
+from reasoning.reasoning_env import ReasoningAction as A  # noqa: E402
 
 
 class FakeInner:
@@ -337,7 +337,7 @@ def test_internal_signals_tracked_in_backend():
 def test_no_placeholders_in_prompts():
     import re
     import qwen_mlx_backend as qmb
-    from reasoning_env import ReasoningAction as A
+    from reasoning.reasoning_env import ReasoningAction as A
 
     constants = [
         qmb.COT_SUFFIX,
@@ -375,7 +375,7 @@ def test_no_placeholders_in_prompts():
 
 
 def test_sc_votes_on_canonical_answers():
-    from reasoning_strategies import majority_vote
+    from reasoning.reasoning_strategies import majority_vote
 
     samples = ['192', '192 slices', 'The result is 192', '190', '192.0']
     winner, ratio = majority_vote(samples)

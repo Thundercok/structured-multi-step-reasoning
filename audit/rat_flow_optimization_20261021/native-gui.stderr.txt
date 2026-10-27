@@ -1,3 +1,0 @@
-2026-10-21 10:57:56.968 Python[50535:51555077] error messaging the mach port for IMKCFRunLoopWakeUpReliable
-2026-10-21 10:59:18.878 Python[50535:51555077] ERROR: getApplicationProperty: called with invalid property
-2026-10-21 10:59:51.686 Python[50535:51555077] ERROR: getApplicationProperty: called with invalid property
