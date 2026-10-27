@@ -364,11 +364,15 @@ def main():
     print(f"Key Facts: {payload.get('key_facts')}")
 
     action_items = payload.get("action_items") or []
-    has_section3_task = any("Section 3" in str(item.get("task", "")) or "đọc" in str(item.get("task", "")).lower() for item in action_items)
+    from rat.engine.note_requirements import normalized
+    has_section3_task = any(
+        normalized(item.get('task', '')) == normalized('Đọc Section 3 của bài BEST-Route')
+        and item.get('done') is False for item in action_items)
     print(f"[CHECK] Action items present: {len(action_items)} item(s)")
     print(f"[CHECK] Target task ('Đọc Section 3') captured: {has_section3_task}")
 
     record_snapshot()
+    assert has_section3_task, 'Live note omitted the explicitly requested pending task'
     print("\n=== Live Acceptance Run Complete ===")
     print(f"Artifacts and logs written to: {out}")
 

@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from rat.kernel.contracts import Artifact, ArtifactAction, DispatchResult, ExecutionEvent, ExecutionState, InputRequest
 from rat.kernel.registry import CapabilityRegistry
+from rat.kernel.profile import MAIN_PROFILE
 
 
 class StaleRevisionError(ValueError):
@@ -17,8 +18,9 @@ class AmbiguousArtifactError(ValueError):
 
 
 class ActionDispatcher:
-    def __init__(self, registry: CapabilityRegistry, store):
+    def __init__(self, registry: CapabilityRegistry, store, profile=MAIN_PROFILE):
         self.registry, self.store = registry, store
+        self.profile = profile
         self.state = ExecutionState()
         self._cancelled_executions: set[str] = set()
 
@@ -100,6 +102,12 @@ class ActionDispatcher:
         return DispatchResult("needs_input", input_request=request, artifact=art, result=request.to_dict())
 
     def _run(self, op, args, context, target=None, request_id=None):
+        if op is None:
+            return DispatchResult('error', error='unknown_operation')
+        capability = self.registry.get_capability_for_operation(op.name)
+        allowed = self.profile.allowed_capabilities
+        if allowed is not None and (capability is None or capability.name not in allowed):
+            return DispatchResult('error', error='CAPABILITY_BLOCKED_BY_PROFILE')
         generation = self.store.generation
         context = self._execution_context(context)
         turn_id = context.get("turn_id")

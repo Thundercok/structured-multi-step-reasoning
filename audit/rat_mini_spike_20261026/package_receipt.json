@@ -1,0 +1,7 @@
+{
+  "artifact": "dist/RAT-Mini-Preflight.zip",
+  "bytes": 15406458,
+  "sha256": "133558b4a3b4bf9683db8d260af8c7e63c8ac14ec637081091a609f2e5bf6775",
+  "purpose": "diagnostic CLI, not RAT Mini app",
+  "notarized": false
+}

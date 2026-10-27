@@ -1,0 +1,23 @@
+{
+  "rat/kernel/input_context.py": "53eea59cbd4590be9af51410968fec07b07f7ef96411c700bdf90c480c2752b6",
+  "rat/ui/image_input.py": "6782d73ac4185e40c949e16f621b8d09f4fcc26501c4d7ac5543862c11f4bf73",
+  "rat/ui/image_drop.py": "2345f3c92740f61bf5779fe92b624e4fe495619be9f116c84a5190e655192fdd",
+  "rat/ui/macos_image_promise.py": "b7c35ee31942909ab6b5f4fc74d4ed76df1f8c8e21496733ce046258cc08e8c4",
+  "rat/ui/mini_quick_controller.py": "5907b7a81969356237738151be9b835243876b7e60d0b4eac1f80a7ee0b1722d",
+  "rat/ui/mini_quick.py": "3ec3313ab86ca9bfe173df2eb83b4bbe3f1b3d5ea02493e848794ed3af18600b",
+  "rat/ui/quick/MiniDesk.qml": "b38b53a3354d9034eb9cd4987218019ec8d5f30aedfb2b253a133f2d16e770d1",
+  "tools/build_rat_mini_app.sh": "c147e73109119dd90a7aa43b3f84fe9311b67f50de5f8663e206c06a300b897a",
+  "docs/RAT_MINI_BAT_DAU.txt": "2bec896e80d23564d61781343d40c9b8444bb8840f775b64ef8a38abe1c19434",
+  "rat/kernel/capabilities/translation.py": "d8e6d967157922a448c049b83c73d328eca8694076ce891fa82289a511d1fe50",
+  "tests/test_rat_mini_tools.py": "309e460f115c7dd978fd9a96ef7df947fdd56f8c3491e38acf946e28ed1fb57e",
+  "rat/engine/local_finder.py": "7102cd248f8724b8173338bee05ec54450b2212307004f0dd8dc1fddf75eac53",
+  "rat/engine/snippet_translation.py": "a32bd38d22cefef3fc63c6903d8ee2097013a05a5ed19d0c91baab3e6e80af21",
+  "tests/test_rat_mini_quick.py": "0e3387ad693b446c1d5e8a4052ef82edc0030cf034e9f38bc1b5ca61c14fad81",
+  "rat/engine/local_translation.py": "52ec9a0f490aafa2d80ff21fdacc792925e194940a94aedf2cca837a377e294f",
+  "rat/engine/mini_settings.py": "04f200e8082c4129a4c0fc011f234f6718e32a199698d11c652aab16c3d08df1",
+  "requirements-mini.txt": "6ab97194f4bb9e2d8e49460094a0c1f054a73e7fe619e4ca9be19f292ca399c7",
+  "tools/prepare_rat_translation_models.py": "358701b1cdeec4f01507e7aa18bd9d081456139b81b248df52ae8ac4e4eb7a9c",
+  "tools/rat_translation_models.lock.json": "06071c0e8c0b2bab132d3423931e896049267d6caa4ebdb00125bb94843e2f74",
+  "rat/assets/translation/manifest.json": "a04eb0b36729910abd9fca9c8a5fa44d331115db36c669ffdb089bf5ce6ad422",
+  "rat/assets/translation/ATTRIBUTION.txt": "f2349420ece3a102618fed8988c973238eb077e2e17e0a14d03eaf9dbb4cf406"
+}

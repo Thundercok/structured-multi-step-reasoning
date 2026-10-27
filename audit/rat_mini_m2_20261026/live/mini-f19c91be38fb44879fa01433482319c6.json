@@ -1,0 +1,125 @@
+{
+  "query": "",
+  "operation": "open_file",
+  "args": {
+    "artifact_id": "art-22b62f8806d94162b4b7606eb0f9ce97",
+    "revision": 1,
+    "resource_id": "a619f7f76c58b5155c7c"
+  },
+  "answer": "Đã gửi yêu cầu mở file đến macOS.",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "open_file"
+      },
+      "timestamp": 1792982373.855996,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: open_file"
+      },
+      "timestamp": 1792982373.86095,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "open_file",
+      "artifact_id": null,
+      "payload": {
+        "artifact_id": "art-22b62f8806d94162b4b7606eb0f9ce97",
+        "revision": 1,
+        "resource_id": "a619f7f76c58b5155c7c"
+      },
+      "timestamp": 1792982373.869483,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "open_file",
+      "artifact_id": null,
+      "payload": {
+        "status": "complete",
+        "result": "Đã gửi yêu cầu mở file đến macOS."
+      },
+      "timestamp": 1792982374.861634,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "open_file",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1792982374.8617222,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "UNKNOWN",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1792982374.8617432,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1792982374.8772821,
+      "error": null,
+      "turn_id": "turn-126894d549a6414483e95762857f5488",
+      "execution_id": "mini-f19c91be38fb44879fa01433482319c6",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [],
+  "verification": [],
+  "llm_calls": 0,
+  "usage_unknown": false
+}

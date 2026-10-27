@@ -1,0 +1,25 @@
+{
+  "pair": "vi_en",
+  "url": "https://data.argosopentech.com/argospm/v1/translate-vi_en-1_9.argosmodel",
+  "package_sha256": "ebd51b7189b13eccb9238a5777de1d343008c4c05284a8b89610242364433953",
+  "bytes": 65895840,
+  "files": [
+    "translate-vi_en-1_9/",
+    "translate-vi_en-1_9/README.md",
+    "translate-vi_en-1_9/sentencepiece.model",
+    "translate-vi_en-1_9/metadata.json",
+    "translate-vi_en-1_9/model/",
+    "translate-vi_en-1_9/model/config.json",
+    "translate-vi_en-1_9/model/model.bin",
+    "translate-vi_en-1_9/model/shared_vocabulary.json",
+    "translate-vi_en-1_9/stanza/",
+    "translate-vi_en-1_9/stanza/resources.json",
+    "translate-vi_en-1_9/stanza/vi/",
+    "translate-vi_en-1_9/stanza/vi/tokenize/",
+    "translate-vi_en-1_9/stanza/vi/tokenize/vtb.pt"
+  ],
+  "texts": {
+    "translate-vi_en-1_9/README.md": "# Vietnamese - English version 1.0\r\n\r\nAuthors: Jörg Tiedemann and Santhosh Thottingal\r\nTitle: \"OPUS-MT — Building open translation services for the World\"\r\nBook Title: Proceedings of the 22nd Annual Conference of the European Association for Machine Translation (EAMT)\r\nYear: 2020\r\nLocation: Lisbon, Portugal\r\n\r\nThe original OPUS model from which this packaged model is derived is licensed CC-BY 4.0\r\n",
+    "translate-vi_en-1_9/metadata.json": "{\"package_version\": \"1.9\", \"argos_version\": \"1.9\", \"from_code\": \"vi\", \"from_name\": \"Vietnamese\", \"to_code\": \"en\", \"to_name\": \"English\"}\n"
+  }
+}

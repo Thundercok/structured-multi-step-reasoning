@@ -38,6 +38,7 @@ class NativeMenu(QObject):
 class NativeStatusItem(QObject):
     activated = pyqtSignal(object)
     notification = pyqtSignal(str, str)
+    menuVisibilityChanged = pyqtSignal(bool)
 
     class MessageIcon(IntEnum):
         Information = 1
@@ -52,6 +53,12 @@ class NativeStatusItem(QObject):
         self._target = None
         self._tooltip = ''
         self._native_actions = []
+        self._primary_action = None
+        self._native_menu = None
+
+    def setPrimaryAction(self, callback):
+        """Opt-in single left click; existing RAT status menus stay unchanged."""
+        self._primary_action = callback
 
     def setContextMenu(self, menu):
         self._menu = menu
@@ -96,6 +103,16 @@ class NativeStatusItem(QObject):
         if _TARGET_CLASS is None:
             class RATStatusMenuTarget(NSObject):
                 @objc.IBAction
+                def statusClicked_(self, sender):
+                    from AppKit import NSApplication, NSEventTypeRightMouseUp
+                    owner = self.owner
+                    event = NSApplication.sharedApplication().currentEvent()
+                    if event is not None and event.type() == NSEventTypeRightMouseUp:
+                        owner._status.popUpStatusItemMenu_(owner._native_menu)
+                    elif owner._primary_action is not None:
+                        owner._primary_action()
+
+                @objc.IBAction
                 def invoke_(self, sender):
                     owner = self.owner
                     index = sender.tag()
@@ -108,6 +125,12 @@ class NativeStatusItem(QObject):
                 def menuNeedsUpdate_(self, menu):
                     self.owner._menu.aboutToShow.emit()
                     self.owner._rebuild_menu(menu)
+
+                def menuWillOpen_(self, menu):
+                    self.owner.menuVisibilityChanged.emit(True)
+
+                def menuDidClose_(self, menu):
+                    self.owner.menuVisibilityChanged.emit(False)
 
             _TARGET_CLASS = RATStatusMenuTarget
 
@@ -126,12 +149,20 @@ class NativeStatusItem(QObject):
         menu.setAutoenablesItems_(False)
         menu.setDelegate_(self._target)
         self._rebuild_menu(menu)
-        self._status.setMenu_(menu)
+        self._native_menu = menu
+        if self._primary_action is None:
+            self._status.setMenu_(menu)
+        else:
+            from AppKit import NSEventMaskLeftMouseUp, NSEventMaskRightMouseUp
+            button.setTarget_(self._target)
+            button.setAction_('statusClicked:')
+            button.sendActionOn_(NSEventMaskLeftMouseUp | NSEventMaskRightMouseUp)
 
     def _rebuild_menu(self, menu):
         from AppKit import NSMenuItem
         menu.removeAllItems()
         self._native_actions = []
+        self._native_menu = menu
         for index, action in enumerate(self._menu.actions()):
             if not action.isVisible():
                 continue
@@ -156,6 +187,7 @@ class NativeStatusItem(QObject):
             self._target.owner = None
             self._target = None
         self._native_actions = []
+        self._native_menu = None
 
 
 _TARGET_CLASS = None

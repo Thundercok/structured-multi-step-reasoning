@@ -1,0 +1,7 @@
+{
+  "origin": "Actual native TextEdit window screenshot via CUA; public sample document from earlier session",
+  "sha256": "a7e41558d24bf40224e5d63bcc259c8ccf033d5459a5461f3ed30caf64fdea11",
+  "public_document_text": "Hello world.\nThis is a short public text for translation.",
+  "scope": "Window screenshot includes UI chrome; not proof of physical macOS region-capture shortcut or drag/drop.",
+  "synthetic_model_response": false
+}

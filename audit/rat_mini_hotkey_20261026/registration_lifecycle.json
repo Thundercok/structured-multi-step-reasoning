@@ -1,0 +1,17 @@
+{
+  "kind": "native_registration_lifecycle_not_global_key_acceptance",
+  "records": [
+    {
+      "iteration": 0,
+      "registered": true,
+      "local_cocoa_monitor": true,
+      "closed": true
+    },
+    {
+      "iteration": 1,
+      "registered": true,
+      "local_cocoa_monitor": true,
+      "closed": true
+    }
+  ]
+}

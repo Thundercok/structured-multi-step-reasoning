@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:rat:mini:tools:v1",
+  "title": "RAT Mini proposed tool inputs v1 (specification, not runtime wiring)",
+  "description": "Trusted context is supplied by execution service, never by these model/UI arguments. Export only find_files and translate_text to the model. Additional semantic checks in rat_mini_spec.md remain mandatory.",
+  "oneOf": [
+    {"$ref": "#/$defs/findRequest"},
+    {"$ref": "#/$defs/openRequest"},
+    {"$ref": "#/$defs/revealRequest"},
+    {"$ref": "#/$defs/captureRequest"},
+    {"$ref": "#/$defs/translateRequest"}
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "revision": {"type": "integer", "minimum": 1}
+      },
+      "required": ["artifact_id", "revision"]
+    },
+    "languageTag": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 35,
+      "pattern": "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$",
+      "description": "Validate supported language tags against adapter capability; syntax alone does not establish support."
+    },
+    "extensionList": {
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^\\.[a-z0-9]{1,12}$"}
+    },
+    "dateTimeWithOffset": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 40,
+      "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "extensions": {"$ref": "#/$defs/extensionList"},
+        "excluded_extensions": {"$ref": "#/$defs/extensionList"},
+        "date_field": {"enum": ["created", "modified"], "default": "modified"},
+        "from": {"$ref": "#/$defs/dateTimeWithOffset"},
+        "to": {"$ref": "#/$defs/dateTimeWithOffset"},
+        "sort": {"enum": ["relevance", "newest", "oldest"], "default": "relevance"}
+      },
+      "description": "from inclusive, to exclusive; validate from < to, resolve timezone and apply filters locally to every provider."
+    },
+    "findFilesArgs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "scope_ids": {
+          "type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 128}
+        },
+        "filters": {"$ref": "#/$defs/filters"},
+        "mode": {"enum": ["auto", "metadata", "hybrid"], "default": "auto"},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 20, "default": 8}
+      },
+      "required": ["query"]
+    },
+    "fileActionArgs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "revision": {"type": "integer", "minimum": 1},
+        "resource_id": {"type": "string", "minLength": 1, "maxLength": 128}
+      },
+      "required": ["artifact_id", "revision", "resource_id"]
+    },
+    "captureTextArgs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {"mode": {"enum": ["clipboard", "selection", "region", "image"]}},
+      "required": ["mode"]
+    },
+    "translateTextArgs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 8000},
+        "source_ref": {"$ref": "#/$defs/artifactRef"},
+        "source_language": {
+          "oneOf": [{"const": "auto"}, {"$ref": "#/$defs/languageTag", "not": {"const": "auto"}}],
+          "default": "auto"
+        },
+        "target_language": {"$ref": "#/$defs/languageTag", "not": {"const": "auto"}, "default": "vi"},
+        "style": {"enum": ["faithful", "plain"], "default": "faithful"}
+      },
+      "oneOf": [
+        {"required": ["text"], "not": {"required": ["source_ref"]}},
+        {"required": ["source_ref"], "not": {"required": ["text"]}}
+      ],
+      "description": "Resolve source_ref ownership, generation, expiry and 8000-code-point cap locally. Reject whitespace-only text. Providers choose backend from trusted config, not these args."
+    },
+    "findRequest": {
+      "type": "object", "additionalProperties": false,
+      "properties": {"operation": {"const": "find_files"}, "args": {"$ref": "#/$defs/findFilesArgs"}},
+      "required": ["operation", "args"]
+    },
+    "openRequest": {
+      "type": "object", "additionalProperties": false,
+      "properties": {"operation": {"const": "open_file"}, "args": {"$ref": "#/$defs/fileActionArgs"}},
+      "required": ["operation", "args"]
+    },
+    "revealRequest": {
+      "type": "object", "additionalProperties": false,
+      "properties": {"operation": {"const": "reveal_file"}, "args": {"$ref": "#/$defs/fileActionArgs"}},
+      "required": ["operation", "args"]
+    },
+    "captureRequest": {
+      "type": "object", "additionalProperties": false,
+      "properties": {"operation": {"const": "capture_text"}, "args": {"$ref": "#/$defs/captureTextArgs"}},
+      "required": ["operation", "args"]
+    },
+    "translateRequest": {
+      "type": "object", "additionalProperties": false,
+      "properties": {"operation": {"const": "translate_text"}, "args": {"$ref": "#/$defs/translateTextArgs"}},
+      "required": ["operation", "args"]
+    }
+  }
+}

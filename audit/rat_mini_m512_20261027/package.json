@@ -1,0 +1,10 @@
+{
+  "version": "0.5.12",
+  "build": "20261027.6",
+  "path": "dist/mini-m512/RAT Mini.zip",
+  "bytes": 217241593,
+  "sha256": "7840d242ae549cb874f8a757324954e79557e0aad8d0408caee1cc0e4f6b8d4c",
+  "source_manifest_changed": [],
+  "codesign_deep_strict": "exit 0",
+  "both_pairs_bundled": true
+}

@@ -1,0 +1,51 @@
+{
+  "repo_id": "Xenova/multilingual-e5-small",
+  "revision": "761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+  "files": [
+    {
+      "rfilename": "README.md",
+      "blobId": "53e76ac0e07cb45ebbf3870244998e0f08632d4f",
+      "size": 1077
+    },
+    {
+      "rfilename": "config.json",
+      "blobId": "4104f38273cc595fd9500fd243124e9f6cf383dc",
+      "size": 658
+    },
+    {
+      "rfilename": "onnx/model_quantized.onnx",
+      "blobId": "313b94a513ded056e6b6f13f156cbbe1b1205391",
+      "size": 118308185,
+      "lfs": {
+        "sha256": "f80102d3f2a1229f387d3c81909990d8945513e347b0eab049f7de3c6f98c193",
+        "size": 118308185,
+        "pointerSize": 134
+      }
+    },
+    {
+      "rfilename": "special_tokens_map.json",
+      "blobId": "e0b1d18ecd0ae4ff1d47bd297d910c0cf83e504b",
+      "size": 167
+    },
+    {
+      "rfilename": "tokenizer.json",
+      "blobId": "c9b2fea3119ca8886380e5f47bffc5ea7a6e0ffa",
+      "size": 17082730,
+      "lfs": {
+        "sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+        "size": 17082730,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "tokenizer_config.json",
+      "blobId": "059214673d9d6d2ee319411e2ffec8c024b816d5",
+      "size": 443
+    }
+  ],
+  "selected_bytes": 135393260,
+  "weights_downloaded": false,
+  "status": "candidate_metadata_only",
+  "upstream": "intfloat/multilingual-e5-small",
+  "runtime": "onnxruntime CPUExecutionProvider; tokenizers; no remote Python code"
+}

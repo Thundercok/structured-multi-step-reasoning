@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-27",
+  "tests": {
+    "passed": 17,
+    "deselected": 2,
+    "log": "tests-native.log",
+    "initial_sandbox_attempt": "Qt import aborted; retained tests.log",
+    "scope": "QML/software contracts only; no research or recipient acceptance"
+  },
+  "build": {
+    "app": "dist/mini-m516/RAT Mini.app",
+    "zip": "dist/mini-m516/RAT Mini.zip",
+    "zip_sha256": "592459aeee84975862a0b656888a3c42c697bc62740cb7170d660db05f776cc6",
+    "codesign_verify": "passed; ad-hoc signature, not notarization"
+  },
+  "live": {
+    "opened_built_app": true,
+    "hello_start_clicked": true,
+    "prompt": "Dịch sang tiếng Việt: Hello world.",
+    "observed_status": "Đang thực hiện thao tác translate_text…",
+    "submission": "Composer Return",
+    "final_translation": "unconfirmed: native observation timeout",
+    "screenshot": "not captured: CUA -10005 timeoutReached on combined capture and screenshot-only fallback",
+    "further_retries": false
+  },
+  "gates": {
+    "M3": "pending",
+    "main_ui_integration": "pending",
+    "Stage_0": "unchanged"
+  }
+}

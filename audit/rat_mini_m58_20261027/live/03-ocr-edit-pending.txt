@@ -1,0 +1,3 @@
+The following is a diff from the previous accessibility tree for Window: "RAT Mini · M5.8" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~	4 text field (settable) Chữ trong ảnh, có thể sửa trước khi dịch lại, Value: Hello world. This is a short public text for translation. , ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_5.ScrollView_QMLTYPE_5.ocrSourceEditor, Secondary Actions: Raise
+The focused UI element is 0 dialog RAT Mini · M5.8, Secondary Actions: Raise

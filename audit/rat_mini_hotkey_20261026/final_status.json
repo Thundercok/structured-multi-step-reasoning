@@ -1,0 +1,57 @@
+{
+  "version": "M5.1",
+  "menu_capture": {
+    "handler_reached": true,
+    "window_hidden": true,
+    "capture_tool_reached": true,
+    "selection_process_started": true,
+    "ocr_translation_completed": false,
+    "limitation": "CUA drag interacted with TextEdit rather than the system selection overlay; not accepted as successful capture."
+  },
+  "native_registration_lifecycle": "passed (registration, close, re-registration; local Cocoa monitor present)",
+  "global_hotkey_from_other_app": "FAIL on M5.1, directly reported by user after physical Option+Shift+D from TextEdit: no selection overlay.",
+  "ocr_translation": "blocked before image acquisition by macOS Screen Recording permission",
+  "esc_cancel": "not yet verified; no selectable overlay acquired",
+  "user_action_required": [],
+  "no_fake_answers": true,
+  "no_stage0_change": true,
+  "package": "dist/mini-m5-hotkey-final/RAT Mini.zip",
+  "permission_ui": "RAT Mini toggle observed ON in System Settings; not changed by agent",
+  "restart": "M5.1 restarted once after user grant; new process 46762 still reports screen_capture_permission_denied",
+  "signing_identity": {
+    "M5": "cdhash e7e88370db7141e0be96fa5ff658e6715aee5375",
+    "M5.1": "cdhash c907edaf0cfd7f78cb731b4ae4533b54c0a11017",
+    "interpretation": "Different ad-hoc identities; stale permission entry is a hypothesis, not established by row path"
+  },
+  "permission_root_cause": "Confirmed by tccd: existing ScreenCapture code requirement is M5 cdhash e7e88370db7141e0be96fa5ff658e6715aee5375; actual M5.1 cdhash c907edaf0cfd7f78cb731b4ae4533b54c0a11017 fails to match.",
+  "permission_repair": "tccutil reset ScreenCapture vn.rat.mini succeeded; same unchanged M5.1 relaunched and requested permission; System Settings opened for user to enable newly registered entry.",
+  "local_hotkey": "PASS on actual M5.1: hotkey_received origin=cocoa_local -> region_capture_requested -> window_hidden -> region_capture_dispatching. No Unicode glyph inserted in observed empty composer.",
+  "permission_repair_verified": "After user re-granted following scoped reset, actual /usr/sbin/screencapture -i -s -x was observed as PID 49188, launched by M5.1. Permission preflight gate was passed.",
+  "m5_2_repair": "Return Carbon registration and handler to application event target, matching QHotkey macOS implementation; verify EventHotKeyID before consuming, keep local IME path and cleanup.",
+  "m5_2_status": "Physical global shortcut confirmed in stages.log at 18:01:31 (carbon_application); ScreenCapture denied. Same unchanged M5.2 restarted at 21:00; menu capture still denied.",
+  "code_signing_identities": "security find-identity -v -p codesigning: 0 valid identities; builds remain ad-hoc and permission identity may change.",
+  "current_version": "M5.3",
+  "current_package": "dist/mini-m53-native-hotkey/RAT Mini.zip",
+  "m5_1_status": "Superseded: global shortcut failed in physical user test; local monitor alone was insufficient.",
+  "current_permission_ui": "Refreshed System Settings shows Rat Dịch.app ON but no RAT Mini.app row. Add-app chooser prepared with exact dist/mini-m5-global-final/RAT Mini.app (version 0.5.2). User must confirm Open/grant; agent has not granted permission.",
+  "m5_2_latest_physical_hotkey": "FAIL reported by user after grant/restart; no hotkey_received logged in granted-stages.log. Earlier 18:01 event does not establish reliable delivery after restart.",
+  "m5_2_menu_after_grant": {
+    "capture_completed": true,
+    "ocr_chars": 22,
+    "translation_status": "same_language vi→vi",
+    "english_translation_accepted": false,
+    "evidence": "live-m52/granted-stages.log and live-m52/menu-ocr-result.png"
+  },
+  "permission_correction": "Settings label Rat Dịch.app alone does not establish another bundle. tccd Modify at21:02:19 identifies vn.rat.mini; M5.2 menu capture later passed permission and acquired an image.",
+  "m5_3_change": "Native Carbon helper owns independent event loop; pipe→QProcess→existing GUI signal/tool chain. Packaging in progress; no physical acceptance yet.",
+  "m5_3_helper_lifecycle": {
+    "native_registration": "READY",
+    "stdin_eof_exit_code": 0,
+    "stderr": "",
+    "global_key_delivery": "not verified by this lifecycle check"
+  },
+  "m5_3_build_failure": "First packaging had Qt introspection subprocess abort (NEON unavailable in sandbox), omitted Cocoa plugin; app launch failed. Log m53_failed_build.log retained. Rebuilding with system access; builder now fails if Cocoa plugin missing. Corrected build completed successfully; m53_build.log retained.",
+  "m5_3_acceptance": "Pending actual final packaged GUI startup and physical global shortcut. No end-to-end success claimed.",
+  "m5_3_status": "Final package rebuilt with Cocoa plugin. Live UI title M5.3 observed. Native helper registered in final app: PID60005/helper60020, current-stages.log. Physical hotkey, English translation and Esc acceptance still pending.",
+  "disposition": "Backlogged by user. M5.3 stopped; no further permission action requested. Current direction M5.4 screenshot file drag/drop."
+}

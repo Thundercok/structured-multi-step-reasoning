@@ -1,0 +1,14 @@
+{
+  "roots": [
+    "/Users/thundercock2/Documents",
+    "/Users/thundercock2/Desktop",
+    "/Users/thundercock2/Downloads"
+  ],
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "translation_provider": "automatic",
+  "free_fallback": true,
+  "target_language": "vi",
+  "source_language": "auto",
+  "semantic_enabled": false
+}

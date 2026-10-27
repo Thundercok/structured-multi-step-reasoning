@@ -1,0 +1,97 @@
+RAT MINI — HƯỚNG DẪN NHANH
+
+Dành cho Mac dùng chip Apple Silicon (M1/M2/M3...), macOS 14 trở lên.
+Không cần cài Python, Terminal, API key hay tải model khi mở app.
+Mặc định Anh ↔ Việt dịch trên máy bằng model đã đóng kèm, không cần Internet.
+Các ngôn ngữ khác vẫn cần dịch vụ online và chịu hạn mức của dịch vụ đó.
+
+1. Giải nén RAT Mini.zip.
+2. Kéo RAT Mini.app vào Applications (Ứng dụng), rồi mở app.
+3. M5.15 mở màn hình Xin chào. Bấm Tiếp tục, xem các thành phần rồi Bắt đầu.
+   Có thể mở lại ở ⋯ → Thiết lập & trợ giúp. Bấm Kiểm tra để đối chiếu gói dịch.
+
+SẮP XẾP THƯ MỤC
+Gõ “Dọn Downloads theo loại file” hoặc “Dọn Downloads theo tháng”.
+Hoặc chọn ⋯ → Sắp xếp thư mục… (thư mục phải nằm trong phạm vi Cài đặt).
+Xem danh sách trước khi bấm Áp dụng sắp xếp. RAT không xóa hay ghi đè file;
+chỉ chuyển file ngay trong thư mục, tối đa 100 file mỗi lượt xem trước.
+Bấm Hoàn tác lần này để chuyển lại file còn nguyên trạng. File đã sửa hoặc
+trùng tên sẽ báo xung đột. Các thư mục trống được giữ lại.
+Nếu bị ngắt hoặc mở lại app, dùng ⋯ → Lần sắp xếp gần nhất / Hoàn tác.
+Hãy dùng bản sao file trong một thư mục thử trước khi dùng dữ liệu quan trọng.
+
+TÌM FILE
+Gõ “tìm báo cáo hôm qua” hoặc tên file như “test.pdf”, rồi nhấn Enter.
+Chọn kết quả và nhấn Enter, hoặc nhấp đúp
+để mở file. App tìm trong Documents, Desktop và Downloads.
+Nếu macOS hỏi quyền truy cập các thư mục này, cho phép để tìm file ở đó.
+Không cần cấp Full Disk Access chỉ để dùng các thư mục mặc định.
+File chưa được Spotlight lập chỉ mục có thể chưa xuất hiện.
+
+DỊCH
+Nhấn Command + Shift + 4 (⌘⇧4) của macOS, kéo chọn vùng chữ cần dịch.
+Kéo file ảnh đã lưu từ Desktop vào RAT. Nhận ảnh thu nhỏ ngay sau chụp vẫn
+đang chờ nghiệm thu trực tiếp; nếu không nhận, đợi ảnh lưu rồi thả file.
+Nếu macOS cần chuyển file trước, RAT hiện “Đang nhận ảnh từ macOS…” rồi dịch.
+RAT tự nhận chữ và dịch ngay khi thả ảnh, không cần nhấn Enter.
+Nếu không tiện kéo thả, bấm kẹp giấy cạnh ô nhập hoặc ⋯ → Chọn ảnh để dịch…
+rồi chọn file ảnh đã lưu. Thumbnail giúp bạn biết RAT đã nhận đúng ảnh.
+Đóng hộp chọn ảnh để hủy, không làm mất phần chữ đang sửa.
+Có thể gõ trước “dịch sang tiếng Anh” trong ô nhập rồi thả ảnh vào.
+Luồng này không cần cấp quyền Ghi màn hình cho RAT. Nếu RAT đang ẩn,
+chọn “Hiện RAT Mini” từ biểu tượng của RAT trên menu bar trước khi thả ảnh.
+Mỗi lần một ảnh PNG/JPG/WebP/BMP/TIFF; ảnh tối đa 12 MB và 25 triệu pixel.
+Bản dịch hiện trong giấy kết quả với nút “Sao chép”. Nếu chữ trong ảnh bị đọc
+sai, bấm “Sửa chữ trong ảnh”, sửa rồi bấm “Dịch lại”. Mục “Xem chữ ban đầu”
+giữ bản chữ nhận được lúc đầu để đối chiếu.
+Nếu dịch lỗi, phần chữ vẫn được giữ. Bấm “Thử lại” hoặc mở “Sửa chữ trong ảnh” để dịch tiếp,
+không cần thả lại ảnh. Nguồn hết hạn thì thả lại ảnh.
+Nếu đã cài bản cũ, chọn ⋯ → Cài đặt… → Nâng cao → Tự động để dùng dịch trên máy.
+Đổi dịch vụ trong Cài đặt vẫn giữ phần chữ đang làm việc. Chi tiết dịch vụ
+và thông báo dự phòng nằm ở menu ⋯ → Chi tiết bản dịch.
+
+Trong ô chat, gõ hoặc dán đoạn văn rồi nhấn Enter. App tự chọn tìm file/dịch
+dựa trên nội dung, cách nhập và ngữ cảnh; chỉ hỏi lại khi chưa rõ.
+Cũng có thể gõ “dịch: Hello world” hoặc “dịch sang tiếng Anh: Xin chào”.
+Cmd+V dán ảnh hoặc file ảnh đã copy: RAT nhận chữ rồi dịch ngay, như kéo thả.
+Không cần nhấn Enter cho ảnh. Văn bản dán vào ô nhập vẫn cần Enter để gửi.
+“Sửa yêu cầu” đưa câu trước trở lại ô nhập; ảnh đã nhận vẫn được giữ để dùng lại.
+Các tệp khác được copy từ Finder vẫn dùng để tìm tên tệp.
+Menu ⋯ có “Dịch Clipboard” để dịch văn bản đã copy.
+Với mặc định Tự động, Anh ↔ Việt được dịch trên máy và không gửi chữ lên mạng.
+Ngôn ngữ khác dùng dịch vụ trực tuyến; đoạn cần dịch được gửi tới dịch vụ đó.
+Tên dịch vụ nằm ở ⋯ → Chi tiết bản dịch. Dịch miễn phí có hạn mức; app giữ
+chữ khi báo lỗi. Nếu hết hạn mức, dùng Cài đặt dịch vụ… để đổi dịch vụ
+hoặc chờ hạn mức khôi phục; bấm lại liên tục không tăng hạn mức.
+
+CẤU HÌNH DỊCH VỤ RIÊNG (TÙY CHỌN)
+Trong ⋯ → Cài đặt… → Nâng cao, chọn DeepL, Google Cloud hoặc LLM. Với LLM, chọn
+OpenAI/DeepSeek/Groq và tên model do tài khoản của bạn hỗ trợ. Nhập API key
+ngay trong app rồi Lưu cài đặt. Key lưu trong Keychain của Mac, không nằm
+trong gói gửi cho người khác. Để trống để giữ key đã lưu. Không gửi key qua
+chat. Chi phí và hạn mức phụ thuộc tài khoản dịch vụ; app không mua gói giúp bạn.
+
+ẨN / HIỆN / THOÁT
+Esc, Cmd+W hoặc dấu − để ẩn. Bấm trái biểu tượng kính lúp trên menu bar để
+bật/tắt RAT; bấm phải để mở menu cài đặt và thoát app. Nút ⋯ cũng mở cài đặt.
+Khi bạn chuyển app, RAT tự ẩn; draft, ảnh và chữ đang sửa vẫn được giữ trong
+phiên chạy. Sao chép kết quả hoặc mở file thành công cũng ẩn RAT. Kết quả
+hoàn tất trong nền không tự bật lại cửa sổ. Thoát hẳn app kết thúc phiên làm việc.
+Mũi tên thu gọn gấp kết quả; bấm “Kết quả” để mở lại. Chuột giữ nguyên kích
+thước, né sang cạnh workbench và trở về vị trí gốc khi thu lại.
+“Sửa chữ trong ảnh” và “Xem ảnh” thay nội dung tại chỗ; “Về kết quả” quay lại.
+
+NẾU macOS CHẶN MỞ APP
+Đây là bản thử nghiệm ký ad-hoc, chưa được Apple notarize. Chỉ mở bản ZIP
+nhận trực tiếp từ người gửi bạn tin tưởng. macOS có thể yêu cầu bạn cho phép
+mở tại System Settings > Privacy & Security > Open Anyway.
+Không tắt Gatekeeper hoặc chạy lệnh bỏ kiểm tra bảo mật.
+Nếu máy thuộc trường/công ty và bị chặn theo chính sách, gửi ảnh lỗi cho người gửi.
+
+NẾU CÓ LỖI
+Chụp ảnh thông báo và gửi kèm phiên bản macOS (menu Apple > About This Mac).
+Không gửi API key hay giấy tờ riêng tư. Không cần tự cài thêm phần mềm.
+
+Đây là bản thử nghiệm; trạng thái kiểm tra từng bản nằm trong ghi chú bàn giao.
+Chưa xác nhận trực tiếp trên máy của bạn. Thoát bản RAT cũ trước khi mở bản mới
+để tránh mở nhầm phiên bản. ⌥⇧D hiện đang được hoãn.

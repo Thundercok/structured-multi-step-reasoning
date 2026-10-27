@@ -1,0 +1,43 @@
+{
+  "version": "M5.7",
+  "implementation": "completed; candidate, not yet accepted",
+  "build": "completed; exit 0",
+  "screenshots": "2 actual states saved (idle and Finder no-hits); translation/correction pending",
+  "test_scope": "only real UI flows needed for requested screenshots, after implementation; no broad test suite",
+  "recipient_acceptance": "pending on M3/macOS version unknown",
+  "main_ui_integration": "not started; gated on Mini acceptance",
+  "package": "dist/mini-m57/RAT Mini.zip",
+  "stage0": "unchanged",
+  "package_sha256": "104b2fe4ed7d2467e217b372d850049c0b62e9069905deb99800c391336f0a10",
+  "source_changed_since_freeze": [],
+  "bundle_version": "0.5.7",
+  "bundle_build": "20261027.1",
+  "ui_observations": {
+    "version_seen": "RAT Mini · M5.7",
+    "idle_screenshot": "screenshots/01-idle.png",
+    "finder_query": "tìm BEST-Route.pdf",
+    "finder_result": "No hits in actual UI; PDF exists and SHA256 matches recorded arXiv provenance. Not accepted as successful Finder.",
+    "finder_screenshot": "screenshots/04-finder-no-hits.png",
+    "image_translation": "waiting for user physical drop; native Finder automation not approved",
+    "ocr_correction": "pending image input"
+  },
+  "tool_limitations": [
+    "Native Finder UI access not approved; user asked to perform one physical screenshot/drop.",
+    "Automatic approval review for process-list read timed out; did not retry or bypass; version confirmed in actual app UI.",
+    "mdls diagnostic could not find existing PDF; this alone does not establish indexing/TCC root cause."
+  ],
+  "acceptance": "not passed; no broad suite run",
+  "spotlight_diagnostic": {
+    "command": "mdutil -s /",
+    "stdout": "Spotlight server is disabled.",
+    "scope": "Observed in current command environment; app UI search also returned no hits. No Spotlight configuration changed.",
+    "finder_acceptance": "pending on an environment with working Spotlight",
+    "correction_20261027": "Original disabled output was sandbox-specific. Outside sandbox indexing is enabled and mdfind returns public PDF. Actual UI no-hits remains unresolved; do not require system indexing changes."
+  },
+  "thumbnail_drop": {
+    "user_origin": "floating screenshot thumbnail",
+    "outcome": "FAILED; UI rejected before OCR/translation",
+    "evidence": "screenshots/05-thumbnail-drop-error.png and thumbnail-drop-ui.txt",
+    "followup": "M5.8 native MIME/promise ingress implemented; pending retest"
+  }
+}

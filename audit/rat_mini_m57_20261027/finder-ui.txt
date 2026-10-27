@@ -1,0 +1,18 @@
+Window: "RAT Mini · M5.7", App: RAT Mini.
+0 dialog RAT Mini · M5.7, Secondary Actions: Raise
+	1 text Value: Chưa tìm thấy file trong thư mục đã chọn., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.resultStatus, Secondary Actions: Raise
+	2 button Thu gọn kết quả, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+	3 text Value: ↑↓ chọn · Enter mở · ⌘Enter hiện trong Finder, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.Label_QMLTYPE_6, Secondary Actions: Raise
+	4 scroll bar (settable) ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.ScrollBar_QMLTYPE_9, Secondary Actions: Raise
+	5 text Value: RAT, ID: QGuiApplication.QQuickView.Label_QMLTYPE_6, Secondary Actions: Raise
+	6 button Ẩn RAT Mini, ID: QGuiApplication.QQuickView.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+	7 button Thao tác khác, ID: QGuiApplication.QQuickView.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+	8 text field (settable) Yêu cầu RAT Mini, Description: Bạn muốn Chuột giúp gì?, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.miniEditor, Secondary Actions: Raise
+	9 scroll bar (settable) ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.ScrollBar_QMLTYPE_9, Secondary Actions: Raise
+	10 button Gửi yêu cầu, ID: QGuiApplication.QQuickView.sendButton, Secondary Actions: Raise
+	11 text Value: RAT Mini · M5.7, ID: QGuiApplication.QQuickView.Label_QMLTYPE_6, Secondary Actions: Raise
+	12 button Thu gọn, ID: QGuiApplication.QQuickView.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+13 menu bar
+	14 RAT Mini
+
+The focused UI element is 8 text field (settable) Yêu cầu RAT Mini, Description: Bạn muốn Chuột giúp gì?, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.miniEditor, Secondary Actions: Raise

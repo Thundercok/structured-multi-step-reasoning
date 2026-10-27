@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_mini_m515_20261027/public-corpus/BEST-Route.pdf",
+    "origin": "https://arxiv.org/pdf/2506.22716",
+    "sha256": "9746346dc6e6552ccdd20158a0eb4b01e927a3cb46242ebaf3d36a9d3b611d9c"
+  },
+  {
+    "path": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_mini_m515_20261027/public-corpus/public-textedit-input.png",
+    "origin": "Actual TextEdit screenshot, public English input; audit/rat_mini_m57_20261027",
+    "sha256": "a7e41558d24bf40224e5d63bcc259c8ccf033d5459a5461f3ed30caf64fdea11"
+  }
+]

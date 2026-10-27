@@ -1,0 +1,180 @@
+{
+  "runs": [
+    {
+      "input": "Hello world.",
+      "source": "en",
+      "target": "vi",
+      "error": null,
+      "elapsed_s": 3.026,
+      "agent_llm_calls": 0,
+      "verification": "PASS",
+      "artifacts": [
+        {
+          "id": "art-7856b81351054b66a3ebd195ef147b6e",
+          "kind": "translation",
+          "revision": 1,
+          "payload": {
+            "status": "complete",
+            "text": "▁Chào▁cả▁thế▁giới.",
+            "source_text": "Hello world.",
+            "source_language": "en",
+            "target_language": "vi",
+            "source_sha256": "aa3ec16e6acc809d8b2818662276256abfd2f1b441cb51574933f3d4bd115d11",
+            "segments": [
+              {
+                "source_start": 0,
+                "source_end": 12,
+                "status": "complete",
+                "translated_text": "▁Chào▁cả▁thế▁giới.",
+                "provider": "offline_argos"
+              }
+            ],
+            "provider": "offline_argos",
+            "warnings": [],
+            "local_model": {
+              "id": "en-vi",
+              "version": "1.9",
+              "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+              "license": "CC-BY-4.0",
+              "engine": "CTranslate2",
+              "engine_version": "4.8.4",
+              "device": "cpu",
+              "compute_type": "int8"
+            }
+          },
+          "inputs": {
+            "text": "Hello world.",
+            "source_language": "en",
+            "target_language": "vi"
+          },
+          "provenance": {
+            "operation_name": "translate_text",
+            "owner_turn_id": "turn-a6b2c5c456e54cfa9b9a748e74be3b24",
+            "execution_id": "mini-4a9dc75da4b64b8597a9e4f2ab80e747"
+          },
+          "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+          "status": "ready",
+          "created_at": 1793047789.869194
+        }
+      ]
+    },
+    {
+      "input": "This is a short public text for translation.",
+      "source": "en",
+      "target": "vi",
+      "error": null,
+      "elapsed_s": 0.312,
+      "agent_llm_calls": 0,
+      "verification": "PASS",
+      "artifacts": [
+        {
+          "id": "art-8184a9c5c2704a468603576b4903fb48",
+          "kind": "translation",
+          "revision": 1,
+          "payload": {
+            "status": "complete",
+            "text": "▁Đây là▁một▁đoạn▁văn▁ngắn▁để▁dịch.",
+            "source_text": "This is a short public text for translation.",
+            "source_language": "en",
+            "target_language": "vi",
+            "source_sha256": "3b14c7e15e94fb43396a8adf999c69e0af50ae571b771e7d017c4a16ab47257a",
+            "segments": [
+              {
+                "source_start": 0,
+                "source_end": 44,
+                "status": "complete",
+                "translated_text": "▁Đây là▁một▁đoạn▁văn▁ngắn▁để▁dịch.",
+                "provider": "offline_argos"
+              }
+            ],
+            "provider": "offline_argos",
+            "warnings": [],
+            "local_model": {
+              "id": "en-vi",
+              "version": "1.9",
+              "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+              "license": "CC-BY-4.0",
+              "engine": "CTranslate2",
+              "engine_version": "4.8.4",
+              "device": "cpu",
+              "compute_type": "int8"
+            }
+          },
+          "inputs": {
+            "text": "This is a short public text for translation.",
+            "source_language": "en",
+            "target_language": "vi"
+          },
+          "provenance": {
+            "operation_name": "translate_text",
+            "owner_turn_id": "turn-5148431aa6504e1689ea4ea4d0284e28",
+            "execution_id": "mini-905cd32540c14ec9811eea112bf3e37a"
+          },
+          "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+          "status": "ready",
+          "created_at": 1793047790.1812868
+        }
+      ]
+    },
+    {
+      "input": "Xin chào thế giới.",
+      "source": "vi",
+      "target": "en",
+      "error": null,
+      "elapsed_s": 0.533,
+      "agent_llm_calls": 0,
+      "verification": "PASS",
+      "artifacts": [
+        {
+          "id": "art-550519641c4a4ce8a21a89311fc60991",
+          "kind": "translation",
+          "revision": 1,
+          "payload": {
+            "status": "complete",
+            "text": "Hello, world.",
+            "source_text": "Xin chào thế giới.",
+            "source_language": "vi",
+            "target_language": "en",
+            "source_sha256": "d8c09d6c367d83955b0fc8eb37a6b26336eca9747f70ad89df58d9548c005c6b",
+            "segments": [
+              {
+                "source_start": 0,
+                "source_end": 18,
+                "status": "complete",
+                "translated_text": "Hello, world.",
+                "provider": "offline_argos"
+              }
+            ],
+            "provider": "offline_argos",
+            "warnings": [],
+            "local_model": {
+              "id": "vi-en",
+              "version": "1.9",
+              "package_sha256": "ebd51b7189b13eccb9238a5777de1d343008c4c05284a8b89610242364433953",
+              "license": "CC-BY-4.0",
+              "engine": "CTranslate2",
+              "engine_version": "4.8.4",
+              "device": "cpu",
+              "compute_type": "int8"
+            }
+          },
+          "inputs": {
+            "text": "Xin chào thế giới.",
+            "source_language": "vi",
+            "target_language": "en"
+          },
+          "provenance": {
+            "operation_name": "translate_text",
+            "owner_turn_id": "turn-2b7c1a4c962848c8a5624c6a32d7537a",
+            "execution_id": "mini-c9eab48b336547249873dc7c4b74dcbd"
+          },
+          "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+          "status": "ready",
+          "created_at": 1793047790.7151601
+        }
+      ]
+    }
+  ],
+  "peak_rss_bytes_macos": 365346816,
+  "limits": "Real MT inference; structural verifier only. Not UI, M3 recipient, broad quality evaluation or Agent planning acceptance."
+}

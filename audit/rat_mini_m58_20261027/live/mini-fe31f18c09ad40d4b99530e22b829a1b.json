@@ -1,0 +1,158 @@
+{
+  "query": "",
+  "operation": "correct_captured_text",
+  "args": {
+    "source_ref": {
+      "artifact_id": "art-03b509eaa5644344abe5790ae417006f",
+      "revision": 1
+    },
+    "text": "Hello world.\nThis is a short public text for translation. "
+  },
+  "answer": "",
+  "error": "source_expired",
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "correct_captured_text"
+      },
+      "timestamp": 1793045154.41288,
+      "error": null,
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: correct_captured_text"
+      },
+      "timestamp": 1793045154.4129548,
+      "error": null,
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "correct_captured_text",
+      "artifact_id": null,
+      "payload": {
+        "source_ref": {
+          "artifact_id": "art-03b509eaa5644344abe5790ae417006f",
+          "revision": 1
+        },
+        "text": "Hello world.\nThis is a short public text for translation. "
+      },
+      "timestamp": 1793045154.4134479,
+      "error": null,
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "correct_captured_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793045154.421022,
+      "error": null,
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "correct_captured_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793045154.421041,
+      "error": null,
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "FAIL",
+        "dispatch_status": "error"
+      },
+      "timestamp": 1793045154.4219232,
+      "error": null,
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_failed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793045154.42297,
+      "error": "source_expired",
+      "turn_id": "turn-828d3fc8401d45e792e3a0a9cf779c48",
+      "execution_id": "mini-fe31f18c09ad40d4b99530e22b829a1b",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [],
+  "capture_artifacts": [],
+  "capture_verification": [
+    {
+      "status": "FAIL",
+      "scope": "capture_correction_structure",
+      "reason": "Đối chiếu chữ người dùng sửa và liên kết nguồn; không xác nhận nội dung đúng nghĩa.",
+      "evidence_ids": [
+        "mini-fe31f18c09ad40d4b99530e22b829a1b:op:correct_captured_text"
+      ],
+      "checked": [
+        "user_text_hash",
+        "parent_source_ref"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "verification": [
+    {
+      "status": "FAIL",
+      "scope": "capture_correction_structure",
+      "reason": "Đối chiếu chữ người dùng sửa và liên kết nguồn; không xác nhận nội dung đúng nghĩa.",
+      "evidence_ids": [
+        "mini-fe31f18c09ad40d4b99530e22b829a1b:op:correct_captured_text"
+      ],
+      "checked": [
+        "user_text_hash",
+        "parent_source_ref"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "llm_calls": 0,
+  "usage_unknown": false
+}

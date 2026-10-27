@@ -44,6 +44,7 @@ class OperationDefinition:
     verifier: Optional[Any] = None
     # Some observations are shown through the answer/trace and kept as references.
     present_result: bool = True
+    model_visible: bool = True
 
     def to_tool_definition(self) -> ToolDefinitionContract:
         parameters = copy.deepcopy(self.parameters)
@@ -149,7 +150,7 @@ class CapabilityRegistry:
     def to_tool_definitions(self) -> List[Any]:
         """Convert registered operations to ToolDefinitions for assistant runtime."""
         # Returns objects with name, description, parameters attributes
-        return [op.to_tool_definition() for op in self._operations.values()]
+        return [op.to_tool_definition() for op in self._operations.values() if op.model_visible]
 
     def execute(self, name: str, args: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> Any:
         op = self.get_operation(name)

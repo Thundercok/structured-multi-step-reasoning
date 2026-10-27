@@ -1,0 +1,29 @@
+{
+  "version": "M5.6-dev",
+  "status": "source implemented; untested; not packaged",
+  "features": [
+    "OCR editor appears from observed capture artifact before translation completes",
+    "correct_captured_text creates a new artifact with parent/root pins and text hashes",
+    "unchanged-text retry calls translation only",
+    "edited-text retry uses shared correction then translation workflow",
+    "network failure retains OCR source and draft",
+    "unsent edits hide stale translation and copy action",
+    "original OCR viewer keeps original source text"
+  ],
+  "shared_contract": "docs/contracts/image_translation_ingress.md",
+  "history_scope": "in-session artifacts; no persistent history or training collection added",
+  "main_ui_integration": "not wired",
+  "live_model_reasoning_acceptance": "not established",
+  "tests": "not run",
+  "build": "not run",
+  "last_package": "dist/mini-m54-drop-image/RAT Mini.zip; does not contain M5.5/M5.6 changes",
+  "planned_acceptance": [
+    "real screenshot OCR and translation",
+    "edit multiple times; check original/parent/root artifacts remain intact",
+    "translation failure then retry without OCR or duplicate correction",
+    "language clarification retains OCR editor/source",
+    "cancel/replace task suppresses old result",
+    "unsent draft cannot show/copy old translation as current",
+    "expired source and settings-session replacement preserve visible text and request fresh image"
+  ]
+}

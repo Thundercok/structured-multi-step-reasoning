@@ -5,6 +5,8 @@ import QtQuick.Layouts
 ColumnLayout {
     id: finderResults
     objectName: "finderResults"
+    // Mini shares the cards but only opens/reveals files; no document workspace.
+    property bool fileActionsOnly: false
     visible: desk.liveSnapshot.view === "finder" && (desk.allFinderHits || []).length > 0
     Layout.fillWidth: true
     spacing: 6
@@ -268,7 +270,7 @@ ColumnLayout {
 
             KeycapBadge {
                 objectName: "finderAdoptAction"
-                visible: Boolean(bottomActionBar.selectedHit.is_pdf) || bottomActionBar.selectedHit.kind === "file"
+                visible: !finderResults.fileActionsOnly && (Boolean(bottomActionBar.selectedHit.is_pdf) || bottomActionBar.selectedHit.kind === "file")
                 keyText: "Tab"
                 labelText: bottomActionBar.width < 400 ? "Hỏi Chuột" : "Đưa vào bàn & Hỏi Chuột"
                 primary: true
@@ -283,8 +285,8 @@ ColumnLayout {
                 objectName: "finderReadAction"
                 visible: Boolean(bottomActionBar.selectedHit.is_pdf)
                 keyText: "↵"
-                labelText: bottomActionBar.width < 400 ? "Chọn PDF" : "Chọn PDF để đọc / hỏi"
-                Accessible.name: "Chọn PDF để đọc hoặc hỏi Chuột, Enter"
+                labelText: finderResults.fileActionsOnly ? "Mở PDF" : bottomActionBar.width < 400 ? "Chọn PDF" : "Chọn PDF để đọc / hỏi"
+                Accessible.name: finderResults.fileActionsOnly ? "Mở PDF bằng ứng dụng mặc định, Enter" : "Chọn PDF để đọc hoặc hỏi Chuột, Enter"
                 onClicked: {
                     var idx = desk.selectedFinderIndex
                     desk.selectedFinderIndex = -1
@@ -301,7 +303,7 @@ ColumnLayout {
             }
             KeycapBadge {
                 objectName: "finderOpenExternalAction"
-                visible: Boolean(bottomActionBar.selectedHit.is_pdf)
+                visible: !finderResults.fileActionsOnly && Boolean(bottomActionBar.selectedHit.is_pdf)
                 keyText: ""
                 labelText: "Mở bằng ứng dụng"
                 onClicked: desk.liveController.openHit(bottomActionBar.selectedHit.path)
@@ -313,14 +315,14 @@ ColumnLayout {
                 onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex)
             }
             KeycapBadge {
-                visible: bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
+                visible: !finderResults.fileActionsOnly && bottomActionBar.selectedHit.kind === "file" && !bottomActionBar.selectedHit.is_pdf
                 keyText: "⇧↵"
                 labelText: bottomActionBar.width < 400 ? "Hỏi" : "Hỏi về tệp"
                 primary: true
                 onClicked: desk.liveController.askAboutSelectedHit(desk.selectedFinderIndex, editor.text)
             }
             KeycapBadge {
-                visible: Boolean(bottomActionBar.selectedHit.path)
+                visible: !finderResults.fileActionsOnly && Boolean(bottomActionBar.selectedHit.path)
                 keyText: "⌘Y"
                 labelText: "Xem nhanh"
                 onClicked: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)

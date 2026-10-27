@@ -23,7 +23,7 @@ NOTE_PROPOSAL_SCHEMA = {
     "required": ["title", "domain", "summary", "key_facts", "analysis_sections", "risks_and_constraints", "action_items"],
     "properties": {
         "title": {"type": "string", "minLength": 1},
-        "domain": {"type": "string", "enum": ["decision", "analysis", "technical", "research", "action_plan"]},
+        "domain": {"type": "string", "enum": ["decision", "analysis", "technical", "research", "action_plan", "creative", "academic"]},
         "summary": {"type": "string", "minLength": 1},
         "key_facts": {"type": "array", "items": {"type": "object", "additionalProperties": False,
             "required": ["fact", "source"], "properties": {"fact": {"type": "string", "minLength": 1}, "source": {"type": "string"}}}},
@@ -170,10 +170,14 @@ def deterministic_note_synthesizer(
     # 1. Domain Detection
     detected_domain = domain
     if domain == "auto":
-        if any(k in lower_text for k in ("tarot", "pentacles", "wands", "swords", "cups", "bài", "lá", "hiero", "world", "tâm lý")):
-            detected_domain = "analysis"
-        elif any(k in lower_text for k in ("bug", "lỗi", "latency", "ms", "token", "cache", "api", "code", "exception", "timeout")):
+        if any(k in lower_text for k in ("bug", "lỗi", "latency", "ms", "token", "cache", "api", "code", "exception", "timeout")):
             detected_domain = "technical"
+        elif any(k in lower_text for k in ("joke", "hài", "cười", "kịch bản", "tiền xu", "vui", "stand-up")):
+            detected_domain = "creative"
+        elif any(k in lower_text for k in ("bài kiểm tra", "quá trình", "môn", "thầy", "học", "bài giảng", "giải thuật", "dsa", "cấu trúc dữ liệu", "heap", "avl", "bst")):
+            detected_domain = "academic"
+        elif any(k in lower_text for k in ("tarot", "pentacles", "wands", "swords", "cups", "bài", "lá", "hiero", "world", "tâm lý")):
+            detected_domain = "analysis"
         elif any(k in lower_text for k in ("chọn", "mua", "tặng", "lựa chọn", "nên", "phương án", "so sánh")):
             detected_domain = "decision"
         elif any(k in lower_text for k in ("nghiên cứu", "paper", "arxiv", "hypothesis", "benchmark")):
@@ -186,6 +190,10 @@ def deterministic_note_synthesizer(
     if not inferred_title:
         if focus_question:
             inferred_title = f"Ghi chú: {focus_question[:60]}"
+        elif detected_domain == "creative":
+            inferred_title = "Ý tưởng Hài kịch & Quan sát Đời thường"
+        elif detected_domain == "academic":
+            inferred_title = "Kế hoạch Học tập & Ôn thi"
         elif detected_domain == "analysis":
             inferred_title = "Phân tích Trải bài & Hiện trạng Tâm lý"
         elif detected_domain == "decision":
@@ -279,7 +287,19 @@ def create_smart_notes_capability(store=None) -> Capability:
     )
     verifier = NoteVerifier()
 
+    def check_requirements(name, args, context):
+        requirements = context.get('note_requirements')
+        if requirements:
+            # The dispatcher consumes target arguments and supplies its checked
+            # snapshot to mutation handlers.
+            target = context.get('target_artifact')
+            checked_args = ({**args, 'artifact_id': target.id, 'revision': target.revision}
+                            if target is not None else args)
+            requirements.check_action(name, checked_args, context.get('artifact_store') or store)
+        return requirements
+
     def handle_synthesize(args: Dict[str, Any], **context) -> Dict[str, Any]:
+        requirements = check_requirements('synthesize_smart_note', args, context)
         raw_content = args.get("raw_content", "").strip()
         if not raw_content:
             raise ValueError("Cần cung cấp nội dung ghi chép thô (raw_content).")
@@ -304,6 +324,8 @@ def create_smart_notes_capability(store=None) -> Capability:
                 "_op_name": "synthesize_smart_note",
             })
             structured_res["markdown_rendered"] = render_markdown_from_note(structured_res)
+        if requirements and requirements.tasks:
+            structured_res['_required_action_items'] = list(requirements.tasks)
         from rat.engine.verification import ExecutionEvidence, VerificationStatus
         report = verifier.check_execution(ExecutionEvidence(
             "note-precommit", "synthesize_smart_note", args, structured_res, ""))
@@ -315,6 +337,7 @@ def create_smart_notes_capability(store=None) -> Capability:
 
     def handle_update_action_item(args: Dict[str, Any], **context) -> Dict[str, Any]:
         """Update or toggle a task in an existing structured note artifact."""
+        check_requirements('update_note_action_item', args, context)
         target_art = context.get("target_artifact")
         if target_art is None:
             art_id = args.get("artifact_id")
@@ -365,6 +388,7 @@ def create_smart_notes_capability(store=None) -> Capability:
 
     def handle_expand_section(args: Dict[str, Any], **context) -> Dict[str, Any]:
         """Expand or deepen a section in an existing structured note artifact."""
+        check_requirements('expand_note_section', args, context)
         target_art = context.get("target_artifact")
         if target_art is None:
             art_id = args.get("artifact_id")
@@ -447,7 +471,7 @@ def create_smart_notes_capability(store=None) -> Capability:
                     },
                     "domain": {
                         "type": "string",
-                        "enum": ["auto", "decision", "analysis", "technical", "research", "action_plan"],
+                        "enum": ["auto", "decision", "analysis", "technical", "research", "action_plan", "creative", "academic"],
                         "default": "auto",
                         "description": "Domain hint for structuring logic.",
                     },

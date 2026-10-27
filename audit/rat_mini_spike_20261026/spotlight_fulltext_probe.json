@@ -1,0 +1,11 @@
+{
+  "scope": "repository only",
+  "query_kind": "known filename AND known content term",
+  "term": "REASONING",
+  "exit_code": 0,
+  "hit_count": 5,
+  "expected_root_file_returned": true,
+  "all_hits_in_scope": true,
+  "exhaustive": false,
+  "personal_paths_recorded": false
+}

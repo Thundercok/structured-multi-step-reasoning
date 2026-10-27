@@ -1,0 +1,17 @@
+{
+  "mini_app.py": "a26e5575f2e5dfae60d2a354eae400032d43e8d6609afb4166424b12c9ada841",
+  "rat/mini.py": "c5cf0b0f984e660ab3f7aa65f87793aba38de49ef3ff2312a209dcd0a66763bd",
+  "rat/kernel/input_context.py": "b6f4aba46f46d626eed60e02f68afef38f0faa27f9588a7ee27c3f4517ae24fa",
+  "rat/kernel/capabilities/translation.py": "ad9234bd2a6da4ebf9c1e24d8d3c5412d4cb32d872ac4bcf59fe0c0df10329ea",
+  "rat/engine/capture_translation.py": "8e10ec05fcde42113416018574e983a1b44264795a2317a406a4a51052f5b97a",
+  "rat/engine/snippet_translation.py": "4f710995440736e2293013b66125eef14a24815386d3debe503bb567d5d68760",
+  "rat/engine/mini_settings.py": "b0a55582a151ffee5becea0b3891d0da8e90738ac927f43e59aa370f92671181",
+  "rat/ui/image_input.py": "625870062e73a569a5fcf1b20eeb9dbe017194cf4d7311e988866db6bf4b3b69",
+  "rat/ui/mini_worker.py": "93e38f8b95579a8068141df654c83d4140824a9203680f7e10b0940953858381",
+  "rat/ui/mini_quick_controller.py": "5d4418ca4e5d2b202c8da5b339496babf9d83e588ecc42ebc2949fe1d2dc4a41",
+  "rat/ui/mini_quick.py": "8ee96c3609e760f0d11f1246cf7b0b91ed5f0141ebc7ce9a31927c07b135e832",
+  "rat/ui/mini_instance.py": "9ea4130c91902a2cf34f1a130f546e5736f0f0eda941a329070ae4271e825f5f",
+  "rat/ui/quick/MiniDesk.qml": "9b292c9fc41a033a07eac878be15bea9e7bf807ff02fd8c54d958eaf34eebcd6",
+  "tools/build_rat_mini_app.sh": "fa418dff5dc256f7c5e3169f98cc8b53defa057ebc9dee3dcfdd80ccf420531d",
+  "docs/RAT_MINI_BAT_DAU.txt": "c292356b5f6308b33a7f8259293c985fc8c20bafd937c142f9e7462667ef68b2"
+}

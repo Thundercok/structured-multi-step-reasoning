@@ -1,0 +1,19 @@
+{
+  "version": "M5.4",
+  "user_decision": "Backlog global capture hotkey; prioritize macOS screenshot file drag/drop.",
+  "implemented": [
+    "Single-image URL drop auto OCR/translation through existing capture_text(image) and translate_text tools",
+    "Optional composer language instruction retained",
+    "Image file URL paste stages image; Enter executes same tools",
+    "Bounded file read and pixel/decode validation",
+    "Copy-only drop acceptance preserves source file",
+    "No automatic hotkey helper registration or direct-capture menu"
+  ],
+  "shared_contracts": "Existing MiniSession / AgentExecutionService / dispatcher / captured_text source_ref reused.",
+  "main_profile": "New image ingress is not wired into main profile.",
+  "runtime_testing": "NOT RUN: no M5.4 app launch, test suite or UI acceptance performed.",
+  "model_loop_acceptance": "Not verified; deterministic capture/translation execution does not establish live model reasoning acceptance.",
+  "build": "completed: app and ZIP created; build exit 0",
+  "package": "dist/mini-m54-drop-image/RAT Mini.zip",
+  "backlog": "docs/backlog/rat_mini_global_capture.md"
+}

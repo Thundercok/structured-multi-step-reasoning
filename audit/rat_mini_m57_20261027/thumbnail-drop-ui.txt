@@ -1,0 +1,17 @@
+Window: "RAT Mini · M5.7", App: RAT Mini.
+0 dialog RAT Mini · M5.7, Secondary Actions: Raise
+	1 text Value: Hãy thả file ảnh trên máy, không phải đường dẫn web., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.resultStatus, Secondary Actions: Raise
+	2 button Thu gọn kết quả, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+	3 scroll bar (settable) ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.ScrollBar_QMLTYPE_9, Secondary Actions: Raise
+	4 text Value: RAT, ID: QGuiApplication.QQuickView.Label_QMLTYPE_6, Secondary Actions: Raise
+	5 button Ẩn RAT Mini, ID: QGuiApplication.QQuickView.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+	6 button Thao tác khác, ID: QGuiApplication.QQuickView.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+	7 text field (settable) Yêu cầu RAT Mini, Description: Bạn muốn Chuột giúp gì?, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.miniEditor, Secondary Actions: Raise
+	8 scroll bar (settable) ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_8.ScrollBar_QMLTYPE_9, Secondary Actions: Raise
+	9 button Gửi yêu cầu, ID: QGuiApplication.QQuickView.sendButton, Secondary Actions: Raise
+	10 text Value: RAT Mini · M5.7, ID: QGuiApplication.QQuickView.Label_QMLTYPE_6, Secondary Actions: Raise
+	11 button Thu gọn, ID: QGuiApplication.QQuickView.QuietButton_QMLTYPE_2, Secondary Actions: Raise
+12 menu bar
+	13 RAT Mini
+
+The focused UI element is 0 dialog RAT Mini · M5.7, Secondary Actions: Raise

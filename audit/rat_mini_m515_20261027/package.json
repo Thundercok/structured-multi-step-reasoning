@@ -1,0 +1,11 @@
+{
+  "app": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/mini-m515/RAT Mini.app",
+  "zip": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/mini-m515/RAT Mini.zip",
+  "zip_bytes": 217291073,
+  "zip_sha256": "e87634b2f691d1b02583b66ae6d03b31fe3e8d871b39ac83f92725eaa90a17ce",
+  "external_symlinks": [],
+  "qml_matches_source": true,
+  "guide_matches_source": true,
+  "version": "0.5.15",
+  "build": "20261027.12"
+}

@@ -1,0 +1,56 @@
+{
+  "version": "0.5.14",
+  "build": "20261027.11",
+  "package": "dist/mini-m514-ready/RAT Mini.zip",
+  "bytes": 217263267,
+  "sha256": "b18ad2e44db67d5a20d01c03dfe1d4ea1137b5c31d02dc3778fb7e65fbd98e26",
+  "minimum_macos": "14.0",
+  "architecture": "arm64",
+  "signing": "ad-hoc",
+  "notarized": false,
+  "qml_matches_final_source": true,
+  "source_sha256": {
+    "rat/ui/mini_quick.py": "0b58e91a46fa6bb8753030c273eaeb054ce1e8c3fbb4c572471da6a9835f5af0",
+    "rat/ui/mini_shell.py": "c90ce2460127fe4b6b2d2b358e3e71b6069b7da7178d3f421454a26380f6ef63",
+    "rat/ui/mini_placement.py": "6a2276435ffd3869090a015fc1ec0da831c4b209658072d3330bdf3a113ed972",
+    "rat/ui/mini_quick_controller.py": "b60cd8d3ffd444c5c4fb0232cb51a7b4c9096af8c4c7da3e0c677a4b0a8eeb06",
+    "rat/ui/mini_worker.py": "90811f761c2b48a21b2611aef37ee88a75ba3e4594637616ea02829c79ffc822",
+    "rat/ui/quick/MiniDesk.qml": "5c1fafb06aca6541fdbc0ee7e962c0f11042e5232dbdb2774472246e55096ce0",
+    "rat/ui/image_preview.py": "9fca0518872bb4c3cf2ce15f370af7afb932b2ad8b13eb380800de20120167f6",
+    "rat/ui/macos_image_promise.py": "928397fa58d3edb0edcf40dbeab4b8e31b52bd83df912bcb8589b6b91cf0a3d8",
+    "rat/ui/image_drop.py": "578df4b646454fd20191a65c8bc6c227738914e7446e1c4a4a968dc531ce1efb",
+    "rat/os/native_menu.py": "29efb76e11611e30f77851071c5122be82c2db30e543a7fafacbf82519ecdc5d",
+    "rat/os/system_process.py": "42222ed533aa0ada9d572a7b74aadfc1acdead9f3e1f6620a8fa8950c27dd1d5",
+    "rat/engine/local_translation.py": "dde1252e59ed16c46bfc31aaf7ec5c88d2f40fc7e6cb2a6c20b468453549b11e",
+    "rat/engine/local_finder.py": "45370b8dd41f40ec77d748b7079c03c80f0cd1a946d4729fe23845088faed6bf",
+    "rat/engine/snippet_translation.py": "39f9b1544658b08812382cb1b266babaa00fa689e864dae25f0f326330a2ba14",
+    "rat/engine/capture_translation.py": "8934e3b98bd0eef0e39b4c85e18c9238d55111bb2ab3f7a7d862bdafafe4f3d0",
+    "rat/kernel/capabilities/translation.py": "dfe678d3bfe59f02620c6175cc41fc7ea97c4fbcd44dc4c11a05b159d05b141f",
+    "rat/kernel/capabilities/file_finder.py": "122c5ec0545354ab4d76623a75214bc09b2927f419fc4906f3b2b1b37300483b",
+    "tools/build_rat_mini_app.sh": "3343a972b90bd6deecdf6c8092f1305d0b28c8a2ac2a1dffd2dd761039db4e4c"
+  },
+  "live_finder": {
+    "build": "20261027.11",
+    "completed_roots": 3,
+    "roots": 3,
+    "hits": 1,
+    "elapsed_ms": 7973,
+    "opened_in_preview": true
+  },
+  "live_translation_and_ocr": {
+    "build": "20261027.9",
+    "same_translation_backend_as_final": true,
+    "typed_translation": true,
+    "real_image_paste": true,
+    "ocr_correction_retry": true
+  },
+  "pending": [
+    "recipient_M3",
+    "physical_screenshot_thumbnail_drop",
+    "physical_transparent_gap_clickthrough",
+    "native_tray_single_click_acceptance",
+    "broad_translation_quality",
+    "main_UI_and_live_Agent_planning"
+  ],
+  "codesign_deep_strict_verified": true
+}

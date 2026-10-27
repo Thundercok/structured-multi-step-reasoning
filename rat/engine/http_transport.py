@@ -13,7 +13,8 @@ class RequestCancelled(Exception):
     pass
 
 
-def post_json(url, payload, *, timeout, should_cancel):
+def post_json(url, payload, *, timeout, should_cancel, headers=None, ssl_context=None,
+              method="POST", max_body_bytes=2_000_000):
     """Abort this socket on cancellation/deadline, including before headers.
 
     Closing an HTTPConnection alone does not interrupt a blocking recv. Keep
@@ -25,7 +26,10 @@ def post_json(url, payload, *, timeout, should_cancel):
         raise ValueError("unsupported_model_url")
     connection_type = (http.client.HTTPSConnection if target.scheme == "https"
                        else http.client.HTTPConnection)
-    connection = connection_type(target.hostname, target.port, timeout=timeout)
+    options = {"timeout": timeout}
+    if target.scheme == "https" and ssl_context is not None:
+        options['context'] = ssl_context
+    connection = connection_type(target.hostname, target.port, **options)
     finished = threading.Event()
     state = {"socket": None, "error": None}
     deadline = time.perf_counter() + timeout
@@ -60,10 +64,12 @@ def post_json(url, payload, *, timeout, should_cancel):
         path = target.path or "/"
         if target.query:
             path += "?" + target.query
-        connection.request("POST", path, body=json.dumps(payload).encode("utf-8"),
-                           headers={"Content-Type": "application/json"})
+        connection.request(method, path, body=json.dumps(payload).encode("utf-8") if payload is not None else None,
+                           headers={"Content-Type": "application/json", **(headers or {})})
         with connection.getresponse() as reply:
-            body = reply.read()
+            body = reply.read(max_body_bytes + 1)
+            if len(body) > max_body_bytes:
+                raise ValueError('response_too_large')
             check()
             if not 200 <= reply.status < 300:
                 raise RuntimeError(f"model_http_error:{reply.status}")

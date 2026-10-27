@@ -1,0 +1,11 @@
+{
+  "rat/kernel/input_context.py": "64539191ff6cef228bd0c26ab9cde4caaf74b52c498595e59243c84a6930b3b1",
+  "rat/ui/image_input.py": "6782d73ac4185e40c949e16f621b8d09f4fcc26501c4d7ac5543862c11f4bf73",
+  "rat/ui/image_drop.py": "e4a4ae4d10ae9c5eb1b198f7c2698efb4f4515fc0f6780fe061e14a2453ec029",
+  "rat/ui/macos_image_promise.py": "502c95f33ef9b40ecd77b3a5971026232cc6dcc44829a0ef6fc8b20777b1b6d1",
+  "rat/ui/mini_quick_controller.py": "d09ac041683ac107df27c4479fe062e7e74b22b78c4d8c7200ab94178e47dc01",
+  "rat/ui/mini_quick.py": "a7ce51599073ce1adc721a70271349b703adae585c589b2d0dd0b544716d6d00",
+  "rat/ui/quick/MiniDesk.qml": "98c5e98c27f69a79cd3e05b95bca382c8e74b51acc849d544e94609b9b37c927",
+  "tools/build_rat_mini_app.sh": "2ac58488c3b5f9954ca056590c4c640b28b432b9de2e7d5e2617e4c2e8cfd31a",
+  "docs/RAT_MINI_BAT_DAU.txt": "dda2fb87155745f2c00e688ec6d650328a48181b27eea974221a065d974c0b19"
+}

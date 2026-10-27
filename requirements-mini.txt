@@ -1,0 +1,13 @@
+# RAT Mini product only; no local LLM, training stack or timetable.
+PyQt6==6.8.1
+PyQt6-Qt6==6.8.2
+certifi==2026.7.22
+jsonschema>=4.18
+httpx==0.28.1
+pillow>=10
+ctranslate2==4.8.4
+sentencepiece==0.2.2
+numpy==2.5.1
+pyobjc-core==12.2.2; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==12.2.2; sys_platform == 'darwin'
+pyobjc-framework-Quartz==12.2.2; sys_platform == 'darwin'

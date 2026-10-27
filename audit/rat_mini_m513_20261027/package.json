@@ -1,0 +1,33 @@
+{
+  "version": "0.5.13",
+  "build": "20261027.7",
+  "minimum_macos": "14.0",
+  "package": "dist/mini-m513/RAT Mini.zip",
+  "bytes": 217254791,
+  "sha256": "736d4c6cacfe6ffda5a63aa016ec0e15fc48581b9a6bf7671a784c38464c94bd",
+  "signing": "ad-hoc",
+  "notarized": false,
+  "functional_tests_run": false,
+  "app_launched": false,
+  "new_product_screenshots": false,
+  "finder_cause_confirmed": false,
+  "native_thumbnail_drop_accepted": false,
+  "source_sha256": {
+    "rat/engine/local_finder.py": "75bbada44e2c4051b8422a200901491ff8c2fc9d9e7095321e5e137aed09dc91",
+    "rat/os/system_process.py": "42222ed533aa0ada9d572a7b74aadfc1acdead9f3e1f6620a8fa8950c27dd1d5",
+    "rat/kernel/capabilities/file_finder.py": "122c5ec0545354ab4d76623a75214bc09b2927f419fc4906f3b2b1b37300483b",
+    "rat/engine/ocr_paragraphs.py": "621864c2b854813e628b6cb81d78534cc79632280e263ee5cc32d791858fae85",
+    "rat/engine/snippet_translation.py": "39f9b1544658b08812382cb1b266babaa00fa689e864dae25f0f326330a2ba14",
+    "rat/kernel/capabilities/translation.py": "dfe678d3bfe59f02620c6175cc41fc7ea97c4fbcd44dc4c11a05b159d05b141f",
+    "rat/engine/capture_translation.py": "8934e3b98bd0eef0e39b4c85e18c9238d55111bb2ab3f7a7d862bdafafe4f3d0",
+    "rat/ui/image_preview.py": "dffa4bb2b5fca6c3eabd643464d55273101cc80d553c0f582594fc40354b07a2",
+    "rat/ui/image_drop.py": "578df4b646454fd20191a65c8bc6c227738914e7446e1c4a4a968dc531ce1efb",
+    "rat/ui/macos_image_promise.py": "a411b6ec9d39c7fdb19e96f1cccb679425bde5a3a952fd164760c99b0077c8a3",
+    "rat/ui/mini_quick_controller.py": "7ac670ff14132f9c619497cccfe17df39049c538ad4d3cb379da10435f0ec715",
+    "rat/ui/mini_quick.py": "f23c37f73c62ca421f2315912447caa08a8e8d559f27123da65067f738b180c2",
+    "rat/ui/mini_worker.py": "90811f761c2b48a21b2611aef37ee88a75ba3e4594637616ea02829c79ffc822",
+    "rat/ui/quick/MiniDesk.qml": "6a3db22ed215a38aa8388d9796c5350ca4d33881ce086385ec2e629b0b4edee4",
+    "tools/build_rat_mini_app.sh": "8091654f63e1b28de55fa0e0f2034fe6b959a3f83e304255e4677d1c2feca348",
+    "docs/RAT_MINI_BAT_DAU.txt": "1d6a80a70ee1783212e6e6ea15b237229e735a4f34437e731fe209c5a239c47b"
+  }
+}

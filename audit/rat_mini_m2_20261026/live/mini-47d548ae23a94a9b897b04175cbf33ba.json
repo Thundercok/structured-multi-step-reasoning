@@ -1,0 +1,200 @@
+{
+  "query": "Hello world",
+  "operation": "translate_text",
+  "args": {
+    "text": "Hello world",
+    "source_language": "auto",
+    "target_language": "vi"
+  },
+  "answer": "{'status': 'complete', 'text': 'Xin chào thế giới', 'source_text': 'Hello world', 'source_language': 'en', 'target_language': 'vi', 'source_sha256': '64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c', 'segments': [{'source_start': 0, 'source_end': 11, 'status': 'complete', 'translated_text': 'Xin chào thế giới', 'error_code': 'HTTPStatusError', 'provider': 'mymemory'}], 'provider': 'mymemory', 'warnings': ['Đã dùng MyMemory thay cho backend cấu hình ở một đoạn.']}",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "Hello world"
+      },
+      "timestamp": 1792982396.728288,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: translate_text"
+      },
+      "timestamp": 1792982396.728332,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": {
+        "text": "Hello world",
+        "source_language": "auto",
+        "target_language": "vi"
+      },
+      "timestamp": 1792982396.728621,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "translate_text",
+      "artifact_id": "art-2c426b51fb1347088c933de720a03cd4",
+      "payload": {
+        "status": "complete",
+        "text": "Xin chào thế giới",
+        "source_text": "Hello world",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 11,
+            "status": "complete",
+            "translated_text": "Xin chào thế giới",
+            "error_code": "HTTPStatusError",
+            "provider": "mymemory"
+          }
+        ],
+        "provider": "mymemory",
+        "warnings": [
+          "Đã dùng MyMemory thay cho backend cấu hình ở một đoạn."
+        ]
+      },
+      "timestamp": 1792982406.1630569,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1792982406.163126,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1792982406.164373,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1792982406.164534,
+      "error": null,
+      "turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+      "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art-2c426b51fb1347088c933de720a03cd4",
+      "kind": "translation",
+      "revision": 1,
+      "payload": {
+        "status": "complete",
+        "text": "Xin chào thế giới",
+        "source_text": "Hello world",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 11,
+            "status": "complete",
+            "translated_text": "Xin chào thế giới",
+            "error_code": "HTTPStatusError",
+            "provider": "mymemory"
+          }
+        ],
+        "provider": "mymemory",
+        "warnings": [
+          "Đã dùng MyMemory thay cho backend cấu hình ở một đoạn."
+        ]
+      },
+      "inputs": {
+        "text": "Hello world",
+        "source_language": "auto",
+        "target_language": "vi"
+      },
+      "provenance": {
+        "operation_name": "translate_text",
+        "owner_turn_id": "turn-16423c4cbf09483589f0c6c86904043c",
+        "execution_id": "mini-47d548ae23a94a9b897b04175cbf33ba"
+      },
+      "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+      "status": "ready",
+      "created_at": 1792982406.16271
+    }
+  ],
+  "verification": [
+    {
+      "status": "PASS",
+      "scope": "translation_structure",
+      "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+      "evidence_ids": [
+        "mini-47d548ae23a94a9b897b04175cbf33ba:op:translate_text"
+      ],
+      "checked": [
+        "source_hash",
+        "segment_coverage"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "llm_calls": 0,
+  "usage_unknown": false
+}

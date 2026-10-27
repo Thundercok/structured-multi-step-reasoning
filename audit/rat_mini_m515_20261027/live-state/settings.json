@@ -1,0 +1,13 @@
+{
+  "roots": [
+    "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/rat_mini_m515_20261027/public-corpus"
+  ],
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "translation_provider": "automatic",
+  "free_fallback": true,
+  "target_language": "vi",
+  "source_language": "auto",
+  "semantic_enabled": false,
+  "setup_completed": true
+}

@@ -15,6 +15,11 @@ dmg_temp/
 
 *.log
 
+# Pinned translation data is restored by tools/prepare_rat_translation_models.py.
+rat/assets/translation/*/model/
+rat/assets/translation/*/sentencepiece.model
+artifacts/rat_mini_local_mt_20261027/downloads/
+
 .venv/
 runs/
 outputs/

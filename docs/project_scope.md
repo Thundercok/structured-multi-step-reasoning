@@ -9,6 +9,12 @@ thi/kết quả/kiểm tra. Xem `AGENTS.md`; khi bàn giao phải phân biệt t
 ký, UI projection và vòng lập kế hoạch/suy luận đã thực sự được nối. Nguyên tắc
 này không thay research gates hay biến mọi domain thành đóng góp nghiên cứu.
 
+Bổ sung người dùng 2026-10-26: **RAT Mini là vertical slice của RAT chính để
+tái sử dụng về sau**, không phải tiện ích riêng làm riêng cho bạn người dùng.
+Mini giới hạn hai capabilities, giữ trọn luồng yêu cầu → điều phối tool → quan
+sát/kiểm chứng → UI. UX dùng một ô nhập, không bắt chọn mode Tìm file/Dịch.
+Quyết định và trạng thái triển khai: [RAT Mini vertical slice](rat_mini_vertical_slice.md).
+
 ## Quyết định áp dụng cho mọi chat
 
 **Câu chốt của người dùng: RAT SỬ DỤNG CoT; CoT ĐƯỢC THỂ HIỆN BẰNG RAT.**

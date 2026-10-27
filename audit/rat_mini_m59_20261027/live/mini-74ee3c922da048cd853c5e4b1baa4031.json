@@ -1,0 +1,127 @@
+{
+  "query": "",
+  "operation": "open_file",
+  "args": {
+    "artifact_id": "art-a0ba163e2eb440a8a240cad48d2a6372",
+    "revision": 1,
+    "resource_id": "a619f7f76c58b5155c7c"
+  },
+  "answer": "Đã gửi yêu cầu mở file đến macOS.",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "open_file"
+      },
+      "timestamp": 1793046391.034367,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: open_file"
+      },
+      "timestamp": 1793046391.034421,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "open_file",
+      "artifact_id": null,
+      "payload": {
+        "artifact_id": "art-a0ba163e2eb440a8a240cad48d2a6372",
+        "revision": 1,
+        "resource_id": "a619f7f76c58b5155c7c"
+      },
+      "timestamp": 1793046391.03471,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "open_file",
+      "artifact_id": null,
+      "payload": {
+        "status": "complete",
+        "result": "Đã gửi yêu cầu mở file đến macOS."
+      },
+      "timestamp": 1793046391.9854789,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "open_file",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793046391.9855628,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "UNKNOWN",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793046391.985589,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793046391.985808,
+      "error": null,
+      "turn_id": "turn-6e454bd5a4bc4a78bf1e237b8fd2559b",
+      "execution_id": "mini-74ee3c922da048cd853c5e4b1baa4031",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [],
+  "capture_artifacts": [],
+  "capture_verification": [],
+  "verification": [],
+  "llm_calls": 0,
+  "usage_unknown": false
+}

@@ -1,0 +1,52 @@
+{
+  "version": "M5.9",
+  "build": "completed; exit 0",
+  "bundle_version": "0.5.9",
+  "bundle_build": "20261027.3",
+  "package": "dist/mini-m59/RAT Mini.zip",
+  "package_sha256": "567a44c089bb8789a3ac916a416d24912353740b76a28ed1d0c73ff7c2cb7246",
+  "source_manifest_changed": [],
+  "fixes": [
+    "Correction result contract retains all inherited capture fields and repeated edit ancestry",
+    "Suppress httpx/httpcore INFO request URLs",
+    "Visible footer hint: Thả ảnh hoặc ⌘V"
+  ],
+  "targeted_tests": "2 passed, 10 deselected; contract regression only; no cloud/Qt",
+  "ui": "M5.9 live UI verified after unlock; Mac locked again after narrow flows.",
+  "native_drop": "Not verified. Finder getApp timed out again while unlocked, reset CUA runtime; no native receipt.",
+  "finder": {
+    "query": "BEST-Route.pdf",
+    "result": "1 verified genuine PDF; Enter opened correct Preview URL",
+    "coverage": "partial; 2 Spotlight TimeoutError roots; not full-scope acceptance",
+    "artifact": "live/mini-4afa7021ffce4ecc821475b293f3e624.json",
+    "open_artifact": "live/mini-74ee3c922da048cd853c5e4b1baa4031.json"
+  },
+  "cloud": "Real M5.9 initial translation and corrected retry failed with translation_rate_limited; do not mark end-to-end translation passed.",
+  "main_ui_integration": "not wired",
+  "real_llm_acceptance": "not run; observed previous flows made 0 LLM calls",
+  "recipient_acceptance": "pending M3/macOS14+",
+  "stage0": "unchanged",
+  "distribution": "Apple Silicon, ad-hoc signed, not notarized; candidate only",
+  "package_verification": {
+    "codesign_deep_strict": "exit 0",
+    "zip_guide": "M5.9 present"
+  },
+  "ocr_correction": {
+    "capture": "real Preview PNG copy/paste, Apple Vision OCR",
+    "result": "new correction artifact + structural PASS; parent/root/hash/provenance match real captured source",
+    "translation": "failed translation_rate_limited; edited text retained in actual UI",
+    "artifact": "live/mini-2d19840a26264a3ea1316c6a6b1757f9.json"
+  },
+  "screenshots": {
+    "matching": [
+      "live/screenshots/01-finder-result.png",
+      "live/screenshots/03-ocr-edit-active.png"
+    ],
+    "stale_do_not_use": [
+      "live/screenshots/02-ocr-edit.png"
+    ],
+    "not_obtained": "post-retry screenshot and collapsed/mascot screenshot blocked by re-locked Mac"
+  },
+  "acceptance": "NOT PASSED: cloud, native drop, full Spotlight scope and recipient acceptance remain open",
+  "native_drop_receipt_exists": false
+}

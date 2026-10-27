@@ -1,0 +1,229 @@
+{
+  "query": "",
+  "operation": "translate_text",
+  "args": {
+    "source_ref": {
+      "artifact_id": "art-0ce70b435eef423085e47c1acf5489ce",
+      "revision": 1
+    },
+    "source_language": "auto",
+    "target_language": "vi"
+  },
+  "answer": "Chưa xác định chắc ngôn ngữ nguồn. Hãy chọn ngôn ngữ rồi dịch lại.",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "capture_text"
+      },
+      "timestamp": 1792961873.6456928,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: capture_text"
+      },
+      "timestamp": 1792961873.6457212,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": {
+        "mode": "region"
+      },
+      "timestamp": 1792961873.651308,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "capture_text",
+      "artifact_id": "art-0ce70b435eef423085e47c1acf5489ce",
+      "payload": {
+        "text": "] Da doc PDFDesk.qml",
+        "source_kind": "region",
+        "source_sha256": "c7a710589230880489cc92e881c7db2621cd612ea95e69bd86cee119d1d8b96c",
+        "captured_at": 1792961879.009448,
+        "language_hint": null
+      },
+      "timestamp": 1792961879.089501,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1792961879.089513,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "UNKNOWN",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1792961879.089525,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1792961879.089576,
+      "error": null,
+      "turn_id": "turn-517201b1439e494faecfc7467fcab511",
+      "execution_id": "mini-b53919d3170d4665a8c93813e36a55dc",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    },
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "translate_text"
+      },
+      "timestamp": 1792961879.089718,
+      "error": null,
+      "turn_id": "turn-fd2b687056184b33818780d7cdc07b5d",
+      "execution_id": "mini-2d3c26ab8df7494ab2098c81dc3344d9",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: translate_text"
+      },
+      "timestamp": 1792961879.089725,
+      "error": null,
+      "turn_id": "turn-fd2b687056184b33818780d7cdc07b5d",
+      "execution_id": "mini-2d3c26ab8df7494ab2098c81dc3344d9",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": {
+        "source_ref": {
+          "artifact_id": "art-0ce70b435eef423085e47c1acf5489ce",
+          "revision": 1
+        },
+        "source_language": "auto",
+        "target_language": "vi"
+      },
+      "timestamp": 1792961879.0897532,
+      "error": null,
+      "turn_id": "turn-fd2b687056184b33818780d7cdc07b5d",
+      "execution_id": "mini-2d3c26ab8df7494ab2098c81dc3344d9",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "waiting_input",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": "InputRequest(operation_name='translate_text', supplied_inputs={'source_ref': {'artifact_id': 'art-0ce70b435eef423085e47c1acf5489ce', 'revision': 1}, 'source_language': 'auto', 'target_language': 'vi'}, missing_fields=[{'name': 'source_language', 'required': True}], candidate_choices=None, target_artifact_id=None, target_revision=None, prompt='Chưa xác định chắc ngôn ngữ nguồn. Hãy chọn ngôn ngữ rồi dịch lại.', id='input-b910ae2888b744a3912d3b5ea79da74d')",
+      "timestamp": 1792961879.149201,
+      "error": null,
+      "turn_id": "turn-fd2b687056184b33818780d7cdc07b5d",
+      "execution_id": "mini-2d3c26ab8df7494ab2098c81dc3344d9",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "input-b910ae2888b744a3912d3b5ea79da74d",
+      "kind": "input_request",
+      "revision": 1,
+      "payload": {
+        "operation_name": "translate_text",
+        "supplied_inputs": {
+          "source_ref": {
+            "artifact_id": "art-0ce70b435eef423085e47c1acf5489ce",
+            "revision": 1
+          },
+          "source_language": "auto",
+          "target_language": "vi"
+        },
+        "missing_fields": [
+          {
+            "name": "source_language",
+            "required": true
+          }
+        ],
+        "candidate_choices": null,
+        "target_artifact_id": null,
+        "target_revision": null,
+        "prompt": "Chưa xác định chắc ngôn ngữ nguồn. Hãy chọn ngôn ngữ rồi dịch lại.",
+        "id": "input-b910ae2888b744a3912d3b5ea79da74d"
+      },
+      "inputs": {},
+      "provenance": {
+        "owner_turn_id": "turn-fd2b687056184b33818780d7cdc07b5d",
+        "execution_id": "mini-2d3c26ab8df7494ab2098c81dc3344d9"
+      },
+      "title": "Cần thêm thông tin",
+      "status": "waiting_input",
+      "created_at": 1792961879.1491141
+    }
+  ],
+  "verification": [],
+  "llm_calls": 0,
+  "usage_unknown": false
+}

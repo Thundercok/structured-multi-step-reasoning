@@ -1,0 +1,508 @@
+{
+  "query": "",
+  "operation": "translate_text",
+  "args": {
+    "source_language": "en",
+    "target_language": "vi",
+    "source_ref": {
+      "artifact_id": "art-efd28781366746558c002e3e2d70dc48",
+      "revision": 1
+    }
+  },
+  "answer": "{'status': 'complete', 'text': 'Xin chào thế giới.\\nĐây là một văn bản công cộng ngắn để dịch.', 'source_text': 'Hello world.\\nThis is a short public text for translation.', 'source_language': 'en', 'target_language': 'vi', 'source_sha256': 'cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594', 'segments': [{'source_start': 0, 'source_end': 57, 'status': 'complete', 'translated_text': 'Xin chào thế giới.\\nĐây là một văn bản công cộng ngắn để dịch.', 'provider': 'offline_argos'}], 'provider': 'offline_argos', 'warnings': [], 'local_model': {'id': 'en-vi', 'version': '1.9', 'package_sha256': '86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16', 'license': 'CC-BY-4.0', 'engine': 'CTranslate2', 'engine_version': '4.8.4', 'device': 'cpu', 'compute_type': 'int8', 'decoding': {'beam_size': 4, 'coverage_penalty': 0.2, 'sentence_splitter': 'punctuation-v1', 'source_token_limit': 256}}, 'source_capture': {'source_ref': {'artifact_id': 'art-efd28781366746558c002e3e2d70dc48', 'revision': 1}, 'source_kind': 'image', 'text_sha256': 'cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594', 'text_origin': 'user_edit', 'correction': {'parent_ref': {'artifact_id': 'art-7c0b27b421654c24b60db701b7c806a5', 'revision': 1}, 'parent_text_sha256': '02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953', 'root_source_ref': {'artifact_id': 'art-7c0b27b421654c24b60db701b7c806a5', 'revision': 1}, 'original_text_sha256': '02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953', 'edited_at': 1793090860.858908}, 'ocr_normalization': None, 'input_provenance': {'version': 1, 'input_id': 'img-787683a12b2f4c3bb8959b9a00f2e880', 'kind': 'image', 'origin': 'clipboard_image', 'content_sha256': 'a553465b4f6bf26845310723cc66df27a115b300645e64a4f1468004158eb098', 'byte_count': 69694, 'source_file_sha256': None}}}",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "correct_captured_text"
+      },
+      "timestamp": 1793090860.856627,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: correct_captured_text"
+      },
+      "timestamp": 1793090860.856952,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "correct_captured_text",
+      "artifact_id": null,
+      "payload": {
+        "source_ref": {
+          "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+          "revision": 1
+        },
+        "text": "Hello world.\nThis is a short public text for translation."
+      },
+      "timestamp": 1793090860.857426,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "correct_captured_text",
+      "artifact_id": "art-efd28781366746558c002e3e2d70dc48",
+      "payload": {
+        "text": "Hello world.\nThis is a short public text for translation.",
+        "source_kind": "image",
+        "source_sha256": "cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594",
+        "captured_at": 1793090821.164599,
+        "language_hint": null,
+        "ocr_raw_text": "I u s\nHelv\nHello world.\nThis is a short\npublic text for\ntranslation.",
+        "input_provenance": {
+          "version": 1,
+          "input_id": "img-787683a12b2f4c3bb8959b9a00f2e880",
+          "kind": "image",
+          "origin": "clipboard_image",
+          "content_sha256": "a553465b4f6bf26845310723cc66df27a115b300645e64a4f1468004158eb098",
+          "byte_count": 69694,
+          "source_file_sha256": null
+        },
+        "text_origin": "user_edit",
+        "correction": {
+          "parent_ref": {
+            "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+            "revision": 1
+          },
+          "parent_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+          "root_source_ref": {
+            "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+            "revision": 1
+          },
+          "original_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+          "edited_at": 1793090860.858908
+        }
+      },
+      "timestamp": 1793090860.8595479,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "correct_captured_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793090860.859591,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793090860.8601549,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793090860.860661,
+      "error": null,
+      "turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+      "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    },
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "translate_text"
+      },
+      "timestamp": 1793090860.8613892,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: translate_text"
+      },
+      "timestamp": 1793090860.8614058,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": {
+        "source_language": "en",
+        "target_language": "vi",
+        "source_ref": {
+          "artifact_id": "art-efd28781366746558c002e3e2d70dc48",
+          "revision": 1
+        }
+      },
+      "timestamp": 1793090860.8614469,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "translate_text",
+      "artifact_id": "art-4d4e3d31e9c94d848a543c4be9ada313",
+      "payload": {
+        "status": "complete",
+        "text": "Xin chào thế giới.\nĐây là một văn bản công cộng ngắn để dịch.",
+        "source_text": "Hello world.\nThis is a short public text for translation.",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 57,
+            "status": "complete",
+            "translated_text": "Xin chào thế giới.\nĐây là một văn bản công cộng ngắn để dịch.",
+            "provider": "offline_argos"
+          }
+        ],
+        "provider": "offline_argos",
+        "warnings": [],
+        "local_model": {
+          "id": "en-vi",
+          "version": "1.9",
+          "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+          "license": "CC-BY-4.0",
+          "engine": "CTranslate2",
+          "engine_version": "4.8.4",
+          "device": "cpu",
+          "compute_type": "int8",
+          "decoding": {
+            "beam_size": 4,
+            "coverage_penalty": 0.2,
+            "sentence_splitter": "punctuation-v1",
+            "source_token_limit": 256
+          }
+        },
+        "source_capture": {
+          "source_ref": {
+            "artifact_id": "art-efd28781366746558c002e3e2d70dc48",
+            "revision": 1
+          },
+          "source_kind": "image",
+          "text_sha256": "cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594",
+          "text_origin": "user_edit",
+          "correction": {
+            "parent_ref": {
+              "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+              "revision": 1
+            },
+            "parent_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+            "root_source_ref": {
+              "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+              "revision": 1
+            },
+            "original_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+            "edited_at": 1793090860.858908
+          },
+          "ocr_normalization": null,
+          "input_provenance": {
+            "version": 1,
+            "input_id": "img-787683a12b2f4c3bb8959b9a00f2e880",
+            "kind": "image",
+            "origin": "clipboard_image",
+            "content_sha256": "a553465b4f6bf26845310723cc66df27a115b300645e64a4f1468004158eb098",
+            "byte_count": 69694,
+            "source_file_sha256": null
+          }
+        }
+      },
+      "timestamp": 1793090861.772516,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793090861.772597,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793090861.774393,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793090861.774527,
+      "error": null,
+      "turn_id": "turn-e20d1782818a4dc09390233df5424144",
+      "execution_id": "mini-79e3e1b20454491faa4182595513267f",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art-4d4e3d31e9c94d848a543c4be9ada313",
+      "kind": "translation",
+      "revision": 1,
+      "payload": {
+        "status": "complete",
+        "text": "Xin chào thế giới.\nĐây là một văn bản công cộng ngắn để dịch.",
+        "source_text": "Hello world.\nThis is a short public text for translation.",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 57,
+            "status": "complete",
+            "translated_text": "Xin chào thế giới.\nĐây là một văn bản công cộng ngắn để dịch.",
+            "provider": "offline_argos"
+          }
+        ],
+        "provider": "offline_argos",
+        "warnings": [],
+        "local_model": {
+          "id": "en-vi",
+          "version": "1.9",
+          "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+          "license": "CC-BY-4.0",
+          "engine": "CTranslate2",
+          "engine_version": "4.8.4",
+          "device": "cpu",
+          "compute_type": "int8",
+          "decoding": {
+            "beam_size": 4,
+            "coverage_penalty": 0.2,
+            "sentence_splitter": "punctuation-v1",
+            "source_token_limit": 256
+          }
+        },
+        "source_capture": {
+          "source_ref": {
+            "artifact_id": "art-efd28781366746558c002e3e2d70dc48",
+            "revision": 1
+          },
+          "source_kind": "image",
+          "text_sha256": "cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594",
+          "text_origin": "user_edit",
+          "correction": {
+            "parent_ref": {
+              "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+              "revision": 1
+            },
+            "parent_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+            "root_source_ref": {
+              "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+              "revision": 1
+            },
+            "original_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+            "edited_at": 1793090860.858908
+          },
+          "ocr_normalization": null,
+          "input_provenance": {
+            "version": 1,
+            "input_id": "img-787683a12b2f4c3bb8959b9a00f2e880",
+            "kind": "image",
+            "origin": "clipboard_image",
+            "content_sha256": "a553465b4f6bf26845310723cc66df27a115b300645e64a4f1468004158eb098",
+            "byte_count": 69694,
+            "source_file_sha256": null
+          }
+        }
+      },
+      "inputs": {
+        "source_language": "en",
+        "target_language": "vi",
+        "source_ref": {
+          "artifact_id": "art-efd28781366746558c002e3e2d70dc48",
+          "revision": 1
+        }
+      },
+      "provenance": {
+        "operation_name": "translate_text",
+        "owner_turn_id": "turn-e20d1782818a4dc09390233df5424144",
+        "execution_id": "mini-79e3e1b20454491faa4182595513267f"
+      },
+      "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+      "status": "ready",
+      "created_at": 1793090861.7718558
+    }
+  ],
+  "capture_artifacts": [
+    {
+      "id": "art-efd28781366746558c002e3e2d70dc48",
+      "kind": "captured_text",
+      "revision": 1,
+      "payload": {
+        "text": "Hello world.\nThis is a short public text for translation.",
+        "source_kind": "image",
+        "source_sha256": "cb977ff0fb3cb7e55ba0913b8e9b50f4a081072abf61d198de580d25601b4594",
+        "captured_at": 1793090821.164599,
+        "language_hint": null,
+        "ocr_raw_text": "I u s\nHelv\nHello world.\nThis is a short\npublic text for\ntranslation.",
+        "input_provenance": {
+          "version": 1,
+          "input_id": "img-787683a12b2f4c3bb8959b9a00f2e880",
+          "kind": "image",
+          "origin": "clipboard_image",
+          "content_sha256": "a553465b4f6bf26845310723cc66df27a115b300645e64a4f1468004158eb098",
+          "byte_count": 69694,
+          "source_file_sha256": null
+        },
+        "text_origin": "user_edit",
+        "correction": {
+          "parent_ref": {
+            "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+            "revision": 1
+          },
+          "parent_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+          "root_source_ref": {
+            "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+            "revision": 1
+          },
+          "original_text_sha256": "02fd57466e84b7d05a92f302a1c872278346fd95aba4f6b9eafff5b103d65953",
+          "edited_at": 1793090860.858908
+        }
+      },
+      "inputs": {
+        "source_ref": {
+          "artifact_id": "art-7c0b27b421654c24b60db701b7c806a5",
+          "revision": 1
+        },
+        "text": "Hello world.\nThis is a short public text for translation."
+      },
+      "provenance": {
+        "operation_name": "correct_captured_text",
+        "owner_turn_id": "turn-9cc8115fc17b4fbe8ee43d723d0f7a1b",
+        "execution_id": "mini-1ef8349c65a941eba7cf4b5671e42ae8"
+      },
+      "title": "Record an explicit user correction as a new captured-text artifact; preserve the original",
+      "status": "ready",
+      "created_at": 1793090860.859272
+    }
+  ],
+  "capture_verification": [
+    {
+      "status": "PASS",
+      "scope": "capture_correction_structure",
+      "reason": "Đối chiếu chữ người dùng sửa và liên kết nguồn; không xác nhận nội dung đúng nghĩa.",
+      "evidence_ids": [
+        "mini-1ef8349c65a941eba7cf4b5671e42ae8:op:correct_captured_text"
+      ],
+      "checked": [
+        "user_text_hash",
+        "parent_source_ref"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "verification": [
+    {
+      "status": "PASS",
+      "scope": "translation_structure",
+      "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+      "evidence_ids": [
+        "mini-79e3e1b20454491faa4182595513267f:op:translate_text"
+      ],
+      "checked": [
+        "source_hash",
+        "segment_coverage",
+        "capture_source_ref",
+        "local_model_provenance"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "llm_calls": 0,
+  "usage_unknown": false
+}

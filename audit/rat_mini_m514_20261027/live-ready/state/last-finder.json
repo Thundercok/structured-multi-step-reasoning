@@ -1,0 +1,1 @@
+{"version": "M5.13", "status": "complete", "coverage": {"roots": 3, "completed_roots": 3, "failed_roots": 0, "semantic": "disabled", "exhaustive": false, "candidate_cap_reached": false}, "hit_count": 1, "provider_errors": [], "diagnostics": {"runtime": "frozen", "elapsed_ms": 7973, "transport": "scoped-mdfind-bounded-retry-v3"}}

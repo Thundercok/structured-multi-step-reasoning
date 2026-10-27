@@ -36,7 +36,14 @@ from rat.kernel.view_spec import (
     ViewSpec,
     validate_view_spec,
 )
-from rat.kernel.capabilities import build_core_registry, build_default_registry
+def build_core_registry(*args, **kwargs):
+    from rat.kernel.capabilities import build_core_registry as build
+    return build(*args, **kwargs)
+
+
+def build_default_registry(*args, **kwargs):
+    from rat.kernel.capabilities import build_default_registry as build
+    return build(*args, **kwargs)
 
 __all__ = [
     "Artifact",

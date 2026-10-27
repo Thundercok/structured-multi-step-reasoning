@@ -520,6 +520,13 @@ class NoteVerifier:
                 return report(VerificationStatus.FAIL, "grounding", "Dữ kiện không có căn cứ trích nguyên văn trong nguồn.",
                               ("fact_grounding",))
         checked = ("source_hash", "fact_grounding", "action_items_valid")
+        if op == 'synthesize_smart_note' and res.get('_required_action_items'):
+            from rat.engine.note_requirements import normalized
+            pending = {normalized(item['task']) for item in items if not item['done']}
+            if any(normalized(task) not in pending for task in res['_required_action_items']):
+                return report(VerificationStatus.FAIL, 'required_actions',
+                              'Ghi chú thiếu việc cần làm được yêu cầu hoặc đánh dấu sai trạng thái.')
+            checked += ('required_action_items',)
         if op == "update_note_action_item":
             before = res.get("_previous_note") or {}
             previous_items = before.get("action_items")

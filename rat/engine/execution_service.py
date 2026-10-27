@@ -163,6 +163,10 @@ class AgentExecutionService:
         # -----------------------------------------------------------------
         # Phase 3 & 4: DISPATCHING & OBSERVING
         # -----------------------------------------------------------------
+        from rat.engine.note_requirements import derive_note_requirements
+        note_requirements = derive_note_requirements(
+            request.query, getattr(self.runtime, 'artifact_store', None), request.turn_ref)
+
         # Case A: Explicit single action requested by user (direct action contract)
         if request.requested_action:
             action_name = request.requested_action.get("name") or request.requested_action.get("operation_name")
@@ -179,8 +183,20 @@ class AgentExecutionService:
                 "runtime": self.runtime,
                 "artifact_store": getattr(self.runtime, "artifact_store", None),
                 "model_client": getattr(self.runtime, 'document_model_client', None) or getattr(self.runtime, 'model_client', None),
+                "execution_id": request.execution_id,
+                "turn_id": request.turn_id,
+                "note_requirements": note_requirements,
             }
             dispatch_res = self.runtime.dispatcher.execute_operation(action_name, action_args, context=ctx)
+
+            if dispatch_res.status == 'needs_input':
+                emit('waiting_input', operation_name=action_name, payload=dispatch_res.input_request)
+                return AgentResponse(
+                    dispatch_res.input_request.prompt, [], 0, 1, 0,
+                    pending_input_request=dispatch_res.input_request,
+                    completion_status='needs_input',
+                    artifacts=[dispatch_res.artifact] if dispatch_res.artifact else [],
+                    execution_id=request.execution_id, turn_id=request.turn_id)
 
             art_id = dispatch_res.artifact.id if dispatch_res.artifact else None
             emit("observing", operation_name=action_name, artifact_id=art_id, payload=dispatch_res.result)
@@ -243,10 +259,13 @@ class AgentExecutionService:
                 artifacts=[dispatch_res.artifact] if dispatch_res.artifact else [],
                 answer_verification_status=v_status,
                 verification_reports=v_reports,
+                completion_status=('partial' if isinstance(dispatch_res.result, dict)
+                                   and dispatch_res.result.get('status') == 'partial' else
+                                   'completed' if success else 'error'),
             )
 
             if success:
-                emit("turn_completed", payload={"status": "completed"})
+                emit("turn_completed", payload={"status": resp.completion_status})
                 if request.idempotency_key:
                     with self._lock:
                         self._idempotency_cache[request.idempotency_key] = resp
@@ -265,7 +284,7 @@ class AgentExecutionService:
             "smart note", "tạo note", "tạo ghi chú", "lưu note", "ghi chép", "checklist", "việc cần làm"
         ))
 
-        if doc_path and not is_tool_or_note_query:
+        if doc_path and not is_tool_or_note_query and not note_requirements.operation:
             emit("dispatching", operation_name="read_document", payload={"file_path": doc_path})
             from rat.engine.selected_document_qa import answer_selected_document
 
@@ -315,11 +334,14 @@ class AgentExecutionService:
         # Case D: General multi-step structured reasoning loop
         emit("dispatching", payload={"lane": "assistant"})
         run_ctx = request.assistant_context()
+        if note_requirements.operation:
+            run_ctx['note_requirements'] = note_requirements
         if doc_path and "selected_document_path" not in run_ctx:
             run_ctx["selected_document_path"] = doc_path
+        step_cap = getattr(self.runtime, 'max_reasoning_steps', 8)
         resp = self.runtime.run(
             request.query,
-            max_steps=8,
+            max_steps=min(8, step_cap) if type(step_cap) is int else 8,
             should_cancel=should_cancel,
             on_progress=on_progress,
             on_step=on_step,
@@ -331,7 +353,7 @@ class AgentExecutionService:
         emit("deciding", payload={"completion_status": resp.completion_status})
 
         if not resp.error:
-            emit("turn_completed", payload={"status": "completed"})
+            emit("turn_completed", payload={"status": resp.completion_status})
             if request.idempotency_key:
                 with self._lock:
                     self._idempotency_cache[request.idempotency_key] = resp

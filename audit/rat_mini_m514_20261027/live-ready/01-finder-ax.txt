@@ -1,0 +1,2 @@
+There has been no change in the accessibility tree for Window: "RAT Mini · M5.14".
+The focused UI element is 18 text field (settable) Yêu cầu RAT Mini, Description: Nhập yêu cầu khác…, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_18.miniEditor, Secondary Actions: Raise

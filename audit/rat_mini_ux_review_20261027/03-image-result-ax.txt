@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "RAT Mini · M5.13" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 18
+~	13 button Sửa yêu cầu, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
+~	15 button Chọn ảnh khác…, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
+~	16 text Value: Bản dịch, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.resultStatus, Secondary Actions: Raise
++	29 text field (settable) Bản dịch, Value: I u Helv Chào cả thế giới. Đây là một đoạn văn ngắn để dịch., ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.translationText, Secondary Actions: Raise
++	30 text Value: Ảnh đã chọn · Dịch trên máy · Tiếng Anh → Tiếng Việt, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.Label_QMLTYPE_8, Secondary Actions: Raise
++	31 button Sao chép bản dịch, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
++	32 button Sửa chữ trong ảnh, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.QuietButton_QMLTYPE_11, Secondary Actions: Raise
+~	26 button Gửi yêu cầu, ID: QGuiApplication.QQuickView.sendButton, Secondary Actions: Raise
+The focused UI element is 23 text field (settable) Yêu cầu RAT Mini, Description: Bạn muốn Chuột giúp gì?, ID: QGuiApplication.QQuickView.ScrollView_QMLTYPE_9.miniEditor, Secondary Actions: Raise
