@@ -1,0 +1,42 @@
+{
+  "evidence": "software_regression_only",
+  "result": "62 passed",
+  "elapsed_seconds": 55.47,
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "environment": {
+    "QT_QPA_PLATFORM": "offscreen",
+    "QT_QUICK_BACKEND": "software"
+  },
+  "execution": "outside sandbox after native Qt import abort inside sandbox",
+  "source_sha256_after_run": {
+    "reasoning/entry_predictor.py": "422680fed788a11717eb2bccefe163e42d37828619677a3dbd6a5750d29f93b0",
+    "qwen_mlx_backend.py": "ff0a219788cb10d6646ec336adc9d72e4b119441c39103ab0c2beb844a309dff",
+    "experiments/research_study.py": "671d11d28da101461a64b997ed57220b22e345d1b7e7288da7055c631a7b5498",
+    "experiments/research_pilot.py": "f23f98725a702586d310f2ef3f521f4b62c34949447ccbe4bb6941f6357a1d03",
+    "experiments/pilot_real_model.py": "b4615f057a1feecb846187c2f619c7d51664568c699a806c6fa619d2856ed319",
+    "pipeline.py": "d7cc05b70b0f876e834b2ee6dbfc9e5f5428f703329d1a28a5178f31e01cf40c",
+    "scripts/run_smoke_b_lite.py": "1a303f9eaee5601b68d9492c3b91cd22c18673c6829af6178d8fc9eeb877d38c",
+    "scripts/agreement.py": "437d519fa847025ff3ff7be00f9479927d16bcc31e0fea0de31c138ac206e2aa",
+    "scripts/review_tuning_sweep.py": "a8d20515bfad634242db2df0906c39a0f96504f26f7bec6ac548c979842d530e",
+    "scripts/mutation_check.py": "b3ac44e1fe467d986594a995e9069ce22a61889193bc04f499b22d1fb2247fe2",
+    "scripts/generate_real_mutants.py": "c293c088566e92ad5d820444c9fca2addd35bce1a7983a5fd06d8e1518b8dad4",
+    "test_entry_predictor.py": "524763478fc25dd80fb56a814bc3311c1607e376b6949797bc861368d70ea609",
+    "test_optimal_stopping.py": "c70dab732e271503104497a6812719ac26e521d6c95d483d9c095ee9d790e970",
+    "tests/test_research_study.py": "05752d8be7660a1a61fdda04fe0d62e318e122740781b0a96b88362b3f4a5e73",
+    "tests/test_qwen_staged_parity.py": "03fba89b6a6e1faac2d947bed7c2616074208d1c7a74f4328ebe50b3ffc9e447",
+    "tests/test_cot_restart_matched.py": "4305e147c8adccff54dcddda55b401966069c17f2479a42f889a2a2d17ef5b73",
+    "tests/test_reasoning_conversation.py": "13fb48af004345c97a1b25d9617fd0b7d091ffdf2bf73cd855d1e8cbde23824c",
+    "tests/test_quick_unified_flow.py": "aa4ee35195b37658e1e646884d74ecf1993b656750bfe1797c68ce366d907d14"
+  },
+  "artifact_sha256": {
+    "sandbox-abort.log": "2195b66216c5ca83278d136204f64faa166916ee924c80a4132e3dc8ebe76c18",
+    "pytest.log": "0afac1036828a9a3a0802bb67b8de60c48c4dea27d77f558286fbb42bc96e057",
+    "pytest.xml": "59970f1fcaa027f667f69c2fdf8fc97eacb6bdc94dbe87a28cd5297976dbb13c"
+  },
+  "limits": [
+    "Not a real-model experiment or live UI acceptance",
+    "Stage 0 unchanged",
+    "Not a full repository test run",
+    "Source hashes captured after run, not before"
+  ]
+}

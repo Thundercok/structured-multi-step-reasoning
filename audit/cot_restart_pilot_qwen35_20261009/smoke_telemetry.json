@@ -1,0 +1,98 @@
+[
+  {
+    "completion_tokens": 44,
+    "description": "Non-thinking visible CoT call",
+    "duration_ms": 9238.17,
+    "finish_reason": "stop",
+    "id": "smoke_0_non_thinking",
+    "memory": {
+      "metal_active_mb": 2257.85,
+      "metal_peak_mb": 2485.02,
+      "ru_maxrss_mb": 1008.39
+    },
+    "messages": [
+      {
+        "content": "Calculate (15 * 3) + 12.\nWrite concise reasoning steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer (a number without units, one word/name, or an arithmetic expression).",
+        "role": "user"
+      }
+    ],
+    "prompt": "<|im_start|>user\nCalculate (15 * 3) + 12.\nWrite concise reasoning steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer (a number without units, one word/name, or an arithmetic expression).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "prompt_tokens": 68,
+    "raw_output": "First, multiply 15 by 3 to get 45. Then, add 12 to that result. 45 plus 12 equals 57.\nAnswer: 57",
+    "total_tokens": 112
+  },
+  {
+    "completion_tokens": 128,
+    "description": "Thinking-native mode call",
+    "duration_ms": 23626.23,
+    "finish_reason": "length",
+    "id": "smoke_1_thinking_native",
+    "memory": {
+      "metal_active_mb": 2257.85,
+      "metal_peak_mb": 2485.02,
+      "ru_maxrss_mb": 1008.39
+    },
+    "messages": [
+      {
+        "content": "Calculate (15 * 3) + 12.\nSolve the problem. End with Answer: <number>.",
+        "role": "user"
+      }
+    ],
+    "prompt": "<|im_start|>user\nCalculate (15 * 3) + 12.\nSolve the problem. End with Answer: <number>.<|im_end|>\n<|im_start|>assistant\n<think>\n",
+    "prompt_tokens": 36,
+    "raw_output": "Thinking Process:\n\n1.  **Analyze the Request:** The user wants me to calculate the expression $(15 * 3) + 12$ and provide the final answer in a specific format (\"Answer: <number>\").\n\n2.  **Break Down the Expression:**\n    *   The expression is $(15 * 3) + 12$.\n    *   Order of operations (PEMDAS/BODMAS): Parentheses first, then Multiplication, then Addition.\n    *   Step 1: Calculate $15 * 3$.\n    *   Step 2: Add",
+    "total_tokens": 164
+  },
+  {
+    "completion_tokens": 42,
+    "description": "Assistant prefix continuation call",
+    "duration_ms": 17626.17,
+    "finish_reason": "stop",
+    "id": "smoke_2_assistant_prefix",
+    "memory": {
+      "metal_active_mb": 2257.85,
+      "metal_peak_mb": 2526.36,
+      "ru_maxrss_mb": 1008.39
+    },
+    "messages": [
+      {
+        "content": "Calculate (15 * 3) + 12.\nWrite concise reasoning steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer (a number without units, one word/name, or an arithmetic expression).",
+        "role": "user"
+      },
+      {
+        "content": "Step 1: First multiply 15 by 3 to get 45. ",
+        "role": "assistant"
+      }
+    ],
+    "prompt": "<|im_start|>user\nCalculate (15 * 3) + 12.\nWrite concise reasoning steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer (a number without units, one word/name, or an arithmetic expression).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nStep 1: First multiply 15 by 3 to get 45.",
+    "prompt_tokens": 86,
+    "raw_output": "\nStep 2: Then add 12 to the result from the previous step.\nStep 3: 45 plus 12 equals 57.\n\nAnswer: 57",
+    "total_tokens": 128
+  },
+  {
+    "completion_tokens": 27,
+    "description": "Assistant continuation from second sentence boundary",
+    "duration_ms": 9906.74,
+    "finish_reason": "stop",
+    "id": "smoke_3_boundary_continuation",
+    "memory": {
+      "metal_active_mb": 2257.85,
+      "metal_peak_mb": 2549.43,
+      "ru_maxrss_mb": 1008.39
+    },
+    "messages": [
+      {
+        "content": "Calculate (15 * 3) + 12.\nWrite concise reasoning steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer (a number without units, one word/name, or an arithmetic expression).",
+        "role": "user"
+      },
+      {
+        "content": "Step 1: 15 * 3 = 45. Step 2: Now add 12 to 45. ",
+        "role": "assistant"
+      }
+    ],
+    "prompt": "<|im_start|>user\nCalculate (15 * 3) + 12.\nWrite concise reasoning steps in plain English without markdown or LaTeX. End with exactly one line 'Answer: ' followed only by the final answer (a number without units, one word/name, or an arithmetic expression).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nStep 1: 15 * 3 = 45. Step 2: Now add 12 to 45.",
+    "prompt_tokens": 97,
+    "raw_output": "Step 3: The final sum is 45 + 12 = 57.\nAnswer: 57",
+    "total_tokens": 124
+  }
+]

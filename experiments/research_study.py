@@ -726,7 +726,7 @@ def main(argv=None):
                 import mlx.core as mx
                 from qwen_mlx_backend import QwenMLXBackend
 
-                backend = QwenMLXBackend(repo=args.model)
+                backend = QwenMLXBackend(repo=args.model, strict_telemetry=True)
                 set_seed = mx.random.seed
             manifest["backend_load_ms"] = (time.perf_counter() - started) * 1000
             with (args.output / "attempts.jsonl").open("w", encoding="utf-8") as event_file:

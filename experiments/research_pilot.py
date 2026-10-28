@@ -308,7 +308,7 @@ def run(args, parser, replay_manifest=None):
             else:
                 import mlx.core as mx
                 from qwen_mlx_backend import QwenMLXBackend
-                backend = QwenMLXBackend(repo=model, prompt_profile=manifest["prompt_profile"])
+                backend = QwenMLXBackend(repo=model, prompt_profile=manifest["prompt_profile"], strict_telemetry=True)
                 set_seed = mx.random.seed
             manifest["backend_load_ms"] = (time.perf_counter() - started) * 1000
             with (args.output / "attempts.jsonl").open("w", encoding="utf-8") as stream:

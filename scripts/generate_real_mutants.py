@@ -171,15 +171,15 @@ def create_mutant_5(backend_code):
 def main():
     with open(os.path.join(ROOT, "qwen_mlx_backend.py"), "r", encoding="utf-8") as f:
         b_code = f.read()
-    with open(os.path.join(ROOT, "reasoning_strategies.py"), "r", encoding="utf-8") as f:
+    with open(os.path.join(ROOT, "reasoning", "reasoning_strategies.py"), "r", encoding="utf-8") as f:
         s_code = f.read()
 
     mutants = {
         "patch_1.diff": ("qwen_mlx_backend.py", create_mutant_1(b_code)),
         "patch_1b.diff": ("qwen_mlx_backend.py", create_mutant_1b(b_code)),
         "patch_2.diff": ("qwen_mlx_backend.py", create_mutant_2(b_code)),
-        "patch_3.diff": ("reasoning_strategies.py", create_mutant_3(s_code)),
-        "patch_4.diff": ("reasoning_strategies.py", create_mutant_4(s_code)),
+        "patch_3.diff": ("reasoning/reasoning_strategies.py", create_mutant_3(s_code)),
+        "patch_4.diff": ("reasoning/reasoning_strategies.py", create_mutant_4(s_code)),
         "patch_5.diff": ("qwen_mlx_backend.py", create_mutant_5(b_code)),
     }
 

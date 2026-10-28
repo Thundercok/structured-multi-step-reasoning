@@ -93,6 +93,7 @@ class QwenMLXBackend:
         sc_samples: int = 5,
         tot_branches: int = 3,
         react_max_turns: int = 4,
+        strict_telemetry: bool = False,
         model: Any = None,
         tokenizer: Any = None,
         seed_setter: Optional[Callable[[int], None]] = None,
@@ -114,6 +115,7 @@ class QwenMLXBackend:
         self.sc_samples = sc_samples
         self.tot_branches = tot_branches
         self.react_max_turns = react_max_turns
+        self.strict_telemetry = strict_telemetry
         self.seed_setter = seed_setter
         self.sampler_factory = sampler_factory
         self.array_converter = array_converter
@@ -180,7 +182,8 @@ class QwenMLXBackend:
             raise ValueError("English math profile supports DIRECT, COT and PAL only")
         if profile == "aligned-direct-cot-v1" and strategy not in ALIGNED_DIRECT_COT_SUFFIXES:
             raise ValueError("Aligned DIRECT/CoT profile supports DIRECT and COT only")
-        self.last_trace = {"strategy": strategy.name, "prompt_profile": profile, "generations": [], "tools": []}
+        self.last_trace = {"strategy": strategy.name, "prompt_profile": profile,
+                           "strict_telemetry": self.strict_telemetry, "generations": [], "tools": []}
         if hasattr(self, "answer_format"):
             self.last_trace["answer_format"] = dict(self.answer_format)
         return {
@@ -508,6 +511,15 @@ class QwenMLXBackend:
                     text = text[:m_stop.end()]
                     finish_reason = "stop_answer"
                     break
+            if self.strict_telemetry and n_tok > 0 and (bad_logprob_steps or len(full_ent_nats) != n_tok):
+                finish_reason = "error"
+                raise RuntimeError(
+                    f"logprob telemetry incomplete: {len(full_ent_nats)}/{n_tok} generated tokens usable "
+                    f"({bad_logprob_steps} bad) - confidence/entropy would be silently wrong"
+                )
+            if self.strict_telemetry and max_abs_lse > 1e-2:
+                finish_reason = "error"
+                raise RuntimeError(f"logprobs are not a normalized log-softmax (|logsumexp|={max_abs_lse:.3g})")
         except Exception:
             if finish_reason is None:
                 finish_reason = "error"
@@ -563,13 +575,6 @@ class QwenMLXBackend:
                     "status": req_status,
                     "signals": dict(self.last_signals),
                 })
-        if self.strict_telemetry and n_tok > 0 and (bad_logprob_steps or len(full_ent_nats) != n_tok):
-            raise RuntimeError(
-                f"logprob telemetry incomplete: {len(full_ent_nats)}/{n_tok} generated tokens usable "
-                f"({bad_logprob_steps} bad) - confidence/entropy would be silently wrong"
-            )
-        if self.strict_telemetry and max_abs_lse > 1e-2:
-            raise RuntimeError(f"logprobs are not a normalized log-softmax (|logsumexp|={max_abs_lse:.3g})")
         return text, conf, n_tok
 
 
@@ -760,7 +765,7 @@ class QwenMLXStagedRunner:
 if __name__ == "__main__":
     # Sanity check thật - chỉ chạy được trên Mac (cần mạng HF + Apple Silicon). Sandbox build code
     # này không có 2 điều kiện đó nên KHÔNG tự chạy được ở đây.
-    backend = QwenMLXBackend()
+    backend = QwenMLXBackend(strict_telemetry=True)
     print("hidden_size:", backend.hidden_size)
     for strat in [A.COT, A.PAL, A.REACT]:
         ans, conf, tok = backend.run(strat, "Nếu 3 quả táo giá 45000 đồng, 7 quả táo giá bao nhiêu?")

@@ -80,7 +80,7 @@ class FakeModel:
 import numpy as np
 
 
-def make_offline_backend(tokenizer=None, seed_setter=None, sampler_factory=None, array_converter=None):
+def make_offline_backend(tokenizer=None, seed_setter=None, sampler_factory=None, array_converter=None, strict_telemetry=False):
     """Create a QwenMLXBackend configured with offline fake tokenizer and model, without MLX native dependencies."""
     backend = QwenMLXBackend(
         model=FakeModel(),
@@ -89,9 +89,33 @@ def make_offline_backend(tokenizer=None, seed_setter=None, sampler_factory=None,
         seed_setter=seed_setter or (lambda s: None),
         sampler_factory=sampler_factory or (lambda temp=0.0: None),
         array_converter=array_converter or (lambda x: np.asarray(x, dtype=np.float32)),
+        strict_telemetry=strict_telemetry,
     )
     backend.configure_answer_format(answer_type="number", decimal_separator=".")
     return backend
+
+
+@pytest.mark.parametrize('logprobs,error', [(None, 'incomplete'), (np.log([0.4, 0.4]), 'normalized')])
+def test_strict_telemetry_rejects_bad_generation_and_records_failure(logprobs, error):
+    backend = make_offline_backend(strict_telemetry=True)
+    response = FakeGenResponse('Answer: 9\n', 1)
+    response.logprobs = logprobs
+    with patch('qwen_mlx_backend.stream_generate', lambda *a, **kw: iter([response])):
+        with pytest.raises(RuntimeError, match=error):
+            backend.run(A.DIRECT, 'What is 4 + 5?')
+    assert backend.last_trace['generations'][0]['status'] == 'failed'
+    assert backend.last_trace['generations'][0]['finish_reason'] == 'error'
+
+
+def test_strict_telemetry_accepts_normalized_batched_logprobs():
+    backend = make_offline_backend(strict_telemetry=True)
+    response = FakeGenResponse('Answer: 9\n', 1)
+    response.logprobs = np.log([[0.75, 0.25]])
+    with patch('qwen_mlx_backend.stream_generate', lambda *a, **kw: iter([response])):
+        answer, confidence, tokens = backend.run(A.DIRECT, 'What is 4 + 5?')
+    assert answer == '9' and tokens == 1 and np.isfinite(confidence)
+    assert backend.last_signals['logprob_coverage'] == 1.0
+    assert backend.last_signals['mean_entropy_nats'] == pytest.approx(-0.75 * np.log(0.75) - 0.25 * np.log(0.25))
 
 
 @pytest.fixture

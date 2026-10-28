@@ -1,6 +1,7 @@
 import numpy as np
+import pytest
 
-from reasoning.entry_predictor import EntryChoice, EntryPredictor, collect_entry_training_data, simulate_ladder_outcome
+from reasoning.entry_predictor import EntryChoice, EntryPredictor, EntryTrainingData, collect_entry_training_data, simulate_ladder_outcome
 from reasoning.optimal_stopping import CalibrationData, OptimalStoppingPolicy, collect_calibration_data
 from reasoning.reasoning_env import ReasoningAction as A
 
@@ -120,8 +121,30 @@ def test_full_pipeline_end_to_end_via_run_episode():
     assert acc > 0.7  # nếu route sai nhiều, acc sẽ rơi về ~0.15-0.3 (accuracy của lựa chọn sai loại)
 
 
+@pytest.mark.parametrize('rows,folds,classifier_components,cost_components', [(10, 5, 4, 7), (5, 10, 1, 3)])
+def test_pca_fits_actual_minority_class_and_cost_folds(monkeypatch, rows, folds, classifier_components, cost_components):
+    import reasoning.entry_predictor as module
+    monkeypatch.setattr(module, '_C_GRID', [0.01])
+    monkeypatch.setattr(module, '_ALPHA_GRID', [1000.0])
+    rng = np.random.default_rng(42)
+    accuracy = np.tile([0, 0, 1], (rows, 1))
+    accuracy[:2, :2] = 1
+    data = EntryTrainingData(rng.normal(size=(rows, 16)), rng.normal(size=(rows, 3)),
+                             accuracy, rng.uniform(size=(rows, 3)))
+    predictor = EntryPredictor(cv_folds=folds).fit(data)
+    def components(model):
+        return model.best_estimator_.named_steps['pre'].named_transformers_['embed'].named_steps['pca'].n_components
+    assert components(predictor.perf[0]) == classifier_components
+    assert components(predictor.cost[0]) == cost_components
+    assert np.isfinite(predictor.score(data.embed[0], data.complexity[0])).all()
+
+
+def test_single_row_uses_scaling_without_pca_whitening():
+    data = EntryTrainingData(np.ones((1, 16)), np.ones((1, 3)), np.ones((1, 3)), np.ones((1, 3)))
+    predictor = EntryPredictor().fit(data)
+    assert 'pca' not in predictor.cost[0].named_steps['pre'].named_transformers_['embed'].named_steps
+    assert np.isfinite(predictor.score(data.embed[0], data.complexity[0])).all()
+
+
 if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn()
-            print("ok", name)
+    raise SystemExit(pytest.main([__file__]))

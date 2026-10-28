@@ -68,7 +68,7 @@ def run_tests_in_dir(worktree_dir: str) -> dict[str, tuple[bool, str]]:
 def apply_mutant(worktree_dir: str, mutant_id: int):
     """Mutates worktree_dir by reverting ONLY the hunk corresponding to mutant_id."""
     backend_path = os.path.join(worktree_dir, "qwen_mlx_backend.py")
-    strategies_path = os.path.join(worktree_dir, "reasoning_strategies.py")
+    strategies_path = os.path.join(worktree_dir, "reasoning", "reasoning_strategies.py")
 
     with open(backend_path, "r", encoding="utf-8") as f:
         backend_code = f.read()

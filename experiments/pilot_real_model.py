@@ -72,7 +72,7 @@ def run_pilot(
 
     print(f"Loading local MLX model: {model_repo}...")
     t0 = time.time()
-    backend = QwenMLXBackend(repo=model_repo)
+    backend = QwenMLXBackend(repo=model_repo, strict_telemetry=True)
     load_time = time.time() - t0
     print(f"Model loaded in {load_time:.2f}s")
 

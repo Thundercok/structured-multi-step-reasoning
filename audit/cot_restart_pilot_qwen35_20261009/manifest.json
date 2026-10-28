@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "study": "cot_restart_pilot_qwen35",
+  "role": "exposed_development_pilot",
+  "model_repository": "mlx-community/Qwen3.5-4B-MLX-4bit",
+  "model_revision": "32f3e8ecf65426fc3306969496342d504bfa13f3",
+  "base_model": "Qwen/Qwen3.5-4B",
+  "quantization": {
+    "bits": 4,
+    "group_size": 64,
+    "mode": "affine"
+  },
+  "model_hashes": {
+    "config.json": "f3efc81b2ea8d96a45301037d3ccccbcccdef44a961845c87f286aaddbc6eaaa",
+    "tokenizer.json": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+    "tokenizer_config.json": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182",
+    "model.safetensors": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db"
+  },
+  "dev_pool_sha256": "f3bfa9750038ecce95f31dcdd7362082c4d85487d37ff091282442874a12041c",
+  "source_hashes": {
+    "experiments/cot_restart_pilot.py": "93a9d098e6f937d0fc720f3fec4fe3b1a68c89797f4130c73621dcea94bad3fb",
+    "experiments/research_study.py": "030208de64b150178e36d002fec0f305f80477f0ea98d3f49e5145ae60e2b61f",
+    "reasoning_strategies.py": "bfeba9f683f4d8d87a7db3efd56d1574cb34cc7858e561444d45d0a93d109410",
+    "research_identity.py": "5e22ba902cbb2d9f033b149570d252497fe15fb46dae5bcc7d736447204debb0",
+    "research_prompt_profiles.py": "49873e4d541dcae5c9c836d9d9e4946122f1bb3354f45c957acfe23a0ce0b867",
+    "scripts/gen_tasks.py": "e749b5835ca6b066261902d4d43b3ef83f22ff2b0534427cb692d5c83ad773d2",
+    "docs/cot_restart_preflight_protocol_20261009.md": "4cd4d7d2f2a070945674c5e12879f536a1c21a4a5015917275b1f202466004f1"
+  },
+  "python": "3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "started_utc": "2026-10-09T12:01:51.604147+00:00",
+  "status": "complete",
+  "mock": false,
+  "confirmatory": false,
+  "publication_review_required": true,
+  "safety_limits": {
+    "max_calls": 136,
+    "max_completion_tokens": 250000,
+    "max_duration_seconds": 28800
+  },
+  "journal_head": "b8e0df5bdbaa7ce76ae27ef98f53f1ac486ead6c1406596453d5da56882e7dd0",
+  "journal_count": 136,
+  "total_calls": 136,
+  "total_completion_tokens": 90197,
+  "finished_utc": "2026-10-09T16:36:23.170420+00:00",
+  "artifact_hashes": {
+    "RESULT_FOR_CODEX.md": "a29635b448b026eb3df03fe9ba82b109017e848f28875cd19e456b9130da2d7d",
+    "base_traces.json": "b84972d97af7f24eaa434012438b603fb87cc7ebc8f3ecb7bfb85b79b48202d5",
+    "calls.jsonl": "b27b0155e4281557d6e6c672f754cf92dc97e22697288031ff4af89db9a7dcc6",
+    "dataset.json": "bc7c3ff389fa0fb217627cef44de2327c8c8df47c9b3b6c7db361ae1502fe109",
+    "plan.json": "a37837392eac8fb1dae331a2a1c5cd4a526a2995cc30176a54da19a3c36b1031",
+    "report.md": "5318b2562cd295b7ade0916c49127b767ff1dece29e50c74171fefc1a448995d",
+    "restart_records.json": "e03307aec61501831802c59e7342e7313a362d3132ef37544d58ba74c1c9f4fa",
+    "smoke_telemetry.json": "41cc3f22d53123c4040b661251da86316cd76ad8ecb4520d0de2de17754a1038",
+    "summary.json": "617db58e25052bfe2d5d7be19cf63d12bd971ec728896efbd6d82d32784e0533"
+  }
+}

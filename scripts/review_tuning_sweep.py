@@ -206,7 +206,7 @@ def main(argv=None):
     for name, value in (("summary.json", summary), ("outcomes.json", outcomes), ("tuning_gold_checks.json", proofs)):
         (args.output / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (args.output / "report.md").write_text(render_report(summary, outcomes), encoding="utf-8")
-    source_names = ("scripts/review_tuning_sweep.py", "scripts/audit_development_data.py", "scripts/gen_tasks.py", "reasoning_strategies.py", "research_scoring.py", "research_identity.py", "experiments/research_study.py")
+    source_names = ("scripts/review_tuning_sweep.py", "scripts/audit_development_data.py", "scripts/gen_tasks.py", "reasoning/reasoning_strategies.py", "research_scoring.py", "research_identity.py", "experiments/research_study.py")
     inputs = (trace, dataset_path, verification_path, ROOT / "audit/G_summary.txt", ROOT / "audit/qwen3-8b-tuning-checkpoint-20261003/run_sweep_g.py.snapshot")
     manifest = {
         "status": "complete", "kind": "retrospective_tuning_trace_review", "model_calls": 0,

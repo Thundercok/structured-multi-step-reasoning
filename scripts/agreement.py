@@ -760,7 +760,7 @@ def write_analysis(output):
         if _sha256(path) != expected:
             raise ValueError(f"Pinned development input hash mismatch: {path.name}")
     source_paths = [Path(__file__).resolve(), ROOT / "experiments/research_study.py",
-                    ROOT / "reasoning_strategies.py", ROOT / "research_scoring.py",
+                    ROOT / "reasoning/reasoning_strategies.py", ROOT / "research_scoring.py",
                     ROOT / "scripts/gen_tasks.py", ROOT / "docs/agreement_reanalysis_protocol_20261008.md"]
     historical_paths = [ROOT / "prereg/decision_rule_agree.md",
                         *[AUDIT_DIR / name for name in (

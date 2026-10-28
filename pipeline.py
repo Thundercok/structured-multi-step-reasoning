@@ -210,7 +210,7 @@ def create_backend(backend_type: str, model_name: Optional[str] = None) -> LLMBa
         from qwen_mlx_backend import QwenMLXBackend
         repo = model_name or "mlx-community/Qwen2.5-0.5B-Instruct-4bit"
         logger.info(f"Initializing QwenMLXBackend with repo '{repo}' on Apple Silicon...")
-        return QwenMLXBackend(repo=repo)
+        return QwenMLXBackend(repo=repo, strict_telemetry=True)
     elif b_type == "ollama":
         model = model_name or "qwen2.5:1.5b"
         return OllamaLocalBackend(model_name=model)

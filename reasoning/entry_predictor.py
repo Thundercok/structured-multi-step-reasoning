@@ -117,38 +117,49 @@ class EntryPredictor:
         ])
         return Pipeline([("pre", pre), ("head", head)])
 
-    def _fit_classifier(self, X, y, d, c, n_comp):
+    def _components(self, d, training_rows):
+        # Centering leaves at most training_rows - 1 useful PCA directions.
+        # A single-row fallback cannot support whitening; keep scaling only.
+        if not self.n_components or training_rows < 2:
+            return None
+        return min(self.n_components, d, training_rows - 1)
+
+    def _fit_classifier(self, X, y, d, c):
         classes, counts = np.unique(y, return_counts=True)
         if len(classes) < 2:
             return _ConstantClassifier(y[0])
         n_splits = min(self.cv_folds, int(counts.min()))
-        pipe = self._pipeline(d, c, n_comp, LogisticRegression(max_iter=2000))
         if n_splits < 2:  # a class has a single example: CV impossible, fall back to strong fixed L2
+            pipe = self._pipeline(d, c, self._components(d, len(y)), LogisticRegression(max_iter=2000))
             return pipe.set_params(head__C=_FALLBACK_C).fit(X, y)
         cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
-        return GridSearchCV(pipe, {"head__C": _C_GRID}, cv=cv, scoring="neg_log_loss", error_score="raise").fit(X, y)
+        splits = list(cv.split(X, y))
+        n_comp = self._components(d, min(len(train) for train, _ in splits))
+        pipe = self._pipeline(d, c, n_comp, LogisticRegression(max_iter=2000))
+        return GridSearchCV(pipe, {"head__C": _C_GRID}, cv=splits, scoring="neg_log_loss", error_score="raise").fit(X, y)
 
-    def _fit_regressor(self, X, y, d, c, n_comp):
+    def _fit_regressor(self, X, y, d, c):
         n_splits = min(self.cv_folds, len(y))
-        pipe = self._pipeline(d, c, n_comp, Ridge())
         if n_splits < 2:
+            pipe = self._pipeline(d, c, self._components(d, len(y)), Ridge())
             return pipe.set_params(head__alpha=_FALLBACK_ALPHA).fit(X, y)
         cv = KFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
-        return GridSearchCV(pipe, {"head__alpha": _ALPHA_GRID}, cv=cv, scoring="neg_mean_squared_error", error_score="raise").fit(X, y)
+        splits = list(cv.split(X, y))
+        n_comp = self._components(d, min(len(train) for train, _ in splits))
+        pipe = self._pipeline(d, c, n_comp, Ridge())
+        return GridSearchCV(pipe, {"head__alpha": _ALPHA_GRID}, cv=splits, scoring="neg_mean_squared_error", error_score="raise").fit(X, y)
 
     def fit(self, data: EntryTrainingData) -> "EntryPredictor":
         N, d = data.embed.shape
+        if N == 0:
+            raise ValueError("EntryPredictor requires at least one training row")
         c = data.complexity.shape[1]
         X = self._features(data.embed, data.complexity)
-        # PCA components must fit inside the smallest CV-train fold (and below d).
-        n_comp = None
-        if self.n_components:
-            n_comp = max(1, min(self.n_components, d, int(N * (1 - 1 / max(self.cv_folds, 2))) - 1))
         perf, cost = [], []  # built locally: a failed fit() leaves the previous state intact
         for k in range(len(EntryChoice)):
             y_acc = (data.accuracy[:, k] > 0.5).astype(int)
-            perf.append(self._fit_classifier(X, y_acc, d, c, n_comp))
-            cost.append(self._fit_regressor(X, data.cost[:, k], d, c, n_comp))
+            perf.append(self._fit_classifier(X, y_acc, d, c))
+            cost.append(self._fit_regressor(X, data.cost[:, k], d, c))
         self.perf, self.cost = perf, cost  # replaces, never appends -> re-fit is safe
         return self
 

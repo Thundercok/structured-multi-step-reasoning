@@ -25,7 +25,7 @@ ARMS = [
 
 def main():
     print(f"=== INITIALIZING MODEL {REPO} ===")
-    backend = QwenMLXBackend(repo=REPO, max_tokens=512)
+    backend = QwenMLXBackend(repo=REPO, max_tokens=512, strict_telemetry=True)
     print("Model initialized successfully on Apple Silicon.")
 
     # 1. Load dataset & pick 3 groups with seed=0

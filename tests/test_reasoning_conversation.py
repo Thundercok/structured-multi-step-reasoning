@@ -1,14 +1,13 @@
-"""One RAT conversation with a composed fixture engine; no model service or weights."""
+"""RAT conversation contracts and Qt Quick flow with a synthetic policy; no live acceptance."""
 from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import Mock
 
 import numpy as np
 import pytest
-from PyQt6.QtCore import Qt
-from PyQt6.QtTest import QTest
+from PyQt6.QtQuick import QQuickItem
 
-from tests.test_flow_interaction import app, window, until
+from tests.test_quick_unified_flow import app, quick_env, submit_draft, wait_for
 from tests.test_execution_flow import collect, runtime
 from rat.engine.execution import ExecutionRequest, execution_response, render_backend_input
 from rat.engine.meta_reasoner import build_composed_meta_reasoner
@@ -114,30 +113,33 @@ def test_host_rejects_unapproved_configuration_without_replacing_working_host(ap
         assert backend.inputs == []
 
 
-def test_typed_multiturn_conversation_uses_one_engine_and_preserves_history(window, app):
-    engine, backend = composed()
-    target = window.assistant_runtime
+def test_typed_multiturn_conversation_uses_one_engine_and_preserves_history(quick_env):
+    controller = quick_env.controller
+    backend = quick_env.backend
+    target = quick_env.runtime
     target.run = Mock(side_effect=AssertionError('reasoning conversation fell back to assistant'))
     queries = ['Giải thích binary search bằng ví dụ nhỏ, chưa đưa code.',
                'Dùng mảng [2,4,6,8,10], tìm 8.', 'Sao phải dùng mid + 1?', 'Đổi sang tìm 6.']
-    with installed(app, engine):
-        for i, query in enumerate(queries, 1):
-            window.chat_composer_input.setText(query)
-            QTest.keyClick(window.chat_composer_input, Qt.Key.Key_Return)
-            until(app, lambda: window._pending_chat_query is None and len(backend.inputs) == i)
-            assert window.last_turn_telemetry['user_displayed_query'] == query
-            assert window.last_turn_telemetry['bundle_review_status'] == 'synthetic_development_only'
-        turns = window._conversation.turns()
-        assert [t.query for t in turns] == queries
-        assert [t.answer for t in turns] == [f'Authored fixture reply {i}' for i in range(1, 5)]
-        assert len({t.execution_id for t in turns}) == 4
-        assert len({t.turn_ref.conversation_id for t in turns}) == 1
-        assert all(t.status == 'completed' for t in turns)
-        assert '[2,4,6,8,10]' in backend.inputs[2]
-        assert 'binary search' in backend.inputs[2].lower()
-        assert 'fixture' in window.footer_status.text()
-        window.chat_composer_input.setText('Bản nháp đang soạn')
-        assert window.navigate_to_turn(turns[1].turn_id)
-        assert window.chat_composer_input.text() == 'Bản nháp đang soạn'
-        assert len(backend.inputs) == 4
-        target.run.assert_not_called()
+    for i, query in enumerate(queries, 1):
+        backend.answer_text = f'Authored fixture reply {i}'
+        submit_draft(quick_env.view, quick_env.root, query)
+        wait_for(lambda: not controller.snapshot['busy'] and len(backend.run_calls) == i)
+        assert controller.snapshot['telemetry']['user_displayed_query'] == query
+        assert controller.snapshot['telemetry']['bundle_review_status'] == 'synthetic_development_only'
+    turns = controller.conversation.turns()
+    assert [t.query for t in turns] == queries
+    assert [t.answer for t in turns] == [f'Authored fixture reply {i}' for i in range(1, 5)]
+    assert len({t.execution_id for t in turns}) == 4
+    assert len({t.turn_ref.conversation_id for t in turns}) == 1
+    assert all(t.status == 'completed' for t in turns)
+    assert '[2,4,6,8,10]' in backend.run_calls[2]['query']
+    assert 'binary search' in backend.run_calls[2]['query'].lower()
+    assert controller._reasoning_engine is quick_env.engine
+    assert 'fixture' in controller.snapshot['status']
+    editor = quick_env.root.findChild(QQuickItem, 'draftEditor')
+    assert editor is not None
+    editor.setProperty('text', 'Bản nháp đang soạn')
+    assert controller.navigateToTurn(turns[1].turn_id)
+    assert editor.property('text') == 'Bản nháp đang soạn'
+    assert len(backend.run_calls) == 4
+    target.run.assert_not_called()
