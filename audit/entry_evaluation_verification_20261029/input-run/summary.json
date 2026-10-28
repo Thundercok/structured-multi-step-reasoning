@@ -1,0 +1,165 @@
+{
+  "methods": {
+    "entry_without_escalation": {
+      "n": 24,
+      "accuracy": 0.6666666666666666,
+      "mean_tokens": 337.5,
+      "utility": 0.6599166666666666,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.016055632537851732,
+      "mean_embedding_ms": 0.0062726806694020825
+    },
+    "fixed_cot": {
+      "n": 24,
+      "accuracy": 0.4583333333333333,
+      "mean_tokens": 300.0,
+      "utility": 0.4523333333333333,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.016052101273089647,
+      "mean_embedding_ms": 0.0
+    },
+    "fixed_pal": {
+      "n": 24,
+      "accuracy": 0.375,
+      "mean_tokens": 300.0,
+      "utility": 0.369,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.014482589904218912,
+      "mean_embedding_ms": 0.0
+    },
+    "fixed_react": {
+      "n": 24,
+      "accuracy": 0.2916666666666667,
+      "mean_tokens": 600.0,
+      "utility": 0.2796666666666667,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.01477950718253851,
+      "mean_embedding_ms": 0.0
+    },
+    "fixed_self_consistency": {
+      "n": 24,
+      "accuracy": 0.4166666666666667,
+      "mean_tokens": 1500.0,
+      "utility": 0.3866666666666667,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.014548704105739793,
+      "mean_embedding_ms": 0.0
+    },
+    "fixed_tot": {
+      "n": 24,
+      "accuracy": 0.625,
+      "mean_tokens": 5000.0,
+      "utility": 0.525,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.014788209227845073,
+      "mean_embedding_ms": 0.0
+    },
+    "full_policy": {
+      "n": 24,
+      "accuracy": 0.8333333333333334,
+      "mean_tokens": 1462.5,
+      "utility": 0.8040833333333334,
+      "escalation_rate": 0.3333333333333333,
+      "mean_strategy_ms_sum": 0.022855965653434396,
+      "mean_embedding_ms": 0.0062726806694020825
+    },
+    "ladder_only": {
+      "n": 24,
+      "accuracy": 0.7083333333333334,
+      "mean_tokens": 2841.6666666666665,
+      "utility": 0.6515000000000001,
+      "escalation_rate": 0.5833333333333334,
+      "mean_strategy_ms_sum": 0.028984330128878355,
+      "mean_embedding_ms": 0.0
+    },
+    "one_shot_router": {
+      "n": 24,
+      "accuracy": 0.8333333333333334,
+      "mean_tokens": 387.5,
+      "utility": 0.8255833333333333,
+      "escalation_rate": 0.0,
+      "mean_strategy_ms_sum": 0.014715304132550955,
+      "mean_embedding_ms": 0.0062726806694020825
+    }
+  },
+  "paired_full_minus_baseline": {
+    "one_shot_router": {
+      "correct": {
+        "mean_difference": 0.0,
+        "ci95": [
+          -0.16666666666666666,
+          0.16666666666666666
+        ],
+        "groups": 24
+      },
+      "tokens": {
+        "mean_difference": 1075.0,
+        "ci95": [
+          362.5,
+          1983.4374999999993
+        ],
+        "groups": 24
+      },
+      "utility": {
+        "mean_difference": -0.02150000000000001,
+        "ci95": [
+          -0.2014354166666667,
+          0.14783333333333332
+        ],
+        "groups": 24
+      }
+    },
+    "fixed_self_consistency": {
+      "correct": {
+        "mean_difference": 0.4166666666666667,
+        "ci95": [
+          0.16666666666666666,
+          0.625
+        ],
+        "groups": 24
+      },
+      "tokens": {
+        "mean_difference": -37.5,
+        "ci95": [
+          -787.5,
+          920.9374999999994
+        ],
+        "groups": 24
+      },
+      "utility": {
+        "mean_difference": 0.4174166666666667,
+        "ci95": [
+          0.17470208333333337,
+          0.6391020833333332
+        ],
+        "groups": 24
+      }
+    },
+    "entry_without_escalation": {
+      "correct": {
+        "mean_difference": 0.16666666666666666,
+        "ci95": [
+          0.041666666666666664,
+          0.3333333333333333
+        ],
+        "groups": 24
+      },
+      "tokens": {
+        "mean_difference": 1125.0,
+        "ci95": [
+          375.0,
+          2083.3333333333335
+        ],
+        "groups": 24
+      },
+      "utility": {
+        "mean_difference": 0.14416666666666667,
+        "ci95": [
+          0.01746875,
+          0.3029479166666665
+        ],
+        "groups": 24
+      }
+    }
+  }
+}

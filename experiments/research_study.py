@@ -395,6 +395,11 @@ def main(argv=None):
     mode.add_argument("--backend", choices=("smoke", "mlx"))
     mode.add_argument("--replay", type=Path, help="Recompute a completed run without model calls or changing its settings")
     mode.add_argument("--aggregate", type=Path, nargs="+", metavar="RUN", help="Aggregate compatible completed runs with distinct generation seeds")
+    mode.add_argument("--entry-evaluation", type=Path, metavar="RUN", help="Exploratory grouped entry-predictor CV on recorded train outputs, with independent calibration; no model calls or test scoring")
+    parser.add_argument("--entry-folds", type=int, help="Entry evaluation outer group folds (default 5)")
+    parser.add_argument("--entry-repeats", type=int, help="Entry evaluation CV repeats (default 2)")
+    parser.add_argument("--entry-bootstrap", type=int, help="Entry evaluation conditional group-bootstrap draws (default 2000)")
+    parser.add_argument("--entry-configs", nargs="+", choices=("old", "scaler_only", "pca16", "pca32", "pca64"), help="Entry evaluation configurations (default old scaler_only pca32); no automatic winner selection")
     mode.add_argument("--gsm8k-routing-analysis", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train, save selection, then evaluate development validation; no model calls")
     mode.add_argument("--gsm8k-routing-fit", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train and seal selection; no model calls")
     mode.add_argument("--gsm8k-routing-validate", type=Path, metavar="SEALED_SELECTION_DIR", help="Evaluate sealed selection on development validation without refitting; no model calls")
@@ -444,6 +449,28 @@ def main(argv=None):
     parser.add_argument("--lam", type=float)
     parser.add_argument("--output", type=Path, required=True, help="New run directory; checkpointed pilot/smoke modes support exact compatible resume")
     args = parser.parse_args(argv)
+    entry_options = (args.entry_folds, args.entry_repeats, args.entry_bootstrap, args.entry_configs)
+    if args.entry_evaluation:
+        allowed = {"entry_evaluation", "entry_folds", "entry_repeats", "entry_bootstrap", "entry_configs", "seed", "output"}
+        overrides = [name for name, value in vars(args).items() if name not in allowed and value is not None and value is not False]
+        if overrides:
+            parser.error("Entry evaluation retains recorded lambda/model/data; unrelated overrides are forbidden: " + ", ".join(overrides))
+        from experiments.entry_evaluation import DEFAULT_CONFIGS, write_evaluation
+        options = {
+            "folds": 5 if args.entry_folds is None else args.entry_folds,
+            "repeats": 2 if args.entry_repeats is None else args.entry_repeats,
+            "bootstrap": 2000 if args.entry_bootstrap is None else args.entry_bootstrap,
+            "configs": DEFAULT_CONFIGS if args.entry_configs is None else args.entry_configs,
+            "seed": 42 if args.seed is None else args.seed,
+        }
+        try:
+            write_evaluation(args.entry_evaluation, args.output, **options)
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            parser.error(str(error))
+        print(f"entry_development_evaluation: {args.output / 'report.md'}")
+        return
+    if any(value is not None for value in entry_options):
+        parser.error("--entry-* options require --entry-evaluation")
     pilot_settings = (args.strategies, args.max_tokens, args.token_budgets, args.groups_per_stratum, args.model_provenance, args.prompt_profile)
     if args.gsm8k_routing_analysis:
         overrides = [key for key, value in vars(args).items()

@@ -373,6 +373,32 @@ Replay requires matching source hashes, checks dataset/record artifact hashes
 and retains seed/lambda. The dataset contains text and labels: publish only data
 cleared for sharing. Personal feedback belongs outside the public benchmark.
 
+## Entry predictor development CV — source added 2026-10-29
+
+The optional `--entry-evaluation RUN --output NEW_DIR` mode compares entry
+heads on recorded main-study **train** outcomes using group-isolated outer CV.
+Stopping is fitted on the independent recorded calibration split; test outcomes
+are excluded from fitting, scoring and configuration selection. Shared
+`EntryPredictor.fit(..., groups=...)` supplies group-isolated inner tuning while
+existing callers without groups retain their original splitting behavior.
+Base-rate probabilities and the training-selected route are estimated only
+from each outer training partition. All metrics use every repeat.
+
+Inputs remain manifest-bound and read-only. Current evaluator fingerprints are
+recorded separately from original run source hashes; this does not relax normal
+historical replay guards. No backend is instantiated and no model calls occur.
+Costs are recorded generated counts divided by 1000 (synthetic units for smoke),
+not prompt-inclusive inference cost or online latency. Group-bootstrap intervals
+are exploratory and conditional on fitted folds/calibration/generation; shared
+training-fold dependence and refitting/selection uncertainty are not covered.
+No automatic significance or best-configuration claim is emitted.
+
+See [the evaluator contract](entry_predictor_evaluation.md) for artifacts,
+fallbacks and limits. The user-authorized 2026-10-29 focused batch passed 50
+tests; one bounded saved-output synthetic evaluation completed with zero model
+calls. Evidence is retained under `audit/entry_evaluation_verification_20261029/`.
+This extension does not change Stage 0, production defaults or research claims.
+
 ## Publication gate
 
 The supplementary `--agreement-analysis` mode reanalyses only hash-pinned,

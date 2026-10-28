@@ -1,0 +1,3059 @@
+[
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01395796425640583,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.012958189472556114,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.01570885069668293,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.04037423059344292,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0.005250098183751106,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "entry_without_escalation",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0.005250098183751106,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "method": "full_policy",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0.005250098183751106,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013916054740548134,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.014167046174407005,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.01395796425640583,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013499986380338669,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013667158782482147,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013916054740548134,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013667158782482147,
+    "embedding_ms": 0.005125068128108978,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "entry_without_escalation",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013667158782482147,
+    "embedding_ms": 0.005125068128108978,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "method": "full_policy",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013667158782482147,
+    "embedding_ms": 0.005125068128108978,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013665994629263878,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013666925951838493,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.014042016118764877,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.01337495632469654,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013292068615555763,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013665994629263878,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013292068615555763,
+    "embedding_ms": 0.004790956154465675,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "entry_without_escalation",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013292068615555763,
+    "embedding_ms": 0.004790956154465675,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "method": "full_policy",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013292068615555763,
+    "embedding_ms": 0.004790956154465675,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.015167053788900375,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013292068615555763,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.014499993994832039,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.01391698606312275,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012832926586270332,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.015167053788900375,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012832926586270332,
+    "embedding_ms": 0.00537489540874958,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.015167053788900375,
+    "embedding_ms": 0.00537489540874958,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.015167053788900375,
+    "embedding_ms": 0.00537489540874958,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013832934200763702,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.01254212111234665,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.012832926586270332,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013042008504271507,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013292068615555763,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013832934200763702,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013832934200763702,
+    "embedding_ms": 0.00458303838968277,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013832934200763702,
+    "embedding_ms": 0.00458303838968277,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013832934200763702,
+    "embedding_ms": 0.00458303838968277,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012958887964487076,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013124896213412285,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.013041077181696892,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013291137292981148,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012708129361271858,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.03912486135959625,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012708129361271858,
+    "embedding_ms": 0.005249865353107452,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "entry_without_escalation",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012708129361271858,
+    "embedding_ms": 0.005249865353107452,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "method": "full_policy",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012708129361271858,
+    "embedding_ms": 0.005249865353107452,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01291697844862938,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013125129044055939,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.013165874406695366,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013167038559913635,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01354096457362175,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.026042107492685318,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01354096457362175,
+    "embedding_ms": 0.004749977961182594,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "entry_without_escalation",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01354096457362175,
+    "embedding_ms": 0.004749977961182594,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "method": "full_policy",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01354096457362175,
+    "embedding_ms": 0.004749977961182594,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013541895896196365,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.012916047126054764,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.013333046808838844,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013249926269054413,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012875068932771683,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.03979098983108997,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "one_shot_router",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012875068932771683,
+    "embedding_ms": 0.004583969712257385,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "entry_without_escalation",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012875068932771683,
+    "embedding_ms": 0.004583969712257385,
+    "escalated": false
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "method": "full_policy",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.012875068932771683,
+    "embedding_ms": 0.004583969712257385,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017624814063310623,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.017416896298527718,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.017041806131601334,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.017333077266812325,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01658312976360321,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017624814063310623,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017624814063310623,
+    "embedding_ms": 0.008875038474798203,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017624814063310623,
+    "embedding_ms": 0.008875038474798203,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017624814063310623,
+    "embedding_ms": 0.008875038474798203,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017625046893954277,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.016584061086177826,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.016750069335103035,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.016999896615743637,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016416888684034348,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017625046893954277,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017625046893954277,
+    "embedding_ms": 0.008084112778306007,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017625046893954277,
+    "embedding_ms": 0.008084112778306007,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.017625046893954277,
+    "embedding_ms": 0.008084112778306007,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016416888684034348,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.016582896932959557,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.01650000922381878,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.01650000922381878,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01658312976360321,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.032999785616993904,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016416888684034348,
+    "embedding_ms": 0.007667113095521927,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016416888684034348,
+    "embedding_ms": 0.007667113095521927,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.032999785616993904,
+    "embedding_ms": 0.007667113095521927,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016832957044243813,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.016750069335103035,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.016459031030535698,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.016208039596676826,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016249949112534523,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016832957044243813,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016832957044243813,
+    "embedding_ms": 0.0076249707490205765,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016832957044243813,
+    "embedding_ms": 0.0076249707490205765,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016832957044243813,
+    "embedding_ms": 0.0076249707490205765,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01674983650445938,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.01633400097489357,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.016958918422460556,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.016999896615743637,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016541918739676476,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.03308383747935295,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01674983650445938,
+    "embedding_ms": 0.008416129276156425,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01674983650445938,
+    "embedding_ms": 0.008416129276156425,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.03308383747935295,
+    "embedding_ms": 0.008416129276156425,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016624806448817253,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.01687486656010151,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.016666948795318604,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.017040874809026718,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016458099707961082,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016624806448817253,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016624806448817253,
+    "embedding_ms": 0.007250113412737846,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016624806448817253,
+    "embedding_ms": 0.007250113412737846,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016624806448817253,
+    "embedding_ms": 0.007250113412737846,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01700012944638729,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.016541918739676476,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.01670815981924534,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.01691584475338459,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016541918739676476,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.033542048186063766,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01700012944638729,
+    "embedding_ms": 0.0073749106377363205,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01700012944638729,
+    "embedding_ms": 0.0073749106377363205,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.033542048186063766,
+    "embedding_ms": 0.0073749106377363205,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016625039279460907,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.01658312976360321,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.017167069017887115,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.016333069652318954,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016707926988601685,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.03320816904306412,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016625039279460907,
+    "embedding_ms": 0.007500173524022102,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.016625039279460907,
+    "embedding_ms": 0.007500173524022102,
+    "escalated": false
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.03320816904306412,
+    "embedding_ms": 0.007500173524022102,
+    "escalated": true
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013709068298339844,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013958895578980446,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.014416873455047607,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014209188520908356,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01370883546769619,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013709068298339844,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014209188520908356,
+    "embedding_ms": 0.006292015314102173,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "entry_without_escalation",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014209188520908356,
+    "embedding_ms": 0.006292015314102173,
+    "escalated": false
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "method": "full_policy",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014209188520908356,
+    "embedding_ms": 0.006292015314102173,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013792188838124275,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.01395796425640583,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013417098671197891,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.014124903827905655,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.0275422353297472,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013417098671197891,
+    "embedding_ms": 0.006791902706027031,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013792188838124275,
+    "embedding_ms": 0.006791902706027031,
+    "escalated": false
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 1800,
+    "strategy_ms_sum": 0.0275422353297472,
+    "embedding_ms": 0.006791902706027031,
+    "escalated": true
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013833865523338318,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013625016435980797,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.01370883546769619,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013499986380338669,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "ladder_only",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013833865523338318,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "one_shot_router",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013833865523338318,
+    "embedding_ms": 0.006084097549319267,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013833865523338318,
+    "embedding_ms": 0.006084097549319267,
+    "escalated": false
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "method": "full_policy",
+    "path": [
+      "COT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013833865523338318,
+    "embedding_ms": 0.006084097549319267,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013707904145121574,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.01391698606312275,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.013625016435980797,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013875076547265053,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.04124990664422512,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0.005875015631318092,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "entry_without_escalation",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0.005875015631318092,
+    "escalated": false
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "method": "full_policy",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0.005875015631318092,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.01400010660290718,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013666925951838493,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.01400010660290718,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014958903193473816,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.041667139157652855,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014958903193473816,
+    "embedding_ms": 0.005832873284816742,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "entry_without_escalation",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014958903193473816,
+    "embedding_ms": 0.005832873284816742,
+    "escalated": false
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "method": "full_policy",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014958903193473816,
+    "embedding_ms": 0.005832873284816742,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013666925951838493,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013625016435980797,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.0135831069201231,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013875076547265053,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.04087504930794239,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0.005792127922177315,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013666925951838493,
+    "embedding_ms": 0.005792127922177315,
+    "escalated": false
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.04087504930794239,
+    "embedding_ms": 0.005792127922177315,
+    "escalated": true
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013707904145121574,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.013750046491622925,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013500219210982323,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013457844033837318,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.04091602750122547,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.013500219210982323,
+    "embedding_ms": 0.005709007382392883,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013458076864480972,
+    "embedding_ms": 0.005709007382392883,
+    "escalated": false
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.04091602750122547,
+    "embedding_ms": 0.005709007382392883,
+    "escalated": true
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "fixed_cot",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.043625012040138245,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "fixed_self_consistency",
+    "path": [
+      "SELF_CONSISTENCY"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 1500,
+    "strategy_ms_sum": 0.013457844033837318,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "fixed_tot",
+    "path": [
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 5000,
+    "strategy_ms_sum": 0.015292083844542503,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "fixed_react",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014041084796190262,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "fixed_pal",
+    "path": [
+      "PAL"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.013582874089479446,
+    "embedding_ms": 0,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "ladder_only",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.07237493991851807,
+    "embedding_ms": 0,
+    "escalated": true
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "one_shot_router",
+    "path": [
+      "REACT"
+    ],
+    "answer": "OK",
+    "correct": true,
+    "tokens": 600,
+    "strategy_ms_sum": 0.014041084796190262,
+    "embedding_ms": 0.005666865035891533,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "entry_without_escalation",
+    "path": [
+      "COT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 300,
+    "strategy_ms_sum": 0.043625012040138245,
+    "embedding_ms": 0.005666865035891533,
+    "escalated": false
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "method": "full_policy",
+    "path": [
+      "COT",
+      "SELF_CONSISTENCY",
+      "TOT"
+    ],
+    "answer": "wrong",
+    "correct": false,
+    "tokens": 6800,
+    "strategy_ms_sum": 0.07237493991851807,
+    "embedding_ms": 0.005666865035891533,
+    "escalated": true
+  }
+]

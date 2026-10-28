@@ -1,0 +1,4682 @@
+[
+  {
+    "id": "pal_calibration_0",
+    "group_id": "pal_calibration_0",
+    "split": "calibration",
+    "embedding": [
+      0.994778677339277,
+      -0.04319915324223016,
+      -0.08211175949583914,
+      0.013671223306381534,
+      -0.029715802900510832,
+      -0.027146711293548023
+    ],
+    "embedding_ms": 0.03108382225036621,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7716242144711976,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.08962512947618961,
+        "seed": 163226941
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7431310796138759,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.043625012040138245,
+        "seed": 50720554
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.38353731077318265,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.027416972443461418,
+        "seed": 806086600
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.9050678936085877,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.022834166884422302,
+        "seed": 2367413302
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.25994646390427956,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01874985173344612,
+        "seed": 3183482555
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_1",
+    "group_id": "pal_calibration_1",
+    "split": "calibration",
+    "embedding": [
+      0.9944355938166496,
+      -0.0272935613677784,
+      0.07424182190655765,
+      0.052900872774717604,
+      -0.04246511314448805,
+      0.015468515238538021
+    ],
+    "embedding_ms": 0.010750023648142815,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.30851259891157345,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.019124941900372505,
+        "seed": 1390612542
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.4424794700537318,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.015958910807967186,
+        "seed": 2168817192
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.3494494395527336,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01616613008081913,
+        "seed": 1103919406
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3146665149950137,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.014874851331114769,
+        "seed": 2231543632
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.19227990345067764,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01495913602411747,
+        "seed": 3009408933
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_2",
+    "group_id": "pal_calibration_2",
+    "split": "calibration",
+    "embedding": [
+      0.9987200800662625,
+      0.004998374217647014,
+      -0.00932702142961608,
+      -0.03470487340280248,
+      -0.0190908340939121,
+      -0.029619865201657408
+    ],
+    "embedding_ms": 0.007333001121878624,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.784553969300674,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.015374971553683281,
+        "seed": 2208437481
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.28769317755275886,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.015750061720609665,
+        "seed": 2912892634
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.28193171428381325,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.014124903827905655,
+        "seed": 4224593913
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.33989828628473795,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01454213634133339,
+        "seed": 515564674
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7416562125643794,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013875076547265053,
+        "seed": 3066895563
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_3",
+    "group_id": "pal_calibration_3",
+    "split": "calibration",
+    "embedding": [
+      0.9952274592984987,
+      0.022393768499977117,
+      0.023330514418494187,
+      -0.006880295141652157,
+      0.024403589970537886,
+      0.08850783481085894
+    ],
+    "embedding_ms": 0.005916925147175789,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.06440952249440846,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.015124911442399025,
+        "seed": 1354824491
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.8331498479746395,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.014042016118764877,
+        "seed": 78804787
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3164891130516488,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013333046808838844,
+        "seed": 2769006949
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.19094207905564223,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013834098353981972,
+        "seed": 951424309
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8915042133113058,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013125129044055939,
+        "seed": 156288145
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_4",
+    "group_id": "pal_calibration_4",
+    "split": "calibration",
+    "embedding": [
+      0.9987199615983047,
+      -0.03515112434782224,
+      0.002836615448808704,
+      -0.01946339238135299,
+      -0.016758018544722624,
+      -0.02559561576568287
+    ],
+    "embedding_ms": 0.006666872650384903,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7715759063470682,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 2327788829
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.16974452676353616,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014875084161758423,
+        "seed": 430315580
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.44088677809098137,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01529185101389885,
+        "seed": 3661723844
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.3530856314402579,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.014374963939189911,
+        "seed": 2175914555
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3369366820841238,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013249926269054413,
+        "seed": 1919185332
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_5",
+    "group_id": "pal_calibration_5",
+    "split": "calibration",
+    "embedding": [
+      0.9977618407105597,
+      -0.0021256929626417556,
+      -0.004960702507335642,
+      0.012364435619243703,
+      0.06532295020426322,
+      -0.004713278091385886
+    ],
+    "embedding_ms": 0.005249865353107452,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6703133794857113,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013666925951838493,
+        "seed": 2154179938
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.226287663324057,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.015500001609325409,
+        "seed": 1008139704
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.35387575739319493,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014666933566331863,
+        "seed": 2521245500
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8907303669405258,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 2342030908
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.27161195850156417,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013083219528198242,
+        "seed": 380350818
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_6",
+    "group_id": "pal_calibration_6",
+    "split": "calibration",
+    "embedding": [
+      0.9998324691265438,
+      -0.012245093094035348,
+      0.01169729955343943,
+      0.00208560647860648,
+      0.003662725497584711,
+      -0.005522612256910647
+    ],
+    "embedding_ms": 0.005541136488318443,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.35304951685613384,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01333397813141346,
+        "seed": 304392506
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3207223400781681,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013333046808838844,
+        "seed": 1383042535
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.32505696235811793,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013375189155340195,
+        "seed": 1323278357
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7395727191038152,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013249926269054413,
+        "seed": 1597093817
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.24801155679980919,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013333046808838844,
+        "seed": 807567059
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_calibration_7",
+    "group_id": "pal_calibration_7",
+    "split": "calibration",
+    "embedding": [
+      0.9986926475057667,
+      0.022466720244891773,
+      0.007796508642875507,
+      0.026016363341492307,
+      0.0323428384006677,
+      0.018015171245750566
+    ],
+    "embedding_ms": 0.005082925781607628,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8715795121487245,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 17582588
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.9070078973223601,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 826901747
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.660609538140623,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013416167348623276,
+        "seed": 3423958233
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.9351440268928536,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013167038559913635,
+        "seed": 1188975393
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.3782501484162026,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013082986697554588,
+        "seed": 3854345275
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_0",
+    "group_id": "pal_test_0",
+    "split": "test",
+    "embedding": [
+      0.9987513092410298,
+      0.012535446978054874,
+      -0.031409422076594626,
+      0.036461371923071036,
+      -0.0037313477315593594,
+      -0.0029628474137546623
+    ],
+    "embedding_ms": 0.005250098183751106,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.14923098525169676,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01395796425640583,
+        "seed": 3362507774
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7793044871668492,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 3469629519
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.30388816095788806,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 262016294
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2832670324893348,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01570885069668293,
+        "seed": 4080228552
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.24757579123036033,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.012958189472556114,
+        "seed": 4007854467
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_1",
+    "group_id": "pal_test_1",
+    "split": "test",
+    "embedding": [
+      0.9987834319354967,
+      0.003031233823850651,
+      -0.013788172006898327,
+      -0.040273717139083516,
+      -0.015358327190038995,
+      -0.01935209340327367
+    ],
+    "embedding_ms": 0.005125068128108978,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.8527476993527142,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013916054740548134,
+        "seed": 2846331695
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3738935635992817,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013667158782482147,
+        "seed": 1300740771
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2827454803225621,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013499986380338669,
+        "seed": 2423325584
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7768816835630524,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.014167046174407005,
+        "seed": 3665346934
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.4542113196782523,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01395796425640583,
+        "seed": 4050116342
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_2",
+    "group_id": "pal_test_2",
+    "split": "test",
+    "embedding": [
+      0.9973388434108292,
+      -0.023974738721212176,
+      0.06387920216120961,
+      0.01243892359151006,
+      -0.008824878463942096,
+      -0.020670886735399303
+    ],
+    "embedding_ms": 0.004790956154465675,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3478523518682252,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.014042016118764877,
+        "seed": 3072219970
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.3235886779478805,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01337495632469654,
+        "seed": 1483047105
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.9025770702895622,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013665994629263878,
+        "seed": 2156580545
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.6936997667736069,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013292068615555763,
+        "seed": 3380891558
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.14858196437721896,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013666925951838493,
+        "seed": 1247785016
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_3",
+    "group_id": "pal_test_3",
+    "split": "test",
+    "embedding": [
+      0.9958357783881402,
+      0.030774842850897276,
+      0.05386291978489129,
+      0.018744414132900122,
+      0.06117006859433836,
+      0.019226727459827394
+    ],
+    "embedding_ms": 0.00537489540874958,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2854683813109492,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01391698606312275,
+        "seed": 2497323450
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.878366119448582,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014499993994832039,
+        "seed": 3740658256
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.790336929901132,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.015167053788900375,
+        "seed": 2487051
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8126452901584801,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013292068615555763,
+        "seed": 2088876504
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7246154400502023,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.012832926586270332,
+        "seed": 1770010122
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_4",
+    "group_id": "pal_test_4",
+    "split": "test",
+    "embedding": [
+      0.9959387689892587,
+      -0.00959078759210877,
+      0.01715991372079249,
+      0.023402137563716348,
+      0.0457688159870551,
+      0.07125361758682974
+    ],
+    "embedding_ms": 0.00458303838968277,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7421215867935554,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013832934200763702,
+        "seed": 1083999234
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.9161966573515392,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013292068615555763,
+        "seed": 904416562
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.13240517080011793,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013042008504271507,
+        "seed": 4097462436
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6850797653938416,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.012832926586270332,
+        "seed": 3813653568
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7009612073386765,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01254212111234665,
+        "seed": 1947821217
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_5",
+    "group_id": "pal_test_5",
+    "split": "test",
+    "embedding": [
+      0.9994152195709594,
+      0.0007225967914075489,
+      0.0097716999623494,
+      -0.005653529953576558,
+      -0.028141165391761383,
+      0.015789966216288594
+    ],
+    "embedding_ms": 0.005249865353107452,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8139462168653476,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.012708129361271858,
+        "seed": 3066625030
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2434374696184007,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013291137292981148,
+        "seed": 2307045990
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.32385423879060143,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013124896213412285,
+        "seed": 1341740035
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.06405658950201551,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.012958887964487076,
+        "seed": 604293151
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.39912566029993507,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013041077181696892,
+        "seed": 4007947395
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_6",
+    "group_id": "pal_test_6",
+    "split": "test",
+    "embedding": [
+      0.9989692365469546,
+      0.01282950412969383,
+      -0.003772189362168026,
+      -0.0054457255712757145,
+      -0.006074383782523986,
+      -0.042603811785589175
+    ],
+    "embedding_ms": 0.004749977961182594,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.35923211258401355,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013125129044055939,
+        "seed": 759210569
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.98,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013165874406695366,
+        "seed": 1589804844
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.9663715484723747,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01354096457362175,
+        "seed": 3809276127
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.21494206023410745,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013167038559913635,
+        "seed": 2760327240
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.23683390536526258,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01291697844862938,
+        "seed": 2470488847
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_test_7",
+    "group_id": "pal_test_7",
+    "split": "test",
+    "embedding": [
+      0.9985180856434799,
+      0.02639990270031582,
+      -0.042279166054287644,
+      -0.013027238056310085,
+      0.01611845604746789,
+      -0.006901908527228231
+    ],
+    "embedding_ms": 0.004583969712257385,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6843271405664992,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013333046808838844,
+        "seed": 1624997135
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.30329183674494575,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013541895896196365,
+        "seed": 2121248843
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.6468340157762884,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.012875068932771683,
+        "seed": 3935376147
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2921646123095579,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013249926269054413,
+        "seed": 2983029680
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.30911327845701414,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.012916047126054764,
+        "seed": 3635668040
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_0",
+    "group_id": "pal_train_0",
+    "split": "train",
+    "embedding": [
+      0.9964071565039843,
+      0.03198406040709224,
+      0.01576846424488806,
+      -0.06425719671944306,
+      -0.009918664104487508,
+      0.040911937805719306
+    ],
+    "embedding_ms": 0.004666857421398163,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7918654433533056,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013125129044055939,
+        "seed": 3048574940
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.26505650125242985,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013165874406695366,
+        "seed": 2391232933
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.9341099309452481,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013082986697554588,
+        "seed": 2120367643
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.3348499455404128,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013290904462337494,
+        "seed": 1411707384
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.500121795843028,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.01258309930562973,
+        "seed": 2071133781
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_1",
+    "group_id": "pal_train_1",
+    "split": "train",
+    "embedding": [
+      0.9977203077150956,
+      0.04602139707352695,
+      -0.012929088043444479,
+      0.043326680856492036,
+      -0.019749434781108716,
+      -0.0013475230784943707
+    ],
+    "embedding_ms": 0.004624947905540466,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7805425207649003,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.012999866157770157,
+        "seed": 199257813
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.25389050399412555,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013083918020129204,
+        "seed": 3353276623
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3037162290196009,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.012625008821487427,
+        "seed": 2889387193
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8185555828449756,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013208016753196716,
+        "seed": 1759322633
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8668448213381308,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.012625008821487427,
+        "seed": 2186982309
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_2",
+    "group_id": "pal_train_2",
+    "split": "train",
+    "embedding": [
+      0.9995584500669942,
+      -0.002519252478880483,
+      0.004067631721515459,
+      0.016241950464321697,
+      0.011044354019741168,
+      0.021776912733328567
+    ],
+    "embedding_ms": 0.004499917849898338,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8218442936577857,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.012792181223630905,
+        "seed": 1879543072
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8850897912951116,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013250159099698067,
+        "seed": 2441433641
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.23265226918519968,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016709091141819954,
+        "seed": 3506910915
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7762082990572817,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017707934603095055,
+        "seed": 3527173662
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.2843358070382384,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.0174578744918108,
+        "seed": 3716392782
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_3",
+    "group_id": "pal_train_3",
+    "split": "train",
+    "embedding": [
+      0.998275417643692,
+      -0.04055707658533694,
+      -0.038519002652001595,
+      0.008714528481847986,
+      0.005949675717284181,
+      -0.014361714871735806
+    ],
+    "embedding_ms": 0.006207963451743126,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.2979782412880253,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.017625046893954277,
+        "seed": 134487218
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7931807835777757,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01850002445280552,
+        "seed": 1876485755
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.3715005653193669,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.017290934920310974,
+        "seed": 1643782169
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7977135934688736,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.01770886592566967,
+        "seed": 3639917090
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.28966056183131644,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01737498678267002,
+        "seed": 423844872
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_4",
+    "group_id": "pal_train_4",
+    "split": "train",
+    "embedding": [
+      0.9965993368755554,
+      -0.06712886193897111,
+      0.039213313840376685,
+      0.014264607098804144,
+      0.004587164225232071,
+      0.0228313941826956
+    ],
+    "embedding_ms": 0.006375135853886604,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8228069489605564,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01895800232887268,
+        "seed": 3914251137
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.09625286448927509,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.018208054825663567,
+        "seed": 2652386819
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.2469772291721185,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.017459038645029068,
+        "seed": 2345410387
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.6815976221450966,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01812516711652279,
+        "seed": 3332782360
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.22825770271885126,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.0177919864654541,
+        "seed": 2340560646
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_5",
+    "group_id": "pal_train_5",
+    "split": "train",
+    "embedding": [
+      0.9980023319443277,
+      0.01306241444425288,
+      0.060788866189470554,
+      0.004282503223760754,
+      -0.00798475011512757,
+      -0.006583041979704512
+    ],
+    "embedding_ms": 0.006042188033461571,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.6758746396732493,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.018207821995019913,
+        "seed": 476718837
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.814409018922396,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01841713674366474,
+        "seed": 2712186529
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.9262738836822494,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01791701652109623,
+        "seed": 2819522234
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3446878270428915,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.016415957361459732,
+        "seed": 2372487054
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7323379676618192,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.017459038645029068,
+        "seed": 622403309
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_6",
+    "group_id": "pal_train_6",
+    "split": "train",
+    "embedding": [
+      0.9963317204704204,
+      0.029659541233303718,
+      0.047321398447140665,
+      -0.012103422162256058,
+      0.0624048863230967,
+      -0.012776422905199581
+    ],
+    "embedding_ms": 0.0065409112721681595,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.24127650904537765,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.018165912479162216,
+        "seed": 1662717506
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2779841247992652,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01695915125310421,
+        "seed": 2796776237
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.19428844032558143,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.016875099390745163,
+        "seed": 3793712827
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8994912529735443,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016707926988601685,
+        "seed": 2044250950
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7501028656581228,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01800013706088066,
+        "seed": 1392957715
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "pal_train_7",
+    "group_id": "pal_train_7",
+    "split": "train",
+    "embedding": [
+      0.9986327212844688,
+      0.012052701679056244,
+      0.012935531392423325,
+      -0.014051177856304697,
+      -0.039078667280489796,
+      -0.026372609924673038
+    ],
+    "embedding_ms": 0.006084097549319267,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.3078450155022707,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016459031030535698,
+        "seed": 1040893363
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8606816569894057,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.017208047211170197,
+        "seed": 517795212
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3731712780891236,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.016541220247745514,
+        "seed": 4007903416
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8192284740189448,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016167061403393745,
+        "seed": 1778151742
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3118406909210955,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.017041107639670372,
+        "seed": 2720562596
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_0",
+    "group_id": "plain_calibration_0",
+    "split": "calibration",
+    "embedding": [
+      0.021722951653946602,
+      -0.0033927012660273865,
+      0.9990948539213378,
+      0.03483876870498075,
+      0.00415132464768433,
+      -0.009752051899522175
+    ],
+    "embedding_ms": 0.012458069249987602,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.2080972993921679,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.025084009394049644,
+        "seed": 3054512739
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7932000951367764,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.021207844838500023,
+        "seed": 3117322168
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.4912388639491978,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.018124934285879135,
+        "seed": 35463887
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2947863410709263,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.017165904864668846,
+        "seed": 2332602005
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7526746411969144,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01874985173344612,
+        "seed": 873351829
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_1",
+    "group_id": "plain_calibration_1",
+    "split": "calibration",
+    "embedding": [
+      0.05980684870210035,
+      -0.04945700532506948,
+      0.9958233218927285,
+      0.012909062344213424,
+      0.04176443380580022,
+      -0.020053558921190276
+    ],
+    "embedding_ms": 0.009791925549507141,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.5900816382407572,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.017458107322454453,
+        "seed": 1283712306
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.6700792222917084,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.0177919864654541,
+        "seed": 2701506531
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7297271527069684,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016625039279460907,
+        "seed": 2950713492
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7390514575838426,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01741712912917137,
+        "seed": 3494108971
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.32273037051377323,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016625039279460907,
+        "seed": 2675143304
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_2",
+    "group_id": "plain_calibration_2",
+    "split": "calibration",
+    "embedding": [
+      -0.09462753632930064,
+      -0.0631926460960498,
+      0.992246917910189,
+      -0.016549788454240384,
+      -0.0338578322901521,
+      0.03283480531521997
+    ],
+    "embedding_ms": 0.008708098903298378,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.42365629427324836,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.017083948478102684,
+        "seed": 138971492
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.748813437928088,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017459038645029068,
+        "seed": 713212581
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3679765916578593,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016666017472743988,
+        "seed": 638169289
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6903620144118026,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.017415964975953102,
+        "seed": 3595804737
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7993520536684096,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.016750069335103035,
+        "seed": 235657651
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_3",
+    "group_id": "plain_calibration_3",
+    "split": "calibration",
+    "embedding": [
+      0.0006258248029278291,
+      -0.013393818771543001,
+      0.9978680342909039,
+      0.0076001797378956685,
+      0.05923537647877416,
+      0.022649669838835776
+    ],
+    "embedding_ms": 0.007999828085303307,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7345866904548045,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017208978533744812,
+        "seed": 3040439602
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7408379057790351,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.017167069017887115,
+        "seed": 374266772
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8128794391387262,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.01737498678267002,
+        "seed": 2501170510
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.16447488907602265,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.017709098756313324,
+        "seed": 3859151485
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.30819973418181046,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016416888684034348,
+        "seed": 3519658335
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_4",
+    "group_id": "plain_calibration_4",
+    "split": "calibration",
+    "embedding": [
+      0.005668215938785886,
+      -0.0623426184334118,
+      0.9949003234113193,
+      0.040526532687499055,
+      -0.05762152074536856,
+      -0.035944070808824696
+    ],
+    "embedding_ms": 0.00795908272266388,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3659282008073122,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016916077584028244,
+        "seed": 3667473217
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8922277783810276,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01737498678267002,
+        "seed": 696835456
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.2698692149349191,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01687486656010151,
+        "seed": 2759556369
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.30721414213442994,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.017042038962244987,
+        "seed": 1812444984
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7741686835821483,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.017042038962244987,
+        "seed": 457620882
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_5",
+    "group_id": "plain_calibration_5",
+    "split": "calibration",
+    "embedding": [
+      0.010471205779068836,
+      -0.031685839846531116,
+      0.9992376125995621,
+      0.004316564669606489,
+      0.01581346057444849,
+      0.011910361169717817
+    ],
+    "embedding_ms": 0.007500173524022102,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.9525605118589446,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01700012944638729,
+        "seed": 2192171344
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.744323387020307,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01737498678267002,
+        "seed": 423979659
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2657616100757377,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016875099390745163,
+        "seed": 3527117657
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.259360513794721,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016958918422460556,
+        "seed": 1214238998
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2964991010931476,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01633400097489357,
+        "seed": 888075633
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_6",
+    "group_id": "plain_calibration_6",
+    "split": "calibration",
+    "embedding": [
+      0.032166034882623255,
+      -0.0466324923053365,
+      0.9983512889645881,
+      -0.0024972233806639568,
+      0.008169150329821356,
+      -0.0035340546605570093
+    ],
+    "embedding_ms": 0.007292022928595543,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7217385438603204,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.0174578744918108,
+        "seed": 1300405354
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7807440259841918,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017292099073529243,
+        "seed": 1300243471
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8217259159255802,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.01633400097489357,
+        "seed": 3932691867
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.19368711072843567,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.017290934920310974,
+        "seed": 3162281847
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3309419850618384,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01670815981924534,
+        "seed": 379170446
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_calibration_7",
+    "group_id": "plain_calibration_7",
+    "split": "calibration",
+    "embedding": [
+      -0.00037280286305455175,
+      0.017071999957838178,
+      0.999302982586115,
+      0.024417661952602858,
+      -0.009499967826180827,
+      -0.02038345471282027
+    ],
+    "embedding_ms": 0.0077500008046627045,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.22664802464876882,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.017791055142879486,
+        "seed": 3934367535
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.09022712640315558,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.017750076949596405,
+        "seed": 3082387231
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8630546485920205,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.0177919864654541,
+        "seed": 421133723
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.44960012956029266,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.017459038645029068,
+        "seed": 3666146173
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8230299344024345,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01770886592566967,
+        "seed": 2860429120
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_0",
+    "group_id": "plain_test_0",
+    "split": "test",
+    "embedding": [
+      -0.006232800913177769,
+      -0.0041656770445868225,
+      0.9993965713159597,
+      -0.0053721488330047504,
+      0.01940219224106408,
+      0.027294459558631436
+    ],
+    "embedding_ms": 0.008875038474798203,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.839712355897989,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017624814063310623,
+        "seed": 290914026
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.26168764424649094,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.017333077266812325,
+        "seed": 388715600
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2835890851470274,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01658312976360321,
+        "seed": 3933134381
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.6077047219135886,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.017416896298527718,
+        "seed": 2128429678
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7650848617703693,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.017041806131601334,
+        "seed": 746403217
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_1",
+    "group_id": "plain_test_1",
+    "split": "test",
+    "embedding": [
+      -0.007982160869753433,
+      0.04554992732193962,
+      0.9975536407596127,
+      0.0418939281587762,
+      -0.030936944039297518,
+      -0.006002275651244359
+    ],
+    "embedding_ms": 0.008084112778306007,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.780983084191807,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017625046893954277,
+        "seed": 1777889329
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.17422366088046357,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016999896615743637,
+        "seed": 3369298179
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.36544691760518266,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016416888684034348,
+        "seed": 2185813969
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.74969844495788,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.016750069335103035,
+        "seed": 3749563075
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.22122080423706877,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.016584061086177826,
+        "seed": 2490814264
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_2",
+    "group_id": "plain_test_2",
+    "split": "test",
+    "embedding": [
+      0.024570992444005214,
+      -0.021353126415834464,
+      0.9994190327931107,
+      0.0010055619387425662,
+      -0.0059967005384862675,
+      0.008058265403186628
+    ],
+    "embedding_ms": 0.007667113095521927,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2868867592701363,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01658312976360321,
+        "seed": 3334006718
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.3502992164873978,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01650000922381878,
+        "seed": 2812093188
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.83334259147957,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01650000922381878,
+        "seed": 2341962981
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.9091921313674558,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.016582896932959557,
+        "seed": 2519497289
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.3672791932055767,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016416888684034348,
+        "seed": 1286141943
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_3",
+    "group_id": "plain_test_3",
+    "split": "test",
+    "embedding": [
+      -0.04003596744123732,
+      -0.03043132691005519,
+      0.9972660301438138,
+      -0.04011412406402089,
+      0.016248584393114898,
+      -0.032532465792365836
+    ],
+    "embedding_ms": 0.0076249707490205765,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.6786300198333318,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016832957044243813,
+        "seed": 30671224
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8686301060024266,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.016750069335103035,
+        "seed": 2741330806
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7717549505020741,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.016459031030535698,
+        "seed": 4046055018
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3329214823773329,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016249949112534523,
+        "seed": 3849537118
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.22982721966729425,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016208039596676826,
+        "seed": 2553661666
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_4",
+    "group_id": "plain_test_4",
+    "split": "test",
+    "embedding": [
+      -0.010581757430510085,
+      -0.014833846357869376,
+      0.9984265045801759,
+      0.039225150500602865,
+      0.026983996901693463,
+      0.023361289415167834
+    ],
+    "embedding_ms": 0.008416129276156425,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.25285662217754495,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016999896615743637,
+        "seed": 1364350652
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6660793382654365,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.016958918422460556,
+        "seed": 1999066762
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.24997390380571524,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016541918739676476,
+        "seed": 1204849603
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.4510612691993625,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01674983650445938,
+        "seed": 2787993256
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.35283091469018324,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.01633400097489357,
+        "seed": 2684431161
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_5",
+    "group_id": "plain_test_5",
+    "split": "test",
+    "embedding": [
+      -0.006680700928154936,
+      0.0006525298341244838,
+      0.9994433119573075,
+      -0.010120436005263507,
+      -0.027567729226111226,
+      0.014338957567109449
+    ],
+    "embedding_ms": 0.007250113412737846,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7875997077813641,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.016666948795318604,
+        "seed": 2507558832
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.9036989593777454,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01687486656010151,
+        "seed": 2315295916
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8014598289472153,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016458099707961082,
+        "seed": 2542736664
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.3128088948697716,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.017040874809026718,
+        "seed": 1679402681
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.8359347587041086,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016624806448817253,
+        "seed": 410262603
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_6",
+    "group_id": "plain_test_6",
+    "split": "test",
+    "embedding": [
+      -0.00982059311977088,
+      0.03560001307169392,
+      0.997608014191912,
+      -0.020546547827217765,
+      0.03840533751319625,
+      0.0389527208680251
+    ],
+    "embedding_ms": 0.0073749106377363205,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.21392315039903023,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01691584475338459,
+        "seed": 842416133
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.3821977617363549,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01700012944638729,
+        "seed": 565231289
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.25347631369463175,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016541918739676476,
+        "seed": 3615078472
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.822071039407872,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01670815981924534,
+        "seed": 3763730245
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7082287082930554,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.016541918739676476,
+        "seed": 1753031995
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_test_7",
+    "group_id": "plain_test_7",
+    "split": "test",
+    "embedding": [
+      0.008427303791423656,
+      -0.026029260603917567,
+      0.9967869303214545,
+      -0.04967835942210324,
+      0.0022333403562476172,
+      0.0565185498711157
+    ],
+    "embedding_ms": 0.007500173524022102,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3175157611878119,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.016707926988601685,
+        "seed": 1592720845
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7990931131590479,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.017167069017887115,
+        "seed": 3133745700
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.6173816482853027,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016625039279460907,
+        "seed": 2704697760
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.3554946822406492,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016333069652318954,
+        "seed": 3568980581
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7627219700276879,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01658312976360321,
+        "seed": 3914173258
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_0",
+    "group_id": "plain_train_0",
+    "split": "train",
+    "embedding": [
+      0.08488754252039975,
+      0.0307520817978022,
+      0.9949864860697694,
+      -0.008244664317757272,
+      -0.006946962850222614,
+      0.04164219429769047
+    ],
+    "embedding_ms": 0.00837491825222969,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.34314633893405255,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01750001683831215,
+        "seed": 2169293374
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.8112117474898761,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.018124934285879135,
+        "seed": 2159565008
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8295601828701841,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.017290934920310974,
+        "seed": 173887496
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.45523766182264136,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.017249956727027893,
+        "seed": 480427787
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7347659462796587,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01658312976360321,
+        "seed": 2735910707
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_1",
+    "group_id": "plain_train_1",
+    "split": "train",
+    "embedding": [
+      0.03279075564012185,
+      0.0005024256375793772,
+      0.9967784132463023,
+      -0.028106557710934225,
+      -0.04924565925156043,
+      -0.04628385526005313
+    ],
+    "embedding_ms": 0.007832888513803482,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8177235059620493,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01691700890660286,
+        "seed": 4224278944
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.98,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.017208047211170197,
+        "seed": 909675837
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.25840475129300305,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.016709091141819954,
+        "seed": 1028198253
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7482033085198524,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01708301715552807,
+        "seed": 1371827549
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.5969338767569916,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01654098741710186,
+        "seed": 680408641
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_2",
+    "group_id": "plain_train_2",
+    "split": "train",
+    "embedding": [
+      -0.050399069712624554,
+      0.02960825907078355,
+      0.9969482539956631,
+      0.013117079166494136,
+      -0.04114354500617038,
+      0.028506395078356804
+    ],
+    "embedding_ms": 0.007458962500095367,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8624844982777549,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01687486656010151,
+        "seed": 303428589
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.5716061326278997,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.016916077584028244,
+        "seed": 319311996
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.9757293380888398,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01595797948539257,
+        "seed": 818502346
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.23253181096323325,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01395796425640583,
+        "seed": 3514627981
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.30272495641768726,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.012750038877129555,
+        "seed": 1324421911
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_3",
+    "group_id": "plain_train_3",
+    "split": "train",
+    "embedding": [
+      -0.003209233117607912,
+      0.0018595149935421345,
+      0.9967004132040586,
+      0.07250910454801025,
+      -0.004827069149226018,
+      0.035967464557835054
+    ],
+    "embedding_ms": 0.005708076059818268,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8570611323147345,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014333054423332214,
+        "seed": 1883277689
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7672656570307227,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 941276422
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7059793564852972,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01354096457362175,
+        "seed": 4000978183
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.19608788702670196,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01295795664191246,
+        "seed": 425318663
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7007732926768837,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013208948075771332,
+        "seed": 3862195049
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_4",
+    "group_id": "plain_train_4",
+    "split": "train",
+    "embedding": [
+      0.01921230222980458,
+      0.023801937204520906,
+      0.9981254964372208,
+      -0.005478656258818478,
+      -0.038000958277114937,
+      -0.03654805173894689
+    ],
+    "embedding_ms": 0.005709007382392883,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7677701486235923,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.012999866157770157,
+        "seed": 2681265775
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.2818067638200418,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013041077181696892,
+        "seed": 303520458
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.5747374523078043,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.014083227142691612,
+        "seed": 499295030
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.7332816182110533,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.012834090739488602,
+        "seed": 1860911296
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.6311540270027569,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.012875068932771683,
+        "seed": 3879756275
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_5",
+    "group_id": "plain_train_5",
+    "split": "train",
+    "embedding": [
+      0.0392527713830665,
+      0.037457874582659784,
+      0.9946367763082911,
+      -0.06557220411401395,
+      -0.009609227573801657,
+      0.057980682805691214
+    ],
+    "embedding_ms": 0.005832873284816742,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.41958636141579464,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01400010660290718,
+        "seed": 2193299681
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3693023106297423,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013290904462337494,
+        "seed": 2847036294
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.13995667739714743,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.012958887964487076,
+        "seed": 3361024089
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7985442863338613,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013125129044055939,
+        "seed": 2344402085
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7569646513424054,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013125129044055939,
+        "seed": 1662669500
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_6",
+    "group_id": "plain_train_6",
+    "split": "train",
+    "embedding": [
+      -0.04757749602867212,
+      -0.06581098175027517,
+      0.9955723345441873,
+      0.02297763141114946,
+      0.041169993913207636,
+      0.004252446221105171
+    ],
+    "embedding_ms": 0.005666865035891533,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6500936748971179,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013415934517979622,
+        "seed": 2831954796
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.34428284661999753,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01337495632469654,
+        "seed": 1408917225
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.8502789588037286,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013082986697554588,
+        "seed": 9015494
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.3152570580742964,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.012625008821487427,
+        "seed": 964167137
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7460508090694644,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013083918020129204,
+        "seed": 4111029728
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "plain_train_7",
+    "group_id": "plain_train_7",
+    "split": "train",
+    "embedding": [
+      -0.01139153192087974,
+      -0.0408943790565274,
+      0.9951583429373836,
+      -0.004406669397127409,
+      0.08311044513308041,
+      -0.03051213559886035
+    ],
+    "embedding_ms": 0.005749985575675964,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8855143778723414,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01316610723733902,
+        "seed": 3668137774
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.33476844194650696,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013209180906414986,
+        "seed": 50894373
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7081127865934388,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01300009898841381,
+        "seed": 1694774091
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.5865250673358582,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.012750038877129555,
+        "seed": 2814577233
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.68604026137226,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013167038559913635,
+        "seed": 1519389185
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_0",
+    "group_id": "react_calibration_0",
+    "split": "calibration",
+    "embedding": [
+      0.024606397673434092,
+      0.998340156977954,
+      0.007602908721306028,
+      0.03118588187810257,
+      -0.02232503190468685,
+      0.03439019714520527
+    ],
+    "embedding_ms": 0.006332993507385254,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.4242054870118179,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.015374971553683281,
+        "seed": 4193059697
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8399709860956613,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014750054106116295,
+        "seed": 3960607157
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8834162876037468,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013958197087049484,
+        "seed": 3611804715
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.24856253015808424,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014458782970905304,
+        "seed": 1105661612
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.5110415805246903,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01391698606312275,
+        "seed": 14672903
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_1",
+    "group_id": "react_calibration_1",
+    "split": "calibration",
+    "embedding": [
+      -0.03272946131019069,
+      0.9947088431578844,
+      -0.011608999016389107,
+      0.06544820269108984,
+      0.0602824235269244,
+      0.03782714667949278
+    ],
+    "embedding_ms": 0.006166053935885429,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.38483378641799926,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.014042016118764877,
+        "seed": 3190433041
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7541578913363561,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013999873772263527,
+        "seed": 2071599516
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.6578752218764543,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.015416182577610016,
+        "seed": 1853017610
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7888021946564955,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.014083227142691612,
+        "seed": 2133812748
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8327940350425778,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013667158782482147,
+        "seed": 673705085
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_2",
+    "group_id": "react_calibration_2",
+    "split": "calibration",
+    "embedding": [
+      0.020642080432607596,
+      0.9948127773195274,
+      0.007971460944189053,
+      0.07761775053799681,
+      -0.058411897434591464,
+      0.020528844272129438
+    ],
+    "embedding_ms": 0.005834037438035011,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3335406772064904,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.014165882021188736,
+        "seed": 3079088142
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6428149240430472,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013791956007480621,
+        "seed": 36430782
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.21689861459910822,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013583805412054062,
+        "seed": 3807425874
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.2582760418396753,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 2823918287
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.331618025223163,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013749813660979271,
+        "seed": 3159732538
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_3",
+    "group_id": "react_calibration_3",
+    "split": "calibration",
+    "embedding": [
+      -0.0381449152393502,
+      0.9967575285852918,
+      0.022081583412405386,
+      0.02943925101697704,
+      0.02990129341294974,
+      -0.05264068270565051
+    ],
+    "embedding_ms": 0.00558304600417614,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.435369711417245,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013834098353981972,
+        "seed": 4142305852
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.19890457031655343,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013999873772263527,
+        "seed": 330282886
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7654700658295007,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013708136975765228,
+        "seed": 1764134060
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7646109655983484,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.013916054740548134,
+        "seed": 632522731
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.4264133060551718,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013582874089479446,
+        "seed": 1485022668
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_4",
+    "group_id": "react_calibration_4",
+    "split": "calibration",
+    "embedding": [
+      -0.0073079539015088926,
+      0.9993040947437314,
+      0.03281819244009832,
+      0.012878408885310182,
+      0.006700222549441656,
+      0.007080952303197131
+    ],
+    "embedding_ms": 0.005958136171102524,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.28736932367597895,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.014042016118764877,
+        "seed": 3026929825
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.2653556768713463,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014333054423332214,
+        "seed": 1106977616
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7084270291744067,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013875076547265053,
+        "seed": 3466726207
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.16093754934635568,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 1887941344
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3508723593794281,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01354212872684002,
+        "seed": 1666315809
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_5",
+    "group_id": "react_calibration_5",
+    "split": "calibration",
+    "embedding": [
+      0.008004895773443555,
+      0.9975504553732482,
+      -0.052920882893163164,
+      -0.016059830352494968,
+      0.03454130428010071,
+      -0.02402854406259978
+    ],
+    "embedding_ms": 0.005707843229174614,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.39554175147010356,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013875076547265053,
+        "seed": 898089621
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.43596752788817306,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.01395796425640583,
+        "seed": 3411733567
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8869048566624325,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014125136658549309,
+        "seed": 2880006336
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.18146296224022004,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.014292076230049133,
+        "seed": 1490532065
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.38532611775942344,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 2195652798
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_6",
+    "group_id": "react_calibration_6",
+    "split": "calibration",
+    "embedding": [
+      -0.017464314485257697,
+      0.9971486473411901,
+      -0.009411241864143952,
+      -0.03885662693554744,
+      0.054246882416784166,
+      -0.029127987280636387
+    ],
+    "embedding_ms": 0.006041023880243301,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.35351394308257955,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 3017772535
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8017824910282588,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014124903827905655,
+        "seed": 3712706613
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.218478390806549,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013707904145121574,
+        "seed": 1605927636
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7808201227916408,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013791956007480621,
+        "seed": 2741137727
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8009920524688559,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013541895896196365,
+        "seed": 3155730659
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_calibration_7",
+    "group_id": "react_calibration_7",
+    "split": "calibration",
+    "embedding": [
+      0.010893588394451113,
+      0.9966557045137299,
+      0.04744900388933035,
+      -0.01980757409978056,
+      0.046248352837063265,
+      0.04214354387309627
+    ],
+    "embedding_ms": 0.005708076059818268,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.1979023901164916,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013958895578980446,
+        "seed": 266972804
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7614961984516294,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013875076547265053,
+        "seed": 2831628420
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.787811369562755,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013708136975765228,
+        "seed": 2402513163
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7274828985587679,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014042016118764877,
+        "seed": 1746947008
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.8909885399720916,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013582874089479446,
+        "seed": 1461444875
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_0",
+    "group_id": "react_test_0",
+    "split": "test",
+    "embedding": [
+      -0.031725131029859494,
+      0.9951032657480015,
+      -0.004693785966501537,
+      0.03760324462878924,
+      -0.08443947191836364,
+      -0.014033763131700133
+    ],
+    "embedding_ms": 0.006292015314102173,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.785570008705484,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014209188520908356,
+        "seed": 627513753
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.9133956465447581,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014416873455047607,
+        "seed": 1193768061
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7073389842006097,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013709068298339844,
+        "seed": 1125136213
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.5157123701814641,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013958895578980446,
+        "seed": 2799312151
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2155327855200204,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01370883546769619,
+        "seed": 729300941
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_1",
+    "group_id": "react_test_1",
+    "split": "test",
+    "embedding": [
+      -0.005686916528164632,
+      0.9988129075368188,
+      -0.03572712125340478,
+      0.015376100637315353,
+      -0.0019401210861708512,
+      0.028702247029708375
+    ],
+    "embedding_ms": 0.006791902706027031,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3712061072187636,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01395796425640583,
+        "seed": 109683532
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.27711096650618816,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014124903827905655,
+        "seed": 4005092874
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.414793133431278,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013792188838124275,
+        "seed": 4048060442
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8121516872195748,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 1320490233
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8912435885927141,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013417098671197891,
+        "seed": 3023618705
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_2",
+    "group_id": "react_test_2",
+    "split": "test",
+    "embedding": [
+      -0.0978039525445464,
+      0.9915836147872654,
+      0.03867130185743982,
+      -0.07070689287921889,
+      -0.003294170270380602,
+      -0.02627804989589613
+    ],
+    "embedding_ms": 0.006084097549319267,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.20907647470861232,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 2406916535
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3695478316014377,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01370883546769619,
+        "seed": 757093634
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.26277956152364895,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 139034957
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.9012014624100059,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013833865523338318,
+        "seed": 2287033961
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.14285668043036887,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.013499986380338669,
+        "seed": 3525247206
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_3",
+    "group_id": "react_test_3",
+    "split": "test",
+    "embedding": [
+      0.03722835571324295,
+      0.9934132819016519,
+      -0.01015718272438438,
+      0.0649845565659835,
+      -0.06466575026592791,
+      -0.056888317446097666
+    ],
+    "embedding_ms": 0.005875015631318092,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.11988009091988512,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.01391698606312275,
+        "seed": 2214882171
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.27642811935243006,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013707904145121574,
+        "seed": 3378708750
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.43619320970914144,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013875076547265053,
+        "seed": 1564907364
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.19828524573768405,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 602071704
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.6239261045384767,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 3000724899
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_4",
+    "group_id": "react_test_4",
+    "split": "test",
+    "embedding": [
+      0.04377163498089652,
+      0.996537354543072,
+      -0.030339015161014324,
+      0.05502389381181572,
+      -0.017747999047202197,
+      -0.027097394156280916
+    ],
+    "embedding_ms": 0.005832873284816742,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2205818021701159,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 2723103365
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.23068224543432927,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.01400010660290718,
+        "seed": 2555811149
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.797128222780714,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01400010660290718,
+        "seed": 2604575174
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.6565288210682314,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014958903193473816,
+        "seed": 2510819124
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.2946516810750721,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013666925951838493,
+        "seed": 1705608688
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_5",
+    "group_id": "react_test_5",
+    "split": "test",
+    "embedding": [
+      0.01931064701741877,
+      0.9981545846177116,
+      -0.048175891750707696,
+      -0.020174578569907852,
+      0.002884163576004984,
+      0.02404736061254858
+    ],
+    "embedding_ms": 0.005792127922177315,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7714598496305861,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 1967345856
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.394151206144757,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013875076547265053,
+        "seed": 469946702
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.273803126053641,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 1935010669
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8202307194028137,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.0135831069201231,
+        "seed": 1163172641
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.18353627650879925,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013666925951838493,
+        "seed": 2861072518
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_6",
+    "group_id": "react_test_6",
+    "split": "test",
+    "embedding": [
+      -0.01803144672986118,
+      0.9977044016787479,
+      -0.0237679142618125,
+      0.009914628176876671,
+      0.02420831254180143,
+      0.0548774799286149
+    ],
+    "embedding_ms": 0.005709007382392883,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.17644218503380107,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 2236241688
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.18655158710122685,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013707904145121574,
+        "seed": 3583191822
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.6383840383384928,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013500219210982323,
+        "seed": 53634795
+      },
+      "PAL": {
+        "answer": "OK",
+        "confidence": 0.8065426746005122,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013457844033837318,
+        "seed": 3380724025
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.32874390444489,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013458076864480972,
+        "seed": 2964232559
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_test_7",
+    "group_id": "react_test_7",
+    "split": "test",
+    "embedding": [
+      -0.01515567890721924,
+      0.9986224921882022,
+      0.02004696347299679,
+      0.032926006538519084,
+      -0.005540157197705405,
+      0.031728969410423684
+    ],
+    "embedding_ms": 0.005666865035891533,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.32190651260565223,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.015292083844542503,
+        "seed": 2666541114
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.6371879725939908,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014041084796190262,
+        "seed": 3955606213
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.30790890975368523,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013457844033837318,
+        "seed": 3387630191
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2762943038732245,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013582874089479446,
+        "seed": 3385543937
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.38220345378451154,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.043625012040138245,
+        "seed": 2658461512
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_0",
+    "group_id": "react_train_0",
+    "split": "train",
+    "embedding": [
+      0.02007374170944636,
+      0.9976831317597952,
+      -0.05726106866559411,
+      -0.022853986514202892,
+      0.020597997098073313,
+      3.642774113827085e-05
+    ],
+    "embedding_ms": 0.013791956007480621,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.1703693088297203,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.02766610123217106,
+        "seed": 3427324878
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.43064065176649113,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.0210409052670002,
+        "seed": 193230938
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.20197865314120486,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.01791701652109623,
+        "seed": 3112775086
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7054253922906172,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.01679197885096073,
+        "seed": 300359413
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8138864548058166,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.016208039596676826,
+        "seed": 416720325
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_1",
+    "group_id": "react_train_1",
+    "split": "train",
+    "embedding": [
+      0.0004831681935543429,
+      0.996178154080994,
+      0.06409490138386538,
+      -0.04288672045689257,
+      0.019165833015746987,
+      -0.03625045586110133
+    ],
+    "embedding_ms": 0.009041978046298027,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.647617686945235,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.01650000922381878,
+        "seed": 639457204
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.36532095731856806,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.015624798834323883,
+        "seed": 173971589
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3762761420330105,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.015625031664967537,
+        "seed": 2924675832
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7529866562489583,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.0149579718708992,
+        "seed": 2848001631
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.7280491551164957,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.014666933566331863,
+        "seed": 1145818068
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_2",
+    "group_id": "react_train_2",
+    "split": "train",
+    "embedding": [
+      0.02554518154910756,
+      0.998263323561494,
+      0.03169375072521475,
+      -0.03922860288662251,
+      0.012752036375255519,
+      0.010573030804786158
+    ],
+    "embedding_ms": 0.007417052984237671,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.4073940539896659,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.016124919056892395,
+        "seed": 2928910506
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.30580290591322823,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014791963621973991,
+        "seed": 1648872112
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.7043011606564393,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01570885069668293,
+        "seed": 2841380128
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.34790073118360143,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.014750054106116295,
+        "seed": 274809114
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.31195480306962564,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014208955690264702,
+        "seed": 2507606796
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_3",
+    "group_id": "react_train_3",
+    "split": "train",
+    "embedding": [
+      -0.0005559137756198282,
+      0.9975793928901536,
+      -0.038545302279540325,
+      0.0322530655284869,
+      -0.0453813926413781,
+      0.015797926411706967
+    ],
+    "embedding_ms": 0.006791902706027031,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.38932403882040906,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014750054106116295,
+        "seed": 612048196
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.2053790929258262,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014124903827905655,
+        "seed": 1868252613
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.8087940347023597,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014082994312047958,
+        "seed": 2042726767
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.7594521300621669,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014292076230049133,
+        "seed": 2307221010
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.19956660993807834,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 187857649
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_4",
+    "group_id": "react_train_4",
+    "split": "train",
+    "embedding": [
+      0.061371115112315085,
+      0.9968521693046063,
+      0.0029959233000315167,
+      -0.030483330001409722,
+      -0.03842961785794629,
+      0.010212457562688772
+    ],
+    "embedding_ms": 0.006417045369744301,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.9502172330310302,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.014250166714191437,
+        "seed": 3893375108
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.30284781944773814,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.014666002243757248,
+        "seed": 2351986373
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.3273059608994539,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.014124903827905655,
+        "seed": 824166008
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8777515516493487,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014084158465266228,
+        "seed": 412405880
+      },
+      "COT": {
+        "answer": "OK",
+        "confidence": 0.818802236933764,
+        "tokens": 300,
+        "correct": true,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 414537266
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_5",
+    "group_id": "react_train_5",
+    "split": "train",
+    "embedding": [
+      0.018551102438268192,
+      0.9995198320858848,
+      0.019447428224738637,
+      0.0008858983873706133,
+      0.011881616912591509,
+      -0.009787837573378554
+    ],
+    "embedding_ms": 0.006332993507385254,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.8382783248186269,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01416611485183239,
+        "seed": 959294280
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.19006844778644777,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013999873772263527,
+        "seed": 52789041
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.3334008334379119,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 2062783770
+      },
+      "REACT": {
+        "answer": "wrong",
+        "confidence": 0.08794965400387074,
+        "tokens": 600,
+        "correct": false,
+        "strategy_ms": 0.01391698606312275,
+        "seed": 243083194
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.46615621497934734,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013750046491622925,
+        "seed": 1750067873
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_6",
+    "group_id": "react_train_6",
+    "split": "train",
+    "embedding": [
+      0.03281284918876944,
+      0.9985867456253823,
+      -0.036692990676671686,
+      -0.0068309138652853625,
+      -0.0063920053503563464,
+      0.017718174510684154
+    ],
+    "embedding_ms": 0.006166985258460045,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.35739817113166705,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013791956007480621,
+        "seed": 3772943557
+      },
+      "SELF_CONSISTENCY": {
+        "answer": "OK",
+        "confidence": 0.7449543600573959,
+        "tokens": 1500,
+        "correct": true,
+        "strategy_ms": 0.01400010660290718,
+        "seed": 2472874751
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.4250670556520118,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013791024684906006,
+        "seed": 3475137468
+      },
+      "TOT": {
+        "answer": "wrong",
+        "confidence": 0.2122232167449128,
+        "tokens": 5000,
+        "correct": false,
+        "strategy_ms": 0.013791956007480621,
+        "seed": 2194278987
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.8346139146306033,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.014042016118764877,
+        "seed": 3562345051
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  },
+  {
+    "id": "react_train_7",
+    "group_id": "react_train_7",
+    "split": "train",
+    "embedding": [
+      -0.021405916617604458,
+      0.9988107552142581,
+      0.007535153890127199,
+      0.035868971852477394,
+      -0.015918758162329554,
+      0.017946962270836354
+    ],
+    "embedding_ms": 0.0059998128563165665,
+    "complexity": [
+      0.1155245304107666,
+      0.10000000149011612,
+      0.0
+    ],
+    "attempts": {
+      "SELF_CONSISTENCY": {
+        "answer": "wrong",
+        "confidence": 0.21971834312339797,
+        "tokens": 1500,
+        "correct": false,
+        "strategy_ms": 0.01391698606312275,
+        "seed": 4162793753
+      },
+      "COT": {
+        "answer": "wrong",
+        "confidence": 0.22049808889251896,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013874843716621399,
+        "seed": 1828837300
+      },
+      "TOT": {
+        "answer": "OK",
+        "confidence": 0.6948162474156997,
+        "tokens": 5000,
+        "correct": true,
+        "strategy_ms": 0.01354212872684002,
+        "seed": 4263973496
+      },
+      "REACT": {
+        "answer": "OK",
+        "confidence": 0.9021542041281246,
+        "tokens": 600,
+        "correct": true,
+        "strategy_ms": 0.013625016435980797,
+        "seed": 3654146920
+      },
+      "PAL": {
+        "answer": "wrong",
+        "confidence": 0.21370065847624817,
+        "tokens": 300,
+        "correct": false,
+        "strategy_ms": 0.013249926269054413,
+        "seed": 2455114379
+      }
+    },
+    "answer_format": {
+      "answer_type": "text",
+      "decimal_separator": "."
+    }
+  }
+]

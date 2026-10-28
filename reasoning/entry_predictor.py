@@ -15,7 +15,8 @@ import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.model_selection import GridSearchCV, KFold, StratifiedKFold
+from sklearn.metrics import log_loss
+from sklearn.model_selection import GridSearchCV, GroupKFold, KFold, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -87,6 +88,11 @@ _FALLBACK_C = 0.01                     # used only when CV is impossible (too fe
 _FALLBACK_ALPHA = 1e3
 
 
+def _binary_log_loss(estimator, X, y):
+    # A group-isolated validation fold may legitimately contain only one class.
+    return -log_loss(y, estimator.predict_proba(X), labels=[0, 1])
+
+
 class EntryPredictor:
     """Per-candidate accuracy (logistic) + cost (ridge) heads on [LLM embedding | complexity].
 
@@ -124,42 +130,60 @@ class EntryPredictor:
             return None
         return min(self.n_components, d, training_rows - 1)
 
-    def _fit_classifier(self, X, y, d, c):
+    def _group_splits(self, X, y, groups):
+        n_splits = min(self.cv_folds, len(np.unique(groups)))
+        if n_splits < 2:
+            return []
+        return list(GroupKFold(n_splits=n_splits).split(X, y, groups))
+
+    def _fit_classifier(self, X, y, d, c, groups=None):
         classes, counts = np.unique(y, return_counts=True)
         if len(classes) < 2:
             return _ConstantClassifier(y[0])
         n_splits = min(self.cv_folds, int(counts.min()))
-        if n_splits < 2:  # a class has a single example: CV impossible, fall back to strong fixed L2
+        if groups is None:
+            splits = list(StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.seed).split(X, y)) if n_splits >= 2 else []
+        else:
+            splits = self._group_splits(X, y, groups)
+            # Never split a group just to make both classes available in a fold.
+            if any(len(np.unique(y[train])) < 2 for train, _ in splits):
+                splits = []
+        if not splits:
             pipe = self._pipeline(d, c, self._components(d, len(y)), LogisticRegression(max_iter=2000))
             return pipe.set_params(head__C=_FALLBACK_C).fit(X, y)
-        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
-        splits = list(cv.split(X, y))
         n_comp = self._components(d, min(len(train) for train, _ in splits))
         pipe = self._pipeline(d, c, n_comp, LogisticRegression(max_iter=2000))
-        return GridSearchCV(pipe, {"head__C": _C_GRID}, cv=splits, scoring="neg_log_loss", error_score="raise").fit(X, y)
+        scoring = _binary_log_loss if groups is not None else "neg_log_loss"
+        return GridSearchCV(pipe, {"head__C": _C_GRID}, cv=splits, scoring=scoring, error_score="raise").fit(X, y)
 
-    def _fit_regressor(self, X, y, d, c):
+    def _fit_regressor(self, X, y, d, c, groups=None):
         n_splits = min(self.cv_folds, len(y))
-        if n_splits < 2:
+        if groups is None:
+            splits = list(KFold(n_splits=n_splits, shuffle=True, random_state=self.seed).split(X, y)) if n_splits >= 2 else []
+        else:
+            splits = self._group_splits(X, y, groups)
+        if not splits:
             pipe = self._pipeline(d, c, self._components(d, len(y)), Ridge())
             return pipe.set_params(head__alpha=_FALLBACK_ALPHA).fit(X, y)
-        cv = KFold(n_splits=n_splits, shuffle=True, random_state=self.seed)
-        splits = list(cv.split(X, y))
         n_comp = self._components(d, min(len(train) for train, _ in splits))
         pipe = self._pipeline(d, c, n_comp, Ridge())
         return GridSearchCV(pipe, {"head__alpha": _ALPHA_GRID}, cv=splits, scoring="neg_mean_squared_error", error_score="raise").fit(X, y)
 
-    def fit(self, data: EntryTrainingData) -> "EntryPredictor":
+    def fit(self, data: EntryTrainingData, *, groups=None) -> "EntryPredictor":
         N, d = data.embed.shape
         if N == 0:
             raise ValueError("EntryPredictor requires at least one training row")
+        if groups is not None:
+            groups = np.asarray(groups)
+            if groups.shape != (N,) or not all(isinstance(group, (str, np.str_)) and group.strip() for group in groups):
+                raise ValueError("groups must contain one nonempty string per training row")
         c = data.complexity.shape[1]
         X = self._features(data.embed, data.complexity)
         perf, cost = [], []  # built locally: a failed fit() leaves the previous state intact
         for k in range(len(EntryChoice)):
             y_acc = (data.accuracy[:, k] > 0.5).astype(int)
-            perf.append(self._fit_classifier(X, y_acc, d, c))
-            cost.append(self._fit_regressor(X, data.cost[:, k], d, c))
+            perf.append(self._fit_classifier(X, y_acc, d, c, groups))
+            cost.append(self._fit_regressor(X, data.cost[:, k], d, c, groups))
         self.perf, self.cost = perf, cost  # replaces, never appends -> re-fit is safe
         return self
 

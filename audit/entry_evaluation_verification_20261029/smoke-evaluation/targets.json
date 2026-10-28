@@ -1,0 +1,362 @@
+[
+  {
+    "id": "pal_train_0",
+    "group_id": "pal_train_0",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_1",
+    "group_id": "pal_train_1",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_2",
+    "group_id": "pal_train_2",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_3",
+    "group_id": "pal_train_3",
+    "split": "train",
+    "route_accuracy": [
+      0.0,
+      1.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      6.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_4",
+    "group_id": "pal_train_4",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_5",
+    "group_id": "pal_train_5",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_6",
+    "group_id": "pal_train_6",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "pal_train_7",
+    "group_id": "pal_train_7",
+    "split": "train",
+    "route_accuracy": [
+      0.0,
+      1.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_0",
+    "group_id": "plain_train_0",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_1",
+    "group_id": "plain_train_1",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_2",
+    "group_id": "plain_train_2",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_3",
+    "group_id": "plain_train_3",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_4",
+    "group_id": "plain_train_4",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      1.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_5",
+    "group_id": "plain_train_5",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_6",
+    "group_id": "plain_train_6",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "plain_train_7",
+    "group_id": "plain_train_7",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_0",
+    "group_id": "react_train_0",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_1",
+    "group_id": "react_train_1",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_2",
+    "group_id": "react_train_2",
+    "split": "train",
+    "route_accuracy": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_3",
+    "group_id": "react_train_3",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      6.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_4",
+    "group_id": "react_train_4",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      0.3,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_5",
+    "group_id": "react_train_5",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_6",
+    "group_id": "react_train_6",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      1.8,
+      0.6,
+      0.3
+    ]
+  },
+  {
+    "id": "react_train_7",
+    "group_id": "react_train_7",
+    "split": "train",
+    "route_accuracy": [
+      1.0,
+      1.0,
+      0.0
+    ],
+    "route_cost_k_tokens": [
+      6.8,
+      0.6,
+      0.3
+    ]
+  }
+]
