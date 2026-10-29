@@ -44,13 +44,15 @@ class MiniJob(QThread):
                 if self.input_context.get('quicklook_invocation_id'):
                     self.quicklookStage.emit(dict(stage='capture_started', invocation_id=self.input_context['quicklook_invocation_id'], generation=self.generation))
                 region_image = {}
+                selection_geometry = {}
                 outcome = run_capture_translation(self.session, args, query=self.query,
                     input_context=self.input_context,
+                    on_selection_geometry=lambda geometry: selection_geometry.update(geometry),
                     cancel=self.stop.is_set, on_event=lambda event: events.append(event.to_dict()),
                     on_region_image=lambda image: region_image.update(image=image),
                     progress=progress, on_captured=lambda artifact, arguments:
                         self.captured.emit({'artifact':artifact, 'translation_args':arguments,
-                                            'region_image':region_image.get('image')}))
+                                            'region_image':region_image.get('image'), 'selection_geometry':dict(selection_geometry)}))
                 response, operation, args = outcome.response, outcome.operation, outcome.args
                 capture_response = outcome.capture_response
             elif operation == 'correct_translate':

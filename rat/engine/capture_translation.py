@@ -31,7 +31,7 @@ def translation_arguments(session, defaults, query=''):
 
 
 def run_capture_translation(session, capture_args, *, query='', cancel=lambda: False,
-                            on_event=None, progress=None, on_captured=None, on_region_image=None, input_context=None):
+                            on_event=None, progress=None, on_captured=None, on_region_image=None, input_context=None, on_selection_geometry=None):
     if cancel():
         raise ValueError('cancelled:capture')
     capture_parameters = {'mode': capture_args['mode']}
@@ -39,6 +39,7 @@ def run_capture_translation(session, capture_args, *, query='', cancel=lambda: F
         on_event=on_event, progress=progress, input_context={
             'clipboard_text': capture_args.get('clipboard_text'),
             'selection_pid': (input_context or {}).get('selection_pid'),
+            'selection_geometry_callback': on_selection_geometry,
             'image_input': capture_args.get('image_input'),
             'image_bytes': capture_args.get('image_bytes'),
             'region_image_callback': on_region_image})

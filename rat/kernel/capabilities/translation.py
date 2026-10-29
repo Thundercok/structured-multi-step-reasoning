@@ -224,7 +224,7 @@ def create_translation_capability(translator):
             raise ValueError('capture_requires_user_action')
         return capture_text(args['mode'], context.get('should_cancel') or (lambda: False),
             context.get('clipboard_text'), context.get('image_bytes'), context.get('image_input'),
-            context.get('region_image_callback'), context.get('selection_pid'))
+            context.get('region_image_callback'), context.get('selection_pid'), context.get('selection_geometry_callback'))
     cap.register_operation(OperationDefinition('capture_text', 'Capture text after an explicit user action.',
         {'type': 'object', 'properties': {'mode': {'type': 'string', 'enum': ['clipboard', 'selection', 'region', 'image']}},
          'required': ['mode'], 'additionalProperties': False}, capture, artifact_kind='captured_text',

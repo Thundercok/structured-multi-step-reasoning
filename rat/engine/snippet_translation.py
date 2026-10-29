@@ -67,7 +67,7 @@ def detect_language(text):
     return None
 
 
-def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_bytes=None, image_input=None, region_image_callback=None, selection_pid=None):
+def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_bytes=None, image_input=None, region_image_callback=None, selection_pid=None, selection_geometry_callback=None):
     input_provenance = None
     ocr_details = None
     if should_cancel():
@@ -149,7 +149,7 @@ def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_b
             raise ValueError('ocr_empty: Không nhận ra chữ trong ảnh vừa dán.')
     elif mode == 'selection':
         from rat.os.selected_text import read_selected_text
-        text = read_selected_text(selection_pid, should_cancel)
+        text = read_selected_text(selection_pid, should_cancel, selection_geometry_callback)
     elif mode == 'clipboard':
         if clipboard_text is not None:
             text = clipboard_text
