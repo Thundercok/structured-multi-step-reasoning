@@ -298,7 +298,7 @@ Rectangle {
                 }
                 Label {
                     objectName: "resultStatus"
-                    maximumLineCount: desk.compact ? 2 : 0
+                    maximumLineCount: desk.compact ? 2 : 2147483647
                     elide: Text.ElideRight
                     visible: desk.paperVisible && !desk.auxiliary && desk.taskVisible && Boolean(desk.liveSnapshot.status)
                     text: desk.liveSnapshot.status || ""; textFormat: Text.PlainText
