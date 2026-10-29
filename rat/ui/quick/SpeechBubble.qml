@@ -16,6 +16,9 @@ SpeechSurface {
     property real placedWidth: preferredWidth
     property real placedHeight: maximumHeight
     property real fontPixelSize: 13
+    // Optional caller-owned input/footer, with no knowledge of its business use.
+    property real accessoryHeight: 0
+    property alias accessoryHost: accessory
     readonly property var utilityActions: actions.filter(action => action.role !== "primary")
     readonly property var primaryAction: actions.find(action => action.role === "primary") || null
     readonly property real railWidth: utilityActions.length ? 32 : 0
@@ -25,7 +28,8 @@ SpeechSurface {
     readonly property real preferredWidth: heldWidth > 0 ? Math.min(maximumWidth, heldWidth)
         : widthStepFor(measuredWidth, maximumWidth)
     readonly property real preferredHeight: Math.min(maximumHeight, heldHeight > 0 ? heldHeight : Math.max(
-        layoutMeasure.implicitHeight + 2 * padding + footerHeight, utilityActions.length * 28 + 4))
+        layoutMeasure.implicitHeight + 2 * padding + footerHeight + accessoryHeight,
+        utilityActions.length * 28 + 4 + accessoryHeight))
     readonly property bool overflowing: scroll.contentHeight > scroll.height + 1
     readonly property bool moreBelow: overflowing && scroll.contentY < scroll.contentHeight - scroll.height - 1
     readonly property bool engaged: hover.hovered || scroll.moving || scroll.dragging
@@ -82,7 +86,7 @@ SpeechSurface {
         objectName: "speechViewport"
         x: bubble.padding; y: bubble.padding
         width: Math.max(1, bubble.width - 2 * bubble.padding - bubble.railWidth)
-        height: Math.max(1, bubble.height - 2 * bubble.padding - bubble.footerHeight)
+        height: Math.max(1, bubble.height - 2 * bubble.padding - bubble.footerHeight - bubble.accessoryHeight)
         contentWidth: width; contentHeight: speech.contentHeight
         opacity: bubble.restoringScroll ? 0 : 1
         clip: true; boundsBehavior: Flickable.StopAtBounds
@@ -147,7 +151,7 @@ SpeechSurface {
     }
     ToolButton {
         visible: Boolean(bubble.primaryAction)
-        x: bubble.padding; y: bubble.height - bubble.footerHeight
+        x: bubble.padding; y: bubble.height - bubble.footerHeight - bubble.accessoryHeight
         width: Math.max(1, bubble.width - 2 * bubble.padding - bubble.railWidth); height: bubble.footerHeight
         enabled: !bubble.primaryAction || bubble.primaryAction.enabled !== false
         Accessible.name: bubble.primaryAction ? bubble.primaryAction.label : ""
@@ -163,5 +167,10 @@ SpeechSurface {
             onTriggered: bubble.selectionCopyRequested(speech.selectedText)
         }
         MenuItem { text: "Sao chép nội dung"; onTriggered: bubble.actionTriggered("copy", speech.text) }
+    }
+    Item {
+        id: accessory
+        x: 0; y: bubble.height - height
+        width: bubble.width; height: bubble.accessoryHeight
     }
 }

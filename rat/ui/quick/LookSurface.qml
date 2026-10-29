@@ -23,6 +23,9 @@ Item {
     property real maxBubbleHeight: 168
     property real placedBubbleWidth: 320
     property real placedBubbleHeight: 300
+    property real composerHeight: 0
+    property real composerWidthFloor: 380
+    property alias composerHost: bubble.accessoryHost
     readonly property string variant: snapshot.lookVariant || "standby"
     readonly property bool reading: snapshot.lookSurface === "reading"
     readonly property bool speaking: Boolean(snapshot.lookText)
@@ -53,6 +56,7 @@ Item {
     signal retryRequested()
     signal scrollRequested(real offset)
     signal pendingRequested()
+    signal previewRequested()
     signal openRequested()
     signal recallRequested()
 
@@ -65,8 +69,9 @@ Item {
             if (speaking && bubble.width > 0 && bubble.height > 0)
                 bubble.holdSize(bubble.width, bubble.height)
             else bubble.holdSize(bubble.widthStepFor(300, maximumSpeechWidth), 96)
-        } else if (!next.busy && snapshot.busy) bubble.releaseSize()
+        }
     }
+    function beginPresentation() { bubble.releaseSize() }
     onReadingChanged: { if (reading) bubble.restoreReading() }
     FocusScope {
         id: lookFocus
@@ -79,6 +84,8 @@ Item {
         objectName: "lookSpeechBubble"
         x: look.panelX; y: look.panelY
         text: look.speechText
+        accessoryHeight: look.composerHeight
+        minimumWidth: look.snapshot.composerVisible ? look.composerWidthFloor : 76
         maximumWidth: look.maximumSpeechWidth
         fontPixelSize: look.speechFontSize
         cornerRadius: 18
@@ -100,13 +107,15 @@ Item {
             var items = [{id:"dismiss", label:"Đóng phản hồi", icon:"close", role:"utility"}]
             if (look.reading && look.snapshot.lookCanCopy)
                 items.push({id:"copy", label:"Sao chép nội dung đang hiện", icon:"copy", role:"utility"})
-            if (look.reading && !look.showingError && look.speechText.length > 250)
-                items.push({id:"workbench", label:"Xem trong khung đọc", icon:"chevron-up", role:"utility"})
+            if (look.reading && look.snapshot.hasWorkbench)
+                items.push({id:"workbench", label:"Mở rộng", icon:"chevron-up", role:"utility"})
+            if (look.reading && !look.snapshot.composerVisible)
+                items.push({id:"reply", label:"Viết yêu cầu", icon:"enter", role:"utility"})
             if (look.reading && look.showingError && (look.snapshot.translationSettingsSuggested || look.snapshot.finderSettingsSuggested))
                 items.push({id:"settings", label:"Mở cài đặt", role:"primary"})
             else if (look.reading && look.showingError && look.snapshot.canRetryRequest)
                 items.push({id:"retry", label:"Thử lại", role:"primary"})
-            else if (look.reading && look.snapshot.phase === "needs_input")
+            else if (look.reading && look.snapshot.phase === "needs_input" && !look.snapshot.composerVisible)
                 items.push({id:"reply", label:"Trả lời…", role:"primary"})
             else if (!look.reading && look.snapshot.lookHasQueued)
                 items.push({id:"next", label:"Dịch đoạn này", role:"primary", enabled:!look.snapshot.busy})
@@ -155,7 +164,7 @@ Item {
             pending: Boolean(look.snapshot.lookHasQueued)
             busy: Boolean(look.snapshot.busy); paused: Boolean(look.snapshot.lookPaused)
             paperColor: bubble.paperColor; inkColor: bubble.inkColor; edgeColor: bubble.edgeColor
-            onClicked: look.openRequested()
+            onClicked: { if (look.snapshot.lookHasQueued) look.previewRequested(); else look.openRequested() }
         }
         Rectangle {
             visible: Boolean(look.snapshot.dropActive)
@@ -184,7 +193,7 @@ Item {
             }
         }
         Accessible.role: Accessible.Button
-        Accessible.name: "RAT Look. Bấm để mở đoạn chờ hoặc xem lại kết quả; kéo để di chuyển."
+        Accessible.name: "RAT Lite. Bấm để xem lại công việc; kéo để di chuyển."
         Accessible.onPressAction: look.openRequested()
     }
 }
