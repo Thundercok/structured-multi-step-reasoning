@@ -1,0 +1,62 @@
+Design a new visual concept for FULL RAT, a desktop AI reasoning assistant. Use the attached images according to the roles below. Generate UI concept images, not code or a website.
+
+PRODUCT
+RAT helps users work with information and computer tasks through structured reasoning and tool-assisted execution: understand a request, choose tools, execute steps, inspect evidence, verify results, and ask for clarification or stop when appropriate. Its product scope includes finding files/apps, reading documents and extracting text, translation, calculations, answer checking, and previewing file organization before explicit Apply/Undo. This is the full product direction, not a claim that every capability already works. It is not a pomodoro app, game, generic chatbot website, or merely a translation utility.
+
+REFERENCE PRIORITY
+1. D01 is the original RAT character: strict character identity/style reference.
+2. D02 contains additional pose references. Preserve the same character; change pose only when appropriate.
+3. D03 is the selected full RAT app-icon direction and color reference. Do not turn its paper pile into visual clutter throughout the interface.
+4. A01–A07 are historical full-RAT interface screenshots. Use them to understand information types, compact desktop proportions, persistent input, and mascot placement. They include fixture/demo content; they are not proof of live-model behavior, current implementation, or design acceptance. Do not copy development/debug claims into product UI.
+5. B01–B03 are older Look/Lite companion screenshots: supplementary references for a seated rat and speech bubble. Do not limit the full app to Lite's capabilities. Floating-head versus seated behavior shown here is historical exploration, not a requirement to reproduce abrupt pose changes.
+6. C01–C02 are historical HTML design mockups with synthetic content, including an earlier approved composition. Use them for spacing and hierarchy inspiration only, not as functioning app screenshots or a required study-planner feature.
+7. D04 is the Lite icon with a small lowercase “lite” badge. Full RAT uses the icon without that badge. Lite is the same system's smaller capability profile, currently paused, not the target of this redesign.
+
+ART DIRECTION
+The UI is professional, calm, coherent, readable and restrained.
+The rat is warm, awkward, mischievous, deadpan and slightly shitpost-like.
+Its default expression is wide-eyed and apparently brain-empty. Its occasional gremlin/cursed reactions come from posture and eye direction, not redesign.
+It looks absurd but treats the user's work attentively. Never contemptuous toward the user.
+Preserve the irregular black outlines, oversized uneven eyes, long muzzle, irregular ears, sparse whiskers, gray-brown body, tiny hands, pink feet and thick pink tail.
+No polished corporate mascot, symmetric cute mouse, realistic fur, 3D, new costumes, or generic anime styling.
+
+UI REQUIREMENTS
+- A compact floating macOS desktop assistant with a readable expanded workbench when content needs room.
+- Exactly one natural-language input and one send button. No mandatory mode tabs or file/translate selector before typing. The assistant routes requests.
+- Give the mascot a deliberate place beside the interface. Keep pose scale and anchoring stable as content changes; speech bubbles should not jump unpredictably.
+- Make long content readable through deliberate expansion/scrolling, without giant empty panels or tiny text.
+- Show concise actual task status, useful results, source references and verification summaries. Do not display raw private chain-of-thought, debug logs, or made-up success/progress as a product feature.
+- File results need filename, location/type and clear open/read actions.
+- Document reading needs document/page context, source excerpt and room for a follow-up question.
+- File-organization concepts, if explored later, need a preview and explicit Apply/Undo rather than an automatic destructive action.
+- Support waiting, processing, needs-input, result, empty and recoverable-error states with the same visual language. Show success only after confirmed completion.
+- Keep technical details behind a secondary disclosure when useful.
+- Use Vietnamese UI copy, short and natural. Prioritize readable typography over decorative lettering.
+
+THEMES
+Create a light and dark version with EXACTLY the same content, geometry, hierarchy, mascot pose/position and component sizes.
+Light: warm off-white and neutral surfaces, muted sage accent, charcoal text; restrained dusty-pink details may echo the rat.
+Dark: warm charcoal surfaces, readable off-white text and restrained sage accents. Keep the mascot's dark outlines distinguishable.
+These colors are a starting direction from the supplied images, not a demand to repeat every existing olive-tinted surface.
+Avoid neon, gaming HUDs, excessive glass/gradients, large nav sidebars, dashboard charts and landing-page hero layouts.
+
+FIRST OUTPUT
+Generate ONE large comparison image: left = light theme, right = dark theme, both showing the SAME full-RAT file-results state.
+Use a neutral presentation backdrop and generous space between the two app windows. Keep the interface large enough to inspect. Show the complete windows and mascot without cropping.
+Example content is conceptual sample copy, not an actual run:
+User input: “Tìm ghi chú nghiên cứu gần đây”
+Status: “Đã tìm trong tệp”
+Result heading: “3 tệp có thể phù hợp”
+Filenames: research_notes.md, experiment_plan.pdf, meeting_notes.txt
+Show a clear “Mở” action per result and a persistent input with “Bạn muốn làm gì tiếp?”
+Do not add unnecessary metrics, counters, a model-quality claim or a completed verification claim.
+Briefly explain the design decisions after the image. Wait for feedback before generating more states.
+
+FOLLOW-UP STATES AFTER THE FIRST CONCEPT IS CHOSEN
+Use the same design language and generate one light/dark pair at a time:
+1. Compact idle: input and quiet companion, minimal screen occupation.
+2. Document reading + sourced response: page context, excerpt, follow-up composer.
+3. Reasoning task: concise activity/evidence/result, collapsible details, no private chain-of-thought.
+4. Look companion: seated rat, stable speech anchor, short and long response handling.
+5. Needs-input / empty / recoverable error states.
+All images are proposed designs, not evidence of implemented or accepted app behavior.

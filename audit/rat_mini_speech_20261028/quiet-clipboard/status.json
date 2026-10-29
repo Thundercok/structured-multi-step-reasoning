@@ -1,0 +1,41 @@
+{
+  "build": "20261028.16",
+  "software_checks": "41 selected checks passed across bounded batch and targeted retries; see logs",
+  "packaging": "built",
+  "signature": "deep strict ad-hoc verification passed; not notarized",
+  "launch": "open succeeded; running PID 6897 verified",
+  "native_acceptance": "bounded real native flow completed on isolated QA16: short translation, Copy/recall, queued long passage, explicit next, Esc/recall; error/multi-display/long scroll not accepted",
+  "llm": "default remains disabled",
+  "main_ui_integration": false,
+  "recipient_M3": "pending",
+  "stage_0": "unchanged",
+  "qa_cleanup": "QA16 stopped; production .16 left running",
+  "followup17": {
+    "build": "20261028.17",
+    "packaging": "complete; deep strict ad-hoc verification; not notarized",
+    "native_overflow": "top and bottom observed, scrollbar visible; bottom fade absent at end",
+    "native_error": "online_translation_not_enabled observed, seated error sprite, retry retained exactly same artifact_id/revision; llm_calls 0",
+    "native_recovery": "retry fails correctly while configuration unchanged; successful recovery not accepted",
+    "hotkey": "synthetic CUA chord not received by helper; only ready observed, physical key test pending",
+    "recall_scroll": "unaccepted: CUA timeouts; user screenshot proves visible app, not disappearance",
+    "production_session": ".16 PID 6897 preserved; .17 build available, not substituted into user session",
+    "qa": "QA17 stopped after isolated checks"
+  },
+  "size18": {
+    "user_choice": "both LARGE with shared sizing; shrinking Minimal explicitly rejected",
+    "build": "20261028.18",
+    "software": "49 passed; real QML metadata visible-height checks 134px for standing, seated idle and seated error",
+    "profile": {
+      "host": [
+        176,
+        152
+      ],
+      "body_optical_height": 134,
+      "text_size": 16,
+      "shared_panel_width": 580
+    },
+    "native": "Minimal and Look idle actual screenshots; .18 error shot timed out, no acceptance claim for it",
+    "production": ".16 preserved; .18 distributable separate",
+    "main_ui": "not integrated"
+  }
+}

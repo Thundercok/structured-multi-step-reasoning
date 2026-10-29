@@ -9,19 +9,24 @@ def _name(state_root):
     return 'rat-mini-ui-' + digest
 
 
-def present_running_mini(state_root):
+def present_running_mini(state_root, presentation="show"):
+    if presentation not in ("show", "look", "minimal"):
+        raise ValueError("Unknown Mini presentation")
+    message = (presentation + "\n").encode("ascii")
     socket = QLocalSocket()
     socket.connectToServer(_name(state_root))
     if not socket.waitForConnected(1500):
         return False
-    written = socket.write(b'show\n')
+    written = socket.write(message)
     delivered = socket.bytesToWrite() == 0 or socket.waitForBytesWritten(1500)
     socket.disconnectFromServer()
-    return written == 5 and delivered
+    return written == len(message) and delivered
 
 
 class MiniInstanceBridge(QObject):
     showRequested = pyqtSignal()
+    lookRequested = pyqtSignal()
+    minimalRequested = pyqtSignal()
 
     def __init__(self, state_root, parent=None):
         super().__init__(parent)
@@ -46,8 +51,11 @@ class MiniInstanceBridge(QObject):
             socket.abort()
             return
         if socket.canReadLine():
-            if bytes(socket.readLine(32)) == b'show\n':
-                self.showRequested.emit()
+            message = bytes(socket.readLine(32))
+            signal = {b'show\n': self.showRequested, b'look\n': self.lookRequested,
+                      b'minimal\n': self.minimalRequested}.get(message)
+            if signal is not None:
+                signal.emit()
             socket.disconnectFromServer()
 
     def close(self):

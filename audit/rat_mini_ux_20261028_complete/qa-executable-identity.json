@@ -1,0 +1,5 @@
+{
+  "reason": "Unique native process name for CUA binding; QA only",
+  "original_executable_sha256": "50137e3376d5c2fdb86cec35ed311d4cfb5df5ae0bd9247c8fceef89786edfc3",
+  "renamed_executable_sha256": "50137e3376d5c2fdb86cec35ed311d4cfb5df5ae0bd9247c8fceef89786edfc3"
+}

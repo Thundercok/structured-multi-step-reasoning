@@ -1,0 +1,110 @@
+"""Honest held-out evaluation of the entry-route predictor on YOUR collected data.
+
+Why this is possible: collect_entry_training_data() runs ALL 3 routes (LADDER/REACT/PAL) on EVERY query, so for any
+query we know what each route would have scored. Out-of-fold, we let a predictor pick a route and look up its REAL
+accuracy and cost: realized utility = accuracy - lam * cost (cost in thousand tokens). No simulation needed.
+
+Run from the project root:
+  python ~/Downloads/entry_eval.py --data entry.npz --lam 0.02
+  python ~/Downloads/entry_eval.py --demo            # synthetic sanity run (tests the tool, says nothing about your model)
+
+Make entry.npz once, right after collect_entry_training_data(...) returns `data`:
+  np.savez("entry.npz", embed=data.embed, complexity=data.complexity, accuracy=data.accuracy, cost=data.cost)"""
+import argparse, json, os, sys, time
+sys.path.insert(0, os.getcwd())
+import numpy as np
+from joblib import Parallel, delayed
+
+ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+ap.add_argument("--data"); ap.add_argument("--demo", action="store_true")
+ap.add_argument("--lam", type=float, default=0.02)
+ap.add_argument("--folds", type=int, default=5); ap.add_argument("--repeats", type=int, default=2)
+ap.add_argument("--configs", default="old,scaler_only,pca32", help="any of: old,scaler_only,pca16,pca32,pca64")
+ap.add_argument("--jobs", type=int, default=-1); ap.add_argument("--seed", type=int, default=0)
+ap.add_argument("--out", help="write full results to this json file")
+args = ap.parse_args()
+if not os.path.isdir("reasoning"):
+    sys.exit("STOP: run from the project root (the folder containing reasoning/).")
+from reasoning.entry_predictor import EntryPredictor, EntryTrainingData, _ConstantClassifier
+NAMES = ["LADDER", "REACT", "PAL"]
+NCOMP = {"scaler_only": None, "pca16": 16, "pca32": 32, "pca64": 64}
+
+def demo_data(n=120, d=512, k=6, seed=0):
+    r = np.random.default_rng(seed); W = r.normal(size=(k, d)) * 0.3
+    scale = np.exp(r.normal(scale=0.6, size=d)); scale[r.choice(d, 6, replace=False)] *= 40
+    U = r.normal(size=(3, k)); U = 1.6 * U / np.linalg.norm(U, axis=1, keepdims=True)
+    z, cx = r.normal(size=(n, k)), r.normal(size=(n, 3))
+    emb = ((z @ W) + r.normal(size=(n, d))) * scale
+    p = 1 / (1 + np.exp(-(np.array([0.4, 0.0, -0.2]) + z @ U.T + cx @ r.normal(scale=0.4, size=(3, 3)).T)))
+    cost = np.maximum(np.array([1.5, 0.6, 0.3]) + 0.15 * cx[:, [0]] + 0.05 * r.normal(size=(n, 3)), 0.05)
+    return EntryTrainingData(emb.astype(np.float32), cx.astype(np.float32), (r.random(p.shape) < p).astype(float), cost)
+
+if args.demo: data = demo_data()
+elif args.data:
+    z = np.load(args.data); data = EntryTrainingData(z["embed"], z["complexity"], z["accuracy"], z["cost"])
+else: sys.exit("give --data entry.npz or --demo")
+N, d = data.embed.shape; LAM = args.lam; cfgs = args.configs.split(",")
+assert data.accuracy.shape == (N, 3) and data.cost.shape == (N, 3), "accuracy/cost must be (N, 3) in LADDER, REACT, PAL order"
+print(f"N={N} queries, d={d}, lam={LAM}, {args.folds}-fold x {args.repeats} repeats, configs={cfgs}")
+if d > 20 * N: print(f"  (d/N = {d/N:.0f}: heavily over-parameterized, the regime the patch is for)")
+
+def fit_predict(cfg, tr, te, seed):
+    X = np.concatenate([data.embed, data.complexity], 1)
+    if cfg == "old":      # the ORIGINAL predictor, for comparison
+        from sklearn.linear_model import LogisticRegression, Ridge
+        perf, cst = [], []
+        for k in range(3):
+            y = data.accuracy[tr, k]
+            perf.append(_ConstantClassifier(y[0]) if len(np.unique(y)) < 2 else LogisticRegression(max_iter=2000).fit(X[tr], y))
+            cst.append(Ridge(alpha=1.0).fit(X[tr], data.cost[tr, k]))
+    else:
+        sub = EntryTrainingData(data.embed[tr], data.complexity[tr], data.accuracy[tr], data.cost[tr])
+        m = EntryPredictor(lam=LAM, n_components=NCOMP[cfg], seed=seed).fit(sub); perf, cst = m.perf, m.cost
+    ah = np.stack([m_.predict_proba(X[te])[:, 1] for m_ in perf], 1)
+    ch = np.stack([m_.predict(X[te]) for m_ in cst], 1)
+    return cfg, te, ah, np.argmax(ah - LAM * ch, 1)
+
+rng = np.random.default_rng(args.seed); jobs, perm_list = [], []
+for rep in range(args.repeats):
+    perm = rng.permutation(N); folds = np.array_split(perm, args.folds)
+    for f in range(args.folds):
+        te = folds[f]; tr = np.concatenate([folds[g] for g in range(args.folds) if g != f])
+        for cfg in cfgs: jobs.append((rep, cfg, tr, te))
+t0 = time.time()
+out = Parallel(n_jobs=args.jobs)(delayed(lambda rep, cfg, tr, te: (rep,) + fit_predict(cfg, tr, te, args.seed + rep))(*j) for j in jobs)
+print(f"fitted {len(jobs)} models in {time.time()-t0:.0f}s\n")
+
+choice = {c: np.zeros((args.repeats, N), int) for c in cfgs}; prob = {c: np.zeros((N, 3)) for c in cfgs}
+for rep, cfg, te, ah, ch in out:
+    choice[cfg][rep, te] = ch
+    if rep == 0: prob[cfg][te] = ah
+ar = np.arange(N); util = data.accuracy - LAM * data.cost                      # (N,3) realized utility of every route
+U = {c: np.mean([util[ar, choice[c][r]] for r in range(args.repeats)], 0) for c in cfgs}   # per-query, averaged over repeats
+fixed = util.mean(0); bf = int(fixed.argmax()); oracle = util.max(1)
+brng = np.random.default_rng(1); B = brng.integers(0, N, size=(4000, N))
+def ci(v): m = v[B].mean(1); return v.mean(), np.percentile(m, 2.5), np.percentile(m, 97.5)
+
+print(f"{'route / predictor':26s}{'realized utility':>18s}{'accuracy':>10s}{'cost(k tok)':>13s}   route mix LADDER/REACT/PAL")
+for j, nm in enumerate(NAMES):
+    print(f"{'fixed ' + nm:26s}{fixed[j]:>18.3f}{data.accuracy[:, j].mean():>10.3f}{data.cost[:, j].mean():>13.3f}")
+print(f"{'oracle (peeks at labels)':26s}{oracle.mean():>18.3f}   <- unreachable upper bound")
+rows = {}
+for c in cfgs:
+    ch0 = choice[c]; acc = np.mean([data.accuracy[ar, ch0[r]].mean() for r in range(args.repeats)]); cs = np.mean([data.cost[ar, ch0[r]].mean() for r in range(args.repeats)])
+    mix = np.bincount(ch0[0], minlength=3) / N
+    ll = np.mean([-np.mean(data.accuracy[:, k] * np.log(np.clip(prob[c][:, k], 1e-6, 1)) + (1 - data.accuracy[:, k]) * np.log(np.clip(1 - prob[c][:, k], 1e-6, 1))) for k in range(3)])
+    m, lo, hi = ci(U[c]); rows[c] = dict(util=m, lo=lo, hi=hi, acc=acc, cost=cs, logloss=float(ll), mix=mix.tolist())
+    print(f"{'predictor: ' + c:26s}{m:>10.3f} [{lo:.3f},{hi:.3f}]{acc:>7.3f}{cs:>13.3f}   {mix[0]:.2f}/{mix[1]:.2f}/{mix[2]:.2f}   held-out logloss {ll:.3f}")
+base = np.mean([-np.mean(data.accuracy[:, k] * np.log(np.clip(data.accuracy[:, k].mean(), 1e-6, 1)) + (1 - data.accuracy[:, k]) * np.log(np.clip(1 - data.accuracy[:, k].mean(), 1e-6, 1))) for k in range(3)])
+print(f"\nreference: always predicting each route's base rate has logloss {base:.3f}  (a predictor above this is WORSE than ignoring the query)")
+print(f"best fixed route in hindsight: {NAMES[bf]} (utility {fixed[bf]:.3f})  <- the honest bar a router must beat\n")
+main = "pca32" if "pca32" in cfgs else [c for c in cfgs if c != "old"][-1]
+print(f"paired bootstrap 95% CI (over queries) of utility differences, {main} minus:")
+for ref, v in (("best fixed route", util[:, bf]), ("old predictor", U.get("old"))):
+    if v is None: continue
+    m, lo, hi = ci(U[main] - v); print(f"  {ref:18s} {m:+.3f}  [{lo:+.3f}, {hi:+.3f}]   {'significant' if lo > 0 or hi < 0 else 'NOT significant (interval contains 0)'}")
+print("\nCaveats printed on purpose:\n"
+      " 1. The LADDER column was replayed with a policy fit on ALL queries (in-sample), so LADDER looks slightly better than it will online.\n"
+      " 2. Bootstrap treats queries as independent and ignores the fold/repeat dependence: intervals are a little optimistic.\n"
+      " 3. With N~100-200 differences of a few hundredths are usually inside the noise. Trust the interval, not the point estimate.")
+if args.out: json.dump(dict(N=N, d=d, lam=LAM, fixed=fixed.tolist(), rows=rows), open(args.out, "w"), indent=1, default=float)

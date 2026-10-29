@@ -1,0 +1,323 @@
+{
+  "query": "",
+  "operation": "translate_text",
+  "args": {
+    "source_ref": {
+      "artifact_id": "art-9608a7747fc84598a445e814e1ccc243",
+      "revision": 1
+    },
+    "source_language": "en",
+    "target_language": "vi"
+  },
+  "answer": "",
+  "error": "online_translation_not_enabled",
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "capture_text"
+      },
+      "timestamp": 1793202908.8337579,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: capture_text"
+      },
+      "timestamp": 1793202908.833785,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": {
+        "mode": "clipboard"
+      },
+      "timestamp": 1793202908.842434,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "capture_text",
+      "artifact_id": "art-9608a7747fc84598a445e814e1ccc243",
+      "payload": {
+        "text": "The library opens at eight in the morning and closes at six in the evening. Students can borrow books with a valid library card. Please keep your phone silent while you are reading.\n\nThe reading room is on the second floor. Large windows bring natural light into the room. Computers near the entrance are available for students who need to search the catalogue.\n\nReturn borrowed books at the front desk before Friday. If you need more time, ask the librarian to renew your loan. Please put damaged books aside and tell a member of staff.\n\nBefore leaving, check that you have all your belongings. Leave your desk clean for the next reader. Thank you for helping everyone enjoy a quiet place to study.",
+        "source_kind": "clipboard",
+        "source_sha256": "17749f9c728ad6112a458ed09cc81796e5f0b812ed5426d7e4ec9549194c1202",
+        "captured_at": 1793202908.842596,
+        "language_hint": "en"
+      },
+      "timestamp": 1793202910.286391,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793202910.286401,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793202910.286481,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793202910.2865229,
+      "error": null,
+      "turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+      "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    },
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "translate_text"
+      },
+      "timestamp": 1793202910.286817,
+      "error": null,
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: translate_text"
+      },
+      "timestamp": 1793202910.286827,
+      "error": null,
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": {
+        "source_ref": {
+          "artifact_id": "art-9608a7747fc84598a445e814e1ccc243",
+          "revision": 1
+        },
+        "source_language": "en",
+        "target_language": "vi"
+      },
+      "timestamp": 1793202910.2868521,
+      "error": null,
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793202910.286975,
+      "error": null,
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793202910.286979,
+      "error": null,
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "FAIL",
+        "dispatch_status": "error"
+      },
+      "timestamp": 1793202910.287012,
+      "error": null,
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_failed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793202910.287029,
+      "error": "online_translation_not_enabled",
+      "turn_id": "turn-b5cf86724bb547649a98c6c2d769389d",
+      "execution_id": "mini-9016664145894216ae7bad5f400886ea",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [],
+  "capture_artifacts": [
+    {
+      "id": "art-9608a7747fc84598a445e814e1ccc243",
+      "kind": "captured_text",
+      "revision": 1,
+      "payload": {
+        "text": "The library opens at eight in the morning and closes at six in the evening. Students can borrow books with a valid library card. Please keep your phone silent while you are reading.\n\nThe reading room is on the second floor. Large windows bring natural light into the room. Computers near the entrance are available for students who need to search the catalogue.\n\nReturn borrowed books at the front desk before Friday. If you need more time, ask the librarian to renew your loan. Please put damaged books aside and tell a member of staff.\n\nBefore leaving, check that you have all your belongings. Leave your desk clean for the next reader. Thank you for helping everyone enjoy a quiet place to study.",
+        "source_kind": "clipboard",
+        "source_sha256": "17749f9c728ad6112a458ed09cc81796e5f0b812ed5426d7e4ec9549194c1202",
+        "captured_at": 1793202908.842596,
+        "language_hint": "en"
+      },
+      "inputs": {
+        "mode": "clipboard"
+      },
+      "provenance": {
+        "operation_name": "capture_text",
+        "owner_turn_id": "turn-add8644b44b44f369b1db12cdb092d54",
+        "execution_id": "mini-4a0dbfe503704e189e4a2a8b9f6f8aee"
+      },
+      "title": "Capture text after an explicit user action",
+      "status": "ready",
+      "created_at": 1793202910.286282
+    }
+  ],
+  "capture_verification": [
+    {
+      "status": "PASS",
+      "scope": "capture_structure",
+      "reason": "Đối chiếu cấu trúc và hash; chưa xác nhận OCR đọc đúng ảnh.",
+      "evidence_ids": [
+        "mini-4a0dbfe503704e189e4a2a8b9f6f8aee:op:capture_text"
+      ],
+      "checked": [
+        "captured_text_hash",
+        "capture_mode",
+        "snippet_limit"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "verification": [
+    {
+      "status": "FAIL",
+      "scope": "translation_structure",
+      "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+      "evidence_ids": [
+        "mini-9016664145894216ae7bad5f400886ea:op:translate_text"
+      ],
+      "checked": [
+        "source_hash",
+        "segment_coverage",
+        "capture_source_ref"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "llm_calls": 0,
+  "execution_path": "direct_tool",
+  "controller_decisions": [],
+  "completion_status": "error",
+  "steps": [
+    {
+      "number": 1,
+      "operation": "translate_text",
+      "error": "online_translation_not_enabled",
+      "verification": [
+        {
+          "status": "FAIL",
+          "scope": "translation_structure",
+          "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+          "evidence_ids": [
+            "mini-9016664145894216ae7bad5f400886ea:op:translate_text"
+          ],
+          "checked": [
+            "source_hash",
+            "segment_coverage",
+            "capture_source_ref"
+          ],
+          "retryable": false,
+          "duration_ms": 0.0,
+          "answer_schema": null
+        }
+      ]
+    }
+  ],
+  "usage_unknown": false
+}

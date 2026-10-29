@@ -1,0 +1,442 @@
+{
+  "query": "",
+  "operation": "translate_text",
+  "args": {
+    "source_ref": {
+      "artifact_id": "art-323ecf573c524d77983c708fcb958bda",
+      "revision": 1
+    },
+    "source_language": "en",
+    "target_language": "vi"
+  },
+  "answer": "{'status': 'complete', 'text': 'Nhắc lại', 'source_text': 'recall', 'source_language': 'en', 'target_language': 'vi', 'source_sha256': '2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d', 'segments': [{'source_start': 0, 'source_end': 6, 'status': 'complete', 'translated_text': 'Nhắc lại', 'provider': 'offline_argos'}], 'provider': 'offline_argos', 'warnings': [], 'local_model': {'id': 'en-vi', 'version': '1.9', 'package_sha256': '86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16', 'license': 'CC-BY-4.0', 'engine': 'CTranslate2', 'engine_version': '4.8.4', 'device': 'cpu', 'compute_type': 'int8', 'decoding': {'beam_size': 4, 'coverage_penalty': 0.2, 'sentence_splitter': 'punctuation-v1', 'source_token_limit': 256}}, 'source_capture': {'source_ref': {'artifact_id': 'art-323ecf573c524d77983c708fcb958bda', 'revision': 1}, 'source_kind': 'clipboard', 'text_sha256': '2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d', 'text_origin': 'captured_text', 'correction': None, 'ocr_normalization': None, 'input_provenance': None}}",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "capture_text"
+      },
+      "timestamp": 1793188951.5461,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: capture_text"
+      },
+      "timestamp": 1793188951.5461462,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": {
+        "mode": "clipboard"
+      },
+      "timestamp": 1793188951.554702,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "capture_text",
+      "artifact_id": "art-323ecf573c524d77983c708fcb958bda",
+      "payload": {
+        "text": "recall",
+        "source_kind": "clipboard",
+        "source_sha256": "2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d",
+        "captured_at": 1793188951.555268,
+        "language_hint": "en"
+      },
+      "timestamp": 1793188954.1587589,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793188954.158782,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793188954.159103,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793188954.159202,
+      "error": null,
+      "turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+      "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    },
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "translate_text"
+      },
+      "timestamp": 1793188954.1601799,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: translate_text"
+      },
+      "timestamp": 1793188954.160198,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": {
+        "source_ref": {
+          "artifact_id": "art-323ecf573c524d77983c708fcb958bda",
+          "revision": 1
+        },
+        "source_language": "en",
+        "target_language": "vi"
+      },
+      "timestamp": 1793188954.1602519,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "translate_text",
+      "artifact_id": "art-2b7974d01cd94df8a3c52b9302803aee",
+      "payload": {
+        "status": "complete",
+        "text": "Nhắc lại",
+        "source_text": "recall",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 6,
+            "status": "complete",
+            "translated_text": "Nhắc lại",
+            "provider": "offline_argos"
+          }
+        ],
+        "provider": "offline_argos",
+        "warnings": [],
+        "local_model": {
+          "id": "en-vi",
+          "version": "1.9",
+          "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+          "license": "CC-BY-4.0",
+          "engine": "CTranslate2",
+          "engine_version": "4.8.4",
+          "device": "cpu",
+          "compute_type": "int8",
+          "decoding": {
+            "beam_size": 4,
+            "coverage_penalty": 0.2,
+            "sentence_splitter": "punctuation-v1",
+            "source_token_limit": 256
+          }
+        },
+        "source_capture": {
+          "source_ref": {
+            "artifact_id": "art-323ecf573c524d77983c708fcb958bda",
+            "revision": 1
+          },
+          "source_kind": "clipboard",
+          "text_sha256": "2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d",
+          "text_origin": "captured_text",
+          "correction": null,
+          "ocr_normalization": null,
+          "input_provenance": null
+        }
+      },
+      "timestamp": 1793188954.670078,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793188954.670101,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793188954.670208,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793188954.670251,
+      "error": null,
+      "turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+      "execution_id": "mini-bfe984744153447eb623546c461b0a93",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art-2b7974d01cd94df8a3c52b9302803aee",
+      "kind": "translation",
+      "revision": 1,
+      "payload": {
+        "status": "complete",
+        "text": "Nhắc lại",
+        "source_text": "recall",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 6,
+            "status": "complete",
+            "translated_text": "Nhắc lại",
+            "provider": "offline_argos"
+          }
+        ],
+        "provider": "offline_argos",
+        "warnings": [],
+        "local_model": {
+          "id": "en-vi",
+          "version": "1.9",
+          "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+          "license": "CC-BY-4.0",
+          "engine": "CTranslate2",
+          "engine_version": "4.8.4",
+          "device": "cpu",
+          "compute_type": "int8",
+          "decoding": {
+            "beam_size": 4,
+            "coverage_penalty": 0.2,
+            "sentence_splitter": "punctuation-v1",
+            "source_token_limit": 256
+          }
+        },
+        "source_capture": {
+          "source_ref": {
+            "artifact_id": "art-323ecf573c524d77983c708fcb958bda",
+            "revision": 1
+          },
+          "source_kind": "clipboard",
+          "text_sha256": "2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d",
+          "text_origin": "captured_text",
+          "correction": null,
+          "ocr_normalization": null,
+          "input_provenance": null
+        }
+      },
+      "inputs": {
+        "source_ref": {
+          "artifact_id": "art-323ecf573c524d77983c708fcb958bda",
+          "revision": 1
+        },
+        "source_language": "en",
+        "target_language": "vi"
+      },
+      "provenance": {
+        "operation_name": "translate_text",
+        "owner_turn_id": "turn-ca130883d7b44a9c9a1892c3ec6568cf",
+        "execution_id": "mini-bfe984744153447eb623546c461b0a93"
+      },
+      "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+      "status": "ready",
+      "created_at": 1793188954.669953
+    }
+  ],
+  "capture_artifacts": [
+    {
+      "id": "art-323ecf573c524d77983c708fcb958bda",
+      "kind": "captured_text",
+      "revision": 1,
+      "payload": {
+        "text": "recall",
+        "source_kind": "clipboard",
+        "source_sha256": "2ed6b4c1ae9f8249477df9193d20e75474c152748e0f2a2cc224ead2e1c8769d",
+        "captured_at": 1793188951.555268,
+        "language_hint": "en"
+      },
+      "inputs": {
+        "mode": "clipboard"
+      },
+      "provenance": {
+        "operation_name": "capture_text",
+        "owner_turn_id": "turn-09a2a726ed684c9fa4e87b84e8370ca8",
+        "execution_id": "mini-286e41b8e8dc49749633d44b4bd21c2b"
+      },
+      "title": "Capture text after an explicit user action",
+      "status": "ready",
+      "created_at": 1793188954.158638
+    }
+  ],
+  "capture_verification": [
+    {
+      "status": "PASS",
+      "scope": "capture_structure",
+      "reason": "Đối chiếu cấu trúc và hash; chưa xác nhận OCR đọc đúng ảnh.",
+      "evidence_ids": [
+        "mini-286e41b8e8dc49749633d44b4bd21c2b:op:capture_text"
+      ],
+      "checked": [
+        "captured_text_hash",
+        "capture_mode",
+        "snippet_limit"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "verification": [
+    {
+      "status": "PASS",
+      "scope": "translation_structure",
+      "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+      "evidence_ids": [
+        "mini-bfe984744153447eb623546c461b0a93:op:translate_text"
+      ],
+      "checked": [
+        "source_hash",
+        "segment_coverage",
+        "capture_source_ref",
+        "local_model_provenance"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "llm_calls": 0,
+  "execution_path": "direct_tool",
+  "controller_decisions": [],
+  "completion_status": "completed",
+  "steps": [
+    {
+      "number": 1,
+      "operation": "translate_text",
+      "error": null,
+      "verification": [
+        {
+          "status": "PASS",
+          "scope": "translation_structure",
+          "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+          "evidence_ids": [
+            "mini-bfe984744153447eb623546c461b0a93:op:translate_text"
+          ],
+          "checked": [
+            "source_hash",
+            "segment_coverage",
+            "capture_source_ref",
+            "local_model_provenance"
+          ],
+          "retryable": false,
+          "duration_ms": 0.0,
+          "answer_schema": null
+        }
+      ]
+    }
+  ],
+  "usage_unknown": false
+}

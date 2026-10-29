@@ -1,0 +1,28 @@
+{
+  "build": "20261028.19",
+  "handoff_date": "2026-10-29",
+  "source": "ten-point implementation completed; see per-item matrix",
+  "software": "58 distinct selected checks passed across bounded batch and targeted checks",
+  "packaging": "built; deep strict ad-hoc signature verified; not notarized",
+  "native_acceptance": "incomplete: CUA cannot bind RAT window; TextEdit accessible; user confirmed QA19 visible",
+  "native_receipts": "launch metadata only; no .19 native translation or recovery acceptance",
+  "physical_hotkey": "not accepted; helper ready is registration only",
+  "llm": "default off; software recovery test verifies 0 calls",
+  "main_ui": "not integrated",
+  "recipient_M3": "pending",
+  "stage_0": "unchanged",
+  "production_session": ".16 PID6897 closed after explicit user confirmation that work was saved/done",
+  "qa": "QA19 left available in separate state for manual operation; not a native acceptance claim",
+  "native_followup_20261029": {
+    "qa_launch": "Launch Services with bundle-scoped LSEnvironment for isolated state/receipts",
+    "minimal": "actual native AX and screenshot captured in 01-minimal.png",
+    "clipboard_copy": "public Hello world. copied through TextEdit; only launch metadata existed before explicit open",
+    "look": "passive Look AX/screenshot timed out; pending manual opening requested",
+    "software_tests": "not repeated in this follow-up",
+    "source_changes": "none; QA bundle metadata only",
+    "single_instance": "only QA19 retained for current acceptance",
+    "manual_translation": "user reported translation visible, but no QA19 receipt; not attributed to .19",
+    "latest": "exact in-bubble opening requested manually; tool binding/action still times out; no new software tests",
+    "user_screenshot": "11:47:24 shows pending Hello world with Mở đoạn này; it is not a translation result"
+  }
+}

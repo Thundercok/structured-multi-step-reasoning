@@ -1,28 +1,15 @@
 """Pure layout policy for a fixed-size RAT and its transient workbench."""
 from dataclasses import dataclass
+from rat.ui.surface_geometry import Rect
+from rat.ui.speech_placement import place_speech
 
-RAT_WIDTH, RAT_HEIGHT = 122, 128
-GAP, MARGIN = 12, 16
-
-
-@dataclass(frozen=True)
-class Rect:
-    x: int
-    y: int
-    width: int
-    height: int
-
-    @property
-    def right(self):
-        return self.x + self.width
-
-    @property
-    def bottom(self):
-        return self.y + self.height
-
-    def union(self, other):
-        x, y = min(self.x, other.x), min(self.y, other.y)
-        return Rect(x, y, max(self.right, other.right)-x, max(self.bottom, other.bottom)-y)
+# One large Mini character scale. The wide host lets the seated error pose
+# reach the same visible height as the standing pose without width-clamping.
+RAT_WIDTH, RAT_HEIGHT = 176, 176
+LOOK_WIDTH, LOOK_HEIGHT = RAT_WIDTH, RAT_HEIGHT
+LOOK_OPTICAL_HEIGHT = 134
+MINI_PANEL_WIDTH, MINI_TEXT_SIZE = 580, 16
+GAP, MARGIN = 8, 16
 
 
 @dataclass(frozen=True)
@@ -33,28 +20,21 @@ class Placement:
     side: str | None
 
 
-def place_look(available, home, bubble_width=0, bubble_height=0, variant='standby'):
-    """Keep one original-sprite anchor; speech never moves the standing home.
-
-    All three poses use the same 122x128 canvas and retain one stable anchor.
-    """
-    left = max(available.x + MARGIN, min(round(home[0]), available.right - MARGIN - RAT_WIDTH))
-    top = max(available.y + MARGIN, min(round(home[1]), available.bottom - MARGIN - RAT_HEIGHT))
-    if variant == 'standby':
-        rat = Rect(left, top, RAT_WIDTH, RAT_HEIGHT)
-        return Placement(Rect(left, top, 0, 0), rat, rat, None)
-    rat = Rect(left, top, RAT_WIDTH, RAT_HEIGHT)
-    width = max(1, min(round(bubble_width), available.width - 2*MARGIN - rat.width - GAP))
-    height = max(1, min(round(bubble_height), available.height - 2*MARGIN))
-    left_space = rat.x - available.x - MARGIN
-    right_space = available.right - MARGIN - rat.right
-    side = 'left' if left_space >= width + GAP or left_space >= right_space else 'right'
-    if max(left_space, right_space) < width + GAP:
-        width = max(1, max(left_space, right_space) - GAP)
-    x = rat.x - GAP - width if side == 'left' else rat.right + GAP
-    y = max(available.y + MARGIN, min(rat.y, available.bottom - MARGIN - height))
-    panel = Rect(x, y, width, height)
-    return Placement(panel, rat, panel.union(rat), side)
+def place_look(available, home, bubble_width=0, bubble_height=0, variant='standby', side=None, *, ink_bounds=None, mouth=None):
+    """Look owns a stable mascot home; shared speech policy places its bubble."""
+    left = max(available.x+MARGIN, min(round(home[0]), available.right-MARGIN-LOOK_WIDTH))
+    top = max(available.y+MARGIN, min(round(home[1]), available.bottom-MARGIN-LOOK_HEIGHT))
+    rat = Rect(left, top, LOOK_WIDTH, LOOK_HEIGHT)
+    if bubble_width <= 0 or bubble_height <= 0:
+        return Placement(Rect(left, top, 0, 0), rat, rat, side)
+    # Shared optical envelope includes the widest seated error pose. The feet
+    # baseline is constant; pose-specific ink/mouth still render the tail, but
+    # changing expression cannot reposition the speech body.
+    ink = Rect(rat.x+4, rat.bottom-30-LOOK_OPTICAL_HEIGHT, LOOK_WIDTH-8, LOOK_OPTICAL_HEIGHT)
+    anchor_point = (rat.x + mouth[0], rat.y + mouth[1]) if mouth is not None else None
+    speech = place_speech(available, ink, bubble_width, bubble_height, preferred_side=side,
+                          gap=GAP, margin=MARGIN, anchor_point=anchor_point, align_bottom=True, preserve_side=True)
+    return Placement(speech.body, rat, speech.body.union(rat), speech.side)
 
 
 def place_panel(available, home, height, expanded, side=None, panel_width=580, anchor_top=None, paper_inset=0):

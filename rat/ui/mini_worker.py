@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import threading
 from PyQt6.QtCore import QThread, pyqtSignal
+from rat.ui.mini_diagnostics import write_diagnostic
 from rat.engine.capture_translation import run_capture_translation, run_corrected_translation, translation_arguments
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class MiniJob(QThread):
 
     def run(self):
         events = []
+        write_diagnostic('execution-status.json', dict(state='started', operation=self.operation, generation=self.generation))
         try:
             progress = lambda text: self.progress.emit(text)
             def observed_step(step):
@@ -71,25 +73,37 @@ class MiniJob(QThread):
                      'capture_mode':self.args.get('mode') if self.operation == 'capture_translate' else None}
             if self.operation == 'capture_translate':
                 logger.info('captured_text_translation_finished status=%s', 'error' if response.error else response.completion_status)
-            recording = os.environ.get('RAT_MINI_ACCEPTANCE_DIR')
-            if recording:
-                folder = Path(recording)
-                folder.mkdir(parents=True, exist_ok=True)
-                (folder / (response.execution_id + '.json')).write_text(json.dumps({
-                    'query': self.query, 'operation': operation, 'args': args,
-                    'answer': response.answer, 'error': response.error, 'events': events,
-                    'artifacts': [a.to_dict() for a in response.artifacts],
-                    'capture_artifacts': [a.to_dict() for a in capture_response.artifacts] if capture_response else [],
-                    'capture_verification': value['capture_verification'],
-                    'verification': response.verification_reports, 'llm_calls': self.session.client.calls,
-                    'execution_path': (response.qa_telemetry or {}).get('mini_execution_path'),
-                    'controller_decisions': response.controller_decisions,
-                    'completion_status': response.completion_status,
-                    'steps': [{'number': step.step_number, 'operation': step.tool_name,
-                               'error': step.error, 'verification': step.verification}
-                              for step in response.steps],
-                    'usage_unknown': self.session.client.usage_unknown}, ensure_ascii=False, default=str, indent=2))
+            receipt_written = False
+            try:
+                recording = os.environ.get('RAT_MINI_ACCEPTANCE_DIR')
+                if recording:
+                    folder = Path(recording)
+                    folder.mkdir(parents=True, exist_ok=True)
+                    (folder / (response.execution_id + '.json')).write_text(json.dumps({
+                        'query': self.query, 'operation': operation, 'args': args,
+                        'answer': response.answer, 'error': response.error, 'events': events,
+                        'artifacts': [a.to_dict() for a in response.artifacts],
+                        'capture_artifacts': [a.to_dict() for a in capture_response.artifacts] if capture_response else [],
+                        'capture_verification': value['capture_verification'],
+                        'verification': response.verification_reports, 'llm_calls': self.session.client.calls,
+                        'execution_path': (response.qa_telemetry or {}).get('mini_execution_path'),
+                        'controller_decisions': response.controller_decisions,
+                        'completion_status': response.completion_status,
+                        'steps': [{'number': step.step_number, 'operation': step.tool_name,
+                                   'error': step.error, 'verification': step.verification}
+                                  for step in response.steps],
+                        'usage_unknown': self.session.client.usage_unknown}, ensure_ascii=False, default=str, indent=2))
+                receipt_written = bool(recording)
+            except Exception as recording_error:
+                value['recording_error'] = type(recording_error).__name__
+                logger.warning('acceptance_recording_failed type=%s', type(recording_error).__name__)
+            write_diagnostic('execution-status.json', dict(state='finished', operation=operation,
+                generation=self.generation, execution_id=response.execution_id,
+                completion_status=response.completion_status, receipt_written=receipt_written,
+                recording_error=value.get('recording_error'), tool_error=bool(response.error)))
             self.result.emit(value)
         except Exception as exc:
+            write_diagnostic('execution-status.json', dict(state='failed', operation=self.operation,
+                generation=self.generation, exception_type=type(exc).__name__))
             self.result.emit({'error': str(exc), 'events': events, 'operation':self.operation,
                 'capture_mode':self.args.get('mode') if self.operation == 'capture_translate' else None})

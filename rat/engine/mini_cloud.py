@@ -35,6 +35,10 @@ class CloudModelClient:
         self.deadline = time.monotonic() + 45
 
     def chat_with_meta(self, messages, tools, *, should_cancel=lambda: False, response_format=None):
+        # Explicit Mini opt-in applies to planning and LLM translation alike.
+        # Check before credentials, serialization or any network request.
+        if self.settings.get('llm_enabled') is not True:
+            raise ValueError('mini_llm_disabled')
         provider = self.settings['provider']
         if provider not in ENDPOINTS:
             raise ValueError('unknown_cloud_provider')

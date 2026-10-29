@@ -1,5 +1,12 @@
 # Mini — bounded Agent loop, source only (2026-10-27)
 
+2026-10-28 update: Mini's model planner is now optional and disabled by default
+(`llm_enabled=False`). Both the model execution lane and cloud client enforce
+the opt-in. Ambiguous inputs retain the shared router's clarification; compound
+requests ask the user for a first explicit step. See
+[Look flow source handoff](rat_mini_look_clipboard_20261028.md). Earlier live-model
+wiring below describes the opt-in lane. No new verification/build was run.
+
 User approved connecting the real reasoning loop and requested the lightest
 implementation. This is source work only: no tests, app launch, model calls,
 screenshots, build or ZIP for this change. The existing M5.16 package predates

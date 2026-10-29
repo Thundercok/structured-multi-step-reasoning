@@ -1,0 +1,32 @@
+[
+  {
+    "receipt": "native-receipts17/mini-1e5a8f5d3dcd4c50ad607a4d4719aaf9.json",
+    "source_ref": {
+      "artifact_id": "art-776af5c2bed04c54b1729418e92149df",
+      "revision": 1
+    },
+    "error": null,
+    "llm_calls": 0,
+    "answer": "{'status': 'complete', 'text': 'Thư viện mở cửa lúc tám giờ sáng và đóng cửa lúc sáu giờ tối. Học sinh có thể mượn sách với một thẻ thư viện hợp lệ. Vui lòng giữ im lặng điện thoại khi bạn đọc.\\n\\nPhòng đọc sách ở tầng 2. Những cửa sổ lớn mang ánh sáng tự nhiên vào trong phòng. Máy tính gần lối vào có sẵn cho sinh viên cần phải lục soát danh mục.\\n\\nTrả lại sách ở quầy lễ tân trước thứ sáu. Nếu anh cần thêm thời gian, hãy yêu cầu thủ thư cho anh vay lại. Xin hãy để những cuốn sách bị hỏng sang một bên và nói với một thành viên của nhân viên.\\n\\nTrước khi đi, hãy kiểm tra xem anh có tất cả đồ đạc chưa. Để bàn làm việc sạch sẽ cho độc giả tiếp theo. Cảm ơn vì đã giúp mọi người vui hưởng một nơi yên tĩnh để học.', 'source_text': 'The library opens at eight in the morning and closes at six in the evening. Students can borrow books with a valid library card. Please keep your phone silent while you are reading.\\n\\nThe reading room is on the second floor. Large windows bring natural light into the room. Computers near the entrance are available for students who need to search the catalogue.\\n\\nReturn borrowed books at the front desk before Friday. If you need more time, ask the librarian to renew your loan. Please put damaged books aside and tell a member of staff.\\n\\nBefore leaving, check that you have all your belongings. Leave your desk clean for the next reader. Thank you for helping everyone enjoy a quiet place to study.', 'source_language': 'en', 'target_language': 'vi', 'source_sha256': '17749f9c728ad6112a458ed09cc81796e5f0b812ed5426d7e4ec9549194c1202', 'segments': [{'source_start': 0, 'source_end': 699, 'status': 'complete', 'translated_text': 'Thư viện mở cửa lúc tám giờ sáng và đóng cửa lúc sáu giờ tối. Học sinh có thể mượn sách với một thẻ thư viện hợp lệ. Vui lòng giữ im lặng điện thoại khi bạn đọc.\\n\\nPhòng đọc sách ở tầng 2. Những cửa sổ lớn mang ánh sáng tự nhiên vào trong phòng. Máy tính gần lối vào có sẵn cho sinh viên cần phải lục soát danh mục.\\n\\nTrả lại sách ở quầy lễ tân trước thứ sáu. Nếu anh cần thêm thời gian, hãy yêu cầu thủ thư cho anh vay lại. Xin hãy để những cuốn sách bị hỏng sang một bên và nói với một thành viên của nhân viên.\\n\\nTrước khi đi, hãy kiểm tra xem anh có tất cả đồ đạc chưa. Để bàn làm việc sạch sẽ cho độc giả tiếp theo. Cảm ơn vì đã giúp mọi người vui hưởng một nơi yên tĩnh để học.', 'provider': 'offline_argos'}], 'provider': 'offline_argos', 'warnings': ['Có thay đổi ở chữ số; hãy đối chiếu nguyên văn.'], 'local_model': {'id': 'en-vi', 'version': '1.9', 'package_sha256': '86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16', 'license': 'CC-BY-4.0', 'engine': 'CTranslate2', 'engine_version': '4.8.4', 'device': 'cpu', 'compute_type': 'int8', 'decoding': {'beam_size': 4, 'coverage_penalty': 0.2, 'sentence_splitter': 'punctuation-v1', 'source_token_limit': 256}}, 'source_capture': {'source_ref': {'artifact_id': 'art-776af5c2bed04c54b1729418e92149df', 'revision': 1}, 'source_kind': 'clipboard', 'text_sha256': '17749f9c728ad6112a458ed09cc81796e5f0b812ed5426d7e4ec9549194c1202', 'text_origin': 'captured_text', 'correction': None, 'ocr_normalization': None, 'input_provenance': None}}"
+  },
+  {
+    "receipt": "native-error-receipts17/mini-4b269b8a0f7546bbbb0cdaa4b7094f05.json",
+    "source_ref": {
+      "artifact_id": "art-9608a7747fc84598a445e814e1ccc243",
+      "revision": 1
+    },
+    "error": "online_translation_not_enabled",
+    "llm_calls": 0,
+    "answer": ""
+  },
+  {
+    "receipt": "native-error-receipts17/mini-9016664145894216ae7bad5f400886ea.json",
+    "source_ref": {
+      "artifact_id": "art-9608a7747fc84598a445e814e1ccc243",
+      "revision": 1
+    },
+    "error": "online_translation_not_enabled",
+    "llm_calls": 0,
+    "answer": ""
+  }
+]

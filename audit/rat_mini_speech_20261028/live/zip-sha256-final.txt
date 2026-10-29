@@ -1,0 +1,1 @@
+d641c29ee20d828ac6d049ca71a01265a1affceef2af7bd3497b37cdb589d7c3  dist/mini-speech-20261028-fix2/RAT Mini.zip

@@ -1,5 +1,10 @@
 # RAT Mini — quyết định vertical slice và UX
 
+**Tên gọi tương lai — quyết định người dùng 2026-10-28:** RAT Mini sẽ mang tên
+**RAT Lite** (“Lite”), vẫn là cùng vertical slice của RAT–CoT. Mini/Lite đang
+tạm gác vì chưa phát triển xong. Chưa đổi identifiers, đường dẫn hay bản build
+theo quyết định này; chỉ thực hiện chuyển tên khi tiếp tục phần việc đó.
+
 Ngày chốt: 2026-10-26, Asia/Saigon. Nguồn: chỉ đạo trực tiếp của người dùng
 trong phiên phát triển Mini. Đây là định hướng hiện hành, không phải xác nhận
 mọi phần dưới đây đã được triển khai.

@@ -213,7 +213,7 @@ def test_mymemory_quota_does_not_repeat_requests_for_retry(tmp_path, monkeypatch
 def test_agent_uses_existing_runtime_loop_with_contract_fixture(tmp_path,monkeypatch):
     f=tmp_path/'wanted.txt';f.write_text('real path for a software contract')
     monkeypatch.setattr('rat.engine.local_finder.spotlight_paths',lambda *a:[str(f)])
-    s=MiniSession(settings(tmp_path))
+    s=MiniSession(dict(settings(tmp_path), llm_enabled=True))
     # This fixture exercises the real planner contract without calling a model.
     monkeypatch.setattr(s.runtime, '_plan_task', lambda *args, **kwargs: {
         'message': {'content': json.dumps({'operations': ['find_files'], 'respond': True})}})
@@ -238,7 +238,7 @@ def test_agent_does_not_claim_incomplete_or_failed_tool_as_committed(tmp_path, m
             [str(path)], [{'provider': 'spotlight', 'code': 'spotlight_timeout'}], 0))
     else:
         monkeypatch.setattr(finder, 'spotlight_paths', lambda *args: [str(path)])
-    session = MiniSession(settings(tmp_path))
+    session = MiniSession(dict(settings(tmp_path), llm_enabled=True))
     if case == 'verification_failure':
         verifier = session.runtime.registry.get_operation('find_files').verifier
         monkeypatch.setattr(verifier, 'check_execution', lambda evidence:

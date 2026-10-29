@@ -25,7 +25,10 @@ from rat.engine.folder_organization import FolderOrganizer
 
 class MiniSession:
     def __init__(self, settings=None, *, artifact_store=None):
-        self.settings = settings if settings is not None else read_settings()
+        self.settings = dict(settings) if settings is not None else read_settings()
+        self.settings['llm_enabled'] = self.settings.get('llm_enabled') is True
+        if not self.settings['llm_enabled'] and self.settings.get('translation_provider') == 'llm':
+            self.settings['translation_provider'] = 'automatic'
         self.scopes = ScopePolicy(self.settings['roots'])
         # This release is Spotlight-only. Deferred semantic code is never imported.
         self.semantic = None
@@ -38,8 +41,8 @@ class MiniSession:
         registry.register_capability(create_translation_capability(SnippetTranslator(self.settings, self.client)))
         self.runtime = AssistantRuntime(registry=registry, profile=MINI_PROFILE, model_client=self.client,
                                         artifact_store=artifact_store,
-                                        use_live_model=True, enable_observation_pack=True,
-                                        plan_tasks=True, planner_operations_only=True)
+                                        use_live_model=self.settings['llm_enabled'], enable_observation_pack=True,
+                                        plan_tasks=self.settings['llm_enabled'], planner_operations_only=True)
         # One compact planner, at most two tool steps, then a reserved finish.
         # Fits the existing four-request/2048-generated-token cloud budget.
         self.runtime.max_reasoning_steps = 3
@@ -58,14 +61,18 @@ class MiniSession:
         route = self.router.resolve(query, pending=self.pending_route,
             tool_input=self.runtime.dispatcher.state.pending_input_request,
             input_kind=input_kind, previous=self.previous_goal)
+        if route.kind == 'agent' and not self.settings['llm_enabled']:
+            route = self.router.ask(
+                'Bạn muốn làm bước nào trước? Gửi tên file cần tìm, đoạn cần dịch hoặc thư mục cần sắp xếp.',
+                rule='mini_step_clarification')
         if source_ref and route.input_request and route.input_request.supplied_inputs.get('operation') == 'translate_text':
             route = self.router.direct('translate_text', {
                 **route.input_request.supplied_inputs.get('args', {}),
                 'source_ref': dict(source_ref)}, 'observed_source_translation')
         resume_agent = bool(self._agent_goal and
             route.rule in ('tool_input_continuation', 'tool_input_still_missing', 'language_still_missing'))
-        agent_goal = route.kind == 'agent' or resume_agent or (
-            route.rule == 'ambiguous_goal' and input_kind == 'typed')
+        agent_goal = self.settings['llm_enabled'] and (route.kind == 'agent' or resume_agent or (
+            route.rule == 'ambiguous_goal' and input_kind == 'typed'))
         if agent_goal:
             self.pending_route = None
             if resume_agent:
@@ -114,6 +121,9 @@ class MiniSession:
         return response
 
     def execute(self, operation=None, args=None, *, query='', cancel=lambda: False, on_event=None, progress=None, input_context=None, on_step=None):
+        if not operation and not self.settings['llm_enabled']:
+            # A missed UI route must never activate the shared model fallback.
+            return AgentResponse('', [], 0, 0, 0, error='mini_llm_disabled')
         if operation:
             self.pending_route = None
             self._agent_goal, self._agent_history = None, []

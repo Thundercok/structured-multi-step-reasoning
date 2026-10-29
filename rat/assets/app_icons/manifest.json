@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "default_full": "rat-default",
+  "default_lite": "rat-lite",
+  "runtime_switching_implemented": false,
+  "packaging_integrated": false,
+  "variants": [
+    {
+      "id": "rat-default",
+      "label": "Paper pile (default)",
+      "edition": "full",
+      "png": "rat-default.png",
+      "icns": "rat-default.icns",
+      "iconset": "rat-default.iconset",
+      "master": "docs/design/rat-app-icon-20261028/masters/rat-default.png",
+      "master_sha256": "c8766931e395d0e13f248670df31d0bba84bfbc9411e382cbca0410c68c66119",
+      "png_sha256": "dccb73aa2fec15d92b156ffa81fa3a40c3c51c5f0686c06b2873522030a74f78",
+      "icns_sha256": "6c223beef746923dc4f920379d7bb38462d1085c4227783601c368ff911cfb95",
+      "png_pixels": [
+        1024,
+        1024
+      ],
+      "icns_compiler": "png-backed-icns"
+    },
+    {
+      "id": "rat-lite",
+      "label": "Paper pile · lite",
+      "edition": "lite",
+      "png": "rat-lite.png",
+      "icns": "rat-lite.icns",
+      "iconset": "rat-lite.iconset",
+      "master": "docs/design/rat-app-icon-20261028/masters/rat-lite.png",
+      "master_sha256": "b05d078f457bf229266be398c6d3115eca15ab0c87a1ac6f41e1f55dbafae063",
+      "png_sha256": "86a5cceb77dbf920cf71eef59d512919ac3910433a679f43d263a7b351a10b85",
+      "icns_sha256": "8f9c1b01cda891f2ca26e0e6a83c146ffde609ab205f3d6b6c85ea429cdd4372",
+      "png_pixels": [
+        1024,
+        1024
+      ],
+      "icns_compiler": "png-backed-icns"
+    },
+    {
+      "id": "rat-paper-stack",
+      "label": "Paper stack",
+      "edition": "full",
+      "png": "rat-paper-stack.png",
+      "icns": "rat-paper-stack.icns",
+      "iconset": "rat-paper-stack.iconset",
+      "master": "docs/design/rat-app-icon-20261028/masters/rat-paper-stack.png",
+      "master_sha256": "6f406d2a224081daef5fa5d447c46b70f557ba6ee0f2f2ccabb213da276b081e",
+      "png_sha256": "fe54e3285235bec4461cd2c0387a26e5579110d930cd33cf6a136acd062f8203",
+      "icns_sha256": "c55a9daafc4a76d3617f90bbd37341f946eee2d3e71eae9c24930d78cdf5edfd",
+      "png_pixels": [
+        1024,
+        1024
+      ],
+      "icns_compiler": "png-backed-icns"
+    },
+    {
+      "id": "rat-classic",
+      "label": "Original alternative",
+      "edition": "full",
+      "png": "rat-classic.png",
+      "icns": "rat-classic.icns",
+      "iconset": "rat-classic.iconset",
+      "master": "docs/design/rat-app-icon-20261028/masters/rat-classic.png",
+      "master_sha256": "d11528c032bd4d83bf79618701f7c84fad2bc02e5a4c6d978155f0a0c1be12ca",
+      "png_sha256": "1777ff0a4ed0df417f12167484a974c1a2ca170f158b6295fcaea61ccbf72e7f",
+      "icns_sha256": "c992c09cbac0919e308c4009dc21eab46b22694fd835f556d86ac3746b97ce56",
+      "png_pixels": [
+        1024,
+        1024
+      ],
+      "icns_compiler": "png-backed-icns"
+    }
+  ]
+}

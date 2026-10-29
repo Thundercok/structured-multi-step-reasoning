@@ -52,6 +52,7 @@ class NativeStatusItem(QObject):
         self._status = None
         self._target = None
         self._tooltip = ''
+        self._badge_text = ''
         self._native_actions = []
         self._primary_action = None
         self._native_menu = None
@@ -70,6 +71,12 @@ class NativeStatusItem(QObject):
         self._tooltip = text
         if self._status is not None:
             self._status.button().setToolTip_(text)
+
+    def setBadgeText(self, text):
+        """Optional non-sensitive count beside the existing status icon."""
+        self._badge_text = str(text)
+        if self._status is not None:
+            self._status.button().setTitle_(self._badge_text)
 
     def showMessage(self, title, message, icon=None, duration=0):
         # Keep a persistent fallback when the OS suppresses notifications.
@@ -142,6 +149,7 @@ class NativeStatusItem(QObject):
         if image is not None:
             image.setTemplate_(True)
             button.setImage_(image)
+            button.setTitle_(self._badge_text)
         else:
             button.setTitle_('RAT')
         button.setToolTip_(self._tooltip)

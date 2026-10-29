@@ -10,9 +10,12 @@ from PyQt6.QtGui import QGuiApplication, QCursor
 from rat.engine.mini_settings import read_settings, save_settings, keychain_key, state_directory
 from rat.mini import MiniSession
 from rat.ui.mini_worker import MiniJob
-from rat.ui.mini_presentation import MiniPresentation, look_projection
+from rat.ui.mini_diagnostics import write_diagnostic
+from rat.ui.mini_presentation import MiniPresentation, look_projection, compact_speech
+from rat.ui.look_interaction import LookInteraction
 from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url
 from rat.ui.image_preview import ImagePreviewProvider
+from rat.ui.mini_clipboard import LookClipboard
 
 
 class MiniQuickController(QObject):
@@ -26,6 +29,7 @@ class MiniQuickController(QObject):
     lookRequested = pyqtSignal()
     minimalRequested = pyqtSignal()
     lookFocusRequested = pyqtSignal()
+    lookResultDismissed = pyqtSignal()
     presentAtRequested = pyqtSignal(QPoint)
     imageDropAccepted = pyqtSignal(str)
     interactionCompleted = pyqtSignal()
@@ -52,8 +56,9 @@ class MiniQuickController(QObject):
         self._image_instruction = ''
         self._retry_request = None
         self._region_previous = None
+        self.look = LookInteraction()
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
-        self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', lookClicked=False, sameLanguageNotice='',
+        self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
             phase='idle', busy=False, expanded=False,
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
@@ -63,32 +68,177 @@ class MiniQuickController(QObject):
             ocrPreparationNotice='', canRetryRequest=False, finderSettingsSuggested=False,
             imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False, canUndoOrganization=False,
             organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False)), readiness=[], readinessBusy=False, readinessStatus="")
+        self.look_clipboard = LookClipboard(self)
+        self.look_clipboard.textReady.connect(self.receiveLookClipboard)
+        self.look_clipboard.changed.connect(self.clearLookPending)
+        self.look_clipboard.unavailable.connect(self._look_unavailable)
+        self.record_ui_state()
 
     @pyqtProperty('QVariantMap', notify=changed)
     def snapshot(self):
-        return dict(self._state, **self.presentation.snapshot(), **look_projection(self._state),
+        state = dict(self._state, **self.presentation.snapshot(),
+            **self.look.snapshot(has_result=self._state['hasWorkbench'], busy=self._state['busy']))
+        return dict(state, **look_projection(state),
+            lookListening=self.look_clipboard.timer.isActive(),
+            lookScrollOffset=self.presentation.scroll.get(f'{self.presentation.task_id}:speech', 0.0),
+            lookSelectionStart=self.presentation.selections.get(self.presentation.task_id, (0, 0))[0],
+            lookSelectionEnd=self.presentation.selections.get(self.presentation.task_id, (0, 0))[1],
             ocrDirty=bool(self._state["hasOcrSource"]) and self._state["ocrText"] != self._state["ocrCommittedText"])
 
     @pyqtProperty('QVariantMap', notify=changed)
     def preferences(self):
         return dict(self.settings)
 
+    def record_ui_state(self):
+        write_diagnostic('ui-state.json', dict(workspace=self.presentation.workspace_mode,
+            look_surface=self.look.surface, monitoring=self.look.monitoring,
+            pending=bool(self.look.pending), busy=self._state['busy'], phase=self._state['phase'],
+            has_result=self._state['hasWorkbench'], operation=self._state['lastOperation'],
+            task_id=self.presentation.task_id, generation=self.generation))
+
     def update(self, **values):
         self._state.update(values)
+        self.sync_look_clipboard()
+        self.record_ui_state()
         self.changed.emit()
+
+    def _look_unavailable(self):
+        self.look.pause('Chưa theo dõi được Clipboard. Bạn vẫn có thể dán bằng ⌘V.')
+        self.update()
+
+    def sync_look_clipboard(self):
+        if not hasattr(self, 'look_clipboard'):
+            return
+        enabled = (not self.quitting and self.look.monitoring == 'on'
+                   and self.presentation.workspace_mode == 'look' and self.presentation.surface == 'result'
+                   and self._state['phase'] != 'needs_input' and self._region_previous is None)
+        if enabled:
+            self.look_clipboard.start()
+        else:
+            self.look_clipboard.stop()
 
     @pyqtSlot(str)
     def setWorkspaceMode(self, mode):
         self.presentation.set_mode(mode)
+        if self.presentation.workspace_mode != 'look':
+            # Changing the presentation preserves pending input and reader context.
+            self.look.close()
+        else:
+            if self.look.monitoring == 'off':
+                self.look.enable()
+            if self.look.surface == 'hidden':
+                self.look.peek()
         if self.presentation.workspace_mode in ('look', 'single', 'full') and self._state['hasWorkbench']:
             self._state['expanded'] = True
-        self.changed.emit()
+        self.update()
+
+    def prepareLookRecall(self):
+        if self.look.monitoring == 'off':
+            self.look.enable()
+        if self.look.surface == 'hidden':
+            if self.look.pending or self.look.pending_notice or not self._state['hasWorkbench']:
+                self.look.peek()
+            else:
+                self.look.read()
+        self.update()
 
     @pyqtSlot()
     def summonLook(self):
-        self.update(lookClicked=False)
-        self.setWorkspaceMode('look')
+        self.presentation.open('result')
+        if self.presentation.workspace_mode != 'look':
+            self.setWorkspaceMode('look')
+        if self.look.monitoring == 'off':
+            self.look.enable()
+        if self.look.pending or self.look.pending_notice or not self._state['hasWorkbench']:
+            self.look.peek()
+        else:
+            self.look.read()
+        self.update()
         self.lookRequested.emit()
+
+    @pyqtSlot()
+    def toggleLookPaused(self):
+        if self.look.monitoring == 'paused':
+            self.look.enable()
+        else:
+            self.look.pause()
+        self.update()
+
+    def clearLookPending(self):
+        self.look.clear_pending()
+        self.update()
+
+    def disableLook(self):
+        self.look.disable()
+        self.update()
+
+    @pyqtSlot()
+    def stopLook(self):
+        self.disableLook()
+        self.hideRequested.emit()
+
+    @pyqtSlot()
+    def dismissLookResult(self):
+        # Closing presentation never cancels work or abandons clarification.
+        self.look.close()
+        self.update()
+        self.lookResultDismissed.emit()
+
+    def expireLookPeek(self):
+        if self.look.surface == 'peek':
+            self.look.close()
+            self.update()
+
+    @pyqtSlot()
+    def recallLookResult(self):
+        self.presentation.open('result')
+        if self.presentation.workspace_mode != 'look':
+            self.setWorkspaceMode('look')
+        self.look.read() if self._state['hasWorkbench'] else self.look.peek()
+        self.update()
+        self.lookRequested.emit()
+
+    @pyqtSlot()
+    def openPendingLook(self):
+        write_diagnostic('ui-action.json', dict(action='open_pending', pending=bool(self.look.pending),
+            busy=self._state['busy'], job_active=self.job is not None))
+        if self.quitting or self.job or self._state['busy']:
+            return
+        self.presentation.open('result')
+        if self.presentation.workspace_mode != 'look':
+            self.setWorkspaceMode('look')
+        value = self.look.take_pending()
+        if value is None:
+            self.look.peek()
+            self.update()
+            self.lookRequested.emit()
+            return
+        self.look.read('head' if compact_speech(value.text) else 'seated')
+        self.clearAttachment()
+        self.clearImagePreview()
+        self.update(requestText='Dịch đoạn đã chọn')
+        self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=value.text,
+            look_input=True, look_opened=True,
+            source_language=self.settings['source_language'], target_language=self.settings['target_language']))
+        self.lookRequested.emit()
+
+    def receiveLookClipboard(self, text, point):
+        if self.look.monitoring != 'on' or not self.look_clipboard.timer.isActive():
+            return
+        self.look.receive(text, point)
+        self.update()  # No job, show, cancellation or execution on copy.
+
+    @pyqtSlot()
+    def openLook(self):
+        if self.look.pending and not self._state['busy']:
+            self.openPendingLook()
+        elif self.look.pending_notice:
+            self.look.peek()
+            self.update()
+            self.lookRequested.emit()
+        else:
+            self.recallLookResult()
+        self.lookFocusRequested.emit()
 
     @pyqtSlot()
     def summonMinimal(self):
@@ -97,7 +247,9 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def focusLook(self):
-        self.update(lookClicked=True)
+        if self._state['hasWorkbench'] and self.look.surface != 'peek':
+            self.look.read()
+        self.update()
         self.lookFocusRequested.emit()
 
     @pyqtSlot()
@@ -107,6 +259,8 @@ class MiniQuickController(QObject):
             return
         value = self.pasteInput('')
         if value.get('text') and value.get('kind') == 'pasted_text':
+            if self.look.pending and self.look.pending.text == value['text']:
+                self.look.clear_pending()
             self.clearAttachment()
             self.clearImagePreview()
             self.update(requestText='Dịch đoạn vừa dán')
@@ -127,16 +281,55 @@ class MiniQuickController(QObject):
             self.presentation.open(surface)
         if surface in self.presentation.WORKSPACE:
             self._state['expanded'] = True
+        self.sync_look_clipboard()
         self.changed.emit()
 
     @pyqtSlot()
     def backSurface(self):
         self.presentation.back()
+        if self.presentation.workspace_mode == 'look' and self._state['hasWorkbench']:
+            self.look.read()
+        self.sync_look_clipboard()
         self.changed.emit()
 
     @pyqtSlot(float)
     def rememberScroll(self, offset):
         self.presentation.scroll[self.presentation.scroll_key] = max(0.0, float(offset))
+
+    @pyqtSlot(float)
+    def rememberLookScroll(self, offset):
+        if self.look.surface == 'reading' and not self._state['busy']:
+            self.presentation.scroll[f'{self.presentation.task_id}:speech'] = max(0.0, float(offset))
+
+    @pyqtSlot(int, int)
+    def rememberLookSelection(self, start, end):
+        if self.look.surface == 'reading' and not self._state['busy']:
+            self.presentation.selections[self.presentation.task_id] = max(0, start), max(0, end)
+
+    @pyqtSlot()
+    def openLookSettings(self):
+        # Returning from settings must restore the current failure/source.
+        self.look.read()
+        self.settingsRequested.emit()
+        self.lookRequested.emit()
+
+    @pyqtSlot()
+    def openLookWorkbench(self):
+        self.presentation.open('result')
+        self.setWorkspaceMode('single')
+        self.update(expanded=True)
+        self.presentRequested.emit()
+
+    @pyqtSlot()
+    def restoreLookReading(self):
+        self.look.read()
+        self.update()
+
+    @pyqtSlot(str)
+    def copyLookSelection(self, text):
+        if text:
+            QGuiApplication.clipboard().setText(text)
+            self.look_clipboard.ignore_own_write(text)
 
     @pyqtSlot(str)
     def setComposerDraft(self, text):
@@ -467,6 +660,7 @@ class MiniQuickController(QObject):
             'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
             'organizationRecoverySuggested', 'canRetryRequest')
         self._region_previous = ({key: self._state[key] for key in fields}, self._retry_request)
+        self.sync_look_clipboard()
         # Reserve a generation now, so cancel/new input invalidates the deferred capture.
         self.generation += 1
         generation = self.generation
@@ -502,6 +696,12 @@ class MiniQuickController(QObject):
     def enqueue(self, operation, args, query='', *, input_context=None):
         if self.quitting:
             return
+        if operation != 'check_mini_readiness' and self.presentation.workspace_mode == 'look':
+            if not args.get('look_opened') and operation in ('capture_translate', 'submit_goal', 'find_files', 'plan_folder_organization'):
+                source = args.get('clipboard_text') or query or ''
+                self.look.read('head' if source and compact_speech(source) else 'seated')
+            else:
+                self.look.read()
         if self._region_previous is not None and not (operation == 'capture_translate' and args.get('preserve_until_capture')):
             self.restore_region_previous()
         if operation not in ('check_mini_readiness', 'open_file', 'reveal_file'):
@@ -610,6 +810,8 @@ class MiniQuickController(QObject):
             self.update(busy=self._state['receivingImage'])
 
     def render(self, value):
+        if value.get('recording_error'):
+            self.update(settingsNotice='Kết quả đã có, nhưng chưa ghi được hồ sơ kiểm tra.')
         response = value.get('response')
         error = value.get('error') or (response.error if response else None)
         if value.get('operation') == 'check_mini_readiness':
@@ -643,7 +845,7 @@ class MiniQuickController(QObject):
             self.update(phase='cancelled' if cancelled else 'error', error=not cancelled,
                 translationSettingsSuggested=any(code in str(error) for code in (
                     'translation_rate_limited', 'translation_quota_exhausted',
-                    'translation_api_key_missing', 'translation_auth_failed', 'translation_local_unavailable', 'api_key_missing')),
+                    'translation_api_key_missing', 'translation_auth_failed', 'translation_local_unavailable', 'online_translation_not_enabled', 'api_key_missing')),
                 finderSettingsSuggested=any(code in str(error) for code in ('no_search_roots', 'scope_revoked', 'spotlight_permission_denied', 'organization_folder_outside_scope', 'organization_scope_changed')),
                 imageInputSuggested=any(code in str(error) for code in ('ocr_empty', 'image_input_invalid', 'source_expired', 'stale_source_ref', 'source_integrity_mismatch')),
                 status='Đã dừng tác vụ.' if cancelled else self.friendly_error(str(error)))
@@ -784,6 +986,7 @@ class MiniQuickController(QObject):
     @staticmethod
     def friendly_error(error):
         messages = {
+            'online_translation_not_enabled':'MyMemory chưa được bật. Mở Cài đặt để chọn dịch trên máy hoặc cho phép MyMemory; đoạn chữ vẫn được giữ.',
             'organization_folder_outside_scope':'Thư mục này chưa thuộc phạm vi RAT. Thêm thư mục trong Cài đặt, rồi xem trước lại.',
             'organization_stale_preview':'Bản xem trước đã quá 30 phút hoặc đã đổi. Hãy tạo bản xem trước mới.',
             'organization_scope_changed':'Danh sách thư mục đã đổi. Hãy tạo bản xem trước mới.',
@@ -813,6 +1016,8 @@ class MiniQuickController(QObject):
             return 'Chưa đọc được chữ trong ảnh. Hãy chụp vùng rõ hơn hoặc gõ nội dung cần dịch vào ô nhập.'
         if 'image_input_invalid' in error:
             return 'Chưa đọc được ảnh. Hãy thả một ảnh PNG/JPG đã lưu, hoặc chụp vùng chữ nhỏ hơn.'
+        if 'mini_llm_disabled' in error:
+            return 'Bạn gửi từng bước: tên file cần tìm, đoạn cần dịch hoặc thư mục cần sắp xếp nhé.'
         if 'api_key_missing' in error:
             return 'Yêu cầu này cần Agent cloud chưa được cấu hình. Bạn có thể hỏi từng bước: tìm file, hoặc gửi đoạn cần dịch.'
         if 'clipboard' in error.lower() or 'empty_text' in error.lower():
@@ -844,6 +1049,7 @@ class MiniQuickController(QObject):
         text = self._state['text'] or '\n'.join(h['path'] for h in self._state['finderHits'])
         if text:
             QGuiApplication.clipboard().setText(text)
+            self.look_clipboard.ignore_own_write(text)
             self.interactionCompleted.emit()
 
     @pyqtSlot(str)
@@ -852,6 +1058,7 @@ class MiniQuickController(QObject):
         # warnings, rather than an unrelated translation artifact.
         if displayed_text:
             QGuiApplication.clipboard().setText(displayed_text)
+            self.look_clipboard.ignore_own_write(displayed_text)
             self.interactionCompleted.emit()
 
     @pyqtSlot()
@@ -884,12 +1091,17 @@ class MiniQuickController(QObject):
             updated = dict(self.settings)
             roots = changes.get('roots', updated['roots'])
             roots = [str(Path(p).expanduser().resolve()) for p in roots if str(p).strip()]
-            if not roots or any(not Path(p).is_dir() for p in roots):
-                return 'Chọn ít nhất một thư mục đang tồn tại.'
+            if any(not Path(p).is_dir() for p in roots):
+                return 'Chọn thư mục đang tồn tại, hoặc bỏ thư mục không còn dùng.'
             updated.update(roots=roots)
-            for name in ('source_language', 'target_language', 'translation_provider', 'free_fallback', 'provider', 'model'):
+            for name in ('source_language', 'target_language', 'translation_provider', 'free_fallback', 'provider', 'model', 'llm_enabled'):
                 if name in changes:
                     updated[name] = changes[name]
+            if type(updated.get('llm_enabled', False)) is not bool:
+                return 'Kiểm tra tùy chọn suy luận cloud.'
+            updated.setdefault('llm_enabled', False)
+            if not updated['llm_enabled'] and updated['translation_provider'] == 'llm':
+                updated['translation_provider'] = 'automatic'
             if updated['provider'] not in ('openai', 'deepseek', 'groq') or updated['translation_provider'] not in ('automatic', 'google_gtx', 'mymemory', 'llm', 'deepl', 'google'):
                 return 'Chọn một dịch vụ được hỗ trợ.'
             for name, maximum in (('source_language',35), ('target_language',35), ('model',128)):
@@ -905,7 +1117,8 @@ class MiniQuickController(QObject):
             session.previous_goal = self.session.previous_goal
             session.runtime.dispatcher.state.pending_input_request = self.session.runtime.dispatcher.state.pending_input_request
             if secret.strip():
-                provider = updated['provider'] if updated['translation_provider'] == 'llm' else updated['translation_provider']
+                provider = (updated['translation_provider'] if updated['translation_provider'] in ('deepl', 'google')
+                            else updated['provider'] if updated['llm_enabled'] else updated['translation_provider'])
                 if provider not in ('openai', 'deepseek', 'groq', 'deepl', 'google'):
                     return 'Dịch vụ miễn phí không dùng API key. Hãy bỏ key hoặc chọn dịch vụ có key.'
                 # Never put credentials into settings, snapshots, artifacts or logs.
@@ -928,7 +1141,9 @@ class MiniQuickController(QObject):
                 self.organization_artifact = None
                 self.update(canApplyOrganization=False, canUndoOrganization=False,
                     organizationRecoverySuggested=self._state['view'] == 'organization')
-            self.update(settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
+            if self._state['translationSettingsSuggested'] and self._state['phase'] == 'error':
+                self._state['status'] = 'Đã cập nhật cài đặt. Bấm Thử lại để dịch đoạn chữ đã giữ.'
+            self.update(translationSettingsSuggested=False, settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
             return ''
         except Exception as exc:
             return 'Chưa lưu được: ' + str(exc)

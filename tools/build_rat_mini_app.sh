@@ -35,12 +35,18 @@ zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
   --distpath "$DIST_DIR" --workpath "$BUILD_TMP/build" --specpath "$BUILD_TMP/spec" \
   --icon "$ROOT/tools/rat_translate.icns" --osx-bundle-identifier vn.rat.mini \
   --add-data "$ROOT/rat/assets/rat_mascot_cutout.png:rat/assets" \
-  --add-data "$ROOT/rat/assets/rat_look_head_v1.png:rat/assets" \
+  --add-data "$ROOT/rat/assets/rat_look_head_v2.png:rat/assets" \
+  --add-data "$ROOT/rat/assets/rat_look_idle_seated_v1.png:rat/assets" \
+  --add-data "$ROOT/rat/assets/rat_look_error_seated_v1.png:rat/assets" \
   --add-data "$ROOT/rat/assets/rat_look_peek_v1.png:rat/assets" \
   --add-binary "$BUILD_TMP/rat-hotkey:rat/bin" \
   --add-data "$ROOT/rat/assets/translation:rat/assets/translation" \
   --add-data "$ROOT/rat/ui/quick/MiniDesk.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/LookSurface.qml:rat/ui/quick" \
+  --add-data "$ROOT/rat/ui/quick/SpeechBubble.qml:rat/ui/quick" \
+  --add-data "$ROOT/rat/ui/quick/SpeechSurface.qml:rat/ui/quick" \
+  --add-data "$ROOT/rat/ui/quick/CompanionStatus.qml:rat/ui/quick" \
+  --add-data "$ROOT/rat/ui/quick/MascotPose.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/QuietButton.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/DeskIcon.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/KeycapBadge.qml:rat/ui/quick" \
@@ -62,9 +68,10 @@ fi
 "$PYTHON_BIN" - <<'PY'
 import os,plistlib
 from pathlib import Path
+from rat.ui.mini_diagnostics import BUILD
 p=Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Info.plist'
 data=plistlib.loads(p.read_bytes())
-data.update(LSUIElement=True,LSMinimumSystemVersion='14.0',CFBundleShortVersionString='0.5.17',CFBundleVersion='20261028.7',
+data.update(LSUIElement=True,LSMinimumSystemVersion='14.0',CFBundleShortVersionString='0.5.17',CFBundleVersion=BUILD,
             NSDocumentsFolderUsageDescription='RAT Mini tìm và mở file trong Documents khi bạn yêu cầu và chọn thư mục này.',
             NSDesktopFolderUsageDescription='RAT Mini tìm file trên Desktop và đọc ảnh chụp màn hình bạn chủ động đưa vào app.',
             NSDownloadsFolderUsageDescription='RAT Mini tìm và mở file trong Downloads khi bạn yêu cầu và chọn thư mục này.',

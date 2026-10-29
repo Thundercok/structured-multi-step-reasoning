@@ -1,0 +1,71 @@
+{
+  "version": "0.5.17",
+  "build": "20261028.15",
+  "app": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/mini-speech-20261028-large-corner-final/RAT Mini.app",
+  "zip": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/dist/mini-speech-20261028-large-corner-final/RAT Mini.zip",
+  "zip_bytes": 219470287,
+  "signature": "strict/deep ad-hoc verified; not notarized",
+  "look_geometry": {
+    "host": [
+      96,
+      100
+    ],
+    "seated_optical_target": 86,
+    "head_optical_target": 36
+  },
+  "software_checks": {
+    "size_geometry_and_look": "31 passed",
+    "recall": "6 passed",
+    "passive_window_hide": "1 passed, 5 deselected",
+    "recall_including_busy": "6 passed"
+  },
+  "native_public_test_receipts": [
+    {
+      "file": "receipts/mini-74ceebf616d14a339d5c176214d5d073.json",
+      "source": "Good morning.",
+      "result": "Chào buổi sáng.",
+      "provider": "offline_argos",
+      "status": "completed",
+      "llm_calls": 0
+    },
+    {
+      "file": "receipts-14/mini-a90c8e09a348446f88d2a95a128fd795.json",
+      "source": "Hello world.",
+      "result": "Xin chào thế giới.",
+      "provider": "offline_argos",
+      "status": "completed",
+      "llm_calls": 0
+    },
+    {
+      "file": "receipts-14/mini-a93dc537f1404c5ca790766f3b0a7480.json",
+      "source": "Good morning.",
+      "result": "Chào buổi sáng.",
+      "provider": "offline_argos",
+      "status": "completed",
+      "llm_calls": 0
+    }
+  ],
+  "native_screenshots": [
+    "03-clipboard-observation.png",
+    "02-look-larger-idle.png",
+    "06-recalled-translation-14.png",
+    "01-ready.png",
+    "07-queued-copy-14.png",
+    "05-look-idle-14.png"
+  ],
+  "native_acceptance": {
+    "larger_seated_idle_and_single_line_status": true,
+    "clipboard_to_translation_with_receipts": true,
+    "controlled_latest_copy_queue": false,
+    "long_scroll_restore": false,
+    "final_15_recall_fix_verified_natively": false
+  },
+  "notes": [
+    "Images are native .13/.14 QA copies, not screenshots of .15.",
+    "Global clipboard changes outside the intended phrase pair occurred during the run; queue acceptance remains open.",
+    "QA13/QA14 stopped; original user .8 preserved.",
+    "One idle process sample is not a performance profile."
+  ],
+  "research_stage0_changed": false,
+  "main_integrated": false
+}

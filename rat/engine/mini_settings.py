@@ -15,7 +15,7 @@ def state_directory():
 
 
 DEFAULTS = {'roots': [str(Path.home()/name) for name in ('Documents','Desktop','Downloads')], 'provider': 'openai', 'model': 'gpt-4.1-mini',
-            'translation_provider': 'automatic', 'free_fallback': True,
+            'translation_provider': 'automatic', 'free_fallback': True, 'llm_enabled': False,
             'target_language': 'vi', 'source_language': 'auto', 'semantic_enabled': False, 'setup_completed': False}
 
 
@@ -47,6 +47,9 @@ def read_settings():
             result['target_language'] = DEFAULTS['target_language']
         if type(result['free_fallback']) is not bool:
             result['free_fallback'] = DEFAULTS['free_fallback']
+        result['llm_enabled'] = result.get('llm_enabled') is True
+        if not result['llm_enabled'] and result['translation_provider'] == 'llm':
+            result['translation_provider'] = 'automatic'
         if type(result['setup_completed']) is not bool:
             result['setup_completed'] = False
         result['semantic_enabled'] = False

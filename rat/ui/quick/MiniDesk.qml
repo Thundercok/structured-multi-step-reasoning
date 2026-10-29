@@ -11,7 +11,17 @@ Rectangle {
     property var liveSnapshot: ({finderHits: [], surface: "result", busy: false})
     property url mascotSource
     property url lookHeadSource
+    property url lookIdleSource
+    property url lookErrorSource
     property url lookPeekSource
+    property real lookMascotWidth: 176
+    property real lookMascotHeight: 176
+    property real lookOpticalHeight: 134
+    property real sharedPanelWidth: 580
+    property real sharedTextSize: 16
+    property string buildLabel: "source"
+    property real maxCornerSpeechHeight: 300
+    property real composerWidthFloor: 380
     property bool darkMode: false
     property bool reduceMotion: false
     property real maxPaperHeight: 380
@@ -19,6 +29,7 @@ Rectangle {
     property real panelX: 0
     property real panelY: 128
     property real panelWidth: 580
+    property real lookPlacedHeight: 300
     property bool mascotOnRight: false
     property real ratX: 6
     property real ratY: 0
@@ -47,15 +58,22 @@ Rectangle {
     readonly property var allFinderHits: liveSnapshot.finderHits || []
     readonly property var visibleFinderHits: showAllFinderHits ? allFinderHits : allFinderHits.slice(0, 5)
     // Only transient native input/menu ownership exempts outside dismissal.
-    readonly property bool focusOwned: imageDialog.visible || folderDialog.visible || Boolean(targetLanguage.popup && targetLanguage.popup.visible) || Boolean(sourceLanguage.popup && sourceLanguage.popup.visible) || Boolean(backend.popup && backend.popup.visible) || Boolean(cloudProvider.popup && cloudProvider.popup.visible) || workspaceMenu.visible || moreMenu.visible || editorMenu.visible || Boolean(liveSnapshot.dropActive)
+    readonly property bool focusOwned: imageDialog.visible || folderDialog.visible || Boolean(targetLanguage.popup && targetLanguage.popup.visible) || Boolean(sourceLanguage.popup && sourceLanguage.popup.visible) || Boolean(backend.popup && backend.popup.visible) || Boolean(cloudProvider.popup && cloudProvider.popup.visible) || workspaceMenu.visible || moreMenu.visible || editorMenu.visible || lookView.menuOpen || Boolean(liveSnapshot.dropActive)
     readonly property bool imageDropEnabled: !auxiliary && !imageDialog.visible && !folderDialog.visible
     readonly property bool layoutExpanded: !lookActive && bodyVisible
     readonly property real preferredPanelHeight: lookActive ? lookView.bubbleHeight : panel.height
     readonly property real lookBubbleWidth: lookView.preferredBubbleWidth
-    readonly property real lookBubbleHeight: lookView.bubbleHeight
+    readonly property real lookBubbleHeight: lookView.preferredBubbleHeight
+    readonly property real cornerPanelWidth: Math.min(sharedPanelWidth, composerWidthFloor)
     readonly property string lookVariant: lookView.variant
+    readonly property bool lookEngaged: lookActive && lookView.engaged
+    readonly property rect cornerInkBounds: lookActive ? lookView.localVisualBounds : standingPose.visualBounds
+    readonly property point cornerMouth: lookActive ? lookView.localMouth : standingPose.speechAnchor
     readonly property real paperOffset: Math.min(128, Math.max(0, panel.width - 300))
-    readonly property rect panelRect: lookActive ? lookView.bubbleRect : Qt.rect(panel.x, panel.y, panel.width, panel.height)
+    readonly property rect panelRect: lookActive ? lookView.bubbleRect : workspaceMode === "minimal" && !auxiliary
+        ? Qt.rect(panel.x + composer.x + composer.occupiedRect.x, panel.y + composer.y + composer.occupiedRect.y,
+                  composer.occupiedRect.width, composer.occupiedRect.height)
+        : Qt.rect(panel.x, panel.y, panel.width, panel.height)
     readonly property rect mascotRect: lookActive ? lookView.mascotRect : Qt.rect(mascotItem.x, mascotItem.y, mascotItem.width, mascotItem.height)
     readonly property color ink: darkMode ? "#eef0e9" : "#2c302a"
     readonly property color muted: darkMode ? "#b7bdaf" : "#62695e"
@@ -85,7 +103,19 @@ Rectangle {
     }
     function saveScroll() { liveController.rememberScroll(resultScroll.contentY) }
     function navigate(next) { saveScroll(); liveController.showSurface(next); if (next !== "image") Qt.callLater(focusComposer) }
-    function goBack() { saveScroll(); liveController.backSurface(); Qt.callLater(focusComposer) }
+    function goBack() { saveScroll(); liveController.backSurface(); Qt.callLater(function() { if (!desk.lookActive) focusComposer(); else restoreReader() }) }
+    function restoreReader() { if (lookActive) lookView.restoreReading() }
+    function growComposerWidth() {
+        if (workspaceMode === "minimal" && !auxiliary)
+            composerWidthFloor = Math.max(composerWidthFloor,
+                composer.widthStepFor(composerMeasure.advanceWidth + 92, sharedPanelWidth))
+    }
+    function beginCornerPresentation() {
+        // A fresh invocation may choose a smaller tier; typing/clearing during
+        // the invocation only grows it, avoiding a collapse when Send clears it.
+        if (workspaceMode === "minimal")
+            composerWidthFloor = composer.widthStepFor(Math.max(300, composerMeasure.advanceWidth + 92), sharedPanelWidth)
+    }
     function focusComposer() {
         if (lookActive) lookView.focusSurface()
         else if (surface === "ocr" && paperVisible) ocrEditor.forceActiveFocus()
@@ -112,6 +142,7 @@ Rectangle {
             folderList.model = p.roots.slice()
             sourceLanguage.currentIndex = Math.max(0, sourceLanguage.indexOfValue(p.source_language))
             targetLanguage.currentIndex = Math.max(0, targetLanguage.indexOfValue(p.target_language))
+            llmEnabled.checked = p.llm_enabled === true
             backend.currentIndex = Math.max(0, backend.indexOfValue(p.translation_provider))
             cloudProvider.currentIndex = Math.max(0, cloudProvider.indexOfValue(p.provider))
             cloudModel.text = p.model
@@ -147,6 +178,7 @@ Rectangle {
         target: liveController
         function onChanged() {
             var next = liveController.snapshot
+            lookView.prepareSnapshot(next)
             var moved = next.surface !== desk.surface || next.taskId !== desk.liveSnapshot.taskId
             if (moved) desk.restoringScroll = true
             if (next.taskId !== desk.liveSnapshot.taskId) {
@@ -163,7 +195,7 @@ Rectangle {
                 desk.restoringScroll = false
             })
         }
-        function onSettingsRequested() { desk.openSettings() }
+        function onSettingsRequested() { desk.openSettings(); desk.showAdvancedSettings = Boolean(desk.liveSnapshot.translationSettingsSuggested) }
         function onHelpRequested() { desk.navigate("help") }
     }
 
@@ -172,7 +204,8 @@ Rectangle {
     Item {
         id: panel
         visible: !desk.lookActive
-        x: desk.panelX; y: desk.panelY; width: Math.max(320, desk.panelWidth)
+        x: desk.panelX; y: desk.panelY
+        width: desk.workspaceMode === "minimal" && !desk.auxiliary ? Math.max(1, desk.panelWidth) : Math.max(320, desk.panelWidth)
         height: desk.auxiliary ? resultSheet.height : composer.height + (desk.bodyVisible ? resultSheet.height - 22 : 0)
         Rectangle {
             visible: desk.bodyVisible
@@ -296,6 +329,19 @@ Rectangle {
                         }
                         ColumnLayout {
                             visible: desk.surface === "settings"; Layout.fillWidth: true; spacing: 10
+                            Label {
+                                visible: desk.liveSnapshot.translationSettingsSuggested
+                                text: desk.liveSnapshot.status || "Kiểm tra dịch vụ dịch."
+                                textFormat: Text.PlainText; Layout.fillWidth: true; wrapMode: Text.Wrap
+                                color: desk.ink; font.pixelSize: 14
+                            }
+                            QuietButton {
+                                visible: desk.liveSnapshot.translationSettingsSuggested &&
+                                    ((sourceLanguage.currentValue === "en" && targetLanguage.currentValue === "vi") ||
+                                     (sourceLanguage.currentValue === "vi" && targetLanguage.currentValue === "en"))
+                                text: "Chọn dịch trên máy · Anh ↔ Việt"
+                                onClicked: { backend.currentIndex = backend.indexOfValue("automatic"); freeFallback.checked = false }
+                            }
                             Label { text: "Dịch sang"; color: desk.ink; font.weight: Font.Medium }
                             ComboBox {
                                 id: targetLanguage; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
@@ -320,12 +366,14 @@ Rectangle {
                                 visible: desk.showAdvancedSettings; Layout.fillWidth: true; spacing: 10
                                 Label { text: "Ngôn ngữ nguồn"; color: desk.ink }
                                 ComboBox { id: sourceLanguage; Layout.fillWidth: true; textRole: "label"; valueRole: "value"; model: [{label:"Tự nhận diện",value:"auto"},{label:"English",value:"en"},{label:"Tiếng Việt",value:"vi"},{label:"日本語",value:"ja"},{label:"한국어",value:"ko"},{label:"中文",value:"zh"},{label:"Français",value:"fr"},{label:"Deutsch",value:"de"}] }
+                                CheckBox { id: llmEnabled; text: "Bật suy luận cloud (tùy chọn, cần API key)" }
+                                Label { text: "Tìm file, OCR và dịch Anh ↔ Việt dùng được khi tùy chọn này tắt. Bật để gửi yêu cầu nhiều bước tới dịch vụ cloud đã chọn."; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                                 Label { text: "Dịch vụ dịch"; color: desk.ink }
-                                ComboBox { id: backend; Layout.fillWidth: true; textRole: "label"; valueRole: "value"; model: [{label:"Tự động · Anh ↔ Việt trên máy",value:"automatic"},{label:"Google Translate online",value:"google_gtx"},{label:"MyMemory",value:"mymemory"},{label:"LLM · dùng API key",value:"llm"},{label:"DeepL · dùng API key",value:"deepl"},{label:"Google Cloud · dùng API key",value:"google"}] }
+                                ComboBox { id: backend; Layout.fillWidth: true; textRole: "label"; valueRole: "value"; model: [{label:"Tự động · Anh ↔ Việt trên máy",value:"automatic"},{label:"Google Translate online",value:"google_gtx"},{label:"MyMemory",value:"mymemory"},{label:"DeepL · dùng API key",value:"deepl"},{label:"Google Cloud · dùng API key",value:"google"}].concat(llmEnabled.checked ? [{label:"LLM · dùng API key",value:"llm"}] : []) }
                                 Label { visible: cloudProvider.visible; text: "Dịch vụ LLM"; color: desk.ink }
-                                ComboBox { id: cloudProvider; visible: backend.currentValue === "llm"; Layout.fillWidth: true; textRole: "label"; valueRole: "value"; model: [{label:"OpenAI",value:"openai"},{label:"DeepSeek",value:"deepseek"},{label:"Groq",value:"groq"}] }
+                                ComboBox { id: cloudProvider; visible: llmEnabled.checked; Layout.fillWidth: true; textRole: "label"; valueRole: "value"; model: [{label:"OpenAI",value:"openai"},{label:"DeepSeek",value:"deepseek"},{label:"Groq",value:"groq"}] }
                                 TextField { id: cloudModel; visible: cloudProvider.visible; Layout.fillWidth: true; placeholderText: "Tên model"; maximumLength: 128; Accessible.name: "Tên model LLM" }
-                                TextField { id: providerKey; visible: ["llm","deepl","google"].indexOf(backend.currentValue) >= 0; Layout.fillWidth: true; echoMode: TextInput.Password; selectByMouse: true; placeholderText: "API key · để trống để giữ key đã lưu"; Accessible.name: "API key, lưu trong Keychain" }
+                                TextField { id: providerKey; visible: llmEnabled.checked || ["deepl","google"].indexOf(backend.currentValue) >= 0; Layout.fillWidth: true; echoMode: TextInput.Password; selectByMouse: true; placeholderText: ["deepl","google"].indexOf(backend.currentValue) >= 0 ? "API key dịch · để trống để giữ key" : "API key suy luận cloud · để trống để giữ key"; Accessible.name: "API key, lưu trong Keychain" }
                                 Label { visible: providerKey.visible; text: "Key lưu riêng trong Keychain của Mac. Phí và hạn mức theo tài khoản dịch vụ."; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                                 CheckBox { id: freeFallback; text: "Cho phép MyMemory dự phòng" }
                             }
@@ -446,7 +494,7 @@ Rectangle {
                         text: desk.surface === "settings" ? "Lưu" : desk.liveSnapshot.setupCompleted ? "Về RAT" : "Bắt đầu"
                         onClicked: {
                             if (desk.surface === "settings") {
-                                desk.settingsError = desk.liveController.savePreferences({roots:folderList.model,source_language:sourceLanguage.currentValue,target_language:targetLanguage.currentValue,translation_provider:backend.currentValue,free_fallback:freeFallback.checked,provider:cloudProvider.currentValue,model:cloudModel.text}, providerKey.text)
+                                desk.settingsError = desk.liveController.savePreferences({roots:folderList.model,source_language:sourceLanguage.currentValue,target_language:targetLanguage.currentValue,translation_provider:backend.currentValue || "automatic",free_fallback:freeFallback.checked,provider:cloudProvider.currentValue,model:cloudModel.text,llm_enabled:llmEnabled.checked}, providerKey.text)
                                 if (!desk.settingsError) { providerKey.clear(); desk.goBack() }
                             } else if (!desk.liveSnapshot.setupCompleted) desk.setupError = desk.liveController.completeSetup()
                             else desk.goBack()
@@ -473,21 +521,25 @@ Rectangle {
             }
         }
         Rectangle {
-            visible: !desk.auxiliary
+            visible: !desk.auxiliary && desk.workspaceMode !== "minimal"
             x: composer.x + 12; y: composer.y - 4
             width: composer.width - 20; height: composer.height - 5
             radius: 18; rotation: -0.6; antialiasing: true
             color: desk.backingColor; border.color: desk.edge
         }
-        Rectangle {
+        SpeechSurface {
             id: composer
             objectName: "composer"
             visible: !desk.auxiliary
             y: desk.bodyVisible ? resultSheet.height - 22 : 0
             width: parent.width
             height: Math.max(94, composerColumn.implicitHeight + 26)
-            radius: 18; color: desk.inputColor
-            border.color: editor.activeFocus ? desk.selectedEdge : desk.edge
+            cornerRadius: 18; padding: 14
+            paperColor: desk.inputColor; edgeColor: editor.activeFocus ? desk.selectedEdge : desk.edge
+            tailEnabled: desk.workspaceMode === "minimal"
+            anchorPoint: Qt.point(desk.ratX + standingPose.speechAnchor.x - panel.x - x,
+                                 desk.ratY + standingPose.speechAnchor.y - panel.y - y)
+            TextMetrics { id: composerMeasure; text: editor.text; font: editor.font }
             ColumnLayout {
                 id: composerColumn
                 x: 14; y: 13; width: parent.width - 28; spacing: 7
@@ -513,11 +565,14 @@ Rectangle {
                             TextArea {
                                 id: editor; objectName: "miniEditor"
                             placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn yêu cầu tiếp theo…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : desk.workspaceMode === "look" ? "Chuột ơi, coi nè · thả ảnh hoặc ⌘V…" : desk.paperVisible ? "Yêu cầu tiếp theo…" : "Chuột nghe đây. Bạn cần gì?"
-                                color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: 15
+                                color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: desk.sharedTextSize
                                 textFormat: TextEdit.PlainText; selectByMouse: true; wrapMode: TextEdit.Wrap; padding: 0; topPadding: 4; selectionColor: desk.accent; selectedTextColor: desk.accentText; background: null
                                 Accessible.name: "Yêu cầu RAT Mini"
                                 onActiveFocusChanged: { if (activeFocus) desk.keyboardOwner="composer" }
-                                onTextChanged: { if (!desk.syncingDraft) desk.liveController.setComposerDraft(text) }
+                                onTextChanged: {
+                                    if (!desk.syncingDraft) desk.liveController.setComposerDraft(text)
+                                    Qt.callLater(desk.growComposerWidth)
+                                }
                                 Keys.onPressed: event => { if (event.matches(StandardKey.Paste)) { event.accepted=true; desk.pasteDraft() } }
                                 Keys.onReturnPressed: event => { if (event.modifiers & Qt.ShiftModifier) event.accepted=false; else { event.accepted=true; desk.liveController.submitDraft() } }
                                 Keys.onEnterPressed: event => { if (event.modifiers & Qt.ShiftModifier) event.accepted=false; else { event.accepted=true; desk.liveController.submitDraft() } }
@@ -529,13 +584,7 @@ Rectangle {
                 }
                 RowLayout {
                     Layout.fillWidth: true; spacing: 5
-                    Label {
-                        text: "Mini · Look source"; color: desk.muted; font.pixelSize: 10; opacity: 0.65
-                        ToolTip.visible: dragHandle.containsMouse; ToolTip.text: "Kéo để di chuyển RAT"
-                        MouseArea { id: dragHandle; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.OpenHandCursor; onPressed: desk.moveRequested() }
-                    }
-                    Label { text: "· ⌘⇧4 rồi thả ảnh · ⌘V"; color: desk.muted; font.pixelSize: 11; Layout.fillWidth: true; elide: Text.ElideRight }
-                    QuietButton { text: ({look:"Look",minimal:"Minimal",single:"Single",full:"Full"}[desk.workspaceMode]); trailingIconName: "chevron-down"; Accessible.name: "Chọn cách hiển thị"; onClicked: workspaceMenu.popup() }
+                    Item { Layout.fillWidth: true }
                     QuietButton { visible: !desk.paperVisible && Boolean(desk.liveSnapshot.hasWorkbench); iconName: "chevron-up"; implicitWidth: 28; Accessible.name: "Mở lại kết quả"; onClicked: { desk.liveController.setWorkspaceMode("single"); desk.liveController.setExpanded(true) } }
                     QuietButton { objectName: "attachImageButton"; iconName: "paperclip"; implicitWidth: 32; implicitHeight: 32; enabled: !desk.liveSnapshot.busy; Accessible.name: "Chọn ảnh để dịch"; ToolTip.visible: hovered; ToolTip.text: "Chọn ảnh"; onClicked: imageDialog.open() }
                     QuietButton { text: "⋯"; implicitWidth: 28; Accessible.name: "Thao tác khác"; onClicked: moreMenu.popup() }
@@ -547,11 +596,27 @@ Rectangle {
     Item {
         id: mascotItem; objectName: "mascotCrop"
         visible: !desk.lookActive
-        x: desk.ratX; y: desk.ratY; width: 122; height: 128
+        x: desk.ratX; y: desk.ratY; width: desk.lookMascotWidth; height: desk.lookMascotHeight
         Behavior on x { enabled: desk.animatePlacement && !desk.reduceMotion; NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         Behavior on y { enabled: desk.animatePlacement && !desk.reduceMotion; NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Image { anchors.fill: parent; source: desk.mascotSource; fillMode: Image.PreserveAspectFit; smooth: true; Accessible.ignored: true }
+        MascotPose {
+            id: standingPose
+            objectName: "standingOpticalPose"
+            anchors.fill: parent; source: desk.mascotSource
+            bottomPadding: 30
+            inkBounds: Qt.rect(2/419, 2/445, 417/419, 441/445)
+            opticalHeight: desk.lookOpticalHeight
+        }
         MouseArea { anchors.fill: parent; cursorShape: Qt.SizeAllCursor; onPressed: desk.moveRequested() }
+        CompanionStatus {
+            objectName: "composerStatus"; z: 2
+            x: (parent.width - width) / 2
+            y: parent.height - height
+            label: desk.liveSnapshot.lookHasQueued ? "đoạn chờ" : desk.liveSnapshot.busy ? "Đang xử lý" : "Sẵn sàng"
+            pending: Boolean(desk.liveSnapshot.lookHasQueued); busy: Boolean(desk.liveSnapshot.busy)
+            paperColor: desk.inputColor; inkColor: desk.ink; edgeColor: desk.edge
+            onClicked: { if (desk.liveSnapshot.lookHasQueued) desk.liveController.openLook(); else desk.focusComposer() }
+        }
     }
     Rectangle {
         visible: !desk.lookActive && Boolean(desk.liveSnapshot.dropActive)
@@ -562,19 +627,34 @@ Rectangle {
     LookSurface {
         id: lookView
         anchors.fill: parent; visible: desk.lookActive
+        maximumSpeechWidth: desk.sharedPanelWidth; speechFontSize: desk.sharedTextSize
         snapshot: desk.liveSnapshot; mascotSource: desk.mascotSource; darkMode: desk.darkMode
         headSource: desk.lookHeadSource; peekSource: desk.lookPeekSource
+        idleSource: desk.lookIdleSource
+        mascotWidth: desk.lookMascotWidth; mascotHeight: desk.lookMascotHeight; seatedOpticalHeight: desk.lookOpticalHeight
+        errorSource: desk.lookErrorSource
         panelX: desk.panelX; panelY: desk.panelY; ratX: desk.ratX; ratY: desk.ratY
         placedBubbleWidth: desk.panelWidth
-        maxBubbleHeight: Math.min(168, desk.maxPaperHeight)
+        placedBubbleHeight: desk.lookPlacedHeight
+        maxBubbleHeight: desk.maxCornerSpeechHeight
         onMoveRequested: desk.moveRequested()
         onActivateRequested: desk.liveController.focusLook()
         onExpandRequested: desk.liveController.summonMinimal()
-        onMenuRequested: moreMenu.popup()
+        onMenuRequested: (x, y) => moreMenu.popup(x, y)
+        onSettingsRequested: desk.liveController.openLookSettings()
+        onWorkbenchRequested: desk.liveController.openLookWorkbench()
+        onSelectionRequested: (start, end) => desk.liveController.rememberLookSelection(start, end)
+        onSelectionCopyRequested: text => desk.liveController.copyLookSelection(text)
         onCopyRequested: displayed => desk.liveController.copyLook(displayed)
+        onDismissRequested: desk.liveController.dismissLookResult()
+        onRetryRequested: desk.liveController.retryRequest()
+        onScrollRequested: offset => desk.liveController.rememberLookScroll(offset)
+        onPendingRequested: desk.liveController.openPendingLook()
+        onOpenRequested: desk.liveController.openLook()
+        onRecallRequested: desk.liveController.recallLookResult()
     }
-    Shortcut { enabled: desk.lookActive; context: Qt.ApplicationShortcut; sequence: StandardKey.Paste; onActivated: desk.liveController.pasteLook() }
-    Shortcut { sequence: "Escape"; onActivated: { if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else desk.hideRequested() } }
+    Shortcut { enabled: desk.lookActive; context: Qt.ApplicationShortcut; sequences: [StandardKey.Paste]; onActivated: desk.liveController.pasteLook() }
+    Shortcut { sequence: "Escape"; onActivated: { if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (desk.lookActive) desk.liveController.dismissLookResult(); else desk.hideRequested() } }
     Shortcut { sequence: "Meta+W"; onActivated: desk.hideRequested() }
     Shortcut { sequence: "Meta+Q"; onActivated: desk.liveController.quit() }
     Shortcut { sequence: "Ctrl+Q"; onActivated: desk.liveController.quit() }
@@ -590,9 +670,14 @@ Rectangle {
         id: moreMenu
         // Qt 6.8+: the Look window can be just 122px wide. A separate popup
         // window keeps the secondary menu outside that tiny input mask.
-        popupType: desk.lookActive ? Popup.Window : Popup.Item
+        popupType: Popup.Window
+        MenuItem { text: "Cách hiển thị…"; onTriggered: workspaceMenu.popup() }
         MenuItem { text: "Chuột ơi, coi nè · ⌥⇧Space"; onTriggered: desk.liveController.summonLook() }
         MenuItem { visible: desk.workspaceMode === "look"; text: "Mở ô nhập · giữ ⌥⇧Space"; onTriggered: desk.liveController.summonMinimal() }
+        MenuItem { visible: desk.workspaceMode === "look"; text: desk.liveSnapshot.lookPaused ? "Tiếp tục chờ Clipboard" : "Tạm dừng Clipboard"; onTriggered: desk.liveController.toggleLookPaused() }
+        MenuItem { visible: desk.workspaceMode === "look"; text: "Tắt Look"; onTriggered: desk.liveController.stopLook() }
+        MenuItem { visible: desk.liveSnapshot.lookHasQueued; enabled: !desk.liveSnapshot.busy; text: "Dịch đoạn chờ"; onTriggered: desk.liveController.openPendingLook() }
+        MenuItem { visible: desk.workspaceMode === "look" && desk.liveSnapshot.hasWorkbench; text: "Xem lại kết quả"; onTriggered: desk.liveController.recallLookResult() }
         MenuItem { visible: desk.workspaceMode === "look"; enabled: !desk.liveSnapshot.busy; text: "Chọn vùng chữ để dịch…"; onTriggered: desk.liveController.captureRegion() }
         MenuItem { visible: desk.workspaceMode === "look" && desk.liveSnapshot.hasOcrSource; text: "Sửa chữ đã đọc…"; onTriggered: desk.navigate("ocr") }
         MenuItem { visible: desk.workspaceMode === "look" && Boolean(desk.liveSnapshot.imagePreviewUrl); text: "Xem ảnh nguồn…"; onTriggered: desk.navigate("image") }
@@ -604,7 +689,7 @@ Rectangle {
         MenuSeparator {}
         MenuItem { text: "Cài đặt…"; onTriggered: desk.openSettings() }
         MenuItem { text: "Thiết lập & trợ giúp…"; onTriggered: desk.navigate("help") }
-        MenuItem { enabled: false; text: "RAT Mini · Look source" }
+        MenuItem { enabled: false; text: "RAT Lite · " + desk.buildLabel }
         MenuItem { text: "Thoát RAT"; onTriggered: desk.liveController.quit() }
     }
     Menu {

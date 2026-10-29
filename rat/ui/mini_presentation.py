@@ -3,13 +3,27 @@ from dataclasses import dataclass, field
 import re
 
 
+def compact_speech(text):
+    sentences = [part for part in re.split(r'[.!?。！？]+\s*', text) if part.strip()]
+    return len(text) <= 100 and len(text.split()) <= 18 and len(sentences) <= 1 and '\n' not in text
+
+
 def look_projection(state):
     """Presentation only: short speech uses C; a paragraph uses B.
 
-    The original standing sprite is the whole standby state. Length thresholds
+    A seated sprite is the standby/reading indicator. Length thresholds
     are layout policy, never intent routing or a model-quality assertion.
     """
-    if state.get('busy') or not state.get('hasWorkbench'):
+    surface = state.get('lookSurface')
+    if surface in ('hidden', 'peek'):
+        return dict(lookVariant='standby', lookText=state.get('lookHint', '') if surface == 'peek' else '',
+                    lookCanCopy=False, lookShowingError=bool(surface == 'peek' and state.get('lookNotice')))
+    pose_variant = 'C' if state.get('lookPose') == 'head' else 'B'
+    if surface == 'reading' and state.get('busy'):
+        return dict(lookVariant=pose_variant, lookText='Đang xử lý…', lookCanCopy=False, lookShowingError=False)
+    if state.get('lookNotice'):
+        return dict(lookVariant='C', lookText=state['lookNotice'], lookCanCopy=False)
+    if state.get('lookDismissed') or state.get('busy') or not state.get('hasWorkbench'):
         return dict(lookVariant='standby', lookText='', lookCanCopy=False)
     failed = state.get('phase') in ('error', 'cancelled')
     text = (state.get('status') if failed else
@@ -26,9 +40,8 @@ def look_projection(state):
     elif (not failed and state.get('view') == 'translation' and state.get('hasOcrSource')
           and state.get('ocrText') != state.get('ocrCommittedText')):
         text = 'Bản dịch trước khi sửa chữ.\n' + text
-    sentences = [part for part in re.split(r'[.!?。！？]+\s*', text) if part.strip()]
-    short = len(text) <= 100 and len(text.split()) <= 18 and len(sentences) <= 1 and '\n' not in text
-    return dict(lookVariant='C' if short else 'B', lookText=text,
+    return dict(lookVariant=pose_variant if surface == 'reading' else 'C' if compact_speech(text) else 'B', lookText=text,
+                lookShowingError=bool(failed),
                 lookCanCopy=not failed and not same_language and bool(state.get('agentSummary') or state.get('text')))
 
 
@@ -38,6 +51,7 @@ class MiniPresentation:
     workspace: str = 'result'
     task_id: int = 0
     scroll: dict = field(default_factory=dict)
+    selections: dict = field(default_factory=dict)
     workspace_mode: str = 'single'
     _image_return: str = 'result'
     _settings_return: str = 'result'
@@ -79,6 +93,7 @@ class MiniPresentation:
     def begin_task(self):
         self.task_id += 1
         self.scroll.clear()
+        self.selections.clear()
         self.surface = self.workspace = 'result'
 
     def complete(self):

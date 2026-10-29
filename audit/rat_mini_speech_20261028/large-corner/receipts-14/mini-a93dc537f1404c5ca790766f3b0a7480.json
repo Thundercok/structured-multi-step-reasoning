@@ -1,0 +1,442 @@
+{
+  "query": "",
+  "operation": "translate_text",
+  "args": {
+    "source_ref": {
+      "artifact_id": "art-4ff6d373b65e401e881314e598c8b327",
+      "revision": 1
+    },
+    "source_language": "en",
+    "target_language": "vi"
+  },
+  "answer": "{'status': 'complete', 'text': 'Chào buổi sáng.', 'source_text': 'Good morning.', 'source_language': 'en', 'target_language': 'vi', 'source_sha256': 'e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659', 'segments': [{'source_start': 0, 'source_end': 13, 'status': 'complete', 'translated_text': 'Chào buổi sáng.', 'provider': 'offline_argos'}], 'provider': 'offline_argos', 'warnings': [], 'local_model': {'id': 'en-vi', 'version': '1.9', 'package_sha256': '86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16', 'license': 'CC-BY-4.0', 'engine': 'CTranslate2', 'engine_version': '4.8.4', 'device': 'cpu', 'compute_type': 'int8', 'decoding': {'beam_size': 4, 'coverage_penalty': 0.2, 'sentence_splitter': 'punctuation-v1', 'source_token_limit': 256}}, 'source_capture': {'source_ref': {'artifact_id': 'art-4ff6d373b65e401e881314e598c8b327', 'revision': 1}, 'source_kind': 'clipboard', 'text_sha256': 'e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659', 'text_origin': 'captured_text', 'correction': None, 'ocr_normalization': None, 'input_provenance': None}}",
+  "error": null,
+  "events": [
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "capture_text"
+      },
+      "timestamp": 1793189113.3957021,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: capture_text"
+      },
+      "timestamp": 1793189113.395772,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": {
+        "mode": "clipboard"
+      },
+      "timestamp": 1793189113.395913,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "capture_text",
+      "artifact_id": "art-4ff6d373b65e401e881314e598c8b327",
+      "payload": {
+        "text": "Good morning.",
+        "source_kind": "clipboard",
+        "source_sha256": "e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659",
+        "captured_at": 1793189113.396235,
+        "language_hint": "en"
+      },
+      "timestamp": 1793189113.61362,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "capture_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793189113.6136441,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793189113.613899,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793189113.614018,
+      "error": null,
+      "turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+      "execution_id": "mini-46164fe929f741dca1550a23a0986bec",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    },
+    {
+      "type": "accepted",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "origin": "ui_action",
+        "goal": "translate_text"
+      },
+      "timestamp": 1793189113.614856,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 1,
+      "artifact_refs": []
+    },
+    {
+      "type": "planning",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "plan": "Action: translate_text"
+      },
+      "timestamp": 1793189113.6148648,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 2,
+      "artifact_refs": []
+    },
+    {
+      "type": "dispatching",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": {
+        "source_ref": {
+          "artifact_id": "art-4ff6d373b65e401e881314e598c8b327",
+          "revision": 1
+        },
+        "source_language": "en",
+        "target_language": "vi"
+      },
+      "timestamp": 1793189113.614887,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 3,
+      "artifact_refs": []
+    },
+    {
+      "type": "observing",
+      "operation_name": "translate_text",
+      "artifact_id": "art-4fbc096d0df34f0db71b4664ad9736bc",
+      "payload": {
+        "status": "complete",
+        "text": "Chào buổi sáng.",
+        "source_text": "Good morning.",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 13,
+            "status": "complete",
+            "translated_text": "Chào buổi sáng.",
+            "provider": "offline_argos"
+          }
+        ],
+        "provider": "offline_argos",
+        "warnings": [],
+        "local_model": {
+          "id": "en-vi",
+          "version": "1.9",
+          "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+          "license": "CC-BY-4.0",
+          "engine": "CTranslate2",
+          "engine_version": "4.8.4",
+          "device": "cpu",
+          "compute_type": "int8",
+          "decoding": {
+            "beam_size": 4,
+            "coverage_penalty": 0.2,
+            "sentence_splitter": "punctuation-v1",
+            "source_token_limit": 256
+          }
+        },
+        "source_capture": {
+          "source_ref": {
+            "artifact_id": "art-4ff6d373b65e401e881314e598c8b327",
+            "revision": 1
+          },
+          "source_kind": "clipboard",
+          "text_sha256": "e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659",
+          "text_origin": "captured_text",
+          "correction": null,
+          "ocr_normalization": null,
+          "input_provenance": null
+        }
+      },
+      "timestamp": 1793189113.7353249,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 4,
+      "artifact_refs": []
+    },
+    {
+      "type": "checking",
+      "operation_name": "translate_text",
+      "artifact_id": null,
+      "payload": null,
+      "timestamp": 1793189113.735347,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 5,
+      "artifact_refs": []
+    },
+    {
+      "type": "deciding",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "verification": "PASS",
+        "dispatch_status": "success"
+      },
+      "timestamp": 1793189113.7355368,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 6,
+      "artifact_refs": []
+    },
+    {
+      "type": "turn_completed",
+      "operation_name": null,
+      "artifact_id": null,
+      "payload": {
+        "status": "completed"
+      },
+      "timestamp": 1793189113.73564,
+      "error": null,
+      "turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+      "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480",
+      "generation": null,
+      "sequence": 7,
+      "artifact_refs": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art-4fbc096d0df34f0db71b4664ad9736bc",
+      "kind": "translation",
+      "revision": 1,
+      "payload": {
+        "status": "complete",
+        "text": "Chào buổi sáng.",
+        "source_text": "Good morning.",
+        "source_language": "en",
+        "target_language": "vi",
+        "source_sha256": "e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659",
+        "segments": [
+          {
+            "source_start": 0,
+            "source_end": 13,
+            "status": "complete",
+            "translated_text": "Chào buổi sáng.",
+            "provider": "offline_argos"
+          }
+        ],
+        "provider": "offline_argos",
+        "warnings": [],
+        "local_model": {
+          "id": "en-vi",
+          "version": "1.9",
+          "package_sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+          "license": "CC-BY-4.0",
+          "engine": "CTranslate2",
+          "engine_version": "4.8.4",
+          "device": "cpu",
+          "compute_type": "int8",
+          "decoding": {
+            "beam_size": 4,
+            "coverage_penalty": 0.2,
+            "sentence_splitter": "punctuation-v1",
+            "source_token_limit": 256
+          }
+        },
+        "source_capture": {
+          "source_ref": {
+            "artifact_id": "art-4ff6d373b65e401e881314e598c8b327",
+            "revision": 1
+          },
+          "source_kind": "clipboard",
+          "text_sha256": "e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659",
+          "text_origin": "captured_text",
+          "correction": null,
+          "ocr_normalization": null,
+          "input_provenance": null
+        }
+      },
+      "inputs": {
+        "source_ref": {
+          "artifact_id": "art-4ff6d373b65e401e881314e598c8b327",
+          "revision": 1
+        },
+        "source_language": "en",
+        "target_language": "vi"
+      },
+      "provenance": {
+        "operation_name": "translate_text",
+        "owner_turn_id": "turn-9e80209a2af447d0be38d987397ac22e",
+        "execution_id": "mini-a93dc537f1404c5ca790766f3b0a7480"
+      },
+      "title": "Translate a snippet; prefer an observed capture source_ref to preserve original text",
+      "status": "ready",
+      "created_at": 1793189113.7351859
+    }
+  ],
+  "capture_artifacts": [
+    {
+      "id": "art-4ff6d373b65e401e881314e598c8b327",
+      "kind": "captured_text",
+      "revision": 1,
+      "payload": {
+        "text": "Good morning.",
+        "source_kind": "clipboard",
+        "source_sha256": "e3522eadca07c9501d5e4422f42559a7db6e4cee9d116248117bd4af2f884659",
+        "captured_at": 1793189113.396235,
+        "language_hint": "en"
+      },
+      "inputs": {
+        "mode": "clipboard"
+      },
+      "provenance": {
+        "operation_name": "capture_text",
+        "owner_turn_id": "turn-a6f6f55027c84e3188f3383e1a4c3ff1",
+        "execution_id": "mini-46164fe929f741dca1550a23a0986bec"
+      },
+      "title": "Capture text after an explicit user action",
+      "status": "ready",
+      "created_at": 1793189113.613324
+    }
+  ],
+  "capture_verification": [
+    {
+      "status": "PASS",
+      "scope": "capture_structure",
+      "reason": "Đối chiếu cấu trúc và hash; chưa xác nhận OCR đọc đúng ảnh.",
+      "evidence_ids": [
+        "mini-46164fe929f741dca1550a23a0986bec:op:capture_text"
+      ],
+      "checked": [
+        "captured_text_hash",
+        "capture_mode",
+        "snippet_limit"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "verification": [
+    {
+      "status": "PASS",
+      "scope": "translation_structure",
+      "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+      "evidence_ids": [
+        "mini-a93dc537f1404c5ca790766f3b0a7480:op:translate_text"
+      ],
+      "checked": [
+        "source_hash",
+        "segment_coverage",
+        "capture_source_ref",
+        "local_model_provenance"
+      ],
+      "retryable": false,
+      "duration_ms": 0.0,
+      "answer_schema": null
+    }
+  ],
+  "llm_calls": 0,
+  "execution_path": "direct_tool",
+  "controller_decisions": [],
+  "completion_status": "completed",
+  "steps": [
+    {
+      "number": 1,
+      "operation": "translate_text",
+      "error": null,
+      "verification": [
+        {
+          "status": "PASS",
+          "scope": "translation_structure",
+          "reason": "Kiểm tra hash và độ phủ đoạn; chưa xác nhận bản dịch đúng nghĩa.",
+          "evidence_ids": [
+            "mini-a93dc537f1404c5ca790766f3b0a7480:op:translate_text"
+          ],
+          "checked": [
+            "source_hash",
+            "segment_coverage",
+            "capture_source_ref",
+            "local_model_provenance"
+          ],
+          "retryable": false,
+          "duration_ms": 0.0,
+          "answer_schema": null
+        }
+      ]
+    }
+  ],
+  "usage_unknown": false
+}

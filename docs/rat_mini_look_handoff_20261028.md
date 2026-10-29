@@ -1,5 +1,61 @@
 # RAT Mini Look — handoff 2026-10-28
 
+Latest delivered build: .15, `dist/mini-speech-20261028-large-corner-final/`.
+User requested continuing acceptance and enlarging the seated Look rat. Host is
+96×100 with seated optical target 86; head stays 36. Native .13/.14 idle/Clipboard
+evidence and the .15 explicit-recall repair are recorded in
+[larger-corner report](../audit/rat_mini_speech_20261028/large-corner/README.md).
+31 size/Look checks passed, then bounded recall/auto-hide checks. Queue/long-read
+native acceptance remains open; do not infer it from passing software checks.
+QA processes stopped and user's original .8 session preserved.
+
+Latest source is now [shared speech handoff](rat_mini_speech_handoff_20261028.md),
+planned .10. User authorized a reusable SpeechBubble/MascotPose/shared placement
+implementation. .9/.10 remain unbuilt and untested; .8 is the last opened bundle.
+
+Current unbuilt source follow-up: .9 compact/transient Look, documented at the
+top of `docs/rat_mini_look_clipboard_20261028.md`. User requested smaller,
+unobtrusive UI that disappears automatically. Whole overlay hides after five
+seconds without engagement, retains the result, and may reappear on the next
+copy while Look remains enabled. No new tests/build/launch for .9.
+
+Latest source continuation: [Look Clipboard flow](rat_mini_look_clipboard_20261028.md).
+Later asset clarification: Look errors use the user-selected seated error rat,
+including short errors. The added gestures sheet and other error references are
+saved in the mascot backlog. Source wiring only; no new build or acceptance.
+The user authorized automatic response to new copied text while Look is enabled,
+then requested completing the full Look flow. The .8 source wires that flow and
+disables Mini LLM use by default behind an explicit Advanced opt-in. This
+supersedes the earlier pending-Clipboard and standing-busy notes below. No .8
+build, launch, tests or live acceptance; .7 remains the prior bundle.
+
+## Later user selections in continuation
+
+User reaffirmation: this work is on RAT Mini as a proof of concept for main RAT.
+Mini is the reusable vertical slice of the same RAT–CoT system. Plan and implement
+Look, Clipboard ingress, routing, execution, verification and presentation with
+reuse in main in mind. Mini acceptance does not itself enable main integration;
+report the two states separately. This reaffirmation does not authorize tests or
+change research claims/Stage 0.
+
+- The user specified the screen corner for the seated Look indicator during
+  long-content presentation; corner placement is still pending implementation.
+- The upper-left head on `docs/design/rat-mascot-backlog-20261028/rat-head-expressions.png`
+  replaces the short-result head in source as `rat_look_head_v2.png`.
+- A separately supplied seated rat is selected for Look idle while waiting for
+  the user, superseding the standing-only idle decision. Source wires
+  `rat_look_idle_seated_v1.png` only for non-busy standby; busy keeps the standing
+  mascot. The fixed 122×128 canvas is retained.
+- The long-result reading surface now requests width 420 and height up to 380
+  in source, still screen constrained. This is partial Wall presentation work.
+- Clipboard trigger and near-text placement are not decided or implemented.
+
+References and original images are retained in
+`docs/backlog/rat_mascot_pose_references_20261028.md`. Extracted sprites are
+image-generated adaptations, not pixel-identical crops. No tests, app launch,
+screenshots or builds were run for these continuation changes; the .7 bundle
+below predates them. Main integration/model acceptance/M3/Stage 0 stay open.
+
 ## Điểm tiếp tục
 
 Người dùng đang dùng thử Mini và muốn lên kế hoạch tiếp. Yêu cầu mới nhất là

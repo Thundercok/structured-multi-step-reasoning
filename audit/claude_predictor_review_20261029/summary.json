@@ -1,0 +1,70 @@
+{
+  "evidence": "user_supplied_synthetic_results_descriptive_review_only",
+  "review_date": "2026-10-29",
+  "new_training_runs": 0,
+  "new_model_calls": 0,
+  "tests_run": false,
+  "input_sha256": {
+    "synthetic_results_supplied.json": "995c662441c8cbebe80e1bfd500ba241fdf1098f163d2e8d23050f532644738a",
+    "entry_eval_supplied.py.txt": "d1ce227b84cc7e11beccaa74bd6e691b160c5129c784baf1258bb0a7f46227c2"
+  },
+  "rows": 120,
+  "unique_cells": 120,
+  "missing_cells": 0,
+  "extra_cells": 0,
+  "mean_by_configuration": {
+    "old": {
+      "util": 0.5815898484049938,
+      "logloss": 1.1950766535268889,
+      "secs": 0.2828896840413411
+    },
+    "scaler_only": {
+      "util": 0.6266191591735366,
+      "logloss": 0.5660532841251956,
+      "secs": 12.55054513613383
+    },
+    "pca16": {
+      "util": 0.649086816695208,
+      "logloss": 0.5438567495180501,
+      "secs": 14.790737688541412
+    },
+    "pca32": {
+      "util": 0.6453721634157347,
+      "logloss": 0.5482500853637854,
+      "secs": 16.983577181895573
+    },
+    "pca64": {
+      "util": 0.6363158763751522,
+      "logloss": 0.5600235023432307,
+      "secs": 19.658975919087727
+    }
+  },
+  "comparisons": {
+    "scaler_only_minus_old": {
+      "mean_difference": 0.04502931076854274,
+      "positive_cells": 24,
+      "cells": 24
+    },
+    "pca32_minus_old": {
+      "mean_difference": 0.06378231501074084,
+      "positive_cells": 24,
+      "cells": 24
+    },
+    "pca32_minus_scaler_only": {
+      "mean_difference": 0.018753004242198102,
+      "positive_cells": 22,
+      "cells": 24
+    },
+    "pca16_minus_pca32": {
+      "mean_difference": 0.003714653279473281,
+      "positive_cells": 18,
+      "cells": 24
+    }
+  },
+  "limits": [
+    "Synthetic generator results, not measured LLM quality",
+    "Source and environment used to train supplied results are not fingerprinted",
+    "24 seed/N/SNR cells are not independent dataset replications",
+    "No significance inference or default configuration selection from this review"
+  ]
+}

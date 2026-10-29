@@ -66,7 +66,7 @@ def test_settings_key_goes_only_to_keychain_and_keeps_captured_source(tmp_path, 
     controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
     store = controller.session.runtime.artifact_store
     controller.update(hasOcrSource=True, ocrText='Public draft', ocrOriginalText='Original')
-    assert controller.savePreferences({'translation_provider':'llm','provider':'deepseek','model':'configured-model'}, 'contract-only-key') == ''
+    assert controller.savePreferences({'translation_provider':'llm','provider':'deepseek','model':'configured-model','llm_enabled':True}, 'contract-only-key') == ''
     assert secrets == [('deepseek','contract-only-key')]
     assert saved[0]['model'] == 'configured-model'
     assert 'contract-only-key' not in repr(saved) + repr(controller.snapshot) + repr(controller.preferences)

@@ -89,6 +89,12 @@ material under the existing recovery policy. RAT–CoT remains one system.
 
 # RAT Mini — vertical slice tái sử dụng, quyết định 2026-10-26
 
+Chốt tên gọi tương lai, 2026-10-28: người dùng đặt tên RAT Mini là **RAT Lite**
+(“Lite”). Đây vẫn là cùng vertical slice của RAT–CoT, không phải dự án mới.
+Áp dụng tên khi tiếp tục phát triển sau này; quyết định này không yêu cầu đổi
+ngay identifiers, đường dẫn, bundle hoặc bản build. Mini hiện được tạm gác vì
+chưa phát triển xong; không tự tiếp tục chỉ vì có quyết định tên gọi.
+
 Mini là vertical slice end-to-end của RAT chính, cùng hệ RAT–CoT; bản gửi bạn
 người dùng là một mốc thử nghiệm của slice, không phải ứng dụng tiện ích riêng
 hay nhánh code dùng xong bỏ. Thiết kế contracts, routing, execution, verification
