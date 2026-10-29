@@ -72,7 +72,7 @@ Item {
         // the result. Completion releases it for one coalesced placement pass.
         if ((next.busy && !snapshot.busy || snapshot.composerVisible && !next.composerVisible)
                 && next.lookSurface === "reading" && bubble.heldWidth <= 0) {
-            if (speaking && bubble.width > 0 && bubble.height > 0)
+            if (bubble.width > 0 && bubble.height > 0)
                 bubble.holdSize(bubble.width, bubble.height)
             else bubble.holdSize(bubble.widthStepFor(300, maximumSpeechWidth), 96)
         }

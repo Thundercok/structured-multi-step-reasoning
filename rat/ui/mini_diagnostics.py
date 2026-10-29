@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 
-BUILD = '20261029.25'
+BUILD = '20261029.26'
 logger = logging.getLogger(__name__)
 
 

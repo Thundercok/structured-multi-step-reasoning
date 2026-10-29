@@ -33,7 +33,8 @@ SpeechSurface {
         layoutMeasure.implicitHeight + 2 * padding + headingHeight + footerHeight,
         utilityActions.length * 28 + 4) : Math.max(footerHeight, utilityActions.length * 28)
     readonly property real preferredHeight: Math.min(maximumHeight,
-        Math.max(heldHeight, naturalHeight + accessoryHeight))
+        heldHeight > 0 ? Math.max(heldHeight, accessoryHeight + (hasReader ? headingHeight + footerHeight + 2 * padding + 24 : 0))
+        : naturalHeight + accessoryHeight)
     readonly property bool overflowing: scroll.contentHeight > scroll.height + 1
     readonly property bool moreBelow: overflowing && scroll.contentY < scroll.contentHeight - scroll.height - 1
     readonly property bool engaged: hover.hovered || scroll.moving || scroll.dragging

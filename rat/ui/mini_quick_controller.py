@@ -716,7 +716,6 @@ class MiniQuickController(QObject):
         self.presentation.open('result')
         self.presentation.resize(False)
         self.presentation.read()
-        self.presentation.quick_look_head = True
         self.update(selectionNotice='', selectionNeedsPermission=False)
         self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
             look_input=True, source_language=self.settings['source_language'],
@@ -787,7 +786,6 @@ class MiniQuickController(QObject):
                     or (operation == 'translate_text' and not args.get('source_ref')))
         preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
         if new_task and not preserve_region:
-            self.presentation.quick_look_head = False
             self.presentation.begin_task()
         if not preserve_region and (operation in ('find_files', 'capture_translate')
                 or (operation == 'submit_goal' and not args.get('source_ref') and self._state['phase'] != 'needs_input')
@@ -826,7 +824,6 @@ class MiniQuickController(QObject):
         if job.generation == self.generation:
             artifact = source['artifact']
             if job.args.get('preserve_until_capture'):
-                self.presentation.quick_look_head = job.args.get('mode') == 'selection'
                 self.presentation.begin_task()
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including
