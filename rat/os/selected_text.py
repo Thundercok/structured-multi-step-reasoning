@@ -8,6 +8,7 @@ def read_selected_text(source_pid=None, should_cancel=lambda: False, on_geometry
     if sys.platform != 'darwin':
         raise ValueError('selection_unavailable: Chức năng này cần macOS.')
     from AppKit import NSWorkspace
+    import ApplicationServices as AX
     from ApplicationServices import (AXIsProcessTrusted, AXUIElementCreateApplication,
         AXUIElementCopyAttributeValue, AXUIElementSetMessagingTimeout)
     if not AXIsProcessTrusted():
@@ -26,12 +27,17 @@ def read_selected_text(source_pid=None, should_cancel=lambda: False, on_geometry
             raise ValueError('cancelled:selection')
         AXUIElementSetMessagingTimeout(element, 0.3)
         code, value = AXUIElementCopyAttributeValue(element, name, None)
+        if code == getattr(AX, 'kAXErrorAPIDisabled', object()):
+            raise ValueError('selection_accessibility_required')
+        if code == getattr(AX, 'kAXErrorCannotComplete', object()):
+            raise ValueError('selection_source_unresponsive')
         return value if code == 0 else None
 
     application = AXUIElementCreateApplication(pid)
     element = get(application, 'AXFocusedUIElement')
     # Some browsers expose selected text on the focused element's web-area
     # ancestor. Keep traversal bounded and read no whole-field AXValue.
+    saw_selection_attribute = False
     for _ in range(4):
         if element is None:
             break
@@ -40,6 +46,7 @@ def read_selected_text(source_pid=None, should_cancel=lambda: False, on_geometry
         if 'AXSecureTextField' in (role, subrole):
             raise ValueError('selection_unavailable: Không đọc trường mật khẩu.')
         text = get(element, 'AXSelectedText')
+        saw_selection_attribute |= isinstance(text, str)
         if isinstance(text, str) and text.strip():
             if should_cancel():
                 raise ValueError('cancelled:selection')
@@ -71,4 +78,6 @@ def read_selected_text(source_pid=None, should_cancel=lambda: False, on_geometry
                     pass  # Geometry failure never loses a valid text capture.
             return text
         element = get(element, 'AXParent')
+    if saw_selection_attribute:
+        raise ValueError('selection_empty: Không có chữ đang được chọn.')
     raise ValueError('selection_unavailable: App này chưa cung cấp chữ đang chọn. Bạn có thể dán chữ hoặc chọn vùng ảnh.')

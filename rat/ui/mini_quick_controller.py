@@ -1243,7 +1243,7 @@ class MiniQuickController(QObject):
             stage = ('capture_failed' if error and self._region_previous is not None else 'translation_failed' if error
                      else 'needs_input' if response and response.pending_input_request else 'execution_completed')
             safe_codes = ('selection_accessibility_required', 'selection_source_changed', 'selection_unavailable',
-                'snippet_too_long', 'cancelled', 'capture_artifact_missing', 'selection_response_missing')
+                'selection_empty', 'selection_source_unresponsive', 'snippet_too_long', 'cancelled', 'capture_artifact_missing', 'selection_response_missing')
             reason = next((code for code in safe_codes if code in str(error)), 'other_failure' if error else None)
             self.quicklook_journal.record(stage, invocation_id=invocation, reason=reason,
                 execution_id=response.execution_id if response else None)
@@ -1503,6 +1503,10 @@ class MiniQuickController(QObject):
             return 'Nguồn chữ cũ không còn hợp lệ. Hãy thả lại ảnh hoặc dán lại nội dung để dịch.'
         if 'selection_accessibility_required' in error:
             return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng. Sau đó bôi đen chữ và bấm phím tắt Quick Look lại.'
+        if 'selection_empty' in error:
+            return 'Chưa thấy chữ được chọn. Bôi đen một đoạn rồi bấm lại.'
+        if 'selection_source_unresponsive' in error:
+            return 'App nguồn chưa phản hồi. Chờ một chút rồi thử lại, hoặc copy và chọn Dán chữ.'
         if 'selection_source_changed' in error:
             return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm phím tắt Quick Look lại.'
         if 'selection_unavailable' in error:
