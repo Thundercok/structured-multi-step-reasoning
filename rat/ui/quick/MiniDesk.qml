@@ -589,8 +589,13 @@ Rectangle {
                     QuietButton { visible: desk.surface === "ocr" && !desk.recoveryVisible; primary: true; text: "Dịch lại"; enabled: !desk.liveSnapshot.busy && desk.liveSnapshot.canRetryTranslation && Boolean((desk.liveSnapshot.ocrText || "").trim()); onClicked: desk.liveController.retryTranslation(desk.liveSnapshot.ocrText) }
                     QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "translation" && !desk.recoveryVisible; primary: true; text: "Sao chép"; enabled: !desk.liveSnapshot.busy && Boolean(desk.liveSnapshot.text); onClicked: desk.liveController.copyResult() }
                     QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && !desk.recoveryVisible; primary: true; text: "Mở file"; enabled: !desk.liveSnapshot.busy && desk.selectedFinderIndex >= 0; onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex) }
-                    QuietButton { objectName: "applyOrganization"; visible: desk.surface === "result" && desk.liveSnapshot.view === "organization" && Boolean(desk.liveSnapshot.canApplyOrganization) && !desk.recoveryVisible; primary: true; text: "Áp dụng"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.applyOrganization() }
-                    QuietButton { objectName: "undoOrganization"; visible: desk.surface === "result" && desk.liveSnapshot.view === "organization" && Boolean(desk.liveSnapshot.canUndoOrganization) && !desk.recoveryVisible; primary: true; text: "Hoàn tác"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.undoOrganization() }
+                    QuietButton {
+                        visible: desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "organization" && !desk.recoveryVisible
+                        primary: true; text: desk.liveSnapshot.canApplyOrganization ? "Xem kế hoạch" : "Xem biên nhận"
+                        onClicked: { desk.saveScroll(); desk.liveController.setExpanded(true) }
+                    }
+                    QuietButton { objectName: "applyOrganization"; visible: !desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "organization" && Boolean(desk.liveSnapshot.canApplyOrganization) && !desk.recoveryVisible; primary: true; text: "Áp dụng"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.applyOrganization() }
+                    QuietButton { objectName: "undoOrganization"; visible: !desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "organization" && Boolean(desk.liveSnapshot.canUndoOrganization) && !desk.recoveryVisible; primary: true; text: "Hoàn tác"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.undoOrganization() }
                 }
             }
         }

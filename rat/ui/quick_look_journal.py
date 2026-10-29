@@ -13,6 +13,8 @@ class QuickLookJournal:
         self.build = build
         self.events = deque(maxlen=32)
         self.sequence = 0
+        self.helper_state = 'unknown'
+        self.helper_pid = None
 
     @staticmethod
     def invocation_id():
@@ -29,10 +31,15 @@ class QuickLookJournal:
             if metadata.get(name) is not None:
                 event[name] = metadata[name]
         self.events.append(event)
+        if metadata.get('state'):
+            self.helper_state = metadata['state']
+        if metadata.get('helper_pid'):
+            self.helper_pid = metadata['helper_pid']
         try:
             self.path.parent.mkdir(parents=True, exist_ok=True)
             temporary = self.path.with_suffix('.tmp')
-            temporary.write_text(json.dumps(dict(event, protocol='SELECT1', events=list(self.events))))
+            temporary.write_text(json.dumps(dict(event, protocol='SELECT1', helper_state=self.helper_state,
+                last_helper_pid=self.helper_pid, events=list(self.events))))
             temporary.replace(self.path)
         except Exception as exc:
             # Recording cannot break the shortcut or a valid tool result.

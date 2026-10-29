@@ -98,9 +98,9 @@ def create_mini_desk(settings=None):
         state = controller.snapshot
         pending = bool(state['lookHasQueued'])
         shortcut_failed = bool(state['hotkeyStatus'])
-        tray.setBadgeText('!' if shortcut_failed else '…' if state['shortcutAck'] else '1' if pending else '')
+        tray.setBadgeText('!' if shortcut_failed else '…' if state['shortcutAck'] or state['busy'] else '1' if pending else '')
         tray.setToolTip('RAT Lite · ' + ('Phím tắt chưa sẵn sàng. Mở menu để đăng ký lại.' if shortcut_failed
-            else state['shortcutAck'] or ('Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel'])))
+            else state['shortcutAck'] or ('Đang xử lý yêu cầu.' if state['busy'] else 'Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel'])))
         tray_actions[controller.restartHotkey].setEnabled(shortcut_failed and not state['hotkeyStarting'])
         tray_actions[controller.previewPending].setEnabled(pending)
         tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])

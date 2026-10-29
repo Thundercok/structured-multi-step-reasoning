@@ -817,7 +817,10 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def openSelectionAccess(self):
         from rat.os.permissions import open_accessibility_settings
-        open_accessibility_settings()
+        self.quicklook_journal.record('permission_settings_requested', invocation_id=self._selection_invocation_id)
+        if not open_accessibility_settings():
+            self.update(selectionNotice='Chưa mở được Cài đặt. Bạn vào Quyền riêng tư & Bảo mật → Trợ năng để cho phép RAT, rồi bôi đen và bấm lại phím tắt.',
+                selectionNeedsPermission=True)
 
     @pyqtSlot()
     def restartHotkey(self):
