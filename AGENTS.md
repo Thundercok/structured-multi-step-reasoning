@@ -52,7 +52,11 @@ Publish only claims supported by reviewed run artifacts. State whether costs are
 synthetic, generated-token counts, or full inference costs, and distinguish
 replayed strategy time from measured online latency.
 
-- Never git push/pull/reset/force unless the user says so in the same message.
+- Never git pull/reset/force unless the user says so in the same message.
+  User decision 2026-10-29 (also in README): RAT Lite development has standing
+  authorization for small, coherent commits and normal pushes to `main`. Commit
+  and push reviewable steps regularly instead of accumulating a large diff.
+  Preserve unrelated edits; no blanket authorization for other project work.
 
 
 # Canonical repository and deferred DocAI

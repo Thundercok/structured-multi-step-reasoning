@@ -1,5 +1,9 @@
 # Backlog — hợp nhất bốn cách hiển thị RAT Lite
 
+2026-10-29 continuation: user requested planning unified interaction and layout
+refinement. See [implementation plan](../rat_lite_unified_interaction_plan_20261029.md).
+Status: planned; no source implementation or acceptance from this request.
+
 Quyết định người dùng 2026-10-29: đưa đề xuất này vào backlog; chưa triển khai
 trong lượt ổn định bố cục .23.
 
