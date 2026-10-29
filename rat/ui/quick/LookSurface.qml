@@ -26,12 +26,13 @@ Item {
     property real composerHeight: 0
     property real composerWidthFloor: 380
     property alias composerHost: bubble.accessoryHost
+    readonly property bool floatingHead: Boolean(snapshot.quickLookHead)
     readonly property string variant: snapshot.lookVariant || "standby"
     readonly property bool reading: snapshot.lookSurface === "reading"
     readonly property bool speaking: Boolean(snapshot.lookText)
     readonly property bool showingError: Boolean(snapshot.lookShowingError)
     readonly property string speechText: snapshot.lookText || ""
-    readonly property bool engaged: bubble.engaged || characterMouse.containsMouse || status.hovered
+    readonly property bool engaged: bubble.engaged || characterMouse.containsMouse || (status.visible && status.hovered)
     readonly property bool menuOpen: bubble.menuOpen
     readonly property rect localVisualBounds: pose.visualBounds
     readonly property point localMouth: pose.speechAnchor
@@ -88,15 +89,16 @@ Item {
         objectName: "lookSpeechBubble"
         x: look.panelX; y: look.panelY
         text: look.speechText
-        stateLabel: look.snapshot.selectionNotice ? (look.snapshot.selectionNeedsPermission ? "Quick Look · Cần quyền Trợ năng" : "Quick Look")
-            : look.reading && look.snapshot.captureSourceKind === "selection" ? "Chữ bôi đen" : ""
+        stateLabel: look.snapshot.selectionNotice ? (look.snapshot.selectionNeedsPermission ? "Cần quyền Trợ năng" : "Quick Look")
+            : !look.floatingHead && look.reading && look.snapshot.captureSourceKind === "selection" ? "Chữ bôi đen" : ""
         accessoryHeight: look.composerHeight
         minimumWidth: look.snapshot.composerVisible ? look.composerWidthFloor : 76
-        maximumWidth: look.maximumSpeechWidth
+        maximumWidth: look.floatingHead && !look.snapshot.composerVisible ? Math.min(360, look.maximumSpeechWidth) : look.maximumSpeechWidth
+        widthSteps: look.floatingHead && !look.snapshot.composerVisible ? [140, 240, 360] : [220, 380, 580]
         fontPixelSize: look.speechFontSize
-        cornerRadius: 18
-        padding: 14
-        maximumHeight: look.maxBubbleHeight
+        cornerRadius: look.floatingHead ? 14 : 18
+        padding: look.floatingHead ? 12 : 14
+        maximumHeight: look.floatingHead && !look.snapshot.composerVisible ? Math.min(180, look.maxBubbleHeight) : look.maxBubbleHeight
         placedWidth: look.placedBubbleWidth
         placedHeight: look.placedBubbleHeight
         anchorPoint: Qt.point(character.x + pose.speechAnchor.x - x, character.y + pose.speechAnchor.y - y)
@@ -118,9 +120,9 @@ Item {
                 items.push({id:"cancel", label:"Dừng yêu cầu", icon:"stop", role:"utility"})
             if (look.reading && look.snapshot.lookCanCopy)
                 items.push({id:"copy", label:"Sao chép nội dung đang hiện", icon:"copy", role:"utility"})
-            if (look.reading && look.snapshot.hasWorkbench)
+            if (look.reading && look.snapshot.hasWorkbench && !look.floatingHead)
                 items.push({id:"workbench", label:"Mở rộng", icon:"chevron-up", role:"utility"})
-            if (look.reading && !look.snapshot.composerVisible)
+            if (look.reading && !look.snapshot.composerVisible && !look.floatingHead)
                 items.push({id:"reply", label:"Viết yêu cầu", icon:"enter", role:"utility"})
             if (look.snapshot.selectionNotice) {
                 if (look.snapshot.selectionNeedsPermission)
@@ -162,22 +164,24 @@ Item {
         id: character
         objectName: "lookMascot"
         x: look.ratX; y: look.ratY
-        width: look.mascotWidth; height: look.mascotHeight
+        width: look.floatingHead ? 64 : look.mascotWidth
+        height: look.floatingHead ? 64 : look.mascotHeight
         MascotPose {
             id: pose
             objectName: "lookOpticalPose"
             anchors.fill: parent
-            bottomPadding: 30
+            bottomPadding: look.floatingHead ? 4 : 30
             // Keep one silhouette and scale throughout Look. Response length
             // changes the reading surface, never the character's identity.
-            source: look.showingError ? look.errorSource : look.idleSource
+            source: look.floatingHead ? look.headSource : look.showingError ? look.errorSource : look.idleSource
             // Metadata is normalized to each source canvas, not window size.
-            inkBounds: look.showingError ? Qt.rect(0.04, 0.06, 0.92, 0.87) : Qt.rect(0.08, 0.06, 0.86, 0.88)
-            mouth: look.showingError ? Qt.point(0.43, 0.40) : Qt.point(0.44, 0.43)
-            opticalHeight: look.seatedOpticalHeight
+            inkBounds: look.floatingHead ? Qt.rect(0.19, 0.13, 0.60, 0.78) : look.showingError ? Qt.rect(0.04, 0.06, 0.92, 0.87) : Qt.rect(0.08, 0.06, 0.86, 0.88)
+            mouth: look.floatingHead ? Qt.point(0.33, 0.81) : look.showingError ? Qt.point(0.43, 0.40) : Qt.point(0.44, 0.43)
+            opticalHeight: look.floatingHead ? 48 : look.seatedOpticalHeight
         }
         CompanionStatus {
             id: status; z: 2; objectName: "lookStatus"
+            visible: !look.floatingHead
             x: (character.width - width) / 2
             y: character.height - height
             label: look.snapshot.lookHasQueued ? "đoạn chờ" : look.snapshot.lookStatusLabel || "Đang chờ"

@@ -58,6 +58,7 @@ class MiniShell(QObject):
         root.mascotRectChanged.connect(self.update_mask)
         root.cornerInkBoundsChanged.connect(self.schedule_fit)
         root.cornerMouthChanged.connect(self.schedule_fit)
+        root.floatingHeadChanged.connect(self.schedule_fit)
         root.focusOwnedChanged.connect(self.focus_changed)
         view.screenChanged.connect(self.schedule_fit)
         view.xChanged.connect(self.remember_home)
@@ -210,7 +211,7 @@ class MiniShell(QObject):
                     self.look_home, self.root.property('lookBubbleWidth') if looking else self.root.property('cornerPanelWidth'),
                     self.root.property('lookBubbleHeight') if looking else self.root.property('preferredPanelHeight'), self.root.property('lookVariant'), self.look_side,
                     ink_bounds=Rect(round(ink.x()), round(ink.y()), round(ink.width()), round(ink.height())),
-                    mouth=(mouth.x(), mouth.y()))
+                    mouth=(mouth.x(), mouth.y()), floating_head=bool(self.root.property('floatingHead')))
                 self.look_side = placement.side
                 self.root.setProperty('animatePlacement', False)
                 bounds = placement.bounds

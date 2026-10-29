@@ -60,6 +60,7 @@ class MiniPresentation:
     extent: str = 'compact'
     composer_visible: bool = True
     source_visible: bool = False
+    quick_look_head: bool = False
     interaction: LookInteraction = field(default_factory=LookInteraction)
     _image_return: str = 'result'
     _settings_return: str = 'result'
@@ -141,6 +142,7 @@ class MiniPresentation:
         return dict(surface=self.surface, taskId=self.task_id,
                     interactionExtent=self.extent, composerVisible=self.composer_visible,
                     sourceVisible=self.source_visible,
+                    quickLookHead=self.quick_look_head,
                     readerAnchorText=self.reading_anchor[0], readerAnchorPosition=self.reading_anchor[1],
                     readerAnchorDelta=self.reading_anchor[2],
                     workspaceMode=self.workspace_mode,

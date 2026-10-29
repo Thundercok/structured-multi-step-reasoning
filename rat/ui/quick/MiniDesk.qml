@@ -51,6 +51,7 @@ Rectangle {
     readonly property bool composing: Boolean(liveSnapshot.composerVisible)
     readonly property bool auxiliary: surface === "welcome" || surface === "help" || surface === "settings"
     readonly property bool lookActive: compact && !auxiliary && surface === "result"
+    readonly property bool floatingHead: lookActive && Boolean(liveSnapshot.quickLookHead)
     readonly property bool paperVisible: Boolean((!compact || surface !== "result") && liveSnapshot.hasWorkbench)
     readonly property bool bodyVisible: auxiliary || paperVisible
     readonly property bool ocrDirty: Boolean(liveSnapshot.ocrDirty)
@@ -704,6 +705,7 @@ Rectangle {
         MenuItem { text: "Bôi đen chữ trong app nguồn → ⌥⇧Space"; enabled: false }
         MenuItem { text: "Xem lại công việc"; onTriggered: desk.liveController.summonLook() }
         MenuItem { text: "Viết yêu cầu"; onTriggered: desk.liveController.summonMinimal() }
+        MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: desk.compact ? "Mở rộng kết quả" : "Thu gọn"; onTriggered: desk.liveController.setExpanded(desk.compact) }
         MenuItem { text: "Quyền đọc chữ bôi đen…"; onTriggered: desk.liveController.openSelectionAccess() }
         MenuItem { text: !desk.liveSnapshot.lookWatching ? "Bật theo dõi Clipboard" : desk.liveSnapshot.lookPaused ? "Tiếp tục Clipboard" : "Tạm dừng Clipboard"; onTriggered: desk.liveController.toggleLookPaused() }
         MenuItem { visible: desk.liveSnapshot.lookWatching; text: "Tắt theo dõi Clipboard"; onTriggered: desk.liveController.stopLook() }
