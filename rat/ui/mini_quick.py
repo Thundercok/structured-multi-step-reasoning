@@ -75,13 +75,12 @@ def create_mini_desk(settings=None):
     tray.setToolTip('RAT Mini')
     tray_actions = {}
     for label, callback in [
-        ('Hiện RAT Mini', present),
-        ('Chuột ơi, coi nè · ⌥⇧Space', controller.summonLook),
-        ('Minimal · giữ ⌥⇧Space', controller.summonMinimal),
-        ('Tạm dừng / tiếp tục Clipboard Look', controller.toggleLookPaused),
-        ('Tắt Look', controller.stopLook),
-        ('Dịch đoạn đang chờ', controller.openPendingLook),
-        ('Xem lại kết quả Look', controller.recallLookResult),
+        ('Xem lại công việc · ⌥⇧Space', controller.summonLook),
+        ('Viết yêu cầu · giữ ⌥⇧Space', controller.summonMinimal),
+        ('Bật theo dõi Clipboard', controller.toggleLookPaused),
+        ('Tắt theo dõi Clipboard', controller.stopLook),
+        ('Xem đoạn chờ', controller.previewPending),
+        ('Xem lại kết quả', controller.recallLookResult),
         ('Chọn vùng chữ để dịch…', controller.captureRegion),
         ('Dịch Clipboard', lambda: (present(), controller.translateClipboard())),
         ('Thiết lập & trợ giúp…', lambda: (present(), controller.helpRequested.emit())),
@@ -93,16 +92,17 @@ def create_mini_desk(settings=None):
         menu.addAction(action)
         tray_actions[callback] = action
     tray.setContextMenu(menu)
-    tray.setPrimaryAction(lambda: controller.summonLook()
-        if controller.presentation.workspace_mode == 'look' else shell.toggle())
+    tray.setPrimaryAction(controller.summonLook)
     def refresh_tray():
         state = controller.snapshot
         pending = bool(state['lookHasQueued'])
         tray.setBadgeText('1' if pending else '')
         tray.setToolTip('RAT Mini · ' + ('Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel']))
-        tray_actions[controller.openPendingLook].setEnabled(pending and not state['busy'])
+        tray_actions[controller.previewPending].setEnabled(pending)
         tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])
-        tray_actions[controller.toggleLookPaused].setText('Tiếp tục Clipboard Look' if state['lookPaused'] else 'Tạm dừng Clipboard Look')
+        tray_actions[controller.toggleLookPaused].setText('Bật theo dõi Clipboard' if not state['lookWatching']
+            else 'Tiếp tục Clipboard' if state['lookPaused'] else 'Tạm dừng Clipboard')
+        tray_actions[controller.stopLook].setEnabled(state['lookWatching'])
     controller.changed.connect(refresh_tray)
     refresh_tray()
     tray.menuVisibilityChanged.connect(shell.set_status_menu_open)
@@ -146,7 +146,7 @@ def main():
         raise SystemExit('RAT Mini đang chạy. Chọn Hiện RAT Mini trên menu bar.')
     instance_bridge = MiniInstanceBridge(state_directory(), app)
     view, controller = create_mini_desk()
-    instance_bridge.showRequested.connect(controller.presentRequested.emit)
+    instance_bridge.showRequested.connect(controller.summonLook)
     instance_bridge.lookRequested.connect(controller.summonLook)
     instance_bridge.minimalRequested.connect(controller.summonMinimal)
     app.aboutToQuit.connect(instance_bridge.close)

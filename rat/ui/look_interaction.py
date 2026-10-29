@@ -71,6 +71,8 @@ class LookInteraction:
             return 'Đã tạm dừng Clipboard.'
         if has_result:
             return 'Bấm Chuột để xem lại.'
+        if self.monitoring == 'off':
+            return 'Viết yêu cầu để bắt đầu.'
         return 'Copy chữ rồi bấm Chuột.'
 
     def snapshot(self, *, has_result=False, busy=False):

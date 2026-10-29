@@ -161,7 +161,12 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def stopLook(self):
+        surface = self.look.surface
         self.disableLook()
+        self.look.surface = surface
+        if surface == 'peek':
+            self.presentation.read() if self._state['hasWorkbench'] else self.presentation.compose()
+        self.update()
 
     @pyqtSlot()
     def dismissLookResult(self):
