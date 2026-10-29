@@ -15,8 +15,8 @@ Rectangle {
     property url lookIdleSource
     property url lookErrorSource
     property url lookPeekSource
-    property real floatingHeadSize: 112
-    property real floatingHeadOpticalHeight: 88
+    property real floatingHeadSize: 144
+    property real floatingHeadOpticalHeight: 112
     property real lookMascotWidth: 176
     property real lookMascotHeight: 176
     property real lookOpticalHeight: 134

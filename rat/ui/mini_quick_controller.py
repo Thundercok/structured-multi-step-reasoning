@@ -552,7 +552,7 @@ class MiniQuickController(QObject):
         self.update(requestText=text)
         input_kind = self._paste_hint[1] if self._paste_hint and self._paste_hint[0] == text else 'typed'
         self._paste_hint = None
-        self.enqueue('submit_goal', {'input_kind':input_kind}, text)
+        self.enqueue('submit_goal', {'input_kind':input_kind, 'result_ref':dict(self._result_ref) if self._result_ref else None}, text)
 
     @pyqtSlot(result='QVariantMap')
     @pyqtSlot(str, result='QVariantMap')
@@ -1221,7 +1221,10 @@ class MiniQuickController(QObject):
         if invocation:
             stage = ('capture_failed' if error and self._region_previous is not None else 'translation_failed' if error
                      else 'needs_input' if response and response.pending_input_request else 'execution_completed')
-            self.quicklook_journal.record(stage, invocation_id=invocation,
+            safe_codes = ('selection_accessibility_required', 'selection_source_changed', 'selection_unavailable',
+                'snippet_too_long', 'cancelled', 'capture_artifact_missing', 'selection_response_missing')
+            reason = next((code for code in safe_codes if code in str(error)), 'other_failure' if error else None)
+            self.quicklook_journal.record(stage, invocation_id=invocation, reason=reason,
                 execution_id=response.execution_id if response else None)
         if value.get('operation') == 'check_mini_readiness':
             checks = next((a.payload for a in (response.artifacts if response else []) if a.kind == 'mini_readiness'), None)
@@ -1450,6 +1453,8 @@ class MiniQuickController(QObject):
         for code, message in messages.items():
             if code in error:
                 return message
+        if any(code in error for code in ('stale_result_ref', 'result_expired', 'invalid_result_ref')):
+            return 'Kết quả trước không còn hợp lệ. Hãy mở lại nguồn và thực hiện lại yêu cầu.'
         if any(code in error for code in ('source_integrity_mismatch', 'source_expired', 'stale_source_ref')):
             return 'Nguồn chữ cũ không còn hợp lệ. Hãy thả lại ảnh hoặc dán lại nội dung để dịch.'
         if 'selection_accessibility_required' in error:
