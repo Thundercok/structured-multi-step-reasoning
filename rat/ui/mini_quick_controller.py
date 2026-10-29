@@ -10,7 +10,8 @@ from PyQt6.QtGui import QGuiApplication, QCursor
 from rat.engine.mini_settings import read_settings, save_settings, keychain_key, state_directory
 from rat.mini import MiniSession
 from rat.ui.mini_worker import MiniJob
-from rat.ui.mini_diagnostics import write_diagnostic
+from rat.ui.mini_diagnostics import BUILD, write_diagnostic
+from rat.ui.quick_look_journal import QuickLookJournal
 from rat.ui.mini_presentation import MiniPresentation, look_projection, compact_speech
 from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url
 from rat.ui.image_preview import ImagePreviewProvider
@@ -30,6 +31,7 @@ class MiniQuickController(QObject):
     lookFocusRequested = pyqtSignal()
     lookResultDismissed = pyqtSignal()
     hotkeyRestartRequested = pyqtSignal()
+    shortcutAcknowledged = pyqtSignal(str)
     presentAtRequested = pyqtSignal(QPoint)
     imageDropAccepted = pyqtSignal(str)
     interactionCompleted = pyqtSignal()
@@ -57,10 +59,15 @@ class MiniQuickController(QObject):
         self._retry_request = None
         self._region_previous = None
         self._selection_present_generation = None
+        self._selection_return = None
+        self._received_invocation_id = None
+        self._selection_invocation_id = None
+        self._presentation_invocation_id = None
+        self.quicklook_journal = QuickLookJournal(state_directory(), BUILD)
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='',
+            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='', hotkeyStarting=False,
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -134,6 +141,9 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonLook(self):
+        if self._state['selectionNotice'] and self._selection_return:
+            self.recallLookResult()
+            return
         self._state['selectionNotice'] = ''
         self.presentation.open('result')
         if self._state['hasWorkbench']:
@@ -174,7 +184,10 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def dismissLookResult(self):
         # Closing presentation never cancels work or abandons clarification.
+        if self._selection_invocation_id:
+            self.quicklook_journal.record('dismissed', invocation_id=self._selection_invocation_id)
         self._selection_present_generation = None
+        self._presentation_invocation_id = None
         self.look.close()
         self.update()
         self.lookResultDismissed.emit()
@@ -186,6 +199,11 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def recallLookResult(self):
+        if self._state['selectionNotice'] and self._selection_return:
+            self.restore_selection_view()
+            self.update(selectionNotice='', selectionNeedsPermission=False)
+            self.lookRequested.emit()
+            return
         self._state['selectionNotice'] = ''
         self.presentation.open('result')
         self.presentation.read() if self._state['hasWorkbench'] else self.presentation.compose()
@@ -240,6 +258,8 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonMinimal(self):
+        if self._state['selectionNotice']:
+            self.restore_selection_view()
         self._state['selectionNotice'] = ''
         self.presentation.open('result')
         self.presentation.compose()
@@ -697,18 +717,64 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def quickLookSelection(self):
         """Pin the source before showing/activating RAT; capture runs in its tool."""
-        if self.quitting or self.job or self.pending or self._region_previous:
+        invocation = self._received_invocation_id or self.quicklook_journal.invocation_id()
+        self._received_invocation_id = None
+        self.quicklook_journal.record('invoked', invocation_id=invocation)
+        if self.quitting:
+            self.quicklook_journal.record('ignored_shutdown', invocation_id=invocation)
             return
+        if self.job or self.pending or self._region_previous:
+            self.quicklook_journal.record('ignored_busy', invocation_id=invocation)
+            self.shortcutAcknowledged.emit('RAT đang xử lý yêu cầu trước. Nội dung hiện tại được giữ; bạn bấm lại khi xong nhé.')
+            return
+        self._selection_invocation_id = invocation
+        try:
+            self._begin_selected_text(invocation)
+        except Exception as exc:
+            self.quicklook_journal.record('callback_error', invocation_id=invocation, reason=type(exc).__name__)
+            self.restore_region_previous()
+            self.presentation.resize(False)
+            self.presentation.read()
+            self.update(selectionNotice='Chưa nhận được vùng chọn. Mã QL_CALLBACK_FAILED. Bạn có thể quay lại công việc trước.',
+                selectionNeedsPermission=False)
+            self.lookRequested.emit()
+
+    def recordHotkeyState(self, stage, **metadata):
+        invocation = None
+        if stage == 'selection':
+            self._received_invocation_id = self.quicklook_journal.invocation_id()
+            invocation = self._received_invocation_id
+        self.quicklook_journal.record(stage, invocation_id=invocation, **metadata)
+
+    def selectionPresented(self):
+        if self._presentation_invocation_id:
+            self.quicklook_journal.record('presented', invocation_id=self._presentation_invocation_id)
+            self._presentation_invocation_id = None
+
+    def restore_selection_view(self):
+        if self._selection_return is not None:
+            fields, look_surface = self._selection_return
+            self._selection_return = None
+            for name, value in fields.items():
+                setattr(self.presentation, name, value)
+            self.look.surface = look_surface
+
+    def _begin_selected_text(self, invocation):
         import os
         import sys
         if sys.platform != 'darwin':
+            self.quicklook_journal.record('unsupported_platform', invocation_id=invocation)
             self.summonLook()
             return
         from AppKit import NSWorkspace
         source = NSWorkspace.sharedWorkspace().frontmostApplication()
         if source is None or int(source.processIdentifier()) == os.getpid():
+            self.quicklook_journal.record('recall_own_app', invocation_id=invocation)
             self.summonLook()
             return
+        if self._selection_return is None:
+            names = ('surface', 'workspace', 'extent', 'composer_visible', 'source_visible')
+            self._selection_return = ({name:getattr(self.presentation, name) for name in names}, self.look.surface)
         fields = ('phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
             'agentSummary', 'agentIncomplete', 'settingsNotice', 'lastOperation',
             'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
@@ -721,8 +787,9 @@ class MiniQuickController(QObject):
         self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
             look_input=True, source_language=self.settings['source_language'],
             target_language=self.settings['target_language']),
-            input_context={'selection_pid': int(source.processIdentifier())})
+            input_context={'selection_pid': int(source.processIdentifier()), 'quicklook_invocation_id':invocation})
         self._selection_present_generation = self.generation
+        self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
         # No present signal here: AX must read the source before RAT can take focus.
 
     @pyqtSlot()
@@ -791,6 +858,8 @@ class MiniQuickController(QObject):
                     or (operation == 'translate_text' and not args.get('source_ref')))
         preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
         if new_task and not preserve_region:
+            self._selection_return = None
+            self._state['selectionNotice'] = ''
             self.presentation.begin_task()
         if not preserve_region and (operation in ('find_files', 'capture_translate')
                 or (operation == 'submit_goal' and not args.get('source_ref') and self._state['phase'] != 'needs_input')
@@ -822,13 +891,19 @@ class MiniQuickController(QObject):
         job.result.connect(lambda value: self.render(value) if job.generation == self.generation else None)
         job.progress.connect(lambda message: self.update(status=message) if job.generation == self.generation and operation != 'check_mini_readiness' else None)
         job.captured.connect(lambda source: self.remember_capture_position(job, source))
+        job.quicklookStage.connect(lambda event: self.quicklook_journal.record(**event))
         job.finished.connect(lambda: self.finished(job))
         job.start()
 
     def remember_capture_position(self, job, source):
         if job.generation == self.generation:
             artifact = source['artifact']
+            if job.args.get('mode') == 'selection':
+                self.quicklook_journal.record('capture_succeeded', invocation_id=job.input_context.get('quicklook_invocation_id'),
+                    artifact_id=artifact.id, generation=job.generation)
             if job.args.get('preserve_until_capture'):
+                if job.args.get('mode') == 'selection':
+                    self._selection_return = None
                 self.presentation.begin_task()
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including
@@ -862,6 +937,8 @@ class MiniQuickController(QObject):
             self.update(status='Đã nhận vùng chữ.' if job.args.get('observe_only') else 'Đang dịch…')
             if job.args.get('mode') == 'selection' and self._selection_present_generation == job.generation:
                 self._selection_present_generation = None
+                self._presentation_invocation_id = job.input_context.get('quicklook_invocation_id')
+                self.quicklook_journal.record('present_requested', invocation_id=self._presentation_invocation_id)
                 self.lookRequested.emit()
 
     def finished(self, job):
@@ -881,6 +958,12 @@ class MiniQuickController(QObject):
             self.update(settingsNotice='Kết quả đã có, nhưng chưa ghi được hồ sơ kiểm tra.')
         response = value.get('response')
         error = value.get('error') or (response.error if response else None)
+        invocation = value.get('invocation_id')
+        if invocation:
+            stage = ('capture_failed' if error and self._region_previous is not None else 'translation_failed' if error
+                     else 'needs_input' if response and response.pending_input_request else 'execution_completed')
+            self.quicklook_journal.record(stage, invocation_id=invocation,
+                execution_id=response.execution_id if response else None)
         if value.get('operation') == 'check_mini_readiness':
             checks = next((a.payload for a in (response.artifacts if response else []) if a.kind == 'mini_readiness'), None)
             self.update(readinessSummary=self.readiness_summary(checks['checks']) if checks else self._state['readinessSummary'],
@@ -906,9 +989,13 @@ class MiniQuickController(QObject):
                         selectionNeedsPermission='selection_accessibility_required' in str(error))
                     if self._selection_present_generation == self.generation:
                         self._selection_present_generation = None
+                        self._presentation_invocation_id = invocation
+                        self.quicklook_journal.record('present_requested', invocation_id=invocation)
                         self.lookRequested.emit()
                 else:
                     self.update(phase='error', error=True, status=self.friendly_error(str(error)))
+            elif selection:
+                self.restore_selection_view()
             return
         if error:
             self.update(readinessBusy=False)
@@ -1146,6 +1233,8 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def cancel(self):
+        if self._selection_invocation_id:
+            self.quicklook_journal.record('cancel_requested', invocation_id=self._selection_invocation_id)
         self.generation += 1
         self._receiving_token = None
         self.pending = None
@@ -1153,6 +1242,9 @@ class MiniQuickController(QObject):
             if self.job:
                 self.job.stop.set()
             self.restore_region_previous()
+            self.restore_selection_view()
+            self._selection_present_generation = None
+            self._presentation_invocation_id = None
             self.update(receivingImage=False, dropActive=False, busy=self.job is not None)
             return
         if self.job:

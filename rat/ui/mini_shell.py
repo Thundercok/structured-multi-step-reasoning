@@ -352,6 +352,8 @@ class MiniShell(QObject):
         self.fit()
         QMetaObject.invokeMethod(self.root, 'restoreReader')
         self.view.show()
+        if self.view.isVisible():
+            self.controller.selectionPresented()
         self.view.raise_()
         if self.root.property('lookActive') and not self.root.property('composing'):
             # Keep the reader active so the next Cmd+C still copies its selection.

@@ -14,6 +14,7 @@ class MiniJob(QThread):
     result = pyqtSignal(object)
     progress = pyqtSignal(str)
     captured = pyqtSignal(object)
+    quicklookStage = pyqtSignal(object)
 
     def __init__(self, session, operation, args, query, generation, input_context=None):
         super().__init__()
@@ -40,6 +41,8 @@ class MiniJob(QThread):
             operation, args = self.operation, self.args
             capture_response = None
             if operation == 'capture_translate':
+                if self.input_context.get('quicklook_invocation_id'):
+                    self.quicklookStage.emit(dict(stage='capture_started', invocation_id=self.input_context['quicklook_invocation_id'], generation=self.generation))
                 region_image = {}
                 outcome = run_capture_translation(self.session, args, query=self.query,
                     input_context=self.input_context,
@@ -69,6 +72,7 @@ class MiniJob(QThread):
                 response = self.session.execute(operation, args, query=self.query, cancel=self.stop.is_set, input_context=self.input_context,
                     on_event=lambda event: events.append(event.to_dict()), progress=progress)
             value = {'response': response, 'events': events, 'operation': operation,
+                     'invocation_id':self.input_context.get('quicklook_invocation_id'),
                      'capture_verification': capture_response.verification_reports if capture_response else [],
                      'llm_calls': self.session.client.calls,
                      'capture_mode':self.args.get('mode') if self.operation == 'capture_translate' else None}
@@ -107,4 +111,5 @@ class MiniJob(QThread):
             write_diagnostic('execution-status.json', dict(state='failed', operation=self.operation,
                 generation=self.generation, exception_type=type(exc).__name__))
             self.result.emit({'error': str(exc), 'events': events, 'operation':self.operation,
+                'invocation_id':self.input_context.get('quicklook_invocation_id'),
                 'capture_mode':self.args.get('mode') if self.operation == 'capture_translate' else None})
