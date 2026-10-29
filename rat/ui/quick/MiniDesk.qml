@@ -21,7 +21,7 @@ Rectangle {
     property real sharedTextSize: 16
     property string buildLabel: "source"
     property real maxCornerSpeechHeight: 300
-    property real composerWidthFloor: 380
+    property real composerWidthFloor: 300
     property bool darkMode: false
     property bool reduceMotion: false
     property real maxPaperHeight: 380
@@ -51,7 +51,7 @@ Rectangle {
     readonly property bool composing: Boolean(liveSnapshot.composerVisible)
     readonly property bool auxiliary: surface === "welcome" || surface === "help" || surface === "settings"
     readonly property bool lookActive: compact && !auxiliary && surface === "result"
-    readonly property bool floatingHead: lookActive && Boolean(liveSnapshot.quickLookHead)
+    readonly property bool floatingHead: lookActive
     readonly property bool paperVisible: Boolean((!compact || surface !== "result") && liveSnapshot.hasWorkbench)
     readonly property bool bodyVisible: auxiliary || paperVisible
     readonly property bool ocrDirty: Boolean(liveSnapshot.ocrDirty)
@@ -120,15 +120,14 @@ Rectangle {
     }
     function growComposerWidth() {
         if (compact && !auxiliary)
-            composerWidthFloor = Math.max(composerWidthFloor,
-                composer.widthStepFor(composerMeasure.advanceWidth + 92, sharedPanelWidth))
+            composerWidthFloor = Math.max(composerWidthFloor, composerMeasure.advanceWidth > 180 ? 360 : 300)
     }
     function beginCornerPresentation() {
         // A fresh invocation may choose a smaller tier; typing/clearing during
         // the invocation only grows it, avoiding a collapse when Send clears it.
         lookView.beginPresentation()
         if (compact)
-            composerWidthFloor = composer.widthStepFor(Math.max(300, composerMeasure.advanceWidth + 92), sharedPanelWidth)
+            composerWidthFloor = composerMeasure.advanceWidth > 180 ? 360 : 300
     }
     function focusComposer() {
         if (composing && !auxiliary && surface === "result") editor.forceActiveFocus()
@@ -564,7 +563,7 @@ Rectangle {
             visible: !desk.auxiliary && desk.composing
             y: desk.lookActive ? 0 : desk.bodyVisible ? resultSheet.height : 0
             width: parent.width
-            height: Math.max(94, composerColumn.implicitHeight + 26)
+            height: Math.max(64, composerColumn.implicitHeight + (desk.lookActive ? 20 : 26))
             cornerRadius: 18; padding: 14
             paperColor: desk.lookActive ? "transparent" : desk.inputColor; edgeColor: desk.lookActive ? "transparent" : desk.edge
             tailEnabled: false
@@ -573,10 +572,10 @@ Rectangle {
             TextMetrics { id: composerMeasure; text: editor.text; font: editor.font }
             ColumnLayout {
                 id: composerColumn
-                x: 14; y: 13; width: parent.width - 28; spacing: 7
+                x: 12; y: desk.lookActive ? 10 : 13; width: parent.width - 24; spacing: 7
                 Label {
                     visible: !desk.liveSnapshot.hasWorkbench && !desk.liveSnapshot.busy
-                    text: "Bôi đen chữ trong app khác → ⌥⇧Space"
+                    text: "Quick Look · ⌥⇧Space"
                     textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
                     Layout.fillWidth: true; wrapMode: Text.Wrap
                 }
@@ -595,7 +594,7 @@ Rectangle {
                             contentWidth: availableWidth; clip: true; ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                             TextArea {
                                 id: editor; objectName: "miniEditor"
-                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn yêu cầu tiếp theo…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : desk.compact ? "Chuột ơi, coi nè · thả ảnh hoặc ⌘V…" : desk.paperVisible ? "Yêu cầu tiếp theo…" : "Chuột nghe đây. Bạn cần gì?"
+                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn tiếp…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Bạn cần gì?"
                                 color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: desk.sharedTextSize
                                 textFormat: TextEdit.PlainText; selectByMouse: true; wrapMode: TextEdit.Wrap; padding: 0; topPadding: 4; selectionColor: desk.accent; selectedTextColor: desk.accentText; background: null
                                 Accessible.name: "Yêu cầu RAT Mini"
@@ -611,9 +610,12 @@ Rectangle {
                             }
                         }
                         QuietButton { objectName: "sendButton"; primary: true; iconName: desk.liveSnapshot.busy ? "stop" : "arrow-up"; implicitWidth: 32; implicitHeight: 32; enabled: Boolean(desk.liveSnapshot.busy || editor.text.trim() || desk.liveSnapshot.attachmentLabel); Accessible.name: desk.liveSnapshot.busy ? "Dừng yêu cầu" : "Gửi yêu cầu"; onClicked: { if (desk.liveSnapshot.busy) desk.liveController.cancel(); else desk.liveController.submitDraft() } }
+                        QuietButton { visible: desk.lookActive; text: "⋯"; implicitWidth: 24; Accessible.name: "Thao tác khác"; onClicked: moreMenu.popup() }
+                        QuietButton { visible: desk.lookActive && !lookView.speaking; iconName: "close"; implicitWidth: 24; Accessible.name: "Ẩn RAT"; onClicked: desk.hideRequested() }
                     }
                 }
                 RowLayout {
+                    visible: !desk.lookActive
                     Layout.fillWidth: true; spacing: 5
                     Item { Layout.fillWidth: true }
                     QuietButton { visible: !desk.paperVisible && Boolean(desk.liveSnapshot.hasWorkbench); iconName: "chevron-up"; implicitWidth: 28; Accessible.name: "Mở lại kết quả"; onClicked: desk.liveController.openLookWorkbench() }
@@ -702,7 +704,6 @@ Rectangle {
         // Qt 6.8+: the Look window can be just 122px wide. A separate popup
         // window keeps the secondary menu outside that tiny input mask.
         popupType: Popup.Window
-        MenuItem { text: "Bôi đen chữ trong app nguồn → ⌥⇧Space"; enabled: false }
         MenuItem { text: "Xem lại công việc"; onTriggered: desk.liveController.summonLook() }
         MenuItem { text: "Viết yêu cầu"; onTriggered: desk.liveController.summonMinimal() }
         MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: desk.compact ? "Mở rộng kết quả" : "Thu gọn"; onTriggered: desk.liveController.setExpanded(desk.compact) }

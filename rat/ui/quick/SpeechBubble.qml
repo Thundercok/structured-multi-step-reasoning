@@ -24,13 +24,16 @@ SpeechSurface {
     readonly property real railWidth: utilityActions.length ? 32 : 0
     readonly property real footerHeight: primaryAction ? 30 : 0
     readonly property real headingHeight: stateLabel ? 22 : 0
+    readonly property bool hasReader: Boolean(text || stateLabel)
     readonly property real measuredWidth: Math.max(minimumWidth,
         Math.ceil(Math.max(measure.advanceWidth, primaryMeasure.advanceWidth)) + 2 * padding + railWidth + 12)
     readonly property real preferredWidth: heldWidth > 0 ? Math.min(maximumWidth, Math.max(minimumWidth, heldWidth))
         : widthStepFor(measuredWidth, maximumWidth)
-    readonly property real preferredHeight: Math.min(maximumHeight, heldHeight > 0 ? Math.max(heldHeight, accessoryHeight + 2 * padding + 32) : Math.max(
-        layoutMeasure.implicitHeight + 2 * padding + headingHeight + footerHeight + accessoryHeight,
-        utilityActions.length * 28 + 4 + accessoryHeight))
+    readonly property real naturalHeight: hasReader ? Math.max(
+        layoutMeasure.implicitHeight + 2 * padding + headingHeight + footerHeight,
+        utilityActions.length * 28 + 4) : Math.max(footerHeight, utilityActions.length * 28)
+    readonly property real preferredHeight: Math.min(maximumHeight,
+        Math.max(heldHeight, naturalHeight + accessoryHeight))
     readonly property bool overflowing: scroll.contentHeight > scroll.height + 1
     readonly property bool moreBelow: overflowing && scroll.contentY < scroll.contentHeight - scroll.height - 1
     readonly property bool engaged: hover.hovered || scroll.moving || scroll.dragging
@@ -101,6 +104,7 @@ SpeechSurface {
     }
     Flickable {
         id: scroll
+        visible: bubble.hasReader
         objectName: "speechViewport"
         x: bubble.padding; y: bubble.padding + bubble.headingHeight
         width: Math.max(1, bubble.width - 2 * bubble.padding - bubble.railWidth)

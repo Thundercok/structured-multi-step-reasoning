@@ -26,7 +26,8 @@ Item {
     property real composerHeight: 0
     property real composerWidthFloor: 380
     property alias composerHost: bubble.accessoryHost
-    readonly property bool floatingHead: Boolean(snapshot.quickLookHead)
+    // All compact entry/reading states share the same small silhouette.
+    readonly property bool floatingHead: true
     readonly property string variant: snapshot.lookVariant || "standby"
     readonly property bool reading: snapshot.lookSurface === "reading"
     readonly property bool speaking: Boolean(snapshot.lookText)
@@ -93,8 +94,8 @@ Item {
             : !look.floatingHead && look.reading && look.snapshot.captureSourceKind === "selection" ? "Chữ bôi đen" : ""
         accessoryHeight: look.composerHeight
         minimumWidth: look.snapshot.composerVisible ? look.composerWidthFloor : 76
-        maximumWidth: look.floatingHead && !look.snapshot.composerVisible ? Math.min(360, look.maximumSpeechWidth) : look.maximumSpeechWidth
-        widthSteps: look.floatingHead && !look.snapshot.composerVisible ? [140, 240, 360] : [220, 380, 580]
+        maximumWidth: Math.min(360, look.maximumSpeechWidth)
+        widthSteps: look.snapshot.composerVisible ? [300, 360] : [140, 240, 360]
         fontPixelSize: look.speechFontSize
         cornerRadius: look.floatingHead ? 14 : 18
         padding: look.floatingHead ? 12 : 14
@@ -115,6 +116,9 @@ Item {
         anchorPosition: look.snapshot.readerAnchorPosition || 0
         anchorDelta: look.snapshot.readerAnchorDelta || 0
         actions: {
+            // The empty composer owns its own Close. Do not allocate a blank
+            // reader/action rail above it just to display a second Close.
+            if (look.snapshot.composerVisible && !look.speaking) return []
             var items = [{id:"dismiss", label:"Đóng phản hồi", icon:"close", role:"utility"}]
             if (look.snapshot.busy)
                 items.push({id:"cancel", label:"Dừng yêu cầu", icon:"stop", role:"utility"})
