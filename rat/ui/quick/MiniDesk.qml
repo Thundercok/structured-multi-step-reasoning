@@ -63,7 +63,7 @@ Rectangle {
         && (liveSnapshot.view === "translation" || liveSnapshot.view === "analysis")
     property real heldReaderHeight: 0
     readonly property real panelBudget: compact && !auxiliary ? (composing ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)) : maxPanelHeight
-    readonly property bool paperVisible: Boolean(liveSnapshot.hasWorkbench || previewing || noticeVisible)
+    readonly property bool paperVisible: !liveSnapshot.bubbleCollapsed && Boolean(liveSnapshot.hasWorkbench || previewing || noticeVisible)
     readonly property bool bodyVisible: auxiliary || paperVisible
     readonly property bool ocrDirty: Boolean(liveSnapshot.ocrDirty)
     readonly property bool ocrPanelVisible: surface === "ocr"
@@ -256,7 +256,7 @@ Rectangle {
                 visible: desk.simpleAnswer && !desk.composing
                 x: parent.width - width - 3; y: 2; z: 3
                 iconName: "close"; iconSize: 12; implicitWidth: 22; implicitHeight: 22
-                Accessible.name: "Đóng kết quả"; onClicked: desk.hideRequested()
+                Accessible.name: "Đóng kết quả"; onClicked: desk.liveController.collapseBubble()
             }
             Rectangle {
                 id: fullSource
@@ -704,10 +704,10 @@ Rectangle {
         id: mascotItem; objectName: "mascotCrop"
         x: desk.ratX; y: desk.ratY; width: desk.floatingHeadSize; height: desk.floatingHeadSize
         MascotPose {
-            id: headPose; anchors.fill: parent; source: desk.lookHeadSource
+            id: headPose; anchors.fill: parent; source: desk.lookIdleSource
             bottomPadding: 4; opticalHeight: desk.floatingHeadOpticalHeight
-            inkBounds: Qt.rect(49/1413, 81/1113, 1262/1413, 979/1113)
-            mouth: Qt.point(0.33, 0.81)
+            inkBounds: Qt.rect(0.08, 0.06, 0.84, 0.89)
+            mouth: Qt.point(0.43, 0.43)
         }
         MouseArea {
             id: headMouse; anchors.fill: parent; hoverEnabled: true
@@ -740,7 +740,7 @@ Rectangle {
         Label { anchors.centerIn: parent; text: "Thả ảnh để dịch"; color: desk.ink; font.pixelSize: 16 }
     }
     Shortcut { enabled: !desk.auxiliary && !desk.composing; context: Qt.ApplicationShortcut; sequences: [StandardKey.Paste]; onActivated: desk.liveController.pasteLook() }
-    Shortcut { sequence: "Escape"; onActivated: { if (diagnosticDialog.visible) diagnosticDialog.close(); else if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (historyMenu.visible) historyMenu.close(); else if (analysisMenu.visible) analysisMenu.close(); else if (moreMenu.visible) moreMenu.close(); else if (readerMenu.visible) readerMenu.close(); else if (editorMenu.visible) editorMenu.close(); else if (desk.previewing || desk.noticeVisible) desk.liveController.returnToTask(); else if (desk.auxiliary || desk.surface !== "result") desk.goBack(); else desk.hideRequested() } }
+    Shortcut { sequence: "Escape"; onActivated: { if (diagnosticDialog.visible) diagnosticDialog.close(); else if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (historyMenu.visible) historyMenu.close(); else if (analysisMenu.visible) analysisMenu.close(); else if (moreMenu.visible) moreMenu.close(); else if (readerMenu.visible) readerMenu.close(); else if (editorMenu.visible) editorMenu.close(); else if (desk.previewing || desk.noticeVisible) desk.liveController.returnToTask(); else if (desk.auxiliary || desk.surface !== "result") desk.goBack(); else if (desk.composing) desk.liveController.toggleComposer(); else desk.liveController.collapseBubble() } }
     Shortcut { sequence: "Meta+W"; onActivated: desk.hideRequested() }
     Shortcut { sequence: "Meta+Q"; onActivated: desk.liveController.quit() }
     Shortcut { sequence: "Ctrl+Q"; onActivated: desk.liveController.quit() }

@@ -170,7 +170,7 @@ class MiniShell(QObject):
 
     def complete_interaction(self):
         if self.root.property('lookActive'):
-            self.controller.dismissLookResult()
+            self.controller.collapseBubble()
         else:
             self.dismiss()
 
@@ -318,7 +318,7 @@ class MiniShell(QObject):
                 QRect(0, 0, self.view.width(), self.view.height()).contains(point)):
             return
         if self.root.property('lookActive'):
-            self.controller.dismissLookResult()
+            self.controller.collapseBubble()
         else:
             self.dismiss()
 

@@ -76,7 +76,7 @@ class MiniQuickController(QObject):
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceApp='', captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
+            phase='idle', busy=False, bubbleCollapsed=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceApp='', captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -786,6 +786,7 @@ class MiniQuickController(QObject):
             self.shortcut_ack_timer.start(4000)
             self.shortcutAcknowledged.emit(message)
             return
+        self.update(bubbleCollapsed=False)
         self._selection_invocation_id = invocation
         try:
             self._begin_selected_text(invocation)
@@ -1017,7 +1018,19 @@ class MiniQuickController(QObject):
         self.update(pinned=not self._state['pinned'])
 
     @pyqtSlot()
+    def collapseBubble(self):
+        self._selection_present_generation = None
+        self._presentation_invocation_id = None
+        self.presentation.read()
+        self.update(bubbleCollapsed=True)
+
+    @pyqtSlot()
     def toggleComposer(self):
+        if self._state['bubbleCollapsed']:
+            self.update(bubbleCollapsed=False)
+            if self._state['hasWorkbench']:
+                self.look.read()
+                return
         self.presentation.composer_visible = not self.presentation.composer_visible
         self.look.read()
         self.update()
@@ -1065,6 +1078,7 @@ class MiniQuickController(QObject):
             self.update(receivingImage=False)
         if operation != "check_mini_readiness":
             self.update(settingsNotice='', organizationRecoverySuggested=operation in ("apply_folder_organization", "undo_folder_organization"))
+        self.update(bubbleCollapsed=False)
         self.pending = operation, args, query, self.generation, input_context
         if self.job:
             self.job.stop.set()
