@@ -54,6 +54,7 @@ Item {
     signal copyRequested(string displayedText)
     signal dismissRequested()
     signal retryRequested()
+    signal cancelRequested()
     signal scrollRequested(real offset)
     signal pendingRequested()
     signal previewRequested()
@@ -66,7 +67,8 @@ Item {
     function prepareSnapshot(next) {
         // Capture the old rendered geometry BEFORE busy text/actions replace
         // the result. Completion releases it for one coalesced placement pass.
-        if (next.busy && !snapshot.busy && next.lookSurface === "reading") {
+        if ((next.busy && !snapshot.busy || snapshot.composerVisible && !next.composerVisible)
+                && next.lookSurface === "reading" && bubble.heldWidth <= 0) {
             if (speaking && bubble.width > 0 && bubble.height > 0)
                 bubble.holdSize(bubble.width, bubble.height)
             else bubble.holdSize(bubble.widthStepFor(300, maximumSpeechWidth), 96)
@@ -109,6 +111,8 @@ Item {
         anchorDelta: look.snapshot.readerAnchorDelta || 0
         actions: {
             var items = [{id:"dismiss", label:"Đóng phản hồi", icon:"close", role:"utility"}]
+            if (look.snapshot.busy)
+                items.push({id:"cancel", label:"Dừng yêu cầu", icon:"stop", role:"utility"})
             if (look.reading && look.snapshot.lookCanCopy)
                 items.push({id:"copy", label:"Sao chép nội dung đang hiện", icon:"copy", role:"utility"})
             if (look.reading && look.snapshot.hasWorkbench)
@@ -136,6 +140,7 @@ Item {
             if (actionId === "copy") look.copyRequested(displayedText)
             else if (actionId === "dismiss") look.dismissRequested()
             else if (actionId === "retry") look.retryRequested()
+            else if (actionId === "cancel") look.cancelRequested()
             else if (actionId === "reply") look.expandRequested()
             else if (actionId === "next") look.pendingRequested()
             else if (actionId === "recall") look.recallRequested()

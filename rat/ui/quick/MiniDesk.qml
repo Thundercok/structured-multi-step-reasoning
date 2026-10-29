@@ -214,13 +214,12 @@ Rectangle {
         function onHelpRequested() { desk.navigate("help") }
     }
 
-    // Production reference: PDFDesk.qml, Build 2026.10.25.33.
-    // A bottom composer overlaps the right-offset result paper by 22 pixels.
+    // Expanded task projection. The same composer moves into the compact bubble.
     Item {
         id: panel
         visible: !desk.lookActive
         x: desk.panelX; y: desk.panelY
-        width: desk.compact && !desk.auxiliary ? Math.max(1, desk.panelWidth) : Math.max(320, desk.panelWidth)
+        width: Math.max(1, desk.panelWidth)
         height: desk.auxiliary ? resultSheet.height : (desk.composing ? composer.height : 0) + (desk.bodyVisible ? resultSheet.height : 0)
         Rectangle {
             visible: false
@@ -696,6 +695,7 @@ Rectangle {
         onCopyRequested: displayed => desk.liveController.copyLook(displayed)
         onDismissRequested: desk.liveController.dismissLookResult()
         onRetryRequested: desk.liveController.retryRequest()
+        onCancelRequested: desk.liveController.cancel()
         onScrollRequested: offset => desk.liveController.rememberLookScroll(offset)
         onPendingRequested: desk.liveController.openPendingLook()
         onPreviewRequested: desk.liveController.previewPending()

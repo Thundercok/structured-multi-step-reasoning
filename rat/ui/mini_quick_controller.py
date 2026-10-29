@@ -284,7 +284,7 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def backSurface(self):
         self.presentation.back()
-        if self.presentation.workspace_mode == 'look' and self._state['hasWorkbench']:
+        if self._state['hasWorkbench']:
             self.look.read()
         self.sync_look_clipboard()
         self.changed.emit()
@@ -308,7 +308,9 @@ class MiniQuickController(QObject):
         if self.look.surface == 'reading' and not self._state['busy']:
             # In-memory reading context only. Match exact rendered text before
             # applying it to another layout; unrelated projections use local scroll.
-            self.presentation.reading_anchor = (text, max(0, min(position, len(text))), float(delta))
+            # Qt text offsets count UTF-16 code units, including surrogate pairs.
+            length = len(text.encode('utf-16-le')) // 2
+            self.presentation.reading_anchor = (text, max(0, min(position, length)), float(delta))
 
     @pyqtSlot()
     def openLookSettings(self):
@@ -573,13 +575,12 @@ class MiniQuickController(QObject):
         self._paste_hint = None
         self._last_image, self._image_instruction = image, instruction.strip()
         preview = self.image_preview.set_input(image)
-        looking = self.presentation.workspace_mode == 'look'
-        self.update(requestText=instruction.strip() or (f'Cho Chuột xem: {label}' if looking else f'Dịch ảnh: {label}'),
+        self.update(requestText=instruction.strip() or f'Dịch ảnh: {label}',
             imagePreviewUrl=preview, imageLabel=label, imageInputSuggested=False)
-        if not looking:
+        if instruction.strip():
             self.consume_submission(instruction)
         self.enqueue('capture_translate', dict(mode='image', image_input=image,
-            look_input=looking,
+            look_input=True,
             source_language=self.settings['source_language'],
             target_language=self.settings['target_language']), instruction.strip())
         self.imageDropAccepted.emit(instruction)
@@ -684,7 +685,7 @@ class MiniQuickController(QObject):
             logging.getLogger(__name__).info('region_capture_dispatching')
             self.enqueue('capture_translate', dict(mode='region', source_language=self.settings['source_language'],
                 target_language=self.settings['target_language'], preserve_until_capture=True,
-                look_input=self.presentation.workspace_mode == 'look'))
+                look_input=True))
         QTimer.singleShot(160, begin)
 
     def restore_region_previous(self):
@@ -870,6 +871,7 @@ class MiniQuickController(QObject):
             return
         if response.pending_input_request:
             self.complete_surface()
+            self.presentation.composer_visible = True
             self.update(phase='needs_input', view='notice', text='', meta='', finderHits=[],
                 finderSettingsSuggested=response.pending_input_request.operation_name == 'find_files',
                 imageInputSuggested=False,
