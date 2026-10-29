@@ -221,3 +221,35 @@ execution, native Space inspection, test, real selection or live model request
 was run for these source changes. The running bundle remains the earlier .28.
 In particular, whether this policy fixes the user's Space switch, and the cause
 of the user's captured-text failure, remain unknown until the built app is used.
+
+## Requested self-check: 2026-10-29
+
+Built `dist/rat-lite-20261029-space-fix/RAT Mini.app` from source `a30f1a06`
+with the existing `/private/tmp/rat-mini-offline-mt-deps`; launched build
+`20261029.28.1` (PID 93866, helper 93877). Helper journal reported registered
+and READY; no Space policy failure was logged during startup. This is not
+proof of Space behavior.
+
+With the real UI, typed `Dịch: The little rat is reading this sentence.` and
+pressed Return. The app reported translate_text execution and displayed the real
+answer `Con chuột nhỏ đang đọc câu này.` This verifies that one typed request
+and its response worked in this build, not selection or Agent planning.
+
+In a separate disposable TextEdit document, selected that sentence and sent
+`alt+shift+space` twice via the computer-use keyboard API. Both attempts inserted
+a nonbreaking space into the test document; the helper journal recorded no
+selection invocation. This shows the simulated input did not activate RAT; it
+cannot establish how a physical keyboard behaves. The source was a disposable
+file, not the user's already-open document. No valid two-Space outcome was
+obtained because the trigger did not reach the helper.
+
+Offscreen test batch with the existing ctranslate2 dependency: 9 passed,
+3 failed (`test_look_standby_hides_composer_and_preserves_draft`,
+`test_copy_only_queues_and_explicit_open_uses_real_workflow`,
+`test_mini_quick_layout_and_import_boundary`). The first/third contain older
+layout expectations; the second must be investigated individually. None of
+these results establish live shortcut or Space acceptance.
+
+Status: shortcut and Space bug remain unverified; the earlier .28 journal had
+shown physical shortcut events but capture failed. No fake response, model loop,
+or successful capture claim is substituted for this missing evidence.
