@@ -53,8 +53,23 @@ def check_readiness(settings, *, deep=False, cancel=lambda: False):
     present = sum(Path(p).expanduser().is_dir() for p in roots)
     add('folders', 'Thư mục của bạn', 'unverified' if present else 'action_required',
         f'{present}/{len(roots)} thư mục tồn tại. Quyền đọc/ghi sẽ được kiểm tra khi bạn dùng; có thể đổi trong Cài đặt.')
-    add('screen', 'Quyền hệ thống', 'not_required',
-        'Thả ảnh hoặc ⌘V không cần cấp Ghi màn hình hay Trợ năng cho RAT. Dùng ⌘⇧4 của macOS để chụp.')
+    if sys.platform == 'darwin':
+        from rat.os.permissions import accessibility_status
+        ax = accessibility_status()
+        add('accessibility', 'Đọc chữ bôi đen', 'ready' if ax.trusted else 'action_required',
+            'Bản RAT đang chạy được phép đọc chữ bôi đen.' if ax.trusted else
+            'Cần bật Trợ năng cho đúng bản RAT đang chạy. Nhấn Mở Trợ năng rồi thêm bản này.')
+        try:
+            import Quartz
+            screen_granted = bool(Quartz.CGPreflightScreenCaptureAccess())
+            add('screen', 'Chọn vùng trên màn hình', 'ready' if screen_granted else 'not_required',
+                'Đã cấp Ghi màn hình.' if screen_granted else
+                'Chỉ cần Ghi màn hình khi bạn dùng Chọn vùng chữ; ảnh thả vào và chữ dán không cần quyền này.')
+        except Exception:
+            add('screen', 'Chọn vùng trên màn hình', 'unverified', 'Chưa kiểm tra được quyền Ghi màn hình.')
+    else:
+        add('accessibility', 'Đọc chữ bôi đen', 'not_required', 'Chức năng selection chỉ hỗ trợ macOS.')
+        add('screen', 'Chọn vùng trên màn hình', 'not_required', 'Chức năng chọn vùng chỉ hỗ trợ macOS.')
     add('network', 'Dịch trực tuyến', 'not_required',
         'Anh ↔ Việt dịch ngay trên máy. Ngôn ngữ khác cần mạng và dịch vụ tương ứng; chưa kiểm chứng kết nối.')
     return dict(status='needs_attention' if any(c['state']=='action_required' for c in checks) else 'ready',

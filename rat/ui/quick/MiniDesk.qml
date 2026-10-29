@@ -404,10 +404,19 @@ Rectangle {
                             color: desk.ink; font.pixelSize: 14; padding: 0; background: null; Layout.fillWidth: true
                         }
                         ColumnLayout {
-                            visible: desk.surface === "welcome"; Layout.fillWidth: true; spacing: 14
-                            Label { text: "Gõ điều bạn cần. Chuột sẽ tìm file hoặc dịch giúp bạn."; color: desk.ink; font.pixelSize: 21; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                            Label { text: "Chụp bằng ⌘⇧4, rồi thả ảnh vào đây. Bạn cũng có thể dán bằng ⌘V."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                            Label { text: "Anh ↔ Việt dịch trên máy. Esc để ẩn; bấm biểu tượng RAT trên menu bar để gọi lại."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true; font.pixelSize: 12 }
+                            visible: desk.surface === "welcome"; Layout.fillWidth: true; spacing: 12
+                            Label { text: "Chào bạn, mình là Chuột!"; color: desk.ink; font.pixelSize: 21; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: "Để bôi đen chữ rồi gọi Chuột, hãy cho đúng bản RAT này quyền Trợ năng."; color: desk.ink; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: desk.liveSnapshot.readinessBusy ? "Đang kiểm tra…" : desk.liveSnapshot.accessibilityReady ? "✓ Bản RAT này đã có quyền Trợ năng" : "1. Bấm Mở Trợ năng.\n2. Bấm + và chọn bản RAT này.\n3. Bật công tắc, quay lại và bấm Kiểm tra lại."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                QuietButton { text: "Mở Trợ năng"; onClicked: desk.liveController.openSelectionAccess() }
+                                QuietButton { text: "Hiện bản RAT"; onClicked: desk.liveController.revealRunningApp() }
+                                QuietButton { text: "Kiểm tra lại"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.checkReadiness(false) }
+                            }
+                            Label { visible: Boolean(desk.liveSnapshot.runningBundlePath); text: desk.liveSnapshot.runningBundlePath || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; wrapMode: Text.WrapAnywhere; Layout.fillWidth: true }
+                            Label { text: "Ghi màn hình chỉ cần khi bạn chọn vùng chữ. RAT sẽ hỏi khi bạn dùng chức năng đó."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true; font.pixelSize: 12 }
+                            Label { text: desk.liveSnapshot.readinessStatus || ""; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true; font.pixelSize: 12 }
                             QuietButton { text: "Xem thiết lập & trợ giúp"; onClicked: desk.navigate("help") }
                         }
                         ColumnLayout {
@@ -626,7 +635,7 @@ Rectangle {
                     Item { Layout.fillWidth: true }
                     QuietButton {
                         id: setupPrimary; objectName: "helloContinue"; primary: true
-                        enabled: !desk.liveSnapshot.busy
+                        enabled: !desk.liveSnapshot.busy && (desk.surface !== "welcome" || desk.liveSnapshot.setupCompleted || desk.liveSnapshot.accessibilityReady)
                         text: desk.surface === "settings" ? "Lưu" : desk.liveSnapshot.setupCompleted ? "Về RAT" : "Bắt đầu"
                         onClicked: {
                             if (desk.surface === "settings") {

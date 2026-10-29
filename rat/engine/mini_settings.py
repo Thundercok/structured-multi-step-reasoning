@@ -18,7 +18,7 @@ def state_directory():
 
 DEFAULTS = {'roots': [str(Path.home()/name) for name in ('Documents','Desktop','Downloads')], 'provider': 'openai', 'model': 'gpt-4.1-mini',
             'translation_provider': 'automatic', 'free_fallback': True, 'llm_enabled': False,
-            'hotkey_chord': DEFAULT_CHORD, 'target_language': 'vi', 'source_language': 'auto', 'semantic_enabled': False, 'setup_completed': False}
+            'hotkey_chord': DEFAULT_CHORD, 'target_language': 'vi', 'source_language': 'auto', 'semantic_enabled': False, 'setup_completed': False, 'permission_hello_version': 0}
 
 
 def read_settings():
@@ -54,6 +54,8 @@ def read_settings():
             result['translation_provider'] = 'automatic'
         if type(result['setup_completed']) is not bool:
             result['setup_completed'] = False
+        if type(result.get('permission_hello_version')) is not int or result['permission_hello_version'] not in (0, 1):
+            result['permission_hello_version'] = 0
         if result['hotkey_chord'] not in CHORDS:
             result['hotkey_chord'] = DEFAULT_CHORD
         result['semantic_enabled'] = False

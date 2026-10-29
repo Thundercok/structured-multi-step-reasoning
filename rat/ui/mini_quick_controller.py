@@ -7,6 +7,7 @@ from rat.os.hotkey_chords import CHORDS, DEFAULT_CHORD, chord
 import json
 import logging
 import time
+import subprocess
 from PyQt6.QtCore import QObject, QPoint, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QGuiApplication, QCursor
 
@@ -19,6 +20,7 @@ from rat.ui.mini_presentation import MiniPresentation, look_projection, compact_
 from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url
 from rat.ui.image_preview import ImagePreviewProvider
 from rat.ui.mini_clipboard import LookClipboard
+from rat.os.permissions import runtime_identity
 
 
 class MiniQuickController(QObject):
@@ -47,7 +49,7 @@ class MiniQuickController(QObject):
         self.session = MiniSession(self.settings)
         self.job = self.pending = self.finder_artifact = None
         self.organization_artifact = None
-        self.presentation = MiniPresentation(surface="result" if self.settings.get("setup_completed") else "welcome")
+        self.presentation = MiniPresentation(surface="result" if self.settings.get("setup_completed") and self.settings.get("permission_hello_version", 0) >= 1 else "welcome")
         self._task_history = []
         self._public_turns = []
         self._public_steps = []
@@ -89,7 +91,7 @@ class MiniQuickController(QObject):
             dropActive=False, receivingImage=False, imagePreviewUrl='', imageLabel='',
             ocrPreparationNotice='', canRetryRequest=False, finderSettingsSuggested=False,
             imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False, canUndoOrganization=False,
-            organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False)), readiness=[], readinessBusy=False, readinessStatus="")
+            organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False) and self.settings.get('permission_hello_version',0) >= 1), readiness=[], readinessBusy=False, readinessStatus="")
         self.shortcut_ack_timer = QTimer(self)
         self.shortcut_ack_timer.setSingleShot(True)
         self.shortcut_ack_timer.timeout.connect(lambda: self.update(shortcutAck=''))
@@ -98,12 +100,16 @@ class MiniQuickController(QObject):
         self.look_clipboard.changed.connect(self.clearLookPending)
         self.look_clipboard.unavailable.connect(self._look_unavailable)
         self.record_ui_state()
+        if self.presentation.surface == 'welcome':
+            QTimer.singleShot(0, lambda: self.checkReadiness(False))
 
     @pyqtProperty('QVariantMap', notify=changed)
     def snapshot(self):
         state = dict(self._state, **self.presentation.snapshot(),
             **self.look.snapshot(has_result=self._state['hasWorkbench'], busy=self._state['busy']))
         return dict(state, **look_projection(state),
+            runningBundlePath=runtime_identity().get('bundle_path') or '',
+            accessibilityReady=any(c.get('key') == 'accessibility' and c.get('state') in ('ready','not_required') for c in self._state['readiness']),
             shortcutLabel=chord(self.settings.get('hotkey_chord', DEFAULT_CHORD))[2],
             publicTurns=deepcopy(self._public_turns), publicSteps=deepcopy(self._public_steps),
             taskHistory=[dict(index=i, title=item['title']) for i,item in enumerate(self._task_history)],
@@ -318,6 +324,11 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonMinimal(self):
+        if not self._state['setupCompleted']:
+            self.presentation.open('welcome')
+            self.update()
+            self.presentRequested.emit()
+            return
         if self._state['selectionNotice']:
             self.returnToTask()
         if self._preview_return is not None:
@@ -483,7 +494,9 @@ class MiniQuickController(QObject):
     @pyqtSlot(result=str)
     def completeSetup(self):
         try:
-            updated = dict(self.settings, setup_completed=True)
+            if not self.snapshot['accessibilityReady']:
+                return 'Bật Trợ năng cho bản RAT này, rồi bấm Kiểm tra lại.'
+            updated = dict(self.settings, setup_completed=True, permission_hello_version=1)
             save_settings(updated)
             self.settings = updated
             self.presentation.back()
@@ -874,6 +887,17 @@ class MiniQuickController(QObject):
         self._selection_present_generation = self.generation
         self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
         # No present signal here: AX must read the source before RAT can take focus.
+
+    @pyqtSlot()
+    def revealRunningApp(self):
+        path = runtime_identity().get('bundle_path')
+        if not path:
+            self.update(readinessStatus='Bản source chưa có app bundle để chọn.')
+            return
+        try:
+            subprocess.Popen(['open', '-R', path])
+        except OSError:
+            self.update(readinessStatus='Chưa mở được Finder. Đường dẫn app được hiển thị bên dưới.')
 
     @pyqtSlot()
     def openSelectionAccess(self):
