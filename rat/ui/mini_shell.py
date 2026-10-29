@@ -48,7 +48,7 @@ class MiniShell(QObject):
         self._look_hide_key = None
         root.preferredPanelHeightChanged.connect(self.schedule_fit)
         root.layoutExpandedChanged.connect(self.schedule_fit)
-        root.workspaceModeChanged.connect(self.schedule_fit)
+        root.compactChanged.connect(self.schedule_fit)
         root.lookActiveChanged.connect(self.look_policy_changed)
         root.lookBubbleWidthChanged.connect(self.schedule_fit)
         root.lookBubbleHeightChanged.connect(self.schedule_fit)
@@ -190,8 +190,7 @@ class MiniShell(QObject):
             self._last_origin = origin
 
     def corner_surface(self):
-        return bool(self.root.property('lookActive') or (
-            self.controller.presentation.workspace_mode == 'minimal' and not self.root.property('auxiliary')))
+        return bool(self.root.property('compact') and not self.root.property('auxiliary'))
 
     def fit(self):
         if self.animating:
@@ -230,20 +229,22 @@ class MiniShell(QObject):
                     self.fit_timer.start(0)
                 return
             expanded = bool(self.root.property('layoutExpanded'))
+            if not self.expanded and expanded:
+                # Expanded work stays on the companion's screen/edge. Collapse
+                # uses look_home unchanged rather than the expanded window origin.
+                self.home = self.look_home
             if not expanded:
                 self.expanded_top = None
             placement = place_panel(Rect(area.x(),area.y(),area.width(),area.height()), self.home,
                 self.root.property('preferredPanelHeight'), expanded, self.side,
-                panel_width=900 if self.controller.presentation.workspace_mode == 'full' else MINI_PANEL_WIDTH,
-                paper_inset=0 if self.root.property('auxiliary') else round(self.root.property('paperOffset')),
+                panel_width=900 if self.controller.presentation.source_visible else MINI_PANEL_WIDTH,
+                paper_inset=0,
                 anchor_top=self.expanded_top if self.expanded else None)
             if expanded:
                 self.expanded_top = placement.panel.y
             old = self.root.property('mascotRect')
             old_rat = Rect(self.view.x()+round(old.x()), self.view.y()+round(old.y()), round(old.width()), round(old.height()))
-            hop = (self.view.isVisible() and not self.root.property('reduceMotion')
-                   and (expanded != self.expanded or placement.side != self.side)
-                   and area.contains(QRect(old_rat.x,old_rat.y,old_rat.width,old_rat.height)))
+            hop = False
             bounds = placement.bounds.union(old_rat) if hop else placement.bounds
             self.side, self.expanded = placement.side, expanded
             self.root.setProperty('animatePlacement', False)
@@ -345,13 +346,13 @@ class MiniShell(QObject):
         self.look_keyboard_owned = False
         if not self.view.isVisible():
             QMetaObject.invokeMethod(self.root, 'beginCornerPresentation')
-        if self.controller.presentation.workspace_mode == 'look':
+        if self.root.property('lookActive'):
             self.controller.prepareLookRecall()
         self.fit()
         QMetaObject.invokeMethod(self.root, 'restoreReader')
         self.view.show()
         self.view.raise_()
-        if self.root.property('lookActive'):
+        if self.root.property('lookActive') and not self.root.property('composing'):
             # Keep the reader active so the next Cmd+C still copies its selection.
             self.update_look_timeout()
             return

@@ -25,9 +25,9 @@ SpeechSurface {
     readonly property real footerHeight: primaryAction ? 30 : 0
     readonly property real measuredWidth: Math.max(minimumWidth,
         Math.ceil(Math.max(measure.advanceWidth, primaryMeasure.advanceWidth)) + 2 * padding + railWidth + 12)
-    readonly property real preferredWidth: heldWidth > 0 ? Math.min(maximumWidth, heldWidth)
+    readonly property real preferredWidth: heldWidth > 0 ? Math.min(maximumWidth, Math.max(minimumWidth, heldWidth))
         : widthStepFor(measuredWidth, maximumWidth)
-    readonly property real preferredHeight: Math.min(maximumHeight, heldHeight > 0 ? heldHeight : Math.max(
+    readonly property real preferredHeight: Math.min(maximumHeight, heldHeight > 0 ? Math.max(heldHeight, accessoryHeight + 2 * padding + 32) : Math.max(
         layoutMeasure.implicitHeight + 2 * padding + footerHeight + accessoryHeight,
         utilityActions.length * 28 + 4 + accessoryHeight))
     readonly property bool overflowing: scroll.contentHeight > scroll.height + 1
