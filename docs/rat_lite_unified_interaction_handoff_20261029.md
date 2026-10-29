@@ -1,5 +1,9 @@
 # RAT Lite .24 — unified interaction source handoff
 
+While the user manually tries .24, follow-on candidates are recorded in the
+[next iteration plan](rat_lite_next_iteration_plan_20261029.md). Planning leaves
+the running candidate unchanged; user feedback determines the next code scope.
+
 Later user-authorized build/open completed: app and ZIP are in
 `dist/rat-lite-20261029-unified/`; process PID39464 launched from the .24 bundle.
 See [package/launch record](../audit/rat_lite_unified_20261029/README.md).
