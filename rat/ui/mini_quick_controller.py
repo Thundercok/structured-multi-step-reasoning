@@ -155,7 +155,7 @@ class MiniQuickController(QObject):
             elif self.look.pending or self.look.pending_notice:
                 self.look.peek()
             else:
-                self.presentation.compose()
+                self.presentation.read()
         self.update()
 
     @pyqtSlot()
@@ -171,7 +171,7 @@ class MiniQuickController(QObject):
             self.presentation.composer_visible = False
             self.look.peek()
         else:
-            self.presentation.compose()
+            self.presentation.read()
         self.update()
         self.lookRequested.emit()
 

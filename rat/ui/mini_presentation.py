@@ -59,7 +59,7 @@ class MiniPresentation:
     selections: dict = field(default_factory=dict)
     reading_anchor: tuple = ('', 0, 0.0)
     extent: str = 'compact'
-    composer_visible: bool = True
+    composer_visible: bool = False
     source_visible: bool = False
     interaction: LookInteraction = field(default_factory=LookInteraction)
     _image_return: str = 'result'

@@ -19,7 +19,7 @@ from rat.ui.mini_diagnostics import BUILD
 from rat.ui.mini_instance import MiniInstanceBridge, present_running_mini
 from rat.ui.image_drop import ImageDropFilter
 from rat.ui.mini_shell import MiniShell
-from rat.ui.mini_placement import LOOK_WIDTH, LOOK_HEIGHT, LOOK_OPTICAL_HEIGHT, MINI_PANEL_WIDTH, MINI_TEXT_SIZE
+from rat.ui.mini_placement import LOOK_WIDTH, LOOK_HEIGHT, LOOK_OPTICAL_HEIGHT, MINI_PANEL_WIDTH, MINI_TEXT_SIZE, FLOAT_HEAD_SIZE, FLOAT_HEAD_OPTICAL
 
 BASE = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
 
@@ -53,6 +53,7 @@ def create_mini_desk(settings=None):
         buildLabel=f'{BUILD} · PID {os.getpid()}',
         lookMascotWidth=LOOK_WIDTH, lookMascotHeight=LOOK_HEIGHT, lookOpticalHeight=LOOK_OPTICAL_HEIGHT,
         sharedPanelWidth=MINI_PANEL_WIDTH, sharedTextSize=MINI_TEXT_SIZE,
+        floatingHeadSize=FLOAT_HEAD_SIZE, floatingHeadOpticalHeight=FLOAT_HEAD_OPTICAL,
         mascotSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_mascot_cutout.png')),
         lookHeadSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_look_head_v2.png')),
         lookIdleSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_look_idle_seated_v1.png')),
