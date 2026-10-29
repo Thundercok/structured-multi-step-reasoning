@@ -7,6 +7,7 @@
 
 static EventHotKeyID identity = { 'rmin', 1 };
 static Boolean down = false;
+static pid_t owner_pid = 0;
 
 static OSStatus pressed(EventHandlerCallRef next, EventRef event, void *context) {
     EventHotKeyID received = {0};
@@ -22,14 +23,18 @@ static OSStatus pressed(EventHandlerCallRef next, EventRef event, void *context)
     return noErr;
 }
 
-/* EOF also cleans up if the GUI crashes or is forcibly terminated. */
+/* GUI launchers may close stdin even while the owning app is alive. Track the
+   actual parent instead: pipe EOF must not silently unregister the shortcut. */
 static void *watch_parent(void *unused) {
-    while (getchar() != EOF) {}
-    _exit(0);
+    for (;;) {
+        if (getppid() != owner_pid) _exit(0);
+        usleep(250000);
+    }
 }
 
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
+    owner_pid = getppid();
     ProcessSerialNumber process = {0, kCurrentProcess};
     OSStatus status = TransformProcessType(&process, kProcessTransformToUIElementApplication);
     if (status) { fprintf(stderr, "TransformProcessType OSStatus=%d\n", (int)status); return 1; }
@@ -53,11 +58,14 @@ int main(void) {
     for (;;) {
         EventRef event = NULL;
         status = ReceiveNextEvent(0, NULL, kEventDurationForever, true, &event);
-        if (status) break;
+        if (status) {
+            fprintf(stderr, "ReceiveNextEvent OSStatus=%d\n", (int)status);
+            break;
+        }
         SendEventToEventTarget(event, GetEventDispatcherTarget());
         ReleaseEvent(event);
     }
     UnregisterEventHotKey(hotkey);
     RemoveEventHandler(handler);
-    return 0;
+    return status ? 1 : 0;
 }

@@ -29,6 +29,7 @@ class HotkeyRegistration:
         self.process.setProgram(str(helper))
         self.process.readyReadStandardOutput.connect(self._read)
         self.process.finished.connect(self._finished)
+        self.process.errorOccurred.connect(self._process_error)
         self.process.start()
         try:
             if not self.process.waitForStarted(3000):
@@ -39,6 +40,8 @@ class HotkeyRegistration:
             if not self.ready:
                 details = bytes(self.process.readAllStandardError()).decode('utf-8', errors='replace').strip()
                 raise OSError(self.protocol_error or details or 'Native hotkey helper không báo READY.')
+            if self.process.state() == QProcess.ProcessState.NotRunning:
+                raise OSError('Helper đã dừng ngay sau khi đăng ký phím tắt.')
         except Exception:
             self.close()
             raise
@@ -72,18 +75,29 @@ class HotkeyRegistration:
         if self.closed:
             return
         self.ready = False
+        if self.on_event: self.on_event(f'stopped:{code}:{status.name}')
         details = bytes(self.process.readAllStandardError()).decode('utf-8', errors='replace').strip()
         message = f'Bộ nhận phím tắt đã dừng ({code}): {details}'
         logger.error('hotkey_helper_stopped %s', message)
         if self.on_error:
             self.on_error(message)
 
+    def _process_error(self, error):
+        if self.closed:
+            return
+        self.ready = False
+        if self.on_event: self.on_event(f'process_error:{error.name}')
+        if self.on_error:
+            self.on_error('Bộ nhận phím tắt gặp lỗi. Chọn Đăng ký lại phím tắt trong menu RAT.')
+
     def close(self):
         if self.closed:
             return
         self.closed = True
-        # Closing stdin also releases the hotkey if the parent dies abruptly.
+        # The helper watches parent PID, not stdin. SIGTERM releases its Carbon
+        # registration; unexpected parent death is handled by the PID watcher.
         self.process.closeWriteChannel()
+        self.process.terminate()
         if not self.process.waitForFinished(1000):
             self.process.kill()
             self.process.waitForFinished(1000)
