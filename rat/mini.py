@@ -1,6 +1,7 @@
 """RAT Mini product composition. No Qt, credentials, index scan or models at import."""
 from pathlib import Path
 import os
+import re
 import sys
 import time
 from uuid import uuid4
@@ -63,6 +64,16 @@ class MiniSession:
         route = self.router.resolve(query, pending=self.pending_route,
             tool_input=self.runtime.dispatcher.state.pending_input_request,
             input_kind=input_kind, previous=self.previous_goal)
+        analysis = re.match(r'^(?:hãy\s+|please\s+)?(tóm tắt|giải thích|thuật ngữ|viết lại|summarize|explain|terms|rewrite)\b', query, re.I) if input_kind == 'typed' else None
+        if analysis and route.kind != 'agent':
+            if source_ref:
+                mode = {'tóm tắt':'summary', 'summarize':'summary', 'giải thích':'explanation',
+                    'explain':'explanation', 'thuật ngữ':'terms', 'terms':'terms',
+                    'viết lại':'rewrite', 'rewrite':'rewrite'}[analysis.group(1).casefold()]
+                route = self.router.direct('analyze_captured_text', {'source_ref':dict(source_ref),
+                    'mode':mode, 'instruction':query[:2000], 'target_language':self.settings['target_language']}, 'source_analysis')
+            else:
+                route = self.router.ask('Hãy lấy một đoạn chữ bằng phím tắt hoặc dán ảnh trước để giữ nguồn cho câu trả lời.', rule='analysis_source_missing')
         if route.kind == 'agent' and not self.settings['llm_enabled']:
             route = self.router.ask(
                 'Bạn muốn làm bước nào trước? Gửi tên file cần tìm, đoạn cần dịch hoặc thư mục cần sắp xếp.',

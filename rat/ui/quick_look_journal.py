@@ -44,7 +44,7 @@ class QuickLookJournal:
         try:
             self.path.parent.mkdir(parents=True, exist_ok=True)
             temporary = self.path.with_suffix('.tmp')
-            temporary.write_text(json.dumps(dict(event, protocol='SELECT1', helper_state=self.helper_state,
+            temporary.write_text(json.dumps(dict(event, protocol='SELECT2', helper_state=self.helper_state,
                 last_helper_pid=self.helper_pid, events=list(self.events))))
             temporary.replace(self.path)
         except Exception as exc:

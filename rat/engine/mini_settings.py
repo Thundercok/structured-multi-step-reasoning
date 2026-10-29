@@ -1,6 +1,8 @@
 """Portable mini product configuration; secrets live in macOS Keychain, never JSON."""
 from __future__ import annotations
 
+from rat.os.hotkey_chords import CHORDS, DEFAULT_CHORD
+
 import ctypes
 import ctypes.util
 import json
@@ -16,7 +18,7 @@ def state_directory():
 
 DEFAULTS = {'roots': [str(Path.home()/name) for name in ('Documents','Desktop','Downloads')], 'provider': 'openai', 'model': 'gpt-4.1-mini',
             'translation_provider': 'automatic', 'free_fallback': True, 'llm_enabled': False,
-            'target_language': 'vi', 'source_language': 'auto', 'semantic_enabled': False, 'setup_completed': False}
+            'hotkey_chord': DEFAULT_CHORD, 'target_language': 'vi', 'source_language': 'auto', 'semantic_enabled': False, 'setup_completed': False}
 
 
 def read_settings():
@@ -52,6 +54,8 @@ def read_settings():
             result['translation_provider'] = 'automatic'
         if type(result['setup_completed']) is not bool:
             result['setup_completed'] = False
+        if result['hotkey_chord'] not in CHORDS:
+            result['hotkey_chord'] = DEFAULT_CHORD
         result['semantic_enabled'] = False
         return result
     except (OSError, ValueError, TypeError):

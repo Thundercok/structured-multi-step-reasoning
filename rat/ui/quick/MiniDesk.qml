@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import QtQml.Models
 
 Rectangle {
     id: desk
@@ -65,7 +66,7 @@ Rectangle {
     readonly property var allFinderHits: liveSnapshot.finderHits || []
     readonly property var visibleFinderHits: showAllFinderHits ? allFinderHits : allFinderHits.slice(0, 5)
     // Only transient native input/menu ownership exempts outside dismissal.
-    readonly property bool focusOwned: imageDialog.visible || folderDialog.visible || Boolean(targetLanguage.popup && targetLanguage.popup.visible) || Boolean(sourceLanguage.popup && sourceLanguage.popup.visible) || Boolean(backend.popup && backend.popup.visible) || Boolean(cloudProvider.popup && cloudProvider.popup.visible) || moreMenu.visible || editorMenu.visible || readerMenu.visible || Boolean(liveSnapshot.dropActive)
+    readonly property bool focusOwned: imageDialog.visible || folderDialog.visible || Boolean(targetLanguage.popup && targetLanguage.popup.visible) || Boolean(sourceLanguage.popup && sourceLanguage.popup.visible) || Boolean(backend.popup && backend.popup.visible) || Boolean(cloudProvider.popup && cloudProvider.popup.visible) || moreMenu.visible || historyMenu.visible || analysisMenu.visible || diagnosticDialog.visible || Boolean(shortcutChord.popup && shortcutChord.popup.visible) || editorMenu.visible || readerMenu.visible || Boolean(liveSnapshot.dropActive)
     readonly property bool imageDropEnabled: !auxiliary && !imageDialog.visible && !folderDialog.visible
     readonly property bool layoutExpanded: !compact
     readonly property real preferredPanelHeight: panel.height
@@ -168,6 +169,7 @@ Rectangle {
             backend.currentIndex = Math.max(0, backend.indexOfValue(p.translation_provider))
             cloudProvider.currentIndex = Math.max(0, cloudProvider.indexOfValue(p.provider))
             cloudModel.text = p.model
+            shortcutChord.currentIndex = Math.max(0, shortcutChord.indexOfValue(p.hotkey_chord || "option_shift_space"))
             freeFallback.checked = p.free_fallback
             providerKey.clear(); settingsError = ""; showAdvancedSettings = false
         }
@@ -383,6 +385,13 @@ Rectangle {
                             }
                             Label { text: desk.liveSnapshot.readinessStatus || "Chưa chạy kiểm tra trên máy này."; color: desk.muted; Layout.fillWidth: true; wrapMode: Text.Wrap; font.pixelSize: 12 }
                             Label { text: "Thả ảnh và dán ảnh không cần cấp Ghi màn hình hay Trợ năng cho RAT. Chọn thư mục trong Cài đặt để tìm hoặc sắp xếp file."; color: desk.muted; Layout.fillWidth: true; wrapMode: Text.Wrap; font.pixelSize: 12 }
+                            Label { text: "Quick Look · " + desk.liveSnapshot.shortcutLabel + (desk.liveSnapshot.hotkeyStatus ? " · Chưa kết nối" : ""); color: desk.ink; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                            Repeater {
+                                model: desk.liveSnapshot.diagnosticEvents || []
+                                delegate: Label { required property var modelData; text: modelData.sequence + " · " + modelData.label; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                            }
+                            QuietButton { text: "Xuất chẩn đoán…"; onClicked: diagnosticDialog.open() }
+                            Label { visible: Boolean(desk.liveSnapshot.settingsNotice); text: desk.liveSnapshot.settingsNotice || ""; textFormat: Text.PlainText; color: desk.muted; Layout.fillWidth: true; wrapMode: Text.Wrap }
                             QuietButton { text: desk.showDiagnostics ? "Ẩn chi tiết kỹ thuật" : "Chi tiết kỹ thuật"; onClicked: desk.showDiagnostics = !desk.showDiagnostics }
                             ColumnLayout {
                                 visible: desk.showDiagnostics; Layout.fillWidth: true; spacing: 10
@@ -407,6 +416,13 @@ Rectangle {
                                 text: "Chọn dịch trên máy · Anh ↔ Việt"
                                 onClicked: { backend.currentIndex = backend.indexOfValue("automatic"); freeFallback.checked = false }
                             }
+                            Label { text: "Quick Look · " + desk.liveSnapshot.shortcutLabel; color: desk.ink }
+                            ComboBox {
+                                id: shortcutChord; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
+                                model: [{label:"⌥⇧Space",value:"option_shift_space"},{label:"⌃⌥Space",value:"control_option_space"},{label:"⌃⇧Space",value:"control_shift_space"}]
+                                Accessible.name: "Phím tắt Quick Look"
+                            }
+                            QuietButton { text: "Dùng phím này"; enabled: !desk.liveSnapshot.busy; onClicked: { desk.settingsError=desk.liveController.changeShortcut(shortcutChord.currentValue) } }
                             Label { text: "Dịch sang"; color: desk.ink; font.weight: Font.Medium }
                             ComboBox {
                                 id: targetLanguage; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
@@ -625,7 +641,7 @@ Rectangle {
                     visible: Boolean(desk.liveSnapshot.hotkeyStatus || desk.liveSnapshot.shortcutAck || desk.liveSnapshot.hotkeyStarting)
                     Layout.fillWidth: true; spacing: 4
                     Label {
-                        text: desk.liveSnapshot.hotkeyStarting ? "Đang kết nối phím tắt…" : desk.liveSnapshot.shortcutAck ? "Đang bận · bấm lại khi xong" : desk.liveSnapshot.hotkeyStatus ? "Phím tắt chưa sẵn sàng" : "Quick Look · ⌥⇧Space"
+                        text: desk.liveSnapshot.hotkeyStarting ? "Đang kết nối phím tắt…" : desk.liveSnapshot.shortcutAck ? "Đang bận · bấm lại khi xong" : desk.liveSnapshot.hotkeyStatus ? "Phím tắt chưa sẵn sàng" : "Quick Look · " + desk.liveSnapshot.shortcutLabel
                         textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
                         Layout.fillWidth: true; wrapMode: Text.Wrap
                     }
@@ -706,7 +722,7 @@ Rectangle {
         Label { anchors.centerIn: parent; text: "Thả ảnh để dịch"; color: desk.ink; font.pixelSize: 16 }
     }
     Shortcut { enabled: !desk.auxiliary && !desk.composing; context: Qt.ApplicationShortcut; sequences: [StandardKey.Paste]; onActivated: desk.liveController.pasteLook() }
-    Shortcut { sequence: "Escape"; onActivated: { if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (moreMenu.visible) moreMenu.close(); else if (readerMenu.visible) readerMenu.close(); else if (editorMenu.visible) editorMenu.close(); else if (desk.auxiliary || desk.surface !== "result") desk.goBack(); else desk.hideRequested() } }
+    Shortcut { sequence: "Escape"; onActivated: { if (diagnosticDialog.visible) diagnosticDialog.close(); else if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (moreMenu.visible) moreMenu.close(); else if (readerMenu.visible) readerMenu.close(); else if (editorMenu.visible) editorMenu.close(); else if (desk.auxiliary || desk.surface !== "result") desk.goBack(); else desk.hideRequested() } }
     Shortcut { sequence: "Meta+W"; onActivated: desk.hideRequested() }
     Shortcut { sequence: "Meta+Q"; onActivated: desk.liveController.quit() }
     Shortcut { sequence: "Ctrl+Q"; onActivated: desk.liveController.quit() }
@@ -717,6 +733,18 @@ Rectangle {
         // window keeps the secondary menu outside that tiny input mask.
         popupType: Popup.Window
         MenuItem { text: desk.liveSnapshot.pinned ? "Bỏ ghim" : "Ghim kết quả"; onTriggered: desk.liveController.togglePin() }
+        Menu {
+            id: historyMenu; title: "Công việc gần đây · trong RAM"; popupType: Popup.Window
+            enabled: !desk.liveSnapshot.busy
+            Instantiator {
+                model: desk.liveSnapshot.taskHistory || []
+                delegate: MenuItem { required property var modelData; text: modelData.title; onTriggered: desk.liveController.restoreTask(modelData.index) }
+                onObjectAdded: (index, object) => historyMenu.insertItem(index, object)
+                onObjectRemoved: (index, object) => historyMenu.removeItem(object)
+            }
+            MenuSeparator {}
+            MenuItem { text: "Xóa lịch sử tạm"; onTriggered: desk.liveController.clearTaskHistory() }
+        }
         MenuItem { text: "Xem lại công việc"; onTriggered: desk.liveController.summonLook() }
         MenuItem { text: "Viết yêu cầu"; onTriggered: desk.liveController.summonMinimal() }
         MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: desk.compact ? "Mở rộng kết quả" : "Thu gọn"; onTriggered: desk.liveController.setExpanded(desk.compact) }
@@ -726,7 +754,7 @@ Rectangle {
         MenuItem { visible: desk.liveSnapshot.lookHasQueued; text: "Xem đoạn chờ"; onTriggered: desk.liveController.previewPending() }
                 MenuItem { enabled: !desk.liveSnapshot.busy; text: "Chọn vùng chữ để dịch…"; onTriggered: desk.liveController.captureRegion() }
         Menu {
-            title: "Đọc tiếp từ nguồn"; enabled: desk.liveSnapshot.hasOcrSource && !desk.liveSnapshot.busy
+            id: analysisMenu; popupType: Popup.Window; title: "Đọc tiếp từ nguồn"; enabled: desk.liveSnapshot.hasOcrSource && !desk.liveSnapshot.busy
             MenuItem { text: "Tóm tắt"; onTriggered: desk.liveController.analyzeSource("summary") }
             MenuItem { text: "Giải thích"; onTriggered: desk.liveController.analyzeSource("explanation") }
             MenuItem { text: "Thuật ngữ"; onTriggered: desk.liveController.analyzeSource("terms") }
@@ -768,6 +796,11 @@ Rectangle {
             var path = desk.liveController.localFolderPath(selectedFolder)
             if (path) { var roots=folderList.model.slice(); if (roots.indexOf(path)<0) roots.push(path); folderList.model=roots }
         }
+    }
+    FileDialog {
+        id: diagnosticDialog; title: "Xuất chẩn đoán không kèm nội dung"; fileMode: FileDialog.SaveFile
+        nameFilters: ["JSON (*.json)"]; defaultSuffix: "json"; selectedFile: "rat-lite-diagnostics.json"
+        onAccepted: { var error=desk.liveController.exportDiagnostics(selectedFile); if (error) desk.liveController.reportDiagnosticError(error) }
     }
     FileDialog {
         id: imageDialog; title: "Chọn ảnh để dịch"; fileMode: FileDialog.OpenFile

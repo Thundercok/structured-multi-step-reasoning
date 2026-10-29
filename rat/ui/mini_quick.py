@@ -132,7 +132,8 @@ def create_mini_desk(settings=None):
                 return
             hotkeys = None
             hotkeys = register_hotkey(controller.quickLookSelection, on_state=controller.recordHotkeyState,
-                on_error=lambda message: controller.update(hotkeyStatus=message))
+                on_error=lambda message: controller.update(hotkeyStatus=message),
+                chord_name=controller.settings.get("hotkey_chord", "option_shift_space"))
             controller.update(hotkeyStatus='')
         except OSError as exc:
             controller.recordHotkeyState('registration_failed', state='failed')
@@ -140,6 +141,30 @@ def create_mini_desk(settings=None):
             logging.getLogger(__name__).warning('hotkey_unavailable %s', exc)
         finally:
             controller.update(hotkeyStarting=False)
+    def rebind_hotkey(name):
+        nonlocal hotkeys
+        from rat.os.hotkey_chords import chord
+        chord(name)
+        old = controller.settings.get('hotkey_chord', 'option_shift_space')
+        if not close_hotkey_registrations('rebind'):
+            return 'Bộ nhận cũ chưa đóng; chưa đổi phím tắt.'
+        def bind(value):
+            return register_hotkey(controller.quickLookSelection,
+                on_state=controller.recordHotkeyState,
+                on_error=lambda message: controller.update(hotkeyStatus=message), chord_name=value)
+        try:
+            hotkeys = bind(name)
+            controller.update(hotkeyStatus='')
+            return ''
+        except OSError:
+            try:
+                hotkeys = bind(old)
+                controller.update(hotkeyStatus='')
+                return 'Phím mới chưa đăng ký được; đã khôi phục phím cũ.'
+            except OSError:
+                controller.update(hotkeyStatus='Chưa đăng ký được phím tắt. Chọn Kết nối lại.')
+                return 'Cả phím mới và phím cũ chưa sẵn sàng. macOS có thể đang giữ tổ hợp này.'
+    controller.rebind_hotkey = rebind_hotkey
     controller.hotkeyRestartRequested.connect(restart_hotkey)
     app.aboutToQuit.connect(lambda: close_hotkey_registrations('shutdown'))
     restart_hotkey()

@@ -192,6 +192,10 @@ class MiniShell(QObject):
     def place_selection(self, context):
         screens=QGuiApplication.screens()
         matches=[screen for screen in screens if screen.name()==context.get('display_name')]
+        if len(matches) != 1 and context.get('logical_display'):
+            native = context['logical_display']
+            matches = [s for s in screens if all(abs(a-b)<2 for a,b in zip(
+                (s.geometry().x(),s.geometry().y(),s.geometry().width(),s.geometry().height()), native))]
         screen=matches[0] if len(matches)==1 else screens[0] if len(screens)==1 else None
         self.selection_anchored=False
         if screen is not None:

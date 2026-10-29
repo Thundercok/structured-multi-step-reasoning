@@ -7,12 +7,14 @@ import time
 
 from PyQt6.QtCore import QCoreApplication, QProcess
 
+from rat.os.hotkey_chords import chord, DEFAULT_CHORD
+
 logger = logging.getLogger(__name__)
 _keepalive = []
 
 
 class HotkeyRegistration:
-    def __init__(self, callback, on_error=None, on_minimal=None, on_event=None, on_state=None):
+    def __init__(self, callback, on_error=None, on_minimal=None, on_event=None, on_state=None, chord_name=DEFAULT_CHORD):
         self.callback = callback
         self.on_minimal = on_minimal
         self.on_event = on_event
@@ -29,7 +31,10 @@ class HotkeyRegistration:
         if not helper.is_file():
             raise OSError('Thiếu rat-hotkey; cần build native helper trước khi chạy Mini.')
         self.process = QProcess(QCoreApplication.instance())
+        key, modifiers, _ = chord(chord_name)
+        self.ready_line = f"READY SELECT2 {key} {modifiers}".encode()
         self.process.setProgram(str(helper))
+        self.process.setArguments([str(key), str(modifiers)])
         self.process.readyReadStandardOutput.connect(self._read)
         self.process.finished.connect(self._finished)
         self.process.errorOccurred.connect(self._process_error)
@@ -69,6 +74,9 @@ class HotkeyRegistration:
                 self.protocol_error = 'Helper phím tắt cũ; cần build lại helper cho Quick Look selection.'
                 continue
             if line == b'READY SELECT1':
+                self.protocol_error = 'Helper cũ; cần build lại để hỗ trợ đổi phím tắt.'
+                continue
+            if line == self.ready_line:
                 self.ready = True
                 self._event('ready', state='registered')
                 logger.info('hotkey_registered target=native_helper intent=selection pid=%s', self.process.processId())
@@ -134,10 +142,10 @@ class HotkeyRegistration:
         return True
 
 
-def register_hotkey(callback, on_error=None, on_minimal=None, on_event=None, on_state=None):
+def register_hotkey(callback, on_error=None, on_minimal=None, on_event=None, on_state=None, chord_name=DEFAULT_CHORD):
     if any(item.process.state() != QProcess.ProcessState.NotRunning for item in _keepalive):
         raise OSError('Bộ nhận phím cũ chưa đóng; chưa tạo đăng ký cạnh tranh.')
-    registration = HotkeyRegistration(callback, on_error, on_minimal, on_event, on_state)
+    registration = HotkeyRegistration(callback, on_error, on_minimal, on_event, on_state, chord_name)
     _keepalive.append(registration)
     return registration
 

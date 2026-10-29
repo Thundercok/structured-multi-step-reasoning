@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+from copy import deepcopy
+from rat.os.hotkey_chords import CHORDS, DEFAULT_CHORD, chord
 import json
 import logging
 from PyQt6.QtCore import QObject, QPoint, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
@@ -44,6 +46,8 @@ class MiniQuickController(QObject):
         self.job = self.pending = self.finder_artifact = None
         self.organization_artifact = None
         self.presentation = MiniPresentation(surface="result" if self.settings.get("setup_completed") else "welcome")
+        self._task_history = []
+        self.rebind_hotkey = None
         self._next_draft = ""
         self.generation = 0
         self.quitting = False
@@ -94,6 +98,9 @@ class MiniQuickController(QObject):
         state = dict(self._state, **self.presentation.snapshot(),
             **self.look.snapshot(has_result=self._state['hasWorkbench'], busy=self._state['busy']))
         return dict(state, **look_projection(state),
+            shortcutLabel=chord(self.settings.get('hotkey_chord', DEFAULT_CHORD))[2],
+            taskHistory=[dict(index=i, title=item['title']) for i,item in enumerate(self._task_history)],
+            diagnosticEvents=self.diagnostic_events(),
             pendingPreviewOpen=self._preview_return is not None and self.look.surface == 'peek',
             pendingPreviewText=self._preview_input.text if self._preview_input else self._preview_notice,
             pendingPreviewHasText=self._preview_input is not None,
@@ -526,7 +533,7 @@ class MiniQuickController(QObject):
         if not text:
             self.update(status='Nhập tên file hoặc đoạn cần dịch trước nhé.')
             return
-        if self._state['lookSource'] and self._ocr_source_ref:
+        if self._ocr_source_ref:
             self.consume_submission(text)
             self.update(requestText=text)
             if self._state['ocrText'] != self._ocr_current_text:
@@ -856,6 +863,116 @@ class MiniQuickController(QObject):
     def restartHotkey(self):
         self.hotkeyRestartRequested.emit()
 
+    HISTORY_FIELDS = ('view', 'phase', 'status', 'error', 'text', 'meta', 'requestText',
+        'hasWorkbench', 'finderHits', 'hasOcrSource', 'ocrText', 'ocrCommittedText', 'ocrOriginalText',
+        'ocrPreparationNotice', 'captureSourceKind', 'lookSource', 'translationDetails', 'translationNotice',
+        'sameLanguageNotice', 'organization', 'organizationRows', 'organizationGroups',
+        'agentSummary', 'agentIncomplete', 'lastOperation')
+
+    def remember_task(self):
+        values = dict(self._state)
+        if self._region_previous:
+            values.update(self._region_previous[0])
+        if not values.get('hasWorkbench') or values.get('phase') not in ('result', 'partial', 'error'):
+            return
+        key = self.presentation.task_id
+        self._task_history = [x for x in self._task_history if x['task_id'] != key]
+        fields = ('task_id', 'surface', 'workspace', 'extent', 'composer_visible', 'source_visible',
+                  'scroll', 'selections', 'reading_anchor')
+        self._task_history.insert(0, dict(task_id=key,
+            title=(values.get('requestText') or values.get('status') or 'Công việc')[:60],
+            state=deepcopy({k:values[k] for k in self.HISTORY_FIELDS}),
+            presentation=deepcopy({k:getattr(self.presentation,k) for k in fields}),
+            source_ref=deepcopy(self._ocr_source_ref), source_text=self._ocr_current_text,
+            translation_args=deepcopy(self._translation_args), finder=self.finder_artifact,
+            draft=self._next_draft))
+        del self._task_history[5:]
+
+    @pyqtSlot(int)
+    def restoreTask(self, index):
+        if self.job or self.pending or self._state['busy'] or not 0 <= index < len(self._task_history):
+            return
+        item = self._task_history.pop(index)
+        self.remember_task()
+        self.session = MiniSession(self.settings, artifact_store=self.session.runtime.artifact_store)
+        for name,value in deepcopy(item['presentation']).items():
+            setattr(self.presentation,name,value)
+        self._ocr_source_ref = deepcopy(item['source_ref'])
+        self._ocr_current_text = item['source_text']
+        self._translation_args = deepcopy(item['translation_args'])
+        self.finder_artifact = item['finder']
+        self.organization_artifact = None
+        self._retry_request = self._region_previous = self._selection_return = self._preview_return = None
+        self._preview_input = None
+        self._selection_present_generation = self._presentation_invocation_id = None
+        self._next_draft = item['draft']
+        self.presentation.open('result')
+        self.look.read()
+        self.update(**item['state'], draftText=self._next_draft, busy=False,
+            imagePreviewUrl='', imageLabel='', selectionNotice='', canRetryRequest=False,
+            canApplyOrganization=False, canUndoOrganization=False,
+            organizationRecoverySuggested=item['state']['view']=='organization')
+        self.lookRequested.emit()
+
+    @pyqtSlot()
+    def clearTaskHistory(self):
+        self._task_history.clear()
+        self.update()
+
+    def diagnostic_events(self):
+        labels = {'ready':'Phím tắt đã đăng ký', 'selection':'Đã nhận phím tắt',
+            'invoked':'Đã nhận yêu cầu', 'capture_requested':'Đang lấy chữ',
+            'capture_succeeded':'Đã lấy được chữ', 'capture_failed':'Chưa lấy được chữ',
+            'translation_failed':'Chưa xử lý được đoạn chữ', 'execution_completed':'Đã xử lý',
+            'present_requested':'Đã yêu cầu hiển thị', 'presented':'Đã hiển thị',
+            'registration_failed':'Đăng ký phím thất bại', 'ignored_busy':'Đang bận', 'dismissed':'Đã ẩn'}
+        with self.quicklook_journal.lock:
+            return [dict(stage=e['stage'], label=labels.get(e['stage'],e['stage']), sequence=e['sequence'])
+                    for e in list(self.quicklook_journal.events)[-12:]]
+
+    @pyqtSlot(str)
+    def reportDiagnosticError(self, message):
+        self.update(settingsNotice=message)
+
+    @pyqtSlot(str, result=str)
+    def exportDiagnostics(self, url):
+        path = QUrl(url).toLocalFile()
+        if not path:
+            return 'Hãy chọn một file trên máy.'
+        try:
+            with self.quicklook_journal.lock:
+                payload = dict(build=BUILD, protocol='SELECT2',
+                    helper_state=self.quicklook_journal.helper_state, events=list(self.quicklook_journal.events))
+            # Explicit export contains the journal whitelist only: no source,
+            # text, paths, screenshots, geometry or settings/credentials.
+            Path(path).write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+            self.update(settingsNotice='Đã xuất chẩn đoán; không kèm nội dung nguồn.')
+            return ''
+        except OSError:
+            return 'Chưa ghi được file chẩn đoán ở vị trí này.'
+
+    @pyqtSlot(str, result=str)
+    def changeShortcut(self, name):
+        if self.job or not self.rebind_hotkey:
+            return 'Đợi tác vụ kết thúc trước khi đổi phím tắt.'
+        try:
+            chord(name)
+            old = self.settings.get('hotkey_chord', DEFAULT_CHORD)
+            error = self.rebind_hotkey(name)
+            if error:
+                return error
+            try:
+                updated = {**self.settings, 'hotkey_chord': name}
+                save_settings(updated)
+            except Exception:
+                rollback_error = self.rebind_hotkey(old)
+                return 'Chưa lưu được phím mới. ' + (rollback_error or 'Đã khôi phục phím cũ.')
+            self.settings = updated
+            self.update()
+            return ''
+        except ValueError:
+            return 'Tổ hợp phím chưa được hỗ trợ.'
+
     @pyqtSlot(str)
     def analyzeSource(self, mode):
         if self.job or mode not in ('summary', 'explanation', 'terms', 'rewrite'):
@@ -938,6 +1055,7 @@ class MiniQuickController(QObject):
                     or (operation == 'translate_text' and not args.get('source_ref')))
         preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
         if new_task and not preserve_region:
+            self.remember_task()
             self._selection_return = None
             self._preview_return = None
             self._preview_input = None
@@ -992,6 +1110,7 @@ class MiniQuickController(QObject):
                 self.quicklook_journal.record('capture_succeeded', invocation_id=job.input_context.get('quicklook_invocation_id'),
                     artifact_id=artifact.id, generation=job.generation)
             if job.args.get('preserve_until_capture'):
+                self.remember_task()
                 if job.args.get('mode') == 'selection':
                     self._selection_return = None
                 self._preview_return = None
@@ -1278,9 +1397,9 @@ class MiniQuickController(QObject):
         if any(code in error for code in ('source_integrity_mismatch', 'source_expired', 'stale_source_ref')):
             return 'Nguồn chữ cũ không còn hợp lệ. Hãy thả lại ảnh hoặc dán lại nội dung để dịch.'
         if 'selection_accessibility_required' in error:
-            return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng. Sau đó bôi đen chữ và bấm ⌥⇧Space lại.'
+            return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng. Sau đó bôi đen chữ và bấm phím tắt Quick Look lại.'
         if 'selection_source_changed' in error:
-            return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm ⌥⇧Space lại.'
+            return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm phím tắt Quick Look lại.'
         if 'selection_unavailable' in error:
             return 'Chưa lấy được chữ bôi đen từ app này. Bạn có thể dán chữ hoặc chọn vùng ảnh trong menu.'
         if 'selection_response_missing' in error:

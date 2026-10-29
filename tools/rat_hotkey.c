@@ -32,7 +32,15 @@ static void *watch_parent(void *unused) {
     }
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+    /* Only the supported Space chords; reject partial/unknown arguments. */
+    if (argc != 3) return 2;
+    char *key_end, *mod_end;
+    long key = strtol(argv[1], &key_end, 10);
+    long modifiers = strtol(argv[2], &mod_end, 10);
+    if (*key_end || *mod_end || key != kVK_Space ||
+        (modifiers != (optionKey | shiftKey) && modifiers != (controlKey | optionKey) &&
+         modifiers != (controlKey | shiftKey))) return 2;
     setvbuf(stdout, NULL, _IONBF, 0);
     owner_pid = getppid();
     ProcessSerialNumber process = {0, kCurrentProcess};
@@ -46,13 +54,13 @@ int main(void) {
     status = InstallApplicationEventHandler(pressed, 2, specs, NULL, &handler);
     if (status) { fprintf(stderr, "InstallApplicationEventHandler OSStatus=%d\n", (int)status); return 1; }
     EventHotKeyRef hotkey = NULL;
-    status = RegisterEventHotKey(kVK_Space, optionKey | shiftKey, identity,
-        GetApplicationEventTarget(), 0, &hotkey);
+    status = RegisterEventHotKey((UInt32)key, (UInt32)modifiers, identity,
+        GetApplicationEventTarget(), kEventHotKeyExclusive, &hotkey);
     if (status) { fprintf(stderr, "RegisterEventHotKey OSStatus=%d\n", (int)status); return 1; }
     pthread_t watcher;
     if (pthread_create(&watcher, NULL, watch_parent, NULL)) return 1;
     pthread_detach(watcher);
-    puts("READY SELECT1");
+    printf("READY SELECT2 %ld %ld\n", key, modifiers);
     /* RunApplicationEventLoop is unavailable on 64-bit macOS. Use the
        Carbon dispatcher directly; the helper owns no windows or UI. */
     for (;;) {

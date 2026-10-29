@@ -64,7 +64,8 @@ def read_selected_text(source_pid=None, should_cancel=lambda: False, on_geometry
                             for screen in NSScreen.screens():
                                 display = Quartz.CGDisplayBounds(int(screen.deviceDescription()['NSScreenNumber']))
                                 if display.origin.x <= cx < display.origin.x+display.size.width and display.origin.y <= cy < display.origin.y+display.size.height:
-                                    on_geometry(dict(rect=values, display=(display.origin.x, display.origin.y, display.size.width, display.size.height), display_name=str(screen.localizedName())))
+                                    on_geometry(dict(rect=values, display=(display.origin.x, display.origin.y, display.size.width, display.size.height), display_name=str(screen.localizedName()),
+                                        logical_display=(screen.frame().origin.x, NSScreen.screens()[0].frame().size.height-screen.frame().origin.y-screen.frame().size.height, screen.frame().size.width, screen.frame().size.height)))
                                     break
                 except Exception:
                     pass  # Geometry failure never loses a valid text capture.
