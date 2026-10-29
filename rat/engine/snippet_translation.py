@@ -67,7 +67,7 @@ def detect_language(text):
     return None
 
 
-def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_bytes=None, image_input=None, region_image_callback=None):
+def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_bytes=None, image_input=None, region_image_callback=None, selection_pid=None):
     input_provenance = None
     ocr_details = None
     if should_cancel():
@@ -147,24 +147,11 @@ def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_b
         ocr_details = {'ocr_raw_text': raw, 'ocr_normalization': normalization}
         if not text.strip():
             raise ValueError('ocr_empty: Không nhận ra chữ trong ảnh vừa dán.')
-    elif mode in ('clipboard', 'selection'):
-        if mode == 'selection':
-            from AppKit import NSWorkspace, NSPasteboard
-            if NSWorkspace.sharedWorkspace().frontmostApplication().processIdentifier() == os.getpid():
-                raise ValueError('selection_unavailable: Hãy dùng hotkey khi đang chọn chữ trong ứng dụng khác.')
-            pasteboard = NSPasteboard.generalPasteboard()
-            count = pasteboard.changeCount()
-            result = subprocess.run(['/usr/bin/osascript', '-e',
-                'tell application "System Events" to keystroke "c" using command down'],
-                capture_output=True, timeout=3)
-            if result.returncode:
-                raise ValueError('accessibility_denied: Không sao chép được vùng chọn.')
-            deadline = time.monotonic() + 1
-            while pasteboard.changeCount() == count and time.monotonic() < deadline:
-                time.sleep(0.025)
-            if pasteboard.changeCount() == count:
-                raise ValueError('selection_unchanged: Clipboard chưa đổi; không dùng lại nội dung cũ.')
-        if clipboard_text is not None and mode == 'clipboard':
+    elif mode == 'selection':
+        from rat.os.selected_text import read_selected_text
+        text = read_selected_text(selection_pid, should_cancel)
+    elif mode == 'clipboard':
+        if clipboard_text is not None:
             text = clipboard_text
         else:
             result = subprocess.run(['/usr/bin/pbpaste'], capture_output=True, timeout=3)

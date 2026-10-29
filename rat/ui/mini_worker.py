@@ -42,6 +42,7 @@ class MiniJob(QThread):
             if operation == 'capture_translate':
                 region_image = {}
                 outcome = run_capture_translation(self.session, args, query=self.query,
+                    input_context=self.input_context,
                     cancel=self.stop.is_set, on_event=lambda event: events.append(event.to_dict()),
                     on_region_image=lambda image: region_image.update(image=image),
                     progress=progress, on_captured=lambda artifact, arguments:

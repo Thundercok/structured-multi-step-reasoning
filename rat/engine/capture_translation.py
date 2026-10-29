@@ -31,13 +31,14 @@ def translation_arguments(session, defaults, query=''):
 
 
 def run_capture_translation(session, capture_args, *, query='', cancel=lambda: False,
-                            on_event=None, progress=None, on_captured=None, on_region_image=None):
+                            on_event=None, progress=None, on_captured=None, on_region_image=None, input_context=None):
     if cancel():
         raise ValueError('cancelled:capture')
     capture_parameters = {'mode': capture_args['mode']}
     capture = session.execute('capture_text', capture_parameters, cancel=cancel,
         on_event=on_event, progress=progress, input_context={
             'clipboard_text': capture_args.get('clipboard_text'),
+            'selection_pid': (input_context or {}).get('selection_pid'),
             'image_input': capture_args.get('image_input'),
             'image_bytes': capture_args.get('image_bytes'),
             'region_image_callback': on_region_image})
