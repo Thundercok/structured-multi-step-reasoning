@@ -1,5 +1,15 @@
 # RAT Lite .25 — explicit selected-text Quick Look
 
+Minor UI follow-up requested by the user: the idle composer shows
+`Bôi đen chữ trong app khác → ⌥⇧Space`. A quiet heading in the shared bubble
+identifies actual captured selection as `Chữ bôi đen`, derived from the capture
+artifact's source kind. Permission notices identify Quick Look and expose
+`Mở cài đặt Trợ năng…`. Pending Clipboard accessibility text/tooltips now say
+preview rather than immediate translation; its badge remains usable while busy
+because preview does not dispatch. No new layout, mascot, window or business
+executor is introduced. This follow-up is source-only and has not been tested,
+built or opened; .24 remains the last launched bundle in this chat.
+
 User decision 2026-10-29: skip the intermediate copy → shortcut design and
 implement highlight → shortcut directly. Source-only, unbuilt and unverified.
 The running .24 app does not contain this feature. No tests, smoke, UI capture,
