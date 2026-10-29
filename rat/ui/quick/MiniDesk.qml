@@ -136,7 +136,12 @@ Rectangle {
         else if (surface === "settings") targetLanguage.forceActiveFocus()
         else if (auxiliary) setupPrimary.forceActiveFocus()
         else if (keyboardOwner === "files" && paperVisible && liveSnapshot.view === "finder") fileResults.forceActiveFocus()
-        else editor.forceActiveFocus()
+        else if (!composing && paperVisible) {
+            if (surface === "result" && liveSnapshot.view === "finder") fileResults.forceActiveFocus()
+            else if (surface === "result" && translationArea.visible) translationArea.forceActiveFocus()
+            else resultScroll.forceActiveFocus()
+        }
+        else if (composing) editor.forceActiveFocus()
     }
     function dismissTransient() { moreMenu.close(); editorMenu.close(); providerKey.clear() }
     function pasteDraft() {

@@ -107,8 +107,8 @@ class HotkeyRegistration:
             self.on_error('Bộ nhận phím tắt gặp lỗi. Chọn Đăng ký lại phím tắt trong menu RAT.')
 
     def close(self, reason='shutdown'):
-        if self.closed:
-            return
+        if self.closed and self.process.state() == QProcess.ProcessState.NotRunning:
+            return True
         self.closed = True
         self.ready = False
         self._event('closing', state='closing', reason=reason)
@@ -119,9 +119,13 @@ class HotkeyRegistration:
         if not self.process.waitForFinished(1000):
             self.process.kill()
             self.process.waitForFinished(1000)
+        if self.process.state() != QProcess.ProcessState.NotRunning:
+            self._event('close_failed', state='failed', reason=reason)
+            return False
         if self in _keepalive:
             _keepalive.remove(self)
         self._event('closed', state='closed', reason=reason)
+        return True
 
 
 def register_hotkey(callback, on_error=None, on_minimal=None, on_event=None, on_state=None):

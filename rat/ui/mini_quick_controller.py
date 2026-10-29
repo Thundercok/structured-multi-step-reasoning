@@ -743,6 +743,8 @@ class MiniQuickController(QObject):
             self.presentation.read()
             self.update(selectionNotice='Chưa nhận được vùng chọn. Mã QL_CALLBACK_FAILED. Bạn có thể quay lại công việc trước.',
                 selectionNeedsPermission=False)
+            self._presentation_invocation_id = invocation
+            self.quicklook_journal.record('present_requested', invocation_id=invocation)
             self.lookRequested.emit()
 
     def recordHotkeyState(self, stage, **metadata):
@@ -894,7 +896,12 @@ class MiniQuickController(QObject):
         session = MiniSession(self.settings, artifact_store=self.session.runtime.artifact_store) if operation == 'check_mini_readiness' or preserve_region else self.session
         job = MiniJob(session, operation, args, query, generation, input_context)
         self.job = job
-        job.result.connect(lambda value: self.render(value) if job.generation == self.generation else None)
+        def deliver_result(value):
+            if job.generation == self.generation:
+                self.render(value)
+            elif value.get('invocation_id'):
+                self.quicklook_journal.record('discarded_result', invocation_id=value['invocation_id'], generation=job.generation)
+        job.result.connect(deliver_result)
         job.progress.connect(lambda message: self.update(status=message) if job.generation == self.generation and operation != 'check_mini_readiness' else None)
         job.captured.connect(lambda source: self.remember_capture_position(job, source))
         job.quicklookStage.connect(lambda event: self.quicklook_journal.record(**event))
@@ -964,6 +971,8 @@ class MiniQuickController(QObject):
             self.update(settingsNotice='Kết quả đã có, nhưng chưa ghi được hồ sơ kiểm tra.')
         response = value.get('response')
         error = value.get('error') or (response.error if response else None)
+        if value.get('capture_mode') == 'selection' and response is None and not error:
+            error = 'selection_response_missing'
         invocation = value.get('invocation_id')
         if invocation:
             stage = ('capture_failed' if error and self._region_previous is not None else 'translation_failed' if error
@@ -1186,6 +1195,8 @@ class MiniQuickController(QObject):
             return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm ⌥⇧Space lại.'
         if 'selection_unavailable' in error:
             return 'Chưa lấy được chữ bôi đen từ app này. Bạn có thể dán chữ hoặc chọn vùng ảnh trong menu.'
+        if 'selection_response_missing' in error:
+            return 'Quick Look chưa trả về kết quả. Mã QL_NO_RESPONSE. Công việc trước vẫn được giữ.'
         if 'screen_capture_denied' in error:
             return 'Cho phép Ghi màn hình trong macOS để chọn vùng chữ.'
         if 'ocr_empty' in error:

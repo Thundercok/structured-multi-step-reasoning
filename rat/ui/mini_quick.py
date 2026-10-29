@@ -128,7 +128,9 @@ def create_mini_desk(settings=None):
         controller.update(hotkeyStarting=True)
         try:
             if hotkeys:
-                hotkeys.close('reconnect')
+                if not hotkeys.close('reconnect'):
+                    controller.update(hotkeyStatus='Chưa đóng được bộ nhận phím cũ. Chưa tạo bộ mới.')
+                    return
                 hotkeys = None
             hotkeys = register_hotkey(controller.quickLookSelection, on_state=controller.recordHotkeyState,
                 on_error=lambda message: controller.update(hotkeyStatus=message))
