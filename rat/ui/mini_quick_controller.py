@@ -865,7 +865,7 @@ class MiniQuickController(QObject):
         self.hotkeyRestartRequested.emit()
 
     HISTORY_FIELDS = ('view', 'phase', 'status', 'error', 'text', 'meta', 'requestText',
-        'hasWorkbench', 'pinned', 'finderHits', 'hasOcrSource', 'ocrText', 'ocrCommittedText', 'ocrOriginalText',
+        'hasWorkbench', 'pinned', 'attachmentLabel', 'finderHits', 'hasOcrSource', 'ocrText', 'ocrCommittedText', 'ocrOriginalText',
         'ocrPreparationNotice', 'captureSourceKind', 'captureSourceApp', 'lookSource', 'translationDetails', 'translationNotice',
         'sameLanguageNotice', 'organization', 'organizationRows', 'organizationGroups',
         'agentSummary', 'agentIncomplete', 'lastOperation')
@@ -880,10 +880,14 @@ class MiniQuickController(QObject):
         self._task_history = [x for x in self._task_history if x['task_id'] != key]
         fields = ('task_id', 'surface', 'workspace', 'extent', 'composer_visible', 'source_visible',
                   'scroll', 'selections', 'reading_anchor')
+        view = deepcopy({k:getattr(self.presentation,k) for k in fields})
+        if self._selection_return and self._selection_return[0] == key:
+            view.update(self._selection_return[1])
         self._task_history.insert(0, dict(task_id=key,
             title=(values.get('requestText') or values.get('status') or 'Công việc')[:60],
             state=deepcopy({k:values[k] for k in self.HISTORY_FIELDS}),
-            presentation=deepcopy({k:getattr(self.presentation,k) for k in fields}),
+            presentation=view, last_image=self._last_image, draft_image=self._draft_image,
+            image_label=values.get('imageLabel',''),
             source_ref=deepcopy(self._ocr_source_ref), source_text=self._ocr_current_text,
             translation_args=deepcopy(self._translation_args), finder=self.finder_artifact,
             draft=self._next_draft))
@@ -907,10 +911,12 @@ class MiniQuickController(QObject):
         self._preview_input = None
         self._selection_present_generation = self._presentation_invocation_id = None
         self._next_draft = item['draft']
+        self._last_image, self._draft_image = item['last_image'], item['draft_image']
+        preview = self.image_preview.set_input(self._last_image) if self._last_image is not None else ''
         self.presentation.open('result')
         self.look.read()
         self.update(**item['state'], draftText=self._next_draft, busy=False,
-            imagePreviewUrl='', imageLabel='', selectionNotice='', canRetryRequest=False,
+            imagePreviewUrl=preview, imageLabel=item['image_label'], selectionNotice='', canRetryRequest=False,
             canRetryTranslation=bool(item['source_ref'] and item['translation_args']),
             canApplyOrganization=False, canUndoOrganization=False,
             organizationRecoverySuggested=item['state']['view']=='organization')

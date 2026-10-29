@@ -48,6 +48,9 @@ do not accumulate one large diff. This is standing authorization for commits and
 normal pushes for this work. Preserve unrelated edits, inspect staged changes,
 and never force-push or rewrite history. Test, build, launch and acceptance still
 require the user's explicit request. Current work: [unified interaction plan](docs/rat_lite_unified_interaction_plan_20261029.md).
+The [.27 source handoff](docs/rat_lite_27_source_handoff_20261029.md) maps all 20
+approved Lite items to source and outstanding live evidence; it is not a built
+or accepted release.
 
 The research entry point is `experiments.research_study`. It requires no Qt
 windows, file indexing, personal documents or app services.

@@ -1,5 +1,11 @@
 # RAT Lite — kế hoạch mở rộng sau .26
 
+Update after planning: the user authorized implementation of all 20 items, including
+optional scope. See [the .27 source handoff](rat_lite_27_source_handoff_20261029.md)
+for implementation and remaining live evidence. Proposal-only wording below records
+the earlier planning state; main/M3 and research gates still apply.
+
+
 Ngày 2026-10-29. Người dùng báo “okay it worked”, đồng ý mục đặt Quick Look gần
 vùng chữ được chọn, rồi yêu cầu thêm nhiều hạng mục phát triển Mini/Lite.
 Định hướng đặt gần vùng chọn đã được đồng ý; các mục mở rộng dưới đây là đề xuất
