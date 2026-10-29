@@ -343,6 +343,7 @@ class MiniShell(QObject):
             import objc
             from AppKit import (NSWindowCollectionBehaviorCanJoinAllSpaces,
                 NSWindowCollectionBehaviorMoveToActiveSpace,
+                NSWindowCollectionBehaviorFullScreenPrimary, NSWindowCollectionBehaviorFullScreenNone,
                 NSWindowCollectionBehaviorFullScreenAuxiliary)
             native_view = objc.objc_object(c_void_p=ctypes.c_void_p(int(self.view.winId())))
             window = native_view.window()
@@ -351,7 +352,8 @@ class MiniShell(QObject):
             flags = int(window.collectionBehavior())
             # These are alternative Space policies. All-spaces also permits a
             # passive reader to appear without first activating the application.
-            flags &= ~int(NSWindowCollectionBehaviorMoveToActiveSpace)
+            flags &= ~int(NSWindowCollectionBehaviorMoveToActiveSpace |
+                NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorFullScreenNone)
             flags |= int(NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary)
             window.setCollectionBehavior_(flags)
             return True
@@ -371,6 +373,8 @@ class MiniShell(QObject):
         self.fit()
         if not self.configure_current_space():
             self.controller.recordHotkeyState('space_policy_failed', reason='native_window_unavailable')
+            self.controller.shortcutAcknowledged.emit('RAT chưa hiện được trên Space hiện tại. Mở lại RAT hoặc thử lại.')
+            return
         QMetaObject.invokeMethod(self.root, 'restoreReader')
         self.view.show()
         if self.view.isVisible():
@@ -396,6 +400,8 @@ class MiniShell(QObject):
         self.look_keyboard_owned = True
         if not self.configure_current_space():
             self.controller.recordHotkeyState('space_policy_failed', reason='native_window_unavailable')
+            self.controller.shortcutAcknowledged.emit('RAT chưa nhận được focus trên Space hiện tại.')
+            return
         if QGuiApplication.instance().platformName() == 'cocoa':
             from AppKit import NSApplication
             NSApplication.sharedApplication().activateIgnoringOtherApps_(True)
