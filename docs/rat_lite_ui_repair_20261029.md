@@ -27,6 +27,30 @@ Source repairs:
 - Submission captures actual current composer dimensions, including when no
   reader text exists. Geometry retention still uses bounded reader scrolling.
 
+## Reported shortcut failure and observed runtime state
+
+The user additionally reported nothing happening after highlight → ⌥⇧Space.
+Read-only inventory showed .25 PID46807 alive but no rat-hotkey helper or other
+child of that PID. last-hotkey.json still contained SELECT1/ready for .25, with
+no selection event. This locates an observed failure before selection capture;
+it does not establish Accessibility denial. The exact helper exit cause was not
+recoverable from the existing default metadata, which only retained readiness.
+
+The helper had an immediate `_exit(0)` path on stdin EOF. Source now watches its
+own parent PID instead, so stdin closure cannot silently release the shortcut.
+This removes a plausible shutdown path; it is not proof that EOF caused this
+particular run's exit. The Qt owner explicitly terminates it on normal cleanup;
+unexpected parent death is handled by the helper monitor. ReceiveNextEvent
+failures report OSStatus; QProcess stop/error events replace stale `ready`
+metadata. An immediate stopped process cannot be accepted as ready.
+
+The app now exposes shortcut failure as a tray `!`, a compact input warning and
+an explicit reconnect action. Reconnect closes the old handle before registering
+one replacement, without automatic repeated retries or business execution.
+Native keypress delivery, helper lifetime, selection and permission recovery are
+still unverified in this source revision. User requested seeing the differences
+after the fixes; review base is 8da75c8a (.25 delivery), not the unbuilt plan.
+
 No business contract, selection adapter, dispatch path or provider changed.
 The broader single-reader expanded-layout repair remains pending. Source version
 is .26. Packaging/opening is recorded separately if completed; software tests,
