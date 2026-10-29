@@ -1,5 +1,11 @@
 # RAT Lite .28 — overhaul UX quanh Chuột và bubble
 
+**Interaction revision:** sau phản hồi “chưa convinced”, xem
+[phản hồi → hỏi ngay → hội thoại](rat_lite_28_interaction_revision_20261029.md).
+Revision này thay thế rule click/selection, activation chat và source/referent
+ở plan ban đầu: input không tự là chat, đọc rộng không tự là transcript.
+
+
 Trạng thái: **kế hoạch**, chưa triển khai overhaul, chưa build/test/launch. Source
 `c8192972` mới là correction đầu tiên: Chuột lớn hơn, bubble bớt chrome và bỏ
 nút Sao chép. Không coi correction đó là đã giải quyết toàn bộ UX. Bản được mở
