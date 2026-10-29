@@ -1,5 +1,11 @@
 # RAT Lite .28 — overhaul UX quanh Chuột và bubble
 
+**Generated design direction:** người dùng bổ sung ba ảnh tham chiếu; xem
+[mascot, thẻ trạng thái và Workbench](rat_lite_28_generated_design_direction_20261029.md).
+Bổ sung ưu tiên Chuột toàn thân ngồi trong storyboard và Workbench ba vùng công
+khai; giữ các rule tương tác, không Copy CTA và shared reasoning tools.
+
+
 **Interaction revision:** sau phản hồi “chưa convinced”, xem
 [phản hồi → hỏi ngay → hội thoại](rat_lite_28_interaction_revision_20261029.md).
 Revision này thay thế rule click/selection, activation chat và source/referent

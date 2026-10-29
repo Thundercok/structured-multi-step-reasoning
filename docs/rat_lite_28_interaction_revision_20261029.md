@@ -1,5 +1,11 @@
 # .28 interaction revision — phản hồi, hỏi ngay, hội thoại
 
+**Generated design direction:** người dùng bổ sung ba ảnh tham chiếu; xem
+[mascot, thẻ trạng thái và Workbench](rat_lite_28_generated_design_direction_20261029.md).
+Bổ sung ưu tiên Chuột toàn thân ngồi trong storyboard và Workbench ba vùng công
+khai; giữ các rule tương tác, không Copy CTA và shared reasoning tools.
+
+
 Trạng thái: đề xuất sau khi người dùng chưa thuyết phục với phân chia
 “selection → bubble, click Chuột → chat”. Chỉ sửa plan; không triển khai, build,
 launch hay kiểm thử. Tài liệu này thay thế các quy tắc tương ứng ở phần goals,
