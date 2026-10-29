@@ -1,5 +1,11 @@
 # RAT Lite .24 — unified interaction source handoff
 
+Later user-authorized build/open completed: app and ZIP are in
+`dist/rat-lite-20261029-unified/`; process PID39464 launched from the .24 bundle.
+See [package/launch record](../audit/rat_lite_unified_20261029/README.md).
+The source-only status below records the implementation turn; native acceptance
+is still pending and no tests or UI flow were run during packaging/opening.
+
 2026-10-29. Implements the [interaction plan](rat_lite_unified_interaction_plan_20261029.md)
 in small commits on main, as explicitly requested. Source only: no test, smoke,
 build, launch, screenshot or live acceptance was run. Existing app bundles do
