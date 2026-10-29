@@ -16,6 +16,9 @@ def look_projection(state):
     are layout policy, never intent routing or a model-quality assertion.
     """
     surface = state.get('lookSurface')
+    if state.get('selectionNotice') and surface == 'reading':
+        return dict(lookVariant='B', lookText=state['selectionNotice'],
+                    lookCanCopy=False, lookShowingError=True)
     if surface in ('hidden', 'peek'):
         return dict(lookVariant='standby', lookText=state.get('lookHint', '') if surface == 'peek' else '',
                     lookCanCopy=False, lookShowingError=bool(surface == 'peek' and state.get('lookNotice')))

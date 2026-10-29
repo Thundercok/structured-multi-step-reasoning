@@ -7,8 +7,6 @@
 
 static EventHotKeyID identity = { 'rmin', 1 };
 static Boolean down = false;
-static EventTime down_time = 0;
-static const EventTime hold_seconds = 0.5;
 
 static OSStatus pressed(EventHandlerCallRef next, EventRef event, void *context) {
     EventHotKeyID received = {0};
@@ -17,11 +15,9 @@ static OSStatus pressed(EventHandlerCallRef next, EventRef event, void *context)
     if (status || received.signature != identity.signature || received.id != identity.id)
         return eventNotHandledErr;
     if (GetEventKind(event) == kEventHotKeyPressed) {
-        if (!down) { down = true; down_time = GetEventTime(event); puts("DOWN"); }
+        if (!down) { down = true; puts("SELECTION"); }
     } else if (GetEventKind(event) == kEventHotKeyReleased && down) {
-        EventTime duration = GetEventTime(event) - down_time;
         down = false;
-        puts(duration >= hold_seconds ? "MINIMAL" : "LOOK");
     } else return eventNotHandledErr;
     return noErr;
 }
@@ -51,7 +47,7 @@ int main(void) {
     pthread_t watcher;
     if (pthread_create(&watcher, NULL, watch_parent, NULL)) return 1;
     pthread_detach(watcher);
-    puts("READY HOLD2");
+    puts("READY SELECT1");
     /* RunApplicationEventLoop is unavailable on 64-bit macOS. Use the
        Carbon dispatcher directly; the helper owns no windows or UI. */
     for (;;) {

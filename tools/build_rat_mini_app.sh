@@ -55,7 +55,7 @@ zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
   --copy-metadata ctranslate2 --copy-metadata sentencepiece --copy-metadata numpy \
   --collect-data rfc3987_syntax --collect-data lark --collect-data jsonschema_specifications \
   --hidden-import objc --hidden-import Foundation \
-  --hidden-import AppKit --hidden-import Quartz --hidden-import document_intake.vision \
+  --hidden-import AppKit --hidden-import Quartz --hidden-import ApplicationServices --hidden-import document_intake.vision \
   --hidden-import ctranslate2 --hidden-import sentencepiece \
   "${exclude_args[@]}" --paths "$ROOT" "$ROOT/mini_app.py"
 export RAT_MINI_BUILT_APP="$DIST_DIR/RAT Mini.app"

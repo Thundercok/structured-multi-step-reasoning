@@ -676,6 +676,7 @@ Rectangle {
         onDismissRequested: desk.liveController.dismissLookResult()
         onRetryRequested: desk.liveController.retryRequest()
         onCancelRequested: desk.liveController.cancel()
+        onSelectionAccessRequested: desk.liveController.openSelectionAccess()
         onScrollRequested: offset => desk.liveController.rememberLookScroll(offset)
         onPendingRequested: desk.liveController.openPendingLook()
         onPreviewRequested: desk.liveController.previewPending()
@@ -694,8 +695,10 @@ Rectangle {
         // Qt 6.8+: the Look window can be just 122px wide. A separate popup
         // window keeps the secondary menu outside that tiny input mask.
         popupType: Popup.Window
-        MenuItem { text: "Xem lại công việc · ⌥⇧Space"; onTriggered: desk.liveController.summonLook() }
-        MenuItem { text: "Viết yêu cầu · giữ ⌥⇧Space"; onTriggered: desk.liveController.summonMinimal() }
+        MenuItem { text: "Bôi đen chữ trong app nguồn → ⌥⇧Space"; enabled: false }
+        MenuItem { text: "Xem lại công việc"; onTriggered: desk.liveController.summonLook() }
+        MenuItem { text: "Viết yêu cầu"; onTriggered: desk.liveController.summonMinimal() }
+        MenuItem { text: "Quyền đọc chữ bôi đen…"; onTriggered: desk.liveController.openSelectionAccess() }
         MenuItem { text: !desk.liveSnapshot.lookWatching ? "Bật theo dõi Clipboard" : desk.liveSnapshot.lookPaused ? "Tiếp tục Clipboard" : "Tạm dừng Clipboard"; onTriggered: desk.liveController.toggleLookPaused() }
         MenuItem { visible: desk.liveSnapshot.lookWatching; text: "Tắt theo dõi Clipboard"; onTriggered: desk.liveController.stopLook() }
         MenuItem { visible: desk.liveSnapshot.lookHasQueued; text: "Xem đoạn chờ"; onTriggered: desk.liveController.previewPending() }

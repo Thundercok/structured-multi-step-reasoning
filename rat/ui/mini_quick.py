@@ -75,8 +75,8 @@ def create_mini_desk(settings=None):
     tray.setToolTip('RAT Mini')
     tray_actions = {}
     for label, callback in [
-        ('Xem lại công việc · ⌥⇧Space', controller.summonLook),
-        ('Viết yêu cầu · giữ ⌥⇧Space', controller.summonMinimal),
+        ('Xem lại công việc', controller.summonLook),
+        ('Viết yêu cầu', controller.summonMinimal),
         ('Bật theo dõi Clipboard', controller.toggleLookPaused),
         ('Tắt theo dõi Clipboard', controller.stopLook),
         ('Xem đoạn chờ', controller.previewPending),
@@ -111,12 +111,11 @@ def create_mini_desk(settings=None):
     def record_hotkey(stage):
         # Only this app's registered chord and outcome; no typed text/clipboard.
         try:
-            (state_directory()/'last-hotkey.json').write_text(json.dumps({'protocol':'HOLD2','stage':stage,'ui_build':BUILD,'pid':os.getpid()}))
+            (state_directory()/'last-hotkey.json').write_text(json.dumps({'protocol':'SELECT1','stage':stage,'ui_build':BUILD,'pid':os.getpid()}))
         except OSError:
             logging.getLogger(__name__).warning('hotkey_diagnostic_write_failed')
     try:
-        hotkeys = register_hotkey(controller.summonLook,
-            on_minimal=controller.summonMinimal,
+        hotkeys = register_hotkey(controller.quickLookSelection,
             on_event=record_hotkey,
             on_error=lambda message: controller.update(hotkeyStatus=message)) if app.platformName() == 'cocoa' else None
         if hotkeys:

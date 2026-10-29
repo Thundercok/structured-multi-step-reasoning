@@ -48,23 +48,23 @@ class HotkeyRegistration:
         while b'\n' in self.buffer:
             line, _, rest = self.buffer.partition(b'\n')
             self.buffer = bytearray(rest)
-            if line in (b'READY', b'READY MODES1', b'READY HOLD1'):
+            if line in (b'READY', b'READY MODES1', b'READY HOLD1', b'READY HOLD2'):
                 # Older helpers have different keys or reversed tap/hold outcomes.
-                self.protocol_error = 'Helper phím tắt cũ; cần build lại helper cho Look / Minimal.'
+                self.protocol_error = 'Helper phím tắt cũ; cần build lại helper cho Quick Look selection.'
                 continue
-            if line == b'READY HOLD2':
+            if line == b'READY SELECT1':
                 self.ready = True
                 if self.on_event: self.on_event('ready')
-                logger.info('hotkey_registered target=native_helper modes=look,minimal pid=%s', self.process.processId())
+                logger.info('hotkey_registered target=native_helper intent=selection pid=%s', self.process.processId())
             elif line == b'DOWN' and self.ready and not self.closed:
                 if self.on_event: self.on_event('pressed')
-            elif line in (b'LOOK', b'MINIMAL') and self.ready and not self.closed:
+            elif line == b'SELECTION' and self.ready and not self.closed:
                 now = time.monotonic()
                 if now-self.last_fire >= 0.25:
                     self.last_fire = now
                     if self.on_event: self.on_event(line.decode('ascii').lower())
                     logger.info('hotkey_received origin=carbon_helper')
-                    callback = self.callback if line == b'LOOK' else self.on_minimal
+                    callback = self.callback
                     if callback:
                         callback()
 

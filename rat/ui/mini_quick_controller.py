@@ -55,10 +55,11 @@ class MiniQuickController(QObject):
         self._image_instruction = ''
         self._retry_request = None
         self._region_previous = None
+        self._selection_present_generation = None
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False,
+            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False,
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -132,6 +133,7 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonLook(self):
+        self._state['selectionNotice'] = ''
         self.presentation.open('result')
         if self._state['hasWorkbench']:
             self.presentation.read()
@@ -171,6 +173,7 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def dismissLookResult(self):
         # Closing presentation never cancels work or abandons clarification.
+        self._selection_present_generation = None
         self.look.close()
         self.update()
         self.lookResultDismissed.emit()
@@ -182,6 +185,7 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def recallLookResult(self):
+        self._state['selectionNotice'] = ''
         self.presentation.open('result')
         self.presentation.read() if self._state['hasWorkbench'] else self.presentation.compose()
         self.update()
@@ -235,6 +239,7 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonMinimal(self):
+        self._state['selectionNotice'] = ''
         self.presentation.open('result')
         self.presentation.compose()
         self.update()
@@ -688,6 +693,42 @@ class MiniQuickController(QObject):
                 look_input=True))
         QTimer.singleShot(160, begin)
 
+    @pyqtSlot()
+    def quickLookSelection(self):
+        """Pin the source before showing/activating RAT; capture runs in its tool."""
+        if self.quitting or self.job or self.pending or self._region_previous:
+            return
+        import os
+        import sys
+        if sys.platform != 'darwin':
+            self.summonLook()
+            return
+        from AppKit import NSWorkspace
+        source = NSWorkspace.sharedWorkspace().frontmostApplication()
+        if source is None or int(source.processIdentifier()) == os.getpid():
+            self.summonLook()
+            return
+        fields = ('phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
+            'agentSummary', 'agentIncomplete', 'settingsNotice', 'lastOperation',
+            'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
+            'organizationRecoverySuggested', 'canRetryRequest')
+        self._region_previous = ({key: self._state[key] for key in fields}, self._retry_request)
+        self.presentation.open('result')
+        self.presentation.resize(False)
+        self.presentation.read()
+        self.update(selectionNotice='', selectionNeedsPermission=False)
+        self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
+            look_input=True, source_language=self.settings['source_language'],
+            target_language=self.settings['target_language']),
+            input_context={'selection_pid': int(source.processIdentifier())})
+        self._selection_present_generation = self.generation
+        # No present signal here: AX must read the source before RAT can take focus.
+
+    @pyqtSlot()
+    def openSelectionAccess(self):
+        from rat.os.permissions import open_accessibility_settings
+        open_accessibility_settings()
+
     def restore_region_previous(self):
         if self._region_previous is not None:
             values, self._retry_request = self._region_previous
@@ -743,7 +784,7 @@ class MiniQuickController(QObject):
         new_task = (operation in ('find_files', 'capture_translate', 'plan_folder_organization', 'get_last_organization')
                     or (operation == 'submit_goal' and self._state['phase'] != 'needs_input' and not args.get('source_ref'))
                     or (operation == 'translate_text' and not args.get('source_ref')))
-        preserve_region = operation == 'capture_translate' and args.get('mode') == 'region' and args.get('preserve_until_capture')
+        preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
         if new_task and not preserve_region:
             self.presentation.begin_task()
         if not preserve_region and (operation in ('find_files', 'capture_translate')
@@ -754,7 +795,7 @@ class MiniQuickController(QObject):
             self.finder_artifact = self.organization_artifact = None
             self.update(canApplyOrganization=False, canUndoOrganization=False)
             self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
-        capture_status = {'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
+        capture_status = {'selection':'Đang nhận chữ bôi đen…', 'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
             'clipboard':'Đang đọc Clipboard và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
         if operation != "check_mini_readiness":
             self.update(busy=True, phase='working', expanded=True, hasWorkbench=True, agentSummary='', agentIncomplete=False,
@@ -793,7 +834,8 @@ class MiniQuickController(QObject):
                 self.finder_artifact = self.organization_artifact = None
                 self.update(canApplyOrganization=False, canUndoOrganization=False, view='notice',
                     finderHits=[], text='', meta='', translationDetails='', translationNotice='',
-                    sameLanguageNotice='', agentSummary='', agentIncomplete=False, requestText='Vùng chữ đã chọn')
+                    sameLanguageNotice='', agentSummary='', agentIncomplete=False,
+                    requestText='Chữ bôi đen' if job.args.get('mode') == 'selection' else 'Vùng chữ đã chọn')
                 self._region_previous = None
                 region_image = source.get('region_image')
                 if region_image:
@@ -812,6 +854,9 @@ class MiniQuickController(QObject):
             if job.args.get('mode') == 'region':
                 self._capture_position = QCursor.pos()
             self.update(status='Đã nhận vùng chữ.' if job.args.get('observe_only') else 'Đang dịch…')
+            if job.args.get('mode') == 'selection' and self._selection_present_generation == job.generation:
+                self._selection_present_generation = None
+                self.lookRequested.emit()
 
     def finished(self, job):
         self.job = None
@@ -845,10 +890,19 @@ class MiniQuickController(QObject):
             self.update(agentSummary=response.answer or '',
                 agentIncomplete=response.completion_status != 'completed')
         region = value.get('capture_mode') == 'region'
-        if region and self._region_previous is not None and (error or response is None):
+        selection = value.get('capture_mode') == 'selection'
+        if (region or selection) and self._region_previous is not None and (error or response is None):
             self.restore_region_previous()
             if error and not str(error).startswith('cancelled'):
-                self.update(phase='error', error=True, status=self.friendly_error(str(error)))
+                if selection:
+                    self.look.read()
+                    self.update(selectionNotice=self.friendly_error(str(error)),
+                        selectionNeedsPermission='selection_accessibility_required' in str(error))
+                    if self._selection_present_generation == self.generation:
+                        self._selection_present_generation = None
+                        self.lookRequested.emit()
+                else:
+                    self.update(phase='error', error=True, status=self.friendly_error(str(error)))
             return
         if error:
             self.update(readinessBusy=False)
@@ -1027,6 +1081,12 @@ class MiniQuickController(QObject):
                 return message
         if any(code in error for code in ('source_integrity_mismatch', 'source_expired', 'stale_source_ref')):
             return 'Nguồn chữ cũ không còn hợp lệ. Hãy thả lại ảnh hoặc dán lại nội dung để dịch.'
+        if 'selection_accessibility_required' in error:
+            return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng. Sau đó bôi đen chữ và bấm ⌥⇧Space lại.'
+        if 'selection_source_changed' in error:
+            return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm ⌥⇧Space lại.'
+        if 'selection_unavailable' in error:
+            return 'Chưa lấy được chữ bôi đen từ app này. Bạn có thể dán chữ hoặc chọn vùng ảnh trong menu.'
         if 'screen_capture_denied' in error:
             return 'Cho phép Ghi màn hình trong macOS để chọn vùng chữ.'
         if 'ocr_empty' in error:
