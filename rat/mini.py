@@ -20,6 +20,7 @@ from rat.kernel.profile import MINI_PROFILE
 from rat.kernel.capabilities.file_finder import create_file_finder_capability
 from rat.kernel.capabilities.translation import create_translation_capability
 from rat.kernel.capabilities.source_analysis import create_source_analysis_capability
+from rat.kernel.capabilities.observed_source import observed_capture
 from rat.kernel.capabilities.folder_organizer import create_folder_organizer_capability
 from rat.kernel.capabilities.mini_setup import create_mini_setup_capability
 from rat.engine.folder_organization import FolderOrganizer
@@ -95,9 +96,11 @@ class MiniSession:
                 self._agent_goal, self._agent_history = query, []
             sources = [{'type': 'allowed_folder', 'path': str(root)} for root in self.scopes.roots]
             if source_ref:
-                source = self.runtime.artifact_store.get(source_ref.get('artifact_id'))
-                if source is None or source.kind != 'captured_text' or source.revision != source_ref.get('revision'):
-                    return AgentResponse('', [], 0, 0, 0, error='stale_source_ref')
+                try:
+                    source = observed_capture(source_ref, {'artifact_store':self.runtime.artifact_store})
+                except ValueError as exc:
+                    self._agent_goal, self._agent_history = None, []
+                    return AgentResponse('', [], 0, 0, 0, error=str(exc))
                 sources.append({'type': 'captured_text', 'source_ref': dict(source_ref),
                                 'text': source.payload['text']})
             response = self.execute(query=self._agent_goal, cancel=cancel,

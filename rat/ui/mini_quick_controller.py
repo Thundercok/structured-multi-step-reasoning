@@ -76,7 +76,7 @@ class MiniQuickController(QObject):
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
+            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceApp='', captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -847,7 +847,7 @@ class MiniQuickController(QObject):
         self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
             look_input=True, source_language=self.settings['source_language'],
             target_language=self.settings['target_language']),
-            input_context={'selection_pid': int(source.processIdentifier()), 'quicklook_invocation_id':invocation})
+            input_context={'selection_pid': int(source.processIdentifier()), 'selection_app': str(source.localizedName() or ''), 'quicklook_invocation_id':invocation})
         self._selection_present_generation = self.generation
         self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
         # No present signal here: AX must read the source before RAT can take focus.
@@ -865,8 +865,8 @@ class MiniQuickController(QObject):
         self.hotkeyRestartRequested.emit()
 
     HISTORY_FIELDS = ('view', 'phase', 'status', 'error', 'text', 'meta', 'requestText',
-        'hasWorkbench', 'finderHits', 'hasOcrSource', 'ocrText', 'ocrCommittedText', 'ocrOriginalText',
-        'ocrPreparationNotice', 'captureSourceKind', 'lookSource', 'translationDetails', 'translationNotice',
+        'hasWorkbench', 'pinned', 'finderHits', 'hasOcrSource', 'ocrText', 'ocrCommittedText', 'ocrOriginalText',
+        'ocrPreparationNotice', 'captureSourceKind', 'captureSourceApp', 'lookSource', 'translationDetails', 'translationNotice',
         'sameLanguageNotice', 'organization', 'organizationRows', 'organizationGroups',
         'agentSummary', 'agentIncomplete', 'lastOperation')
 
@@ -911,6 +911,7 @@ class MiniQuickController(QObject):
         self.look.read()
         self.update(**item['state'], draftText=self._next_draft, busy=False,
             imagePreviewUrl='', imageLabel='', selectionNotice='', canRetryRequest=False,
+            canRetryTranslation=bool(item['source_ref'] and item['translation_args']),
             canApplyOrganization=False, canUndoOrganization=False,
             organizationRecoverySuggested=item['state']['view']=='organization')
         self.restoreAnchorRequested.emit(self.presentation.task_id)
@@ -1031,7 +1032,7 @@ class MiniQuickController(QObject):
         # Snapshot on the GUI thread. Capture and translation still use tool contracts.
         text = QGuiApplication.clipboard().text()
         self.update(requestText=text or 'Dịch Clipboard')
-        self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text,
+        self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
             source_language=self.settings['source_language'],
             target_language=self.settings['target_language']))
 
@@ -1088,7 +1089,7 @@ class MiniQuickController(QObject):
             self.clear_ocr_source()
         if new_task and not preserve_region:
             self.finder_artifact = self.organization_artifact = None
-            self.update(canApplyOrganization=False, canUndoOrganization=False)
+            self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False)
             self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
         capture_status = {'selection':'Đang nhận chữ bôi đen…', 'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
             'clipboard':'Đang đọc Clipboard và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
@@ -1142,7 +1143,7 @@ class MiniQuickController(QObject):
                 self.clear_ocr_source()
                 self.clearImagePreview()
                 self.finder_artifact = self.organization_artifact = None
-                self.update(canApplyOrganization=False, canUndoOrganization=False, view='notice',
+                self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, view='notice',
                     finderHits=[], text='', meta='', translationDetails='', translationNotice='',
                     sameLanguageNotice='', agentSummary='', agentIncomplete=False,
                     requestText='Chữ bôi đen' if job.args.get('mode') == 'selection' else 'Vùng chữ đã chọn')
@@ -1157,6 +1158,7 @@ class MiniQuickController(QObject):
                 self._translation_args = dict(source['translation_args'])
                 self.update(ocrText=self._ocr_current_text, ocrCommittedText=self._ocr_current_text,
                     captureSourceKind=artifact.payload['source_kind'],
+                    captureSourceApp=job.input_context.get('selection_app','') if artifact.payload['source_kind']=='selection' else '',
                     lookSource=bool(job.args.get('observe_only') or job.args.get('look_input')) or self._state['lookSource'],
                     hasOcrSource=True, canRetryTranslation=True,
                     ocrOriginalText=self._state['ocrOriginalText'] if job.operation == 'correct_translate' else artifact.payload.get('ocr_raw_text', self._ocr_current_text),

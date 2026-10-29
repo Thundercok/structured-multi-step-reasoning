@@ -53,7 +53,7 @@ def create_source_analysis_capability(client):
             or not isinstance(quotes, list) or not 1 <= len(quotes) <= 8
             or not all(isinstance(q, str) and 0 < len(q) <= 500 and q in text for q in quotes)):
             raise ValueError('source_analysis_invalid_evidence')
-        return {**answer, 'mode': args['mode'], 'source_ref': dict(args['source_ref']),
+        return {'text':answer['text'], 'evidence':quotes, 'mode': args['mode'], 'source_ref': dict(args['source_ref']),
             'source_text': text, 'source_sha256': source.payload['source_sha256'],
             'provider': client.settings['provider'], 'model': client.settings['model'],
             'semantic_verification': 'unverified'}
@@ -64,7 +64,14 @@ def create_source_analysis_capability(client):
             'source_ref': SOURCE_REF_SCHEMA, 'mode': {'type': 'string', 'enum': list(MODES)},
             'instruction': {'type': 'string', 'maxLength': 2000},
             'target_language': {'type': 'string', 'maxLength': 35}}, 'required': ['source_ref', 'mode']},
-        analyze, artifact_kind='source_analysis', verifier=SourceAnalysisVerifier(),
+        analyze, artifact_kind='source_analysis', result_contract={'type':'object', 'properties':{
+            **ANSWER['properties'], 'mode':{'type':'string','enum':list(MODES)},
+            'source_ref':SOURCE_REF_SCHEMA, 'source_text':{'type':'string','maxLength':8000},
+            'source_sha256':{'type':'string','pattern':'^[0-9a-f]{64}$'},
+            'provider':{'type':'string'}, 'model':{'type':'string'},
+            'semantic_verification':{'const':'unverified'}},
+            'required':['text','evidence','mode','source_ref','source_text','source_sha256','provider','model','semantic_verification'],
+            'additionalProperties':False}, verifier=SourceAnalysisVerifier(),
         observation_formatter=lambda data: {k: data[k] for k in
             ('text', 'mode', 'source_ref', 'evidence', 'semantic_verification')}))
     return cap

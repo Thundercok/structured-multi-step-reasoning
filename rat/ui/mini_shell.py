@@ -186,6 +186,7 @@ class MiniShell(QObject):
                 self.home = (self.home[0]+dx, self.home[1]+dy)
                 if self.expanded_top is not None:
                     self.expanded_top += dy
+            self.task_anchors[self.controller.presentation.task_id] = (self.look_home,self.look_side,self.view.screen().name())
             self._last_origin = origin
 
     def corner_surface(self):
@@ -194,7 +195,10 @@ class MiniShell(QObject):
     def restore_anchor(self, task_id):
         saved = self.task_anchors.get(task_id)
         if saved:
-            self.look_home, self.look_side = saved
+            self.look_home, self.look_side, screen_name = saved
+            matches = [screen for screen in QGuiApplication.screens() if screen.name()==screen_name]
+            if len(matches)==1:
+                self.view.setScreen(matches[0])
             self.selection_anchored = True
         else:
             self.look_home, self.look_side = self.corner_home, None
@@ -221,7 +225,7 @@ class MiniShell(QObject):
                 self.view.setScreen(screen)
         if not self.selection_anchored:
             self.look_home=self.corner_home
-        self.task_anchors[self.controller.presentation.task_id] = (self.look_home,self.look_side)
+        self.task_anchors[self.controller.presentation.task_id] = (self.look_home,self.look_side,self.view.screen().name())
         while len(self.task_anchors)>6:
             del self.task_anchors[next(iter(self.task_anchors))]
         self.schedule_fit()

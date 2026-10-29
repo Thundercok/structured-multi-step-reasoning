@@ -8,6 +8,7 @@ import time
 from PyQt6.QtCore import QCoreApplication, QProcess
 
 from rat.os.hotkey_chords import chord, DEFAULT_CHORD
+from rat.engine.mini_version import BUILD
 
 logger = logging.getLogger(__name__)
 _keepalive = []
@@ -32,7 +33,7 @@ class HotkeyRegistration:
             raise OSError('Thiếu rat-hotkey; cần build native helper trước khi chạy Mini.')
         self.process = QProcess(QCoreApplication.instance())
         key, modifiers, _ = chord(chord_name)
-        self.ready_line = f"READY SELECT2 {key} {modifiers}".encode()
+        self.ready_line = f"READY SELECT2 {BUILD} {key} {modifiers}".encode()
         self.process.setProgram(str(helper))
         self.process.setArguments([str(key), str(modifiers)])
         self.process.readyReadStandardOutput.connect(self._read)

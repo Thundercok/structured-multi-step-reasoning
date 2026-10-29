@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#ifndef RAT_BUILD_ID
+#error "Build with tools/build_rat_mini_hotkey.sh to supply the matching identity"
+#endif
+
 static EventHotKeyID identity = { 'rmin', 1 };
 static Boolean down = false;
 static pid_t owner_pid = 0;
@@ -60,7 +64,7 @@ int main(int argc, char **argv) {
     pthread_t watcher;
     if (pthread_create(&watcher, NULL, watch_parent, NULL)) return 1;
     pthread_detach(watcher);
-    printf("READY SELECT2 %ld %ld\n", key, modifiers);
+    printf("READY SELECT2 %s %ld %ld\n", RAT_BUILD_ID, key, modifiers);
     /* RunApplicationEventLoop is unavailable on 64-bit macOS. Use the
        Carbon dispatcher directly; the helper owns no windows or UI. */
     for (;;) {

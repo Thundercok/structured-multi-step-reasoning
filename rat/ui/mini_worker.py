@@ -29,7 +29,7 @@ class MiniJob(QThread):
             progress = lambda text: self.progress.emit(text)
             def observed_step(step):
                 # Only public tool receipts/checks, never thought/raw completion.
-                labels = {'find_files': 'tìm file', 'translate_text': 'dịch',
+                labels = {'analyze_captured_text':'đọc sâu từ nguồn', 'find_files': 'tìm file', 'translate_text': 'dịch',
                     'plan_folder_organization': 'lập bản xem trước',
                     'capture_text': 'nhận chữ nguồn'}
                 if step.tool_name in labels and step.tool_result is not None:

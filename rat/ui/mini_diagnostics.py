@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 
-BUILD = '20261029.26'
+from rat.engine.mini_version import BUILD
 logger = logging.getLogger(__name__)
 
 

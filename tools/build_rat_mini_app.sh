@@ -30,7 +30,7 @@ excluded=(torch transformers fastembed scipy sklearn gymnasium mlx mlx_lm senten
   rat.kernel.capabilities.timetable rat.kernel.capabilities.natal rat.kernel.capabilities.views)
 exclude_args=()
 for module in "${excluded[@]}"; do exclude_args+=(--exclude-module "$module"); done
-zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
+PYTHON_BIN="$PYTHON_BIN" zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
 "$PYTHON_BIN" -m PyInstaller --noconfirm --clean --windowed --name "RAT Mini" \
   --distpath "$DIST_DIR" --workpath "$BUILD_TMP/build" --specpath "$BUILD_TMP/spec" \
   --icon "$ROOT/tools/rat_translate.icns" --osx-bundle-identifier vn.rat.mini \
@@ -58,6 +58,7 @@ zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
   --hidden-import AppKit --hidden-import Quartz --hidden-import ApplicationServices --hidden-import document_intake.vision \
   --hidden-import ctranslate2 --hidden-import sentencepiece \
   "${exclude_args[@]}" --paths "$ROOT" "$ROOT/mini_app.py"
+export RAT_MINI_HOTKEY_BINARY="$BUILD_TMP/rat-hotkey"
 export RAT_MINI_BUILT_APP="$DIST_DIR/RAT Mini.app"
 # PyInstaller can continue after its Qt discovery subprocess aborts. Never
 # publish a bundle missing the platform plugin required to open any window.
@@ -66,18 +67,25 @@ if [[ ! -f "$RAT_MINI_BUILT_APP/Contents/Frameworks/PyQt6/Qt6/plugins/platforms/
   exit 1
 fi
 "$PYTHON_BIN" - <<'PY'
-import os,plistlib
+import os,plistlib,hashlib,json,subprocess
 from pathlib import Path
-from rat.ui.mini_diagnostics import BUILD
+from rat.engine.mini_version import BUILD, VERSION
 p=Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Info.plist'
 data=plistlib.loads(p.read_bytes())
-data.update(LSUIElement=True,LSMinimumSystemVersion='14.0',CFBundleShortVersionString='0.5.17',CFBundleVersion=BUILD,
+data.update(LSUIElement=True,LSMinimumSystemVersion='14.0',CFBundleShortVersionString=VERSION,CFBundleVersion=BUILD,
             NSDocumentsFolderUsageDescription='RAT Mini tìm và mở file trong Documents khi bạn yêu cầu và chọn thư mục này.',
             NSDesktopFolderUsageDescription='RAT Mini tìm file trên Desktop và đọc ảnh chụp màn hình bạn chủ động đưa vào app.',
             NSDownloadsFolderUsageDescription='RAT Mini tìm và mở file trong Downloads khi bạn yêu cầu và chọn thư mục này.',
             NSScreenCaptureUsageDescription='RAT Mini nhận chữ trong vùng màn hình bạn chọn để dịch.',
             NSAppleEventsUsageDescription='RAT Mini sao chép chữ đang chọn khi bạn yêu cầu.')
 p.write_bytes(plistlib.dumps(data))
+manifest = dict(build=BUILD, version=VERSION, protocol='SELECT2',
+    source_revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+    source_dirty=bool(subprocess.check_output(['git','status','--porcelain','--','rat','tools'],text=True).strip()),
+    helper_sha256=hashlib.sha256(Path(os.environ['RAT_MINI_HOTKEY_BINARY']).read_bytes()).hexdigest(),
+    acceptance='not_run_by_packaging')
+(Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Resources/rat-lite-build.json').write_text(json.dumps(manifest,indent=2))
+
 PY
 codesign --force --deep --sign - "$RAT_MINI_BUILT_APP"
 ditto -c -k --keepParent "$RAT_MINI_BUILT_APP" "$DIST_DIR/RAT Mini.zip"
@@ -88,5 +96,6 @@ import os
 root = Path.cwd()
 with zipfile.ZipFile(Path(os.environ['RAT_MINI_BUILT_APP']).parent / 'RAT Mini.zip', 'a', compression=zipfile.ZIP_DEFLATED) as package:
     package.write(root / 'docs/RAT_MINI_BAT_DAU.txt', 'BAT DAU O DAY.txt')
+    package.write(Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Resources/rat-lite-build.json', 'RAT Lite build.json')
 PY
 echo "Built: $DIST_DIR/RAT Mini.zip"
