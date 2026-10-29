@@ -62,7 +62,7 @@ Rectangle {
         && !liveSnapshot.busy && liveSnapshot.phase === "result"
         && (liveSnapshot.view === "translation" || liveSnapshot.view === "analysis")
     property real heldReaderHeight: 0
-    readonly property real panelBudget: compact && !auxiliary ? (composing ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)) : maxPanelHeight
+    readonly property real panelBudget: compact && !auxiliary ? ((composing || noticeVisible || previewing) ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)) : maxPanelHeight
     readonly property bool paperVisible: !liveSnapshot.bubbleCollapsed && Boolean(liveSnapshot.hasWorkbench || previewing || noticeVisible)
     readonly property bool bodyVisible: auxiliary || paperVisible
     readonly property bool ocrDirty: Boolean(liveSnapshot.ocrDirty)
@@ -250,7 +250,7 @@ Rectangle {
             visible: desk.bodyVisible
             x: 0
             width: parent.width
-            height: visible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.heldReaderHeight > 0 && desk.compact && !desk.auxiliary && !desk.simpleAnswer ? Math.max(140, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
+            height: visible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.noticeVisible || desk.previewing ? Math.max(200, paperColumn.implicitHeight + 24) : desk.heldReaderHeight > 0 && desk.compact && !desk.auxiliary && !desk.simpleAnswer ? Math.max(140, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
             radius: 14; color: "transparent"; border.color: "transparent"
             QuietButton {
                 visible: desk.simpleAnswer && !desk.composing
