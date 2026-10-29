@@ -253,3 +253,29 @@ these results establish live shortcut or Space acceptance.
 Status: shortcut and Space bug remain unverified; the earlier .28 journal had
 shown physical shortcut events but capture failed. No fake response, model loop,
 or successful capture claim is substituted for this missing evidence.
+
+## Physical invocation evidence and next Hello
+
+After the user retried on the built `20261029.28.1`, two invocations reached the
+helper and shared capture, which returned `selection_accessibility_required` for
+the running RAT process. System Settings showed an enabled `RAT Mini.app` entry,
+but that does not prove the running bundle is trusted. The running .28.1 and the
+older .28 bundle are ad-hoc signed with distinct designated cdhashes; `security
+find-identity` reported zero valid code-signing identities. The entry's exact
+association was not determined. No TCC or System Settings permission was changed.
+
+The observed RAT error window displayed only its Quick Look heading while the
+error existed in the accessibility tree. Source now gives the notice/preview
+sufficient layout height so the message and recovery controls can appear. This
+layout correction is not yet verified in a new bundle.
+
+At the user's request for the next version, source also adds a one-time Hello
+revision. It runs the shared `check_mini_readiness` operation in the application
+process, explains the Accessibility permission for selection, shows a button to
+open the permission pane and reveal the exact running bundle in Finder, and
+requires a successful recheck before completing setup. Screen Recording is
+explained separately as needed for region capture, not for pasted text/images.
+No permission is granted by the UI itself. Existing settings trigger this new
+Hello once; the version marker persists after completion. Source changes and
+Hello have not yet been built or acceptance tested. A prompt/visible on toggle
+is not evidence that the current app process has acquired permission.
