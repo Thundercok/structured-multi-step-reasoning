@@ -330,6 +330,35 @@ class MiniShell(QObject):
         self.view.hide()
         logger.info('mini_dismissed; draft_and_result_retained')
 
+    def configure_current_space(self):
+        """Keep the companion available on the active Space, including full screen.
+
+        Qt exposes an NSView as winId on Cocoa. Only adjust our own window and
+        preserve unrelated collection flags; never alter system preferences.
+        """
+        if QGuiApplication.instance().platformName() != 'cocoa':
+            return True
+        try:
+            import ctypes
+            import objc
+            from AppKit import (NSWindowCollectionBehaviorCanJoinAllSpaces,
+                NSWindowCollectionBehaviorMoveToActiveSpace,
+                NSWindowCollectionBehaviorFullScreenAuxiliary)
+            native_view = objc.objc_object(c_void_p=ctypes.c_void_p(int(self.view.winId())))
+            window = native_view.window()
+            if window is None:
+                raise RuntimeError('native_window_unavailable')
+            flags = int(window.collectionBehavior())
+            # These are alternative Space policies. All-spaces also permits a
+            # passive reader to appear without first activating the application.
+            flags &= ~int(NSWindowCollectionBehaviorMoveToActiveSpace)
+            flags |= int(NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary)
+            window.setCollectionBehavior_(flags)
+            return True
+        except Exception as exc:
+            logger.warning('space_policy_unavailable kind=%s', type(exc).__name__)
+            return False
+
     def present(self):
         self.dismiss_timer.stop()
         self.native_outside = False
@@ -340,6 +369,8 @@ class MiniShell(QObject):
         if self.root.property('lookActive'):
             self.controller.prepareLookRecall()
         self.fit()
+        if not self.configure_current_space():
+            self.controller.recordHotkeyState('space_policy_failed', reason='native_window_unavailable')
         QMetaObject.invokeMethod(self.root, 'restoreReader')
         self.view.show()
         if self.view.isVisible():
@@ -363,6 +394,8 @@ class MiniShell(QObject):
         if not self.view.isVisible() or not self.root.property('lookActive'):
             return
         self.look_keyboard_owned = True
+        if not self.configure_current_space():
+            self.controller.recordHotkeyState('space_policy_failed', reason='native_window_unavailable')
         if QGuiApplication.instance().platformName() == 'cocoa':
             from AppKit import NSApplication
             NSApplication.sharedApplication().activateIgnoringOtherApps_(True)
