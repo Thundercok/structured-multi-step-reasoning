@@ -1,5 +1,9 @@
 # RAT Lite — next iteration while .24 is being tried
 
+Current next-update plan after .25 screenshots and failed shortcut report:
+[repaired Quick Look delivery](rat_lite_next_update_plan_20261029.md). It takes
+priority over the earlier candidates below; .26 remains source-only.
+
 Later steering, 2026-10-29: user explicitly selected highlight → shortcut Quick
 Look and asked to skip directly to it. Source .25 is described in the
 [selected-text contract](contracts/rat_lite_selected_text.md). Continuous-panel
