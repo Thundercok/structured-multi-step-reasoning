@@ -32,6 +32,7 @@ class MiniQuickController(QObject):
     lookResultDismissed = pyqtSignal()
     hotkeyRestartRequested = pyqtSignal()
     shortcutAcknowledged = pyqtSignal(str)
+    selectionAnchorRequested = pyqtSignal(object)
     presentAtRequested = pyqtSignal(QPoint)
     imageDropAccepted = pyqtSignal(str)
     interactionCompleted = pyqtSignal()
@@ -70,7 +71,7 @@ class MiniQuickController(QObject):
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='', hotkeyStarting=False, shortcutAck='',
+            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -855,6 +856,18 @@ class MiniQuickController(QObject):
     def restartHotkey(self):
         self.hotkeyRestartRequested.emit()
 
+    @pyqtSlot()
+    def togglePin(self):
+        self.update(pinned=not self._state['pinned'])
+
+    @pyqtSlot()
+    def toggleComposer(self):
+        self.presentation.composer_visible = not self.presentation.composer_visible
+        self.look.read()
+        self.update()
+        if self.presentation.composer_visible:
+            self.minimalRequested.emit()
+
     def restore_region_previous(self):
         if self._region_previous is not None:
             values, self._retry_request = self._region_previous
@@ -1003,6 +1016,7 @@ class MiniQuickController(QObject):
             self.update(status='Đã nhận vùng chữ.' if job.args.get('observe_only') else 'Đang dịch…')
             if job.args.get('mode') == 'selection' and self._selection_present_generation == job.generation:
                 self._selection_present_generation = None
+                self.selectionAnchorRequested.emit(source.get('selection_geometry') or {})
                 self._presentation_invocation_id = job.input_context.get('quicklook_invocation_id')
                 self.quicklook_journal.record('present_requested', invocation_id=self._presentation_invocation_id)
                 self.lookRequested.emit()

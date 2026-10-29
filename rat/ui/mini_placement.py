@@ -10,6 +10,7 @@ LOOK_WIDTH, LOOK_HEIGHT = RAT_WIDTH, RAT_HEIGHT
 LOOK_OPTICAL_HEIGHT = 134
 MINI_PANEL_WIDTH, MINI_TEXT_SIZE = 580, 16
 GAP, MARGIN = 8, 16
+FLOAT_HEAD_SIZE, FLOAT_HEAD_OPTICAL = 44, 30
 
 
 @dataclass(frozen=True)
@@ -22,7 +23,7 @@ class Placement:
 
 def place_look(available, home, bubble_width=0, bubble_height=0, variant='standby', side=None, *, ink_bounds=None, mouth=None, floating_head=False):
     """Look owns a stable mascot home; shared speech policy places its bubble."""
-    width, height = (64, 64) if floating_head else (LOOK_WIDTH, LOOK_HEIGHT)
+    width, height = (FLOAT_HEAD_SIZE, FLOAT_HEAD_SIZE) if floating_head else (LOOK_WIDTH, LOOK_HEIGHT)
     # home remains the seated profile's remembered bottom-right anchor. A
     # smaller head shares that anchor, so resizing cannot overwrite its home.
     left = max(available.x+MARGIN, min(round(home[0])+LOOK_WIDTH-width, available.right-MARGIN-width))

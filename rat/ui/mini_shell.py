@@ -5,6 +5,7 @@ import sys
 from PyQt6.QtCore import QObject, QRect, QPoint, QTimer, Qt, QMetaObject, pyqtSignal
 from PyQt6.QtGui import QGuiApplication, QRegion, QCursor
 from rat.ui.mini_placement import Rect, place_panel, place_look, LOOK_WIDTH, LOOK_HEIGHT, MINI_PANEL_WIDTH
+from rat.ui.selection_placement import map_selection, choose_selection_home
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ class MiniShell(QObject):
         area = view.screen().availableGeometry()
         self.home = (area.center().x()-290, area.bottom()-70)
         self.look_home = (area.right()-LOOK_WIDTH-16, area.bottom()-LOOK_HEIGHT-16)
+        self.corner_home = self.look_home
+        self.selection_anchored = False
         self.look_side = None
         self.side = None
         self.expanded = False
@@ -70,6 +73,7 @@ class MiniShell(QObject):
         controller.presentRequested.connect(self.present)
         controller.engagementRequested.connect(self.present)
         controller.lookRequested.connect(self.present)
+        controller.selectionAnchorRequested.connect(self.place_selection)
         controller.minimalRequested.connect(self.present)
         controller.lookFocusRequested.connect(self.focus_look)
         controller.lookResultDismissed.connect(self.dismiss_look_surface)
@@ -174,6 +178,8 @@ class MiniShell(QObject):
             dx, dy = origin[0]-self._last_origin[0], origin[1]-self._last_origin[1]
             if self.corner_surface():
                 self.look_home = (self.look_home[0]+dx, self.look_home[1]+dy)
+                if not self.selection_anchored:
+                    self.corner_home = self.look_home
             else:
                 self.home = (self.home[0]+dx, self.home[1]+dy)
                 if self.expanded_top is not None:
@@ -182,6 +188,24 @@ class MiniShell(QObject):
 
     def corner_surface(self):
         return True
+
+    def place_selection(self, context):
+        screens=QGuiApplication.screens()
+        matches=[screen for screen in screens if screen.name()==context.get('display_name')]
+        screen=matches[0] if len(matches)==1 else screens[0] if len(screens)==1 else None
+        self.selection_anchored=False
+        if screen is not None:
+            geometry=screen.geometry()
+            rect=map_selection(context,Rect(geometry.x(),geometry.y(),geometry.width(),geometry.height()))
+            if rect is not None:
+                area=screen.availableGeometry()
+                self.look_home,self.look_side=choose_selection_home(Rect(area.x(),area.y(),area.width(),area.height()),
+                    rect,self.root.property('preferredPanelWidth'),self.root.property('preferredPanelHeight'))
+                self.selection_anchored=True
+                self.view.setScreen(screen)
+        if not self.selection_anchored:
+            self.look_home=self.corner_home
+        self.schedule_fit()
 
     def fit(self):
         if self.fitting:
@@ -238,6 +262,8 @@ class MiniShell(QObject):
         self.focus_changed()
 
     def dismiss_if_outside(self):
+        if self.controller.snapshot.get('pinned'):
+            return
         # App activation is not a pointer action: accessibility tools, Cmd+Tab
         # and system dialogs can change focus without the user dismissing RAT.
         # If a native monitor is unavailable, keep Close/Esc available rather
@@ -258,6 +284,8 @@ class MiniShell(QObject):
                 self.dismiss()
 
     def outside_pointer_pressed(self, x, y):
+        if self.controller.snapshot.get('pinned'):
+            return
         if (not self.view.isVisible() or self.root.property('focusOwned')
                 or self.status_menu_open):
             return
