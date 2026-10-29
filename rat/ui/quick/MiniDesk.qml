@@ -222,13 +222,6 @@ Rectangle {
         width: Math.max(1, desk.panelWidth)
         height: desk.auxiliary ? resultSheet.height : (desk.composing ? composer.height : 0) + (desk.bodyVisible ? resultSheet.height : 0)
         Rectangle {
-            visible: false
-            x: resultSheet.x - 6; y: resultSheet.y - 5
-            width: resultSheet.width; height: resultSheet.height
-            radius: 15; rotation: -0.9; antialiasing: true
-            color: desk.backingColor; border.color: desk.edge
-        }
-        Rectangle {
             id: resultSheet
             visible: desk.bodyVisible
             x: 0
@@ -563,13 +556,6 @@ Rectangle {
                 }
             }
         }
-        Rectangle {
-            visible: false
-            x: composer.x + 12; y: composer.y - 4
-            width: composer.width - 20; height: composer.height - 5
-            radius: 18; rotation: -0.6; antialiasing: true
-            color: desk.backingColor; border.color: desk.edge
-        }
         SpeechSurface {
             id: composer
             objectName: "composer"
@@ -587,12 +573,6 @@ Rectangle {
             ColumnLayout {
                 id: composerColumn
                 x: 14; y: 13; width: parent.width - 28; spacing: 7
-                Label {
-                    visible: false
-                    Layout.fillWidth: true; elide: Text.ElideRight; color: desk.muted; font.pixelSize: 11
-                    text: (desk.liveSnapshot.text || desk.liveSnapshot.status || "").replace(/\s+/g, " ")
-                    textFormat: Text.PlainText
-                }
                 RowLayout {
                     visible: !desk.auxiliary && Boolean(desk.liveSnapshot.editingRequest); Layout.fillWidth: true
                     Label { text: "Đang sửa yêu cầu cũ · bản nháp mới vẫn được giữ"; color: desk.muted; font.pixelSize: 11; Layout.fillWidth: true; wrapMode: Text.Wrap }
@@ -608,7 +588,7 @@ Rectangle {
                             contentWidth: availableWidth; clip: true; ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                             TextArea {
                                 id: editor; objectName: "miniEditor"
-                            placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn yêu cầu tiếp theo…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : desk.compact ? "Chuột ơi, coi nè · thả ảnh hoặc ⌘V…" : desk.paperVisible ? "Yêu cầu tiếp theo…" : "Chuột nghe đây. Bạn cần gì?"
+                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn yêu cầu tiếp theo…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : desk.compact ? "Chuột ơi, coi nè · thả ảnh hoặc ⌘V…" : desk.paperVisible ? "Yêu cầu tiếp theo…" : "Chuột nghe đây. Bạn cần gì?"
                                 color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: desk.sharedTextSize
                                 textFormat: TextEdit.PlainText; selectByMouse: true; wrapMode: TextEdit.Wrap; padding: 0; topPadding: 4; selectionColor: desk.accent; selectedTextColor: desk.accentText; background: null
                                 Accessible.name: "Yêu cầu RAT Mini"

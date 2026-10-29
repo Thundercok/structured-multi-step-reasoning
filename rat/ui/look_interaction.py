@@ -78,7 +78,7 @@ class LookInteraction:
     def snapshot(self, *, has_result=False, busy=False):
         status = ('Đang xử lý' if busy else 'Có đoạn mới' if self.pending is not None
                   else 'Có thông báo' if self.pending_notice else 'Đang đọc' if self.surface == 'reading' and has_result
-                  else 'Tạm dừng' if self.monitoring == 'paused' else 'Đang chờ' if self.monitoring == 'on' else 'Đã tắt')
+                  else 'Clipboard dừng' if self.monitoring == 'paused' else 'Đang chờ' if self.monitoring == 'on' else 'Sẵn sàng')
         return dict(lookStatusLabel=status, lookPendingCount=1 if self.pending is not None else 0,
             lookSurface=self.surface, lookPose=self.pose,
             lookWatching=self.monitoring != 'off', lookPaused=self.monitoring == 'paused',
