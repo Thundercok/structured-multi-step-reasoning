@@ -1,5 +1,16 @@
 # RAT Lite .27 — compact interaction and the 20-item roadmap
 
+Delivery follow-up, 2026-10-29: user requested “fire it up”. Built and signed
+`dist/rat-lite-20261029-compact-27/RAT Mini.app` and ZIP from source `1131021a`.
+The first packaging attempt lacked ctranslate2 metadata; the successful attempt
+used existing `/private/tmp/rat-mini-offline-mt-deps` via RAT_MINI_SPIKE_DEPS.
+Closed .26 and launched .27 with `--minimal` (PID 83019). Its native helper
+(PID 83042) reported `ready`, `registered`, `SELECT2`, build `20261029.27`.
+No user input, hotkey activation, screenshot tour or model request was performed.
+User acceptance remains pending. The sections below record the earlier source-only
+handoff; this delivery note supersedes their not-built/not-launched status.
+
+
 User authorization: implement the expanded roadmap, including the optional pin,
 shortcut configuration, source analysis and temporary task history. This supersedes
 the proposal-only scope in `rat_lite_expanded_roadmap_20261029.md`.
