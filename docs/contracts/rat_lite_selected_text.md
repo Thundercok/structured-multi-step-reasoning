@@ -1,5 +1,12 @@
 # RAT Lite .25 — explicit selected-text Quick Look
 
+Latest delivery: user requested build/open; .25 app and ZIP completed and the
+app launched at `dist/rat-lite-20261029-selection-head/`, PID46807. Helper startup
+reports SELECT1 ready for .25. See [package/open record](../../audit/rat_lite_selection_head_20261029/README.md).
+Earlier source-only statements below describe the implementation turns. Native
+selection, translation and visual acceptance remain unverified; no automatic
+test or user-flow execution was run during this delivery.
+
 Later user visual choice: use the existing mini floating-head asset for selected
 text Quick Look. This supersedes the large seated pose specifically for this
 compact interaction. Source now uses a 64×64 host with 44px optical-height target
