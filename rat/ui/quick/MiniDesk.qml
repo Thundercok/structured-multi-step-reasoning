@@ -70,7 +70,7 @@ Rectangle {
     readonly property bool layoutExpanded: !compact
     readonly property real preferredPanelHeight: panel.height
     readonly property real preferredPanelWidth: compact && !auxiliary ? Math.min(360, composerWidthFloor) : liveSnapshot.sourceVisible ? 900 : sharedPanelWidth
-    readonly property bool lookEngaged: panelHover.hovered || headMouse.containsMouse || resultScroll.moving || editor.activeFocus || translationArea.activeFocus || Boolean(translationArea.selectedText) || readerMenu.visible
+    readonly property bool lookEngaged: panelHover.hovered || headMouse.containsMouse || resultScroll.moving || editor.activeFocus || translationArea.activeFocus || Boolean(translationArea.selectedText) || noticeReader.activeFocus || Boolean(noticeReader.selectedText) || readerMenu.visible
     readonly property rect cornerInkBounds: headPose.visualBounds
     readonly property point cornerMouth: headPose.speechAnchor
     readonly property rect panelRect: Qt.rect(panel.x + panelSkin.occupiedRect.x, panel.y + panelSkin.occupiedRect.y, panelSkin.occupiedRect.width, panelSkin.occupiedRect.height)
@@ -201,7 +201,7 @@ Rectangle {
         function onChanged() {
             var next = liveController.snapshot
             if (next.busy && !desk.liveSnapshot.busy)
-                desk.heldReaderHeight = Math.max(120, resultSheet.visible ? resultSheet.height : 0)
+                desk.heldReaderHeight = Math.max(180, resultSheet.visible ? resultSheet.height : 0)
             var moved = next.surface !== desk.surface || next.taskId !== desk.liveSnapshot.taskId || next.interactionExtent !== desk.liveSnapshot.interactionExtent || next.lookSurface !== desk.liveSnapshot.lookSurface || Boolean(next.selectionNotice) !== desk.noticeVisible
             if (moved) desk.restoringScroll = true
             if (next.taskId !== desk.liveSnapshot.taskId) {
@@ -242,7 +242,7 @@ Rectangle {
             visible: desk.bodyVisible
             x: 0
             width: parent.width
-            height: visible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.heldReaderHeight > 0 && !desk.auxiliary ? Math.max(100, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
+            height: visible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.heldReaderHeight > 0 && desk.compact && !desk.auxiliary ? Math.max(160, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
             radius: 14; color: "transparent"; border.color: "transparent"
             Rectangle {
                 id: fullSource
@@ -298,6 +298,8 @@ Rectangle {
                 }
                 Label {
                     objectName: "resultStatus"
+                    maximumLineCount: desk.compact ? 2 : 0
+                    elide: Text.ElideRight
                     visible: desk.paperVisible && !desk.auxiliary && desk.taskVisible && Boolean(desk.liveSnapshot.status)
                     text: desk.liveSnapshot.status || ""; textFormat: Text.PlainText
                     color: desk.liveSnapshot.error ? desk.pdfInk : desk.muted; font.pixelSize: 12
@@ -333,6 +335,7 @@ Rectangle {
                         id: bodyColumn
                         width: Math.max(1, resultScroll.width - 8); spacing: 12
                         TextArea {
+                            id: noticeReader
                             visible: desk.previewing || desk.noticeVisible
                             text: desk.noticeVisible ? desk.liveSnapshot.selectionNotice : desk.liveSnapshot.lookHint || ""
                             readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; textFormat: TextEdit.PlainText

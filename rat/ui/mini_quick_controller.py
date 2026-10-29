@@ -884,6 +884,8 @@ class MiniQuickController(QObject):
         if new_task and not preserve_region:
             self._selection_return = None
             self._preview_return = None
+            self._selection_invocation_id = None
+            self._presentation_invocation_id = None
             self._state['selectionNotice'] = ''
             self.presentation.begin_task()
         if not preserve_region and (operation in ('find_files', 'capture_translate')

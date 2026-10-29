@@ -1,5 +1,6 @@
 """Native hotkey transport; emits intent only, never executes business tools."""
 import logging
+import re
 from pathlib import Path
 import sys
 import time
@@ -91,8 +92,10 @@ class HotkeyRegistration:
         if self.closed:
             return
         self.ready = False
-        self._event('stopped', state='stopped', exit_code=code, exit_status=status.name)
         details = bytes(self.process.readAllStandardError()).decode('utf-8', errors='replace').strip()
+        native_status = re.search(r'OSStatus=(-?\d+)', details)
+        self._event('stopped', state='stopped', exit_code=code, exit_status=status.name,
+            reason='native_osstatus:' + native_status.group(1) if native_status else 'process_exit')
         message = f'Bộ nhận phím tắt đã dừng ({code}): {details}'
         logger.error('hotkey_helper_stopped %s', message)
         if self.on_error:
