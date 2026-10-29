@@ -1,5 +1,11 @@
 # RAT Mini — quyết định vertical slice và UX
 
+Latest continuation, 2026-10-29: user resumed RAT Lite unified interaction and
+authorized small commits/normal pushes. Source .24 replaces four workspace
+choices with compact/expanded task presentation and one composer. See
+[unified source handoff](rat_lite_unified_interaction_handoff_20261029.md).
+No tests/build/launch/acceptance were run for this change; bundles predate it.
+
 **Tên gọi tương lai — quyết định người dùng 2026-10-28:** RAT Mini sẽ mang tên
 **RAT Lite** (“Lite”), vẫn là cùng vertical slice của RAT–CoT. Mini/Lite đang
 tạm gác vì chưa phát triển xong. Chưa đổi identifiers, đường dẫn hay bản build

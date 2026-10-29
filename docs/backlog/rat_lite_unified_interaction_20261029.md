@@ -4,6 +4,10 @@
 refinement. See [implementation plan](../rat_lite_unified_interaction_plan_20261029.md).
 Status: planned; no source implementation or acceptance from this request.
 
+Later continuation: implementation authorized and source revised as .24; see
+[source handoff](../rat_lite_unified_interaction_handoff_20261029.md). Native
+acceptance is pending. The earlier deferral below is historical.
+
 Quyết định người dùng 2026-10-29: đưa đề xuất này vào backlog; chưa triển khai
 trong lượt ổn định bố cục .23.
 

@@ -1,5 +1,10 @@
 # RAT Lite — unified interaction and layout plan
 
+Continuation: user authorized implementation and small commits/pushes. The .24
+source changes and remaining acceptance limits are recorded in the
+[source handoff](rat_lite_unified_interaction_handoff_20261029.md). The plan below
+records intended behavior; it is not evidence of verified native behavior.
+
 2026-10-29. User requested planning continued unified interaction and layout
 refinement. This is a proposed implementation plan, not implemented behavior or
 native acceptance. It advances the previously deferred proposal to planning.
