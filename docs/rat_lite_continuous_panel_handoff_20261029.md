@@ -1,5 +1,19 @@
 # RAT Lite .26 — continuous panel and Quick Look reliability handoff
 
+User acceptance update after opening: **.26 is rejected as unusable**. User
+reports all three groups: input/click/dismissal problems, layout/clipping or
+placement problems, and no usable shortcut/result. Do not call .26 stable or
+infer acceptance from its startup record. Read-only inspection found app63687
+and helper63717 alive with only starting/started/ready metadata; no key-received
+or capture event was recorded at that read. A one-second process sample showed
+the main thread waiting in the native event loop, not proof of interactive health.
+Direct UI observation failed: app-name/exact-path reads timed out; bundle lookup
+was ambiguous among retained builds; observation of the Codex host was denied
+by the computer-use tool. No input, selection or translation was injected.
+No additional source fix is claimed from this diagnosis. A short user-provided
+recording of the failing transition is needed to resolve the current visual/input
+ambiguity before another speculative layout rewrite.
+
 Latest delivery: user requested a real preview. .26 app+ZIP built successfully
 at `dist/rat-lite-20261029-continuous-panel/` and the exact app opened, PID63687.
 Helper63717 was observed alive with parent63687 and registered .26 metadata.
