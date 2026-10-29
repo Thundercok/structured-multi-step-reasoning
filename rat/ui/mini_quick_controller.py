@@ -1253,8 +1253,10 @@ class MiniQuickController(QObject):
             self._public_turns = self._public_turns[-20:]
             for step in response.steps:
                 if step.tool_name:
+                    failed = step.error or (isinstance(step.tool_result,dict) and step.tool_result.get('error'))
+                    waiting = isinstance(step.tool_result,dict) and step.tool_result.get('status') == 'needs_input'
                     self._public_steps.append({'operation':step.tool_name,
-                        'status':'Chưa hoàn tất' if step.error else 'Đã thực hiện',
+                        'status':'Cần bổ sung' if waiting else 'Chưa hoàn tất' if failed else 'Đã thực hiện',
                         'checks':', '.join(str(v.get('status','')) for v in step.verification if isinstance(v,dict))})
             self._public_steps = self._public_steps[-20:]
         model_loop = bool(response and (response.qa_telemetry or {}).get('mini_execution_path') == 'model_loop')

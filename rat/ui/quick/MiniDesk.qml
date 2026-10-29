@@ -349,8 +349,8 @@ Rectangle {
                     ColumnLayout {
                         id: bodyColumn
                         width: Math.max(1, resultScroll.width - 8); spacing: 12
-                        RowLayout {
-                            visible: desk.surface === "workbench"; Layout.fillWidth: true; spacing: 12
+                        GridLayout {
+                            visible: desk.surface === "workbench"; Layout.fillWidth: true; columns: width >= 700 ? 3 : 1; columnSpacing: 12; rowSpacing: 16
                             ColumnLayout {
                                 Layout.fillWidth: true; Layout.alignment: Qt.AlignTop; spacing: 6
                                 Label { text: "Trao đổi"; font.weight: Font.DemiBold; color: desk.ink }

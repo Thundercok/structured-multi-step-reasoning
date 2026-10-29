@@ -67,8 +67,8 @@ class MiniSession:
             input_kind=input_kind, previous=self.previous_goal, source_ref=source_ref)
         # Only explicit references to a previous result route here. Arbitrary
         # text remains with the common goal router rather than being guessed.
-        if result_ref and input_kind == 'typed' and re.search(
-                r'\b(?:tự nhiên hơn|ngắn hơn|rút gọn|viết lại bản dịch|rewrite (?:it|this)|shorter|more natural)\b', query, re.I):
+        if result_ref and input_kind == 'typed' and route.kind != 'agent' and route.operation not in ('find_files', 'plan_folder_organization') and re.match(
+                r'^(?:(?:hãy|giúp tôi|please)\s+)?(?:tự nhiên hơn|ngắn hơn|rút gọn|viết lại bản dịch|rewrite (?:it|this)|shorter|more natural)\b', query, re.I):
             response = self.execute('revise_observed_result', {'result_ref':dict(result_ref),
                 'instruction':query[:2000], 'target_language':self.settings['target_language']},
                 query=query, cancel=cancel, on_event=on_event, progress=progress, on_step=on_step)
