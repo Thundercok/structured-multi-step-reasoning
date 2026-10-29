@@ -1,5 +1,10 @@
 # RAT Lite — next iteration while .24 is being tried
 
+Later steering, 2026-10-29: user explicitly selected highlight → shortcut Quick
+Look and asked to skip directly to it. Source .25 is described in the
+[selected-text contract](contracts/rat_lite_selected_text.md). Continuous-panel
+repair below remains pending; this ingress change does not resolve that feedback.
+
 ## User feedback now sets the next scope
 
 User reports .24 is still jarring and selected **typing, reading and expanding

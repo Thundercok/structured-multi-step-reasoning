@@ -29,6 +29,15 @@ Không cần cấp Full Disk Access chỉ để dùng các thư mục mặc đ�
 File chưa được Spotlight lập chỉ mục có thể chưa xuất hiện.
 
 DỊCH
+Quick Look (source .25 trở lên): bôi đen chữ trong app nguồn rồi bấm ⌥⇧Space.
+RAT nhận chữ và dịch ngay, không cần ⌘C hoặc bấm thêm nút Dịch.
+Lần đầu cần cho phép RAT trong System Settings > Privacy & Security > Accessibility
+(Trợ năng). Có thể mở trang này từ ⋯ → Quyền đọc chữ bôi đen… trong RAT.
+Cấp quyền xong, quay lại app nguồn, bôi đen chữ rồi bấm phím tắt lại.
+Không còn phân biệt nhấn nhanh/giữ phím. Muốn gõ yêu cầu, chọn Viết yêu cầu
+trong menu RAT. Nếu app không cung cấp selection, RAT báo và giữ kết quả cũ;
+có thể dán chữ hoặc dùng ảnh. Quick Look không đọc lại Clipboard làm selection.
+
 Nhấn Command + Shift + 4 (⌘⇧4) của macOS, kéo chọn vùng chữ cần dịch.
 Kéo file ảnh đã lưu từ Desktop vào RAT. Nhận ảnh thu nhỏ ngay sau chụp vẫn
 đang chờ nghiệm thu trực tiếp; nếu không nhận, đợi ảnh lưu rồi thả file.
