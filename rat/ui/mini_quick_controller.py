@@ -303,6 +303,13 @@ class MiniQuickController(QObject):
         if self.look.surface == 'reading' and not self._state['busy']:
             self.presentation.selections[self.presentation.task_id] = max(0, start), max(0, end)
 
+    @pyqtSlot(str, int, float)
+    def rememberReadingAnchor(self, text, position, delta):
+        if self.look.surface == 'reading' and not self._state['busy']:
+            # In-memory reading context only. Match exact rendered text before
+            # applying it to another layout; unrelated projections use local scroll.
+            self.presentation.reading_anchor = (text, max(0, min(position, len(text))), float(delta))
+
     @pyqtSlot()
     def openLookSettings(self):
         # Returning from settings must restore the current failure/source.

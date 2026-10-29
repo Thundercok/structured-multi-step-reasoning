@@ -61,13 +61,21 @@ SpeechSurface {
     property bool rememberPosition: true
     property int savedSelectionStart: 0
     property int savedSelectionEnd: 0
+    property string anchorText: ""
+    property int anchorPosition: 0
+    property real anchorDelta: 0
     readonly property bool menuOpen: readerMenu.visible
     readonly property bool hasSelection: speech.selectedText.length > 0
     signal selectionChanged(int start, int end)
     signal selectionCopyRequested(string selectedText)
+    signal readingAnchorChanged(string displayedText, int position, real delta)
     function restoreScroll() {
         if (rememberPosition) {
             scroll.contentY = Math.max(0, Math.min(scrollOffset, Math.max(0, scroll.contentHeight - scroll.height)))
+            if (anchorText === text && text.length > 0) {
+                var rect = speech.positionToRectangle(Math.min(anchorPosition, speech.length))
+                scroll.contentY = Math.max(0, Math.min(rect.y + anchorDelta, Math.max(0, scroll.contentHeight - scroll.height)))
+            }
             speech.select(Math.min(savedSelectionStart, speech.length), Math.min(savedSelectionEnd, speech.length))
         } else scroll.contentY = 0
         restoringScroll = false
@@ -90,7 +98,13 @@ SpeechSurface {
         contentWidth: width; contentHeight: speech.contentHeight
         opacity: bubble.restoringScroll ? 0 : 1
         clip: true; boundsBehavior: Flickable.StopAtBounds
-        onContentYChanged: { if (bubble.visible && bubble.rememberPosition && !bubble.restoringScroll) bubble.scrollChanged(Math.max(0, contentY)) }
+        onContentYChanged: {
+            if (bubble.visible && bubble.rememberPosition && !bubble.restoringScroll) {
+                bubble.scrollChanged(Math.max(0, contentY))
+                var position = speech.positionAt(0, Math.max(0, contentY))
+                bubble.readingAnchorChanged(speech.text, position, contentY - speech.positionToRectangle(position).y)
+            }
+        }
         ScrollBar.vertical: ScrollBar {
             objectName: "speechScrollBar"
             policy: bubble.overflowing ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff

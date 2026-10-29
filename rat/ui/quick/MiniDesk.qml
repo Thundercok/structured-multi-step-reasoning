@@ -102,7 +102,21 @@ Rectangle {
     function saveScroll() { liveController.rememberScroll(resultScroll.contentY) }
     function navigate(next) { saveScroll(); liveController.showSurface(next); if (next !== "image") Qt.callLater(focusComposer) }
     function goBack() { saveScroll(); liveController.backSurface(); Qt.callLater(function() { if (!desk.lookActive) focusComposer(); else restoreReader() }) }
-    function restoreReader() { if (lookActive) lookView.restoreReading() }
+    function restoreReader() {
+        if (lookActive) lookView.restoreReading()
+        else if (!auxiliary && surface === "result" && translationArea.visible) {
+            var saved = liveController.snapshot
+            restoringScroll = true
+            if (saved.readerAnchorText === translationArea.text && translationArea.text.length > 0) {
+                var origin = translationArea.mapToItem(resultScroll.contentItem, 0, 0).y
+                var rect = translationArea.positionToRectangle(Math.min(saved.readerAnchorPosition, translationArea.length))
+                resultScroll.contentY = Math.max(0, Math.min(origin + rect.y + saved.readerAnchorDelta,
+                    Math.max(0, resultScroll.contentHeight - resultScroll.height)))
+            }
+            translationArea.select(saved.lookSelectionStart || 0, saved.lookSelectionEnd || 0)
+            restoringScroll = false
+        }
+    }
     function growComposerWidth() {
         if (compact && !auxiliary)
             composerWidthFloor = Math.max(composerWidthFloor,
@@ -193,6 +207,7 @@ Rectangle {
             if (moved) Qt.callLater(function() {
                 resultScroll.contentY = Math.max(0, Math.min(desk.liveSnapshot.scrollOffset || 0, resultScroll.contentHeight-resultScroll.height))
                 desk.restoringScroll = false
+                desk.restoreReader()
             })
         }
         function onSettingsRequested() { desk.openSettings(); desk.showAdvancedSettings = Boolean(desk.liveSnapshot.translationSettingsSuggested) }
@@ -289,7 +304,20 @@ Rectangle {
                     contentWidth: width; contentHeight: bodyColumn.implicitHeight; clip: true
                     boundsBehavior: Flickable.StopAtBounds
                     ScrollBar.vertical: ScrollBar {}
-                    onContentYChanged: { if (!desk.restoringScroll && visible) desk.liveController.rememberScroll(contentY) }
+                    onContentYChanged: {
+                        if (!desk.restoringScroll && visible) {
+                            desk.liveController.rememberScroll(contentY)
+                            if (translationArea.visible && desk.surface === "result") {
+                                var origin = translationArea.mapToItem(resultScroll.contentItem, 0, 0).y
+                                var y = contentY - origin
+                                if (y >= 0 && y <= translationArea.height) {
+                                    var pos = translationArea.positionAt(0, y)
+                                    desk.liveController.rememberReadingAnchor(translationArea.text, pos,
+                                        y - translationArea.positionToRectangle(pos).y)
+                                }
+                            }
+                        }
+                    }
                     ColumnLayout {
                         id: bodyColumn
                         width: resultScroll.width; spacing: 12
@@ -417,7 +445,10 @@ Rectangle {
                         Label { visible: desk.surface === "ocr" && desk.ocrDirty; text: "Chữ đã sửa chưa được dịch lại. Bản dịch trước vẫn được giữ."; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                         ColumnLayout {
                             visible: desk.surface === "result" && desk.liveSnapshot.view === "translation"; Layout.fillWidth: true; spacing: 8
-                            TextArea { objectName: "translationText"; text: desk.liveSnapshot.text || ""; textFormat: TextEdit.PlainText; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: desk.ink; font.pixelSize: 16; padding: 0; background: null; Layout.fillWidth: true; Accessible.name: "Bản dịch" }
+                            TextArea { id: translationArea; objectName: "translationText";
+                                onSelectedTextChanged: { if (!desk.restoringScroll && visible) desk.liveController.rememberLookSelection(selectionStart, selectionEnd) }
+                                Keys.onPressed: event => { if (event.matches(StandardKey.Copy) && selectedText.length > 0) { event.accepted = true; desk.liveController.copyLookSelection(selectedText) } }
+                                 text: desk.liveSnapshot.text || ""; textFormat: TextEdit.PlainText; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: desk.ink; font.pixelSize: 16; padding: 0; background: null; Layout.fillWidth: true; Accessible.name: "Bản dịch" }
                             Label { visible: desk.ocrDirty; text: "Bản dịch này chưa dùng các chỉnh sửa chữ mới nhất."; color: desk.pdfInk; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                             Label { text: desk.liveSnapshot.meta || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                             Label { visible: Boolean(desk.liveSnapshot.translationNotice); text: desk.liveSnapshot.translationNotice || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
@@ -668,6 +699,7 @@ Rectangle {
         onScrollRequested: offset => desk.liveController.rememberLookScroll(offset)
         onPendingRequested: desk.liveController.openPendingLook()
         onPreviewRequested: desk.liveController.previewPending()
+        onReadingAnchorRequested: (text, position, delta) => desk.liveController.rememberReadingAnchor(text, position, delta)
         onOpenRequested: desk.liveController.openLook()
         onRecallRequested: desk.liveController.recallLookResult()
     }

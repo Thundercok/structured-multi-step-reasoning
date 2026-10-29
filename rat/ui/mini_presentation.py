@@ -53,6 +53,7 @@ class MiniPresentation:
     task_id: int = 0
     scroll: dict = field(default_factory=dict)
     selections: dict = field(default_factory=dict)
+    reading_anchor: tuple = ('', 0, 0.0)
     extent: str = 'compact'
     composer_visible: bool = True
     source_visible: bool = False
@@ -119,6 +120,7 @@ class MiniPresentation:
         self.task_id += 1
         self.scroll.clear()
         self.selections.clear()
+        self.reading_anchor = ('', 0, 0.0)
         self.surface = self.workspace = 'result'
 
     def complete(self):
@@ -136,5 +138,7 @@ class MiniPresentation:
         return dict(surface=self.surface, taskId=self.task_id,
                     interactionExtent=self.extent, composerVisible=self.composer_visible,
                     sourceVisible=self.source_visible,
+                    readerAnchorText=self.reading_anchor[0], readerAnchorPosition=self.reading_anchor[1],
+                    readerAnchorDelta=self.reading_anchor[2],
                     workspaceMode=self.workspace_mode,
                     scrollOffset=self.scroll.get(self.scroll_key, 0.0))

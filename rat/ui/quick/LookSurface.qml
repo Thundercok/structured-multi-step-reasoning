@@ -57,6 +57,7 @@ Item {
     signal scrollRequested(real offset)
     signal pendingRequested()
     signal previewRequested()
+    signal readingAnchorRequested(string text, int position, real delta)
     signal openRequested()
     signal recallRequested()
 
@@ -103,6 +104,9 @@ Item {
         scrollOffset: look.snapshot.lookScrollOffset || 0
         savedSelectionStart: look.snapshot.lookSelectionStart || 0
         savedSelectionEnd: look.snapshot.lookSelectionEnd || 0
+        anchorText: look.snapshot.readerAnchorText || ""
+        anchorPosition: look.snapshot.readerAnchorPosition || 0
+        anchorDelta: look.snapshot.readerAnchorDelta || 0
         actions: {
             var items = [{id:"dismiss", label:"Đóng phản hồi", icon:"close", role:"utility"}]
             if (look.reading && look.snapshot.lookCanCopy)
@@ -126,6 +130,7 @@ Item {
         onScrollChanged: offset => { if (look.reading) look.scrollRequested(offset) }
         onSelectionChanged: (start, end) => look.selectionRequested(start, end)
         onSelectionCopyRequested: text => look.selectionCopyRequested(text)
+        onReadingAnchorChanged: (text, position, delta) => look.readingAnchorRequested(text, position, delta)
         onReadingRequested: look.activateRequested()
         onActionTriggered: (actionId, displayedText) => {
             if (actionId === "copy") look.copyRequested(displayedText)
