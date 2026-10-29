@@ -61,6 +61,8 @@ class MiniQuickController(QObject):
         self._selection_present_generation = None
         self._selection_return = None
         self._preview_return = None
+        self._preview_input = None
+        self._preview_notice = ''
         self._received_invocation_id = None
         self._selection_invocation_id = None
         self._presentation_invocation_id = None
@@ -91,6 +93,10 @@ class MiniQuickController(QObject):
         state = dict(self._state, **self.presentation.snapshot(),
             **self.look.snapshot(has_result=self._state['hasWorkbench'], busy=self._state['busy']))
         return dict(state, **look_projection(state),
+            pendingPreviewOpen=self._preview_return is not None and self.look.surface == 'peek',
+            pendingPreviewText=self._preview_input.text if self._preview_input else self._preview_notice,
+            pendingPreviewHasText=self._preview_input is not None,
+            pendingPreviewHasNewer=self._preview_input is not None and self.look.pending is not None and self.look.pending is not self._preview_input,
             lookListening=self.look_clipboard.timer.isActive(),
             lookScrollOffset=self.presentation.scroll.get(f'{self.presentation.task_id}:speech', 0.0),
             lookSelectionStart=self.presentation.selections.get(self.presentation.task_id, (0, 0))[0],
@@ -222,7 +228,15 @@ class MiniQuickController(QObject):
             return
         self.presentation.open('result')
         self.presentation.read()
-        value = self.look.take_pending()
+        if self._preview_return is not None:
+            value = self._preview_input
+            if value is not None and self.look.pending is value:
+                self.look.clear_pending()
+        else:
+            value = self.look.take_pending()
+        self._preview_input = None
+        self._preview_notice = ''
+        self._preview_return = None
         if value is None:
             self.look.peek()
             self.update()
@@ -255,6 +269,8 @@ class MiniQuickController(QObject):
             return
         if self._preview_return is None:
             self._preview_return = self.presentation.capture_view()
+        self._preview_input = self.look.pending
+        self._preview_notice = self.look.pending_notice
         self.presentation.open('result')
         self.presentation.resize(False)
         self.presentation.composer_visible = False
@@ -269,6 +285,8 @@ class MiniQuickController(QObject):
             return
         if self._preview_return is not None:
             token, self._preview_return = self._preview_return, None
+            self._preview_input = None
+            self._preview_notice = ''
             if not self.presentation.restore_view(token):
                 self.presentation.open('result')
                 self.look.read()
@@ -884,6 +902,8 @@ class MiniQuickController(QObject):
         if new_task and not preserve_region:
             self._selection_return = None
             self._preview_return = None
+            self._preview_input = None
+            self._preview_notice = ''
             self._selection_invocation_id = None
             self._presentation_invocation_id = None
             self._state['selectionNotice'] = ''
@@ -937,6 +957,8 @@ class MiniQuickController(QObject):
                 if job.args.get('mode') == 'selection':
                     self._selection_return = None
                 self._preview_return = None
+                self._preview_input = None
+                self._preview_notice = ''
                 self.presentation.begin_task()
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including

@@ -52,7 +52,7 @@ Rectangle {
     readonly property bool auxiliary: surface === "welcome" || surface === "help" || surface === "settings"
     readonly property bool lookActive: compact && !auxiliary && surface === "result"
     readonly property bool floatingHead: true
-    readonly property bool previewing: !auxiliary && liveSnapshot.lookSurface === "peek" && Boolean(liveSnapshot.lookHasQueued || liveSnapshot.lookHasPendingNotice)
+    readonly property bool previewing: !auxiliary && Boolean(liveSnapshot.pendingPreviewOpen)
     readonly property bool noticeVisible: !auxiliary && Boolean(liveSnapshot.selectionNotice)
     readonly property bool taskVisible: !previewing && !noticeVisible
     property real heldReaderHeight: 0
@@ -337,9 +337,11 @@ Rectangle {
                         TextArea {
                             id: noticeReader
                             visible: desk.previewing || desk.noticeVisible
-                            text: desk.noticeVisible ? desk.liveSnapshot.selectionNotice : desk.liveSnapshot.lookHint || ""
+                            text: desk.noticeVisible ? desk.liveSnapshot.selectionNotice : desk.liveSnapshot.pendingPreviewText || ""
                             readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; textFormat: TextEdit.PlainText
                             background: null; color: desk.ink; font.pixelSize: desk.sharedTextSize; padding: 0; Layout.fillWidth: true
+                            Keys.onPressed: event => { if (event.matches(StandardKey.Copy) && selectedText.length > 0) { event.accepted = true; desk.liveController.copyLookSelection(selectedText) } }
+                            MouseArea { anchors.fill: parent; acceptedButtons: Qt.RightButton; onClicked: { readerMenu.sourceEditor = noticeReader; readerMenu.popup() } }
                         }
                         ColumnLayout {
                             visible: desk.taskVisible; Layout.fillWidth: true; spacing: 12
@@ -469,7 +471,7 @@ Rectangle {
                             visible: desk.surface === "result" && desk.liveSnapshot.view === "translation"; Layout.fillWidth: true; spacing: 8
                             TextArea { id: translationArea; objectName: "translationText";
                                 TapHandler { onTapped: desk.liveController.focusLook() }
-                                MouseArea { anchors.fill: parent; acceptedButtons: Qt.RightButton; onClicked: readerMenu.popup() }
+                                MouseArea { anchors.fill: parent; acceptedButtons: Qt.RightButton; onClicked: { readerMenu.sourceEditor = translationArea; readerMenu.popup() } }
 
                                 onSelectedTextChanged: { if (!desk.restoringScroll && visible) desk.liveController.rememberLookSelection(selectionStart, selectionEnd) }
                                 Keys.onPressed: event => { if (event.matches(StandardKey.Copy) && selectedText.length > 0) { event.accepted = true; desk.liveController.copyLookSelection(selectedText) } }
@@ -555,9 +557,10 @@ Rectangle {
                 RowLayout {
                     visible: desk.previewing || desk.noticeVisible; Layout.fillWidth: true
                     QuietButton { text: "Quay lại"; onClicked: desk.liveController.returnToTask() }
+                    Label { visible: Boolean(desk.liveSnapshot.pendingPreviewHasNewer); text: "Có đoạn mới chờ"; color: desk.muted; font.pixelSize: 11; Layout.fillWidth: true; elide: Text.ElideRight }
                     Item { Layout.fillWidth: true }
                     QuietButton { visible: desk.noticeVisible && desk.liveSnapshot.selectionNeedsPermission; text: "Mở Trợ năng…"; primary: true; onClicked: desk.liveController.openSelectionAccess() }
-                    QuietButton { visible: desk.previewing && desk.liveSnapshot.lookHasQueued; text: "Dịch đoạn này"; primary: true; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.openPendingLook() }
+                    QuietButton { visible: desk.previewing && desk.liveSnapshot.pendingPreviewHasText; text: "Dịch đoạn này"; primary: true; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.openPendingLook() }
                 }
                 RowLayout {
                     visible: desk.auxiliary; Layout.fillWidth: true
@@ -738,8 +741,9 @@ Rectangle {
     Menu {
         id: readerMenu
         popupType: Popup.Window
-        MenuItem { text: "Sao chép phần đã chọn"; enabled: Boolean(translationArea.selectedText); onTriggered: desk.liveController.copyLookSelection(translationArea.selectedText) }
-        MenuItem { text: "Sao chép bản dịch"; enabled: Boolean(desk.liveSnapshot.text); onTriggered: desk.liveController.copyResult() }
+        property var sourceEditor: translationArea
+        MenuItem { text: "Sao chép phần đã chọn"; enabled: Boolean(readerMenu.sourceEditor.selectedText); onTriggered: desk.liveController.copyLookSelection(readerMenu.sourceEditor.selectedText) }
+        MenuItem { text: "Sao chép nội dung"; enabled: Boolean(readerMenu.sourceEditor.text); onTriggered: { if (readerMenu.sourceEditor === translationArea) desk.liveController.copyResult(); else desk.liveController.copyLookSelection(readerMenu.sourceEditor.text) } }
         MenuItem { text: desk.compact ? "Mở rộng" : "Thu gọn"; onTriggered: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
     }
     Menu {
