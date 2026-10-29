@@ -36,7 +36,7 @@ def create_mini_desk(settings=None):
     fmt.setAlphaBufferSize(8)
     view.setFormat(fmt)
     view.setTitle('RAT Mini')
-    view.setFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint)
+    view.setFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
     view.setColor(Qt.GlobalColor.transparent)
     view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
     # Look sizes its own mascot and speech surface. Normal panels enforce

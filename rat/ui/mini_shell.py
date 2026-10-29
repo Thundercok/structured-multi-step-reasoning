@@ -50,9 +50,7 @@ class MiniShell(QObject):
         root.layoutExpandedChanged.connect(self.schedule_fit)
         root.compactChanged.connect(self.schedule_fit)
         root.lookActiveChanged.connect(self.look_policy_changed)
-        root.lookBubbleWidthChanged.connect(self.schedule_fit)
-        root.lookBubbleHeightChanged.connect(self.schedule_fit)
-        root.cornerPanelWidthChanged.connect(self.schedule_fit)
+        root.preferredPanelWidthChanged.connect(self.schedule_fit)
         root.lookEngagedChanged.connect(self.update_look_timeout)
         root.panelRectChanged.connect(self.update_mask)
         root.mascotRectChanged.connect(self.update_mask)
@@ -136,15 +134,7 @@ class MiniShell(QObject):
             self.fit_timer.start(0)
 
     def look_policy_changed(self, *_):
-        # Passive Look can sit beside the reader. Mode changes set window level;
-        # completion never calls show(), raise_() or requestActivate().
-        was_active = self.view.isVisible() and self.view.isActive()
-        self.view.setFlag(Qt.WindowType.WindowStaysOnTopHint, bool(self.root.property('lookActive')))
-        # Some platforms hide a visible window when its flags change. Only
-        # restore an already-active window during the user's navigation.
-        if was_active and not self.view.isVisible():
-            self.view.show()
-            self.view.requestActivate()
+        # One window policy across compact/expanded; no flag churn on navigation.
         self.schedule_fit()
 
     def update_look_timeout(self, *_):
@@ -191,89 +181,38 @@ class MiniShell(QObject):
             self._last_origin = origin
 
     def corner_surface(self):
-        return bool(self.root.property('compact') and not self.root.property('auxiliary'))
+        return True
 
     def fit(self):
-        if self.animating:
+        if self.fitting:
             return
         self.fitting = True
         try:
             area = self.view.screen().availableGeometry()
-            self.root.setProperty('maxPaperHeight', max(100, min(380, area.height()-240)))
+            self.root.setProperty('maxPaperHeight', max(1, min(380, area.height()-120)))
             self.root.setProperty('maxCornerSpeechHeight', max(1, min(300, round(area.height()*0.38), area.height()-32)))
-            self.root.setProperty('maxPanelHeight', max(160, area.height()-32))
-            if self.corner_surface():
-                looking = bool(self.root.property('lookActive'))
-                previous_width = self.root.property('panelWidth')
-                ink = self.root.property('cornerInkBounds')
-                mouth = self.root.property('cornerMouth')
-                placement = place_look(Rect(area.x(), area.y(), area.width(), area.height()),
-                    self.look_home, self.root.property('lookBubbleWidth') if looking else self.root.property('cornerPanelWidth'),
-                    self.root.property('lookBubbleHeight') if looking else self.root.property('preferredPanelHeight'), self.root.property('lookVariant'), self.look_side,
-                    ink_bounds=Rect(round(ink.x()), round(ink.y()), round(ink.width()), round(ink.height())),
-                    mouth=(mouth.x(), mouth.y()), floating_head=bool(self.root.property('floatingHead')))
-                self.look_side = placement.side
-                self.root.setProperty('animatePlacement', False)
-                bounds = placement.bounds
-                self.view.setGeometry(bounds.x-4, bounds.y-4, bounds.width+8, bounds.height+8)
-                self._last_origin = (self.view.x(), self.view.y())
-                self.root.setProperty('panelX', placement.panel.x-self.view.x())
-                self.root.setProperty('panelY', placement.panel.y-self.view.y())
-                self.root.setProperty('panelWidth', placement.panel.width)
-                self.root.setProperty('lookPlacedHeight', placement.panel.height)
-                self.root.setProperty('ratX', placement.rat.x-self.view.x())
-                self.root.setProperty('ratY', placement.rat.y-self.view.y())
-                self.update_mask()
-                # One follow-up allows text to rewrap after a width change;
-                # a clamped preferred height must not create a resize loop.
-                if round(previous_width) != placement.panel.width:
-                    self.fit_timer.start(0)
-                return
-            expanded = bool(self.root.property('layoutExpanded'))
-            if not self.expanded and expanded:
-                # Expanded work stays on the companion's screen/edge. Collapse
-                # uses look_home unchanged rather than the expanded window origin.
-                self.home = self.look_home
-            if not expanded:
-                self.expanded_top = None
-            placement = place_panel(Rect(area.x(),area.y(),area.width(),area.height()), self.home,
-                self.root.property('preferredPanelHeight'), expanded, self.side,
-                panel_width=900 if self.controller.presentation.source_visible else MINI_PANEL_WIDTH,
-                paper_inset=0,
-                anchor_top=self.expanded_top if self.expanded else None)
-            if expanded:
-                self.expanded_top = placement.panel.y
-            old = self.root.property('mascotRect')
-            old_rat = Rect(self.view.x()+round(old.x()), self.view.y()+round(old.y()), round(old.width()), round(old.height()))
-            hop = False
-            bounds = placement.bounds.union(old_rat) if hop else placement.bounds
-            self.side, self.expanded = placement.side, expanded
-            self.root.setProperty('animatePlacement', False)
-            self.view.setGeometry(bounds.x-4,bounds.y-4,bounds.width+8,bounds.height+8)
+            self.root.setProperty('maxPanelHeight', max(1, area.height()-32))
+            previous_width = self.root.property('panelWidth')
+            mouth = self.root.property('cornerMouth')
+            placement = place_look(Rect(area.x(), area.y(), area.width(), area.height()),
+                self.look_home, self.root.property('preferredPanelWidth'),
+                self.root.property('preferredPanelHeight'), side=self.look_side,
+                mouth=(mouth.x(), mouth.y()), floating_head=True)
+            self.look_side = placement.side
+            bounds = placement.bounds
+            self.view.setGeometry(bounds.x-4, bounds.y-4, bounds.width+8, bounds.height+8)
             self._last_origin = (self.view.x(), self.view.y())
             self.root.setProperty('panelX', placement.panel.x-self.view.x())
             self.root.setProperty('panelY', placement.panel.y-self.view.y())
             self.root.setProperty('panelWidth', placement.panel.width)
-            self.root.setProperty('mascotOnRight', placement.side == 'right')
-            target = (placement.rat.x-self.view.x(),placement.rat.y-self.view.y())
-            self.root.setProperty('ratX', old_rat.x-self.view.x() if hop else target[0])
-            self.root.setProperty('ratY', old_rat.y-self.view.y() if hop else target[1])
-            if hop:
-                self.animating = True
-                def start_hop():
-                    self.root.setProperty('animatePlacement', True)
-                    self.root.setProperty('ratX', target[0])
-                    self.root.setProperty('ratY', target[1])
-                QTimer.singleShot(0, start_hop)
-                self.trim_timer.start(220)
+            self.root.setProperty('lookPlacedHeight', placement.panel.height)
+            self.root.setProperty('ratX', placement.rat.x-self.view.x())
+            self.root.setProperty('ratY', placement.rat.y-self.view.y())
             self.update_mask()
+            if round(previous_width) != placement.panel.width:
+                self.fit_timer.start(0)
         finally:
             self.fitting = False
-        if not self.animating and round(self.root.property('preferredPanelHeight')) != placement.panel.height:
-            # Width can change wrapping. Only schedule when the requested height
-            # fits; a screen-height clamp must not create a resize loop.
-            if self.root.property('preferredPanelHeight') < area.height()-32:
-                self.fit_timer.start(0)
 
     def finish_hop(self):
         self.animating = False

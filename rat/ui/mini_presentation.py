@@ -94,6 +94,19 @@ class MiniPresentation:
     def resize(self, expanded):
         self.extent = 'expanded' if expanded else 'compact'
 
+    def capture_view(self):
+        names = ('surface', 'workspace', 'extent', 'composer_visible', 'source_visible')
+        return self.task_id, {name:getattr(self, name) for name in names}, self.interaction.surface
+
+    def restore_view(self, token):
+        task_id, fields, visibility = token
+        if task_id != self.task_id:
+            return False
+        for name, value in fields.items():
+            setattr(self, name, value)
+        self.interaction.surface = visibility
+        return True
+
     def open(self, surface):
         if surface not in self.AUXILIARY | self.WORKSPACE:
             return

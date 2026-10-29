@@ -60,6 +60,7 @@ class MiniQuickController(QObject):
         self._region_previous = None
         self._selection_present_generation = None
         self._selection_return = None
+        self._preview_return = None
         self._received_invocation_id = None
         self._selection_invocation_id = None
         self._presentation_invocation_id = None
@@ -252,12 +253,28 @@ class MiniQuickController(QObject):
         """Preview never consumes input or dispatches a translation."""
         if not self.look.pending and not self.look.pending_notice:
             return
+        if self._preview_return is None:
+            self._preview_return = self.presentation.capture_view()
         self.presentation.open('result')
         self.presentation.resize(False)
         self.presentation.composer_visible = False
         self.look.peek()
         self.update()
         self.lookRequested.emit()
+
+    @pyqtSlot()
+    def returnToTask(self):
+        if self._state['selectionNotice']:
+            self.recallLookResult()
+            return
+        if self._preview_return is not None:
+            token, self._preview_return = self._preview_return, None
+            if not self.presentation.restore_view(token):
+                self.presentation.open('result')
+                self.look.read()
+        else:
+            self.look.read()
+        self.update()
 
     @pyqtSlot()
     def summonMinimal(self):
@@ -761,11 +778,9 @@ class MiniQuickController(QObject):
 
     def restore_selection_view(self):
         if self._selection_return is not None:
-            fields, look_surface = self._selection_return
+            token = self._selection_return
             self._selection_return = None
-            for name, value in fields.items():
-                setattr(self.presentation, name, value)
-            self.look.surface = look_surface
+            self.presentation.restore_view(token)
 
     def _begin_selected_text(self, invocation):
         import os
@@ -781,8 +796,7 @@ class MiniQuickController(QObject):
             self.summonLook()
             return
         if self._selection_return is None:
-            names = ('surface', 'workspace', 'extent', 'composer_visible', 'source_visible')
-            self._selection_return = ({name:getattr(self.presentation, name) for name in names}, self.look.surface)
+            self._selection_return = self.presentation.capture_view()
         fields = ('phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
             'agentSummary', 'agentIncomplete', 'settingsNotice', 'lastOperation',
             'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
@@ -831,7 +845,6 @@ class MiniQuickController(QObject):
         if self.quitting:
             return
         if operation != 'check_mini_readiness' and self.presentation.surface == 'result':
-            self.presentation.composer_visible = False
             if not args.get('look_opened') and operation in ('capture_translate', 'submit_goal', 'find_files', 'plan_folder_organization'):
                 source = args.get('clipboard_text') or query or ''
                 self.look.read('head' if source and compact_speech(source) else 'seated')
@@ -867,6 +880,7 @@ class MiniQuickController(QObject):
         preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
         if new_task and not preserve_region:
             self._selection_return = None
+            self._preview_return = None
             self._state['selectionNotice'] = ''
             self.presentation.begin_task()
         if not preserve_region and (operation in ('find_files', 'capture_translate')
@@ -917,6 +931,7 @@ class MiniQuickController(QObject):
             if job.args.get('preserve_until_capture'):
                 if job.args.get('mode') == 'selection':
                     self._selection_return = None
+                self._preview_return = None
                 self.presentation.begin_task()
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including
