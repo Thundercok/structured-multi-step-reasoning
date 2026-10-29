@@ -573,11 +573,15 @@ Rectangle {
             ColumnLayout {
                 id: composerColumn
                 x: 12; y: desk.lookActive ? 10 : 13; width: parent.width - 24; spacing: 7
-                Label {
-                    visible: !desk.liveSnapshot.hasWorkbench && !desk.liveSnapshot.busy
-                    text: "Quick Look · ⌥⇧Space"
-                    textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
-                    Layout.fillWidth: true; wrapMode: Text.Wrap
+                RowLayout {
+                    visible: (!desk.liveSnapshot.hasWorkbench && !desk.liveSnapshot.busy) || Boolean(desk.liveSnapshot.hotkeyStatus)
+                    Layout.fillWidth: true; spacing: 4
+                    Label {
+                        text: desk.liveSnapshot.hotkeyStatus ? "Phím tắt chưa sẵn sàng" : "Quick Look · ⌥⇧Space"
+                        textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
+                        Layout.fillWidth: true; wrapMode: Text.Wrap
+                    }
+                    QuietButton { visible: Boolean(desk.liveSnapshot.hotkeyStatus); text: "Kết nối lại"; onClicked: desk.liveController.restartHotkey() }
                 }
                 RowLayout {
                     visible: !desk.auxiliary && Boolean(desk.liveSnapshot.editingRequest); Layout.fillWidth: true
@@ -715,7 +719,7 @@ Rectangle {
         MenuItem { enabled: !desk.liveSnapshot.busy; text: "Chọn vùng chữ để dịch…"; onTriggered: desk.liveController.captureRegion() }
         MenuItem { visible: desk.liveSnapshot.hasOcrSource; text: "Sửa chữ đã đọc…"; onTriggered: desk.navigate("ocr") }
         MenuItem { visible: Boolean(desk.liveSnapshot.imagePreviewUrl); text: "Xem ảnh nguồn…"; onTriggered: desk.navigate("image") }
-        MenuItem { enabled: false; visible: Boolean(desk.liveSnapshot.hotkeyStatus); text: desk.liveSnapshot.hotkeyStatus || "" }
+        MenuItem { visible: Boolean(desk.liveSnapshot.hotkeyStatus); text: "Đăng ký lại phím tắt"; onTriggered: desk.liveController.restartHotkey() }
         MenuItem { text: "Chọn ảnh để dịch…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: imageDialog.open() }
         MenuItem { text: "Dịch Clipboard"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.translateClipboard() }
         MenuItem { text: "Sắp xếp thư mục…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: { desk.folderPurpose="organize"; folderDialog.open() } }

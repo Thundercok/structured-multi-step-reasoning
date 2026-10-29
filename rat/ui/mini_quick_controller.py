@@ -29,6 +29,7 @@ class MiniQuickController(QObject):
     minimalRequested = pyqtSignal()
     lookFocusRequested = pyqtSignal()
     lookResultDismissed = pyqtSignal()
+    hotkeyRestartRequested = pyqtSignal()
     presentAtRequested = pyqtSignal(QPoint)
     imageDropAccepted = pyqtSignal(str)
     interactionCompleted = pyqtSignal()
@@ -728,6 +729,10 @@ class MiniQuickController(QObject):
     def openSelectionAccess(self):
         from rat.os.permissions import open_accessibility_settings
         open_accessibility_settings()
+
+    @pyqtSlot()
+    def restartHotkey(self):
+        self.hotkeyRestartRequested.emit()
 
     def restore_region_previous(self):
         if self._region_previous is not None:

@@ -77,6 +77,7 @@ def create_mini_desk(settings=None):
     for label, callback in [
         ('Xem lại công việc', controller.summonLook),
         ('Viết yêu cầu', controller.summonMinimal),
+        ('Đăng ký lại phím tắt', controller.restartHotkey),
         ('Bật theo dõi Clipboard', controller.toggleLookPaused),
         ('Tắt theo dõi Clipboard', controller.stopLook),
         ('Xem đoạn chờ', controller.previewPending),
@@ -96,8 +97,11 @@ def create_mini_desk(settings=None):
     def refresh_tray():
         state = controller.snapshot
         pending = bool(state['lookHasQueued'])
-        tray.setBadgeText('1' if pending else '')
-        tray.setToolTip('RAT Mini · ' + ('Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel']))
+        shortcut_failed = bool(state['hotkeyStatus'])
+        tray.setBadgeText('!' if shortcut_failed else '1' if pending else '')
+        tray.setToolTip('RAT Lite · ' + ('Phím tắt chưa sẵn sàng. Mở menu để đăng ký lại.' if shortcut_failed
+            else 'Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel']))
+        tray_actions[controller.restartHotkey].setEnabled(shortcut_failed)
         tray_actions[controller.previewPending].setEnabled(pending)
         tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])
         tray_actions[controller.toggleLookPaused].setText('Bật theo dõi Clipboard' if not state['lookWatching']
@@ -114,17 +118,25 @@ def create_mini_desk(settings=None):
             (state_directory()/'last-hotkey.json').write_text(json.dumps({'protocol':'SELECT1','stage':stage,'ui_build':BUILD,'pid':os.getpid()}))
         except OSError:
             logging.getLogger(__name__).warning('hotkey_diagnostic_write_failed')
-    try:
-        hotkeys = register_hotkey(controller.quickLookSelection,
-            on_event=record_hotkey,
-            on_error=lambda message: controller.update(hotkeyStatus=message)) if app.platformName() == 'cocoa' else None
+    hotkeys = None
+    def restart_hotkey():
+        nonlocal hotkeys
         if hotkeys:
-            app.aboutToQuit.connect(hotkeys.close)
-    except OSError as exc:
-        # Registration conflicts/missing helper do not block menus or image I/O.
-        hotkeys = None
-        controller.update(hotkeyStatus='Phím gọi đang bận hoặc chưa sẵn sàng. Dùng biểu tượng RAT trên menu bar để mở.')
-        logging.getLogger(__name__).warning('hotkey_unavailable %s', exc)
+            hotkeys.close()
+            hotkeys = None
+        if app.platformName() != 'cocoa':
+            return
+        try:
+            hotkeys = register_hotkey(controller.quickLookSelection, on_event=record_hotkey,
+                on_error=lambda message: controller.update(hotkeyStatus=message))
+            controller.update(hotkeyStatus='')
+        except OSError as exc:
+            record_hotkey('registration_failed')
+            controller.update(hotkeyStatus='Phím tắt chưa sẵn sàng. Đăng ký lại trong menu RAT.')
+            logging.getLogger(__name__).warning('hotkey_unavailable %s', exc)
+    controller.hotkeyRestartRequested.connect(restart_hotkey)
+    app.aboutToQuit.connect(lambda: hotkeys.close() if hotkeys else None)
+    restart_hotkey()
     view._refs = (controller, tray, menu, shell, image_drop, hotkeys)
     return view, controller
 
