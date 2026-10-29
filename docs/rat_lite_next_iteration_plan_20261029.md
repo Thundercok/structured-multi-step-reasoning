@@ -1,5 +1,61 @@
 # RAT Lite — next iteration while .24 is being tried
 
+## User feedback now sets the next scope
+
+User reports .24 is still jarring and selected **typing, reading and expanding
+feel disconnected**. This is feedback about the combined experience, not a
+verified report of any particular native resize or focus bug. It supersedes the
+earlier priority to refine task-specific compact results first.
+
+Source diagnosis: `.24` shares an editor instance and interaction fields but
+still swaps `LookSurface` and the expanded `panel` using `lookActive`. The editor
+is reparented between those layouts; enqueue hides it; reading uses SpeechBubble
+in compact and separate result widgets in expanded. Shell placement also switches
+between `place_look` and `place_panel`, and toggles window level on that boundary.
+State unification did not complete presentation continuity.
+
+### Next candidate: continuous task panel
+
+1. Keep one task panel mounted at both extents, with one header, one result area,
+   one action row and one composer. Keep the same reader/editor objects alive;
+   remove editor reparenting and the compact/expanded reader swap. Continue to
+   reuse SpeechSurface styling and the existing tool projections.
+2. Keep the composer at the bottom after Send. Clear only the submitted draft
+   using current draft rules; show working/result above it. While busy, a next
+   draft remains editable and does not submit automatically. Show Stop beside
+   execution status rather than changing the meaning of the Send control.
+3. Initially show the input with a small quiet status area. Explicit submission
+   allocates a bounded result viewport above the input; processing/completion
+   replaces that viewport's content without moving focus or removing input.
+   This intentional reveal differs from automatically expanding to the large
+   extent. Keep the mascot, lower panel edge and input baseline anchored while
+   content grows upward.
+4. `Mở rộng` enlarges the same panel/viewport; `Thu gọn` reduces it. Neither
+   changes task content, reader identity, keyboard ownership or input visibility.
+   Use one placement policy with extent-dependent size constraints. Keep one
+   window level across extents; reserve explicit activation for actual input
+   gestures. No animation is proposed as a substitute for continuity.
+5. `Nguồn`, OCR and image inspection remain task views within the same panel,
+   with a clear Back action and retained draft/result context. Source comparison
+   may add a side column when wide; narrow screens stack it. Keep tool approval
+   controls tied to their existing artifact references.
+6. Pending Clipboard preview temporarily occupies the content area with an
+   explicit label and Translate/Back actions. Keep the current task's view,
+   extent, scroll and draft as its return context. A new copy still updates only
+   the badge; preview does not replace the active task or submit it.
+
+Reviewable commit sequence: canonical panel visibility/snapshot contract →
+persistent composer and result viewport → same-reader extent resizing → shared
+placement/focus policy → pending/source return-context cleanup → handoff.
+Remove obsolete presentation branches as each replacement is wired, avoiding
+two simultaneously active lifecycle owners. Business routing/dispatch stays
+unchanged. First visible change: input remains in place after Send, directly
+under the result. The next code scope is this continuity repair; additional
+result-summary features wait.
+
+This remains a plan. No code change, rebuild, app restart or automated check was
+performed in response to this feedback. .24 remains the user's running candidate.
+
 2026-10-29. User asked to continue planning while manually trying .24. This
 document is planning only. .24 has been packaged/launched; no user feedback or
 acceptance result has yet been supplied in this chat. Keep its running app,
