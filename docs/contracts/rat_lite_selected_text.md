@@ -1,5 +1,25 @@
 # RAT Lite .25 — explicit selected-text Quick Look
 
+Later user visual choice: use the existing mini floating-head asset for selected
+text Quick Look. This supersedes the large seated pose specifically for this
+compact interaction. Source now uses a 64×64 host with 44px optical-height target
+(width constrained), existing `rat_look_head_v2.png` and measured PNG alpha bounds;
+the mouth point remains an initial visual estimate. The placement adapter keeps
+the same remembered bottom-right anchor while removing the old 176px host space.
+The head remains the same for processing, result and errors; text length does
+not switch pose. Typed input in the same task retains the head and allows the
+existing larger composer budget. A subsequent independent task resets the profile.
+
+Quick Look reading uses width tiers 140/240/360, height up to180 (screen clamped),
+16px text and a simple bubble with Copy/Close plus Stop or necessary recovery.
+The large status pill and ordinary source heading are omitted for this profile.
+Right-click on the head exposes Write request, Expand and the existing menu;
+the head hover hint explains this. Long text scrolls until explicit expansion.
+Clipboard pending remains visible in the menu-bar badge/menu. The existing large
+typed/expanded workbench remains available. No asset generation, business path,
+model call or animation was added. This visual follow-up is still unbuilt and
+untested; it does not establish that the user's broader jarring feedback is fixed.
+
 Minor UI follow-up requested by the user: the idle composer shows
 `Bôi đen chữ trong app khác → ⌥⇧Space`. A quiet heading in the shared bubble
 identifies actual captured selection as `Chữ bôi đen`, derived from the capture

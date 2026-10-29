@@ -175,9 +175,9 @@ Item {
             // changes the reading surface, never the character's identity.
             source: look.floatingHead ? look.headSource : look.showingError ? look.errorSource : look.idleSource
             // Metadata is normalized to each source canvas, not window size.
-            inkBounds: look.floatingHead ? Qt.rect(0.19, 0.13, 0.60, 0.78) : look.showingError ? Qt.rect(0.04, 0.06, 0.92, 0.87) : Qt.rect(0.08, 0.06, 0.86, 0.88)
+            inkBounds: look.floatingHead ? Qt.rect(49/1413, 81/1113, 1262/1413, 979/1113) : look.showingError ? Qt.rect(0.04, 0.06, 0.92, 0.87) : Qt.rect(0.08, 0.06, 0.86, 0.88)
             mouth: look.floatingHead ? Qt.point(0.33, 0.81) : look.showingError ? Qt.point(0.43, 0.40) : Qt.point(0.44, 0.43)
-            opticalHeight: look.floatingHead ? 48 : look.seatedOpticalHeight
+            opticalHeight: look.floatingHead ? 44 : look.seatedOpticalHeight
         }
         CompanionStatus {
             id: status; z: 2; objectName: "lookStatus"
@@ -218,6 +218,9 @@ Item {
         }
         Accessible.role: Accessible.Button
         Accessible.name: "RAT Lite. Bấm để xem lại công việc; kéo để di chuyển."
+        ToolTip.visible: look.floatingHead && characterMouse.containsMouse && !characterMouse.pressed
+        ToolTip.delay: 800
+        ToolTip.text: "Chuột phải để mở rộng hoặc viết yêu cầu. Kéo để di chuyển."
         Accessible.onPressAction: look.openRequested()
     }
 }

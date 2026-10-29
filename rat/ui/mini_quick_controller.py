@@ -826,6 +826,7 @@ class MiniQuickController(QObject):
         if job.generation == self.generation:
             artifact = source['artifact']
             if job.args.get('preserve_until_capture'):
+                self.presentation.quick_look_head = job.args.get('mode') == 'selection'
                 self.presentation.begin_task()
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including
