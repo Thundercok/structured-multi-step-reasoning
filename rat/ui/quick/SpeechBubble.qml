@@ -23,12 +23,13 @@ SpeechSurface {
     readonly property var primaryAction: actions.find(action => action.role === "primary") || null
     readonly property real railWidth: utilityActions.length ? 32 : 0
     readonly property real footerHeight: primaryAction ? 30 : 0
+    readonly property real headingHeight: stateLabel ? 22 : 0
     readonly property real measuredWidth: Math.max(minimumWidth,
         Math.ceil(Math.max(measure.advanceWidth, primaryMeasure.advanceWidth)) + 2 * padding + railWidth + 12)
     readonly property real preferredWidth: heldWidth > 0 ? Math.min(maximumWidth, Math.max(minimumWidth, heldWidth))
         : widthStepFor(measuredWidth, maximumWidth)
     readonly property real preferredHeight: Math.min(maximumHeight, heldHeight > 0 ? Math.max(heldHeight, accessoryHeight + 2 * padding + 32) : Math.max(
-        layoutMeasure.implicitHeight + 2 * padding + footerHeight + accessoryHeight,
+        layoutMeasure.implicitHeight + 2 * padding + headingHeight + footerHeight + accessoryHeight,
         utilityActions.length * 28 + 4 + accessoryHeight))
     readonly property bool overflowing: scroll.contentHeight > scroll.height + 1
     readonly property bool moreBelow: overflowing && scroll.contentY < scroll.contentHeight - scroll.height - 1
@@ -89,12 +90,21 @@ SpeechSurface {
     onVisibleChanged: { if (visible) scheduleRestore() }
     function restoreReading() { scheduleRestore() }
     function focusReader() { speech.forceActiveFocus() }
+    Text {
+        visible: Boolean(bubble.stateLabel)
+        x: bubble.padding; y: bubble.padding
+        width: Math.max(1, bubble.width - 2 * bubble.padding - bubble.railWidth)
+        height: bubble.headingHeight
+        text: bubble.stateLabel; textFormat: Text.PlainText
+        color: bubble.inkColor; opacity: 0.65; font.pixelSize: 12
+        elide: Text.ElideRight
+    }
     Flickable {
         id: scroll
         objectName: "speechViewport"
-        x: bubble.padding; y: bubble.padding
+        x: bubble.padding; y: bubble.padding + bubble.headingHeight
         width: Math.max(1, bubble.width - 2 * bubble.padding - bubble.railWidth)
-        height: Math.max(1, bubble.height - 2 * bubble.padding - bubble.footerHeight - bubble.accessoryHeight)
+        height: Math.max(1, bubble.height - 2 * bubble.padding - bubble.headingHeight - bubble.footerHeight - bubble.accessoryHeight)
         contentWidth: width; contentHeight: speech.contentHeight
         opacity: bubble.restoringScroll ? 0 : 1
         clip: true; boundsBehavior: Flickable.StopAtBounds

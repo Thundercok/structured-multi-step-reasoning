@@ -59,7 +59,7 @@ class MiniQuickController(QObject):
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False,
+            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='',
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -643,7 +643,7 @@ class MiniQuickController(QObject):
             self.presentation.workspace = 'result'
         if self.presentation.surface in ('ocr','source'):
             self.presentation.surface = 'result'
-        self.update(ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False, lookSource=False)
+        self.update(ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False, lookSource=False, captureSourceKind='')
 
     @pyqtSlot(str)
     def setOcrDraft(self, text):
@@ -846,6 +846,7 @@ class MiniQuickController(QObject):
                 self._ocr_current_text = artifact.payload['text']
                 self._translation_args = dict(source['translation_args'])
                 self.update(ocrText=self._ocr_current_text, ocrCommittedText=self._ocr_current_text,
+                    captureSourceKind=artifact.payload['source_kind'],
                     lookSource=bool(job.args.get('observe_only') or job.args.get('look_input')) or self._state['lookSource'],
                     hasOcrSource=True, canRetryTranslation=True,
                     ocrOriginalText=self._state['ocrOriginalText'] if job.operation == 'correct_translate' else artifact.payload.get('ocr_raw_text', self._ocr_current_text),

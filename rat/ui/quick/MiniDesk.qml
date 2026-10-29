@@ -573,6 +573,12 @@ Rectangle {
             ColumnLayout {
                 id: composerColumn
                 x: 14; y: 13; width: parent.width - 28; spacing: 7
+                Label {
+                    visible: !desk.liveSnapshot.hasWorkbench && !desk.liveSnapshot.busy
+                    text: "Bôi đen chữ trong app khác → ⌥⇧Space"
+                    textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
+                    Layout.fillWidth: true; wrapMode: Text.Wrap
+                }
                 RowLayout {
                     visible: !desk.auxiliary && Boolean(desk.liveSnapshot.editingRequest); Layout.fillWidth: true
                     Label { text: "Đang sửa yêu cầu cũ · bản nháp mới vẫn được giữ"; color: desk.muted; font.pixelSize: 11; Layout.fillWidth: true; wrapMode: Text.Wrap }

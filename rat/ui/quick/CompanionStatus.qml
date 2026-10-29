@@ -13,8 +13,7 @@ ToolButton {
     property color inkColor: "#2c302a"
     property color edgeColor: "#dce3d4"
     width: 112; height: 24
-    enabled: !pending || !busy
-    Accessible.name: pending ? "Có đoạn chờ dịch. Bấm để dịch." : label
+    Accessible.name: pending ? "Có đoạn Clipboard chờ. Bấm để xem trước." : label
     contentItem: Text {
         text: (status.pending ? "1  " : status.busy ? "…  " : status.paused ? "Ⅱ  " : "•  ") + status.label
         color: status.inkColor; font.pixelSize: 11
@@ -28,5 +27,5 @@ ToolButton {
         border.color: status.edgeColor
     }
     ToolTip.visible: hovered
-    ToolTip.text: status.pending ? "Bấm để dịch đoạn chờ; kết quả hiện tại được giữ đến lúc đó." : status.label
+    ToolTip.text: status.pending ? "Xem trước đoạn Clipboard; chưa dịch và vẫn giữ công việc hiện tại." : status.label
 }

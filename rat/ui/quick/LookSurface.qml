@@ -88,6 +88,8 @@ Item {
         objectName: "lookSpeechBubble"
         x: look.panelX; y: look.panelY
         text: look.speechText
+        stateLabel: look.snapshot.selectionNotice ? (look.snapshot.selectionNeedsPermission ? "Quick Look · Cần quyền Trợ năng" : "Quick Look")
+            : look.reading && look.snapshot.captureSourceKind === "selection" ? "Chữ bôi đen" : ""
         accessoryHeight: look.composerHeight
         minimumWidth: look.snapshot.composerVisible ? look.composerWidthFloor : 76
         maximumWidth: look.maximumSpeechWidth
@@ -122,7 +124,7 @@ Item {
                 items.push({id:"reply", label:"Viết yêu cầu", icon:"enter", role:"utility"})
             if (look.snapshot.selectionNotice) {
                 if (look.snapshot.selectionNeedsPermission)
-                    items.push({id:"selection-access", label:"Mở quyền Trợ năng", role:"primary"})
+                    items.push({id:"selection-access", label:"Mở cài đặt Trợ năng…", role:"primary"})
                 else if (look.snapshot.hasWorkbench)
                     items.push({id:"recall", label:"Xem lại kết quả trước", role:"primary"})
             }
