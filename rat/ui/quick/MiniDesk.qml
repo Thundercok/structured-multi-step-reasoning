@@ -407,7 +407,7 @@ Rectangle {
                             visible: desk.surface === "welcome"; Layout.fillWidth: true; spacing: 12
                             Label { text: "Chào bạn, mình là Chuột!"; color: desk.ink; font.pixelSize: 21; wrapMode: Text.Wrap; Layout.fillWidth: true }
                             Label { text: "Để bôi đen chữ rồi gọi Chuột, hãy cho đúng bản RAT này quyền Trợ năng."; color: desk.ink; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                            Label { text: desk.liveSnapshot.readinessBusy ? "Đang kiểm tra…" : desk.liveSnapshot.accessibilityReady ? "✓ Bản RAT này đã có quyền Trợ năng" : "1. Bấm Mở Trợ năng.\n2. Bấm + và chọn bản RAT này.\n3. Bật công tắc, quay lại và bấm Kiểm tra lại."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: desk.liveSnapshot.readinessBusy ? "Đang kiểm tra…" : desk.liveSnapshot.accessibilityReady ? "✓ Bản RAT này đã có quyền Trợ năng" : "1. Bấm Mở Trợ năng.\n2. Bấm + và chọn bản RAT này.\n3. Bật công tắc, quay lại và bấm Kiểm tra lại.\nNếu RAT Mini đã bật mà vẫn chưa có quyền: chọn mục RAT Mini cũ, bấm −, rồi thêm đúng bản này bằng +."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true }
                             RowLayout {
                                 Layout.fillWidth: true
                                 QuietButton { text: "Mở Trợ năng"; onClicked: desk.liveController.openSelectionAccess() }
