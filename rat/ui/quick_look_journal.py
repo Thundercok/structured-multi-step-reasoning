@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import time
+from threading import RLock
 from uuid import uuid4
 
 
@@ -15,12 +16,17 @@ class QuickLookJournal:
         self.sequence = 0
         self.helper_state = 'unknown'
         self.helper_pid = None
+        self.lock = RLock()
 
     @staticmethod
     def invocation_id():
         return 'ql-' + uuid4().hex
 
     def record(self, stage, *, invocation_id=None, **metadata):
+        with self.lock:
+            self._record(stage, invocation_id=invocation_id, **metadata)
+
+    def _record(self, stage, *, invocation_id=None, **metadata):
         self.sequence += 1
         event = dict(sequence=self.sequence, monotonic_s=time.monotonic(),
             stage=stage, pid=os.getpid(), ui_build=self.build)

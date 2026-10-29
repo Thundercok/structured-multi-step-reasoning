@@ -151,7 +151,7 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonLook(self):
-        if self._state['selectionNotice'] and self._selection_return:
+        if self._state['selectionNotice'] or self._preview_return is not None:
             self.recallLookResult()
             return
         self._state['selectionNotice'] = ''
@@ -209,9 +209,8 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def recallLookResult(self):
-        if self._state['selectionNotice'] and self._selection_return:
-            self.restore_selection_view()
-            self.update(selectionNotice='', selectionNeedsPermission=False)
+        if self._state['selectionNotice'] or self._preview_return is not None:
+            self.returnToTask()
             self.lookRequested.emit()
             return
         self._state['selectionNotice'] = ''
@@ -281,7 +280,13 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def returnToTask(self):
         if self._state['selectionNotice']:
-            self.recallLookResult()
+            if self._selection_return is not None:
+                self.restore_selection_view()
+            elif self._state['hasWorkbench']:
+                self.look.read()
+            else:
+                self.presentation.compose()
+            self.update(selectionNotice='', selectionNeedsPermission=False)
             return
         if self._preview_return is not None:
             token, self._preview_return = self._preview_return, None
@@ -297,7 +302,9 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def summonMinimal(self):
         if self._state['selectionNotice']:
-            self.restore_selection_view()
+            self.returnToTask()
+        if self._preview_return is not None:
+            self.returnToTask()
         self._state['selectionNotice'] = ''
         self.presentation.open('result')
         self.presentation.compose()
@@ -773,6 +780,8 @@ class MiniQuickController(QObject):
             self._begin_selected_text(invocation)
         except Exception as exc:
             self.quicklook_journal.record('callback_error', invocation_id=invocation, reason=type(exc).__name__)
+            if self._selection_return is None:
+                self._selection_return = self.presentation.capture_view()
             self.restore_region_previous()
             self.presentation.resize(False)
             self.presentation.read()
