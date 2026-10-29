@@ -37,14 +37,18 @@ static void *watch_parent(void *unused) {
 }
 
 int main(int argc, char **argv) {
-    /* Only the supported Space chords; reject partial/unknown arguments. */
+    /* Accept exactly the presets shared with the Python chord table. */
     if (argc != 3) return 2;
     char *key_end, *mod_end;
     long key = strtol(argv[1], &key_end, 10);
     long modifiers = strtol(argv[2], &mod_end, 10);
-    if (*key_end || *mod_end || key != kVK_Space ||
-        (modifiers != (optionKey | shiftKey) && modifiers != (controlKey | optionKey) &&
-         modifiers != (controlKey | shiftKey))) return 2;
+    if (*key_end || *mod_end) return 2;
+    Boolean supported = (key == kVK_Space &&
+        (modifiers == (optionKey | shiftKey) || modifiers == (controlKey | optionKey) ||
+         modifiers == (controlKey | shiftKey))) ||
+        ((key == kVK_ANSI_R || key == kVK_ANSI_K || key == kVK_ANSI_J) &&
+         modifiers == (optionKey | shiftKey));
+    if (!supported) return 2;
     setvbuf(stdout, NULL, _IONBF, 0);
     owner_pid = getppid();
     ProcessSerialNumber process = {0, kCurrentProcess};

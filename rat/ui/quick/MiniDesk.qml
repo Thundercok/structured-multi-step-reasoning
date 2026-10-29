@@ -458,7 +458,7 @@ Rectangle {
                             Label { text: "Quick Look · " + desk.liveSnapshot.shortcutLabel; color: desk.ink }
                             ComboBox {
                                 id: shortcutChord; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
-                                model: [{label:"⌥⇧Space",value:"option_shift_space"},{label:"⌃⌥Space",value:"control_option_space"},{label:"⌃⇧Space",value:"control_shift_space"}]
+                                model: [{label:"⌥⇧Space",value:"option_shift_space"},{label:"⌥⇧R",value:"option_shift_r"},{label:"⌥⇧K",value:"option_shift_k"},{label:"⌥⇧J",value:"option_shift_j"},{label:"⌃⌥Space · có thể đổi bộ gõ",value:"control_option_space"},{label:"⌃⇧Space",value:"control_shift_space"}]
                                 Accessible.name: "Phím tắt Quick Look"
                             }
                             QuietButton { text: "Dùng phím này"; enabled: !desk.liveSnapshot.busy; onClicked: { desk.settingsError=desk.liveController.changeShortcut(shortcutChord.currentValue) } }
