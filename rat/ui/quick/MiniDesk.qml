@@ -75,7 +75,7 @@ Rectangle {
     readonly property bool imageDropEnabled: !auxiliary && !imageDialog.visible && !folderDialog.visible
     readonly property bool layoutExpanded: !compact
     readonly property real preferredPanelHeight: panel.height
-    readonly property real preferredPanelWidth: compact && !auxiliary ? Math.min(320, composerWidthFloor) : liveSnapshot.sourceVisible ? 900 : sharedPanelWidth
+    readonly property real preferredPanelWidth: compact && !auxiliary ? Math.min(320, composerWidthFloor) : (liveSnapshot.sourceVisible || surface === "workbench") ? 900 : sharedPanelWidth
     readonly property bool lookEngaged: panelHover.hovered || headMouse.containsMouse || resultScroll.moving || editor.activeFocus || translationArea.activeFocus || Boolean(translationArea.selectedText) || noticeReader.activeFocus || Boolean(noticeReader.selectedText) || readerMenu.visible
     readonly property rect cornerInkBounds: headPose.visualBounds
     readonly property point cornerMouth: headPose.speechAnchor
@@ -99,7 +99,7 @@ Rectangle {
     readonly property bool failed: liveSnapshot.phase === "error" || liveSnapshot.phase === "cancelled"
     readonly property bool recoveryVisible: failed || (liveSnapshot.phase === "partial" && (liveSnapshot.view !== "finder" || allFinderHits.length === 0))
     readonly property string recoveryAction: liveSnapshot.organizationRecoverySuggested ? "journal" : liveSnapshot.imageInputSuggested ? "image" : (liveSnapshot.finderSettingsSuggested || liveSnapshot.translationSettingsSuggested) ? "settings" : liveSnapshot.canRetryRequest ? "retry" : ""
-    readonly property string title: surface === "welcome" ? "Xin chào, mình là RAT" : surface === "help" ? "Thiết lập & trợ giúp" : surface === "settings" ? "Cài đặt" : surface === "ocr" ? "Sửa chữ trong ảnh" : surface === "image" ? "Ảnh nguồn" : surface === "source" ? "Chữ nhận ban đầu" : !paperVisible ? "RAT" : liveSnapshot.view === "finder" ? "File tìm được" : liveSnapshot.view === "organization" ? "Sắp xếp thư mục" : liveSnapshot.view === "translation" ? "Bản dịch" : liveSnapshot.view === "analysis" ? liveSnapshot.status : "Yêu cầu của bạn"
+    readonly property string title: surface === "welcome" ? "Xin chào, mình là RAT" : surface === "help" ? "Thiết lập & trợ giúp" : surface === "settings" ? "Cài đặt" : surface === "ocr" ? "Sửa chữ trong ảnh" : surface === "image" ? "Ảnh nguồn" : surface === "workbench" ? "Workbench" : surface === "source" ? "Chữ nhận ban đầu" : !paperVisible ? "RAT" : liveSnapshot.view === "finder" ? "File tìm được" : liveSnapshot.view === "organization" ? "Sắp xếp thư mục" : liveSnapshot.view === "translation" ? "Bản dịch" : liveSnapshot.view === "analysis" ? liveSnapshot.status : "Yêu cầu của bạn"
     signal moveRequested()
     signal hideRequested()
 
@@ -349,6 +349,32 @@ Rectangle {
                     ColumnLayout {
                         id: bodyColumn
                         width: Math.max(1, resultScroll.width - 8); spacing: 12
+                        RowLayout {
+                            visible: desk.surface === "workbench"; Layout.fillWidth: true; spacing: 12
+                            ColumnLayout {
+                                Layout.fillWidth: true; Layout.alignment: Qt.AlignTop; spacing: 6
+                                Label { text: "Trao đổi"; font.weight: Font.DemiBold; color: desk.ink }
+                                Repeater { model: desk.liveSnapshot.publicTurns || []
+                                    delegate: Label { required property var modelData; text: modelData.role + ": " + modelData.text
+                                        textFormat: Text.PlainText; wrapMode: Text.Wrap; color: desk.ink; Layout.fillWidth: true }
+                                }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true; Layout.alignment: Qt.AlignTop; spacing: 6
+                                Label { text: "Tiến trình"; font.weight: Font.DemiBold; color: desk.ink }
+                                Repeater { model: desk.liveSnapshot.publicSteps || []
+                                    delegate: Label { required property var modelData; text: modelData.operation + " · " + modelData.status + (modelData.checks ? " · " + modelData.checks : "")
+                                        textFormat: Text.PlainText; wrapMode: Text.Wrap; color: desk.muted; Layout.fillWidth: true }
+                                }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true; Layout.alignment: Qt.AlignTop; spacing: 6
+                                Label { text: "Nguồn & kết quả"; font.weight: Font.DemiBold; color: desk.ink }
+                                Label { text: desk.liveSnapshot.hasOcrSource ? (desk.liveSnapshot.ocrText || "") : "Chưa có đoạn nguồn được giữ."
+                                    textFormat: Text.PlainText; wrapMode: Text.Wrap; color: desk.muted; Layout.fillWidth: true }
+                                Label { text: desk.liveSnapshot.text || ""; textFormat: Text.PlainText; wrapMode: Text.Wrap; color: desk.ink; Layout.fillWidth: true }
+                            }
+                        }
                         TextArea {
                             id: noticeReader
                             visible: desk.previewing || desk.noticeVisible
@@ -763,6 +789,7 @@ Rectangle {
             MenuSeparator {}
             MenuItem { text: "Xóa lịch sử tạm"; onTriggered: desk.liveController.clearTaskHistory() }
         }
+        MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: "Mở Workbench"; onTriggered: { desk.saveScroll(); desk.navigate("workbench") } }
         MenuItem { text: "Xem lại công việc"; onTriggered: desk.liveController.summonLook() }
         MenuItem { text: "Viết yêu cầu"; onTriggered: desk.liveController.summonMinimal() }
         MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: desk.compact ? "Mở rộng kết quả" : "Thu gọn"; onTriggered: desk.liveController.setExpanded(desk.compact) }

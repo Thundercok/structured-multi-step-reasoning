@@ -48,6 +48,8 @@ class MiniQuickController(QObject):
         self.organization_artifact = None
         self.presentation = MiniPresentation(surface="result" if self.settings.get("setup_completed") else "welcome")
         self._task_history = []
+        self._public_turns = []
+        self._public_steps = []
         self.rebind_hotkey = None
         self._next_draft = ""
         self.generation = 0
@@ -101,6 +103,7 @@ class MiniQuickController(QObject):
             **self.look.snapshot(has_result=self._state['hasWorkbench'], busy=self._state['busy']))
         return dict(state, **look_projection(state),
             shortcutLabel=chord(self.settings.get('hotkey_chord', DEFAULT_CHORD))[2],
+            publicTurns=deepcopy(self._public_turns), publicSteps=deepcopy(self._public_steps),
             taskHistory=[dict(index=i, title=item['title']) for i,item in enumerate(self._task_history)],
             diagnosticEvents=self.diagnostic_events(),
             pendingPreviewOpen=self._preview_return is not None and self.look.surface == 'peek',
@@ -892,7 +895,7 @@ class MiniQuickController(QObject):
             image_label=values.get('imageLabel',''),
             result_ref=deepcopy(self._result_ref), source_ref=deepcopy(self._ocr_source_ref), source_text=self._ocr_current_text,
             translation_args=deepcopy(self._translation_args), finder=self.finder_artifact,
-            draft=self._next_draft))
+            draft=self._next_draft, turns=deepcopy(self._public_turns), steps=deepcopy(self._public_steps)))
         del self._task_history[5:]
 
     @pyqtSlot(int)
@@ -904,6 +907,7 @@ class MiniQuickController(QObject):
         self.session = MiniSession(self.settings, artifact_store=self.session.runtime.artifact_store)
         for name,value in deepcopy(item['presentation']).items():
             setattr(self.presentation,name,value)
+        self._public_turns, self._public_steps = deepcopy(item['turns']), deepcopy(item['steps'])
         self._result_ref = deepcopy(item['result_ref'])
         self._ocr_source_ref = deepcopy(item['source_ref'])
         self._ocr_current_text = item['source_text']
@@ -1106,6 +1110,7 @@ class MiniQuickController(QObject):
             self._state['selectionNotice'] = ''
             self.presentation.begin_task()
             self._result_ref = None
+            self._public_turns, self._public_steps = [], []
         if not preserve_region and (operation in ('find_files', 'capture_translate')
                 or (operation == 'submit_goal' and not args.get('source_ref') and self._state['phase'] != 'needs_input')
                 or (operation == 'translate_text' and not args.get('source_ref'))):
@@ -1160,6 +1165,7 @@ class MiniQuickController(QObject):
                 self._preview_notice = ''
                 self.presentation.begin_task()
                 self._result_ref = None
+                self._public_turns, self._public_steps = [], []
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including
                 # any clarification needed by the following translation.
@@ -1234,6 +1240,23 @@ class MiniQuickController(QObject):
                 readinessStatus=('Đã kiểm tra thành phần. Dùng thử để xác nhận trên máy này.' if checks and checks['status']=='ready' else
                     'Một số chức năng cần xử lý. Bạn vẫn có thể dùng phần đã sẵn sàng.' if checks else 'Chưa kiểm tra được. Hãy thử lại.'))
             return
+        if response and not (error and self._region_previous is not None):
+            # Public observations only; never persist or expose private thought.
+            question = (self.job.query if self.job else '') or self._state.get('requestText','')
+            answer = next((a.payload.get('text','') for a in reversed(response.artifacts)
+                if a.kind in ('translation','source_analysis','result_revision') and isinstance(a.payload,dict)), '')
+            answer = answer or (response.pending_input_request.prompt if response.pending_input_request else response.answer or '')
+            if question:
+                self._public_turns.append({'role':'Bạn','text':question[:8000]})
+            if answer:
+                self._public_turns.append({'role':'RAT','text':answer[:8000]})
+            self._public_turns = self._public_turns[-20:]
+            for step in response.steps:
+                if step.tool_name:
+                    self._public_steps.append({'operation':step.tool_name,
+                        'status':'Chưa hoàn tất' if step.error else 'Đã thực hiện',
+                        'checks':', '.join(str(v.get('status','')) for v in step.verification if isinstance(v,dict))})
+            self._public_steps = self._public_steps[-20:]
         model_loop = bool(response and (response.qa_telemetry or {}).get('mini_execution_path') == 'model_loop')
         if model_loop:
             # Preserve the public conclusion beside real artifacts; the newest

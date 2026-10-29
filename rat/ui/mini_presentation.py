@@ -66,7 +66,7 @@ class MiniPresentation:
     _settings_return: str = 'result'
 
     AUXILIARY = frozenset({'welcome', 'help', 'settings'})
-    WORKSPACE = frozenset({'result', 'ocr', 'image', 'source'})
+    WORKSPACE = frozenset({'result', 'ocr', 'image', 'source', 'workbench'})
 
     @property
     def workspace_mode(self):
@@ -124,6 +124,8 @@ class MiniPresentation:
             self.surface = self.workspace
         elif self.surface == 'image':
             self.surface = self.workspace = self._image_return
+        elif self.surface == 'workbench':
+            self.surface = self.workspace = 'result'
         elif self.surface == 'source':
             self.surface = self.workspace = 'ocr'
         else:
