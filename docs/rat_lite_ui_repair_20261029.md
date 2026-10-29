@@ -1,5 +1,9 @@
 # RAT Lite .26 — repair from user-provided .25 screenshots
 
+Latest source continuation: [continuous panel and reliability handoff](rat_lite_continuous_panel_handoff_20261029.md).
+The larger single-panel repair formerly marked pending below is implemented in
+source after the user's large-batch instruction. Native acceptance remains pending.
+
 User supplied 16:28:00 / 16:28:04 / 16:28:29 screenshots on 2026-10-29 and
 reported the UI as wrong. These are observations of the user's real .25 UI;
 no screenshots were automatically captured by the agent.

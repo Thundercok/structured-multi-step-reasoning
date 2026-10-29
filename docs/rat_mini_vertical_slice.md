@@ -1,5 +1,11 @@
 # RAT Mini — quyết định vertical slice và UX
 
+Latest source, 2026-10-29: user approved .26 reliability/compact repair and then
+a large implementation batch. Lite now has one mounted task panel/editor across
+extents and a small head throughout, plus correlated Quick Look diagnostics.
+See [source handoff](rat_lite_continuous_panel_handoff_20261029.md). No build,
+test, launch or acceptance was run for this revision; .25 remains last launched.
+
 Latest continuation, 2026-10-29: user resumed RAT Lite unified interaction and
 authorized small commits/normal pushes. Source .24 replaces four workspace
 choices with compact/expanded task presentation and one composer. See
