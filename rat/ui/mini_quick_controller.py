@@ -67,7 +67,7 @@ class MiniQuickController(QObject):
         self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='', hotkeyStarting=False,
+            phase='idle', busy=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceKind='', hotkeyStarting=False, shortcutAck='',
             hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
@@ -76,6 +76,9 @@ class MiniQuickController(QObject):
             ocrPreparationNotice='', canRetryRequest=False, finderSettingsSuggested=False,
             imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False, canUndoOrganization=False,
             organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False)), readiness=[], readinessBusy=False, readinessStatus="")
+        self.shortcut_ack_timer = QTimer(self)
+        self.shortcut_ack_timer.setSingleShot(True)
+        self.shortcut_ack_timer.timeout.connect(lambda: self.update(shortcutAck=''))
         self.look_clipboard = LookClipboard(self)
         self.look_clipboard.textReady.connect(self.receiveLookClipboard)
         self.look_clipboard.changed.connect(self.clearLookPending)
@@ -725,7 +728,10 @@ class MiniQuickController(QObject):
             return
         if self.job or self.pending or self._region_previous:
             self.quicklook_journal.record('ignored_busy', invocation_id=invocation)
-            self.shortcutAcknowledged.emit('RAT đang xử lý yêu cầu trước. Nội dung hiện tại được giữ; bạn bấm lại khi xong nhé.')
+            message = 'RAT đang xử lý yêu cầu trước. Nội dung hiện tại được giữ; bạn bấm lại khi xong nhé.'
+            self.update(shortcutAck=message)
+            self.shortcut_ack_timer.start(4000)
+            self.shortcutAcknowledged.emit(message)
             return
         self._selection_invocation_id = invocation
         try:

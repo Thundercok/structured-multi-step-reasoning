@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 import os
 import logging
-import json
+import time
 
 os.environ.setdefault('QT_QUICK_CONTROLS_STYLE', 'Basic')
 
@@ -98,10 +98,10 @@ def create_mini_desk(settings=None):
         state = controller.snapshot
         pending = bool(state['lookHasQueued'])
         shortcut_failed = bool(state['hotkeyStatus'])
-        tray.setBadgeText('!' if shortcut_failed else '1' if pending else '')
+        tray.setBadgeText('!' if shortcut_failed else '…' if state['shortcutAck'] else '1' if pending else '')
         tray.setToolTip('RAT Lite · ' + ('Phím tắt chưa sẵn sàng. Mở menu để đăng ký lại.' if shortcut_failed
-            else 'Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel']))
-        tray_actions[controller.restartHotkey].setEnabled(shortcut_failed)
+            else state['shortcutAck'] or ('Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel'])))
+        tray_actions[controller.restartHotkey].setEnabled(shortcut_failed and not state['hotkeyStarting'])
         tray_actions[controller.previewPending].setEnabled(pending)
         tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])
         tray_actions[controller.toggleLookPaused].setText('Bật theo dõi Clipboard' if not state['lookWatching']
@@ -112,30 +112,35 @@ def create_mini_desk(settings=None):
     tray.menuVisibilityChanged.connect(shell.set_status_menu_open)
     tray.show()
     app.aboutToQuit.connect(tray.hide)
-    def record_hotkey(stage):
-        # Only this app's registered chord and outcome; no typed text/clipboard.
-        try:
-            (state_directory()/'last-hotkey.json').write_text(json.dumps({'protocol':'SELECT1','stage':stage,'ui_build':BUILD,'pid':os.getpid()}))
-        except OSError:
-            logging.getLogger(__name__).warning('hotkey_diagnostic_write_failed')
+    last_ack = 0.0
+    def acknowledge_shortcut(message):
+        nonlocal last_ack
+        now = time.monotonic()
+        if now - last_ack >= 2:
+            last_ack = now
+            tray.showMessage('RAT Lite', message)
+    controller.shortcutAcknowledged.connect(acknowledge_shortcut)
     hotkeys = None
     def restart_hotkey():
         nonlocal hotkeys
-        if hotkeys:
-            hotkeys.close()
-            hotkeys = None
-        if app.platformName() != 'cocoa':
+        if controller.snapshot['hotkeyStarting'] or app.platformName() != 'cocoa':
             return
+        controller.update(hotkeyStarting=True)
         try:
-            hotkeys = register_hotkey(controller.quickLookSelection, on_event=record_hotkey,
+            if hotkeys:
+                hotkeys.close('reconnect')
+                hotkeys = None
+            hotkeys = register_hotkey(controller.quickLookSelection, on_state=controller.recordHotkeyState,
                 on_error=lambda message: controller.update(hotkeyStatus=message))
             controller.update(hotkeyStatus='')
         except OSError as exc:
-            record_hotkey('registration_failed')
+            controller.recordHotkeyState('registration_failed', state='failed')
             controller.update(hotkeyStatus='Phím tắt chưa sẵn sàng. Đăng ký lại trong menu RAT.')
             logging.getLogger(__name__).warning('hotkey_unavailable %s', exc)
+        finally:
+            controller.update(hotkeyStarting=False)
     controller.hotkeyRestartRequested.connect(restart_hotkey)
-    app.aboutToQuit.connect(lambda: hotkeys.close() if hotkeys else None)
+    app.aboutToQuit.connect(lambda: hotkeys.close('shutdown') if hotkeys else None)
     restart_hotkey()
     view._refs = (controller, tray, menu, shell, image_drop, hotkeys)
     return view, controller
