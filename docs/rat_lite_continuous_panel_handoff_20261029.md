@@ -1,5 +1,19 @@
 # RAT Lite .26 — continuous panel and Quick Look reliability handoff
 
+Inspection continuation: user explicitly approved the alternative capture path
+after CUA failed. Exact RAT window6360 was recalled through the existing instance
+bridge and captured with screencapture -l after becoming onscreen. Earlier blank
+captures were fully transparent while hidden/not yet painted; the later image
+shows the actual compact input and small head. Image retained locally at
+audit/rat_lite_26_direct_inspection_20261029/window.png, not included in this commit.
+Read-only native inspection found RAT active (accessory policy), and its focused
+AXTextField enabled/focused with zero characters. This does not prove physical
+typing/clicking works. App63687/helper63717 remain alive but metadata still has no
+selection/key-received event. No text was injected and no translation was sent.
+UI observation via this alternative is now possible; do not repeat the earlier
+claim that a user recording is the only available next step. .26 remains rejected;
+these observations do not clear any reported input/layout/shortcut failure.
+
 User acceptance update after opening: **.26 is rejected as unusable**. User
 reports all three groups: input/click/dismissal problems, layout/clipping or
 placement problems, and no usable shortcut/result. Do not call .26 stable or
