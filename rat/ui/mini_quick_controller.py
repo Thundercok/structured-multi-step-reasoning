@@ -35,6 +35,7 @@ class MiniQuickController(QObject):
     hotkeyRestartRequested = pyqtSignal()
     shortcutAcknowledged = pyqtSignal(str)
     selectionAnchorRequested = pyqtSignal(object)
+    restoreAnchorRequested = pyqtSignal(int)
     presentAtRequested = pyqtSignal(QPoint)
     imageDropAccepted = pyqtSignal(str)
     interactionCompleted = pyqtSignal()
@@ -912,6 +913,7 @@ class MiniQuickController(QObject):
             imagePreviewUrl='', imageLabel='', selectionNotice='', canRetryRequest=False,
             canApplyOrganization=False, canUndoOrganization=False,
             organizationRecoverySuggested=item['state']['view']=='organization')
+        self.restoreAnchorRequested.emit(self.presentation.task_id)
         self.lookRequested.emit()
 
     @pyqtSlot()
@@ -974,11 +976,27 @@ class MiniQuickController(QObject):
             return 'Tổ hợp phím chưa được hỗ trợ.'
 
     @pyqtSlot(str)
+    def translateSource(self, style):
+        if self.job or not self._ocr_source_ref or style not in ('faithful', 'plain'):
+            return
+        if self._state['ocrText'] != self._ocr_current_text:
+            self.update(status='Hãy lưu chữ đã sửa bằng Dịch lại trước khi đổi lối dịch.')
+            return
+        if style == 'plain' and not self.settings.get('llm_enabled'):
+            self.update(status='Lối dịch dễ hiểu cần bật suy luận cloud trong Cài đặt.', translationSettingsSuggested=True)
+            return
+        self.enqueue('translate_text', {'source_ref':dict(self._ocr_source_ref), 'style':style,
+            'source_language':self.settings['source_language'], 'target_language':self.settings['target_language']})
+
+    @pyqtSlot(str)
     def analyzeSource(self, mode):
         if self.job or mode not in ('summary', 'explanation', 'terms', 'rewrite'):
             return
         if not self._ocr_source_ref:
             self.update(status='Hãy lấy một đoạn chữ trước.', error=True)
+            return
+        if self._state['ocrText'] != self._ocr_current_text:
+            self.update(status='Hãy lưu chữ đã sửa bằng Dịch lại trước khi đọc tiếp.')
             return
         if not self.settings.get('llm_enabled'):
             self.update(status='Đọc sâu cần bật suy luận cloud trong Cài đặt.', translationSettingsSuggested=True)
@@ -1306,7 +1324,8 @@ class MiniQuickController(QObject):
                     self.clear_ocr_source()
                 elif self._ocr_source_ref == source_capture.get('source_ref'):
                     self._translation_args = {'source_ref':dict(self._ocr_source_ref),
-                        'source_language':data['source_language'], 'target_language':data['target_language']}
+                        'source_language':data['source_language'], 'target_language':data['target_language'],
+                        'style':data.get('style','faithful')}
                 languages = {'vi':'Tiếng Việt', 'en':'Tiếng Anh', 'ja':'Tiếng Nhật', 'ko':'Tiếng Hàn',
                     'zh':'Tiếng Trung', 'fr':'Tiếng Pháp', 'de':'Tiếng Đức', 'es':'Tiếng Tây Ban Nha',
                     'auto':'Tự nhận diện'}
@@ -1390,6 +1409,8 @@ class MiniQuickController(QObject):
             'translation_tls_failed':'Chưa kết nối an toàn được với dịch vụ dịch. Kiểm tra ngày giờ máy và mạng; chữ vẫn được giữ.',
             'translation_network_error':'Chưa kết nối được dịch vụ dịch. Kiểm tra mạng rồi thử lại; chữ vẫn được giữ.',
             'translation_provider_error':'Dịch vụ dịch chưa trả được kết quả. Chữ vẫn được giữ; hãy thử lại sau.',
+            'mini_llm_disabled':'Chức năng này cần bật suy luận cloud trong Cài đặt. Nguồn chữ vẫn được giữ.',
+            'source_analysis_invalid_evidence':'Model chưa trả được trích dẫn khớp nguồn. Nguồn chữ vẫn được giữ để thử lại.',
             'translation_failed':'Chưa dịch được lúc này. Chữ vẫn được giữ; kiểm tra mạng rồi thử lại.'}
         for code, message in messages.items():
             if code in error:
@@ -1410,8 +1431,6 @@ class MiniQuickController(QObject):
             return 'Chưa đọc được chữ trong ảnh. Hãy chụp vùng rõ hơn hoặc gõ nội dung cần dịch vào ô nhập.'
         if 'image_input_invalid' in error:
             return 'Chưa đọc được ảnh. Hãy thả một ảnh PNG/JPG đã lưu, hoặc chụp vùng chữ nhỏ hơn.'
-        if 'mini_llm_disabled' in error:
-            return 'Bạn gửi từng bước: tên file cần tìm, đoạn cần dịch hoặc thư mục cần sắp xếp nhé.'
         if 'api_key_missing' in error:
             return 'Yêu cầu này cần Agent cloud chưa được cấu hình. Bạn có thể hỏi từng bước: tìm file, hoặc gửi đoạn cần dịch.'
         if 'clipboard' in error.lower() or 'empty_text' in error.lower():

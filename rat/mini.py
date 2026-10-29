@@ -63,7 +63,7 @@ class MiniSession:
             return AgentResponse('', [], 0, 0, 0, error='cancelled')
         route = self.router.resolve(query, pending=self.pending_route,
             tool_input=self.runtime.dispatcher.state.pending_input_request,
-            input_kind=input_kind, previous=self.previous_goal)
+            input_kind=input_kind, previous=self.previous_goal, source_ref=source_ref)
         analysis = re.match(r'^(?:hãy\s+|please\s+)?(tóm tắt|giải thích|thuật ngữ|viết lại|summarize|explain|terms|rewrite)\b', query, re.I) if input_kind == 'typed' else None
         if analysis and route.kind != 'agent':
             if source_ref:

@@ -22,6 +22,7 @@ class MiniShell(QObject):
         self.look_home = (area.right()-LOOK_WIDTH-16, area.bottom()-LOOK_HEIGHT-16)
         self.corner_home = self.look_home
         self.selection_anchored = False
+        self.task_anchors = {}
         self.look_side = None
         self.side = None
         self.expanded = False
@@ -74,6 +75,7 @@ class MiniShell(QObject):
         controller.engagementRequested.connect(self.present)
         controller.lookRequested.connect(self.present)
         controller.selectionAnchorRequested.connect(self.place_selection)
+        controller.restoreAnchorRequested.connect(self.restore_anchor)
         controller.minimalRequested.connect(self.present)
         controller.lookFocusRequested.connect(self.focus_look)
         controller.lookResultDismissed.connect(self.dismiss_look_surface)
@@ -146,7 +148,7 @@ class MiniShell(QObject):
             self.look_hide_timer.stop()
             return
         state = self.controller.snapshot
-        if (state.get('lookSurface') != 'peek' or self.root.property('lookEngaged')
+        if (state.get('pinned') or state.get('lookSurface') != 'peek' or self.root.property('lookEngaged')
                 or self.root.property('focusOwned') or self.status_menu_open):
             self.look_hide_timer.stop()
             return
@@ -154,7 +156,7 @@ class MiniShell(QObject):
             self.look_hide_timer.start()
 
     def hide_look_passively(self):
-        if (not self.root.property('lookActive') or self.root.property('lookEngaged')
+        if (self.controller.snapshot.get('pinned') or not self.root.property('lookActive') or self.root.property('lookEngaged')
                 or self.root.property('focusOwned') or self.status_menu_open
                 or self.controller.snapshot.get('lookSurface') != 'peek'):
             return
@@ -189,6 +191,16 @@ class MiniShell(QObject):
     def corner_surface(self):
         return True
 
+    def restore_anchor(self, task_id):
+        saved = self.task_anchors.get(task_id)
+        if saved:
+            self.look_home, self.look_side = saved
+            self.selection_anchored = True
+        else:
+            self.look_home, self.look_side = self.corner_home, None
+            self.selection_anchored = False
+        self.schedule_fit()
+
     def place_selection(self, context):
         screens=QGuiApplication.screens()
         matches=[screen for screen in screens if screen.name()==context.get('display_name')]
@@ -209,6 +221,9 @@ class MiniShell(QObject):
                 self.view.setScreen(screen)
         if not self.selection_anchored:
             self.look_home=self.corner_home
+        self.task_anchors[self.controller.presentation.task_id] = (self.look_home,self.look_side)
+        while len(self.task_anchors)>6:
+            del self.task_anchors[next(iter(self.task_anchors))]
         self.schedule_fit()
 
     def fit(self):

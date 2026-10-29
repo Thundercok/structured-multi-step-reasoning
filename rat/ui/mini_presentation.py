@@ -54,6 +54,7 @@ class MiniPresentation:
     surface: str = 'result'
     workspace: str = 'result'
     task_id: int = 0
+    _task_sequence: int = 0
     scroll: dict = field(default_factory=dict)
     selections: dict = field(default_factory=dict)
     reading_anchor: tuple = ('', 0, 0.0)
@@ -133,7 +134,8 @@ class MiniPresentation:
         self.open('image')
 
     def begin_task(self):
-        self.task_id += 1
+        self._task_sequence = max(self._task_sequence, self.task_id) + 1
+        self.task_id = self._task_sequence
         self.scroll.clear()
         self.selections.clear()
         self.reading_anchor = ('', 0, 0.0)

@@ -48,7 +48,7 @@ class ToolGoalRouter:
             missing_fields=[dict(name=field_name, required=True)], prompt=prompt)
         return GoalRoute('needs_input', input_request=request, rule=rule)
 
-    def resolve(self, text, *, pending=None, tool_input=None, input_kind='typed', previous=None):
+    def resolve(self, text, *, pending=None, tool_input=None, input_kind='typed', previous=None, source_ref=None):
         text = text.strip()
         # Do not compile a compound goal into just its first tool. Translation
         # payloads and pasted passages remain data, including quoted commands.
@@ -104,6 +104,9 @@ class ToolGoalRouter:
                 return GoalRoute('agent', rule='multi_step_goal')
             return self.direct('find_files', {'query':query}, 'explicit_find')
         if translation:
+            if source_ref and input_kind == 'typed' and re.search(
+                    r'\b(?:rồi|sau đó|then|and then)\s+(?:tóm tắt|giải thích|summarize|explain)\b', text, re.I):
+                return GoalRoute('agent', rule='source_multi_step_goal')
             body = text[translation.end():].strip(' :\n')
             args = dict(self.defaults)
             for label in sorted(LANGUAGES, key=len, reverse=True):
