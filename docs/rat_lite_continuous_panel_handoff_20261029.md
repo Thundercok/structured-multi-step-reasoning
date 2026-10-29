@@ -1,5 +1,11 @@
 # RAT Lite .26 — continuous panel and Quick Look reliability handoff
 
+Latest user feedback: “okay it worked”, followed by approval of the near-selection
+Quick Look direction and a request for more Mini/Lite planning items. Treat this
+as positive feedback on the just-tried path, not a blanket acceptance of every
+feature/app/model loop. Earlier rejection/inspection records below are historical.
+Current proposed roadmap: [expanded development plan](rat_lite_expanded_roadmap_20261029.md).
+
 Inspection continuation: user explicitly approved the alternative capture path
 after CUA failed. Exact RAT window6360 was recalled through the existing instance
 bridge and captured with screencapture -l after becoming onscreen. Earlier blank

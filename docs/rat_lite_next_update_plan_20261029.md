@@ -1,5 +1,10 @@
 # RAT Lite — next update plan after .25 feedback
 
+Current planning continuation after .26 was opened and the user reported it worked:
+[20-item Lite roadmap](rat_lite_expanded_roadmap_20261029.md). Near-selection
+Quick Look is the approved direction; other additions are proposals for phased
+review. This earlier .25/.26 repair plan remains historical implementation context.
+
 Implementation continuation: user said go, then authorized a large source batch.
 The planned reliability work and continuous-panel extension are now described in
 [source handoff](rat_lite_continuous_panel_handoff_20261029.md). .26 is still
