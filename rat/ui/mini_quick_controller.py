@@ -172,6 +172,11 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonLook(self):
+        if not self._state['setupCompleted']:
+            self.presentation.open('welcome')
+            self.update()
+            self.presentRequested.emit()
+            return
         if self._state['selectionNotice'] or self._preview_return is not None:
             self.recallLookResult()
             return
@@ -397,7 +402,10 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def backSurface(self):
-        self.presentation.back()
+        if not self._state['setupCompleted']:
+            self.presentation.open('welcome')
+        else:
+            self.presentation.back()
         if self._state['hasWorkbench']:
             self.look.read()
         self.sync_look_clipboard()
@@ -810,6 +818,10 @@ class MiniQuickController(QObject):
         invocation = self._received_invocation_id or self.quicklook_journal.invocation_id()
         self._received_invocation_id = None
         self.quicklook_journal.record('invoked', invocation_id=invocation)
+        if not self._state['setupCompleted']:
+            self.quicklook_journal.record('setup_required', invocation_id=invocation)
+            self.summonLook()
+            return
         if self.quitting:
             self.quicklook_journal.record('ignored_shutdown', invocation_id=invocation)
             return
