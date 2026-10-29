@@ -856,6 +856,20 @@ class MiniQuickController(QObject):
     def restartHotkey(self):
         self.hotkeyRestartRequested.emit()
 
+    @pyqtSlot(str)
+    def analyzeSource(self, mode):
+        if self.job or mode not in ('summary', 'explanation', 'terms', 'rewrite'):
+            return
+        if not self._ocr_source_ref:
+            self.update(status='Hãy lấy một đoạn chữ trước.', error=True)
+            return
+        if not self.settings.get('llm_enabled'):
+            self.update(status='Đọc sâu cần bật suy luận cloud trong Cài đặt.', translationSettingsSuggested=True)
+            return
+        self.enqueue('analyze_captured_text', {'source_ref': dict(self._ocr_source_ref),
+            'mode': mode, 'instruction': self._next_draft[:2000],
+            'target_language': self.settings['target_language']})
+
     @pyqtSlot()
     def togglePin(self):
         self.update(pinned=not self._state['pinned'])
@@ -1159,6 +1173,13 @@ class MiniQuickController(QObject):
                 self.update(phase='partial' if partial or (model_loop and self._state['agentIncomplete']) else 'result', view='finder', finderHits=hits,
                     finderSettingsSuggested=partial or not hits,
                     text='', meta='Chọn một file để mở hoặc hiện trong Finder', status=status)
+                return
+            if artifact.kind == 'source_analysis':
+                self.complete_surface()
+                self.update(phase='result', view='analysis', text=data['text'], finderHits=[],
+                    status={'summary':'Tóm tắt', 'explanation':'Giải thích', 'terms':'Thuật ngữ', 'rewrite':'Viết lại'}[data['mode']],
+                    meta='Nguồn đã giữ · ' + data['provider'], translationNotice='Diễn giải bằng model; chưa kiểm chứng đúng nghĩa.',
+                    translationDetails='Trích từ nguồn:\n' + '\n'.join(data['evidence']))
                 return
             if artifact.kind == 'translation':
                 source_capture = data.get('source_capture') or {}

@@ -18,6 +18,7 @@ from rat.kernel.registry import CapabilityRegistry
 from rat.kernel.profile import MINI_PROFILE
 from rat.kernel.capabilities.file_finder import create_file_finder_capability
 from rat.kernel.capabilities.translation import create_translation_capability
+from rat.kernel.capabilities.source_analysis import create_source_analysis_capability
 from rat.kernel.capabilities.folder_organizer import create_folder_organizer_capability
 from rat.kernel.capabilities.mini_setup import create_mini_setup_capability
 from rat.engine.folder_organization import FolderOrganizer
@@ -39,6 +40,7 @@ class MiniSession:
         registry.register_capability(create_folder_organizer_capability(FolderOrganizer(self.scopes, state_directory()/"organization")))
         registry.register_capability(create_mini_setup_capability(self.settings))
         registry.register_capability(create_translation_capability(SnippetTranslator(self.settings, self.client)))
+        registry.register_capability(create_source_analysis_capability(self.client))
         self.runtime = AssistantRuntime(registry=registry, profile=MINI_PROFILE, model_client=self.client,
                                         artifact_store=artifact_store,
                                         use_live_model=self.settings['llm_enabled'], enable_observation_pack=True,

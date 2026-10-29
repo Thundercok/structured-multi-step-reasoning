@@ -4,6 +4,7 @@ import copy
 import re
 import time
 
+from rat.kernel.capabilities.observed_source import observed_capture
 from rat.kernel.contracts import InputRequest
 from rat.kernel.registry import Capability, OperationDefinition
 from rat.engine.snippet_translation import capture_text
@@ -130,17 +131,6 @@ def create_translation_capability(translator):
             'required':['text','source_kind','source_sha256','captured_at'],
             'allOf':[{'if':{'properties':{'source_kind':{'const':'image'}}},
                 'then':{'required':['input_provenance']}}]}
-
-    def observed_capture(pin, context):
-        artifact = context['artifact_store'].get(pin['artifact_id'])
-        if artifact is None or artifact.kind != 'captured_text' or artifact.revision != pin['revision']:
-            raise ValueError('stale_source_ref')
-        if time.time() - artifact.created_at > 1800:
-            raise ValueError('source_expired')
-        text = artifact.payload['text']
-        if hashlib.sha256(text.encode()).hexdigest() != artifact.payload.get('source_sha256'):
-            raise ValueError('source_integrity_mismatch: Nội dung OCR không còn khớp nguồn.')
-        return artifact
 
     def correct_capture(args, **context):
         if not context.get('user_initiated'):
