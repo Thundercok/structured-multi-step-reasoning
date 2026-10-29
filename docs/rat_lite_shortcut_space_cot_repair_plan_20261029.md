@@ -203,3 +203,21 @@ Xem lại 4 lỗi trong batch cũ, phân biệt assertion đã lỗi thời vớ
 thiếu deps; sửa kiểm tra có ý nghĩa, không xóa failure để làm xanh. Khi test được
 cho phép, báo chính xác các case pass/fail/chưa chạy. Research Stage0, M3 và main
 integration không được coi là hoàn tất bởi local app acceptance.
+
+## Source implementation follow-up
+
+User requested immediate fix after this plan. Source commits set the RAT native
+window collection policy to join Spaces / auxiliary full screen before presenting
+or focusing, fail closed if that policy cannot be configured, and record a
+bounded active-Space-change notification around an explicit shortcut invocation.
+They add optional ⌥⇧R/K/J presets while preserving the stored chord and existing
+transactional rebind, and distinguish AX permission, empty selection and source
+unresponsive errors. Earlier source added persistent selection error/recovery.
+
+Capture/translation continue through the common dispatcher and verifier; these
+changes do not prove that a model Agent loop ran. The existing source Workbench
+is still an initial projection. This is not acceptance evidence: no build,
+execution, native Space inspection, test, real selection or live model request
+was run for these source changes. The running bundle remains the earlier .28.
+In particular, whether this policy fixes the user's Space switch, and the cause
+of the user's captured-text failure, remain unknown until the built app is used.
