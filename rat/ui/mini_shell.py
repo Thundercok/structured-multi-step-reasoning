@@ -285,7 +285,7 @@ class MiniShell(QObject):
         self.focus_changed()
 
     def dismiss_if_outside(self):
-        if self.controller.snapshot.get('pinned'):
+        if self.controller.snapshot.get('pinned') or self.controller.snapshot.get('selectionNotice'):
             return
         # App activation is not a pointer action: accessibility tools, Cmd+Tab
         # and system dialogs can change focus without the user dismissing RAT.
@@ -307,7 +307,7 @@ class MiniShell(QObject):
                 self.dismiss()
 
     def outside_pointer_pressed(self, x, y):
-        if self.controller.snapshot.get('pinned'):
+        if self.controller.snapshot.get('pinned') or self.controller.snapshot.get('selectionNotice'):
             return
         if (not self.view.isVisible() or self.root.property('focusOwned')
                 or self.status_menu_open):

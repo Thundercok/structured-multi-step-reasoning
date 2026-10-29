@@ -334,6 +334,21 @@ class MiniQuickController(QObject):
         self.lookFocusRequested.emit()
 
     @pyqtSlot()
+    def pasteSelectionFallback(self):
+        # An explicit user gesture is required; never simulate Copy or overwrite
+        # the user's clipboard. The actual capture/translation uses shared tools.
+        if self.job or self._state['busy']:
+            return
+        text = QGuiApplication.clipboard().text()
+        if not text.strip():
+            self.update(selectionNotice='Clipboard chưa có chữ. Hãy chọn và copy đoạn trong app nguồn, rồi bấm Dán chữ.')
+            return
+        self._selection_return = None
+        self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch đoạn vừa dán')
+        self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
+            source_language=self.settings['source_language'], target_language=self.settings['target_language']))
+
+    @pyqtSlot()
     def pasteLook(self):
         """Explicit paste only; never consume the hidden composer's draft."""
         if self._state['busy'] or self.quitting:

@@ -614,6 +614,7 @@ Rectangle {
                     QuietButton { text: "Quay lại"; onClicked: desk.liveController.returnToTask() }
                     Label { visible: Boolean(desk.liveSnapshot.pendingPreviewHasNewer); text: "Có đoạn mới chờ"; color: desk.muted; font.pixelSize: 11; Layout.fillWidth: true; elide: Text.ElideRight }
                     Item { Layout.fillWidth: true }
+                    QuietButton { visible: desk.noticeVisible; text: "Dán chữ"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.pasteSelectionFallback() }
                     QuietButton { visible: desk.noticeVisible && desk.liveSnapshot.selectionNeedsPermission; text: "Mở Trợ năng…"; primary: true; onClicked: desk.liveController.openSelectionAccess() }
                     QuietButton { visible: desk.previewing && desk.liveSnapshot.pendingPreviewHasText; text: "Dịch đoạn này"; primary: true; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.openPendingLook() }
                 }
