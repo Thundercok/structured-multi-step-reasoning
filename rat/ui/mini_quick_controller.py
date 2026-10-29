@@ -12,7 +12,6 @@ from rat.mini import MiniSession
 from rat.ui.mini_worker import MiniJob
 from rat.ui.mini_diagnostics import write_diagnostic
 from rat.ui.mini_presentation import MiniPresentation, look_projection, compact_speech
-from rat.ui.look_interaction import LookInteraction
 from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url
 from rat.ui.image_preview import ImagePreviewProvider
 from rat.ui.mini_clipboard import LookClipboard
@@ -56,7 +55,7 @@ class MiniQuickController(QObject):
         self._image_instruction = ''
         self._retry_request = None
         self._region_previous = None
-        self.look = LookInteraction()
+        self.look = self.presentation.interaction
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
             phase='idle', busy=False, expanded=False,
@@ -110,7 +109,6 @@ class MiniQuickController(QObject):
         if not hasattr(self, 'look_clipboard'):
             return
         enabled = (not self.quitting and self.look.monitoring == 'on'
-                   and self.presentation.workspace_mode == 'look' and self.presentation.surface == 'result'
                    and self._state['phase'] != 'needs_input' and self._region_previous is None)
         if enabled:
             self.look_clipboard.start()
@@ -120,45 +118,34 @@ class MiniQuickController(QObject):
     @pyqtSlot(str)
     def setWorkspaceMode(self, mode):
         self.presentation.set_mode(mode)
-        if self.presentation.workspace_mode != 'look':
-            # Changing the presentation preserves pending input and reader context.
-            self.look.close()
-        else:
-            if self.look.monitoring == 'off':
-                self.look.enable()
-            if self.look.surface == 'hidden':
-                self.look.peek()
-        if self.presentation.workspace_mode in ('look', 'single', 'full') and self._state['hasWorkbench']:
-            self._state['expanded'] = True
         self.update()
 
     def prepareLookRecall(self):
-        if self.look.monitoring == 'off':
-            self.look.enable()
         if self.look.surface == 'hidden':
-            if self.look.pending or self.look.pending_notice or not self._state['hasWorkbench']:
+            if self._state['hasWorkbench']:
+                self.look.read()
+            elif self.look.pending or self.look.pending_notice:
                 self.look.peek()
             else:
-                self.look.read()
+                self.presentation.compose()
         self.update()
 
     @pyqtSlot()
     def summonLook(self):
         self.presentation.open('result')
-        if self.presentation.workspace_mode != 'look':
-            self.setWorkspaceMode('look')
-        if self.look.monitoring == 'off':
-            self.look.enable()
-        if self.look.pending or self.look.pending_notice or not self._state['hasWorkbench']:
+        if self._state['hasWorkbench']:
+            self.presentation.read()
+        elif self.look.pending or self.look.pending_notice:
+            self.presentation.composer_visible = False
             self.look.peek()
         else:
-            self.look.read()
+            self.presentation.compose()
         self.update()
         self.lookRequested.emit()
 
     @pyqtSlot()
     def toggleLookPaused(self):
-        if self.look.monitoring == 'paused':
+        if self.look.monitoring != 'on':
             self.look.enable()
         else:
             self.look.pause()
@@ -175,7 +162,6 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def stopLook(self):
         self.disableLook()
-        self.hideRequested.emit()
 
     @pyqtSlot()
     def dismissLookResult(self):
@@ -192,9 +178,7 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def recallLookResult(self):
         self.presentation.open('result')
-        if self.presentation.workspace_mode != 'look':
-            self.setWorkspaceMode('look')
-        self.look.read() if self._state['hasWorkbench'] else self.look.peek()
+        self.presentation.read() if self._state['hasWorkbench'] else self.presentation.compose()
         self.update()
         self.lookRequested.emit()
 
@@ -205,8 +189,7 @@ class MiniQuickController(QObject):
         if self.quitting or self.job or self._state['busy']:
             return
         self.presentation.open('result')
-        if self.presentation.workspace_mode != 'look':
-            self.setWorkspaceMode('look')
+        self.presentation.read()
         value = self.look.take_pending()
         if value is None:
             self.look.peek()
@@ -230,19 +213,26 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def openLook(self):
-        if self.look.pending and not self._state['busy']:
-            self.openPendingLook()
-        elif self.look.pending_notice:
-            self.look.peek()
-            self.update()
-            self.lookRequested.emit()
-        else:
-            self.recallLookResult()
+        self.summonLook()
         self.lookFocusRequested.emit()
 
     @pyqtSlot()
+    def previewPending(self):
+        """Preview never consumes input or dispatches a translation."""
+        if not self.look.pending and not self.look.pending_notice:
+            return
+        self.presentation.open('result')
+        self.presentation.resize(False)
+        self.presentation.composer_visible = False
+        self.look.peek()
+        self.update()
+        self.lookRequested.emit()
+
+    @pyqtSlot()
     def summonMinimal(self):
-        self.setWorkspaceMode('minimal')
+        self.presentation.open('result')
+        self.presentation.compose()
+        self.update()
         self.minimalRequested.emit()
 
     @pyqtSlot()
@@ -280,6 +270,8 @@ class MiniQuickController(QObject):
         else:
             self.presentation.open(surface)
         if surface in self.presentation.WORKSPACE:
+            if surface != 'result':
+                self.presentation.resize(True)
             self._state['expanded'] = True
         self.sync_look_clipboard()
         self.changed.emit()
@@ -316,9 +308,14 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def openLookWorkbench(self):
         self.presentation.open('result')
-        self.setWorkspaceMode('single')
-        self.update(expanded=True)
+        self.setExpanded(True)
         self.presentRequested.emit()
+
+    @pyqtSlot()
+    def toggleSource(self):
+        self.presentation.source_visible = not self.presentation.source_visible
+        self.presentation.resize(True)
+        self.update(expanded=True)
 
     @pyqtSlot()
     def restoreLookReading(self):
@@ -410,6 +407,9 @@ class MiniQuickController(QObject):
 
     @pyqtSlot(bool)
     def setExpanded(self, value):
+        self.presentation.resize(value)
+        if not value:
+            self.presentation.open('result')
         self.update(expanded=value)
 
     @pyqtSlot(str)
@@ -696,7 +696,8 @@ class MiniQuickController(QObject):
     def enqueue(self, operation, args, query='', *, input_context=None):
         if self.quitting:
             return
-        if operation != 'check_mini_readiness' and self.presentation.workspace_mode == 'look':
+        if operation != 'check_mini_readiness' and self.presentation.surface == 'result':
+            self.presentation.composer_visible = False
             if not args.get('look_opened') and operation in ('capture_translate', 'submit_goal', 'find_files', 'plan_folder_organization'):
                 source = args.get('clipboard_text') or query or ''
                 self.look.read('head' if source and compact_speech(source) else 'seated')
@@ -726,7 +727,9 @@ class MiniQuickController(QObject):
     def start_pending(self):
         operation, args, query, generation, input_context = self.pending
         self.pending = None
-        new_task = operation in ('submit_goal', 'find_files', 'capture_translate', 'plan_folder_organization', 'get_last_organization') or (operation == 'translate_text' and not args.get('source_ref'))
+        new_task = (operation in ('find_files', 'capture_translate', 'plan_folder_organization', 'get_last_organization')
+                    or (operation == 'submit_goal' and self._state['phase'] != 'needs_input' and not args.get('source_ref'))
+                    or (operation == 'translate_text' and not args.get('source_ref')))
         preserve_region = operation == 'capture_translate' and args.get('mode') == 'region' and args.get('preserve_until_capture')
         if new_task and not preserve_region:
             self.presentation.begin_task()
