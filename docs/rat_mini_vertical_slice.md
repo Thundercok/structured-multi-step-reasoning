@@ -1,5 +1,10 @@
 # RAT Mini — quyết định vertical slice và UX
 
+Latest opened candidate, 2026-10-29: .26 continuous-panel app and ZIP are in
+`dist/rat-lite-20261029-continuous-panel/`. User asked to see it; PID63687 and
+helper63717 were observed at startup, with registered .26 metadata. No automated
+test or acceptance flow was run. [Delivery record](../audit/rat_lite_continuous_panel_20261029/README.md).
+
 Latest source, 2026-10-29: user approved .26 reliability/compact repair and then
 a large implementation batch. Lite now has one mounted task panel/editor across
 extents and a small head throughout, plus correlated Quick Look diagnostics.

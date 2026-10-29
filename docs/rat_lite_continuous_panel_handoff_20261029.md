@@ -1,5 +1,13 @@
 # RAT Lite .26 — continuous panel and Quick Look reliability handoff
 
+Latest delivery: user requested a real preview. .26 app+ZIP built successfully
+at `dist/rat-lite-20261029-continuous-panel/` and the exact app opened, PID63687.
+Helper63717 was observed alive with parent63687 and registered .26 metadata.
+See [package/open record](../audit/rat_lite_continuous_panel_20261029/README.md).
+Earlier unbuilt statements below describe the source implementation turn.
+Physical keypress, actual selection/translation and visual acceptance remain
+unverified; no automated UI flow or screenshots were run for this delivery.
+
 2026-10-29. User approved the next-update plan, then explicitly expanded this
 turn to a large implementation batch while away. Source .26 was never packaged,
 so the same unbuilt version identifies this completed source revision. .25 is
