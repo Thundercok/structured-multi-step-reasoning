@@ -55,6 +55,7 @@ class MiniQuickController(QObject):
         self._paste_hint = None
         self._draft_image = None
         self._capture_position = None
+        self._result_ref = None
         self._ocr_source_ref = None
         self._ocr_current_text = ''
         self._translation_args = None
@@ -543,7 +544,7 @@ class MiniQuickController(QObject):
                     'observe_only': True}, text)
             else:
                 self.enqueue('submit_goal', {'input_kind': 'typed',
-                    'source_ref': dict(self._ocr_source_ref)}, text)
+                    'source_ref': dict(self._ocr_source_ref), 'result_ref':dict(self._result_ref) if self._result_ref else None}, text)
             return
         # A new text request must not display a thumbnail from a previous task.
         self.clearImagePreview()
@@ -889,7 +890,7 @@ class MiniQuickController(QObject):
             state=deepcopy({k:values[k] for k in self.HISTORY_FIELDS}),
             presentation=view, last_image=self._last_image, draft_image=self._draft_image,
             image_label=values.get('imageLabel',''),
-            source_ref=deepcopy(self._ocr_source_ref), source_text=self._ocr_current_text,
+            result_ref=deepcopy(self._result_ref), source_ref=deepcopy(self._ocr_source_ref), source_text=self._ocr_current_text,
             translation_args=deepcopy(self._translation_args), finder=self.finder_artifact,
             draft=self._next_draft))
         del self._task_history[5:]
@@ -903,6 +904,7 @@ class MiniQuickController(QObject):
         self.session = MiniSession(self.settings, artifact_store=self.session.runtime.artifact_store)
         for name,value in deepcopy(item['presentation']).items():
             setattr(self.presentation,name,value)
+        self._result_ref = deepcopy(item['result_ref'])
         self._ocr_source_ref = deepcopy(item['source_ref'])
         self._ocr_current_text = item['source_text']
         self._translation_args = deepcopy(item['translation_args'])
@@ -1103,6 +1105,7 @@ class MiniQuickController(QObject):
             self._presentation_invocation_id = None
             self._state['selectionNotice'] = ''
             self.presentation.begin_task()
+            self._result_ref = None
         if not preserve_region and (operation in ('find_files', 'capture_translate')
                 or (operation == 'submit_goal' and not args.get('source_ref') and self._state['phase'] != 'needs_input')
                 or (operation == 'translate_text' and not args.get('source_ref'))):
@@ -1156,6 +1159,7 @@ class MiniQuickController(QObject):
                 self._preview_input = None
                 self._preview_notice = ''
                 self.presentation.begin_task()
+                self._result_ref = None
                 self.session.clear_pending()
                 # The isolated session now owns the selected task, including
                 # any clarification needed by the following translation.
@@ -1333,7 +1337,15 @@ class MiniQuickController(QObject):
                     finderSettingsSuggested=partial or not hits,
                     text='', meta='Chọn một file để mở hoặc hiện trong Finder', status=status)
                 return
+            if artifact.kind == 'result_revision':
+                self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
+                self.complete_surface()
+                self.update(phase='result', view='analysis', text=data['text'], finderHits=[],
+                    status='Bản đã chỉnh', meta='Từ kết quả trước · ' + data['provider'],
+                    translationNotice='Diễn giải bằng model; chưa kiểm chứng đúng nghĩa.', translationDetails='')
+                return
             if artifact.kind == 'source_analysis':
+                self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
                 self.complete_surface()
                 self.update(phase='result', view='analysis', text=data['text'], finderHits=[],
                     status={'summary':'Tóm tắt', 'explanation':'Giải thích', 'terms':'Thuật ngữ', 'rewrite':'Viết lại'}[data['mode']],
@@ -1341,6 +1353,7 @@ class MiniQuickController(QObject):
                     translationDetails='Trích từ nguồn:\n' + '\n'.join(data['evidence']))
                 return
             if artifact.kind == 'translation':
+                self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
                 source_capture = data.get('source_capture') or {}
                 if not source_capture:
                     self.clear_ocr_source()

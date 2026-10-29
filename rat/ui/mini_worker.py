@@ -67,7 +67,7 @@ class MiniJob(QThread):
             elif operation == 'submit_goal':
                 response = self.session.submit(self.query, input_kind=self.args.get('input_kind','typed'), cancel=self.stop.is_set,
                     on_event=lambda event: events.append(event.to_dict()), progress=progress, on_step=observed_step,
-                    source_ref=self.args.get('source_ref'))
+                    source_ref=self.args.get('source_ref'), result_ref=self.args.get('result_ref'))
             else:
                 if operation == 'translate_text' and args.get('source_ref'):
                     args = translation_arguments(self.session, args, self.query)

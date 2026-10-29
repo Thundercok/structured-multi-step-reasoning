@@ -59,12 +59,21 @@ class MiniSession:
         self._agent_goal = None
         self._agent_history = []
 
-    def submit(self, query, *, input_kind='typed', cancel=lambda: False, on_event=None, progress=None, on_step=None, source_ref=None):
+    def submit(self, query, *, input_kind='typed', cancel=lambda: False, on_event=None, progress=None, on_step=None, source_ref=None, result_ref=None):
         if cancel():
             return AgentResponse('', [], 0, 0, 0, error='cancelled')
         route = self.router.resolve(query, pending=self.pending_route,
             tool_input=self.runtime.dispatcher.state.pending_input_request,
             input_kind=input_kind, previous=self.previous_goal, source_ref=source_ref)
+        # Only explicit references to a previous result route here. Arbitrary
+        # text remains with the common goal router rather than being guessed.
+        if result_ref and input_kind == 'typed' and re.search(
+                r'\b(?:tự nhiên hơn|ngắn hơn|rút gọn|viết lại bản dịch|rewrite (?:it|this)|shorter|more natural)\b', query, re.I):
+            response = self.execute('revise_observed_result', {'result_ref':dict(result_ref),
+                'instruction':query[:2000], 'target_language':self.settings['target_language']},
+                query=query, cancel=cancel, on_event=on_event, progress=progress, on_step=on_step)
+            response.controller_decisions.append({'route':'direct', 'rule':'explicit_result_revision', 'operation':'revise_observed_result'})
+            return response
         analysis = re.match(r'^(?:hãy\s+|please\s+)?(tóm tắt|giải thích|thuật ngữ|viết lại|summarize|explain|terms|rewrite)\b', query, re.I) if input_kind == 'typed' else None
         if analysis and route.kind != 'agent':
             if source_ref:
