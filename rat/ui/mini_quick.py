@@ -13,7 +13,7 @@ from PyQt6.QtQuick import QQuickView, QQuickWindow
 
 from rat.engine.mini_settings import state_directory
 from rat.os.native_menu import NativeMenu, NativeStatusItem
-from rat.os.mini_hotkey import register_hotkey
+from rat.os.mini_hotkey import register_hotkey, close_hotkey_registrations
 from rat.ui.mini_quick_controller import MiniQuickController
 from rat.ui.mini_diagnostics import BUILD
 from rat.ui.mini_instance import MiniInstanceBridge, present_running_mini
@@ -127,11 +127,10 @@ def create_mini_desk(settings=None):
             return
         controller.update(hotkeyStarting=True)
         try:
-            if hotkeys:
-                if not hotkeys.close('reconnect'):
-                    controller.update(hotkeyStatus='Chưa đóng được bộ nhận phím cũ. Chưa tạo bộ mới.')
-                    return
-                hotkeys = None
+            if not close_hotkey_registrations('reconnect'):
+                controller.update(hotkeyStatus='Chưa đóng được bộ nhận phím cũ. Chưa tạo bộ mới.')
+                return
+            hotkeys = None
             hotkeys = register_hotkey(controller.quickLookSelection, on_state=controller.recordHotkeyState,
                 on_error=lambda message: controller.update(hotkeyStatus=message))
             controller.update(hotkeyStatus='')
@@ -142,7 +141,7 @@ def create_mini_desk(settings=None):
         finally:
             controller.update(hotkeyStarting=False)
     controller.hotkeyRestartRequested.connect(restart_hotkey)
-    app.aboutToQuit.connect(lambda: hotkeys.close('shutdown') if hotkeys else None)
+    app.aboutToQuit.connect(lambda: close_hotkey_registrations('shutdown'))
     restart_hotkey()
     view._refs = (controller, tray, menu, shell, image_drop, hotkeys)
     return view, controller

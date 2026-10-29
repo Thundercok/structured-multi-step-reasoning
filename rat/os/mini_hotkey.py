@@ -49,7 +49,8 @@ class HotkeyRegistration:
             if self.process.state() == QProcess.ProcessState.NotRunning:
                 raise OSError('Helper đã dừng ngay sau khi đăng ký phím tắt.')
         except Exception:
-            self.close('startup_failed')
+            if not self.close('startup_failed') and self not in _keepalive:
+                _keepalive.append(self)
             raise
 
     def _event(self, stage, **metadata):
@@ -111,6 +112,8 @@ class HotkeyRegistration:
 
     def close(self, reason='shutdown'):
         if self.closed and self.process.state() == QProcess.ProcessState.NotRunning:
+            if self in _keepalive:
+                _keepalive.remove(self)
             return True
         self.closed = True
         self.ready = False
@@ -132,6 +135,13 @@ class HotkeyRegistration:
 
 
 def register_hotkey(callback, on_error=None, on_minimal=None, on_event=None, on_state=None):
+    if any(item.process.state() != QProcess.ProcessState.NotRunning for item in _keepalive):
+        raise OSError('Bộ nhận phím cũ chưa đóng; chưa tạo đăng ký cạnh tranh.')
     registration = HotkeyRegistration(callback, on_error, on_minimal, on_event, on_state)
     _keepalive.append(registration)
     return registration
+
+
+def close_hotkey_registrations(reason='shutdown'):
+    outcomes = [item.close(reason) for item in tuple(_keepalive)]
+    return all(outcomes)

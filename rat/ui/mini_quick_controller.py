@@ -297,6 +297,8 @@ class MiniQuickController(QObject):
                 self.look.read()
         else:
             self.look.read()
+        if self.look.surface == 'hidden':
+            self.look.read()
         self.update()
 
     @pyqtSlot()
