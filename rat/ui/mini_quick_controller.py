@@ -6,6 +6,7 @@ from copy import deepcopy
 from rat.os.hotkey_chords import CHORDS, DEFAULT_CHORD, chord
 import json
 import logging
+import time
 from PyQt6.QtCore import QObject, QPoint, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QGuiApplication, QCursor
 
@@ -74,6 +75,7 @@ class MiniQuickController(QObject):
         self._preview_notice = ''
         self._received_invocation_id = None
         self._selection_invocation_id = None
+        self._selection_invoked_at = 0.0
         self._presentation_invocation_id = None
         self.quicklook_journal = QuickLookJournal(state_directory(), BUILD)
         self.look = self.presentation.interaction
@@ -807,6 +809,7 @@ class MiniQuickController(QObject):
             return
         self.update(bubbleCollapsed=False)
         self._selection_invocation_id = invocation
+        self._selection_invoked_at = time.monotonic()
         try:
             self._begin_selected_text(invocation)
         except Exception as exc:
@@ -956,6 +959,7 @@ class MiniQuickController(QObject):
             'capture_succeeded':'Đã lấy được chữ', 'capture_failed':'Chưa lấy được chữ',
             'translation_failed':'Chưa xử lý được đoạn chữ', 'execution_completed':'Đã xử lý',
             'present_requested':'Đã yêu cầu hiển thị', 'presented':'Đã hiển thị',
+            'space_changed':'Space đã đổi trong lúc gọi', 'space_policy_failed':'Không đặt được cửa sổ trên Space hiện tại',
             'registration_failed':'Đăng ký phím thất bại', 'ignored_busy':'Đang bận', 'dismissed':'Đã ẩn'}
         with self.quicklook_journal.lock:
             return [dict(stage=e['stage'], label=labels.get(e['stage'],e['stage']), sequence=e['sequence'])

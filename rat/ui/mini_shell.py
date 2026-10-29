@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import time
 from PyQt6.QtCore import QObject, QRect, QPoint, QTimer, Qt, QMetaObject, pyqtSignal
 from PyQt6.QtGui import QGuiApplication, QRegion, QCursor
 from rat.ui.mini_placement import Rect, place_panel, place_look, LOOK_WIDTH, LOOK_HEIGHT, MINI_PANEL_WIDTH
@@ -33,6 +34,7 @@ class MiniShell(QObject):
         self.look_keyboard_owned = False
         self.native_outside = False
         self._activation_observer = None
+        self._space_observer = None
         self._outside_monitor = None
         self.nativeActivation.connect(self.native_activation_changed, Qt.ConnectionType.QueuedConnection)
         self.outsidePointer.connect(self.outside_pointer_pressed, Qt.ConnectionType.QueuedConnection)
@@ -102,6 +104,21 @@ class MiniShell(QObject):
             self._activation_callback = activated
             self._activation_observer = self._workspace_center.addObserverForName_object_queue_usingBlock_(
                 NSWorkspaceDidActivateApplicationNotification, None, NSOperationQueue.mainQueue(), activated)
+            # Observe only a small window after an explicit Quick Look trigger;
+            # do not record Space IDs, app names, text or screen coordinates.
+            try:
+                from AppKit import NSWorkspaceActiveSpaceDidChangeNotification
+                def space_changed(_notice):
+                    if (controller._selection_invocation_id and
+                            time.monotonic() - controller._selection_invoked_at < 5):
+                        controller.quicklook_journal.record('space_changed',
+                            invocation_id=controller._selection_invocation_id,
+                            reason='during_capture' if controller.job else 'after_capture')
+                self._space_callback = space_changed
+                self._space_observer = self._workspace_center.addObserverForName_object_queue_usingBlock_(
+                    NSWorkspaceActiveSpaceDidChangeNotification, None, NSOperationQueue.mainQueue(), space_changed)
+            except ImportError:
+                logger.warning('space_change_observer_unavailable')
             from AppKit import NSEvent, NSEventMaskLeftMouseDown, NSEventMaskRightMouseDown, NSEventMaskOtherMouseDown
             def outside_pressed(_event):
                 if self.view.isVisible():
@@ -124,6 +141,9 @@ class MiniShell(QObject):
             from AppKit import NSEvent
             NSEvent.removeMonitor_(self._outside_monitor)
             self._outside_monitor = None
+        if self._space_observer is not None:
+            self._workspace_center.removeObserver_(self._space_observer)
+            self._space_observer = None
         if self._activation_observer is not None:
             self._workspace_center.removeObserver_(self._activation_observer)
             self._activation_observer = None
