@@ -502,8 +502,6 @@ class MiniQuickController(QObject):
     @pyqtSlot(result=str)
     def completeSetup(self):
         try:
-            if not self.snapshot['accessibilityReady']:
-                return 'Bật Trợ năng cho bản RAT này, rồi bấm Kiểm tra lại.'
             updated = dict(self.settings, setup_completed=True, permission_hello_version=1)
             save_settings(updated)
             self.settings = updated

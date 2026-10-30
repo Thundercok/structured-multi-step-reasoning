@@ -252,14 +252,10 @@ vì đặc tả ban đầu có đề cập. Giữ nghiên cứu/Stage 0 và tuy�
 4. Kiểm tra tối thiểu đúng phần đổi: khởi động, một lượt tìm, một lượt dịch và
    trường hợp làm rõ bị thay đổi; sau đó cập nhật app/ZIP và trạng thái tài liệu.
 
-Người dùng đã chốt bổ sung: **không tự test tốn token trừ khi được yêu cầu rõ**.
-Hoàn thiện toàn bộ phần sửa trước; không xen kẽ test trong lúc phát triển.
-Quy tắc này thay thế đề xuất tự chạy kiểm tra tối thiểu ở mục 4 bên trên.
-Không tự chạy test suite, smoke, luồng UI hoặc chụp ảnh acceptance. “Tiếp tục”
-không mặc nhiên cho phép test. Chỉ claim hành vi có bằng chứng thật; mục chưa
-kiểm tra thì ghi rõ. Lượt chốt quyết định ban đầu
-chỉ ghi tài liệu; trạng thái triển khai và kiểm tra M4 được cập nhật
-riêng ở trên và trong audit.
+Quyết định mới 2026-10-30 thay thế lệnh cấm tự test trước đây: được chủ động
+kiểm thử, build và kiểm tra UI thật phù hợp để hoàn thiện RAT Lite. Chỉ claim
+hành vi có bằng chứng thật; mục chưa kiểm tra thì ghi rõ. Lịch sử M4 và audit
+vẫn được giữ nguyên.
 
 ### Chốt phiên theo yêu cầu wrap-up — M5.12
 

@@ -46,8 +46,9 @@ RAT Lite work may be committed and pushed to `main` as small, coherent steps.
 Commit each reviewable part as it is completed and push those commits regularly;
 do not accumulate one large diff. This is standing authorization for commits and
 normal pushes for this work. Preserve unrelated edits, inspect staged changes,
-and never force-push or rewrite history. Test, build, launch and acceptance still
-require the user's explicit request. Current work: [unified interaction plan](docs/rat_lite_unified_interaction_plan_20261029.md).
+and never force-push or rewrite history. As of 2026-10-30, the user authorizes
+appropriate tests, builds and real-UI verification during RAT Lite development.
+Report actual results and limitations. Current work: [unified interaction plan](docs/rat_lite_unified_interaction_plan_20261029.md).
 The [.27 source handoff](docs/rat_lite_27_source_handoff_20261029.md) maps all 20
 approved Lite items to source and outstanding live evidence. The user-requested
 .27 build has been opened; live feature acceptance remains pending.

@@ -62,7 +62,7 @@ Rectangle {
         && !liveSnapshot.busy && liveSnapshot.phase === "result"
         && (liveSnapshot.view === "translation" || liveSnapshot.view === "analysis")
     property real heldReaderHeight: 0
-    readonly property real panelBudget: compact && !auxiliary ? ((composing || noticeVisible || previewing) ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)) : maxPanelHeight
+    readonly property real panelBudget: composing || auxiliary ? maxPanelHeight : compact ? ((noticeVisible || previewing) ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)) : maxPanelHeight
     readonly property bool paperVisible: !liveSnapshot.bubbleCollapsed && Boolean(liveSnapshot.hasWorkbench || previewing || noticeVisible)
     readonly property bool bodyVisible: auxiliary || paperVisible
     readonly property bool ocrDirty: Boolean(liveSnapshot.ocrDirty)
@@ -233,7 +233,11 @@ Rectangle {
     // One mounted task panel and editor at every extent; resizing changes constraints only.
     Item {
         id: panel
-        visible: height > 0
+        objectName: "taskPanel"
+        // Keep the layout mounted even at zero height: making the parent
+        // invisible also makes resultSheet.visible false, which otherwise
+        // feeds back into its height and traps the whole panel at zero.
+        visible: true
         x: desk.panelX; y: desk.panelY
         width: Math.max(1, desk.panelWidth)
         height: desk.auxiliary ? resultSheet.height : (desk.composing ? composer.height : 0) + (desk.bodyVisible ? resultSheet.height : 0)
@@ -250,7 +254,7 @@ Rectangle {
             visible: desk.bodyVisible
             x: 0
             width: parent.width
-            height: visible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.auxiliary ? Math.max(360, paperColumn.implicitHeight + 24) : desk.noticeVisible || desk.previewing ? Math.max(200, paperColumn.implicitHeight + 24) : desk.heldReaderHeight > 0 && desk.compact && !desk.simpleAnswer ? Math.max(140, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
+            height: desk.bodyVisible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.auxiliary || (desk.composing && desk.liveSnapshot.view === "finder") ? Math.max(360, paperColumn.implicitHeight + 24) : desk.noticeVisible || desk.previewing ? Math.max(200, paperColumn.implicitHeight + 24) : desk.heldReaderHeight > 0 && desk.compact && !desk.simpleAnswer ? Math.max(140, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
             radius: 14; color: "transparent"; border.color: "transparent"
             QuietButton {
                 visible: desk.simpleAnswer && !desk.composing
@@ -406,7 +410,7 @@ Rectangle {
                         ColumnLayout {
                             visible: desk.surface === "welcome"; Layout.fillWidth: true; spacing: 12
                             Label { text: "Chào bạn, mình là Chuột!"; color: desk.ink; font.pixelSize: 21; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                            Label { text: "Để bôi đen chữ rồi gọi Chuột, hãy cho đúng bản RAT này quyền Trợ năng."; color: desk.ink; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: "Nhập yêu cầu để tìm file hoặc dịch. Muốn dịch chữ bôi đen bằng phím tắt, hãy cấp quyền Trợ năng cho bản RAT này."; color: desk.ink; wrapMode: Text.Wrap; Layout.fillWidth: true }
                             Label { text: desk.liveSnapshot.readinessBusy ? "Đang kiểm tra…" : desk.liveSnapshot.accessibilityReady ? "✓ Bản RAT này đã có quyền Trợ năng" : "1. Bấm Mở Trợ năng.\n2. Bấm + và chọn bản RAT này.\n3. Bật công tắc, quay lại và bấm Kiểm tra lại.\nNếu RAT Mini đã bật mà vẫn chưa có quyền: chọn mục RAT Mini cũ, bấm −, rồi thêm đúng bản này bằng +."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true }
                             RowLayout {
                                 Layout.fillWidth: true
@@ -635,7 +639,7 @@ Rectangle {
                     Item { Layout.fillWidth: true }
                     QuietButton {
                         id: setupPrimary; objectName: "helloContinue"; primary: true
-                        enabled: !desk.liveSnapshot.busy && (desk.surface !== "welcome" || desk.liveSnapshot.setupCompleted || desk.liveSnapshot.accessibilityReady)
+                        enabled: !desk.liveSnapshot.busy
                         text: desk.surface === "settings" ? "Lưu" : desk.liveSnapshot.setupCompleted ? "Về RAT" : "Bắt đầu"
                         onClicked: {
                             if (desk.surface === "settings") {
