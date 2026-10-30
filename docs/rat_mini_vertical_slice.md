@@ -1,5 +1,10 @@
 # RAT Mini — quyết định vertical slice và UX
 
+Current decision, 2026-10-30: the user authorizes appropriate automated and live
+UI testing during Lite development, superseding older no-test/manual-only notes
+below. The current build and observed limits are recorded in
+[live check](../audit/rat_lite_live_20261030/README.md).
+
 Latest opened candidate, 2026-10-29: .26 continuous-panel app and ZIP are in
 `dist/rat-lite-20261029-continuous-panel/`. User asked to see it; PID63687 and
 helper63717 were observed at startup, with registered .26 metadata. No automated
