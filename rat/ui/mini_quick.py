@@ -181,7 +181,7 @@ def main():
         raise SystemExit('RAT Mini đang chạy. Chọn Hiện RAT Mini trên menu bar.')
     instance_bridge = MiniInstanceBridge(state_directory(), app)
     view, controller = create_mini_desk()
-    instance_bridge.showRequested.connect(controller.summonLook)
+    instance_bridge.showRequested.connect(controller.summonMinimal)
     instance_bridge.lookRequested.connect(controller.summonLook)
     instance_bridge.minimalRequested.connect(controller.summonMinimal)
     app.aboutToQuit.connect(instance_bridge.close)

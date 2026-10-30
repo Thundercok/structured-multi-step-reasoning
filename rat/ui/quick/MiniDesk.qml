@@ -295,7 +295,7 @@ Rectangle {
                     visible: !desk.simpleAnswer
                     Layout.fillWidth: true; spacing: 6
                     QuietButton { visible: desk.auxiliary || (desk.paperVisible && desk.surface !== "result"); iconName: "arrow-left"; implicitWidth: 30; Accessible.name: "Quay lại"; onClicked: desk.goBack() }
-                    Label { text: (desk.liveSnapshot.pinned ? "● " : "") + (desk.previewing ? "Đoạn Clipboard · Chưa dịch" : desk.noticeVisible ? "Quick Look" : desk.title); textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 11; font.weight: Font.Medium; Layout.fillWidth: true; elide: Text.ElideRight }
+                    Label { text: (desk.liveSnapshot.pinned ? "● " : "") + (desk.previewing ? "Đoạn Clipboard · Chưa dịch" : desk.noticeVisible ? "Quick Look" : desk.title); textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
                     BusyIndicator { running: Boolean(desk.liveSnapshot.busy); visible: running; implicitWidth: 18; implicitHeight: 18 }
                     QuietButton { visible: desk.auxiliary || !desk.composing; iconName: "close"; implicitWidth: 28; Accessible.name: "Ẩn RAT"; onClicked: desk.hideRequested() }
                     QuietButton { visible: Boolean(desk.liveSnapshot.busy) && !desk.auxiliary; iconName: "stop"; implicitWidth: 28; Accessible.name: "Dừng yêu cầu"; onClicked: desk.liveController.cancel() }
@@ -578,14 +578,14 @@ Rectangle {
                                         required property var modelData
                                         required property int index
                                         Layout.fillWidth: true; implicitHeight: hitColumn.implicitHeight + 18; radius: 9
-                                        color: desk.selectedFinderIndex === index ? desk.selectedSurface : fileMouse.containsMouse ? desk.hoverSurface : "transparent"
-                                        border.color: desk.selectedFinderIndex === index && fileResults.activeFocus ? desk.accent : "transparent"
+                                        color: desk.selectedFinderIndex === index ? desk.selectedSurface : fileMouse.containsMouse ? desk.hoverSurface : desk.utilitySurface
+                                        border.color: desk.selectedFinderIndex === index ? desk.selectedEdge : "transparent"
                                         ColumnLayout {
                                             id: hitColumn; x: 9; y: 9; width: parent.width - 18; spacing: 3
                                             Label { text: modelData.title; textFormat: Text.PlainText; color: desk.ink; font.weight: Font.Medium; font.pixelSize: 14; elide: Text.ElideRight; Layout.fillWidth: true }
                                             Label { text: modelData.path; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; elide: Text.ElideMiddle; Layout.fillWidth: true }
                                         }
-                                        MouseArea { id: fileMouse; anchors.fill: parent; hoverEnabled: true; onClicked: desk.selectFile(index); onDoubleClicked: { desk.selectFile(index); desk.liveController.openSelectedHit(index) } }
+                                        MouseArea { id: fileMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: desk.selectFile(index); onDoubleClicked: { desk.selectFile(index); desk.liveController.openSelectedHit(index) } }
                                         Accessible.role: Accessible.ListItem; Accessible.name: modelData.title + ", " + modelData.path
                                     }
                                 }
@@ -708,6 +708,13 @@ Rectangle {
                     implicitHeight: composerRow.implicitHeight; color: "transparent"
                     RowLayout {
                         id: composerRow; width: parent.width; spacing: 8
+                        Image {
+                            objectName: "composerRat"
+                            source: desk.lookIdleSource
+                            fillMode: Image.PreserveAspectFit
+                            Layout.preferredWidth: 40; Layout.preferredHeight: 40
+                            Accessible.ignored: true
+                        }
                         ScrollView {
                             Layout.fillWidth: true; Layout.preferredHeight: Math.min(78, Math.max(30, editor.contentHeight + 4))
                             contentWidth: availableWidth; clip: true; ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
