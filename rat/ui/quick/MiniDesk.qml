@@ -75,7 +75,7 @@ Rectangle {
     readonly property bool imageDropEnabled: !auxiliary && !imageDialog.visible && !folderDialog.visible
     readonly property bool layoutExpanded: !compact
     readonly property real preferredPanelHeight: panel.height
-    readonly property real preferredPanelWidth: compact && !auxiliary ? Math.min(320, composerWidthFloor) : (liveSnapshot.sourceVisible || surface === "workbench") ? 900 : sharedPanelWidth
+    readonly property real preferredPanelWidth: composing && !auxiliary ? sharedPanelWidth : compact && !auxiliary ? Math.min(320, composerWidthFloor) : (liveSnapshot.sourceVisible || surface === "workbench") ? 900 : sharedPanelWidth
     readonly property bool lookEngaged: panelHover.hovered || headMouse.containsMouse || resultScroll.moving || editor.activeFocus || translationArea.activeFocus || Boolean(translationArea.selectedText) || noticeReader.activeFocus || Boolean(noticeReader.selectedText) || readerMenu.visible
     readonly property rect cornerInkBounds: headPose.visualBounds
     readonly property point cornerMouth: headPose.speechAnchor
@@ -713,7 +713,7 @@ Rectangle {
                                 KeyNavigation.priority: KeyNavigation.BeforeItem
                                 KeyNavigation.tab: sendControl
                                 KeyNavigation.backtab: closeControl
-                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn tiếp…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Bạn cần gì?"
+                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn tiếp…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Tìm file hoặc dịch đoạn văn…"
                                 color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: desk.sharedTextSize
                                 textFormat: TextEdit.PlainText; selectByMouse: true; wrapMode: TextEdit.Wrap; padding: 0; topPadding: 4; selectionColor: desk.accent; selectedTextColor: desk.accentText; background: null
                                 Accessible.name: "Yêu cầu RAT Mini"
@@ -738,6 +738,7 @@ Rectangle {
     }
     Item {
         id: mascotItem; objectName: "mascotCrop"
+        visible: !desk.auxiliary && !desk.composing
         x: desk.ratX; y: desk.ratY; width: desk.floatingHeadSize; height: desk.floatingHeadSize
         MascotPose {
             id: headPose; anchors.fill: parent; source: desk.lookIdleSource
@@ -799,25 +800,9 @@ Rectangle {
             MenuSeparator {}
             MenuItem { text: "Xóa lịch sử tạm"; onTriggered: desk.liveController.clearTaskHistory() }
         }
-        MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: "Mở Workbench"; onTriggered: { desk.saveScroll(); desk.navigate("workbench") } }
-        MenuItem { text: "Xem lại công việc"; onTriggered: desk.liveController.summonLook() }
-        MenuItem { text: "Viết yêu cầu"; onTriggered: desk.liveController.summonMinimal() }
         MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: desk.compact ? "Mở rộng kết quả" : "Thu gọn"; onTriggered: desk.liveController.setExpanded(desk.compact) }
         MenuItem { text: "Quyền đọc chữ bôi đen…"; onTriggered: desk.liveController.openSelectionAccess() }
-        MenuItem { text: !desk.liveSnapshot.lookWatching ? "Bật theo dõi Clipboard" : desk.liveSnapshot.lookPaused ? "Tiếp tục Clipboard" : "Tạm dừng Clipboard"; onTriggered: desk.liveController.toggleLookPaused() }
-        MenuItem { visible: desk.liveSnapshot.lookWatching; text: "Tắt theo dõi Clipboard"; onTriggered: desk.liveController.stopLook() }
-        MenuItem { visible: desk.liveSnapshot.lookHasQueued; text: "Xem đoạn chờ"; onTriggered: desk.liveController.previewPending() }
-                MenuItem { enabled: !desk.liveSnapshot.busy; text: "Chọn vùng chữ để dịch…"; onTriggered: desk.liveController.captureRegion() }
-        Menu {
-            id: analysisMenu; popupType: Popup.Window; title: "Đọc tiếp từ nguồn"; enabled: desk.liveSnapshot.hasOcrSource && !desk.liveSnapshot.busy
-            MenuItem { text: "Dịch lại · sát nghĩa"; onTriggered: desk.liveController.translateSource("faithful") }
-            MenuItem { text: "Dịch lại · dễ hiểu · cloud"; onTriggered: desk.liveController.translateSource("plain") }
-            MenuSeparator {}
-            MenuItem { text: "Tóm tắt"; onTriggered: desk.liveController.analyzeSource("summary") }
-            MenuItem { text: "Giải thích"; onTriggered: desk.liveController.analyzeSource("explanation") }
-            MenuItem { text: "Thuật ngữ"; onTriggered: desk.liveController.analyzeSource("terms") }
-            MenuItem { text: "Viết lại theo bản nháp"; onTriggered: desk.liveController.analyzeSource("rewrite") }
-        }
+        Menu { id: analysisMenu; visible: false }
         MenuItem {
             visible: Boolean(desk.liveSnapshot.translationDetails || desk.liveSnapshot.translationNotice)
             text: "Chi tiết kết quả…"
@@ -829,7 +814,6 @@ Rectangle {
         MenuItem { visible: Boolean(desk.liveSnapshot.hotkeyStatus); enabled: !desk.liveSnapshot.hotkeyStarting; text: "Đăng ký lại phím tắt"; onTriggered: desk.liveController.restartHotkey() }
         MenuItem { text: "Chọn ảnh để dịch…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: imageDialog.open() }
         MenuItem { text: "Dịch Clipboard"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.translateClipboard() }
-        MenuItem { text: "Sắp xếp thư mục…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: { desk.folderPurpose="organize"; folderDialog.open() } }
         MenuItem { text: "Lần sắp xếp gần nhất / Hoàn tác"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.recoverOrganization() }
         MenuSeparator {}
         MenuItem { text: "Cài đặt…"; onTriggered: desk.openSettings() }

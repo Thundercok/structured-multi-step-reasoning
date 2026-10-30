@@ -79,11 +79,7 @@ def create_mini_desk(settings=None):
         ('Xem lại công việc', controller.summonLook),
         ('Viết yêu cầu', controller.summonMinimal),
         ('Đăng ký lại phím tắt', controller.restartHotkey),
-        ('Bật theo dõi Clipboard', controller.toggleLookPaused),
-        ('Tắt theo dõi Clipboard', controller.stopLook),
-        ('Xem đoạn chờ', controller.previewPending),
         ('Xem lại kết quả', controller.recallLookResult),
-        ('Chọn vùng chữ để dịch…', controller.captureRegion),
         ('Dịch Clipboard', lambda: (present(), controller.translateClipboard())),
         ('Thiết lập & trợ giúp…', lambda: (present(), controller.helpRequested.emit())),
         ('Cài đặt…', lambda: (present(), controller.settingsRequested.emit())),
@@ -103,11 +99,7 @@ def create_mini_desk(settings=None):
         tray.setToolTip('RAT Lite · ' + ('Phím tắt chưa sẵn sàng. Mở menu để đăng ký lại.' if shortcut_failed
             else state['shortcutAck'] or ('Đang xử lý yêu cầu.' if state['busy'] else 'Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel'])))
         tray_actions[controller.restartHotkey].setEnabled(shortcut_failed and not state['hotkeyStarting'])
-        tray_actions[controller.previewPending].setEnabled(pending)
         tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])
-        tray_actions[controller.toggleLookPaused].setText('Bật theo dõi Clipboard' if not state['lookWatching']
-            else 'Tiếp tục Clipboard' if state['lookPaused'] else 'Tạm dừng Clipboard')
-        tray_actions[controller.stopLook].setEnabled(state['lookWatching'])
     controller.changed.connect(refresh_tray)
     refresh_tray()
     tray.menuVisibilityChanged.connect(shell.set_status_menu_open)
@@ -198,7 +190,7 @@ def main():
     elif requested_presentation == 'minimal':
         controller.summonMinimal()
     else:
-        view._refs[3].present()
+        controller.summonMinimal()
     # Look summons an observation surface. Capture itself still uses explicit
     # macOS screenshot/drop/paste; no global shortcut captures the screen.
     app._mini_refs = (view, controller, lock, instance_bridge)

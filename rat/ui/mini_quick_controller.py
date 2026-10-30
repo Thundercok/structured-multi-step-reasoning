@@ -508,6 +508,7 @@ class MiniQuickController(QObject):
             save_settings(updated)
             self.settings = updated
             self.presentation.back()
+            self.presentation.compose()
             self.update(setupCompleted=True)
             return ''
         except OSError:
