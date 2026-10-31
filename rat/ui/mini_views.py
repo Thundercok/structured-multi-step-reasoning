@@ -1,14 +1,12 @@
-"""Background worker and projection formatters for RAT Lite."""
+"""Pure projections from RAT Lite controller state and artifacts to QML-facing dicts."""
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from copy import deepcopy
-from PyQt6.QtCore import QUrl
-from rat.ui.mini_worker import MiniJob
-from rat.ui.mini_diagnostics import BUILD
-from rat.engine.mini_settings import save_settings, keychain_key
-from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime
+from pathlib import Path
+
+from rat.os.hotkey_chords import DEFAULT_CHORD, chord
+from rat.os.permissions import runtime_identity
+
 
 REGION_PREVIOUS_FIELDS = (
     'phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
@@ -16,6 +14,7 @@ REGION_PREVIOUS_FIELDS = (
     'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
     'organizationRecoverySuggested', 'canRetryRequest'
 )
+
 
 HISTORY_FIELDS = (
     'view', 'phase', 'status', 'error', 'text', 'meta', 'requestText',
@@ -50,36 +49,38 @@ def default_controller_state(settings: dict) -> dict:
     )
 
 
-def render_journal_stage(error, region_previous, response) -> tuple[str, str | None]:
-    """Xác định stage và reason an toàn để ghi journal."""
-    stage = ('capture_failed' if error and region_previous is not None else 'translation_failed' if error
-             else 'needs_input' if response and response.pending_input_request else 'execution_completed')
-    safe_codes = ('selection_accessibility_required', 'selection_source_changed', 'selection_unavailable',
-                  'selection_empty', 'selection_source_unresponsive', 'snippet_too_long', 'cancelled',
-                  'capture_artifact_missing', 'selection_response_missing')
-    reason = next((code for code in safe_codes if code in str(error)), 'other_failure' if error else None)
-    return stage, reason
-
-
-def render_error_suggestions(error: str) -> dict:
-    """Trích xuất cờ gợi ý giao diện khi xảy ra lỗi."""
-    err_str = str(error)
-    cancelled = err_str.startswith('cancelled')
+def build_controller_snapshot(state: dict, pres_snapshot: dict, settings: dict, task_history: list, diagnostic_events: list) -> dict:
+    combined = dict(state, **pres_snapshot)
     return dict(
-        cancelled=cancelled,
-        translation_suggested=any(code in err_str for code in (
-            'translation_rate_limited', 'translation_quota_exhausted',
-            'translation_api_key_missing', 'translation_auth_failed',
-            'translation_local_unavailable', 'online_translation_not_enabled', 'api_key_missing'
-        )),
-        finder_suggested=any(code in err_str for code in (
-            'no_search_roots', 'scope_revoked', 'spotlight_permission_denied',
-            'organization_folder_outside_scope', 'organization_scope_changed'
-        )),
-        image_suggested=any(code in err_str for code in (
-            'ocr_empty', 'image_input_invalid', 'source_expired', 'stale_source_ref', 'source_integrity_mismatch'
-        )),
-        status='Đã dừng tác vụ.' if cancelled else format_user_error_message(err_str)
+        combined,
+        lookStatusLabel='Đang xử lý' if state['busy'] else 'Sẵn sàng',
+        runningBundlePath=runtime_identity().get('bundle_path') or '',
+        accessibilityReady=any(c.get('key') == 'accessibility' and c.get('state') in ('ready', 'not_required') for c in state['readiness']),
+        shortcutLabel=chord(settings.get('hotkey_chord', DEFAULT_CHORD))[2],
+        taskHistory=[dict(index=i, title=item['title']) for i, item in enumerate(task_history)],
+        diagnosticEvents=diagnostic_events,
+        ocrDirty=bool(state["hasOcrSource"]) and state["ocrText"] != state["ocrCommittedText"]
+    )
+
+
+def pack_task_history_item(key, title, state: dict, presentation_view: dict, last_image, draft_image,
+                            image_label, result_ref, source_ref, source_text: str, translation_args,
+                            finder_artifact, draft: str) -> dict:
+    """Đóng gói snapshot của tác vụ vào lịch sử để khôi phục khi cần."""
+    return dict(
+        task_id=key,
+        title=title,
+        state=deepcopy({k: state[k] for k in HISTORY_FIELDS if k in state}),
+        presentation=presentation_view,
+        last_image=last_image,
+        draft_image=draft_image,
+        image_label=image_label,
+        result_ref=deepcopy(result_ref),
+        source_ref=deepcopy(source_ref),
+        source_text=source_text,
+        translation_args=deepcopy(translation_args),
+        finder=finder_artifact,
+        draft=draft
     )
 
 
@@ -90,22 +91,6 @@ def is_new_task_operation(operation: str, phase: str, args: dict) -> bool:
         or (operation == 'submit_goal' and phase != 'needs_input' and not args.get('source_ref'))
         or (operation == 'translate_text' and not args.get('source_ref'))
     )
-
-
-def get_frontmost_app_info() -> tuple[int | None, str, str | None]:
-    """Lấy PID và localizedName của app nguồn phía trước trên macOS."""
-    import sys
-    import os
-    if sys.platform != 'darwin':
-        return None, '', 'unsupported_platform'
-    try:
-        from AppKit import NSWorkspace
-        source = NSWorkspace.sharedWorkspace().frontmostApplication()
-        if source is None or int(source.processIdentifier()) == os.getpid():
-            return None, '', 'recall_own_app'
-        return int(source.processIdentifier()), str(source.localizedName() or ''), None
-    except Exception:
-        return None, '', 'recall_own_app'
 
 
 def pending_task_initial_updates(operation: str, args: dict, new_task: bool, preserve_region: bool,
@@ -129,6 +114,27 @@ def pending_task_initial_updates(operation: str, args: dict, new_task: bool, pre
     elif operation == "check_mini_readiness":
         updates['busy'] = True
     return updates
+
+
+def initial_operation_status(operation: str, args: dict) -> str:
+    """Trạng thái ban đầu khi bắt đầu thực thi một tác vụ Mini."""
+    capture_status = {
+        'selection': 'Đang nhận chữ bôi đen…', 'region': 'Kéo chọn vùng chữ trên màn hình…',
+        'image': 'Đang đọc chữ trong ảnh…', 'clipboard': 'Đang đọc Clipboard và dịch…',
+        'file': 'Đang đọc file và dịch…'
+    }.get(args.get('mode'), 'Đang nhận chữ…')
+    return {
+        'plan_folder_organization': 'Đang chuẩn bị bản xem trước…',
+        'apply_folder_organization': 'Đang sắp xếp file…',
+        'undo_folder_organization': 'Đang hoàn tác…',
+        'get_last_organization': 'Đang đọc nhật ký…',
+        'find_files': 'Đang tìm trong thư mục đã chọn…',
+        'translate_text': 'Đang dịch…',
+        'capture_translate': capture_status,
+        'correct_translate': 'Đang ghi nhận chữ đã sửa và dịch lại…',
+        'open_file': 'Đang mở file…',
+        'reveal_file': 'Đang hiện trong Finder…'
+    }.get(operation, 'Đang thực hiện…')
 
 
 def capture_position_ocr_updates(artifact, source: dict, job, current_look_source: bool, current_ocr_original: str) -> dict:
@@ -200,8 +206,6 @@ def process_render_artifacts(artifacts: list, response, model_loop: bool, is_age
     return None
 
 
-
-
 def format_compact_display_path(raw_path: str) -> str:
     """Rút gọn str(Path.home()) thành ~ và trả về '<Tên thư mục cha> · ~/...'>."""
     if not raw_path:
@@ -218,6 +222,20 @@ def format_compact_display_path(raw_path: str) -> str:
         return f"{parent_name} · {short_path}"
     except Exception:
         return str(raw_path)
+
+
+def format_finder_return_hits(artifact) -> list[dict]:
+    raw_hits = artifact.payload.get('hits', []) if artifact else []
+    return [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
+                 display_path=format_compact_display_path(hit['path']), match_reason='Spotlight')
+            for hit in raw_hits]
+
+
+def handle_file_action(artifact, index: int, operation: str, busy: bool) -> tuple[str, dict] | None:
+    if busy or not artifact or not 0 <= index < len(artifact.payload.get('hits', [])):
+        return None
+    hit = artifact.payload['hits'][index]
+    return operation, dict(artifact_id=artifact.id, revision=artifact.revision, resource_id=hit['resource_id'])
 
 
 def format_translation_artifact_view(data: dict, finder_artifact_present: bool = False) -> dict:
@@ -322,114 +340,37 @@ def format_readiness_summary(checks: list) -> list:
     return summaries
 
 
-def record_finder_diagnostic(data: dict) -> None:
-    """Ghi nhận receipt chẩn đoán ẩn danh của lần tìm kiếm gần nhất."""
-    diagnostic = {
-        'version': 'M5.16-source', 'status': data.get('status'),
-        'coverage': data.get('coverage'), 'hit_count': data.get('hit_count'),
-        'provider_errors': data.get('provider_errors'), 'diagnostics': data.get('diagnostics')
-    }
-    try:
-        from rat.engine.mini_settings import state_directory
-        folder = state_directory()
-        folder.mkdir(parents=True, exist_ok=True)
-        pending = folder / '.last-finder.json'
-        pending.write_text(json.dumps(diagnostic, ensure_ascii=False), encoding='utf-8')
-        pending.replace(folder / 'last-finder.json')
-    except OSError:
-        pass
+def render_journal_stage(error, region_previous, response) -> tuple[str, str | None]:
+    """Xác định stage và reason an toàn để ghi journal."""
+    stage = ('capture_failed' if error and region_previous is not None else 'translation_failed' if error
+             else 'needs_input' if response and response.pending_input_request else 'execution_completed')
+    safe_codes = ('selection_accessibility_required', 'selection_source_changed', 'selection_unavailable',
+                  'selection_empty', 'selection_source_unresponsive', 'snippet_too_long', 'cancelled',
+                  'capture_artifact_missing', 'selection_response_missing')
+    reason = next((code for code in safe_codes if code in str(error)), 'other_failure' if error else None)
+    return stage, reason
 
 
-def format_diagnostic_events(journal) -> list:
-    """Chuẩn hóa 12 sự kiện gần nhất trong journal thành nhãn tiếng Việt."""
-    labels = {
-        'ready': 'Phím tắt đã đăng ký', 'selection': 'Đã nhận phím tắt',
-        'invoked': 'Đã nhận yêu cầu', 'capture_requested': 'Đang lấy chữ',
-        'capture_succeeded': 'Đã lấy được chữ', 'capture_failed': 'Chưa lấy được chữ',
-        'translation_failed': 'Chưa xử lý được đoạn chữ', 'execution_completed': 'Đã xử lý',
-        'present_requested': 'Đã yêu cầu hiển thị', 'presented': 'Đã hiển thị',
-        'space_changed': 'Space đã đổi trong lúc gọi', 'space_policy_failed': 'Không đặt được cửa sổ trên Space hiện tại',
-        'registration_failed': 'Đăng ký phím thất bại', 'ignored_busy': 'Đang bận', 'dismissed': 'Đã ẩn'
-    }
-    with journal.lock:
-        return [dict(stage=e['stage'], label=labels.get(e['stage'], e['stage']), sequence=e['sequence'])
-                for e in list(journal.events)[-12:]]
-
-
-def export_diagnostics_to_file(journal, url: str) -> str:
-    """Xuất file chẩn đoán hệ thống an toàn không chứa nội dung nhạy cảm."""
-    path = QUrl(url).toLocalFile()
-    if not path:
-        return 'Hãy chọn một file trên máy.'
-    try:
-        with journal.lock:
-            payload = dict(build=BUILD, protocol='SELECT2',
-                helper_state=journal.helper_state, events=list(journal.events))
-        Path(path).write_text(json.dumps(payload, ensure_ascii=False, indent=2))
-        return ''
-    except OSError:
-        return 'Chưa ghi được file chẩn đoán ở vị trí này.'
-
-
-def initial_operation_status(operation: str, args: dict) -> str:
-    """Trạng thái ban đầu khi bắt đầu thực thi một tác vụ Mini."""
-    capture_status = {
-        'selection': 'Đang nhận chữ bôi đen…', 'region': 'Kéo chọn vùng chữ trên màn hình…',
-        'image': 'Đang đọc chữ trong ảnh…', 'clipboard': 'Đang đọc Clipboard và dịch…',
-        'file': 'Đang đọc file và dịch…'
-    }.get(args.get('mode'), 'Đang nhận chữ…')
-    return {
-        'plan_folder_organization': 'Đang chuẩn bị bản xem trước…',
-        'apply_folder_organization': 'Đang sắp xếp file…',
-        'undo_folder_organization': 'Đang hoàn tác…',
-        'get_last_organization': 'Đang đọc nhật ký…',
-        'find_files': 'Đang tìm trong thư mục đã chọn…',
-        'translate_text': 'Đang dịch…',
-        'capture_translate': capture_status,
-        'correct_translate': 'Đang ghi nhận chữ đã sửa và dịch lại…',
-        'open_file': 'Đang mở file…',
-        'reveal_file': 'Đang hiện trong Finder…'
-    }.get(operation, 'Đang thực hiện…')
-
-
-def validate_and_apply_preferences(settings: dict, changes: dict, secret: str = '',
-                                   keychain_func=None, save_func=None) -> tuple[dict | None, str, bool]:
-    """Kiểm tra và lưu các tùy chọn cài đặt mới."""
-    try:
-        updated = dict(settings)
-        roots = changes.get('roots', updated.get('roots', []))
-        roots = [str(Path(p).expanduser().resolve()) for p in roots if str(p).strip()]
-        if any(not Path(p).is_dir() for p in roots):
-            return None, 'Chọn thư mục đang tồn tại, hoặc bỏ thư mục không còn dùng.', False
-        updated['roots'] = roots
-        for name in ('source_language', 'target_language', 'translation_provider', 'free_fallback', 'provider', 'model', 'llm_enabled'):
-            if name in changes:
-                updated[name] = changes[name]
-        if type(updated.get('llm_enabled', False)) is not bool:
-            return None, 'Kiểm tra tùy chọn suy luận cloud.', False
-        updated.setdefault('llm_enabled', False)
-        if not updated['llm_enabled'] and updated.get('translation_provider') == 'llm':
-            updated['translation_provider'] = 'automatic'
-        if updated.get('provider') not in ('openai', 'deepseek', 'groq') or updated.get('translation_provider') not in ('automatic', 'google_gtx', 'mymemory', 'llm', 'deepl', 'google'):
-            return None, 'Chọn một dịch vụ được hỗ trợ.', False
-        for name, maximum in (('source_language', 35), ('target_language', 35), ('model', 128)):
-            val = updated.get(name)
-            if not isinstance(val, str) or not val.strip() or len(val) > maximum or '\0' in val:
-                return None, 'Kiểm tra ngôn ngữ và tên model trong cài đặt.', False
-            updated[name] = val.strip()
-        if updated.get('target_language') == 'auto' or type(updated.get('free_fallback')) is not bool:
-            return None, 'Chọn ngôn ngữ đích và tùy chọn dự phòng hợp lệ.', False
-        if secret.strip():
-            provider = (updated['translation_provider'] if updated['translation_provider'] in ('deepl', 'google')
-                        else updated['provider'] if updated['llm_enabled'] else updated['translation_provider'])
-            if provider not in ('openai', 'deepseek', 'groq', 'deepl', 'google'):
-                return None, 'Dịch vụ miễn phí không dùng API key. Hãy bỏ key hoặc chọn dịch vụ có key.', False
-            (keychain_func or keychain_key)(provider, secret)
-        (save_func or save_settings)(updated)
-        scopes_changed = updated['roots'] != settings.get('roots', [])
-        return updated, '', scopes_changed
-    except Exception as exc:
-        return None, 'Chưa lưu được: ' + str(exc), False
+def render_error_suggestions(error: str) -> dict:
+    """Trích xuất cờ gợi ý giao diện khi xảy ra lỗi."""
+    err_str = str(error)
+    cancelled = err_str.startswith('cancelled')
+    return dict(
+        cancelled=cancelled,
+        translation_suggested=any(code in err_str for code in (
+            'translation_rate_limited', 'translation_quota_exhausted',
+            'translation_api_key_missing', 'translation_auth_failed',
+            'translation_local_unavailable', 'online_translation_not_enabled', 'api_key_missing'
+        )),
+        finder_suggested=any(code in err_str for code in (
+            'no_search_roots', 'scope_revoked', 'spotlight_permission_denied',
+            'organization_folder_outside_scope', 'organization_scope_changed'
+        )),
+        image_suggested=any(code in err_str for code in (
+            'ocr_empty', 'image_input_invalid', 'source_expired', 'stale_source_ref', 'source_integrity_mismatch'
+        )),
+        status='Đã dừng tác vụ.' if cancelled else format_user_error_message(err_str)
+    )
 
 
 def format_user_error_message(error: str) -> str:
@@ -494,152 +435,17 @@ def format_user_error_message(error: str) -> str:
     return 'Chưa thực hiện được lúc này. Nội dung vẫn được giữ; bạn có thể thử lại.'
 
 
-def parse_pasted_mime_content(mime, clipboard_text: str = '') -> dict:
-    """Xử lý phân loại nội dung dán từ clipboard (file, ảnh hoặc chữ)."""
-    if mime is None:
-        return {'kind': 'typed', 'text': ''}
-    local_urls = [u for u in mime.urls() if u.isLocalFile()] if mime.hasUrls() else []
-    paths = [u.toLocalFile() for u in local_urls]
-    if paths:
-        if len(paths) == 1 and Path(paths[0]).suffix.lower() in IMAGE_SUFFIXES:
-            try:
-                image, name = image_from_mime(mime, clipboard=True)
-                return {'kind': 'image', 'image': image, 'name': name}
-            except ValueError as exc:
-                return {'kind': 'error', 'error': str(exc)}
-        return {'kind': 'file_reference', 'text': '\n'.join(paths)}
-    if mime.hasImage() or any(mime.hasFormat(kind) for kind in ENCODED_IMAGE_TYPES):
-        try:
-            image, _ = image_from_mime(mime, clipboard=True)
-            return {'kind': 'image', 'image': image, 'name': 'Ảnh vừa dán'}
-        except ValueError as exc:
-            return {'kind': 'error', 'error': str(exc)}
-    return {'kind': 'pasted_text', 'text': clipboard_text}
-
-
-def pack_task_history_item(key, title, state: dict, presentation_view: dict, last_image, draft_image,
-                            image_label, result_ref, source_ref, source_text: str, translation_args,
-                            finder_artifact, draft: str) -> dict:
-    """Đóng gói snapshot của tác vụ vào lịch sử để khôi phục khi cần."""
-    return dict(
-        task_id=key,
-        title=title,
-        state=deepcopy({k: state[k] for k in HISTORY_FIELDS if k in state}),
-        presentation=presentation_view,
-        last_image=last_image,
-        draft_image=draft_image,
-        image_label=image_label,
-        result_ref=deepcopy(result_ref),
-        source_ref=deepcopy(source_ref),
-        source_text=source_text,
-        translation_args=deepcopy(translation_args),
-        finder=finder_artifact,
-        draft=draft
-    )
-
-
-from rat.os.hotkey_chords import DEFAULT_CHORD, chord
-from rat.ui.mini_diagnostics import write_diagnostic
-from rat.os.permissions import runtime_identity
-from rat.mini import MiniSession
-
-
-def format_finder_return_hits(artifact) -> list[dict]:
-    raw_hits = artifact.payload.get('hits', []) if artifact else []
-    return [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
-                 display_path=format_compact_display_path(hit['path']), match_reason='Spotlight')
-            for hit in raw_hits]
-
-
-def handle_file_action(artifact, index: int, operation: str, busy: bool) -> tuple[str, dict] | None:
-    if busy or not artifact or not 0 <= index < len(artifact.payload.get('hits', [])):
-        return None
-    hit = artifact.payload['hits'][index]
-    return operation, dict(artifact_id=artifact.id, revision=artifact.revision, resource_id=hit['resource_id'])
-
-
-def change_shortcut_setting(settings: dict, name: str, rebind_hotkey) -> tuple[dict | None, str]:
-    if not rebind_hotkey:
-        return None, 'Chưa sẵn sàng đổi phím tắt.'
-    try:
-        chord(name)
-        old = settings.get('hotkey_chord', DEFAULT_CHORD)
-        error = rebind_hotkey(name)
-        if error:
-            return None, error
-        try:
-            updated = {**settings, 'hotkey_chord': name}
-            save_settings(updated)
-            return updated, ''
-        except Exception:
-            rollback_error = rebind_hotkey(old)
-            return None, 'Chưa lưu được phím mới. ' + (rollback_error or 'Đã khôi phục phím cũ.')
-    except ValueError:
-        return None, 'Tổ hợp phím chưa được hỗ trợ.'
-
-
-def write_ui_state_diagnostic(presentation, state: dict, generation: int) -> None:
-    write_diagnostic('ui-state.json', dict(
-        surface=presentation.surface, extent=presentation.extent,
-        composer_visible=presentation.composer_visible, busy=state['busy'],
-        phase=state['phase'], has_result=state['hasWorkbench'],
-        operation=state['lastOperation'], task_id=presentation.task_id,
-        generation=generation,
-    ))
-
-
-def build_controller_snapshot(state: dict, pres_snapshot: dict, settings: dict, task_history: list, diagnostic_events: list) -> dict:
-    combined = dict(state, **pres_snapshot)
-    return dict(
-        combined,
-        lookStatusLabel='Đang xử lý' if state['busy'] else 'Sẵn sàng',
-        runningBundlePath=runtime_identity().get('bundle_path') or '',
-        accessibilityReady=any(c.get('key') == 'accessibility' and c.get('state') in ('ready', 'not_required') for c in state['readiness']),
-        shortcutLabel=chord(settings.get('hotkey_chord', DEFAULT_CHORD))[2],
-        taskHistory=[dict(index=i, title=item['title']) for i, item in enumerate(task_history)],
-        diagnosticEvents=diagnostic_events,
-        ocrDirty=bool(state["hasOcrSource"]) and state["ocrText"] != state["ocrCommittedText"]
-    )
-
-
-def save_preferences_settings(settings: dict, current_session, changes: dict, secret: str,
-                            translation_args: dict | None, retry_request,
-                            keychain_func=None, save_func=None) -> tuple[dict | None, any, str, bool, dict | None, any]:
-    updated, err, scopes_changed = validate_and_apply_preferences(
-        settings, changes, secret, keychain_func=keychain_func, save_func=save_func
-    )
-    if err:
-        return None, None, err, False, translation_args, retry_request
-    new_session = MiniSession(updated, artifact_store=current_session.runtime.artifact_store)
-    new_session.pending_route, new_session.previous_goal = current_session.pending_route, current_session.previous_goal
-    new_session.runtime.dispatcher.state.pending_input_request = current_session.runtime.dispatcher.state.pending_input_request
-    new_tr_args = dict(translation_args) if translation_args else None
-    if new_tr_args:
-        for k in ('source_language', 'target_language'):
-            if updated.get(k) != settings.get(k):
-                new_tr_args[k] = updated[k]
-    new_retry = retry_request
-    if new_retry:
-        op, args, q = new_retry
-        args = dict(args)
-        if op in ('capture_translate', 'translate_text'):
-            for k in ('source_language', 'target_language'):
-                args[k] = updated.get(k)
-        new_retry = op, args, q
-    return updated, new_session, '', scopes_changed, new_tr_args, new_retry
-
-from rat.ui.image_input import image_from_url
-
-
-def parse_image_url_input(url_or_urls, origin: str = 'dropped') -> tuple[any, str, str | None]:
-    if origin == 'dropped':
-        if len(url_or_urls) != 1:
-            return None, '', 'Hãy thả từng ảnh một để RAT dịch.'
-        target = url_or_urls[0]
-    else:
-        target = url_or_urls
-    try:
-        image, name = image_from_url(target, origin='selected_file' if origin != 'dropped' else 'dropped')
-        return image, name, None
-    except ValueError as exc:
-        return None, '', str(exc)
+def format_diagnostic_events(journal) -> list:
+    """Chuẩn hóa 12 sự kiện gần nhất trong journal thành nhãn tiếng Việt."""
+    labels = {
+        'ready': 'Phím tắt đã đăng ký', 'selection': 'Đã nhận phím tắt',
+        'invoked': 'Đã nhận yêu cầu', 'capture_requested': 'Đang lấy chữ',
+        'capture_succeeded': 'Đã lấy được chữ', 'capture_failed': 'Chưa lấy được chữ',
+        'translation_failed': 'Chưa xử lý được đoạn chữ', 'execution_completed': 'Đã xử lý',
+        'present_requested': 'Đã yêu cầu hiển thị', 'presented': 'Đã hiển thị',
+        'space_changed': 'Space đã đổi trong lúc gọi', 'space_policy_failed': 'Không đặt được cửa sổ trên Space hiện tại',
+        'registration_failed': 'Đăng ký phím thất bại', 'ignored_busy': 'Đang bận', 'dismissed': 'Đã ẩn'
+    }
+    with journal.lock:
+        return [dict(stage=e['stage'], label=labels.get(e['stage'], e['stage']), sequence=e['sequence'])
+                for e in list(journal.events)[-12:]]

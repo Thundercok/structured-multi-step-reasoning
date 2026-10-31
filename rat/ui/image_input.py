@@ -107,3 +107,40 @@ def image_from_mime(mime, *, clipboard=False):
     if errors:
         raise errors[-1]
     raise ValueError('Chưa nhận được dữ liệu ảnh. Hãy chờ ảnh lưu rồi thả file PNG vào RAT.')
+
+
+def parse_pasted_mime_content(mime, clipboard_text: str = '') -> dict:
+    """Xử lý phân loại nội dung dán từ clipboard (file, ảnh hoặc chữ)."""
+    if mime is None:
+        return {'kind': 'typed', 'text': ''}
+    local_urls = [u for u in mime.urls() if u.isLocalFile()] if mime.hasUrls() else []
+    paths = [u.toLocalFile() for u in local_urls]
+    if paths:
+        if len(paths) == 1 and Path(paths[0]).suffix.lower() in IMAGE_SUFFIXES:
+            try:
+                image, name = image_from_mime(mime, clipboard=True)
+                return {'kind': 'image', 'image': image, 'name': name}
+            except ValueError as exc:
+                return {'kind': 'error', 'error': str(exc)}
+        return {'kind': 'file_reference', 'text': '\n'.join(paths)}
+    if mime.hasImage() or any(mime.hasFormat(kind) for kind in ENCODED_IMAGE_TYPES):
+        try:
+            image, _ = image_from_mime(mime, clipboard=True)
+            return {'kind': 'image', 'image': image, 'name': 'Ảnh vừa dán'}
+        except ValueError as exc:
+            return {'kind': 'error', 'error': str(exc)}
+    return {'kind': 'pasted_text', 'text': clipboard_text}
+
+
+def parse_image_url_input(url_or_urls, origin: str = 'dropped') -> tuple[any, str, str | None]:
+    if origin == 'dropped':
+        if len(url_or_urls) != 1:
+            return None, '', 'Hãy thả từng ảnh một để RAT dịch.'
+        target = url_or_urls[0]
+    else:
+        target = url_or_urls
+    try:
+        image, name = image_from_url(target, origin='selected_file' if origin != 'dropped' else 'dropped')
+        return image, name, None
+    except ValueError as exc:
+        return None, '', str(exc)

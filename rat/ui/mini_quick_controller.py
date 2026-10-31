@@ -15,24 +15,26 @@ from PyQt6.QtGui import QGuiApplication, QCursor
 
 from rat.engine.mini_settings import read_settings, save_settings, keychain_key, state_directory
 from rat.mini import MiniSession
-from rat.ui.mini_diagnostics import BUILD, write_diagnostic
+from rat.ui.mini_diagnostics import (BUILD, write_diagnostic, record_finder_diagnostic,
+    export_diagnostics_to_file, write_ui_state_diagnostic)
 from rat.ui.quick_look_journal import QuickLookJournal
 from rat.ui.mini_presentation import MiniPresentation
-from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url
+from rat.ui.image_input import (IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url,
+    parse_pasted_mime_content, parse_image_url_input)
 from rat.ui.image_preview import ImagePreviewProvider
 from rat.os.permissions import runtime_identity
-from rat.ui.mini_job_worker import (
-    MiniJob, format_compact_display_path, format_translation_artifact_view,
+from rat.ui.mini_worker import MiniJob
+from rat.ui.mini_views import (
+    format_compact_display_path, format_translation_artifact_view,
     default_controller_state, REGION_PREVIOUS_FIELDS, render_journal_stage, render_error_suggestions,
-    is_new_task_operation, get_frontmost_app_info, pending_task_initial_updates, capture_position_ocr_updates,
-    process_render_artifacts,
-    format_user_error_message, format_organization_artifact_view, format_readiness_summary,
-    record_finder_diagnostic, format_diagnostic_events, export_diagnostics_to_file,
-    initial_operation_status, validate_and_apply_preferences, parse_pasted_mime_content,
-    pack_task_history_item, HISTORY_FIELDS,
-    format_finder_return_hits, handle_file_action, change_shortcut_setting,
-    write_ui_state_diagnostic, build_controller_snapshot, save_preferences_settings, parse_image_url_input,
+    is_new_task_operation, pending_task_initial_updates, capture_position_ocr_updates,
+    process_render_artifacts, format_user_error_message, format_organization_artifact_view,
+    format_readiness_summary, format_diagnostic_events, initial_operation_status,
+    pack_task_history_item, HISTORY_FIELDS, format_finder_return_hits, handle_file_action,
+    build_controller_snapshot,
 )
+from rat.ui.mini_preferences import validate_and_apply_preferences, change_shortcut_setting, save_preferences_settings
+from rat.os.selected_text import get_frontmost_app_info
 
 __all__ = [
     "MiniQuickController", "MiniJob", "format_compact_display_path",

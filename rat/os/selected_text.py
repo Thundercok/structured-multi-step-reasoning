@@ -81,3 +81,17 @@ def read_selected_text(source_pid=None, should_cancel=lambda: False, on_geometry
     if saw_selection_attribute:
         raise ValueError('selection_empty: Không có chữ đang được chọn.')
     raise ValueError('selection_unavailable: App này chưa cung cấp chữ đang chọn. Bạn có thể dán chữ hoặc chọn vùng ảnh.')
+
+
+def get_frontmost_app_info() -> tuple[int | None, str, str | None]:
+    """Lấy PID và localizedName của app nguồn phía trước trên macOS."""
+    if sys.platform != 'darwin':
+        return None, '', 'unsupported_platform'
+    try:
+        from AppKit import NSWorkspace
+        source = NSWorkspace.sharedWorkspace().frontmostApplication()
+        if source is None or int(source.processIdentifier()) == os.getpid():
+            return None, '', 'recall_own_app'
+        return int(source.processIdentifier()), str(source.localizedName() or ''), None
+    except Exception:
+        return None, '', 'recall_own_app'
