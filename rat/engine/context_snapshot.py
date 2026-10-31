@@ -86,23 +86,13 @@ _SCHEMA_CACHE: Optional[Dict[str, Any]] = None
 _VALIDATOR_CACHE: Optional[Draft202012Validator] = None
 
 
-def _find_schema_path() -> Path:
-    candidates = [
-        Path(__file__).resolve().parent / "snapshot.schema.json",
-        Path(__file__).resolve().parent.parent.parent / "audit/rat_context_B_assignment_20261014/snapshot.schema.json",
-        Path(__file__).resolve().parent.parent.parent / "audit/rat_context_snapshot_design_20261014/snapshot.schema.json",
-    ]
-    for c in candidates:
-        if c.is_file():
-            return c
-    raise FileNotFoundError(f"Could not find snapshot.schema.json in candidate locations: {candidates}")
+_SCHEMA_PATH = Path(__file__).resolve().parent / "snapshot.schema.json"
 
 
 def get_snapshot_schema() -> Dict[str, Any]:
     global _SCHEMA_CACHE
     if _SCHEMA_CACHE is None:
-        path = _find_schema_path()
-        _SCHEMA_CACHE = json.loads(path.read_text(encoding="utf-8"))
+        _SCHEMA_CACHE = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
     return copy.deepcopy(_SCHEMA_CACHE)
 
 

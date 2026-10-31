@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 import numpy as np
 import pytest
 from sklearn.metrics import roc_auc_score
@@ -204,7 +203,7 @@ def test_run_analysis_end_to_end(tmp_path):
     assert (tmp_path / "report_2_cot_logistic_cv.txt").exists()
     assert (tmp_path / "report_3_retokenize_check.txt").exists()
     assert (tmp_path / "report_4_paired_sc_cot.txt").exists()
-    assert Path("audit/confidence_signal_gate_report.json").exists()
+    assert (tmp_path / "confidence_signal_gate_report.json").exists()
 
     x2_text = (tmp_path / "report_2_cot_logistic_cv.txt").read_text()
     assert "Finished-only COT: Repeated 5-fold CV x20" in x2_text

@@ -466,7 +466,8 @@ def run_analysis(trace_path: Path, out_prefix: str, run_tokens: bool = True):
         "family_results": family_cv_results,
         "gate_summary": gate_summary,
     }
-    report_file = Path("audit/confidence_signal_gate_report.json")
+    # Next to the other outputs; the default --out-prefix audit/X keeps audit/.
+    report_file = Path(out_prefix).parent / "confidence_signal_gate_report.json"
     with open(report_file, "w", encoding="utf-8") as f:
         json.dump(report_data, f, indent=2)
 
