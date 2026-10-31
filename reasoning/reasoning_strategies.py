@@ -441,9 +441,24 @@ try:
     with contextlib.redirect_stdout(buffer):
         exec(sys.stdin.read(), namespace)
     output = buffer.getvalue().strip()
-    value = str(namespace.get("result", "")).strip()
+    res_raw = namespace.get("result", "")
+    if isinstance(res_raw, (int, float)):
+        if abs(res_raw - round(res_raw)) < 1e-6:
+            value = str(int(round(res_raw)))
+        else:
+            value = str(round(res_raw, 6))
+    else:
+        value = str(res_raw).strip()
     if not value and output:
-        value = output.splitlines()[-1].strip()
+        out_cand = output.splitlines()[-1].strip()
+        try:
+            f = float(out_cand)
+            if abs(f - round(f)) < 1e-6:
+                value = str(int(round(f)))
+            else:
+                value = str(round(f, 6))
+        except (ValueError, TypeError):
+            value = out_cand
     if not value:
         raise ValueError("code produced no result")
     print(json.dumps(["ok", value]))

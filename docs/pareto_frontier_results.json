@@ -1,0 +1,702 @@
+[
+  {
+    "lambda": 0.001,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9374243958333334,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8957458541666666,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9999142916666667,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9790833333333333,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9997878333333333,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9998454791666667,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9999112916666667,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.9999141875,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9999112916666667,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9999375208333333,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.005,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9371219791666666,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8953959375,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9995714583333334,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.97875,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9989391666666667,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9992273958333333,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9995564583333333,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.9995709375,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9995564583333333,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9996876041666667,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.01,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9367439583333333,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8949585416666667,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9991429166666667,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9783333333333334,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9978783333333333,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9984547916666666,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9991129166666667,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.999141875,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9991129166666667,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9993752083333334,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.02,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9359879166666667,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.89408375,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9982858333333333,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9775,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9957566666666666,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9969095833333333,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9982258333333334,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.99828375,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9982258333333334,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9987504166666666,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.05,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9337197916666666,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.891459375,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9957145833333333,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.975,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9893916666666667,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9922739583333333,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9955645833333333,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.995709375,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9955645833333333,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9968760416666667,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.1,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9299395833333334,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8870854166666666,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9914291666666667,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9708333333333333,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9787833333333333,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9845479166666666,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9911291666666666,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.99141875,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9911291666666666,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9937520833333333,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.15,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.926159375,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8827114583333333,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.98714375,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9666666666666667,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.968175,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.976821875,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.98669375,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.987128125,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.98669375,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.990628125,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.2,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.9223791666666666,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8783375,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9828583333333333,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9625,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.9575666666666667,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.9690958333333334,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9822583333333333,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.9828375,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9822583333333333,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9875041666666666,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.3,
+    "thresholds_all": {
+      "tau_0": 0.9962735591063407,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.9962735591063407
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.91481875,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.8695895833333334,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9742875,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9541666666666667,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 212.16666666666666,
+        "utility": 0.93635,
+        "correct": 48
+      },
+      "ladder_only_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 154.52083333333334,
+        "utility": 0.95364375,
+        "correct": 48
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9733875,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.97425625,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9733875,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.98125625,
+        "correct": 48
+      }
+    }
+  },
+  {
+    "lambda": 0.5,
+    "thresholds_all": {
+      "tau_0": 0.933136700460966,
+      "tau_1": 0.9794315415816602,
+      "tau_dir_pal": 0.933136700460966
+    },
+    "methods": {
+      "fixed_direct": {
+        "accuracy": 0.9375,
+        "mean_tokens": 75.60416666666667,
+        "utility": 0.8996979166666667,
+        "correct": 45
+      },
+      "fixed_cot": {
+        "accuracy": 0.8958333333333334,
+        "mean_tokens": 87.47916666666667,
+        "utility": 0.85209375,
+        "correct": 43
+      },
+      "fixed_pal": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.70833333333333,
+        "utility": 0.9571458333333334,
+        "correct": 48
+      },
+      "one_shot_router": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.33333333333333,
+        "utility": 0.9375,
+        "correct": 47
+      },
+      "ladder_only_3rung": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 87.95833333333333,
+        "utility": 0.9351875,
+        "correct": 47
+      },
+      "ladder_only_2rung": {
+        "accuracy": 0.9791666666666666,
+        "mean_tokens": 83.0625,
+        "utility": 0.9376354166666667,
+        "correct": 47
+      },
+      "full_policy_3rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9556458333333333,
+        "correct": 48
+      },
+      "full_policy_2rung": {
+        "accuracy": 1.0,
+        "mean_tokens": 85.8125,
+        "utility": 0.95709375,
+        "correct": 48
+      },
+      "full_policy_3rung_sub": {
+        "accuracy": 1.0,
+        "mean_tokens": 88.70833333333333,
+        "utility": 0.9556458333333333,
+        "correct": 48
+      },
+      "oracle": {
+        "accuracy": 1.0,
+        "mean_tokens": 62.479166666666664,
+        "utility": 0.9687604166666667,
+        "correct": 48
+      }
+    }
+  }
+]

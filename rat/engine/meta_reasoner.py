@@ -80,16 +80,42 @@ class MetaReasonerEngine:
     transparent thinking traces.
     """
 
-    def __init__(self, lam: float = 0.02, *, controller: Optional[OnlineReasoningController] = None, calibration_tau: Optional[List[float]] = None) -> None:
+    def __init__(
+        self,
+        lam: float = 0.1,
+        *,
+        controller: Optional[OnlineReasoningController] = None,
+        calibration_tau: Optional[List[float]] = None,
+    ) -> None:
         self._controller = controller
         self.lam = lam
         self.policy = OptimalStoppingPolicy(lam=self.lam)
-        if calibration_tau:
-            self.policy.tau = list(calibration_tau)
+        # Default to empirical calibrated thresholds from research campaign (Qwen3-8B Stage 0: tau_0=0.9963, tau_1=0.9794)
+        default_tau = [0.9963, 0.9794]
+        self.policy.tau = list(calibration_tau) if calibration_tau else default_tau
         if controller is not None:
             self.policy = controller.policy
             self.lam = self.policy.lam
         self._cache: Dict[str, MetaReasoningResult] = {}
+
+    def entry_route(self, query: str) -> str:
+        """Two-level adaptive reasoning: Level 1 Entry Router.
+        
+        Evaluates query complexity and characteristics to select the entry strategy:
+        - Conversational greetings: Fast-path instant chatbot (0 tokens)
+        - Long complex queries (> 60 words) or multi-term math: direct PAL (bypassing redundant natural language tokens)
+        - Academic policy queries: Policy Ladder with Optimal Stopping verification
+        - General reasoning: General Ladder starting at DIRECT / CoT
+        """
+        words = len(query.strip().split())
+        q_lower = query.strip().lower()
+        if self._is_conversational_query(q_lower):
+            return "CONVERSATIONAL"
+        if self._is_quantitative_query(q_lower) or words > 60:
+            return "PAL"
+        if self._is_policy_query(q_lower):
+            return "POLICY_LADDER"
+        return "GENERAL_LADDER"
 
     def is_reasoning_query(self, query: str) -> bool:
         """
@@ -216,33 +242,34 @@ class MetaReasonerEngine:
         q_lower = clean_q.lower()
 
         # -------------------------------------------------------------
-        # Branch 0: Conversational & Assistant Identity
+        # Two-Level Adaptive Architecture: Level 1 Entry Router
         # -------------------------------------------------------------
-        if self._is_conversational_query(q_lower):
+        route = self.entry_route(clean_q)
+
+        if route == "CONVERSATIONAL":
             result = self._solve_conversational(clean_q, t0)
+            result.strategy_path = ["DIRECT_CHAT"]
+            result.execution_mode = "fast_path_entry"
             self._cache[clean_q] = result
             return result
 
-        # -------------------------------------------------------------
-        # Branch 1: Quantitative / Financial / GPA Calculation -> PAL
-        # -------------------------------------------------------------
-        if self._is_quantitative_query(q_lower):
+        if route == "PAL":
             result = self._solve_with_pal(clean_q, t0)
+            result.strategy_path = ["PAL(entry)"]
+            result.execution_mode = "direct_entry_bypass"
             self._cache[clean_q] = result
             return result
 
-        # -------------------------------------------------------------
-        # Branch 2: University Academic Policy & Regulations -> CoT / ESCALATE
-        # -------------------------------------------------------------
-        if self._is_policy_query(q_lower):
+        if route == "POLICY_LADDER":
             result = self._solve_policy_with_ladder(clean_q, t0)
+            result.strategy_path = ["DIRECT", "SC"] if result.escalated else ["DIRECT"]
+            result.execution_mode = "escalated_optimal_stopping" if result.escalated else "stopped_at_rung_0"
             self._cache[clean_q] = result
             return result
 
-        # -------------------------------------------------------------
-        # Branch 3: General Multi-Step Reasoning -> CoT with Ladder
-        # -------------------------------------------------------------
         result = self._solve_general_reasoning(clean_q, t0)
+        result.strategy_path = ["DIRECT_CoT"]
+        result.execution_mode = "general_ladder"
         self._cache[clean_q] = result
         return result
 
