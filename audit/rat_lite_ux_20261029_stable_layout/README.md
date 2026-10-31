@@ -23,6 +23,7 @@ smoothness. Historical checks do not count as verification of this revision.
 Native resize/paint continuity, constrained-screen wrapping, status contrast
 and complete source→read→close→recall behavior remain unverified.
 
-Package target: `dist/rat-lite-20261029-stable-layout/`. Existing QA20 is retained
+Packaging completed with exit0 at `dist/rat-lite-20261029-stable-layout/`
+(app and ZIP). No native run is implied. Existing QA20 is retained
 for the user's session. No automatic future test/acceptance permission follows.
 Default LLM off, main integration, M3 and Stage0 gates are unchanged.

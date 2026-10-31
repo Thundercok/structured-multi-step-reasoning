@@ -1,0 +1,61 @@
+{
+  "journey1": {
+    "status": "PASS",
+    "surface": "welcome",
+    "auxiliary": true,
+    "window_geom": [
+      670,
+      360,
+      580,
+      360
+    ],
+    "screenshot": "audit/rat_lite_0531_live_20261031/journey1_welcome_auxiliary.png"
+  },
+  "journey2": {
+    "status": "PASS",
+    "setupCompleted": true,
+    "hotkeyStatus": "",
+    "shortcutLabel": "\u2325\u21e7Space",
+    "mascot_visible": true,
+    "mascot_size": [
+      144.0,
+      144.0
+    ],
+    "composer_visible": true,
+    "screenshot": "audit/rat_lite_0531_live_20261031/journey2_composer_hotkey_ready.png"
+  },
+  "journey3": {
+    "status": "PASS",
+    "phase": "result",
+    "view": "finder",
+    "hit_count": 1,
+    "hits": [
+      {
+        "title": "project_scope.md",
+        "path": "/Volumes/NO NAME/project_scope.md"
+      }
+    ],
+    "selected_index": 0,
+    "layout": {
+      "composer_y": 200.0,
+      "mascot_visible": true,
+      "mascot_size": [
+        144.0,
+        144.0
+      ]
+    },
+    "screenshot": "audit/rat_lite_0531_live_20261031/journey3_finder_results.png"
+  },
+  "journey4": {
+    "status": "PASS",
+    "phase": "result",
+    "view": "translation",
+    "translation": "Con chu\u1ed9t nh\u1ecf \u0111ang \u0111\u1ecdc s\u00e1ch.",
+    "compact_mascot_size": [
+      144.0,
+      144.0
+    ],
+    "compact_screenshot": "audit/rat_lite_0531_live_20261031/journey4_offline_translation_compact.png",
+    "expanded_screenshot": "audit/rat_lite_0531_live_20261031/journey4_offline_translation_expanded.png"
+  }
+}
