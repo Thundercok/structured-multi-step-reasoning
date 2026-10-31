@@ -35,6 +35,8 @@ def run_capture_translation(session, capture_args, *, query='', cancel=lambda: F
     if cancel():
         raise ValueError('cancelled:capture')
     capture_parameters = {'mode': capture_args['mode']}
+    if 'file_path' in capture_args:
+        capture_parameters['file_path'] = capture_args['file_path']
     capture = session.execute('capture_text', capture_parameters, cancel=cancel,
         on_event=on_event, progress=progress, input_context={
             'clipboard_text': capture_args.get('clipboard_text'),
@@ -42,7 +44,8 @@ def run_capture_translation(session, capture_args, *, query='', cancel=lambda: F
             'selection_geometry_callback': on_selection_geometry,
             'image_input': capture_args.get('image_input'),
             'image_bytes': capture_args.get('image_bytes'),
-            'region_image_callback': on_region_image})
+            'region_image_callback': on_region_image,
+            'file_path': capture_args.get('file_path')})
     if capture.error or capture.pending_input_request:
         logger.info('capture_translation_stopped stage=capture')
         return CaptureTranslationResult(capture, 'capture_text', capture_parameters, capture)
@@ -58,14 +61,6 @@ def run_capture_translation(session, capture_args, *, query='', cancel=lambda: F
         on_captured(artifact, dict(args))
     if cancel():
         raise ValueError('cancelled:translation')
-    if capture_args.get('observe_only'):
-        # Look supplies observations to the same session. An empty instruction
-        # stops at capture; an explicit goal goes through the shared ingress.
-        if not query.strip():
-            return CaptureTranslationResult(capture, 'capture_text', capture_parameters, capture)
-        response = session.submit(query, source_ref=args['source_ref'], cancel=cancel,
-                                  on_event=on_event, progress=progress)
-        return CaptureTranslationResult(response, 'submit_goal', {'source_ref': args['source_ref']}, capture)
     logger.info('captured_text_translation_started')
     response = session.execute('translate_text', args, query=query, cancel=cancel,
         on_event=on_event, progress=progress)
@@ -73,7 +68,7 @@ def run_capture_translation(session, capture_args, *, query='', cancel=lambda: F
 
 
 def run_corrected_translation(session, source_ref, text, translation_args, *,
-                             query='', cancel=lambda: False, on_event=None, progress=None, on_captured=None, observe_only=False):
+                             query='', cancel=lambda: False, on_event=None, progress=None, on_captured=None):
     """Create a user-edit artifact, then translate it without recapturing/OCR."""
     if cancel():
         raise ValueError('cancelled:correction')
@@ -94,9 +89,5 @@ def run_corrected_translation(session, source_ref, text, translation_args, *,
         on_captured(artifact, dict(args))
     if cancel():
         raise ValueError('cancelled:translation')
-    if observe_only:
-        response = session.submit(query, source_ref=args['source_ref'], cancel=cancel,
-                                  on_event=on_event, progress=progress) if query.strip() else correction
-        return CaptureTranslationResult(response, 'submit_goal' if query.strip() else 'capture_text', args, correction)
     response = session.execute('translate_text', args, query=query, cancel=cancel, on_event=on_event, progress=progress)
     return CaptureTranslationResult(response, 'translate_text', args, correction)

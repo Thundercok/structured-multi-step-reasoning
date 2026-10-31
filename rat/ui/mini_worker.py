@@ -29,7 +29,7 @@ class MiniJob(QThread):
             progress = lambda text: self.progress.emit(text)
             def observed_step(step):
                 # Only public tool receipts/checks, never thought/raw completion.
-                labels = {'analyze_captured_text':'đọc sâu từ nguồn', 'find_files': 'tìm file', 'translate_text': 'dịch',
+                labels = {'find_files': 'tìm file', 'translate_text': 'dịch',
                     'plan_folder_organization': 'lập bản xem trước',
                     'capture_text': 'nhận chữ nguồn'}
                 if step.tool_name in labels and step.tool_result is not None:
@@ -58,7 +58,6 @@ class MiniJob(QThread):
             elif operation == 'correct_translate':
                 outcome = run_corrected_translation(self.session, args['source_ref'], args['text'],
                     args['translation_args'], query=self.query, cancel=self.stop.is_set,
-                    observe_only=bool(args.get('observe_only')),
                     on_event=lambda event: events.append(event.to_dict()), progress=progress,
                     on_captured=lambda artifact, arguments:
                         self.captured.emit({'artifact':artifact, 'translation_args':arguments}))

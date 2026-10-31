@@ -75,7 +75,9 @@ class MiniPresentation:
         self.surface = self.workspace = 'result'
 
     def complete(self):
-        if self.surface == 'result':
+        if self.surface in ('ocr', 'source', 'image'):
+            self.surface = self.workspace = 'result'
+        elif self.surface == 'result':
             self.workspace = 'result'
 
     @property

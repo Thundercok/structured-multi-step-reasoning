@@ -17,7 +17,7 @@ Rectangle {
     property real sharedTextSize: 16
     property string buildLabel: "source"
     property real maxCornerSpeechHeight: 300
-    property real composerWidthFloor: 380
+    property real composerWidthFloor: 440
     property bool darkMode: false
     property bool reduceMotion: false
     property real maxPaperHeight: 380
@@ -50,9 +50,7 @@ Rectangle {
     readonly property bool floatingHead: true
     readonly property bool noticeVisible: !auxiliary && Boolean(liveSnapshot.selectionNotice)
     readonly property bool taskVisible: !noticeVisible
-    readonly property bool simpleAnswer: compact && !auxiliary && surface === "result" && taskVisible
-        && !liveSnapshot.busy && liveSnapshot.phase === "result"
-        && (liveSnapshot.view === "translation" || liveSnapshot.view === "analysis")
+    readonly property bool simpleAnswer: false
     property real heldReaderHeight: 0
     readonly property real panelBudget: auxiliary || !compact ? maxPanelHeight : (composing || noticeVisible) ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)
     readonly property bool paperVisible: !liveSnapshot.bubbleCollapsed && Boolean(liveSnapshot.hasWorkbench || noticeVisible)
@@ -67,7 +65,7 @@ Rectangle {
     readonly property bool imageDropEnabled: !auxiliary && !imageDialog.visible && !folderDialog.visible
     readonly property bool layoutExpanded: !compact
     readonly property real preferredPanelHeight: panel.height
-    readonly property real preferredPanelWidth: compact && !auxiliary ? (composing ? Math.min(480, composerWidthFloor) : Math.min(320, composerWidthFloor)) : liveSnapshot.sourceVisible ? 900 : sharedPanelWidth
+    readonly property real preferredPanelWidth: compact && !auxiliary ? 440 : liveSnapshot.sourceVisible ? 880 : sharedPanelWidth
     readonly property rect cornerInkBounds: headPose.visualBounds
     readonly property point cornerMouth: headPose.speechAnchor
     readonly property rect panelRect: !panel.visible ? Qt.rect(0,0,0,0) : Qt.rect(panel.x + panelSkin.occupiedRect.x, panel.y + panelSkin.occupiedRect.y, panelSkin.occupiedRect.width, panelSkin.occupiedRect.height)
@@ -121,14 +119,12 @@ Rectangle {
     onPanelWidthChanged: { restoringScroll = true; Qt.callLater(restoreReader) }
     function growComposerWidth() {
         if (compact && !auxiliary)
-            composerWidthFloor = Math.max(composerWidthFloor, composerMeasure.advanceWidth > 300 ? 480 : 380)
+            composerWidthFloor = 440
     }
     function beginCornerPresentation() {
-        // A fresh invocation may choose a smaller tier; typing/clearing during
-        // the invocation only grows it, avoiding a collapse when Send clears it.
         heldReaderHeight = 0
         if (compact)
-            composerWidthFloor = composerMeasure.advanceWidth > 300 ? 480 : 380
+            composerWidthFloor = 440
     }
     function focusComposer() {
         if (composing && !auxiliary && surface === "result") editor.forceActiveFocus()
@@ -248,11 +244,13 @@ Rectangle {
             width: parent.width
             height: desk.bodyVisible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.auxiliary ? Math.max(360, paperColumn.implicitHeight + 24) : (desk.composing && desk.liveSnapshot.view === "finder") || desk.noticeVisible ? Math.max(200, paperColumn.implicitHeight + 24) : desk.heldReaderHeight > 0 && desk.compact && !desk.simpleAnswer ? Math.max(140, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
             radius: 14; color: "transparent"; border.color: "transparent"
-            QuietButton {
-                visible: desk.simpleAnswer && !desk.composing
-                x: parent.width - width - 3; y: 2; z: 3
-                iconName: "close"; iconSize: 12; implicitWidth: 22; implicitHeight: 22
-                Accessible.name: "Đóng kết quả"; onClicked: desk.liveController.collapseBubble()
+            Rectangle {
+                visible: desk.bodyVisible && desk.composing
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left; anchors.right: parent.right
+                anchors.leftMargin: 12; anchors.rightMargin: 12
+                height: 1
+                color: desk.edge
             }
             Rectangle {
                 id: fullSource
@@ -289,10 +287,11 @@ Rectangle {
                     QuietButton { visible: desk.auxiliary || (desk.paperVisible && desk.surface !== "result"); iconName: "arrow-left"; implicitWidth: 30; Accessible.name: "Quay lại"; onClicked: desk.goBack() }
                     Label { text: (desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Quick Look" : desk.title); textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
                     BusyIndicator { running: Boolean(desk.liveSnapshot.busy); visible: running; implicitWidth: 18; implicitHeight: 18 }
-                    QuietButton { visible: desk.auxiliary || !desk.composing; iconName: "close"; implicitWidth: 28; Accessible.name: "Ẩn RAT"; onClicked: desk.hideRequested() }
                     QuietButton { visible: Boolean(desk.liveSnapshot.busy) && !desk.auxiliary; iconName: "stop"; implicitWidth: 28; Accessible.name: "Dừng yêu cầu"; onClicked: desk.liveController.cancel() }
+                    QuietButton { visible: desk.paperVisible && !desk.auxiliary && desk.liveSnapshot.view === "translation" && Boolean(desk.liveSnapshot.text); text: "Sao chép"; onClicked: desk.liveController.copyResult() }
                     QuietButton { visible: desk.paperVisible && !desk.auxiliary && !desk.compact && desk.taskVisible; text: "Nguồn"; onClicked: desk.liveController.toggleSource() }
                     QuietButton { visible: desk.paperVisible && !desk.auxiliary; iconName: desk.compact ? "chevron-up" : "chevron-down"; implicitWidth: 28; Accessible.name: desk.compact ? "Mở rộng" : "Thu gọn"; onClicked: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
+                    QuietButton { visible: desk.auxiliary || !desk.composing; iconName: "close"; implicitWidth: 28; Accessible.name: "Ẩn RAT"; onClicked: (desk.compact && !desk.composing && desk.surface === "result") ? desk.liveController.collapseBubble() : desk.hideRequested() }
                 }
                 RowLayout {
                     visible: desk.paperVisible && !desk.auxiliary && !desk.compact && desk.taskVisible && Boolean(desk.liveSnapshot.requestText)
@@ -625,6 +624,7 @@ Rectangle {
                     Item { Layout.fillWidth: true }
                     QuietButton { visible: !desk.liveSnapshot.busy && desk.recoveryVisible && Boolean(desk.recoveryAction); primary: true; text: ({journal:"Xem nhật ký",image:"Chọn ảnh khác…",settings:"Mở cài đặt",retry:(["open_file","reveal_file"].indexOf(desk.liveSnapshot.lastOperation)>=0 ? "Tìm lại" : "Thử lại")}[desk.recoveryAction] || ""); onClicked: desk.recover() }
                     QuietButton { visible: desk.surface === "ocr" && !desk.recoveryVisible; primary: true; text: "Dịch lại"; enabled: !desk.liveSnapshot.busy && desk.liveSnapshot.canRetryTranslation && Boolean((desk.liveSnapshot.ocrText || "").trim()); onClicked: desk.liveController.retryTranslation(desk.liveSnapshot.ocrText) }
+                    QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && !desk.recoveryVisible; text: "Dịch file này"; enabled: !desk.liveSnapshot.busy && desk.selectedFinderIndex >= 0; onClicked: desk.liveController.translateSelectedHit(desk.selectedFinderIndex) }
                     QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && !desk.recoveryVisible; primary: true; text: "Mở file"; enabled: !desk.liveSnapshot.busy && desk.selectedFinderIndex >= 0; onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex) }
                     QuietButton {
                         visible: desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "organization" && !desk.recoveryVisible
@@ -669,9 +669,12 @@ Rectangle {
                 }
                 Rectangle {
                     visible: !desk.auxiliary; Layout.fillWidth: true
-                    implicitHeight: composerRow.implicitHeight; color: "transparent"
+                    implicitHeight: composerRow.implicitHeight + 12
+                    radius: 10; color: desk.inputColor
+                    border.width: 1; border.color: editor.activeFocus ? desk.accent : desk.edge
                     RowLayout {
-                        id: composerRow; width: parent.width; spacing: 8
+                        id: composerRow
+                        x: 6; y: 6; width: parent.width - 12; spacing: 8
                         ScrollView {
                             Layout.fillWidth: true; Layout.preferredHeight: Math.min(78, Math.max(30, editor.contentHeight + 4))
                             contentWidth: availableWidth; clip: true; ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
@@ -681,7 +684,7 @@ Rectangle {
                                 KeyNavigation.priority: KeyNavigation.BeforeItem
                                 KeyNavigation.tab: sendControl
                                 KeyNavigation.backtab: closeControl
-                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Soạn tiếp…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Tìm file hoặc dịch đoạn văn… · Lite " + desk.buildLabel
+                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Đang xử lý…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Tìm file hoặc dịch nhanh…"
                                 color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: desk.sharedTextSize
                                 textFormat: TextEdit.PlainText; selectByMouse: true; wrapMode: TextEdit.Wrap; padding: 0; topPadding: 4; selectionColor: desk.accent; selectedTextColor: desk.accentText; background: null
                                 Accessible.name: "Yêu cầu RAT Mini"
@@ -733,7 +736,7 @@ Rectangle {
         }
         ToolTip.visible: headMouse.containsMouse && !headMouse.pressed
         ToolTip.delay: 500
-        ToolTip.text: (desk.liveSnapshot.pinned ? "Đang ghim · " : "") + "Quick Look · " + desk.liveSnapshot.shortcutLabel + " · Bấm để viết"
+        ToolTip.text: (desk.liveSnapshot.pinned ? "Đang ghim · " : "") + "Quick Look · " + desk.liveSnapshot.shortcutLabel + " · RAT Lite " + desk.buildLabel
         Accessible.role: Accessible.Button
         Accessible.name: "RAT Lite. Bấm mở hoặc đóng ô nhập; chuột phải mở menu; kéo để di chuyển."
         Accessible.onPressAction: desk.liveController.toggleComposer()

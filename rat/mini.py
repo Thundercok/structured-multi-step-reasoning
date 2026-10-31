@@ -19,7 +19,6 @@ from rat.kernel.registry import CapabilityRegistry
 from rat.kernel.profile import MINI_PROFILE
 from rat.kernel.capabilities.file_finder import create_file_finder_capability
 from rat.kernel.capabilities.translation import create_translation_capability
-from rat.kernel.capabilities.source_analysis import create_source_analysis_capability
 from rat.kernel.capabilities.observed_source import observed_capture
 from rat.kernel.capabilities.folder_organizer import create_folder_organizer_capability
 from rat.kernel.capabilities.mini_setup import create_mini_setup_capability
@@ -42,7 +41,6 @@ class MiniSession:
         registry.register_capability(create_folder_organizer_capability(FolderOrganizer(self.scopes, state_directory()/"organization")))
         registry.register_capability(create_mini_setup_capability(self.settings))
         registry.register_capability(create_translation_capability(SnippetTranslator(self.settings, self.client)))
-        registry.register_capability(create_source_analysis_capability(self.client))
         self.runtime = AssistantRuntime(registry=registry, profile=MINI_PROFILE, model_client=self.client,
                                         artifact_store=artifact_store,
                                         use_live_model=self.settings['llm_enabled'], enable_observation_pack=True,
@@ -65,28 +63,9 @@ class MiniSession:
         route = self.router.resolve(query, pending=self.pending_route,
             tool_input=self.runtime.dispatcher.state.pending_input_request,
             input_kind=input_kind, previous=self.previous_goal, source_ref=source_ref)
-        # Only explicit references to a previous result route here. Arbitrary
-        # text remains with the common goal router rather than being guessed.
-        if result_ref and input_kind == 'typed' and route.kind != 'agent' and route.operation not in ('find_files', 'plan_folder_organization') and re.match(
-                r'^(?:(?:hãy|giúp tôi|please)\s+)?(?:tự nhiên hơn|ngắn hơn|rút gọn|viết lại bản dịch|rewrite (?:it|this)|shorter|more natural)\b', query, re.I):
-            response = self.execute('revise_observed_result', {'result_ref':dict(result_ref),
-                'instruction':query[:2000], 'target_language':self.settings['target_language']},
-                query=query, cancel=cancel, on_event=on_event, progress=progress, on_step=on_step)
-            response.controller_decisions.append({'route':'direct', 'rule':'explicit_result_revision', 'operation':'revise_observed_result'})
-            return response
-        analysis = re.match(r'^(?:hãy\s+|please\s+)?(tóm tắt|giải thích|thuật ngữ|viết lại|summarize|explain|terms|rewrite)\b', query, re.I) if input_kind == 'typed' else None
-        if analysis and route.kind != 'agent':
-            if source_ref:
-                mode = {'tóm tắt':'summary', 'summarize':'summary', 'giải thích':'explanation',
-                    'explain':'explanation', 'thuật ngữ':'terms', 'terms':'terms',
-                    'viết lại':'rewrite', 'rewrite':'rewrite'}[analysis.group(1).casefold()]
-                route = self.router.direct('analyze_captured_text', {'source_ref':dict(source_ref),
-                    'mode':mode, 'instruction':query[:2000], 'target_language':self.settings['target_language']}, 'source_analysis')
-            else:
-                route = self.router.ask('Hãy lấy một đoạn chữ bằng phím tắt hoặc dán ảnh trước để giữ nguồn cho câu trả lời.', rule='analysis_source_missing')
         if route.kind == 'agent' and not self.settings['llm_enabled']:
             route = self.router.ask(
-                'Bạn muốn làm bước nào trước? Gửi tên file cần tìm, đoạn cần dịch hoặc thư mục cần sắp xếp.',
+                'Bạn muốn tìm file hay dịch đoạn văn? Hãy gửi tên file hoặc nội dung cần dịch.',
                 rule='mini_step_clarification')
         if source_ref and route.input_request and route.input_request.supplied_inputs.get('operation') == 'translate_text':
             route = self.router.direct('translate_text', {

@@ -160,3 +160,18 @@ perform appropriate tests and live UI checks while developing RAT Lite, and
 show the intended app to the user. User-provided screenshots are acceptance
 observations, not blanket approval of all features.
 Mini remains an indev vertical slice of main; main UI integration remains gated.
+
+# Quy tắc chống Overengineering (RAT Lite Anti-Bloat Guardrails) — 2026-10-31
+
+Các tài liệu cũ ngày 28–29/10/2026 (`rat_lite_28_*`, `rat_mini_look_*`, `transient_workbench.md`, `speech_bubble.md`) đã bị **thay thế hoàn toàn** và chuyển vào `docs/history/rat_lite_superseded_20261029/`. Mọi agent phải tuân thủ tuyệt đối các giới hạn kiến trúc sau (được kiểm tra tự động bởi `tests/test_architecture_anti_overengineering.py`):
+
+1. **Một mặt phẳng neo chuột duy nhất (`standby` / `speech`)**:
+   - Chỉ giữ `rat/ui/quick/MiniDesk.qml` + `SpeechSurface.qml` + `MascotPose.qml`.
+   - **CẤM** khôi phục hoặc tạo lại `LookSurface.qml`, `SpeechBubble.qml`, `CompanionStatus.qml`, `PaperDesk.qml`, `look_interaction.py`, `mini_clipboard.py`, `mini_floaty.py`, `mini_translate.py`, hoặc layout 3 cột `workbench`.
+2. **Floating Head Looking Mode chỉ dịch (`capture_text` → `translate_text`)**:
+   - Khi người dùng chọn nội dung trên màn hình (`selection`, `region`, `image`, `clipboard`), chuột **chỉ dịch nội dung đó** ngay bên cạnh đầu chuột (`composer_visible = False`).
+   - **CẤM** thêm chế độ bình luận/phân tích văn bản (`observe_only`, `lookSource`, `source_analysis`, `analyze_captured_text`, `revise_observed_result`) hoặc dừng ở thông báo *"Chuột thấy đoạn chữ này. Bạn muốn dịch hay hỏi điều gì?"*.
+3. **Không giật kích thước cửa sổ (Anti-Jarring UX)**:
+   - Chiều rộng bubble giữ ổn định ở `compact` (`440px`), chỉ mở rộng sang `expanded` (`580px`) khi người dùng chủ động bấm `Mở rộng` hoặc có bảng preview dọn thư mục. `start_pending()` không được tự ép `expanded=True`.
+   - Ô nhập (`composer`) khi mở phải nằm trong khung pill có viền phân tách rõ với vùng trả lời (`resultSheet`) của chuột.
+

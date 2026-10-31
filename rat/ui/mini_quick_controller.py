@@ -199,6 +199,9 @@ class MiniQuickController(QObject):
             self.update(selectionNotice='Clipboard chưa có chữ. Hãy chọn và copy đoạn trong app nguồn, rồi bấm Dán chữ.')
             return
         self._selection_return = None
+        self.presentation.open('result')
+        self.presentation.resize(False)
+        self.presentation.read()
         self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch đoạn vừa dán')
         self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
             source_language=self.settings['source_language'], target_language=self.settings['target_language']))
@@ -212,6 +215,9 @@ class MiniQuickController(QObject):
         if value.get('text') and value.get('kind') == 'pasted_text':
             self.clearAttachment()
             self.clearImagePreview()
+            self.presentation.open('result')
+            self.presentation.resize(False)
+            self.presentation.read()
             self.update(requestText='Dịch đoạn vừa dán')
             self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=value['text'],
                 look_input=True,
@@ -379,17 +385,17 @@ class MiniQuickController(QObject):
         if not text:
             self.update(status='Nhập tên file hoặc đoạn cần dịch trước nhé.')
             return
-        if self._ocr_source_ref:
+        if self.presentation.surface == 'ocr' and self._ocr_source_ref:
             self.consume_submission(text)
             self.update(requestText=text)
             if self._state['ocrText'] != self._ocr_current_text:
                 self.enqueue('correct_translate', {'source_ref': dict(self._ocr_source_ref),
-                    'text': self._state['ocrText'], 'translation_args': dict(self._translation_args),
-                    'observe_only': True}, text)
+                    'text': self._state['ocrText'], 'translation_args': dict(self._translation_args)}, text)
             else:
                 self.enqueue('submit_goal', {'input_kind': 'typed',
                     'source_ref': dict(self._ocr_source_ref), 'result_ref':dict(self._result_ref) if self._result_ref else None}, text)
             return
+        self.clear_ocr_source()
         # A new text request must not display a thumbnail from a previous task.
         self.clearImagePreview()
         self.consume_submission(text)
@@ -600,6 +606,9 @@ class MiniQuickController(QObject):
             'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
             'organizationRecoverySuggested', 'canRetryRequest')
         self._region_previous = ({key: self._state[key] for key in fields}, self._retry_request)
+        self.presentation.open('result')
+        self.presentation.resize(False)
+        self.presentation.read()
         # Reserve a generation now, so cancel/new input invalidates the deferred capture.
         self.generation += 1
         generation = self.generation
@@ -844,35 +853,7 @@ class MiniQuickController(QObject):
         except ValueError:
             return 'Tổ hợp phím chưa được hỗ trợ.'
 
-    @pyqtSlot(str)
-    def translateSource(self, style):
-        if self.job or not self._ocr_source_ref or style not in ('faithful', 'plain'):
-            return
-        if self._state['ocrText'] != self._ocr_current_text:
-            self.update(status='Hãy lưu chữ đã sửa bằng Dịch lại trước khi đổi lối dịch.')
-            return
-        if style == 'plain' and not self.settings.get('llm_enabled'):
-            self.update(status='Lối dịch dễ hiểu cần bật suy luận cloud trong Cài đặt.', translationSettingsSuggested=True)
-            return
-        self.enqueue('translate_text', {'source_ref':dict(self._ocr_source_ref), 'style':style,
-            'source_language':self.settings['source_language'], 'target_language':self.settings['target_language']})
 
-    @pyqtSlot(str)
-    def analyzeSource(self, mode):
-        if self.job or mode not in ('summary', 'explanation', 'terms', 'rewrite'):
-            return
-        if not self._ocr_source_ref:
-            self.update(status='Hãy lấy một đoạn chữ trước.', error=True)
-            return
-        if self._state['ocrText'] != self._ocr_current_text:
-            self.update(status='Hãy lưu chữ đã sửa bằng Dịch lại trước khi đọc tiếp.')
-            return
-        if not self.settings.get('llm_enabled'):
-            self.update(status='Đọc sâu cần bật suy luận cloud trong Cài đặt.', translationSettingsSuggested=True)
-            return
-        self.enqueue('analyze_captured_text', {'source_ref': dict(self._ocr_source_ref),
-            'mode': mode, 'instruction': self._next_draft[:2000],
-            'target_language': self.settings['target_language']})
 
     @pyqtSlot()
     def togglePin(self):
@@ -963,9 +944,9 @@ class MiniQuickController(QObject):
             self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False)
             self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
         capture_status = {'selection':'Đang nhận chữ bôi đen…', 'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
-            'clipboard':'Đang đọc Clipboard và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
+            'clipboard':'Đang đọc Clipboard và dịch…', 'file':'Đang đọc file và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
         if operation != "check_mini_readiness":
-            self.update(busy=True, phase='working', expanded=True, hasWorkbench=True, agentSummary='', agentIncomplete=False,
+            self.update(busy=True, phase='working', expanded=(self.presentation.extent == 'expanded'), hasWorkbench=True, agentSummary='', agentIncomplete=False,
                 lastOperation=operation, error=False, translationSettingsSuggested=False,
                 finderSettingsSuggested=False, imageInputSuggested=False,
                 status={'plan_folder_organization':'Đang chuẩn bị bản xem trước…',
@@ -1028,14 +1009,14 @@ class MiniQuickController(QObject):
                 self.update(ocrText=self._ocr_current_text, ocrCommittedText=self._ocr_current_text,
                     captureSourceKind=artifact.payload['source_kind'],
                     captureSourceApp=job.input_context.get('selection_app','') if artifact.payload['source_kind']=='selection' else '',
-                    lookSource=bool(job.args.get('observe_only') or job.args.get('look_input')) or self._state['lookSource'],
+                    lookSource=bool(job.args.get('look_input')) or self._state['lookSource'],
                     hasOcrSource=True, canRetryTranslation=True,
                     ocrOriginalText=self._state['ocrOriginalText'] if job.operation == 'correct_translate' else artifact.payload.get('ocr_raw_text', self._ocr_current_text),
                     ocrPreparationNotice=('Đã nối các dòng chữ cùng đoạn để dịch. Chữ nhận ban đầu vẫn được giữ.'
                         if (artifact.payload.get('ocr_normalization') or {}).get('joined_line_indexes') else ''))
             if job.args.get('mode') == 'region':
                 self._capture_position = QCursor.pos()
-            self.update(status='Đã nhận vùng chữ.' if job.args.get('observe_only') else 'Đang dịch…')
+            self.update(status='Đang dịch…')
             if job.args.get('mode') == 'selection' and self._selection_present_generation == job.generation:
                 self._selection_present_generation = None
                 self.selectionAnchorRequested.emit(source.get('selection_geometry') or {})
@@ -1133,11 +1114,7 @@ class MiniQuickController(QObject):
             return
         for artifact in reversed(response.artifacts):
             data = artifact.payload
-            if artifact.kind == 'captured_text' and self._state['lookSource']:
-                self.complete_surface()
-                self.update(phase='result', view='notice', text=data['text'], meta='',
-                    status='Chuột thấy đoạn chữ này. Bạn muốn dịch hay hỏi điều gì?')
-                return
+
             if artifact.kind in ('organization_plan', 'organization_receipt'):
                 self.clear_ocr_source()
                 self.organization_artifact = artifact
@@ -1185,21 +1162,7 @@ class MiniQuickController(QObject):
                     finderSettingsSuggested=partial or not hits,
                     text='', meta='Chọn một file để mở hoặc hiện trong Finder', status=status)
                 return
-            if artifact.kind == 'result_revision':
-                self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
-                self.complete_surface()
-                self.update(phase='result', view='analysis', text=data['text'], finderHits=[],
-                    status='Bản đã chỉnh', meta='Từ kết quả trước · ' + data['provider'],
-                    translationNotice='Diễn giải bằng model; chưa kiểm chứng đúng nghĩa.', translationDetails='')
-                return
-            if artifact.kind == 'source_analysis':
-                self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
-                self.complete_surface()
-                self.update(phase='result', view='analysis', text=data['text'], finderHits=[],
-                    status={'summary':'Tóm tắt', 'explanation':'Giải thích', 'terms':'Thuật ngữ', 'rewrite':'Viết lại'}[data['mode']],
-                    meta='Nguồn đã giữ · ' + data['provider'], translationNotice='Diễn giải bằng model; chưa kiểm chứng đúng nghĩa.',
-                    translationDetails='Trích từ nguồn:\n' + '\n'.join(data['evidence']))
-                return
+
             if artifact.kind == 'translation':
                 self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
                 source_capture = data.get('source_capture') or {}
@@ -1293,7 +1256,6 @@ class MiniQuickController(QObject):
             'translation_network_error':'Chưa kết nối được dịch vụ dịch. Kiểm tra mạng rồi thử lại; chữ vẫn được giữ.',
             'translation_provider_error':'Dịch vụ dịch chưa trả được kết quả. Chữ vẫn được giữ; hãy thử lại sau.',
             'mini_llm_disabled':'Chức năng này cần bật suy luận cloud trong Cài đặt. Nguồn chữ vẫn được giữ.',
-            'source_analysis_invalid_evidence':'Model chưa trả được trích dẫn khớp nguồn. Nguồn chữ vẫn được giữ để thử lại.',
             'translation_failed':'Chưa dịch được lúc này. Chữ vẫn được giữ; kiểm tra mạng rồi thử lại.'}
         for code, message in messages.items():
             if code in error:
@@ -1337,6 +1299,18 @@ class MiniQuickController(QObject):
     @pyqtSlot(int)
     def revealSelectedInFinder(self, index):
         self.file_action(index, 'reveal_file')
+
+    @pyqtSlot(int)
+    def translateSelectedHit(self, index):
+        artifact = self.finder_artifact
+        if self._state['busy'] or not artifact or not 0 <= index < len(artifact.payload['hits']):
+            return
+        hit = artifact.payload['hits'][index]
+        self.update(requestText="Dịch file: " + hit['title'])
+        self.enqueue('capture_translate', dict(mode='file', file_path=hit['path'],
+            artifact_id=artifact.id, revision=artifact.revision, resource_id=hit['resource_id'],
+            look_input=True, source_language=self.settings['source_language'],
+            target_language=self.settings['target_language']))
 
     def file_action(self, index, operation):
         artifact = self.finder_artifact

@@ -67,7 +67,7 @@ def detect_language(text):
     return None
 
 
-def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_bytes=None, image_input=None, region_image_callback=None, selection_pid=None, selection_geometry_callback=None):
+def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_bytes=None, image_input=None, region_image_callback=None, selection_pid=None, selection_geometry_callback=None, file_path=None, context=None):
     input_provenance = None
     ocr_details = None
     if should_cancel():
@@ -156,12 +156,36 @@ def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_b
         else:
             result = subprocess.run(['/usr/bin/pbpaste'], capture_output=True, timeout=3)
             text = result.stdout.decode('utf-8', errors='replace')
+    elif mode == 'file':
+        raw_path = file_path or (context or {}).get('file_path')
+        if not raw_path:
+            raise ValueError('file_path_missing')
+        p = Path(raw_path).resolve(strict=True)
+        if not p.is_file():
+            raise ValueError('not_regular_file')
+        size = p.stat().st_size
+        suffix = p.suffix.lower()
+        if suffix == '.pdf':
+            from document_intake.pdf import read_pdf
+            pdf_data = read_pdf(str(p), max_pages=3, max_chars=2500)
+            text = pdf_data.get('full_text', '')[:2500]
+        elif suffix in ('.png', '.jpg', '.jpeg', '.tiff', '.webp'):
+            from document_intake.vision import recognize_tokens
+            from rat.engine.ocr_paragraphs import prepare_ocr_text
+            text, raw, normalization = prepare_ocr_text(recognize_tokens(str(p)))
+            ocr_details = {'ocr_raw_text': raw[:2500], 'ocr_normalization': normalization}
+            text = text[:2500]
+        else:
+            with open(p, 'r', encoding='utf-8', errors='replace') as f:
+                text = f.read(2500)
+        input_provenance = {'kind': 'file', 'path': str(p), 'file_name': p.name,
+                            'size_bytes': size, 'read_chars': len(text)}
     else:
         raise ValueError('invalid_capture_mode')
     if should_cancel():
         raise ValueError('cancelled:capture')
     if not text.strip():
-        raise ValueError('input_empty: Clipboard chưa có văn bản.')
+        raise ValueError('input_empty: Nguồn chưa có văn bản.')
     if len(text) > 8000:
         raise ValueError('snippet_too_long: Hãy chọn đoạn dưới 8.000 ký tự.')
     result = {'text': text, 'source_kind': mode, 'source_sha256': hashlib.sha256(text.encode()).hexdigest(),
@@ -170,7 +194,10 @@ def capture_text(mode, should_cancel=lambda: False, clipboard_text=None, image_b
         result.update(ocr_details)
     if input_provenance is not None:
         result['input_provenance'] = input_provenance
-        logger.info('image_ocr_completed input_id=%s chars=%s', input_provenance['input_id'], len(text))
+        if 'input_id' in input_provenance:
+            logger.info('image_ocr_completed input_id=%s chars=%s', input_provenance['input_id'], len(text))
+        else:
+            logger.info('capture_completed kind=%s chars=%s', input_provenance.get('kind'), len(text))
     return result
 
 

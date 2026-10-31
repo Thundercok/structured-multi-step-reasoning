@@ -42,6 +42,13 @@ class CaptureVerifier:
                 and re.fullmatch('[0-9a-f]{64}', source['content_sha256']) is not None
                 and type(source.get('byte_count')) is int and 0 < source['byte_count'] <= MAX_IMAGE_BYTES)
             checked.append('image_provenance_structure')
+        if okay and data['source_kind'] == 'file':
+            source = data.get('input_provenance')
+            okay = (isinstance(source, dict) and source.get('kind') == 'file'
+                and isinstance(source.get('file_name'), str) and bool(source['file_name'])
+                and isinstance(source.get('path'), str) and bool(source['path'])
+                and type(source.get('size_bytes')) is int and source['size_bytes'] >= 0)
+            checked.append('file_provenance_structure')
         return VerificationReport(VerificationStatus.PASS if okay else VerificationStatus.FAIL,
             'capture_structure', 'Đối chiếu cấu trúc và hash; chưa xác nhận OCR đọc đúng ảnh.',
             (evidence.id,), checked=tuple(checked))
@@ -110,7 +117,7 @@ def create_translation_capability(translator):
 
     capture_contract = {'type': 'object', 'properties': {
             'text': {'type':'string', 'minLength':1, 'maxLength':8000},
-            'source_kind': {'type':'string', 'enum':['clipboard','selection','region','image']},
+            'source_kind': {'type':'string', 'enum':['clipboard','selection','region','image','file']},
             'source_sha256': {'type':'string', 'pattern':'^[0-9a-f]{64}$'},
             'captured_at': {'type':'number'},
             'language_hint': {'type':['string','null']},
@@ -121,17 +128,32 @@ def create_translation_capability(translator):
                 'raw_sha256': {'type':'string','pattern':'^[0-9a-f]{64}$'},
                 'text_sha256': {'type':'string','pattern':'^[0-9a-f]{64}$'}},
                 'required':['policy','joined_line_indexes','raw_sha256','text_sha256']},
-            'input_provenance': {'type':'object', 'properties': {
-                'version': {'type':'integer', 'const':1}, 'kind': {'const':'image'},
-                'input_id': {'type':'string', 'pattern':'^img-[0-9a-f]{32}$'},
-                'origin': {'type':'string', 'enum':sorted(IMAGE_ORIGINS)},
-                'content_sha256': {'type':'string', 'pattern':'^[0-9a-f]{64}$'},
-                'byte_count': {'type':'integer', 'minimum':1, 'maximum':MAX_IMAGE_BYTES},
-                'source_file_sha256': {'type':['string','null'], 'pattern':'^[0-9a-f]{64}$'}},
-                'required':['version','kind','input_id','origin','content_sha256','byte_count']}},
+            'input_provenance': {
+                'oneOf': [
+                    {'type':'object', 'properties': {
+                        'version': {'type':'integer', 'const':1}, 'kind': {'const':'image'},
+                        'input_id': {'type':'string', 'pattern':'^img-[0-9a-f]{32}$'},
+                        'origin': {'type':'string', 'enum':sorted(IMAGE_ORIGINS)},
+                        'content_sha256': {'type':'string', 'pattern':'^[0-9a-f]{64}$'},
+                        'byte_count': {'type':'integer', 'minimum':1, 'maximum':MAX_IMAGE_BYTES},
+                        'source_file_sha256': {'type':['string','null'], 'pattern':'^[0-9a-f]{64}$'}},
+                        'required':['version','kind','input_id','origin','content_sha256','byte_count']},
+                    {'type':'object', 'properties': {
+                        'kind': {'const':'file'},
+                        'file_name': {'type':'string'},
+                        'path': {'type':'string'},
+                        'size_bytes': {'type':'integer', 'minimum':0},
+                        'read_chars': {'type':'integer', 'minimum':0}},
+                        'required':['kind','file_name','path','size_bytes','read_chars']}
+                ]
+            }},
             'required':['text','source_kind','source_sha256','captured_at'],
-            'allOf':[{'if':{'properties':{'source_kind':{'const':'image'}}},
-                'then':{'required':['input_provenance']}}]}
+            'allOf':[
+                {'if':{'properties':{'source_kind':{'const':'image'}}},
+                 'then':{'required':['input_provenance']}},
+                {'if':{'properties':{'source_kind':{'const':'file'}}},
+                 'then':{'required':['input_provenance']}}
+            ]}
 
     def correct_capture(args, **context):
         if not context.get('user_initiated'):
@@ -240,9 +262,11 @@ def create_translation_capability(translator):
             raise ValueError('capture_requires_user_action')
         return capture_text(args['mode'], context.get('should_cancel') or (lambda: False),
             context.get('clipboard_text'), context.get('image_bytes'), context.get('image_input'),
-            context.get('region_image_callback'), context.get('selection_pid'), context.get('selection_geometry_callback'))
+            context.get('region_image_callback'), context.get('selection_pid'), context.get('selection_geometry_callback'),
+            file_path=args.get('file_path') or context.get('file_path'), context=context)
     cap.register_operation(OperationDefinition('capture_text', 'Capture text after an explicit user action.',
-        {'type': 'object', 'properties': {'mode': {'type': 'string', 'enum': ['clipboard', 'selection', 'region', 'image']}},
+        {'type': 'object', 'properties': {'mode': {'type': 'string', 'enum': ['clipboard', 'selection', 'region', 'image', 'file']},
+                                          'file_path': {'type': 'string'}},
          'required': ['mode'], 'additionalProperties': False}, capture, artifact_kind='captured_text',
         result_contract=capture_contract,
         verifier=CaptureVerifier(), model_visible=False))
