@@ -77,7 +77,7 @@ class MiniQuickController(QObject):
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
             phase='idle', busy=False, bubbleCollapsed=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceApp='', captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
-            hasWorkbench=False, view='idle', finderHits=[], text='', meta='',
+            hasWorkbench=False, view='idle', finderHits=[], text='', meta='', canReturnToFinder=False,
             status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
             ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
             translationDetails='', translationNotice='', translationSettingsSuggested=False,
@@ -939,9 +939,12 @@ class MiniQuickController(QObject):
                 or (operation == 'submit_goal' and not args.get('source_ref') and self._state['phase'] != 'needs_input')
                 or (operation == 'translate_text' and not args.get('source_ref'))):
             self.clear_ocr_source()
+        is_file_translate = (operation == 'capture_translate' and args.get('mode') == 'file')
         if new_task and not preserve_region:
-            self.finder_artifact = self.organization_artifact = None
-            self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False)
+            if not is_file_translate:
+                self.finder_artifact = None
+            self.organization_artifact = None
+            self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, canReturnToFinder=False)
             self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
         capture_status = {'selection':'Đang nhận chữ bôi đen…', 'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
             'clipboard':'Đang đọc Clipboard và dịch…', 'file':'Đang đọc file và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
@@ -1190,12 +1193,16 @@ class MiniQuickController(QObject):
                 notice = '\n'.join(w for w in data.get('warnings', []) if not w.startswith('Đã dùng MyMemory'))
                 if data['provider'] == 'same_language':
                     meta += ' · Nội dung đã ở ngôn ngữ đích'
+                if provenance.get('kind') == 'file' and provenance.get('file_name'):
+                    meta = f"{provenance['file_name']} · {meta}"
+                can_return = bool(self.finder_artifact and provenance.get('kind') == 'file')
                 partial = data['status'] == 'partial'
                 self.complete_surface()
                 self.update(phase='partial' if partial or (model_loop and self._state['agentIncomplete']) else 'result', view='translation', finderHits=[],
                     text=data['text'], meta=meta, translationDetails=details.strip(), translationNotice=notice,
                     sameLanguageNotice=('Đoạn này đã là ' + languages.get(data['target_language'], data['target_language']) + '.' if data['provider'] == 'same_language' else ''),
-                    status='Chưa dịch hết văn bản' if partial else 'Bản dịch')
+                    status='Chưa dịch hết văn bản' if partial else 'Bản dịch',
+                    canReturnToFinder=can_return)
                 return
         if value.get('operation') in ('open_file', 'reveal_file'):
             self.update(phase='result', status='Đã mở file.' if value['operation'] == 'open_file' else 'Đã hiện trong Finder.')
@@ -1312,6 +1319,18 @@ class MiniQuickController(QObject):
             look_input=True, source_language=self.settings['source_language'],
             target_language=self.settings['target_language']))
 
+    @pyqtSlot()
+    def returnToFinderResults(self):
+        if self._state['busy'] or not self.finder_artifact:
+            return
+        raw_hits = self.finder_artifact.payload.get('hits', [])
+        hits = [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
+            display_path=hit['path'], match_reason='Spotlight') for hit in raw_hits]
+        self.update(phase='result', view='finder', finderHits=hits, text='',
+            status=f"Đã tìm thấy {len(hits)} mục",
+            meta='Chọn một file để mở hoặc hiện trong Finder',
+            canReturnToFinder=False)
+
     def file_action(self, index, operation):
         artifact = self.finder_artifact
         if self._state['busy'] or not artifact or not 0 <= index < len(artifact.payload['hits']):
@@ -1325,6 +1344,8 @@ class MiniQuickController(QObject):
         text = self._state['text'] or '\n'.join(h['path'] for h in self._state['finderHits'])
         if text:
             QGuiApplication.clipboard().setText(text)
+            if self._state.get('view') == 'translation':
+                self.update(status='Đã sao chép bản dịch')
             self.interactionCompleted.emit()
 
     @pyqtSlot(str)

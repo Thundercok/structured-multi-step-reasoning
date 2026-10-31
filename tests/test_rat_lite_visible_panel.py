@@ -100,6 +100,19 @@ snap = c.snapshot
 assert snap['phase'] == 'result', (snap['phase'], snap.get('status'))
 assert snap['view'] == 'translation', snap['view']
 assert snap['text'].strip(), "Expected translation text"
+assert sample_file.name in snap['meta'], (sample_file.name, snap['meta'])
+assert snap['canReturnToFinder'] is True, snap.get('canReturnToFinder')
+
+c.copyResult()
+assert c.snapshot['status'] == 'Đã sao chép bản dịch', c.snapshot['status']
+
+c.returnToFinderResults()
+QTest.qWait(50)
+snap2 = c.snapshot
+assert snap2['view'] == 'finder', snap2['view']
+assert len(snap2['finderHits']) == 1, snap2['finderHits']
+assert snap2['canReturnToFinder'] is False, snap2.get('canReturnToFinder')
+assert snap2['status'] == "Đã tìm thấy 1 mục", snap2['status']
 view.hide()
 '''
     env = dict(os.environ, QT_QPA_PLATFORM='offscreen', RAT_MINI_STATE_DIR=str(tmp_path),

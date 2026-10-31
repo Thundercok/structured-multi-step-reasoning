@@ -507,7 +507,15 @@ Rectangle {
                                 MouseArea { anchors.fill: parent; acceptedButtons: Qt.RightButton; onClicked: { readerMenu.sourceEditor = translationArea; readerMenu.popup() } }
 
                                 onSelectedTextChanged: { if (!desk.restoringScroll && visible) desk.liveController.rememberLookSelection(selectionStart, selectionEnd) }
-                                Keys.onPressed: event => { if (event.matches(StandardKey.Copy) && selectedText.length > 0) { event.accepted = true; desk.liveController.copyLookSelection(selectedText) } }
+                                Keys.onPressed: event => {
+                                    if (event.matches(StandardKey.Copy)) {
+                                        event.accepted = true;
+                                        if (selectedText.length > 0)
+                                            desk.liveController.copyLookSelection(selectedText);
+                                        else
+                                            desk.liveController.copyResult();
+                                    }
+                                }
                                  text: desk.liveSnapshot.text || ""; textFormat: TextEdit.PlainText; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: desk.ink; font.pixelSize: 16; padding: 0; rightPadding: desk.simpleAnswer ? 18 : 0; background: null; Layout.fillWidth: true; Accessible.name: "Bản dịch" }
                             Label { visible: desk.ocrDirty; text: "Kết quả này chưa dùng các chỉnh sửa chữ mới nhất."; color: desk.pdfInk; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                             Label { visible: !desk.simpleAnswer; text: desk.liveSnapshot.meta || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
@@ -540,17 +548,54 @@ Rectangle {
                                     id: fileRows
                                     model: desk.visibleFinderHits
                                     delegate: Rectangle {
+                                        id: fileHitRow
                                         required property var modelData
                                         required property int index
-                                        Layout.fillWidth: true; implicitHeight: hitColumn.implicitHeight + 18; radius: 9
-                                        color: desk.selectedFinderIndex === index ? desk.selectedSurface : fileMouse.containsMouse ? desk.hoverSurface : desk.utilitySurface
+                                        Layout.fillWidth: true; implicitHeight: Math.max(hitRowLayout.implicitHeight + 14, 44); radius: 9
+                                        color: desk.selectedFinderIndex === index ? desk.selectedSurface : (fileMouse.containsMouse || hitActions.isHovered) ? desk.hoverSurface : desk.utilitySurface
                                         border.color: desk.selectedFinderIndex === index ? desk.selectedEdge : "transparent"
-                                        ColumnLayout {
-                                            id: hitColumn; x: 9; y: 9; width: parent.width - 18; spacing: 3
-                                            Label { text: modelData.title; textFormat: Text.PlainText; color: desk.ink; font.weight: Font.Medium; font.pixelSize: 14; elide: Text.ElideRight; Layout.fillWidth: true }
-                                            Label { text: modelData.path; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                        MouseArea {
+                                            id: fileMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: desk.selectFile(index)
+                                            onDoubleClicked: { desk.selectFile(index); desk.liveController.openSelectedHit(index) }
                                         }
-                                        MouseArea { id: fileMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: desk.selectFile(index); onDoubleClicked: { desk.selectFile(index); desk.liveController.openSelectedHit(index) } }
+                                        RowLayout {
+                                            id: hitRowLayout
+                                            anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: 9; rightMargin: 9 }
+                                            spacing: 8
+                                            z: 2
+                                            ColumnLayout {
+                                                id: hitColumn
+                                                Layout.fillWidth: true
+                                                spacing: 2
+                                                Label { text: modelData.title; textFormat: Text.PlainText; color: desk.ink; font.weight: Font.Medium; font.pixelSize: 13; elide: Text.ElideRight; Layout.fillWidth: true }
+                                                Label { text: modelData.path; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                            }
+                                            RowLayout {
+                                                id: hitActions
+                                                readonly property bool isHovered: translateHitBtn.hovered || openHitBtn.hovered
+                                                spacing: 4
+                                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                QuietButton {
+                                                    id: translateHitBtn
+                                                    visible: desk.selectedFinderIndex === index || fileMouse.containsMouse || hitActions.isHovered
+                                                    text: "Dịch"
+                                                    enabled: !desk.liveSnapshot.busy
+                                                    onClicked: { desk.selectFile(index); desk.liveController.translateSelectedHit(index) }
+                                                }
+                                                QuietButton {
+                                                    id: openHitBtn
+                                                    visible: desk.selectedFinderIndex === index || fileMouse.containsMouse || hitActions.isHovered
+                                                    primary: true
+                                                    text: "Mở"
+                                                    enabled: !desk.liveSnapshot.busy
+                                                    onClicked: { desk.selectFile(index); desk.liveController.openSelectedHit(index) }
+                                                }
+                                            }
+                                        }
                                         Accessible.role: Accessible.ListItem; Accessible.name: modelData.title + ", " + modelData.path
                                     }
                                 }
@@ -621,6 +666,7 @@ Rectangle {
                     QuietButton { visible: !desk.compact && desk.surface === "result" && Boolean(desk.liveSnapshot.imagePreviewUrl); text: "Xem ảnh"; onClicked: desk.navigate("image") }
                     QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && desk.liveSnapshot.phase === "partial" && desk.allFinderHits.length > 0 && desk.liveSnapshot.finderSettingsSuggested; text: "Thư mục…"; onClicked: desk.openSettings() }
                     QuietButton { visible: !desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0; text: "Hiện trong Finder"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex) }
+                    QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "translation" && Boolean(desk.liveSnapshot.canReturnToFinder); text: "Về danh sách file"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.returnToFinderResults() }
                     Item { Layout.fillWidth: true }
                     QuietButton { visible: !desk.liveSnapshot.busy && desk.recoveryVisible && Boolean(desk.recoveryAction); primary: true; text: ({journal:"Xem nhật ký",image:"Chọn ảnh khác…",settings:"Mở cài đặt",retry:(["open_file","reveal_file"].indexOf(desk.liveSnapshot.lastOperation)>=0 ? "Tìm lại" : "Thử lại")}[desk.recoveryAction] || ""); onClicked: desk.recover() }
                     QuietButton { visible: desk.surface === "ocr" && !desk.recoveryVisible; primary: true; text: "Dịch lại"; enabled: !desk.liveSnapshot.busy && desk.liveSnapshot.canRetryTranslation && Boolean((desk.liveSnapshot.ocrText || "").trim()); onClicked: desk.liveController.retryTranslation(desk.liveSnapshot.ocrText) }
