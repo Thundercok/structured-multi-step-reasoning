@@ -146,5 +146,26 @@ def test_single_row_uses_scaling_without_pca_whitening():
     assert np.isfinite(predictor.score(data.embed[0], data.complexity[0])).all()
 
 
+@pytest.mark.parametrize("n,d,minority", [(10, 20, 2), (10, 20, 1), (12, 8, 3), (6, 50, 2)])
+def test_fit_survives_small_minority_folds(n, d, minority):
+    rng = np.random.default_rng(0)
+    acc = np.zeros((n, 3))
+    for k in range(3):
+        acc[rng.permutation(n)[:minority], k] = 1.0
+    data = EntryTrainingData(
+        embed=rng.normal(size=(n, d)),
+        complexity=rng.normal(size=(n, 3)),
+        accuracy=acc,
+        cost=rng.uniform(0.5, 2.0, size=(n, 3)),
+    )
+    pred = EntryPredictor(n_components=32, cv_folds=5, seed=0).fit(data)
+    assert np.isfinite(pred.score(data.embed[0], data.complexity[0])).all()
+
+
+@pytest.mark.parametrize("rows,expected", [(5, 4), (1, None), (2, 1), (500, 32)])
+def test_pca_cap_uses_actual_training_rows(rows, expected):
+    assert EntryPredictor(n_components=32)._components(4096, rows) == expected
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

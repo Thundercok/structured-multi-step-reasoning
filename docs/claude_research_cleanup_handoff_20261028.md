@@ -53,7 +53,7 @@ Không chạy tests/smoke sau repair. Chưa xác nhận năm lỗi fixture đã 
 
 ## Các vấn đề còn lại
 
-4. **Frozen source hashes**: manifest cũ hash root `reasoning_strategies.py`; kiểm chứng bằng source ở Git revision gốc, không thay hash/path lịch sử bằng file mới để ép pass. `direct_cot_analysis.py` cần xử lý theo provenance này nếu được giao tiếp.
+4. **Frozen source hashes**: manifest cũ hash root `reasoning_strategies.py`; kiểm chứng bằng source ở Git revision gốc, không thay hash/path lịch sử bằng file mới để ép pass. Cập nhật 2026-10-29: [source compatibility review](direct_cot_source_compatibility_review_20261029.md) chưa tìm thấy aligned pilot để đối chiếu. Giữ guard tại `experiments/direct_cot_analysis.py`; xác minh byte lịch sử không tự chứng minh tương thích semantic hiện tại. Mục này được hoãn tới khi có pilot và revision gốc cụ thể.
 5. Còn branch lịch sử chưa hợp nhất (bao gồm `rat-ui` có ba commit không nằm trên main). Chat này chỉ chuyển working checkout về main và commit hiện trạng; không merge/delete branch cũ. Không claim “mọi branch đã được hợp nhất”.
 
 ## Kết quả kiểm chứng: phân biệt nguồn
