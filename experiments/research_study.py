@@ -403,6 +403,7 @@ def main(argv=None):
     mode.add_argument("--gsm8k-routing-analysis", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train, save selection, then evaluate development validation; no model calls")
     mode.add_argument("--gsm8k-routing-fit", type=Path, metavar="PILOT_RUN", help="Fit the declared query-only baseline on train and seal selection; no model calls")
     mode.add_argument("--gsm8k-routing-validate", type=Path, metavar="SEALED_SELECTION_DIR", help="Evaluate sealed selection on development validation without refitting; no model calls")
+    mode.add_argument("--gsm8k-full-policy-analysis", type=Path, metavar="PILOT_RUN", help="Fit full adaptive policy (entry routing + optimal stopping) on train, then evaluate development validation; no model calls")
     mode.add_argument(
         "--direct-cot-analysis", type=Path, metavar="PILOT_RUN",
         help="Development-only replay of a fixed DIRECT-to-CoT policy; never calls a model",
@@ -507,6 +508,18 @@ def main(argv=None):
         except (ValueError, OSError, KeyError, TypeError) as error:
             parser.error(str(error))
         print(f"gsm8k_routing_validation_evaluation: {args.output / 'report.md'}")
+        return
+    if args.gsm8k_full_policy_analysis:
+        overrides = [key for key, value in vars(args).items()
+                     if key not in ("gsm8k_full_policy_analysis", "output") and value is not None and value is not False]
+        if overrides:
+            parser.error("GSM8K full policy analysis uses fixed recorded settings; overrides are forbidden: " + ", ".join(overrides))
+        from experiments.gsm8k_full_policy_evaluation import write_full_policy_run
+        try:
+            write_full_policy_run(args.gsm8k_full_policy_analysis, args.output)
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            parser.error(str(error))
+        print(f"gsm8k_full_policy_analysis: {args.output / 'report.md'}")
         return
     if args.cot_restart_fresh_smoke:
         overrides = sorted(
