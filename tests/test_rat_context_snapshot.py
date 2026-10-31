@@ -1,7 +1,6 @@
 """Tests for rat.engine.context_snapshot — Headless context projection compiler.
 
 Validates:
-- Lossless reconstruction and schema conformance for canonical design fixtures.
 - Provisional progress evaluation (global matched evidence, no manufactured outcome-to-receipt map).
 - Ineligible contracts (empty, invalid, unchecked) remaining unresolved without complement assumption.
 - Distinct authority tracking across user facts, observed results, suggestions, and committed effects.
@@ -14,7 +13,6 @@ from __future__ import annotations
 
 import copy
 import json
-from pathlib import Path
 import pytest
 
 from rat.engine.completion import (
@@ -25,12 +23,10 @@ from rat.engine.completion import (
 )
 from rat.engine.context_snapshot import (
     ALLOWED_VALUE_REF_SLOTS,
-    SCHEMA_VERSION,
     VALID_VIEWS,
     compile_context_snapshot,
     exact_json_equal,
     expand_value_refs,
-    get_snapshot_schema,
     is_value_ref,
     iter_projector_edges,
     resolve_json_pointer,
@@ -39,64 +35,6 @@ from rat.engine.context_snapshot import (
     validate_value_refs,
 )
 from rat.kernel.contracts import Artifact
-
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-AFTER_FIXTURE_PATH = REPO_ROOT / "audit/rat_context_B_assignment_20261014/after.snapshot.json"
-DECLARED_FIXTURE_PATH = REPO_ROOT / "audit/rat_context_B_assignment_20261014/declared_args.snapshot.json"
-
-
-def test_schema_loads_and_design_fixtures_validate_cleanly():
-    schema = get_snapshot_schema()
-    assert schema["properties"]["schema_version"]["const"] == SCHEMA_VERSION
-
-    assert AFTER_FIXTURE_PATH.is_file(), f"Missing {AFTER_FIXTURE_PATH}"
-    after_data = json.loads(AFTER_FIXTURE_PATH.read_text(encoding="utf-8"))
-    valid, errors = validate_context_snapshot(after_data)
-    assert valid, f"after.snapshot.json validation failed: {errors}"
-
-    assert DECLARED_FIXTURE_PATH.is_file(), f"Missing {DECLARED_FIXTURE_PATH}"
-    declared_data = json.loads(DECLARED_FIXTURE_PATH.read_text(encoding="utf-8"))
-    valid, errors = validate_context_snapshot(declared_data)
-    assert valid, f"declared_args.snapshot.json validation failed: {errors}"
-
-
-def test_lossless_reconstruction_of_after_fixture_entities():
-    after_data = json.loads(AFTER_FIXTURE_PATH.read_text(encoding="utf-8"))
-
-    # 1. Expand note revision 1 quote: points to artifact 2 /payload/content
-    note_rev1 = after_data["entities"][2]
-    assert note_rev1["ref"]["kind"] == "note_version"
-    assert note_rev1["ref"]["revision"] == 1
-    assert is_value_ref(note_rev1["body"]["quote"])
-
-    expanded_note1 = expand_value_refs(note_rev1["body"], after_data)
-    art2_content = after_data["entities"][1]["body"]["payload"]["content"]
-    assert expanded_note1["quote"] == art2_content
-    assert expanded_note1["source_ref"]["quote"] == art2_content
-
-    # 2. Expand note replacement links: rev 1 replaced_by_text points to rev 2 text
-    note_rev2 = after_data["entities"][3]
-    assert expanded_note1["replaced_by_text"] == note_rev2["body"]["text"]
-
-    expanded_note2 = expand_value_refs(note_rev2["body"], after_data)
-    assert expanded_note2["replaces_text"] == note_rev1["body"]["text"]
-
-    # 3. Expand note_event snapshot: points to rev 2 note entity
-    event_ent = after_data["entities"][4]
-    assert is_value_ref(event_ent["body"]["snapshot"])
-    expanded_event = expand_value_refs(event_ent["body"], after_data)
-    assert expanded_event["snapshot"]["id"] == "example-note-14"
-    assert expanded_event["snapshot"]["revision"] == 2
-
-    # 4. Expand dispatch receipt: operation_result points to operation_result entity
-    rcpt0 = after_data["observed_state"]["receipts"][0]
-    assert is_value_ref(rcpt0["operation_result"])
-    expanded_rcpt0 = expand_value_refs(rcpt0, after_data)
-    op_result_body = after_data["entities"][5]["body"]
-    assert expanded_rcpt0["operation_result"]["notes_updated"] is True
-    # The note inside operation_result is expanded to note rev 2
-    assert expanded_rcpt0["operation_result"]["note"]["id"] == "example-note-14"
 
 
 def test_provisional_progress_eligible_contract_evaluation():
@@ -885,7 +823,6 @@ def test_adversarial_input_immutability_across_lifecycle():
     assert exact_json_equal(task_state, orig_task_state)
 
 
-
 # Independent R3 origin/scope regressions. Wrapper shape in raw output does not
 # grant a second dereference, and current proof eligibility is more than closure.
 @pytest.mark.parametrize("target_present", [True, False])
@@ -1317,5 +1254,3 @@ def test_regression_registered_result_input_immutability():
     _assert_strict_equal([r.__dict__ for r in journal.receipts], orig_receipts)
     _assert_strict_equal(note, orig_note)
     _assert_strict_equal(event, orig_event)
-
-

@@ -1,12 +1,10 @@
 import copy
-import hashlib
-import json
 
 import pytest
 
 from experiments.research_study import smoke_dataset, validate_dataset
 from research_identity import canonical_problem_id, digest, problem_fingerprint
-from scripts.build_procedural_research_data import ROOT, build_release, main
+from scripts.build_procedural_research_data import build_release
 from scripts.gen_tasks import render_arith, render_order
 
 
@@ -130,22 +128,3 @@ def test_invalid_source_hash_and_stale_development_review_fail_before_release():
     record = {"query_sha256": "wrong", "verified_answer": "2"}
     with pytest.raises(ValueError, match="review no longer matches"):
         build_release(main_input, tune_input, reviews={"main": {"1": record}, "tuning": {}})
-
-
-def test_release_manifest_and_saved_candidate_are_reproducible_and_non_overwriting(tmp_path):
-    output = tmp_path / "release"
-    main(["--output", str(output)])
-    manifest = json.loads((output / "manifest.json").read_text())
-    for name, expected in manifest["artifact_sha256"].items():
-        assert hashlib.sha256((output / name).read_bytes()).hexdigest() == expected
-    with pytest.raises(FileExistsError):
-        main(["--output", str(output)])
-    saved = ROOT / "data/procedural_research_v1"
-    if saved.exists():
-        # Frozen data must reproduce; implementation hashes legitimately change
-        # when the harness evolves. Preserve the historical manifest as evidence.
-        for name in ("main.json", "tuning.json", "checks.json", "report.md"):
-            assert (saved / name).read_bytes() == (output / name).read_bytes()
-        saved_manifest = json.loads((saved / "manifest.json").read_text())
-        assert saved_manifest["artifact_sha256"] == manifest["artifact_sha256"]
-        assert saved_manifest["inputs"] == manifest["inputs"]

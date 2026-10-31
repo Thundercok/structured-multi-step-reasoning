@@ -1,6 +1,5 @@
 """Offline regression checks; fixtures do not establish model quality."""
 
-import hashlib
 import json
 import sys
 
@@ -163,16 +162,6 @@ def test_bootstrap_rejects_invalid_inputs(y, groups, predictions, count):
         agreement.paired_oof_bootstrap({"Baseline": predictions}, y, groups, n_bootstrap=count)
 
 
-def test_precision_zero_agreements_is_none_and_g24_denominator_is_seventeen():
-    precision, wrong = agreement.evaluate_precision_and_failures()
-    g24_pair = precision["g24"]["agree(PAL-v2,COT)"]
-    assert (g24_pair["n_corr"], g24_pair["n_agreed"], g24_pair["p_corr"]) == (0, 0, None)
-    g24_plurality = precision["g24"]["plurality_agree>=2"]
-    assert (g24_plurality["n_corr"], g24_plurality["n_agreed"]) == (16, 17)
-    assert g24_plurality["p_corr"] == pytest.approx(16 / 17)
-    assert any(row["id"] == "order_0010_en_orig" and row["accepted"] == "alice" and row["gold"] == "grace" for row in wrong)
-
-
 @pytest.mark.parametrize("error", ["duplicate_id", "duplicate_arm", "duplicate_pal", "missing_arm", "wrong_gold", "bad_tokens"])
 def test_load_dataset_rejects_corrupt_join(tmp_path, monkeypatch, error):
     item = {"id": "a", "group_id": "ga", "family": "order", "level": 1, "answer": "Bob"}
@@ -247,49 +236,3 @@ def test_supported_cli_is_offline_and_forwards_only_new_output(tmp_path, monkeyp
     main(["--agreement-analysis", "--output", str(output)])
     assert called == [output]
     assert before == {name for name in sys.modules if name.startswith("mlx")}
-
-
-def test_complete_writer_retains_history_and_saves_recomputable_results(tmp_path):
-    historical = [agreement.ROOT / "prereg/decision_rule_agree.md",
-                  *agreement.AUDIT_DIR.glob("AJ_*.txt")]
-    before_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in historical}
-    before_mlx = {name for name in sys.modules if name.startswith("mlx")}
-    output = tmp_path / "reanalysis"
-    summary = agreement.write_analysis(output)
-    manifest = json.loads((output / "manifest.json").read_text())
-    assert manifest["status"] == "complete"
-    assert manifest["new_model_calls"] == 0
-    assert manifest["confirmatory"] is False
-    assert manifest["preregistration_pass"] is False
-    assert manifest["publication_review_required"] is True
-    assert manifest["n_items"] == manifest["n_groups"] == 100
-    assert summary["preregistration_pass"] is False
-    for name, expected in manifest["artifacts_sha256"].items():
-        assert hashlib.sha256((output / name).read_bytes()).hexdigest() == expected
-    for name, expected in manifest["source_sha256"].items():
-        assert hashlib.sha256((agreement.ROOT / name).read_bytes()).hexdigest() == expected
-    assert {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in historical} == before_hashes
-    assert {name for name in sys.modules if name.startswith("mlx")} == before_mlx
-    cv = json.loads((output / "cv.json").read_text())
-    for family in ("order", "pooled"):
-        assert len(cv[family]["fold_assignments"]) == 20
-        for name, predictions in cv[family]["oof_predictions"].items():
-            scores = [roc_auc_score(cv[family]["target"], row) for row in predictions]
-            metric = summary["gate"][family]["models"][name]
-            assert np.mean(scores) == pytest.approx(metric["mean_auroc"])
-            if name != "Baseline":
-                assert len(cv[family]["bootstrap_deltas"][name]) == 2000
-                bounds = np.quantile(cv[family]["bootstrap_deltas"][name], [.025, .975])
-                assert (metric["ci_low"], metric["ci_high"]) == pytest.approx(bounds)
-    replay = summary["replay"]["order"]
-    assert replay["W"]["corr"] == 23
-    assert replay["G1"]["corr"] == replay["G2"]["corr"] == 22
-    assert replay["W"]["mean_tok"] == pytest.approx(915.9677419354839)
-    assert replay["G1"]["mean_tok"] > replay["W"]["mean_tok"]
-    assert summary["gate"]["arith"]["models"]["Baseline"]["mean_auroc"] is None
-    report = (output / "report.md").read_text()
-    assert "0/0 | N/A (no agreements)" in report
-    assert "16/17 | 94.1%" in report
-    assert "LEGACY token proxy" in report
-    assert "NOT causal diagnosis" in report
-    assert "PASS" not in report

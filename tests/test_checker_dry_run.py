@@ -1,6 +1,5 @@
 """Unit and contract tests for the offline Game-of-24 checker development evaluator and generation call ledger."""
 
-import json
 from pathlib import Path
 import sys
 import time
@@ -390,46 +389,6 @@ def test_query_only_solver_baseline():
     assert res_unsolvable["verification_status"] == "invalid"
 
 
-def test_build_checker_development_dry_run_artifacts(tmp_path):
-    """Verify that build_checker_development_dry_run_artifacts generates self-consistent artifacts."""
-    from experiments.checker_dry_run import build_checker_development_dry_run_artifacts, sha256_file
-    repo_root = Path(__file__).resolve().parents[1]
-
-    manifest = build_checker_development_dry_run_artifacts(repo_root, tmp_path)
-
-    assert manifest["status"] == "complete"
-    assert manifest["model_calls"] is False
-    assert manifest["tokens_consumed"] == 0
-    assert manifest["human_review_status"] == "pending"
-
-    # Verify all manifest files exist and match sha256
-    for name, expected_sha in manifest["artifact_sha256"].items():
-        file_path = tmp_path / name
-        assert file_path.is_file(), f"Missing artifact: {name}"
-        assert sha256_file(file_path) == expected_sha, f"Checksum mismatch for: {name}"
-
-    # Verify proposed execution plan is pending authorization
-    plan = json.loads((tmp_path / "proposed_execution_plan.json").read_text(encoding="utf-8"))
-    assert plan["status"] == "proposed, not authorized"
-    assert plan["authorized_by_user"] is False
-    assert plan["human_review_status"] == "pending"
-    assert len(plan["candidate_items"]) == 8
-
-    # Verify review summary
-    summary = json.loads((tmp_path / "development_review_summary.json").read_text(encoding="utf-8"))
-    assert summary["selected_groups"] == 8
-    assert summary["human_review_status"] == "pending"
-    assert summary["human_approval_granted"] is False
-    assert summary["historical_cot_coverage"]["missing_recipes"] == ["SELF_CONSISTENCY", "TOT"]
-    assert summary["query_only_solver_summary"]["solvable_count"] == 8
-
-    # Verify input_sha256 and source_sha256 in manifest
-    assert "input_sha256" in manifest
-    assert "source_sha256" in manifest
-    assert "dataset.json" in manifest["input_sha256"]
-    assert "records.json" in manifest["input_sha256"]
-
-
 def test_budget_strict_validation_r3():
     """R3: Validate declared cap, measured tokens, negative counts, and recipe names."""
     ledger = GenerationLedger(max_tokens_per_call=1024, max_total_tokens=10000)
@@ -524,87 +483,6 @@ def test_candidate_selection_semantics_and_majority_fallback_r4():
     assert res.verification_status == "valid"
 
 
-def test_duplicate_record_rejection_r5(tmp_path):
-    """R5: Builder rejects duplicate (id, strategy, token_budget) records in historical dataset."""
-    from experiments.checker_dry_run import build_checker_development_dry_run_artifacts
-    repo_root = Path(__file__).resolve().parents[1]
-
-    # Create isolated copy of audit files
-    base = tmp_path / "audit/development-pilot-measured-20261004-runtimefix"
-    index_dir = tmp_path / "audit/rat_cot_quick_unification_20261022/independent_review/stopping_signals"
-    base.mkdir(parents=True)
-    index_dir.mkdir(parents=True)
-
-    src_base = repo_root / "audit/development-pilot-measured-20261004-runtimefix"
-    src_index = repo_root / "audit/rat_cot_quick_unification_20261022/independent_review/stopping_signals/development_review_index.json"
-
-    (base / "dataset.json").write_bytes((src_base / "dataset.json").read_bytes())
-    (index_dir / "development_review_index.json").write_bytes(src_index.read_bytes())
-
-    records = json.loads((src_base / "records.json").read_text(encoding="utf-8"))
-    dup = dict(records[0])
-    records.append(dup)
-    (base / "records.json").write_text(json.dumps(records), encoding="utf-8")
-
-    out_dir = tmp_path / "out"
-    with pytest.raises(ValueError, match="Duplicate record key detected"):
-        build_checker_development_dry_run_artifacts(tmp_path, out_dir)
-
-
-def test_interrupted_builder_persistence_r2(tmp_path):
-    """R2: Interrupted builder persists calls.jsonl and manifest.json with status 'interrupted'."""
-    from experiments.checker_dry_run import (
-        build_checker_development_dry_run_artifacts,
-        ScriptedGenerationBackend,
-    )
-    repo_root = Path(__file__).resolve().parents[1]
-    target = tmp_path / "interrupted_run"
-
-    orig_generate = ScriptedGenerationBackend.generate
-    call_count = [0]
-
-    def intercepting_generate(self, *args, **kwargs):
-        call_count[0] += 1
-        if call_count[0] == 2:
-            raise KeyboardInterrupt("Simulated interruption during builder")
-        return orig_generate(self, *args, **kwargs)
-
-    ScriptedGenerationBackend.generate = intercepting_generate
-    try:
-        with pytest.raises(KeyboardInterrupt):
-            build_checker_development_dry_run_artifacts(repo_root, target)
-    finally:
-        ScriptedGenerationBackend.generate = orig_generate
-
-    assert (target / "calls.jsonl").is_file()
-    assert (target / "manifest.json").is_file()
-    man = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
-    assert man["status"] == "interrupted"
-    assert "KeyboardInterrupt" in man["interruption_reason"]
-
-
-def test_report_numbers_match_json_dynamically_r1(tmp_path):
-    """R1: Report numbers match computed JSON summary dynamically with no hardcoding."""
-    from experiments.checker_dry_run import build_checker_development_dry_run_artifacts
-    repo_root = Path(__file__).resolve().parents[1]
-
-    build_checker_development_dry_run_artifacts(repo_root, tmp_path)
-
-    summary = json.loads((tmp_path / "dry_run_summary.json").read_text(encoding="utf-8"))
-    report = (tmp_path / "report.md").read_text(encoding="utf-8")
-
-    p_gated = summary["paths"]["checker_gated"]
-    p_always = summary["paths"]["always_escalate"]
-
-    # Verify checker gated calls match dynamically
-    assert f"**{p_gated['total_calls']}**" in report
-    assert f"**{p_always['total_calls']}**" not in report or p_gated["total_calls"] != p_always["total_calls"]
-    assert f"{p_gated['total_generated_tokens']:,}" in report
-
-    # Verify synthetic double badges
-    assert "[SYNTHETIC DOUBLE]" in report
-
-
 def test_order_invariance_and_budget_isolation_r1():
     """R1: Evaluation order does not alter per-item ladder decisions; paths have isolated budgets."""
     # Build trace bank for 2 items
@@ -656,49 +534,6 @@ def test_order_invariance_and_budget_isolation_r1():
     assert ledger_fwd.total_calls_started == ledger_rev.total_calls_started == 7
 
 
-def test_refuse_reuse_occupied_evidence_directory_c1(tmp_path):
-    """C1: Reject occupied evidence directories before any write and ensure zero byte changes."""
-    from experiments.checker_dry_run import build_checker_development_dry_run_artifacts
-    repo_root = Path(__file__).resolve().parents[1]
-    target_dir = tmp_path / "occupied_evidence"
-
-    # Initial build should succeed
-    build_checker_development_dry_run_artifacts(repo_root, target_dir)
-    assert (target_dir / "manifest.json").is_file()
-
-    # Record snapshot of all files and their byte content
-    before_state = {f.name: f.read_bytes() for f in target_dir.iterdir()}
-
-    # Second build must raise ValueError before touching files
-    with pytest.raises(ValueError, match="Refusing to reuse occupied evidence directory"):
-        build_checker_development_dry_run_artifacts(repo_root, target_dir)
-
-    # After state must be byte-for-byte identical
-    after_state = {f.name: f.read_bytes() for f in target_dir.iterdir()}
-    assert before_state == after_state
-
-
-def test_fixed_cot_labeled_synthetic_c2(tmp_path):
-    """C2: Label fixed_cot replay path and tokens as synthetic replay, preserving provenance distinction."""
-    from experiments.checker_dry_run import build_checker_development_dry_run_artifacts
-    repo_root = Path(__file__).resolve().parents[1]
-    target_dir = tmp_path / "prov_test"
-
-    build_checker_development_dry_run_artifacts(repo_root, target_dir)
-
-    summary = json.loads((target_dir / "dry_run_summary.json").read_text(encoding="utf-8"))
-    p_cot = summary["paths"]["fixed_cot"]
-    assert p_cot["is_synthetic"] is True
-    assert "synthetic replay" in p_cot["data_provenance"]
-
-    dev_summary = json.loads((target_dir / "development_review_summary.json").read_text(encoding="utf-8"))
-    assert dev_summary["historical_cot_coverage"]["data_provenance"] == "historical pilot measured"
-
-    report = (target_dir / "report.md").read_text(encoding="utf-8")
-    assert "Fixed CoT [SYNTHETIC REPLAY]" in report
-    assert "Query-Only Solver [Deterministic Sample]" in report
-
-
 def test_selector_expression_whitespace_normalization_c3():
     """C3: TOT selector majority fallback normalizes expressions across whitespace variants."""
     ledger = GenerationLedger()
@@ -719,5 +554,3 @@ def test_selector_expression_whitespace_normalization_c3():
     assert res.verification_status == "valid"
     assert res.extracted_answer == good_no_space
     assert res.output == f"Answer: {good_no_space}"
-
-

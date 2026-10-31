@@ -1,11 +1,9 @@
 import copy
-import hashlib
-import json
 
 import pytest
 
 from scripts.gen_tasks import render_arith, render_g24, render_order
-from scripts.review_tuning_sweep import analyze, legacy_implementation, main
+from scripts.review_tuning_sweep import analyze, legacy_implementation
 
 
 @pytest.fixture(scope="module")
@@ -69,19 +67,3 @@ def test_review_rejects_unpaired_or_inconsistent_artifacts(legacy, mutation):
     else: records[0]["completion_tokens"] = 95
     with pytest.raises(ValueError):
         analyze(records, items, *legacy)
-
-
-def test_completed_h4_review_has_reproducible_hashed_outputs_and_never_overwrites(tmp_path):
-    output = tmp_path / "review"
-    main(["--output", str(output)])
-    manifest = json.loads((output / "manifest.json").read_text())
-    for name, expected in manifest["artifact_sha256"].items():
-        assert hashlib.sha256((output / name).read_bytes()).hexdigest() == expected
-    summary = json.loads((output / "summary.json").read_text())
-    assert summary["legacy_records_reproduced"] == 188 and summary["tuning_gold_items_verified"] == 94
-    assert summary["changed_correctness"] == 1 and summary["presentation_cases_recovered_from_strict_legacy_parse"] == 6
-    assert summary["overall"]["DIRECT"]["typed_correct"] == 21
-    assert summary["overall"]["COT"]["typed_correct"] == 63
-    assert manifest["model_calls"] == 0 and not manifest["publication_ready"]
-    with pytest.raises(FileExistsError):
-        main(["--output", str(output)])

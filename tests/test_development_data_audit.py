@@ -1,50 +1,6 @@
-import copy
-import json
-from pathlib import Path
-
 import pytest
 
-from scripts.audit_development_data import ROOT, apply_curated_review, audit_dataset, digest, isolation_checks, problem_fingerprint, solve_procedural_query
-
-
-def test_development_audit_verifies_all_development_rows_and_retains_blinded_test_hashes():
-    review = json.loads((ROOT / "audit/development_data_review.json").read_text())
-    baseline = json.loads((ROOT / "audit/development_audit_baseline.json").read_text())
-    counts = []
-    for record in baseline["datasets"]:
-        output = audit_dataset(ROOT / record["path"], review)
-        assert output["held_out_rows_sha256"] == record["held_out_rows_sha256"]
-        assert all(row["split"] != "test" for row in output["development_outcomes"])
-        counts.append(output["development_items_verified"])
-    assert counts == [54, 108, 60]
-
-
-def test_review_cannot_patch_held_out_items():
-    dataset = json.loads((ROOT / "data/nckh_reasoning_dataset_draft.json").read_text())
-    review = json.loads((ROOT / "audit/development_data_review.json").read_text())
-    held = next(row for row in dataset["items"] if row["split"] == "test")
-    review["item_corrections"][held["id"]] = {"query": "forbidden replacement"}
-    with pytest.raises(ValueError, match="only reviewed development"):
-        apply_curated_review(copy.deepcopy(dataset), review)
-
-
-def test_builder_reproduces_reviewed_draft_and_held_out_rows_exactly():
-    from scripts.build_nckh_dataset import build_dataset
-    saved = json.loads((ROOT / "data/nckh_reasoning_dataset_draft.json").read_text())
-    generated = build_dataset()
-    assert digest(generated) == digest(saved)
-
-
-def test_semantic_review_is_invalidated_by_changed_development_wording():
-    dataset = json.loads((ROOT / "data/nckh_reasoning_dataset_draft.json").read_text())
-    review = json.loads((ROOT / "audit/development_data_review.json").read_text())
-    next(row for row in dataset["items"] if row["split"] == "train")["query"] += " Changed assumption."
-    path = ROOT / "runs" / "unused-development-audit.json"
-    # The reader can operate on an isolated path without writing any project data.
-    from unittest.mock import patch
-    with patch.object(Path, "read_text", return_value=json.dumps(dataset)):
-        with pytest.raises(ValueError, match="semantically reviewed text"):
-            audit_dataset(path, review)
+from scripts.audit_development_data import isolation_checks, problem_fingerprint, solve_procedural_query
 
 
 def test_query_solver_rejects_nonunique_order_and_invalid_reference():

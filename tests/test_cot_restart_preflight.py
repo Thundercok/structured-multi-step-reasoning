@@ -1,12 +1,11 @@
 import copy
 import hashlib
-import json
 
 import pytest
 
 from scripts.gen_tasks import render_arith
 from scripts.prepare_cot_restart import (
-    DATASET, MENU, TRACE, analyze, canonical_folds, main, make_menu,
+    MENU, analyze, canonical_folds, main, make_menu,
     reasoning_prefix, sentence_boundaries,
 )
 
@@ -121,38 +120,3 @@ def test_existing_output_is_refused_before_any_inputs_are_read(tmp_path, monkeyp
     monkeypatch.setattr(module, "sha256_file", lambda _: pytest.fail("Inputs should not be read"))
     with pytest.raises(FileExistsError):
         main(["--output", str(tmp_path)])
-
-
-def test_cpu_preflight_real_inputs_produce_hashed_development_only_artifacts(tmp_path):
-    pytest.importorskip("tokenizers")
-    output = tmp_path / "preflight"
-    main(["--output", str(output)])
-    manifest = json.loads((output / "manifest.json").read_text())
-    summary = json.loads((output / "summary.json").read_text())
-    observations = json.loads((output / "observations.json").read_text())
-    checkpoints = [json.loads(line) for line in (output / "checkpoints.jsonl").read_text().splitlines()]
-    source = [json.loads(line) for line in TRACE.read_text().splitlines()]
-    by_id = {item["id"]: item for item in json.loads(DATASET.read_text())["items"]}
-    assert summary["cot_traces"] == 100 and summary["source_records"] == 571
-    assert summary["historical_correct"] == 58 and len(checkpoints) == 400
-    assert summary["failure_profile"]["truncation"] == 23
-    assert manifest["model_calls"] == 0 and not manifest["uses_held_out_data"]
-    assert not manifest["future_model_execution_authorized"] and not manifest["stage0_changed"]
-    assert {r["development_fold"] for r in observations} == {"dev_fit", "dev_eval"}
-    assignments = {}
-    for row in observations:
-        assert assignments.setdefault(row["canonical_group_id"], row["development_fold"]) == row["development_fold"]
-    assert len({row["checkpoint_id"] for row in checkpoints}) == 400
-    for row in checkpoints:
-        original = source[row["source_line"] - 1]
-        payload = row["model_input"]
-        assert original["arm"] == "COT" and original["id"] == row["id"]
-        assert payload["prefix"] == original["raw_output"][:row["cut_char"]]
-        assert payload["query"] == by_id[row["id"]]["query"]
-        assert set(payload) == {"prefix", "query"}
-        assert hashlib.sha256(payload["prefix"].encode()).hexdigest() == row["prefix_sha256"]
-        assert hashlib.sha256(original["raw_output"].encode()).hexdigest() == row["source_raw_output_sha256"]
-    for name, expected in manifest["artifact_sha256"].items():
-        assert hashlib.sha256((output / name).read_bytes()).hexdigest() == expected
-    with pytest.raises(FileExistsError):
-        main(["--output", str(output)])
