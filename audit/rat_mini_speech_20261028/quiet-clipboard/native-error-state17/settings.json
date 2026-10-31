@@ -1,1 +1,0 @@
-{"roots": [], "provider": "openai", "model": "gpt-4.1-mini", "translation_provider": "mymemory", "free_fallback": false, "llm_enabled": false, "target_language": "vi", "source_language": "en", "semantic_enabled": false, "setup_completed": true}

@@ -153,3 +153,11 @@ nghiên cứu `qwen_mlx_backend.py`, các mock còn được dùng và runner l�
 manifest dẫn chiếu vẫn giữ. Xem `audit/unused_source_removal_20261017/`.
 Không khôi phục các bản crawler cũ vào runtime RAT. Recovery, legacy checkout
 và shared worktrees độc lập vẫn được giữ theo AGENTS.
+
+
+## Unified Execution Contract vs. Escalated Agentic Reasoning
+
+Hệ thống RAT vận hành theo kiến trúc 2 tầng thống nhất:
+- Mọi capability của RAT (tìm file, dịch, dọn thư mục, giải thích) đều đi qua cùng bộ hợp đồng chuẩn: `ToolContract`, `CapabilityDispatcher`, `Artifact` và `Verifier`.
+- **Tier 0 (`DIRECT` Fast-Path — 0 LLM calls)**: Các thao tác xác định (Tìm file Spotlight, Dịch snippet trên máy `CTranslate2`, Xem trước dọn thư mục) được định tuyến trực tiếp qua `ToolGoalRouter` mà không tốn chi phí gọi LLM và có độ trễ sub-second.
+- **Tier 1+ (`VCoT / Multi-Step Agent Loop` — Optimal Stopping)**: Chỉ kích hoạt khi yêu cầu mang tính đa bước, cần suy luận logic hoặc phân tích giải thích sâu, được kiểm soát ngân sách token và dừng tối ưu theo quy luật toán học (Optimal Stopping).

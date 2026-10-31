@@ -32,11 +32,18 @@ flowchart LR
     S --> T[Train split: fit entry predictors]
     T --> E[Held-out test: paired policy replay]
     E --> R[Raw traces, comparisons and failure analysis]
-    R --> P[NCKH paper]
+    P[NCKH paper]
     M[CoT / structured-reasoning method] --> A[RAT: primary application implementation]
     M --> C
     R -. Evidence informs implementation .-> A
 ```
+
+## Unified Execution Contract vs. Escalated Agentic Reasoning
+
+RAT implements a strict 2-tier architectural separation:
+- **Shared Reasoning Contract**: Every action flows through the same `ToolContract`, `CapabilityDispatcher`, observable `Artifact`, and `Verifier`.
+- **Tier 0 (`DIRECT` Fast-Path — 0 LLM calls)**: Deterministic routines (macOS Spotlight search, on-device `CTranslate2` translation, directory reorganization preview) execute via `ToolGoalRouter` instantly with zero model inference cost.
+- **Tier 1+ (`VCoT / Multi-Step Agent Loop` — Optimal Stopping)**: Escalates only when intent demands multi-step planning, iterative clarification, or deep explanation under rigorous token budget management.
 
 ## Quickstart
 

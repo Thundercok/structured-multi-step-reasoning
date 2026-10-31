@@ -1,1 +1,0 @@
-77968   0.0  53504 dist/mini-speech-20261028-qa13/RAT Mini Speech QA13.app/Contents/MacOS/RAT Mini

@@ -1,5 +1,0 @@
-{
-  "original_build": "20261028.10",
-  "qa_bundle_id": "vn.rat.mini.speechqa",
-  "changed": "Info.plist identity and LSEnvironment only; binary and QML unchanged"
-}

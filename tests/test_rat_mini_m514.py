@@ -88,7 +88,7 @@ c.update(phase='result',busy=False,expanded=True,hasWorkbench=True,view='transla
     ocrText='Source draft',ocrCommittedText='Source draft',ocrOriginalText='Original source')
 for _ in range(20):app.processEvents()
 rat=root.findChild(QObject,'mascotCrop')
-assert (rat.property('width'),rat.property('height')) == (144,144)
+assert (rat.property('width'),rat.property('height')) == (96,96)
 c.showSurface('ocr')
 for _ in range(10):app.processEvents()
 assert ocr.property('visible') and not translation.property('visible')

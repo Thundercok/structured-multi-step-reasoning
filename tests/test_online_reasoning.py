@@ -662,7 +662,24 @@ class TestFeaturePreprocessingContractAndRouteParity:
             "tau": list(policy.tau),
             "mean_cost": list(policy.mean_cost),
             "entry_cost_models": [
-                {"coef": m.coef_.tolist(), "intercept": float(m.intercept_)}
+                {
+                    "coef": getattr(
+                        getattr(m, "best_estimator_", m).named_steps.get("head")
+                        if hasattr(getattr(m, "best_estimator_", m), "named_steps")
+                        else getattr(m, "best_estimator_", m),
+                        "coef_",
+                        np.array([]),
+                    ).tolist(),
+                    "intercept": float(
+                        getattr(
+                            getattr(m, "best_estimator_", m).named_steps.get("head")
+                            if hasattr(getattr(m, "best_estimator_", m), "named_steps")
+                            else getattr(m, "best_estimator_", m),
+                            "intercept_",
+                            0.0,
+                        )
+                    ),
+                }
                 for m in predictor.cost
             ],
             "entry_perf_models": [{"constant": m.value} for m in predictor.perf],

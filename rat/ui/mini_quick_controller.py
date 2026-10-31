@@ -94,6 +94,7 @@ class MiniQuickController(QObject):
             imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False, canUndoOrganization=False,
             organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False) and self.settings.get('permission_hello_version',0) >= 1),
             targetLanguage=self.settings.get('target_language', 'vi'),
+            llmEnabled=bool(self.settings.get('llm_enabled', False)),
             readiness=[], readinessBusy=False, readinessStatus="")
         self.shortcut_ack_timer = QTimer(self)
         self.shortcut_ack_timer.setSingleShot(True)
@@ -200,6 +201,11 @@ class MiniQuickController(QObject):
         self.update()
         self.lookFocusRequested.emit()
 
+    def _effective_source_language(self):
+        src = self.settings.get('source_language', 'auto')
+        tgt = self.settings.get('target_language', 'vi')
+        return 'auto' if src == tgt else src
+
     @pyqtSlot()
     def pasteSelectionFallback(self):
         if self.job or self._state['busy']:
@@ -214,7 +220,7 @@ class MiniQuickController(QObject):
         self.presentation.read()
         self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch đoạn vừa dán')
         self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
-            source_language=self.settings['source_language'], target_language=self.settings['target_language']))
+            source_language=self._effective_source_language(), target_language=self.settings['target_language']))
 
     @pyqtSlot()
     def pasteLook(self):
@@ -231,7 +237,7 @@ class MiniQuickController(QObject):
             self.update(requestText='Dịch đoạn vừa dán')
             self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=value['text'],
                 look_input=True,
-                source_language=self.settings['source_language'],
+                source_language=self._effective_source_language(),
                 target_language=self.settings['target_language']))
 
     @pyqtSlot(str)
@@ -549,7 +555,7 @@ class MiniQuickController(QObject):
             self.consume_submission(instruction)
         self.enqueue('capture_translate', dict(mode='image', image_input=image,
             look_input=True,
-            source_language=self.settings['source_language'],
+            source_language=self._effective_source_language(),
             target_language=self.settings['target_language']), instruction.strip())
         self.imageDropAccepted.emit(instruction)
         return True
@@ -653,7 +659,7 @@ class MiniQuickController(QObject):
             if self.quitting or generation != self.generation:
                 return
             logging.getLogger(__name__).info('region_capture_dispatching')
-            self.enqueue('capture_translate', dict(mode='region', source_language=self.settings['source_language'],
+            self.enqueue('capture_translate', dict(mode='region', source_language=self._effective_source_language(),
                 target_language=self.settings['target_language'], preserve_until_capture=True,
                 look_input=True))
         QTimer.singleShot(160, begin)
@@ -739,7 +745,7 @@ class MiniQuickController(QObject):
         self.presentation.read()
         self.update(selectionNotice='', selectionNeedsPermission=False)
         self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
-            look_input=True, source_language=self.settings['source_language'],
+            look_input=True, source_language=self._effective_source_language(),
             target_language=self.settings['target_language']),
             input_context={'selection_pid': int(source.processIdentifier()), 'selection_app': str(source.localizedName() or ''), 'quicklook_invocation_id':invocation})
         self._selection_present_generation = self.generation
@@ -927,7 +933,7 @@ class MiniQuickController(QObject):
         text = QGuiApplication.clipboard().text()
         self.update(requestText=text or 'Dịch Clipboard')
         self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
-            source_language=self.settings['source_language'],
+            source_language=self._effective_source_language(),
             target_language=self.settings['target_language']))
 
     def enqueue(self, operation, args, query='', *, input_context=None):
@@ -1306,7 +1312,9 @@ class MiniQuickController(QObject):
             'translation_tls_failed':'Chưa kết nối an toàn được với dịch vụ dịch. Kiểm tra ngày giờ máy và mạng; chữ vẫn được giữ.',
             'translation_network_error':'Chưa kết nối được dịch vụ dịch. Kiểm tra mạng rồi thử lại; chữ vẫn được giữ.',
             'translation_provider_error':'Dịch vụ dịch chưa trả được kết quả. Chữ vẫn được giữ; hãy thử lại sau.',
-            'mini_llm_disabled':'Chức năng này cần bật suy luận cloud trong Cài đặt. Nguồn chữ vẫn được giữ.',
+            'mini_llm_disabled':'Nhập từ khóa để tìm file, dán chữ để dịch Anh ↔ Việt trên máy, hoặc bật Suy luận Cloud (API key) trong Cài đặt để hỏi đáp/giải thích tự do.',
+            'llm_disabled':'Nhập từ khóa để tìm file, dán chữ để dịch Anh ↔ Việt trên máy, hoặc bật Suy luận Cloud (API key) trong Cài đặt để hỏi đáp/giải thích tự do.',
+            'ambiguous_goal':'Nhập từ khóa để tìm file, dán chữ để dịch Anh ↔ Việt trên máy, hoặc bật Suy luận Cloud (API key) trong Cài đặt để hỏi đáp/giải thích tự do.',
             'translation_failed':'Chưa dịch được lúc này. Chữ vẫn được giữ; kiểm tra mạng rồi thử lại.'}
         for code, message in messages.items():
             if code in error:
@@ -1360,7 +1368,7 @@ class MiniQuickController(QObject):
         self.update(requestText="Dịch file: " + hit['title'])
         self.enqueue('capture_translate', dict(mode='file', file_path=hit['path'],
             artifact_id=artifact.id, revision=artifact.revision, resource_id=hit['resource_id'],
-            look_input=True, source_language=self.settings['source_language'],
+            look_input=True, source_language=self._effective_source_language(),
             target_language=self.settings['target_language']))
 
     @pyqtSlot()
@@ -1487,6 +1495,7 @@ class MiniQuickController(QObject):
             if self._state['translationSettingsSuggested'] and self._state['phase'] == 'error':
                 self._state['status'] = 'Đã cập nhật cài đặt. Bấm Thử lại để dịch đoạn chữ đã giữ.'
             self.update(translationSettingsSuggested=False, targetLanguage=updated.get('target_language', 'vi'),
+                llmEnabled=bool(updated.get('llm_enabled', False)),
                 settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
             return ''
         except Exception as exc:

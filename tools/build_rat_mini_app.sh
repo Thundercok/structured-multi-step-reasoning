@@ -91,5 +91,9 @@ root = Path.cwd()
 with zipfile.ZipFile(Path(os.environ['RAT_MINI_BUILT_APP']).parent / 'RAT Mini.zip', 'a', compression=zipfile.ZIP_DEFLATED) as package:
     package.write(root / 'docs/RAT_MINI_BAT_DAU.txt', 'BAT DAU O DAY.txt')
     package.write(Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Resources/rat-lite-build.json', 'RAT Lite build.json')
+    cmd_script = '#!/bin/zsh\nDIR="$(cd "$(dirname "$0")" && pwd)"\nxattr -cr "$DIR/RAT Mini.app" 2>/dev/null || true\nopen "$DIR/RAT Mini.app"\n'
+    cmd_info = zipfile.ZipInfo('Mo RAT Mini Lan Dau.command')
+    cmd_info.external_attr = 0o755 << 16
+    package.writestr(cmd_info, cmd_script)
 PY
 echo "Built: $DIST_DIR/RAT Mini.zip"

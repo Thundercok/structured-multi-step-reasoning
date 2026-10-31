@@ -69,20 +69,8 @@ class MetaReasoningResult:
     contradiction_report: Optional[Dict[str, Any]] = None
 
 
-# Domain Knowledge Base for TDTU Regulations & Academic Policies
-ACADEMIC_POLICIES_KB = {
-    "học vượt": "Theo quy chế đào tạo TDTU, điều kiện tối thiểu để sinh viên được đăng ký học vượt tối đa 24 tín chỉ trong một học kỳ chính là: Điểm trung bình học kỳ trước đạt từ 7.0 trở lên và không bị cảnh báo học vụ.",
-    "chuẩn tiếng anh": "Chuẩn đầu ra ngoại ngữ tiếng Anh đối với sinh viên ngành Kỹ thuật Phần mềm và CNTT hệ tiêu chuẩn yêu cầu tối thiểu TOEIC 600 điểm (hoặc IELTS tương đương 5.5).",
-    "cảnh báo học vụ": "Sinh viên bị cảnh báo học vụ mức 1 nếu có điểm trung bình chung tích lũy (CPA) dưới 1.20 sau năm 1, dưới 1.40 sau năm 2, dưới 1.60 sau năm 3, hoặc dưới 1.80 từ năm thứ 4 trở đi.",
-    "thời gian tối đa": "Thời gian tối đa để hoàn thành chương trình đào tạo đại học chính quy 4 năm là 6 năm (gấp 1.5 lần thời gian thiết kế tiêu chuẩn).",
-    "song bằng": "Sinh viên học song bằng Cử nhân và Thạc sĩ liên thông: Kết quả học tập và tình trạng học vụ ở 2 bậc được quản lý độc lập. Việc tạm hoãn hoặc đình chỉ ở bậc Thạc sĩ KHÔNG làm đình chỉ liên đới kết quả học phần bên bậc Đại học.",
-    "học bổng": "Điều kiện xét học bổng khuyến khích học tập loại Giỏi: Điểm rèn luyện từ 80 trở lên (loại Tốt), ĐTB học kỳ từ 8.0 trở lên, và BẮT BUỘC không được nợ hoặc có điểm rớt ở bất kỳ môn học nào trong học kỳ xét học bổng.",
-    "khen thưởng nckh": "Theo quy chế khen thưởng NCKH sinh viên TDTU: Bài báo khoa học đăng trên tạp chí thuộc danh mục Scopus Q1 / ISI được khen thưởng và hỗ trợ kinh phí theo khung quy định của Viện Sau Đại Học và Khoa học Công nghệ.",
-    "đăng ký môn": "Quy chế đăng ký học phần TDTU: Sinh viên đăng ký trực tuyến theo các đợt mở lớp trên cổng thông tin. Mỗi học kỳ chính đăng ký tối thiểu 14 tín chỉ (đối với sinh viên trong tiến độ chuẩn) và tối đa 20 tín chỉ; sinh viên có ĐTB học kỳ trước đạt từ 7.0 trở lên được đăng ký tối đa 24 tín chỉ.",
-    "rút môn": "Thời hạn rút học phần không tính điểm: Trong vòng 2-3 tuần đầu của học kỳ chính. Môn rút sẽ nhận điểm W và không tính vào CPA tích lũy nhưng không được hoàn trả học phí.",
-    "khóa luận": "Điều kiện đăng ký Khóa luận tốt nghiệp: Sinh viên tích lũy tối thiểu 80% tổng số tín chỉ của chương trình đào tạo, CPA tích lũy đạt chuẩn theo quy định của Khoa (thường từ 6.5 trở lên) và không trong thời gian bị kỷ luật.",
-    "điểm rèn luyện": "Điểm rèn luyện sinh viên được đánh giá theo 5 tiêu chí (ý thức học tập, chấp hành nội quy, hoạt động phong trào, quan hệ cộng đồng, phẩm chất đạo đức). Mức Tốt từ 80-89 điểm, mức Xuất sắc từ 90-100 điểm, là điều kiện tiên quyết khi xét học bổng.",
-}
+# Domain Knowledge Base for Academic Policies (kept empty for clean module import compatibility)
+ACADEMIC_POLICIES_KB: Dict[str, str] = {}
 
 
 class MetaReasonerEngine:
@@ -92,12 +80,12 @@ class MetaReasonerEngine:
     transparent thinking traces.
     """
 
-    def __init__(self, lam: float = 0.02, *, controller: Optional[OnlineReasoningController] = None) -> None:
+    def __init__(self, lam: float = 0.02, *, controller: Optional[OnlineReasoningController] = None, calibration_tau: Optional[List[float]] = None) -> None:
         self._controller = controller
         self.lam = lam
         self.policy = OptimalStoppingPolicy(lam=self.lam)
-        # Legacy fixed values; no reviewed calibration provenance established.
-        self.policy.tau = [0.671, 0.688]
+        if calibration_tau:
+            self.policy.tau = list(calibration_tau)
         if controller is not None:
             self.policy = controller.policy
             self.lam = self.policy.lam
@@ -361,7 +349,7 @@ class MetaReasonerEngine:
                 logger.debug(f"SLM policy fallback error: {e}")
 
         if not matched_policy:
-            matched_policy = "Theo quy định đào tạo hiện hành, sinh viên cần liên hệ Phòng Đại học hoặc Khoa chuyên ngành để được hỗ trợ cụ thể."
+            matched_policy = f"Theo quy định đào tạo hiện hành liên quan đến '{query}', sinh viên cần liên hệ Phòng Đại học hoặc Khoa chuyên ngành để được hỗ trợ cụ thể."
 
         steps.append(f"Điều khoản liên quan:\n> \"{matched_policy}\"")
 
@@ -396,9 +384,10 @@ class MetaReasonerEngine:
         # If dual degree conflict or complex exception, simulate midway escalation check
         if "song bằng" in query.lower() or "đình chỉ" in query.lower() or "học bổng" in query.lower():
             conf_initial = 0.58
-            if conf_initial < self.policy.tau[0]:
+            tau_0 = self.policy.tau[0] if (getattr(self.policy, 'tau', None) and len(self.policy.tau) > 0) else 0.671
+            if conf_initial < tau_0:
                 escalated = True
-                steps.append(f"Độ tự tin bước đầu ({conf_initial:.2f}) < Ngưỡng leo thang τ₀ ({self.policy.tau[0]:.2f}).")
+                steps.append(f"Độ tự tin bước đầu ({conf_initial:.2f}) < Ngưỡng leo thang τ₀ ({tau_0:.2f}).")
                 steps.append("Kích hoạt ESCALATE: Đối chiếu chéo đa điều khoản (SC-5).")
                 steps.append("Đồng thuận (5/5): Hai chương trình đào tạo hoạt động theo quy chế độc lập.")
                 strat_name = "SC (Escalated)"

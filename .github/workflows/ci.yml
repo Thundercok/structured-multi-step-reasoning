@@ -18,3 +18,5 @@ jobs:
         run: python -m pip install -r requirements-research.txt
       - name: Check research protocol and controller
         run: python -m pytest tests/test_research_study.py test_optimal_stopping.py test_entry_predictor.py -q
+      - name: Check RAT architecture and contracts
+        run: python -m pytest tests/test_architecture_anti_overengineering.py tests/test_goal_routing.py tests/test_rat_mini_tools.py tests/test_rat_speech_policy.py -q

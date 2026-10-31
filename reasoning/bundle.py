@@ -277,6 +277,13 @@ def validate_policy_bundle(
                                             errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] must be an object.")
                                             continue
                                         live_m = pred.cost[idx]
+                                        live_est = getattr(live_m, "best_estimator_", live_m)
+                                        if hasattr(live_est, "named_steps") and "head" in live_est.named_steps:
+                                            live_m = live_est.named_steps["head"]
+                                        elif hasattr(live_est, "steps") and live_est.steps:
+                                            live_m = live_est.steps[-1][1]
+                                        else:
+                                            live_m = live_est
                                         if "coef" not in m_dict:
                                             errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] missing 'coef'.")
                                         else:

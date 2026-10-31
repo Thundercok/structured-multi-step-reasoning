@@ -11,8 +11,8 @@ Rectangle {
     property var liveController
     property var liveSnapshot: ({finderHits: [], surface: "result", busy: false})
     property url mascotSource
-    property real floatingHeadSize: 144
-    property real floatingHeadOpticalHeight: 112
+    property real floatingHeadSize: 96
+    property real floatingHeadOpticalHeight: 76
     property real sharedPanelWidth: 580
     property real sharedTextSize: 16
     property string buildLabel: "source"
@@ -141,7 +141,7 @@ Rectangle {
     }
     function openMoreMenu() {
         var mw = Math.max(216, moreMenu.implicitWidth || 216)
-        var mh = Math.max(260, moreMenu.implicitHeight || 260)
+        var mh = Math.min(220, moreMenu.implicitHeight || 200)
         var targetX = Math.max(8, Math.min(desk.ratX - mw - 6, desk.width - mw - 8))
         var targetY = Math.max(8, Math.min(desk.ratY + desk.floatingHeadSize - mh, desk.height - mh - 8))
         moreMenu.popup(targetX, targetY)
@@ -784,14 +784,28 @@ Rectangle {
                         Layout.fillWidth: true; elide: Text.ElideRight; maximumLineCount: 1; font.pixelSize: 11; color: desk.muted
                     }
                     QuietButton {
+                        visible: Boolean(desk.liveSnapshot.llmEnabled)
                         text: "Giải thích"
                         enabled: !desk.liveSnapshot.busy
                         onClicked: desk.liveController.submit("Giải thích ngắn gọn: " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText))
                     }
                     QuietButton {
+                        visible: Boolean(desk.liveSnapshot.llmEnabled)
                         text: "Tóm tắt"
                         enabled: !desk.liveSnapshot.busy
                         onClicked: desk.liveController.submit("Tóm tắt ý chính: " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText))
+                    }
+                    QuietButton {
+                        visible: !desk.liveSnapshot.llmEnabled
+                        text: "Đổi Anh ↔ Việt"
+                        enabled: !desk.liveSnapshot.busy
+                        onClicked: desk.liveController.flipTargetLanguageAndRetranslate()
+                    }
+                    QuietButton {
+                        visible: !desk.liveSnapshot.llmEnabled
+                        text: "Tìm file liên quan"
+                        enabled: !desk.liveSnapshot.busy
+                        onClicked: desk.liveController.submit("tìm file " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText).slice(0, 40))
                     }
                 }
                 Rectangle {
@@ -907,24 +921,11 @@ Rectangle {
             MenuSeparator {}
             MenuItem { text: "Xóa lịch sử tạm"; onTriggered: desk.liveController.clearTaskHistory() }
         }
-        MenuItem { visible: desk.liveSnapshot.hasWorkbench; text: desk.compact ? "Mở rộng kết quả" : "Thu gọn"; onTriggered: desk.liveController.setExpanded(desk.compact) }
-        MenuItem { text: "Quyền đọc chữ bôi đen…"; onTriggered: desk.liveController.openSelectionAccess() }
-        MenuItem {
-            visible: Boolean(desk.liveSnapshot.translationDetails || desk.liveSnapshot.translationNotice)
-            text: "Chi tiết kết quả…"
-            onTriggered: { desk.saveScroll(); desk.showTranslationDetails=true; desk.liveController.setExpanded(true) }
-        }
-        MenuItem { visible: desk.liveSnapshot.hasOcrSource; text: "Nguồn và kết quả"; onTriggered: desk.liveController.toggleSource() }
-        MenuItem { visible: desk.liveSnapshot.hasOcrSource; text: "Sửa chữ đã đọc…"; onTriggered: desk.navigate("ocr") }
-        MenuItem { visible: Boolean(desk.liveSnapshot.imagePreviewUrl); text: "Xem ảnh nguồn…"; onTriggered: desk.navigate("image") }
-        MenuItem { visible: Boolean(desk.liveSnapshot.hotkeyStatus); enabled: !desk.liveSnapshot.hotkeyStarting; text: "Đăng ký lại phím tắt"; onTriggered: desk.liveController.restartHotkey() }
-        MenuItem { text: "Chọn ảnh để dịch…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: imageDialog.open() }
         MenuItem { text: "Dịch Clipboard"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.translateClipboard() }
-        MenuItem { text: "Lần sắp xếp gần nhất / Hoàn tác"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.recoverOrganization() }
+        MenuItem { text: "Chọn ảnh để dịch…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: imageDialog.open() }
         MenuSeparator {}
         MenuItem { text: "Cài đặt…"; onTriggered: desk.openSettings() }
         MenuItem { text: "Thiết lập & trợ giúp…"; onTriggered: desk.navigate("help") }
-        MenuItem { enabled: false; text: "RAT Lite · " + desk.buildLabel }
         MenuItem { text: "Thoát RAT"; onTriggered: desk.liveController.quit() }
     }
     Menu {
