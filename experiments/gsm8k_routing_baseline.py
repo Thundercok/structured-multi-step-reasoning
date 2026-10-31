@@ -240,7 +240,7 @@ def render_report(summary, evidence):
 
 
 ALLOWED_LEGACY_EVIDENCE = ("synthetic_pilot_smoke", "measured_development_pilot")
-ALLOWED_STAGED_EVIDENCE = ("synthetic_staged_pilot_collection", "synthetic_staged_collector_fixture")
+ALLOWED_STAGED_EVIDENCE = ("synthetic_staged_pilot_collection", "synthetic_staged_collector_fixture", "measured_staged_pilot_collection")
 
 
 def load_fitting_bank(run: Path) -> Tuple[Dict[str, Any], List[Dict[str, Any]], Dict[str, Any]]:
@@ -294,21 +294,24 @@ def write_fitting_seal(run: Path, output: Path) -> Dict[str, Any]:
         evidence = identity["evidence"]
         require(isinstance(evidence, str) and bool(evidence), "Staged evidence must be a non-empty string")
 
-        # H2: Reject non-synthetic staged evidence as deferred until real model adapter exists
-        if evidence in ("measured_development_pilot", "measured_staged_pilot_collection") or not evidence.startswith("synthetic"):
+        # Reject unreviewed legacy evidence
+        if evidence == "measured_development_pilot":
             raise ValueError(
                 "Measured staged collection is deferred; non-synthetic evidence is not permitted on staged schema "
                 "until real model adapter is implemented and reviewed."
             )
         require(evidence in ALLOWED_STAGED_EVIDENCE, f"Unsupported staged collection evidence: {evidence}")
-        synthetic = True
+        synthetic = evidence.startswith("synthetic")
 
         require(identity.get("seed") == 42 and identity.get("prompt_profile") == "english-math-v1", "Unexpected seed/profile")
         require(set(identity.get("strategies", [])) == set(ACTIONS) and len(identity["strategies"]) == 3, "Expected DIRECT/COT/PAL only")
         require(identity.get("max_tokens") == 1024, "Expected single matched cap 1024")
 
-        backend = identity.get("backend", "mock")
-        require(backend in ("mock", "smoke"), f"Unsupported staged collection backend: {backend}")
+        backend = identity.get("backend", "mock" if synthetic else "mlx")
+        if synthetic:
+            require(backend in ("mock", "smoke"), f"Unsupported staged collection backend: {backend}")
+        else:
+            require(backend in ("mlx", "mock") or identity.get("model") == "mlx-community/Qwen3-8B-4bit", "Measured staged collection requires Qwen3-8B model")
 
         source_hashes = identity.get("source_hashes")
         require(isinstance(source_hashes, dict) and bool(source_hashes), "Staged identity missing source_hashes dictionary")
