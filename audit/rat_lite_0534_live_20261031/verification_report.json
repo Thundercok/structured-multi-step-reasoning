@@ -1,0 +1,35 @@
+{
+  "version": "0.5.34",
+  "build": "20261031.4",
+  "platform": "cocoa",
+  "finder_panel_height": 206.0,
+  "translation_panel_height": 184.0,
+  "busy_view_during_translate": "finder",
+  "busy_hits_during_translate": 1,
+  "rat_coords": {
+    "finder": [
+      448.0,
+      260.0
+    ],
+    "translation": [
+      448.0,
+      260.0
+    ]
+  },
+  "window_geometry": {
+    "finder": [
+      1311,
+      659,
+      596,
+      408
+    ],
+    "translation": [
+      1311,
+      659,
+      596,
+      408
+    ]
+  },
+  "canReturnToFinder": true,
+  "meta": "research_notes.md · Dịch trên máy · Tiếng Anh → Tiếng Việt"
+}
