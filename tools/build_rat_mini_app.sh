@@ -31,6 +31,7 @@ excluded=(torch transformers fastembed scipy sklearn gymnasium mlx mlx_lm senten
 exclude_args=()
 for module in "${excluded[@]}"; do exclude_args+=(--exclude-module "$module"); done
 PYTHON_BIN="$PYTHON_BIN" zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
+rm -rf "$DIST_DIR/RAT Mini" "$DIST_DIR/RAT Mini.app" "$DIST_DIR/RAT Mini.zip"
 "$PYTHON_BIN" -m PyInstaller --noconfirm --clean --windowed --name "RAT Mini" \
   --distpath "$DIST_DIR" --workpath "$BUILD_TMP/build" --specpath "$BUILD_TMP/spec" \
   --icon "$ROOT/tools/rat_translate.icns" --osx-bundle-identifier vn.rat.mini \
@@ -46,7 +47,7 @@ PYTHON_BIN="$PYTHON_BIN" zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/
   --copy-metadata ctranslate2 --copy-metadata sentencepiece --copy-metadata numpy \
   --collect-data rfc3987_syntax --collect-data lark --collect-data jsonschema_specifications \
   --hidden-import objc --hidden-import Foundation \
-  --hidden-import AppKit --hidden-import Quartz --hidden-import ApplicationServices --hidden-import document_intake.vision \
+  --hidden-import AppKit --hidden-import Quartz --hidden-import ApplicationServices --hidden-import document_intake.vision --hidden-import document_intake.pdf \
   --hidden-import ctranslate2 --hidden-import sentencepiece \
   "${exclude_args[@]}" --paths "$ROOT" "$ROOT/mini_app.py"
 export RAT_MINI_HOTKEY_BINARY="$BUILD_TMP/rat-hotkey"
