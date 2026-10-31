@@ -639,6 +639,12 @@ Rectangle {
                             onActiveFocusChanged: { if (activeFocus && desk.selectedFinderIndex < 0 && desk.visibleFinderHits.length) desk.selectedFinderIndex = 0 }
                             Keys.onDownPressed: desk.selectFile(desk.selectedFinderIndex + 1)
                             Keys.onUpPressed: desk.selectFile(desk.selectedFinderIndex < 0 ? 0 : desk.selectedFinderIndex - 1)
+                            Keys.onPressed: event => {
+                                if (event.matches(StandardKey.Copy) && desk.selectedFinderIndex >= 0) {
+                                    desk.liveController.copySelectedHitPath(desk.selectedFinderIndex)
+                                    event.accepted = true
+                                }
+                            }
                             Keys.onReturnPressed: event => { event.accepted=true; if (desk.selectedFinderIndex >= 0) { if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex); else desk.liveController.openSelectedHit(desk.selectedFinderIndex) } }
                             Keys.onEnterPressed: event => { event.accepted=true; if (desk.selectedFinderIndex >= 0) { if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex); else desk.liveController.openSelectedHit(desk.selectedFinderIndex) } }
                             ColumnLayout {
@@ -671,7 +677,7 @@ Rectangle {
                                                 Layout.fillWidth: true
                                                 spacing: 2
                                                 Label { text: modelData.title; textFormat: Text.PlainText; color: desk.ink; font.weight: Font.Medium; font.pixelSize: 13; elide: Text.ElideRight; Layout.fillWidth: true }
-                                                Label { text: modelData.path; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                                Label { text: modelData.display_path || modelData.path; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; elide: Text.ElideMiddle; Layout.fillWidth: true }
                                             }
                                             RowLayout {
                                                 id: hitActions
@@ -950,6 +956,7 @@ Rectangle {
     Shortcut { enabled: !desk.auxiliary && !desk.composing; context: Qt.ApplicationShortcut; sequences: [StandardKey.Paste]; onActivated: desk.liveController.pasteLook() }
     Shortcut { sequence: "Escape"; onActivated: { if (diagnosticDialog.visible) diagnosticDialog.close(); else if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (historyMenu.visible) historyMenu.close(); else if (moreMenu.visible) moreMenu.close(); else if (readerMenu.visible) readerMenu.close(); else if (editorMenu.visible) editorMenu.close(); else if (desk.noticeVisible) desk.liveController.returnToTask(); else if (desk.auxiliary || desk.surface !== "result") desk.goBack(); else if (desk.composing) desk.liveController.toggleComposer(); else desk.liveController.collapseBubble() } }
     Shortcut { sequence: "Meta+W"; onActivated: desk.hideRequested() }
+    Shortcut { sequence: "Meta+Shift+L"; enabled: desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "translation" && !desk.liveSnapshot.busy; onActivated: desk.liveController.flipTargetLanguageAndRetranslate() }
     Shortcut { sequence: "Meta+Q"; onActivated: desk.liveController.quit() }
     Shortcut { sequence: "Ctrl+Q"; onActivated: desk.liveController.quit() }
     Shortcut { sequence: "Meta+,"; onActivated: desk.openSettings() }

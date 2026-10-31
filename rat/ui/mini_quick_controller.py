@@ -15,14 +15,29 @@ from PyQt6.QtGui import QGuiApplication, QCursor
 
 from rat.engine.mini_settings import read_settings, save_settings, keychain_key, state_directory
 from rat.mini import MiniSession
-from rat.ui.mini_worker import MiniJob
 from rat.ui.mini_diagnostics import BUILD, write_diagnostic
 from rat.ui.quick_look_journal import QuickLookJournal
 from rat.ui.mini_presentation import MiniPresentation
 from rat.ui.image_input import IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url
 from rat.ui.image_preview import ImagePreviewProvider
 from rat.os.permissions import runtime_identity
+from rat.ui.mini_job_worker import (
+    MiniJob, format_compact_display_path, format_translation_artifact_view,
+    default_controller_state, REGION_PREVIOUS_FIELDS, render_journal_stage, render_error_suggestions,
+    is_new_task_operation, get_frontmost_app_info, pending_task_initial_updates, capture_position_ocr_updates,
+    process_render_artifacts,
+    format_user_error_message, format_organization_artifact_view, format_readiness_summary,
+    record_finder_diagnostic, format_diagnostic_events, export_diagnostics_to_file,
+    initial_operation_status, validate_and_apply_preferences, parse_pasted_mime_content,
+    pack_task_history_item, HISTORY_FIELDS,
+    format_finder_return_hits, handle_file_action, change_shortcut_setting,
+    write_ui_state_diagnostic, build_controller_snapshot, save_preferences_settings, parse_image_url_input,
+)
 
+__all__ = [
+    "MiniQuickController", "MiniJob", "format_compact_display_path",
+    "format_translation_artifact_view", "format_user_error_message",
+]
 
 class MiniQuickController(QObject):
     changed = pyqtSignal()
@@ -83,19 +98,7 @@ class MiniQuickController(QObject):
         self._presentation_invocation_id = None
         self.quicklook_journal = QuickLookJournal(state_directory(), BUILD)
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
-        self._state = dict(draftText='', editingRequest=False, settingsNotice='', lastOperation='', organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False, lookSource=False, hotkeyStatus='', sameLanguageNotice='',
-            phase='idle', busy=False, bubbleCollapsed=False, expanded=False, selectionNotice='', selectionNeedsPermission=False, captureSourceApp='', captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
-            hasWorkbench=False, view='idle', finderHits=[], text='', meta='', canReturnToFinder=False,
-            status='Bạn muốn Chuột giúp gì?', requestText='', attachmentLabel='', error=False,
-            ocrText='', ocrOriginalText='', ocrCommittedText='', hasOcrSource=False, canRetryTranslation=False,
-            translationDetails='', translationNotice='', translationSettingsSuggested=False,
-            dropActive=False, receivingImage=False, imagePreviewUrl='', imageLabel='',
-            ocrPreparationNotice='', canRetryRequest=False, finderSettingsSuggested=False,
-            imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False, canUndoOrganization=False,
-            organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False) and self.settings.get('permission_hello_version',0) >= 1),
-            targetLanguage=self.settings.get('target_language', 'vi'),
-            llmEnabled=bool(self.settings.get('llm_enabled', False)),
-            readiness=[], readinessBusy=False, readinessStatus="")
+        self._state = default_controller_state(self.settings)
         self.shortcut_ack_timer = QTimer(self)
         self.shortcut_ack_timer.setSingleShot(True)
         self.shortcut_ack_timer.timeout.connect(lambda: self.update(shortcutAck=''))
@@ -105,26 +108,15 @@ class MiniQuickController(QObject):
 
     @pyqtProperty('QVariantMap', notify=changed)
     def snapshot(self):
-        state = dict(self._state, **self.presentation.snapshot())
-        return dict(state,
-            lookStatusLabel='Đang xử lý' if self._state['busy'] else 'Sẵn sàng',
-            runningBundlePath=runtime_identity().get('bundle_path') or '',
-            accessibilityReady=any(c.get('key') == 'accessibility' and c.get('state') in ('ready','not_required') for c in self._state['readiness']),
-            shortcutLabel=chord(self.settings.get('hotkey_chord', DEFAULT_CHORD))[2],
-            taskHistory=[dict(index=i, title=item['title']) for i,item in enumerate(self._task_history)],
-            diagnosticEvents=self.diagnostic_events(),
-            ocrDirty=bool(self._state["hasOcrSource"]) and self._state["ocrText"] != self._state["ocrCommittedText"])
+        return build_controller_snapshot(self._state, self.presentation.snapshot(), self.settings,
+                                         self._task_history, self.diagnostic_events())
 
     @pyqtProperty('QVariantMap', notify=changed)
     def preferences(self):
         return dict(self.settings)
 
     def record_ui_state(self):
-        write_diagnostic('ui-state.json', dict(surface=self.presentation.surface,
-            extent=self.presentation.extent, composer_visible=self.presentation.composer_visible,
-            busy=self._state['busy'], phase=self._state['phase'],
-            has_result=self._state['hasWorkbench'], operation=self._state['lastOperation'],
-            task_id=self.presentation.task_id, generation=self.generation))
+        write_ui_state_diagnostic(self.presentation, self._state, self.generation)
 
     def update(self, **values):
         self._state.update(values)
@@ -134,72 +126,48 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def summonLook(self):
         if not self._state['setupCompleted']:
-            self.presentation.open('welcome')
-            self.update()
-            self.presentRequested.emit()
-            return
+            self.presentation.open('welcome'); self.update(); self.presentRequested.emit(); return
         if self._state['selectionNotice']:
-            self.recallLookResult()
-            return
+            self.recallLookResult(); return
         self._state['selectionNotice'] = ''
-        self.presentation.open('result')
-        self.presentation.read()
-        self.update()
-        self.lookRequested.emit()
+        self.presentation.open('result'); self.presentation.read(); self.update(); self.lookRequested.emit()
 
     @pyqtSlot()
     def dismissLookResult(self):
         if self._selection_invocation_id:
             self.quicklook_journal.record('dismissed', invocation_id=self._selection_invocation_id)
-        self._selection_present_generation = None
-        self._presentation_invocation_id = None
-        self.update()
-        self.lookResultDismissed.emit()
+        self._selection_present_generation = self._presentation_invocation_id = None
+        self.update(); self.lookResultDismissed.emit()
 
     @pyqtSlot()
     def recallLookResult(self):
         if self._state['selectionNotice']:
-            self.returnToTask()
-            self.lookRequested.emit()
-            return
+            self.returnToTask(); self.lookRequested.emit(); return
         self._state['selectionNotice'] = ''
         self.presentation.open('result')
         self.presentation.read() if self._state['hasWorkbench'] else self.presentation.compose()
-        self.update()
-        self.lookRequested.emit()
+        self.update(); self.lookRequested.emit()
 
     @pyqtSlot()
     def returnToTask(self):
         if self._state['selectionNotice']:
-            if self._selection_return is not None:
-                self.restore_selection_view()
-            elif self._state['hasWorkbench']:
-                self.presentation.read()
-            else:
-                self.presentation.compose()
-            self.update(selectionNotice='', selectionNeedsPermission=False)
-            return
+            if self._selection_return is not None: self.restore_selection_view()
+            elif self._state['hasWorkbench']: self.presentation.read()
+            else: self.presentation.compose()
+            self.update(selectionNotice='', selectionNeedsPermission=False); return
         self.update()
 
     @pyqtSlot()
     def summonMinimal(self):
         if not self._state['setupCompleted']:
-            self.presentation.open('welcome')
-            self.update()
-            self.presentRequested.emit()
-            return
-        if self._state['selectionNotice']:
-            self.returnToTask()
+            self.presentation.open('welcome'); self.update(); self.presentRequested.emit(); return
+        if self._state['selectionNotice']: self.returnToTask()
         self._state['selectionNotice'] = ''
-        self.presentation.open('result')
-        self.presentation.compose()
-        self.update()
-        self.minimalRequested.emit()
+        self.presentation.open('result'); self.presentation.compose(); self.update(); self.minimalRequested.emit()
 
     @pyqtSlot()
     def focusLook(self):
-        self.update()
-        self.lookFocusRequested.emit()
+        self.update(); self.lookFocusRequested.emit()
 
     def _effective_source_language(self):
         src = self.settings.get('source_language', 'auto')
@@ -270,8 +238,7 @@ class MiniQuickController(QObject):
 
     @pyqtSlot(int, int)
     def rememberLookSelection(self, start, end):
-        if not self._state['busy']:
-            self.presentation.selections[self.presentation.task_id] = max(0, start), max(0, end)
+        if not self._state['busy']: self.presentation.selections[self.presentation.task_id] = max(0, start), max(0, end)
 
     @pyqtSlot(str, int, float)
     def rememberReadingAnchor(self, text, position, delta):
@@ -282,8 +249,7 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def toggleSource(self):
         self.presentation.source_visible = not self.presentation.source_visible
-        self.presentation.resize(True)
-        self.update(expanded=True)
+        self.presentation.resize(True); self.update(expanded=True)
 
     @pyqtSlot(str)
     def copyLookSelection(self, text):
@@ -354,11 +320,8 @@ class MiniQuickController(QObject):
     def completeSetup(self):
         try:
             updated = dict(self.settings, setup_completed=True, permission_hello_version=1)
-            save_settings(updated)
-            self.settings = updated
-            self.presentation.back()
-            self.presentation.compose()
-            self.update(setupCompleted=True)
+            save_settings(updated); self.settings = updated
+            self.presentation.back(); self.presentation.compose(); self.update(setupCompleted=True)
             return ''
         except OSError:
             return 'Chưa lưu được thiết lập. Bạn vẫn có thể đóng cửa sổ để dùng RAT.'
@@ -366,38 +329,31 @@ class MiniQuickController(QObject):
     @pyqtSlot(QUrl)
     def organizeFolder(self, url):
         path = self.localFolderPath(url)
-        if not path:
-            return
-        self.clearImagePreview()
-        self.update(requestText='Sắp xếp ' + path)
+        if not path: return
+        self.clearImagePreview(); self.update(requestText='Sắp xếp ' + path)
         self.enqueue('plan_folder_organization', {'folder':path, 'rule':'type'})
 
     @pyqtSlot()
-    def applyOrganization(self):
-        self._approved_organization('apply_folder_organization', 'organization_plan')
+    def applyOrganization(self): self._approved_organization('apply_folder_organization', 'organization_plan')
 
     @pyqtSlot()
-    def undoOrganization(self):
-        self._approved_organization('undo_folder_organization', 'organization_receipt')
+    def undoOrganization(self): self._approved_organization('undo_folder_organization', 'organization_receipt')
 
     def _approved_organization(self, operation, kind):
         artifact = self.organization_artifact
-        if self.job or self._state['view'] != 'organization' or not artifact or artifact.kind != kind:
-            return
+        if self.job or self._state['view'] != 'organization' or not artifact or artifact.kind != kind: return
         pin = {'artifact_id':artifact.id, 'revision':artifact.revision}
         self.update(canApplyOrganization=False, canUndoOrganization=False)
         self.enqueue(operation, pin, input_context={'organization_approval':dict(pin)})
 
     @pyqtSlot()
     def recoverOrganization(self):
-        if not self.job:
-            self.enqueue('get_last_organization', {})
+        if not self.job: self.enqueue('get_last_organization', {})
 
     @pyqtSlot(bool)
     def setExpanded(self, value):
         self.presentation.resize(value)
-        if not value:
-            self.presentation.open('result')
+        if not value: self.presentation.open('result')
         self.update(expanded=value)
 
     @pyqtSlot(str)
@@ -449,53 +405,32 @@ class MiniQuickController(QObject):
     @pyqtSlot(str, result='QVariantMap')
     def pasteInput(self, instruction=''):
         clipboard = QGuiApplication.clipboard()
-        mime = clipboard.mimeData()
-        if mime is None:
-            return {'text':'', 'kind':'typed'}
-        local_urls = [u for u in mime.urls() if u.isLocalFile()] if mime.hasUrls() else []
-        paths = [u.toLocalFile() for u in local_urls]
-        if paths:
-            if len(paths) == 1 and Path(paths[0]).suffix.lower() in IMAGE_SUFFIXES:
-                try:
-                    image, name = image_from_mime(mime, clipboard=True)
-                    self.acceptDroppedImage(image, name, instruction)
-                    return {'text':'', 'kind':'image'}
-                except ValueError as exc:
-                    self.image_input_error(str(exc))
-                    return {'text':'', 'kind':'none'}
-            self.clearAttachment()
-            return {'text':'\n'.join(paths), 'kind':'file_reference'}
-        if mime.hasImage() or any(mime.hasFormat(kind) for kind in ENCODED_IMAGE_TYPES):
-            try:
-                image, _ = image_from_mime(mime, clipboard=True)
-            except ValueError as exc:
-                self.image_input_error(str(exc))
-                return {'text':'', 'kind':'none'}
-            self.acceptDroppedImage(image, 'Ảnh vừa dán', instruction)
+        parsed = parse_pasted_mime_content(clipboard.mimeData(), clipboard.text())
+        kind = parsed['kind']
+        if kind == 'error':
+            self.image_input_error(parsed['error'])
+            return {'text':'', 'kind':'none'}
+        if kind == 'image':
+            self.acceptDroppedImage(parsed['image'], parsed['name'], instruction)
             return {'text':'', 'kind':'image'}
-        return {'text':clipboard.text(), 'kind':'pasted_text'}
+        if kind == 'file_reference':
+            self.clearAttachment()
+            return {'text':parsed['text'], 'kind':'file_reference'}
+        return {'text':parsed['text'], 'kind':kind}
 
     def image_input_error(self, message):
-        self.update(status=message, phase='error', error=True,
-            hasWorkbench=True, expanded=True, imageInputSuggested=True, canRetryRequest=False,
-            finderSettingsSuggested=False, translationSettingsSuggested=False)
+        self.update(status=message, phase='error', error=True, hasWorkbench=True, expanded=True,
+            imageInputSuggested=True, canRetryRequest=False, finderSettingsSuggested=False, translationSettingsSuggested=False)
 
     def setDropActive(self, value):
-        if self._state['dropActive'] != value:
-            self.update(dropActive=value)
+        if self._state['dropActive'] != value: self.update(dropActive=value)
 
     def beginImageReceive(self):
-        if self.quitting:
-            return None
+        if self.quitting: return None
         self.presentation.begin_task()
-        self.generation += 1
-        self._receiving_token = self.generation
-        self.pending = None
-        if self.job:
-            self.job.stop.set()
-        self.clearAttachment()
-        self.clearImagePreview()
-        self.clear_ocr_source()
+        self.generation += 1; self._receiving_token = self.generation; self.pending = None
+        if self.job: self.job.stop.set()
+        self.clearAttachment(); self.clearImagePreview(); self.clear_ocr_source()
         self.update(receivingImage=True, busy=True, phase='working', view='notice', error=False,
             text='', meta='', expanded=True, hasWorkbench=True, requestText='Dịch ảnh đang nhận',
             imageInputSuggested=False, finderSettingsSuggested=False, translationSettingsSuggested=False,
@@ -506,40 +441,25 @@ class MiniQuickController(QObject):
         return not self.quitting and token == self._receiving_token and token == self.generation
 
     def finishImageReceive(self, token, *, image=None, label='', instruction='', error=None):
-        if not self.isImageReceiveCurrent(token):
-            return False
+        if not self.isImageReceiveCurrent(token): return False
         self._receiving_token = None
         self.update(receivingImage=False, busy=self.job is not None)
-        if error:
-            self.image_input_error(error)
-            return False
+        if error: self.image_input_error(error); return False
         return self.acceptDroppedImage(image, label, instruction)
 
     @pyqtSlot('QVariantList', str, result=bool)
     def dropImage(self, urls, instruction=''):
-        if self.quitting:
-            return False
-        if len(urls) != 1:
-            self.image_input_error('Hãy thả từng ảnh một để RAT dịch.')
-            return False
-        try:
-            image, name = image_from_url(urls[0])
-        except ValueError as exc:
-            self.image_input_error(str(exc))
-            return False
-        return self.acceptDroppedImage(image, name, instruction)
+        if self.quitting: return False
+        img, name, err = parse_image_url_input(urls, 'dropped')
+        if err: self.image_input_error(err); return False
+        return self.acceptDroppedImage(img, name, instruction)
 
     @pyqtSlot(QUrl, str, result=bool)
     def chooseImageFile(self, url, instruction=''):
-        """Explicit picker input, normalized into the same shared tool workflow."""
-        if self.quitting:
-            return False
-        try:
-            image, name = image_from_url(url, origin='selected_file')
-        except ValueError as exc:
-            self.image_input_error(str(exc))
-            return False
-        return self.acceptDroppedImage(image, name, instruction)
+        if self.quitting: return False
+        img, name, err = parse_image_url_input(url, 'selected_file')
+        if err: self.image_input_error(err); return False
+        return self.acceptDroppedImage(img, name, instruction)
 
     def acceptDroppedImage(self, image, label, instruction=''):
         if self.quitting:
@@ -637,31 +557,18 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def captureRegion(self):
         logging.getLogger(__name__).info('region_capture_requested')
-        if self.quitting:
+        if self.quitting or self.job or self.pending or self._state['busy'] or self._region_previous:
+            if not self.quitting: self.update(status='Đợi tác vụ hiện tại hoàn tất.')
             return
-        if self.job or self.pending or self._state['busy'] or self._region_previous:
-            self.update(status='Đợi tác vụ hiện tại hoàn tất.')
-            return
-        fields = ('phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
-            'agentSummary', 'agentIncomplete', 'settingsNotice', 'lastOperation',
-            'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
-            'organizationRecoverySuggested', 'canRetryRequest')
-        self._region_previous = ({key: self._state[key] for key in fields}, self._retry_request)
-        self.presentation.open('result')
-        self.presentation.resize(False)
-        self.presentation.read()
-        # Reserve a generation now, so cancel/new input invalidates the deferred capture.
-        self.generation += 1
-        generation = self.generation
-        self._capture_position = None
+        self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
+        self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
+        self.generation += 1; generation = self.generation; self._capture_position = None
 
         def begin():
-            if self.quitting or generation != self.generation:
-                return
+            if self.quitting or generation != self.generation: return
             logging.getLogger(__name__).info('region_capture_dispatching')
             self.enqueue('capture_translate', dict(mode='region', source_language=self._effective_source_language(),
-                target_language=self.settings['target_language'], preserve_until_capture=True,
-                look_input=True))
+                target_language=self.settings['target_language'], preserve_until_capture=True, look_input=True))
         QTimer.singleShot(160, begin)
 
     @pyqtSlot()
@@ -703,10 +610,8 @@ class MiniQuickController(QObject):
             self.lookRequested.emit()
 
     def recordHotkeyState(self, stage, **metadata):
-        invocation = None
-        if stage == 'selection':
-            self._received_invocation_id = self.quicklook_journal.invocation_id()
-            invocation = self._received_invocation_id
+        invocation = self.quicklook_journal.invocation_id() if stage == 'selection' else None
+        if stage == 'selection': self._received_invocation_id = invocation
         self.quicklook_journal.record(stage, invocation_id=invocation, **metadata)
 
     def selectionPresented(self):
@@ -716,52 +621,31 @@ class MiniQuickController(QObject):
 
     def restore_selection_view(self):
         if self._selection_return is not None:
-            token = self._selection_return
-            self._selection_return = None
+            token, self._selection_return = self._selection_return, None
             self.presentation.restore_view(token)
 
     def _begin_selected_text(self, invocation):
-        import os
-        import sys
-        if sys.platform != 'darwin':
-            self.quicklook_journal.record('unsupported_platform', invocation_id=invocation)
-            self.summonLook()
-            return
-        from AppKit import NSWorkspace
-        source = NSWorkspace.sharedWorkspace().frontmostApplication()
-        if source is None or int(source.processIdentifier()) == os.getpid():
-            self.quicklook_journal.record('recall_own_app', invocation_id=invocation)
-            self.summonLook()
-            return
+        pid, app_name, err = get_frontmost_app_info()
+        if err:
+            self.quicklook_journal.record(err, invocation_id=invocation)
+            self.summonLook(); return
         if self._selection_return is None:
             self._selection_return = self.presentation.capture_view()
-        fields = ('phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
-            'agentSummary', 'agentIncomplete', 'settingsNotice', 'lastOperation',
-            'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
-            'organizationRecoverySuggested', 'canRetryRequest')
-        self._region_previous = ({key: self._state[key] for key in fields}, self._retry_request)
-        self.presentation.open('result')
-        self.presentation.resize(False)
-        self.presentation.read()
+        self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
+        self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
         self.update(selectionNotice='', selectionNeedsPermission=False)
         self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
-            look_input=True, source_language=self._effective_source_language(),
-            target_language=self.settings['target_language']),
-            input_context={'selection_pid': int(source.processIdentifier()), 'selection_app': str(source.localizedName() or ''), 'quicklook_invocation_id':invocation})
+            look_input=True, source_language=self._effective_source_language(), target_language=self.settings['target_language']),
+            input_context={'selection_pid': pid, 'selection_app': app_name, 'quicklook_invocation_id': invocation})
         self._selection_present_generation = self.generation
         self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
-        # No present signal here: AX must read the source before RAT can take focus.
 
     @pyqtSlot()
     def revealRunningApp(self):
         path = runtime_identity().get('bundle_path')
-        if not path:
-            self.update(readinessStatus='Bản source chưa có app bundle để chọn.')
-            return
-        try:
-            subprocess.Popen(['open', '-R', path])
-        except OSError:
-            self.update(readinessStatus='Chưa mở được Finder. Đường dẫn app được hiển thị bên dưới.')
+        if not path: self.update(readinessStatus='Bản source chưa có app bundle để chọn.'); return
+        try: subprocess.Popen(['open', '-R', path])
+        except OSError: self.update(readinessStatus='Chưa mở được Finder. Đường dẫn app được hiển thị bên dưới.')
 
     @pyqtSlot()
     def openSelectionAccess(self):
@@ -772,14 +656,9 @@ class MiniQuickController(QObject):
                 selectionNeedsPermission=True)
 
     @pyqtSlot()
-    def restartHotkey(self):
-        self.hotkeyRestartRequested.emit()
+    def restartHotkey(self): self.hotkeyRestartRequested.emit()
 
-    HISTORY_FIELDS = ('view', 'phase', 'status', 'error', 'text', 'meta', 'requestText',
-        'hasWorkbench', 'pinned', 'attachmentLabel', 'finderHits', 'hasOcrSource', 'ocrText', 'ocrCommittedText', 'ocrOriginalText',
-        'ocrPreparationNotice', 'captureSourceKind', 'captureSourceApp', 'lookSource', 'translationDetails', 'translationNotice',
-        'sameLanguageNotice', 'organization', 'organizationRows', 'organizationGroups',
-        'agentSummary', 'agentIncomplete', 'lastOperation')
+    HISTORY_FIELDS = HISTORY_FIELDS
 
     def remember_task(self):
         values = dict(self._state)
@@ -791,17 +670,15 @@ class MiniQuickController(QObject):
         self._task_history = [x for x in self._task_history if x['task_id'] != key]
         fields = ('task_id', 'surface', 'workspace', 'extent', 'composer_visible', 'source_visible',
                   'scroll', 'selections', 'reading_anchor')
-        view = deepcopy({k:getattr(self.presentation,k) for k in fields})
+        view = deepcopy({k: getattr(self.presentation, k) for k in fields})
         if self._selection_return and self._selection_return[0] == key:
             view.update(self._selection_return[1])
-        self._task_history.insert(0, dict(task_id=key,
-            title=(values.get('requestText') or values.get('status') or 'Công việc')[:60],
-            state=deepcopy({k:values[k] for k in self.HISTORY_FIELDS}),
-            presentation=view, last_image=self._last_image, draft_image=self._draft_image,
-            image_label=values.get('imageLabel',''),
-            result_ref=deepcopy(self._result_ref), source_ref=deepcopy(self._ocr_source_ref), source_text=self._ocr_current_text,
-            translation_args=deepcopy(self._translation_args), finder=self.finder_artifact,
-            draft=self._next_draft))
+        title = (values.get('requestText') or values.get('status') or 'Công việc')[:60]
+        self._task_history.insert(0, pack_task_history_item(
+            key, title, values, view, self._last_image, self._draft_image,
+            values.get('imageLabel', ''), self._result_ref, self._ocr_source_ref,
+            self._ocr_current_text, self._translation_args, self.finder_artifact, self._next_draft
+        ))
         del self._task_history[5:]
 
     @pyqtSlot(int)
@@ -835,88 +712,46 @@ class MiniQuickController(QObject):
         self.lookRequested.emit()
 
     @pyqtSlot()
-    def clearTaskHistory(self):
-        self._task_history.clear()
-        self.update()
+    def clearTaskHistory(self): self._task_history.clear(); self.update()
 
-    def diagnostic_events(self):
-        labels = {'ready':'Phím tắt đã đăng ký', 'selection':'Đã nhận phím tắt',
-            'invoked':'Đã nhận yêu cầu', 'capture_requested':'Đang lấy chữ',
-            'capture_succeeded':'Đã lấy được chữ', 'capture_failed':'Chưa lấy được chữ',
-            'translation_failed':'Chưa xử lý được đoạn chữ', 'execution_completed':'Đã xử lý',
-            'present_requested':'Đã yêu cầu hiển thị', 'presented':'Đã hiển thị',
-            'space_changed':'Space đã đổi trong lúc gọi', 'space_policy_failed':'Không đặt được cửa sổ trên Space hiện tại',
-            'registration_failed':'Đăng ký phím thất bại', 'ignored_busy':'Đang bận', 'dismissed':'Đã ẩn'}
-        with self.quicklook_journal.lock:
-            return [dict(stage=e['stage'], label=labels.get(e['stage'],e['stage']), sequence=e['sequence'])
-                    for e in list(self.quicklook_journal.events)[-12:]]
+    def diagnostic_events(self): return format_diagnostic_events(self.quicklook_journal)
 
     @pyqtSlot(str)
-    def reportDiagnosticError(self, message):
-        self.update(settingsNotice=message)
+    def reportDiagnosticError(self, message): self.update(settingsNotice=message)
 
     @pyqtSlot(str, result=str)
     def exportDiagnostics(self, url):
-        path = QUrl(url).toLocalFile()
-        if not path:
-            return 'Hãy chọn một file trên máy.'
-        try:
-            with self.quicklook_journal.lock:
-                payload = dict(build=BUILD, protocol='SELECT2',
-                    helper_state=self.quicklook_journal.helper_state, events=list(self.quicklook_journal.events))
-            # Explicit export contains the journal whitelist only: no source,
-            # text, paths, screenshots, geometry or settings/credentials.
-            Path(path).write_text(json.dumps(payload, ensure_ascii=False, indent=2))
-            self.update(settingsNotice='Đã xuất chẩn đoán; không kèm nội dung nguồn.')
-            return ''
-        except OSError:
-            return 'Chưa ghi được file chẩn đoán ở vị trí này.'
+        err = export_diagnostics_to_file(self.quicklook_journal, url)
+        if not err: self.update(settingsNotice='Đã xuất chẩn đoán; không kèm nội dung nguồn.')
+        return err
 
     @pyqtSlot(str, result=str)
     def changeShortcut(self, name):
         if self.job or not self.rebind_hotkey:
             return 'Đợi tác vụ kết thúc trước khi đổi phím tắt.'
-        try:
-            chord(name)
-            old = self.settings.get('hotkey_chord', DEFAULT_CHORD)
-            error = self.rebind_hotkey(name)
-            if error:
-                return error
-            try:
-                updated = {**self.settings, 'hotkey_chord': name}
-                save_settings(updated)
-            except Exception:
-                rollback_error = self.rebind_hotkey(old)
-                return 'Chưa lưu được phím mới. ' + (rollback_error or 'Đã khôi phục phím cũ.')
-            self.settings = updated
-            self.update()
-            return ''
-        except ValueError:
-            return 'Tổ hợp phím chưa được hỗ trợ.'
-
-
+        updated, err = change_shortcut_setting(self.settings, name, self.rebind_hotkey)
+        if err:
+            return err
+        self.settings = updated
+        self.update()
+        return ''
 
     @pyqtSlot()
-    def togglePin(self):
-        self.update(pinned=not self._state['pinned'])
+    def togglePin(self): self.update(pinned=not self._state['pinned'])
 
     @pyqtSlot()
     def collapseBubble(self):
-        self._selection_present_generation = None
-        self._presentation_invocation_id = None
-        self.presentation.read()
-        self.update(bubbleCollapsed=True)
+        self._selection_present_generation = self._presentation_invocation_id = None
+        self.presentation.read(); self.update(bubbleCollapsed=True)
 
     @pyqtSlot()
     def toggleComposer(self):
         if self._state['bubbleCollapsed']:
             self.update(bubbleCollapsed=False)
-            if self._state['hasWorkbench']:
-                return
+            if self._state['hasWorkbench']: return
         self.presentation.composer_visible = not self.presentation.composer_visible
         self.update()
-        if self.presentation.composer_visible:
-            self.minimalRequested.emit()
+        if self.presentation.composer_visible: self.minimalRequested.emit()
 
     def restore_region_previous(self):
         if self._region_previous is not None:
@@ -964,55 +799,27 @@ class MiniQuickController(QObject):
     def start_pending(self):
         operation, args, query, generation, input_context = self.pending
         self.pending = None
-        new_task = (operation in ('find_files', 'capture_translate', 'plan_folder_organization', 'get_last_organization')
-                    or (operation == 'submit_goal' and self._state['phase'] != 'needs_input' and not args.get('source_ref'))
-                    or (operation == 'translate_text' and not args.get('source_ref')))
+        new_task = is_new_task_operation(operation, self._state['phase'], args)
         preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
         if new_task and not preserve_region and not self._hold_chat_requested:
-            self._hold_chat_requested = False
-            self.remember_task()
-            self._selection_return = None
-            self._selection_invocation_id = None
-            self._presentation_invocation_id = None
-            self._state['selectionNotice'] = ''
-            self.presentation.begin_task()
-            self._result_ref = None
+            self._hold_chat_requested = False; self.remember_task()
+            self._selection_return = self._selection_invocation_id = self._presentation_invocation_id = None
+            self._state['selectionNotice'] = ''; self.presentation.begin_task(); self._result_ref = None
         if not preserve_region and (operation in ('find_files', 'capture_translate')
                 or (operation == 'submit_goal' and not args.get('source_ref') and self._state['phase'] != 'needs_input')
                 or (operation == 'translate_text' and not args.get('source_ref'))):
             self.clear_ocr_source()
         is_file_translate = (operation == 'capture_translate' and args.get('mode') == 'file')
-        if new_task and not preserve_region:
-            if not is_file_translate:
-                self.finder_artifact = None
-            self.organization_artifact = None
-            self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, canReturnToFinder=False)
-            if not (is_file_translate and self.finder_artifact):
-                self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
-            else:
-                self.update(text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
-        capture_status = {'selection':'Đang nhận chữ bôi đen…', 'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
-            'clipboard':'Đang đọc Clipboard và dịch…', 'file':'Đang đọc file và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
-        if operation != "check_mini_readiness":
-            self.update(busy=True, phase='working', expanded=(self.presentation.extent == 'expanded'), hasWorkbench=True, agentSummary='', agentIncomplete=False,
-                lastOperation=operation, error=False, translationSettingsSuggested=False,
-                finderSettingsSuggested=False, imageInputSuggested=False,
-                status={'plan_folder_organization':'Đang chuẩn bị bản xem trước…',
-                    'apply_folder_organization':'Đang sắp xếp file…', 'undo_folder_organization':'Đang hoàn tác…',
-                    'get_last_organization':'Đang đọc nhật ký…', 'find_files':'Đang tìm trong thư mục đã chọn…',
-                    'translate_text':'Đang dịch…', 'capture_translate':capture_status,
-                    'correct_translate':'Đang ghi nhận chữ đã sửa và dịch lại…',
-                    'open_file':'Đang mở file…', 'reveal_file':'Đang hiện trong Finder…'}.get(operation,'Đang thực hiện…'))
-        if operation == "check_mini_readiness":
-            self.update(busy=True)
-        # Readiness uses the same registered tool/service in an isolated runtime.
-        # It must not dismiss a pending clarification in the user's task session.
+        if new_task and not preserve_region and not is_file_translate: self.finder_artifact = None
+        if new_task and not preserve_region: self.organization_artifact = None
+        updates = pending_task_initial_updates(operation, args, new_task, preserve_region, is_file_translate,
+                                               bool(self.finder_artifact), self.presentation.extent == 'expanded')
+        if updates: self.update(**updates)
         session = MiniSession(self.settings, artifact_store=self.session.runtime.artifact_store) if operation == 'check_mini_readiness' or preserve_region else self.session
         job = MiniJob(session, operation, args, query, generation, input_context)
         self.job = job
         def deliver_result(value):
-            if job.generation == self.generation:
-                self.render(value)
+            if job.generation == self.generation: self.render(value)
             elif value.get('invocation_id'):
                 self.quicklook_journal.record('discarded_result', invocation_id=value['invocation_id'], generation=job.generation)
         job.result.connect(deliver_result)
@@ -1023,54 +830,38 @@ class MiniQuickController(QObject):
         job.start()
 
     def remember_capture_position(self, job, source):
-        if job.generation == self.generation:
-            artifact = source['artifact']
-            if job.args.get('mode') == 'selection':
-                self.quicklook_journal.record('capture_succeeded', invocation_id=job.input_context.get('quicklook_invocation_id'),
-                    artifact_id=artifact.id, generation=job.generation)
-            if job.args.get('preserve_until_capture'):
-                self.remember_task()
-                if job.args.get('mode') == 'selection':
-                    self._selection_return = None
-                self.presentation.begin_task()
-                self._result_ref = None
-                self.session.clear_pending()
-                # The isolated session now owns the selected task, including
-                # any clarification needed by the following translation.
-                self.session = job.session
-                self.clear_ocr_source()
-                self.clearImagePreview()
-                self.finder_artifact = self.organization_artifact = None
-                self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, view='notice',
-                    finderHits=[], text='', meta='', translationDetails='', translationNotice='',
-                    sameLanguageNotice='', agentSummary='', agentIncomplete=False,
-                    requestText='Chữ bôi đen' if job.args.get('mode') == 'selection' else 'Vùng chữ đã chọn')
-                self._region_previous = None
-                region_image = source.get('region_image')
-                if region_image:
-                    self._last_image = region_image
-                    self.update(imagePreviewUrl=self.image_preview.set_input(region_image), imageLabel='Vùng chữ đã chọn')
-            if artifact.payload.get('source_kind') in ('image','region') or job.args.get('look_input'):
-                self._ocr_source_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
-                self._ocr_current_text = artifact.payload['text']
-                self._translation_args = dict(source['translation_args'])
-                self.update(ocrText=self._ocr_current_text, ocrCommittedText=self._ocr_current_text,
-                    captureSourceKind=artifact.payload['source_kind'],
-                    captureSourceApp=job.input_context.get('selection_app','') if artifact.payload['source_kind']=='selection' else '',
-                    lookSource=bool(job.args.get('look_input')) or self._state['lookSource'],
-                    hasOcrSource=True, canRetryTranslation=True,
-                    ocrOriginalText=self._state['ocrOriginalText'] if job.operation == 'correct_translate' else artifact.payload.get('ocr_raw_text', self._ocr_current_text),
-                    ocrPreparationNotice=('Đã nối các dòng chữ cùng đoạn để dịch. Chữ nhận ban đầu vẫn được giữ.'
-                        if (artifact.payload.get('ocr_normalization') or {}).get('joined_line_indexes') else ''))
-            if job.args.get('mode') == 'region':
-                self._capture_position = QCursor.pos()
-            self.update(status='Đang dịch…')
-            if job.args.get('mode') == 'selection' and self._selection_present_generation == job.generation:
-                self._selection_present_generation = None
-                self.selectionAnchorRequested.emit(source.get('selection_geometry') or {})
-                self._presentation_invocation_id = job.input_context.get('quicklook_invocation_id')
-                self.quicklook_journal.record('present_requested', invocation_id=self._presentation_invocation_id)
-                self.lookRequested.emit()
+        if job.generation != self.generation: return
+        artifact = source['artifact']
+        if job.args.get('mode') == 'selection':
+            self.quicklook_journal.record('capture_succeeded', invocation_id=job.input_context.get('quicklook_invocation_id'),
+                artifact_id=artifact.id, generation=job.generation)
+        if job.args.get('preserve_until_capture'):
+            self.remember_task()
+            if job.args.get('mode') == 'selection': self._selection_return = None
+            self.presentation.begin_task(); self._result_ref = None; self.session.clear_pending()
+            self.session = job.session; self.clear_ocr_source(); self.clearImagePreview()
+            self.finder_artifact = self.organization_artifact = self._region_previous = None
+            self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, view='notice',
+                finderHits=[], text='', meta='', translationDetails='', translationNotice='',
+                sameLanguageNotice='', agentSummary='', agentIncomplete=False,
+                requestText='Chữ bôi đen' if job.args.get('mode') == 'selection' else 'Vùng chữ đã chọn')
+            region_image = source.get('region_image')
+            if region_image:
+                self._last_image = region_image
+                self.update(imagePreviewUrl=self.image_preview.set_input(region_image), imageLabel='Vùng chữ đã chọn')
+        if artifact.payload.get('source_kind') in ('image', 'region') or job.args.get('look_input'):
+            self._ocr_source_ref = {'artifact_id': artifact.id, 'revision': artifact.revision}
+            self._ocr_current_text = artifact.payload['text']
+            self._translation_args = dict(source['translation_args'])
+            self.update(**capture_position_ocr_updates(artifact, source, job, self._state['lookSource'], self._state['ocrOriginalText']))
+        if job.args.get('mode') == 'region': self._capture_position = QCursor.pos()
+        self.update(status='Đang dịch…')
+        if job.args.get('mode') == 'selection' and self._selection_present_generation == job.generation:
+            self._selection_present_generation = None
+            self.selectionAnchorRequested.emit(source.get('selection_geometry') or {})
+            self._presentation_invocation_id = job.input_context.get('quicklook_invocation_id')
+            self.quicklook_journal.record('present_requested', invocation_id=self._presentation_invocation_id)
+            self.lookRequested.emit()
 
     def finished(self, job):
         self.job = None
@@ -1093,11 +884,7 @@ class MiniQuickController(QObject):
             error = 'selection_response_missing'
         invocation = value.get('invocation_id')
         if invocation:
-            stage = ('capture_failed' if error and self._region_previous is not None else 'translation_failed' if error
-                     else 'needs_input' if response and response.pending_input_request else 'execution_completed')
-            safe_codes = ('selection_accessibility_required', 'selection_source_changed', 'selection_unavailable',
-                'selection_empty', 'selection_source_unresponsive', 'snippet_too_long', 'cancelled', 'capture_artifact_missing', 'selection_response_missing')
-            reason = next((code for code in safe_codes if code in str(error)), 'other_failure' if error else None)
+            stage, reason = render_journal_stage(error, self._region_previous, response)
             self.quicklook_journal.record(stage, invocation_id=invocation, reason=reason,
                 execution_id=response.execution_id if response else None)
         if value.get('operation') == 'check_mini_readiness':
@@ -1138,19 +925,17 @@ class MiniQuickController(QObject):
             return
         if error:
             self.update(readinessBusy=False)
-            if any(code in str(error) for code in ('source_expired','source_integrity_mismatch','stale_source_ref')):
+            if any(code in str(error) for code in ('source_expired', 'source_integrity_mismatch', 'stale_source_ref')):
                 self.presentation.workspace = 'result'
                 if self.presentation.surface in ('ocr', 'source'):
                     self.presentation.open('result')
                 self.update(canRetryTranslation=False, hasOcrSource=False, canRetryRequest=False)
-            cancelled = str(error).startswith('cancelled')
-            self.update(phase='cancelled' if cancelled else 'error', error=not cancelled,
-                translationSettingsSuggested=any(code in str(error) for code in (
-                    'translation_rate_limited', 'translation_quota_exhausted',
-                    'translation_api_key_missing', 'translation_auth_failed', 'translation_local_unavailable', 'online_translation_not_enabled', 'api_key_missing')),
-                finderSettingsSuggested=any(code in str(error) for code in ('no_search_roots', 'scope_revoked', 'spotlight_permission_denied', 'organization_folder_outside_scope', 'organization_scope_changed')),
-                imageInputSuggested=any(code in str(error) for code in ('ocr_empty', 'image_input_invalid', 'source_expired', 'stale_source_ref', 'source_integrity_mismatch')),
-                status='Đã dừng tác vụ.' if cancelled else self.friendly_error(str(error)))
+            flags = render_error_suggestions(str(error))
+            self.update(phase='cancelled' if flags['cancelled'] else 'error', error=not flags['cancelled'],
+                translationSettingsSuggested=flags['translation_suggested'],
+                finderSettingsSuggested=flags['finder_suggested'],
+                imageInputSuggested=flags['image_suggested'],
+                status=flags['status'])
             return
         if response is None:
             self.update(phase='error', view='notice', error=True, status='Tác vụ không trả về kết quả.')
@@ -1163,97 +948,27 @@ class MiniQuickController(QObject):
                 imageInputSuggested=False,
                 status=response.pending_input_request.prompt)
             return
-        for artifact in reversed(response.artifacts):
-            data = artifact.payload
-
-            if artifact.kind in ('organization_plan', 'organization_receipt'):
-                self.clear_ocr_source()
-                self.organization_artifact = artifact
-                is_plan = artifact.kind == 'organization_plan'
-                plan = data if is_plan else data.get('plan', {})
-                rows = [dict(name=x['name'], destination=x['group']+'/'+x['name'], state='preview') for x in plan.get('moves', [])] if is_plan else [dict(name=x['name'], destination=x['group']+'/'+x['name'], state=x['state'], reason=x.get('reason','')) for x in data.get('entries', [])]
-                moved = sum(x['state']=='moved' for x in rows)
-                conflicts = sum(x['state'] in ('undo_conflict','identity_conflict') for x in rows)
-                skipped_moves = sum(x['state'] in ('skipped', 'restored_conflict') for x in rows)
-                counts = sum(plan.get('skipped', {}).values())
-                title = f"Xem trước: {len(rows)} file · bỏ qua {counts}" if is_plan else f"Đã chuyển {moved} file · bỏ qua {skipped_moves} · {conflicts} xung đột"
-                if data['status'] == 'undone': title = 'Đã hoàn tác; các thư mục trống được giữ lại.'
-                if data['status'] == 'empty': title = 'Chưa có lần sắp xếp nào.'
-                grouped = {}
-                for row in rows:
-                    group = row['destination'].split('/', 1)[0]
-                    grouped.setdefault(group, []).append(row)
-                groups = [dict(name=name, count=len(items), rows=items) for name, items in grouped.items()]
-                self.complete_surface()
-                self.update(view='organization', organization=data, organizationRows=rows, organizationGroups=groups, organizationRecoverySuggested=False,
-                    canApplyOrganization=is_plan and bool(rows),
-                    canUndoOrganization=not is_plan and any(x['state'] in ('moved','move_pending','undo_pending','undo_conflict') for x in rows),
-                    phase='partial' if model_loop and self._state['agentIncomplete'] else 'result', status=title, text='', meta=plan.get('root',''), finderHits=[])
-                return
-            if artifact.kind == 'finder_results':
-                self.remember_finder_diagnostic(data)
-                self.clear_ocr_source()
-                self.finder_artifact = artifact
-                hits = [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower()=='.pdf',
-                    display_path=hit['path'], match_reason='Spotlight') for hit in data['hits']]
-                partial = data.get('status') == 'partial' or bool(data.get('provider_errors'))
-                status = (f"Tìm thấy {len(hits)} file" if hits else 'Chưa tìm thấy file trong thư mục đã chọn.')
-                if partial:
-                    done = data.get('coverage', {}).get('completed_roots')
-                    total = data.get('coverage', {}).get('roots')
-                    if not hits:
-                        status = 'Spotlight chưa tìm xong. Chưa thể kết luận có file hay không.'
-                    else:
-                        status += (f' · Đã tìm xong {done}/{total} thư mục.'
-                                   if done is not None and total else ' · Một số thư mục chưa tìm xong.')
-                if any(e.get('code') == 'spotlight_permission_denied' for e in data.get('provider_errors', [])):
-                    status += ' macOS chưa cho RAT đọc một số thư mục đã chọn.'
-                self.complete_surface()
-                self.update(phase='partial' if partial or (model_loop and self._state['agentIncomplete']) else 'result', view='finder', finderHits=hits,
-                    finderSettingsSuggested=partial or not hits,
-                    text='', meta='Chọn một file để mở hoặc hiện trong Finder', status=status)
-                return
-
-            if artifact.kind == 'translation':
-                self._result_ref = {'artifact_id':artifact.id, 'revision':artifact.revision}
+        artifact_res = process_render_artifacts(response.artifacts if response else [], response, model_loop, self._state['agentIncomplete'], self.finder_artifact)
+        if artifact_res:
+            kind = artifact_res['kind']
+            if kind == 'organization':
+                self.clear_ocr_source(); self.organization_artifact = artifact_res['artifact']
+                self.complete_surface(); self.update(**artifact_res['update']); return
+            if kind == 'finder_results':
+                self.remember_finder_diagnostic(artifact_res['data']); self.clear_ocr_source()
+                self.finder_artifact = artifact_res['artifact']; self.complete_surface()
+                self.update(**artifact_res['update']); return
+            if kind == 'translation':
+                data, artifact = artifact_res['data'], artifact_res['artifact']
+                self._result_ref = {'artifact_id': artifact.id, 'revision': artifact.revision}
                 source_capture = data.get('source_capture') or {}
-                if not source_capture:
-                    self.clear_ocr_source()
+                if not source_capture: self.clear_ocr_source()
                 elif self._ocr_source_ref == source_capture.get('source_ref'):
-                    self._translation_args = {'source_ref':dict(self._ocr_source_ref),
-                        'source_language':data['source_language'], 'target_language':data['target_language'],
-                        'style':data.get('style','faithful')}
-                languages = {'vi':'Tiếng Việt', 'en':'Tiếng Anh', 'ja':'Tiếng Nhật', 'ko':'Tiếng Hàn',
-                    'zh':'Tiếng Trung', 'fr':'Tiếng Pháp', 'de':'Tiếng Đức', 'es':'Tiếng Tây Ban Nha',
-                    'auto':'Tự nhận diện'}
-                meta=f"{languages.get(data['source_language'], data['source_language'])} → {languages.get(data['target_language'], data['target_language'])}"
-                if data.get('local_model'):
-                    meta = 'Dịch trên máy · ' + meta
-                provenance = (data.get('source_capture') or {}).get('input_provenance') or {}
-                origin = {'selected_file':'Ảnh đã chọn', 'dropped_file':'Ảnh kéo thả', 'dropped_image':'Ảnh kéo thả', 'clipboard_file':'File ảnh đã dán',
-                    'clipboard_image':'Ảnh đã dán'}.get(provenance.get('origin'))
-                if origin:
-                    meta = origin + ' · ' + meta
-                if (data.get('source_capture') or {}).get('text_origin') == 'user_edit':
-                    meta = 'Chữ đã sửa · ' + meta
-                provider_name = 'OPUS-MT / Argos · trên máy' if data['provider'] == 'offline_argos' else data['provider']
-                details = f"Dịch vụ: {provider_name}\n" + '\n'.join(data.get('warnings', []))
-                notice = '\n'.join(w for w in data.get('warnings', []) if not w.startswith('Đã dùng MyMemory'))
-                if data['provider'] == 'same_language':
-                    meta += ' · Nội dung đã ở ngôn ngữ đích'
-                if provenance.get('kind') == 'file' and provenance.get('file_name'):
-                    meta = f"{provenance['file_name']} · {meta}"
-                can_return = bool(self.finder_artifact and provenance.get('kind') == 'file')
-                partial = data['status'] == 'partial'
-                if len(data.get('text', '')) > 480 and self.presentation.extent != 'expanded':
-                    self.presentation.resize(True)
-                self.complete_surface()
-                self.update(phase='partial' if partial or (model_loop and self._state['agentIncomplete']) else 'result', view='translation', finderHits=[],
-                    text=data['text'], meta=meta, translationDetails=details.strip(), translationNotice=notice,
-                    sameLanguageNotice=('Đoạn này đã là ' + languages.get(data['target_language'], data['target_language']) + '.' if data['provider'] == 'same_language' else ''),
-                    status='Chưa dịch hết văn bản' if partial else 'Bản dịch',
-                    canReturnToFinder=can_return)
-                return
+                    self._translation_args = {'source_ref': dict(self._ocr_source_ref),
+                        'source_language': data['source_language'], 'target_language': data['target_language'],
+                        'style': data.get('style', 'faithful')}
+                if len(data.get('text', '')) > 480 and self.presentation.extent != 'expanded': self.presentation.resize(True)
+                self.complete_surface(); self.update(**artifact_res['update']); return
         if value.get('operation') in ('open_file', 'reveal_file'):
             self.update(phase='result', status='Đã mở file.' if value['operation'] == 'open_file' else 'Đã hiện trong Finder.')
             self.interactionCompleted.emit()
@@ -1263,101 +978,19 @@ class MiniQuickController(QObject):
             self.update(phase='partial' if incomplete else 'result', view='notice', text=response.answer or '',
                 status='Chưa hoàn tất toàn bộ yêu cầu.' if incomplete else 'Đã hoàn tất.')
 
-    def remember_finder_diagnostic(self, data):
-        """One replaceable receipt; no filenames, paths, predicates or text."""
-        diagnostic = {'version': 'M5.16-source', 'status': data.get('status'),
-            'coverage': data.get('coverage'), 'hit_count': data.get('hit_count'),
-            'provider_errors': data.get('provider_errors'), 'diagnostics': data.get('diagnostics')}
-        try:
-            folder = state_directory()
-            folder.mkdir(parents=True, exist_ok=True)
-            pending = folder/'.last-finder.json'
-            pending.write_text(json.dumps(diagnostic, ensure_ascii=False), encoding='utf-8')
-            pending.replace(folder/'last-finder.json')
-        except OSError:
-            logging.getLogger(__name__).debug('finder_receipt_unavailable')
+    def remember_finder_diagnostic(self, data): record_finder_diagnostic(data)
 
     @staticmethod
-    def readiness_summary(checks):
-        by_key = {item['key']: item for item in checks}
-        groups = [('translation', 'Dịch Anh ↔ Việt', ('ctranslate2','sentencepiece','en-vi','vi-en','models')),
-                  ('image', 'Dịch ảnh', ('Vision',)), ('finder', 'Tìm file', ('spotlight','folders'))]
-        summaries = []
-        for key, label, members in groups:
-            items = [by_key[name] for name in members if name in by_key]
-            state = 'action_required' if any(x['state']=='action_required' for x in items) else 'unverified' if not items or any(x['state']=='unverified' for x in items) else 'ready'
-            summaries.append(dict(key=key, label=label, state=state,
-                detail=' · '.join(x['detail'] for x in items if x['state']=='action_required') or
-                    ('Có thành phần; chưa xác nhận toàn bộ luồng.' if state=='ready' else 'Bạn có thể dùng thử; quyền thư mục và gói dịch được kiểm tra khi cần.')))
-        return summaries
+    def readiness_summary(checks): return format_readiness_summary(checks)
 
     @staticmethod
-    def friendly_error(error):
-        messages = {
-            'online_translation_not_enabled':'MyMemory chưa được bật. Mở Cài đặt để chọn dịch trên máy hoặc cho phép MyMemory; đoạn chữ vẫn được giữ.',
-            'organization_folder_outside_scope':'Thư mục này chưa thuộc phạm vi RAT. Thêm thư mục trong Cài đặt, rồi xem trước lại.',
-            'organization_stale_preview':'Bản xem trước đã quá 30 phút hoặc đã đổi. Hãy tạo bản xem trước mới.',
-            'organization_scope_changed':'Danh sách thư mục đã đổi. Hãy tạo bản xem trước mới.',
-            'organization_folder_changed':'Thư mục đã bị thay thế. Hãy chọn và xem trước lại.',
-            'organization_explicit_approval_required':'Chỉ áp dụng bằng nút trên bản xem trước hiện tại.',
-            'spotlight_permission_denied':'macOS chưa cho RAT đọc thư mục đã chọn. Kiểm tra quyền của RAT hoặc chọn thư mục khác.',
-            'no_search_roots':'Chọn ít nhất một thư mục trong Cài đặt để bắt đầu tìm file.',
-            'scope_revoked':'Danh sách thư mục đã thay đổi. Hãy tìm lại trước khi mở file.',
-            'translation_local_unavailable':'Gói dịch trên máy chưa sẵn sàng. Hãy mở lại app hoặc dùng lại bản ZIP đầy đủ; chữ vẫn được giữ.',
-            'translation_quota_exhausted':'Dịch vụ đã hết hạn mức. Chữ vẫn được giữ; đổi dịch vụ hoặc chờ hạn mức khôi phục.',
-            'translation_rate_limited':'Dịch vụ đang giới hạn lượt dịch. Chữ vẫn được giữ; hãy thử lại sau ít phút.',
-            'translation_auth_failed':'Dịch vụ chưa chấp nhận cấu hình truy cập. Kiểm tra cài đặt dịch; chữ vẫn được giữ.',
-            'translation_api_key_missing':'Dịch vụ này chưa được cấu hình. Chọn dịch vụ khác trong Cài đặt; chữ vẫn được giữ.',
-            'translation_timeout':'Dịch vụ phản hồi quá lâu. Chữ vẫn được giữ; bạn có thể thử dịch lại.',
-            'translation_tls_failed':'Chưa kết nối an toàn được với dịch vụ dịch. Kiểm tra ngày giờ máy và mạng; chữ vẫn được giữ.',
-            'translation_network_error':'Chưa kết nối được dịch vụ dịch. Kiểm tra mạng rồi thử lại; chữ vẫn được giữ.',
-            'translation_provider_error':'Dịch vụ dịch chưa trả được kết quả. Chữ vẫn được giữ; hãy thử lại sau.',
-            'mini_llm_disabled':'Nhập từ khóa để tìm file, dán chữ để dịch Anh ↔ Việt trên máy, hoặc bật Suy luận Cloud (API key) trong Cài đặt để hỏi đáp/giải thích tự do.',
-            'llm_disabled':'Nhập từ khóa để tìm file, dán chữ để dịch Anh ↔ Việt trên máy, hoặc bật Suy luận Cloud (API key) trong Cài đặt để hỏi đáp/giải thích tự do.',
-            'ambiguous_goal':'Nhập từ khóa để tìm file, dán chữ để dịch Anh ↔ Việt trên máy, hoặc bật Suy luận Cloud (API key) trong Cài đặt để hỏi đáp/giải thích tự do.',
-            'translation_failed':'Chưa dịch được lúc này. Chữ vẫn được giữ; kiểm tra mạng rồi thử lại.'}
-        for code, message in messages.items():
-            if code in error:
-                return message
-        if any(code in error for code in ('stale_result_ref', 'result_expired', 'invalid_result_ref')):
-            return 'Kết quả trước không còn hợp lệ. Hãy mở lại nguồn và thực hiện lại yêu cầu.'
-        if any(code in error for code in ('source_integrity_mismatch', 'source_expired', 'stale_source_ref')):
-            return 'Nguồn chữ cũ không còn hợp lệ. Hãy thả lại ảnh hoặc dán lại nội dung để dịch.'
-        if 'selection_accessibility_required' in error:
-            return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng. Sau đó bôi đen chữ và bấm phím tắt Quick Look lại.'
-        if 'selection_empty' in error:
-            return 'Chưa thấy chữ được chọn. Bôi đen một đoạn rồi bấm lại.'
-        if 'selection_source_unresponsive' in error:
-            return 'App nguồn chưa phản hồi. Chờ một chút rồi thử lại, hoặc copy và chọn Dán chữ.'
-        if 'selection_source_changed' in error:
-            return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm phím tắt Quick Look lại.'
-        if 'selection_unavailable' in error:
-            return 'Chưa lấy được chữ bôi đen từ app này. Bạn có thể dán chữ hoặc chọn vùng ảnh trong menu.'
-        if 'selection_response_missing' in error:
-            return 'Quick Look chưa trả về kết quả. Mã QL_NO_RESPONSE. Công việc trước vẫn được giữ.'
-        if 'screen_capture_denied' in error:
-            return 'Cho phép Ghi màn hình trong macOS để chọn vùng chữ.'
-        if 'ocr_empty' in error:
-            return 'Chưa đọc được chữ trong ảnh. Hãy chụp vùng rõ hơn hoặc gõ nội dung cần dịch vào ô nhập.'
-        if 'image_input_invalid' in error:
-            return 'Chưa đọc được ảnh. Hãy thả một ảnh PNG/JPG đã lưu, hoặc chụp vùng chữ nhỏ hơn.'
-        if 'api_key_missing' in error:
-            return 'Yêu cầu này cần Agent cloud chưa được cấu hình. Bạn có thể hỏi từng bước: tìm file, hoặc gửi đoạn cần dịch.'
-        if 'clipboard' in error.lower() or 'empty_text' in error.lower():
-            return 'Clipboard chưa có văn bản. Copy một đoạn chữ rồi thử lại.'
-        if 'stale_resource' in error or 'resource_not_found' in error or 'FileNotFound' in error:
-            return 'File đã thay đổi hoặc không còn ở đó. Hãy tìm lại trước khi mở.'
-        if 'permission' in error.lower():
-            return 'RAT chưa đọc được thư mục này. Kiểm tra quyền truy cập trong macOS.'
-        return 'Chưa thực hiện được lúc này. Nội dung vẫn được giữ; bạn có thể thử lại.'
+    def friendly_error(error): return format_user_error_message(str(error))
 
     @pyqtSlot(int)
-    def openSelectedHit(self, index):
-        self.file_action(index, 'open_file')
+    def openSelectedHit(self, index): self.file_action(index, 'open_file')
 
     @pyqtSlot(int)
-    def revealSelectedInFinder(self, index):
-        self.file_action(index, 'reveal_file')
+    def revealSelectedInFinder(self, index): self.file_action(index, 'reveal_file')
 
     @pyqtSlot(int)
     def translateSelectedHit(self, index):
@@ -1375,37 +1008,38 @@ class MiniQuickController(QObject):
     def returnToFinderResults(self):
         if self._state['busy'] or not self.finder_artifact:
             return
-        raw_hits = self.finder_artifact.payload.get('hits', [])
-        hits = [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
-            display_path=hit['path'], match_reason='Spotlight') for hit in raw_hits]
+        hits = format_finder_return_hits(self.finder_artifact)
         self.update(phase='result', view='finder', finderHits=hits, text='',
             status=f"Đã tìm thấy {len(hits)} mục",
             meta='Chọn một file để mở hoặc hiện trong Finder',
             canReturnToFinder=False)
 
     def file_action(self, index, operation):
-        artifact = self.finder_artifact
-        if self._state['busy'] or not artifact or not 0 <= index < len(artifact.payload['hits']):
-            return
-        hit = artifact.payload['hits'][index]
-        self.enqueue(operation, dict(artifact_id=artifact.id, revision=artifact.revision,
-            resource_id=hit['resource_id']))
+        action = handle_file_action(self.finder_artifact, index, operation, self._state['busy'])
+        if action:
+            self.enqueue(action[0], action[1])
+
+    @pyqtSlot(int)
+    def copySelectedHitPath(self, index):
+        hits = self._state.get('finderHits', [])
+        if 0 <= index < len(hits):
+            path = hits[index].get('path', '')
+            if path:
+                QGuiApplication.clipboard().setText(path)
+                self.update(shortcutAck='Đã sao chép đường dẫn file', status='Đã sao chép đường dẫn file.')
+                self.shortcut_ack_timer.start(1800)
 
     @pyqtSlot()
     def copyResult(self):
         text = self._state['text'] or '\n'.join(h['path'] for h in self._state['finderHits'])
         if text:
             QGuiApplication.clipboard().setText(text)
-            if self._state.get('view') == 'translation':
-                self.update(status='Đã sao chép bản dịch')
-            else:
-                self.interactionCompleted.emit()
+            if self._state.get('view') == 'translation': self.update(status='Đã sao chép bản dịch')
+            else: self.interactionCompleted.emit()
 
     @pyqtSlot(str)
     def copyLook(self, displayed_text):
-        if displayed_text:
-            QGuiApplication.clipboard().setText(displayed_text)
-            self.interactionCompleted.emit()
+        if displayed_text: QGuiApplication.clipboard().setText(displayed_text); self.interactionCompleted.emit()
 
     @pyqtSlot()
     def cancel(self):
@@ -1438,73 +1072,25 @@ class MiniQuickController(QObject):
     def savePreferences(self, changes, secret=''):
         if self.job:
             return 'Đợi tác vụ kết thúc trước khi đổi cài đặt.'
-        try:
-            updated = dict(self.settings)
-            roots = changes.get('roots', updated['roots'])
-            roots = [str(Path(p).expanduser().resolve()) for p in roots if str(p).strip()]
-            if any(not Path(p).is_dir() for p in roots):
-                return 'Chọn thư mục đang tồn tại, hoặc bỏ thư mục không còn dùng.'
-            updated.update(roots=roots)
-            for name in ('source_language', 'target_language', 'translation_provider', 'free_fallback', 'provider', 'model', 'llm_enabled'):
-                if name in changes:
-                    updated[name] = changes[name]
-            if type(updated.get('llm_enabled', False)) is not bool:
-                return 'Kiểm tra tùy chọn suy luận cloud.'
-            updated.setdefault('llm_enabled', False)
-            if not updated['llm_enabled'] and updated['translation_provider'] == 'llm':
-                updated['translation_provider'] = 'automatic'
-            if updated['provider'] not in ('openai', 'deepseek', 'groq') or updated['translation_provider'] not in ('automatic', 'google_gtx', 'mymemory', 'llm', 'deepl', 'google'):
-                return 'Chọn một dịch vụ được hỗ trợ.'
-            for name, maximum in (('source_language',35), ('target_language',35), ('model',128)):
-                if not isinstance(updated[name],str) or not updated[name].strip() or len(updated[name]) > maximum or '\0' in updated[name]:
-                    return 'Kiểm tra ngôn ngữ và tên model trong cài đặt.'
-                updated[name] = updated[name].strip()
-            if updated['target_language'] == 'auto' or type(updated['free_fallback']) is not bool:
-                return 'Chọn ngôn ngữ đích và tùy chọn dự phòng hợp lệ.'
-            # Preserve observed text/correction artifacts when switching provider.
-            # Keep visible results; file actions still validate the new scopes.
-            session = MiniSession(updated, artifact_store=self.session.runtime.artifact_store)
-            session.pending_route = self.session.pending_route
-            session.previous_goal = self.session.previous_goal
-            session.runtime.dispatcher.state.pending_input_request = self.session.runtime.dispatcher.state.pending_input_request
-            if secret.strip():
-                provider = (updated['translation_provider'] if updated['translation_provider'] in ('deepl', 'google')
-                            else updated['provider'] if updated['llm_enabled'] else updated['translation_provider'])
-                if provider not in ('openai', 'deepseek', 'groq', 'deepl', 'google'):
-                    return 'Dịch vụ miễn phí không dùng API key. Hãy bỏ key hoặc chọn dịch vụ có key.'
-                # Never put credentials into settings, snapshots, artifacts or logs.
-                keychain_key(provider, secret)
-            save_settings(updated)
-            if self._translation_args:
-                for key in ('source_language','target_language'):
-                    if updated[key] != self.settings[key]:
-                        self._translation_args[key] = updated[key]
-            if self._retry_request:
-                operation, arguments, query = self._retry_request
-                arguments = dict(arguments)
-                if operation in ('capture_translate', 'translate_text'):
-                    for key in ('source_language', 'target_language'):
-                        arguments[key] = updated[key]
-                self._retry_request = operation, arguments, query
-            scopes_changed = updated['roots'] != self.settings['roots']
-            self.settings, self.session = updated, session
-            if scopes_changed:
-                self.organization_artifact = None
-                self.update(canApplyOrganization=False, canUndoOrganization=False,
-                    organizationRecoverySuggested=self._state['view'] == 'organization')
-            if self._state['translationSettingsSuggested'] and self._state['phase'] == 'error':
-                self._state['status'] = 'Đã cập nhật cài đặt. Bấm Thử lại để dịch đoạn chữ đã giữ.'
-            self.update(translationSettingsSuggested=False, targetLanguage=updated.get('target_language', 'vi'),
-                llmEnabled=bool(updated.get('llm_enabled', False)),
-                settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
-            return ''
-        except Exception as exc:
-            return 'Chưa lưu được: ' + str(exc)
+        updated, session, err, scopes_changed, tr_args, retry = save_preferences_settings(
+            self.settings, self.session, changes, secret, self._translation_args, self._retry_request,
+            keychain_func=keychain_key, save_func=save_settings
+        )
+        if err:
+            return err
+        self.settings, self.session, self._translation_args, self._retry_request = updated, session, tr_args, retry
+        if scopes_changed:
+            self.organization_artifact = None
+            self.update(canApplyOrganization=False, canUndoOrganization=False,
+                organizationRecoverySuggested=self._state['view'] == 'organization')
+        if self._state['translationSettingsSuggested'] and self._state['phase'] == 'error':
+            self._state['status'] = 'Đã cập nhật cài đặt. Bấm Thử lại để dịch đoạn chữ đã giữ.'
+        self.update(translationSettingsSuggested=False, targetLanguage=updated.get('target_language', 'vi'),
+            llmEnabled=bool(updated.get('llm_enabled', False)),
+            settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
+        return ''
 
     @pyqtSlot()
     def quit(self):
-        self.quitting = True
-        self.cancel()
-        self.hideRequested.emit()
-        if not self.job:
-            QGuiApplication.quit()
+        self.quitting = True; self.cancel(); self.hideRequested.emit()
+        if not self.job: QGuiApplication.quit()

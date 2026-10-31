@@ -84,3 +84,12 @@ def test_floating_head_looking_mode_is_pure_translation_and_anti_jarring():
     assert "if self._ocr_source_ref:" not in controller_py, (
         "Typed composer queries must only route to OCR correction when self.presentation.surface == 'ocr'"
     )
+
+
+def test_mini_quick_controller_stays_below_god_object_threshold():
+    controller_py = (ROOT / "rat/ui/mini_quick_controller.py").read_text(encoding="utf-8")
+    line_count = len(controller_py.splitlines())
+    assert line_count <= 1150, (
+        f"rat/ui/mini_quick_controller.py exceeded 1150-line threshold ({line_count} lines)"
+    )
+
