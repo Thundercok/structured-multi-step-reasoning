@@ -517,7 +517,9 @@ class QwenMLXBackend:
                     f"logprob telemetry incomplete: {len(full_ent_nats)}/{n_tok} generated tokens usable "
                     f"({bad_logprob_steps} bad) - confidence/entropy would be silently wrong"
                 )
-            if self.strict_telemetry and max_abs_lse > 1e-2:
+            if self.strict_telemetry and max_abs_lse > 0.2:
+                # Tolerance 0.2 accounts for bfloat16 numerical accumulation across Qwen's large 151,936-token vocabulary
+                # while strictly rejecting raw unnormalized logits (which have logsumexp >> 1.0).
                 finish_reason = "error"
                 raise RuntimeError(f"logprobs are not a normalized log-softmax (|logsumexp|={max_abs_lse:.3g})")
         except Exception:

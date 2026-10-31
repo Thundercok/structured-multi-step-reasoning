@@ -56,6 +56,7 @@ def main():
     parser.add_argument("--seed", type=int, default=42, help="Master generation seed")
     parser.add_argument("--prompt-profile", type=str, default="english-math-v1", choices=["english-math-v1"], help="Prompt profile")
     parser.add_argument("--max-tokens", type=int, default=1024, help="Per-call generated token ceiling")
+    parser.add_argument("--max-items", type=int, default=None, help="Optional slice limit on number of items (for bounded verification)")
     parser.add_argument("--max-calls", type=int, default=279, help="Total call ceiling envelope (default: 93 items * 3 strategies = 279)")
     parser.add_argument("--max-tokens-total", type=int, default=285696, help="Total generated tokens ceiling (default: 279 * 1024 = 285696)")
 
@@ -70,10 +71,17 @@ def main():
     with open(args.dataset, "r", encoding="utf-8") as f:
         dataset = json.load(f)
 
+    if args.max_items is not None:
+        dataset = dict(dataset)
+        dataset["items"] = dataset["items"][:args.max_items]
+
     # Validate dataset contracts
     validate_dataset(dataset, pilot=True)
     num_items = len(dataset["items"])
     expected_calls = num_items * len(collector.ACTIONS)
+    if args.max_items is not None:
+        args.max_calls = expected_calls
+        args.max_tokens_total = expected_calls * args.max_tokens
     if args.max_calls < expected_calls:
         parser.error(f"max_calls ({args.max_calls}) is smaller than required calls ({expected_calls} = {num_items} items * {len(collector.ACTIONS)} actions)")
 
