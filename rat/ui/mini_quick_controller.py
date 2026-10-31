@@ -1346,7 +1346,8 @@ class MiniQuickController(QObject):
             QGuiApplication.clipboard().setText(text)
             if self._state.get('view') == 'translation':
                 self.update(status='Đã sao chép bản dịch')
-            self.interactionCompleted.emit()
+            else:
+                self.interactionCompleted.emit()
 
     @pyqtSlot(str)
     def copyLook(self, displayed_text):

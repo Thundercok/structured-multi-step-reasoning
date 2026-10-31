@@ -27,10 +27,13 @@ def place_look(available, home, bubble_width=0, bubble_height=0, variant='standb
     rat = Rect(left, top, width, height)
     if bubble_width <= 0 or bubble_height <= 0:
         return Placement(Rect(left, top, 0, 0), rat, rat, side)
-    ink = (Rect(rat.x+4, rat.y+4, width-8, height-8) if floating_head else
-           Rect(rat.x+4, rat.bottom-30-LOOK_OPTICAL_HEIGHT, LOOK_WIDTH-8, LOOK_OPTICAL_HEIGHT))
+    if ink_bounds is not None and ink_bounds.width > 0 and ink_bounds.height > 0:
+        ink = Rect(rat.x + ink_bounds.x, rat.y + ink_bounds.y, ink_bounds.width, ink_bounds.height)
+    else:
+        ink = (Rect(rat.x+4, rat.y+4, width-8, height-8) if floating_head else
+               Rect(rat.x+4, rat.bottom-30-LOOK_OPTICAL_HEIGHT, LOOK_WIDTH-8, LOOK_OPTICAL_HEIGHT))
     anchor_point = (rat.x + mouth[0], rat.y + mouth[1]) if mouth is not None else None
     speech = place_speech(available, ink, bubble_width, bubble_height, preferred_side=side,
-                          gap=GAP, margin=MARGIN, anchor_point=anchor_point, align_bottom=True, preserve_side=True)
+                          gap=GAP, margin=MARGIN, anchor_point=anchor_point, align_bottom=(floating_head or mouth is None), preserve_side=True)
     return Placement(speech.body, rat, speech.body.union(rat), speech.side)
 

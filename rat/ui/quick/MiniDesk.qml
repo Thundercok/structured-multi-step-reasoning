@@ -670,8 +670,6 @@ Rectangle {
                     Item { Layout.fillWidth: true }
                     QuietButton { visible: !desk.liveSnapshot.busy && desk.recoveryVisible && Boolean(desk.recoveryAction); primary: true; text: ({journal:"Xem nhật ký",image:"Chọn ảnh khác…",settings:"Mở cài đặt",retry:(["open_file","reveal_file"].indexOf(desk.liveSnapshot.lastOperation)>=0 ? "Tìm lại" : "Thử lại")}[desk.recoveryAction] || ""); onClicked: desk.recover() }
                     QuietButton { visible: desk.surface === "ocr" && !desk.recoveryVisible; primary: true; text: "Dịch lại"; enabled: !desk.liveSnapshot.busy && desk.liveSnapshot.canRetryTranslation && Boolean((desk.liveSnapshot.ocrText || "").trim()); onClicked: desk.liveController.retryTranslation(desk.liveSnapshot.ocrText) }
-                    QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && !desk.recoveryVisible; text: "Dịch file này"; enabled: !desk.liveSnapshot.busy && desk.selectedFinderIndex >= 0; onClicked: desk.liveController.translateSelectedHit(desk.selectedFinderIndex) }
-                    QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && !desk.recoveryVisible; primary: true; text: "Mở file"; enabled: !desk.liveSnapshot.busy && desk.selectedFinderIndex >= 0; onClicked: desk.liveController.openSelectedHit(desk.selectedFinderIndex) }
                     QuietButton {
                         visible: desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "organization" && !desk.recoveryVisible
                         primary: true; text: desk.liveSnapshot.canApplyOrganization ? "Xem kế hoạch" : "Xem biên nhận"

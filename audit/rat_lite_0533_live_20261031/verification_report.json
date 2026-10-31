@@ -1,0 +1,14 @@
+{
+  "version": "0.5.33",
+  "build": "20261031.3",
+  "platform": "cocoa",
+  "file_translation": {
+    "meta": "research_notes.md · Dịch trên máy · Tiếng Anh → Tiếng Việt",
+    "canReturnToFinder": true,
+    "text": "Lý luận được thuyết phục cải thiện tính chính xác và dừng lại sớm khi được xác nhận."
+  },
+  "copy_feedback": {
+    "status": "Đã sao chép bản dịch",
+    "bubbleCollapsed": false
+  }
+}

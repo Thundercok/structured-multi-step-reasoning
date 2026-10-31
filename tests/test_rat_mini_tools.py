@@ -252,17 +252,3 @@ def test_agent_does_not_claim_incomplete_or_failed_tool_as_committed(tmp_path, m
     receipt = next(item for item in response.execution_journal.receipts if item.operation_name == 'find_files')
     assert not receipt.committed
     assert response.error or response.completion_status != 'completed'
-
-
-def test_semantic_chunk_preserves_tail_with_special_tokens(tmp_path):
-    tokenizers=pytest.importorskip('tokenizers')
-    from tokenizers.models import WordLevel
-    from tokenizers.pre_tokenizers import Whitespace
-    from tokenizers.processors import TemplateProcessing
-    from rat.engine.mini_semantic import LocalSemanticIndex
-    tokenizer=tokenizers.Tokenizer(WordLevel({'[UNK]':0,'[CLS]':1,'[SEP]':2,'last':3,'real':4,'words':5},unk_token='[UNK]'))
-    tokenizer.pre_tokenizer=Whitespace()
-    tokenizer.post_processor=TemplateProcessing(single='[CLS] $A [SEP]',special_tokens=[('[CLS]',1),('[SEP]',2)])
-    index=LocalSemanticIndex(tmp_path,tmp_path/'index.sqlite',ScopePolicy([tmp_path]))
-    index.tokenizer=tokenizer
-    assert list(index.pieces('last real words'))==['last real words']

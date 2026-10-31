@@ -47,3 +47,15 @@ def test_mini_uses_optical_bounds_and_preserves_home_for_both_surfaces():
     assert small.panel.right==composer.panel.right==small.rat.x+ink.x-8
     assert small.panel.y+small.panel.height/2==small.rat.y+mouth[1]
     assert composer.panel.y+composer.panel.height/2==composer.rat.y+mouth[1]
+
+
+def test_extent_and_surfaces_preserve_presentation_session():
+    from rat.ui.mini_presentation import MiniPresentation
+    presentation = MiniPresentation()
+    presentation.open('ocr')
+    presentation.scroll['0:ocr'] = 42
+    for expanded in (True, False):
+        presentation.resize(expanded)
+        assert presentation.surface == 'ocr'
+        assert presentation.scroll['0:ocr'] == 42
+        assert presentation.snapshot()['interactionExtent'] == ('expanded' if expanded else 'compact')
