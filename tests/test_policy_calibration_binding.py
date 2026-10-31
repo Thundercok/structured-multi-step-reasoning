@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from reasoning.bundle import BundleValidationError, create_synthetic_specimen_bundle, validate_policy_bundle
+from reasoning.bundle import BundleValidationError, create_synthetic_specimen_bundle, fitted_head, validate_policy_bundle
 from reasoning.optimal_stopping import PlattCalibrator
 
 
@@ -18,7 +18,7 @@ def approved_fixture(tmp_path):
     artifact = tmp_path / 'fitted-policy.json'
     artifact.write_text(json.dumps({
         'lambda': policy.lam, 'tau': policy.tau, 'mean_cost': policy.mean_cost,
-        'entry_cost_models': [{'coef': m.coef_.tolist(), 'intercept': float(m.intercept_)}
+        'entry_cost_models': [{'coef': fitted_head(m).coef_.tolist(), 'intercept': float(fitted_head(m).intercept_)}
                               for m in policy.entry_predictor.cost],
         'entry_perf_models': [{'constant': m.value} for m in policy.entry_predictor.perf],
         'calibrators': [{'type': 'platt', 'a': c.a, 'b': c.b, 'is_fitted': c.is_fitted}
@@ -69,4 +69,11 @@ def test_unsupported_or_incomplete_calibration_artifacts_fail_closed(tmp_path, m
     artifact.write_text(json.dumps(data))
     bundle = replace(bundle, artifact_hashes={str(artifact): hashlib.sha256(artifact.read_bytes()).hexdigest()})
     with pytest.raises(BundleValidationError, match='calibrat'):
+        validate_policy_bundle(bundle, policy)
+
+
+def test_perf_model_without_verifiable_parameters_fails_closed(tmp_path):
+    bundle, policy, _ = approved_fixture(tmp_path)
+    policy.entry_predictor.perf[0] = object()
+    with pytest.raises(BundleValidationError, match='no verifiable parameters'):
         validate_policy_bundle(bundle, policy)

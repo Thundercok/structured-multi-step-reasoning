@@ -9,7 +9,7 @@ from reasoning.reasoning_env import ReasoningAction as A, complexity_features
 from reasoning.runtime import OnlineReasoningController
 from rat.engine.meta_reasoner import MetaReasonerEngine
 from experiments.research_study import collect_records, evaluate_records
-from reasoning.bundle import PolicyBundle, validate_policy_bundle, BundleValidationError, create_synthetic_specimen_bundle
+from reasoning.bundle import PolicyBundle, validate_policy_bundle, BundleValidationError, create_synthetic_specimen_bundle, fitted_head
 
 
 class Backend:
@@ -663,22 +663,8 @@ class TestFeaturePreprocessingContractAndRouteParity:
             "mean_cost": list(policy.mean_cost),
             "entry_cost_models": [
                 {
-                    "coef": getattr(
-                        getattr(m, "best_estimator_", m).named_steps.get("head")
-                        if hasattr(getattr(m, "best_estimator_", m), "named_steps")
-                        else getattr(m, "best_estimator_", m),
-                        "coef_",
-                        np.array([]),
-                    ).tolist(),
-                    "intercept": float(
-                        getattr(
-                            getattr(m, "best_estimator_", m).named_steps.get("head")
-                            if hasattr(getattr(m, "best_estimator_", m), "named_steps")
-                            else getattr(m, "best_estimator_", m),
-                            "intercept_",
-                            0.0,
-                        )
-                    ),
+                    "coef": fitted_head(m).coef_.tolist(),
+                    "intercept": float(fitted_head(m).intercept_),
                 }
                 for m in predictor.cost
             ],

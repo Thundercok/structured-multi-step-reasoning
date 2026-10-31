@@ -87,6 +87,20 @@ class BundleValidationReport:
     diagnostics: Dict[str, Any] = field(default_factory=dict)
 
 
+def fitted_head(model):
+    """Return the fitted linear head of an EntryPredictor model.
+
+    EntryPredictor heads may be a GridSearchCV, a Pipeline or a bare estimator;
+    artifacts store the coefficients of the final ``head`` step.
+    """
+    est = getattr(model, "best_estimator_", model)
+    if hasattr(est, "named_steps") and "head" in est.named_steps:
+        return est.named_steps["head"]
+    if hasattr(est, "steps") and est.steps:
+        return est.steps[-1][1]
+    return est
+
+
 def validate_policy_bundle(
     bundle: PolicyBundle,
     policy: OptimalStoppingPolicy,
@@ -276,14 +290,7 @@ def validate_policy_bundle(
                                         if not isinstance(m_dict, dict):
                                             errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] must be an object.")
                                             continue
-                                        live_m = pred.cost[idx]
-                                        live_est = getattr(live_m, "best_estimator_", live_m)
-                                        if hasattr(live_est, "named_steps") and "head" in live_est.named_steps:
-                                            live_m = live_est.named_steps["head"]
-                                        elif hasattr(live_est, "steps") and live_est.steps:
-                                            live_m = live_est.steps[-1][1]
-                                        else:
-                                            live_m = live_est
+                                        live_m = fitted_head(pred.cost[idx])
                                         if "coef" not in m_dict:
                                             errors.append(f"Artifact '{art_key}' entry_cost_models[{idx}] missing 'coef'.")
                                         else:
@@ -319,7 +326,7 @@ def validate_policy_bundle(
                                             if not isinstance(m_dict, dict):
                                                 errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] must be an object.")
                                                 continue
-                                            live_m = pred.perf[idx]
+                                            live_m = fitted_head(pred.perf[idx])
                                             if hasattr(live_m, "value"):
                                                 live_val = getattr(live_m, "value", None)
                                                 if live_val is None or not isinstance(live_val, (int, float)) or not np.isfinite(live_val):
@@ -344,6 +351,10 @@ def validate_policy_bundle(
                                                         int_art = np.asarray(m_dict["intercept"], dtype=float)
                                                         if not np.all(np.isfinite(int_art)) or not np.all(np.isfinite(live_m.intercept_)) or not np.allclose(int_art, live_m.intercept_, atol=1e-5, equal_nan=False):
                                                             errors.append(f"Artifact '{art_key}' entry_perf_models[{idx}] intercept does not match live model.")
+                                            else:
+                                                # Fail closed: a live model with no comparable parameters
+                                                # cannot be bound to the approved artifact.
+                                                errors.append(f"Live performance model [{idx}] has no verifiable parameters.")
                                 else:
                                     # If entry_perf_models is omitted from artifact, live performance models must not deviate from baseline defaults [1.0, 0.0, 0.0]
                                     expected_defaults = [1.0, 0.0, 0.0]
