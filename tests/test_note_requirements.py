@@ -178,3 +178,15 @@ def test_unchecked_contract_cannot_bypass_note_receipt():
     rt, _ = runtime([ModelDecision(thought='', final_answer='Đã lưu.')])
     response = rt.run(GOAL, max_steps=1, contract={'outcomes': [], 'intent_coverage': 'unchecked'})
     assert response.error == 'completion_unresolved'
+
+
+@pytest.mark.parametrize('goal, heading', [
+    ('Mở rộng mục Phân tích trong ghi chú {id}', 'Phân tích'),
+    ('Bổ sung phần Giới hạn của note {id}', 'Giới hạn'),
+    ('Mở rộng mục Rủi ro thị trường: thêm số liệu trong ghi chú {id}', 'Rủi ro thị trường'),
+])
+def test_expansion_heading_stops_before_target_clause(goal, heading):
+    rt, _ = runtime()
+    target = create(rt)
+    requirement = derive_note_requirements(goal.format(id=target.id), rt.artifact_store)
+    assert requirement.heading == heading

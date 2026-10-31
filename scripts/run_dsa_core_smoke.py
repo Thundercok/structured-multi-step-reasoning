@@ -25,7 +25,7 @@ import time
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 from unittest.mock import MagicMock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -157,7 +157,10 @@ class InstrumentedSLMEngine(SLMEngine):
         max_tokens: int = 640,
         thinking: bool = False,
         response_format: Optional[Dict[str, Any]] = None,
+        should_cancel: Optional[Callable[[], bool]] = None,
     ) -> Dict[str, Any]:
+        # Accepted for SLMEngine compatibility. This harness measures its own
+        # armed in-flight cancel (see arm_in_flight_cancel) around urlopen.
         effective_timeout = self.default_timeout if timeout == 90.0 else timeout
         payload: Dict[str, Any] = {
             "model": self.model,

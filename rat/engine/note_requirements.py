@@ -74,7 +74,9 @@ def derive_note_requirements(goal, store, turn_ref=None):
     text = goal.strip()
     creation = re.match(r'^(?:hãy\s+)?(?:tạo(?:\s+và\s+lưu)?|lưu)\s+(?:một\s+)?(?:smart\s+note|ghi\s+chú|note)\b', text, re.I)
     toggle = re.search(r'(?:^|[,;]\s*)(?:hãy\s+)?đánh\s+dấu\s+(?:mục\s+)?(.+?)\s+(?:là\s+)?(chưa\s+hoàn\s+thành|đã\s+hoàn\s+thành|hoàn\s+thành|đã\s+xong|xong)\b', text, re.I)
-    expansion = re.search(r'(?:^|[,;]\s*)(?:hãy\s+)?(?:bổ\s+sung|mở\s+rộng)\s+(?:mục|phần)\s+([^:\n.!?]+)', text, re.I)
+    # The heading ends before a trailing "trong/của/ở ghi chú <target>" clause.
+    expansion = re.search(r'(?:^|[,;]\s*)(?:hãy\s+)?(?:bổ\s+sung|mở\s+rộng)\s+(?:mục|phần)\s+'
+                          r'([^:\n.!?]+?)(?=\s+(?:trong|của|ở)\s+(?:ghi\s+chú|note)\b|\s*[:\n.!?]|\s*$)', text, re.I)
     if creation:
         task = re.search(r'(?:thêm\s+(?:một\s+)?việc\s+cần\s+làm|(?:thêm\s+)?checklist)\s*:\s*(.+?)(?:(?<=[.!?])\s+|\n|$)', text, re.I)
         return NoteRequirements('synthesize_smart_note', tasks=(task[1].strip().rstrip('.!?'),) if task else ())

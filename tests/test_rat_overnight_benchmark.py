@@ -107,7 +107,11 @@ def test_real_runtime_and_production_transport_with_scripted_server(tmp_path, mo
     assert [c['event'] for c in bench.load_lines(tmp_path / 'calls.jsonl')] == ['call_start', 'call_end'] * 3
     assert all(p['options'] == {'temperature': 0.1, 'num_predict': 640, 'num_ctx': 8192} for p in payloads)
     messages, tools, kwargs = bench.capture_native_request(db, item)
-    assert len(tools) == 7 and any(item['content'] in m.get('content', '') for m in messages)
+    assert {t['function']['name'] for t in tools} == {
+        'search_documents', 'read_document', 'search_book_pages', 'read_book_page',
+        'deliver_document', 'inspect_artifact', 'request_operation_tools', 'synthesize_smart_note',
+        'find_file_or_app', 'reveal_in_finder'}
+    assert any(item['content'] in m.get('content', '') for m in messages)
     assert provided_goal_in(messages, bench.provided_request(item))
     assert budget.calls == 3  # Request capture must not issue HTTP or consume inference.
     db.get_connection().close()

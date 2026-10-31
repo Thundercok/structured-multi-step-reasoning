@@ -340,7 +340,7 @@ def test_quick_pdf_controller_smart_notes_dispatcher_integration(tmp_path):
             "Nghiên cứu thêm về bẫy gò bó của Fine Dining",
             "Phân tích bổ sung: Fine dining gây áp lực ngồi giữ kẽ 2 tiếng, không hợp bạn gái đang mệt mỏi.",
         )
-        assert ok_expand is True
+        assert ok_expand is True, controller._reading_coordinator.error
 
         expanded_note = controller.snapshot["activeNote"]
         assert expanded_note["revision"] == 3

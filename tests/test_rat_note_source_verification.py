@@ -92,7 +92,9 @@ def test_clock_and_member_do_not_change_the_static_system_prefix():
     second = runtime._native_messages('Hỏi tiếp', [], now_dt=datetime(2026, 10, 13, 11), member_id='member-b')
     assert first[0] == second[0]
     assert 'member-a' not in first[0]['content'] and '2026-10-13' not in first[0]['content']
-    contexts = [message for message in first if message['content'].startswith('Runtime context:')]
-    assert len(contexts) == 1 and contexts[0]['role'] == 'system'
+    # Volatile host metadata is a separate user-role data frame after the
+    # shared system/tool prefix (see AssistantRuntime._native_messages).
+    contexts = [message for message in first if message['content'].startswith('Host runtime context')]
+    assert len(contexts) == 1 and contexts[0]['role'] == 'user'
     assert '2026-10-13T10:00:00' in contexts[0]['content'] and 'member-a' in contexts[0]['content']
     assert first[-1] == second[-1] == {'role': 'user', 'content': 'Hỏi tiếp'}
