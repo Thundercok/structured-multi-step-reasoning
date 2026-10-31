@@ -6,6 +6,8 @@ from copy import deepcopy
 from rat.os.hotkey_chords import CHORDS, DEFAULT_CHORD, chord
 import json
 import logging
+import os
+import sys
 import time
 import subprocess
 from PyQt6.QtCore import QObject, QPoint, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
@@ -48,7 +50,13 @@ class MiniQuickController(QObject):
         self.session = MiniSession(self.settings)
         self.job = self.pending = self.finder_artifact = None
         self.organization_artifact = None
-        self.presentation = MiniPresentation(surface="result" if self.settings.get("setup_completed") and self.settings.get("permission_hello_version", 0) >= 1 else "welcome")
+        show_welcome = not self.settings.get("setup_completed") or self.settings.get("permission_hello_version", 0) < 1
+        if sys.platform == "darwin" and not os.environ.get("PYTEST_CURRENT_TEST"):
+            from rat.os.permissions import is_accessibility_trusted
+            if not is_accessibility_trusted():
+                show_welcome = True
+        self.presentation = MiniPresentation(surface="welcome" if show_welcome else "result")
+        self._hold_chat_requested = False
         self._task_history = []
         self.rebind_hotkey = None
         self._next_draft = ""
@@ -84,12 +92,14 @@ class MiniQuickController(QObject):
             dropActive=False, receivingImage=False, imagePreviewUrl='', imageLabel='',
             ocrPreparationNotice='', canRetryRequest=False, finderSettingsSuggested=False,
             imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False, canUndoOrganization=False,
-            organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False) and self.settings.get('permission_hello_version',0) >= 1), readiness=[], readinessBusy=False, readinessStatus="")
+            organizationRecoverySuggested=False, setupCompleted=bool(self.settings.get("setup_completed", False) and self.settings.get('permission_hello_version',0) >= 1),
+            targetLanguage=self.settings.get('target_language', 'vi'),
+            readiness=[], readinessBusy=False, readinessStatus="")
         self.shortcut_ack_timer = QTimer(self)
         self.shortcut_ack_timer.setSingleShot(True)
         self.shortcut_ack_timer.timeout.connect(lambda: self.update(shortcutAck=''))
         self.record_ui_state()
-        if self.presentation.surface == 'welcome':
+        if self.presentation.surface == 'welcome' or not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(0, lambda: self.checkReadiness(False))
 
     @pyqtProperty('QVariantMap', notify=changed)
@@ -300,6 +310,31 @@ class MiniQuickController(QObject):
 
     def complete_surface(self):
         self.presentation.complete()
+        if self._hold_chat_requested:
+            self.presentation.composer_visible = True
+            self._hold_chat_requested = False
+
+    @pyqtSlot()
+    def escalateToVCoTChat(self):
+        self._hold_chat_requested = True
+        self.presentation.open('result')
+        self.presentation.compose()
+        self.update(bubbleCollapsed=False)
+        self.minimalRequested.emit()
+
+    @pyqtSlot()
+    def flipTargetLanguageAndRetranslate(self):
+        new_target = 'en' if self.settings.get('target_language') == 'vi' else 'vi'
+        self.settings['target_language'] = new_target
+        save_settings(self.settings)
+        self.update(targetLanguage=new_target)
+        if hasattr(self, '_ocr_source_ref') and self._ocr_source_ref and hasattr(self, '_translation_args') and self._translation_args:
+            self._translation_args['target_language'] = new_target
+            self._translation_args['source_language'] = 'auto'
+            self.enqueue('translate_text', dict(self._translation_args))
+        elif self._state.get('requestText') or self._state.get('text') or self._state.get('ocrText'):
+            src_text = self._state.get('ocrText') or self._state.get('text') or self._state.get('requestText')
+            self.enqueue('translate_text', {'text': src_text, 'source_language': 'auto', 'target_language': new_target})
 
     @pyqtSlot(bool)
     def checkReadiness(self, deep=False):
@@ -927,7 +962,8 @@ class MiniQuickController(QObject):
                     or (operation == 'submit_goal' and self._state['phase'] != 'needs_input' and not args.get('source_ref'))
                     or (operation == 'translate_text' and not args.get('source_ref')))
         preserve_region = operation == 'capture_translate' and args.get('mode') in ('region', 'selection') and args.get('preserve_until_capture')
-        if new_task and not preserve_region:
+        if new_task and not preserve_region and not self._hold_chat_requested:
+            self._hold_chat_requested = False
             self.remember_task()
             self._selection_return = None
             self._selection_invocation_id = None
@@ -1065,6 +1101,9 @@ class MiniQuickController(QObject):
                 readiness=checks['checks'] if checks else self._state['readiness'],
                 readinessStatus=('Đã kiểm tra thành phần. Dùng thử để xác nhận trên máy này.' if checks and checks['status']=='ready' else
                     'Một số chức năng cần xử lý. Bạn vẫn có thể dùng phần đã sẵn sàng.' if checks else 'Chưa kiểm tra được. Hãy thử lại.'))
+            if checks and any(c.get('state') == 'action_required' for c in checks.get('checks', [])):
+                if not os.environ.get('PYTEST_CURRENT_TEST') and self._state.get('phase') == 'idle' and not self._state.get('hasWorkbench'):
+                    self.presentation.open('welcome')
             return
         model_loop = bool(response and (response.qa_telemetry or {}).get('mini_execution_path') == 'model_loop')
         if model_loop:
@@ -1200,6 +1239,8 @@ class MiniQuickController(QObject):
                     meta = f"{provenance['file_name']} · {meta}"
                 can_return = bool(self.finder_artifact and provenance.get('kind') == 'file')
                 partial = data['status'] == 'partial'
+                if len(data.get('text', '')) > 480 and self.presentation.extent != 'expanded':
+                    self.presentation.resize(True)
                 self.complete_surface()
                 self.update(phase='partial' if partial or (model_loop and self._state['agentIncomplete']) else 'result', view='translation', finderHits=[],
                     text=data['text'], meta=meta, translationDetails=details.strip(), translationNotice=notice,
@@ -1445,7 +1486,8 @@ class MiniQuickController(QObject):
                     organizationRecoverySuggested=self._state['view'] == 'organization')
             if self._state['translationSettingsSuggested'] and self._state['phase'] == 'error':
                 self._state['status'] = 'Đã cập nhật cài đặt. Bấm Thử lại để dịch đoạn chữ đã giữ.'
-            self.update(translationSettingsSuggested=False, settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
+            self.update(translationSettingsSuggested=False, targetLanguage=updated.get('target_language', 'vi'),
+                settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
             return ''
         except Exception as exc:
             return 'Chưa lưu được: ' + str(exc)

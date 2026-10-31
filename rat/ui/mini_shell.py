@@ -47,6 +47,10 @@ class MiniShell(QObject):
         self.dismiss_timer = QTimer(self)
         self.dismiss_timer.setSingleShot(True)
         self.dismiss_timer.timeout.connect(self.dismiss_if_outside)
+        self.mask_timer = QTimer(self)
+        self.mask_timer.setSingleShot(True)
+        self.mask_timer.setInterval(16)
+        self.mask_timer.timeout.connect(self._apply_mask)
         root.preferredPanelHeightChanged.connect(self.schedule_fit)
         root.layoutExpandedChanged.connect(self.schedule_fit)
         root.compactChanged.connect(self.schedule_fit)
@@ -219,23 +223,6 @@ class MiniShell(QObject):
             self.root.setProperty('maxPaperHeight', max(1, min(380, area.height()-120)))
             self.root.setProperty('maxCornerSpeechHeight', max(1, min(300, round(area.height()*0.38), area.height()-32)))
             self.root.setProperty('maxPanelHeight', max(1, area.height()-32))
-            # The auxiliary setup sheet needs a readable standalone surface;
-            # ordinary input and results remain anchored to the companion.
-            if self.root.property('auxiliary'):
-                panel_width = max(1, min(round(self.root.property('preferredPanelWidth')), area.width()-32))
-                panel_height = max(1, min(round(self.root.property('preferredPanelHeight')), area.height()-32))
-                x = area.x() + (area.width()-panel_width)//2
-                y = area.y() + (area.height()-panel_height)//2
-                self.view.setGeometry(x, y, panel_width, panel_height)
-                self._last_origin = (x, y)
-                self.root.setProperty('panelX', 0)
-                self.root.setProperty('panelY', 0)
-                self.root.setProperty('panelWidth', panel_width)
-                self.root.setProperty('lookPlacedHeight', panel_height)
-                self.root.setProperty('ratX', -self.root.property('floatingHeadSize'))
-                self.root.setProperty('ratY', 0)
-                self.update_mask()
-                return
             previous_width = self.root.property('panelWidth')
             mouth = self.root.property('cornerMouth')
             placement = place_look(Rect(area.x(), area.y(), area.width(), area.height()),
@@ -267,6 +254,9 @@ class MiniShell(QObject):
         self.fit()
 
     def update_mask(self):
+        self.mask_timer.start(16)
+
+    def _apply_mask(self):
         if self.root.property('focusOwned'):
             region = QRegion(0,0,self.view.width(),self.view.height())
         else:

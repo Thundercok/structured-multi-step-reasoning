@@ -23,6 +23,7 @@ static OSStatus pressed(EventHandlerCallRef next, EventRef event, void *context)
         if (!down) { down = true; puts("SELECTION"); }
     } else if (GetEventKind(event) == kEventHotKeyReleased && down) {
         down = false;
+        puts("RELEASED");
     } else return eventNotHandledErr;
     return noErr;
 }

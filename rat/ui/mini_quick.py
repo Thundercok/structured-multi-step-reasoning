@@ -120,7 +120,8 @@ def create_mini_desk(settings=None):
             hotkeys = None
             hotkeys = register_hotkey(controller.quickLookSelection, on_state=controller.recordHotkeyState,
                 on_error=lambda message: controller.update(hotkeyStatus=message),
-                chord_name=controller.settings.get("hotkey_chord", "option_shift_space"))
+                chord_name=controller.settings.get("hotkey_chord", "option_shift_space"),
+                on_hold=controller.escalateToVCoTChat)
             controller.update(hotkeyStatus='')
         except OSError as exc:
             controller.recordHotkeyState('registration_failed', state='failed')
@@ -138,7 +139,8 @@ def create_mini_desk(settings=None):
         def bind(value):
             return register_hotkey(controller.quickLookSelection,
                 on_state=controller.recordHotkeyState,
-                on_error=lambda message: controller.update(hotkeyStatus=message), chord_name=value)
+                on_error=lambda message: controller.update(hotkeyStatus=message), chord_name=value,
+                on_hold=controller.escalateToVCoTChat)
         try:
             hotkeys = bind(name)
             controller.update(hotkeyStatus='')

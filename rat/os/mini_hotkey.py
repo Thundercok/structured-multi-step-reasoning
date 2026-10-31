@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import time
 
-from PyQt6.QtCore import QCoreApplication, QProcess
+from PyQt6.QtCore import QCoreApplication, QProcess, QTimer
 
 from rat.os.hotkey_chords import chord, DEFAULT_CHORD
 from rat.engine.mini_version import BUILD
@@ -15,12 +15,13 @@ _keepalive = []
 
 
 class HotkeyRegistration:
-    def __init__(self, callback, on_error=None, on_minimal=None, on_event=None, on_state=None, chord_name=DEFAULT_CHORD):
+    def __init__(self, callback, on_error=None, on_minimal=None, on_event=None, on_state=None, chord_name=DEFAULT_CHORD, on_hold=None):
         self.callback = callback
         self.on_minimal = on_minimal
         self.on_event = on_event
         self.on_error = on_error
         self.on_state = on_state
+        self.on_hold = on_hold
         self.helper_pid = 0
         self.closed = False
         self.last_fire = 0.0
@@ -32,6 +33,10 @@ class HotkeyRegistration:
         if not helper.is_file():
             raise OSError('Thiếu rat-hotkey; cần build native helper trước khi chạy Mini.')
         self.process = QProcess(QCoreApplication.instance())
+        self._hold_timer = QTimer(self.process)
+        self._hold_timer.setSingleShot(True)
+        self._hold_timer.setInterval(320)
+        self._hold_timer.timeout.connect(self._handle_hold)
         key, modifiers, _ = chord(chord_name)
         self.ready_line = f"READY SELECT2 {BUILD} {key} {modifiers}".encode()
         self.process.setProgram(str(helper))
@@ -58,6 +63,14 @@ class HotkeyRegistration:
             if not self.close('startup_failed') and self not in _keepalive:
                 _keepalive.append(self)
             raise
+
+    def _handle_hold(self):
+        logger.info('hotkey_hold_detected interval=320ms')
+        if self.on_hold and self.ready and not self.closed:
+            try:
+                self.on_hold()
+            except Exception as exc:
+                logger.warning('hotkey_hold_callback_failed: %s', exc)
 
     def _event(self, stage, **metadata):
         if self.on_event:
@@ -87,6 +100,7 @@ class HotkeyRegistration:
                 now = time.monotonic()
                 if now-self.last_fire >= 0.25:
                     self.last_fire = now
+                    self._hold_timer.start(320)
                     self._event('selection', state='registered')
                     logger.info('hotkey_received origin=carbon_helper')
                     callback = self.callback
@@ -97,6 +111,9 @@ class HotkeyRegistration:
                             self._event('callback_error', reason=type(exc).__name__)
                             if self.on_error:
                                 self.on_error('Chưa xử lý được yêu cầu Quick Look. Mã QL_CALLBACK_FAILED.')
+            elif line == b'RELEASED' and self.ready and not self.closed:
+                if self._hold_timer.isActive():
+                    self._hold_timer.stop()
 
     def _finished(self, code, status):
         if self.closed:
@@ -120,6 +137,7 @@ class HotkeyRegistration:
             self.on_error('Bộ nhận phím tắt gặp lỗi. Chọn Đăng ký lại phím tắt trong menu RAT.')
 
     def close(self, reason='shutdown'):
+        self._hold_timer.stop()
         if self.closed and self.process.state() == QProcess.ProcessState.NotRunning:
             if self in _keepalive:
                 _keepalive.remove(self)
@@ -143,10 +161,10 @@ class HotkeyRegistration:
         return True
 
 
-def register_hotkey(callback, on_error=None, on_minimal=None, on_event=None, on_state=None, chord_name=DEFAULT_CHORD):
+def register_hotkey(callback, on_error=None, on_minimal=None, on_event=None, on_state=None, chord_name=DEFAULT_CHORD, on_hold=None):
     if any(item.process.state() != QProcess.ProcessState.NotRunning for item in _keepalive):
         raise OSError('Bộ nhận phím cũ chưa đóng; chưa tạo đăng ký cạnh tranh.')
-    registration = HotkeyRegistration(callback, on_error, on_minimal, on_event, on_state, chord_name)
+    registration = HotkeyRegistration(callback, on_error, on_minimal, on_event, on_state, chord_name, on_hold=on_hold)
     _keepalive.append(registration)
     return registration
 
