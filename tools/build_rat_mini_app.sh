@@ -25,7 +25,7 @@ excluded=(torch transformers fastembed scipy sklearn gymnasium mlx mlx_lm senten
   PyQt6.QtWidgets rat.ui.mini_floaty rat.ui.mini_settings_dialog
   matplotlib pandas IPython ipykernel notebook jupyterlab bokeh plotly seaborn dask sympy onnx
   rat.timetable rat.astrology rat.plugins rat.crawler rat.engine.slm rat.engine.document_model_service
-  rat.kernel.capabilities.applications rat.kernel.capabilities.documents rat.kernel.capabilities.finder
+  rat.kernel.capabilities.applications rat.kernel.capabilities.documents
   rat.kernel.capabilities.result_tables rat.kernel.capabilities.smart_notes rat.kernel.capabilities.web
   rat.kernel.capabilities.timetable rat.kernel.capabilities.natal rat.kernel.capabilities.views)
 exclude_args=()
