@@ -806,7 +806,7 @@ Rectangle {
                     visible: Boolean(desk.liveSnapshot.shortcutAck)
                     Layout.fillWidth: true; spacing: 4
                     Label {
-                        text: desk.liveSnapshot.shortcutAck ? "Đang bận · bấm lại khi xong" : ""
+                        text: String(desk.liveSnapshot.shortcutAck || "").indexOf("Đã sao chép") === 0 ? ("✓ " + desk.liveSnapshot.shortcutAck) : (desk.liveSnapshot.shortcutAck ? "Đang bận · bấm lại khi xong" : "")
                         textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
                         Layout.fillWidth: true; wrapMode: Text.Wrap
                     }
