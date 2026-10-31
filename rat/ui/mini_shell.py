@@ -243,8 +243,12 @@ class MiniShell(QObject):
                 self.root.property('preferredPanelHeight'), side=self.look_side,
                 mouth=(mouth.x(), mouth.y()), floating_head=True)
             self.look_side = placement.side
-            bounds = placement.bounds
-            self.view.setGeometry(bounds.x-4, bounds.y-4, bounds.width+8, bounds.height+8)
+            envelope = place_look(Rect(area.x(), area.y(), area.width(), area.height()),
+                self.look_home, max(440, self.root.property('preferredPanelWidth')),
+                max(self.root.property('maxCornerSpeechHeight') + 96, self.root.property('preferredPanelHeight')),
+                side=placement.side, mouth=(mouth.x(), mouth.y()), floating_head=True)
+            window_bounds = envelope.bounds.union(placement.bounds)
+            self.view.setGeometry(window_bounds.x-4, window_bounds.y-4, window_bounds.width+8, window_bounds.height+8)
             self._last_origin = (self.view.x(), self.view.y())
             self.root.setProperty('panelX', placement.panel.x-self.view.x())
             self.root.setProperty('panelY', placement.panel.y-self.view.y())

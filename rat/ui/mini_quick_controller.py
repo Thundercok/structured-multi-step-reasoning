@@ -945,7 +945,10 @@ class MiniQuickController(QObject):
                 self.finder_artifact = None
             self.organization_artifact = None
             self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, canReturnToFinder=False)
-            self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
+            if not (is_file_translate and self.finder_artifact):
+                self.update(view='notice', finderHits=[], text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
+            else:
+                self.update(text='', meta='', translationDetails='', translationNotice='', sameLanguageNotice='')
         capture_status = {'selection':'Đang nhận chữ bôi đen…', 'region':'Kéo chọn vùng chữ trên màn hình…', 'image':'Đang đọc chữ trong ảnh…',
             'clipboard':'Đang đọc Clipboard và dịch…', 'file':'Đang đọc file và dịch…'}.get(args.get('mode'),'Đang nhận chữ…')
         if operation != "check_mini_readiness":

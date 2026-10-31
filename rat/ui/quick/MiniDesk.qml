@@ -52,7 +52,7 @@ Rectangle {
     readonly property bool taskVisible: !noticeVisible
     readonly property bool simpleAnswer: false
     property real heldReaderHeight: 0
-    readonly property real panelBudget: auxiliary || !compact ? maxPanelHeight : (composing || noticeVisible) ? maxCornerSpeechHeight : Math.min(160, maxCornerSpeechHeight)
+    readonly property real panelBudget: auxiliary || !compact ? maxPanelHeight : maxCornerSpeechHeight
     readonly property bool paperVisible: !liveSnapshot.bubbleCollapsed && Boolean(liveSnapshot.hasWorkbench || noticeVisible)
     readonly property bool bodyVisible: auxiliary || paperVisible
     readonly property bool ocrDirty: Boolean(liveSnapshot.ocrDirty)
@@ -194,8 +194,10 @@ Rectangle {
         target: liveController
         function onChanged() {
             var next = liveController.snapshot
-            if (next.busy && !desk.liveSnapshot.busy)
-                desk.heldReaderHeight = Math.max(140, resultSheet.visible ? resultSheet.height : 0)
+            if (!next.busy)
+                desk.heldReaderHeight = 0
+            else if (!desk.liveSnapshot.busy)
+                desk.heldReaderHeight = resultSheet.visible ? resultSheet.height : 0
             var moved = next.surface !== desk.surface || next.taskId !== desk.liveSnapshot.taskId || next.interactionExtent !== desk.liveSnapshot.interactionExtent || Boolean(next.selectionNotice) !== desk.noticeVisible
             if (moved) desk.restoringScroll = true
             if (next.taskId !== desk.liveSnapshot.taskId) {
@@ -242,7 +244,7 @@ Rectangle {
             visible: desk.bodyVisible
             x: 0
             width: parent.width
-            height: desk.bodyVisible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.auxiliary ? Math.max(360, paperColumn.implicitHeight + 24) : (desk.composing && desk.liveSnapshot.view === "finder") || desk.noticeVisible ? Math.max(200, paperColumn.implicitHeight + 24) : desk.heldReaderHeight > 0 && desk.compact && !desk.simpleAnswer ? Math.max(140, desk.heldReaderHeight) : paperColumn.implicitHeight + 24)) : 0
+            height: desk.bodyVisible ? Math.max(1, Math.min(desk.panelBudget - (desk.auxiliary || !desk.composing ? 0 : composer.height), desk.auxiliary ? Math.max(360, paperColumn.implicitHeight + 24) : desk.heldReaderHeight > 0 && desk.compact && desk.liveSnapshot.busy ? desk.heldReaderHeight : paperColumn.implicitHeight + 24)) : 0
             radius: 14; color: "transparent"; border.color: "transparent"
             Rectangle {
                 visible: desk.bodyVisible && desk.composing
@@ -285,6 +287,14 @@ Rectangle {
                     visible: !desk.simpleAnswer
                     Layout.fillWidth: true; spacing: 6
                     QuietButton { visible: desk.auxiliary || (desk.paperVisible && desk.surface !== "result"); iconName: "arrow-left"; implicitWidth: 30; Accessible.name: "Quay lại"; onClicked: desk.goBack() }
+                    QuietButton {
+                        visible: desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "translation" && Boolean(desk.liveSnapshot.canReturnToFinder)
+                        iconName: "arrow-left"
+                        text: "File"
+                        enabled: !desk.liveSnapshot.busy
+                        Accessible.name: "Về danh sách file"
+                        onClicked: desk.liveController.returnToFinderResults()
+                    }
                     Label { text: (desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Quick Look" : desk.title); textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
                     BusyIndicator { running: Boolean(desk.liveSnapshot.busy); visible: running; implicitWidth: 18; implicitHeight: 18 }
                     QuietButton { visible: Boolean(desk.liveSnapshot.busy) && !desk.auxiliary; iconName: "stop"; implicitWidth: 28; Accessible.name: "Dừng yêu cầu"; onClicked: desk.liveController.cancel() }
@@ -659,14 +669,14 @@ Rectangle {
                     }
                 }
                 RowLayout {
-                    visible: !desk.simpleAnswer && desk.paperVisible && !desk.auxiliary && !desk.liveSnapshot.busy && desk.taskVisible; Layout.fillWidth: true; spacing: 5
+                    visible: !desk.simpleAnswer && desk.paperVisible && !desk.auxiliary && !desk.liveSnapshot.busy && desk.taskVisible && (desk.surface === "ocr" || !desk.compact || desk.recoveryVisible || desk.liveSnapshot.view === "organization" || (desk.liveSnapshot.view === "finder" && desk.liveSnapshot.phase === "partial" && desk.allFinderHits.length > 0 && desk.liveSnapshot.finderSettingsSuggested))
+                    Layout.fillWidth: true; spacing: 5
                     QuietButton { visible: desk.surface === "ocr"; text: "Chữ ban đầu"; onClicked: desk.navigate("source") }
                     QuietButton { visible: desk.surface === "ocr"; text: "Xem ảnh"; enabled: Boolean(desk.liveSnapshot.imagePreviewUrl); onClicked: desk.navigate("image") }
                     QuietButton { visible: !desk.compact && desk.surface === "result" && Boolean(desk.liveSnapshot.hasOcrSource); text: "Sửa chữ"; enabled: !desk.liveSnapshot.busy; onClicked: desk.navigate("ocr") }
                     QuietButton { visible: !desk.compact && desk.surface === "result" && Boolean(desk.liveSnapshot.imagePreviewUrl); text: "Xem ảnh"; onClicked: desk.navigate("image") }
                     QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "finder" && desk.liveSnapshot.phase === "partial" && desk.allFinderHits.length > 0 && desk.liveSnapshot.finderSettingsSuggested; text: "Thư mục…"; onClicked: desk.openSettings() }
                     QuietButton { visible: !desk.compact && desk.surface === "result" && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0; text: "Hiện trong Finder"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex) }
-                    QuietButton { visible: desk.surface === "result" && desk.liveSnapshot.view === "translation" && Boolean(desk.liveSnapshot.canReturnToFinder); text: "Về danh sách file"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.returnToFinderResults() }
                     Item { Layout.fillWidth: true }
                     QuietButton { visible: !desk.liveSnapshot.busy && desk.recoveryVisible && Boolean(desk.recoveryAction); primary: true; text: ({journal:"Xem nhật ký",image:"Chọn ảnh khác…",settings:"Mở cài đặt",retry:(["open_file","reveal_file"].indexOf(desk.liveSnapshot.lastOperation)>=0 ? "Tìm lại" : "Thử lại")}[desk.recoveryAction] || ""); onClicked: desk.recover() }
                     QuietButton { visible: desk.surface === "ocr" && !desk.recoveryVisible; primary: true; text: "Dịch lại"; enabled: !desk.liveSnapshot.busy && desk.liveSnapshot.canRetryTranslation && Boolean((desk.liveSnapshot.ocrText || "").trim()); onClicked: desk.liveController.retryTranslation(desk.liveSnapshot.ocrText) }
@@ -697,14 +707,13 @@ Rectangle {
                 id: composerColumn
                 x: 8; y: 8; width: parent.width - 16; spacing: 4
                 RowLayout {
-                    visible: Boolean(desk.liveSnapshot.hotkeyStatus || desk.liveSnapshot.shortcutAck || desk.liveSnapshot.hotkeyStarting)
+                    visible: Boolean(desk.liveSnapshot.shortcutAck)
                     Layout.fillWidth: true; spacing: 4
                     Label {
-                        text: desk.liveSnapshot.hotkeyStarting ? "Đang kết nối phím tắt…" : desk.liveSnapshot.shortcutAck ? "Đang bận · bấm lại khi xong" : desk.liveSnapshot.hotkeyStatus ? "Phím tắt chưa sẵn sàng" : "Quick Look · " + desk.liveSnapshot.shortcutLabel
+                        text: desk.liveSnapshot.shortcutAck ? "Đang bận · bấm lại khi xong" : ""
                         textFormat: Text.PlainText; font.pixelSize: 12; color: desk.muted
                         Layout.fillWidth: true; wrapMode: Text.Wrap
                     }
-                    QuietButton { visible: Boolean(desk.liveSnapshot.hotkeyStatus); enabled: !desk.liveSnapshot.hotkeyStarting; text: "Kết nối lại"; onClicked: desk.liveController.restartHotkey() }
                 }
                 RowLayout {
                     visible: !desk.auxiliary && Boolean(desk.liveSnapshot.editingRequest); Layout.fillWidth: true
