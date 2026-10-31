@@ -1,0 +1,32 @@
+{
+  "kind": "human_reviewed_gsm8k_development_subset",
+  "candidate_manifest_sha256": "d6c51e03bd88c9b1724ab646f448f8ff8504c96229f45f65f771560cf7599874",
+  "candidate_dataset_sha256": "7b717b2c742da32ed4b34549fb0e5c39fdf6b3d7d5820332fa0144d9fb321721",
+  "dataset_sha256": "71cd5e97eedb170f849df63a0bae84a381de0d015c86436969e4a6ea71ee835a",
+  "review_sha256": "7f11f224e19be23d4cf88e6b3f8e811d6124a4c78866bf1230b06e69b31cff42",
+  "selected_before_review": 96,
+  "retained": 93,
+  "train_items": 45,
+  "calibration_items": 48,
+  "excluded_before_generation": [
+    {
+      "id": "gsm8k-dev-02343",
+      "reason": "contradictory wording: paid ON the 25th versus discount before the 25th"
+    },
+    {
+      "id": "gsm8k-dev-00484",
+      "reason": "ambiguous monthly weight loss compounding versus linear baseline"
+    },
+    {
+      "id": "gsm8k-dev-03823",
+      "reason": "ambiguous class size survey arithmetic and vote proportion wording"
+    }
+  ],
+  "reviewer": "Human user decision: 3 adjudicated items discarded, 93 items approved",
+  "review_date": "2026-10-31",
+  "human_review_status": "approved_93_items",
+  "official_test_used": false,
+  "new_model_calls": 0,
+  "publication_ready": false,
+  "review_md_sha256": "78734844526398abb751ff21dc5e72da8afecad0b7df2394d0c9eea3c1872791"
+}

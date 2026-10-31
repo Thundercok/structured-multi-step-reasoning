@@ -124,6 +124,47 @@ Full computation happens before output directory creation.
   conditional intervals, route mixes and hindsight-only references.
 - `report.md`: readable summary with the interpretation limits.
 
+## Full development evaluation results (5 folds, 2 repeats, 2000 bootstrap draws)
+
+Executed 2026-10-31 under strict command-verified environment:
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
+python -m experiments.research_study \
+  --entry-evaluation runs/smoke-42 --entry-configs old scaler_only pca32 \
+  --entry-folds 5 --entry-repeats 2 --entry-bootstrap 2000 --seed 42 \
+  --output runs/entry-development-eval-5f2r-20261031
+```
+
+Evidence level: **`synthetic_development_cv`** (zero real-model calls; test split with 24 items excluded and uninspected).
+Output artifact directory: `runs/entry-development-eval-5f2r-20261031`.
+
+### Summary of evaluated methods
+
+| Method | Accuracy (95% CI) | Mean cost $k$ (95% CI) | Utility (95% CI) | Log-loss (95% CI) | Route Mix (LADDER / REACT / PAL) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `fixed_LADDER` | 0.8750 [0.7500, 1.0000] | 1.8000 [1.0708, 2.6969] | 0.8390 [0.6947, 0.9636] | 0.6464 [0.5460, 0.7775] | 100% / 0% / 0% |
+| `fixed_REACT` | 0.4583 [0.2500, 0.6667] | 0.6000 [0.6000, 0.6000] | 0.4463 [0.2380, 0.6547] | 0.6464 [0.5460, 0.7775] | 0% / 100% / 0% |
+| `fixed_PAL` | 0.4167 [0.2083, 0.6250] | 0.3000 [0.3000, 0.3000] | 0.4107 [0.2023, 0.6190] | 0.6464 [0.5460, 0.7775] | 0% / 0% / 100% |
+| `training_base_rate` | 0.8750 [0.7500, 1.0000] | 1.8000 [1.0708, 2.6969] | 0.8390 [0.6947, 0.9636] | 0.6464 [0.5460, 0.7775] | 100% / 0% / 0% |
+| `old` (unregularized) | 0.8750 [0.7500, 1.0000] | 1.7063 [0.9875, 2.6333] | 0.8409 [0.6972, 0.9653] | 0.5092 [0.3924, 0.6526] | 88% / 0% / 12% |
+| `pca32` | 0.9375 [0.8333, 1.0000] | 1.2542 [0.6500, 2.0606] | 0.9124 [0.8129, 0.9813] | 0.5342 [0.3321, 0.8194] | 65% / 2% / 33% |
+| `scaler_only` | 0.9375 [0.8333, 1.0000] | 1.0625 [0.5875, 1.7125] | 0.9163 [0.8146, 0.9848] | 0.5048 [0.3078, 0.7584] | 58% / 4% / 38% |
+
+*Descriptive references only (peeking at outcomes, not deployable):* Best fixed utility = 0.8390; Oracle utility = 0.9478.
+
+### Paired differences against `old` baseline
+
+| Candidate Configuration | $\Delta$ Accuracy (95% CI) | $\Delta$ Cost $k$ (95% CI) | $\Delta$ Utility (95% CI) | $\Delta$ Log-loss (95% CI) |
+| :--- | :---: | :---: | :---: | :---: |
+| `scaler_only` minus `old` | +0.0625 [-0.0417, +0.2083] | -0.6437 [-1.3105, -0.1562] | +0.0754 [-0.0357, +0.2279] | -0.0044 [-0.1308, +0.1616] |
+| `pca32` minus `old` | +0.0625 [-0.0417, +0.2083] | -0.4521 [-1.0813, -0.0813] | +0.0715 [-0.0388, +0.2254] | +0.0250 [-0.1012, +0.2180] |
+
+*Observations & Interpretation Constraints:*
+1. **Cost reduction at matched/improved accuracy:** Both `scaler_only` and `pca32` demonstrate reliable cost reductions ($\Delta \text{Cost} = -0.6437$ and $-0.4521$ k units respectively, with 95% CIs entirely below zero) by shifting from uncalibrated 88% LADDER dominance to a more balanced 58%–65% LADDER and 33%–38% PAL routing.
+2. **Conditional interval scope:** The 95% CIs for accuracy and utility differences cross zero on this sample ($N=24$ groups, 48 records over 2 repeats). As specified in the protocol, zero-exclusion does not constitute a confirmatory claim.
+3. **No automatic model selection:** In accordance with the protocol, no configuration was automatically selected as a production default. Stage 0 gates remain in place.
+
 Authored regression coverage is in `tests/test_entry_evaluation.py`: group
 isolation at both levels, training-only base rates, repeat consistency, ignored
 test payloads, raw artifact integrity, bad metadata/settings, no overwrite,
