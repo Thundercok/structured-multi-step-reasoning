@@ -31,7 +31,7 @@ excluded=(torch transformers fastembed scipy sklearn gymnasium mlx mlx_lm senten
 exclude_args=()
 for module in "${excluded[@]}"; do exclude_args+=(--exclude-module "$module"); done
 PYTHON_BIN="$PYTHON_BIN" zsh "$ROOT/tools/build_rat_mini_hotkey.sh" "$BUILD_TMP/rat-hotkey"
-rm -rf "$DIST_DIR/RAT Mini" "$DIST_DIR/RAT Mini.app" "$DIST_DIR/RAT Mini.zip"
+rm -rf "$DIST_DIR/RAT Mini" 2>/dev/null || true "$DIST_DIR/RAT Mini.app" "$DIST_DIR/RAT Mini.zip"
 "$PYTHON_BIN" -m PyInstaller --noconfirm --clean --windowed --name "RAT Mini" \
   --distpath "$DIST_DIR" --workpath "$BUILD_TMP/build" --specpath "$BUILD_TMP/spec" \
   --icon "$ROOT/tools/rat_translate.icns" --osx-bundle-identifier vn.rat.mini \
@@ -81,7 +81,7 @@ manifest = dict(build=BUILD, version=VERSION, protocol='SELECT2',
 PY
 RAT_CODESIGN_IDENTITY="${RAT_CODESIGN_IDENTITY:--}"
 codesign --force --deep --sign "$RAT_CODESIGN_IDENTITY" "$RAT_MINI_BUILT_APP"
-rm -rf "$DIST_DIR/RAT Mini"
+rm -rf "$DIST_DIR/RAT Mini" 2>/dev/null || true
 ditto -c -k --keepParent "$RAT_MINI_BUILT_APP" "$DIST_DIR/RAT Mini.zip"
 "$PYTHON_BIN" - <<'PY'
 from pathlib import Path

@@ -14,7 +14,7 @@ Rectangle {
     property real floatingHeadSize: 96
     property real floatingHeadOpticalHeight: 76
     property real sharedPanelWidth: 580
-    property real sharedTextSize: 16
+    property real sharedTextSize: 14
     property string buildLabel: "source"
     property real maxCornerSpeechHeight: 300
     property real composerWidthFloor: 440
@@ -72,23 +72,23 @@ Rectangle {
     readonly property rect mascotRect: Qt.rect(mascotItem.x, mascotItem.y, mascotItem.width, mascotItem.height)
     readonly property color ink: darkMode ? "#eef0e9" : "#2c302a"
     readonly property color muted: darkMode ? "#b7bdaf" : "#62695e"
-    readonly property color paperColor: darkMode ? "#272d25" : "#fdfdf9"
-    readonly property color inputColor: darkMode ? "#2b3227" : "#fdfefb"
+    readonly property color paperColor: darkMode ? "#1e231c" : "#fbfcf8"
+    readonly property color inputColor: darkMode ? "#252b22" : "#ffffff"
     readonly property color backingColor: darkMode ? "#3a4332" : "#e8ece1"
-    readonly property color edge: darkMode ? "#424d39" : "#e0e5d8"
-    readonly property color accent: darkMode ? "#c0d2a7" : "#4f6740"
+    readonly property color edge: darkMode ? "#3b4635" : "#d8e0cf"
+    readonly property color accent: darkMode ? "#b8cfa0" : "#3f5a32"
     readonly property color accentText: darkMode ? "#24301b" : "#fafcf5"
     readonly property color selectedSurface: darkMode ? "#2d3727" : "#edf4e8"
     readonly property color selectedEdge: darkMode ? "#46593d" : "#b5ceaa"
-    readonly property color utilitySurface: darkMode ? "#242820" : "#f0f4ea"
-    readonly property color hoverSurface: darkMode ? "#2a3125" : "#f1f6ed"
+    readonly property color utilitySurface: darkMode ? "#283024" : "#f2f5ee"
+    readonly property color hoverSurface: darkMode ? "#303a2b" : "#e9efe2"
     readonly property color pdfInk: darkMode ? "#dbaa9f" : "#a15e50"
     readonly property int cardRadius: 10
     readonly property int controlRadius: 10
     readonly property bool failed: liveSnapshot.phase === "error" || liveSnapshot.phase === "cancelled"
     readonly property bool recoveryVisible: failed || (liveSnapshot.phase === "partial" && (liveSnapshot.view !== "finder" || allFinderHits.length === 0))
     readonly property string recoveryAction: liveSnapshot.organizationRecoverySuggested ? "journal" : liveSnapshot.imageInputSuggested ? "image" : (liveSnapshot.finderSettingsSuggested || liveSnapshot.translationSettingsSuggested) ? "settings" : liveSnapshot.canRetryRequest ? "retry" : ""
-    readonly property string title: surface === "welcome" ? "Xin chào, mình là RAT" : surface === "help" ? "Thiết lập & trợ giúp" : surface === "settings" ? "Cài đặt" : surface === "ocr" ? "Sửa chữ trong ảnh" : surface === "image" ? "Ảnh nguồn" : surface === "source" ? "Chữ nhận ban đầu" : !paperVisible ? "RAT" : liveSnapshot.view === "finder" ? "File tìm được" : liveSnapshot.view === "organization" ? "Sắp xếp thư mục" : liveSnapshot.view === "translation" ? (!composing ? "👁 Bản dịch" : "💬 Trò chuyện · VCoT") : liveSnapshot.view === "analysis" ? liveSnapshot.status : "Yêu cầu của bạn"
+    readonly property string title: surface === "welcome" ? "Xin chào, mình là RAT" : surface === "help" ? "Thiết lập & trợ giúp" : surface === "settings" ? "Cài đặt" : surface === "ocr" ? "Sửa chữ trong ảnh" : surface === "image" ? "Ảnh nguồn" : surface === "source" ? "Chữ nhận ban đầu" : !paperVisible ? "RAT" : liveSnapshot.view === "finder" ? "File tìm được" : liveSnapshot.view === "organization" ? "Sắp xếp thư mục" : liveSnapshot.view === "translation" ? (!composing ? "Bản dịch" : "Trò chuyện · VCoT") : liveSnapshot.view === "analysis" ? liveSnapshot.status : "Yêu cầu của bạn"
     signal moveRequested()
     signal hideRequested()
 
@@ -141,7 +141,7 @@ Rectangle {
     }
     function openMoreMenu() {
         var mw = Math.max(216, moreMenu.implicitWidth || 216)
-        var mh = Math.min(220, moreMenu.implicitHeight || 200)
+        var mh = Math.max(220, moreMenu.implicitHeight || 220)
         var targetX = Math.max(8, Math.min(desk.ratX - mw - 6, desk.width - mw - 8))
         var targetY = Math.max(8, Math.min(desk.ratY + desk.floatingHeadSize - mh, desk.height - mh - 8))
         moreMenu.popup(targetX, targetY)
@@ -271,8 +271,8 @@ Rectangle {
                 !desk.compact ?
                     Math.max(1, Math.min(desk.panelBudget - (desk.composing ? composer.height : 0), Math.max(240, paperColumn.implicitHeight + 24))) :
                 desk.composing ?
-                    Math.max(1, Math.min(desk.panelBudget - composer.height, Math.max(196, paperColumn.implicitHeight + 24))) :
-                    Math.max(1, Math.min(desk.panelBudget, Math.max(108, desk.heldReaderHeight > 0 && desk.liveSnapshot.busy ? desk.heldReaderHeight : paperColumn.implicitHeight + 24)))
+                    Math.max(1, Math.min(desk.panelBudget - composer.height, Math.max(116, paperColumn.implicitHeight + 20))) :
+                    Math.max(1, Math.min(desk.panelBudget, Math.max(96, desk.heldReaderHeight > 0 && desk.liveSnapshot.busy ? desk.heldReaderHeight : paperColumn.implicitHeight + 20)))
             radius: 14; color: "transparent"; border.color: "transparent"
             Rectangle {
                 visible: desk.bodyVisible && desk.composing
@@ -323,6 +323,17 @@ Rectangle {
                         Accessible.name: "Về danh sách file"
                         onClicked: desk.liveController.returnToFinderResults()
                     }
+                    Rectangle {
+                        visible: desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "translation"
+                        radius: 6; color: desk.selectedSurface; border.width: 1; border.color: desk.selectedEdge
+                        implicitHeight: 20; implicitWidth: modeBadgeLabel.implicitWidth + 12
+                        Layout.alignment: Qt.AlignVCenter
+                        Label {
+                            id: modeBadgeLabel; anchors.centerIn: parent
+                            text: !desk.composing ? "DỊCH NHANH" : "VCOT"
+                            font.pixelSize: 10; font.weight: Font.Bold; color: desk.accent
+                        }
+                    }
                     Label { text: (desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Quick Look" : desk.title); textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
                     BusyIndicator { running: Boolean(desk.liveSnapshot.busy); visible: running; implicitWidth: 18; implicitHeight: 18 }
                     QuietButton { visible: Boolean(desk.liveSnapshot.busy) && !desk.auxiliary; iconName: "stop"; implicitWidth: 28; Accessible.name: "Dừng yêu cầu"; onClicked: desk.liveController.cancel() }
@@ -335,7 +346,7 @@ Rectangle {
                     }
                     QuietButton {
                         visible: desk.paperVisible && !desk.auxiliary && !desk.composing && desk.surface === "result" && desk.liveSnapshot.view === "translation"
-                        text: "💬 Giải thích"
+                        text: "Giải thích"
                         enabled: !desk.liveSnapshot.busy
                         onClicked: { desk.liveController.escalateToVCoTChat(); Qt.callLater(desk.focusComposer) }
                     }
@@ -343,6 +354,13 @@ Rectangle {
                     QuietButton { visible: desk.paperVisible && !desk.auxiliary && !desk.compact && desk.taskVisible; text: "Nguồn"; onClicked: desk.liveController.toggleSource() }
                     QuietButton { visible: desk.paperVisible && !desk.auxiliary; iconName: desk.compact ? "chevron-up" : "chevron-down"; implicitWidth: 28; Accessible.name: desk.compact ? "Mở rộng" : "Thu gọn"; onClicked: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
                     QuietButton { visible: desk.auxiliary || !desk.composing; iconName: "close"; implicitWidth: 28; Accessible.name: "Ẩn RAT"; onClicked: (desk.compact && !desk.composing && desk.surface === "result") ? desk.liveController.collapseBubble() : desk.hideRequested() }
+                }
+                Rectangle {
+                    visible: desk.bodyVisible
+                    Layout.fillWidth: true
+                    height: 1
+                    color: desk.edge
+                    opacity: 0.65
                 }
                 RowLayout {
                     visible: desk.paperVisible && !desk.auxiliary && !desk.compact && desk.taskVisible && Boolean(desk.liveSnapshot.requestText)
@@ -361,7 +379,7 @@ Rectangle {
                     objectName: "resultStatus"
                     maximumLineCount: desk.compact ? 2 : 2147483647
                     elide: Text.ElideRight
-                    visible: !desk.simpleAnswer && desk.paperVisible && !desk.auxiliary && desk.taskVisible && Boolean(desk.liveSnapshot.status) && desk.liveSnapshot.status !== desk.title
+                    visible: !desk.simpleAnswer && desk.paperVisible && !desk.auxiliary && desk.taskVisible && Boolean(desk.liveSnapshot.status) && desk.liveSnapshot.status !== desk.title && !(desk.liveSnapshot.view === "translation" && desk.liveSnapshot.status === "Bản dịch")
                     text: desk.liveSnapshot.status || ""; textFormat: Text.PlainText
                     color: desk.liveSnapshot.error ? desk.pdfInk : desk.muted; font.pixelSize: 12
                     wrapMode: Text.Wrap; Layout.fillWidth: true
@@ -581,9 +599,22 @@ Rectangle {
                                             desk.liveController.copyResult();
                                     }
                                 }
-                                 text: desk.liveSnapshot.text || ""; textFormat: TextEdit.PlainText; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: desk.ink; font.pixelSize: 16; padding: 0; rightPadding: desk.simpleAnswer ? 18 : 0; background: null; Layout.fillWidth: true; Accessible.name: "Bản dịch" }
+                                 text: desk.liveSnapshot.text || ""; textFormat: TextEdit.PlainText; readOnly: true; selectByMouse: true; wrapMode: TextEdit.Wrap; color: desk.ink; font.pixelSize: desk.sharedTextSize; padding: 0; rightPadding: desk.simpleAnswer ? 18 : 0; background: null; Layout.fillWidth: true; Accessible.name: "Bản dịch" }
                             Label { visible: desk.ocrDirty; text: "Kết quả này chưa dùng các chỉnh sửa chữ mới nhất."; color: desk.pdfInk; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
-                            Label { visible: !desk.simpleAnswer; text: desk.liveSnapshot.meta || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                            Rectangle {
+                                visible: !desk.simpleAnswer && Boolean(desk.liveSnapshot.meta)
+                                radius: 6; color: desk.utilitySurface; border.width: 1; border.color: desk.edge
+                                implicitHeight: metaLabel.implicitHeight + 6
+                                implicitWidth: Math.min(parent.width, metaLabel.implicitWidth + 14)
+                                Label {
+                                    id: metaLabel
+                                    anchors.centerIn: parent
+                                    text: desk.liveSnapshot.meta || ""
+                                    textFormat: Text.PlainText
+                                    color: desk.muted
+                                    font.pixelSize: 11
+                                }
+                            }
                             Label { visible: !desk.simpleAnswer && Boolean(desk.liveSnapshot.translationNotice); text: desk.liveSnapshot.translationNotice || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
                             QuietButton { visible: !desk.compact; text: desk.showTranslationDetails ? "Ẩn chi tiết" : "Chi tiết"; onClicked: desk.showTranslationDetails = !desk.showTranslationDetails }
                             Label { visible: !desk.compact && desk.showTranslationDetails; text: desk.liveSnapshot.translationDetails || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
@@ -776,46 +807,64 @@ Rectangle {
                     Label { text: "Đang sửa yêu cầu cũ · bản nháp mới vẫn được giữ"; color: desk.muted; font.pixelSize: 11; Layout.fillWidth: true; wrapMode: Text.Wrap }
                     QuietButton { text: "Hủy sửa"; onClicked: desk.liveController.cancelEditRequest() }
                 }
-                RowLayout {
+                Rectangle {
                     visible: !desk.auxiliary && desk.composing && desk.paperVisible && Boolean(desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText)
-                    Layout.fillWidth: true; spacing: 6
-                    Label {
-                        text: "📌 " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText)
-                        Layout.fillWidth: true; elide: Text.ElideRight; maximumLineCount: 1; font.pixelSize: 11; color: desk.muted
-                    }
-                    QuietButton {
-                        visible: Boolean(desk.liveSnapshot.llmEnabled)
-                        text: "Giải thích"
-                        enabled: !desk.liveSnapshot.busy
-                        onClicked: desk.liveController.submit("Giải thích ngắn gọn: " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText))
-                    }
-                    QuietButton {
-                        visible: Boolean(desk.liveSnapshot.llmEnabled)
-                        text: "Tóm tắt"
-                        enabled: !desk.liveSnapshot.busy
-                        onClicked: desk.liveController.submit("Tóm tắt ý chính: " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText))
-                    }
-                    QuietButton {
-                        visible: !desk.liveSnapshot.llmEnabled
-                        text: "Đổi Anh ↔ Việt"
-                        enabled: !desk.liveSnapshot.busy
-                        onClicked: desk.liveController.flipTargetLanguageAndRetranslate()
-                    }
-                    QuietButton {
-                        visible: !desk.liveSnapshot.llmEnabled
-                        text: "Tìm file liên quan"
-                        enabled: !desk.liveSnapshot.busy
-                        onClicked: desk.liveController.submit("tìm file " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText).slice(0, 40))
+                    Layout.fillWidth: true
+                    implicitHeight: pinnedContextRow.implicitHeight + 12
+                    radius: 9; color: desk.utilitySurface
+                    border.width: 1; border.color: desk.edge
+                    RowLayout {
+                        id: pinnedContextRow
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        spacing: 6
+                        Rectangle {
+                            radius: 4; color: desk.selectedSurface; border.width: 1; border.color: desk.selectedEdge
+                            implicitHeight: 18; implicitWidth: pinnedBadgeLabel.implicitWidth + 8
+                            Layout.alignment: Qt.AlignVCenter
+                            Label {
+                                id: pinnedBadgeLabel; anchors.centerIn: parent
+                                text: "NGỮ CẢNH"; font.pixelSize: 10; font.weight: Font.Bold; color: desk.accent
+                            }
+                        }
+                        Label {
+                            text: desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText
+                            Layout.fillWidth: true; elide: Text.ElideRight; maximumLineCount: 1; font.pixelSize: 11; color: desk.muted
+                        }
+                        QuietButton {
+                            visible: Boolean(desk.liveSnapshot.llmEnabled)
+                            text: "Giải thích"
+                            enabled: !desk.liveSnapshot.busy
+                            onClicked: desk.liveController.submit("Giải thích ngắn gọn: " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText))
+                        }
+                        QuietButton {
+                            visible: Boolean(desk.liveSnapshot.llmEnabled)
+                            text: "Tóm tắt"
+                            enabled: !desk.liveSnapshot.busy
+                            onClicked: desk.liveController.submit("Tóm tắt ý chính: " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText))
+                        }
+                        QuietButton {
+                            visible: !desk.liveSnapshot.llmEnabled
+                            text: "Đổi Anh ↔ Việt"
+                            enabled: !desk.liveSnapshot.busy
+                            onClicked: desk.liveController.flipTargetLanguageAndRetranslate()
+                        }
+                        QuietButton {
+                            visible: !desk.liveSnapshot.llmEnabled
+                            text: "Tìm file liên quan"
+                            enabled: !desk.liveSnapshot.busy
+                            onClicked: desk.liveController.submit("tìm file " + (desk.liveSnapshot.ocrText || desk.liveSnapshot.requestText).slice(0, 40))
+                        }
                     }
                 }
                 Rectangle {
                     visible: !desk.auxiliary; Layout.fillWidth: true
-                    implicitHeight: composerRow.implicitHeight + 12
-                    radius: 10; color: desk.inputColor
+                    implicitHeight: composerRow.implicitHeight + 10
+                    radius: 12; color: desk.inputColor
                     border.width: 1; border.color: editor.activeFocus ? desk.accent : desk.edge
                     RowLayout {
                         id: composerRow
-                        x: 6; y: 6; width: parent.width - 12; spacing: 8
+                        x: 6; y: 5; width: parent.width - 12; spacing: 8
                         ScrollView {
                             Layout.fillWidth: true; Layout.preferredHeight: Math.min(78, Math.max(30, editor.contentHeight + 4))
                             contentWidth: availableWidth; clip: true; ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
@@ -825,8 +874,8 @@ Rectangle {
                                 KeyNavigation.priority: KeyNavigation.BeforeItem
                                 KeyNavigation.tab: sendControl
                                 KeyNavigation.backtab: closeControl
-                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Đang xử lý…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Tìm file hoặc dịch nhanh…"
-                                color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: desk.sharedTextSize
+                                placeholderText: desk.liveSnapshot.editingRequest ? "Sửa yêu cầu…" : desk.liveSnapshot.busy ? "Đang xử lý…" : desk.liveSnapshot.phase === "needs_input" ? "Trả lời Chuột…" : "Nhập yêu cầu tìm file hoặc câu cần dịch…"
+                                color: desk.ink; placeholderTextColor: desk.muted; font.pixelSize: 14
                                 textFormat: TextEdit.PlainText; selectByMouse: true; wrapMode: TextEdit.Wrap; padding: 0; topPadding: 4; selectionColor: desk.accent; selectedTextColor: desk.accentText; background: null
                                 Accessible.name: "Yêu cầu RAT Mini"
                                 onActiveFocusChanged: { if (activeFocus) desk.keyboardOwner="composer" }
@@ -906,7 +955,7 @@ Rectangle {
         width: 216
         background: Rectangle { radius: 10; color: desk.paperColor; border.color: desk.edge; border.width: 1 }
         popupType: Popup.Window
-        MenuItem { text: desk.liveSnapshot.pinned ? "Bỏ ghim" : "Ghim kết quả"; onTriggered: desk.liveController.togglePin() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: desk.liveSnapshot.pinned ? "Bỏ ghim" : "Ghim kết quả"; onTriggered: desk.liveController.togglePin() }
         Menu {
             id: historyMenu; title: "Công việc gần đây · trong RAM"; popupType: Popup.Window
             width: 216
@@ -914,19 +963,19 @@ Rectangle {
             enabled: !desk.liveSnapshot.busy
             Instantiator {
                 model: desk.liveSnapshot.taskHistory || []
-                delegate: MenuItem { required property var modelData; text: modelData.title; onTriggered: desk.liveController.restoreTask(modelData.index) }
+                delegate: MenuItem { required property var modelData; implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: modelData.title; onTriggered: desk.liveController.restoreTask(modelData.index) }
                 onObjectAdded: (index, object) => historyMenu.insertItem(index, object)
                 onObjectRemoved: (index, object) => historyMenu.removeItem(object)
             }
-            MenuSeparator {}
-            MenuItem { text: "Xóa lịch sử tạm"; onTriggered: desk.liveController.clearTaskHistory() }
+            MenuSeparator { implicitHeight: 7; topPadding: 3; bottomPadding: 3 }
+            MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Xóa lịch sử tạm"; onTriggered: desk.liveController.clearTaskHistory() }
         }
-        MenuItem { text: "Dịch Clipboard"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.translateClipboard() }
-        MenuItem { text: "Chọn ảnh để dịch…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: imageDialog.open() }
-        MenuSeparator {}
-        MenuItem { text: "Cài đặt…"; onTriggered: desk.openSettings() }
-        MenuItem { text: "Thiết lập & trợ giúp…"; onTriggered: desk.navigate("help") }
-        MenuItem { text: "Thoát RAT"; onTriggered: desk.liveController.quit() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Dịch Clipboard"; enabled: !desk.liveSnapshot.busy; onTriggered: desk.liveController.translateClipboard() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Chọn ảnh để dịch…"; enabled: !desk.liveSnapshot.busy && !desk.auxiliary; onTriggered: imageDialog.open() }
+        MenuSeparator { implicitHeight: 7; topPadding: 3; bottomPadding: 3 }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Cài đặt…"; onTriggered: desk.openSettings() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Thiết lập & trợ giúp…"; onTriggered: desk.navigate("help") }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Thoát RAT"; onTriggered: desk.liveController.quit() }
     }
     Menu {
         id: readerMenu
@@ -934,17 +983,17 @@ Rectangle {
         background: Rectangle { radius: 10; color: desk.paperColor; border.color: desk.edge; border.width: 1 }
         popupType: Popup.Window
         property var sourceEditor: translationArea
-        MenuItem { text: "Sao chép phần đã chọn"; enabled: Boolean(readerMenu.sourceEditor.selectedText); onTriggered: desk.liveController.copyLookSelection(readerMenu.sourceEditor.selectedText) }
-        MenuItem { text: "Sao chép nội dung"; enabled: Boolean(readerMenu.sourceEditor.text); onTriggered: { if (readerMenu.sourceEditor === translationArea) desk.liveController.copyResult(); else desk.liveController.copyLookSelection(readerMenu.sourceEditor.text) } }
-        MenuItem { text: desk.compact ? "Mở rộng" : "Thu gọn"; onTriggered: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Sao chép phần đã chọn"; enabled: Boolean(readerMenu.sourceEditor.selectedText); onTriggered: desk.liveController.copyLookSelection(readerMenu.sourceEditor.selectedText) }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Sao chép nội dung"; enabled: Boolean(readerMenu.sourceEditor.text); onTriggered: { if (readerMenu.sourceEditor === translationArea) desk.liveController.copyResult(); else desk.liveController.copyLookSelection(readerMenu.sourceEditor.text) } }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: desk.compact ? "Mở rộng" : "Thu gọn"; onTriggered: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
     }
     Menu {
         id: editorMenu
         width: 180
         background: Rectangle { radius: 10; color: desk.paperColor; border.color: desk.edge; border.width: 1 }
-        MenuItem { text: "Dán"; onTriggered: desk.pasteDraft() }
-        MenuItem { text: "Sao chép"; enabled: Boolean(editor.selectedText); onTriggered: editor.copy() }
-        MenuItem { text: "Cắt"; enabled: Boolean(editor.selectedText); onTriggered: editor.cut() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Dán"; onTriggered: desk.pasteDraft() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Sao chép"; enabled: Boolean(editor.selectedText); onTriggered: editor.copy() }
+        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Cắt"; enabled: Boolean(editor.selectedText); onTriggered: editor.cut() }
     }
     FolderDialog {
         id: folderDialog

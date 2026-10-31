@@ -4,7 +4,7 @@ import QtQuick
 Item {
     id: surface
     property real padding: 14
-    property real cornerRadius: 18
+    property real cornerRadius: 16
     property real tailLength: 18
     property bool tailEnabled: true
     // Shared size vocabulary for the corner composer and reader. Screen
@@ -55,6 +55,13 @@ Item {
     Rectangle {
         anchors.fill: parent; radius: surface.cornerRadius
         color: surface.paperColor; border.color: surface.edgeColor
+        border.width: 1
+        Rectangle {
+            anchors.fill: parent; anchors.margins: 1
+            radius: surface.cornerRadius - 1
+            color: "transparent"
+            border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.65)
+        }
     }
     Canvas {
         id: tail

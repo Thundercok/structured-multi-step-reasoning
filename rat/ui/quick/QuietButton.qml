@@ -6,20 +6,27 @@ Button {
     id: control
     property bool primary: false
     property bool elideText: false
+    property bool subtle: false
+    readonly property bool iconOnly: subtle || (Boolean(iconName) && !Boolean(text)) || text === "⋯"
     opacity: enabled ? 1 : 0.45
     hoverEnabled: true
     font.pixelSize: 12
-    leftPadding: 9
-    rightPadding: 9
-    topPadding: 7
-    bottomPadding: 7
+    font.weight: primary ? Font.DemiBold : Font.Medium
+    leftPadding: iconOnly ? 6 : 10
+    rightPadding: iconOnly ? 6 : 10
+    topPadding: 5
+    bottomPadding: 5
     property string iconName: ""
     property string trailingIconName: ""
     property int iconSize: 16
     property int trailingIconSize: 13
     property color iconColor: "transparent"
     contentItem: RowLayout {
-        property color color: control.primary ? desk.accentText : control.highlighted ? desk.accent : desk.muted
+        property color color: control.primary
+            ? desk.accentText
+            : (control.highlighted || control.hovered)
+                ? desk.ink
+                : (control.iconOnly ? desk.muted : desk.ink)
         spacing: (control.iconName || control.trailingIconName) && control.text ? 5 : 0
         DeskIcon {
             visible: Boolean(control.iconName)
@@ -54,11 +61,15 @@ Button {
         }
     }
     background: Rectangle {
-        radius: desk.controlRadius
+        radius: control.iconOnly ? 8 : 9
         color: control.primary
             ? (control.down ? Qt.darker(desk.accent, 1.12) : control.hovered ? Qt.darker(desk.accent, 1.05) : desk.accent)
-            : (control.down || control.highlighted ? desk.selectedSurface : control.hovered ? desk.hoverSurface : "transparent")
-        border.color: desk.accent
-        border.width: control.visualFocus ? 2 : 0
+            : control.iconOnly
+                ? (control.down ? desk.selectedSurface : control.hovered ? desk.hoverSurface : "transparent")
+                : (control.down || control.highlighted ? desk.selectedSurface : control.hovered ? desk.hoverSurface : desk.utilitySurface)
+        border.color: control.visualFocus
+            ? desk.accent
+            : (control.hovered || control.highlighted ? desk.selectedEdge : desk.edge)
+        border.width: control.visualFocus ? 2 : (!control.primary && !control.iconOnly ? 1 : 0)
     }
 }
