@@ -50,7 +50,14 @@ def translation_failure_code(error):
     return 'translation_provider_error'
 
 
+_VI_CHARS_PATTERN = re.compile(r'[ăâđêôơưĂÂĐÊÔƠƯáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]')
+
+
 def detect_language(text):
+    if not text or not isinstance(text, str):
+        return None
+    if _VI_CHARS_PATTERN.search(text):
+        return 'vi'
     try:
         import objc
         objc.loadBundle('NaturalLanguage', globals(),
@@ -64,6 +71,11 @@ def detect_language(text):
                 return str(language)
     except (ImportError, AttributeError, ValueError):
         pass
+    clean = text.strip()
+    if clean and '/' not in clean and '\\' not in clean and '.' not in clean:
+        words = clean.split()
+        if 1 <= len(words) <= 4 and all(re.fullmatch(r"^[A-Za-z]+(?:['\-][A-Za-z]+)*[!?,\"]*$", w) for w in words):
+            return 'en'
     return None
 
 

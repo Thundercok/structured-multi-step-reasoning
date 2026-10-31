@@ -98,6 +98,8 @@ class ToolGoalRouter:
             query = text[finding.end():].strip(' :\n')
             if original and not query:
                 query = original
+            elif original and query.casefold() in ('đi', 'nhé', 'nha', 'giúp', 'giúp mình', 'giúp tôi', 'file', 'tệp', 'này', 'đó'):
+                query = original
             if not query:
                 return self.ask('Bạn muốn tìm file nào?', supplied={'operation':'find_files'}, field_name='query')
             if re.search(r'\b(?:rồi|và|then)\s+(?:dịch|translate)\b', query, re.I):
@@ -121,7 +123,7 @@ class ToolGoalRouter:
                     body = body[:suffix.start()].strip()
                     break
             body = re.sub(r'^(?:đoạn này|đoạn sau|văn bản sau|this text)\s*:\s*', '', body, flags=re.I)
-            if body.casefold() in ('đoạn này', 'đoạn sau', 'văn bản này', 'this', 'this text'):
+            if body.casefold() in ('đoạn này', 'đoạn sau', 'văn bản này', 'this', 'this text', 'đi', 'nhé', 'nha', 'giúp', 'giúp mình', 'giúp tôi', 'nó', 'câu này'):
                 body = ''
             if not body and original:
                 body = original
@@ -130,6 +132,10 @@ class ToolGoalRouter:
             if len(body)>1 and (body[0],body[-1]) in (('"','"'),("'","'"),('“','”')):
                 body = body[1:-1]
             return self.direct('translate_text', dict(args,text=body), 'explicit_translate')
+        if input_kind == 'typed' and re.search(
+                r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:giải thích|tóm tắt|phân tích|so sánh|đánh giá|explain|summarize|analyze|compare)\b',
+                text, re.I):
+            return GoalRoute('agent', rule='analysis_goal')
         if input_kind == 'file_reference':
             paths = [p for p in text.splitlines() if p.strip()]
             if len(paths) != 1:
@@ -140,7 +146,13 @@ class ToolGoalRouter:
             return self.direct('find_files', {'query':text}, 'filename')
         words = text.split()
         paragraph = '\n' in text or len(words) >= 18
-        if not paragraph and len(words) <= 10 and re.match(r'^(?:báo cáo|tài liệu|file|tệp|report|document)\b',text,re.I):
+        if not paragraph and len(words) <= 10 and re.match(
+                r'^(?:báo cáo|tài liệu|file|tệp|slide|slides|bài giảng|hóa đơn|hợp đồng|lịch học|đề thi|luận văn|đồ án|biên bản|bảng điểm|cv|resume|report|document|lecture|invoice|contract|syllabus)\b',
+                text, re.I):
+            return self.direct('find_files', {'query':text}, 'file_description')
+        if not paragraph and len(words) <= 8 and re.search(
+                r'\b(?:file\s+(?:pdf|word|excel|powerpoint| ảnh)|(?:pdf|docx?|xlsx?|pptx?)\s+(?:hôm qua|hôm nay|tuần này|tuần trước|tháng này|mới nhất))\b',
+                text, re.I):
             return self.direct('find_files', {'query':text}, 'file_description')
         if re.fullmatch(r'https?://\S+', text, re.I):
             return self.ask('Bạn gửi đoạn chữ cần dịch, hoặc tên tệp cần tìm nhé.', rule='url_needs_content')
@@ -149,6 +161,9 @@ class ToolGoalRouter:
             return self.direct('translate_text', dict(self.defaults,text=text), 'pasted_passage')
         if language and language != self.defaults['target_language'] and (len(words) >= 2 or re.search(r'[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]',text)):
             return self.direct('translate_text', dict(self.defaults,text=text), 'foreign_passage')
+        if (paragraph or (len(words) >= 4 and bool(re.search(r'[.?!]\s*$', text)))) and language in ('vi', 'en'):
+            return self.direct('translate_text', dict(self.defaults, text=text),
+                               'foreign_passage' if language != self.defaults['target_language'] else 'bidirectional_passage')
         if previous and previous.get('operation') == 'translate_text' and paragraph:
             return self.direct('translate_text', dict(self.defaults,text=text), 'translation_continuation')
         if previous and previous.get('operation') == 'find_files' and len(words) <= 8 and not paragraph:

@@ -267,12 +267,12 @@ Rectangle {
             width: parent.width
             height: !desk.bodyVisible ? 0 :
                 desk.auxiliary ?
-                    Math.max(1, Math.min(desk.panelBudget, Math.max(300, paperColumn.implicitHeight + 24))) :
+                    Math.max(1, Math.min(desk.panelBudget, Math.max(300, paperColumn.implicitHeight + 36))) :
                 !desk.compact ?
-                    Math.max(1, Math.min(desk.panelBudget - (desk.composing ? composer.height : 0), Math.max(240, paperColumn.implicitHeight + 24))) :
+                    Math.max(1, Math.min(desk.panelBudget - (desk.composing ? composer.height : 0), Math.max(240, paperColumn.implicitHeight + 36))) :
                 desk.composing ?
-                    Math.max(1, Math.min(desk.panelBudget - composer.height, Math.max(116, paperColumn.implicitHeight + 20))) :
-                    Math.max(1, Math.min(desk.panelBudget, Math.max(96, desk.heldReaderHeight > 0 && desk.liveSnapshot.busy ? desk.heldReaderHeight : paperColumn.implicitHeight + 20)))
+                    Math.max(1, Math.min(desk.panelBudget - composer.height, Math.max(116, paperColumn.implicitHeight + 36))) :
+                    Math.max(1, Math.min(desk.panelBudget, Math.max(96, desk.heldReaderHeight > 0 && desk.liveSnapshot.busy ? desk.heldReaderHeight : paperColumn.implicitHeight + 36)))
             radius: 14; color: "transparent"; border.color: "transparent"
             Rectangle {
                 visible: desk.bodyVisible && desk.composing
@@ -334,7 +334,10 @@ Rectangle {
                             font.pixelSize: 10; font.weight: Font.Bold; color: desk.accent
                         }
                     }
-                    Label { text: (desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Quick Look" : desk.title); textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
+                    Label {
+                        text: (desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "translation" && !desk.composing) ? "" : ((desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Quick Look" : desk.title))
+                        textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight
+                    }
                     BusyIndicator { running: Boolean(desk.liveSnapshot.busy); visible: running; implicitWidth: 18; implicitHeight: 18 }
                     QuietButton { visible: Boolean(desk.liveSnapshot.busy) && !desk.auxiliary; iconName: "stop"; implicitWidth: 28; Accessible.name: "Dừng yêu cầu"; onClicked: desk.liveController.cancel() }
                     QuietButton {

@@ -16,7 +16,7 @@ import threading
 import time
 import unicodedata
 
-from rat.engine.finder_intent import parse_finder_intent
+from rat.engine.finder_intent import parse_finder_intent, _fold_ascii
 from rat.engine.rrf import ReciprocalRankFusion
 from rat.os.system_process import system_environment
 
@@ -253,8 +253,14 @@ class HybridFinder:
             row = accepted(raw)
             if row:
                 lexical.append(row)
-        lexical.sort(key=lambda row: (name_key(row['file_name']) != name_key(query.strip()),
-                                     not all(name_key(term) in name_key(row['file_name']) for term in terms)))
+        query_key = query.strip()
+        folded_phrase = _fold_ascii(plan.query_terms or query_key)
+        lexical.sort(key=lambda row: (
+            name_key(row['file_name']) != name_key(query_key),
+            folded_phrase not in _fold_ascii(row['file_name']) if folded_phrase else True,
+            not all(_fold_ascii(term) in _fold_ascii(row['file_name']) for term in terms) if terms else False,
+            -float(row.get('modified_at', 0.0))
+        ))
         dense = []
         semantic_state = 'disabled'
         if self.semantic is not None and mode != 'metadata':
