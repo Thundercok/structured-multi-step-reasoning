@@ -294,8 +294,8 @@ def write_fitting_seal(run: Path, output: Path) -> Dict[str, Any]:
         evidence = identity["evidence"]
         require(isinstance(evidence, str) and bool(evidence), "Staged evidence must be a non-empty string")
 
-        # Reject unreviewed legacy evidence
-        if evidence == "measured_development_pilot":
+        # Reject unreviewed legacy or generic non-pilot evidence
+        if evidence in ("measured_development_pilot", "measured_staged_collection"):
             raise ValueError(
                 "Measured staged collection is deferred; non-synthetic evidence is not permitted on staged schema "
                 "until real model adapter is implemented and reviewed."

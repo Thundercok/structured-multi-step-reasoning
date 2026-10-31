@@ -310,9 +310,15 @@ class SnippetTranslator:
         if not text.strip() or len(text) > 8000:
             raise ValueError('invalid_snippet_length')
         chosen = self.settings['translation_provider']
+        auto_source = (source == 'auto')
         source = (detect_language(text) or ('auto' if chosen in ('google_gtx','automatic') else None)) if source == 'auto' else source
         if not source:
             return {'needs_language': True}
+        if auto_source and source == target:
+            if source == 'vi':
+                target = 'en'
+            elif source == 'en':
+                target = 'vi'
         if source == target:
             return {'status': 'complete', 'text': text, 'source_text': text, 'source_language': source,
                     'target_language': target, 'provider': 'same_language', 'segments': [
