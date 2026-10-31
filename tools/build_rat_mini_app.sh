@@ -80,6 +80,7 @@ manifest = dict(build=BUILD, version=VERSION, protocol='SELECT2',
 
 PY
 codesign --force --deep --sign - "$RAT_MINI_BUILT_APP"
+rm -rf "$DIST_DIR/RAT Mini"
 ditto -c -k --keepParent "$RAT_MINI_BUILT_APP" "$DIST_DIR/RAT Mini.zip"
 "$PYTHON_BIN" - <<'PY'
 from pathlib import Path

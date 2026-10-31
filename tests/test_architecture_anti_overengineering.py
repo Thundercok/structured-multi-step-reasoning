@@ -33,12 +33,20 @@ FORBIDDEN_PATHS = (
     "docs/contracts/transient_workbench.md",
     "docs/contracts/speech_bubble.md",
     "docs/rat_mini_look_modes.md",
+    "docs/design/rat-mascot-backlog-20261028",
+    "docs/design/rat-gemini-ui-kit-20261029",
+    "docs/design/rat-gemini-ui-kit-20261029.zip",
+    "docs/design/rat-app-icon-20261028",
+    "rat/assets/app_icons",
+    "tools/export_rat_app_icons.py",
 )
 
 
 def test_deleted_overengineered_files_are_never_resurrected():
     resurrected = [rel for rel in FORBIDDEN_PATHS if (ROOT / rel).exists()]
     assert not resurrected, f"Forbidden legacy/overengineered files resurrected: {resurrected}"
+    bak_files = [p.name for p in ROOT.glob("*.bak")] + [p.name for p in ROOT.glob("*.pre-task*")]
+    assert not bak_files, f"Do not commit root .bak / .pre-task backup files: {bak_files}"
 
 
 def test_mini_state_and_placement_stay_single_surface():
