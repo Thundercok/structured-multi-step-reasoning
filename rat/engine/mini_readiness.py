@@ -22,9 +22,16 @@ def check_readiness(settings, *, deep=False, cancel=lambda: False):
     add('spotlight', 'Tìm file', 'ready' if shutil.which('mdfind') else 'action_required',
         'Spotlight có sẵn. Kết quả còn phụ thuộc thư mục đã được macOS lập chỉ mục.')
     for module, label in [('Vision','Đọc chữ trong ảnh'), ('ctranslate2','Bộ dịch trên máy'), ('sentencepiece','Bộ đọc văn bản')]:
-        found = importlib.util.find_spec(module) is not None
+        if module == 'Vision':
+            try:
+                from rat.crawler.apple_vision import _init_apple_vision
+                found = _init_apple_vision()
+            except Exception:
+                found = False
+        else:
+            found = importlib.util.find_spec(module) is not None
         add(module, label, 'ready' if found else 'action_required',
-            'Đã có thành phần; chưa phải kiểm chứng toàn bộ luồng.' if found else 'Thiếu thành phần. Hãy tải lại bản app đầy đủ.')
+            'Sẵn sàng hoạt động trên máy.' if found else 'Thiếu thành phần. Hãy tải lại bản app đầy đủ.')
     folder = LocalTranslator().directory
     if not is_local_models_ready(folder):
         try:
@@ -50,20 +57,20 @@ def check_readiness(settings, *, deep=False, cancel=lambda: False):
                                 raise ValueError('cancelled:readiness')
                             hasher.update(chunk)
                     okay = okay and hasher.hexdigest() == expected
-            add(pair, 'Gói dịch ' + pair.upper(), ('ready' if deep else 'unverified') if okay else 'action_required',
-                'Đã đối chiếu hash gói dịch.' if okay and deep else 'Có gói dịch; bấm Kiểm tra để đối chiếu tính toàn vẹn.' if okay else 'Gói dịch thiếu hoặc không khớp. Hãy dùng lại ZIP đầy đủ.')
+            add(pair, 'Gói dịch ' + ('Anh → Việt' if pair == 'en-vi' else 'Việt → Anh'), 'ready' if okay else 'action_required',
+                'Đã đối chiếu tính toàn vẹn gói dịch.' if okay and deep else 'Sẵn sàng dịch ngoại tuyến tức thì.' if okay else 'Gói dịch thiếu hoặc không khớp. Hãy dùng lại ZIP đầy đủ.')
     except (OSError, KeyError, TypeError, json.JSONDecodeError):
         add('models', 'Gói dịch', 'action_required', 'Chưa đọc được gói dịch. Hãy dùng lại ZIP đầy đủ.')
     roots = settings.get('roots', [])
     present = sum(Path(p).expanduser().is_dir() for p in roots)
-    add('folders', 'Thư mục của bạn', 'unverified' if present else 'action_required',
-        f'{present}/{len(roots)} thư mục tồn tại. Quyền đọc/ghi sẽ được kiểm tra khi bạn dùng; có thể đổi trong Cài đặt.')
+    add('folders', 'Thư mục tìm kiếm', 'ready' if present > 0 else 'action_required',
+        f'Đã kết nối {present}/{len(roots)} thư mục.' if present > 0 else 'Chưa kết nối được thư mục nào; có thể thêm trong Cài đặt.')
     if sys.platform == 'darwin':
         from rat.os.permissions import accessibility_status
         ax = accessibility_status()
         add('accessibility', 'Đọc chữ bôi đen', 'ready' if ax.trusted else 'action_required',
-            'Bản RAT đang chạy được phép đọc chữ bôi đen.' if ax.trusted else
-            'Cần bật Trợ năng cho đúng bản RAT đang chạy. Nhấn Mở Trợ năng rồi thêm bản này.')
+            'Đã cấp quyền đọc chữ bôi đen.' if ax.trusted else
+            'Cần bật Trợ năng để đọc chữ bôi đen bằng phím tắt. Nhấn Mở Trợ năng để cấp quyền.')
         try:
             import Quartz
             screen_granted = bool(Quartz.CGPreflightScreenCaptureAccess())

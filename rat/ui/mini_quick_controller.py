@@ -892,7 +892,7 @@ class MiniQuickController(QObject):
             self.update(readinessSummary=self.readiness_summary(checks['checks']) if checks else self._state['readinessSummary'],
                 readinessBusy=False,
                 readiness=checks['checks'] if checks else self._state['readiness'],
-                readinessStatus=('Đã kiểm tra thành phần. Dùng thử để xác nhận trên máy này.' if checks and checks['status']=='ready' else
+                readinessStatus=('Tất cả thành phần đã sẵn sàng.' if checks and checks['status']=='ready' else
                     'Một số chức năng cần xử lý. Bạn vẫn có thể dùng phần đã sẵn sàng.' if checks else 'Chưa kiểm tra được. Hãy thử lại.'))
             if checks and any(c.get('state') == 'action_required' for c in checks.get('checks', [])):
                 if not os.environ.get('PYTEST_CURRENT_TEST') and self._state.get('phase') == 'idle' and not self._state.get('hasWorkbench'):

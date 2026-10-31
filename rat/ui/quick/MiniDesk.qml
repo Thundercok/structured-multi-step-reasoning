@@ -88,7 +88,7 @@ Rectangle {
     readonly property bool failed: liveSnapshot.phase === "error" || liveSnapshot.phase === "cancelled"
     readonly property bool recoveryVisible: failed || (liveSnapshot.phase === "partial" && (liveSnapshot.view !== "finder" || allFinderHits.length === 0))
     readonly property string recoveryAction: liveSnapshot.organizationRecoverySuggested ? "journal" : liveSnapshot.imageInputSuggested ? "image" : (liveSnapshot.finderSettingsSuggested || liveSnapshot.translationSettingsSuggested) ? "settings" : liveSnapshot.canRetryRequest ? "retry" : ""
-    readonly property string title: surface === "welcome" ? "Xin chào, mình là RAT" : surface === "help" ? "Thiết lập & trợ giúp" : surface === "settings" ? "Cài đặt" : surface === "ocr" ? "Sửa chữ trong ảnh" : surface === "image" ? "Ảnh nguồn" : surface === "source" ? "Chữ nhận ban đầu" : !paperVisible ? "RAT" : liveSnapshot.view === "finder" ? "File tìm được" : liveSnapshot.view === "organization" ? "Sắp xếp thư mục" : liveSnapshot.view === "translation" ? (!composing ? "Bản dịch" : "Trò chuyện · VCoT") : liveSnapshot.view === "analysis" ? liveSnapshot.status : "Yêu cầu của bạn"
+    readonly property string title: surface === "welcome" ? "Xin chào, mình là RAT" : surface === "help" ? "Thiết lập & trợ giúp" : surface === "settings" ? "Cài đặt" : surface === "ocr" ? "Sửa chữ trong ảnh" : surface === "image" ? "Ảnh nguồn" : surface === "source" ? "Chữ nhận ban đầu" : !paperVisible ? "RAT" : liveSnapshot.view === "finder" ? "File tìm được" : liveSnapshot.view === "organization" ? "Sắp xếp thư mục" : liveSnapshot.view === "translation" ? (!composing ? "Bản dịch" : "Trò chuyện") : liveSnapshot.view === "analysis" ? liveSnapshot.status : "Yêu cầu của bạn"
     signal moveRequested()
     signal hideRequested()
 
@@ -330,12 +330,12 @@ Rectangle {
                         Layout.alignment: Qt.AlignVCenter
                         Label {
                             id: modeBadgeLabel; anchors.centerIn: parent
-                            text: !desk.composing ? "DỊCH NHANH" : "VCOT"
+                            text: !desk.composing ? "DỊCH NHANH" : "TRÒ CHUYỆN"
                             font.pixelSize: 10; font.weight: Font.Bold; color: desk.accent
                         }
                     }
                     Label {
-                        text: (desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "translation" && !desk.composing) ? "" : ((desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Quick Look" : desk.title))
+                        text: (desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "translation") ? "" : ((desk.liveSnapshot.pinned ? "● " : "") + (desk.noticeVisible ? "Dịch nhanh" : desk.title))
                         textFormat: Text.PlainText; color: desk.ink; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight
                     }
                     BusyIndicator { running: Boolean(desk.liveSnapshot.busy); visible: running; implicitWidth: 18; implicitHeight: 18 }
@@ -463,11 +463,11 @@ Rectangle {
                                     Label { text: modelData.label + " · " + (modelData.state === "action_required" ? "Cần xử lý" : modelData.state === "ready" ? "Sẵn sàng" : "Chưa kiểm chứng"); textFormat: Text.PlainText; color: modelData.state === "action_required" ? desk.pdfInk : desk.ink; font.pixelSize: 12; Layout.fillWidth: true; elide: Text.ElideRight }
                                 }
                             }
-                            Label { text: desk.liveSnapshot.readinessBusy ? "Đang kiểm tra…" : desk.liveSnapshot.accessibilityReady ? "✓ Bản RAT này đã có quyền Trợ năng" : "1. Bấm Mở Trợ năng.\n2. Bật công tắc cho RAT Mini (đã tự dọn bản ghi cũ).\n3. Bấm Kiểm tra lại."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true; font.pixelSize: 12 }
+                            Label { text: desk.liveSnapshot.readinessBusy ? "Đang kiểm tra…" : desk.liveSnapshot.accessibilityReady ? "✓ Bản RAT này đã có quyền Trợ năng" : "1. Bấm Mở Trợ năng.\n2. Gạt bật công tắc cho RAT Mini.\n3. Bấm Bắt đầu làm việc bên dưới để sử dụng."; color: desk.muted; wrapMode: Text.Wrap; Layout.fillWidth: true; font.pixelSize: 12 }
                             RowLayout {
                                 Layout.fillWidth: true
                                 QuietButton { text: "Mở Trợ năng"; onClicked: desk.liveController.openSelectionAccess() }
-                                QuietButton { text: "Hiện bản RAT"; onClicked: desk.liveController.revealRunningApp() }
+                                QuietButton { text: "Xem file app"; onClicked: desk.liveController.revealRunningApp() }
                                 QuietButton { text: "Kiểm tra lại"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.checkReadiness(false) }
                             }
                             Label { visible: Boolean(desk.liveSnapshot.runningBundlePath); text: desk.liveSnapshot.runningBundlePath || ""; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 11; wrapMode: Text.WrapAnywhere; Layout.fillWidth: true }
@@ -488,7 +488,7 @@ Rectangle {
                             }
                             Label { text: desk.liveSnapshot.readinessStatus || "Chưa chạy kiểm tra trên máy này."; color: desk.muted; Layout.fillWidth: true; wrapMode: Text.Wrap; font.pixelSize: 12 }
                             Label { text: "Thả ảnh và dán ảnh không cần cấp Ghi màn hình hay Trợ năng cho RAT. Chọn thư mục trong Cài đặt để tìm hoặc sắp xếp file."; color: desk.muted; Layout.fillWidth: true; wrapMode: Text.Wrap; font.pixelSize: 12 }
-                            Label { text: "Quick Look · " + desk.liveSnapshot.shortcutLabel + (desk.liveSnapshot.hotkeyStatus ? " · Chưa kết nối" : ""); color: desk.ink; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                            Label { text: "Phím tắt dịch nhanh: " + desk.liveSnapshot.shortcutLabel + (desk.liveSnapshot.hotkeyStatus ? " · Chưa kết nối" : ""); color: desk.ink; Layout.fillWidth: true; wrapMode: Text.Wrap }
                             Repeater {
                                 model: desk.liveSnapshot.diagnosticEvents || []
                                 delegate: Label { required property var modelData; text: modelData.sequence + " · " + modelData.label; textFormat: Text.PlainText; color: desk.muted; font.pixelSize: 12; Layout.fillWidth: true; wrapMode: Text.Wrap }
@@ -519,11 +519,11 @@ Rectangle {
                                 text: "Chọn dịch trên máy · Anh ↔ Việt"
                                 onClicked: { backend.currentIndex = backend.indexOfValue("automatic"); freeFallback.checked = false }
                             }
-                            Label { text: "Quick Look · " + desk.liveSnapshot.shortcutLabel; color: desk.ink }
+                            Label { text: "Phím tắt dịch nhanh: " + desk.liveSnapshot.shortcutLabel; color: desk.ink }
                             ComboBox {
                                 id: shortcutChord; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
                                 model: [{label:"⌥⇧Space",value:"option_shift_space"},{label:"⌥⇧R",value:"option_shift_r"},{label:"⌥⇧K",value:"option_shift_k"},{label:"⌥⇧J",value:"option_shift_j"},{label:"⌃⌥Space · có thể đổi bộ gõ",value:"control_option_space"},{label:"⌃⇧Space",value:"control_shift_space"}]
-                                Accessible.name: "Phím tắt Quick Look"
+                                Accessible.name: "Phím tắt dịch nhanh"
                             }
                             QuietButton { text: "Dùng phím này"; enabled: !desk.liveSnapshot.busy; onClicked: { desk.settingsError=desk.liveController.changeShortcut(shortcutChord.currentValue) } }
                             Label { text: "Dịch sang"; color: desk.ink; font.weight: Font.Medium }
@@ -753,7 +753,7 @@ Rectangle {
                     QuietButton {
                         id: setupPrimary; objectName: "helloContinue"; primary: true
                         enabled: !desk.liveSnapshot.busy
-                        text: desk.surface === "settings" ? "Lưu" : desk.liveSnapshot.setupCompleted ? "Bắt đầu làm việc" : "Bắt đầu"
+                        text: desk.surface === "settings" ? "Lưu" : "Bắt đầu làm việc"
                         onClicked: {
                             if (desk.surface === "settings") {
                                 desk.settingsError = desk.liveController.savePreferences({roots:folderList.model,source_language:sourceLanguage.currentValue,target_language:targetLanguage.currentValue,translation_provider:backend.currentValue || "automatic",free_fallback:freeFallback.checked,provider:cloudProvider.currentValue,model:cloudModel.text,llm_enabled:llmEnabled.checked}, providerKey.text)
@@ -942,16 +942,28 @@ Rectangle {
         }
         ToolTip.visible: headMouse.containsMouse && !headMouse.pressed
         ToolTip.delay: 500
-        ToolTip.text: (desk.liveSnapshot.pinned ? "Đang ghim · " : "") + "Quick Look · " + desk.liveSnapshot.shortcutLabel + " · RAT Lite " + desk.buildLabel
+        ToolTip.text: (desk.liveSnapshot.pinned ? "Đang ghim · " : "") + "Dịch nhanh · " + desk.liveSnapshot.shortcutLabel + " · RAT Lite " + desk.buildLabel
         Accessible.role: Accessible.Button
         Accessible.name: "RAT Lite. Bấm mở hoặc đóng ô nhập; chuột phải mở menu; kéo để di chuyển."
         Accessible.onPressAction: desk.liveController.toggleComposer()
+        Rectangle {
+            anchors.fill: parent
+            radius: width / 2
+            color: Qt.rgba(desk.accent.r, desk.accent.g, desk.accent.b, 0.15)
+            border.color: desk.accent
+            border.width: 2
+            visible: Boolean(desk.liveSnapshot.dropActive)
+        }
     }
     Rectangle {
         visible: Boolean(desk.liveSnapshot.dropActive)
-        x: panel.x; y: panel.y; width: panel.width; height: panel.height; radius: 14
+        x: panel.height > 0 ? panel.x : (desk.ratX + desk.floatingHeadSize + 8)
+        y: panel.height > 0 ? panel.y : (desk.ratY + (desk.floatingHeadSize - 44) / 2)
+        width: panel.height > 0 ? panel.width : 160
+        height: panel.height > 0 ? panel.height : 44
+        radius: 12
         color: desk.selectedSurface; border.color: desk.accent; border.width: 2
-        Label { anchors.centerIn: parent; text: "Thả ảnh để dịch"; color: desk.ink; font.pixelSize: 16 }
+        Label { anchors.centerIn: parent; text: "Thả ảnh để dịch"; color: desk.ink; font.pixelSize: panel.height > 0 ? 15 : 13; font.weight: Font.Medium }
     }
     Shortcut { enabled: !desk.auxiliary && !desk.composing; context: Qt.ApplicationShortcut; sequences: [StandardKey.Paste]; onActivated: desk.liveController.pasteLook() }
     Shortcut { sequence: "Escape"; onActivated: { if (diagnosticDialog.visible) diagnosticDialog.close(); else if (imageDialog.visible) imageDialog.close(); else if (folderDialog.visible) folderDialog.close(); else if (historyMenu.visible) historyMenu.close(); else if (moreMenu.visible) moreMenu.close(); else if (readerMenu.visible) readerMenu.close(); else if (editorMenu.visible) editorMenu.close(); else if (desk.noticeVisible) desk.liveController.returnToTask(); else if (desk.auxiliary || desk.surface !== "result") desk.goBack(); else if (desk.composing) desk.liveController.toggleComposer(); else desk.liveController.collapseBubble() } }
@@ -967,7 +979,7 @@ Rectangle {
         popupType: Popup.Window
         MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: desk.liveSnapshot.pinned ? "Bỏ ghim" : "Ghim kết quả"; onTriggered: desk.liveController.togglePin() }
         Menu {
-            id: historyMenu; title: "Công việc gần đây · trong RAM"; popupType: Popup.Window
+            id: historyMenu; title: "Lịch sử gần đây"; popupType: Popup.Window
             width: 216
             background: Rectangle { radius: 10; color: desk.paperColor; border.color: desk.edge; border.width: 1 }
             enabled: !desk.liveSnapshot.busy

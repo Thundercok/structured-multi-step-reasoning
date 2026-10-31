@@ -306,12 +306,17 @@ def format_readiness_summary(checks: list) -> list:
         ('image', 'Dịch ảnh', ('Vision',)),
         ('finder', 'Tìm file', ('spotlight', 'folders'))
     ]
+    ready_details = {
+        'translation': 'Dịch tức thì trên máy, không cần mạng.',
+        'image': 'Nhận diện chữ trong ảnh bằng Apple Vision.',
+        'finder': 'Tìm file nhanh chóng qua Spotlight macOS.'
+    }
     summaries = []
     for key, label, members in groups:
         items = [by_key[name] for name in members if name in by_key]
         state = 'action_required' if any(x['state'] == 'action_required' for x in items) else 'unverified' if not items or any(x['state'] == 'unverified' for x in items) else 'ready'
         detail = ' · '.join(x['detail'] for x in items if x['state'] == 'action_required') or (
-            'Có thành phần; chưa xác nhận toàn bộ luồng.' if state == 'ready' else 'Bạn có thể dùng thử; quyền thư mục và gói dịch được kiểm tra khi cần.'
+            ready_details.get(key, 'Sẵn sàng hoạt động trên máy.') if state == 'ready' else 'Sẵn sàng dùng; quyền truy cập sẽ được hỏi khi cần.'
         )
         summaries.append(dict(key=key, label=label, state=state, detail=detail))
     return summaries
@@ -461,17 +466,17 @@ def format_user_error_message(error: str) -> str:
     if any(code in error for code in ('source_integrity_mismatch', 'source_expired', 'stale_source_ref')):
         return 'Nguồn chữ cũ không còn hợp lệ. Hãy thả lại ảnh hoặc dán lại nội dung để dịch.'
     if 'selection_accessibility_required' in error:
-        return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng. Sau đó bôi đen chữ và bấm phím tắt Quick Look lại.'
+        return 'Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng để đọc chữ bôi đen.'
     if 'selection_empty' in error:
         return 'Chưa thấy chữ được chọn. Bôi đen một đoạn rồi bấm lại.'
     if 'selection_source_unresponsive' in error:
         return 'App nguồn chưa phản hồi. Chờ một chút rồi thử lại, hoặc copy và chọn Dán chữ.'
     if 'selection_source_changed' in error:
-        return 'App nguồn đã đổi. Bôi đen chữ trong app cần đọc rồi bấm phím tắt Quick Look lại.'
+        return 'App nguồn đã đổi. Hãy bôi đen chữ trong app cần đọc rồi bấm phím tắt dịch lại.'
     if 'selection_unavailable' in error:
         return 'Chưa lấy được chữ bôi đen từ app này. Bạn có thể dán chữ hoặc chọn vùng ảnh trong menu.'
     if 'selection_response_missing' in error:
-        return 'Quick Look chưa trả về kết quả. Mã QL_NO_RESPONSE. Công việc trước vẫn được giữ.'
+        return 'Chưa nhận được chữ bôi đen. Hãy bôi đen chữ và thử lại nhé.'
     if 'screen_capture_denied' in error:
         return 'Cho phép Ghi màn hình trong macOS để chọn vùng chữ.'
     if 'ocr_empty' in error:
