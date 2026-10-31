@@ -18,17 +18,15 @@ from PyQt6.QtTest import QTest
 from rat.ui.mini_quick import create_mini_desk
 from rat.engine.mini_settings import DEFAULTS
 app=QGuiApplication([])
-view,c=create_mini_desk(dict(DEFAULTS, roots=[], setup_completed=True,
+view,c=create_mini_desk(dict(DEFAULTS, roots=[], setup_completed=True, permission_hello_version=1,
  source_language='en', target_language='vi', translation_provider='mymemory', free_fallback=False))
-c.look_clipboard.start=lambda:None
-c.look_clipboard.timer.isActive=lambda:True
-c.setWorkspaceMode('look'); c.receiveLookClipboard('Hello world.',None); c.openPendingLook()
+app.clipboard().setText('Hello world.')
+c.pasteLook()
 for _ in range(300):
  QTest.qWait(30)
  if c.job is None: break
 assert c.snapshot['phase']=='error',c.snapshot['status']
-assert 'MyMemory' in c.snapshot['lookText'] and c.snapshot['translationSettingsSuggested']
-assert c.snapshot['lookShowingError']
+assert 'MyMemory' in c.snapshot['status'] and c.snapshot['translationSettingsSuggested']
 source=dict(c._ocr_source_ref); store=c.session.runtime.artifact_store
 assert c.session.client.calls==0
 assert c.savePreferences({'translation_provider':'automatic','roots':[]})=='',c.snapshot
@@ -41,7 +39,7 @@ for _ in range(300):
 assert c.snapshot['phase']=='result',c.snapshot['status']
 assert c._ocr_source_ref==source and c.snapshot['text'].strip()
 assert c.session.client.calls==0 and not c.settings['llm_enabled']
-c.disableLook(); view.hide()
+view.hide()
 ''', tmp_path)
 
 
@@ -55,14 +53,12 @@ from rat.engine.mini_settings import DEFAULTS
 from rat.ui.mini_quick import create_mini_desk
 app=QGuiApplication([]);messages=[]
 qInstallMessageHandler(lambda kind,ctx,message:messages.append(message))
-view,c=create_mini_desk(dict(DEFAULTS,roots=[],setup_completed=True))
-c.look_clipboard.start=lambda:None
-c.look_clipboard.timer.isActive=lambda:True
-c.setWorkspaceMode('look');c.look.read('seated')
+view,c=create_mini_desk(dict(DEFAULTS,roots=[],setup_completed=True,permission_hello_version=1))
+c.presentation.read()
 # Presentation fixture only: not a backend/model or native acceptance result.
 c.update(hasWorkbench=True,phase='result',view='translation',text='Public layout paragraph for reading.\n\n'*80)
 view.show();QTest.qWait(100)
-root=view.rootObject(); viewport=root.findChild(QQuickItem,'speechViewport'); speech=root.findChild(QQuickItem,'speechText')
+root=view.rootObject(); viewport=root.findChild(QQuickItem,'resultPaper'); speech=root.findChild(QQuickItem,'translationText')
 assert viewport and speech
 end=viewport.property('contentHeight')-viewport.property('height')
 viewport.setProperty('contentY',end)
@@ -72,32 +68,27 @@ QQmlExpression(QQmlEngine.contextForObject(speech),speech,'select(4, 20)').evalu
 QTest.qWait(30)
 # Selecting text may scroll to its line. Retain a deliberate final reading position.
 viewport.setProperty('contentY',end);QTest.qWait(30)
-saved=c.presentation.scroll[f'{c.presentation.task_id}:speech']
+saved=c.presentation.scroll[c.presentation.scroll_key]
 selected=c.presentation.selections[c.presentation.task_id]
 assert saved>0 and selected==(4,20),(saved,selected)
-size=(root.property('lookBubbleWidth'),root.property('lookBubbleHeight'))
-c.receiveLookClipboard('Next public snippet.',None);QTest.qWait(30)
-assert size==(root.property('lookBubbleWidth'),root.property('lookBubbleHeight'))
 c.dismissLookResult();QTest.qWait(30);c.recallLookResult();QTest.qWait(100)
 assert abs(viewport.property('contentY')-saved)<2,(viewport.property('contentY'),saved)
 assert (speech.property('selectionStart'),speech.property('selectionEnd'))==selected
-c.setWorkspaceMode('minimal');QTest.qWait(30)
-assert c.look.pending.text=='Next public snippet.'
-assert root.findChild(QObject,'composer').metaObject().className().startswith('SpeechSurface') or root.findChild(QObject,'composer').property('tailEnabled')
+assert root.findChild(QObject,'composer').metaObject().className().startswith('SpeechSurface')
 c.summonLook();QTest.qWait(30)
 errors=[m for m in messages if any(x in m for x in ('ReferenceError','TypeError','Binding loop','Cannot assign','is not a function'))]
 assert not errors,errors
-c.disableLook();view.hide()
+view.hide()
 ''', tmp_path)
 
 
 def test_visual_shell_is_reused_and_packaged():
-    speech=Path('rat/ui/quick/SpeechBubble.qml').read_text()
     composer=Path('rat/ui/quick/MiniDesk.qml').read_text()
-    assert 'SpeechSurface {' in speech and 'SpeechSurface {\n            id: composer' in composer
+    assert 'SpeechSurface {\n            id: panelSkin' in composer
+    assert 'SpeechSurface {\n            id: composer' in composer
     assert 'Mini · Speech source' not in composer
     build=Path('tools/build_rat_mini_app.sh').read_text()
-    for name in ('SpeechSurface','CompanionStatus'):
+    for name in ('SpeechSurface','MascotPose'):
         assert f'{name}.qml:rat/ui/quick' in build
 
 

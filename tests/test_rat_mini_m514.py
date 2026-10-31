@@ -3,33 +3,33 @@ import os
 import subprocess
 import sys
 import pytest
-from rat.ui.mini_placement import Rect, place_panel
+from rat.ui.mini_placement import Rect, place_look, LOOK_WIDTH, LOOK_HEIGHT
 from rat.engine.local_translation import sentence_units, token_batches
 
 
 @pytest.mark.parametrize('area', [Rect(0,0,1920,1080), Rect(-1440,0,1440,900), Rect(0,0,640,600)])
 @pytest.mark.parametrize('edge', ['left','right','middle'])
 def test_rat_never_resizes_or_overlaps_and_stays_on_screen(area, edge):
-    x = area.x if edge == 'left' else area.right-580 if edge == 'right' else area.x+area.width//2-290
-    home = (x, area.bottom-32)
-    small = place_panel(area, home, 180, True)
-    large = place_panel(area, home, 800, True, small.side)
-    for placement in (small, large, place_panel(area, home, 130, False)):
-        assert (placement.rat.width,placement.rat.height) == (122,128)
+    x = area.x if edge == 'left' else area.right-LOOK_WIDTH if edge == 'right' else area.x+area.width//2-LOOK_WIDTH//2
+    home = (x, area.bottom-LOOK_HEIGHT-32)
+    idle = place_look(area, home)
+    small = place_look(area, home, 380, 180, 'B')
+    large = place_look(area, home, 580, 500, 'B', small.side)
+    for placement in (idle, small, large):
+        assert (placement.rat.width,placement.rat.height) == (LOOK_WIDTH,LOOK_HEIGHT)
         assert placement.bounds.x >= area.x and placement.bounds.right <= area.right
         assert placement.bounds.y >= area.y and placement.bounds.bottom <= area.bottom
-        assert (placement.rat.right <= placement.panel.x or placement.rat.x >= placement.panel.right
-                or placement.rat.bottom <= placement.panel.y)
+    assert (small.panel.right <= small.rat.x or small.panel.x >= small.rat.right
+            or small.panel.bottom <= small.rat.y + 4)
     assert large.side == small.side
 
 
 def test_collapse_restores_user_home_instead_of_temporary_dock():
-    area, home = Rect(0,0,1440,900), (300,800)
-    collapsed = place_panel(area,home,130,False)
-    expanded = place_panel(area,home,500,True)
-    assert expanded.rat.x != collapsed.rat.x
-    assert place_panel(area,home,130,False) == collapsed
-    assert (collapsed.panel.x,collapsed.panel.bottom) == home
+    area, home = Rect(0,0,1440,900), (300,600)
+    collapsed = place_look(area,home)
+    expanded = place_look(area,home,580,500,'B')
+    assert place_look(area,home) == collapsed
+    assert (collapsed.rat.x,collapsed.rat.y) == (expanded.rat.x,expanded.rat.y)
 
 
 def test_local_sentence_preprocessing_preserves_all_input_and_abbreviations():
@@ -77,7 +77,7 @@ from rat.engine.mini_settings import DEFAULTS
 messages=[]
 qInstallMessageHandler(lambda kind,ctx,msg: messages.append(msg))
 app=QGuiApplication([])
-view,c=create_mini_desk(dict(DEFAULTS,roots=[__import__('sys').argv[1]],setup_completed=True))
+view,c=create_mini_desk(dict(DEFAULTS,roots=[__import__('sys').argv[1]],setup_completed=True,permission_hello_version=1))
 root=view.rootObject()
 editor=root.findChild(QObject,'miniEditor')
 translation=root.findChild(QObject,'translationText')
@@ -88,7 +88,7 @@ c.update(phase='result',busy=False,expanded=True,hasWorkbench=True,view='transla
     ocrText='Source draft',ocrCommittedText='Source draft',ocrOriginalText='Original source')
 for _ in range(20):app.processEvents()
 rat=root.findChild(QObject,'mascotCrop')
-assert (rat.property('width'),rat.property('height')) == (122,128)
+assert (rat.property('width'),rat.property('height')) == (144,144)
 c.showSurface('ocr')
 for _ in range(10):app.processEvents()
 assert ocr.property('visible') and not translation.property('visible')
@@ -117,12 +117,10 @@ assert not errors, errors
 
 
 def test_production_paper_gutter_keeps_mascot_clear_of_result():
-    area, home = Rect(0, 0, 1440, 900), (300, 800)
+    area, home = Rect(0, 0, 1440, 900), (650, 600)
     for side in ('left', 'right'):
-        placed = place_panel(area, home, 500, True, side, paper_inset=128)
-        paper_left = placed.panel.x + (128 if side == 'left' else 0)
-        paper_right = placed.panel.right - (128 if side == 'right' else 0)
-        assert placed.rat.right <= paper_left or placed.rat.x >= paper_right
-        assert (placed.rat.width, placed.rat.height) == (122, 128)
+        placed = place_look(area, home, 580, 500, 'B', side)
+        assert placed.panel.right <= placed.rat.x or placed.panel.x >= placed.rat.right
+        assert (placed.rat.width, placed.rat.height) == (LOOK_WIDTH, LOOK_HEIGHT)
         assert area.x <= placed.bounds.x and placed.bounds.right <= area.right
         assert placed.panel.width == 580

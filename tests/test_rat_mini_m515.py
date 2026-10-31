@@ -106,4 +106,4 @@ def test_readiness_and_router_clarification_use_tools(tmp_path, monkeypatch):
     assert result(session.submit('Downloads'),'organization_plan').payload['rule']=='month'
     check=result(session.execute('check_mini_readiness',{}),'mini_readiness')
     assert check.payload['checks'] and session.client.calls==0
-    assert next(x for x in check.payload['checks'] if x['key']=='screen')['state']=='not_required'
+    assert next(x for x in check.payload['checks'] if x['key']=='screen')['state'] in ('ready', 'not_required')

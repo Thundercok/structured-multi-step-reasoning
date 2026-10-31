@@ -23,8 +23,8 @@ def settings(tmp_path):
 def test_mini_import_and_composition_do_not_load_other_products(tmp_path):
     script = 'from rat.mini import MiniSession; import sys; '
     script += 's=MiniSession('+repr(settings(tmp_path))+'); '
-    script += "assert {c.name for c in s.runtime.registry.list_capabilities()} == {'finder','translation','folder_organizer','mini_setup'}; "
-    script += "assert {t.name for t in s.runtime.registry.to_tool_definitions()} == {'find_files','translate_text','plan_folder_organization'}; "
+    script += "assert {c.name for c in s.runtime.registry.list_capabilities()} == {'finder','translation','folder_organizer','mini_setup','source_analysis'}; "
+    script += "assert {t.name for t in s.runtime.registry.to_tool_definitions()} == {'find_files','translate_text','plan_folder_organization','analyze_captured_text','revise_observed_result'}; "
     script += "assert not any(n.startswith(('rat.timetable','rat.crawler','rat.astrology','PyQt6','onnxruntime','mlx')) for n in sys.modules)"
     r = subprocess.run([sys.executable,'-c',script],capture_output=True,text=True)
     assert r.returncode == 0,r.stderr

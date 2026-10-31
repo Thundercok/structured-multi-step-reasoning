@@ -45,15 +45,16 @@ from pathlib import Path
 import json,os
 from PyQt6.QtGui import QGuiApplication
 from rat.engine.mini_settings import DEFAULTS
+from rat.ui.mini_diagnostics import BUILD
 from rat.ui.mini_quick_controller import MiniQuickController
 app=QGuiApplication([])
 c=MiniQuickController(dict(DEFAULTS,roots=[],setup_completed=True))
 private='PRIVATE_DIAGNOSTIC_BOUNDARY_STRING'
 c.setComposerDraft(private)
-c.look.enable();c.look.receive(private);c.update()
+c.update()
 p=Path(os.environ['RAT_MINI_ACCEPTANCE_DIR'])/'ui-state.json'
 text=p.read_text();d=json.loads(text)
-assert d['pending'] and not d['busy'] and d['pid'] and d['build']=='20261029.20'
+assert not d['busy'] and d['pid'] and d['build']==BUILD
 assert private not in text and 'text' not in d and 'draft' not in d
 '''
     env=dict(os.environ,QT_QPA_PLATFORM='offscreen',RAT_MINI_ACCEPTANCE_DIR=str(tmp_path/'qa'),RAT_MINI_STATE_DIR=str(tmp_path/'state'))

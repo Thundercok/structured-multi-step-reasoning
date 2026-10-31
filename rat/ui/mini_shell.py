@@ -5,7 +5,7 @@ import sys
 import time
 from PyQt6.QtCore import QObject, QRect, QPoint, QTimer, Qt, QMetaObject, pyqtSignal
 from PyQt6.QtGui import QGuiApplication, QRegion, QCursor
-from rat.ui.mini_placement import Rect, place_panel, place_look, LOOK_WIDTH, LOOK_HEIGHT, MINI_PANEL_WIDTH
+from rat.ui.mini_placement import Rect, place_look, LOOK_WIDTH, LOOK_HEIGHT
 from rat.ui.selection_placement import map_selection, choose_selection_home
 
 logger = logging.getLogger(__name__)
@@ -47,19 +47,13 @@ class MiniShell(QObject):
         self.dismiss_timer = QTimer(self)
         self.dismiss_timer.setSingleShot(True)
         self.dismiss_timer.timeout.connect(self.dismiss_if_outside)
-        self.look_hide_timer = QTimer(self)
-        self.look_hide_timer.setSingleShot(True)
-        self.look_hide_timer.setInterval(5000)
-        self.look_hide_timer.timeout.connect(self.hide_look_passively)
-        self._look_hide_key = None
         root.preferredPanelHeightChanged.connect(self.schedule_fit)
         root.layoutExpandedChanged.connect(self.schedule_fit)
         root.compactChanged.connect(self.schedule_fit)
         root.auxiliaryChanged.connect(self.schedule_fit)
         root.composingChanged.connect(self.schedule_fit)
-        root.lookActiveChanged.connect(self.look_policy_changed)
+        root.lookActiveChanged.connect(self.schedule_fit)
         root.preferredPanelWidthChanged.connect(self.schedule_fit)
-        root.lookEngagedChanged.connect(self.update_look_timeout)
         root.panelRectChanged.connect(self.update_mask)
         root.mascotRectChanged.connect(self.update_mask)
         root.cornerInkBoundsChanged.connect(self.schedule_fit)
@@ -83,31 +77,23 @@ class MiniShell(QObject):
         controller.minimalRequested.connect(self.present)
         controller.lookFocusRequested.connect(self.focus_look)
         controller.lookResultDismissed.connect(self.dismiss_look_surface)
-        controller.changed.connect(lambda: QTimer.singleShot(0, self.update_look_timeout))
         # Captures may complete after the user has moved on. Store the result;
         # only an explicit invocation is allowed to show/activate this window.
         controller.presentAtRequested.connect(lambda _point: logger.info('capture_result_retained'))
         if QGuiApplication.instance().platformName() == 'cocoa':
             from AppKit import NSWorkspace, NSWorkspaceDidActivateApplicationNotification, NSWorkspaceApplicationKey
             from Foundation import NSOperationQueue, NSBundle
-            # Use this bundle's identity for same-app recall. A diagnostic or
-            # future distribution identity must not be mistaken for another app.
             own_bundle_id = str(NSBundle.mainBundle().bundleIdentifier() or '') if getattr(sys, 'frozen', False) else ''
             self._workspace_center = NSWorkspace.sharedWorkspace().notificationCenter()
             def activated(notice):
                 application = (notice.userInfo() or {}).get(NSWorkspaceApplicationKey)
                 if application is not None:
-                    # A second launch of our own bundle only recalls this
-                    # instance; its short-lived PID must not count as switching
-                    # to another application and immediately hide the recall.
                     own = (application.processIdentifier() == os.getpid()
                            or bool(own_bundle_id and str(application.bundleIdentifier() or '') == own_bundle_id))
                     self.nativeActivation.emit(own)
             self._activation_callback = activated
             self._activation_observer = self._workspace_center.addObserverForName_object_queue_usingBlock_(
                 NSWorkspaceDidActivateApplicationNotification, None, NSOperationQueue.mainQueue(), activated)
-            # Observe only a small window after an explicit Quick Look trigger;
-            # do not record Space IDs, app names, text or screen coordinates.
             try:
                 from AppKit import NSWorkspaceActiveSpaceDidChangeNotification
                 def space_changed(_notice):
@@ -124,8 +110,6 @@ class MiniShell(QObject):
             from AppKit import NSEvent, NSEventMaskLeftMouseDown, NSEventMaskRightMouseDown, NSEventMaskOtherMouseDown
             def outside_pressed(_event):
                 if self.view.isVisible():
-                    # Use Qt coordinates on every display. Do not retain the
-                    # native event, input text or pointer position in diagnostics.
                     point = QCursor.pos()
                     self.outsidePointer.emit(point.x(), point.y())
             self._outside_callback = outside_pressed
@@ -161,33 +145,7 @@ class MiniShell(QObject):
         if not self.fitting:
             self.fit_timer.start(0)
 
-    def look_policy_changed(self, *_):
-        # One window policy across compact/expanded; no flag churn on navigation.
-        self.schedule_fit()
-
-    def update_look_timeout(self, *_):
-        if not self.view.isVisible() or not self.root.property('lookActive'):
-            self.look_hide_timer.stop()
-            return
-        state = self.controller.snapshot
-        if (state.get('pinned') or state.get('lookSurface') != 'peek' or self.root.property('lookEngaged')
-                or self.root.property('focusOwned') or self.status_menu_open):
-            self.look_hide_timer.stop()
-            return
-        if not self.look_hide_timer.isActive():
-            self.look_hide_timer.start()
-
-    def hide_look_passively(self):
-        if (self.controller.snapshot.get('pinned') or not self.root.property('lookActive') or self.root.property('lookEngaged')
-                or self.root.property('focusOwned') or self.status_menu_open
-                or self.controller.snapshot.get('lookSurface') != 'peek'):
-            return
-        # Hide the entire overlay, preserving its source, result and watcher.
-        self.controller.expireLookPeek()
-        self.view.hide()
-
     def dismiss_look_surface(self):
-        self.look_hide_timer.stop()
         self.view.hide()
 
     def complete_interaction(self):
@@ -261,10 +219,9 @@ class MiniShell(QObject):
             self.root.setProperty('maxPaperHeight', max(1, min(380, area.height()-120)))
             self.root.setProperty('maxCornerSpeechHeight', max(1, min(300, round(area.height()*0.38), area.height()-32)))
             self.root.setProperty('maxPanelHeight', max(1, area.height()-32))
-            # Setup and the editor are primary surfaces, not speech bubbles.
-            # Give them a stable, centred window instead of fitting them into
-            # the space beside the mascot, which can reduce them to a sliver.
-            if self.root.property('auxiliary') or self.root.property('composing'):
+            # The auxiliary setup sheet needs a readable standalone surface;
+            # ordinary input and results remain anchored to the companion.
+            if self.root.property('auxiliary'):
                 panel_width = max(1, min(round(self.root.property('preferredPanelWidth')), area.width()-32))
                 panel_height = max(1, min(round(self.root.property('preferredPanelHeight')), area.height()-32))
                 x = area.x() + (area.width()-panel_width)//2
@@ -318,7 +275,6 @@ class MiniShell(QObject):
             self.was_active = True
         self.update_mask()
         self.dismiss_timer.start(180)
-        self.update_look_timeout()
 
     def set_status_menu_open(self, opened):
         self.status_menu_open = opened
@@ -327,14 +283,9 @@ class MiniShell(QObject):
     def dismiss_if_outside(self):
         if self.controller.snapshot.get('pinned') or self.controller.snapshot.get('selectionNotice'):
             return
-        # App activation is not a pointer action: accessibility tools, Cmd+Tab
-        # and system dialogs can change focus without the user dismissing RAT.
-        # If a native monitor is unavailable, keep Close/Esc available rather
-        # than silently falling back to the focus-loss behavior on macOS.
         if QGuiApplication.instance().platformName() == 'cocoa':
             return
-        if self.root.property('lookActive') and (
-                self.controller.snapshot.get('lookSurface') != 'reading' or not self.look_keyboard_owned):
+        if self.root.property('lookActive') and not self.look_keyboard_owned:
             return
         if (self.view.isVisible() and not self.root.property('focusOwned')
                 and not self.status_menu_open
@@ -342,7 +293,7 @@ class MiniShell(QObject):
                     (QGuiApplication.instance().applicationState() != Qt.ApplicationState.ApplicationActive
                      or not self.view.isActive())))):
             if self.root.property('lookActive'):
-                self.controller.dismissLookResult()
+                self.controller.collapseBubble()
             else:
                 self.dismiss()
 
@@ -364,7 +315,6 @@ class MiniShell(QObject):
 
     def dismiss(self):
         self.dismiss_timer.stop()
-        self.look_hide_timer.stop()
         QMetaObject.invokeMethod(self.root, 'dismissTransient')
         self.controller.dismissLookResult()
         self.view.hide()
@@ -408,8 +358,6 @@ class MiniShell(QObject):
         self.look_keyboard_owned = False
         if not self.view.isVisible():
             QMetaObject.invokeMethod(self.root, 'beginCornerPresentation')
-        if self.root.property('lookActive'):
-            self.controller.prepareLookRecall()
         self.fit()
         if not self.configure_current_space():
             self.controller.recordHotkeyState('space_policy_failed', reason='native_window_unavailable')
@@ -421,12 +369,8 @@ class MiniShell(QObject):
             self.controller.selectionPresented()
         self.view.raise_()
         if self.root.property('lookActive') and not self.root.property('composing'):
-            # Keep the reader active so the next Cmd+C still copies its selection.
-            self.update_look_timeout()
             return
         if QGuiApplication.instance().platformName() == 'cocoa':
-            # LSUIElement has no Dock activation path. Only this explicit user
-            # invocation activates our app; background completion never does.
             from AppKit import NSApplication
             NSApplication.sharedApplication().activateIgnoringOtherApps_(True)
         self.view.requestActivate()

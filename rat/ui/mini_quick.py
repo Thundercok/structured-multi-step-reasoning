@@ -19,7 +19,7 @@ from rat.ui.mini_diagnostics import BUILD
 from rat.ui.mini_instance import MiniInstanceBridge, present_running_mini
 from rat.ui.image_drop import ImageDropFilter
 from rat.ui.mini_shell import MiniShell
-from rat.ui.mini_placement import LOOK_WIDTH, LOOK_HEIGHT, LOOK_OPTICAL_HEIGHT, MINI_PANEL_WIDTH, MINI_TEXT_SIZE, FLOAT_HEAD_SIZE, FLOAT_HEAD_OPTICAL
+from rat.ui.mini_placement import MINI_PANEL_WIDTH, MINI_TEXT_SIZE, FLOAT_HEAD_SIZE, FLOAT_HEAD_OPTICAL
 
 BASE = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
 
@@ -51,14 +51,9 @@ def create_mini_desk(settings=None):
             reduce_motion = bool(workspace.accessibilityDisplayShouldReduceMotion())
     view.setInitialProperties(dict(liveController=controller, reduceMotion=reduce_motion,
         buildLabel=f'{BUILD} · PID {os.getpid()}',
-        lookMascotWidth=LOOK_WIDTH, lookMascotHeight=LOOK_HEIGHT, lookOpticalHeight=LOOK_OPTICAL_HEIGHT,
         sharedPanelWidth=MINI_PANEL_WIDTH, sharedTextSize=MINI_TEXT_SIZE,
         floatingHeadSize=FLOAT_HEAD_SIZE, floatingHeadOpticalHeight=FLOAT_HEAD_OPTICAL,
         mascotSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_mascot_cutout.png')),
-        lookHeadSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_look_head_v2.png')),
-        lookIdleSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_look_idle_seated_v1.png')),
-        lookErrorSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_look_error_seated_v1.png')),
-        lookPeekSource=QUrl.fromLocalFile(str(BASE/'rat/assets/rat_look_peek_v1.png')),
         darkMode=app.styleHints().colorScheme() == Qt.ColorScheme.Dark,
         maxPaperHeight=max(180, min(420, screen.height()-250))))
     view.engine().addImageProvider('mini-input', controller.image_preview)
@@ -93,11 +88,10 @@ def create_mini_desk(settings=None):
     tray.setPrimaryAction(controller.summonLook)
     def refresh_tray():
         state = controller.snapshot
-        pending = bool(state['lookHasQueued'])
         shortcut_failed = bool(state['hotkeyStatus'])
-        tray.setBadgeText('!' if shortcut_failed else '…' if state['shortcutAck'] or state['busy'] else '1' if pending else '')
+        tray.setBadgeText('!' if shortcut_failed else '…' if state['shortcutAck'] or state['busy'] else '')
         tray.setToolTip('RAT Lite · ' + ('Phím tắt chưa sẵn sàng. Mở menu để đăng ký lại.' if shortcut_failed
-            else state['shortcutAck'] or ('Đang xử lý yêu cầu.' if state['busy'] else 'Có đoạn chờ dịch. Bấm để xem.' if pending else state['lookStatusLabel'])))
+            else state['shortcutAck'] or ('Đang xử lý yêu cầu.' if state['busy'] else state['lookStatusLabel'])))
         tray_actions[controller.restartHotkey].setEnabled(shortcut_failed and not state['hotkeyStarting'])
         tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])
     controller.changed.connect(refresh_tray)
@@ -181,7 +175,7 @@ def main():
         raise SystemExit('RAT Mini đang chạy. Chọn Hiện RAT Mini trên menu bar.')
     instance_bridge = MiniInstanceBridge(state_directory(), app)
     view, controller = create_mini_desk()
-    instance_bridge.showRequested.connect(controller.summonMinimal)
+    instance_bridge.showRequested.connect(controller.summonLook)
     instance_bridge.lookRequested.connect(controller.summonLook)
     instance_bridge.minimalRequested.connect(controller.summonMinimal)
     app.aboutToQuit.connect(instance_bridge.close)
@@ -190,7 +184,7 @@ def main():
     elif requested_presentation == 'minimal':
         controller.summonMinimal()
     else:
-        controller.summonMinimal()
+        controller.summonLook()
     # Look summons an observation surface. Capture itself still uses explicit
     # macOS screenshot/drop/paste; no global shortcut captures the screen.
     app._mini_refs = (view, controller, lock, instance_bridge)

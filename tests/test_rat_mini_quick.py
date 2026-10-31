@@ -32,8 +32,11 @@ assert 'rat.ui.quick_pdf_controller' not in sys.modules
 assert 'rat.engine.mini_semantic' not in sys.modules
 controller.setExpanded(False)
 for _ in range(15): app.processEvents()
+assert root.property('compact') and root.property('paperVisible')
+controller.collapseBubble()
+for _ in range(15): app.processEvents()
 assert not root.property('paperVisible')
-controller.update(view='translation',finderHits=[],text='Văn bản dài\n'*100,meta='Synthetic layout',expanded=True)
+controller.update(view='translation',finderHits=[],text='Văn bản dài\n'*100,meta='Synthetic layout',expanded=True,bubbleCollapsed=False)
 for _ in range(25): app.processEvents()
 assert view.height() <= view.screen().availableGeometry().height()-32
 errors=[m for m in messages if any(s in m for s in ('ReferenceError','TypeError','Binding loop','Cannot assign','is not a function'))]
@@ -102,6 +105,6 @@ def test_selected_image_uses_shared_capture_workflow(tmp_path, monkeypatch):
 
 def test_build_packages_only_mini_qml_dependencies():
     build = Path('tools/build_rat_mini_app.sh').read_text()
-    for name in ('MiniDesk','FinderResultsView','QuietButton','DeskIcon','KeycapBadge'):
+    for name in ('MiniDesk','SpeechSurface','MascotPose','QuietButton','DeskIcon'):
         assert f'{name}.qml:rat/ui/quick' in build
     assert 'PyQt6.QtWidgets rat.ui.mini_floaty' in build
