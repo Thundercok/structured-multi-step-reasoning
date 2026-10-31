@@ -149,3 +149,16 @@ def test_write_full_policy_run_end_to_end(tmp_path: Path):
     assert (out_dir / "results.json").is_file()
     assert (out_dir / "report.md").is_file()
     assert (out_dir / "manifest.json").is_file()
+
+
+def test_pal_float_repair_rescores_and_keeps_raw_output():
+    item = {"id": "q1", "group_id": "g1", "split": "calibration", "answer": "11", "answer_type": "number"}
+    record = {"id": "q1", "split": "calibration", "strategy": "PAL", "answer": "11.000000000000002", "correct": False,
+              "trace": {"tools": [{"name": "python", "ok": True, "output": "11.000000000000002"}]}}
+    repaired, log = full_pol.repair_pal_float_records([item], [record])
+    assert repaired[0]["correct"] is True and repaired[0]["answer"] == "11"
+    assert repaired[0]["trace"]["tools"][0]["output"] == "11.000000000000002"
+    assert record["correct"] is False
+    assert log == [{"id": "q1", "split": "calibration", "raw_output": "11.000000000000002", "repaired_output": "11",
+                    "before": {"answer": "11.000000000000002", "correct": False},
+                    "after": {"answer": "11", "correct": True}}]

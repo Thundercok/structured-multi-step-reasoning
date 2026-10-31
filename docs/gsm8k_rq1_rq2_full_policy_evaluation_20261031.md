@@ -7,6 +7,13 @@
 **Tham số đánh đổi chi phí ($\lambda$):** $\lambda = 0.1$ ($U = \text{Accuracy} - 0.1 \times \frac{\text{Generated Tokens}}{1000}$)  
 **Thư mục lưu trữ artifact thực nghiệm:** `runs/gsm8k-qwen3-8b-full-policy-reviewed93-20261031`  
 
+> [!WARNING]
+> **Đính chính 2026-11-01.** Bộ chấm chấm sai 2 đáp án PAL do sai số dấu phẩy động
+> (`11.000000000000002`, `107.99999999999983`). Sau khi sửa, kết luận ở mục 5 và 9
+> không còn đứng vững: policy được fit gần như luôn chạy PAL và không vượt `fixed_pal`.
+> Xem [mục 10](#10-đính-chính-2026-11-01-chấm-lại-sai-số-số-thực-của-pal). Các mục 1–9
+> được giữ nguyên làm hồ sơ của lần chạy gốc.
+
 ---
 
 ## 1. Mục tiêu Nghiên cứu & Giả thuyết
@@ -167,3 +174,59 @@ So sánh `full_policy_3rung` với `ladder_only_3rung`:
 1. **Đóng góp Thực nghiệm 1:** Chứng minh trên mô hình 8B rằng **sự kết hợp của bộ định tuyến tĩnh ở đầu vào và cơ chế leo thang động trung gian đem lại Pareto frontier tối ưu hơn** so với bất kỳ phương pháp đơn lẻ nào.
 2. **Đóng góp Thực nghiệm 2 (Novelty Insight):** Bộ định tuyến đầu vào đóng vai trò là *"bộ lọc câu hỏi khó"* để tránh lãng phí token cho giai đoạn khởi động giá rẻ, trong khi bậc thang leo thang đóng vai trò là *"lưới an toàn chất lượng cao"* cho các câu hỏi đơn giản nhưng mô hình trượt tính toán.
 3. **Đóng góp Thực nghiệm 3:** Chỉ ra rằng đối với các mô hình nhỏ không có thinking tokens, **bậc thang hỗn hợp giữa ngôn ngữ và công cụ (DIRECT $\to$ PAL)** vượt trội rõ rệt so với bậc thang thuần ngôn ngữ (DIRECT $\to$ COT), do COT dễ mắc lỗi suy diễn ảo giác trong khi PAL có tính xác định tuyệt đối của trình biên dịch Python.
+
+---
+
+## 10. Đính chính 2026-11-01: chấm lại sai số số thực của PAL
+
+**Lỗi.** PAL trả kết quả Python dạng float. Hai câu bị chấm sai dù đáp án đúng:
+
+| Câu | Split | Đầu ra PAL thô | Sau sửa | Gold |
+| --- | --- | --- | --- | --- |
+| `gsm8k-dev-04757` | train | `107.99999999999983` | `108` | 108 |
+| `gsm8k-dev-06140` | calibration | `11.000000000000002` | `11` | 11 |
+
+Câu `06140` chính là ca "Harm" ở mục 7.2. Đó là lỗi chấm, không phải lỗi của policy.
+
+**Cách sửa.** `research_scoring.repair_float_artifact` làm tròn một số thập phân đứng
+riêng về 12 chữ số có nghĩa, chỉ khi nó có nhiều hơn 12 chữ số. Đầu ra thô được giữ
+trong trace; giá trị đã sửa nằm ở `repaired_output`. Quy tắc này được thêm **sau** khi
+thấy kết quả (post-hoc), nên phải ghi rõ như vậy trong bài báo. Không có lời gọi mô hình mới.
+Bộ thu thập áp dụng cùng quy tắc cho các lần chạy sau.
+
+```bash
+python -m experiments.gsm8k_full_policy_evaluation \
+  --run runs/gsm8k-qwen3-8b-staged-pilot-reviewed93-20261031 \
+  --output runs/gsm8k-qwen3-8b-full-policy-reviewed93-palfix-20261101 --pal-float-repair
+```
+
+**Fit lại trên train.** Vì câu train `04757` đổi từ sai sang đúng, quy tắc entry được chọn
+đổi từ `words_le_060_DIRECT_else_PAL` thành `words_le_080_PAL_else_DIRECT`. Ngưỡng
+$\tau$ không đổi.
+
+**Kết quả trên 48 câu calibration (λ = 0,1):**
+
+| Policy | Đúng | Token TB | Utility | Đường đi |
+| --- | --- | --- | --- | --- |
+| `fixed_direct` | 45/48 | 75,60 | 0,92994 | |
+| `fixed_cot` | 43/48 | 87,48 | 0,88709 | |
+| **`fixed_pal`** | **48/48** | 85,71 | **0,99143** | `PAL:48` |
+| `one_shot_router` | 47/48 | 83,33 | 0,97083 | `PAL:47, DIRECT:1` |
+| `ladder_only_2rung` | 48/48 | 154,52 | 0,98455 | |
+| `full_policy_3rung` | 48/48 | 88,71 | 0,99113 | `PAL(entry):47, DIR→COT→PAL:1` |
+| `full_policy_2rung` | 48/48 | 85,81 | 0,99142 | `PAL(entry):47, DIR→PAL:1` |
+| `oracle` | 48/48 | 62,48 | 0,99375 | |
+
+**Diễn giải.**
+
+- So với `one_shot_router`, full policy vẫn có utility cao hơn (1 câu được cứu, 0 câu
+  bị hại). Về hình thức H1 vẫn đúng, nhưng chỉ dựa trên đúng một câu.
+- Policy được fit gần như trùng với "luôn chạy PAL": 47/48 câu đi thẳng vào PAL. Nó
+  không vượt `fixed_pal` (0,99142 so với 0,99143). Bậc thang và quyết định dừng không
+  đóng góp gì đo được trên dữ liệu này.
+- Các nhận định ở mục 6.1–6.3 và 9 (entry router tiết kiệm token, ladder là "lưới an toàn",
+  Pareto frontier tốt hơn mọi phương pháp đơn lẻ) không còn được dữ liệu ủng hộ.
+- Kết luận trung thực: với Qwen3-8B (tắt thinking) trên GSM8K, PAL cố định đã gần trần.
+  Bộ điều phối chỉ có cơ hội chứng minh giá trị trên dữ liệu mà không chiến lược đơn lẻ
+  nào luôn thắng, và cần tín hiệu tin cậy phân biệt được đúng/sai tốt hơn
+  ($\tau_0 \approx 0{,}996$ cho thấy tín hiệu hiện tại gần như không phân biệt được).

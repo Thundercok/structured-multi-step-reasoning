@@ -51,6 +51,25 @@ def numeric_literal(value, decimal_separator=".", allow_units=False):
         return None
 
 
+def repair_float_artifact(output, significant_digits=12):
+    """Round a bare binary-float tool result such as 11.000000000000002.
+
+    Only a lone decimal literal with more significant digits than a float
+    reliably carries is rounded; anything else is returned unchanged.
+    """
+    text = str(output).strip()
+    if not re.fullmatch(r"[+-]?\d+\.\d+(?:[eE][+-]?\d+)?", text):
+        return output
+    try:
+        value = Decimal(text)
+    except InvalidOperation:
+        return output
+    if not value.is_finite() or len(value.as_tuple().digits) <= significant_digits:
+        return output
+    rounded = Decimal(f"{float(value):.{significant_digits}g}").normalize()
+    return format(rounded, "f")
+
+
 def parse_typed_answer(text, answer_type, decimal_separator="."):
     if answer_type not in ("number", "text", "expression"):
         raise ValueError("Unknown research answer type")

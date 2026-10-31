@@ -6,7 +6,7 @@ import pytest
 
 from experiments.research_study import check_answer, collect_records, smoke_dataset, validate_dataset
 from reasoning.reasoning_strategies import extract_answer, majority_vote, parse_answer_details
-from research_scoring import numeric_literal
+from research_scoring import numeric_literal, repair_float_artifact
 from scripts.gen_tasks import check
 
 
@@ -123,3 +123,16 @@ def test_k_raw_fixtures_normalization(raw, expected):
 
     assert normalize_answer(raw) == expected
 
+
+
+@pytest.mark.parametrize("raw, repaired", [
+    ("11.000000000000002", "11"),
+    ("107.99999999999983", "108"),
+    ("0.30000000000000004", "0.3"),
+    ("14000.0", "14000.0"),
+    ("12.5", "12.5"),
+    ("42", "42"),
+    ("not a number", "not a number"),
+])
+def test_repair_float_artifact_rounds_only_binary_float_noise(raw, repaired):
+    assert repair_float_artifact(raw) == repaired

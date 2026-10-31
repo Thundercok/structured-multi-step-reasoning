@@ -30,7 +30,7 @@ import numpy as np
 from experiments.order_pilot_checkpoint import atomic_json, atomic_text
 from experiments.research_pilot import sha256_file
 from experiments.research_study import ROOT, check_answer, seed_for
-from research_scoring import parse_typed_answer
+from research_scoring import parse_typed_answer, repair_float_artifact
 
 ACTIONS = ("DIRECT", "COT", "PAL")
 MAX_TOKENS_PER_CALL = 1024
@@ -637,7 +637,10 @@ class GSM8KCollectorCheckpoint:
                 "duration_ms": tool_val["duration_ms"],
             }]
             if tool_val["ok"]:
-                parsed, parse_status, wordy = parse_typed_answer(f"Answer: {tool_val['output']}", **fmt)
+                repaired = repair_float_artifact(tool_val["output"])
+                if repaired != tool_val["output"]:
+                    tools_list[0]["repaired_output"] = repaired
+                parsed, parse_status, wordy = parse_typed_answer(f"Answer: {repaired}", **fmt)
                 eff_conf = gen_val["confidence"]
             else:
                 parsed, parse_status, wordy = parse_typed_answer(gen_val["output_text"], **fmt)

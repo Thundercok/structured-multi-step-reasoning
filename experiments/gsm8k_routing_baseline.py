@@ -105,7 +105,8 @@ def validate_records(items, records):
         if row["strategy"] == "PAL":
             require(len(tools) == 1 and tools[0]["name"] == "python" and type(tools[0]["ok"]) is bool, "Missing PAL execution evidence")
             if tools[0]["ok"]:
-                response = f"Answer: {tools[0]['output']}"
+                # A declared post-hoc repair keeps the raw output beside it.
+                response = f"Answer: {tools[0].get('repaired_output', tools[0]['output'])}"
         else:
             require(not tools, "Unexpected tools on fixed language recipe")
         parsed = parse_typed_answer(response, **expected_format)[0]

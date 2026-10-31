@@ -40,7 +40,7 @@ from experiments.order_pilot_checkpoint import atomic_json, atomic_text
 from experiments.research_pilot import sha256_file, verify_replay
 from experiments.research_study import ROOT, check_answer, seed_for
 from reasoning.optimal_stopping import fit_threshold
-from research_scoring import parse_typed_answer
+from research_scoring import parse_typed_answer, repair_float_artifact
 
 POLICY_VERSION = "gsm8k-full-policy-v1"
 
@@ -739,11 +739,42 @@ def render_full_policy_report(summary: Dict[str, Any], policy_fit: Dict[str, Any
     return "\n".join(lines)
 
 
+def repair_pal_float_records(
+    items: Sequence[Dict[str, Any]], records: Sequence[Dict[str, Any]]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Post-hoc rescoring of PAL float artifacts; raw tool output is kept."""
+    by_id = {item["id"]: item for item in items}
+    repaired_records, log = [], []
+    for record in records:
+        tools = record.get("trace", {}).get("tools", [])
+        if record["strategy"] != "PAL" or len(tools) != 1 or not tools[0].get("ok"):
+            repaired_records.append(record)
+            continue
+        repaired = repair_float_artifact(tools[0]["output"])
+        if repaired == tools[0]["output"]:
+            repaired_records.append(record)
+            continue
+        item = by_id[record["id"]]
+        fmt = {"answer_type": "number", "decimal_separator": item.get("decimal_separator", ".")}
+        record = copy.deepcopy(record)
+        record["trace"]["tools"][0]["repaired_output"] = repaired
+        before = {"answer": record["answer"], "correct": record["correct"]}
+        record["answer"] = parse_typed_answer(f"Answer: {repaired}", **fmt)[0]
+        record["correct"] = bool(check_answer(record["answer"], item))
+        repaired_records.append(record)
+        if not any(entry["id"] == record["id"] for entry in log):
+            log.append({"id": record["id"], "split": record["split"], "raw_output": tools[0]["output"],
+                        "repaired_output": repaired, "before": before,
+                        "after": {"answer": record["answer"], "correct": record["correct"]}})
+    return repaired_records, log
+
+
 def write_full_policy_run(
     source_run: Path,
     output: Path,
     entry_seal_dir: Optional[Path] = None,
     lam: Fraction = LAMBDA,
+    pal_float_repair: bool = False,
 ) -> Dict[str, Any]:
     """Execute complete sealed fit + calibration evaluation and emit durable artifacts."""
     output.mkdir(parents=True, exist_ok=True)
@@ -765,6 +796,10 @@ def write_full_policy_run(
     else:
         raise ValueError(f"No valid records files found in {source_run}")
 
+    repair_log: List[Dict[str, Any]] = []
+    if pal_float_repair:
+        records, repair_log = repair_pal_float_records(items, records)
+
     # Entry selection if available
     entry_selection = None
     if entry_seal_dir is not None and (entry_seal_dir / "selection.json").is_file():
@@ -782,6 +817,17 @@ def write_full_policy_run(
     summary, results = evaluate_full_policy_selection(policy_fit, calib_items, calib_records, lam=lam)
 
     report_text = render_full_policy_report(summary, policy_fit, manifest.get("evidence", "measured_staged_pilot_collection"))
+    if pal_float_repair:
+        report_text += (
+            "\n## Post-hoc PAL float repair\n\n"
+            "PAL tool results with more than 12 significant digits were rounded to 12 before scoring. "
+            "This rule was added after the original run; raw outputs are kept in each trace.\n\n"
+            + "".join(
+                f"- `{e['id']}` ({e['split']}): `{e['raw_output']}` → `{e['repaired_output']}`, "
+                f"correct {e['before']['correct']} → {e['after']['correct']}\n"
+                for e in repair_log
+            )
+        )
 
     atomic_json(output / "summary.json", summary)
     atomic_json(output / "results.json", results)
@@ -794,6 +840,7 @@ def write_full_policy_run(
         "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "source_run": str(source_run),
         "source_run_manifest_sha256": sha256_file(source_run / "manifest.json"),
+        "pal_float_repair": {"enabled": pal_float_repair, "significant_digits": 12, "repairs": repair_log},
         "artifact_sha256": {
             name: sha256_file(output / name)
             for name in ("policy_fit.json", "summary.json", "results.json", "report.md")
@@ -809,10 +856,13 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     parser.add_argument("--output", type=Path, required=True, help="Output destination directory")
     parser.add_argument("--entry-seal", type=Path, default=None, help="Optional sealed entry baseline directory")
     parser.add_argument("--lam", type=float, default=0.1, help="Token trade-off parameter lambda (default 0.1)")
+    parser.add_argument("--pal-float-repair", action="store_true",
+                        help="Post-hoc: round PAL float artifacts (e.g. 11.000000000000002) before scoring")
     args = parser.parse_args(argv)
 
     lam_frac = Fraction(str(args.lam)).limit_denominator(1000)
-    write_full_policy_run(args.run, args.output, entry_seal_dir=args.entry_seal, lam=lam_frac)
+    write_full_policy_run(args.run, args.output, entry_seal_dir=args.entry_seal, lam=lam_frac,
+                          pal_float_repair=args.pal_float_repair)
     print(f"Full policy evaluation complete: {args.output / 'report.md'}")
 
 
