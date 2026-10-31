@@ -319,12 +319,26 @@ class SnippetTranslator:
                         {'source_start': 0, 'source_end': len(text), 'translated_text': text, 'status': 'complete'}],
                     'source_sha256': hashlib.sha256(text.encode()).hexdigest(), 'warnings': []}
         warnings = []
-        if chosen == 'automatic':
-            from rat.engine.local_translation import LocalTranslator, PAIRS
-            if (source,target) in PAIRS:
-                chosen = 'offline_argos'
+        is_automatic = chosen == 'automatic'
+        if is_automatic:
+            from rat.engine.local_translation import LocalTranslator, PAIRS, is_local_models_ready, ensure_local_translation_models
+            if (source, target) in PAIRS:
                 if self._local_translator is None:
-                    self._local_translator = LocalTranslator()
+                    try:
+                        self._local_translator = LocalTranslator()
+                    except Exception as exc:
+                        logger.warning("LocalTranslator creation failed: %s", exc)
+                local_ready = False
+                if self._local_translator and is_local_models_ready(self._local_translator.directory):
+                    local_ready = True
+                elif self._local_translator:
+                    local_ready = ensure_local_translation_models(self._local_translator.directory, should_cancel)
+                if local_ready:
+                    chosen = 'offline_argos'
+                else:
+                    logger.info("Local translation models not available; falling back to google_gtx")
+                    chosen = 'google_gtx'
+                    warnings.append('Đã tự động chuyển sang dịch trực tuyến vì gói dịch trên máy chưa sẵn sàng.')
             else:
                 chosen = 'google_gtx'
         if chosen == 'apple':
@@ -363,10 +377,26 @@ class SnippetTranslator:
                 segment['error_code'] = type(exc).__name__
                 segment['failure_code'] = translation_failure_code(exc)
                 failures.append(segment['failure_code'])
-                if provider not in ('mymemory','offline_argos') and source != 'auto' and self.settings.get('free_fallback') and time.monotonic() < deadline:
+                if (is_automatic or self.settings.get('free_fallback')) and provider == 'offline_argos' and time.monotonic() < deadline:
+                    try:
+                        out = self._cloud('google_gtx', piece, source, target, should_cancel,
+                                          max(0.1, min(10, deadline - time.monotonic())))
+                        if not isinstance(out, str) or not out.strip():
+                            raise ValueError('translation_empty_response')
+                        out = preserve_edge_whitespace(piece, out)
+                        segment.update(status='complete', translated_text=out, provider='google_gtx')
+                        providers.add('google_gtx')
+                        chosen = 'google_gtx'
+                        warnings.append('Đã tự động chuyển sang dịch trực tuyến vì gói dịch trên máy chưa sẵn sàng.')
+                    except Exception as fallback_error:
+                        if should_cancel():
+                            raise ValueError('cancelled:translation')
+                        segment['fallback_failure_code'] = translation_failure_code(fallback_error)
+                        failures.append(segment['fallback_failure_code'])
+                elif provider not in ('mymemory', 'offline_argos') and source != 'auto' and self.settings.get('free_fallback') and time.monotonic() < deadline:
                     try:
                         out = self._cloud('mymemory', piece, source, target, should_cancel,
-                                          max(0.1, min(10, deadline-time.monotonic())))
+                                          max(0.1, min(10, deadline - time.monotonic())))
                         if not isinstance(out, str) or not out.strip():
                             raise ValueError('translation_empty_response')
                         out = preserve_edge_whitespace(piece, out)

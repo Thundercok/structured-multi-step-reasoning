@@ -59,12 +59,29 @@ def is_accessibility_trusted():
     return accessibility_status().trusted
 
 
+def reset_stale_accessibility_entry(bundle_id: str | None = None) -> bool:
+    if sys.platform != "darwin":
+        return False
+    target = bundle_id or runtime_identity().get("bundle_id") or "vn.rat.mini"
+    try:
+        res = subprocess.run(
+            ["/usr/bin/tccutil", "reset", "Accessibility", target],
+            capture_output=True, text=True, timeout=5
+        )
+        return res.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        logger.debug("tccutil reset skipped or failed", exc_info=True)
+        return False
+
+
 def request_accessibility_permission():
     """Request asynchronously; a dispatched prompt is not a permission grant."""
     return accessibility_status(prompt=True)
 
 
 def open_accessibility_settings():
+    if not is_accessibility_trusted():
+        reset_stale_accessibility_entry()
     request_accessibility_permission()
     if sys.platform != "darwin":
         return False

@@ -79,7 +79,8 @@ manifest = dict(build=BUILD, version=VERSION, protocol='SELECT2',
 (Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Resources/rat-lite-build.json').write_text(json.dumps(manifest,indent=2))
 
 PY
-codesign --force --deep --sign - "$RAT_MINI_BUILT_APP"
+RAT_CODESIGN_IDENTITY="${RAT_CODESIGN_IDENTITY:--}"
+codesign --force --deep --sign "$RAT_CODESIGN_IDENTITY" "$RAT_MINI_BUILT_APP"
 rm -rf "$DIST_DIR/RAT Mini"
 ditto -c -k --keepParent "$RAT_MINI_BUILT_APP" "$DIST_DIR/RAT Mini.zip"
 "$PYTHON_BIN" - <<'PY'

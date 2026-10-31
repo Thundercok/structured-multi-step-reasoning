@@ -6,11 +6,105 @@ Inference uses CTranslate2 and SentencePiece, not an alternate Agent loop.
 from pathlib import Path
 import hashlib
 import json
+import logging
 import re
+import shutil
 import sys
 import threading
 
+logger = logging.getLogger(__name__)
+
 PAIRS = frozenset({('en','vi'), ('vi','en')})
+
+
+def is_local_models_ready(folder: Path | str | None) -> bool:
+    if not folder:
+        return False
+    f = Path(folder)
+    manifest_path = f / 'manifest.json'
+    if not manifest_path.is_file():
+        return False
+    try:
+        manifest = json.loads(manifest_path.read_text())
+        for pair in ('en-vi', 'vi-en'):
+            if pair not in manifest.get('models', {}):
+                return False
+            for relative in ('sentencepiece.model', 'model/config.json', 'model/model.bin', 'model/shared_vocabulary.json'):
+                p = f / pair / relative
+                if not p.is_file() or p.stat().st_size == 0:
+                    return False
+        return True
+    except Exception:
+        return False
+
+
+def find_translation_directory(custom: Path | str | None = None) -> Path:
+    if custom and is_local_models_ready(Path(custom)):
+        return Path(custom)
+    candidates = []
+    if custom:
+        candidates.append(Path(custom))
+    meipass = getattr(sys, '_MEIPASS', None)
+    if meipass:
+        candidates.append(Path(meipass) / 'rat/assets/translation')
+    if getattr(sys, 'frozen', False):
+        exe = Path(sys.executable).resolve()
+        candidates.append(exe.parent.parent / 'Resources/rat/assets/translation')
+        candidates.append(exe.parent.parent / 'Frameworks/rat/assets/translation')
+        candidates.append(exe.parent / 'rat/assets/translation')
+    candidates.append(Path(__file__).resolve().parents[2] / 'rat/assets/translation')
+    candidates.append(Path.home() / 'Library/Application Support/vn.rat.mini/translation')
+    candidates.append(Path.home() / 'Library/Application Support/RAT/translation')
+    for c in candidates:
+        if is_local_models_ready(c):
+            return c
+    for c in candidates:
+        if (c / 'manifest.json').is_file():
+            return c
+    return candidates[0] if candidates else Path(__file__).resolve().parents[2] / 'rat/assets/translation'
+
+
+def ensure_local_translation_models(destination: Path | str | None = None, cancel=lambda: False) -> bool:
+    dest = Path(destination) if destination else find_translation_directory()
+    if is_local_models_ready(dest):
+        return True
+    candidates = []
+    meipass = getattr(sys, '_MEIPASS', None)
+    if meipass:
+        candidates.append(Path(meipass) / 'rat/assets/translation')
+    if getattr(sys, 'frozen', False):
+        exe = Path(sys.executable).resolve()
+        candidates.append(exe.parent.parent / 'Resources/rat/assets/translation')
+        candidates.append(exe.parent.parent / 'Frameworks/rat/assets/translation')
+        candidates.append(exe.parent / 'rat/assets/translation')
+    candidates.append(Path(__file__).resolve().parents[2] / 'rat/assets/translation')
+    for cand in candidates:
+        if cand != dest and is_local_models_ready(cand):
+            try:
+                dest.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(cand, dest, dirs_exist_ok=True)
+                if is_local_models_ready(dest):
+                    return True
+            except Exception as exc:
+                logger.warning("Copying translation models from %s failed: %s", cand, exc)
+    lock_file = Path(__file__).resolve().parents[2] / 'tools/rat_translation_models.lock.json'
+    if not lock_file.is_file():
+        for candidate_root in [
+            meipass and Path(meipass),
+            getattr(sys, 'frozen', False) and Path(sys.executable).resolve().parent.parent / 'Resources',
+        ]:
+            if candidate_root and (candidate_root / 'tools/rat_translation_models.lock.json').is_file():
+                lock_file = candidate_root / 'tools/rat_translation_models.lock.json'
+                break
+    if lock_file.is_file():
+        try:
+            from tools.prepare_rat_translation_models import prepare
+            archive_dir = Path.home() / 'Library/Caches/vn.rat.mini/models'
+            prepare(archive_dir, dest, download=True)
+            return is_local_models_ready(dest)
+        except Exception as exc:
+            logger.warning("Preparing pinned translation models failed: %s", exc)
+    return False
 
 
 def sentence_units(text):
@@ -41,8 +135,7 @@ def token_batches(tokens, limit=256):
 
 class LocalTranslator:
     def __init__(self, directory=None):
-        base = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
-        self.directory = Path(directory) if directory else base/'rat/assets/translation'
+        self.directory = Path(directory) if directory else find_translation_directory()
         self._lock = threading.RLock()
         self._pair = self._translator = self._tokenizer = self._info = None
 

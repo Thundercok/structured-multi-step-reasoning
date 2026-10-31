@@ -51,6 +51,29 @@ def test_open_settings_failure_is_reported(api, monkeypatch):
     assert permissions.open_accessibility_settings() is False
 
 
+def test_reset_stale_accessibility_entry(monkeypatch):
+    calls = []
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return SimpleNamespace(returncode=0, stderr='')
+    monkeypatch.setattr(permissions.sys, 'platform', 'darwin')
+    monkeypatch.setattr(permissions.subprocess, 'run', fake_run)
+    assert permissions.reset_stale_accessibility_entry('vn.rat.mini') is True
+    assert calls == [['/usr/bin/tccutil', 'reset', 'Accessibility', 'vn.rat.mini']]
+
+
+def test_open_accessibility_settings_resets_stale_when_untrusted(api, monkeypatch):
+    calls = []
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return SimpleNamespace(returncode=0, stderr='')
+    monkeypatch.setattr(permissions, 'is_accessibility_trusted', lambda: False)
+    monkeypatch.setattr(permissions.subprocess, 'run', fake_run)
+    assert permissions.open_accessibility_settings() is True
+    assert ['/usr/bin/tccutil', 'reset', 'Accessibility', 'vn.rat.mini'] in calls
+    assert ['open', 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'] in calls
+
+
 @pytest.fixture
 def hotkeys(monkeypatch):
     from rat.os import hotkey

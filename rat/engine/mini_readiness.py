@@ -7,7 +7,7 @@ import platform
 import shutil
 import sys
 import time
-from rat.engine.local_translation import LocalTranslator
+from rat.engine.local_translation import LocalTranslator, is_local_models_ready, ensure_local_translation_models
 
 
 def check_readiness(settings, *, deep=False, cancel=lambda: False):
@@ -26,6 +26,11 @@ def check_readiness(settings, *, deep=False, cancel=lambda: False):
         add(module, label, 'ready' if found else 'action_required',
             'Đã có thành phần; chưa phải kiểm chứng toàn bộ luồng.' if found else 'Thiếu thành phần. Hãy tải lại bản app đầy đủ.')
     folder = LocalTranslator().directory
+    if not is_local_models_ready(folder):
+        try:
+            ensure_local_translation_models(folder, cancel=cancel)
+        except Exception:
+            pass
     try:
         manifest = json.loads((folder/'manifest.json').read_text())
         for pair in ('en-vi','vi-en'):

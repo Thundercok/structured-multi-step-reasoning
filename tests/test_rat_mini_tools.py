@@ -252,3 +252,24 @@ def test_agent_does_not_claim_incomplete_or_failed_tool_as_committed(tmp_path, m
     receipt = next(item for item in response.execution_journal.receipts if item.operation_name == 'find_files')
     assert not receipt.committed
     assert response.error or response.completion_status != 'completed'
+
+
+def test_automatic_translation_falls_back_to_google_gtx(tmp_path, monkeypatch):
+    conf = settings(tmp_path)
+    conf['translation_provider'] = 'automatic'
+    conf['free_fallback'] = True
+    from rat.engine.local_translation import LocalTranslator
+    monkeypatch.setattr(LocalTranslator, 'translate', lambda *a, **k: (_ for _ in ()).throw(ValueError('translation_local_unavailable')))
+    cloud_calls = []
+    def fake_cloud(self, provider, text, source, target, should_cancel, timeout):
+        cloud_calls.append((provider, text, source, target))
+        return 'Bản dịch thử nghiệm'
+    monkeypatch.setattr(SnippetTranslator, '_cloud', fake_cloud)
+    translator = SnippetTranslator(conf)
+    result = translator.translate('Hello world', 'en', 'vi')
+    assert result['status'] == 'complete'
+    assert result['text'] == 'Bản dịch thử nghiệm'
+    assert 'google_gtx' in result['provider']
+    assert any('trực tuyến' in w for w in result['warnings'])
+    assert len(cloud_calls) == 1
+    assert cloud_calls[0][0] == 'google_gtx'
