@@ -1,9 +1,9 @@
 """Blind labelling for the P0 gold set. The auditor's verdict is NEVER shown to the labeller.
 
-    python label_sheet.py export calls.jsonl --out sheet.csv  [--source-key K --answer-key K --query-key K --id-key K]
+    python scripts/label_sheet.py export calls.jsonl --out sheet.csv  [--source-key K --answer-key K --query-key K --id-key K]
     # a human fills the `expected_gate` column with BLOCK | REGENERATE | ANNOTATE | PASS (see eval_gold.py for meaning)
-    python label_sheet.py import sheet.csv calls.jsonl --out gold/real.jsonl [same keys]
-    python eval_gold.py gold/real.jsonl
+    python scripts/label_sheet.py import sheet.csv calls.jsonl --out gold/real.jsonl [same keys]
+    python scripts/eval_gold.py gold/real.jsonl
 
 `origin` of imported rows is "llm_real" (only these rows count as recall evidence). Rows left blank are skipped and counted.
 Split dev/test BY QUERY before tuning anything (see HANDOFF section 9): the `split` column is assigned by a hash of the query.

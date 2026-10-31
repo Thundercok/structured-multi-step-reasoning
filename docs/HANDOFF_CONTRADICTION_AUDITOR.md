@@ -38,9 +38,9 @@ Kiểm tra `res.answer` có vi phạm `SourceEvidence` không, **không gọi LL
 
 ```bash
 python -m pytest -q                      # kỳ vọng: 144 passed, 3 xfailed
-python mutation_check.py                 # kỳ vọng: 58/58 killed, exit 0
-python eval_gold.py gold/seed.jsonl      # in confusion matrix + precision/recall từng lớp
-python probe_edge_bugs.py                # raw output 4 lỗi biên + span
+python scripts/mutation_check.py                 # kỳ vọng: 58/58 killed, exit 0
+python scripts/eval_gold.py gold/seed.jsonl      # in confusion matrix + precision/recall từng lớp
+python scripts/probe_edge_bugs.py                # raw output 4 lỗi biên + span
 ```
 
 ```python
@@ -138,9 +138,9 @@ Lý do không dùng 1 mức: chỉ neo bullet thì lọt văn xuôi/câu ghép; 
 | Hạng mục | Kết quả | Chạy |
 |---|---|---|
 | Test | `144 passed, 3 xfailed` | `pytest -q` |
-| Mutation | `58/58 killed` (49 lõi/v2 + 7 phía query + 2 cue `đăng ký`). 6 mutant v1 hết hiệu lực sau refactor và đã viết lại; M45 sống sót ban đầu → thêm test | `python mutation_check.py` |
-| Gold (v1 → v2) | v1 trên c01–c42: **29/40** đúng (3 contradiction lọt `PASS`, 3 false `BLOCK`). v2 trên c01–c42: **40/40**. v2 trên c01–c44: **42/42** (c43/c44 thêm sau khi probe Unicode; chưa chạy v1) | `python eval_gold.py gold/seed.jsonl` |
-| Latency `audit_answer` | answer ngắn (2 câu) median **0.15 ms**; answer 9.0 KB median **10.8 ms**, max 17.4 ms | `python probe_robust.py` |
+| Mutation | `58/58 killed` (49 lõi/v2 + 7 phía query + 2 cue `đăng ký`). 6 mutant v1 hết hiệu lực sau refactor và đã viết lại; M45 sống sót ban đầu → thêm test | `python scripts/mutation_check.py` |
+| Gold (v1 → v2) | v1 trên c01–c42: **29/40** đúng (3 contradiction lọt `PASS`, 3 false `BLOCK`). v2 trên c01–c42: **40/40**. v2 trên c01–c44: **42/42** (c43/c44 thêm sau khi probe Unicode; chưa chạy v1) | `python scripts/eval_gold.py gold/seed.jsonl` |
+| Latency `audit_answer` | answer ngắn (2 câu) median **0.15 ms**; answer 9.0 KB median **10.8 ms**, max 17.4 ms | `python scripts/probe_robust.py` |
 
 Latency đo trên sandbox (Python 3.13, x86_64), **không phải máy bạn**; chưa đo cold start/import. Bước chuẩn hóa giữ offset chạy vòng Python nên tăng tuyến tính theo độ dài; 10 ms cho 9 KB chấp nhận được cho UI nhưng đáng đo lại.
 
@@ -183,7 +183,7 @@ Bạn chọn "cứ mặc định": đã **sinh bộ synthetic** (`gold/seed.json
 
 0. **Điều kiện tiên quyết (đã xác nhận thiếu):** log hiện có không chứa câu trả lời về quy chế thật (`so_tay_quy_che_dao_tao_2026.txt` do script benchmark sinh; các call thật còn lại là hỏi đáp về bài báo Wei et al.). Cần **Quy chế đào tạo thật của TDTU (PDF công khai)** nạp vào `rat`, rồi hỏi ≥100 câu có chủ đích (gồm câu so sánh hệ, câu có số, câu bẫy ngưỡng).
 1. Lấy **≥100 cặp** `(SourceEvidence, res.answer, query)` từ log `rat` thật (không sinh lại bằng LLM), phân tầng theo điều khoản (thời gian, tín chỉ, ngoại ngữ, chế tài, học phí) và có cả câu ghép hệ.
-2. **Gán nhãn tay `expected_gate` TRƯỚC khi chạy auditor**: `python label_sheet.py export …` → điền CSV → `python label_sheet.py import …` (`origin: "llm_real"`). Hai người gán nhãn cho ≥20% số ca, đo đồng thuận.
+2. **Gán nhãn tay `expected_gate` TRƯỚC khi chạy auditor**: `python scripts/label_sheet.py export …` → điền CSV → `python scripts/label_sheet.py import …` (`origin: "llm_real"`). Hai người gán nhãn cho ≥20% số ca, đo đồng thuận.
 3. Chia **dev/test theo query** (50/50). Chỉ sửa module trên dev; số cuối cùng báo trên test.
 4. Báo **precision và recall theo từng lớp** (`eval_gold.py` đã in) kèm **số mẫu của lớp**. Quy tắc nhanh: với `n` ca BLOCK thật và 0 lọt, cận dưới recall 95% ≈ `1 − 3/n` (n=30 → ≥90%; n=100 → ≥97%). Dưới 30 ca BLOCK thì không kết luận được recall.
 5. Ca nào module sai: ghi `known_gap` hoặc sửa + thêm test + mutant. **Không** xóa ca khó.
@@ -192,7 +192,7 @@ Bạn chọn "cứ mặc định": đã **sinh bộ synthetic** (`gold/seed.json
 
 ## 10. Luật cho agent
 
-1. **Không báo xong nếu chưa dán output thô** của `pytest -q`, `python mutation_check.py`, `python eval_gold.py`.
+1. **Không báo xong nếu chưa dán output thô** của `pytest -q`, `python scripts/mutation_check.py`, `python scripts/eval_gold.py`.
 2. Mọi con số (latency, số test, số mutant, gold) phải **tự chạy lại**, không chép từ file này.
 3. Đổi ngữ nghĩa verdict/precedence thì thêm **test và mutant**. Mutant sống sót = test chưa ghim. Refactor làm mutant `INVALID` thì **viết lại mutant**, đừng bỏ.
 4. Không xóa hay nới `xfail strict`; sửa được gap thì test XPASS-fail, lúc đó đổi thành test thường.
