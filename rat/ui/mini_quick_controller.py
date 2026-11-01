@@ -106,12 +106,26 @@ class MiniQuickController(QObject):
         self.index_timer = QTimer(self)
         self.index_timer.setInterval(1500)
         self.index_timer.timeout.connect(self.refresh_index_progress)
+        self.periodic_index_timer = QTimer(self)
+        self.periodic_index_timer.setInterval(10 * 60 * 1000)
+        self.periodic_index_timer.timeout.connect(lambda: self.start_indexing(reason='periodic'))
+        self._last_index_time = 0.0
         if not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(1500, self.start_indexing)
+            self.periodic_index_timer.start()
 
-    def start_indexing(self):
-        self.session.semantic.start(self.session.scopes.roots)
-        self.index_timer.start(); self.refresh_index_progress()
+    def start_indexing(self, reason=''):
+        if self.quitting or self._state.get('busy') or self.job is not None:
+            return False
+        now = time.monotonic()
+        if reason == 'panel_open' and now - self._last_index_time < 30.0:
+            return False
+        started = self.session.semantic.start(self.session.scopes.roots)
+        if started:
+            self._last_index_time = now
+            self.index_timer.start()
+            self.refresh_index_progress()
+        return started
 
     def refresh_index_progress(self):
         state = self.session.semantic.progress()
@@ -145,6 +159,7 @@ class MiniQuickController(QObject):
             self.recallLookResult(); return
         self._state['selectionNotice'] = ''
         self.presentation.open('result'); self.presentation.read(); self.update(); self.lookRequested.emit()
+        self.start_indexing(reason='panel_open')
 
     @pyqtSlot()
     def dismissLookResult(self):
@@ -176,6 +191,7 @@ class MiniQuickController(QObject):
         if self._state['selectionNotice']: self.returnToTask()
         self._state['selectionNotice'] = ''
         self.presentation.open('result'); self.presentation.compose(); self.update(); self.minimalRequested.emit()
+        self.start_indexing(reason='panel_open')
 
     @pyqtSlot()
     def focusLook(self):

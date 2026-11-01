@@ -51,14 +51,14 @@ def file_identity(path):
     return [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns]
 
 
-def read_document_text(path, limit=CHUNK_CHARS * CHUNKS_PER_FILE):
+def read_document_text(path, limit=CHUNK_CHARS * CHUNKS_PER_FILE, ocr=False):
     ext = Path(path).suffix.lower()
     if ext in ('.txt', '.md'):
         with open(path, 'rb') as handle:
             return handle.read(limit * 4).decode('utf-8', errors='ignore')[:limit]
     if ext == '.pdf':
         from document_intake.pdf import read_pdf_native
-        return (read_pdf_native(path, max_pages=3, max_chars=limit) or '')[:limit]
+        return (read_pdf_native(path, max_pages=3, max_chars=limit, ocr=ocr) or '')[:limit]
     if ext in ('.docx', '.pptx'):
         return office_text(path, ext, limit)
     return ''
@@ -132,6 +132,7 @@ class SemanticIndex:
         self._words = []
         self._thread = None
         self._stop = threading.Event()
+        self._active_queries = 0
         self._progress = {'state': 'idle', 'done': 0, 'total': 0}
         with self._connect() as db:
             db.executescript('''
@@ -180,39 +181,47 @@ class SemanticIndex:
             return self._matrix, self._rows
 
     def search(self, query, should_cancel=lambda: False, limit=40, floor=0.35, spread=0.12):
-        matrix, rows = self._load_matrix()
-        if not len(rows):
-            return []
-        vector = self.embedder.embed_query(query)
-        if should_cancel():
-            raise ValueError('cancelled:semantic')
-        # Meaning alone ranks near neighbours closely; words the user typed that
-        # literally appear in the document break those ties.
-        terms = word_set(query) - STOPWORDS
-        agreement = np.array([len(terms & words) / len(terms) if terms else 0.0 for words in self._words],
-                             dtype=np.float32)
-        scores = matrix @ vector + KEYWORD_WEIGHT * agreement
-        order = np.argsort(-scores)[:limit]
-        best = float(scores[order[0]])
-        # Weak neighbours are noise, not "related"; keep a band near the best match.
-        cutoff = max(floor, best - spread)
-        results, seen = [], set()
-        for i in order:
-            if scores[i] < cutoff:
-                break
-            row = rows[i]
-            # One best chunk per file: rank fusion would otherwise reward long files.
-            if row['file_path'] in seen:
-                continue
-            seen.add(row['file_path'])
-            results.append({**row, 'file_name': Path(row['file_path']).name,
-                            'file_ext': Path(row['file_path']).suffix.lower(),
-                            'similarity_score': float(scores[i])})
-        return results
+        with self._lock:
+            self._active_queries += 1
+        try:
+            matrix, rows = self._load_matrix()
+            if not len(rows):
+                return []
+            vector = self.embedder.embed_query(query)
+            if should_cancel():
+                raise ValueError('cancelled:semantic')
+            # Meaning alone ranks near neighbours closely; words the user typed that
+            # literally appear in the document break those ties.
+            terms = word_set(query) - STOPWORDS
+            agreement = np.array([len(terms & words) / len(terms) if terms else 0.0 for words in self._words],
+                                 dtype=np.float32)
+            scores = matrix @ vector + KEYWORD_WEIGHT * agreement
+            order = np.argsort(-scores)[:limit]
+            best = float(scores[order[0]])
+            # Weak neighbours are noise, not "related"; keep a band near the best match.
+            cutoff = max(floor, best - spread)
+            results, seen = [], set()
+            for i in order:
+                if scores[i] < cutoff:
+                    break
+                row = rows[i]
+                # One best chunk per file: rank fusion would otherwise reward long files.
+                if row['file_path'] in seen:
+                    continue
+                seen.add(row['file_path'])
+                results.append({**row, 'file_name': Path(row['file_path']).name,
+                                'file_ext': Path(row['file_path']).suffix.lower(),
+                                'similarity_score': float(scores[i])})
+            return results
+        finally:
+            with self._lock:
+                self._active_queries -= 1
 
     def start(self, roots):
-        """Index new or changed files under roots in a daemon thread; no-op while one runs."""
+        """Index new or changed files under roots in a daemon thread; no-op while one runs or query active."""
         with self._lock:
+            if self._active_queries > 0:
+                return False
             if self._thread and self._thread.is_alive():
                 return False
             self._stop.clear()
@@ -232,12 +241,15 @@ class SemanticIndex:
             with self._lock:
                 self._progress = {'state': 'unavailable', 'done': 0, 'total': 0}
         finally:
-            self.embedder.evict()
+            if self._embedder is not None:
+                self._embedder.evict()
 
     def _index(self, roots):
         with self._lock:
             self._progress = {'state': 'scanning', 'done': 0, 'total': 0}
         paths = candidate_files(roots, self._stop.is_set)
+        if self._stop.is_set():
+            return
         with self._connect() as db:
             known = dict(db.execute('SELECT path, identity FROM files'))
         live = set(paths)
@@ -246,19 +258,33 @@ class SemanticIndex:
             self.invalidate_paths(gone)
         todo = []
         for path in paths:
+            if self._stop.is_set():
+                return
             try:
                 identity = file_identity(path)
             except OSError:
                 continue
             if known.get(path) != json.dumps(identity):
                 todo.append((path, identity))
+
+        # Cheap identity check: if nothing changed, finish immediately without loading embedder
+        if not todo:
+            with self._lock:
+                self._progress = {'state': 'ready', 'done': 0, 'total': 0}
+            return
+
         with self._lock:
-            self._progress = {'state': 'indexing' if todo else 'ready', 'done': 0, 'total': len(todo)}
+            self._progress = {'state': 'indexing', 'done': 0, 'total': len(todo)}
         for done, (path, identity) in enumerate(todo, 1):
             if self._stop.is_set():
                 break
+            # Never index while a query runs: pause background indexing if user is querying
+            while self._active_queries > 0 and not self._stop.is_set():
+                time.sleep(0.05)
+            if self._stop.is_set():
+                break
             try:
-                chunks = document_chunks(path, read_document_text(path))
+                chunks = document_chunks(path, read_document_text(path, ocr=False))
                 vectors = self.embedder.embed_texts(chunks, batch_size=8)
             except Exception as exc:
                 # Unreadable or encrypted documents still get their name indexed.
