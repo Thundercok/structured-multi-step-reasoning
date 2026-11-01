@@ -18,6 +18,8 @@ dmg_temp/
 # Pinned translation data is restored by tools/prepare_rat_translation_models.py.
 rat/assets/translation/*/model/
 rat/assets/translation/*/sentencepiece.model
+# Pinned embedding model is restored by tools/prepare_rat_embedding_model.py.
+rat/assets/embedding/models--*/
 artifacts/rat_mini_local_mt_20261027/downloads/
 
 .venv/

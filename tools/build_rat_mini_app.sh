@@ -18,8 +18,13 @@ if [[ ! -f "$ROOT/rat/assets/translation/en-vi/model/model.bin" || ! -f "$ROOT/r
   echo 'Prepare bundled translation data with tools/prepare_rat_translation_models.py before building.' >&2
   exit 1
 fi
-excluded=(torch transformers fastembed scipy sklearn gymnasium mlx mlx_lm sentence_transformers
-  onnxruntime apsw sqlite_vec rat.engine.mini_semantic
+if ! "$PYTHON_BIN" "$ROOT/tools/prepare_rat_embedding_model.py" --check-only 2>/dev/null; then
+  echo 'Prepare the bundled embedding model with tools/prepare_rat_embedding_model.py before building.' >&2
+  exit 1
+fi
+# fastembed/onnxruntime stay in: the meaning-based finder needs them at runtime.
+excluded=(torch transformers scipy sklearn gymnasium mlx mlx_lm sentence_transformers
+  apsw sqlite_vec rat.engine.mini_semantic jax jaxlib pyarrow polars psycopg2 hf_xet
   rat.engine.selected_document_qa rat.engine.selected_pdf rat.engine.qa_engine rat.engine.meta_reasoner
   rat.ui.quick_pdf_controller rat.ui.quick_app reasoning experiments
   PyQt6.QtWidgets rat.ui.mini_floaty rat.ui.mini_settings_dialog
@@ -38,17 +43,21 @@ rm -rf "$DIST_DIR/RAT Mini" 2>/dev/null || true "$DIST_DIR/RAT Mini.app" "$DIST_
   --add-data "$ROOT/rat/assets/rat_mascot_cutout.png:rat/assets" \
   --add-binary "$BUILD_TMP/rat-hotkey:rat/bin" \
   --add-data "$ROOT/rat/assets/translation:rat/assets/translation" \
+  --add-data "$ROOT/rat/assets/embedding:rat/assets/embedding" \
   --add-data "$ROOT/rat/ui/quick/MiniDesk.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/SpeechSurface.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/MascotPose.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/QuietButton.qml:rat/ui/quick" \
   --add-data "$ROOT/rat/ui/quick/DeskIcon.qml:rat/ui/quick" \
+  --add-data "$ROOT/rat/ui/quick/KeycapBadge.qml:rat/ui/quick" \
   --collect-data certifi \
   --copy-metadata ctranslate2 --copy-metadata sentencepiece --copy-metadata numpy \
   --collect-data rfc3987_syntax --collect-data lark --collect-data jsonschema_specifications \
   --hidden-import objc --hidden-import Foundation \
   --hidden-import AppKit --hidden-import Quartz --hidden-import ApplicationServices --hidden-import document_intake.vision --hidden-import document_intake.pdf \
   --hidden-import ctranslate2 --hidden-import sentencepiece \
+  --collect-submodules fastembed --collect-binaries onnxruntime --hidden-import tokenizers \
+  --copy-metadata fastembed --copy-metadata huggingface_hub --copy-metadata onnxruntime --copy-metadata tokenizers \
   "${exclude_args[@]}" --paths "$ROOT" "$ROOT/mini_app.py"
 export RAT_MINI_HOTKEY_BINARY="$BUILD_TMP/rat-hotkey"
 export RAT_MINI_BUILT_APP="$DIST_DIR/RAT Mini.app"

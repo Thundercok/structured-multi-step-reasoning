@@ -1,3 +1,3 @@
 """Single identity for Lite source, bundle, helper and delivery manifest."""
-BUILD = '20261031.11'
-VERSION = '0.5.41'
+BUILD = '20261101.1'
+VERSION = '0.6.0'

@@ -59,19 +59,30 @@ def read_document_text(path, limit=CHUNK_CHARS * CHUNKS_PER_FILE):
     if ext == '.pdf':
         from document_intake.pdf import read_pdf_native
         return (read_pdf_native(path, max_pages=3, max_chars=limit) or '')[:limit]
-    if ext == '.docx':
-        # Body text only: core-properties metadata (author, generator) is noise in a match preview.
-        from rat.crawler.extractors import _extract_docx_native_xml
-        return _extract_docx_native_xml(path)[:limit]
-    if ext == '.pptx':
-        from pptx import Presentation
+    if ext in ('.docx', '.pptx'):
+        return office_text(path, ext, limit)
+    return ''
+
+
+def office_text(path, ext, limit):
+    # Body text straight from the OOXML parts: no python-docx/pptx dependency,
+    # and core-properties metadata (author, generator) never reaches a preview.
+    import xml.etree.ElementTree as ET
+    import zipfile
+    tag = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t' if ext == '.docx' else \
+          '{http://schemas.openxmlformats.org/drawingml/2006/main}t'
+    with zipfile.ZipFile(path) as package:
+        names = (['word/document.xml'] if ext == '.docx' else
+                 sorted((n for n in package.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml', n)),
+                        key=lambda n: int(re.search(r'\d+', n).group())))
         texts = []
-        for slide in Presentation(path).slides:
-            texts.extend(shape.text_frame.text for shape in slide.shapes if getattr(shape, 'has_text_frame', False))
+        for name in names:
+            for node in ET.fromstring(package.read(name)).iter(tag):
+                if node.text:
+                    texts.append(node.text)
             if sum(map(len, texts)) >= limit:
                 break
-        return '\n'.join(texts)[:limit]
-    return ''
+    return ' '.join(texts)[:limit]
 
 
 def document_chunks(path, text):
