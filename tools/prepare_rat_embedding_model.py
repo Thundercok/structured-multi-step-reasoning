@@ -29,9 +29,45 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def quantize_onnx_int8(onnx_path: Path):
+    """Dynamically quantize an ONNX model to INT8 (converts FP16 weights to FP32 first if needed)."""
+    try:
+        import numpy as np
+        import onnx
+        from onnx import numpy_helper, TensorProto
+        from onnxruntime.quantization import quantize_dynamic, QuantType
+    except ImportError as e:
+        sys.exit(f'Quantization requires onnx and onnxruntime: {e}. Install with: pip install onnx')
+
+    model = onnx.load(str(onnx_path))
+    has_fp16 = False
+    for init in model.graph.initializer:
+        if init.data_type == TensorProto.FLOAT16:
+            has_fp16 = True
+            arr = numpy_helper.to_array(init).astype(np.float32)
+            init.CopyFrom(numpy_helper.from_array(arr, name=init.name))
+    if has_fp16:
+        for n in model.graph.node:
+            if n.op_type == 'Cast':
+                for attr in n.attribute:
+                    if attr.name == 'to' and attr.i == TensorProto.FLOAT16:
+                        attr.i = TensorProto.FLOAT
+        for vi in model.graph.value_info:
+            if vi.type.tensor_type.elem_type == TensorProto.FLOAT16:
+                vi.type.tensor_type.elem_type = TensorProto.FLOAT
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        fp32_path = Path(tmp_dir) / 'model_fp32.onnx'
+        onnx.save(model, str(fp32_path))
+        quant_path = Path(tmp_dir) / 'model_int8.onnx'
+        quantize_dynamic(str(fp32_path), str(quant_path), weight_type=QuantType.QInt8)
+        shutil.copyfile(quant_path, onnx_path)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cache', default=str(Path(tempfile.gettempdir()) / 'fastembed_cache'))
+    parser.add_argument('--quantize-int8', action='store_true', help='dynamically quantize model weights to INT8')
     parser.add_argument('--write-lock', action='store_true')
     parser.add_argument('--check-only', action='store_true', help='verify the prepared copy against the lock')
     args = parser.parse_args()
@@ -52,6 +88,17 @@ def main():
     shutil.copytree(snapshot, target / 'snapshots' / revision, symlinks=False)
     if (source / 'files_metadata.json').is_file():
         shutil.copy2(source / 'files_metadata.json', target / 'files_metadata.json')
+    if args.quantize_int8:
+        onnx_file = target / 'snapshots' / revision / 'model_optimized.onnx'
+        if onnx_file.is_file():
+            quantize_onnx_int8(onnx_file)
+            meta_path = target / 'files_metadata.json'
+            if meta_path.is_file():
+                meta = json.loads(meta_path.read_text())
+                rel_key = str(onnx_file.relative_to(target))
+                if rel_key in meta:
+                    meta[rel_key]['size'] = onnx_file.stat().st_size
+                    meta_path.write_text(json.dumps(meta))
     files = {str(p.relative_to(target)): sha256(p) for p in sorted(target.rglob('*')) if p.is_file()}
     if args.write_lock:
         LOCK.write_text(json.dumps({'model': MODEL_DIR, 'revision': revision, 'license': 'Apache-2.0',
