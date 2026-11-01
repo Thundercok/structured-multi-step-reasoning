@@ -21,6 +21,7 @@ import certifi
 import httpx
 from rat.kernel.input_context import ImageInput, MAX_IMAGE_BYTES, MAX_IMAGE_PIXELS
 from rat.engine.translation_glossary import protect, restore
+from rat.engine.pdf_text import clean_copied_text
 
 logger = logging.getLogger(__name__)
 
@@ -377,7 +378,7 @@ class SnippetTranslator:
         if len(chunks) > 64:
             raise ValueError('snippet_chunk_limit')
         segments, providers = [], set()
-        glossary_terms = 0
+        glossary_terms = line_joins = 0
         failures = []
         deadline = time.monotonic() + 30
         for start, end, piece in chunks:
@@ -389,8 +390,11 @@ class SnippetTranslator:
                 if time.monotonic() >= deadline:
                     raise TimeoutError('translation_deadline')
                 if provider == 'offline_argos':
+                    # The model sees the text without PDF line layout; the source keeps it.
+                    model_text, joins = clean_copied_text(piece)
+                    line_joins += joins
                     # Research terms ride through the local model as placeholders.
-                    protected, terms = protect(piece) if (source, target) == ('en', 'vi') else (piece, {})
+                    protected, terms = protect(model_text) if (source, target) == ('en', 'vi') else (model_text, {})
                     out = restore(self._local_translator.translate(protected, source, target, should_cancel), terms)
                     if terms:
                         glossary_terms += len(terms)
@@ -450,4 +454,4 @@ class SnippetTranslator:
                 'source_sha256': hashlib.sha256(text.encode()).hexdigest(),
                 'segments': segments, 'provider': ', '.join(sorted(providers)), 'warnings': warnings,
                 'local_model': self._local_translator.model_info if 'offline_argos' in providers else None,
-                'glossary_terms': glossary_terms}
+                'glossary_terms': glossary_terms, 'line_joins': line_joins}

@@ -26,6 +26,8 @@ GLOSSARY = {
     'recurrent neural network': 'mạng nơ-ron hồi quy (RNN)',
     'graph neural network': 'mạng nơ-ron đồ thị (GNN)',
     'recurrence': 'cơ chế hồi quy (recurrence)',
+    'recurrent': 'hồi quy (recurrent)',
+    'convolutional': 'tích chập (convolutional)',
     'convolution': 'phép tích chập (convolution)',
     'encoder-decoder': 'encoder-decoder',
     'encoder': 'bộ mã hóa (encoder)',

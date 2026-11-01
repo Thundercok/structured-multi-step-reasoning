@@ -251,6 +251,10 @@ def format_translation_artifact_view(data: dict, finder_artifact_present: bool =
     tgt_lang = data.get('target_language', '')
     direction = f"{languages.get(src_lang, src_lang)} → {languages.get(tgt_lang, tgt_lang)}"
     meta = 'Dịch trên máy' if data.get('local_model') else direction
+    if data.get('line_joins'):
+        meta += f" · ghép {data['line_joins']} dòng bị ngắt"
+    if data.get('glossary_terms'):
+        meta += f" · giữ {data['glossary_terms']} thuật ngữ"
     provenance = (data.get('source_capture') or {}).get('input_provenance') or {}
     origin = {
         'selected_file': 'Ảnh đã chọn', 'dropped_file': 'Ảnh kéo thả',

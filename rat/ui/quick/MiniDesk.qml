@@ -324,7 +324,6 @@ Rectangle {
                         onClicked: desk.liveController.flipTargetLanguageAndRetranslate()
                     }
                     QuietButton { visible: desk.paperVisible && !desk.auxiliary && desk.liveSnapshot.view === "translation" && Boolean(desk.liveSnapshot.text); iconName: "copy"; text: "Sao chép"; onClicked: desk.liveController.copyResult() }
-                    QuietButton { visible: desk.paperVisible && !desk.auxiliary; iconName: desk.compact ? "chevron-up" : "chevron-down"; implicitWidth: 28; Accessible.name: desk.compact ? "Mở rộng" : "Thu gọn"; onClicked: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
                     QuietButton { visible: desk.auxiliary || !desk.composing; iconName: "close"; implicitWidth: 28; Accessible.name: "Ẩn RAT"; onClicked: (desk.compact && !desk.composing && desk.surface === "result") ? desk.liveController.collapseBubble() : desk.hideRequested() }
                 }
                 Rectangle {
@@ -420,13 +419,12 @@ Rectangle {
                                 textFormat: Text.PlainText; Layout.fillWidth: true; wrapMode: Text.Wrap
                                 color: desk.ink; font.pixelSize: 14
                             }
-                            Label { text: "Phím tắt dịch nhanh: " + desk.liveSnapshot.shortcutLabel; color: desk.ink }
+                            Label { text: "Phím tắt dịch nhanh"; color: desk.ink; font.weight: Font.Medium }
                             ComboBox {
                                 id: shortcutChord; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
                                 model: [{label:"⌥⇧Space",value:"option_shift_space"},{label:"⌥⇧R",value:"option_shift_r"},{label:"⌥⇧K",value:"option_shift_k"},{label:"⌥⇧J",value:"option_shift_j"},{label:"⌃⌥Space · có thể đổi bộ gõ",value:"control_option_space"},{label:"⌃⇧Space",value:"control_shift_space"}]
                                 Accessible.name: "Phím tắt dịch nhanh"
                             }
-                            QuietButton { text: "Dùng phím này"; enabled: !desk.liveSnapshot.busy; onClicked: { desk.settingsError=desk.liveController.changeShortcut(shortcutChord.currentValue) } }
                             Label { text: "Dịch sang"; color: desk.ink; font.weight: Font.Medium }
                             ComboBox {
                                 id: targetLanguage; Layout.fillWidth: true; textRole: "label"; valueRole: "value"
@@ -625,7 +623,11 @@ Rectangle {
                         text: desk.surface === "settings" ? "Lưu" : "Bắt đầu làm việc"
                         onClicked: {
                             if (desk.surface === "settings") {
-                                desk.settingsError = desk.liveController.savePreferences({roots:folderList.model,target_language:targetLanguage.currentValue}, "")
+                                // One Save covers the shortcut too; a failed re-registration keeps the page open.
+                                if (shortcutChord.currentValue !== (desk.liveController.preferences.hotkey_chord || "option_shift_space"))
+                                    desk.settingsError = desk.liveController.changeShortcut(shortcutChord.currentValue)
+                                if (!desk.settingsError)
+                                    desk.settingsError = desk.liveController.savePreferences({roots:folderList.model,target_language:targetLanguage.currentValue}, "")
                                 if (!desk.settingsError) desk.goBack()
                             } else {
                                 desk.setupError = desk.liveController.completeSetup()
@@ -808,7 +810,6 @@ Rectangle {
         property var sourceEditor: translationArea
         MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Sao chép phần đã chọn"; enabled: Boolean(readerMenu.sourceEditor.selectedText); onTriggered: desk.liveController.copyLookSelection(readerMenu.sourceEditor.selectedText) }
         MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: "Sao chép nội dung"; enabled: Boolean(readerMenu.sourceEditor.text); onTriggered: { if (readerMenu.sourceEditor === translationArea) desk.liveController.copyResult(); else desk.liveController.copyLookSelection(readerMenu.sourceEditor.text) } }
-        MenuItem { implicitHeight: 30; topPadding: 5; bottomPadding: 5; font.pixelSize: 12; text: desk.compact ? "Mở rộng" : "Thu gọn"; onTriggered: { desk.saveScroll(); desk.liveController.setExpanded(desk.compact) } }
     }
     Menu {
         id: editorMenu

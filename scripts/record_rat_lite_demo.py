@@ -100,7 +100,10 @@ type_and_send('dịch Multi-head self-attention lets every position look at ever
 still('05_translation')
 root.setProperty('showSourceText', True); wait(1200); still('06_translation_source')
 clipboard = QGuiApplication.clipboard(); previous = clipboard.text()
-clipboard.setText('The model reaches better translation quality than recurrent baselines at a fraction of the training cost.')
+# Copied from a PDF: line breaks, end-of-line hyphenation and a ligature.
+clipboard.setText('The dominant sequence transduction models are based on com-\nplex recurrent or convolutional neural networks that include an\n'
+                  'encoder and a decoder. The best performing models also con-\nnect the encoder and decoder through an attention mechanism,\n'
+                  'requiring signi\ufb01cantly less time to train.')
 c.translateClipboard(); until_idle(); still('07_clipboard_translation')
 clipboard.setText(previous)
 type_and_send('xin chào các bạn'); still('08_clarify_buttons')
