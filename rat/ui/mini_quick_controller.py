@@ -28,7 +28,7 @@ from rat.ui.mini_views import (
     format_compact_display_path, format_translation_artifact_view,
     default_controller_state, REGION_PREVIOUS_FIELDS, render_journal_stage, render_error_suggestions,
     is_new_task_operation, pending_task_initial_updates, capture_position_ocr_updates,
-    process_render_artifacts, format_user_error_message, format_organization_artifact_view,
+    process_render_artifacts, format_user_error_message,
     format_readiness_summary, format_diagnostic_events, initial_operation_status,
     pack_task_history_item, HISTORY_FIELDS, format_finder_return_hits, handle_file_action,
     build_controller_snapshot,
@@ -66,13 +66,9 @@ class MiniQuickController(QObject):
         self.settings = dict(settings if settings is not None else read_settings())
         self.session = MiniSession(self.settings)
         self.job = self.pending = self.finder_artifact = None
-        self.organization_artifact = None
-        show_welcome = not self.settings.get("setup_completed") or self.settings.get("permission_hello_version", 0) < 1
-        if sys.platform == "darwin" and not os.environ.get("PYTEST_CURRENT_TEST"):
-            from rat.os.permissions import is_accessibility_trusted
-            if not is_accessibility_trusted():
-                show_welcome = True
-        self.presentation = MiniPresentation(surface="welcome" if show_welcome else "result")
+        # No setup screen: the composer is usable at once and permissions are
+        # requested only when a feature needs them.
+        self.presentation = MiniPresentation(surface="result")
         self._hold_chat_requested = False
         self._task_history = []
         self.rebind_hotkey = None
@@ -107,6 +103,24 @@ class MiniQuickController(QObject):
         self.record_ui_state()
         if self.presentation.surface == 'welcome' or not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(0, lambda: self.checkReadiness(False))
+        self.index_timer = QTimer(self)
+        self.index_timer.setInterval(1500)
+        self.index_timer.timeout.connect(self.refresh_index_progress)
+        if not os.environ.get('PYTEST_CURRENT_TEST'):
+            QTimer.singleShot(1500, self.start_indexing)
+
+    def start_indexing(self):
+        self.session.semantic.start(self.session.scopes.roots)
+        self.index_timer.start(); self.refresh_index_progress()
+
+    def refresh_index_progress(self):
+        state = self.session.semantic.progress()
+        busy = state['state'] in ('scanning', 'indexing')
+        text = ('Đang làm quen với tài liệu của bạn… ' + (f"{state['done']}/{state['total']} file" if state['total'] else '')) if busy else ''
+        if text != self._state.get('indexProgress', ''):
+            self.update(indexProgress=text)
+        if not busy:
+            self.index_timer.stop()
 
     @pyqtProperty('QVariantMap', notify=changed)
     def snapshot(self):
@@ -127,8 +141,6 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonLook(self):
-        if not self._state['setupCompleted']:
-            self.presentation.open('welcome'); self.update(); self.presentRequested.emit(); return
         if self._state['selectionNotice']:
             self.recallLookResult(); return
         self._state['selectionNotice'] = ''
@@ -161,8 +173,6 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def summonMinimal(self):
-        if not self._state['setupCompleted']:
-            self.presentation.open('welcome'); self.update(); self.presentRequested.emit(); return
         if self._state['selectionNotice']: self.returnToTask()
         self._state['selectionNotice'] = ''
         self.presentation.open('result'); self.presentation.compose(); self.update(); self.minimalRequested.emit()
@@ -228,10 +238,7 @@ class MiniQuickController(QObject):
 
     @pyqtSlot()
     def backSurface(self):
-        if not self._state['setupCompleted']:
-            self.presentation.open('welcome')
-        else:
-            self.presentation.back()
+        self.presentation.back()
         self.changed.emit()
 
     @pyqtSlot(float)
@@ -264,23 +271,13 @@ class MiniQuickController(QObject):
             self.update(draftText=text)
 
     def consume_submission(self, submitted):
-        if self._state['editingRequest']:
-            self.update(editingRequest=False, draftText=self._next_draft)
-            self._next_draft = ''
-        elif self._state['draftText'].strip() == submitted.strip():
+        if self._state['draftText'].strip() == submitted.strip():
             self.update(draftText='')
 
     @pyqtSlot()
     def submitDraft(self):
         if not self._state['busy']:
             self.submit(self._state['draftText'])
-
-    @pyqtSlot()
-    def cancelEditRequest(self):
-        if self._state['editingRequest']:
-            self.clearAttachment()
-            self.update(draftText=self._next_draft, editingRequest=False)
-            self._next_draft = ''
 
     def complete_surface(self):
         self.presentation.complete()
@@ -327,30 +324,6 @@ class MiniQuickController(QObject):
             return ''
         except OSError:
             return 'Chưa lưu được thiết lập. Bạn vẫn có thể đóng cửa sổ để dùng RAT.'
-
-    @pyqtSlot(QUrl)
-    def organizeFolder(self, url):
-        path = self.localFolderPath(url)
-        if not path: return
-        self.clearImagePreview(); self.update(requestText='Sắp xếp ' + path)
-        self.enqueue('plan_folder_organization', {'folder':path, 'rule':'type'})
-
-    @pyqtSlot()
-    def applyOrganization(self): self._approved_organization('apply_folder_organization', 'organization_plan')
-
-    @pyqtSlot()
-    def undoOrganization(self): self._approved_organization('undo_folder_organization', 'organization_receipt')
-
-    def _approved_organization(self, operation, kind):
-        artifact = self.organization_artifact
-        if self.job or self._state['view'] != 'organization' or not artifact or artifact.kind != kind: return
-        pin = {'artifact_id':artifact.id, 'revision':artifact.revision}
-        self.update(canApplyOrganization=False, canUndoOrganization=False)
-        self.enqueue(operation, pin, input_context={'organization_approval':dict(pin)})
-
-    @pyqtSlot()
-    def recoverOrganization(self):
-        if not self.job: self.enqueue('get_last_organization', {})
 
     @pyqtSlot(bool)
     def setExpanded(self, value):
@@ -495,19 +468,6 @@ class MiniQuickController(QObject):
         self._last_image, self._image_instruction = None, ''
         self.image_preview.clear()
         self.update(imagePreviewUrl='', imageLabel='', ocrPreparationNotice='')
-
-    @pyqtSlot(result=str)
-    def editRequest(self):
-        if self._state['busy']:
-            return ''
-        if not self._state['editingRequest']:
-            self._next_draft = self._state['draftText']
-        text = self._image_instruction if self._last_image is not None else self._state['requestText']
-        if self._last_image is not None:
-            self._draft_image = self._last_image
-        self.update(draftText=text, editingRequest=True,
-            attachmentLabel=(self._state['imageLabel'] + ' · ảnh được giữ') if self._last_image is not None else '')
-        return text
 
     @pyqtSlot()
     def retryRequest(self):
@@ -683,39 +643,6 @@ class MiniQuickController(QObject):
         ))
         del self._task_history[5:]
 
-    @pyqtSlot(int)
-    def restoreTask(self, index):
-        if self.job or self.pending or self._state['busy'] or not 0 <= index < len(self._task_history):
-            return
-        item = self._task_history.pop(index)
-        self.remember_task()
-        self.session = MiniSession(self.settings, artifact_store=self.session.runtime.artifact_store)
-        for name,value in deepcopy(item['presentation']).items():
-            setattr(self.presentation,name,value)
-        self._result_ref = deepcopy(item['result_ref'])
-        self._ocr_source_ref = deepcopy(item['source_ref'])
-        self._ocr_current_text = item['source_text']
-        self._translation_args = deepcopy(item['translation_args'])
-        self.finder_artifact = item['finder']
-        self.organization_artifact = None
-        self._retry_request = self._region_previous = self._selection_return = None
-        self._selection_present_generation = self._presentation_invocation_id = None
-        self._next_draft = item['draft']
-        self._last_image, self._draft_image = item['last_image'], item['draft_image']
-        preview = self.image_preview.set_input(self._last_image) if self._last_image is not None else ''
-        self.presentation.open('result')
-        self.presentation.read()
-        self.update(**item['state'], draftText=self._next_draft, busy=False,
-            imagePreviewUrl=preview, imageLabel=item['image_label'], selectionNotice='', canRetryRequest=False,
-            canRetryTranslation=bool(item['source_ref'] and item['translation_args']),
-            canApplyOrganization=False, canUndoOrganization=False,
-            organizationRecoverySuggested=item['state']['view']=='organization')
-        self.restoreAnchorRequested.emit(self.presentation.task_id)
-        self.lookRequested.emit()
-
-    @pyqtSlot()
-    def clearTaskHistory(self): self._task_history.clear(); self.update()
-
     def diagnostic_events(self): return format_diagnostic_events(self.quicklook_journal)
 
     @pyqtSlot(str)
@@ -737,9 +664,6 @@ class MiniQuickController(QObject):
         self.settings = updated
         self.update()
         return ''
-
-    @pyqtSlot()
-    def togglePin(self): self.update(pinned=not self._state['pinned'])
 
     @pyqtSlot()
     def collapseBubble(self):
@@ -789,8 +713,8 @@ class MiniQuickController(QObject):
         if self._state['receivingImage']:
             self.update(receivingImage=False)
         if operation != "check_mini_readiness":
-            self.update(settingsNotice='', organizationRecoverySuggested=operation in ("apply_folder_organization", "undo_folder_organization"))
-        self.update(bubbleCollapsed=False)
+            self.update(settingsNotice='')
+        self.update(bubbleCollapsed=False, intentChoice=False)
         self.pending = operation, args, query, self.generation, input_context
         if self.job:
             self.job.stop.set()
@@ -813,7 +737,6 @@ class MiniQuickController(QObject):
             self.clear_ocr_source()
         is_file_translate = (operation == 'capture_translate' and args.get('mode') == 'file')
         if new_task and not preserve_region and not is_file_translate: self.finder_artifact = None
-        if new_task and not preserve_region: self.organization_artifact = None
         updates = pending_task_initial_updates(operation, args, new_task, preserve_region, is_file_translate,
                                                bool(self.finder_artifact), self.presentation.extent == 'expanded')
         if updates: self.update(**updates)
@@ -842,8 +765,8 @@ class MiniQuickController(QObject):
             if job.args.get('mode') == 'selection': self._selection_return = None
             self.presentation.begin_task(); self._result_ref = None; self.session.clear_pending()
             self.session = job.session; self.clear_ocr_source(); self.clearImagePreview()
-            self.finder_artifact = self.organization_artifact = self._region_previous = None
-            self.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, view='notice',
+            self.finder_artifact = self._region_previous = None
+            self.update(pinned=False, view='notice',
                 finderHits=[], text='', meta='', translationDetails='', translationNotice='',
                 sameLanguageNotice='', agentSummary='', agentIncomplete=False,
                 requestText='Chữ bôi đen' if job.args.get('mode') == 'selection' else 'Vùng chữ đã chọn')
@@ -896,9 +819,6 @@ class MiniQuickController(QObject):
                 readiness=checks['checks'] if checks else self._state['readiness'],
                 readinessStatus=('Tất cả thành phần đã sẵn sàng.' if checks and checks['status']=='ready' else
                     'Một số chức năng cần xử lý. Bạn vẫn có thể dùng phần đã sẵn sàng.' if checks else 'Chưa kiểm tra được. Hãy thử lại.'))
-            if checks and any(c.get('state') == 'action_required' for c in checks.get('checks', [])):
-                if not os.environ.get('PYTEST_CURRENT_TEST') and self._state.get('phase') == 'idle' and not self._state.get('hasWorkbench'):
-                    self.presentation.open('welcome')
             return
         model_loop = bool(response and (response.qa_telemetry or {}).get('mini_execution_path') == 'model_loop')
         if model_loop:
@@ -937,6 +857,7 @@ class MiniQuickController(QObject):
                 translationSettingsSuggested=flags['translation_suggested'],
                 finderSettingsSuggested=flags['finder_suggested'],
                 imageInputSuggested=flags['image_suggested'],
+                canRetryRequest=self._state['canRetryRequest'] and flags['retry_useful'],
                 status=flags['status'])
             return
         if response is None:
@@ -945,17 +866,16 @@ class MiniQuickController(QObject):
         if response.pending_input_request:
             self.complete_surface()
             self.presentation.composer_visible = True
+            request = response.pending_input_request
             self.update(phase='needs_input', view='notice', text='', meta='', finderHits=[],
-                finderSettingsSuggested=response.pending_input_request.operation_name == 'find_files',
+                intentChoice=request.operation_name == 'route_goal' and any(f.get('name') == 'intent' for f in request.missing_fields),
+                finderSettingsSuggested=request.operation_name == 'find_files',
                 imageInputSuggested=False,
                 status=response.pending_input_request.prompt)
             return
         artifact_res = process_render_artifacts(response.artifacts if response else [], response, model_loop, self._state['agentIncomplete'], self.finder_artifact)
         if artifact_res:
             kind = artifact_res['kind']
-            if kind == 'organization':
-                self.clear_ocr_source(); self.organization_artifact = artifact_res['artifact']
-                self.complete_surface(); self.update(**artifact_res['update']); return
             if kind == 'finder_results':
                 self.remember_finder_diagnostic(artifact_res['data']); self.clear_ocr_source()
                 self.finder_artifact = artifact_res['artifact']; self.complete_surface()
@@ -1074,22 +994,20 @@ class MiniQuickController(QObject):
     def savePreferences(self, changes, secret=''):
         if self.job:
             return 'Đợi tác vụ kết thúc trước khi đổi cài đặt.'
-        updated, session, err, scopes_changed, tr_args, retry = save_preferences_settings(
+        updated, session, err, _scopes_changed, tr_args, retry = save_preferences_settings(
             self.settings, self.session, changes, secret, self._translation_args, self._retry_request,
             keychain_func=keychain_key, save_func=save_settings
         )
         if err:
             return err
         self.settings, self.session, self._translation_args, self._retry_request = updated, session, tr_args, retry
-        if scopes_changed:
-            self.organization_artifact = None
-            self.update(canApplyOrganization=False, canUndoOrganization=False,
-                organizationRecoverySuggested=self._state['view'] == 'organization')
+        if _scopes_changed and not os.environ.get('PYTEST_CURRENT_TEST'):
+            self.session.semantic.stop(); QTimer.singleShot(500, self.start_indexing)
         if self._state['translationSettingsSuggested'] and self._state['phase'] == 'error':
             self._state['status'] = 'Đã cập nhật cài đặt. Bấm Thử lại để dịch đoạn chữ đã giữ.'
         self.update(translationSettingsSuggested=False, targetLanguage=updated.get('target_language', 'vi'),
             llmEnabled=bool(updated.get('llm_enabled', False)),
-            settingsNotice='Đã lưu cài đặt.' + (' Hãy xem trước lại nếu đã đổi thư mục.' if scopes_changed else ''))
+            settingsNotice='Đã lưu cài đặt.')
         return ''
 
     @pyqtSlot()

@@ -200,6 +200,39 @@ def spotlight_scopes(roots, predicate, should_cancel, deadline):
     return paths, failures, completed
 
 
+_WALK_SKIP = {'node_modules', 'Library', '__pycache__', 'venv', '.venv', 'site-packages'}
+
+
+def name_walk_paths(roots, terms, extensions, should_cancel, deadline, max_entries=200_000):
+    """Filename fallback for Macs whose Spotlight index returns nothing for a scope.
+
+    Bounded by the request deadline and an entry budget; matches ASCII-folded
+    names only, never reads file contents. Bundles and hidden folders are skipped.
+    """
+    wanted = [_fold_ascii(t) for t in terms if t]
+    if not wanted and not extensions:
+        return [], False
+    paths, seen = [], 0
+    for root in roots:
+        for folder, dirs, files in os.walk(root, onerror=lambda _exc: None):
+            if should_cancel():
+                raise ValueError('cancelled:finder')
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in _WALK_SKIP
+                       and not d.endswith(('.app', '.bundle', '.photoslibrary'))]
+            for name in files:
+                seen += 1
+                if name.startswith('.'):
+                    continue
+                folded = _fold_ascii(name)
+                if all(t in folded for t in wanted) and (not extensions or Path(name).suffix.lower() in extensions):
+                    paths.append(os.path.join(folder, name))
+                    if len(paths) >= 500:
+                        return paths, True
+            if seen >= max_entries or time.monotonic() >= deadline:
+                return paths, True
+    return paths, False
+
+
 class HybridFinder:
     def __init__(self, scopes, semantic=None):
         self.scopes, self.semantic = scopes, semantic
@@ -233,6 +266,13 @@ class HybridFinder:
         lexical = []
         deadline = time.monotonic() + 12
         paths, failures, completed_roots = spotlight_scopes(roots, predicate, should_cancel, deadline)
+        name_walk = 'not_needed'
+        # The meaning index already covers file names; walk only when it is empty.
+        if not paths and not (self.semantic is not None and self.semantic.count()):
+            walked, truncated = name_walk_paths(roots, terms, extensions, should_cancel,
+                                                min(deadline, time.monotonic() + 4))
+            paths = walked
+            name_walk = 'truncated' if truncated else 'complete'
 
         def accepted(raw):
             try:
@@ -302,13 +342,14 @@ class HybridFinder:
                          'modified_at': info.st_mtime, 'size_bytes': info.st_size,
                          'match_sources': (['spotlight'] if row.get('matched_sparse') else []) +
                                           (['semantic'] if row.get('matched_dense') else []),
-                         'snippet': row.get('best_chunk_text', '')[:240],
+                         # Chunk 0 is the file-name chunk; only body text explains a match.
+                         'snippet': row.get('best_chunk_text', '')[:240] if row.get('best_chunk_index', 0) else '',
                          'verification': {'exists': True, 'readable': True, 'in_scope': True}})
         if version != self.scopes.version:
             raise ValueError('scope_revoked')
         diagnostics = {'runtime': 'frozen' if getattr(sys, 'frozen', False) else 'source',
             'elapsed_ms': round((time.monotonic()-started)*1000),
-            'transport': 'scoped-mdfind-bounded-retry-v3'}
+            'transport': 'scoped-mdfind-bounded-retry-v3', 'name_walk': name_walk}
         logger.info('spotlight_search_finished runtime=%s elapsed_ms=%s roots=%s completed=%s hits=%s',
             diagnostics['runtime'], diagnostics['elapsed_ms'], len(roots), completed_roots, len(hits))
         return {'status': 'partial' if failures or semantic_state in ('failed', 'not_indexed') else 'complete',

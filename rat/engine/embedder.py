@@ -23,8 +23,13 @@ class EmbeddingError(RuntimeError):
 class LocalEmbedder:
     """Local embedding generator using FastEmbed ONNX runtime."""
 
-    def __init__(self, model_name: str = DEFAULT_EMBED_MODEL) -> None:
+    def __init__(self, model_name: str = DEFAULT_EMBED_MODEL, *, cache_dir: Optional[str] = None,
+                 local_files_only: bool = False, threads: Optional[int] = None) -> None:
         self.model_name = model_name
+        # A bundled cache_dir with local_files_only never downloads at runtime.
+        self._options = {k: v for k, v in dict(cache_dir=cache_dir, threads=threads).items() if v is not None}
+        if local_files_only:
+            self._options['local_files_only'] = True
         self._model = None
         self._dimension: int = 384
         self._lock = threading.Lock()
@@ -68,7 +73,7 @@ class LocalEmbedder:
                     try:
                         from fastembed import TextEmbedding
                         logger.info(f"Loading local embedding model: {self.model_name}")
-                        model = TextEmbedding(model_name=self.model_name)
+                        model = TextEmbedding(model_name=self.model_name, **self._options)
                         dummy = np.asarray(list(model.embed(["test"])), dtype=np.float32)
                         if dummy.ndim != 2 or dummy.shape[0] != 1 or dummy.shape[1] == 0:
                             raise ValueError("Invalid embedding model output shape")

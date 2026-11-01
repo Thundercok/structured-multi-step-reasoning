@@ -58,7 +58,7 @@ class ToolGoalRouter:
                 r'find|translate|organize|organise|preview|check|compare|summarize)\b', text, re.I):
             return GoalRoute('agent', rule='multi_step_goal')
         organizing = re.match(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:dọn|sắp xếp|organize|organise)\b', text, re.I)
-        if organizing or (pending and pending.supplied_inputs.get('operation') == 'plan_folder_organization'):
+        if 'plan_folder_organization' in self.operations and (organizing or (pending and pending.supplied_inputs.get('operation') == 'plan_folder_organization')):
             rule = ('month' if re.search(r'tháng|thời gian|month|date', text, re.I) else 'type')
             if pending and not organizing:
                 rule = pending.supplied_inputs.get('args', {}).get('rule', rule)

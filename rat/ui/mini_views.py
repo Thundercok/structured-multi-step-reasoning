@@ -12,7 +12,7 @@ REGION_PREVIOUS_FIELDS = (
     'phase', 'status', 'error', 'expanded', 'hasWorkbench', 'view',
     'agentSummary', 'agentIncomplete', 'settingsNotice', 'lastOperation',
     'translationSettingsSuggested', 'finderSettingsSuggested', 'imageInputSuggested',
-    'organizationRecoverySuggested', 'canRetryRequest'
+    'canRetryRequest'
 )
 
 
@@ -21,7 +21,7 @@ HISTORY_FIELDS = (
     'hasWorkbench', 'pinned', 'attachmentLabel', 'finderHits', 'hasOcrSource', 'ocrText',
     'ocrCommittedText', 'ocrOriginalText', 'ocrPreparationNotice', 'captureSourceKind',
     'captureSourceApp', 'lookSource', 'translationDetails', 'translationNotice',
-    'sameLanguageNotice', 'organization', 'organizationRows', 'organizationGroups',
+    'sameLanguageNotice',
     'agentSummary', 'agentIncomplete', 'lastOperation'
 )
 
@@ -30,7 +30,7 @@ def default_controller_state(settings: dict) -> dict:
     """Khởi tạo toàn bộ từ điển trạng thái UI mặc định của RAT Lite."""
     return dict(
         draftText='', editingRequest=False, settingsNotice='', lastOperation='',
-        organizationGroups=[], readinessSummary=[], agentSummary='', agentIncomplete=False,
+        readinessSummary=[], agentSummary='', agentIncomplete=False,
         lookSource=False, hotkeyStatus='', sameLanguageNotice='', phase='idle', busy=False,
         bubbleCollapsed=False, expanded=False, selectionNotice='', selectionNeedsPermission=False,
         captureSourceApp='', captureSourceKind='', hotkeyStarting=False, shortcutAck='', pinned=False,
@@ -40,9 +40,9 @@ def default_controller_state(settings: dict) -> dict:
         translationDetails='', translationNotice='', translationSettingsSuggested=False,
         dropActive=False, receivingImage=False, imagePreviewUrl='', imageLabel='',
         ocrPreparationNotice='', canRetryRequest=False, finderSettingsSuggested=False,
-        imageInputSuggested=False, organization={}, organizationRows=[], canApplyOrganization=False,
-        canUndoOrganization=False, organizationRecoverySuggested=False,
-        setupCompleted=bool(settings.get("setup_completed", False) and settings.get('permission_hello_version', 0) >= 1),
+        imageInputSuggested=False, translationDirection='', sourceText='', intentChoice=False, indexProgress='',
+        # There is no setup screen; features ask for permissions when first used.
+        setupCompleted=True,
         targetLanguage=settings.get('target_language', 'vi'),
         llmEnabled=bool(settings.get('llm_enabled', False)),
         readiness=[], readinessBusy=False, readinessStatus=""
@@ -87,7 +87,7 @@ def pack_task_history_item(key, title, state: dict, presentation_view: dict, las
 def is_new_task_operation(operation: str, phase: str, args: dict) -> bool:
     """Xác định xem thao tác tiếp theo có bắt đầu một task hoàn toàn mới không."""
     return bool(
-        operation in ('find_files', 'capture_translate', 'plan_folder_organization', 'get_last_organization')
+        operation in ('find_files', 'capture_translate')
         or (operation == 'submit_goal' and phase != 'needs_input' and not args.get('source_ref'))
         or (operation == 'translate_text' and not args.get('source_ref'))
     )
@@ -98,7 +98,7 @@ def pending_task_initial_updates(operation: str, args: dict, new_task: bool, pre
     """Tập hợp toàn bộ các trường update khi chuẩn bị chạy một job mới."""
     updates = {}
     if new_task and not preserve_region:
-        updates.update(pinned=False, canApplyOrganization=False, canUndoOrganization=False, canReturnToFinder=False)
+        updates.update(pinned=False, canReturnToFinder=False)
         if not (is_file_translate and has_finder):
             updates.update(view='notice', finderHits=[], text='', meta='', translationDetails='',
                            translationNotice='', sameLanguageNotice='')
@@ -124,10 +124,6 @@ def initial_operation_status(operation: str, args: dict) -> str:
         'file': 'Đang đọc file và dịch…'
     }.get(args.get('mode'), 'Đang nhận chữ…')
     return {
-        'plan_folder_organization': 'Đang chuẩn bị bản xem trước…',
-        'apply_folder_organization': 'Đang sắp xếp file…',
-        'undo_folder_organization': 'Đang hoàn tác…',
-        'get_last_organization': 'Đang đọc nhật ký…',
         'find_files': 'Đang tìm trong thư mục đã chọn…',
         'translate_text': 'Đang dịch…',
         'capture_translate': capture_status,
@@ -158,25 +154,11 @@ def process_render_artifacts(artifacts: list, response, model_loop: bool, is_age
     """Xử lý danh sách artifact trả về từ response và sinh gói cập nhật UI tương ứng."""
     for artifact in reversed(artifacts):
         data = artifact.payload
-        if artifact.kind in ('organization_plan', 'organization_receipt'):
-            is_plan = artifact.kind == 'organization_plan'
-            view_org = format_organization_artifact_view(data, is_plan)
-            return dict(
-                kind='organization', artifact=artifact, data=data,
-                update=dict(
-                    view='organization', organization=data, organizationRows=view_org['rows'],
-                    organizationGroups=view_org['groups'], organizationRecoverySuggested=False,
-                    canApplyOrganization=view_org['can_apply'], canUndoOrganization=view_org['can_undo'],
-                    phase='partial' if model_loop and is_agent_incomplete else 'result',
-                    status=view_org['title'], text='',
-                    meta=(data if is_plan else data.get('plan', {})).get('root', ''), finderHits=[]
-                )
-            )
         if artifact.kind == 'finder_results':
             hits = [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
-                         display_path=format_compact_display_path(hit['path']), match_reason='Spotlight') for hit in data['hits']]
+                         display_path=format_compact_display_path(hit['path']), folder=format_folder_label(hit['path']), match_reason='Spotlight') for hit in data['hits']]
             partial = data.get('status') == 'partial' or bool(data.get('provider_errors'))
-            status = f"Tìm thấy {len(hits)} file" if hits else 'Chưa tìm thấy file trong thư mục đã chọn.'
+            status = f"Tìm thấy {len(hits)} file" if hits else 'Chưa thấy file nào khớp. Thử tả nội dung khác, ví dụ “slide môn NLP tuần trước”.'
             if partial:
                 done, total = data.get('coverage', {}).get('completed_roots'), data.get('coverage', {}).get('roots')
                 status = ('Spotlight chưa tìm xong. Chưa thể kết luận có file hay không.' if not hits
@@ -197,13 +179,25 @@ def process_render_artifacts(artifacts: list, response, model_loop: bool, is_age
                 kind='translation', artifact=artifact, data=data,
                 update=dict(
                     phase='partial' if view_data['partial'] or (model_loop and is_agent_incomplete) else 'result',
-                    view='translation', finderHits=[], text=data['text'], meta=view_data['meta'],
+                    view='translation', finderHits=[], text=data['text'], meta=view_data['meta'], translationDirection=view_data['direction'], sourceText=data.get('source_text', ''),
                     translationDetails=view_data['details'], translationNotice=view_data['notice'],
                     sameLanguageNotice=view_data['same_language_notice'], status=view_data['status'],
                     canReturnToFinder=view_data['can_return']
                 )
             )
     return None
+
+
+def format_folder_label(raw_path: str) -> str:
+    """Thư mục chứa file, rút gọn theo thư mục người dùng: 'Documents/HK1'."""
+    try:
+        parent = Path(raw_path).resolve().parent
+        try:
+            return str(parent.relative_to(Path.home().resolve())) or '~'
+        except ValueError:
+            return str(parent)
+    except Exception:
+        return ''
 
 
 def format_compact_display_path(raw_path: str) -> str:
@@ -227,7 +221,7 @@ def format_compact_display_path(raw_path: str) -> str:
 def format_finder_return_hits(artifact) -> list[dict]:
     raw_hits = artifact.payload.get('hits', []) if artifact else []
     return [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
-                 display_path=format_compact_display_path(hit['path']), match_reason='Spotlight')
+                 display_path=format_compact_display_path(hit['path']), folder=format_folder_label(hit['path']), match_reason='Spotlight')
             for hit in raw_hits]
 
 
@@ -247,9 +241,8 @@ def format_translation_artifact_view(data: dict, finder_artifact_present: bool =
     }
     src_lang = data.get('source_language', '')
     tgt_lang = data.get('target_language', '')
-    meta = f"{languages.get(src_lang, src_lang)} → {languages.get(tgt_lang, tgt_lang)}"
-    if data.get('local_model'):
-        meta = 'Dịch trên máy · ' + meta
+    direction = f"{languages.get(src_lang, src_lang)} → {languages.get(tgt_lang, tgt_lang)}"
+    meta = 'Dịch trên máy' if data.get('local_model') else direction
     provenance = (data.get('source_capture') or {}).get('input_provenance') or {}
     origin = {
         'selected_file': 'Ảnh đã chọn', 'dropped_file': 'Ảnh kéo thả',
@@ -275,44 +268,13 @@ def format_translation_artifact_view(data: dict, finder_artifact_present: bool =
     )
     return {
         'meta': meta,
+        'direction': direction,
         'details': details.strip(),
         'notice': notice,
         'same_language_notice': same_lang_msg,
         'can_return': can_return,
         'partial': partial,
         'status': 'Chưa dịch hết văn bản' if partial else 'Bản dịch',
-    }
-
-
-def format_organization_artifact_view(data: dict, is_plan: bool) -> dict:
-    """Format organization plan or receipt into rows, groups and summary title."""
-    plan = data if is_plan else data.get('plan', {})
-    rows = (
-        [dict(name=x['name'], destination=x['group']+'/'+x['name'], state='preview') for x in plan.get('moves', [])]
-        if is_plan else
-        [dict(name=x['name'], destination=x['group']+'/'+x['name'], state=x['state'], reason=x.get('reason', '')) for x in data.get('entries', [])]
-    )
-    moved = sum(x['state'] == 'moved' for x in rows)
-    conflicts = sum(x['state'] in ('undo_conflict', 'identity_conflict') for x in rows)
-    skipped_moves = sum(x['state'] in ('skipped', 'restored_conflict') for x in rows)
-    counts = sum(plan.get('skipped', {}).values())
-    title = f"Xem trước: {len(rows)} file · bỏ qua {counts}" if is_plan else f"Đã chuyển {moved} file · bỏ qua {skipped_moves} · {conflicts} xung đột"
-    if data.get('status') == 'undone':
-        title = 'Đã hoàn tác; các thư mục trống được giữ lại.'
-    elif data.get('status') == 'empty':
-        title = 'Chưa có lần sắp xếp nào.'
-    grouped = {}
-    for row in rows:
-        group = row['destination'].split('/', 1)[0]
-        grouped.setdefault(group, []).append(row)
-    groups = [dict(name=name, count=len(items), rows=items) for name, items in grouped.items()]
-    can_undo = not is_plan and any(x['state'] in ('moved', 'move_pending', 'undo_pending', 'undo_conflict') for x in rows)
-    return {
-        'rows': rows,
-        'groups': groups,
-        'title': title,
-        'can_apply': is_plan and bool(rows),
-        'can_undo': can_undo,
     }
 
 
@@ -357,14 +319,17 @@ def render_error_suggestions(error: str) -> dict:
     cancelled = err_str.startswith('cancelled')
     return dict(
         cancelled=cancelled,
+        # Same input fails the same way; a Retry button would only repeat it.
+        retry_useful=not any(code in err_str for code in (
+            'translation_local_pair_unavailable', 'invalid_snippet_length', 'snippet_chunk_limit', 'mini_llm_disabled'
+        )),
         translation_suggested=any(code in err_str for code in (
             'translation_rate_limited', 'translation_quota_exhausted',
             'translation_api_key_missing', 'translation_auth_failed',
-            'translation_local_unavailable', 'online_translation_not_enabled', 'api_key_missing'
+            'online_translation_not_enabled', 'api_key_missing'
         )),
         finder_suggested=any(code in err_str for code in (
-            'no_search_roots', 'scope_revoked', 'spotlight_permission_denied',
-            'organization_folder_outside_scope', 'organization_scope_changed'
+            'no_search_roots', 'scope_revoked', 'spotlight_permission_denied'
         )),
         image_suggested=any(code in err_str for code in (
             'ocr_empty', 'image_input_invalid', 'source_expired', 'stale_source_ref', 'source_integrity_mismatch'
@@ -377,15 +342,11 @@ def format_user_error_message(error: str) -> str:
     """Ánh xạ mã lỗi thành thông báo tiếng Việt thân thiện."""
     messages = {
         'online_translation_not_enabled': 'MyMemory chưa được bật. Mở Cài đặt để chọn dịch trên máy hoặc cho phép MyMemory; đoạn chữ vẫn được giữ.',
-        'organization_folder_outside_scope': 'Thư mục này chưa thuộc phạm vi RAT. Thêm thư mục trong Cài đặt, rồi xem trước lại.',
-        'organization_stale_preview': 'Bản xem trước đã quá 30 phút hoặc đã đổi. Hãy tạo bản xem trước mới.',
-        'organization_scope_changed': 'Danh sách thư mục đã đổi. Hãy tạo bản xem trước mới.',
-        'organization_folder_changed': 'Thư mục đã bị thay thế. Hãy chọn và xem trước lại.',
-        'organization_explicit_approval_required': 'Chỉ áp dụng bằng nút trên bản xem trước hiện tại.',
         'spotlight_permission_denied': 'macOS chưa cho RAT đọc thư mục đã chọn. Kiểm tra quyền của RAT hoặc chọn thư mục khác.',
         'no_search_roots': 'Chọn ít nhất một thư mục trong Cài đặt để bắt đầu tìm file.',
         'scope_revoked': 'Danh sách thư mục đã thay đổi. Hãy tìm lại trước khi mở file.',
-        'translation_local_unavailable': 'Gói dịch trên máy chưa sẵn sàng. Hãy mở lại app hoặc dùng lại bản ZIP đầy đủ; chữ vẫn được giữ.',
+        'translation_local_unavailable': 'Gói dịch trong RAT chưa sẵn sàng. Hãy mở lại RAT; nếu vẫn lỗi, cài lại RAT từ file đã tải. Chữ vẫn được giữ.',
+        'translation_local_pair_unavailable': 'RAT dịch Anh ↔ Việt. Đoạn này là ngôn ngữ khác nên chưa dịch được.',
         'translation_quota_exhausted': 'Dịch vụ đã hết hạn mức. Chữ vẫn được giữ; đổi dịch vụ hoặc chờ hạn mức khôi phục.',
         'translation_rate_limited': 'Dịch vụ đang giới hạn lượt dịch. Chữ vẫn được giữ; hãy thử lại sau ít phút.',
         'translation_auth_failed': 'Dịch vụ chưa chấp nhận cấu hình truy cập. Kiểm tra cài đặt dịch; chữ vẫn được giữ.',

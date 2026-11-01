@@ -30,7 +30,6 @@ class MiniJob(QThread):
             def observed_step(step):
                 # Only public tool receipts/checks, never thought/raw completion.
                 labels = {'find_files': 'tìm file', 'translate_text': 'dịch',
-                    'plan_folder_organization': 'lập bản xem trước',
                     'capture_text': 'nhận chữ nguồn'}
                 if step.tool_name in labels and step.tool_result is not None:
                     failed = step.error or (isinstance(step.tool_result, dict) and step.tool_result.get('error'))

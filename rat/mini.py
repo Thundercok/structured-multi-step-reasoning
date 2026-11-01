@@ -12,6 +12,7 @@ from rat.kernel.contracts import Artifact, ExecutionEvent
 from rat.engine.execution import ExecutionRequest
 from rat.engine.execution_service import AgentExecutionService
 from rat.engine.local_finder import ScopePolicy, HybridFinder
+from rat.engine.semantic_index import shared_index
 from rat.engine.mini_cloud import CloudModelClient
 from rat.engine.mini_settings import read_settings, state_directory
 from rat.engine.snippet_translation import SnippetTranslator, detect_language
@@ -20,25 +21,22 @@ from rat.kernel.profile import MINI_PROFILE
 from rat.kernel.capabilities.file_finder import create_file_finder_capability
 from rat.kernel.capabilities.translation import create_translation_capability
 from rat.kernel.capabilities.observed_source import observed_capture
-from rat.kernel.capabilities.folder_organizer import create_folder_organizer_capability
 from rat.kernel.capabilities.mini_setup import create_mini_setup_capability
-from rat.engine.folder_organization import FolderOrganizer
 
 
 class MiniSession:
     def __init__(self, settings=None, *, artifact_store=None):
         self.settings = dict(settings) if settings is not None else read_settings()
-        self.settings['llm_enabled'] = self.settings.get('llm_enabled') is True
-        if not self.settings['llm_enabled'] and self.settings.get('translation_provider') == 'llm':
-            self.settings['translation_provider'] = 'automatic'
+        # Lite runs the deterministic tier only: no model calls, no API keys and
+        # on-device Anh ↔ Việt translation without an online fallback.
+        self.settings.update(llm_enabled=False, translation_provider='local', free_fallback=False)
         self.scopes = ScopePolicy(self.settings['roots'])
-        # This release is Spotlight-only. Deferred semantic code is never imported.
-        self.semantic = None
-        self.finder = HybridFinder(self.scopes)
+        # Meaning-based index shared across sessions; the model loads only when indexing or querying.
+        self.semantic = shared_index(state_directory()/'semantic-index.sqlite')
+        self.finder = HybridFinder(self.scopes, self.semantic)
         self.client = CloudModelClient(self.settings)
         registry = CapabilityRegistry()
         registry.register_capability(create_file_finder_capability(self.finder))
-        registry.register_capability(create_folder_organizer_capability(FolderOrganizer(self.scopes, state_directory()/"organization")))
         registry.register_capability(create_mini_setup_capability(self.settings))
         registry.register_capability(create_translation_capability(SnippetTranslator(self.settings, self.client)))
         self.runtime = AssistantRuntime(registry=registry, profile=MINI_PROFILE, model_client=self.client,

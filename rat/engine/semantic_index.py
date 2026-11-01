@@ -1,0 +1,282 @@
+"""Local meaning-based file index for the finder; no network, no LLM.
+
+Reads the first pages of documents in the user's chosen folders, embeds a few
+chunks per file with the bundled multilingual model and answers "find the
+paper about attention" without the user remembering the file name. Content
+stays in the RAT state directory. Heavy imports (fastembed, PDF readers) load
+only in the indexing thread or on the first query.
+"""
+from __future__ import annotations
+
+import json
+import logging
+import os
+from pathlib import Path
+import re
+import sqlite3
+import sys
+import threading
+import time
+
+import numpy as np
+
+logger = logging.getLogger('rat.semantic_index')
+
+MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+EXTENSIONS = {'.pdf', '.docx', '.pptx', '.txt', '.md'}
+SKIP_DIRS = {'node_modules', 'Library', '__pycache__', 'venv', '.venv', 'site-packages'}
+MAX_FILES = 5000
+MAX_FILE_BYTES = 80_000_000
+CHUNK_CHARS = 600
+CHUNKS_PER_FILE = 3
+KEYWORD_WEIGHT = 0.3
+STOPWORDS = {'tim', 'file', 've', 'cai', 'cua', 'cho', 'toi', 'minh', 'mot', 'nhung', 'cac', 'va', 'la',
+             'o', 'trong', 'bai', 'the', 'a', 'an', 'of', 'about', 'find'}
+
+
+def word_set(text):
+    from rat.engine.finder_intent import _fold_ascii
+    return set(re.findall(r'\w+', _fold_ascii(text)))
+
+
+def find_embedding_directory():
+    """Bundled model cache, else None so fastembed uses its local cache (source runs)."""
+    base = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
+    folder = base / 'rat/assets/embedding'
+    return str(folder) if any(folder.glob('models--*')) else None
+
+
+def file_identity(path):
+    info = os.stat(path)
+    return [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns]
+
+
+def read_document_text(path, limit=CHUNK_CHARS * CHUNKS_PER_FILE):
+    ext = Path(path).suffix.lower()
+    if ext in ('.txt', '.md'):
+        with open(path, 'rb') as handle:
+            return handle.read(limit * 4).decode('utf-8', errors='ignore')[:limit]
+    if ext == '.pdf':
+        from document_intake.pdf import read_pdf_native
+        return (read_pdf_native(path, max_pages=3, max_chars=limit) or '')[:limit]
+    if ext == '.docx':
+        # Body text only: core-properties metadata (author, generator) is noise in a match preview.
+        from rat.crawler.extractors import _extract_docx_native_xml
+        return _extract_docx_native_xml(path)[:limit]
+    if ext == '.pptx':
+        from pptx import Presentation
+        texts = []
+        for slide in Presentation(path).slides:
+            texts.extend(shape.text_frame.text for shape in slide.shapes if getattr(shape, 'has_text_frame', False))
+            if sum(map(len, texts)) >= limit:
+                break
+        return '\n'.join(texts)[:limit]
+    return ''
+
+
+def document_chunks(path, text):
+    p = Path(path)
+    # The name chunk lets "báo cáo nhóm 4" match a file whose body is empty or scanned.
+    chunks = [f'{p.stem.replace("_", " ")} · {p.parent.name}']
+    body = ' '.join(re.sub(r'---\s*Page \d+\s*---', ' ', text).split())
+    for start in range(0, min(len(body), CHUNK_CHARS * CHUNKS_PER_FILE), CHUNK_CHARS):
+        piece = body[start:start + CHUNK_CHARS].strip()
+        if len(piece) >= 40:
+            chunks.append(piece)
+    return chunks
+
+
+def candidate_files(roots, should_stop):
+    found = []
+    for root in roots:
+        for folder, dirs, files in os.walk(root, onerror=lambda _exc: None):
+            if should_stop():
+                return found
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in SKIP_DIRS
+                       and not d.endswith(('.app', '.bundle', '.photoslibrary'))]
+            for name in files:
+                if not name.startswith('.') and Path(name).suffix.lower() in EXTENSIONS:
+                    path = os.path.join(folder, name)
+                    try:
+                        info = os.stat(path)
+                    except OSError:
+                        continue
+                    if info.st_size <= MAX_FILE_BYTES:
+                        found.append((info.st_mtime, path))
+    # Recent files first: they are the ones a student is most likely looking for.
+    found.sort(reverse=True)
+    return [path for _mtime, path in found[:MAX_FILES]]
+
+
+class SemanticIndex:
+    """Thread-safe store plus one background indexing pass at a time."""
+
+    def __init__(self, database, *, embedder=None):
+        self.database = Path(database)
+        self.database.parent.mkdir(parents=True, exist_ok=True)
+        self._embedder = embedder
+        self._lock = threading.RLock()
+        self._matrix = None
+        self._rows = []
+        self._words = []
+        self._thread = None
+        self._stop = threading.Event()
+        self._progress = {'state': 'idle', 'done': 0, 'total': 0}
+        with self._connect() as db:
+            db.executescript('''
+                CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, identity TEXT NOT NULL,
+                    modified_at REAL, indexed_at REAL);
+                CREATE TABLE IF NOT EXISTS chunks (path TEXT NOT NULL, chunk_index INTEGER NOT NULL,
+                    chunk_text TEXT NOT NULL, vector BLOB NOT NULL, PRIMARY KEY (path, chunk_index));''')
+
+    def _connect(self):
+        return sqlite3.connect(self.database, timeout=10)
+
+    @property
+    def embedder(self):
+        if self._embedder is None:
+            from rat.engine.embedder import LocalEmbedder
+            self._embedder = LocalEmbedder(MODEL_NAME, cache_dir=find_embedding_directory(),
+                                           local_files_only=True, threads=2)
+        return self._embedder
+
+    def progress(self):
+        with self._lock:
+            return dict(self._progress)
+
+    def count(self):
+        with self._connect() as db:
+            return db.execute('SELECT COUNT(*) FROM files').fetchone()[0]
+
+    def invalidate_paths(self, paths):
+        with self._lock, self._connect() as db:
+            db.executemany('DELETE FROM files WHERE path = ?', [(p,) for p in paths])
+            db.executemany('DELETE FROM chunks WHERE path = ?', [(p,) for p in paths])
+            self._matrix = None
+
+    def _load_matrix(self):
+        with self._lock:
+            if self._matrix is None:
+                with self._connect() as db:
+                    rows = db.execute('''SELECT c.path, c.chunk_index, c.chunk_text, c.vector, f.identity, f.modified_at
+                                         FROM chunks c JOIN files f ON f.path = c.path''').fetchall()
+                self._rows = [dict(file_path=r[0], chunk_index=r[1], chunk_text=r[2],
+                                   identity=json.loads(r[4]), modified_at=r[5]) for r in rows]
+                # Words of each chunk plus its file name, accent-folded, for keyword agreement.
+                self._words = [word_set(r[2] + ' ' + Path(r[0]).stem) for r in rows]
+                self._matrix = (np.vstack([np.frombuffer(r[3], dtype=np.float32) for r in rows])
+                                if rows else np.empty((0, 384), dtype=np.float32))
+            return self._matrix, self._rows
+
+    def search(self, query, should_cancel=lambda: False, limit=40, floor=0.35, spread=0.12):
+        matrix, rows = self._load_matrix()
+        if not len(rows):
+            return []
+        vector = self.embedder.embed_query(query)
+        if should_cancel():
+            raise ValueError('cancelled:semantic')
+        # Meaning alone ranks near neighbours closely; words the user typed that
+        # literally appear in the document break those ties.
+        terms = word_set(query) - STOPWORDS
+        agreement = np.array([len(terms & words) / len(terms) if terms else 0.0 for words in self._words],
+                             dtype=np.float32)
+        scores = matrix @ vector + KEYWORD_WEIGHT * agreement
+        order = np.argsort(-scores)[:limit]
+        best = float(scores[order[0]])
+        # Weak neighbours are noise, not "related"; keep a band near the best match.
+        cutoff = max(floor, best - spread)
+        results, seen = [], set()
+        for i in order:
+            if scores[i] < cutoff:
+                break
+            row = rows[i]
+            # One best chunk per file: rank fusion would otherwise reward long files.
+            if row['file_path'] in seen:
+                continue
+            seen.add(row['file_path'])
+            results.append({**row, 'file_name': Path(row['file_path']).name,
+                            'file_ext': Path(row['file_path']).suffix.lower(),
+                            'similarity_score': float(scores[i])})
+        return results
+
+    def start(self, roots):
+        """Index new or changed files under roots in a daemon thread; no-op while one runs."""
+        with self._lock:
+            if self._thread and self._thread.is_alive():
+                return False
+            self._stop.clear()
+            self._thread = threading.Thread(target=self._run, args=(tuple(map(str, roots)),),
+                                            name='rat-semantic-index', daemon=True)
+            self._thread.start()
+            return True
+
+    def stop(self):
+        self._stop.set()
+
+    def _run(self, roots):
+        try:
+            self._index(roots)
+        except Exception as exc:
+            logger.warning('semantic_index_failed: %s', type(exc).__name__)
+            with self._lock:
+                self._progress = {'state': 'unavailable', 'done': 0, 'total': 0}
+        finally:
+            self.embedder.evict()
+
+    def _index(self, roots):
+        with self._lock:
+            self._progress = {'state': 'scanning', 'done': 0, 'total': 0}
+        paths = candidate_files(roots, self._stop.is_set)
+        with self._connect() as db:
+            known = dict(db.execute('SELECT path, identity FROM files'))
+        live = set(paths)
+        gone = [p for p in known if p not in live and any(p.startswith(r.rstrip('/') + '/') for r in roots)]
+        if gone:
+            self.invalidate_paths(gone)
+        todo = []
+        for path in paths:
+            try:
+                identity = file_identity(path)
+            except OSError:
+                continue
+            if known.get(path) != json.dumps(identity):
+                todo.append((path, identity))
+        with self._lock:
+            self._progress = {'state': 'indexing' if todo else 'ready', 'done': 0, 'total': len(todo)}
+        for done, (path, identity) in enumerate(todo, 1):
+            if self._stop.is_set():
+                break
+            try:
+                chunks = document_chunks(path, read_document_text(path))
+                vectors = self.embedder.embed_texts(chunks, batch_size=8)
+            except Exception as exc:
+                # Unreadable or encrypted documents still get their name indexed.
+                logger.info('semantic_index_skip ext=%s code=%s', Path(path).suffix, type(exc).__name__)
+                chunks = document_chunks(path, '')
+                vectors = self.embedder.embed_texts(chunks)
+            with self._lock, self._connect() as db:
+                db.execute('DELETE FROM chunks WHERE path = ?', (path,))
+                db.executemany('INSERT INTO chunks VALUES (?, ?, ?, ?)',
+                               [(path, i, text, vec.astype(np.float32).tobytes()) for i, (text, vec) in enumerate(zip(chunks, vectors))])
+                db.execute('INSERT OR REPLACE INTO files VALUES (?, ?, ?, ?)',
+                           (path, json.dumps(identity), os.stat(path).st_mtime, time.time()))
+                self._matrix = None
+                self._progress = {'state': 'indexing', 'done': done, 'total': len(todo)}
+            # Yield the CPU between files so typing and translation stay responsive.
+            time.sleep(0.02)
+        with self._lock:
+            if not self._stop.is_set():
+                self._progress = {'state': 'ready', 'done': len(todo), 'total': len(todo)}
+
+
+_shared = {}
+_shared_lock = threading.Lock()
+
+
+def shared_index(database):
+    """One index per database file, shared by every MiniSession the UI creates."""
+    key = str(Path(database).resolve())
+    with _shared_lock:
+        if key not in _shared:
+            _shared[key] = SemanticIndex(database)
+        return _shared[key]

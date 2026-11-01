@@ -337,7 +337,9 @@ class SnippetTranslator:
                         {'source_start': 0, 'source_end': len(text), 'translated_text': text, 'status': 'complete'}],
                     'source_sha256': hashlib.sha256(text.encode()).hexdigest(), 'warnings': []}
         warnings = []
-        is_automatic = chosen == 'automatic'
+        # 'local' is the on-device-only mode: Anh ↔ Việt models, never an online fallback.
+        local_only = chosen == 'local'
+        is_automatic = chosen in ('automatic', 'local')
         if is_automatic:
             from rat.engine.local_translation import LocalTranslator, PAIRS, is_local_models_ready, ensure_local_translation_models
             if (source, target) in PAIRS:
@@ -353,10 +355,14 @@ class SnippetTranslator:
                     local_ready = ensure_local_translation_models(self._local_translator.directory, should_cancel)
                 if local_ready:
                     chosen = 'offline_argos'
+                elif local_only:
+                    raise ValueError('translation_local_unavailable')
                 else:
                     logger.info("Local translation models not available; falling back to google_gtx")
                     chosen = 'google_gtx'
                     warnings.append('Đã tự động chuyển sang dịch trực tuyến vì gói dịch trên máy chưa sẵn sàng.')
+            elif local_only:
+                raise ValueError('translation_local_pair_unavailable')
             else:
                 chosen = 'google_gtx'
         if chosen == 'apple':
@@ -395,7 +401,7 @@ class SnippetTranslator:
                 segment['error_code'] = type(exc).__name__
                 segment['failure_code'] = translation_failure_code(exc)
                 failures.append(segment['failure_code'])
-                if (is_automatic or self.settings.get('free_fallback')) and provider == 'offline_argos' and time.monotonic() < deadline:
+                if not local_only and (is_automatic or self.settings.get('free_fallback')) and provider == 'offline_argos' and time.monotonic() < deadline:
                     try:
                         out = self._cloud('google_gtx', piece, source, target, should_cancel,
                                           max(0.1, min(10, deadline - time.monotonic())))

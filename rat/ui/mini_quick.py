@@ -71,15 +71,11 @@ def create_mini_desk(settings=None):
     tray.setToolTip('RAT Mini')
     tray_actions = {}
     for label, callback in [
-        ('Xem lại công việc', controller.summonLook),
-        ('Viết yêu cầu', controller.summonMinimal),
-        ('Đăng ký lại phím tắt', controller.restartHotkey),
-        ('Xem lại kết quả', controller.recallLookResult),
+        ('Mở RAT', controller.summonMinimal),
         ('Dịch Clipboard', lambda: (present(), controller.translateClipboard())),
-        ('Thiết lập & trợ giúp…', lambda: (present(), controller.helpRequested.emit())),
+        ('Đăng ký lại phím tắt', controller.restartHotkey),
         ('Cài đặt…', lambda: (present(), controller.settingsRequested.emit())),
-        ('Dừng tác vụ', controller.cancel), ('Ẩn RAT Mini', shell.dismiss),
-        ('Thoát RAT Mini', controller.quit)]:
+        ('Thoát RAT', controller.quit)]:
         action = QAction(label, menu)
         action.triggered.connect(lambda _checked=False, fn=callback: fn())
         menu.addAction(action)
@@ -92,8 +88,9 @@ def create_mini_desk(settings=None):
         tray.setBadgeText('!' if shortcut_failed else '…' if state['shortcutAck'] or state['busy'] else '')
         tray.setToolTip('RAT Lite · ' + ('Phím tắt chưa sẵn sàng. Mở menu để đăng ký lại.' if shortcut_failed
             else state['shortcutAck'] or ('Đang xử lý yêu cầu.' if state['busy'] else state['lookStatusLabel'])))
-        tray_actions[controller.restartHotkey].setEnabled(shortcut_failed and not state['hotkeyStarting'])
-        tray_actions[controller.recallLookResult].setEnabled(state['hasWorkbench'])
+        # Only offered when the shortcut actually failed.
+        tray_actions[controller.restartHotkey].setVisible(shortcut_failed)
+        tray_actions[controller.restartHotkey].setEnabled(not state['hotkeyStarting'])
     controller.changed.connect(refresh_tray)
     refresh_tray()
     tray.menuVisibilityChanged.connect(shell.set_status_menu_open)
