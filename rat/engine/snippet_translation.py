@@ -20,6 +20,7 @@ from rat.engine.mini_settings import keychain_key
 import certifi
 import httpx
 from rat.kernel.input_context import ImageInput, MAX_IMAGE_BYTES, MAX_IMAGE_PIXELS
+from rat.engine.translation_glossary import protect, restore
 
 logger = logging.getLogger(__name__)
 
@@ -376,6 +377,7 @@ class SnippetTranslator:
         if len(chunks) > 64:
             raise ValueError('snippet_chunk_limit')
         segments, providers = [], set()
+        glossary_terms = 0
         failures = []
         deadline = time.monotonic() + 30
         for start, end, piece in chunks:
@@ -386,10 +388,15 @@ class SnippetTranslator:
             try:
                 if time.monotonic() >= deadline:
                     raise TimeoutError('translation_deadline')
-                out = (self._local_translator.translate(piece, source, target, should_cancel)
-                       if provider == 'offline_argos' else
-                       self._cloud(provider, piece, source, target, should_cancel,
-                                   max(0.1, min(10, deadline - time.monotonic()))))
+                if provider == 'offline_argos':
+                    # Research terms ride through the local model as placeholders.
+                    protected, terms = protect(piece) if (source, target) == ('en', 'vi') else (piece, {})
+                    out = restore(self._local_translator.translate(protected, source, target, should_cancel), terms)
+                    if terms:
+                        glossary_terms += len(terms)
+                else:
+                    out = self._cloud(provider, piece, source, target, should_cancel,
+                                      max(0.1, min(10, deadline - time.monotonic())))
                 if not isinstance(out, str) or not out.strip():
                     raise ValueError('translation_empty_response')
                 out = preserve_edge_whitespace(piece, out)
@@ -442,4 +449,5 @@ class SnippetTranslator:
                 'text': result, 'source_text': text, 'source_language': source, 'target_language': target,
                 'source_sha256': hashlib.sha256(text.encode()).hexdigest(),
                 'segments': segments, 'provider': ', '.join(sorted(providers)), 'warnings': warnings,
-                'local_model': self._local_translator.model_info if 'offline_argos' in providers else None}
+                'local_model': self._local_translator.model_info if 'offline_argos' in providers else None,
+                'glossary_terms': glossary_terms}
