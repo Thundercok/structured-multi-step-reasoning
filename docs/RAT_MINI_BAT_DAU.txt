@@ -1,54 +1,42 @@
-RAT LITE (RAT MINI) — HƯỚNG DẪN DÙNG NHANH
+RAT LITE — ĐỌC TRƯỚC KHI DÙNG
 
-Chào bạn! Đây là ứng dụng Chuột đồng hành thông minh cho macOS (Apple Silicon M1/M2/M3..., macOS 14 trở lên).
-App dịch Anh ↔ Việt và tìm file hoàn toàn trên máy, không cần mạng, không cần cài đặt phức tạp hay đăng ký tài khoản.
+Chuột giúp bạn hai việc, ngay trên máy, không cần mạng hay tài khoản:
+  1. Tìm file hoặc app khi không nhớ tên, chỉ cần tả nó.
+  2. Dịch đoạn đang đọc (paper, web, ảnh chụp) giữa tiếng Anh và tiếng Việt.
+Cần Mac chip M (M1, M2, M3…) và macOS 14 trở lên. Tài liệu của bạn không được gửi đi đâu.
 
-============================================================
-1. MỞ APP LẦN ĐẦU (RẤT QUAN TRỌNG)
-============================================================
-Vì ứng dụng chưa mua chứng chỉ Apple Developer ID ($99/năm), macOS sẽ hiển thị cảnh báo bảo mật khi mở lần đầu.
-Cách mở cực kỳ đơn giản:
-👉 Nhấp đúp vào file "Mo RAT Mini Lan Dau.command" nằm ngay cạnh RAT Mini.app trong thư mục này.
-App sẽ tự động mở lên ngay lập tức!
 
-Ở màn hình chào mừng:
-- Nếu muốn dùng phím tắt dịch nhanh khi bôi đen chữ, bấm nút "Mở Trợ năng" và gạt bật cho RAT Mini.
-- Bấm nút xanh "Bắt đầu làm việc" để dùng ngay. Bạn có thể cấp quyền sau bất cứ lúc nào.
+1. CÀI ĐẶT
+   Mở file "RAT Lite.dmg", kéo biểu tượng "RAT Mini" vào thư mục Applications.
 
-============================================================
-2. CÁC TÍNH NĂNG CHÍNH
-============================================================
+2. MỞ LẦN ĐẦU (chỉ làm một lần)
+   App chưa đăng ký với Apple nên macOS sẽ chặn ở lần mở đầu tiên:
+   a. Mở Applications, bấm đúp "RAT Mini". macOS báo không mở được → bấm "Xong".
+   b. Mở Cài đặt hệ thống → Quyền riêng tư & Bảo mật.
+   c. Kéo xuống dưới cùng, thấy dòng về "RAT Mini" → bấm "Vẫn mở".
+   d. Nhập mật khẩu máy, rồi bấm "Mở".
+   Từ lần sau mở như app bình thường.
 
-A. DỊCH NHANH CHỮ BÔI ĐEN (PHÍM TẮT)
-- Bôi đen bất kỳ đoạn văn bản nào trên trang web, file PDF hay ứng dụng khác.
-- Nhấn tổ hợp phím: Option + Shift + Space (⌥⇧Space).
-- Chuột sẽ dịch ngay lập tức sang tiếng Việt (hoặc tiếng Anh nếu văn bản là tiếng Việt).
-- Phím tắt hữu ích:
-  + Nhấn ⌘⇧L: Đổi hướng dịch Anh ↔ Việt và dịch lại tức thì.
-  + Bấm nút "Sao chép" (hoặc nhấn ⌘C) để chép bản dịch.
-  + Bấm nút "Giải thích" để trò chuyện, hỏi đáp thêm với Chuột.
+3. TÌM FILE HOẶC APP
+   - Bấm vào con Chuột ở góc màn hình để mở ô nhập.
+   - Tả thứ bạn cần, ví dụ: "slide môn NLP tuần trước", "báo cáo đồ án nhóm 4",
+     "bài báo về attention", "app nhắn tin", "app làm slide".
+   - Enter để mở. ⌘Enter để hiện file trong Finder. ⌘C để chép đường dẫn.
+   - Lần đầu, Chuột cần vài phút để đọc qua Documents, Desktop và Downloads.
+     macOS có thể hỏi cho phép RAT Mini truy cập các thư mục này → bấm "Cho phép".
+   - Muốn tìm ở thư mục khác: menu "···" → Cài đặt… → Thêm thư mục…
 
-B. DỊCH ẢNH & ẢNH CHỤP MÀN HÌNH (KÉO THẢ)
-- Nhấn ⌘⇧4 để chụp một vùng chữ bất kỳ trên màn hình.
-- Kéo file ảnh thả thẳng vào đầu Chuột.
-- Chuột sẽ tự động nhận diện chữ (Apple Vision) và dịch ngay cho bạn.
+4. DỊCH ĐOẠN ĐANG ĐỌC
+   - Bôi đen đoạn cần dịch rồi bấm ⌥⇧Space (Option + Shift + Space).
+     Lần đầu Chuột xin quyền Trợ năng để đọc chữ bạn bôi đen. Chưa muốn cấp
+     thì bấm ⌘C trước, rồi bấm "Dán chữ" trên Chuột.
+   - Dịch ảnh: chụp vùng chữ bằng ⌃⌘⇧4 (lưu vào bộ nhớ tạm), rồi bấm vào
+     Chuột và nhấn ⌘V. Hoặc kéo file ảnh thả vào Chuột.
+   - Nút ⇄ đổi chiều dịch. "Đoạn gốc" để xem hoặc sửa chữ trước khi dịch.
+   - Thuật ngữ chuyên ngành được giữ tiếng Anh trong ngoặc, ví dụ
+     "tự chú ý (self-attention)".
 
-C. TÌM FILE TỨC THÌ QUA SPOTLIGHT
-- Nhấp vào đầu Chuột để mở ô tìm kiếm.
-- Gõ tên file hoặc tài liệu bạn cần (ví dụ: "bao cao thang 10", "invoice.pdf").
-- Nhấn Enter: Chuột hiển thị danh sách file với đường dẫn rút gọn dễ nhìn.
-- Nhấn ⌘C trên kết quả để sao chép nhanh đường dẫn file. Nhấn đúp để mở file.
-
-D. SẮP XẾP THƯ MỤC
-- Gõ vào ô nhập: "Dọn Downloads theo tháng" hoặc "Dọn Downloads theo loại file".
-- Chuột hiển thị bản xem trước trước khi thực hiện. Bạn bấm "Áp dụng" hoặc "Hoàn tác" bất cứ lúc nào.
-
-============================================================
-3. MẸO SỬ DỤNG VÀ THAO TÁC
-============================================================
-- Bấm vào đầu Chuột: Mở hoặc đóng ô nhập.
-- Bấm chuột phải vào đầu Chuột: Mở menu chức năng và lịch sử gần đây.
-- Nhấn phím Escape (Esc) hoặc ⌘W: Ẩn nhanh cửa sổ Chuột.
-- Nhấn ⌘Q: Thoát ứng dụng.
-
-Chúc bạn có trải nghiệm làm việc thật vui vẻ cùng Chuột!
+5. KHÁC
+   - Esc hoặc ⌘W: ẩn Chuột. Bấm ra ngoài cũng tự ẩn.
+   - Thoát hẳn: biểu tượng Chuột trên thanh menu → "Thoát RAT".
+   - Chỉ dịch giữa tiếng Anh và tiếng Việt.

@@ -30,7 +30,7 @@ excluded=(torch transformers scipy sklearn gymnasium mlx mlx_lm sentence_transfo
   PyQt6.QtWidgets rat.ui.mini_floaty rat.ui.mini_settings_dialog
   matplotlib pandas IPython ipykernel notebook jupyterlab bokeh plotly seaborn dask sympy onnx
   rat.timetable rat.astrology rat.plugins rat.crawler rat.engine.slm rat.engine.document_model_service
-  rat.kernel.capabilities.applications rat.kernel.capabilities.documents
+  rat.kernel.capabilities.documents
   rat.kernel.capabilities.result_tables rat.kernel.capabilities.smart_notes rat.kernel.capabilities.web
   rat.kernel.capabilities.timetable rat.kernel.capabilities.natal rat.kernel.capabilities.views)
 exclude_args=()
@@ -90,19 +90,13 @@ manifest = dict(build=BUILD, version=VERSION, protocol='SELECT2',
 PY
 RAT_CODESIGN_IDENTITY="${RAT_CODESIGN_IDENTITY:--}"
 codesign --force --deep --sign "$RAT_CODESIGN_IDENTITY" "$RAT_MINI_BUILT_APP"
-rm -rf "$DIST_DIR/RAT Mini" 2>/dev/null || true
-ditto -c -k --keepParent "$RAT_MINI_BUILT_APP" "$DIST_DIR/RAT Mini.zip"
-"$PYTHON_BIN" - <<'PY'
-from pathlib import Path
-import zipfile
-import os
-root = Path.cwd()
-with zipfile.ZipFile(Path(os.environ['RAT_MINI_BUILT_APP']).parent / 'RAT Mini.zip', 'a', compression=zipfile.ZIP_DEFLATED) as package:
-    package.write(root / 'docs/RAT_MINI_BAT_DAU.txt', 'BAT DAU O DAY.txt')
-    package.write(Path(os.environ['RAT_MINI_BUILT_APP'])/'Contents/Resources/rat-lite-build.json', 'RAT Lite build.json')
-    cmd_script = '#!/bin/zsh\nDIR="$(cd "$(dirname "$0")" && pwd)"\nxattr -cr "$DIR/RAT Mini.app" 2>/dev/null || true\nopen "$DIR/RAT Mini.app"\n'
-    cmd_info = zipfile.ZipInfo('Mo RAT Mini Lan Dau.command')
-    cmd_info.external_attr = 0o755 << 16
-    package.writestr(cmd_info, cmd_script)
-PY
-echo "Built: $DIST_DIR/RAT Mini.zip"
+rm -rf "$DIST_DIR/RAT Mini" "$DIST_DIR/RAT Mini.zip" "$DIST_DIR/RAT Lite.dmg" 2>/dev/null || true
+# One disk image: the app, an Applications shortcut to drag onto, and the guide.
+# No helper scripts: a downloaded .command is blocked by Gatekeeper just like the app.
+DMG_STAGE="$BUILD_TMP/dmg"
+mkdir -p "$DMG_STAGE"
+ditto "$RAT_MINI_BUILT_APP" "$DMG_STAGE/RAT Mini.app"
+ln -s /Applications "$DMG_STAGE/Applications"
+cp "$ROOT/docs/RAT_MINI_BAT_DAU.txt" "$DMG_STAGE/ĐỌC TRƯỚC KHI DÙNG.txt"
+hdiutil create -quiet -volname "RAT Lite" -srcfolder "$DMG_STAGE" -fs HFS+ -format UDZO -ov "$DIST_DIR/RAT Lite.dmg"
+echo "Built: $DIST_DIR/RAT Lite.dmg"

@@ -9,11 +9,15 @@ Demo files have names that say nothing about their content (`1706.03762v7.pdf`, 
 `scan_0012.pdf`). Vietnamese descriptions found the right file first in 9 of 10 scripted queries;
 "tìm transformer paper" missed because the demo text never contains the word.
 
-Verified: meaning-based search, typed translation, clipboard translation, clarify buttons,
+App search (`04b`, `04c`): "tìm app nhắn tin" → Messages, Zalo, Discord; "tìm app làm slide thuyết trình"
+→ Keynote, PowerPoint, with native icons. Translations keep research terms (`05`: "Tự chú ý đa đầu
+(multi-head self-attention)").
+
+Verified: meaning-based file and app search, typed translation, clipboard translation, clarify buttons,
 unsupported-language message, settings. Index of 6 files: ~3 s; queries ~0.1 s after model load.
 
 Not verified: OS keyboard routing (text is inserted into the QML field), the global hotkey on a
 selection in Preview, Accessibility prompts, Spotlight (returns nothing for user folders on this Mac),
-the packaged .app (not rebuilt; the embedding model is not yet bundled), behaviour on an 8 GB Mac
+launching an app from the list (the launch path was tested with a stub launcher), behaviour on an 8 GB Mac
 (model load adds ~800 MB RSS while indexing or querying). The panel was pinned during recording so
 clicks elsewhere on the screen would not dismiss it.

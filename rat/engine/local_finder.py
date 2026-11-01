@@ -234,8 +234,8 @@ def name_walk_paths(roots, terms, extensions, should_cancel, deadline, max_entri
 
 
 class HybridFinder:
-    def __init__(self, scopes, semantic=None):
-        self.scopes, self.semantic = scopes, semantic
+    def __init__(self, scopes, semantic=None, apps=None):
+        self.scopes, self.semantic, self.apps = scopes, semantic, apps
 
     def search(self, query, *, filters=None, limit=8, mode='auto', should_cancel=lambda: False):
         started = time.monotonic()
@@ -347,13 +347,23 @@ class HybridFinder:
                          'verification': {'exists': True, 'readable': True, 'in_scope': True}})
         if version != self.scopes.version:
             raise ValueError('scope_revoked')
+        app_hits = []
+        # Words like "slide" double as file-type filters; apps are matched on the
+        # whole request, skipped only when it asks for a date range.
+        if self.apps is not None and lower is None and upper is None:
+            try:
+                app_hits = self.apps.search(query)
+            except Exception as exc:
+                if should_cancel():
+                    raise ValueError('cancelled:apps') from exc
+                failures.append({'provider': 'apps', 'code': type(exc).__name__})
         diagnostics = {'runtime': 'frozen' if getattr(sys, 'frozen', False) else 'source',
             'elapsed_ms': round((time.monotonic()-started)*1000),
             'transport': 'scoped-mdfind-bounded-retry-v3', 'name_walk': name_walk}
         logger.info('spotlight_search_finished runtime=%s elapsed_ms=%s roots=%s completed=%s hits=%s',
             diagnostics['runtime'], diagnostics['elapsed_ms'], len(roots), completed_roots, len(hits))
         return {'status': 'partial' if failures or semantic_state in ('failed', 'not_indexed') else 'complete',
-                'query': query, 'hits': hits, 'hit_count': len(hits), 'scope_version': version,
+                'query': query, 'hits': hits, 'hit_count': len(hits), 'apps': app_hits, 'scope_version': version,
                 'effective_filters': {'extensions': list(extensions), 'date_field': date_field,
                                       'from_timestamp': lower, 'to_timestamp': upper},
                 'interpretation': list(plan.interpretation_chips),

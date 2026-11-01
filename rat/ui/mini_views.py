@@ -155,10 +155,9 @@ def process_render_artifacts(artifacts: list, response, model_loop: bool, is_age
     for artifact in reversed(artifacts):
         data = artifact.payload
         if artifact.kind == 'finder_results':
-            hits = [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
-                         display_path=format_compact_display_path(hit['path']), folder=format_folder_label(hit['path']), match_reason='Spotlight') for hit in data['hits']]
+            hits = merge_finder_hits(data)
             partial = data.get('status') == 'partial' or bool(data.get('provider_errors'))
-            status = f"Tìm thấy {len(hits)} file" if hits else 'Chưa thấy file nào khớp. Thử tả nội dung khác, ví dụ “slide môn NLP tuần trước”.'
+            status = f"Tìm thấy {len(hits)} kết quả" if hits else 'Chưa thấy file nào khớp. Thử tả nội dung khác, ví dụ “slide môn NLP tuần trước”.'
             if partial:
                 done, total = data.get('coverage', {}).get('completed_roots'), data.get('coverage', {}).get('roots')
                 status = ('Spotlight chưa tìm xong. Chưa thể kết luận có file hay không.' if not hits
@@ -218,11 +217,20 @@ def format_compact_display_path(raw_path: str) -> str:
         return str(raw_path)
 
 
+def merge_finder_hits(data: dict) -> list[dict]:
+    """Files and apps in one list; an app whose name or purpose clearly matches leads."""
+    files = [dict(hit, kind='file', source_index=i, is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
+                  display_path=format_compact_display_path(hit['path']), folder=format_folder_label(hit['path']),
+                  match_reason='Spotlight')
+             for i, hit in enumerate(data.get('hits', []))]
+    apps = [dict(app, folder='Ứng dụng', snippet='') for app in data.get('apps', [])]
+    strong = [a for a in apps if a.get('named') or a.get('score', 0) >= 1.0]
+    # Loosely related apps would bury the file the user asked for.
+    return strong + files + [a for a in apps if a not in strong and a.get('score', 0) >= 0.75]
+
+
 def format_finder_return_hits(artifact) -> list[dict]:
-    raw_hits = artifact.payload.get('hits', []) if artifact else []
-    return [dict(hit, kind='file', is_pdf=Path(hit['path']).suffix.lower() == '.pdf',
-                 display_path=format_compact_display_path(hit['path']), folder=format_folder_label(hit['path']), match_reason='Spotlight')
-            for hit in raw_hits]
+    return merge_finder_hits(artifact.payload) if artifact else []
 
 
 def handle_file_action(artifact, index: int, operation: str, busy: bool) -> tuple[str, dict] | None:

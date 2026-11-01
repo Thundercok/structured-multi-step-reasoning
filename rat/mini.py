@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import re
+import subprocess
 import sys
 import time
 from uuid import uuid4
@@ -13,6 +14,7 @@ from rat.engine.execution import ExecutionRequest
 from rat.engine.execution_service import AgentExecutionService
 from rat.engine.local_finder import ScopePolicy, HybridFinder
 from rat.engine.semantic_index import shared_index
+from rat.engine.app_search import AppSearch
 from rat.engine.mini_cloud import CloudModelClient
 from rat.engine.mini_settings import read_settings, state_directory
 from rat.engine.snippet_translation import SnippetTranslator, detect_language
@@ -22,6 +24,24 @@ from rat.kernel.capabilities.file_finder import create_file_finder_capability
 from rat.kernel.capabilities.translation import create_translation_capability
 from rat.kernel.capabilities.observed_source import observed_capture
 from rat.kernel.capabilities.mini_setup import create_mini_setup_capability
+from rat.kernel.capabilities.applications import create_applications_capability
+
+
+_apps = None
+
+
+def shared_apps(embedder_source):
+    """One app catalog per process; scanning and embedding happen on first app query."""
+    global _apps
+    if _apps is None:
+        _apps = AppSearch(embedder_source, state_directory()/'app-catalog.json')
+    return _apps
+
+
+def open_application_bundle(app):
+    # The capability has already revalidated the bundle; LaunchServices opens it.
+    result = subprocess.run(['/usr/bin/open', app.path], capture_output=True, text=True, timeout=10)
+    return (result.returncode == 0, result.stderr.strip())
 
 
 class MiniSession:
@@ -33,11 +53,13 @@ class MiniSession:
         self.scopes = ScopePolicy(self.settings['roots'])
         # Meaning-based index shared across sessions; the model loads only when indexing or querying.
         self.semantic = shared_index(state_directory()/'semantic-index.sqlite')
-        self.finder = HybridFinder(self.scopes, self.semantic)
+        self.apps = shared_apps(lambda: self.semantic.embedder)
+        self.finder = HybridFinder(self.scopes, self.semantic, self.apps)
         self.client = CloudModelClient(self.settings)
         registry = CapabilityRegistry()
         registry.register_capability(create_file_finder_capability(self.finder))
         registry.register_capability(create_mini_setup_capability(self.settings))
+        registry.register_capability(create_applications_capability(launcher=open_application_bundle))
         registry.register_capability(create_translation_capability(SnippetTranslator(self.settings, self.client)))
         self.runtime = AssistantRuntime(registry=registry, profile=MINI_PROFILE, model_client=self.client,
                                         artifact_store=artifact_store,

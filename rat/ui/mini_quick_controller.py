@@ -702,7 +702,7 @@ class MiniQuickController(QObject):
             return
         if self._region_previous is not None and not (operation == 'capture_translate' and args.get('preserve_until_capture')):
             self.restore_region_previous()
-        if operation not in ('check_mini_readiness', 'open_file', 'reveal_file'):
+        if operation not in ('check_mini_readiness', 'open_file', 'reveal_file', 'open_application'):
             self._retry_request = None
             self.update(canRetryRequest=False)
         if operation in ('submit_goal', 'find_files', 'translate_text', 'capture_translate', 'correct_translate'):
@@ -891,8 +891,9 @@ class MiniQuickController(QObject):
                         'style': data.get('style', 'faithful')}
                 if len(data.get('text', '')) > 480 and self.presentation.extent != 'expanded': self.presentation.resize(True)
                 self.complete_surface(); self.update(**artifact_res['update']); return
-        if value.get('operation') in ('open_file', 'reveal_file'):
-            self.update(phase='result', status='Đã mở file.' if value['operation'] == 'open_file' else 'Đã hiện trong Finder.')
+        if value.get('operation') in ('open_file', 'reveal_file', 'open_application'):
+            self.update(phase='result', status={'open_file': 'Đã mở file.', 'reveal_file': 'Đã hiện trong Finder.',
+                                                'open_application': 'Đã mở ứng dụng.'}[value['operation']])
             self.interactionCompleted.emit()
         else:
             self.complete_surface()
@@ -937,7 +938,13 @@ class MiniQuickController(QObject):
             canReturnToFinder=False)
 
     def file_action(self, index, operation):
-        action = handle_file_action(self.finder_artifact, index, operation, self._state['busy'])
+        hits = self._state.get('finderHits', [])
+        hit = hits[index] if 0 <= index < len(hits) else {}
+        if hit.get('kind') == 'app':
+            if operation == 'open_file' and not self._state['busy']:
+                self.enqueue('open_application', {'path': hit['path']})
+            return
+        action = handle_file_action(self.finder_artifact, hit.get('source_index', index), operation, self._state['busy'])
         if action:
             self.enqueue(action[0], action[1])
 

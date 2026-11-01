@@ -57,6 +57,10 @@ def create_mini_desk(settings=None):
         darkMode=app.styleHints().colorScheme() == Qt.ColorScheme.Dark,
         maxPaperHeight=max(180, min(420, screen.height()-250))))
     view.engine().addImageProvider('mini-input', controller.image_preview)
+    from rat.ui.icon_provider import RatIconProvider
+    # The engine does not own a Python provider; keep it alive with the view.
+    view.icon_provider = RatIconProvider()
+    view.engine().addImageProvider('icon', view.icon_provider)
     view.setSource(QUrl.fromLocalFile(str(BASE/'rat/ui/quick/MiniDesk.qml')))
     if view.status() != QQuickView.Status.Ready:
         errors = '\n'.join(e.toString() for e in view.errors())

@@ -30,11 +30,11 @@ class RuntimeProfileSpec:
 
 MAIN_PROFILE = RuntimeProfileSpec('main', db_factory=_main_database, compositor_factory=_main_compositor)
 MINI_PROFILE = RuntimeProfileSpec(
-    'mini', allowed_capabilities=frozenset({'finder', 'translation', 'mini_setup'}),
+    'mini', allowed_capabilities=frozenset({'finder', 'translation', 'mini_setup', 'applications'}),
     enable_work_notes=False, enable_tool_packs=False, max_reasoning_steps=6,
     enable_document_model=False,
     system_prompt=(
-        "You are RAT Mini. Help with local file finding and translating text snippets. "
+        "You are RAT Mini. Help with finding local files and apps and translating text snippets. "
         "Use registered tools and actual observations; never invent files, contents or successful translations. "
         "For files call find_files; search observations are metadata, not evidence you read a document. "
         "For translation call translate_text with an observed capture source_ref when available. "

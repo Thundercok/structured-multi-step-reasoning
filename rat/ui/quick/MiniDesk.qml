@@ -58,6 +58,7 @@ Rectangle {
     readonly property string draftText: editor.text
     readonly property var allFinderHits: liveSnapshot.finderHits || []
     readonly property var visibleFinderHits: showAllFinderHits ? allFinderHits : allFinderHits.slice(0, 5)
+    readonly property string selectedHitKind: (visibleFinderHits[Math.max(0, selectedFinderIndex)] || {}).kind || ""
     // Only transient native input/menu ownership exempts outside dismissal.
     readonly property bool focusOwned: imageDialog.visible || folderDialog.visible || Boolean(targetLanguage.popup && targetLanguage.popup.visible) || moreMenu.visible || diagnosticDialog.visible || Boolean(shortcutChord.popup && shortcutChord.popup.visible) || editorMenu.visible || readerMenu.visible || Boolean(liveSnapshot.dropActive)
     readonly property bool imageDropEnabled: !auxiliary && !imageDialog.visible && !folderDialog.visible
@@ -557,7 +558,15 @@ Rectangle {
                                             anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; leftMargin: 9; rightMargin: 9 }
                                             spacing: 10
                                             z: 2
+                                            Image {
+                                                visible: modelData.kind === "app"
+                                                source: visible ? "image://icon/" + encodeURIComponent(modelData.path) : ""
+                                                sourceSize.width: 40; sourceSize.height: 40
+                                                Layout.preferredWidth: 24; Layout.preferredHeight: 24
+                                                Layout.alignment: Qt.AlignVCenter
+                                            }
                                             DeskIcon {
+                                                visible: modelData.kind !== "app"
                                                 name: modelData.is_pdf ? "pdf" : "file"
                                                 color: modelData.is_pdf ? desk.pdfInk : desk.muted
                                                 width: 20; height: 20
@@ -575,7 +584,7 @@ Rectangle {
                                         Accessible.role: Accessible.ListItem; Accessible.name: modelData.title + ", " + modelData.path
                                     }
                                 }
-                                QuietButton { visible: desk.allFinderHits.length > 5; text: desk.showAllFinderHits ? "Hiện ít hơn" : "Xem thêm " + (desk.allFinderHits.length - 5) + " file"; onClicked: { desk.showAllFinderHits = !desk.showAllFinderHits; if (desk.selectedFinderIndex >= desk.visibleFinderHits.length) desk.selectedFinderIndex = -1 } }
+                                QuietButton { visible: desk.allFinderHits.length > 5; text: desk.showAllFinderHits ? "Hiện ít hơn" : "Xem thêm " + (desk.allFinderHits.length - 5) + " kết quả"; onClicked: { desk.showAllFinderHits = !desk.showAllFinderHits; if (desk.selectedFinderIndex >= desk.visibleFinderHits.length) desk.selectedFinderIndex = -1 } }
                             }
                         }
                         }
@@ -585,8 +594,8 @@ Rectangle {
                     visible: desk.paperVisible && !desk.auxiliary && desk.surface === "result" && desk.liveSnapshot.view === "finder" && desk.allFinderHits.length > 0
                     Layout.fillWidth: true; spacing: 2
                     KeycapBadge { labelText: "Mở"; keyText: "↵"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.openSelectedHit(Math.max(0, desk.selectedFinderIndex)) }
-                    KeycapBadge { labelText: "Hiện trong Finder"; keyText: "⌘↵"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.revealSelectedInFinder(Math.max(0, desk.selectedFinderIndex)) }
-                    KeycapBadge { labelText: "Sao chép đường dẫn"; keyText: "⌘C"; onClicked: desk.liveController.copySelectedHitPath(Math.max(0, desk.selectedFinderIndex)) }
+                    KeycapBadge { visible: desk.selectedHitKind !== "app"; labelText: "Hiện trong Finder"; keyText: "⌘↵"; enabled: !desk.liveSnapshot.busy; onClicked: desk.liveController.revealSelectedInFinder(Math.max(0, desk.selectedFinderIndex)) }
+                    KeycapBadge { visible: desk.selectedHitKind !== "app"; labelText: "Sao chép đường dẫn"; keyText: "⌘C"; onClicked: desk.liveController.copySelectedHitPath(Math.max(0, desk.selectedFinderIndex)) }
                     Item { Layout.fillWidth: true }
                 }
                 RowLayout {
