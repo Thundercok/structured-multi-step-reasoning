@@ -314,7 +314,7 @@ def collect():
 
 
 def source_manifest():
-    paths = ["rat/engine/assistant_runtime.py", "rat/engine/completion.py", "rat/engine/persona.py", "rat/engine/task_state.py", "rat/engine/work_notes.py",
+    paths = ["rat/engine/assistant_runtime.py", "rat/engine/agent_types.py", "rat/engine/model_protocol.py", "rat/engine/runtime_tools.py", "rat/engine/completion.py", "rat/engine/persona.py", "rat/engine/task_state.py", "rat/engine/work_notes.py",
              "rat/engine/verification.py", "rat/engine/slm.py", "rat/kernel/registry.py", "rat/kernel/dispatcher.py", "rat/kernel/capabilities/documents.py",
              "rat/ui/chat_session.py", "tests/test_rat_completion_reconciliation.py", "scripts/audit_rat_context.py", "data/rat_conversation_acceptance_v1/scenarios.json"]
     paths.extend(str(path.relative_to(ROOT)) for path in (ROOT / "data/rat_conversation_acceptance_v1/sources").glob("*.md"))

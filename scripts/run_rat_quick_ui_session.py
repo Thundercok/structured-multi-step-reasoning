@@ -50,7 +50,7 @@ def source_hashes():
         "rat/ui/quick_pdf_controller.py", "rat/ui/quick_app.py", "rat/ui/chat_session.py",
         "rat/ui/answer_presentation.py", "rat/ui/assistant_worker.py", "rat/ui/icon_provider.py",
         "rat/ui/pdf_snapshot_provider.py",
-        "rat/engine/assistant_runtime.py", "rat/engine/selected_document_qa.py",
+        "rat/engine/assistant_runtime.py", "rat/engine/agent_types.py", "rat/engine/model_protocol.py", "rat/engine/runtime_tools.py", "rat/engine/selected_document_qa.py",
         "rat/engine/selected_pdf.py", "rat/engine/slm.py", "rat/engine/http_transport.py",
         "rat/engine/app_resolver.py",
         "rat/kernel/capabilities/documents.py", "scripts/run_rat_quick_ui_session.py",

@@ -29,7 +29,7 @@ def main():
     output = ROOT / 'audit/rat_selected_qa_20261016'
     output.mkdir(exist_ok=False)
     fixtures = json.loads((ROOT / 'audit/rat_overnight_20261015/fixtures.json').read_text())
-    names = ['rat/engine/selected_document_qa.py', 'rat/engine/assistant_runtime.py',
+    names = ['rat/engine/selected_document_qa.py', 'rat/engine/assistant_runtime.py', 'rat/engine/agent_types.py', 'rat/engine/model_protocol.py', 'rat/engine/runtime_tools.py',
              'rat/engine/slm.py', 'scripts/profile_selected_document_qa.py']
     sources = {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in names}
     for name in names:

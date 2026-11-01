@@ -128,6 +128,9 @@ def main():
         ROOT / "rat/ui/workbench_scene.py",
         ROOT / "rat/engine/selected_document_qa.py",
         ROOT / "rat/engine/assistant_runtime.py",
+        ROOT / "rat/engine/agent_types.py",
+        ROOT / "rat/engine/model_protocol.py",
+        ROOT / "rat/engine/runtime_tools.py",
         ROOT / "rat/engine/mlx_document_session.py",
         ROOT / "tests/test_selected_document_ui.py",
     ]
