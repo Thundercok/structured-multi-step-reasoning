@@ -21,3 +21,30 @@ def test_placeholder_letter_avoids_existing_tokens_and_capitalises_sentence_star
 
 def test_plain_text_is_untouched():
     assert protect('Students go to the library.') == ('Students go to the library.', {})
+
+
+def test_extended_paper_terms_en_vi():
+    text, mapping = protect('We use scaled dot-product attention with positional encoding and feed-forward networks.')
+    assert 'scaled dot-product attention' not in text
+    assert 'positional encoding' not in text
+    assert 'feed-forward networks' not in text
+    assert 'chú ý tích vô hướng theo tỉ lệ (scaled dot-product attention)' in mapping.values()
+    assert 'mã hóa vị trí (positional encoding)' in mapping.values()
+    assert 'mạng truyền thẳng (feed-forward networks)' in mapping.values()
+
+
+def test_vi_to_en_direction_protects_and_restores():
+    text, mapping = protect('Mạng nơ-ron tích chập và mạng nơ-ron hồi quy được huấn luyện bằng lan truyền ngược.',
+                            source='vi', target='en')
+    assert 'mạng nơ-ron tích chập' not in text.lower()
+    assert 'mạng nơ-ron hồi quy' not in text.lower()
+    assert 'lan truyền ngược' not in text.lower()
+    assert mapping['T1'] == 'convolutional neural network (CNN)'
+    assert mapping['T2'] == 'recurrent neural network (RNN)'
+    assert mapping['T3'] == 'training'
+    assert mapping['T4'] == 'backpropagation'
+
+    # Simulated MT output with placeholders intact
+    mt_out = 'T1 and T2 are T3 using T4.'
+    restored = restore(mt_out, mapping)
+    assert restored == 'Convolutional neural network (CNN) and recurrent neural network (RNN) are training using backpropagation.'

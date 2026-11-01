@@ -394,7 +394,7 @@ class SnippetTranslator:
                     model_text, joins = clean_copied_text(piece)
                     line_joins += joins
                     # Research terms ride through the local model as placeholders.
-                    protected, terms = protect(model_text) if (source, target) == ('en', 'vi') else (model_text, {})
+                    protected, terms = protect(model_text, source=source, target=target) if (source, target) in (('en', 'vi'), ('vi', 'en')) else (model_text, {})
                     out = restore(self._local_translator.translate(protected, source, target, should_cancel), terms)
                     if terms:
                         glossary_terms += len(terms)
