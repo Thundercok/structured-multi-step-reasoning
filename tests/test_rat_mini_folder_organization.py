@@ -1,10 +1,21 @@
-"""Software safety contracts; temporary fixture files are not live acceptance."""
+"""Software safety contracts; temporary fixture files are not live acceptance.
+
+Lite does not register folder organization (release spec 2026-11-01); the code
+stays in the core for the full product, so these tests compose it on top of a
+Mini session.
+"""
 import json
 from pathlib import Path
+from dataclasses import replace
 import pytest
+from rat.engine.assistant_runtime import AssistantRuntime
+from rat.engine.execution_service import AgentExecutionService
 from rat.engine.folder_organization import FolderOrganizer
+from rat.engine.goal_routing import ToolGoalRouter
 from rat.engine.local_finder import ScopePolicy
-from rat.engine.mini_settings import DEFAULTS
+from rat.engine.mini_settings import DEFAULTS, state_directory
+from rat.kernel.capabilities.folder_organizer import create_folder_organizer_capability
+from rat.kernel.profile import MINI_PROFILE
 from rat.mini import MiniSession
 
 
@@ -12,7 +23,22 @@ def setup(tmp_path, monkeypatch):
     monkeypatch.setenv('RAT_MINI_STATE_DIR', str(tmp_path/'state'))
     root = tmp_path/'Downloads'
     root.mkdir()
-    return root, MiniSession(dict(DEFAULTS, roots=[str(root)]))
+    return root, with_folder_organizer(MiniSession(dict(DEFAULTS, roots=[str(root)])))
+
+
+def with_folder_organizer(session):
+    registry = session.runtime.registry
+    registry.register_capability(create_folder_organizer_capability(
+        FolderOrganizer(session.scopes, state_directory()/'organization')))
+    profile = replace(MINI_PROFILE, allowed_capabilities=MINI_PROFILE.allowed_capabilities | {'folder_organizer'})
+    session.runtime = AssistantRuntime(registry=registry, profile=profile, model_client=session.client,
+                                       use_live_model=False, enable_observation_pack=True)
+    session.service = AgentExecutionService(session.runtime)
+    settings = session.settings
+    session.router = ToolGoalRouter([t.name for t in registry.to_tool_definitions()],
+        source_language=settings['source_language'], target_language=settings['target_language'],
+        language_detector=session.router.language_detector, roots=settings['roots'])
+    return session
 
 
 def result(response, kind):

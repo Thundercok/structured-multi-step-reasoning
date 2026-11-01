@@ -1,10 +1,10 @@
-"""Regression: primary setup and Finder surfaces must have usable height."""
+"""Regression: first run opens no setup screen; the Finder surface has usable height."""
 import os
 import subprocess
 import sys
 
 
-def test_setup_and_finder_panels_have_height(tmp_path):
+def test_first_run_skips_setup_and_finder_panel_has_height(tmp_path):
     script = r'''
 from PyQt6.QtCore import QObject
 from PyQt6.QtGui import QGuiApplication
@@ -16,7 +16,7 @@ view, c = create_mini_desk(dict(DEFAULTS, roots=[], setup_completed=False))
 view.show()
 QTest.qWait(150)
 panel = view.rootObject().findChild(QObject, 'taskPanel')
-assert panel.property('height') >= 300, panel.property('height')
+assert c.snapshot['setupCompleted'] and view.rootObject().property('surface') == 'result', c.snapshot
 c.presentation.open('result')
 c.presentation.compose()
 c.update(setupCompleted=True, hasWorkbench=True, phase='result', view='finder', finderHits=[{'title':'sample.txt','path':'/tmp/sample.txt'}])

@@ -11,38 +11,6 @@ def run_qt(script, tmp_path):
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-def test_real_settings_error_recovers_on_same_source_without_llm(tmp_path):
-    run_qt(r'''
-from PyQt6.QtGui import QGuiApplication
-from PyQt6.QtTest import QTest
-from rat.ui.mini_quick import create_mini_desk
-from rat.engine.mini_settings import DEFAULTS
-app=QGuiApplication([])
-view,c=create_mini_desk(dict(DEFAULTS, roots=[], setup_completed=True, permission_hello_version=1,
- source_language='en', target_language='vi', translation_provider='mymemory', free_fallback=False))
-app.clipboard().setText('Hello world.')
-c.pasteLook()
-for _ in range(300):
- QTest.qWait(30)
- if c.job is None: break
-assert c.snapshot['phase']=='error',c.snapshot['status']
-assert 'MyMemory' in c.snapshot['status'] and c.snapshot['translationSettingsSuggested']
-source=dict(c._ocr_source_ref); store=c.session.runtime.artifact_store
-assert c.session.client.calls==0
-assert c.savePreferences({'translation_provider':'automatic','roots':[]})=='',c.snapshot
-assert c.session.runtime.artifact_store is store and c._ocr_source_ref==source
-assert not c.snapshot['translationSettingsSuggested']
-c.retryRequest()
-for _ in range(300):
- QTest.qWait(30)
- if c.job is None: break
-assert c.snapshot['phase']=='result',c.snapshot['status']
-assert c._ocr_source_ref==source and c.snapshot['text'].strip()
-assert c.session.client.calls==0 and not c.settings['llm_enabled']
-view.hide()
-''', tmp_path)
-
-
 def test_reader_restores_scroll_selection_and_pending_does_not_resize(tmp_path):
     run_qt(r'''
 from PyQt6.QtCore import QObject,qInstallMessageHandler

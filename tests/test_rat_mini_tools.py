@@ -1,6 +1,5 @@
 """Software contracts with controlled providers. No fixtures are UI acceptance."""
 import hashlib
-import json
 from pathlib import Path
 import subprocess
 import sys
@@ -9,7 +8,6 @@ import pytest
 
 from rat.engine.local_finder import ScopePolicy, HybridFinder
 from rat.engine.snippet_translation import SnippetTranslator, split_utf8
-from rat.engine.assistant_runtime import ModelDecision
 from rat.mini import MiniSession
 from rat.kernel.contracts import Artifact
 
@@ -23,8 +21,8 @@ def settings(tmp_path):
 def test_mini_import_and_composition_do_not_load_other_products(tmp_path):
     script = 'from rat.mini import MiniSession; import sys; '
     script += 's=MiniSession('+repr(settings(tmp_path))+'); '
-    script += "assert {c.name for c in s.runtime.registry.list_capabilities()} == {'finder','translation','folder_organizer','mini_setup'}; "
-    script += "assert {t.name for t in s.runtime.registry.to_tool_definitions()} == {'find_files','translate_text','plan_folder_organization'}; "
+    script += "assert {c.name for c in s.runtime.registry.list_capabilities()} == {'finder','translation','mini_setup','applications'}; "
+    script += "assert {t.name for t in s.runtime.registry.to_tool_definitions()} == {'find_files','translate_text','open_application'}; "
     script += "assert not any(n.startswith(('rat.timetable','rat.crawler','rat.astrology','PyQt6','onnxruntime','mlx')) for n in sys.modules)"
     r = subprocess.run([sys.executable,'-c',script],capture_output=True,text=True)
     assert r.returncode == 0,r.stderr
@@ -174,18 +172,24 @@ def test_utf8_chunks_preserve_every_character_and_byte_budget():
 
 
 def test_translation_partial_and_service_verifier(tmp_path,monkeypatch):
+    import rat.engine.local_translation as local
     calls=[]
-    def fake(self,provider,text,source,target,cancel,timeout):
-        calls.append(text)
-        if len(calls)==2: raise TimeoutError('controlled provider failure')
-        return 'contract translation'
-    monkeypatch.setattr(SnippetTranslator,'_cloud',fake)
+    class Local:
+        directory=tmp_path
+        model_info={'id':'en-vi', 'package_sha256':'0'*64, 'device':'cpu'}
+        def __init__(self, directory=None): pass
+        def translate(self, text, source, target, cancelled=lambda: False):
+            calls.append(text)
+            if len(calls)==2: raise TimeoutError('controlled provider failure')
+            return 'contract translation'
+    monkeypatch.setattr(local, 'LocalTranslator', Local)
+    monkeypatch.setattr(local, 'is_local_models_ready', lambda directory: True)
     s=MiniSession(settings(tmp_path))
-    r=s.execute('translate_text',{'text':'a'*600,'source_language':'en','target_language':'vi'})
+    r=s.execute('translate_text',{'text':'a'*2500,'source_language':'en','target_language':'vi'})
     assert r.error is None and r.completion_status=='partial'
     data=r.artifacts[0].payload
     assert data['status']=='partial' and len(data['segments'])==2
-    assert data['source_sha256']==hashlib.sha256(('a'*600).encode()).hexdigest()
+    assert data['source_sha256']==hashlib.sha256(('a'*2500).encode()).hexdigest()
     assert r.answer_verification_status=='UNKNOWN'
 
 
@@ -210,48 +214,11 @@ def test_mymemory_quota_does_not_repeat_requests_for_retry(tmp_path, monkeypatch
     assert len(calls) == 1
 
 
-def test_agent_uses_existing_runtime_loop_with_contract_fixture(tmp_path,monkeypatch):
-    f=tmp_path/'wanted.txt';f.write_text('real path for a software contract')
-    monkeypatch.setattr('rat.engine.local_finder.spotlight_paths',lambda *a:[str(f)])
+def test_lite_never_reaches_the_model_loop(tmp_path):
     s=MiniSession(dict(settings(tmp_path), llm_enabled=True))
-    # This fixture exercises the real planner contract without calling a model.
-    monkeypatch.setattr(s.runtime, '_plan_task', lambda *args, **kwargs: {
-        'message': {'content': json.dumps({'operations': ['find_files'], 'respond': True})}})
-    decisions=iter([ModelDecision('',tool_name='find_files',tool_args={'query':'wanted.txt'}),
-                    ModelDecision('',final_answer='contract fixture final'),
-                    ModelDecision('',final_answer='contract fixture final')])
-    s.runtime.model_callable=lambda goal,trajectory:next(decisions)
+    assert not s.settings['llm_enabled'] and s.settings['translation_provider']=='local'
     r=s.execute(query='find wanted.txt')
-    assert r.error is None, (r.error, [(x.tool_name, x.error, x.tool_result) for x in r.steps])
-    assert any(step.tool_name=='find_files' for step in r.steps)
-    assert any(a.kind=='finder_results' for a in r.artifacts)
-
-
-@pytest.mark.parametrize('case', ['partial', 'verification_failure'])
-def test_agent_does_not_claim_incomplete_or_failed_tool_as_committed(tmp_path, monkeypatch, case):
-    import rat.engine.local_finder as finder
-    from rat.engine.verification import VerificationReport, VerificationStatus
-    path = tmp_path / 'wanted.txt'
-    path.write_text('contract fixture')
-    if case == 'partial':
-        monkeypatch.setattr(finder, 'spotlight_scopes', lambda *args: (
-            [str(path)], [{'provider': 'spotlight', 'code': 'spotlight_timeout'}], 0))
-    else:
-        monkeypatch.setattr(finder, 'spotlight_paths', lambda *args: [str(path)])
-    session = MiniSession(dict(settings(tmp_path), llm_enabled=True))
-    if case == 'verification_failure':
-        verifier = session.runtime.registry.get_operation('find_files').verifier
-        monkeypatch.setattr(verifier, 'check_execution', lambda evidence:
-            VerificationReport(VerificationStatus.FAIL, 'fixture', 'fixture failure', (evidence.id,)))
-    monkeypatch.setattr(session.runtime, '_plan_task', lambda *args, **kwargs: {
-        'message': {'content': json.dumps({'operations': ['find_files'], 'respond': True})}})
-    decisions = iter([ModelDecision('', tool_name='find_files', tool_args={'query': 'wanted.txt'}),
-                      ModelDecision('', final_answer='fixture'), ModelDecision('', final_answer='fixture')])
-    session.runtime.model_callable = lambda *args: next(decisions)
-    response = session.execute(query='find wanted.txt')
-    receipt = next(item for item in response.execution_journal.receipts if item.operation_name == 'find_files')
-    assert not receipt.committed
-    assert response.error or response.completion_status != 'completed'
+    assert r.error=='mini_llm_disabled' and s.client.calls==0
 
 
 def test_automatic_translation_falls_back_to_google_gtx(tmp_path, monkeypatch):
