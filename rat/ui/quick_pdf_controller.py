@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import hashlib
 import html
 import logging
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -15,13 +16,14 @@ from xml.parsers.expat import ExpatError
 from uuid import uuid4
 from typing import Any, Dict, List, Optional
 
-from PyQt6.QtCore import QCoreApplication, QObject, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QCoreApplication, QObject, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QDesktopServices, QGuiApplication
 
 from rat.config import config
 from rat.engine.app_resolver import ApplicationCatalog, revalidate_application_bundle
 from rat.engine.finder_intent import parse_finder_intent
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
+from rat.engine.semantic_index import shared_index
 from rat.engine.semantic_reranker import SemanticFuzzyReranker
 from rat.engine.selected_pdf import (
     SelectedPDFError, check_current, citation_text, select_pdf,
@@ -279,7 +281,8 @@ class QuickPDFController(QObject):
         self._finder_feedback = ""
         self._reading_coordinator = ReadingDeskCoordinator(self)
         self._db_path = db_path or str(config.db_path)
-        self._finder_semantic = SemanticFuzzyReranker(self._db_path)
+        self._semantic_db_path = Path(os.environ.get("RAT_STATE_DIR") or Path.home() / ".rat") / "semantic-index.sqlite"
+        self._finder_semantic = shared_index(self._semantic_db_path)
         self._cached_apps_list: List[Dict[str, Any]] = []
         self._saved_draft: str = ""
         self._prior_view: str = "none"
@@ -291,6 +294,16 @@ class QuickPDFController(QObject):
         self._active_search_hit: Optional[Dict[str, Any]] = None
         self._cached_matched_info: Optional[Dict[str, Any]] = None
         self._cached_matched_key: Optional[tuple] = None
+        self._index_timer = QTimer(self)
+        self._index_timer.setInterval(1500)
+        self._index_timer.timeout.connect(self.refresh_index_progress)
+        self.periodic_index_timer = QTimer(self)
+        self.periodic_index_timer.setInterval(10 * 60 * 1000)
+        self.periodic_index_timer.timeout.connect(lambda: self.startIndexing(reason='periodic'))
+        self._last_index_time = 0.0
+        if not os.environ.get('PYTEST_CURRENT_TEST'):
+            QTimer.singleShot(1500, self.startIndexing)
+            self.periodic_index_timer.start()
 
         if self._finder_catalog is not None:
             self._update_cached_apps(self._finder_catalog)
@@ -1362,6 +1375,30 @@ class QuickPDFController(QObject):
         if self._finder_query and self._selection is None and not self.snapshot["busy"] and self._view != "apps":
             self._finder_coordinator.submit(self._finder_query, limit=10)
 
+    @pyqtSlot()
+    def startIndexing(self, reason: str = "") -> bool:
+        if self._closed or self.snapshot.get("busy"):
+            return False
+        now = time.monotonic()
+        if reason == "panel_open" and now - self._last_index_time < 30.0:
+            return False
+        roots = getattr(config, "watch_dirs", None)
+        if not roots:
+            roots = [str(Path.home() / d) for d in ("Documents", "Desktop", "Downloads")]
+        valid_roots = [r for r in roots if Path(r).is_dir()]
+        started = self._finder_semantic.start(valid_roots)
+        if started:
+            self._last_index_time = now
+            self._index_timer.start()
+            self.refresh_index_progress()
+        return started
+
+    def refresh_index_progress(self):
+        state = self._finder_semantic.progress()
+        busy = state.get("state") in ("scanning", "indexing")
+        if not busy:
+            self._index_timer.stop()
+
     @pyqtSlot(str)
     def onComposerTextChanged(self, text: str):
         if self._closed:
@@ -1904,6 +1941,8 @@ class QuickPDFController(QObject):
     @pyqtSlot(result=bool)
     def close(self):
         self._closed = True
+        self._index_timer.stop()
+        self.periodic_index_timer.stop()
         if self._request:
             self._request.cancelled.set()
             self._request = None

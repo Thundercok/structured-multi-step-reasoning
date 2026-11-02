@@ -222,6 +222,13 @@ class SemanticIndex:
             with self._lock:
                 self._active_queries -= 1
 
+    def __call__(self, request):
+        query = getattr(request, 'query', '') if not isinstance(request, str) else request
+        cancel = getattr(request, 'cancelled', None)
+        should_cancel = cancel.is_set if hasattr(cancel, 'is_set') else (lambda: False)
+        for row in self.search(query, should_cancel=should_cancel):
+            yield row['file_path']
+
     def start(self, roots):
         """Index new or changed files under roots in a daemon thread; no-op while one runs or query active."""
         with self._lock:
