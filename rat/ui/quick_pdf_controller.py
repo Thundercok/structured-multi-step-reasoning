@@ -1346,18 +1346,22 @@ class QuickPDFController(QObject):
         self.changed.emit()
 
     def _update_cached_apps(self, catalog: ApplicationCatalog):
-        self._cached_apps_list = [
-            {
+        from rat.engine.app_search import app_descriptions
+        cached = []
+        for app in sorted(catalog.applications, key=lambda a: a.name.lower()):
+            descs = app_descriptions(app)
+            cached.append({
                 "resource_id": app.resource_id,
                 "name": app.name,
                 "path": app.path,
                 "bundle_id": app.bundle_id,
                 "version": app.version,
                 "names": list(app.names),
+                "purposes": descs,
+                "description": " · ".join(descs),
                 "icon_url": f"image://icon/{app.path}",
-            }
-            for app in sorted(catalog.applications, key=lambda a: a.name.lower())
-        ]
+            })
+        self._cached_apps_list = cached
 
     @pyqtSlot(object)
     def _on_catalog_ready(self, catalog: ApplicationCatalog):
@@ -1605,6 +1609,13 @@ class QuickPDFController(QObject):
             return False
         p = Path(path)
         if p.suffix.casefold() == ".app":
+            try:
+                revalidate_application_bundle(p)
+            except Exception as exc:
+                self._launch_feedback = f"Không thể mở {p.name}: {exc}"
+                self._launch_feedback_error = True
+                self.changed.emit()
+                return False
             return self._open_application(p)
         if not p.exists():
             self._launch_feedback = f"Không thể mở {p.name}: tệp không còn ở vị trí đã tìm thấy."
