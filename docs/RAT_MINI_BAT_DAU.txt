@@ -29,10 +29,11 @@ Cần Mac chip M (M1, M2, M3…) và macOS 14 trở lên. Tài liệu của bạ
 
 4. DỊCH ĐOẠN ĐANG ĐỌC
    - Bôi đen đoạn cần dịch rồi bấm ⌥⇧Space (Option + Shift + Space).
-     Lần đầu Chuột xin quyền Trợ năng để đọc chữ bạn bôi đen. Chưa muốn cấp
-     thì bấm ⌘C trước, rồi bấm "Dán chữ" trên Chuột.
-   - Dịch ảnh: chụp vùng chữ bằng ⌃⌘⇧4 (lưu vào bộ nhớ tạm), rồi bấm vào
-     Chuột và nhấn ⌘V. Hoặc kéo file ảnh thả vào Chuột.
+     Lần đầu Chuột xin quyền Trợ năng để đọc trực tiếp chữ bạn bôi đen.
+     Nếu chưa muốn cấp quyền, chỉ cần bấm ⌘C rồi bấm ⌥⇧Space là Chuột tự dịch ngay.
+   - Dịch ảnh: chụp vùng chữ bằng ⌃⌘⇧4 (lưu vào bộ nhớ tạm), rồi bấm ⌥⇧Space
+     là Chuột tự nhận diện và dịch ngay (không cần cấp quyền). Hoặc dán ⌘V,
+     hoặc kéo file ảnh thả vào Chuột.
    - Nút ⇄ đổi chiều dịch. "Đoạn gốc" để xem hoặc sửa chữ trước khi dịch.
    - Thuật ngữ chuyên ngành được giữ tiếng Anh trong ngoặc, ví dụ
      "tự chú ý (self-attention)".
