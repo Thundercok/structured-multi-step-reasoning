@@ -2959,6 +2959,11 @@ Rectangle {
         }
     }
     Shortcut {
+        sequences: ["Ctrl+Shift+L", "Meta+Shift+L"]
+        enabled: desk.liveMode && !desk.liveSnapshot.busy
+        onActivated: desk.liveController.quickLookSelection()
+    }
+    Shortcut {
         sequences: ["Ctrl+Shift+R", "Meta+Shift+R"]
         enabled: desk.liveMode && !desk.liveSnapshot.busy
         onActivated: { desk.liveController.openReadingDesk(); editor.forceActiveFocus() }
