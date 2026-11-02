@@ -1784,6 +1784,33 @@ class QuickPDFController(QObject):
             logger.warning("findFileOrApp dispatch failed: %s", exc)
             return ""
 
+    @pyqtSlot(str, str, str, result=str)
+    @pyqtSlot(str, str, result=str)
+    @pyqtSlot(str, result=str)
+    def translateText(self, text: str, source_lang: str = "auto", target_lang: str = "vi") -> str:
+        """Translates text snippet on the full app's translation path using SnippetTranslator."""
+        if not text or not text.strip():
+            return ""
+        from rat.engine.snippet_translation import SnippetTranslator
+        translator = SnippetTranslator()
+        res = translator.translate(text, source=source_lang, target=target_lang)
+        translated = res.get("text", "")
+        if translated:
+            self._last_user_query = f"Dịch sang {target_lang}"
+            self._last_assistant_answer = translated
+            self._view = "answer"
+            self._status = f"Đã dịch từ {res.get('source_language', source_lang)} sang {target_lang}"
+            self._expanded = True
+            self.changed.emit()
+        return translated
+
+    @pyqtSlot()
+    def translateClipboard(self):
+        cb = QGuiApplication.clipboard()
+        text = cb.text() if cb else ""
+        if text.strip():
+            self.translateText(text)
+
     @pyqtSlot(str)
     def openPdfHit(self, path: str):
         self.openPdfDocument(path)
