@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 import threading
+import time
 from xml.parsers.expat import ExpatError
 from uuid import uuid4
 from typing import Any, Dict, List, Optional
@@ -304,6 +305,16 @@ class QuickPDFController(QObject):
         if not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(1500, self.startIndexing)
             self.periodic_index_timer.start()
+
+        # Clipboard change tracking
+        self._last_seen_clipboard_change = self._get_clipboard_change_count()
+        self._consumed_clipboard_change = self._last_seen_clipboard_change
+        self._clipboard_change_time = 0.0
+        self._clipboard_poll_timer = QTimer(self)
+        self._clipboard_poll_timer.setInterval(1000)
+        self._clipboard_poll_timer.timeout.connect(self._update_clipboard_change)
+        if sys.platform == "darwin" and not os.environ.get("PYTEST_CURRENT_TEST"):
+            self._clipboard_poll_timer.start()
 
         if self._finder_catalog is not None:
             self._update_cached_apps(self._finder_catalog)
@@ -1804,11 +1815,66 @@ class QuickPDFController(QObject):
             self.changed.emit()
         return translated
 
+    def _get_clipboard_change_count(self) -> int:
+        if sys.platform != "darwin":
+            return -1
+        try:
+            from AppKit import NSPasteboard
+            return int(NSPasteboard.generalPasteboard().changeCount())
+        except Exception:
+            return -1
+
+    def _update_clipboard_change(self):
+        current = self._get_clipboard_change_count()
+        now = time.monotonic()
+        if current != -1 and current != self._last_seen_clipboard_change:
+            self._last_seen_clipboard_change = current
+            self._clipboard_change_time = now
+        return current
+
+    @pyqtSlot()
+    def quickLookSelection(self):
+        """Shortcut order: live selection first, clipboard only if copied within 2 minutes."""
+        if self._closed or self.snapshot["busy"]:
+            return
+        current_change = self._update_clipboard_change()
+
+        # 1. Live selection first if accessibility is trusted
+        from rat.os.permissions import is_accessibility_trusted
+        if is_accessibility_trusted():
+            try:
+                from rat.os.selected_text import read_selected_text
+                text = read_selected_text()
+                if text and text.strip():
+                    self.translateText(text.strip())
+                    return
+            except Exception as exc:
+                logger.debug("Live selection capture failed: %s", exc)
+
+        # 2. Clipboard fallback only if copied within 2 minutes (120s) and not already consumed
+        now = time.monotonic()
+        is_fresh_copy = (
+            current_change != -1
+            and current_change != self._consumed_clipboard_change
+            and (now - self._clipboard_change_time <= 120.0)
+        )
+        if is_fresh_copy:
+            cb = QGuiApplication.clipboard()
+            text = cb.text() if cb else ""
+            if text and text.strip():
+                self._consumed_clipboard_change = current_change
+                self.translateText(text.strip())
+                return
+
+        # Fallback: expand Desk if neither selection nor fresh copy
+        self.setExpanded(True)
+
     @pyqtSlot()
     def translateClipboard(self):
         cb = QGuiApplication.clipboard()
         text = cb.text() if cb else ""
         if text.strip():
+            self._consumed_clipboard_change = self._update_clipboard_change()
             self.translateText(text)
 
     @pyqtSlot(str)
@@ -1981,6 +2047,8 @@ class QuickPDFController(QObject):
         self._closed = True
         self._index_timer.stop()
         self.periodic_index_timer.stop()
+        if hasattr(self, '_clipboard_poll_timer'):
+            self._clipboard_poll_timer.stop()
         if self._request:
             self._request.cancelled.set()
             self._request = None

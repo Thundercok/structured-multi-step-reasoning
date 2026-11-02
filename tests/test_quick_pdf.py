@@ -755,5 +755,46 @@ def test_search_hit_opens_matched_excerpt_mode_suite(app, controller, tmp_path):
         view.close()
 
 
+def test_shortcut_order_live_selection_first_fresh_clipboard_fallback(controller, monkeypatch):
+    import time
+    from PyQt6.QtGui import QGuiApplication
+
+    app = QGuiApplication.instance() or QGuiApplication([])
+    cb = app.clipboard()
+    cb.setText("Clipboard text from 30 seconds ago")
+
+    translated_calls = []
+    monkeypatch.setattr(controller, "translateText", lambda t, **k: translated_calls.append(t))
+
+    # Case 1: Live selection available and accessibility trusted -> live selection translates first
+    monkeypatch.setattr("rat.os.permissions.is_accessibility_trusted", lambda: True)
+    monkeypatch.setattr("rat.os.selected_text.read_selected_text", lambda: "Live selected phrase")
+    controller._clipboard_change_time = time.monotonic() - 30.0
+    controller._consumed_clipboard_change = 0
+    monkeypatch.setattr(controller, "_get_clipboard_change_count", lambda: 5)
+    controller.quickLookSelection()
+    assert len(translated_calls) == 1
+    assert translated_calls[-1] == "Live selected phrase"
+
+    # Case 2: Live selection not available / untrusted, fresh clipboard within 120s -> clipboard translates
+    monkeypatch.setattr("rat.os.permissions.is_accessibility_trusted", lambda: False)
+    controller._clipboard_change_time = time.monotonic() - 30.0
+    controller._consumed_clipboard_change = 4
+    monkeypatch.setattr(controller, "_get_clipboard_change_count", lambda: 5)
+    controller.quickLookSelection()
+    assert len(translated_calls) == 2
+    assert translated_calls[-1] == "Clipboard text from 30 seconds ago"
+
+    # Case 3: Clipboard is stale (> 120s) -> do not translate clipboard, expand desk
+    controller._expanded = False
+    controller._clipboard_change_time = time.monotonic() - 130.0
+    controller._consumed_clipboard_change = 4
+    monkeypatch.setattr(controller, "_get_clipboard_change_count", lambda: 5)
+    controller.quickLookSelection()
+    assert len(translated_calls) == 2  # No new translation
+    assert controller.snapshot["expanded"] is True
+
+
+
 
 
