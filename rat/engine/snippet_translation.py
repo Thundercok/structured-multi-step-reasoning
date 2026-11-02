@@ -243,8 +243,10 @@ def preserve_edge_whitespace(source, translated):
 
 
 class SnippetTranslator:
-    def __init__(self, settings, model_client=None, key_reader=keychain_key):
-        self.settings, self.model_client, self.key_reader = settings, model_client, key_reader
+    def __init__(self, settings=None, model_client=None, key_reader=keychain_key):
+        from rat.engine.mini_settings import read_settings
+        self.settings = dict(settings) if settings is not None else read_settings()
+        self.model_client, self.key_reader = model_client, key_reader
         self._gtx_retry_at = 0.0
         self._mymemory_retry_at = 0.0
         self._mymemory_failure = 'translation_rate_limited'
