@@ -586,8 +586,8 @@ Rectangle {
                                     event.accepted = true
                                 }
                             }
-                            Keys.onReturnPressed: event => { event.accepted=true; if (desk.selectedFinderIndex >= 0) { if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex); else desk.liveController.openSelectedHit(desk.selectedFinderIndex) } }
-                            Keys.onEnterPressed: event => { event.accepted=true; if (desk.selectedFinderIndex >= 0) { if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(desk.selectedFinderIndex); else desk.liveController.openSelectedHit(desk.selectedFinderIndex) } }
+                            Keys.onReturnPressed: event => { event.accepted=true; var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0; if (desk.visibleFinderHits && idx < desk.visibleFinderHits.length) { if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(idx); else desk.liveController.openSelectedHit(idx); } }
+                            Keys.onEnterPressed: event => { event.accepted=true; var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0; if (desk.visibleFinderHits && idx < desk.visibleFinderHits.length) { if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(idx); else desk.liveController.openSelectedHit(idx); } }
                             ColumnLayout {
                                 id: finderContent; width: parent.width; spacing: 5
                                 Repeater {
@@ -755,8 +755,8 @@ Rectangle {
                                     Qt.callLater(desk.growComposerWidth)
                                 }
                                 Keys.onPressed: event => { if (event.matches(StandardKey.Paste)) { event.accepted=true; desk.pasteDraft() } }
-                                Keys.onReturnPressed: event => { if (event.modifiers & Qt.ShiftModifier) event.accepted=false; else { event.accepted=true; desk.liveController.submitDraft() } }
-                                Keys.onEnterPressed: event => { if (event.modifiers & Qt.ShiftModifier) event.accepted=false; else { event.accepted=true; desk.liveController.submitDraft() } }
+                                Keys.onReturnPressed: event => { if (event.modifiers & Qt.ShiftModifier) event.accepted=false; else { event.accepted=true; if (editor.text.trim() === "" && desk.visibleFinderHits && desk.visibleFinderHits.length > 0) { var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0; if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(idx); else desk.liveController.openSelectedHit(idx); } else { desk.liveController.submitDraft(); } } }
+                                Keys.onEnterPressed: event => { if (event.modifiers & Qt.ShiftModifier) event.accepted=false; else { event.accepted=true; if (editor.text.trim() === "" && desk.visibleFinderHits && desk.visibleFinderHits.length > 0) { var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0; if (event.modifiers & Qt.MetaModifier) desk.liveController.revealSelectedInFinder(idx); else desk.liveController.openSelectedHit(idx); } else { desk.liveController.submitDraft(); } } }
                                 MouseArea { anchors.fill: parent; acceptedButtons: Qt.RightButton; onClicked: mouse => desk.openEditorMenu(mouse.x, mouse.y) }
                             }
                         }

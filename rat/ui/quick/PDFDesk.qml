@@ -257,6 +257,20 @@ Rectangle {
     function submitDraft() {
         if (liveMode) {
             if (!liveSnapshot.busy) {
+                if (editor.text.trim() === "" && liveSnapshot.view === "finder" && (visibleFinderHits || []).length > 0) {
+                    var hitIdx = selectedFinderIndex >= 0 ? selectedFinderIndex : 0
+                    if (hitIdx < visibleFinderHits.length) {
+                        var hit = visibleFinderHits[hitIdx] || ({})
+                        selectedFinderIndex = -1
+                        var isPdf = Boolean(hit.is_pdf)
+                        liveController.openSelectedHit(hitIdx)
+                        if (isPdf) {
+                            editor.text = ""
+                        }
+                        editor.forceActiveFocus()
+                        return
+                    }
+                }
                 if (editor.text.trim().toLowerCase() === "/reading") {
                     liveController.openReadingDesk()
                     editor.text = ""
@@ -305,32 +319,34 @@ Rectangle {
             return
         }
 
-        if (liveMode && liveSnapshot.view === "finder" && selectedFinderIndex >= 0 && selectedFinderIndex < (visibleFinderHits || []).length) {
-            var hit = visibleFinderHits[selectedFinderIndex] || ({})
-            if (hasCmdOrCtrl) {
-                event.accepted = true
-                liveController.revealSelectedInFinder(selectedFinderIndex)
-                return
-            }
-            if (!hasShift) {
-                event.accepted = true
-                var idx = selectedFinderIndex
-                selectedFinderIndex = -1
-                var isPdf = Boolean(hit.is_pdf)
-                liveController.openSelectedHit(idx)
-                if (isPdf) {
-                    editor.text = ""
-                    editor.forceActiveFocus()
+        if (liveMode && liveSnapshot.view === "finder" && (visibleFinderHits || []).length > 0) {
+            var hitIdx = selectedFinderIndex >= 0 ? selectedFinderIndex : 0
+            if (hitIdx < visibleFinderHits.length && (editor.text.trim() === "" || selectedFinderIndex >= 0)) {
+                var hit = visibleFinderHits[hitIdx] || ({})
+                if (hasCmdOrCtrl) {
+                    event.accepted = true
+                    liveController.revealSelectedInFinder(hitIdx)
+                    return
                 }
-                return
-            }
-            if (!hit.is_pdf) {
-                event.accepted = true
-                var fileIdx = selectedFinderIndex
-                selectedFinderIndex = -1
-                liveController.askAboutSelectedHit(fileIdx, editor.text)
-                if (liveController.snapshot.busy) editor.text = ""
-                return
+                if (!hasShift) {
+                    event.accepted = true
+                    selectedFinderIndex = -1
+                    var isPdf = Boolean(hit.is_pdf)
+                    liveController.openSelectedHit(hitIdx)
+                    if (isPdf) {
+                        editor.text = ""
+                        editor.forceActiveFocus()
+                    }
+                    return
+                }
+                if (!hit.is_pdf) {
+                    event.accepted = true
+                    var fileIdx = hitIdx
+                    selectedFinderIndex = -1
+                    liveController.askAboutSelectedHit(fileIdx, editor.text)
+                    if (liveController.snapshot.busy) editor.text = ""
+                    return
+                }
             }
         }
 

@@ -19,6 +19,7 @@ LANGUAGES = {'tiếng việt':'vi', 'vietnamese':'vi', 'vi':'vi',
     'tiếng đức':'de', 'german':'de', 'de':'de'}
 TRANSLATE = re.compile(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:dịch|translate)\b', re.I)
 FIND = re.compile(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:tìm(?:\s+kiếm)?|find|search(?:\s+for)?)\b', re.I)
+OPEN = re.compile(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:mở|mo|bật|bat|chạy|chay|khởi\s+động|open|launch)\b', re.I)
 
 
 @dataclass
@@ -144,16 +145,27 @@ class ToolGoalRouter:
             return self.direct('find_files', {'query':PurePath(paths[0]).name}, 'pasted_file_reference')
         if len(text) < 240 and '\n' not in text and re.search(r'\.(?:pdf|docx?|xlsx?|pptx?|txt|md|csv|png|jpe?g|zip)\s*$',text,re.I):
             return self.direct('find_files', {'query':text}, 'filename')
+        opening = OPEN.match(text)
+        if opening:
+            return self.direct('find_files', {'query': text}, 'explicit_open')
         words = text.split()
         paragraph = '\n' in text or len(words) >= 18
         if not paragraph and len(words) <= 10 and re.match(
-                r'^(?:báo cáo|tài liệu|file|tệp|slide|slides|bài giảng|hóa đơn|hợp đồng|lịch học|đề thi|luận văn|đồ án|biên bản|bảng điểm|cv|resume|report|document|lecture|invoice|contract|syllabus)\b',
+                r'^(?:báo cáo|bài báo|bài viết|bài tập|tài liệu|file|tệp|slide|slides|bài giảng|giáo trình|sách|hóa đơn|hợp đồng|lịch học|đề thi|luận văn|đồ án|biên bản|bảng điểm|cv|resume|report|document|lecture|paper|article|book|invoice|contract|syllabus)\b',
                 text, re.I):
             return self.direct('find_files', {'query':text}, 'file_description')
+        if not paragraph and len(words) <= 10 and re.match(
+                r'^(?:app|ứng dụng|ung dung|application)\b', text, re.I):
+            return self.direct('find_files', {'query': text}, 'app_description')
         if not paragraph and len(words) <= 8 and re.search(
                 r'\b(?:file\s+(?:pdf|word|excel|powerpoint| ảnh)|(?:pdf|docx?|xlsx?|pptx?)\s+(?:hôm qua|hôm nay|tuần này|tuần trước|tháng này|mới nhất))\b',
                 text, re.I):
             return self.direct('find_files', {'query':text}, 'file_description')
+        if not paragraph and 2 <= len(words) <= 10 and not re.search(r'[.?!]\s*$', text):
+            has_topic_marker = bool(re.search(r'\b(?:về|cho|của|trong|với|tại|theo|about|of|for|in|on|with|by)\b', text, re.I))
+            has_verb = bool(re.search(r'\b(?:là|có|được|bị|dịch|translate|hỏi|muốn|cần|biết|nghĩ|hiểu|thấy|is|are|was|were|do|does|can|could|will|would|should)\b', text, re.I))
+            if (has_topic_marker or not has_verb) and text.casefold() not in ('hello world', 'xin chào', 'chào bạn', 'hi there', 'good morning', 'kế hoạch'):
+                return self.direct('find_files', {'query': text}, 'short_search_query')
         if re.fullmatch(r'https?://\S+', text, re.I):
             return self.ask('Bạn gửi đoạn chữ cần dịch, hoặc tên tệp cần tìm nhé.', rule='url_needs_content')
         language = self.language_detector(text) if self.language_detector else None

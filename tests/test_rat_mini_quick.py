@@ -325,3 +325,27 @@ def test_paste_selection_fallback_handles_image_and_text(tmp_path, monkeypatch):
     assert dispatched[1][0][0] == 'capture_translate'
     assert dispatched[1][0][1]['mode'] == 'clipboard'
     assert dispatched[1][0][1]['clipboard_text'] == 'Fallback sample text'
+
+
+def test_mini_enter_with_empty_draft_opens_selected_or_first_finder_hit(tmp_path, monkeypatch):
+    """Mini: with results showing and an empty draft, Enter opens selected or first hit."""
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    opened = []
+    monkeypatch.setattr(controller, "openSelectedHit", lambda idx: opened.append(idx))
+
+    controller._state["view"] = "finder"
+    controller._state["finderHits"] = [{"path": "/a.txt"}, {"path": "/b.txt"}]
+    controller._state["draftText"] = ""
+
+    # Case 1: No selection (-1) -> opens first hit (index 0)
+    controller._state["selectedFinderIndex"] = -1
+    controller.submitDraft()
+    assert opened == [0]
+
+    # Case 2: Selected hit 1 -> opens index 1
+    controller._state["selectedFinderIndex"] = 1
+    controller.submitDraft()
+    assert opened == [0, 1]
+

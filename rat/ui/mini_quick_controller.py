@@ -352,6 +352,13 @@ class MiniQuickController(QObject):
     @pyqtSlot()
     def submitDraft(self):
         if not self._state['busy']:
+            draft = (self._state.get('draftText') or '').strip()
+            if not draft and self._state.get('view') == 'finder' and self._state.get('finderHits'):
+                selected_idx = self._state.get('selectedFinderIndex', -1)
+                idx = selected_idx if selected_idx >= 0 else 0
+                if idx < len(self._state['finderHits']):
+                    self.openSelectedHit(idx)
+                    return
             self.submit(self._state['draftText'])
 
     def complete_surface(self):
@@ -430,6 +437,12 @@ class MiniQuickController(QObject):
             self.acceptDroppedImage(image, self._state['imageLabel'] or 'Ảnh đã nhận', text)
             return
         if not text:
+            if self._state.get('view') == 'finder' and self._state.get('finderHits'):
+                selected_idx = self._state.get('selectedFinderIndex', -1)
+                idx = selected_idx if selected_idx >= 0 else 0
+                if idx < len(self._state['finderHits']):
+                    self.openSelectedHit(idx)
+                    return
             self.update(status='Nhập tên file hoặc đoạn cần dịch trước nhé.')
             return
         if self.presentation.surface == 'ocr' and self._ocr_source_ref:
