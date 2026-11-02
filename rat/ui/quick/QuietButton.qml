@@ -7,15 +7,16 @@ Button {
     property bool primary: false
     property bool elideText: false
     property bool subtle: false
+    property bool plain: false
     readonly property bool iconOnly: subtle || (Boolean(iconName) && !Boolean(text)) || text === "⋯"
     opacity: enabled ? 1 : 0.45
     hoverEnabled: true
     font.pixelSize: 12
     font.weight: primary ? Font.DemiBold : Font.Medium
-    leftPadding: iconOnly ? 6 : 10
-    rightPadding: iconOnly ? 6 : 10
-    topPadding: 5
-    bottomPadding: 5
+    leftPadding: plain ? 0 : iconOnly ? 6 : 10
+    rightPadding: plain ? 0 : iconOnly ? 6 : 10
+    topPadding: plain ? 2 : 5
+    bottomPadding: plain ? 2 : 5
     property string iconName: ""
     property string trailingIconName: ""
     property int iconSize: 16
@@ -24,9 +25,11 @@ Button {
     contentItem: RowLayout {
         property color color: control.primary
             ? desk.accentText
-            : (control.highlighted || control.hovered)
-                ? desk.ink
-                : (control.iconOnly ? desk.muted : desk.ink)
+            : control.plain
+                ? ((control.highlighted || control.hovered) ? desk.ink : desk.muted)
+                : (control.highlighted || control.hovered)
+                    ? desk.ink
+                    : (control.iconOnly ? desk.muted : desk.ink)
         spacing: (control.iconName || control.trailingIconName) && control.text ? 5 : 0
         DeskIcon {
             visible: Boolean(control.iconName)
@@ -44,7 +47,7 @@ Button {
             text: control.text
             color: parent.color
             font: control.font
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: control.plain ? Text.AlignLeft : Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: control.elideText ? Text.NoWrap : Text.Wrap
             elide: control.elideText ? Text.ElideMiddle : Text.ElideNone
@@ -61,6 +64,7 @@ Button {
         }
     }
     background: Rectangle {
+        visible: !control.plain
         radius: control.iconOnly ? 8 : 9
         color: control.primary
             ? (control.down ? Qt.darker(desk.accent, 1.12) : control.hovered ? Qt.darker(desk.accent, 1.05) : desk.accent)
