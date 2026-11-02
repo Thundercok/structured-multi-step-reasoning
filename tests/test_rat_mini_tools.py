@@ -240,3 +240,21 @@ def test_automatic_translation_falls_back_to_google_gtx(tmp_path, monkeypatch):
     assert any('trực tuyến' in w for w in result['warnings'])
     assert len(cloud_calls) == 1
     assert cloud_calls[0][0] == 'google_gtx'
+
+
+def test_finder_name_walk_fallback_when_spotlight_empty(tmp_path, monkeypatch):
+    """When Spotlight returns no paths, HybridFinder must fallback to name_walk_paths."""
+    doc = tmp_path / "report_2026.txt"
+    doc.write_text("unindexed test content")
+    monkeypatch.setattr('rat.engine.local_finder.spotlight_paths', lambda *a: [])
+    class DummySemantic:
+        def count(self):
+            return 5
+        def search(self, *a, **k):
+            return []
+    finder = HybridFinder(ScopePolicy([tmp_path]), semantic=DummySemantic())
+    res = finder.search("report")
+    assert len(res['hits']) == 1
+    assert res['hits'][0]['path'] == str(doc)
+    assert res['diagnostics']['name_walk'] == 'complete'
+
