@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import logging
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -203,6 +204,42 @@ def deterministic_finder(
                     })
         except Exception as exc:
             logger.warning("Finder file search failed: %s", exc)
+
+        # Fallback to name_walk_paths if no file hits found from metadata/database
+        if not any(h.get("kind") == "file" for h in hits):
+            from rat.engine.local_finder import name_walk_paths
+            roots = getattr(config, "watch_dirs", None)
+            if roots:
+                valid_roots = [Path(r) for r in roots if Path(r).is_dir()]
+            else:
+                valid_roots = [Path.home() / d for d in ("Documents", "Desktop", "Downloads") if (Path.home() / d).is_dir()]
+            terms = re.findall(r'[\w.-]+', file_query)[:12]
+            if terms or intent.extensions:
+                walked_paths, _ = name_walk_paths(
+                    valid_roots,
+                    terms,
+                    intent.extensions,
+                    lambda: False,
+                    time.monotonic() + 1.5,
+                )
+                for path_str in walked_paths:
+                    p = Path(path_str).resolve()
+                    if p.exists() and p.is_file():
+                        res_id = "doc-" + hashlib.sha256(str(p).encode()).hexdigest()[:12]
+                        is_pdf = p.suffix.lower() == ".pdf"
+                        hits.append({
+                            "resource_id": res_id,
+                            "kind": "file",
+                            "title": p.name,
+                            "path": str(p),
+                            "origin": "Name Walk Fallback",
+                            "snippet": p.name,
+                            "bundle_id": None,
+                            "modified_at": p.stat().st_mtime,
+                            "is_pdf": is_pdf,
+                        })
+                        if len(hits) >= limit:
+                            break
 
     # Bounded truncation
     bounded_hits = hits[:limit]
