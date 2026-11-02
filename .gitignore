@@ -41,6 +41,7 @@ scratch/*.tar.gz
 scratch/debug_images/
 scratch/inspected/
 scratch/sprites/
+rat/assets/sprites/
 scratch/build_spider/
 scratch/*.html
 scratch/font_test_*.png

@@ -22,7 +22,7 @@ from rat.ui.mini_presentation import MiniPresentation
 from rat.ui.image_input import (IMAGE_SUFFIXES, ENCODED_IMAGE_TYPES, image_from_mime, image_from_url,
     parse_pasted_mime_content, parse_image_url_input)
 from rat.ui.image_preview import ImagePreviewProvider
-from rat.os.permissions import runtime_identity
+from rat.os.permissions import runtime_identity, is_accessibility_trusted
 from rat.ui.mini_worker import MiniJob
 from rat.ui.mini_views import (
     format_compact_display_path, format_translation_artifact_view,
@@ -94,6 +94,7 @@ class MiniQuickController(QObject):
         self._selection_invocation_id = None
         self._selection_invoked_at = 0.0
         self._presentation_invocation_id = None
+        self._last_clipboard_change_count = self._get_clipboard_change_count()
         self.quicklook_journal = QuickLookJournal(state_directory(), BUILD)
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = default_controller_state(self.settings)
@@ -113,6 +114,15 @@ class MiniQuickController(QObject):
         if not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(1500, self.start_indexing)
             self.periodic_index_timer.start()
+
+    def _get_clipboard_change_count(self) -> int:
+        if sys.platform == 'darwin':
+            try:
+                from AppKit import NSPasteboard
+                return int(NSPasteboard.generalPasteboard().changeCount())
+            except Exception:
+                pass
+        return -1
 
     def start_indexing(self, reason=''):
         if self.quitting or self._state.get('busy') or self.job is not None:
@@ -206,10 +216,24 @@ class MiniQuickController(QObject):
     def pasteSelectionFallback(self):
         if self.job or self._state['busy']:
             return
-        text = QGuiApplication.clipboard().text()
-        if not text.strip():
-            self.update(selectionNotice='Clipboard chưa có chữ. Hãy chọn và copy đoạn trong app nguồn, rồi bấm Dán chữ.')
+        clipboard = QGuiApplication.clipboard()
+        parsed = parse_pasted_mime_content(clipboard.mimeData(), clipboard.text())
+        if parsed['kind'] == 'image':
+            self._last_clipboard_change_count = self._get_clipboard_change_count()
+            self._selection_return = None
+            self.presentation.open('result')
+            self.presentation.resize(False)
+            self.presentation.read()
+            self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch ảnh vừa dán')
+            self.enqueue('capture_translate', dict(mode='image', image_input=parsed['image'],
+                look_input=True, source_language=self._effective_source_language(),
+                target_language=self.settings['target_language']))
             return
+        text = parsed.get('text', '').strip()
+        if not text:
+            self.update(selectionNotice='Clipboard chưa có chữ hoặc ảnh. Hãy chọn và copy đoạn trong app nguồn, rồi bấm Dán chữ.')
+            return
+        self._last_clipboard_change_count = self._get_clipboard_change_count()
         self._selection_return = None
         self.presentation.open('result')
         self.presentation.resize(False)
@@ -572,6 +596,50 @@ class MiniQuickController(QObject):
         self.update(bubbleCollapsed=False)
         self._selection_invocation_id = invocation
         self._selection_invoked_at = time.monotonic()
+        current_change = self._get_clipboard_change_count()
+        if current_change != -1 and current_change != self._last_clipboard_change_count:
+            cb = QGuiApplication.clipboard()
+            parsed = parse_pasted_mime_content(cb.mimeData(), cb.text())
+            if parsed['kind'] == 'image':
+                self._last_clipboard_change_count = current_change
+                if self._selection_return is None:
+                    self._selection_return = self.presentation.capture_view()
+                self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
+                self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
+                self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch ảnh chụp màn hình')
+                self.enqueue('capture_translate', dict(mode='image', image_input=parsed['image'], look_input=True,
+                    source_language=self._effective_source_language(), target_language=self.settings['target_language']),
+                    input_context={'quicklook_invocation_id': invocation})
+                self._selection_present_generation = self.generation
+                self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
+                return
+            if parsed['kind'] == 'pasted_text' and parsed.get('text', '').strip():
+                self._last_clipboard_change_count = current_change
+                if self._selection_return is None:
+                    self._selection_return = self.presentation.capture_view()
+                self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
+                self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
+                self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch đoạn vừa sao chép')
+                self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=parsed['text'], look_input=True,
+                    source_language=self._effective_source_language(), target_language=self.settings['target_language']),
+                    input_context={'quicklook_invocation_id': invocation})
+                self._selection_present_generation = self.generation
+                self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
+                return
+        if not is_accessibility_trusted():
+            if self._selection_return is None:
+                self._selection_return = self.presentation.capture_view()
+            self.restore_region_previous()
+            self.presentation.resize(False)
+            self.presentation.read()
+            self.update(
+                selectionNotice='Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng để đọc chữ bôi đen.',
+                selectionNeedsPermission=True
+            )
+            self._presentation_invocation_id = invocation
+            self.quicklook_journal.record('accessibility_required', invocation_id=invocation)
+            self.lookRequested.emit()
+            return
         try:
             self._begin_selected_text(invocation)
         except Exception as exc:
@@ -706,8 +774,16 @@ class MiniQuickController(QObject):
         self.clearAttachment()
         self.clearImagePreview()
         self._paste_hint = None
-        # Snapshot on the GUI thread. Capture and translation still use tool contracts.
-        text = QGuiApplication.clipboard().text()
+        self._last_clipboard_change_count = self._get_clipboard_change_count()
+        clipboard = QGuiApplication.clipboard()
+        parsed = parse_pasted_mime_content(clipboard.mimeData(), clipboard.text())
+        if parsed['kind'] == 'image':
+            self.update(requestText='Dịch ảnh Clipboard')
+            self.enqueue('capture_translate', dict(mode='image', image_input=parsed['image'], look_input=True,
+                source_language=self._effective_source_language(),
+                target_language=self.settings['target_language']))
+            return
+        text = parsed.get('text', '')
         self.update(requestText=text or 'Dịch Clipboard')
         self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
             source_language=self._effective_source_language(),

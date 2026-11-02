@@ -108,3 +108,90 @@ def test_build_packages_only_mini_qml_dependencies():
     for name in ('MiniDesk','SpeechSurface','MascotPose','QuietButton','DeskIcon'):
         assert f'{name}.qml:rat/ui/quick' in build
     assert 'PyQt6.QtWidgets rat.ui.mini_floaty' in build
+
+
+def test_quick_look_translates_fresh_clipboard_content_without_permission(tmp_path, monkeypatch):
+    """⌃⌘⇧4 screenshot or ⌘C text in clipboard translates directly with zero permission checks."""
+    from PyQt6.QtGui import QGuiApplication, QImage
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    dispatched = []
+    monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
+    monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: False)
+
+    # 1. Fresh text copy (⌘C)
+    cb = app.clipboard()
+    cb.setText("Attention is all you need.")
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 101)
+    controller._last_clipboard_change_count = 100
+    controller.quickLookSelection()
+    assert len(dispatched) == 1
+    (op, args), kwargs = dispatched[0]
+    assert op == 'capture_translate'
+    assert args['mode'] == 'clipboard'
+    assert args['clipboard_text'] == "Attention is all you need."
+    assert not controller.snapshot['selectionNeedsPermission']
+    assert not controller.snapshot['selectionNotice']
+
+    # 2. Fresh screenshot (⌃⌘⇧4)
+    controller._region_previous = None
+    img = QImage(30, 30, QImage.Format.Format_RGB32)
+    img.fill(0xffffff)
+    cb.setImage(img)
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 102)
+    controller.quickLookSelection()
+    assert len(dispatched) == 2
+    (op2, args2), kwargs2 = dispatched[1]
+    assert op2 == 'capture_translate'
+    assert args2['mode'] == 'image'
+    assert args2['image_input'].origin == 'clipboard_image'
+    assert not controller.snapshot['selectionNeedsPermission']
+
+
+def test_quick_look_without_fresh_clipboard_shows_accessibility_invitation(tmp_path, monkeypatch):
+    """When no fresh clipboard content exists and Accessibility is untrusted, invite permission."""
+    from PyQt6.QtGui import QGuiApplication
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 100)
+    controller._last_clipboard_change_count = 100
+    monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: False)
+    dispatched = []
+    monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
+
+    controller.quickLookSelection()
+    assert len(dispatched) == 0
+    assert controller.snapshot['selectionNeedsPermission'] is True
+    assert 'Trợ năng' in controller.snapshot['selectionNotice']
+
+
+def test_paste_selection_fallback_handles_image_and_text(tmp_path, monkeypatch):
+    """pasteSelectionFallback translates clipboard image or text cleanly."""
+    from PyQt6.QtGui import QGuiApplication, QImage
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    dispatched = []
+    monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
+
+    # Image in clipboard
+    img = QImage(20, 20, QImage.Format.Format_RGB32)
+    img.fill(0xff0000)
+    app.clipboard().setImage(img)
+    controller.pasteSelectionFallback()
+    assert len(dispatched) == 1
+    assert dispatched[0][0][0] == 'capture_translate'
+    assert dispatched[0][0][1]['mode'] == 'image'
+
+    # Text in clipboard
+    app.clipboard().setText('Fallback sample text')
+    controller.pasteSelectionFallback()
+    assert len(dispatched) == 2
+    assert dispatched[1][0][0] == 'capture_translate'
+    assert dispatched[1][0][1]['mode'] == 'clipboard'
+    assert dispatched[1][0][1]['clipboard_text'] == 'Fallback sample text'

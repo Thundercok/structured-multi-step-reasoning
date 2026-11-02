@@ -26,7 +26,7 @@ shutil.rmtree(frames, ignore_errors=True); frames.mkdir(parents=True)
 os.environ.setdefault('RAT_MINI_STATE_DIR', tempfile.mkdtemp(prefix='rat-lite-demo-'))
 
 from PyQt6.QtCore import Q_ARG, QMetaObject, QObject, QTimer
-from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtGui import QGuiApplication, QColor, QFont, QImage, QPainter
 from PyQt6.QtTest import QTest
 from rat.engine.mini_settings import DEFAULTS
 from rat.ui.mini_quick import create_mini_desk
@@ -104,7 +104,17 @@ clipboard = QGuiApplication.clipboard(); previous = clipboard.text()
 clipboard.setText('The dominant sequence transduction models are based on com-\nplex recurrent or convolutional neural networks that include an\n'
                   'encoder and a decoder. The best performing models also con-\nnect the encoder and decoder through an attention mechanism,\n'
                   'requiring signi\ufb01cantly less time to train.')
-c.translateClipboard(); until_idle(); still('07_clipboard_translation')
+c.quickLookSelection(); until_idle(); still('07_clipboard_translation')
+
+screenshot_img = QImage(600, 120, QImage.Format.Format_RGB32)
+screenshot_img.fill(QColor('white'))
+p = QPainter(screenshot_img)
+p.setPen(QColor('black'))
+p.setFont(QFont('Helvetica', 22))
+p.drawText(20, 70, 'Language models translate text across languages.')
+p.end()
+clipboard.setImage(screenshot_img)
+c.quickLookSelection(); until_idle(); still('07b_screenshot_translation')
 clipboard.setText(previous)
 type_and_send('xin chào các bạn'); still('08_clarify_buttons')
 c.submit('dịch'); until_idle(); still('09_after_choosing_translate')

@@ -5,7 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from rat.os.hotkey_chords import DEFAULT_CHORD, chord
-from rat.os.permissions import runtime_identity
+from rat.os.permissions import runtime_identity, is_accessibility_trusted
 
 
 REGION_PREVIOUS_FIELDS = (
@@ -55,7 +55,7 @@ def build_controller_snapshot(state: dict, pres_snapshot: dict, settings: dict, 
         combined,
         lookStatusLabel='Đang xử lý' if state['busy'] else 'Sẵn sàng',
         runningBundlePath=runtime_identity().get('bundle_path') or '',
-        accessibilityReady=any(c.get('key') == 'accessibility' and c.get('state') in ('ready', 'not_required') for c in state['readiness']),
+        accessibilityReady=(any(c.get('key') == 'accessibility' and c.get('state') in ('ready', 'not_required') for c in state['readiness']) or is_accessibility_trusted()),
         shortcutLabel=chord(settings.get('hotkey_chord', DEFAULT_CHORD))[2],
         taskHistory=[dict(index=i, title=item['title']) for i, item in enumerate(task_history)],
         diagnosticEvents=diagnostic_events,
