@@ -24,6 +24,7 @@ Cần Mac chip M (M1, M2, M3…) và macOS 14 trở lên. Tài liệu của bạ
    - Enter để mở. ⌘Enter để hiện file trong Finder. ⌘C để chép đường dẫn.
    - Lần đầu, Chuột cần vài phút để đọc qua Documents, Desktop và Downloads.
      macOS có thể hỏi cho phép RAT Mini truy cập các thư mục này → bấm "Cho phép".
+   - Tài liệu scan được đọc dần trong nền, nên có thể cần thêm ít phút mới tìm được theo nội dung.
    - Muốn tìm ở thư mục khác: menu "···" → Cài đặt… → Thêm thư mục…
 
 4. DỊCH ĐOẠN ĐANG ĐỌC

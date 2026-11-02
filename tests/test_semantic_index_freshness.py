@@ -83,3 +83,32 @@ def test_controller_panel_open_throttles_indexing(tmp_path, monkeypatch):
     # Immediate second panel_open is throttled (cheap identity, avoids thrashing)
     second = controller.start_indexing(reason='panel_open')
     assert second is False
+
+
+def _wait_idle(index):
+    import time
+    index._thread.join(timeout=10)
+    assert not index._thread.is_alive()
+
+
+def test_ocr_pass_reads_scanned_pdfs_once(tmp_path, monkeypatch):
+    import rat.engine.semantic_index as module
+    root = tmp_path / 'docs'; root.mkdir()
+    (root / 'scan_0012.pdf').write_bytes(b'%PDF-1.4 scanned')
+    calls = []
+
+    def fake_read(path, limit=1800, ocr=False):
+        calls.append(ocr)
+        return 'Lịch thi học kỳ một, môn Giải tích, phòng A305, thứ Hai ngày mười hai.' if ocr else ''
+
+    monkeypatch.setattr(module, 'read_document_text', fake_read)
+    monkeypatch.setattr(module, 'OCR_PAUSE_S', 0)
+    index = module.SemanticIndex(tmp_path / 'index.sqlite', embedder=DummyEmbedder())
+    index.start([root]); _wait_idle(index)
+    assert calls == [False, True]
+    with index._connect() as db:
+        texts = [r[0] for r in db.execute('SELECT chunk_text FROM chunks ORDER BY chunk_index')]
+    assert len(texts) == 2 and 'Giải tích' in texts[1]
+    index.start([root]); _wait_idle(index)
+    assert calls == [False, True]
+

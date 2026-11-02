@@ -30,6 +30,9 @@ MAX_FILE_BYTES = 80_000_000
 CHUNK_CHARS = 600
 CHUNKS_PER_FILE = 3
 KEYWORD_WEIGHT = 0.3
+# Vision OCR is slow, so scanned PDFs are read a few at a time, newest first.
+OCR_FILES_PER_PASS = 30
+OCR_PAUSE_S = 0.5
 STOPWORDS = {'tim', 'file', 've', 'cai', 'cua', 'cho', 'toi', 'minh', 'mot', 'nhung', 'cac', 'va', 'la',
              'o', 'trong', 'bai', 'the', 'a', 'an', 'of', 'about', 'find'}
 
@@ -89,7 +92,7 @@ def document_chunks(path, text):
     p = Path(path)
     # The name chunk lets "báo cáo nhóm 4" match a file whose body is empty or scanned.
     chunks = [f'{p.stem.replace("_", " ")} · {p.parent.name}']
-    body = ' '.join(re.sub(r'---\s*Page \d+\s*---', ' ', text).split())
+    body = ' '.join(re.sub(r'---\s*Page \d+[^-\n]*---', ' ', text).split())
     for start in range(0, min(len(body), CHUNK_CHARS * CHUNKS_PER_FILE), CHUNK_CHARS):
         piece = body[start:start + CHUNK_CHARS].strip()
         if len(piece) >= 40:
@@ -138,6 +141,7 @@ class SemanticIndex:
             db.executescript('''
                 CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, identity TEXT NOT NULL,
                     modified_at REAL, indexed_at REAL);
+                CREATE TABLE IF NOT EXISTS ocr_checked (path TEXT PRIMARY KEY, identity TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS chunks (path TEXT NOT NULL, chunk_index INTEGER NOT NULL,
                     chunk_text TEXT NOT NULL, vector BLOB NOT NULL, PRIMARY KEY (path, chunk_index));''')
 
@@ -164,6 +168,7 @@ class SemanticIndex:
         with self._lock, self._connect() as db:
             db.executemany('DELETE FROM files WHERE path = ?', [(p,) for p in paths])
             db.executemany('DELETE FROM chunks WHERE path = ?', [(p,) for p in paths])
+            db.executemany('DELETE FROM ocr_checked WHERE path = ?', [(p,) for p in paths])
             self._matrix = None
 
     def _load_matrix(self):
@@ -236,6 +241,7 @@ class SemanticIndex:
     def _run(self, roots):
         try:
             self._index(roots)
+            self._ocr_pass()
         except Exception as exc:
             logger.warning('semantic_index_failed: %s', type(exc).__name__)
             with self._lock:
@@ -291,19 +297,53 @@ class SemanticIndex:
                 logger.info('semantic_index_skip ext=%s code=%s', Path(path).suffix, type(exc).__name__)
                 chunks = document_chunks(path, '')
                 vectors = self.embedder.embed_texts(chunks)
-            with self._lock, self._connect() as db:
-                db.execute('DELETE FROM chunks WHERE path = ?', (path,))
-                db.executemany('INSERT INTO chunks VALUES (?, ?, ?, ?)',
-                               [(path, i, text, vec.astype(np.float32).tobytes()) for i, (text, vec) in enumerate(zip(chunks, vectors))])
-                db.execute('INSERT OR REPLACE INTO files VALUES (?, ?, ?, ?)',
-                           (path, json.dumps(identity), os.stat(path).st_mtime, time.time()))
-                self._matrix = None
+            self._store(path, identity, chunks, vectors)
+            with self._lock:
                 self._progress = {'state': 'indexing', 'done': done, 'total': len(todo)}
             # Yield the CPU between files so typing and translation stay responsive.
             time.sleep(0.02)
         with self._lock:
             if not self._stop.is_set():
                 self._progress = {'state': 'ready', 'done': len(todo), 'total': len(todo)}
+
+    def _store(self, path, identity, chunks, vectors):
+        with self._lock, self._connect() as db:
+            db.execute('DELETE FROM chunks WHERE path = ?', (path,))
+            db.executemany('INSERT INTO chunks VALUES (?, ?, ?, ?)',
+                           [(path, i, text, vec.astype(np.float32).tobytes()) for i, (text, vec) in enumerate(zip(chunks, vectors))])
+            db.execute('INSERT OR REPLACE INTO files VALUES (?, ?, ?, ?)',
+                       (path, json.dumps(identity), os.stat(path).st_mtime, time.time()))
+            self._matrix = None
+
+    def _ocr_pass(self):
+        """Read scanned PDFs that the fast pass could only index by name.
+
+        Runs quietly after indexing (no progress line) and yields to queries. Each
+        file version is tried once, so unreadable scans are not OCRed on every pass.
+        """
+        with self._connect() as db:
+            rows = db.execute('''SELECT f.path, f.identity FROM files f
+                LEFT JOIN ocr_checked o ON o.path = f.path AND o.identity = f.identity
+                WHERE f.path LIKE '%.pdf' AND o.path IS NULL
+                  AND (SELECT COUNT(*) FROM chunks c WHERE c.path = f.path) <= 1
+                ORDER BY f.modified_at DESC LIMIT ?''', (OCR_FILES_PER_PASS,)).fetchall()
+        for path, stored_identity in rows:
+            while self._active_queries > 0 and not self._stop.is_set():
+                time.sleep(0.05)
+            if self._stop.is_set():
+                return
+            try:
+                identity = file_identity(path)
+                if json.dumps(identity) != stored_identity:
+                    continue  # Changed since indexing; the next pass handles the new version.
+                chunks = document_chunks(path, read_document_text(path, ocr=True))
+                if len(chunks) > 1:
+                    self._store(path, identity, chunks, self.embedder.embed_texts(chunks, batch_size=8))
+            except Exception as exc:
+                logger.info('semantic_index_ocr_skip code=%s', type(exc).__name__)
+            with self._lock, self._connect() as db:
+                db.execute('INSERT OR REPLACE INTO ocr_checked VALUES (?, ?)', (path, stored_identity))
+            time.sleep(OCR_PAUSE_S)
 
 
 _shared = {}
