@@ -71,3 +71,24 @@ def test_clarification_with_short_confirmation_and_analysis_and_file_description
     assert vi_sentence.rule == 'bidirectional_passage'
     assert vi_sentence.args['text'] == 'Hôm nay thời tiết thật là đẹp.'
 
+
+def test_short_input_without_verb_searches_instead_of_asking():
+    """Short input without a verb ("bài báo về attention", "app nhắn tin", "mở zalo") searches instead of asking."""
+    router = ToolGoalRouter({'find_files', 'translate_text'})
+
+    # 1. "bài báo về attention"
+    route1 = router.resolve("bài báo về attention")
+    assert route1.operation == "find_files"
+    assert route1.args["query"] == "bài báo về attention"
+
+    # 2. "app nhắn tin"
+    route2 = router.resolve("app nhắn tin")
+    assert route2.operation == "find_files"
+    assert route2.args["query"] == "app nhắn tin"
+
+    # 3. "mở zalo"
+    route3 = router.resolve("mở zalo")
+    assert route3.operation == "find_files"
+    assert route3.args["query"] == "mở zalo"
+
+

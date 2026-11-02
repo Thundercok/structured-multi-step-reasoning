@@ -766,6 +766,16 @@ class QuickPDFController(QObject):
 
     @pyqtSlot(str)
     def submitQuery(self, query: str):
+        q = query.strip()
+        if not q and self._view == "finder" and self._finder_hits:
+            idx = 0
+            if self._finder_selected_id:
+                for i, h in enumerate(self._finder_hits):
+                    if h.get("resource_id") == self._finder_selected_id:
+                        idx = i
+                        break
+            self.openSelectedHit(idx)
+            return
         self.submit(query)
 
     @pyqtSlot(str)

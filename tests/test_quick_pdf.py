@@ -795,6 +795,29 @@ def test_shortcut_order_live_selection_first_fresh_clipboard_fallback(controller
     assert controller.snapshot["expanded"] is True
 
 
+def test_enter_with_empty_draft_opens_selected_or_first_finder_hit(controller, monkeypatch):
+    """With results showing and an empty draft, Enter opens the selected or first hit."""
+    opened = []
+    monkeypatch.setattr(controller, "openSelectedHit", lambda idx: opened.append(idx))
+
+    controller._view = "finder"
+    controller._finder_hits = [
+        {"resource_id": "hit-1", "path": "/path/to/doc1.pdf", "is_pdf": True},
+        {"resource_id": "hit-2", "path": "/path/to/doc2.pdf", "is_pdf": True},
+    ]
+
+    # Case 1: No explicit selection -> opens first hit (index 0)
+    controller._finder_selected_id = None
+    controller.submitQuery("")
+    assert opened == [0]
+
+    # Case 2: Specific selection -> opens selected hit (index 1)
+    controller._finder_selected_id = "hit-2"
+    controller.submitQuery("")
+    assert opened == [0, 1]
+
+
+
 
 
 
