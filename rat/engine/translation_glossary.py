@@ -201,6 +201,15 @@ _VI_EN_PATTERN = re.compile(
     re.IGNORECASE)
 
 
+# Everyday English words that are only terms in research text: "the train leaves",
+# "pay attention", "recall your token" must reach the model untouched.
+AMBIGUOUS_EN = {'train', 'training', 'attention', 'token', 'recall', 'precision', 'accuracy', 'seed', 'baseline',
+                'inference', 'regression', 'controller', 'checker', 'encoder', 'decoder', 'convolution', 'recurrence'}
+_RESEARCH_CONTEXT = re.compile(r'\b(?:models?|neural|networks?|algorithms?|experiments?|evaluat\w+|parameters?|'
+                               r'optimi[sz]\w+|predict\w+|learning|paper)\b', re.IGNORECASE)
+_ARTICLE_BEFORE = re.compile(r'\b(?:the|a|an|this|that|my|our|your)\s+$', re.IGNORECASE)
+
+
 def protect(text: str, source: str = 'en', target: str = 'vi') -> tuple[str, dict[str, str]]:
     """Replace known terms with placeholders; returns (text, placeholder -> rendering)."""
     if source == 'en' and target == 'vi':
@@ -215,11 +224,18 @@ def protect(text: str, source: str = 'en', target: str = 'vi') -> tuple[str, dic
     # Pick a placeholder letter the source does not already use as "<letter><digits>".
     letter = next(c for c in 'TKQZ' if not re.search(rf'\b{c}\d+\b', text))
     mapping, renderings = {}, {}
+    research = source != 'en' or bool(_RESEARCH_CONTEXT.search(text)) or any(
+        m.group(1).lower() not in AMBIGUOUS_EN for m in pattern.finditer(text))
 
     def swap(match):
         term = match.group(1).lower()
         rendering = lookup.get(term)
         if not rendering:
+            return match.group(0)
+        if source == 'en' and term in AMBIGUOUS_EN and not research:
+            return match.group(0)
+        # "the train" is a noun even in a paper; the verb is what means huấn luyện.
+        if source == 'en' and term == 'train' and _ARTICLE_BEFORE.search(text[:match.start()]):
             return match.group(0)
         key = renderings.get(rendering)
         if key is None:

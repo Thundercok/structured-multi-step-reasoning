@@ -48,3 +48,16 @@ def test_vi_to_en_direction_protects_and_restores():
     mt_out = 'T1 and T2 are T3 using T4.'
     restored = restore(mt_out, mapping)
     assert restored == 'Convolutional neural network (CNN) and recurrent neural network (RNN) are training using backpropagation.'
+
+
+def test_everyday_english_is_not_treated_as_research_terms():
+    for sentence in ('The train leaves the station at noon, so please recall your token.',
+                     'Please pay attention to the teacher.'):
+        assert protect(sentence) == (sentence, {})
+
+
+def test_ambiguous_terms_still_protected_in_research_text():
+    _, mapping = protect('We train the model and report precision and recall.')
+    assert set(mapping.values()) >= {'huấn luyện', 'precision', 'recall'}
+    _, mapping = protect('The train set feeds a classifier.')
+    assert 'huấn luyện' not in mapping.values()
