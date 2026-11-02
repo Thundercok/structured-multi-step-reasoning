@@ -112,3 +112,21 @@ def test_ocr_pass_reads_scanned_pdfs_once(tmp_path, monkeypatch):
     index.start([root]); _wait_idle(index)
     assert calls == [False, True]
 
+
+def test_startup_indexing_retries_while_a_job_is_running(tmp_path, monkeypatch):
+    monkeypatch.setenv('RAT_MINI_STATE_DIR', str(tmp_path))
+    from PyQt6.QtCore import QCoreApplication, QTimer
+    from rat.engine.mini_settings import DEFAULTS
+    from rat.ui.mini_quick_controller import MiniQuickController
+    app = QCoreApplication.instance() or QCoreApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[]))
+    scheduled = []
+    monkeypatch.setattr(QTimer, 'singleShot', lambda ms, fn: scheduled.append(ms))
+    controller.job = object()
+    assert controller.start_indexing() is False
+    assert scheduled == [2000]
+    scheduled.clear()
+    assert controller.start_indexing(reason='panel_open') is False
+    assert scheduled == []
+    controller.job = None
+

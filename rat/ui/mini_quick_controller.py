@@ -140,7 +140,13 @@ class MiniQuickController(QObject):
         return current
 
     def start_indexing(self, reason=''):
-        if self.quitting or self._state.get('busy') or self.job is not None:
+        if self.quitting:
+            return False
+        if self._state.get('busy') or self.job is not None:
+            # Launch-time readiness is still running (slower in the packaged app): come back,
+            # or a fresh install would index nothing until the next periodic pass.
+            if reason != 'panel_open':
+                QTimer.singleShot(2000, lambda: self.start_indexing(reason))
             return False
         now = time.monotonic()
         if reason == 'panel_open' and now - self._last_index_time < 30.0:
