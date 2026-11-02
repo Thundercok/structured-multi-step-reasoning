@@ -40,6 +40,8 @@ Rectangle {
             if (app.name && app.name.toLowerCase().indexOf(q) !== -1) return true
             if (app.bundle_id && app.bundle_id.toLowerCase().indexOf(q) !== -1) return true
             if (app.names && app.names.some(function(alias) { return alias.toLowerCase().indexOf(q) !== -1 })) return true
+            if (app.description && app.description.toLowerCase().indexOf(q) !== -1) return true
+            if (app.purposes && app.purposes.some(function(p) { return p.toLowerCase().indexOf(q) !== -1 })) return true
             return false
         })
     }

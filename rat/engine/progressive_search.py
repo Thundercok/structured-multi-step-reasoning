@@ -177,6 +177,43 @@ class ProgressiveSearch:
         )
         return intent, effective
 
+    def _search_apps(self, query: str, limit: int = 15):
+        app_matches = list(self.catalog.search(query, limit=limit))
+        seen_bundles = {a.bundle_id for a in app_matches}
+        try:
+            from rat.engine.app_search import AppSearch, app_descriptions
+            import numpy as np
+            if getattr(self, '_app_search', None) is None:
+                embed_fn = getattr(self.semantic, 'embedder', None)
+                if embed_fn is not None and not callable(embed_fn):
+                    embed_fn = lambda: getattr(self.semantic, 'embedder')
+                self._app_search = AppSearch(embed_fn)
+                self._app_search._apps = [a for a in self.catalog.applications if not a.path.startswith('/System/Library/')]
+                self._app_search._names = [[name_key(n) for n in a.names] for a in self._app_search._apps]
+                owners, texts = [], []
+                for i, a in enumerate(self._app_search._apps):
+                    for text in app_descriptions(a):
+                        owners.append(i); texts.append(text)
+                self._app_search._owners = np.array(owners, dtype=int)
+                self._app_search._words = [set(name_key(' '.join(app_descriptions(a))).split()) for a in self._app_search._apps]
+                if embed_fn:
+                    try:
+                        self._app_search._matrix = embed_fn().embed_texts(texts, batch_size=16) if texts else np.empty((0, 384), dtype=np.float32)
+                    except Exception:
+                        self._app_search._matrix = np.empty((0, 384), dtype=np.float32)
+                else:
+                    self._app_search._matrix = np.empty((0, 384), dtype=np.float32)
+            for res in self._app_search.search(query, limit=limit, floor=0.3):
+                if res['bundle_id'] not in seen_bundles and len(app_matches) < limit:
+                    for a in self.catalog.applications:
+                        if a.bundle_id == res['bundle_id']:
+                            app_matches.append(a)
+                            seen_bundles.add(a.bundle_id)
+                            break
+        except Exception:
+            pass
+        return app_matches
+
     def initial(self, request):
         if type(request.limit) is not int or not 1 <= request.limit <= 100 or len(request.query) > 2000:
             raise ValueError('invalid_finder_request')
@@ -188,7 +225,7 @@ class ProgressiveSearch:
         if intent.action == 'negated_open':
             return self._snapshot(request, 'lexical', (), complete=True, errors=(), intent=intent)
         if intent.action == 'open_app':
-            app_matches = self.catalog.search(intent.target_app_query, limit=request.limit)
+            app_matches = self._search_apps(intent.target_app_query, limit=request.limit)
             hits = [
                 SearchHit(
                     a.resource_id,
@@ -254,7 +291,7 @@ class ProgressiveSearch:
                         else 'Khớp tên ứng dụng'
                     ),
                 )
-                for a in self.catalog.search(request.query, limit=request.limit)
+                for a in self._search_apps(request.query, limit=request.limit)
             )
         fts_query = intent.query_terms if intent.has_structured_constraints else request.query
         try:

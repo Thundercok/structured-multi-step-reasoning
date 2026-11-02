@@ -114,6 +114,29 @@ def deterministic_finder(
     if search_apps and catalog is not None and catalog.applications:
         app_query = intent.target_app_query or intent.query_terms or clean_query
         app_candidates = list(catalog.search(app_query, limit=limit))
+        seen_bundles = {a.bundle_id for a in app_candidates}
+        try:
+            from rat.engine.app_search import AppSearch, app_descriptions
+            import numpy as np
+            app_searcher = AppSearch(None)
+            app_searcher._apps = [a for a in catalog.applications if not a.path.startswith('/System/Library/')]
+            app_searcher._names = [[name_key(n) for n in a.names] for a in app_searcher._apps]
+            owners, texts = [], []
+            for i, a in enumerate(app_searcher._apps):
+                for text in app_descriptions(a):
+                    owners.append(i); texts.append(text)
+            app_searcher._owners = np.array(owners, dtype=int)
+            app_searcher._words = [set(name_key(' '.join(app_descriptions(a))).split()) for a in app_searcher._apps]
+            app_searcher._matrix = np.empty((0, 384), dtype=np.float32)
+            for res in app_searcher.search(app_query, limit=limit, floor=0.2):
+                if res['bundle_id'] not in seen_bundles and len(app_candidates) < limit:
+                    for a in catalog.applications:
+                        if a.bundle_id == res['bundle_id']:
+                            app_candidates.append(a)
+                            seen_bundles.add(a.bundle_id)
+                            break
+        except Exception as exc:
+            logger.debug("AppSearch fallback in deterministic_finder failed: %s", exc)
         for app in app_candidates:
             app_p = Path(app.path).resolve()
             try:
