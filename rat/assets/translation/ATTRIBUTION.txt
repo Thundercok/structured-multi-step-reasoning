@@ -1,0 +1,7 @@
+OPUS-MT language models, packaged by Argos Open Technologies.
+Jörg Tiedemann and Santhosh Thottingal (2020).
+OPUS-MT — Building open translation services for the World. EAMT 2020.
+Models licensed CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/
+Source: https://www.argosopentech.com/argospm/index/
+RAT omits Stanza data and runs the unchanged int8 CTranslate2 model files.
+Exact package URLs, hashes and per-file hashes: manifest.json.

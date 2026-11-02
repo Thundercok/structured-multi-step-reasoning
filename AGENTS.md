@@ -8,10 +8,11 @@ proposal until the advisor confirms it in writing; never write that it was appro
 
 ## Rebuild, 2026-11-02
 
-The user authorized a full rebuild. The controller research code, RAT, RAT Lite and their
-docs and tests were removed from the tree. They remain in git history at tag
-`pre-rebuild-20261102`. Do not delete that tag: it also holds Spider adapter code whose
-destination import has not been verified, and the decisions in the old `AGENTS.md`.
+The user authorized a full rebuild on 2026-11-02. The controller research code was removed
+from the tree; the user restored RAT on 2026-11-03 to main alongside the research code.
+Legacy controller code remains in git history at tag `pre-rebuild-20261102`. Do not delete
+that tag: it also holds Spider adapter code whose destination import has not been verified,
+and the decisions in the old `AGENTS.md`.
 
 Do not restore old code as routine work. Do not remove these recovery and evidence
 locations: `.migration-backups/`, `runs/`, `outputs/`, `dist/`, and the linked worktrees.

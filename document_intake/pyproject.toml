@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nesy-document-intake"
+version = "0.1.0"
+description = "Shared headless PDF and OCR primitives"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+pdf = ["pypdf>=4"]
+vision = ["Pillow>=10", "pyobjc-framework-Cocoa; sys_platform == 'darwin'"]
+
+[tool.setuptools]
+packages = ["document_intake"]
+package-dir = {document_intake = "."}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "engine": "ctranslate2==4.8.4",
+  "models": {
+    "en-vi": {
+      "pair": "en-vi",
+      "version": "1.9",
+      "url": "https://data.argosopentech.com/argospm/v1/translate-en_vi-1_9.argosmodel",
+      "sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+      "bytes": 67770159,
+      "archive_prefix": "translate-en_vi-1_9",
+      "license": "CC-BY-4.0",
+      "attribution": "Jörg Tiedemann and Santhosh Thottingal, OPUS-MT (2020); Argos Open Technologies model packaging.",
+      "files": {
+        "sentencepiece.model": "fdd9ab486ca8ea060967105e30db7d8928729c78a67448711d2dd7c3153b37cd",
+        "metadata.json": "4e30b185a4eb8b4cebb706f08bfd8999ae93a0ba232cdcc23d01a4f535acd140",
+        "README.md": "d8edb49d2a6f031a7c31eb94fe2e745c60ab573d76243bbc2ff759fda5a7dc02",
+        "model/config.json": "970e93165032234327dedcfe8b3b3b2dbd270fa74691d1c452613f0da1dc4a10",
+        "model/model.bin": "32e13c96db538f77fc7773596de75b1b4ca5e3f933a26c2cf67311f4c16ff9c8",
+        "model/shared_vocabulary.json": "33b19841fdf4e381982c610258ca698072d7593435b86bd9051813e039d63fe8"
+      }
+    },
+    "vi-en": {
+      "pair": "vi-en",
+      "version": "1.9",
+      "url": "https://data.argosopentech.com/argospm/v1/translate-vi_en-1_9.argosmodel",
+      "sha256": "ebd51b7189b13eccb9238a5777de1d343008c4c05284a8b89610242364433953",
+      "bytes": 65895840,
+      "archive_prefix": "translate-vi_en-1_9",
+      "license": "CC-BY-4.0",
+      "attribution": "Jörg Tiedemann and Santhosh Thottingal, OPUS-MT (2020); Argos Open Technologies model packaging.",
+      "files": {
+        "sentencepiece.model": "9deb4f9e7bebd3876f4bf238a9eb52f2f95a1fba2210a4a8239167c55c15e67d",
+        "metadata.json": "86a43159d666780e40adc6c2dc084e301c5048928e0cd1827adfd23190ba6e53",
+        "README.md": "38be70004a54fc46b699ac7ac2b4802c579709c6478482f3c471b0d9a127b1fe",
+        "model/config.json": "b28e3136fc7a103e29585c10c8124849fb01d649531f58e00cbe240111560cd7",
+        "model/model.bin": "63aa5bdb275126e62d27ca43ed8c9021df0ae6b94383ca8be4d99c6d73fbcb96",
+        "model/shared_vocabulary.json": "f1672426c4370b58e61646492e261d6477d2cbae10d21c23fe7d7ce95fa97610"
+      }
+    }
+  }
+}

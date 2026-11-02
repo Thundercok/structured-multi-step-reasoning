@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "runtime": "ctranslate2==4.8.4",
+  "models": [
+    {
+      "pair": "en-vi",
+      "version": "1.9",
+      "url": "https://data.argosopentech.com/argospm/v1/translate-en_vi-1_9.argosmodel",
+      "sha256": "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16",
+      "bytes": 67770159,
+      "archive_prefix": "translate-en_vi-1_9",
+      "license": "CC-BY-4.0",
+      "attribution": "Jörg Tiedemann and Santhosh Thottingal, OPUS-MT (2020); Argos Open Technologies model packaging."
+    },
+    {
+      "pair": "vi-en",
+      "version": "1.9",
+      "url": "https://data.argosopentech.com/argospm/v1/translate-vi_en-1_9.argosmodel",
+      "sha256": "ebd51b7189b13eccb9238a5777de1d343008c4c05284a8b89610242364433953",
+      "bytes": 65895840,
+      "archive_prefix": "translate-vi_en-1_9",
+      "license": "CC-BY-4.0",
+      "attribution": "Jörg Tiedemann and Santhosh Thottingal, OPUS-MT (2020); Argos Open Technologies model packaging."
+    }
+  ]
+}

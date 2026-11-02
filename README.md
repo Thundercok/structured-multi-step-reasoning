@@ -56,5 +56,6 @@ structured_llm/train.sh adapters/first 200
 .venv/bin/python -m structured_llm.intervene --run audit/first --adapter adapters/first
 ```
 
-The model must already be in the Hugging Face cache at the pinned revision. Earlier code
-(controller, RAT, RAT Lite) is at git tag `pre-rebuild-20261102`.
+The model must already be in the Hugging Face cache at the pinned revision. Earlier controller
+code is at git tag `pre-rebuild-20261102`; the user restored RAT on 2026-11-03 to main alongside
+the research code.

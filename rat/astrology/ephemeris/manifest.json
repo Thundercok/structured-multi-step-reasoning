@@ -1,0 +1,26 @@
+{
+  "source": "https://github.com/aloistr/swisseph",
+  "coverage": "1800-2399 CE",
+  "files": {
+    "sepl_18.se1": {
+      "url": "https://raw.githubusercontent.com/aloistr/swisseph/master/ephe/sepl_18.se1",
+      "bytes": 484061,
+      "sha256": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66"
+    },
+    "semo_18.se1": {
+      "url": "https://raw.githubusercontent.com/aloistr/swisseph/master/ephe/semo_18.se1",
+      "bytes": 1304771,
+      "sha256": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7"
+    },
+    "seas_18.se1": {
+      "url": "https://raw.githubusercontent.com/aloistr/swisseph/master/ephe/seas_18.se1",
+      "bytes": 223004,
+      "sha256": "a2cd8fc33807c78ca9a700c91c2e042258b12fc4796519e00781440b5ad8b2e2"
+    },
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/aloistr/swisseph/master/LICENSE",
+      "bytes": 2371,
+      "sha256": "b6345743292c516d07799dfad46f1a641e5270da2160cc4d6bd54594d6faa991"
+    }
+  }
+}
