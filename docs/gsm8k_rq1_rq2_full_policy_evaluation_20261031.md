@@ -11,8 +11,12 @@
 > **Đính chính 2026-11-01.** Bộ chấm chấm sai 2 đáp án PAL do sai số dấu phẩy động
 > (`11.000000000000002`, `107.99999999999983`). Sau khi sửa, kết luận ở mục 5 và 9
 > không còn đứng vững: policy được fit gần như luôn chạy PAL và không vượt `fixed_pal`.
-> Xem [mục 10](#10-đính-chính-2026-11-01-chấm-lại-sai-số-số-thực-của-pal). Các mục 1–9
-> được giữ nguyên làm hồ sơ của lần chạy gốc.
+> Xem [mục 10](#10-đính-chính-2026-11-01-chấm-lại-sai-số-số-thực-của-pal). Số liệu và kết luận
+> ở các mục 1–9 được giữ làm hồ sơ của lần chạy gốc.
+>
+> **Đính chính 2026-11-02.** Mô tả ca ở mục 6.1 và 7 đã được sửa theo dữ liệu gốc. Bản trước
+> ghi sai đề bài và đáp án của `gsm8k-dev-00900` (ghi `6` và `42`; đúng là `40` và `16`) và
+> nhận định câu dài "tốn trên 120 token trước khi thất bại".
 
 ---
 
@@ -121,7 +125,7 @@ So sánh `full_policy_3rung` với `ladder_only_3rung`:
 * **Độ chính xác:** Ngang nhau ($97,92\%$, cùng 47/48 câu).
 * **Tiết kiệm Token:** `full_policy_3rung` tiêu thụ **193,44 tokens**, trong khi `ladder_only_3rung` tiêu thụ **212,17 tokens**.
   * **Bộ định tuyến đầu vào tiết kiệm ròng $-18,73$ tokens/câu** (giảm 8,8% chi phí toàn hệ thống).
-* **Cơ chế:** Đối với các câu hỏi dài ($> 60$ từ), DIRECT chỉ đạt độ chính xác 72,7%–75% và thường tốn $>120$ tokens trước khi thất bại. Bộ định tuyến phát hiện đặc trưng này và đẩy thẳng sang PAL ngay từ đầu, tránh hoàn toàn chi phí lãng phí của các lần gọi DIRECT vô ích!
+* **Cơ chế:** Đối với các câu hỏi dài ($> 60$ từ), DIRECT đạt độ chính xác 72,7% (8/11, train) và 75% (3/4, calibration), với trung bình trên 120 token mỗi câu. Các mẫu này rất nhỏ. Những câu dài mà DIRECT làm sai lại tốn ít token (trung bình 26 ở train, 5 ở calibration), nên phần tiết kiệm không đến từ việc tránh các lần thất bại tốn kém. Bộ định tuyến đẩy các câu này thẳng sang PAL từ đầu.
 
 ### 6.2. Vai trò của Quyết định Dừng (Full Policy vs One-Shot Router)
 * One-shot router chỉ đạt 95,83% vì một khi đã chọn DIRECT cho câu hỏi ngắn, nó không có cơ hội sửa sai.
@@ -138,19 +142,21 @@ So sánh `full_policy_3rung` với `ladder_only_3rung`:
 
 ### 7.1. Các ca Cứu nguy (Rescues)
 1. **`gsm8k-dev-00900`** (Độ dài: 27 từ — câu hỏi ngắn):
-   * *Đề bài:* Tính tổng số trang sách đọc được sau khi nhân chia nhiều bước.
-   * *DIRECT:* Trả lời sai (`ans = 6`, đáp án đúng `42`). Độ tự tin ghi nhận $c = 0,9699 < \tau_0$ ($0,9963$).
-   * *Hành vi Policy:* Phát hiện $c < \tau_0 \implies$ Leo thang lên COT $\implies c_{\text{COT}} < \tau_1 \implies$ Leo thang lên PAL.
-   * *Kết quả PAL:* Đoạn mã Python chạy ra đúng `42`. **Cứu nguy thành công!**
+   * *Đề bài:* Ben làm ca 8 giờ, đóng 1 ghế mất 5 giờ; hỏi đóng được bao nhiêu ghế trong 10 ngày.
+   * *DIRECT:* Trả lời sai (`ans = 40`, đáp án đúng `16`, 6 token). Độ tự tin ghi nhận $c = 0,9699 < \tau_0$ ($0,9963$).
+   * *Hành vi Policy:* Leo thang lên COT. COT đã ra đúng `16` nhưng $c_{\text{COT}} = 0,9697 < \tau_1$ ($0,9794$) nên vẫn leo thang lên PAL.
+   * *Kết quả PAL:* Đoạn mã Python chạy ra đúng `16`, tổng 156 token cho cả ba bậc. Đáp án được cứu, nhưng bước PAL là không cần thiết vì COT đã đúng.
 2. **`gsm8k-dev-05676`** (Độ dài: 30 từ):
-   * *DIRECT:* Trả lời sai do nhầm số học. Độ tự tin $c = 0,9300 < \tau_0$.
-   * *Hành vi Policy:* Leo thang lên COT. COT suy luận từng bước và tính ra đúng đáp án. **Cứu nguy thành công ngay tại bậc 1!**
+   * *Đề bài:* Bulls thắng 70 trận, Heat thắng nhiều hơn 5 trận; hỏi tổng số trận thắng của hai đội.
+   * *DIRECT:* Trả lời sai (`ans = 185`, đáp án đúng `145`, 7 token). Độ tự tin $c = 0,9300 < \tau_0$.
+   * *Hành vi Policy:* Leo thang lên COT. COT ra đúng `145` với $c_{\text{COT}} = 0,9857 \ge \tau_1$ nên dừng tại bậc 1, tổng 76 token.
 
 ### 7.2. Ca Tổn hại (Harm) do Làm tròn Số thực
 * **`gsm8k-dev-06140`**:
   * *DIRECT:* Tính ra `11.00` $\implies$ Khớp với đáp án vàng `11` $\implies$ **Đúng**.
   * *Độ tự tin DIRECT:* $c = 0,9811 < \tau_0$ ($0,9963$) $\implies$ Bị đánh giá là thiếu tự tin và kích hoạt leo thang.
-  * *PAL:* Trình thông dịch Python thực thi phép chia dấu phẩy động và trả về chuỗi `11.000000000000002`.
+  * *COT:* Trả lời sai `12.20`, $c_{\text{COT}} = 0,9685 < \tau_1$ nên tiếp tục leo thang.
+  * *PAL:* Trình thông dịch Python thực thi phép tính dấu phẩy động và trả về chuỗi `11.000000000000002`.
   * *Đánh giá Scorer:* Bộ kiểm tra định dạng số nghiêm ngặt đánh dấu đây là sai lệch số thực so với số nguyên 11.
   * *Bài học:* Cần chuẩn hóa hàm parsing kết quả sandbox của PAL để tự động làm tròn epsilon các giá trị float biểu diễn số nguyên.
 
