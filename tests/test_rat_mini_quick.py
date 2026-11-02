@@ -110,8 +110,62 @@ def test_build_packages_only_mini_qml_dependencies():
     assert 'PyQt6.QtWidgets rat.ui.mini_floaty' in build
 
 
-def test_quick_look_translates_fresh_clipboard_content_without_permission(tmp_path, monkeypatch):
-    """⌃⌘⇧4 screenshot or ⌘C text in clipboard translates directly with zero permission checks."""
+def test_shortcut_trusted_with_selection_and_changed_clipboard_translates_selection(tmp_path, monkeypatch):
+    """When Accessibility is trusted and text is selected, selection beats changed clipboard."""
+    from PyQt6.QtGui import QGuiApplication
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    dispatched = []
+    monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
+    monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: True)
+    monkeypatch.setattr('rat.ui.mini_quick_controller.get_frontmost_app_info', lambda: (1234, 'Safari', None))
+    monkeypatch.setattr('rat.ui.mini_quick_controller.read_selected_text', lambda pid: "Active selected text")
+
+    # Clipboard has a recent copy
+    cb = app.clipboard()
+    cb.setText("Stale clipboard copy")
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 101)
+    controller._consumed_clipboard_change = 100
+    controller._last_seen_clipboard_change = 100
+
+    controller.quickLookSelection()
+    assert len(dispatched) == 1
+    (op, args), kwargs = dispatched[0]
+    assert op == 'capture_translate'
+    assert args['mode'] == 'selection'
+    assert kwargs['input_context']['selection_pid'] == 1234
+
+
+def test_shortcut_trusted_with_no_selection_uses_clipboard(tmp_path, monkeypatch):
+    """When Accessibility is trusted but no text is selected, fall back to clipboard."""
+    from PyQt6.QtGui import QGuiApplication
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    dispatched = []
+    monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
+    monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: True)
+    monkeypatch.setattr('rat.ui.mini_quick_controller.get_frontmost_app_info', lambda: (1234, 'Safari', None))
+    def _no_selection(pid):
+        raise ValueError('selection_unavailable')
+    monkeypatch.setattr('rat.ui.mini_quick_controller.read_selected_text', _no_selection)
+
+    cb = app.clipboard()
+    cb.setText("Clipboard text fallback")
+    controller.quickLookSelection()
+    assert len(dispatched) == 1
+    (op, args), kwargs = dispatched[0]
+    assert op == 'capture_translate'
+    assert args['mode'] == 'clipboard'
+    assert args['clipboard_text'] == "Clipboard text fallback"
+
+
+def test_shortcut_untrusted_with_fresh_copy_uses_clipboard(tmp_path, monkeypatch):
+    """When untrusted, ⌘C then shortcut and ⌃⌘⇧4 then shortcut work within 2 minutes."""
+    import time
     from PyQt6.QtGui import QGuiApplication, QImage
     from rat.ui.mini_quick_controller import MiniQuickController
     from rat.engine.mini_settings import DEFAULTS
@@ -121,11 +175,13 @@ def test_quick_look_translates_fresh_clipboard_content_without_permission(tmp_pa
     monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
     monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: False)
 
-    # 1. Fresh text copy (⌘C)
+    # 1. ⌘C text within 2 minutes
     cb = app.clipboard()
     cb.setText("Attention is all you need.")
     monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 101)
-    controller._last_clipboard_change_count = 100
+    controller._consumed_clipboard_change = 100
+    controller._last_seen_clipboard_change = 101
+    controller._clipboard_change_time = time.monotonic() - 10.0  # 10s ago
     controller.quickLookSelection()
     assert len(dispatched) == 1
     (op, args), kwargs = dispatched[0]
@@ -135,7 +191,7 @@ def test_quick_look_translates_fresh_clipboard_content_without_permission(tmp_pa
     assert not controller.snapshot['selectionNeedsPermission']
     assert not controller.snapshot['selectionNotice']
 
-    # 2. Fresh screenshot (⌃⌘⇧4)
+    # 2. ⌃⌘⇧4 screenshot within 2 minutes
     controller._region_previous = None
     img = QImage(30, 30, QImage.Format.Format_RGB32)
     img.fill(0xffffff)
@@ -150,19 +206,33 @@ def test_quick_look_translates_fresh_clipboard_content_without_permission(tmp_pa
     assert not controller.snapshot['selectionNeedsPermission']
 
 
-def test_quick_look_without_fresh_clipboard_shows_accessibility_invitation(tmp_path, monkeypatch):
-    """When no fresh clipboard content exists and Accessibility is untrusted, invite permission."""
+def test_shortcut_untrusted_with_stale_copy_shows_invitation(tmp_path, monkeypatch):
+    """When untrusted and copy is older than 2 minutes or already consumed, show Accessibility invitation."""
+    import time
     from PyQt6.QtGui import QGuiApplication
     from rat.ui.mini_quick_controller import MiniQuickController
     from rat.engine.mini_settings import DEFAULTS
     app = QGuiApplication.instance() or QGuiApplication([])
     controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
-    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 100)
-    controller._last_clipboard_change_count = 100
     monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: False)
     dispatched = []
     monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
 
+    # Case A: Older than 2 minutes (> 120s)
+    cb = app.clipboard()
+    cb.setText("Stale copy from 5 minutes ago")
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 101)
+    controller._consumed_clipboard_change = 100
+    controller._last_seen_clipboard_change = 101
+    controller._clipboard_change_time = time.monotonic() - 130.0  # > 120s
+    controller.quickLookSelection()
+    assert len(dispatched) == 0
+    assert controller.snapshot['selectionNeedsPermission'] is True
+    assert 'Trợ năng' in controller.snapshot['selectionNotice']
+
+    # Case B: Already consumed copy
+    controller._clipboard_change_time = time.monotonic()
+    controller._consumed_clipboard_change = 101  # already consumed
     controller.quickLookSelection()
     assert len(dispatched) == 0
     assert controller.snapshot['selectionNeedsPermission'] is True

@@ -34,7 +34,7 @@ from rat.ui.mini_views import (
     build_controller_snapshot,
 )
 from rat.ui.mini_preferences import validate_and_apply_preferences, change_shortcut_setting, save_preferences_settings
-from rat.os.selected_text import get_frontmost_app_info
+from rat.os.selected_text import get_frontmost_app_info, read_selected_text
 
 __all__ = [
     "MiniQuickController", "MiniJob", "format_compact_display_path",
@@ -94,7 +94,10 @@ class MiniQuickController(QObject):
         self._selection_invocation_id = None
         self._selection_invoked_at = 0.0
         self._presentation_invocation_id = None
-        self._last_clipboard_change_count = self._get_clipboard_change_count()
+        self._last_seen_clipboard_change = self._get_clipboard_change_count()
+        self._consumed_clipboard_change = self._last_seen_clipboard_change
+        self._last_clipboard_change_count = self._last_seen_clipboard_change
+        self._clipboard_change_time = 0.0
         self.quicklook_journal = QuickLookJournal(state_directory(), BUILD)
         self.regionCaptureRequested.connect(self.captureRegion, Qt.ConnectionType.QueuedConnection)
         self._state = default_controller_state(self.settings)
@@ -104,6 +107,9 @@ class MiniQuickController(QObject):
         self.record_ui_state()
         if self.presentation.surface == 'welcome' or not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(0, lambda: self.checkReadiness(False))
+        self.clipboard_poll_timer = QTimer(self)
+        self.clipboard_poll_timer.setInterval(1000)
+        self.clipboard_poll_timer.timeout.connect(self._update_clipboard_change)
         self.index_timer = QTimer(self)
         self.index_timer.setInterval(1500)
         self.index_timer.timeout.connect(self.refresh_index_progress)
@@ -114,6 +120,7 @@ class MiniQuickController(QObject):
         if not os.environ.get('PYTEST_CURRENT_TEST'):
             QTimer.singleShot(1500, self.start_indexing)
             self.periodic_index_timer.start()
+            self.clipboard_poll_timer.start()
 
     def _get_clipboard_change_count(self) -> int:
         if sys.platform == 'darwin':
@@ -123,6 +130,14 @@ class MiniQuickController(QObject):
             except Exception:
                 pass
         return -1
+
+    def _update_clipboard_change(self):
+        current = self._get_clipboard_change_count()
+        now = time.monotonic()
+        if current != -1 and current != self._last_seen_clipboard_change:
+            self._last_seen_clipboard_change = current
+            self._clipboard_change_time = now
+        return current
 
     def start_indexing(self, reason=''):
         if self.quitting or self._state.get('busy') or self.job is not None:
@@ -212,35 +227,49 @@ class MiniQuickController(QObject):
         tgt = self.settings.get('target_language', 'vi')
         return 'auto' if src == tgt else src
 
+    def _translate_clipboard_content(self, invocation=None, text_request_label='Dịch đoạn vừa sao chép'):
+        cb = QGuiApplication.clipboard()
+        parsed = parse_pasted_mime_content(cb.mimeData(), cb.text())
+        current = self._get_clipboard_change_count()
+        if parsed['kind'] == 'image':
+            if current != -1:
+                self._consumed_clipboard_change = self._last_clipboard_change_count = self._last_seen_clipboard_change = current
+            if self._selection_return is None:
+                self._selection_return = self.presentation.capture_view()
+            self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
+            self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
+            self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch ảnh chụp màn hình')
+            self.enqueue('capture_translate', dict(mode='image', image_input=parsed['image'], look_input=True,
+                source_language=self._effective_source_language(), target_language=self.settings['target_language']),
+                input_context={'quicklook_invocation_id': invocation} if invocation else None)
+            self._selection_present_generation = self.generation
+            if invocation:
+                self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
+            return True
+        if parsed['kind'] == 'pasted_text' and parsed.get('text', '').strip():
+            if current != -1:
+                self._consumed_clipboard_change = self._last_clipboard_change_count = self._last_seen_clipboard_change = current
+            if self._selection_return is None:
+                self._selection_return = self.presentation.capture_view()
+            self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
+            self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
+            self.update(selectionNotice='', selectionNeedsPermission=False, requestText=text_request_label)
+            self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=parsed['text'], look_input=True,
+                source_language=self._effective_source_language(), target_language=self.settings['target_language']),
+                input_context={'quicklook_invocation_id': invocation} if invocation else None)
+            self._selection_present_generation = self.generation
+            if invocation:
+                self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
+            return True
+        return False
+
     @pyqtSlot()
     def pasteSelectionFallback(self):
         if self.job or self._state['busy']:
             return
-        clipboard = QGuiApplication.clipboard()
-        parsed = parse_pasted_mime_content(clipboard.mimeData(), clipboard.text())
-        if parsed['kind'] == 'image':
-            self._last_clipboard_change_count = self._get_clipboard_change_count()
-            self._selection_return = None
-            self.presentation.open('result')
-            self.presentation.resize(False)
-            self.presentation.read()
-            self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch ảnh vừa dán')
-            self.enqueue('capture_translate', dict(mode='image', image_input=parsed['image'],
-                look_input=True, source_language=self._effective_source_language(),
-                target_language=self.settings['target_language']))
+        if self._translate_clipboard_content(text_request_label='Dịch đoạn vừa dán'):
             return
-        text = parsed.get('text', '').strip()
-        if not text:
-            self.update(selectionNotice='Clipboard chưa có chữ hoặc ảnh. Hãy chọn và copy đoạn trong app nguồn, rồi bấm Dán chữ.')
-            return
-        self._last_clipboard_change_count = self._get_clipboard_change_count()
-        self._selection_return = None
-        self.presentation.open('result')
-        self.presentation.resize(False)
-        self.presentation.read()
-        self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch đoạn vừa dán')
-        self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=text, look_input=True,
-            source_language=self._effective_source_language(), target_language=self.settings['target_language']))
+        self.update(selectionNotice='Clipboard chưa có chữ hoặc ảnh. Hãy chọn và copy đoạn trong app nguồn, rồi bấm Dán chữ.')
 
     @pyqtSlot()
     def pasteLook(self):
@@ -596,64 +625,49 @@ class MiniQuickController(QObject):
         self.update(bubbleCollapsed=False)
         self._selection_invocation_id = invocation
         self._selection_invoked_at = time.monotonic()
-        current_change = self._get_clipboard_change_count()
-        if current_change != -1 and current_change != self._last_clipboard_change_count:
-            cb = QGuiApplication.clipboard()
-            parsed = parse_pasted_mime_content(cb.mimeData(), cb.text())
-            if parsed['kind'] == 'image':
-                self._last_clipboard_change_count = current_change
-                if self._selection_return is None:
-                    self._selection_return = self.presentation.capture_view()
-                self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
-                self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
-                self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch ảnh chụp màn hình')
-                self.enqueue('capture_translate', dict(mode='image', image_input=parsed['image'], look_input=True,
-                    source_language=self._effective_source_language(), target_language=self.settings['target_language']),
-                    input_context={'quicklook_invocation_id': invocation})
-                self._selection_present_generation = self.generation
-                self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
-                return
-            if parsed['kind'] == 'pasted_text' and parsed.get('text', '').strip():
-                self._last_clipboard_change_count = current_change
-                if self._selection_return is None:
-                    self._selection_return = self.presentation.capture_view()
-                self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
-                self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
-                self.update(selectionNotice='', selectionNeedsPermission=False, requestText='Dịch đoạn vừa sao chép')
-                self.enqueue('capture_translate', dict(mode='clipboard', clipboard_text=parsed['text'], look_input=True,
-                    source_language=self._effective_source_language(), target_language=self.settings['target_language']),
-                    input_context={'quicklook_invocation_id': invocation})
-                self._selection_present_generation = self.generation
-                self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
-                return
-        if not is_accessibility_trusted():
+        current_change = self._update_clipboard_change()
+        def show_notice(notice, needs_perm=False, event='present_requested'):
             if self._selection_return is None:
                 self._selection_return = self.presentation.capture_view()
-            self.restore_region_previous()
-            self.presentation.resize(False)
-            self.presentation.read()
-            self.update(
-                selectionNotice='Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng để đọc chữ bôi đen.',
-                selectionNeedsPermission=True
-            )
+            self.restore_region_previous(); self.presentation.resize(False); self.presentation.read()
+            self.update(selectionNotice=notice, selectionNeedsPermission=needs_perm)
             self._presentation_invocation_id = invocation
-            self.quicklook_journal.record('accessibility_required', invocation_id=invocation)
+            self.quicklook_journal.record(event, invocation_id=invocation)
             self.lookRequested.emit()
+
+        if is_accessibility_trusted():
+            pid, app_name, err = get_frontmost_app_info()
+            has_selection = False
+            if not err and pid:
+                try:
+                    sel_text = read_selected_text(pid)
+                    if sel_text and str(sel_text).strip():
+                        has_selection = True
+                except Exception:
+                    has_selection = False
+            if has_selection:
+                try:
+                    self._begin_selected_text(invocation, pid=pid, app_name=app_name)
+                    return
+                except Exception as exc:
+                    self.quicklook_journal.record('callback_error', invocation_id=invocation, reason=type(exc).__name__)
+                    show_notice('Chưa nhận được vùng chọn. Mã QL_CALLBACK_FAILED. Bạn có thể quay lại công việc trước.')
+                    return
+            if self._translate_clipboard_content(invocation):
+                return
+            show_notice('Chưa thấy chữ được chọn. Bôi đen một đoạn rồi bấm lại.')
             return
-        try:
-            self._begin_selected_text(invocation)
-        except Exception as exc:
-            self.quicklook_journal.record('callback_error', invocation_id=invocation, reason=type(exc).__name__)
-            if self._selection_return is None:
-                self._selection_return = self.presentation.capture_view()
-            self.restore_region_previous()
-            self.presentation.resize(False)
-            self.presentation.read()
-            self.update(selectionNotice='Chưa nhận được vùng chọn. Mã QL_CALLBACK_FAILED. Bạn có thể quay lại công việc trước.',
-                selectionNeedsPermission=False)
-            self._presentation_invocation_id = invocation
-            self.quicklook_journal.record('present_requested', invocation_id=invocation)
-            self.lookRequested.emit()
+
+        is_fresh_copy = (
+            current_change != -1
+            and current_change != self._consumed_clipboard_change
+            and (time.monotonic() - self._clipboard_change_time <= 120.0)
+        )
+        if is_fresh_copy and self._translate_clipboard_content(invocation):
+            return
+
+        show_notice('Cho phép RAT trong Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Trợ năng để đọc chữ bôi đen.',
+            needs_perm=True, event='accessibility_required')
 
     def recordHotkeyState(self, stage, **metadata):
         invocation = self.quicklook_journal.invocation_id() if stage == 'selection' else None
@@ -670,11 +684,12 @@ class MiniQuickController(QObject):
             token, self._selection_return = self._selection_return, None
             self.presentation.restore_view(token)
 
-    def _begin_selected_text(self, invocation):
-        pid, app_name, err = get_frontmost_app_info()
-        if err:
-            self.quicklook_journal.record(err, invocation_id=invocation)
-            self.summonLook(); return
+    def _begin_selected_text(self, invocation, pid=None, app_name=None):
+        if pid is None or app_name is None:
+            pid, app_name, err = get_frontmost_app_info()
+            if err:
+                self.quicklook_journal.record(err, invocation_id=invocation)
+                self.summonLook(); return
         if self._selection_return is None:
             self._selection_return = self.presentation.capture_view()
         self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
