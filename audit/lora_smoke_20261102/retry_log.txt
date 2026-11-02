@@ -1,0 +1,17 @@
+=== load before
+System-wide memory free percentage: 47%
+20:05  up 4 days, 22:35, 1 user, load averages: 6.67 7.20 7.29
+=== 8B retry: batch 1, 12 iters
+Trainable parameters: 0.059% (4.850M/8190.735M)
+Iter 1: Val loss 2.787, Val took 12.080s
+Iter 4: Train loss 2.652, Learning Rate 1.000e-05, It/sec 0.073, Tokens/sec 13.067, Trained Tokens 718, Peak mem 5.121 GB
+Iter 8: Train loss 1.952, Learning Rate 1.000e-05, It/sec 0.079, Tokens/sec 14.224, Trained Tokens 1442, Peak mem 5.121 GB
+Iter 12: Val loss 1.145, Val took 7.932s
+Iter 12: Train loss 1.315, Learning Rate 1.000e-05, It/sec 0.078, Tokens/sec 14.087, Trained Tokens 2162, Peak mem 5.121 GB
+Saved final weights to adapters_8b_retry/adapters.safetensors.
+      211.28 real        14.50 user        11.77 sys
+          5712081216  peak memory footprint
+=== 4B adapter load and generate
+seconds 30.7
+'First, let me work step by step. Lan starts with 12 pens. Then she buys 5 more. To find the total, I add those together: 12 + 5 = 17.\nTherefore the final answer is 17.0 pens.\n####'
+DONE

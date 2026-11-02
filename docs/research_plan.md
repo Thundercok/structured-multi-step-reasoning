@@ -12,6 +12,11 @@ phương pháp của nhóm luôn tốt hơn.
 Tên đề tài làm việc: **Điều phối chiến lược suy luận và quyết định dừng theo
 ngân sách cho mô hình ngôn ngữ nhỏ**.
 
+> **Cập nhật 2026-11-02.** Sau buổi báo cáo, phạm vi mở rộng sang tinh chỉnh một mô
+> hình nhỏ có sẵn; đề cương đã nộp chưa được cập nhật. Xem
+> [kế hoạch tinh chỉnh](finetune_plan_20261102.md). Phần dưới đây vẫn mô tả phạm vi
+> và giả thuyết trước khi điều chỉnh.
+
 Đối tượng nghiên cứu là bộ điều phối trên mô hình nền cố định. Phạm vi đầu tiên
 không cần huấn luyện lại mô hình nền. Đo chất lượng và chi phí trên bài toán có
 đáp án kiểm chứng được trước khi mở rộng sang trợ lý tài liệu cá nhân.

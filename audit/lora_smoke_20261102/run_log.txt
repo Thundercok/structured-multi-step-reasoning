@@ -1,0 +1,83 @@
+=== mlx-community/Qwen3-8B-4bit
+Loading datasets
+Training
+Trainable parameters: 0.059% (4.850M/8190.735M)
+Starting training..., iters: 30
+Calculating loss...:   0%|          | 0/1 [00:00<?, ?it/s]Calculating loss...: 100%|██████████| 1/1 [00:21<00:00, 21.47s/it]Calculating loss...: 100%|██████████| 1/1 [00:21<00:00, 21.47s/it]
+Iter 1: Val loss 2.862, Val took 21.533s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/__main__.py", line 6, in <module>
+    cli.main()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/cli.py", line 40, in main
+    submodule.main()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/lora.py", line 369, in main
+    run(types.SimpleNamespace(**args))
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/lora.py", line 341, in run
+    train_model(args, model, train_set, valid_set, training_callback)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/lora.py", line 295, in train_model
+    train(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/tuner/trainer.py", line 328, in train
+    mx.eval(state, losses, n_tokens, grad_accum)
+RuntimeError: [METAL] Command buffer execution failed: Impacting Interactivity (0000000e:kIOGPUCommandBufferCallbackErrorImpactingInteractivity).
+      261.79 real        15.02 user        13.66 sys
+          1237565440  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              477412  page reclaims
+                8917  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                7363  voluntary context switches
+              155816  involuntary context switches
+         62591492065  instructions retired
+         39535559864  cycles elapsed
+          6716174784  peak memory footprint
+total 8
+drwxr-xr-x@ 3 thundercock2  wheel   96 Nov  2 16:28 .
+drwxr-xr-x@ 7 thundercock2  wheel  224 Nov  2 16:28 ..
+-rw-r--r--@ 1 thundercock2  wheel  932 Nov  2 16:28 adapter_config.json
+=== mlx-community/Qwen3.5-4B-MLX-4bit
+Loading pretrained model
+Loading datasets
+Training
+Trainable parameters: 0.096% (4.058M/4205.750M)
+Starting training..., iters: 30
+Calculating loss...:   0%|          | 0/1 [00:00<?, ?it/s]Calculating loss...: 100%|██████████| 1/1 [00:12<00:00, 12.23s/it]Calculating loss...: 100%|██████████| 1/1 [00:12<00:00, 12.24s/it]
+Iter 1: Val loss 1.865, Val took 12.271s
+Iter 10: Train loss 1.136, Learning Rate 1.000e-05, It/sec 0.026, Tokens/sec 9.493, Trained Tokens 3648, Peak mem 7.102 GB
+Iter 20: Train loss 0.240, Learning Rate 1.000e-05, It/sec 0.029, Tokens/sec 10.441, Trained Tokens 7288, Peak mem 7.102 GB
+Calculating loss...:   0%|          | 0/1 [00:00<?, ?it/s]Calculating loss...: 100%|██████████| 1/1 [00:11<00:00, 11.18s/it]Calculating loss...: 100%|██████████| 1/1 [00:11<00:00, 11.19s/it]
+Iter 30: Val loss 0.081, Val took 11.250s
+Iter 30: Train loss 0.100, Learning Rate 1.000e-05, It/sec 0.011, Tokens/sec 4.146, Trained Tokens 10934, Peak mem 7.102 GB
+Saved final weights to adapters_4b/adapters.safetensors.
+     4341.94 real       137.47 user       118.25 sys
+          3386277888  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+             5465431  page reclaims
+               15482  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+              214935  voluntary context switches
+             1986798  involuntary context switches
+        428926220537  instructions retired
+        406663175856  cycles elapsed
+         11137541888  peak memory footprint
+total 31744
+drwxr-xr-x@ 4 thundercock2  wheel       128 Nov  2 17:44 .
+drwxr-xr-x@ 8 thundercock2  wheel       256 Nov  2 16:32 ..
+-rw-r--r--@ 1 thundercock2  wheel       938 Nov  2 16:32 adapter_config.json
+-rw-r--r--@ 1 thundercock2  wheel  16247908 Nov  2 17:44 adapters.safetensors
+DONE
