@@ -1,0 +1,31 @@
+{
+  "source_sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465",
+  "source_rows": 7473,
+  "excluded_development_questions": 120,
+  "official_test_read": false,
+  "seed": "structured-gsm8k-v1",
+  "split_rows": {
+    "train": 7153,
+    "valid": 100,
+    "dev": 100
+  },
+  "converted_rows": {
+    "train": 7059,
+    "valid": 99
+  },
+  "dropped": {
+    "no_annotations": 93,
+    "wrong_or_unparsable_annotation": 2
+  },
+  "gold_ceiling": {
+    "calc_accuracy": 1.0,
+    "grounded_rate": 0.8086,
+    "answer_from_last_calc": 0.949,
+    "correct": 1.0
+  },
+  "sha256": {
+    "train.jsonl": "52485fdcbf2a2f77cb1cc16a539c6225c2c4a29448c3acf07c852f41afed503d",
+    "valid.jsonl": "2bc96fe38638751c04282a56b9107b097219e6af3af0561ce4e3d47e663bc14c",
+    "dev.jsonl": "d2676fdb7f76ce2fc16797e978c340bf763c29afbd2c883f7b94c0b109549b88"
+  }
+}

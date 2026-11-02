@@ -58,3 +58,8 @@ audit/repository_migration_*/
 .migration-backups/
 AGENTS.md
 CLAUDE.md
+
+# Rebuild: derived data and trained adapters
+data/structured_gsm8k_v1/*.jsonl
+adapters/
+data/structured_gsm8k_cf_v1/*.jsonl

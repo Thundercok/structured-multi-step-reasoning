@@ -3,7 +3,7 @@
 **Đề tài NCKH**: Điều phối chiến lược suy luận và quyết định dừng theo ngân sách cho mô hình ngôn ngữ nhỏ.  
 **Mô hình mục tiêu**: Frozen Small Language Model (SLM, ưu tiên Qwen 1.5B–8B).  
 **Ngày cập nhật**: 21/10/2026.  
-**Cơ sở dữ liệu khảo sát**: 57 công trình nghiên cứu (2022–2026) được lập chỉ mục tại [docs/surveys/research_survey_20261013.md](research_survey_20261013.md).
+**Cơ sở dữ liệu khảo sát**: 57 công trình nghiên cứu (2022–2026) được lập chỉ mục tại [docs/surveys/research_survey_20261013.md](surveys/research_survey_20261013.md).
 
 ---
 

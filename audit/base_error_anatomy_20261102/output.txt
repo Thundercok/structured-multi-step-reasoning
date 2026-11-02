@@ -1,0 +1,56 @@
+DIRECT correct 85 / 93 mean tokens 85.9 logprob AUROC 0.716
+COT correct 81 / 93 mean tokens 94.3 logprob AUROC 0.702
+PAL correct 90 / 93 mean tokens 93.6 logprob AUROC 0.463
+
+CoT arithmetic check: flags 0/12 wrong, 0/81 right
+CoT vs PAL disagreement: flags 11/12 wrong, 0/81 right
+
+--- every wrong CoT output
+
+[gsm8k-dev-01723] gold=180 cot=100 pal=180.0 conf=0.964 tokens=79 arith=[]
+Q: In a car racing competition, Skye drove a 6-kilometer track. For the first 3 kilometers, his speed was 150 kilometers per hour. For the next 2 kilometers, his speed was 50 kilometers per hour more. For the remaining 1 kilometer, his speed was twice as fast as his speed on the first 3 kilometers. What is Skye's average speed for the entire race?
+A: To find Skye's average speed for the entire race, follow these steps: |  | 1. Calculate the time taken for each segment of the race by dividing the distance by the respective speed. | 2. Add up the times for all segments to get the total time. | 3. Divide the total distance (6 kilometers) by the total time to get the average speed. |  | Answer: 100
+
+[gsm8k-dev-02385] gold=7 cot=8 pal=7.0 conf=0.975 tokens=47 arith=[]
+Q: Gerald wants to buy a meat pie that costs 2 pfennigs. Gerald has 54 farthings, and there are 6 farthings to a pfennig. How many pfennigs will Gerald have left after buying the pie?
+A: First, calculate how many pfennigs Gerald has by dividing the number of farthings by the conversion rate. Then subtract the cost of the pie in pfennigs to find the remaining pfennigs.   |  | Answer: 8
+
+[gsm8k-dev-02476] gold=75 cot=90 pal=75 conf=0.964 tokens=54 arith=[]
+Q: Sarah bought 12 lollipops filled with caramel for a total of 3 dollars.  She offered to share one-quarter of the lollipops with her friend, Julie, but Julie insisted on reimbursing Sarah for the cost of the lollipops shared.  How much money, in cents, did Julie give Sarah to pay for the shared lollipops?
+A: First, find the cost of one lollipop by dividing the total cost by the number of lollipops.   | Then, calculate the cost of one-quarter of the lollipops.   | Finally, convert the cost to cents. |  | Answer: 90
+
+[gsm8k-dev-04248] gold=2 cot=5.5 pal=2.0 conf=0.974 tokens=76 arith=[]
+Q: Patricia is making a highlight film about her basketball team. She recorded video of every player and plans to put it all together in a longer movie. She has 130 seconds of the point guard, 145 seconds of the shooting guard, 85 seconds of the small forward, 60 seconds of the power forward, and 180 seconds of the center. How on average, how many minutes does each player get?
+A: First, add up the total seconds of all the players: 130 + 145 + 85 + 60 + 180.   | Next, divide the total seconds by the number of players to find the average in seconds.   | Convert the average seconds to minutes by dividing by 60.   | Answer: 5.5
+
+[gsm8k-dev-04317] gold=26400 cot=27400 pal=26400 conf=0.961 tokens=32 arith=[]
+Q: Cloud 9 Diving Company has taken individual bookings worth $12,000 and group bookings worth $16,000. Some people have cancelled at the last minute. $1600 has had to be returned to them. How much money has the sky diving company taken altogether?
+A: First, add the total amount from individual and group bookings. Then subtract the amount returned due to cancellations.   |  | Answer: 27400
+
+[gsm8k-dev-04852] gold=44 cot=60 pal=44 conf=0.940 tokens=93 arith=[]
+Q: Stephanie is moving into a new apartment. She needs to figure out how many pieces of silverware she should purchase. She needs spoons, butter knives, steak knives, and forks. For herself she figures 5 of each would be sufficient. But in case she has guests, she wants to have 10 extra pieces of each type. Then she realizes that if everything is clean at the same time, that she will have too many of everything and not 
+A: Stephanie first calculates the number of each type of silverware for herself: 5 of each. Then she adds 10 extra for guests, making 15 of each type. She then subtracts the specified number from each type: 4 fewer spoons, 4 fewer butter knives, 5 fewer steak knives, and 3 fewer forks. She then adds up all the adjusted numbers to find the total. |  | Answer: 60
+
+[gsm8k-dev-05514] gold=90 cot=100 pal=90.0 conf=0.968 tokens=65 arith=[]
+Q: An investor invested some money in 2 separate schemes: A and B. Scheme A will yield 30% of the capital within a year, and scheme B will yield 50% of the capital within a year. If he invested $300 in scheme A and $200 in B, how much more money will he have in scheme A than in B after a year, provided he does not withdraw anything?
+A: Start by calculating the return from scheme A: 30% of $300.   | Then calculate the return from scheme B: 50% of $200.   | Subtract the total amount in B from the total amount in A to find the difference.   | Answer: 100
+
+[gsm8k-dev-06140] gold=11 cot=12.20 pal=11.000000000000002 conf=0.969 tokens=53 arith=[]
+Q: Rose is an aspiring artist. She wants a paintbrush that costs $2.40, a set of paints that costs $9.20, and an easel that costs $6.50 so she can do some paintings. Rose already has $7.10. How much more money does Rose need?
+A: First, add the costs of the paintbrush, paints, and easel to find the total cost.   | Then subtract the amount of money Rose already has from the total cost to find how much more she needs.   |  | Answer: 12.20
+
+[gsm8k-dev-06412] gold=24 cot=12 pal=12.0 conf=0.984 tokens=111 arith=[]
+Q: Rebecca makes her own earrings out of buttons, magnets, and gemstones.  For every earring, she uses two magnets, half as many buttons as magnets, and three times as many gemstones as buttons.  If Rebecca wants to make 4 sets of earrings, how many gemstones will she need?
+A: To find how many gemstones Rebecca needs, follow these steps: |  | 1. Determine how many magnets are used per earring: 2 magnets. | 2. Calculate the number of buttons per earring: half as many as magnets, so 1 button. | 3. Find the number of gemstones per earring: three times as many as buttons, so 3 gemstones. | 4. Multiply the number of gemstones per earring by the number of sets (4): 3 × 4 = 12. |  | Answer: 12
+
+[gsm8k-dev-06641] gold=78 cot=81.25 pal=78.0 conf=0.970 tokens=67 arith=[]
+Q: Noah, who loves his Grammy, calls her every week to talk about his day. If each call lasts 30 minutes and he is charged $0.05 per call minute, how much would he be billed if he makes the calls for a year?
+A: First, calculate the number of minutes per call: 30 minutes.   | Next, multiply by the cost per minute: $0.05.   | Then, multiply by the number of weeks in a year (52).   | Add up the total cost for all calls.   |  | Answer: 81.25
+
+[gsm8k-dev-06782] gold=141 cot=131 pal=141 conf=0.958 tokens=51 arith=[]
+Q: Papi Calot prepared his garden to plant potatoes. He planned to plant 7 rows of 18 plants each. But he still has a bit of room left, so he’s thinking about adding 15 additional potato plants. How many plants does Papi Calot have to buy?
+A: Papi Calot originally planned to plant 7 rows with 18 plants each. Multiply 7 by 18 to find the initial number of plants. Then add 15 for the additional plants.  |  | Answer: 131
+
+[gsm8k-dev-07160] gold=160 cot=150 pal=160.0 conf=0.979 tokens=77 arith=[]
+Q: Ishmael, Ponce, and Jalen measured their weight and realized Ishmael was 20 pounds heavier than Ponce and that Ponce was 10 pounds lighter than Jalen. If Jalen weighed 160 pounds, calculate the average weight of the three?
+A: Start by finding Ponce's weight using Jalen's weight. Since Ponce is 10 pounds lighter than Jalen, subtract 10 from Jalen's weight. Then find Ishmael's weight by adding 20 to Ponce's weight. Add all three weights together and divide by 3 to find the average.   |  | Answer: 150
