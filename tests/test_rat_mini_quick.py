@@ -115,13 +115,13 @@ def test_shortcut_trusted_with_selection_and_changed_clipboard_translates_select
     from PyQt6.QtGui import QGuiApplication
     from rat.ui.mini_quick_controller import MiniQuickController
     from rat.engine.mini_settings import DEFAULTS
+    from rat.engine.capture_translation import run_capture_translation
     app = QGuiApplication.instance() or QGuiApplication([])
     controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
     dispatched = []
     monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
     monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: True)
     monkeypatch.setattr('rat.ui.mini_quick_controller.get_frontmost_app_info', lambda: (1234, 'Safari', None))
-    monkeypatch.setattr('rat.ui.mini_quick_controller.read_selected_text', lambda pid: "Active selected text")
 
     # Clipboard has a recent copy
     cb = app.clipboard()
@@ -137,30 +137,90 @@ def test_shortcut_trusted_with_selection_and_changed_clipboard_translates_select
     assert args['mode'] == 'selection'
     assert kwargs['input_context']['selection_pid'] == 1234
 
+    # Worker path: selection is read once in worker; if present, translates selection
+    monkeypatch.setattr('rat.os.selected_text.read_selected_text', lambda pid, *a, **kw: "Active selected text")
+    outcome = run_capture_translation(controller.session, args, input_context=kwargs['input_context'])
+    assert outcome.capture_response.artifacts[0].payload['text'] == "Active selected text"
+    assert outcome.capture_response.artifacts[0].payload['source_kind'] == 'selection'
+
 
 def test_shortcut_trusted_with_no_selection_uses_clipboard(tmp_path, monkeypatch):
-    """When Accessibility is trusted but no text is selected, fall back to clipboard."""
+    """When Accessibility is trusted but no text is selected, fresh copy in clipboard is translated."""
+    import time
     from PyQt6.QtGui import QGuiApplication
     from rat.ui.mini_quick_controller import MiniQuickController
     from rat.engine.mini_settings import DEFAULTS
+    from rat.engine.capture_translation import run_capture_translation
     app = QGuiApplication.instance() or QGuiApplication([])
     controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
     dispatched = []
     monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
     monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: True)
     monkeypatch.setattr('rat.ui.mini_quick_controller.get_frontmost_app_info', lambda: (1234, 'Safari', None))
-    def _no_selection(pid):
-        raise ValueError('selection_unavailable')
-    monkeypatch.setattr('rat.ui.mini_quick_controller.read_selected_text', _no_selection)
 
     cb = app.clipboard()
     cb.setText("Clipboard text fallback")
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 101)
+    controller._consumed_clipboard_change = 100
+    controller._last_seen_clipboard_change = 101
+    controller._clipboard_change_time = time.monotonic() - 10.0  # fresh <= 2 min
+
     controller.quickLookSelection()
     assert len(dispatched) == 1
     (op, args), kwargs = dispatched[0]
     assert op == 'capture_translate'
-    assert args['mode'] == 'clipboard'
-    assert args['clipboard_text'] == "Clipboard text fallback"
+    assert args['mode'] == 'selection'
+    assert kwargs['input_context']['fallback_clipboard']['text'] == "Clipboard text fallback"
+
+    # Worker path: selection fails -> falls back to fresh clipboard content
+    def _no_selection(pid, *a, **kw):
+        raise ValueError('selection_empty: Không có chữ đang được chọn.')
+    monkeypatch.setattr('rat.os.selected_text.read_selected_text', _no_selection)
+    outcome = run_capture_translation(controller.session, args, input_context=kwargs['input_context'])
+    assert outcome.capture_response.artifacts[0].payload['text'] == "Clipboard text fallback"
+    assert outcome.capture_response.artifacts[0].payload['source_kind'] == 'clipboard'
+
+
+def test_shortcut_trusted_with_no_selection_and_stale_clipboard_shows_notice(tmp_path, monkeypatch):
+    """When Accessibility is trusted, no selection, and copy is stale (> 2 min), show notice."""
+    import time
+    from PyQt6.QtGui import QGuiApplication
+    from rat.ui.mini_quick_controller import MiniQuickController
+    from rat.engine.mini_settings import DEFAULTS
+    from rat.engine.capture_translation import run_capture_translation
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = MiniQuickController(dict(DEFAULTS, roots=[str(tmp_path)]))
+    dispatched = []
+    monkeypatch.setattr(controller, 'enqueue', lambda *args, **kwargs: dispatched.append((args, kwargs)))
+    monkeypatch.setattr('rat.ui.mini_quick_controller.is_accessibility_trusted', lambda: True)
+    monkeypatch.setattr('rat.ui.mini_quick_controller.get_frontmost_app_info', lambda: (1234, 'Safari', None))
+
+    cb = app.clipboard()
+    cb.setText("Stale copy from 5 minutes ago")
+    monkeypatch.setattr(controller, '_get_clipboard_change_count', lambda: 101)
+    controller._consumed_clipboard_change = 100
+    controller._last_seen_clipboard_change = 101
+    controller._clipboard_change_time = time.monotonic() - 130.0  # > 120s stale
+
+    controller.quickLookSelection()
+    assert len(dispatched) == 1
+    (op, args), kwargs = dispatched[0]
+    assert op == 'capture_translate'
+    assert args['mode'] == 'selection'
+    assert kwargs['input_context']['fallback_clipboard'] is None
+
+    # Worker path: selection fails, no fresh fallback -> reports selection_empty
+    def _no_selection(pid, *a, **kw):
+        raise ValueError('selection_empty: Không có chữ đang được chọn.')
+    monkeypatch.setattr('rat.os.selected_text.read_selected_text', _no_selection)
+    outcome = run_capture_translation(controller.session, args, input_context=kwargs['input_context'])
+    assert 'selection_empty' in outcome.capture_response.error
+
+    controller._region_previous = ({}, None)
+    controller.render({'capture_mode': 'selection', 'error': outcome.capture_response.error,
+                       'invocation_id': kwargs['input_context'].get('quicklook_invocation_id')})
+    assert controller.snapshot['selectionNotice'] == 'Chưa thấy chữ được chọn. Bôi đen một đoạn rồi bấm lại.'
+    assert controller.snapshot['selectionNeedsPermission'] is False
 
 
 def test_shortcut_untrusted_with_fresh_copy_uses_clipboard(tmp_path, monkeypatch):

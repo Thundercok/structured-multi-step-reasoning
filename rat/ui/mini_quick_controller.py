@@ -34,7 +34,7 @@ from rat.ui.mini_views import (
     build_controller_snapshot,
 )
 from rat.ui.mini_preferences import validate_and_apply_preferences, change_shortcut_setting, save_preferences_settings
-from rat.os.selected_text import get_frontmost_app_info, read_selected_text
+from rat.os.selected_text import get_frontmost_app_info
 
 __all__ = [
     "MiniQuickController", "MiniJob", "format_compact_display_path",
@@ -636,26 +636,11 @@ class MiniQuickController(QObject):
             self.lookRequested.emit()
 
         if is_accessibility_trusted():
-            pid, app_name, err = get_frontmost_app_info()
-            has_selection = False
-            if not err and pid:
-                try:
-                    sel_text = read_selected_text(pid)
-                    if sel_text and str(sel_text).strip():
-                        has_selection = True
-                except Exception:
-                    has_selection = False
-            if has_selection:
-                try:
-                    self._begin_selected_text(invocation, pid=pid, app_name=app_name)
-                    return
-                except Exception as exc:
-                    self.quicklook_journal.record('callback_error', invocation_id=invocation, reason=type(exc).__name__)
-                    show_notice('Chưa nhận được vùng chọn. Mã QL_CALLBACK_FAILED. Bạn có thể quay lại công việc trước.')
-                    return
-            if self._translate_clipboard_content(invocation):
-                return
-            show_notice('Chưa thấy chữ được chọn. Bôi đen một đoạn rồi bấm lại.')
+            try:
+                self._begin_selected_text(invocation)
+            except Exception as exc:
+                self.quicklook_journal.record('callback_error', invocation_id=invocation, reason=type(exc).__name__)
+                show_notice('Chưa nhận được vùng chọn. Mã QL_CALLBACK_FAILED. Bạn có thể quay lại công việc trước.')
             return
 
         is_fresh_copy = (
@@ -695,9 +680,23 @@ class MiniQuickController(QObject):
         self._region_previous = ({key: self._state[key] for key in REGION_PREVIOUS_FIELDS}, self._retry_request)
         self.presentation.open('result'); self.presentation.resize(False); self.presentation.read()
         self.update(selectionNotice='', selectionNeedsPermission=False)
+        current_change = self._update_clipboard_change()
+        is_fresh = (
+            current_change != -1
+            and current_change != self._consumed_clipboard_change
+            and (time.monotonic() - self._clipboard_change_time <= 120.0)
+        )
+        fallback_clipboard = None
+        if is_fresh:
+            cb = QGuiApplication.clipboard()
+            parsed = parse_pasted_mime_content(cb.mimeData(), cb.text())
+            if parsed.get('kind') in ('image', 'pasted_text') and (parsed.get('kind') == 'image' or parsed.get('text', '').strip()):
+                fallback_clipboard = parsed
         self.enqueue('capture_translate', dict(mode='selection', preserve_until_capture=True,
             look_input=True, source_language=self._effective_source_language(), target_language=self.settings['target_language']),
-            input_context={'selection_pid': pid, 'selection_app': app_name, 'quicklook_invocation_id': invocation})
+            input_context={'selection_pid': pid, 'selection_app': app_name, 'quicklook_invocation_id': invocation,
+                           'fallback_clipboard': fallback_clipboard,
+                           'fallback_change_count': current_change if fallback_clipboard else None})
         self._selection_present_generation = self.generation
         self.quicklook_journal.record('capture_requested', invocation_id=invocation, generation=self.generation)
 
@@ -867,6 +866,8 @@ class MiniQuickController(QObject):
         if job.args.get('mode') == 'selection':
             self.quicklook_journal.record('capture_succeeded', invocation_id=job.input_context.get('quicklook_invocation_id'),
                 artifact_id=artifact.id, generation=job.generation)
+            if job.input_context.get('fallback_change_count') and artifact.payload.get('source_kind') in ('clipboard', 'image'):
+                self._consumed_clipboard_change = self._last_clipboard_change_count = self._last_seen_clipboard_change = job.input_context['fallback_change_count']
         if job.args.get('preserve_until_capture'):
             self.remember_task()
             if job.args.get('mode') == 'selection': self._selection_return = None

@@ -47,8 +47,22 @@ def run_capture_translation(session, capture_args, *, query='', cancel=lambda: F
             'region_image_callback': on_region_image,
             'file_path': capture_args.get('file_path')})
     if capture.error or capture.pending_input_request:
-        logger.info('capture_translation_stopped stage=capture')
-        return CaptureTranslationResult(capture, 'capture_text', capture_parameters, capture)
+        fallback = (input_context or {}).get('fallback_clipboard')
+        if capture_parameters['mode'] == 'selection' and fallback and not cancel():
+            if fallback.get('kind') == 'image':
+                capture = session.execute('capture_text', {'mode': 'image'}, cancel=cancel,
+                    on_event=on_event, progress=progress, input_context={
+                        'image_input': fallback.get('image'),
+                        'region_image_callback': on_region_image})
+            elif fallback.get('kind') == 'pasted_text' and fallback.get('text', '').strip():
+                capture = session.execute('capture_text', {'mode': 'clipboard'}, cancel=cancel,
+                    on_event=on_event, progress=progress, input_context={
+                        'clipboard_text': fallback.get('text')})
+        if capture.error or capture.pending_input_request:
+            if capture_parameters['mode'] == 'selection' and capture.error:
+                capture.error = 'selection_empty: Không có chữ đang được chọn.'
+            logger.info('capture_translation_stopped stage=capture')
+            return CaptureTranslationResult(capture, 'capture_text', capture_parameters, capture)
     artifact = next((a for a in capture.artifacts if a.kind == 'captured_text'), None)
     if artifact is None:
         raise ValueError('capture_artifact_missing')
