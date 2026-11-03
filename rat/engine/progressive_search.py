@@ -398,21 +398,6 @@ class ProgressiveSearch:
                         "substr(coalesce(summary, ''), 1, 200) AS summary FROM documents WHERE file_path = ?",
                         (str(path),)).fetchone()
                     row = dict(row) if row is not None else None
-                    if row is None:
-                        p = Path(path)
-                        if p.is_file():
-                            try:
-                                st = p.stat()
-                                row = {
-                                    'file_path': str(p),
-                                    'file_name': p.name,
-                                    'file_ext': p.suffix.lower(),
-                                    'modified_at': st.st_mtime,
-                                    'created_at': getattr(st, 'st_birthtime', st.st_ctime),
-                                    'summary': '',
-                                }
-                            except OSError:
-                                continue
                     if not row or not eff_filters.accepts(row):
                         continue
                     hit = self._file_hit(row, 'semantic_index', filters=eff_filters)

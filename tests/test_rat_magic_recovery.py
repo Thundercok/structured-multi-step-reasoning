@@ -221,4 +221,4 @@ def test_legacy_unchecked_call_keeps_the_full_registered_catalog(runtime):
     runtime.model_client.chat_with_meta.return_value = reply("Fixture answer")
     runtime._call_model("fixture", [])
     assert tool_names(runtime.model_client.chat_with_meta.call_args) == {
-        operation.name for operation in runtime.registry.list_operations()}
+        operation.name for operation in runtime.registry.list_operations() if operation.model_visible}
