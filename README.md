@@ -1,103 +1,107 @@
-# Structured-thinking LLM & RAT Desktop Reasoning
+# Structured Multi-Step Reasoning
 
-This repository holds one research project and the desktop app that will run its model:
-1. **`structured_llm` (Research)**: Student research (NCKH) fine-tuning Qwen3-8B on Apple Silicon so its intermediate thinking follows verifiable structures (`<think>`, `Step`, `Calc`), and testing causal dependency via counterfactual interventions.
-2. **`rat` (Agent harness and app)**: Desktop agent runtime with tools, contracts and verification, plus semantic file search, app launching, translation and PDF reading on macOS. It does not load the fine-tuned model yet.
+Student research (NCKH) that fine-tunes a small model, Qwen3-8B, to write its thinking in checkable
+steps (`<think>`, `Step`, `Calc`). It then edits a `Calc` result and measures whether the answer
+depends on that thinking. The object of study is the model. The working thesis: checking the
+thinking helps only when the answer really depends on it.
 
-Research never imports RAT. `tests/test_repo_boundaries.py` enforces that boundary so the two can still be split later.
+The repository also holds **RAT**, the macOS app used as the project's demo. RAT is not part of the
+research claims and does not load the fine-tuned model yet.
 
----
+## Status
 
-## Repository Map
+The [research plan](docs/research_plan.md) is a proposal. There is no final model yet, and results
+so far come from a 200-iteration trial adapter, so they say nothing final about model quality.
 
-### 1. Research: Structured Thinking & Interventions (`structured_llm`)
+| Gate | Requires | Result so far |
+| --- | --- | --- |
+| 0. Format learned | `format_valid` at least 90% on dev | **Not met:** 70% |
+| 1. A gap exists | Base model follows an edited `Calc` less than 95% of the time | **No gap on GSM8K:** 0 of 53 kept the old answer |
+| 2. Room in the literature | No paper has done the main question | Passed provisionally, not yet a systematic review |
+| 3a. MATH is checkable | At least 50% of hard problems can be checked | **Not met:** 23.3%, continuing on a labelled subset |
+| 3b. MATH is hard enough | Comparison modes at most 90% correct | Measuring |
+| 4. A signal exists | Check catches at least 50% of wrong answers, at most 20% false alarms | Not reached |
+
+Negative results count as results. If gate 4 fails, the plan drops the Q1 target and writes up what
+was found.
+
+## Research
 
 | Path | Contents |
 | --- | --- |
-| `structured_llm/trace.py` | Format: render, parse and deterministic step checks |
-| `structured_llm/gsm8k.py` | GSM8K conversion, canonical splits and data loading |
-| `structured_llm/counterfactual.py` | Deterministic re-execution, counterfactual training data, intervention planning |
-| `structured_llm/train.sh` | LoRA fine-tuning with Metal-bounded resource limits |
-| `structured_llm/evaluate.py` | Fine-tuned model vs base-model comparisons on the dev split |
-| `structured_llm/intervene.py` | Intervenes on intermediate calculation results to test answer dependency |
-| `structured_llm/pal.py` | Program-aided math execution without arbitrary `exec` |
-| `data/gsm8k_source/` | Pinned GSM8K train set, license and manifest |
-| `data/gsm8k_development*/` | Prior development questions excluded from new splits |
-| `docs/research_plan.md` | Research plan, experimental design, and progress status |
+| `structured_llm/trace.py` | Thinking format: render, parse, deterministic step checks |
+| `structured_llm/gsm8k.py` | GSM8K conversion, splits and loading |
+| `structured_llm/math_check.py`, `math_data.py` | SymPy equation checks and the checkable MATH subset |
+| `structured_llm/counterfactual.py` | Re-execution, counterfactual training data, intervention planning |
+| `structured_llm/train.sh` | LoRA fine-tuning within Metal limits for a 16 GB M1 |
+| `structured_llm/evaluate.py` | Fine-tuned model against the comparison modes |
+| `structured_llm/intervene.py` | Edits `Calc` results and records whether the answer follows |
+| `structured_llm/analyze.py` | Rescores a run from its raw outputs |
+| `structured_llm/pal.py` | Interprets model-written programs without `exec` |
+| `data/` | Pinned GSM8K train set and splits; questions already seen are kept out of new splits |
+| `audit/` | Raw outputs and notes for each measured run |
+| `docs/` | Research plan, literature survey, earlier controller reports |
 
-### 2. Agent harness and app (`rat`)
+MATH problem text is not committed. With a local copy at `data/math_source/train.jsonl`,
+`python -m structured_llm.math_data` rebuilds the subset.
 
-| Path | Contents |
-| --- | --- |
-| `main.py` / `rat/main.py` | RAT desktop application entry point (unified desk, quick PDF) |
-| `rat/engine/` | Agent runtime, verification, semantic index, app search, local translation, goal routing, QA |
-| `rat/kernel/` | OS capabilities: Spotlight finder, window management, accessibility, daemon |
-| `rat/ui/` | Qt Quick / QML interfaces |
-| `document_intake/` | Local document parsing and OCR extraction |
-| `tools/` | Bundle preparation and offline model conversion tools |
-
----
-
-## How to Run
-
-### Setup Environment
-
-#### Research (`structured_llm`)
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-```
 
-#### RAT (`rat`)
-To install full dependencies for the desktop reasoning shell, PDF reader, and meaning search (including fastembed):
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements-mini.txt fastembed watchdog
-```
-
-### Running Research (`structured_llm`)
-
-```bash
-# Run research test suite
 .venv/bin/python -m pytest tests/test_analyze.py tests/test_counterfactual.py tests/test_math_check.py tests/test_math_data.py tests/test_structured_trace.py -q
 
-# Prepare data and splits
 .venv/bin/python -m structured_llm.gsm8k
 .venv/bin/python -m structured_llm.counterfactual
-
-# Fine-tune with LoRA
 structured_llm/train.sh adapters/first 200
-
-# Evaluate against base model
 .venv/bin/python -m structured_llm.evaluate --adapter adapters/first --limit 20 --out audit/first
-
-# Run causal intervention audit
 .venv/bin/python -m structured_llm.intervene --run audit/first --adapter adapters/first
+.venv/bin/python -m structured_llm.analyze audit/first
 ```
 
-### Running RAT (`rat`)
+## RAT
+
+A resident macOS agent app: a runtime with tools, outcome contracts and verification, plus file
+search by name and meaning, app launching, translation and PDF reading. Development steps are in
+[rat/ROADMAP.md](rat/ROADMAP.md).
+
+RAT is meant to run locally, but that is not finished: it still has cloud paths (Gemini, OpenAI,
+Google Translate, MyMemory) that can run when API keys are set or local translation models are missing.
+
+| Path | Contents |
+| --- | --- |
+| `main.py`, `rat/main.py` | Entry points |
+| `rat/engine/` | Agent runtime, verification, search, translation, routing |
+| `rat/kernel/` | Tool registry, dispatcher, contracts, capabilities |
+| `rat/os/` | Menu bar, hotkeys, permissions, daemon, shell integration |
+| `rat/ui/` | Qt Quick interface |
+| `rat/crawler/`, `timetable/`, `astrology/`, `plugins/` | File indexing and optional domain tools |
+| `reasoning/`, `research_scoring.py` | The earlier controller, which RAT still imports |
+| `document_intake/` | PDF reading and OCR |
+| `tools/` | Model preparation and the hotkey helper |
+
+Requires Python 3.12 on macOS.
 
 ```bash
-# Launch the RAT desktop application (resident app)
-python -m rat.main
-# Runs as a resident macOS app with top menu bar icon, single-instance enforcement,
-# and hide-on-close window behavior (closing the window hides rather than quits).
-# Global shortcuts (Carbon-based, no macOS Accessibility permissions required):
-#   - ⌃⌥Space (Control+Option+Space): Toggle RAT Desk (show / hide).
-#   - ⌥⇧R (Option+Shift+R): Summon RAT Desk & run QuickLook Selection (translate/explain).
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-rat.txt
 
-# Or run in standalone Quick PDF mode:
-python -m rat.main quick-pdf
+python -m rat.main            # resident app in the menu bar
+python -m rat.main quick-pdf  # PDF desk only
 
-# Run RAT test suites
 pytest tests/test_quick_pdf.py tests/test_goal_routing.py
 ```
 
----
+Shortcuts: ⌃⌥Space shows or hides the desk. ⌥⇧R opens it and translates or explains the selected text.
 
-## Notes & History
+## Layout rules
 
-- Earlier controller code is preserved at git tag `pre-rebuild-20261102`.
-- RAT was restored to `main` on 2026-11-03 alongside the research code.
-- RAT Lite moved to [offline-tool-routing-agent](https://github.com/Thundercok/offline-tool-routing-agent) on 2026-11-03. Its last working source here is tag `rat-lite-0.6.0`.
-- The research plan is documented in [docs/research_plan.md](docs/research_plan.md).
+Research never imports RAT, and every tracked file has one owner.
+`tests/test_repo_boundaries.py` enforces this, so the two parts can still be separated later.
+
+## History
+
+- The earlier controller research is at tag `pre-rebuild-20261102`. It did not beat always running
+  PAL once a scoring error was fixed, and those results should not be compared with the current work.
+- RAT Lite moved to [offline-tool-routing-agent](https://github.com/Thundercok/offline-tool-routing-agent).
+  Its last working source here is tag `rat-lite-0.6.0`.

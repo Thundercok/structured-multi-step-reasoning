@@ -1,0 +1,28 @@
+# RAT app. Install requirements.txt as well to run local language models.
+PyQt6==6.8.1
+PyQt6-Qt6==6.8.2
+certifi==2026.7.22
+jsonschema>=4.18
+httpx==0.28.1
+pillow>=10
+ctranslate2==4.8.4
+sentencepiece==0.2.2
+numpy==2.5.1
+pyobjc-core==12.2.2; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==12.2.2; sys_platform == 'darwin'
+pyobjc-framework-Quartz==12.2.2; sys_platform == 'darwin'
+
+# Search, documents and system integration. RAT imports these when a feature needs them.
+fastembed==0.8.0
+pypdf==6.15.0
+python-docx==1.2.0
+python-pptx==1.0.2
+openpyxl==3.1.5
+watchdog==6.0.0
+psutil==7.2.2
+pynput==1.8.2
+rich==15.0.0
+scipy==1.16.1
+
+# Natal charts. Check the AGPL terms in rat/astrology/ephemeris/LICENSE before distributing.
+pyswisseph==2.10.3.2

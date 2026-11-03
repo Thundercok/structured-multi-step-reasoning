@@ -25,7 +25,7 @@ HARNESS = (
     "tests/",
     "main.py",
     "research_scoring.py",
-    "requirements-mini.txt",
+    "requirements-rat.txt",
 )
 SHARED = {
     ".github/workflows/ci.yml",
