@@ -2819,7 +2819,7 @@ Rectangle {
                                     editor.forceActiveFocus()
                                     return
                                 }
-                                if (desk.liveSnapshot.view === "finder" && editor.text.trim().length > 0 && (desk.visibleFinderHits || []).length === 0) {
+                                if (Boolean(desk.liveSnapshot.finderFeedback) && editor.text.trim().length > 0 && (desk.visibleFinderHits || []).length === 0) {
                                     event.accepted = true
                                     desk.liveController.submitQuery(editor.text)
                                     if (desk.liveController.snapshot.busy) editor.text = ""

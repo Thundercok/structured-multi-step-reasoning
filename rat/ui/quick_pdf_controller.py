@@ -873,6 +873,12 @@ class QuickPDFController(QObject):
                 return self.openSelectedHit(idx)
             return False
 
+        # In document reading or active conversation views, or when explicitly hosted
+        # with a reasoning engine, Enter submits to the engine as indicated by the composer hint
+        current_view = self.snapshot.get("view", "")
+        if current_view in ("answer", "page", "document") or self.snapshot.get("fileName") or self._reasoning_engine is not None:
+            return False
+
         if is_question_query(q):
             self.submitQuery(q)
             return True
