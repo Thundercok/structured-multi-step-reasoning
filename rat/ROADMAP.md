@@ -13,7 +13,7 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 ## 0. Vá sau đợt kiểm tra 2026-11-03
 
-0.1, 0.2 và 0.4 đã xong (`183ad498`, `442c35cb`, `7c40e42e`). Còn 0.3.
+Đã xong cả bước 0: 0.1, 0.2 và 0.4 ở `183ad498`, `442c35cb`, `7c40e42e`; 0.3 do người dùng bấm thử thật, cả hai phím đều chạy.
 
 | # | Bước | Xong khi |
 | --- | --- | --- |
