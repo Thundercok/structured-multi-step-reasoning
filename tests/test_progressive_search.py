@@ -611,3 +611,62 @@ def test_open_application_capability_revalidation_disambiguation_and_honest_stat
     assert 'macOS' in (non_mac.error or '')
     assert not launched
 
+
+def test_purpose_query_meaning_search_in_refine_with_fake_embedder(tmp_path):
+    import numpy as np
+
+    # Bundle an app whose name does not match the purpose query "thiết kế"
+    figma = app_bundle(tmp_path / 'Apps', 'Figma', 'com.figma.desktop')
+    catalog = ApplicationCatalog.scan([figma.parent])
+    db = Database(str(tmp_path / 'meaning_app.db'))
+
+    embed_calls = []
+
+    class FakeEmbedder:
+        def embed_texts(self, texts, batch_size=16):
+            embed_calls.append(len(texts))
+            vecs = []
+            for t in texts:
+                if 'thiết kế' in t:
+                    vecs.append([1.0, 0.0])
+                else:
+                    vecs.append([0.0, 1.0])
+            return np.array(vecs, dtype=np.float32)
+
+        def embed_query(self, query):
+            if 'thiết kế' in query:
+                return np.array([1.0, 0.0], dtype=np.float32)
+            return np.array([0.0, 1.0], dtype=np.float32)
+
+    fake_embedder = FakeEmbedder()
+
+    class FakeSemantic:
+        embedder = fake_embedder
+        def __call__(self, request):
+            return ()
+
+    engine = ProgressiveSearch(db.db_path, catalog=catalog, semantic=FakeSemantic())
+    try:
+        # Purpose query in open_app action: "mở app thiết kế"
+        request = SearchRequest(1, 'mở app thiết kế')
+        snapshots = engine.snapshots(request)
+
+        initial = next(snapshots)
+        # Embedding all apps must NOT happen inside initial():
+        assert len(embed_calls) == 0
+        # Catalog name match only: "Figma" doesn't match "thiết kế" by name
+        assert initial.hits == ()
+        assert not initial.complete
+
+        final = next(snapshots)
+        # Refine executes meaning search using the embedder
+        assert len(embed_calls) > 0
+        assert final.complete
+        assert len(final.hits) == 1
+        assert final.hits[0].path == str(figma.resolve())
+        assert final.hits[0].match_reason == 'Khớp công dụng'
+    finally:
+        engine.close_connection()
+        db.get_connection().close()
+
+

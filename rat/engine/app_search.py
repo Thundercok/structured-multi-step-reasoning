@@ -108,6 +108,14 @@ class AppSearch:
         self._apps = None
         self._matrix = None
 
+    @classmethod
+    def from_catalog(cls, catalog, embedder_source=None):
+        instance = cls(embedder_source)
+        apps = catalog.applications if hasattr(catalog, 'applications') else list(catalog)
+        instance._apps = [a for a in apps if not a.path.startswith('/System/Library/')]
+        instance._names = [[name_key(n) for n in a.names] for a in instance._apps]
+        return instance
+
     def _load(self):
         with self._lock:
             if self._apps is None:
@@ -121,9 +129,15 @@ class AppSearch:
                         owners.append(i); texts.append(text)
                 self._owners = np.array(owners, dtype=int)
                 self._words = [set(name_key(' '.join(app_descriptions(a))).split()) for a in self._apps]
+                embedder = None
+                if self._embedder_source:
+                    try:
+                        embedder = self._embedder_source() if callable(self._embedder_source) else self._embedder_source
+                    except Exception:
+                        embedder = None
                 # Apps with only a bare name compete by name, never on meaning.
-                self._matrix = (self._embedder_source().embed_texts(texts, batch_size=16)
-                                if texts else np.empty((0, 384), dtype=np.float32))
+                self._matrix = (embedder.embed_texts(texts, batch_size=16)
+                                if (texts and embedder is not None) else np.empty((0, 384), dtype=np.float32))
             return self._apps, self._matrix
 
     def search(self, query, limit=3, floor=0.5):
@@ -138,8 +152,14 @@ class AppSearch:
         if not key:
             return []
         meaning = np.zeros(len(apps), dtype=np.float32)
-        if len(matrix):
-            np.maximum.at(meaning, self._owners, matrix @ self._embedder_source().embed_query(text))
+        embedder = None
+        if self._embedder_source:
+            try:
+                embedder = self._embedder_source() if callable(self._embedder_source) else self._embedder_source
+            except Exception:
+                embedder = None
+        if len(matrix) and embedder is not None:
+            np.maximum.at(meaning, self._owners, matrix @ embedder.embed_query(text))
         terms = set(key.split())
         agreement = np.array([len(terms & words) / len(terms) for words in self._words], dtype=np.float32)
         named = np.array([any(n == key or n.startswith(key) or key in n.split() for n in names)
