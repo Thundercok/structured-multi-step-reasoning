@@ -19,7 +19,27 @@ LANGUAGES = {'tiếng việt':'vi', 'vietnamese':'vi', 'vi':'vi',
     'tiếng đức':'de', 'german':'de', 'de':'de'}
 TRANSLATE = re.compile(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:dịch|translate)\b', re.I)
 FIND = re.compile(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:tìm(?:\s+kiếm)?|find|search(?:\s+for)?)\b', re.I)
-OPEN = re.compile(r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?(?:mở|mo|bật|bat|chạy|chay|khởi\s+động|open|launch)\b', re.I)
+OPEN = re.compile(
+    r'^(?:(?:hãy|giúp tôi|giúp mình|please)\s+)?'
+    r'(?:mở|mo(?!\s+h[iìíỉĩị]nh\b)|bật|bat(?!\s+(?:dau|đầu)\b)|chạy|chay|khởi\s+động|open(?!-)|launch)\b',
+    re.I
+)
+GREETING_OR_THANKS = re.compile(
+    r'^(?:'
+    r'hello(?:\s+(?:there|world|everyone|everybody))?|'
+    r'hi(?:\s+(?:there|everyone))?|'
+    r'hey(?:\s+there)?|'
+    r'good\s+(?:morning|afternoon|evening|night|day)|'
+    r'thank\s+you(?:\s+(?:very\s+much|so\s+much|a\s+lot))?|'
+    r'thanks(?:\s+(?:a\s+lot|very\s+much))?|'
+    r'goodbye|bye(?:\s+bye)?|'
+    r'(?:xin\s+)?chào(?:\s+(?:bạn|mọi\s+người|anh|chị|em|cả\s+nhà))?|'
+    r'chúc\s+(?:ngủ\s+ngon|ngày\s+mới|buổi\s+(?:sáng|trưa|chiều|tối))|'
+    r'(?:cảm|cám)\s+ơn(?:\s+bạn)?(?:\s+(?:nhiều|rất\s+nhiều))?|'
+    r'tạm\s+biệt'
+    r')\s*[.!]?$',
+    re.I
+)
 
 
 @dataclass
@@ -145,11 +165,14 @@ class ToolGoalRouter:
             return self.direct('find_files', {'query':PurePath(paths[0]).name}, 'pasted_file_reference')
         if len(text) < 240 and '\n' not in text and re.search(r'\.(?:pdf|docx?|xlsx?|pptx?|txt|md|csv|png|jpe?g|zip)\s*$',text,re.I):
             return self.direct('find_files', {'query':text}, 'filename')
-        opening = OPEN.match(text)
-        if opening:
-            return self.direct('find_files', {'query': text}, 'explicit_open')
         words = text.split()
         paragraph = '\n' in text or len(words) >= 18
+        if input_kind == 'pasted_text' and (len(words) >= 2 or len(text) >= 12):
+            return self.direct('translate_text', dict(self.defaults, text=text), 'pasted_passage')
+        is_short_open = len(words) <= 6 and '\n' not in text and not re.search(r'[.?!]\s*$', text)
+        opening = OPEN.match(text) if is_short_open else None
+        if opening:
+            return self.direct('find_files', {'query': text}, 'explicit_open')
         if not paragraph and len(words) <= 10 and re.match(
                 r'^(?:báo cáo|bài báo|bài viết|bài tập|tài liệu|file|tệp|slide|slides|bài giảng|giáo trình|sách|hóa đơn|hợp đồng|lịch học|đề thi|luận văn|đồ án|biên bản|bảng điểm|cv|resume|report|document|lecture|paper|article|book|invoice|contract|syllabus)\b',
                 text, re.I):
@@ -164,18 +187,16 @@ class ToolGoalRouter:
         if not paragraph and 2 <= len(words) <= 10 and not re.search(r'[.?!]\s*$', text):
             has_topic_marker = bool(re.search(r'\b(?:về|cho|của|trong|với|tại|theo|about|of|for|in|on|with|by)\b', text, re.I))
             has_verb = bool(re.search(r'\b(?:là|có|được|bị|dịch|translate|hỏi|muốn|cần|biết|nghĩ|hiểu|thấy|is|are|was|were|do|does|can|could|will|would|should)\b', text, re.I))
-            if (has_topic_marker or not has_verb) and text.casefold() not in ('hello world', 'xin chào', 'chào bạn', 'hi there', 'good morning', 'kế hoạch'):
+            if (has_topic_marker or not has_verb) and not GREETING_OR_THANKS.match(text) and text.casefold() != 'kế hoạch':
                 return self.direct('find_files', {'query': text}, 'short_search_query')
         if re.fullmatch(r'https?://\S+', text, re.I):
             return self.ask('Bạn gửi đoạn chữ cần dịch, hoặc tên tệp cần tìm nhé.', rule='url_needs_content')
         language = self.language_detector(text) if self.language_detector else None
-        if input_kind == 'pasted_text' and (len(words) >= 2 or len(text) >= 12):
-            return self.direct('translate_text', dict(self.defaults,text=text), 'pasted_passage')
         if language and language != self.defaults['target_language'] and (len(words) >= 2 or re.search(r'[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]',text)):
             return self.direct('translate_text', dict(self.defaults,text=text), 'foreign_passage')
-        if (paragraph or (len(words) >= 4 and bool(re.search(r'[.?!]\s*$', text)))) and language in ('vi', 'en'):
+        if (paragraph or (len(words) >= 4 and bool(re.search(r'[.?!]\s*$', text)))) and (language in ('vi', 'en') or language is None):
             return self.direct('translate_text', dict(self.defaults, text=text),
-                               'foreign_passage' if language != self.defaults['target_language'] else 'bidirectional_passage')
+                               'foreign_passage' if (language and language != self.defaults['target_language']) else 'bidirectional_passage')
         if previous and previous.get('operation') == 'translate_text' and paragraph:
             return self.direct('translate_text', dict(self.defaults,text=text), 'translation_continuation')
         if previous and previous.get('operation') == 'find_files' and len(words) <= 8 and not paragraph:
