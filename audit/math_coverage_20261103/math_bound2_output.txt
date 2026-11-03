@@ -1,0 +1,2 @@
+{'perfect_reader_bound': 0.4237, 'two_checkable': 0.6822, 'answer_reached': 0.517, 'has_conditional': 0.4189}
+{'algebra': 0.378, 'counting_and_probability': 0.468, 'geometry': 0.512, 'intermediate_algebra': 0.423, 'number_theory': 0.33, 'prealgebra': 0.427, 'precalculus': 0.479}

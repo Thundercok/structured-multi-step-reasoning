@@ -1,15 +1,17 @@
 import pytest
 
 from structured_llm.counterfactual import (
+    _prose_equations_hold,
     counterfactual,
     fmt,
+    plan_freeform_intervention,
     plan_intervention,
     reexecute,
     substitute,
     values,
 )
-from structured_llm.evaluate import detection, tool_result
-from structured_llm.intervene import classify, rq1_table, summarize
+from structured_llm.evaluate import detection, prompt_for, tool_result
+from structured_llm.intervene import classify, plan_for, rq1_table, summarize
 from structured_llm.pal import run_program
 from structured_llm.trace import Step, check, parse
 
@@ -53,6 +55,17 @@ def test_reexecute_skip_keeps_changed_result_fixed():
     steps = reexecute(parse(TRACE).steps, {24.0: 29.0}, skip=1)
     assert steps[0].calcs == [("48/2", "24")]
     assert steps[1].calcs == [("48+29", "77")]
+
+
+def test_reexecute_refuses_equal_results_when_only_one_changes():
+    steps = [Step("a", [("3*100", "300")]), Step("b", [("2*150", "300")]), Step("c", [("300+300", "600")])]
+    assert reexecute(steps, {150.0: 92.0}) is None
+
+
+def test_reexecute_follows_equal_results_when_both_change():
+    steps = [Step("a", [("2*150", "300")]), Step("b", [("150*2", "300")]), Step("c", [("300+300", "600")])]
+    result = reexecute(steps, {150.0: 100.0})
+    assert result[2].calcs == [("200+200", "400")]
 
 
 def test_reexecute_refuses_ambiguous_change():
@@ -115,6 +128,48 @@ def test_counterfactual_skips_a_digit_also_written_as_a_word_in_the_solution():
     assert made is None or " 4 tires" in made["question"], reason
 
 
+@pytest.mark.parametrize("question, solution, reason", [
+    # Shapes of the errors a review of 100 samples found.
+    ("Bryan scored 20. Jen scored 10 more. Sammy scored 2 fewer. How many mistakes on 35 points?",
+     "Jen scored 20 + 10 = <<20+10=30>>30.\nHis score was30 - 2 = <<30-2=28>>28.\nSo 35 - 28 = <<35-28=7>>7.\n#### 7",
+     "number_glued_to_text"),
+    ("Haily compares salons at $45 + $22 and $30 + $34. How much at the cheapest salon?",
+     "One costs 45+22 = <<45+22=67>>67.\nThe other costs 30+34 = <<30+34=64>>64.\n#### 64",
+     "answer_needs_comparison"),
+])
+def test_counterfactual_rejects_reviewed_error_shapes(question, solution, reason):
+    assert counterfactual({"question": question, "answer": solution}, "seed") == (None, reason)
+
+
+def test_counterfactual_may_change_another_number_but_not_one_behind_hidden_arithmetic():
+    # 12/4 = 3 in the text has no Calc line, so changing 12 would leave false arithmetic.
+    # Changing the 10 ounces is safe.
+    row = {"question": "She makes 12 eggs and packs them in 4 boxes. One box is lost. How much do the rest weigh at 10 ounces?",
+           "answer": "Each box has 12/4 = 3 eggs, so 12-3 = <<12-3=9>>9 are left.\nThey weigh 9*10 = <<9*10=90>>90.\n#### 90"}
+    for seed in range(20):
+        made, _ = counterfactual(row, f"seed{seed}")
+        assert made is None or "12 eggs" in made["question"]
+
+
+@pytest.mark.parametrize("question, solution", [
+    # "the 8th" is a date, while 8 hours is the value that would change.
+    ("John worked 8 hours a day from the 3rd to the 8th, not including the 8th. How many hours?",
+     "He worked 8-3=<<8-3=5>>5 days\nSo he worked 5*8=<<5*8=40>>40 hours\n#### 40"),
+    # The result 3 equals the /3 from "one-third".
+    ("Tony is twice as fast as Tina, whose time of 6 minutes is one-third as fast as Tom. What is the total?",
+     "Tony takes 6/2= <<6/2=3>>3 minutes.\nTom takes 6/3= <<6/3=2>>2 minutes.\nTotal is 6+3+2= <<6+3+2=11>>11.\n#### 11"),
+])
+def test_counterfactual_never_changes_these_numbers(question, solution):
+    made, _ = counterfactual({"question": question, "answer": solution}, "seed")
+    assert made is None
+
+
+def test_prose_equation_check_reads_dollars_and_commas():
+    assert _prose_equations_hold([Step("Total is $1,000 + $200 = $1,200 today")])
+    assert not _prose_equations_hold([Step("Total is $1,000 + $200 = $1,300 today")])
+    assert _prose_equations_hold([Step("He gets 3 apples = 3 fruits")])
+
+
 def test_plan_intervention_refuses_result_equal_to_an_earlier_operand():
     trace = ("<think>\nStep 1: A.\nCalc: 10+2=12\nStep 2: B.\nCalc: 5+5=10\nStep 3: C.\nCalc: 10*2=20\n"
              "</think>\n\nAnswer: 20")
@@ -168,6 +223,47 @@ def test_plan_intervention_keeps_flagged_traces_without_expected_answer(text, fl
     assert plan["expected"] is None and plan["old"] == 24.0
 
 
+FREE = "First, 48/2 = 24 clips in May.\nThen 48 + 24 = 72 clips.\nAnswer: 72"
+
+
+def test_freeform_plan_stops_right_after_the_changed_result():
+    plan, reason = plan_freeform_intervention(FREE, QUESTION, "key")
+    assert reason is None
+    assert plan["prefix"] == f"First, 48/2 = {fmt(plan['new'])}"
+    assert plan["expected"] == 48.0 + plan["new"] and plan["original"] == 72.0 and plan["flags"] == []
+
+
+@pytest.mark.parametrize("first", ["24 divided by 2, which is 12", "24 divided by 2 is 12", "6 times 2 equals 12", "6 multiplied by 2 is 12"])
+def test_freeform_plan_reads_calculations_in_words(first):
+    text = f"So {first} tickets. Then 12 plus 7 equals 19.\nAnswer: 19"
+    plan, reason = plan_freeform_intervention(text, "Some tickets?", "key")
+    assert reason is None
+    assert plan["old"] == 12.0 and plan["expected"] == plan["new"] + 7
+    assert plan["prefix"].endswith(fmt(plan["new"]))
+
+
+def test_freeform_plan_reads_money_and_thinking():
+    text = "<think>Each is $3 * 4 = $12. So $12 + $5 = $17.</think>\n\nAnswer: 17"
+    plan, reason = plan_freeform_intervention(text, "Three items at four and five more?", "key")
+    assert reason is None
+    assert plan["old"] == 12.0 and plan["prefix"].startswith("<think>Each is $3 * 4 = $")
+
+
+@pytest.mark.parametrize("text, reason", [
+    ("Add them, then subtract.\nAnswer: 15", "no_equations"),
+    ("So 1+1 = 2.\nAnswer: 2", "too_few_calcs"),
+    ("So 1+1 = 2 and 5+5 = 10.\nAnswer: 10", "no_result_used_later"),
+    ("<think>never closed 1+1 = 2 and 2+2 = 4", "no_answer"),
+])
+def test_freeform_plan_skips(text, reason):
+    assert plan_freeform_intervention(text, "Q", "key") == (None, reason)
+
+
+def test_freeform_plan_flags_answer_that_does_not_follow():
+    plan, _ = plan_freeform_intervention(FREE.replace("Answer: 72", "Answer: 70"), QUESTION, "key")
+    assert plan["flags"] == ["answer_not_last_calc"] and plan["expected"] is None
+
+
 def test_clean_plan_has_no_flags():
     assert plan_intervention(TRACE, QUESTION, "key")[0]["flags"] == []
 
@@ -182,6 +278,14 @@ def test_classify(answer, outcome):
 def test_classify_flagged_trace(answer, outcome):
     plan = {"expected": None, "original": 72.0}
     assert classify(f"<think>x</think>\n\nAnswer: {answer}", plan) == outcome
+
+
+def test_plan_for_skips_non_numeric_math_answers_and_can_force_freeform():
+    source = {"id": "a", "question": QUESTION, "output": FREE, "gold": "72", "answer_format": "latex"}
+    assert plan_for("base_prefill", {**source, "gold": "\\frac{12}{11}"})[1] == "non_numeric_answer"
+    assert plan_for("base_prefill", source)[1] == "invalid_format"
+    assert plan_for("base_prefill", source, freeform=True)[0]["old"] == 24.0
+    assert plan_for("base_showcalc", source)[0]["old"] == 24.0
 
 
 def test_rq1_table_counts_wrong_answers_by_moved_and_flagged():
@@ -209,6 +313,13 @@ def test_tool_result(text, expected):
     assert tool_result(text) == expected
 
 
+def test_prefilled_prompts_share_the_instruction_and_leave_prefill_out():
+    # Intervention prefixes start with <think>, so prompt_for must not add the prefill itself.
+    assert prompt_for("base_prefill", "Q") == prompt_for("base_instructed", "Q") == prompt_for("base_tool", "Q")
+    assert prompt_for("base_prefill", "Q").endswith("assistant\n")
+    assert prompt_for("tuned", "Q").endswith("Q<|im_end|>\n<|im_start|>assistant\n")
+
+
 def test_detection_counts_flags_on_right_and_wrong_answers():
     good = "<think>\nStep 1: A.\nCalc: 1+1=2\n</think>\n\nAnswer: 2"
     wrong_calc = good.replace("1+1=2", "1+1=3").replace("Answer: 2", "Answer: 3")
@@ -219,6 +330,18 @@ def test_detection_counts_flags_on_right_and_wrong_answers():
         {"check": check("<think>guess</think>\n\nIt is 2.", "Q", "2")},
     ]
     assert detection(records) == {"wrong": 2, "flagged_wrong": 1, "right": 2, "flagged_right": 1}
+
+
+@pytest.mark.parametrize("answer, expected, original, outcome", [
+    ("84", 83.33, 100.0, "follows_rounded"),
+    ("0", -1.0, 4.0, "follows_rounded"),
+    ("1000002", 1000001.67, 1000000.0, "follows_rounded"),
+    ("50", 83.33, 100.0, "other"),
+    ("100", 100.5, 100.0, "reverted"),
+])
+def test_classify_rounded_answers(answer, expected, original, outcome):
+    plan = {"expected": expected, "original": original}
+    assert classify(f"<think>x</think>\n\nAnswer: {answer}", plan) == outcome
 
 
 def test_classify_without_answer():
@@ -232,7 +355,8 @@ def test_summarize_shared_uses_questions_eligible_in_every_mode():
         {"a": {}, "b": {"invalid_format": 1}},
     )
     assert summary["a"]["eligible"]["n"] == 2
-    assert summary["a"]["shared"] == {"n": 1, "follows": 1, "reverted": 0, "other": 0, "moved": 0, "no_answer": 0}
+    assert summary["a"]["shared"] == {"n": 1, "follows": 1, "follows_rounded": 0, "reverted": 0, "other": 0, "moved": 0,
+                                      "no_answer": 0}
     assert summary["a"]["correct_only"]["n"] == 1
     assert summary["b"]["skipped"] == {"invalid_format": 1}
     assert summary["a"]["eligibility_rate"] == 1.0
@@ -246,6 +370,8 @@ def test_summarize_shared_uses_questions_eligible_in_every_mode():
     ("x = 5\nif x > 3:\n    result = 1\nelse:\n    result = 2", 1.0),
     ("result = round(sum([1.5, 2.5]) * 2)", 8.0),
     ("result = -2 ** 3", -8.0),
+    ("result = sum(20 + 10 * week for week in range(4))", 140.0),
+    ("result = max([i * 2 for i in range(3)])", 4.0),
 ])
 def test_run_program(text, value):
     assert run_program(text) == value

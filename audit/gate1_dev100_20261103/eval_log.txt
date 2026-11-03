@@ -1,0 +1,19 @@
+base_prefill {"n": 100, "correct": 80, "answered": 85, "format_valid": 61, "calc_accuracy": 0.965, "grounded_rate": 0.75, "mean_tokens": 144.2, "mean_seconds": 31.04, "truncated": 0, "detection": {"wrong": 20, "flagged_wrong": 19, "right": 80, "flagged_right": 22}}
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 245, in <module>
+    run(args.adapter, args.limit, args.out, args.modes, args.max_tokens, args.data)
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 226, in run
+    "check": score(mode, text, item["question"], item["answer"], answer_format),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 80, in score
+    return check(text, question, gold)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/trace.py", line 163, in check
+    last = float(calcs[-1][1]) if calcs and _NUMBER.search(calcs[-1][1]) else None
+           ^^^^^^^^^^^^^^^^^^^
+ValueError: could not convert string to float: '0.333333...'
+tuned {"n": 100, "correct": 94, "answered": 97, "format_valid": 70, "calc_accuracy": 0.961, "grounded_rate": 0.739, "mean_tokens": 182.4, "mean_seconds": 37.68, "truncated": 1, "detection": {"wrong": 6, "flagged_wrong": 4, "right": 94, "flagged_right": 47}}
+base_showcalc {"n": 100, "correct": 85, "answered": 100, "format_valid": 0, "calc_accuracy": null, "grounded_rate": null, "mean_tokens": 139.3, "mean_seconds": 31.41, "truncated": 0, "detection": {"wrong": 15, "flagged_wrong": 15, "right": 85, "flagged_right": 85}}
+base_pal {"n": 100, "correct": 93, "answered": 100, "format_valid": 0, "calc_accuracy": null, "grounded_rate": null, "mean_tokens": 87.1, "mean_seconds": 21.8, "truncated": 0, "detection": {"wrong": 7, "flagged_wrong": 7, "right": 93, "flagged_right": 93}}

@@ -1,0 +1,100 @@
+{
+"n": 5586,
+"current_covered": 0.2329,
+"ge2_nontrivial_eq": 0.7879,
+"answer_on_some_rhs": 0.6847,
+"upper_bound_parser_free": 0.5958,
+"with_answer_substitution": 0.2419,
+"answer_kinds": {
+"number": 0.6223,
+"unreadable": 0.1176,
+"readable_expr": 0.2601
+},
+"upper_bound_by_subject": {
+"algebra": {
+"n": 1226,
+"current": 0.233,
+"bound": 0.681
+},
+"counting_and_probability": {
+"n": 602,
+"current": 0.341,
+"bound": 0.512
+},
+"geometry": {
+"n": 727,
+"current": 0.283,
+"bound": 0.674
+},
+"intermediate_algebra": {
+"n": 1070,
+"current": 0.164,
+"bound": 0.667
+},
+"number_theory": {
+"n": 691,
+"current": 0.195,
+"bound": 0.399
+},
+"prealgebra": {
+"n": 750,
+"current": 0.308,
+"bound": 0.508
+},
+"precalculus": {
+"n": 520,
+"current": 0.121,
+"bound": 0.623
+}
+},
+"unreadable_reasons_top": [
+[
+"other",
+13132
+],
+[
+"_",
+2133
+],
+[
+",",
+1503
+],
+[
+"|",
+798
+],
+[
+"\\mathbf",
+706
+],
+[
+"\\angle",
+704
+],
+[
+"[",
+615
+],
+[
+"\\text",
+609
+],
+[
+"\\Rightarrow",
+434
+],
+[
+"\\sum",
+396
+],
+[
+"\\dots",
+384
+],
+[
+"\\begin",
+349
+]
+]
+}

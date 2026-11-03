@@ -1,0 +1,28 @@
+{
+  "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+  "source_rows": 7500,
+  "hard_rows": 5586,
+  "qualifying_rows": 1301,
+  "test_split_read": false,
+  "seed": "structured-math-v1",
+  "dev": 500,
+  "train": 801,
+  "dev_by_subject": {
+    "algebra": 112,
+    "counting_and_probability": 79,
+    "geometry": 84,
+    "intermediate_algebra": 70,
+    "number_theory": 57,
+    "prealgebra": 74,
+    "precalculus": 24
+  },
+  "dev_by_level": {
+    "Level 3": 127,
+    "Level 4": 144,
+    "Level 5": 229
+  },
+  "sha256": {
+    "dev.jsonl": "1bddb338c269e7b220c323dd5f5db60c132db9564507c1c66341c431d208d4b5",
+    "train_source.jsonl": "65a548e0b5e8275f3262e22442c1c9a287f137a5968bae2d6d75a8659c1c0887"
+  }
+}

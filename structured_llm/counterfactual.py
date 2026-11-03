@@ -21,12 +21,22 @@ import shutil
 from pathlib import Path
 
 from .gsm8k import OUTPUT, convert, gold_answer, load_splits, training_row, write_jsonl
-from .trace import Step, calc_is_correct, check, evaluate_expr, parse, render
+from .trace import Step, calc_is_correct, check, evaluate_expr, loose_answer, parse, render
 
 CF_OUTPUT = Path("data/structured_gsm8k_cf_v1")
 SEED = "structured-gsm8k-cf-v1"
 
 _TOKEN = re.compile(r"(?<![\w.])(?:\d+(?:,\d{3})*(?:\.\d+)?|\.\d+)(?!\w)")
+_PROSE_EQUATION = re.compile(r"(\d[\d.,]*(?:\s*[-+*/x×]\s*\d[\d.,]*)+)\s*=\s*(\d[\d.,]*\d|\d)")
+_MONEY_NUMBER = r"\$?\d[\d,]*(?:\.\d+)?"
+_WORD_OPERATORS = {"plus": "+", "minus": "-", "times": "*", "multiplied by": "*", "divided by": "/"}
+_OPERATOR = r"(?:[-+*/x×]|plus|minus|times|multiplied by|divided by)"
+# The base model often writes "24 divided by 2, which is 12" even when asked for calculations.
+_FREE_EQUATION = re.compile(rf"({_MONEY_NUMBER}(?:\s*{_OPERATOR}\s*{_MONEY_NUMBER})+)\s*"
+                            rf"(?:=|,?\s*which (?:is|equals)|equals|is)\s*\$?(\d[\d,]*(?:\.\d+)?)")
+# The answer comes from comparing values, so recomputing the last Calc doesn't give it.
+_DECISION = re.compile(r"\b(?:cheapest|least|most|highest|lowest|best|worst|maximum|minimum|fewest|greatest|"
+                       r"smallest|largest|longest|shortest|fastest|slowest)\b", re.I)
 # Operands a solution may use without stating them: "half" is 2, an hour is 60 minutes.
 _COMMON_CONSTANTS = {1.0, 2.0, 3.0, 4.0, 7.0, 10.0, 12.0, 24.0, 30.0, 52.0, 60.0, 100.0, 365.0, 1000.0}
 _NUMBER_WORDS = {
@@ -66,12 +76,16 @@ def reexecute(steps, changes, skip=0):
     because then the change can't be followed unambiguously.
     """
     mapping, new_steps, seen = dict(changes), [], 0
+    # With 3*100=300 unchanged and 2*150=300 changed, a later "300+300" can't be followed.
+    kept = set()
     for step in steps:
         new_calcs = []
         for expr, stated in step.calcs:
             seen += 1
             if seen <= skip:
                 new_calcs.append((expr, stated))
+                if float(stated) not in mapping:
+                    kept.add(float(stated))
                 continue
             new_expr = substitute(expr, mapping)
             value = evaluate_expr(new_expr)
@@ -82,7 +96,11 @@ def reexecute(steps, changes, skip=0):
             if old in mapping:
                 if unchanged or abs(mapping[old] - value) > 1e-6:
                     return None
-            elif not unchanged:
+            elif unchanged:
+                kept.add(old)
+            elif old in kept:
+                return None
+            else:
                 mapping[old] = value
             new_calcs.append((new_expr, stated if unchanged else fmt(value)))
         text = step.text if seen <= skip else substitute(step.text, mapping)
@@ -94,17 +112,30 @@ def _operands(calcs):
     return [number for expr, _ in calcs for number in values(expr)]
 
 
-def _collides(old_calcs, new_calcs, question_values):
+def _collides(old_calcs, new_calcs, question):
     """True if a changed result shares its value with a number that must stay fixed.
 
     With "$30 - $15 = $15", changing the result 15 would also rewrite the unrelated $15.
+    With "one-third" written as /3, changing a result of 3 would also rewrite that divisor.
     """
+    question_values = set(values(question))
     for index, (old, new) in enumerate(zip(old_calcs, new_calcs)):
         if old[1] != new[1]:
             value = float(old[1])
-            if value in question_values or value in _operands(old_calcs[:index + 1]):
+            if (value in question_values or value in _operands(old_calcs[:index + 1])
+                    or _also_written_as_word(question, value)):
                 return True
     return False
+
+
+def _prose_equations_hold(steps):
+    """False if text still states false arithmetic, as with "18/4 = 3" after 12/4 = 3 changed."""
+    for step in steps:
+        for expr, stated in _PROSE_EQUATION.findall(step.text.replace("$", "")):
+            clean = expr.replace(",", "").replace("x", "*").replace("×", "*")
+            if not calc_is_correct(clean, stated.replace(",", "")):
+                return False
+    return True
 
 
 def _also_written_as_word(question, value):
@@ -123,6 +154,10 @@ def counterfactual(row, seed):
     results = [float(stated) for _, stated in calcs]
     if abs(float(trace.answer) - results[-1]) > 1e-6:
         return None, "answer_not_last_calc"
+    if _DECISION.search(question):
+        return None, "answer_needs_comparison"
+    if re.search(r"[A-Za-z]\d", " ".join(step.text for step in trace.steps)):
+        return None, "number_glued_to_text"
 
     in_question = values(question)
     known = set(in_question)
@@ -134,7 +169,8 @@ def counterfactual(row, seed):
     if any(number not in explained for step in trace.steps for number in values(step.text)):
         return None, "unexplained_number_in_text"
 
-    counts = collections.Counter(in_question)
+    # Counts every digit run, so "the 8th" stops the 8 in "8 hours" from being changed.
+    counts = collections.Counter(float(token) for token in re.findall(r"\d+(?:\.\d+)?", question.replace(",", "")))
     operands = set(_operands(calcs))
     candidates = []
     for match in _TOKEN.finditer(question):
@@ -154,7 +190,7 @@ def counterfactual(row, seed):
         if new == value or new in known:
             continue
         steps = reexecute(trace.steps, {value: new})
-        if steps is None or _collides(calcs, flat_calcs(steps), set(in_question)):
+        if steps is None or _collides(calcs, flat_calcs(steps), question) or not _prose_equations_hold(steps):
             continue
         new_results = [float(stated) for _, stated in flat_calcs(steps)]
         if any(number <= 0 for number in new_results):
@@ -213,12 +249,14 @@ def plan_intervention(output, question, key):
     new = old + digest % 9 + 1
     while new in used:
         new += 1
-    if old in _operands(calcs[:target + 1]):
+    if old in _operands(calcs[:target + 1]) or _also_written_as_word(question, old):
         return None, "ambiguous_propagation"
     expected = None
     if not flags:
+        if _DECISION.search(question):
+            return None, "answer_needs_comparison"
         steps = reexecute(trace.steps, {old: new}, skip=target + 1)
-        if steps is None or _collides(calcs, flat_calcs(steps), in_question):
+        if steps is None or _collides(calcs, flat_calcs(steps), question):
             return None, "ambiguous_propagation"
         expected = float(flat_calcs(steps)[-1][1])
         if abs(expected - original) < 1e-6:
@@ -237,6 +275,67 @@ def plan_intervention(output, question, key):
         break
     return {"prefix": "\n".join(lines) + "\n", "old": old, "new": new,
             "expected": expected, "original": original, "flags": flags}, None
+
+
+def plan_freeform_intervention(output, question, key):
+    """Plan the same change for free-form text, where equations sit inside sentences.
+
+    The prefix stops right after the changed result, so the model continues mid-sentence. An
+    output with no written equations can't be changed, which is itself a measured outcome.
+    """
+    matches = list(_FREE_EQUATION.finditer(output))
+    if not matches:
+        return None, "no_equations"
+    calcs = []
+    for match in matches:
+        expr = match[1].replace("$", "").replace(",", "").replace("x", "*").replace("×", "*")
+        for word, symbol in _WORD_OPERATORS.items():
+            expr = expr.replace(word, symbol)
+        calcs.append((" ".join(expr.split()), match[2].replace(",", "")))
+    if len(calcs) < 2:
+        return None, "too_few_calcs"
+    # Thinking that never closed was cut off, while text with no <think> simply had it turned off.
+    original = loose_answer(output if "<think>" in output else "</think>" + output)
+    if original is None:
+        return None, "no_answer"
+    correct = [calc_is_correct(*calc) for calc in calcs]
+    flags = [] if all(correct) else ["wrong_calc"]
+    if abs(original - float(calcs[-1][1])) > 1e-6:
+        flags.append("answer_not_last_calc")
+    usable = correct.index(False) if not all(correct) else len(calcs) - 1
+
+    in_question = set(values(question))
+    results = [float(stated) for _, stated in calcs]
+    target = None
+    for index, value in enumerate(results[:usable]):
+        later = {number for expr, _ in calcs[index + 1:] for number in values(expr)}
+        if value.is_integer() and value in later and value not in in_question and results.count(value) == 1:
+            target = index
+            break
+    if target is None:
+        return None, "no_result_used_later"
+    old = results[target]
+    if old in _operands(calcs[:target + 1]) or _also_written_as_word(question, old):
+        return None, "ambiguous_propagation"
+
+    used = in_question | set(results) | set(_operands(calcs))
+    new = old + int(hashlib.sha256(str(key).encode()).hexdigest(), 16) % 9 + 1
+    while new in used:
+        new += 1
+    expected = None
+    if not flags:
+        if _DECISION.search(question):
+            return None, "answer_needs_comparison"
+        steps = [Step("", [calc]) for calc in calcs]
+        changed = reexecute(steps, {old: new}, skip=target + 1)
+        if changed is None or _collides(calcs, flat_calcs(changed), question):
+            return None, "ambiguous_propagation"
+        expected = float(flat_calcs(changed)[-1][1])
+        if abs(expected - original) < 1e-6:
+            return None, "change_does_not_reach_answer"
+    prefix = output[:matches[target].start(2)] + fmt(new)
+    return {"prefix": prefix, "old": old, "new": new, "expected": expected,
+            "original": original, "flags": flags}, None
 
 
 def build(source=None, output=CF_OUTPUT):

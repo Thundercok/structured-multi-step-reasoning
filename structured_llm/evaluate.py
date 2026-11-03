@@ -5,7 +5,8 @@ Run: python -m structured_llm.evaluate --adapter adapters/smoke --limit 20 --out
 tuned            adapter, plain question
 tuned_tool       as tuned, but the runtime computes each Calc result
 base_instructed  no adapter, format and one example in the prompt: what asking gets without training
-base_tool        as base_instructed, but the runtime computes each Calc result
+base_prefill     as base_instructed, with its thinking forced to start at "Step 1:"
+base_tool        as base_prefill, but the runtime computes each Calc result
 base_showcalc    no adapter, thinking off, told to write every calculation in plain text
 base_native      no adapter, plain question, the model's own free-form thinking
 base_pal         no adapter, thinking off, writes a program that is then interpreted
@@ -28,9 +29,12 @@ from .trace import check, evaluate_expr
 
 MODEL_ID = "mlx-community/Qwen3-8B-4bit"
 MODEL_REVISION = "545dc4251c05440727734bcd94334791f6ab0192"
-MODES = ("tuned", "tuned_tool", "base_instructed", "base_tool", "base_showcalc", "base_native", "base_pal")
+MODES = ("tuned", "tuned_tool", "base_instructed", "base_prefill", "base_tool", "base_showcalc", "base_native", "base_pal")
 ADAPTER_MODES = ("tuned", "tuned_tool")
 TOOL_MODES = ("tuned_tool", "base_tool")
+# The base model ignores the format inside <think> when only told about it, so the strongest
+# prompt-only baseline starts its thinking in the format.
+PREFILLS = {"base_prefill": "<think>\nStep 1:", "base_tool": "<think>\nStep 1:"}
 _OPEN_CALC = re.compile(r"(?:^|\n)Calc: ([^=\n]+)=$")
 
 INSTRUCTION = """Solve the problem. Think inside <think></think> in exactly this format, then give the final number.
@@ -54,7 +58,7 @@ _EMPTY_THINK = "<think>\n\n</think>\n\n"
 
 
 def prompt_for(mode, question):
-    if mode in ("base_instructed", "base_tool"):
+    if mode in ("base_instructed", "base_prefill", "base_tool"):
         return chatml_prompt(INSTRUCTION + question)
     if mode == "base_showcalc":
         return chatml_prompt(f"{question}\n{SHOW_CALCULATIONS}") + _EMPTY_THINK
@@ -63,7 +67,7 @@ def prompt_for(mode, question):
     return chatml_prompt(question)
 
 
-def score(mode, output, question, gold):
+def score(mode, output, question, gold, answer_format="number"):
     """Thinking-off modes get their empty think block back so one scorer reads every mode."""
     if mode == "base_pal":
         value = run_program(output)
@@ -72,7 +76,13 @@ def score(mode, output, question, gold):
         text = _EMPTY_THINK + output
     else:
         text = output
-    return check(text, question, gold)
+    if answer_format == "number":
+        return check(text, question, gold)
+    from .math_check import final_answer, same_answer
+
+    result = check(text, question)
+    found = final_answer(text)
+    return {**result, "answered": found is not None, "correct": same_answer(found, gold)}
 
 
 def tool_result(text):
@@ -203,14 +213,17 @@ def run(adapter, limit, out, modes, max_tokens, data):
                 if item["id"] in done:
                     continue
                 start = time.perf_counter()
-                text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]),
+                prefill = PREFILLS.get(mode, "")
+                text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]) + prefill,
                                                  max_tokens, sampler)
                 tokens = len(tokenizer.encode(text))
+                text = prefill + text
+                answer_format = item.get("answer_format", "number")
                 record = {
                     "id": item["id"], "question": item["question"], "gold": item["answer"], "output": text,
                     "tokens": tokens, "truncated": tokens >= max_tokens, "tool_calls": tool_calls,
-                    "seconds": round(time.perf_counter() - start, 2),
-                    "check": score(mode, text, item["question"], item["answer"]),
+                    "answer_format": answer_format, "seconds": round(time.perf_counter() - start, 2),
+                    "check": score(mode, text, item["question"], item["answer"], answer_format),
                 }
                 records.append(record)
                 handle.write(json.dumps(record, ensure_ascii=False) + "\n")

@@ -19,8 +19,9 @@ import operator
 import re
 from dataclasses import dataclass, field
 
-_STEP = re.compile(r"Step (\d+): (\S.*)")
-_CALC = re.compile(r"Calc: ([^=]+)=(-?[\d.]+)")
+# Spacing isn't part of the format: "Step 1:The" and "Calc: 1 + 1 = 2" mean the same thing.
+_STEP = re.compile(r"Step (\d+):\s*(\S.*)")
+_CALC = re.compile(r"Calc:\s*([^=]+?)\s*=\s*(-?(?:\d+\.?\d*|\.\d+))")
 _ANSWER = re.compile(r"Answer: \$?(-?[\d,]*\.?\d+)\s*")
 _NUMBER = re.compile(r"\d[\d,]*\.?\d*|\.\d+")
 _SIGNED_NUMBER = re.compile(r"(?<![\w.])-?(?:\d[\d,]*\.?\d*|\.\d+)|(?<=-)\d[\d,]*\.?\d*")
@@ -126,10 +127,19 @@ def _numbers(text):
 
 
 def loose_answer(text):
-    """Final number after the thinking, in any layout, so free-form output is scored fairly."""
-    if "</think>" not in text:
-        return None
-    tail = text.rpartition("</think>")[2]
+    """Final number after the thinking, in any layout, so free-form output is scored fairly.
+
+    An "Answer:" line still counts when </think> is missing, and any further question the
+    model goes on to invent is ignored. Thinking cut off with neither has no answer.
+    """
+    if "</think>" in text:
+        tail = text.partition("</think>")[2]
+    else:
+        line = re.search(r"^Answer:\s*(.+)$", text, re.M)
+        if not line:
+            return None
+        tail = line[1]
+    tail = tail.split("\nQuestion:")[0]
     boxed = re.findall(r"\\boxed\{([^}]*)\}", tail)
     numbers = _SIGNED_NUMBER.findall(boxed[-1] if boxed else tail)
     if not numbers:
@@ -161,12 +171,14 @@ def check(text, question, gold=None):
     answer = float(trace.answer) if trace.answer is not None else None
     last = float(calcs[-1][1]) if calcs and _NUMBER.search(calcs[-1][1]) else None
     loose = loose_answer(text)
+    vacuous = sum(not re.search(r"\d\s*[-+*/]", expr) for expr, _ in calcs)
     return {
         "format_valid": not trace.errors,
         "errors": sorted(set(trace.errors)),
         "steps": len(trace.steps),
         "calcs": len(calcs),
         "calc_accuracy": correct / len(calcs) if calcs else None,
+        "vacuous_rate": vacuous / len(calcs) if calcs else None,  # "Calc: 220=220" checks nothing
         "grounded_rate": grounded / operands if operands else None,
         "answer_from_last_calc": answer is not None and last is not None and abs(answer - last) < 1e-6,
         "answer": trace.answer,

@@ -1,16 +1,18 @@
 {
   "seed": "structured-gsm8k-cf-v1",
-  "train_rows": 10377,
+  "train_rows": 10178,
   "counterfactual": {
-    "made": 3318,
-    "ungrounded_operand": 1777,
+    "made": 3119,
+    "answer_needs_comparison": 200,
+    "ungrounded_operand": 1720,
     "answer_not_last_calc": 360,
-    "no_valid_change": 1013,
-    "no_safe_number": 289,
-    "unexplained_number_in_text": 302
+    "no_valid_change": 1077,
+    "no_safe_number": 286,
+    "number_glued_to_text": 18,
+    "unexplained_number_in_text": 279
   },
   "valid_is_unchanged_copy_of": "data/structured_gsm8k_v1/valid.jsonl",
   "sha256": {
-    "train.jsonl": "efcf3b16a1e1ac953e5951c42ce791d8f4f489897fbf974075eaf1cd1179642b"
+    "train.jsonl": "e564b7cf35081381558aabc51b2fd400eb59fda7c3fee321bb61d4325f783928"
   }
 }

@@ -71,6 +71,15 @@ class _Interpreter:
             return -value if isinstance(node.op, ast.USub) else value
         if isinstance(node, (ast.List, ast.Tuple)):
             return [self.expression(item) for item in node.elts]
+        if isinstance(node, (ast.GeneratorExp, ast.ListComp)) and len(node.generators) == 1:
+            loop = node.generators[0]
+            if not isinstance(loop.target, ast.Name) or loop.ifs or loop.is_async:
+                raise _Unsupported("comprehension")
+            values = []
+            for value in self.expression(loop.iter):
+                self.names[loop.target.id] = value
+                values.append(self.expression(node.elt))
+            return values
         if isinstance(node, ast.Compare) and len(node.ops) == 1 and type(node.ops[0]) in _COMPARE:
             return _COMPARE[type(node.ops[0])](self.expression(node.left), self.expression(node.comparators[0]))
         if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in _CALLS

@@ -63,3 +63,5 @@ CLAUDE.md
 data/structured_gsm8k_v1/*.jsonl
 adapters/
 data/structured_gsm8k_cf_v1/*.jsonl
+data/math_source/
+audit/math_dev100_20261103/*.jsonl

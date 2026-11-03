@@ -84,12 +84,13 @@ Nguồn là `data/gsm8k_source/train.jsonl`, revision `3101c7d5`, có kiểm tra
 | Bộ | Tạo bằng | Nội dung |
 | --- | --- | --- |
 | `data/structured_gsm8k_v1` | `python -m structured_llm.gsm8k` | 7.059 câu train, 99 valid, 100 dev. Chia bằng xếp hạng SHA-256 trước khi lọc |
-| `data/structured_gsm8k_cf_v1` | `python -m structured_llm.counterfactual` | Thêm 3.318 câu phản thực do code tính lại, không dùng LLM; valid giữ nguyên |
+| `data/structured_gsm8k_cf_v1` | `python -m structured_llm.counterfactual` | Thêm 3.119 câu phản thực do code tính lại, không dùng LLM; valid giữ nguyên |
 
-Bản đầu của bộ phản thực có 3/25 mẫu lỗi; sau khi siết lọc còn 1/25 lỗi nhỏ và lỗi đó đã được
-chặn. **Phần đọc này do agent làm, chưa có người rà.** 100 mẫu chờ rà ở
-`audit/counterfactual_review_20261102/sample.md`. Đổi số có thể tạo bài toán kỳ cục về nghĩa dù
-phép tính vẫn đúng, cần ghi trong bài.
+Rà 100 mẫu bằng agent (`sample.md`) thấy 5 đáp án sai, 1 câu chữ cũ, 2 bài kỳ cục. Sau khi sửa bộ lọc, 100 mẫu mới
+(`sample_v2.md`) còn 1 đáp án sai và 2 bài kỳ cục; đã đọc lại cả 3 và chúng đúng là như vậy, lỗi đáp án sai đã được
+chặn. **Không có số đo trên bản cuối cùng,** và 100 mẫu còn quá ít: 1/100 vẫn có thể ứng với tỷ lệ thật tới khoảng 5%.
+Trong lần rà sau, agent dựa nhiều vào script, nên chưa chắc đã tự giải từng bài. Chưa có người rà; cần một mẫu do người
+đọc trước khi dùng cho kết quả cuối. Đổi số có thể tạo bài toán kỳ cục về nghĩa dù phép tính vẫn đúng, cần ghi trong bài.
 
 ## Chỉ số
 
@@ -131,7 +132,8 @@ gì. Phải đếm riêng các dòng rỗng nghĩa này.
 | Chế độ | Mô hình | Prompt |
 | --- | --- | --- |
 | `tuned`, `tuned_cf` | Có adapter, thường và có phản thực | Chỉ câu hỏi |
-| `base_instructed` | Gốc | Mô tả định dạng và một ví dụ |
+| `base_instructed` | Gốc | Mô tả định dạng và một ví dụ. Trên 20 câu, không viết đúng định dạng câu nào |
+| `base_prefill` | Gốc | Như trên, và ép suy nghĩ bắt đầu bằng `Step 1:`. Là mốc prompt mạnh nhất |
 | `base_tool`, `tuned_tool` | Gốc hoặc có adapter | Như chế độ tương ứng, nhưng runtime tính kết quả mỗi dòng `Calc`. Thời gian không so được vì mỗi lần gọi phải chạy lại prompt; so bằng token |
 | `base_showcalc` | Gốc | Yêu cầu viết mọi phép tính, tắt thinking |
 | `base_native` | Gốc | Chỉ câu hỏi, suy nghĩ tự do |
@@ -149,8 +151,38 @@ Làm từ rẻ đến đắt. Chốt ngưỡng trước khi chạy. Không đổ
 | **0. Học được định dạng** | 11/2026 | Trên dev, `format_valid` của `tuned` ≥ 90% | Xem lại định dạng hoặc dữ liệu |
 | **1. Có khoảng trống** | 11/2026 | `base_instructed` theo `Calc` bị sửa < 95% trên mọi vết can thiệp được | Bỏ RQ2, chuyển trọng tâm sang RQ3 |
 | **2. Có chỗ đứng** | 11/2026 | Khảo sát hệ thống không thấy bài đã làm RQ1 | Đổi câu hỏi trước khi tốn thêm công |
-| **3. Bộ đủ khó** | 12/2026 | Trên bộ khó, `base_showcalc` và `base_pal` đều ≤ 90% | Đổi bộ đánh giá |
+| **3a. Độ phủ của MATH** | 11/2026 | Trên lời giải mẫu mức 3 đến 5 của phần train, ít nhất 50% bài có từ 2 đẳng thức kiểm được trở lên và đáp án trùng vế phải của một đẳng thức trong đó. Ngưỡng ghi ngày 2026-11-02, trước khi đo | Quay lại GSM-Symbolic hoặc đổi câu hỏi |
+| **3b. Bộ đủ khó** | 12/2026 | Trên dev-khó, `base_showcalc` và `base_pal` đều ≤ 90% | Đổi bộ đánh giá |
 | **4. Có tín hiệu** | 1/2027 | Trên dev-khó, kiểm tra bắt ≥ 50% câu sai, báo nhầm ≤ 20%, ở ít nhất một điều kiện | Bỏ mục tiêu Q1, viết hướng tiếng Việt hoặc báo cáo trung thực |
+
+**Kết quả cổng 0 và 1 trên 100 câu dev GSM8K, 2026-11-03** ([chi tiết](../audit/gate1_dev100_20261103/README.md)):
+
+- **Cổng 0, chưa đạt:** adapter thử 200 vòng đạt `format_valid` 70%, so với ngưỡng 90%. Chưa có mô hình cuối.
+- **Cổng 1 không đo được đúng như đã ghi:** `base_instructed` không viết dòng `Calc` nào, nên dùng `base_prefill` thay thế. Theo chuẩn chặt 45/53 (85%) đổi theo, nên qua trên giấy; nhưng 8 ca còn lại đọc tay đều là đáp án đã đổi rồi được làm tròn, và 0/53 giữ đáp án cũ. **Vì vậy không coi là có khoảng trống trên GSM8K.** Nhãn làm tròn được thêm sau khi xem kết quả, phải nêu rõ.
+- **Chưa quyết định bỏ RQ2:** GSM8K dễ, và mới có adapter 200 vòng. Chờ số trên MATH.
+
+**Ngưỡng RQ2 trên MATH, người làm nghiên cứu chốt ngày 2026-11-03, trước khi có kết quả can thiệp.** Lúc chốt, lượt đo
+`base_prefill` trên 100 câu dev MATH mới chạy được 86 câu, chưa ai đọc đầu ra, và chưa chạy can thiệp. Ngưỡng do chúng
+tôi tự đặt, đề xuất từ agent. Áp dụng cho các vết can thiệp được:
+
+- **Không theo:** giữ đáp án cũ hoặc đổi sang đáp án khác. Đổi theo rồi làm tròn vẫn tính là theo, với ngưỡng 1 đơn vị hoặc 1%.
+- **RQ2 còn hiệu lực** nếu tỷ lệ không theo từ 5% trở lên, có ít nhất 5 ca và ít nhất 30 vết đủ điều kiện.
+- **Dưới ngưỡng đó:** bỏ RQ2, chuyển trọng tâm sang RQ3.
+- **Dưới 30 vết đủ điều kiện:** ghi là chưa đo được, không tính là đạt hay không đạt.
+
+**Kết quả cổng 3a, 2026-11-03: không đạt.** Độ phủ trên lời giải mẫu mức 3 đến 5 là 23,3% (1.301/5.586), so
+với ngưỡng 50%. Lần đo đầu là 21,8%; đã sửa lỗi của bộ đọc và đo lại một lần, không đổi ngưỡng. Chi tiết ở
+`audit/math_coverage_20261103/`. Đây là số đo trên lời giải do người viết, chưa phải đầu ra của mô hình, và bộ đọc
+bỏ qua phần nó không chắc, nên là cận dưới. Tuy vậy, ước lượng với bộ đọc hoàn hảo chỉ khoảng 42%, nên sửa bộ đọc khó
+vượt ngưỡng: giới hạn nằm nhiều ở chính lời giải MATH.
+
+**Hướng xử lý, người làm nghiên cứu chọn ngày 2026-11-03: dùng tập con kiểm được.** Đây là thay đổi thiết kế sau khi
+cổng không đạt, **phải ghi rõ trong bài**. Tập con chọn bằng code từ lời giải mẫu, không dựa vào đầu ra mô hình, nhưng
+nó không đại diện cho toàn bộ MATH, và kết quả không được khái quát ra ngoài tập con: precalculus 9,3% xuống 4,8%,
+intermediate algebra 19,2% xuống 13,5%, counting 10,8% lên 15,8%, prealgebra 13,4% lên 17,8%. Độ chính xác vẫn báo trên
+MATH-500 đầy đủ.
+
+**Luật đọc cổng 3b, ghi ngày 2026-11-03, trước khi có số của `base_showcalc` và `base_pal`:** trên 100 câu đầu của dev-khó, qua cổng nếu cả hai chế độ đúng ≤ 84/100 (cận trên Wilson 95% dưới 90%). Nếu có chế độ đúng trên 84/100 thì chạy đủ 500 câu và áp ngưỡng gốc ≤ 90%. Lúc ghi luật đã thấy một phần kết quả của `base_prefill`, chế độ không tính cho cổng này.
 
 ## Cỡ mẫu và thời gian máy
 
@@ -170,11 +202,27 @@ giờ. Lượt đo cũ sinh khoảng 10 token/giây, nên 1.000 câu với 5 ch�
 
 ## Dữ liệu kiểm tra cuối
 
-Ứng viên đầu là [GSM-Symbolic](https://github.com/apple/ml-gsm-symbolic): có sẵn dữ liệu; điều khoản
-không thấy cấm nghiên cứu nhưng cần đọc kỹ. Nó sinh từ tập test GSM8K, nên dùng nó là nới quy tắc
-hiện tại và **phải có quyết định của người làm nghiên cứu, ghi rõ trong bài**.
-[GSM-Plus](https://arxiv.org/abs/2402.19255) không khai báo giấy phép khi kiểm tra ngày 2026-11-02.
-Qwen có thể đã thấy GSM8K khi huấn luyện.
+**Đã chọn MATH làm bộ khó chính (quyết định 2026-11-02),** vì là chuẩn của ngành và không đụng tập test
+GSM8K.
+
+| Vai trò | Bộ dữ liệu | Ghi chú |
+| --- | --- | --- |
+| Dev-khó | 500 bài trong tập con kiểm được của phần train MATH mức 3 đến 5 (1.301 bài), `python -m structured_llm.math_data` | Chia bằng xếp hạng SHA-256. Dữ liệu không commit, chỉ commit manifest |
+| Huấn luyện thêm | 801 bài còn lại của tập con | **Chưa có bước chuyển lời giải LaTeX thành vết `Step`/`Calc`** |
+| Niêm phong | Tập con cùng quy tắc từ phần test của MATH, chưa tải | Không mở trước khi chốt giao thức. MATH-500 chỉ còn khoảng 115 bài nếu lọc, nên không đủ một mình |
+| Niêm phong | [MATH-500](https://huggingface.co/datasets/HuggingFaceH4/MATH-500) đầy đủ, chỉ để báo độ chính xác | Để so được với các bài khác |
+| Niêm phong | Tập test GSM8K chính thức | Để so được với các bài khác |
+| Tùy chọn | [GSM-Symbolic](https://github.com/apple/ml-gsm-symbolic) | Sinh từ test GSM8K, chỉ dùng sau khi đã chạy tập test đó |
+
+**Đã làm cho MATH:** kiểm tra đẳng thức bằng SymPy (`math_check.py`), chấm đáp án không phải số, chọn tập con.
+**Còn phải làm:** định dạng `Calc` hiện chỉ nhận kết quả là số, nên phải mở rộng cho biểu thức; chuyển lời giải LaTeX
+thành vết để huấn luyện; đọc tay một mẫu của bộ chấm đáp án.
+
+**Giấy phép chưa rõ.** [Bản `competition_math`](https://huggingface.co/datasets/hendrycks/competition_math)
+đã bị vô hiệu hóa mà trang không nêu lý do; link tải gốc trả lỗi 403. Repo `hendrycks/math` dùng giấy phép MIT
+cho phần mềm, không nói rõ về dữ liệu. [Bài gốc](https://arxiv.org/abs/2103.03874) lập luận về quyền của MAA
+với các bài toán. Chỉ dùng để đánh giá và huấn luyện nghiên cứu, không phát hành lại dữ liệu; cần xem lại trước
+khi nộp bài. Độ chính xác của Qwen3-8B trên MATH-500 giữa các nguồn chênh lớn (khoảng 56% đến 93%), nên phải tự đo.
 
 ## Tạp chí mục tiêu
 
@@ -198,7 +246,7 @@ như tạp chí, nên chỉ chọn nếu trường chấp nhận.
 | Thời gian | Việc | Xong khi |
 | --- | --- | --- |
 | Tháng 11 | Hỏi thầy về phạm vi, tên đề tài, tiêu chuẩn Q1 và thứ tự tác giả; khảo sát hệ thống; **tự tay** chạy lại một vòng nhỏ | Qua cổng 0, 1, 2 |
-| Tháng 12 | Tinh chỉnh 2.000 vòng, có và không có phản thực, 3 seed; quyết định bộ khó | Qua cổng 3 |
+| Tháng 12 | Thêm kiểm tra SymPy; tinh chỉnh 2.000 vòng, có và không có phản thực, 3 seed; đo trên dev-khó | Qua cổng 3a, 3b |
 | Tháng 1 | Đo trên dev-khó; chốt ngưỡng và giao thức, ghi trước khi chạy | Qua cổng 4 |
 | Tháng 2 | Chạy tập niêm phong. **Đăng preprint nếu thầy đồng ý**, vì lĩnh vực đổi nhanh | Có bảng kết quả, có preprint |
 | Tháng 3, 4 | Phân tích lỗi; viết bản thảo; gói mã và dữ liệu để tái lập | Bản thảo đủ để thầy đọc |

@@ -1,0 +1,166 @@
+{
+  "gate_3a_hard_levels": {
+    "n": 5586,
+    "covered": 0.2329,
+    "two_true": 0.3414,
+    "one_true": 0.6207
+  },
+  "all_levels": {
+    "n": 7500,
+    "covered": 0.2421,
+    "two_true": 0.3397,
+    "one_true": 0.6168
+  },
+  "by_level": {
+    "Level 1": {
+      "n": 564,
+      "covered": 0.2961,
+      "two_true": 0.3404,
+      "one_true": 0.6312
+    },
+    "Level 2": {
+      "n": 1348,
+      "covered": 0.2582,
+      "two_true": 0.3331,
+      "one_true": 0.5942
+    },
+    "Level 3": {
+      "n": 1592,
+      "covered": 0.2142,
+      "two_true": 0.309,
+      "one_true": 0.5716
+    },
+    "Level 4": {
+      "n": 1690,
+      "covered": 0.2249,
+      "two_true": 0.3331,
+      "one_true": 0.6154
+    },
+    "Level 5": {
+      "n": 2304,
+      "covered": 0.2517,
+      "two_true": 0.3698,
+      "one_true": 0.6584
+    },
+    "Level ?": {
+      "n": 2,
+      "covered": 0.0,
+      "two_true": 0.0,
+      "one_true": 1.0
+    }
+  },
+  "by_subject_hard": {
+    "algebra": {
+      "n": 1226,
+      "covered": 0.2333,
+      "two_true": 0.3532,
+      "one_true": 0.6248
+    },
+    "counting_and_probability": {
+      "n": 602,
+      "covered": 0.3405,
+      "two_true": 0.412,
+      "one_true": 0.7392
+    },
+    "geometry": {
+      "n": 727,
+      "covered": 0.2834,
+      "two_true": 0.3961,
+      "one_true": 0.6988
+    },
+    "intermediate_algebra": {
+      "n": 1070,
+      "covered": 0.1636,
+      "two_true": 0.3093,
+      "one_true": 0.5617
+    },
+    "number_theory": {
+      "n": 691,
+      "covered": 0.1954,
+      "two_true": 0.3068,
+      "one_true": 0.6078
+    },
+    "prealgebra": {
+      "n": 750,
+      "covered": 0.308,
+      "two_true": 0.3853,
+      "one_true": 0.6827
+    },
+    "precalculus": {
+      "n": 520,
+      "covered": 0.1212,
+      "two_true": 0.2038,
+      "one_true": 0.4135
+    }
+  },
+  "equations": {
+    "trivial": 7170,
+    "conditional": 10481,
+    "unreadable": 16389,
+    "true": 10173,
+    "false": 58
+  },
+  "false_rate_of_decided": 0.0057,
+  "answer_readable": 0.8864,
+  "false_equations": 58,
+  "false_examples": [
+    "2j(4) = 12.",
+    "-6 = 2,",
+    "6\\ 3 = (6 + 3)(6-3)",
+    "((-3)^3)^{5/3} = (-3)^{3(5/3)}",
+    "(130-2)/1.05 = 121.91",
+    "-8(3.15) = 25.2",
+    "-8(3.14) = 25.12",
+    "10000 \\cdot 1.06^5 = \\boxed{13382}",
+    "10 = -10",
+    "50000 \\cdot 1.01^8 = 54143",
+    "1000 \\cdot 1.01^5 = 1051",
+    "\\frac{58}{900} = .06444...",
+    "1+1 = 0,",
+    "30\\cdot4 = 120^\\circ",
+    "180-120 = 60^\\circ",
+    "\\frac{360^\\circ}{60} = 60^\\circ",
+    "360^\\circ-288^\\circ = \\boxed{72}",
+    "\\cos (45 - 30) = \\frac{\\sqrt{6} + \\sqrt{2}}{4}",
+    "\\sin (30+45) = \\frac{\\sqrt{6}+\\sqrt{2}}{4}",
+    "(160-17)^\\circ = \\boxed{143}.",
+    "6-8-10 = 3-4-5",
+    "\\frac{1}{2} \\cdot 72 = 36^\\circ",
+    "\\pi(\\frac{3}{2})^24 = 9\\pi",
+    "\\pi(\\frac{6}{2})^26 = 54\\pi",
+    "3\\cdot 180^\\circ = \\boxed{540}",
+    "\\frac{2}{3}(360^\\circ) = 240",
+    "\\frac{1}{60}(360^\\circ) = 6",
+    "\\frac{1}{60}\\cdot\\frac{1}{12} (360^\\circ) = 0.5",
+    "240^\\circ-5.5^\\circ\\cdot 15 = \\boxed{157.5}",
+    "-\\frac{2}{1} = \\boxed{2}",
+    "\\frac{(-2)^2 - 6(-2) + 6}{2(-6) - 4} = -\\frac{11}{4},",
+    "\\frac{21+2}{2} = 11",
+    "162-135+90-36+15 = 338-2(135)-2(36)",
+    "338-2(135)-2(36) = 438-270-72",
+    "1/5 = \\boxed{20}",
+    "324000+28800+2880 = 355\\boxed{680}",
+    "7 \\cdot 3 = 1",
+    "180^\\circ(14-2) = \\boxed{2160}",
+    "53\\cdot\\left(\\frac{16}{5} - \\frac{9}{2}\\right) \\div \\left(\\frac{11}{4} + \\frac{5}{3}\\right) = 53\\cdot\\left(\\frac{16 \\cdot 2}{5 \\cdot 2} - \\frac{9 \\cdot 5}{2 \\cdot 5}\\right)",
+    "2(12) - 2(2) = 24\n- 4",
+    "24\n- 4 = \\boxed{20}",
+    "\\frac{15}{25} = \\boxed{60}",
+    "84 = 2^2\\cdot 3\\cdot 7\\ \\ \\ 144",
+    "\\frac{12}{60}(360^\\circ) = 72",
+    "156^\\circ-72^\\circ = \\boxed{84}",
+    "17\\pi/32\\pi = \\boxed{\\frac{17}{32}}.",
+    "\\frac{1}{12}\\times 360^\\circ = \\boxed{30}",
+    "15 = 3\n\\times 5",
+    "-100 = -12 \\cdot 9 + 11",
+    "3\\sqrt{41} = \\boxed{19.2}",
+    "\\frac{\\frac{2^{1/3}}{2^{2/3} - 1} - \\frac{1}{2^{1/3}}}{1 + \\frac{2^{1/3}}{2^{2/3} - 1} \\cdot \\frac{1}{2^{1/3}}} = \\frac{2^{2/3} - (2^{2/3} - 1)}{2^{1/3} \\cdot (2^{2/3 - 1} - 1) + 2^{1/3}}",
+    "\\frac{2^{2/3} - (2^{2/3} - 1)}{2^{1/3} \\cdot (2^{2/3 - 1} - 1) + 2^{1/3}} = \\boxed{\\frac{1}{2}}.",
+    "24 \\sin 15^\\circ + 12 \\sin 75^\\circ = 12 \\sin 45^\\circ \\cos 30^\\circ",
+    "12 \\cdot \\frac{1}{\\sqrt{2}} \\cdot \\frac{\\sqrt{3}}{2} = 12 \\sqrt{6},",
+    "\\frac{2}{\\sin \\frac{\\pi}{3}} + \\cos \\frac{\\pi}{3} = \\frac{2}{\\sqrt{3}/2} + \\frac{\\sqrt{3}}{2}",
+    "\\frac{\\cos 0 + \\cos 5 - \\cos 175 - \\cos 180}{2 \\sin 5} = \\frac{1 + \\cos 5}{\\sin 5}.",
+    "-\\sin 116^\\circ = \\sin (180^\\circ - 116^\\circ)",
+    "\\sin (180^\\circ - 116^\\circ) = -\\sin 64^\\circ."
+  ]
+}

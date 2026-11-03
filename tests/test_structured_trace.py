@@ -15,6 +15,36 @@ TRACE = (
 )
 
 
+@pytest.mark.parametrize("stated", ["0.333333...", "1.2.3", ".", "1..2"])
+def test_unusable_calc_results_are_outside_the_grammar_and_do_not_crash(stated):
+    text = f"<think>\nStep 1: A.\nCalc: 1/3={stated}\n</think>\n\nAnswer: 1"
+    result = check(text, "Q", "1")
+    assert "line_outside_grammar" in result["errors"]
+
+
+@pytest.mark.parametrize("stated", ["5", "5.", "0.5", ".5", "-5"])
+def test_usable_calc_results_parse(stated):
+    assert parse(f"<think>\nStep 1: A.\nCalc: 1+1={stated}\n</think>\n\nAnswer: 1").errors == []
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("<think>\nStep 1: A.\nCalc: 1+1=2\n\nAnswer: 2", 2.0),
+    ("<think>\nStep 1: A.\nAnswer: 2.5\n\nQuestion: A farmer has 120 apples and sells 7.", 2.5),
+    ("<think>x</think>\n\nAnswer: 3\nQuestion: What about 9?", 3.0),
+])
+def test_loose_answer_reads_answer_line_and_ignores_invented_questions(text, expected):
+    assert loose_answer(text) == expected
+
+
+def test_parse_ignores_spacing_but_not_extra_text():
+    trace = parse("<think>\nStep 1:The sum.\nCalc: 10 + 5 = 15\n</think>\n\nAnswer: 15")
+    assert trace.errors == []
+    assert trace.steps[0].text == "The sum."
+    assert trace.steps[0].calcs == [("10 + 5", "15")]
+    assert parse("<think>\nStep 1: A.\nCalc: 6 people\n</think>\n\nAnswer: 6").errors == ["line_outside_grammar"]
+    assert parse("<think>\nStep 1: A.\nCalc: 4+2 = 6 people\n</think>\n\nAnswer: 6").errors == ["line_outside_grammar"]
+
+
 def test_render_parse_round_trip():
     steps = [Step("First.", [("1+1", "2")]), Step("No calculation here.")]
     trace = parse(render(steps, "2"))
