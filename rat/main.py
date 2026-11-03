@@ -47,9 +47,6 @@ def main() -> None:
         elif cmd.lower().endswith(".pdf"):
             from rat.ui.quick_app import main as quick_pdf_main
             raise SystemExit(quick_pdf_main(sys.argv[1:]))
-        elif cmd in ("lab", "reasoning-lab"):
-            from rat.ui.reasoning_lab import main as lab_main
-            raise SystemExit(lab_main())
         elif cmd in ("astrology", "natal", "la-so"):
             from rat.os.crash_shield import install_crash_shield
             install_crash_shield()

@@ -28,7 +28,7 @@ This repository houses two interconnected efforts:
 | Path | Contents |
 | --- | --- |
 | `mini_app.py` | RAT Lite entry point (on-device search and quick lookups) |
-| `main.py` / `rat/main.py` | Full RAT desktop application entry point (unified desk, quick PDF, reasoning lab) |
+| `main.py` / `rat/main.py` | Full RAT desktop application entry point (unified desk, quick PDF) |
 | `rat/engine/` | Core engines: semantic index, app search, local translation, goal routing, QA |
 | `rat/kernel/` | OS capabilities: Spotlight finder, window management, accessibility, daemon |
 | `rat/ui/` | Qt Quick / QML interfaces for full RAT and Lite desks |
