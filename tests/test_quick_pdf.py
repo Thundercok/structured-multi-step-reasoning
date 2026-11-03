@@ -35,8 +35,10 @@ def wait_for(predicate, timeout=12):
     end = time.monotonic() + timeout
     while not predicate():
         assert time.monotonic() < end, "Timed out waiting for PDF operation"
-        QTest.qWait(10)
-    QTest.qWait(20)
+        QCoreApplication.processEvents()
+        time.sleep(0.01)
+    QCoreApplication.processEvents()
+    time.sleep(0.02)
 
 
 def find_item(root, name):
@@ -238,7 +240,8 @@ def test_compact_surface_startup_busy_and_error(app, tmp_path, monkeypatch):
     capture = os.environ.get("RAT_QUICK_CAPTURE_DIR")
 
     def screenshot(name):
-        QTest.qWait(30)
+        QCoreApplication.processEvents()
+        time.sleep(0.03)
         if capture:
             Path(capture).mkdir(parents=True, exist_ok=True)
             assert view.grabWindow().save(str(Path(capture) / name))

@@ -2,6 +2,7 @@
 import logging
 import os
 from pathlib import Path
+import threading
 logger = logging.getLogger(__name__)
 
 
@@ -128,7 +129,7 @@ def read_pdf_native(file_path: str, max_pages: int = 25, max_chars: int = 100_00
             page_str = page.string()
             if page_str and page_str.strip():
                 texts.append(f"--- Page {idx + 1} ---\n{page_str.strip()}")
-            elif ocr:
+            elif ocr and threading.current_thread() is threading.main_thread():
                 # Scanned / Image page: render high-res thumbnail & run Apple Vision OCR
                 try:
                     ns_image = page.thumbnailOfSize_forBox_(NSSize(2000, 2600), 0)
