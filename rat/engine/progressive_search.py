@@ -177,9 +177,9 @@ class ProgressiveSearch:
         )
         return intent, effective
 
-    def _search_apps(self, query: str, limit: int = 15):
-        app_matches = list(self.catalog.search(query, limit=limit))
-        seen_bundles = {a.bundle_id for a in app_matches}
+    def _search_apps(self, query: str, limit: int = 3):
+        app_matches = []
+        seen_bundles = set()
         try:
             from rat.engine.app_search import AppSearch
             if getattr(self, '_app_search', None) is None:
@@ -189,11 +189,15 @@ class ProgressiveSearch:
                 self._app_search = AppSearch.from_catalog(self.catalog, embedder_source=embed_fn)
             for res in self._app_search.search(query, limit=limit, floor=0.5):
                 if res['bundle_id'] not in seen_bundles and len(app_matches) < limit:
-                    for a in self.catalog.applications:
-                        if a.bundle_id == res['bundle_id']:
-                            app_matches.append(a)
-                            seen_bundles.add(a.bundle_id)
-                            break
+                    app_obj = res.get('app')
+                    if app_obj is None:
+                        for a in self.catalog.applications:
+                            if a.bundle_id == res['bundle_id']:
+                                app_obj = a
+                                break
+                    if app_obj is not None:
+                        app_matches.append(app_obj)
+                        seen_bundles.add(res['bundle_id'])
         except Exception as exc:
             logger.warning("App search failed: %s", exc)
         return app_matches
@@ -344,9 +348,10 @@ class ProgressiveSearch:
         if intent.action == 'open_app':
             if self.catalog is not None:
                 app_query = intent.target_app_query
-                meaning_apps = self._search_apps(app_query, limit=request.limit)
+                meaning_apps = self._search_apps(app_query, limit=3)
+                meaning_count = 0
                 for a in meaning_apps:
-                    if a.resource_id not in seen and len(hits) < request.limit:
+                    if a.resource_id not in seen and len(hits) < request.limit and meaning_count < 3:
                         hit = SearchHit(
                             a.resource_id,
                             'application',
@@ -360,6 +365,7 @@ class ProgressiveSearch:
                         )
                         hits.append(hit)
                         seen.add(a.resource_id)
+                        meaning_count += 1
             if len(hits) > 1:
                 intent = replace(
                     intent,
@@ -381,12 +387,19 @@ class ProgressiveSearch:
                 )
             return self._snapshot(request, 'semantic', hits, complete=True, errors=errors, intent=intent)
 
+        will_run_apps = (not has_file_only_filter and intent.resource_kind != 'file') and self.catalog is not None
+        if will_run_apps:
+            app_slots = min(3, max(1, request.limit - 1)) if request.limit > 1 else 0
+            file_limit = request.limit - app_slots
+        else:
+            file_limit = request.limit
+
         try:
             if callable(self.semantic):
                 for index, path in enumerate(self.semantic(request)):
                     if request.cancelled.is_set():
                         raise InterruptedError('finder_cancelled')
-                    if index >= 100 or len(hits) >= request.limit:
+                    if index >= 100 or len(hits) >= file_limit:
                         break
                     connection = self.db.get_connection()
                     connection.execute('PRAGMA busy_timeout=50')
@@ -418,16 +431,19 @@ class ProgressiveSearch:
                     if hit and hit.resource_id not in seen:
                         hits.append(hit)
                         seen.add(hit.resource_id)
+                        if len(hits) >= file_limit:
+                            break
         except InterruptedError:
             raise
         except Exception:
             errors.append('semantic_unavailable')
 
-        if (not has_file_only_filter and intent.resource_kind != 'file') and self.catalog is not None:
+        if will_run_apps:
             app_query = intent.query_terms if intent.has_structured_constraints else request.query
-            meaning_apps = self._search_apps(app_query, limit=request.limit)
+            meaning_apps = self._search_apps(app_query, limit=3)
+            meaning_count = 0
             for a in meaning_apps:
-                if a.resource_id not in seen and len(hits) < request.limit:
+                if a.resource_id not in seen and len(hits) < request.limit and meaning_count < 3:
                     hit = SearchHit(
                         a.resource_id,
                         'application',
@@ -441,6 +457,7 @@ class ProgressiveSearch:
                     )
                     hits.append(hit)
                     seen.add(a.resource_id)
+                    meaning_count += 1
         return self._snapshot(request, 'semantic', hits, complete=True, errors=errors, intent=initial.intent or intent)
 
     def snapshots(self, request):

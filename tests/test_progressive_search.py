@@ -807,5 +807,153 @@ def test_meaning_app_scoring_below_half_is_excluded(tmp_path):
         db.get_connection().close()
 
 
+def test_meaning_apps_capped_at_three_and_reserve_slots_with_many_files(tmp_path):
+    import numpy as np
+
+    known_ids = ['ru.keepcoder.telegram', 'com.vng.zalo', 'com.tinyspeck.slackmacgap', 'com.hnc.discord', 'com.apple.mobilesms']
+    apps = [
+        app_bundle(tmp_path / 'Apps', f'App_{i}', known_ids[i])
+        for i in range(5)
+    ]
+    catalog = ApplicationCatalog.scan([apps[0].parent])
+
+    files = []
+    db = Database(str(tmp_path / 'main_cap.db'))
+    db.get_connection()
+    for i in range(20):
+        f = tmp_path / f'doc_{i:02d}.txt'
+        f.write_text(f'noi dung rieng {i}')
+        files.append(f)
+        db.upsert_document(dict(
+            file_path=str(f), file_name=f.name, file_ext=f.suffix,
+            file_size=100, created_at=1, modified_at=10 + i, indexed_at=1,
+            content_text=f'noi dung rieng {i}', summary=f'doc {i}'
+        ))
+
+    class FakeEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            return np.array([[0.8, 0.0] for _ in texts], dtype=np.float32)
+
+    class FakeSemantic:
+        embedder = FakeEmbedder()
+        def __call__(self, req):
+            for f in files:
+                yield str(f)
+
+    engine = ProgressiveSearch(db.db_path, catalog=catalog, semantic=FakeSemantic())
+    try:
+        req = SearchRequest(1, 'chỉnh sửa tài liệu', limit=15)
+        snaps = engine.snapshots(req)
+        init = next(snaps)
+        fin = next(snaps)
+        assert fin.complete
+        assert len(fin.hits) == 15
+        app_hits = [h for h in fin.hits if h.kind == 'application']
+        file_hits = [h for h in fin.hits if h.kind == 'file']
+        assert len(app_hits) >= 1
+        assert len(app_hits) <= 3
+        assert len(file_hits) > 0
+        assert len(app_hits) + len(file_hits) == 15
+        assert all(h.match_reason == 'Khớp công dụng' for h in app_hits)
+    finally:
+        engine.close_connection()
+        db.get_connection().close()
+
+
+def test_meaning_apps_exactly_three_when_no_files_match(tmp_path):
+    import numpy as np
+
+    known_ids = ['ru.keepcoder.telegram', 'com.vng.zalo', 'com.tinyspeck.slackmacgap', 'com.hnc.discord', 'com.apple.mobilesms']
+    apps = [
+        app_bundle(tmp_path / 'Apps', f'ChatApp_{i}', known_ids[i])
+        for i in range(5)
+    ]
+    catalog = ApplicationCatalog.scan([apps[0].parent])
+
+    class FakeEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            return np.array([[0.8, 0.0] for _ in texts], dtype=np.float32)
+
+    class FakeEmptySemantic:
+        embedder = FakeEmbedder()
+        def __call__(self, req):
+            return ()
+
+    db = Database(str(tmp_path / 'empty_chat.db'))
+    db.get_connection()
+    engine = ProgressiveSearch(db.db_path, catalog=catalog, semantic=FakeEmptySemantic())
+    try:
+        req = SearchRequest(1, 'ứng dụng nhắn tin', limit=15)
+        snaps = engine.snapshots(req)
+        init = next(snaps)
+        fin = next(snaps)
+        assert fin.complete
+        assert len(fin.hits) == 3
+        assert all(h.kind == 'application' for h in fin.hits)
+        assert all(h.match_reason == 'Khớp công dụng' for h in fin.hits)
+    finally:
+        engine.close_connection()
+        db.get_connection().close()
+
+
+def test_file_only_filter_yields_only_files_up_to_full_limit(tmp_path):
+    import numpy as np
+
+    known_ids = ['ru.keepcoder.telegram', 'com.vng.zalo', 'com.tinyspeck.slackmacgap', 'com.hnc.discord', 'com.apple.mobilesms']
+    apps = [
+        app_bundle(tmp_path / 'Apps', f'PDFApp_{i}', known_ids[i])
+        for i in range(5)
+    ]
+    catalog = ApplicationCatalog.scan([apps[0].parent])
+
+    files = []
+    db = Database(str(tmp_path / 'pdf_filter.db'))
+    db.get_connection()
+    for i in range(20):
+        f = tmp_path / f'doc_{i:02d}.pdf'
+        f.write_text(f'noi dung rieng {i}')
+        files.append(f)
+        db.upsert_document(dict(
+            file_path=str(f), file_name=f.name, file_ext='.pdf',
+            file_size=100, created_at=1, modified_at=10 + i, indexed_at=1,
+            content_text=f'noi dung rieng {i}', summary=f'doc {i}'
+        ))
+
+    class FakeEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            return np.array([[0.8, 0.0] for _ in texts], dtype=np.float32)
+
+    class FakeSemantic:
+        embedder = FakeEmbedder()
+        def __call__(self, req):
+            for f in files:
+                yield str(f)
+
+    engine = ProgressiveSearch(db.db_path, catalog=catalog, semantic=FakeSemantic())
+    try:
+        # File-only filter: .pdf with search term 'kế hoạch' that requires semantic search
+        req = SearchRequest(1, 'kế hoạch .pdf', limit=15)
+        snaps = engine.snapshots(req)
+        init = next(snaps)
+        fin = next(snaps)
+        assert fin.complete
+        assert len(fin.hits) == 15
+        assert all(h.kind == 'file' for h in fin.hits)
+        assert not any(h.kind == 'application' for h in fin.hits)
+    finally:
+        engine.close_connection()
+        db.get_connection().close()
+        db.get_connection().close()
+
+
 
 
