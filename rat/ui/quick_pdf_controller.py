@@ -23,6 +23,7 @@ from PyQt6.QtGui import QDesktopServices, QGuiApplication
 from rat.config import config
 from rat.engine.app_resolver import ApplicationCatalog, revalidate_application_bundle
 from rat.engine.finder_intent import parse_finder_intent
+from rat.engine.goal_routing import FIND, OPEN
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
 from rat.engine.semantic_index import shared_index
 from rat.engine.semantic_reranker import SemanticFuzzyReranker
@@ -115,10 +116,10 @@ def describe_execution_error(err: Any) -> str:
 
 QUESTION_WORDS = {
     # English question starters
-    "what", "why", "how", "who", "whom", "whose", "where", "when", "which",
-    "is", "are", "was", "were", "can", "could", "would", "should", "do", "does", "did",
+    "what", "why", "how", "whom", "whose", "where", "when", "which",
+    "is", "are", "was", "were", "could", "would", "should", "does", "did",
     # Vietnamese single-word question starters
-    "ai", "gì", "nào", "sao", "đâu", "mấy",
+    "gì", "nào", "đâu", "mấy",
 }
 
 QUESTION_PREFIXES = (
@@ -126,7 +127,16 @@ QUESTION_PREFIXES = (
     "tại sao", "vì sao", "thế nào", "làm sao", "làm thế nào",
     "ở đâu", "khi nào", "bao giờ", "bao nhiêu", "có phải",
     "liệu", "hãy", "hỏi", "giải thích", "tóm tắt", "cho mình", "cho tôi",
+    # These words also begin ordinary searches ("AI ethics report", "sao chép file",
+    # "do an tot nghiep", "can thiep"), so they count only in a question shape.
+    "ai là", "ai đã", "ai có", "ai viết", "ai đang", "sao lại", "sao không", "sao vẫn",
+    "do you", "do i", "do we", "can you", "can i", "can we", "who is", "who are", "who wrote",
+    # Instructions for the assistant rather than things to find.
+    "xin chào", "chào chuột", "viết", "tính", "so sánh", "dịch",
+    "explain", "summarize", "compare", "translate", "write",
 )
+
+ARITHMETIC = re.compile(r"(?=.*\d)(?=.*[+\-*/%^×÷=])[\d\s.,+\-*/%^×÷=()]+")
 
 
 def is_question_query(text: str) -> bool:
@@ -137,6 +147,10 @@ def is_question_query(text: str) -> bool:
     if q.endswith(("?", "？")):
         return True
     words = q.split()
+    if FIND.match(q) or (OPEN.match(q) and len(words) <= 6):
+        return False
+    if ARITHMETIC.fullmatch(q):
+        return True
     if len(words) > 8:
         return True
     first_word = words[0].strip(".,!?:;\"'()[]{}«»“”").lower()

@@ -1027,6 +1027,24 @@ def test_is_question_query_rules():
     assert is_question_query("airdrop tệp tin") is False
     assert is_question_query("whatnot document") is False
 
+    # Words that also begin ordinary searches only count in a question shape
+    for search in ("AI ethics report", "sao chép file", "do an tot nghiep", "can thiep rq2", "WHO report"):
+        assert is_question_query(search) is False, search
+    for question in ("do you know this", "sao không chạy", "who wrote this"):
+        assert is_question_query(question) is True, question
+
+    # Instructions for the assistant are never treated as searches
+    for instruction in ("xin chào", "viết email xin nghỉ", "tính 12*7+3", "12*7+3", "so sánh hai file",
+                        "dịch đoạn này", "explain this", "summarize the paper"):
+        assert is_question_query(instruction) is True, instruction
+
+    # An explicit find or open wins over the polite prefix and the length rule
+    for search in ("hãy tìm file hợp đồng", "hãy mở word", "tìm file hợp đồng thuê nhà mà tôi ký năm ngoái với chủ trọ"):
+        assert is_question_query(search) is False, search
+    assert is_question_query("Mở đầu bài báo trình bày phương pháp mới cho bài toán dịch máy") is True
+    assert is_question_query("tìm file nào?") is True
+    assert is_question_query("báo cáo 2024-2025") is False
+
 
 def test_controller_handle_composer_return_open_hit_vs_question_vs_nohits(tmp_path):
     app = QGuiApplication.instance() or QGuiApplication([])
