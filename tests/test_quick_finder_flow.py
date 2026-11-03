@@ -33,6 +33,16 @@ def _process_events(ms: int = 150):
         time.sleep(0.005)
 
 
+def _dispose(view, controller):
+    """Destroy now: a view left for the garbage collector crashes Qt's animation timer in the next test."""
+    view.close()
+    controller.close()
+    view.deleteLater()
+    controller.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    QGuiApplication.processEvents()
+
+
 class RecordingBackend:
     hidden_size = 2
 
@@ -408,8 +418,7 @@ def test_quick_finder_qml_real_surface(finder_fixture):
     _process_events(150)
     assert controller.snapshot["view"] == "none"
 
-    view.close()
-    controller.close()
+    _dispose(view, controller)
 
 
 def test_quick_finder_keyboard_navigation_and_actions(finder_fixture):
@@ -475,8 +484,7 @@ def test_quick_finder_keyboard_navigation_and_actions(finder_fixture):
     assert len(opened_urls) == 1
     assert "Calculator.app" in opened_urls[0].toString()
 
-    view.close()
-    controller.close()
+    _dispose(view, controller)
 
 
 def test_quick_finder_reveal_and_preview_actions(finder_fixture):
@@ -596,8 +604,7 @@ def test_quick_finder_spotlight_sections_and_action_bar(finder_fixture):
     _process_events(50)
     assert not context_chip.isVisible()
 
-    view.close()
-    controller.close()
+    _dispose(view, controller)
 
 
 def test_app_action_button_keyboard_activation_restores_draft(finder_fixture):
