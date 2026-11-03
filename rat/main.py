@@ -165,9 +165,8 @@ def main() -> None:
             cli_main()
             return
 
-    # Primary unified entry point: summon unified RAT Qt Quick Desk
-    from rat.ui.quick_app import main as quick_main
-    raise SystemExit(quick_main(sys.argv[1:]))
+    # Primary unified entry point: run the resident app (menu bar, global hotkey, desk)
+    run_resident_app(mode="desk")
 
 
 if __name__ == "__main__":

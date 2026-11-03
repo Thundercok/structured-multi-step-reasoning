@@ -83,9 +83,16 @@ python mini_app.py --check-bundle
 # Launch RAT Lite (On-device Quick Search & Lookups)
 python mini_app.py
 
-# Launch Full RAT Desktop Application
+# Launch Full RAT Desktop Application (Resident App)
 python -m rat.main
-# or in Quick PDF mode:
+# Runs as a resident macOS app with top menu bar icon, single-instance enforcement,
+# and hide-on-close window behavior (closing the window hides rather than quits).
+# Global shortcuts (Carbon-based, no macOS Accessibility permissions required):
+#   - ⌃⌥Space (Control+Option+Space): Toggle RAT Desk (show / hide).
+#   - ⌥⇧R (Option+Shift+R): Summon RAT Desk & run QuickLook Selection (translate/explain).
+# (RAT Lite shortcut remains ⌥⇧Space / Option+Shift+Space).
+
+# Or run in standalone Quick PDF mode:
 python -m rat.main quick-pdf
 
 # Run RAT test suites

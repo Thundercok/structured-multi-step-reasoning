@@ -67,6 +67,7 @@ class ResidentApplication(QObject):
     open_schedule_signal = pyqtSignal()
     open_widget_signal = pyqtSignal()
     open_natal_signal = pyqtSignal()
+    quicklook_signal = pyqtSignal()
 
     def __init__(self, mode: str = "all", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
         install_crash_shield()
@@ -107,6 +108,7 @@ class ResidentApplication(QObject):
         self.open_schedule_signal.connect(self._do_open_schedule, Qt.ConnectionType.QueuedConnection)
         self.open_widget_signal.connect(self._do_open_widget, Qt.ConnectionType.QueuedConnection)
         self.open_natal_signal.connect(self._do_open_natal, Qt.ConnectionType.QueuedConnection)
+        self.quicklook_signal.connect(self._do_quicklook_selection, Qt.ConnectionType.QueuedConnection)
         self.app.aboutToQuit.connect(self._on_app_quit)
         self.app.installEventFilter(self)
 
@@ -119,6 +121,12 @@ class ResidentApplication(QObject):
         return self._shutdown_state != "idle"
 
     def eventFilter(self, watched, event):
+        if watched is getattr(self, "desk_view", None) and event.type() == QEvent.Type.Close:
+            if not self.is_quitting:
+                event.ignore()
+                if self.desk_view:
+                    self.desk_view.hide()
+                return True
         if watched is self.app and event.type() == QEvent.Type.Quit and self._shutdown_state != "terminated":
             self.request_quit()
             return True
@@ -164,6 +172,8 @@ class ResidentApplication(QObject):
             self.desk_view, self.desk_controller = create_quick_desk(
                 quit_on_close=False,
             )
+            if self.desk_view is not None:
+                self.desk_view.installEventFilter(self)
         return self.desk_view, self.desk_controller
 
     def request_quit(self, timeout: float = 3.0, on_finished: Optional[Any] = None) -> None:
@@ -422,6 +432,28 @@ class ResidentApplication(QObject):
     def open_natal(self) -> None:
         self.open_natal_signal.emit()
 
+    def trigger_quicklook(self) -> None:
+        """Thread-safe trigger for quickLookSelection."""
+        self.quicklook_signal.emit()
+
+    @pyqtSlot()
+    def _do_quicklook_selection(self) -> None:
+        """Summon unified QtQuick Desk and run quickLookSelection."""
+        if self.is_quitting:
+            return
+        try:
+            view, controller = self._ensure_desk()
+            if view is None:
+                return
+            view.show()
+            view.raise_()
+            view.requestActivate()
+            activate_macos_app()
+            if controller is not None and hasattr(controller, "quickLookSelection"):
+                controller.quickLookSelection()
+        except Exception as e:
+            logger.error(f"Error triggering quickLookSelection on RAT Desk: {e}", exc_info=True)
+
     @pyqtSlot()
     def _do_open_natal(self) -> None:
         """Open Tarot / Reading view on the unified QtQuick Desk."""
@@ -604,6 +636,8 @@ class ResidentApplication(QObject):
             self.open_widget()
         elif cmd in ("astrology", "natal", "la-so", "reading"):
             self.open_natal()
+        elif cmd in ("quicklook", "selection"):
+            self.trigger_quicklook()
         else:
             self.toggle_spotlight()
 
@@ -616,8 +650,11 @@ class ResidentApplication(QObject):
         self.single_instance_server.command_received.connect(self._on_single_instance_command)
         self.single_instance_server.start()
 
-        # 1. Start Global Hotkey Manager IMMEDIATELY
-        self.hotkey_manager = GlobalHotkeyManager(on_trigger=self.toggle_spotlight)
+        # 1. Start Global Hotkey Manager with Carbon backend (no Accessibility permissions needed)
+        self.hotkey_manager = GlobalHotkeyManager(
+            on_trigger=self.toggle_spotlight,
+            on_quicklook=self.trigger_quicklook,
+        )
         self.hotkey_manager.start()
 
         # 2. Start System Tray (Menu Bar resident item)
@@ -631,18 +668,6 @@ class ResidentApplication(QObject):
             on_quit=self.request_quit,
         )
         self.tray_manager.tray_icon.show()
-
-        from rat.os.hotkey import is_accessibility_trusted
-        if not is_accessibility_trusted():
-            QTimer.singleShot(
-                1200,
-                lambda: self.tray_manager.tray_icon.showMessage(
-                    "RAT — Phím tắt toàn cầu (Global Hotkey)",
-                    "Để dùng phím tắt ⌘ ⇧ Space trên mọi app, hãy click icon RAT trên Menu Bar và chọn 'Cấp quyền Phím tắt (Accessibility)'.",
-                    self.tray_manager.tray_icon.MessageIcon.Information,
-                    6000,
-                )
-            )
 
         # 3. Start Background Watcher (FSEvents realtime indexing) asynchronously
         if config.auto_watch:

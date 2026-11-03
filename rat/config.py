@@ -108,7 +108,8 @@ class Config:
         self.use_slm: bool = True
         self.auto_watch: bool = True
         self.max_results: int = 15
-        self.global_hotkey: str = os.getenv("RAT_HOTKEY", "<cmd>+<shift>+<space>")
+        self.global_hotkey: str = os.getenv("RAT_HOTKEY", "control_option_space")
+        self.quicklook_hotkey: str = os.getenv("RAT_QUICKLOOK_HOTKEY", "option_shift_r")
         self.first_run_completed: bool = False
         self.launch_at_login: bool = False
         self.memory_sentinel_enabled: bool = True
@@ -126,6 +127,14 @@ class Config:
     def get_hotkey_display(self) -> str:
         """Return native macOS symbols representation for global_hotkey."""
         key = self.global_hotkey
+        if key in ("control_option_space", "^~space"):
+            return "⌃⌥Space"
+        if key in ("control_shift_space", "^$space"):
+            return "⌃⇧Space"
+        if key in ("option_shift_r", "~$r"):
+            return "⌥⇧R"
+        if key in ("option_shift_space", "~$space"):
+            return "⌥⇧Space"
         key = key.replace("<alt>", "⌥").replace("<option>", "⌥")
         key = key.replace("<shift>", "⇧")
         key = key.replace("<cmd>", "⌘").replace("<super>", "⌘")
@@ -134,6 +143,17 @@ class Config:
         key = key.replace("<", "").replace(">", "")
         parts = [p.strip().capitalize() if p.strip() not in ["⌥", "⇧", "⌘", "⌃"] else p.strip() for p in key.split("+")]
         return " + ".join(parts)
+
+    def get_quicklook_hotkey_display(self) -> str:
+        """Return native macOS symbols representation for quicklook_hotkey."""
+        key = getattr(self, "quicklook_hotkey", "option_shift_r")
+        if key in ("option_shift_r", "~$r"):
+            return "⌥⇧R"
+        if key in ("control_shift_space", "^$space"):
+            return "⌃⇧Space"
+        if key in ("option_shift_space", "~$space"):
+            return "⌥⇧Space"
+        return key
 
     def load(self) -> None:
         """Load settings from config.json if exists."""
