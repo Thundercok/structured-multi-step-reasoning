@@ -67,23 +67,6 @@ def test_index_does_not_start_while_query_is_active(tmp_path):
     index._thread.join(timeout=5)
 
 
-def test_controller_panel_open_throttles_indexing(tmp_path, monkeypatch):
-    from rat.ui.mini_quick_controller import MiniQuickController
-    from rat.engine.mini_settings import DEFAULTS
-
-    monkeypatch.setenv("RAT_MINI_STATE_DIR", str(tmp_path / "state"))
-    root = tmp_path / "files"
-    root.mkdir()
-
-    controller = MiniQuickController(dict(DEFAULTS, roots=[str(root)]))
-    # First panel_open starts indexing
-    started = controller.start_indexing(reason='panel_open')
-    assert started is True
-
-    # Immediate second panel_open is throttled (cheap identity, avoids thrashing)
-    second = controller.start_indexing(reason='panel_open')
-    assert second is False
-
 
 def _wait_idle(index):
     import time
@@ -111,22 +94,3 @@ def test_ocr_pass_reads_scanned_pdfs_once(tmp_path, monkeypatch):
     assert len(texts) == 2 and 'Giải tích' in texts[1]
     index.start([root]); _wait_idle(index)
     assert calls == [False, True]
-
-
-def test_startup_indexing_retries_while_a_job_is_running(tmp_path, monkeypatch):
-    monkeypatch.setenv('RAT_MINI_STATE_DIR', str(tmp_path))
-    from PyQt6.QtCore import QCoreApplication, QTimer
-    from rat.engine.mini_settings import DEFAULTS
-    from rat.ui.mini_quick_controller import MiniQuickController
-    app = QCoreApplication.instance() or QCoreApplication([])
-    controller = MiniQuickController(dict(DEFAULTS, roots=[]))
-    scheduled = []
-    monkeypatch.setattr(QTimer, 'singleShot', lambda ms, fn: scheduled.append(ms))
-    controller.job = object()
-    assert controller.start_indexing() is False
-    assert scheduled == [2000]
-    scheduled.clear()
-    assert controller.start_indexing(reason='panel_open') is False
-    assert scheduled == []
-    controller.job = None
-

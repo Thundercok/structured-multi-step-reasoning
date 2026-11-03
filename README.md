@@ -1,8 +1,10 @@
 # Structured-thinking LLM & RAT Desktop Reasoning
 
-This repository houses two interconnected efforts:
+This repository holds one research project and the desktop app that will run its model:
 1. **`structured_llm` (Research)**: Student research (NCKH) fine-tuning Qwen3-8B on Apple Silicon so its intermediate thinking follows verifiable structures (`<think>`, `Step`, `Calc`), and testing causal dependency via counterfactual interventions.
-2. **`rat` (Apps)**: Desktop reasoning shell and on-device assistant (RAT and RAT Lite) providing smart semantic file search, app launching, zero-cloud translation, and local PDF reading on macOS.
+2. **`rat` (Agent harness and app)**: Desktop agent runtime with tools, contracts and verification, plus semantic file search, app launching, translation and PDF reading on macOS. It does not load the fine-tuned model yet.
+
+Research never imports RAT. `tests/test_repo_boundaries.py` enforces that boundary so the two can still be split later.
 
 ---
 
@@ -23,15 +25,14 @@ This repository houses two interconnected efforts:
 | `data/gsm8k_development*/` | Prior development questions excluded from new splits |
 | `docs/research_plan.md` | Research plan, experimental design, and progress status |
 
-### 2. Applications: RAT Desktop & RAT Lite (`rat`)
+### 2. Agent harness and app (`rat`)
 
 | Path | Contents |
 | --- | --- |
-| `mini_app.py` | RAT Lite entry point (on-device search and quick lookups) |
-| `main.py` / `rat/main.py` | Full RAT desktop application entry point (unified desk, quick PDF) |
-| `rat/engine/` | Core engines: semantic index, app search, local translation, goal routing, QA |
+| `main.py` / `rat/main.py` | RAT desktop application entry point (unified desk, quick PDF) |
+| `rat/engine/` | Agent runtime, verification, semantic index, app search, local translation, goal routing, QA |
 | `rat/kernel/` | OS capabilities: Spotlight finder, window management, accessibility, daemon |
-| `rat/ui/` | Qt Quick / QML interfaces for full RAT and Lite desks |
+| `rat/ui/` | Qt Quick / QML interfaces |
 | `document_intake/` | Local document parsing and OCR extraction |
 | `tools/` | Bundle preparation and offline model conversion tools |
 
@@ -47,7 +48,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-#### RAT Desktop & RAT Lite (`rat`)
+#### RAT (`rat`)
 To install full dependencies for the desktop reasoning shell, PDF reader, and meaning search (including fastembed):
 ```bash
 python3 -m venv .venv
@@ -58,7 +59,7 @@ python3 -m venv .venv
 
 ```bash
 # Run research test suite
-.venv/bin/python -m pytest tests/test_structured_trace.py tests/test_counterfactual.py -q
+.venv/bin/python -m pytest tests/test_analyze.py tests/test_counterfactual.py tests/test_math_check.py tests/test_math_data.py tests/test_structured_trace.py -q
 
 # Prepare data and splits
 .venv/bin/python -m structured_llm.gsm8k
@@ -74,29 +75,22 @@ structured_llm/train.sh adapters/first 200
 .venv/bin/python -m structured_llm.intervene --run audit/first --adapter adapters/first
 ```
 
-### Running RAT & RAT Lite (`rat`)
+### Running RAT (`rat`)
 
 ```bash
-# Verify offline bundles and on-device readiness
-python mini_app.py --check-bundle
-
-# Launch RAT Lite (On-device Quick Search & Lookups)
-python mini_app.py
-
-# Launch Full RAT Desktop Application (Resident App)
+# Launch the RAT desktop application (resident app)
 python -m rat.main
 # Runs as a resident macOS app with top menu bar icon, single-instance enforcement,
 # and hide-on-close window behavior (closing the window hides rather than quits).
 # Global shortcuts (Carbon-based, no macOS Accessibility permissions required):
 #   - ⌃⌥Space (Control+Option+Space): Toggle RAT Desk (show / hide).
 #   - ⌥⇧R (Option+Shift+R): Summon RAT Desk & run QuickLook Selection (translate/explain).
-# (RAT Lite shortcut remains ⌥⇧Space / Option+Shift+Space).
 
 # Or run in standalone Quick PDF mode:
 python -m rat.main quick-pdf
 
 # Run RAT test suites
-pytest tests/test_rat_mini*.py tests/test_quick_pdf.py tests/test_goal_routing.py
+pytest tests/test_quick_pdf.py tests/test_goal_routing.py
 ```
 
 ---
@@ -104,5 +98,6 @@ pytest tests/test_rat_mini*.py tests/test_quick_pdf.py tests/test_goal_routing.p
 ## Notes & History
 
 - Earlier controller code is preserved at git tag `pre-rebuild-20261102`.
-- RAT and RAT Lite were restored to `main` on 2026-11-03 alongside the research code under tag `rat-lite-0.6.0`.
+- RAT was restored to `main` on 2026-11-03 alongside the research code.
+- RAT Lite moved to [offline-tool-routing-agent](https://github.com/Thundercok/offline-tool-routing-agent) on 2026-11-03. Its last working source here is tag `rat-lite-0.6.0`.
 - The research plan is documented in [docs/research_plan.md](docs/research_plan.md).
