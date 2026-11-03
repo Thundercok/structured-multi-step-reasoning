@@ -41,9 +41,17 @@ This repository houses two interconnected efforts:
 
 ### Setup Environment
 
+#### Research (`structured_llm`)
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
+```
+
+#### RAT Desktop & RAT Lite (`rat`)
+To install full dependencies for the desktop reasoning shell, PDF reader, and meaning search (including fastembed):
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-mini.txt fastembed watchdog
 ```
 
 ### Running Research (`structured_llm`)
