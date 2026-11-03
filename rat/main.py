@@ -162,6 +162,11 @@ def main() -> None:
             cli_main()
             return
 
+    # Flags such as --document and --dark belong to the one-window desk, like an explicit PDF path.
+    if len(sys.argv) > 1:
+        from rat.ui.quick_app import main as quick_main
+        raise SystemExit(quick_main(sys.argv[1:]))
+
     # Primary unified entry point: run the resident app (menu bar, global hotkey, desk)
     run_resident_app(mode="desk")
 

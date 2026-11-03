@@ -38,6 +38,24 @@ def test_main_default_launches_resident_app(monkeypatch):
     mock_run_resident.assert_called_once_with(mode="desk")
 
 
+@pytest.mark.parametrize("flags", [["--document", "paper.pdf"], ["--dark"], ["--reduced-motion"]])
+def test_main_flags_reach_the_one_window_desk(monkeypatch, flags):
+    """Desk flags must not be dropped by the resident default."""
+    import rat.main as main_mod
+    import rat.ui.quick_app as quick_app
+
+    mock_run_resident = Mock()
+    mock_quick = Mock(return_value=0)
+    monkeypatch.setattr(main_mod, "run_resident_app", mock_run_resident)
+    monkeypatch.setattr(quick_app, "main", mock_quick)
+    monkeypatch.setattr(sys, "argv", ["rat.main", *flags])
+
+    with pytest.raises(SystemExit):
+        main_mod.main()
+    mock_quick.assert_called_once_with(flags)
+    mock_run_resident.assert_not_called()
+
+
 def test_hotkey_display_symbols():
     """Verify macOS symbols for the default chords."""
     cfg = config
