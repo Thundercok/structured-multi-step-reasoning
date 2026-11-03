@@ -986,3 +986,336 @@ def test_dismiss_finder_restores_cancelled_or_empty_answer_state():
     finally:
         controller.close()
 
+
+def test_is_question_query_rules():
+    from rat.ui.quick_pdf_controller import is_question_query
+
+    # Ends with ?
+    assert is_question_query("file nào?") is True
+    assert is_question_query("báo cáo？") is True
+
+    # More than 8 words
+    assert is_question_query("đây là một câu hỏi rất dài có hơn tám từ ở đây") is True  # 12 words
+    assert is_question_query("quy chế đào tạo đại học năm 2024") is False  # 7 words
+
+    # Starts with question words (EN & VN)
+    assert is_question_query("what is the file") is True
+    assert is_question_query("how to open") is True
+    assert is_question_query("why is it failing") is True
+    assert is_question_query("who is author") is True
+    assert is_question_query("can you read") is True
+    assert is_question_query("is there a file") is True
+    assert is_question_query("ai là tác giả") is True
+    assert is_question_query("gì đây") is True
+    assert is_question_query("nào tốt hơn") is True
+    assert is_question_query("sao lại thế") is True
+    assert is_question_query("tại sao không chạy") is True
+    assert is_question_query("vì sao thế này") is True
+    assert is_question_query("thế nào là hợp lệ") is True
+    assert is_question_query("làm sao mở tệp") is True
+    assert is_question_query("ở đâu có tài liệu") is True
+    assert is_question_query("khi nào họp") is True
+    assert is_question_query("bao nhiêu trang") is True
+    assert is_question_query("có phải đây là file") is True
+    assert is_question_query("hãy tóm tắt") is True
+    assert is_question_query("hỏi về quy chế") is True
+
+    # Non-question searches
+    assert is_question_query("báo cáo tài chính") is False
+    assert is_question_query("app chỉnh ảnh") is False
+    assert is_question_query("calc") is False
+    assert is_question_query("airdrop tệp tin") is False
+    assert is_question_query("whatnot document") is False
+
+
+def test_controller_handle_composer_return_open_hit_vs_question_vs_nohits(tmp_path):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened = []
+    submitted = []
+    controller = QuickPDFController(
+        auto_init_finder=False,
+        open_url=lambda url: opened.append(url) or True,
+    )
+    controller.ready()
+    try:
+        controller.submit = lambda q, origin="": submitted.append(q) or True
+
+        f1 = tmp_path / "BC_2024.pdf"
+        f1.touch()
+        f2 = tmp_path / "BC_2023.pdf"
+        f2.touch()
+
+        # 1. Non-question with hits -> opens first hit when selected_index = -1
+        controller._finder_query = "báo cáo tài chính"
+        controller._finder_hits = [
+            {"kind": "file", "title": "BC_2024.pdf", "path": str(f1), "is_pdf": False},
+            {"kind": "file", "title": "BC_2023.pdf", "path": str(f2), "is_pdf": False},
+        ]
+        controller._view = "finder"
+        res = controller.handleComposerReturn("báo cáo tài chính", selected_index=-1)
+        assert res is True
+        assert len(opened) == 1
+        assert "BC_2024.pdf" in opened[0].toString()
+        assert len(submitted) == 0
+
+        # 2. Non-question with hits and specific selection
+        res2 = controller.handleComposerReturn("báo cáo tài chính", selected_index=1)
+        assert res2 is True
+        assert len(opened) == 2
+        assert "BC_2023.pdf" in opened[1].toString()
+
+        # 3. Question -> calls submitQuery / submit, does NOT open hit
+        res_q = controller.handleComposerReturn("tại sao có hai báo cáo?", selected_index=-1)
+        assert res_q is True
+        assert len(opened) == 2
+        assert len(submitted) == 1
+        assert submitted[0] == "tại sao có hai báo cáo?"
+
+        # 4. Non-question with 0 hits -> shows Vietnamese feedback, does NOT submit
+        controller._finder_query = "tài liệu không có"
+        controller._finder_hits = []
+        res_empty = controller.handleComposerReturn("tài liệu không có", selected_index=-1)
+        assert res_empty is True
+        assert len(opened) == 2
+        assert len(submitted) == 1  # Not incremented!
+        assert "Không tìm thấy" in controller.snapshot["status"]
+        assert "Không tìm thấy" in controller.snapshot["finderFeedback"]
+    finally:
+        controller.close()
+
+
+def test_controller_handle_composer_return_waits_for_search(tmp_path):
+    from PyQt6.QtCore import QTimer
+    from rat.engine.progressive_search import SearchHit, SearchSnapshot
+
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened = []
+    controller = QuickPDFController(
+        auto_init_finder=False,
+        open_url=lambda url: opened.append(url) or True,
+    )
+    controller.ready()
+    fake_file = tmp_path / "KetQua.txt"
+    fake_file.touch()
+    try:
+        # Simulate an in-flight search
+        controller._finder_in_flight_query = "chờ kết quả"
+        controller._finder_query = "chờ kết quả"
+        controller._finder_hits = []
+
+        # Deliver snapshot after 80ms via timer
+        def deliver():
+            hit = SearchHit(
+                resource_id="r1",
+                kind="file",
+                title="KetQua.txt",
+                path=str(fake_file),
+                origin="test",
+            )
+            snap = SearchSnapshot(
+                query_id=1,
+                query="chờ kết quả",
+                phase="initial",
+                hits=(hit,),
+                selected_id=None,
+                complete=True,
+                elapsed_ms=10.0,
+            )
+            controller._finder_delivered.emit(snap)
+
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(deliver)
+        timer.start(80)
+
+        # Calling handleComposerReturn while search is running must wait and then open the hit
+        res = controller.handleComposerReturn("chờ kết quả", selected_index=-1)
+        assert res is True
+        assert len(opened) == 1
+        assert "KetQua.txt" in opened[0].toString()
+    finally:
+        timer.stop()
+        controller.close()
+
+
+def test_qml_composer_return_key_opens_first_hit_when_unselected(finder_fixture):
+    """When hits are showing and text is not a question, Return opens hit 0 even if selectedFinderIndex == -1."""
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened_urls = []
+
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+        open_url=lambda url: opened_urls.append(url) or True,
+    )
+
+    view = QQuickView()
+    view.setInitialProperties({
+        "liveController": controller,
+        "darkMode": False,
+        "reduceMotion": True,
+    })
+    qml_path = Path(__file__).resolve().parents[1] / "rat/ui/quick/PDFDesk.qml"
+    view.setSource(QUrl.fromLocalFile(str(qml_path)))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    _process_events(100)
+
+    try:
+        root = view.rootObject()
+        editor = root.findChild(QQuickItem, "draftEditor")
+        assert editor is not None
+        editor.forceActiveFocus()
+
+        # Type "calc"
+        editor.setProperty("text", "calc")
+        _process_events(300)
+        assert controller.snapshot["view"] == "finder"
+        assert len(controller.snapshot["finderHits"]) >= 1
+
+        # selectedFinderIndex is -1 (user did NOT press Arrow Down)
+        assert root.property("selectedFinderIndex") == -1
+
+        # Check hint text for non-question: must show ↵ mở
+        status_label = root.findChild(QQuickItem, "composerDropStatus")
+        assert status_label is not None
+        assert "↵ mở" in status_label.property("text")
+
+        # Press Return directly
+        QTest.keyClick(view, Qt.Key.Key_Return)
+        _process_events(100)
+
+        # Hit 0 (Calculator) must have been opened!
+        assert len(opened_urls) == 1
+        assert "Calculator.app" in opened_urls[0].toString()
+    finally:
+        controller.close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+
+
+def test_qml_composer_return_submits_when_question(finder_fixture):
+    """When text is a question, Return asks Chuột instead of opening hits."""
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened_urls = []
+    submitted = []
+
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+        open_url=lambda url: opened_urls.append(url) or True,
+    )
+    controller.submit = lambda q, origin="": submitted.append(q) or True
+
+    view = QQuickView()
+    view.setInitialProperties({
+        "liveController": controller,
+        "darkMode": False,
+        "reduceMotion": True,
+    })
+    qml_path = Path(__file__).resolve().parents[1] / "rat/ui/quick/PDFDesk.qml"
+    view.setSource(QUrl.fromLocalFile(str(qml_path)))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    _process_events(100)
+
+    try:
+        root = view.rootObject()
+        editor = root.findChild(QQuickItem, "draftEditor")
+        assert editor is not None
+        editor.forceActiveFocus()
+
+        # Type a question
+        editor.setProperty("text", "làm sao để tính calc?")
+        _process_events(300)
+
+        # Press Return
+        QTest.keyClick(view, Qt.Key.Key_Return)
+        _process_events(100)
+
+        assert len(opened_urls) == 0
+        assert len(submitted) == 1
+        assert submitted[0] == "làm sao để tính calc?"
+    finally:
+        controller.close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+
+
+def test_qml_composer_return_no_hits_feedback_and_tab_to_ask(finder_fixture):
+    """When search finishes with no hits, Return shows feedback; Tab sends query to Chuột."""
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened_urls = []
+    submitted = []
+
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+        open_url=lambda url: opened_urls.append(url) or True,
+    )
+    controller.submit = lambda q, origin="": submitted.append(q) or True
+
+    view = QQuickView()
+    view.setInitialProperties({
+        "liveController": controller,
+        "darkMode": False,
+        "reduceMotion": True,
+    })
+    qml_path = Path(__file__).resolve().parents[1] / "rat/ui/quick/PDFDesk.qml"
+    view.setSource(QUrl.fromLocalFile(str(qml_path)))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    _process_events(100)
+
+    try:
+        root = view.rootObject()
+        editor = root.findChild(QQuickItem, "draftEditor")
+        assert editor is not None
+        editor.forceActiveFocus()
+
+        # Type non-existent query
+        editor.setProperty("text", "nonexistentquery12345")
+        _process_events(300)
+        assert len(controller.snapshot["finderHits"]) == 0
+
+        # Press Return -> must not call submit, shows feedback
+        QTest.keyClick(view, Qt.Key.Key_Return)
+        _process_events(100)
+
+        assert len(opened_urls) == 0
+        assert len(submitted) == 0
+        status_label = root.findChild(QQuickItem, "composerDropStatus")
+        assert status_label is not None
+        assert "Không tìm thấy" in status_label.property("text")
+        assert "Tab" in status_label.property("text")
+
+        # Now press Tab -> sends query to Chuột!
+        QTest.keyClick(view, Qt.Key.Key_Tab)
+        _process_events(100)
+
+        assert len(submitted) == 1
+        assert submitted[0] == "nonexistentquery12345"
+    finally:
+        controller.close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+
+

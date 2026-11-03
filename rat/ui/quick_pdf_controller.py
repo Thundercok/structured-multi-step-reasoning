@@ -17,7 +17,7 @@ from xml.parsers.expat import ExpatError
 from uuid import uuid4
 from typing import Any, Dict, List, Optional
 
-from PyQt6.QtCore import QCoreApplication, QObject, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QCoreApplication, QEventLoop, QObject, QTimer, QUrl, Qt, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QDesktopServices, QGuiApplication
 
 from rat.config import config
@@ -65,6 +65,42 @@ ERROR_MESSAGES = {
     "invalid_citation": "Đoạn chọn không khớp văn bản trang đã đọc. Hãy chọn lại đoạn trích.",
     "open_failed": "Hệ thống chưa nhận yêu cầu mở PDF gốc.",
 }
+
+
+QUESTION_WORDS = {
+    # English question starters
+    "what", "why", "how", "who", "whom", "whose", "where", "when", "which",
+    "is", "are", "was", "were", "can", "could", "would", "should", "do", "does", "did",
+    # Vietnamese single-word question starters
+    "ai", "gì", "nào", "sao", "đâu", "mấy",
+}
+
+QUESTION_PREFIXES = (
+    # Vietnamese compound / multi-word question starters
+    "tại sao", "vì sao", "thế nào", "làm sao", "làm thế nào",
+    "ở đâu", "khi nào", "bao giờ", "bao nhiêu", "có phải",
+    "liệu", "hãy", "hỏi", "giải thích", "tóm tắt", "cho mình", "cho tôi",
+)
+
+
+def is_question_query(text: str) -> bool:
+    """Treat text as a question if it ends with '?', has >8 words, or starts with a question word."""
+    q = (text or "").strip()
+    if not q:
+        return False
+    if q.endswith(("?", "？")):
+        return True
+    words = q.split()
+    if len(words) > 8:
+        return True
+    first_word = words[0].strip(".,!?:;\"'()[]{}«»“”").lower()
+    if first_word in QUESTION_WORDS:
+        return True
+    q_low = q.lower()
+    for prefix in QUESTION_PREFIXES:
+        if q_low == prefix or q_low.startswith(prefix + " "):
+            return True
+    return False
 
 
 def format_matched_snippet(hit: Optional[Dict[str, Any]], page_content: str, query: str = "") -> Dict[str, Any]:
@@ -286,6 +322,7 @@ class QuickPDFController(QObject):
         self._finder_catalog = finder_catalog
         self._finder_hits: List[Dict[str, Any]] = []
         self._finder_query: str = ""
+        self._finder_in_flight_query: Optional[str] = None
         self._finder_feedback = ""
         self._reading_coordinator = ReadingDeskCoordinator(self)
         self._db_path = db_path or str(config.db_path)
@@ -531,26 +568,14 @@ class QuickPDFController(QObject):
             "savedDraft": self._saved_draft,
             "launchFeedback": self._launch_feedback,
             "launchFeedbackError": self._launch_feedback_error,
-            "isQuestionQuery": self._is_conversational_query(self._finder_query),
+            "isQuestionQuery": is_question_query(self._finder_query),
         }
 
-    @staticmethod
-    def _is_conversational_query(text: str) -> bool:
-        q = (text or "").strip()
-        if not q:
-            return False
-        q_low = q.lower()
-        if q.startswith(("?", "¿")) or q.endswith(("?", "？")):
-            return True
-        prefixes = (
-            "sao ", "tại sao ", "vì sao ", "giải thích ", "làm sao ",
-            "làm thế nào ", "cho mình ", "cho tôi ", "hãy ", "tóm tắt ",
-            "so sánh ", "tính ", "viết ", "xin chào", "chào chuột",
-            "how ", "why ", "what ", "explain ", "summarize ",
-        )
-        if any(q_low.startswith(w) for w in prefixes):
-            return True
-        return len(q.split()) >= 5
+    @pyqtSlot(str, result=bool)
+    def isQuestion(self, text: str) -> bool:
+        return is_question_query(text)
+
+    _is_conversational_query = staticmethod(is_question_query)
 
     @pyqtSlot()
     def ready(self):
@@ -770,6 +795,65 @@ class QuickPDFController(QObject):
             page,
             width=width,
         )
+
+    def _is_finder_searching_for(self, q: str) -> bool:
+        return self._finder_in_flight_query == q
+
+    def _wait_for_finder(self, q: str, timeout_sec: float = 1.5):
+        if not self._is_finder_searching_for(q):
+            return
+        deadline = time.perf_counter() + timeout_sec
+        app = QCoreApplication.instance()
+        while self._is_finder_searching_for(q) and time.perf_counter() < deadline:
+            if app:
+                app.processEvents()
+            time.sleep(0.01)
+
+    @pyqtSlot(str, int, result=bool)
+    def handleComposerReturn(self, text: str, selected_index: int = -1) -> bool:
+        """Handle Enter/Return pressed in composer.
+
+        - When search hits for current text are showing and text is not a question, Enter opens first hit.
+        - When it is a question, Enter asks assistant as now.
+        - If search for current text is still running, waits up to 1.5 seconds.
+        - If non-question search finishes with no hits, shows Vietnamese 'không tìm thấy' message and does not call model.
+        """
+        if self._closed:
+            return False
+        q = text.strip()
+        if not q:
+            if self._view == "finder" and self._finder_hits:
+                idx = selected_index if 0 <= selected_index < len(self._finder_hits) else 0
+                return self.openSelectedHit(idx)
+            return False
+
+        if is_question_query(q):
+            self.submitQuery(q)
+            return True
+
+        # Non-question path:
+        if self._finder_coordinator is not None and self._finder_query != q:
+            self.onComposerTextChanged(q)
+
+        if self._is_finder_searching_for(q):
+            self._wait_for_finder(q, timeout_sec=1.5)
+
+        # Do not open a hit from an older query
+        if self._finder_query == q and self._finder_hits:
+            idx = selected_index if 0 <= selected_index < len(self._finder_hits) else 0
+            return self.openSelectedHit(idx)
+
+        # Non-question search finished with no hits
+        if self._finder_query == q and not self._finder_hits:
+            msg = "Không tìm thấy kết quả. Nhấn Tab hoặc thêm dấu '?' để hỏi Chuột."
+            if self._view == "finder":
+                self._restore_pre_finder_state()
+            self._finder_feedback = msg
+            self._status = msg
+            self.changed.emit()
+            return True
+
+        return False
 
     @pyqtSlot(str)
     def submitQuery(self, query: str):
@@ -1461,6 +1545,7 @@ class QuickPDFController(QObject):
         elif had_feedback:
             self.changed.emit()
         if not q:
+            self._finder_in_flight_query = None
             if self._finder_coordinator is not None:
                 self._finder_coordinator.cancel()
             had_hits = bool(self._finder_hits)
@@ -1472,6 +1557,7 @@ class QuickPDFController(QObject):
                 self.changed.emit()
             return
         if self._finder_coordinator is not None:
+            self._finder_in_flight_query = q
             self._finder_coordinator.submit(q, limit=10)
 
     def _restore_pre_finder_state(self):
@@ -1511,6 +1597,7 @@ class QuickPDFController(QObject):
             return
         if self._finder_coordinator is not None:
             self._finder_coordinator.cancel()
+        self._finder_in_flight_query = None
         if self._view == "finder":
             self._restore_pre_finder_state()
             if self._view == "none":
@@ -1549,6 +1636,9 @@ class QuickPDFController(QObject):
             return
         if self._selection is not None or self.snapshot["busy"]:
             return
+
+        if snapshot.query == self._finder_in_flight_query and (snapshot.hits or snapshot.complete):
+            self._finder_in_flight_query = None
 
         home_str = str(Path.home())
         raw_hits = []
@@ -1611,11 +1701,11 @@ class QuickPDFController(QObject):
         # Keep active answer reading or conversational typing intact; expose hits via subtle drawer tab.
         reading_answer = (
             self._view == "answer"
-            or (self._view == "finder" and self._pre_finder_view == "answer" and self._is_conversational_query(snapshot.query))
+            or (self._view == "finder" and self._pre_finder_view == "answer" and is_question_query(snapshot.query))
         )
-        if reading_answer or self._is_conversational_query(snapshot.query):
+        if reading_answer or is_question_query(snapshot.query):
             self._finder_hits = hits
-            if self._view == "finder" and self._is_conversational_query(snapshot.query):
+            if self._view == "finder" and is_question_query(snapshot.query):
                 self._restore_pre_finder_state()
             self.changed.emit()
             return

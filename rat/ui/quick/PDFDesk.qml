@@ -283,6 +283,15 @@ Rectangle {
                     editor.forceActiveFocus()
                     return
                 }
+                var handled = liveController.handleComposerReturn(editor.text, selectedFinderIndex)
+                if (handled) {
+                    selectedFinderIndex = -1
+                    if (liveController.snapshot.busy || liveSnapshot.fileName) {
+                        editor.text = ""
+                    }
+                    editor.forceActiveFocus()
+                    return
+                }
                 liveController.submitQuery(editor.text)
                 if (liveController.snapshot.busy) editor.text = ""
                 editor.forceActiveFocus()
@@ -321,14 +330,23 @@ Rectangle {
 
         if (liveMode && liveSnapshot.view === "finder" && (visibleFinderHits || []).length > 0) {
             var hitIdx = selectedFinderIndex >= 0 ? selectedFinderIndex : 0
-            if (hitIdx < visibleFinderHits.length && (editor.text.trim() === "" || selectedFinderIndex >= 0)) {
+            if (hitIdx < visibleFinderHits.length) {
                 var hit = visibleFinderHits[hitIdx] || ({})
                 if (hasCmdOrCtrl) {
                     event.accepted = true
                     liveController.revealSelectedInFinder(hitIdx)
                     return
                 }
-                if (!hasShift) {
+                if (hasShift) {
+                    if (!hit.is_pdf) {
+                        event.accepted = true
+                        var fileIdx = hitIdx
+                        selectedFinderIndex = -1
+                        liveController.askAboutSelectedHit(fileIdx, editor.text)
+                        if (liveController.snapshot.busy) editor.text = ""
+                        return
+                    }
+                } else if (!liveController.isQuestion(editor.text)) {
                     event.accepted = true
                     selectedFinderIndex = -1
                     var isPdf = Boolean(hit.is_pdf)
@@ -337,14 +355,6 @@ Rectangle {
                         editor.text = ""
                         editor.forceActiveFocus()
                     }
-                    return
-                }
-                if (!hit.is_pdf) {
-                    event.accepted = true
-                    var fileIdx = hitIdx
-                    selectedFinderIndex = -1
-                    liveController.askAboutSelectedHit(fileIdx, editor.text)
-                    if (liveController.snapshot.busy) editor.text = ""
                     return
                 }
             }
@@ -2800,13 +2810,22 @@ Rectangle {
                             event.accepted = false
                         }
                         Keys.onTabPressed: event => {
-                            if (desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0 && desk.selectedFinderIndex < (desk.visibleFinderHits || []).length) {
-                                event.accepted = true
-                                var idx = desk.selectedFinderIndex
-                                desk.selectedFinderIndex = -1
-                                desk.liveController.adoptSelectedHit(idx, editor.text)
-                                editor.forceActiveFocus()
-                                return
+                            if (desk.liveMode) {
+                                if (desk.liveSnapshot.view === "finder" && (desk.visibleFinderHits || []).length > 0) {
+                                    event.accepted = true
+                                    var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0
+                                    desk.selectedFinderIndex = -1
+                                    desk.liveController.adoptSelectedHit(idx, editor.text)
+                                    editor.forceActiveFocus()
+                                    return
+                                }
+                                if (editor.text.trim().length > 0 && (desk.visibleFinderHits || []).length === 0) {
+                                    event.accepted = true
+                                    desk.liveController.submitQuery(editor.text)
+                                    if (desk.liveController.snapshot.busy) editor.text = ""
+                                    editor.forceActiveFocus()
+                                    return
+                                }
                             }
                             event.accepted = false
                         }
@@ -2893,10 +2912,11 @@ Rectangle {
                             text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status
                                 : desk.liveSnapshot.view === "reading" ? "Bàn xem · đang chuẩn bị dữ liệu"
-                                : desk.liveSnapshot.view === "finder" ? "↑↓ chọn · ↵ mở · Tab đưa vào bàn & hỏi Chuột · Esc đóng"
+                                : desk.liveSnapshot.view === "finder" ? (desk.liveSnapshot.isQuestionQuery ? "↑↓ chọn · ↵ hỏi Chuột · Tab đưa vào bàn & hỏi Chuột · Esc đóng" : "↑↓ chọn · ↵ mở · Tab đưa vào bàn & hỏi Chuột · Esc đóng")
                                 : (desk.liveSnapshot.view === "page" || desk.liveSnapshot.fileName) ? "↵ hỏi Chuột · ⌘F tìm chữ trong PDF"
                                 : desk.liveSnapshot.view === "answer" ? (desk.hasLatentFinderHits ? "↵ hỏi tiếp Chuột · Bấm ngăn trên mở tệp" : "↵ hỏi tiếp Chuột")
-                                : "Chuột sẵn sàng"
+                                : desk.liveSnapshot.finderFeedback ? desk.liveSnapshot.finderFeedback
+                                : desk.liveSnapshot.status || "Chuột sẵn sàng"
                             elide: Text.ElideRight
                             color: pdfDropArea.containsDrag ? desk.accent : desk.muted
                             font.weight: pdfDropArea.containsDrag ? Font.Medium : Font.Normal
@@ -3070,12 +3090,18 @@ Rectangle {
     }
     Shortcut {
         sequence: "Tab"
-        enabled: desk.liveMode && desk.liveSnapshot.view === "finder" && desk.selectedFinderIndex >= 0 && desk.selectedFinderIndex < (desk.visibleFinderHits || []).length
+        enabled: desk.liveMode && ((desk.liveSnapshot.view === "finder" && (desk.visibleFinderHits || []).length > 0) || (editor.text.trim().length > 0 && (desk.visibleFinderHits || []).length === 0 && Boolean(desk.liveSnapshot.finderFeedback)))
         onActivated: {
-            var idx = desk.selectedFinderIndex
-            desk.selectedFinderIndex = -1
-            desk.liveController.adoptSelectedHit(idx, editor.text)
-            editor.forceActiveFocus()
+            if (desk.liveSnapshot.view === "finder" && (desk.visibleFinderHits || []).length > 0) {
+                var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0
+                desk.selectedFinderIndex = -1
+                desk.liveController.adoptSelectedHit(idx, editor.text)
+                editor.forceActiveFocus()
+            } else if (editor.text.trim().length > 0) {
+                desk.liveController.submitQuery(editor.text)
+                if (desk.liveController.snapshot.busy) editor.text = ""
+                editor.forceActiveFocus()
+            }
         }
     }
 }
