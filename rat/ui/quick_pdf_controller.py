@@ -1535,7 +1535,11 @@ class QuickPDFController(QObject):
 
     @pyqtSlot()
     def startIndexing(self, reason: str = "") -> bool:
-        if self._closed or self.snapshot.get("busy"):
+        if self._closed:
+            return False
+        if self.snapshot.get("busy"):
+            if reason != "panel_open":
+                QTimer.singleShot(2000, lambda: self.startIndexing(reason))
             return False
         now = time.monotonic()
         if reason == "panel_open" and now - self._last_index_time < 30.0:

@@ -401,13 +401,19 @@ class ProgressiveSearch:
                         raise InterruptedError('finder_cancelled')
                     if index >= 100 or len(hits) >= file_limit:
                         break
-                    connection = self.db.get_connection()
-                    connection.execute('PRAGMA busy_timeout=50')
-                    row = connection.execute(
-                        'SELECT file_path, file_name, file_ext, modified_at, created_at, '
-                        "substr(coalesce(summary, ''), 1, 200) AS summary FROM documents WHERE file_path = ?",
-                        (str(path),)).fetchone()
-                    row = dict(row) if row is not None else None
+                    row = None
+                    try:
+                        if self.db is not None:
+                            connection = self.db.get_connection()
+                            connection.execute('PRAGMA busy_timeout=50')
+                            db_res = connection.execute(
+                                'SELECT file_path, file_name, file_ext, modified_at, created_at, '
+                                "substr(coalesce(summary, ''), 1, 200) AS summary FROM documents WHERE file_path = ?",
+                                (str(path),)).fetchone()
+                            row = dict(db_res) if db_res is not None else None
+                    except Exception as db_err:
+                        logger.debug("progressive_search main db lookup failed for %s: %s", path, db_err)
+                        row = None
                     if row is None:
                         from rat.engine.semantic_index import SemanticIndex
                         if isinstance(self.semantic, SemanticIndex):

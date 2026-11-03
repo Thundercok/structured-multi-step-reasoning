@@ -871,6 +871,29 @@ def test_translate_text_worker_delivery_and_reuse(controller, monkeypatch):
     assert "Dịch thất bại: Service unavailable" in controller.snapshot["status"]
 
 
+def test_quick_pdf_startup_indexing_retries_when_busy(tmp_path, monkeypatch):
+    monkeypatch.setenv("RAT_STATE_DIR", str(tmp_path))
+    from PyQt6.QtCore import QCoreApplication, QTimer
+    from rat.ui.quick_pdf_controller import QuickPDFController
+
+    app = QCoreApplication.instance() or QCoreApplication([])
+    controller = QuickPDFController()
+    scheduled = []
+    monkeypatch.setattr(QTimer, "singleShot", lambda ms, fn: scheduled.append(ms))
+
+    # Simulate app busy at launch
+    monkeypatch.setattr(type(controller), "snapshot", property(lambda self: {"busy": True}))
+
+    assert controller.startIndexing() is False
+    assert scheduled == [2000]
+
+    scheduled.clear()
+    assert controller.startIndexing(reason="panel_open") is False
+    assert scheduled == []
+    controller.close()
+
+
+
 
 
 

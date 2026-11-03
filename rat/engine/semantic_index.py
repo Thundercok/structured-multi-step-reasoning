@@ -254,7 +254,7 @@ class SemanticIndex:
             with self._lock:
                 self._progress = {'state': 'unavailable', 'done': 0, 'total': 0}
         finally:
-            if self._embedder is not None:
+            if self._embedder is not None and hasattr(self._embedder, 'evict'):
                 self._embedder.evict()
 
     def _index(self, roots):

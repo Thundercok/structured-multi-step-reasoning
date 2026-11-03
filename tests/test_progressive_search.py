@@ -955,5 +955,51 @@ def test_file_only_filter_yields_only_files_up_to_full_limit(tmp_path):
         db.get_connection().close()
 
 
+def test_refine_with_real_semantic_index_and_uninitialized_main_db(tmp_path):
+    """
+    When the main database has no documents table (uninitialized), refine()
+    with a real SemanticIndex must still return file hits via stat fallback,
+    without failing or producing 'semantic_unavailable'.
+    """
+    import sqlite3
+    import numpy as np
+    from rat.engine.semantic_index import SemanticIndex
+
+    class FakeEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            return np.array([[1.0, 0.0] for _ in texts], dtype=np.float32)
+
+    doc_file = tmp_path / "important_contract.txt"
+    doc_file.write_text("Hop dong quan trong ve tai chinh")
+
+    semantic_db = tmp_path / "semantic.sqlite"
+    sem_index = SemanticIndex(semantic_db, embedder=FakeEmbedder())
+    sem_index.start([str(tmp_path)])
+    if sem_index._thread:
+        sem_index._thread.join(timeout=3.0)
+
+    # Empty/uninitialized main DB (no documents table at all)
+    empty_db_path = tmp_path / "empty_main.db"
+    conn = sqlite3.connect(empty_db_path)
+    conn.execute("CREATE TABLE some_other_table (id INT)")
+    conn.commit()
+    conn.close()
+
+    engine = ProgressiveSearch(empty_db_path, semantic=sem_index)
+    try:
+        req = SearchRequest(1, "hop dong quan trong", limit=5)
+        init_snap = engine.initial(req)
+        refined_snap = engine.refine(req, init_snap)
+
+        assert "semantic_unavailable" not in refined_snap.errors
+        assert any(h.path == str(doc_file) for h in refined_snap.hits)
+    finally:
+        engine.close_connection()
+
+
+
 
 
