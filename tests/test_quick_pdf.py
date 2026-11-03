@@ -773,6 +773,8 @@ def test_shortcut_order_live_selection_first_fresh_clipboard_fallback(controller
     controller._consumed_clipboard_change = 0
     monkeypatch.setattr(controller, "_get_clipboard_change_count", lambda: 5)
     controller.quickLookSelection()
+    if getattr(controller, "_last_quicklook_thread", None):
+        controller._last_quicklook_thread.join(timeout=2.0)
     assert len(translated_calls) == 1
     assert translated_calls[-1] == "Live selected phrase"
 
@@ -782,6 +784,8 @@ def test_shortcut_order_live_selection_first_fresh_clipboard_fallback(controller
     controller._consumed_clipboard_change = 4
     monkeypatch.setattr(controller, "_get_clipboard_change_count", lambda: 5)
     controller.quickLookSelection()
+    if getattr(controller, "_last_quicklook_thread", None):
+        controller._last_quicklook_thread.join(timeout=2.0)
     assert len(translated_calls) == 2
     assert translated_calls[-1] == "Clipboard text from 30 seconds ago"
 
@@ -791,6 +795,9 @@ def test_shortcut_order_live_selection_first_fresh_clipboard_fallback(controller
     controller._consumed_clipboard_change = 4
     monkeypatch.setattr(controller, "_get_clipboard_change_count", lambda: 5)
     controller.quickLookSelection()
+    if getattr(controller, "_last_quicklook_thread", None):
+        controller._last_quicklook_thread.join(timeout=2.0)
+    app.processEvents()
     assert len(translated_calls) == 2  # No new translation
     assert controller.snapshot["expanded"] is True
 
@@ -815,6 +822,54 @@ def test_enter_with_empty_draft_opens_selected_or_first_finder_hit(controller, m
     controller._finder_selected_id = "hit-2"
     controller.submitQuery("")
     assert opened == [0, 1]
+
+
+def test_translate_text_worker_delivery_and_reuse(controller, monkeypatch):
+    from PyQt6.QtGui import QGuiApplication
+    app = QGuiApplication.instance() or QGuiApplication([])
+
+    mock_translator_instances = []
+    class DummyTranslator:
+        def __init__(self):
+            mock_translator_instances.append(self)
+        def translate(self, text, source="auto", target="vi"):
+            if text == "fail_me":
+                raise RuntimeError("Service unavailable")
+            return {"text": f"Dịch: {text}", "source_language": "en"}
+
+    monkeypatch.setattr("rat.engine.snippet_translation.SnippetTranslator", DummyTranslator)
+
+    # 1. Normal translation: worker runs, delivers via signal, reuses single translator
+    assert controller._translator is None
+    controller.translateText("Hello world")
+    if getattr(controller, "_last_translation_thread", None):
+        controller._last_translation_thread.join(timeout=2.0)
+    app.processEvents()
+
+    first_translator = controller._translator
+    assert first_translator is not None
+    assert controller.snapshot["answerText"] == "Dịch: Hello world"
+    assert "Đã dịch từ en sang vi" in controller.snapshot["status"]
+
+    # Call again: reuses the exact same translator instance on controller
+    controller.translateText("Second sentence")
+    if getattr(controller, "_last_translation_thread", None):
+        controller._last_translation_thread.join(timeout=2.0)
+    app.processEvents()
+    assert controller._translator is first_translator
+    assert controller.snapshot["answerText"] == "Dịch: Second sentence"
+
+    # 2. Text > 8000 chars: status message, no worker call
+    controller.translateText("a" * 8001)
+    assert controller.snapshot["status"] == "Văn bản vượt quá giới hạn 8000 ký tự."
+
+    # 3. Translation failure: visible error status message, does not raise
+    controller.translateText("fail_me")
+    if getattr(controller, "_last_translation_thread", None):
+        controller._last_translation_thread.join(timeout=2.0)
+    app.processEvents()
+    assert "Dịch thất bại: Service unavailable" in controller.snapshot["status"]
+
 
 
 

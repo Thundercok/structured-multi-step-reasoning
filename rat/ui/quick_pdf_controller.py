@@ -206,6 +206,8 @@ class QuickPDFController(QObject):
     _execution_status_delivered = pyqtSignal(str, int, str)
     _finder_delivered = pyqtSignal(object)
     _catalog_ready = pyqtSignal(object)
+    _translation_delivered = pyqtSignal(object)
+    _quicklook_expand_delivered = pyqtSignal()
 
     def __init__(
         self,
@@ -254,6 +256,11 @@ class QuickPDFController(QObject):
         self._execution_status_delivered.connect(self._on_execution_status, Qt.ConnectionType.QueuedConnection)
         self._finder_delivered.connect(self._handle_finder_snapshot, Qt.ConnectionType.QueuedConnection)
         self._catalog_ready.connect(self._on_catalog_ready, Qt.ConnectionType.QueuedConnection)
+        self._translation_delivered.connect(self._handle_translation_delivered, Qt.ConnectionType.QueuedConnection)
+        self._quicklook_expand_delivered.connect(self._handle_quicklook_expand, Qt.ConnectionType.QueuedConnection)
+        self._translator = None
+        self._last_translation_thread = None
+        self._last_quicklook_thread = None
 
         # Unified shared runtime & conversation state
         self._assistant_runtime = assistant_runtime
@@ -1799,31 +1806,90 @@ class QuickPDFController(QObject):
             self._finder_query = query
             self._view = "finder"
             self._status = f"Tìm thấy {len(hits)} gợi ý cho '{query}'"
-            self.snapshotChanged.emit()
+            self.changed.emit()
             return art.id
         except Exception as exc:
             logger.warning("findFileOrApp dispatch failed: %s", exc)
             return ""
 
+    def _get_translator(self):
+        if self._translator is None:
+            from rat.engine.snippet_translation import SnippetTranslator
+            self._translator = SnippetTranslator()
+        return self._translator
+
+    def _handle_translation_delivered(self, payload: dict):
+        try:
+            if not payload:
+                return
+            if payload.get("ok"):
+                self._last_user_query = f"Dịch sang {payload.get('target_lang', 'vi')}"
+                self._last_assistant_answer = payload.get("text", "")
+                self._view = "answer"
+                self._status = f"Đã dịch từ {payload.get('source_lang', 'auto')} sang {payload.get('target_lang', 'vi')}"
+                self._expanded = True
+            else:
+                err = payload.get("error") or "Không thể dịch văn bản."
+                self._status = f"Dịch thất bại: {err}"
+            self.changed.emit()
+        except Exception as exc:
+            logger.warning("Error in translation delivered handler: %s", exc)
+            self._status = f"Dịch thất bại: {exc}"
+            self.changed.emit()
+
+    def _handle_quicklook_expand(self):
+        self.setExpanded(True)
+
     @pyqtSlot(str, str, str, result=str)
     @pyqtSlot(str, str, result=str)
     @pyqtSlot(str, result=str)
     def translateText(self, text: str, source_lang: str = "auto", target_lang: str = "vi") -> str:
-        """Translates text snippet on the full app's translation path using SnippetTranslator."""
-        if not text or not text.strip():
-            return ""
-        from rat.engine.snippet_translation import SnippetTranslator
-        translator = SnippetTranslator()
-        res = translator.translate(text, source=source_lang, target=target_lang)
-        translated = res.get("text", "")
-        if translated:
-            self._last_user_query = f"Dịch sang {target_lang}"
-            self._last_assistant_answer = translated
-            self._view = "answer"
-            self._status = f"Đã dịch từ {res.get('source_language', source_lang)} sang {target_lang}"
-            self._expanded = True
+        """Translates text snippet on worker thread using shared SnippetTranslator, delivering via Qt signal."""
+        try:
+            if not text or not text.strip():
+                return ""
+            clean_text = text.strip()
+            if len(clean_text) > 8000:
+                self._status = "Văn bản vượt quá giới hạn 8000 ký tự."
+                self.changed.emit()
+                return ""
+
+            self._status = "Đang dịch…"
             self.changed.emit()
-        return translated
+
+            def _worker():
+                try:
+                    translator = self._get_translator()
+                    res = translator.translate(clean_text, source=source_lang, target=target_lang)
+                    translated = res.get("text", "")
+                    if not translated:
+                        self._translation_delivered.emit({
+                            "ok": False,
+                            "error": "Không nhận được bản dịch.",
+                        })
+                    else:
+                        self._translation_delivered.emit({
+                            "ok": True,
+                            "text": translated,
+                            "source_lang": res.get("source_language", source_lang),
+                            "target_lang": target_lang,
+                        })
+                except Exception as exc:
+                    logger.warning("Snippet translation failed: %s", exc)
+                    self._translation_delivered.emit({
+                        "ok": False,
+                        "error": str(exc),
+                    })
+
+            thread = threading.Thread(target=_worker, name="rat-quick-translate", daemon=True)
+            thread.start()
+            self._last_translation_thread = thread
+            return ""
+        except Exception as exc:
+            logger.warning("translateText slot error: %s", exc)
+            self._status = f"Dịch thất bại: {exc}"
+            self.changed.emit()
+            return ""
 
     def _get_clipboard_change_count(self) -> int:
         if sys.platform != "darwin":
@@ -1844,40 +1910,61 @@ class QuickPDFController(QObject):
 
     @pyqtSlot()
     def quickLookSelection(self):
-        """Shortcut order: live selection first, clipboard only if copied within 2 minutes."""
-        if self._closed or self.snapshot["busy"]:
-            return
-        current_change = self._update_clipboard_change()
-
-        # 1. Live selection first if accessibility is trusted
-        from rat.os.permissions import is_accessibility_trusted
-        if is_accessibility_trusted():
-            try:
-                from rat.os.selected_text import read_selected_text
-                text = read_selected_text()
-                if text and text.strip():
-                    self.translateText(text.strip())
-                    return
-            except Exception as exc:
-                logger.debug("Live selection capture failed: %s", exc)
-
-        # 2. Clipboard fallback only if copied within 2 minutes (120s) and not already consumed
-        now = time.monotonic()
-        is_fresh_copy = (
-            current_change != -1
-            and current_change != self._consumed_clipboard_change
-            and (now - self._clipboard_change_time <= 120.0)
-        )
-        if is_fresh_copy:
-            cb = QGuiApplication.clipboard()
-            text = cb.text() if cb else ""
-            if text and text.strip():
-                self._consumed_clipboard_change = current_change
-                self.translateText(text.strip())
+        """Shortcut order on worker thread: live selection first, clipboard only if copied within 2 minutes."""
+        try:
+            if self._closed or self.snapshot["busy"]:
                 return
+            current_change = self._update_clipboard_change()
 
-        # Fallback: expand Desk if neither selection nor fresh copy
-        self.setExpanded(True)
+            # Read clipboard on GUI thread safely before offloading
+            now = time.monotonic()
+            is_fresh_copy = (
+                current_change != -1
+                and current_change != self._consumed_clipboard_change
+                and (now - self._clipboard_change_time <= 120.0)
+            )
+            clipboard_text = ""
+            if is_fresh_copy:
+                cb = QGuiApplication.clipboard()
+                clipboard_text = cb.text() if cb else ""
+
+            from rat.os.permissions import is_accessibility_trusted
+            trusted = is_accessibility_trusted()
+
+            def _worker():
+                try:
+                    # 1. Live selection first if accessibility is trusted
+                    selected_text = ""
+                    if trusted:
+                        try:
+                            from rat.os.selected_text import read_selected_text
+                            selected_text = (read_selected_text() or "").strip()
+                        except Exception as exc:
+                            logger.debug("Live selection capture failed: %s", exc)
+
+                    if selected_text:
+                        self.translateText(selected_text)
+                        return
+
+                    # 2. Clipboard fallback only if copied within 2 minutes
+                    if is_fresh_copy and clipboard_text.strip():
+                        self._consumed_clipboard_change = current_change
+                        self.translateText(clipboard_text.strip())
+                        return
+
+                    # Fallback: expand Desk if neither selection nor fresh copy
+                    self._quicklook_expand_delivered.emit()
+                except Exception as exc:
+                    logger.warning("quickLookSelection worker failed: %s", exc)
+                    self._translation_delivered.emit({"ok": False, "error": str(exc)})
+
+            thread = threading.Thread(target=_worker, name="rat-quicklook-selection", daemon=True)
+            thread.start()
+            self._last_quicklook_thread = thread
+        except Exception as exc:
+            logger.warning("quickLookSelection slot error: %s", exc)
+            self._status = f"Lỗi phím tắt: {exc}"
+            self.changed.emit()
 
     @pyqtSlot()
     def translateClipboard(self):
