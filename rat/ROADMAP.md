@@ -24,6 +24,8 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 ## 1. Nhanh: mỗi lệnh một phím
 
+1.1 đã xong: `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
+
 | # | Bước | Xong khi |
 | --- | --- | --- |
 | 1.1 | Script đo độ trễ: gọi bàn đến lúc gõ được, Enter đến lúc mở | Có số nền, các bước sau không được làm tệ hơn |
