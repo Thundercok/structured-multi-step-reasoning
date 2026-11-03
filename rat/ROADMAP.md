@@ -35,6 +35,7 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 | # | Bước | Xong khi |
 | --- | --- | --- |
+| 2.0 | Index đọc đúng tài liệu thật: bỏ qua repo code, ưu tiên PDF và Office, ghi dần ngay khi quét, dùng `config.indexed_directories` | Trên máy thật có PDF được index trong phút đầu (đo 2026-11-03: quét 63 giây mới bắt đầu, trần 5.000 file có 4.709 `.txt`, chỉ 14 PDF) |
 | 2.1 | Công cụ tìm của Chuột dùng index theo nghĩa | "tiền cọc phòng trọ là bao nhiêu?" trả lời từ file có sẵn và chỉ rõ file |
 | 2.2 | Ngăn tiếng Trung từ gốc, thử lại chỉ là lưới an toàn | Bộ câu tiếng Việt không còn kích hoạt thử lại |
 | 2.3 | Dán đoạn văn vào ô nhập là dịch, dùng lại nhận diện đoạn văn của `goal_routing` | Đoạn tiếng Anh dài ra bản dịch, không qua model |
