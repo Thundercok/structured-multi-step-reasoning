@@ -1225,6 +1225,37 @@ def test_qml_composer_return_key_opens_first_hit_when_unselected(finder_fixture)
         app.processEvents()
 
 
+def _titles_for(query, *apps_reasons, intent=None):
+    from rat.ui.quick_pdf_controller import order_finder_hits
+    raw = [{"kind": "file", "title": "note.pdf", "match_reason": "Khớp chủ đề ngữ nghĩa (Semantic)"}]
+    raw += [{"kind": "application", "title": f"app{i}", "match_reason": reason} for i, reason in enumerate(apps_reasons)]
+    return [hit["title"] for hit in order_finder_hits(raw, query, intent)]
+
+
+def test_files_lead_unless_the_query_asks_for_or_names_an_app():
+    purpose, name = "Khớp công dụng", "Khớp tên ứng dụng"
+    assert _titles_for("chỉnh ảnh", purpose) == ["note.pdf", "app0"]
+    assert _titles_for("app chỉnh ảnh", purpose) == ["app0", "note.pdf"]
+    assert _titles_for("ứng dụng chỉnh ảnh", purpose) == ["app0", "note.pdf"]
+    assert _titles_for("ung dung chinh anh", purpose) == ["app0", "note.pdf"]
+    assert _titles_for("photoshop", name) == ["app0", "note.pdf"]
+    assert _titles_for("chỉnh ảnh", purpose, name) == ["app0", "app1", "note.pdf"]
+    # "application" inside a word is not a request for an app
+    assert _titles_for("applications of calculus", purpose) == ["note.pdf", "app0"]
+
+
+def test_open_intent_puts_apps_first_and_sections_are_marked():
+    from types import SimpleNamespace
+    from rat.ui.quick_pdf_controller import order_finder_hits
+    assert _titles_for("mở word", "Khớp công dụng", intent=SimpleNamespace(resource_kind="application"))[0] == "app0"
+    hits = order_finder_hits(
+        [{"kind": "application", "title": "a", "match_reason": "Khớp công dụng"},
+         {"kind": "file", "title": "f", "match_reason": ""},
+         {"kind": "file", "title": "g", "match_reason": ""}], "chỉnh ảnh")
+    assert [(h["title"], h["is_first_of_section"], h["section_title"]) for h in hits] == [
+        ("f", True, "TÀI LIỆU & TỆP"), ("g", False, "TÀI LIỆU & TỆP"), ("a", True, "ỨNG DỤNG")]
+
+
 def test_command_number_opens_that_row_and_keeps_the_composer(finder_fixture):
     """⌘1 to ⌘3 work while the composer still holds the query, and each row shows its key."""
     app = QGuiApplication.instance() or QGuiApplication([])

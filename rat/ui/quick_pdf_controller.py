@@ -163,6 +163,32 @@ def is_question_query(text: str) -> bool:
     return False
 
 
+APP_REQUEST = re.compile(r"^(?:app|apps|application|ứng dụng|ung dung|phần mềm|phan mem)\b", re.I)
+
+
+def order_finder_hits(raw_hits: List[Dict[str, Any]], query: str, intent: Any = None) -> List[Dict[str, Any]]:
+    """Group hits into sections. Only three rows show, so the section people want goes first.
+
+    Apps lead when the query asks for an app or names one. An app that merely fits by
+    purpose must not hide the files someone is looking for by meaning.
+    """
+    apps = [h for h in raw_hits if h["kind"] == "application"]
+    docs = [h for h in raw_hits if h["kind"] != "application"]
+    apps_first = (
+        getattr(intent, "resource_kind", "") == "application"
+        or bool(APP_REQUEST.match((query or "").strip()))
+        or any(h.get("match_reason") != "Khớp công dụng" for h in apps)
+    )
+    sections = [(apps, "ỨNG DỤNG"), (docs, "TÀI LIỆU & TỆP")]
+    hits = []
+    for group, title in sections if apps_first else reversed(sections):
+        for i, h in enumerate(group):
+            h["is_first_of_section"] = (i == 0)
+            h["section_title"] = title
+            hits.append(h)
+    return hits
+
+
 def format_matched_snippet(hit: Optional[Dict[str, Any]], page_content: str, query: str = "") -> Dict[str, Any]:
     if not hit or not hit.get("snippet"):
         return {
@@ -1732,20 +1758,7 @@ class QuickPDFController(QObject):
                 "is_pdf": h.path.lower().endswith(".pdf"),
             })
 
-        # Group by category: Applications first, then Files & PDFs
-        apps = [h for h in raw_hits if h["kind"] == "application"]
-        docs = [h for h in raw_hits if h["kind"] != "application"]
-        hits = []
-        if apps:
-            for i, h in enumerate(apps):
-                h["is_first_of_section"] = (i == 0)
-                h["section_title"] = "ỨNG DỤNG"
-                hits.append(h)
-        if docs:
-            for i, h in enumerate(docs):
-                h["is_first_of_section"] = (i == 0)
-                h["section_title"] = "TÀI LIỆU & TỆP"
-                hits.append(h)
+        hits = order_finder_hits(raw_hits, snapshot.query, snapshot.intent)
 
         count = len(hits)
         if count == 0:

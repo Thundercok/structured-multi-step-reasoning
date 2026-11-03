@@ -8,8 +8,12 @@ tool = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tool)
 
 
-def step(ms):
-    return {'median_ms': ms, 'worst_ms': ms, 'runs': 1}
+def step(ms, runs=10):
+    return {'median_ms': ms, 'worst_ms': ms, 'runs': runs}
+
+
+def test_one_off_cold_step_is_not_judged():
+    assert tool.regressions({'open_desk': step(2600.0, runs=1)}, {'open_desk': step(5000.0, runs=1)}) == []
 
 
 def test_real_slowdown_is_flagged():

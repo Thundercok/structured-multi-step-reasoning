@@ -31,13 +31,15 @@ SAMPLES = {
 # A step counts as slower only past both margins, so timer noise on small numbers is ignored.
 ALLOWED_RATIO = 1.5
 ALLOWED_EXTRA_MS = 10.0
+MIN_RUNS_TO_JUDGE = 3
 
 
 def regressions(baseline, current):
     """Names of the steps whose median got slower than the baseline allows."""
+    # One-off cold steps swing by seconds with machine load, so they are reported but not judged.
     return [
         name for name, step in current.items()
-        if name in baseline
+        if name in baseline and step['runs'] >= MIN_RUNS_TO_JUDGE
         and step['median_ms'] > baseline[name]['median_ms'] * ALLOWED_RATIO
         and step['median_ms'] > baseline[name]['median_ms'] + ALLOWED_EXTRA_MS
     ]
