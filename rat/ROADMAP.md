@@ -35,6 +35,8 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 ## 2. Thông minh hơn
 
+2.0 đã xong. Đo trên máy thật 2026-11-03: quét còn 1,7 giây thay vì 63 giây, 327 PDF thay vì 14, và 286 tài liệu được đọc trong phút đầu.
+
 | # | Bước | Xong khi |
 | --- | --- | --- |
 | 2.0 | Index đọc đúng tài liệu thật: bỏ qua repo code, ưu tiên PDF và Office, ghi dần ngay khi quét, dùng `config.indexed_directories` | Trên máy thật có PDF được index trong phút đầu (đo 2026-11-03: quét 63 giây mới bắt đầu, trần 5.000 file có 4.709 `.txt`, chỉ 14 PDF) |
@@ -44,6 +46,7 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 | 2.4 | Thả hoặc dán ảnh chụp để OCR rồi dịch, lấy `rat/ui/image_*.py` từ tag `rat-lite-0.6.0` | Ảnh chụp đoạn PDF ra bản dịch |
 | 2.5 | Tiến độ index hiện ở dòng trạng thái | Biết đang đọc tới đâu, ẩn khi xong |
 | 2.6 | Chỉ câu nói rõ "app" hoặc "mở" mới đưa app lên đầu; còn lại file trước | "viết văn bản" có file thì ⌘1 mở file, không bị 3 app che mất |
+| 2.7 | Đo độ đúng của tìm theo nghĩa trên file thật, rồi mới chỉnh ngưỡng và cách xếp hạng | Có bộ câu hỏi mẫu và tỉ lệ file đúng nằm trong 3 kết quả đầu |
 
 ## 3. Có hồn: từng chi tiết
 

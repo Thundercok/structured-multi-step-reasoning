@@ -198,7 +198,7 @@ def deterministic_finder(
         # Fallback to name_walk_paths if no file hits found from metadata/database
         if not any(h.get("kind") == "file" for h in hits):
             from rat.engine.local_finder import name_walk_paths
-            roots = getattr(config, "watch_dirs", None)
+            roots = config.indexed_directories
             if roots:
                 valid_roots = [Path(r) for r in roots if Path(r).is_dir()]
             else:

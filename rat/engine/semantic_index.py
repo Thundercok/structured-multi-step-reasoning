@@ -23,7 +23,8 @@ import numpy as np
 logger = logging.getLogger('rat.semantic_index')
 
 MODEL_NAME = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
-EXTENSIONS = {'.pdf', '.docx', '.pptx', '.txt', '.md'}
+DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.pptx'}
+EXTENSIONS = DOCUMENT_EXTENSIONS | {'.txt', '.md'}
 SKIP_DIRS = {'node_modules', 'Library', '__pycache__', 'venv', '.venv', 'site-packages'}
 MAX_FILES = 5000
 MAX_FILE_BYTES = 80_000_000
@@ -105,7 +106,12 @@ def candidate_files(roots, should_stop):
     for root in roots:
         for folder, dirs, files in os.walk(root, onerror=lambda _exc: None):
             if should_stop():
-                return found
+                return []
+            # A code repository inside a chosen folder would fill the index with text
+            # files nobody looks for by meaning. A repository chosen as the root stays.
+            if folder != os.fspath(root) and ('.git' in dirs or '.git' in files):
+                dirs[:] = []
+                continue
             dirs[:] = [d for d in dirs if not d.startswith('.') and d not in SKIP_DIRS
                        and not d.endswith(('.app', '.bundle', '.photoslibrary'))]
             for name in files:
@@ -116,10 +122,12 @@ def candidate_files(roots, should_stop):
                     except OSError:
                         continue
                     if info.st_size <= MAX_FILE_BYTES:
-                        found.append((info.st_mtime, path))
-    # Recent files first: they are the ones a student is most likely looking for.
+                        is_document = Path(name).suffix.lower() in DOCUMENT_EXTENSIONS
+                        found.append((is_document, info.st_mtime, path))
+    # Documents before plain text, then recent first: they are what a student looks for,
+    # and this order decides what the first minute of indexing and MAX_FILES keep.
     found.sort(reverse=True)
-    return [path for _mtime, path in found[:MAX_FILES]]
+    return [path for _is_document, _mtime, path in found[:MAX_FILES]]
 
 
 class SemanticIndex:

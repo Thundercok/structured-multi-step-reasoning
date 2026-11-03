@@ -1564,7 +1564,7 @@ class QuickPDFController(QObject):
         now = time.monotonic()
         if reason == "panel_open" and now - self._last_index_time < 30.0:
             return False
-        roots = getattr(config, "watch_dirs", None)
+        roots = config.indexed_directories
         if not roots:
             roots = [str(Path.home() / d) for d in ("Documents", "Desktop", "Downloads")]
         valid_roots = [r for r in roots if Path(r).is_dir()]
