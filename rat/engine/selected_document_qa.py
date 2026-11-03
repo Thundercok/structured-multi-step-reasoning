@@ -165,6 +165,21 @@ def answer_selected_document(runtime, question, file_path, *, model_client=None,
         content = message.get('content', '')
         if not isinstance(content, str) or not content.strip():
             error = error or 'empty_document_answer'
+        else:
+            from rat.engine.language_check import is_mainly_cjk, is_vietnamese
+            if not error and is_vietnamese(goal) and is_mainly_cjk(content):
+                retry_messages = [
+                    *messages,
+                    {"role": "assistant", "content": content},
+                    {"role": "user", "content": "Câu trả lời trước bị lỗi ngôn ngữ (chứa chữ Hán/tiếng Trung). Hãy trả lời hoàn toàn bằng tiếng Việt. Tuyệt đối không dùng chữ Hán hoặc tiếng Trung."},
+                ]
+                meta_retry = model_client.chat_with_meta(retry_messages, [], max_tokens=640, thinking=False, timeout=90, **callbacks)
+                content_retry = (meta_retry.get('message') or {}).get('content', '')
+                if isinstance(content_retry, str) and content_retry.strip() and not is_mainly_cjk(content_retry):
+                    content = content_retry
+                else:
+                    error = 'language_mismatch'
+                    content = ''
         if should_cancel and should_cancel():
             error = 'cancelled'
         return ModelDecision('', final_answer=None if error else content.strip(), error=error,

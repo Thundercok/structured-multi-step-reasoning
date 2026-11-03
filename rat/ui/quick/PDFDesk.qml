@@ -134,7 +134,7 @@ Rectangle {
     }
     readonly property bool hasFinderPreview: liveMode && liveSnapshot.view === "finder" && allFinderHits.length > 0
     readonly property bool incompletePreview: hasAnswerPreview && liveSnapshot.answerOutcome !== "completed"
-    readonly property string previewBody: liveSnapshot.answerExcerpt || (incompletePreview ? (liveSnapshot.status || "Yêu cầu chưa hoàn tất") : "Mở câu trả lời đầy đủ")
+    readonly property string previewBody: liveSnapshot.answerExcerpt || (incompletePreview ? (liveSnapshot.status || "Chưa hoàn tất yêu cầu") : "Mở câu trả lời đầy đủ")
     readonly property string previewMeta: incompletePreview ? (liveSnapshot.answerOutcome === "cancelled" ? "Đã dừng · chưa hoàn tất" : "Chưa hoàn tất · mở để xem thông báo")
         : "Xem nhanh" + (liveSnapshot.answerReadScope ? " · " + liveSnapshot.answerReadScope : ((liveSnapshot.answerSources || []).length ? " · " + liveSnapshot.answerSources.length + " tham chiếu" : ""))
           + " · " + (liveSnapshot.answerVerification === "PASS" ? "Đạt kiểm tra được báo cáo" : liveSnapshot.answerVerification === "FAIL" ? "Kiểm tra chưa đạt" : "Chưa xác minh")

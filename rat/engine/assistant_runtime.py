@@ -750,7 +750,26 @@ class AssistantRuntime:
                     pending_calls.clear()
                     emit(on_progress, "Đang hoàn tất phần việc còn thiếu…")
                     continue
-                return response(answer=decision.final_answer)
+
+                final_ans = decision.final_answer
+                from rat.engine.language_check import is_mainly_cjk, is_vietnamese
+                if final_ans and is_vietnamese(goal) and is_mainly_cjk(final_ans):
+                    retry_context = dict(context)
+                    retry_context["finish_only"] = True
+                    retry_inst = "Câu trả lời trước bị lỗi ngôn ngữ (chứa chữ Hán/tiếng Trung). Hãy trả lời hoàn toàn bằng tiếng Việt. Tuyệt đối không dùng chữ Hán hoặc tiếng Trung."
+                    retry_decision = self._call_model(
+                        f"{goal}\n\n[Yêu cầu bắt buộc: {retry_inst}]",
+                        trajectory,
+                        **retry_context,
+                    )
+                    if retry_decision.final_answer and not is_mainly_cjk(retry_decision.final_answer):
+                        final_ans = retry_decision.final_answer
+                    else:
+                        step.thought = "Mô hình không trả lời bằng tiếng Việt như yêu cầu sau khi thử lại."
+                        step.error = "language_mismatch"
+                        return response(error="language_mismatch")
+
+                return response(answer=final_ans)
             if finish_only:
                 step.error = "controller_finish_refused"
                 trajectory.append(step)

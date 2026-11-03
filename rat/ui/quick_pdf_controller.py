@@ -67,6 +67,52 @@ ERROR_MESSAGES = {
 }
 
 
+ASSISTANT_ERROR_MESSAGES = {
+    "budget_exceeded": "Đã vượt hạn mức ngân sách xử lý.",
+    "timeout": "Hết thời gian chờ phản hồi từ mô hình. Bạn có thể thử lại.",
+    "model_timeout": "Hết thời gian chờ phản hồi từ mô hình. Bạn có thể thử lại.",
+    "unresolved": "Không thể giải quyết yêu cầu với dữ kiện hiện có.",
+    "cancelled": "Đã dừng · có thể gửi yêu cầu mới",
+    "empty_model_response": "Mô hình trả về nội dung rỗng. Bạn có thể thử gửi lại.",
+    "language_mismatch": "Mô hình không trả lời bằng tiếng Việt như yêu cầu. Bạn có thể thử gửi lại.",
+    "step_budget_exhausted": "Đã vượt số bước suy luận tối đa cho phép.",
+    "token_budget_exhausted": "Đã vượt hạn mức số lượng token tối đa.",
+    "task_plan_failed": "Không thể lập kế hoạch xử lý cho yêu cầu này.",
+    "verification_failed": "Kết quả không vượt qua bước kiểm tra đối chiếu dữ liệu.",
+    "selected_document_read_failed": "Không thể đọc nội dung tài liệu đã chọn.",
+    "selected_document_no_text": "Tài liệu đã chọn không có văn bản trích xuất được.",
+    "selected_document_context_too_large": "Tài liệu quá dài so với giới hạn ngữ cảnh.",
+    "missing_selected_document": "Chưa chọn tài liệu để thực hiện yêu cầu này.",
+    "live_model_disabled": "Mô hình ngôn ngữ đang bị tắt trong cấu hình.",
+}
+
+
+def describe_execution_error(err: Any) -> str:
+    err_str = str(err or "").strip()
+    if not err_str:
+        return "Không thể hoàn thành yêu cầu."
+    if err_str in ASSISTANT_ERROR_MESSAGES:
+        return ASSISTANT_ERROR_MESSAGES[err_str]
+    err_low = err_str.lower()
+    if "connection refused" in err_low or "failed to establish a new connection" in err_low or "connection_refused" in err_low:
+        return "Không thể kết nối với dịch vụ mô hình (Ollama). Hãy kiểm tra dịch vụ đã chạy chưa."
+    if "timeout" in err_low or "timed out" in err_low:
+        return "Hết thời gian chờ phản hồi từ mô hình. Bạn có thể thử lại."
+    if err_str.startswith("unknown_tool:"):
+        tool_name = err_str.split(":", 1)[1]
+        return f"Công cụ '{tool_name}' không khả dụng hoặc chưa được hỗ trợ."
+    if err_str.startswith("task_plan_failed:"):
+        detail = err_str.split(":", 1)[1]
+        if "connection refused" in detail.lower() or "connection" in detail.lower():
+            return "Không thể kết nối với dịch vụ mô hình (Ollama). Hãy kiểm tra dịch vụ đã chạy chưa."
+        return f"Không thể lập kế hoạch xử lý: {detail}"
+    if err_str.startswith("worker_creation_failed:"):
+        return f"Không thể khởi tạo tiến trình xử lý: {err_str.split(':', 1)[1]}"
+    if err_str.startswith("reasoning_policy_unavailable:"):
+        return "Chính sách suy luận chưa sẵn sàng."
+    return f"Chưa hoàn tất yêu cầu ({err_str})"
+
+
 QUESTION_WORDS = {
     # English question starters
     "what", "why", "how", "who", "whom", "whose", "where", "when", "which",
@@ -1345,6 +1391,13 @@ class QuickPDFController(QObject):
         turn_id = self._current_turn_id
         self._displayed_turn_id = turn_id
 
+        # Language check on answer
+        from rat.engine.language_check import is_mainly_cjk, is_vietnamese
+        if response.answer and is_vietnamese(self._last_user_query) and is_mainly_cjk(response.answer):
+            err = "language_mismatch"
+            response.error = "language_mismatch"
+            response.answer = ""
+
         err = getattr(response, "error", None) or (getattr(response, "status", None) if getattr(response, "status", None) != "completed" else None)
         if err in ("cancelled", "budget_exceeded", "timeout", "failed", "unresolved") or err is not None:
             status_kind = err if err in ("cancelled", "budget_exceeded", "timeout", "failed", "unresolved") else "failed"
@@ -1361,18 +1414,7 @@ class QuickPDFController(QObject):
             self._last_assistant_answer = response.answer or ""
             self._telemetry = {**(getattr(response, "telemetry_breakdown", {}) or {}),
                                **(getattr(response, "qa_telemetry", {}) or {})}
-            if status_kind == "budget_exceeded":
-                self._status = "Đã vượt hạn mức ngân sách (0 tokens/requests/strategies)."
-            elif status_kind == "timeout":
-                self._status = "Hết thời gian xử lý yêu cầu."
-            elif status_kind == "unresolved":
-                self._status = "Không thể giải quyết yêu cầu với dữ kiện hiện có."
-            elif status_kind == "cancelled":
-                self._status = "Đã dừng · có thể gửi yêu cầu mới"
-            elif err == "empty_model_response":
-                self._status = "Model trả về nội dung rỗng. Bạn có thể thử gửi lại."
-            else:
-                self._status = "Yêu cầu chưa hoàn tất"
+            self._status = describe_execution_error(err)
             self._view = "answer"
             self._unread = not self._expanded
             self._events.append(self._status)
