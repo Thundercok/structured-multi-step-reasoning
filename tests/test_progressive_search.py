@@ -670,3 +670,53 @@ def test_purpose_query_meaning_search_in_refine_with_fake_embedder(tmp_path):
         db.get_connection().close()
 
 
+def test_real_semantic_index_with_empty_main_db_surfaces_file_via_stat(tmp_path):
+    import numpy as np
+    from rat.engine.semantic_index import SemanticIndex
+
+    doc = tmp_path / "paper.pdf"
+    doc.write_text("machine learning paper content")
+
+    class FakeEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            return np.array([[1.0, 0.0] for _ in texts], dtype=np.float32)
+
+    fake_embedder = FakeEmbedder()
+    sem_db = tmp_path / "semantic_index.db"
+    sem_index = SemanticIndex(str(sem_db), embedder=fake_embedder)
+
+    st = doc.stat()
+    sem_index._store(
+        str(doc),
+        (st.st_size, st.st_mtime),
+        ["machine learning paper content"],
+        np.array([[1.0, 0.0]], dtype=np.float32),
+    )
+
+    # Main database is completely empty (no documents row for doc)
+    main_db = Database(str(tmp_path / "empty_main.db"))
+    main_db.get_connection()
+
+    engine = ProgressiveSearch(main_db.db_path, semantic=sem_index)
+    try:
+        request = SearchRequest(1, "machine learning")
+        snapshots = engine.snapshots(request)
+        initial = next(snapshots)
+        assert initial.hits == ()
+        assert not initial.complete
+
+        final = next(snapshots)
+        assert final.complete
+        assert any(h.path == str(doc) for h in final.hits)
+        hit = next(h for h in final.hits if h.path == str(doc))
+        assert hit.kind == 'file'
+        assert hit.origin == 'semantic_index'
+    finally:
+        engine.close_connection()
+        main_db.get_connection().close()
+
+
+
