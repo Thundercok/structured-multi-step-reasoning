@@ -267,7 +267,8 @@ class HybridFinder:
         deadline = time.monotonic() + 12
         paths, failures, completed_roots = spotlight_scopes(roots, predicate, should_cancel, deadline)
         name_walk = 'not_needed'
-        if not paths:
+        # The meaning index already covers file names; walk only when it is empty.
+        if not paths and not (self.semantic is not None and self.semantic.count()):
             walked, truncated = name_walk_paths(roots, terms, extensions, should_cancel,
                                                 min(deadline, time.monotonic() + 4))
             paths = walked
