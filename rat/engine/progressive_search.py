@@ -187,7 +187,7 @@ class ProgressiveSearch:
                 if embed_fn is not None and not callable(embed_fn):
                     embed_fn = lambda: getattr(self.semantic, 'embedder')
                 self._app_search = AppSearch.from_catalog(self.catalog, embedder_source=embed_fn)
-            for res in self._app_search.search(query, limit=limit, floor=0.3):
+            for res in self._app_search.search(query, limit=limit, floor=0.5):
                 if res['bundle_id'] not in seen_bundles and len(app_matches) < limit:
                     for a in self.catalog.applications:
                         if a.bundle_id == res['bundle_id']:
@@ -341,28 +341,25 @@ class ProgressiveSearch:
             or eff_filters.report_rule
             or eff_filters.sort != 'relevance'
         )
-        if (intent.action == 'open_app' or (not has_file_only_filter and intent.resource_kind != 'file')) and self.catalog is not None:
-            app_query = intent.target_app_query if intent.action == 'open_app' else (
-                intent.query_terms if intent.has_structured_constraints else request.query
-            )
-            meaning_apps = self._search_apps(app_query, limit=request.limit)
-            for a in meaning_apps:
-                if a.resource_id not in seen and len(hits) < request.limit:
-                    hit = SearchHit(
-                        a.resource_id,
-                        'application',
-                        a.name,
-                        a.path,
-                        'application_catalog',
-                        snippet=a.path,
-                        bundle_id=a.bundle_id,
-                        version=a.version,
-                        match_reason='Khớp công dụng',
-                    )
-                    hits.append(hit)
-                    seen.add(a.resource_id)
-
         if intent.action == 'open_app':
+            if self.catalog is not None:
+                app_query = intent.target_app_query
+                meaning_apps = self._search_apps(app_query, limit=request.limit)
+                for a in meaning_apps:
+                    if a.resource_id not in seen and len(hits) < request.limit:
+                        hit = SearchHit(
+                            a.resource_id,
+                            'application',
+                            a.name,
+                            a.path,
+                            'application_catalog',
+                            snippet=a.path,
+                            bundle_id=a.bundle_id,
+                            version=a.version,
+                            match_reason='Khớp công dụng',
+                        )
+                        hits.append(hit)
+                        seen.add(a.resource_id)
             if len(hits) > 1:
                 intent = replace(
                     intent,
@@ -425,6 +422,25 @@ class ProgressiveSearch:
             raise
         except Exception:
             errors.append('semantic_unavailable')
+
+        if (not has_file_only_filter and intent.resource_kind != 'file') and self.catalog is not None:
+            app_query = intent.query_terms if intent.has_structured_constraints else request.query
+            meaning_apps = self._search_apps(app_query, limit=request.limit)
+            for a in meaning_apps:
+                if a.resource_id not in seen and len(hits) < request.limit:
+                    hit = SearchHit(
+                        a.resource_id,
+                        'application',
+                        a.name,
+                        a.path,
+                        'application_catalog',
+                        snippet=a.path,
+                        bundle_id=a.bundle_id,
+                        version=a.version,
+                        match_reason='Khớp công dụng',
+                    )
+                    hits.append(hit)
+                    seen.add(a.resource_id)
         return self._snapshot(request, 'semantic', hits, complete=True, errors=errors, intent=initial.intent or intent)
 
     def snapshots(self, request):

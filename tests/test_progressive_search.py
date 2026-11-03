@@ -719,4 +719,93 @@ def test_real_semantic_index_with_empty_main_db_surfaces_file_via_stat(tmp_path)
         main_db.get_connection().close()
 
 
+def test_file_hits_precede_meaning_apps_under_limit(tmp_path):
+    import numpy as np
+
+    # 3 apps with meaning matches
+    app1 = app_bundle(tmp_path / 'Apps', 'CapCut', 'com.capcut.capcut')
+    app2 = app_bundle(tmp_path / 'Apps', 'FinalCut', 'com.apple.finalcutapp')
+    app3 = app_bundle(tmp_path / 'Apps', 'Figma', 'com.figma.desktop')
+    catalog = ApplicationCatalog.scan([app1.parent])
+
+    file_doc = tmp_path / 'video_guide.txt'
+    file_doc.write_text('huong dan dung video')
+
+    class FakeEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            return np.array([[0.8, 0.0] for _ in texts], dtype=np.float32)
+
+    class FakeSem:
+        embedder = FakeEmbedder()
+        def __call__(self, req):
+            yield str(file_doc)
+
+    db = Database(str(tmp_path / 'main_a.db'))
+    db.get_connection()
+    db.upsert_document(dict(
+        file_path=str(file_doc), file_name=file_doc.name, file_ext=file_doc.suffix,
+        file_size=100, created_at=1, modified_at=10, indexed_at=1,
+        content_text='huong dan dung video', summary='video guide'
+    ))
+
+    engine = ProgressiveSearch(db.db_path, catalog=catalog, semantic=FakeSem())
+    try:
+        # Limit 2 with 3 apps and 1 file: file must be included first, not pushed out
+        req = SearchRequest(1, 'chỉnh video', limit=2)
+        snaps = engine.snapshots(req)
+        init = next(snaps)
+        fin = next(snaps)
+        assert fin.complete
+        assert len(fin.hits) == 2
+        assert any(h.path == str(file_doc) for h in fin.hits)
+    finally:
+        engine.close_connection()
+        db.get_connection().close()
+
+
+def test_meaning_app_scoring_below_half_is_excluded(tmp_path):
+    import numpy as np
+
+    app1 = app_bundle(tmp_path / 'Apps', 'CapCut', 'com.capcut.capcut')
+    app2 = app_bundle(tmp_path / 'Apps', 'Figma', 'com.figma.desktop')
+    catalog = ApplicationCatalog.scan([app1.parent])
+
+    class FakeThresholdEmbedder:
+        def embed_query(self, query):
+            return np.array([1.0, 0.0], dtype=np.float32)
+
+        def embed_texts(self, texts, batch_size=16):
+            vecs = []
+            for t in texts:
+                if 'dựng' in t or 'video' in t:
+                    vecs.append([0.7, 0.0])
+                else:
+                    vecs.append([0.4, 0.0])
+            return np.array(vecs, dtype=np.float32)
+
+    class FakeThreshSem:
+        embedder = FakeThresholdEmbedder()
+        def __call__(self, req):
+            return ()
+
+    db = Database(str(tmp_path / 'main_b.db'))
+    db.get_connection()
+    engine = ProgressiveSearch(db.db_path, catalog=catalog, semantic=FakeThreshSem())
+    try:
+        req = SearchRequest(1, 'dựng phim', limit=5)
+        snaps = engine.snapshots(req)
+        init = next(snaps)
+        fin = next(snaps)
+        assert fin.complete
+        assert any(h.title == 'CapCut' for h in fin.hits)
+        assert not any(h.title == 'Figma' for h in fin.hits)
+    finally:
+        engine.close_connection()
+        db.get_connection().close()
+
+
+
 
