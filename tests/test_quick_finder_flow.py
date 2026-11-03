@@ -1225,6 +1225,75 @@ def test_qml_composer_return_key_opens_first_hit_when_unselected(finder_fixture)
         app.processEvents()
 
 
+def test_command_number_opens_that_row_and_keeps_the_composer(finder_fixture):
+    """⌘1 to ⌘3 work while the composer still holds the query, and each row shows its key."""
+    app = QGuiApplication.instance() or QGuiApplication([])
+    opened_urls = []
+    controller = QuickPDFController(
+        finder_search=finder_fixture["search"],
+        finder_catalog=finder_fixture["catalog"],
+        auto_init_finder=False,
+        open_url=lambda url: opened_urls.append(url) or True,
+    )
+    view = QQuickView()
+    view.setInitialProperties({"liveController": controller, "darkMode": False, "reduceMotion": True})
+    view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / "rat/ui/quick/PDFDesk.qml")))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    view.requestActivate()
+    _process_events(100)
+    command = Qt.KeyboardModifier.ControlModifier
+
+    try:
+        root = view.rootObject()
+        editor = root.findChild(QQuickItem, "draftEditor")
+        editor.forceActiveFocus()
+
+        # No results yet: the key does nothing and types nothing
+        QTest.keyClick(view, Qt.Key.Key_1, command)
+        _process_events(50)
+        assert opened_urls == [] and editor.property("text") == ""
+
+        editor.setProperty("text", "c")
+        _process_events(300)
+        hits = controller.snapshot["finderHits"]
+        openable = [i for i, hit in enumerate(hits[:3]) if not hit["is_pdf"]]
+        assert len(hits) >= 2 and openable
+
+        # Repeater rows are visual children only, so findChild cannot reach them
+        pending, found = [root], {}
+        while pending:
+            item = pending.pop()
+            found[item.objectName()] = item
+            pending.extend(item.childItems())
+        for index, hit in enumerate(hits[:3]):
+            assert found[f"finderHitKey_{index}"].isVisible(), hit["title"]
+
+        keys = [Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3]
+        for index in openable:
+            opened_urls.clear()
+            QTest.keyClick(view, keys[index], command)
+            _process_events(50)
+            assert [url.toLocalFile() for url in opened_urls] == [hits[index]["path"]]
+            assert editor.property("text") == "c"
+
+        # A row that does not exist opens nothing
+        if len(hits) < 3:
+            opened_urls.clear()
+            QTest.keyClick(view, Qt.Key.Key_3, command)
+            _process_events(50)
+            assert opened_urls == []
+    finally:
+        controller.close()
+        view.close()
+        view.setSource(QUrl())
+        view.deleteLater()
+        controller.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+
+
 def test_qml_composer_return_submits_when_question(finder_fixture):
     """When text is a question, Return asks Chuột instead of opening hits."""
     app = QGuiApplication.instance() or QGuiApplication([])

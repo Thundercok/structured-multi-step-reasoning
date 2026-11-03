@@ -254,6 +254,17 @@ Rectangle {
         const command = value.trim().toLowerCase()
         return command === "/apps" || command === "ứng dụng" || command === "mở ứng dụng"
     }
+    function openVisibleFinderHit(index) {
+        var hit = (visibleFinderHits || [])[index]
+        if (!hit) return
+        selectedFinderIndex = -1
+        liveController.openSelectedHit(index)
+        if (hit.is_pdf) {
+            editor.text = ""
+            editor.forceActiveFocus()
+        }
+    }
+
     function submitDraft() {
         if (liveMode) {
             if (!liveSnapshot.busy) {
@@ -348,13 +359,7 @@ Rectangle {
                     }
                 } else if (!liveController.isQuestion(editor.text)) {
                     event.accepted = true
-                    selectedFinderIndex = -1
-                    var isPdf = Boolean(hit.is_pdf)
-                    liveController.openSelectedHit(hitIdx)
-                    if (isPdf) {
-                        editor.text = ""
-                        editor.forceActiveFocus()
-                    }
+                    openVisibleFinderHit(hitIdx)
                     return
                 }
             }
@@ -2994,6 +2999,9 @@ Rectangle {
             }
         }
     }
+    Shortcut { sequences: ["Ctrl+1", "Meta+1"]; enabled: desk.liveMode && desk.hasFinderPreview; onActivated: desk.openVisibleFinderHit(0) }
+    Shortcut { sequences: ["Ctrl+2", "Meta+2"]; enabled: desk.liveMode && desk.hasFinderPreview; onActivated: desk.openVisibleFinderHit(1) }
+    Shortcut { sequences: ["Ctrl+3", "Meta+3"]; enabled: desk.liveMode && desk.hasFinderPreview; onActivated: desk.openVisibleFinderHit(2) }
     Shortcut {
         sequences: ["Ctrl+Shift+L", "Meta+Shift+L"]
         enabled: desk.liveMode && !desk.liveSnapshot.busy

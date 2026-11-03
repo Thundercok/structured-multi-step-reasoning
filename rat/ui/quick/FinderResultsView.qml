@@ -157,6 +157,26 @@ ColumnLayout {
                                     }
 
                                     Rectangle {
+                                        objectName: "finderHitKey_" + index
+                                        visible: index < 3
+                                        radius: 4
+                                        color: desk.utilitySurface
+                                        border.width: 1
+                                        border.color: desk.edge
+                                        implicitHeight: 18
+                                        implicitWidth: hitKeyText.implicitWidth + 8
+                                        Layout.alignment: Qt.AlignVCenter
+                                        Label {
+                                            id: hitKeyText
+                                            anchors.centerIn: parent
+                                            text: "⌘" + (index + 1)
+                                            textFormat: Text.PlainText
+                                            color: desk.muted
+                                            font.pixelSize: 10
+                                        }
+                                    }
+
+                                    Rectangle {
                                         id: kindBadge
                                         radius: 4
                                         color: desk.backingColor

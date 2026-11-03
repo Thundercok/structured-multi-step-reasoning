@@ -24,7 +24,7 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 ## 1. Nhanh: mỗi lệnh một phím
 
-1.1 đã xong: `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
+1.1 và 1.2 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
 
 | # | Bước | Xong khi |
 | --- | --- | --- |
@@ -43,6 +43,7 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 | 2.3 | Dán đoạn văn vào ô nhập là dịch, dùng lại nhận diện đoạn văn của `goal_routing` | Đoạn tiếng Anh dài ra bản dịch, không qua model |
 | 2.4 | Thả hoặc dán ảnh chụp để OCR rồi dịch, lấy `rat/ui/image_*.py` từ tag `rat-lite-0.6.0` | Ảnh chụp đoạn PDF ra bản dịch |
 | 2.5 | Tiến độ index hiện ở dòng trạng thái | Biết đang đọc tới đâu, ẩn khi xong |
+| 2.6 | Chỉ câu nói rõ "app" hoặc "mở" mới đưa app lên đầu; còn lại file trước | "viết văn bản" có file thì ⌘1 mở file, không bị 3 app che mất |
 
 ## 3. Có hồn: từng chi tiết
 
