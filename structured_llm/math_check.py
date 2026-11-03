@@ -127,7 +127,7 @@ def _numeric(expr, values):
     return complex(value)
 
 
-def compare(left, right, seed=0):
+def compare(left, right, seed=0, tolerance=1e-6):
     """Return TRUE, FALSE, CONDITIONAL, or None if the two sides can't be evaluated."""
     previous = signal.signal(signal.SIGALRM, _raise_timeout)
     signal.setitimer(signal.ITIMER_REAL, _TIMEOUT_SECONDS)
@@ -137,7 +137,7 @@ def compare(left, right, seed=0):
         for _ in range(_POINTS if symbols else 1):
             values = {symbol: rng.uniform(1.5, 4.5) for symbol in symbols}
             a, b = _numeric(left, values), _numeric(right, values)
-            if abs(a - b) > 1e-6 * max(1.0, abs(a), abs(b)):
+            if abs(a - b) > tolerance * max(1.0, abs(a), abs(b)):
                 return CONDITIONAL if symbols else FALSE
         return TRUE
     except (_Timeout, Exception):
@@ -183,6 +183,26 @@ def boxed_answer(text):
     return inner[0] if inner else None
 
 
+def _latex_symbols(text):
+    """Models often write π and √5 where the dataset writes \\pi and \\sqrt{5}."""
+    text = re.sub(r"√\s*\(([^()]*)\)", r"\\sqrt{\1}", text)
+    text = re.sub(r"√\s*\{([^{}]*)\}", r"\\sqrt{\1}", text)
+    text = re.sub(r"√\s*([0-9a-z]+)", r"\\sqrt{\1}", text)
+    return text.replace("π", "\\pi ").replace("×", "\\cdot ").replace("−", "-")
+
+
+def _plain_expression(text):
+    """Return an answer line that is itself an expression, like "4x^2 + 2/x", or None.
+
+    A digit, a space and then a letter reads as a unit ("6 m"), which the caller reduces to its number.
+    """
+    text = text.strip().rstrip(".")
+    words = re.sub(r"\\[a-z]+|sqrt|pi", " ", text)
+    if not re.search(r"[a-z\\]", text) or re.search(r"[a-zA-Z]{2}|\d\s+[a-zA-Z]", words):
+        return None
+    return text if parse(to_expression(text)) is not None else None
+
+
 def final_answer(text):
     """Find the final answer's LaTeX in an output: boxed, an Answer line, or its last math or number."""
     if "</think>" in text:
@@ -192,17 +212,20 @@ def final_answer(text):
         tail = line[0] if line else ""
     else:
         tail = text
-    tail = tail.split("\nQuestion:")[0]
+    tail = _latex_symbols(tail.split("\nQuestion:")[0])
     if not tail.strip():
         return None
     if (boxed := boxed_answer(tail)) is not None:
         return boxed
     tail = tail.replace("**", "")
-    if match := re.findall(r"Answer:\s*(.+)", tail):
-        tail = match[-1]
+    answer_line = re.findall(r"Answer:\s*(.+)", tail)
+    if answer_line:
+        tail = answer_line[-1]
     segments = list(_math_segments(tail))
     if segments:
         return segments[-1]
+    if answer_line and (expression := _plain_expression(tail)) is not None:
+        return expression
     numbers = re.findall(r"-?\d[\d,]*(?:\.\d+)?(?:/\d+)?", tail)
     if numbers:
         return numbers[-1]
@@ -217,7 +240,8 @@ def same_answer(found, gold):
     if normal(found) == normal(gold):
         return True
     a, b = parse(to_expression(found)), parse(to_expression(gold))
-    return a is not None and b is not None and compare(a, b) == TRUE
+    # Tighter than the equation check: 99999999 is not 100000000, though a rounded step may pass there.
+    return a is not None and b is not None and compare(a, b, tolerance=1e-9) == TRUE
 
 
 def check_text(text):

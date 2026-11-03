@@ -8,9 +8,11 @@ from structured_llm.math_check import (
     check_text,
     compare,
     equations,
+    final_answer,
     is_covered,
     is_trivial,
     parse,
+    same_answer,
     to_expression,
 )
 
@@ -98,3 +100,38 @@ def test_check_text_records_false_equations():
     result = check_text("Here $2+2=5$ and $\\boxed{5}$.")
     assert result["counts"][FALSE] == 1
     assert result["false_examples"] == ["2+2 = 5"]
+
+
+@pytest.mark.parametrize("line, gold", [
+    ("27π", "27\\pi"),
+    ("7√5", "7\\sqrt{5}"),
+    ("7√(5)", "7\\sqrt{5}"),
+    ("108π", "108\\pi"),
+    ("4x^2 + 2/x", "\\frac{2}{x} + 4x^2"),
+    ("$27π$", "27\\pi"),
+    ("\\boxed{7√5}", "7\\sqrt{5}"),
+    ("72", "72"),
+    ("6 m", "6"),
+    ("6 cm", "6"),
+    ("72 square units", "72"),
+    ("x = 5", "5"),
+    ("1,000", "1000"),
+    ("35/38", "\\frac{35}{38}"),
+    ("52.5", "\\frac{105}{2}"),
+])
+def test_answer_line_is_read_whole(line, gold):
+    assert same_answer(final_answer(f"<think>\nStep 1: x\n</think>\n\nAnswer: {line}"), gold)
+
+
+@pytest.mark.parametrize("line, gold", [
+    ("99999999", "100000000"),
+    ("22", "7\\pi"),
+    ("72 - 6p", "12-p"),
+    ("27", "27\\pi"),
+])
+def test_wrong_answers_stay_wrong(line, gold):
+    assert not same_answer(final_answer(f"<think>\nStep 1: x\n</think>\n\nAnswer: {line}"), gold)
+
+
+def test_equation_check_keeps_its_rounding_tolerance():
+    assert verdict("\\sqrt{2}", "1.414214") == TRUE

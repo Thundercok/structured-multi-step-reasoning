@@ -184,6 +184,8 @@ MATH-500 đầy đủ.
 
 **Luật đọc cổng 3b, ghi ngày 2026-11-03, trước khi có số của `base_showcalc` và `base_pal`:** trên 100 câu đầu của dev-khó, qua cổng nếu cả hai chế độ đúng ≤ 84/100 (cận trên Wilson 95% dưới 90%). Nếu có chế độ đúng trên 84/100 thì chạy đủ 500 câu và áp ngưỡng gốc ≤ 90%. Lúc ghi luật đã thấy một phần kết quả của `base_prefill`, chế độ không tính cho cổng này.
 
+**Sửa bộ chấm đáp án MATH, 2026-11-03, sau khi đọc các câu sai của `base_prefill` và trước khi xem số của `base_showcalc`, `base_pal`.** Trên 100 câu `base_prefill`, bộ chấm cũ sai 7 câu: 6 đáp án đúng bị chấm sai vì `27π`, `7√5` hay `4x^2 + 2/x` bị rút còn số cuối, và 1 đáp án sai được chấm đúng (99999999 so với 100000000) vì sai số cho phép quá rộng. Số câu đúng đổi từ 58 thành 63. Ngưỡng của cổng không đổi. **Đọc cổng bằng `python -m structured_llm.analyze`, không dùng `summary.json`**, vì lượt đo đang chạy vẫn giữ mã cũ. Agent mới đọc các câu bị chấm sai và các câu có đáp án khác chuỗi với đáp án mẫu, chưa có người rà.
+
 ## Cỡ mẫu và thời gian máy
 
 | Cần đo | Cỡ mẫu (alpha 0,05, power 0,8) |
