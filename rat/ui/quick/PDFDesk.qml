@@ -28,6 +28,9 @@ Rectangle {
     // How far the sheet behind the results has shifted. It rests where it lands until the next result.
     readonly property var translation: liveSnapshot.view === "answer" ? (liveSnapshot.translation || null) : null
     property bool translationSourceOpen: false
+    // The draft Enter stopped on to ask. Editing the draft retires the question by itself.
+    property string intentChoiceText: ""
+    readonly property bool intentChoiceOpen: intentChoiceText.length > 0 && intentChoiceText === editor.text
     property real paperNudgeTarget: 0
     property real paperNudge: paperNudgeTarget
     property string lastResultSignature: ""
@@ -281,7 +284,8 @@ Rectangle {
     // Esc goes back one step from any screen and never touches what is being typed.
     function escapeOneStep() {
         var view = liveSnapshot.view
-        if (inlineFindOpen) inlineFindOpen = false
+        if (intentChoiceOpen) intentChoiceText = ""
+        else if (inlineFindOpen) inlineFindOpen = false
         else if (view === "reading") liveController.closeReadingDesk()
         else if (view === "apps") editor.text = liveController.closeAppsView()
         else if (view === "finder" && selectedFinderIndex >= 0) selectedFinderIndex = -1
@@ -343,6 +347,16 @@ Rectangle {
         var text = editor.text
         return (text.length >= 35 || text.indexOf("\n") >= 0) && liveController.isForeignPassage(text)
     }
+    function chooseTranslateDraft() {
+        intentChoiceText = ""
+        liveController.translatePassage(editor.text)
+        editor.forceActiveFocus()
+    }
+    function chooseFindDraft() {
+        intentChoiceText = ""
+        liveController.showFinderForDraft()
+        editor.forceActiveFocus()
+    }
     function translateIfPassage() {
         if (liveSnapshot.view === "reading" || !draftIsForeignPassage()) return false
         liveController.translatePassage(editor.text)
@@ -352,6 +366,14 @@ Rectangle {
         if (liveMode) {
             if (!liveSnapshot.busy) {
                 if (translateIfPassage()) return
+                if (intentChoiceOpen) {
+                    chooseTranslateDraft()
+                    return
+                }
+                if (selectedFinderIndex < 0 && liveController.needsIntentChoice(editor.text)) {
+                    intentChoiceText = editor.text
+                    return
+                }
                 if (editor.text.trim() === "" && liveSnapshot.view === "finder" && (visibleFinderHits || []).length > 0) {
                     var hitIdx = selectedFinderIndex >= 0 ? selectedFinderIndex : 0
                     if (hitIdx < visibleFinderHits.length) {
@@ -2980,6 +3002,11 @@ Rectangle {
                         Keys.onEscapePressed: event => { event.accepted = desk.liveMode && desk.escapeOneStep() }
                         Keys.onTabPressed: event => {
                             if (desk.liveMode) {
+                                if (desk.intentChoiceOpen) {
+                                    event.accepted = true
+                                    desk.chooseFindDraft()
+                                    return
+                                }
                                 if (desk.liveSnapshot.view === "finder" && (desk.visibleFinderHits || []).length > 0) {
                                     event.accepted = true
                                     var idx = desk.selectedFinderIndex >= 0 ? desk.selectedFinderIndex : 0
@@ -3076,8 +3103,34 @@ Rectangle {
                             opacity: 0.65
                             font.pixelSize: 11
                         }
+                        Row {
+                            objectName: "intentChoiceBar"
+                            visible: desk.intentChoiceOpen
+                            spacing: 8
+                            Label {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "Chuột nên làm gì?"
+                                color: desk.ink
+                                font.pixelSize: 11
+                                font.weight: Font.Medium
+                            }
+                            KeycapBadge {
+                                objectName: "intentChoiceTranslate"
+                                labelText: "Dịch"
+                                keyText: "↵"
+                                primary: true
+                                onClicked: desk.chooseTranslateDraft()
+                            }
+                            KeycapBadge {
+                                objectName: "intentChoiceFind"
+                                labelText: "Tìm file"
+                                keyText: "Tab"
+                                onClicked: desk.chooseFindDraft()
+                            }
+                        }
+                        Item { visible: desk.intentChoiceOpen; Layout.fillWidth: true }
                         Rectangle {
-                            visible: !pdfDropArea.containsDrag && !desk.liveSnapshot.busy && desk.liveSnapshot.view === "none" && !desk.liveSnapshot.fileName
+                            visible: !desk.intentChoiceOpen && !pdfDropArea.containsDrag && !desk.liveSnapshot.busy && desk.liveSnapshot.view === "none" && !desk.liveSnapshot.fileName
                             implicitWidth: 6
                             implicitHeight: 6
                             radius: 3
@@ -3086,7 +3139,7 @@ Rectangle {
                         }
                         Row {
                             objectName: "composerKeyHintRow"
-                            visible: desk.composerKeyHints.length > 0
+                            visible: desk.composerKeyHints.length > 0 && !desk.intentChoiceOpen
                             spacing: 8
                             Repeater {
                                 model: desk.composerKeyHints
@@ -3103,6 +3156,7 @@ Rectangle {
                         }
                         Label {
                             objectName: "composerDropStatus"
+                            visible: !desk.intentChoiceOpen
                             Layout.fillWidth: true
                             text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status

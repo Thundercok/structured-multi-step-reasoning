@@ -23,7 +23,7 @@ from PyQt6.QtGui import QDesktopServices, QGuiApplication
 from rat.config import config
 from rat.engine.app_resolver import ApplicationCatalog, revalidate_application_bundle
 from rat.engine.finder_intent import parse_finder_intent
-from rat.engine.goal_routing import FIND, OPEN, looks_like_passage
+from rat.engine.goal_routing import FIND, OPEN, TRANSLATE, looks_like_passage
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
 from rat.engine.semantic_index import shared_index
 from rat.engine.semantic_reranker import SemanticFuzzyReranker
@@ -194,6 +194,11 @@ def is_question_query(text: str) -> bool:
         return True
     if len(words) > 8:
         return True
+    return _starts_like_a_question(q)
+
+
+def _starts_like_a_question(q: str) -> bool:
+    words = q.split()
     first_word = words[0].strip(".,!?:;\"'()[]{}«»“”").lower()
     if first_word in QUESTION_WORDS:
         return True
@@ -205,6 +210,29 @@ def is_question_query(text: str) -> bool:
 
 
 APP_REQUEST = re.compile(r"^(?:app|apps|application|ứng dụng|ung dung|phần mềm|phan mem)\b", re.I)
+
+
+def offers_find_or_translate(text: str) -> bool:
+    """A foreign sentence too short to be surely a passage: it could be text to translate or a file to find.
+
+    Language detection reads unaccented Vietnamese as Indonesian, French or Czech, and English file
+    names read as English, so word count alone is not enough. It takes closing punctuation, or nine
+    words of English. Measured 2026-11-04: asks on 7 of 8 sentences, on 0 of 28 searches and questions,
+    and on 0 of the 23 draft queries in `~/.rat/search_quality.json`.
+    """
+    q = (text or "").strip()
+    words = q.split()
+    if len(words) < 4 or "\n" in q or looks_like_passage(q):
+        return False
+    if FIND.match(q) or OPEN.match(q) or TRANSLATE.match(q) or re.search(r"[/\\]|\.\w{2,4}$", q):
+        return False
+    if q.endswith(("?", "？")) or _starts_like_a_question(q):
+        return False
+    from rat.engine.snippet_translation import detect_language
+    language = detect_language(q)
+    if language in (None, "vi"):
+        return False
+    return q[-1] in ".!" or (len(words) >= 9 and language == "en")
 
 
 def order_finder_hits(raw_hits: List[Dict[str, Any]], query: str, intent: Any = None) -> List[Dict[str, Any]]:
@@ -1763,6 +1791,13 @@ class QuickPDFController(QObject):
             self._finder_hits = []
             self.changed.emit()
 
+    @pyqtSlot()
+    def showFinderForDraft(self):
+        """The user chose to search with this draft: show what was found, or say nothing was."""
+        if not self.openFinderSuggestions():
+            self._finder_feedback = "Chuột không tìm ra file nào cho đoạn này."
+            self.changed.emit()
+
     @pyqtSlot(result=bool)
     def openFinderSuggestions(self) -> bool:
         """Explicitly open latent Finder suggestions from the subtle drawer tab."""
@@ -2066,6 +2101,13 @@ class QuickPDFController(QObject):
             return False
         from rat.engine.snippet_translation import detect_language
         return detect_language(clean) not in (None, "vi")
+
+    @pyqtSlot(str, result=bool)
+    def needsIntentChoice(self, text: str) -> bool:
+        """Whether Enter should first ask: translate this, or find a file?"""
+        if self._selection is not None or self._assistant_sources or self._view not in ("none", "finder"):
+            return False
+        return offers_find_or_translate(text)
 
     @pyqtSlot(str)
     def translatePassage(self, text: str):

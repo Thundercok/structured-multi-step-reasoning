@@ -1,8 +1,10 @@
 """A long foreign passage in the composer is translated without calling a model."""
+import pytest
 from PyQt6.QtCore import QPointF, Qt
 from PyQt6.QtQuick import QQuickItem
 from PyQt6.QtTest import QTest
 
+from rat.ui.quick_pdf_controller import offers_find_or_translate
 from tests.test_quick_unified_flow import app, quick_env, wait_for  # noqa: F401
 
 PASSAGE = ("Attention mechanisms allow a neural network to focus on the most relevant parts of its input "
@@ -171,3 +173,92 @@ def test_method_line_only_states_what_the_result_reports():
     partial = method_line({"provider": "deepl", "status": "partial",
                            "warnings": ["Có thay đổi ở chữ số; hãy đối chiếu nguyên văn."]})
     assert partial == "Dịch qua DeepL · còn đoạn chưa dịch được · Có thay đổi ở chữ số; hãy đối chiếu nguyên văn."
+
+
+SENTENCE = "We evaluated the model on three public benchmarks."
+
+
+@pytest.fixture
+def fake_language(monkeypatch):
+    # Real detection needs macOS. These cover the rule; its measured table is in the docstring.
+    def detect(text):
+        return "vi" if "ộ" in text else ("id" if "bai tap" in text else "en")
+    monkeypatch.setattr("rat.engine.snippet_translation.detect_language", detect)
+
+
+@pytest.mark.parametrize("text, asks", [
+    (SENTENCE, True),
+    ("This paper proposes a new method for routing vehicles", True),
+    ("vehicle routing problem with time windows", False),
+    ("final report draft version 3 for review", False),
+    ("AI ethics report", False),
+    ("bai tap giai tich tuan 12 cua nhom toi nam nay", False),
+    ("tìm hợp đồng thuê nhà của tôi.", False),
+    ("find my thesis draft from last week.", False),
+    ("open the budget spreadsheet right now.", False),
+    ("translate this short sentence for me.", False),
+    ("what is binary search and why use it.", False),
+    ("Does this model work on three public benchmarks?", False),
+    ("budget report for the third quarter.pdf", False),
+    (PASSAGE, False),
+    ("", False),
+])
+def test_when_a_sentence_offers_find_or_translate(fake_language, text, asks):
+    assert offers_find_or_translate(text) is asks
+
+
+def _choice_visible(root):
+    return _named(root, "intentChoiceBar").property("visible")
+
+
+def test_enter_asks_first_then_enter_translates(quick_env, fake_language):
+    control, root = quick_env.controller, quick_env.root
+    control._translator = RecordingTranslator()
+    editor = press_return(quick_env, SENTENCE)
+    QTest.qWait(30)
+    assert _choice_visible(root)
+    assert control._translator.calls == []
+    assert quick_env.backend.run_calls == []
+
+    QTest.keyClick(quick_env.view, Qt.Key.Key_Return)
+    wait_for(lambda: control.snapshot["translation"] is not None)
+    assert control._translator.calls[0][0] == SENTENCE
+    assert editor.property("text") == ""
+    assert not _choice_visible(root)
+
+
+def test_tab_chooses_find_and_keeps_the_draft(quick_env, fake_language):
+    control, root = quick_env.controller, quick_env.root
+    control._translator = RecordingTranslator()
+    editor = press_return(quick_env, SENTENCE)
+    QTest.qWait(30)
+    QTest.keyClick(quick_env.view, Qt.Key.Key_Tab)
+    QTest.qWait(30)
+    assert not _choice_visible(root)
+    assert control._translator.calls == []
+    assert editor.property("text") == SENTENCE
+    assert control.snapshot["view"] == "finder" or "không tìm ra" in control.snapshot["finderFeedback"]
+
+
+def test_esc_or_editing_retires_the_question(quick_env, fake_language):
+    root = quick_env.root
+    editor = press_return(quick_env, SENTENCE)
+    QTest.qWait(30)
+    assert _choice_visible(root)
+    QTest.keyClick(quick_env.view, Qt.Key.Key_Escape)
+    QTest.qWait(30)
+    assert not _choice_visible(root)
+    assert editor.property("text") == SENTENCE
+
+    press_return(quick_env, SENTENCE)
+    QTest.qWait(30)
+    assert _choice_visible(root)
+    editor.setProperty("text", SENTENCE + " Also")
+    QTest.qWait(30)
+    assert not _choice_visible(root)
+
+
+def test_a_search_is_not_asked_about(quick_env, fake_language):
+    press_return(quick_env, "vehicle routing problem with time windows")
+    QTest.qWait(30)
+    assert not _choice_visible(quick_env.root)
