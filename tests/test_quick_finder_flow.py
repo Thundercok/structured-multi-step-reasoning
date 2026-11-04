@@ -1689,17 +1689,34 @@ def test_hover_brings_the_rat_out_without_it_fleeing_the_cursor(finder_fixture):
         _dispose(view, controller)
 
 
-def test_narrow_desk_keeps_the_rat_above_the_composer(finder_fixture):
+def test_narrow_desk_hides_the_rat_too_and_it_stands_on_the_composer(finder_fixture):
     app = QGuiApplication.instance() or QGuiApplication([])
     view, controller = _sized_desk(finder_fixture, 520)
     try:
         root = view.rootObject()
         assert not root.property('ratBesideComposer')
-        rat = _scene_rect(root.findChild(QQuickItem, 'mascotCrop'))
-        composer = _scene_rect(root.findChild(QQuickItem, 'composer'))
+        rat, composer = _rat_and_composer(root)
+        assert rat[1] == pytest.approx(composer[1] - root.property('ratPeekHeight'))
+        assert composer[1] < rat[3] <= composer[3]
+
+        controller._set_shortcut_ack('Đã chép đường dẫn a.txt.')
+        _process_events(50)
+        rat, composer = _rat_and_composer(root)
         assert rat[3] == pytest.approx(composer[1])
         assert rat[0] >= 0 and rat[2] <= view.width()
-        assert not root.findChild(QQuickItem, 'ratBubbleTail').property('visible')
+        # No room for it to speak into the composer from the side.
+        assert not _tail_visible(root)
+
+        controller._set_shortcut_ack('')
+        root.findChild(QQuickItem, 'draftEditor').setProperty('text', 'calc')
+        _process_events(400)
+        assert controller.snapshot['view'] == 'finder'
+        assert not _rat_visible(root)
+        controller._set_shortcut_ack('Đã chép đường dẫn a.txt.')
+        _process_events(50)
+        # A paper fills the space above, so it stays down rather than cover the rows.
+        assert not root.property('ratOut')
+        assert not _rat_visible(root)
     finally:
         _dispose(view, controller)
 

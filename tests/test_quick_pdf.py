@@ -199,7 +199,9 @@ def test_real_qml_search_read_copy_back_error_and_draft(app, controller, tmp_pat
         root.setProperty("darkMode", True)
         QTest.qWait(50)
         click(view, root, "copyCitation")
-        assert root.findChild(QQuickItem, "resultPaper").width() <= 370
+        paper = root.findChild(QQuickItem, "resultPaper")
+        assert paper.mapToScene(QPointF(0, 0)).x() >= 0
+        assert paper.mapToScene(QPointF(paper.width(), 0)).x() <= view.width()
         if capture:
             assert view.grabWindow().save(str(Path(capture) / "pdf-long-page-dark-520.png"))
         assert warnings == []

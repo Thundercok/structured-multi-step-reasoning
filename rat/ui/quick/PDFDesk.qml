@@ -39,7 +39,10 @@ Rectangle {
     // Position derives from these two factors and the composer, so it can never lag a resizing window.
     readonly property bool ratHasNews: Boolean(liveSnapshot.shortcutAck) || intentChoiceOpen || liveSnapshot.view === "error"
         || Boolean(liveSnapshot.finderFeedback) || Boolean(liveSnapshot.launchFeedback) || copied
-    readonly property bool ratOut: ratBesideComposer && (ratHasNews || ratHeadZone.containsMouse || ratSideZone.containsMouse)
+    // A narrow desk has no room beside the composer, so Chuột stands on top of it instead, and only with no paper there.
+    readonly property bool ratPeeks: liveMode && !isSideBySidePdfActive
+    readonly property bool ratOut: ratPeeks && (ratBesideComposer || !(expanded && hasWorkbench))
+        && (ratHasNews || ratHeadZone.containsMouse || ratSideZone.containsMouse)
     readonly property bool ratTucked: !ratOut && ((expanded && hasWorkbench) || hasLatentFinderHits)
     property real ratPop: ratOut ? 1 : 0
     property real ratTuck: ratTucked ? 1 : 0
@@ -755,7 +758,7 @@ Rectangle {
         anchors.rightMargin: desk.liveMode ? 24 : 32
         anchors.bottomMargin: desk.liveMode ? 24 : 28
         height: parent.height - (desk.liveMode ? 48 : 100)
-        readonly property int paperOffset: desk.roomyActive || desk.ratBesideComposer ? 0 : (width < 520 ? 110 : 128)
+        readonly property int paperOffset: desk.roomyActive || desk.ratPeeks ? 0 : (width < 520 ? 110 : 128)
 
         Rectangle {
             visible: desk.expanded && desk.hasWorkbench
@@ -2461,7 +2464,7 @@ Rectangle {
             id: note
             objectName: "notice"
             visible: !desk.expanded && desk.hasWorkbench
-            x: composer.x + (desk.ratBesideComposer ? 20 : 126)
+            x: composer.x + (desk.ratPeeks ? 20 : 126)
             y: composer.y - height + (desk.hasAnswerPreview ? 12 : 7)
             width: desk.hasAnswerPreview || (desk.liveMode && desk.liveSnapshot.busy) || desk.hasFinderPreview ? Math.min(360, composer.width - 126) : Math.min(228, composer.width - 126)
             height: desk.hasAnswerPreview ? Math.max(76, Math.min(112, minPreviewContent.implicitHeight + topPadding + bottomPadding)) : desk.hasFinderPreview || desk.hasPagePreview || (desk.liveMode && desk.liveSnapshot.busy) ? Math.max(48, minPreviewContent.implicitHeight + topPadding + bottomPadding) : desk.noticeVisible ? 61 : 48
@@ -2538,22 +2541,24 @@ Rectangle {
         Item {
             id: mascotItem
             objectName: "mascotCrop"
-            visible: desk.ratBesideComposer ? (desk.ratPop > 0.01 || desk.ratTuck < 0.99)
+            visible: desk.ratPeeks ? (desk.ratPop > 0.01 || desk.ratTuck < 0.99)
                 : (!desk.expanded && !desk.liveSnapshot.busy && !desk.isSideBySidePdfActive)
             readonly property real hideX: composer.x + composer.width - 118
             readonly property real hideY: composer.y - desk.ratPeekHeight + (desk.ratPeekHeight + 1) * desk.ratTuck
-            x: desk.ratBesideComposer ? hideX + (composer.x + composer.width + 12 - hideX) * desk.ratPop : Math.max(4, composer.x - 110)
-            y: (desk.ratBesideComposer ? hideY + (composer.y + composer.height - 110 - hideY) * desk.ratPop : composer.y - 116)
+            readonly property real outX: desk.ratBesideComposer ? composer.x + composer.width + 12 : hideX
+            readonly property real outY: desk.ratBesideComposer ? composer.y + composer.height - 110 : composer.y - 110
+            x: desk.ratPeeks ? hideX + (outX - hideX) * desk.ratPop : Math.max(4, composer.x - 110)
+            y: (desk.ratPeeks ? hideY + (outY - hideY) * desk.ratPop : composer.y - 116)
                 + (mascotWobble.running ? mascotWobble.offsetY : 0)
             // Cropped while hiding: on the right so its tail stays out of sight, and below
             // as it sinks so its feet never stick out under the composer.
-            width: desk.ratBesideComposer ? 62 + 42 * desk.ratPop : 122
-            height: desk.ratBesideComposer ? 110 - 30 * desk.ratTuck * (1 - desk.ratPop) : 116
+            width: desk.ratPeeks ? 62 + 42 * desk.ratPop : 122
+            height: desk.ratPeeks ? 110 - 30 * desk.ratTuck * (1 - desk.ratPop) : 116
             clip: true
             z: 4
             rotation: mascotWobble.running ? mascotWobble.rot : 0
             Image {
-                width: desk.ratBesideComposer ? 104 : 180
+                width: desk.ratPeeks ? 104 : 180
                 height: width * (sourceSize.height / Math.max(1, sourceSize.width))
                 source: desk.mascotSource
                 fillMode: Image.PreserveAspectFit
@@ -2561,7 +2566,7 @@ Rectangle {
                 Accessible.ignored: true
             }
             MouseArea {
-                enabled: !desk.ratBesideComposer
+                enabled: !desk.ratPeeks
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
@@ -2719,7 +2724,7 @@ Rectangle {
         MouseArea {
             id: ratHeadZone
             objectName: "ratHeadZone"
-            enabled: desk.ratBesideComposer && !desk.ratTucked
+            enabled: desk.ratPeeks && !desk.ratTucked
             x: mascotItem.hideX
             y: composer.y - desk.ratPeekHeight
             width: 62
