@@ -116,7 +116,8 @@ Rectangle {
     readonly property bool roomyActive: (spaciousWorkbench || currentWorkspaceMode === "multi") && expanded && hasWorkbench
     readonly property real composerHeight: composer.height
     property real maxPaperHeight: 520
-    readonly property real preferredWindowHeight: 48 + composer.height + Math.max(116, expanded && hasWorkbench ? resultPaper.height - 22 : 0)
+    readonly property real paperWantedHeight: liveMode ? Math.min(resultContents.implicitHeight + 80, maxPaperHeight) : Math.min(resultContents.implicitHeight + 38, composer.y + 22 - 70)
+    readonly property real preferredWindowHeight: 48 + composer.height + Math.max(116, expanded && hasWorkbench ? paperWantedHeight - 22 : 0)
     readonly property bool hasWorkbench: liveMode ? Boolean(liveSnapshot.hasWorkbench) : phase === "working" || phase === "result"
     readonly property bool hasAnswerPreview: liveMode && liveSnapshot.view === "answer"
     readonly property bool hasReadingPreview: liveMode && liveSnapshot.view === "reading"
@@ -157,7 +158,7 @@ Rectangle {
           + " · " + (liveSnapshot.answerVerification === "PASS" ? "Đạt kiểm tra được báo cáo" : liveSnapshot.answerVerification === "FAIL" ? "Kiểm tra chưa đạt" : "Chưa xác minh")
     readonly property bool noticeVisible: liveMode ? unread && !expanded : phase === "result" && unread && !expanded
     readonly property string sceneKey: hasWorkbench ? (expanded ? phase : unread ? "unread" : "folded") : phase
-    readonly property bool animationsRunning: composerResize.running || paperMove.running
+    readonly property bool animationsRunning: composerResize.running
     readonly property color ink: darkMode ? "#eef0e9" : "#2c302a"
     readonly property color muted: darkMode ? "#b7bdaf" : "#62695e"
     readonly property color paperColor: darkMode ? "#272d25" : "#fdfdf9"
@@ -898,15 +899,14 @@ Rectangle {
             x: desk.isSideBySidePdfActive ? (sidePdfPane.width + 12) : (composer.x + unit.paperOffset)
             y: composer.y + 22 - height
             width: desk.isSideBySidePdfActive ? (unit.width - x) : ((composer.x + composer.width) - x)
-            height: desk.liveMode ? Math.min(resultContents.implicitHeight + 80, desk.maxPaperHeight) : Math.min(resultContents.implicitHeight + 38, composer.y + 22 - 70)
+            // The window catches up with the content a frame later. Until then the paper fits the window
+            // it has, so it never hangs out below the composer or above the top edge.
+            height: desk.liveMode ? Math.min(desk.paperWantedHeight, composer.y + 22) : desk.paperWantedHeight
+            clip: height < desk.paperWantedHeight
             radius: 16
             color: desk.paperColor
             border.color: desk.edge
             z: 1
-            Behavior on y {
-                enabled: desk.readyForMotion && !desk.reduceMotion
-                NumberAnimation { id: paperMove; duration: 160; easing.type: Easing.OutCubic }
-            }
             RowLayout {
                 id: liveHeader
                 visible: desk.liveMode

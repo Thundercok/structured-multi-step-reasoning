@@ -1651,3 +1651,32 @@ def test_narrow_desk_keeps_the_rat_above_the_composer(finder_fixture):
         assert not root.findChild(QQuickItem, 'ratBubbleTail').property('visible')
     finally:
         _dispose(view, controller)
+
+
+def test_paper_fits_the_window_while_the_window_catches_up(finder_fixture):
+    """No bind_desk_window here, so the window stays short: the state of the frame before it grows."""
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _sized_desk(finder_fixture, 720)
+    try:
+        root = view.rootObject()
+        view.resize(720, 258)
+        root.setProperty('reduceMotion', False)
+        root.findChild(QQuickItem, 'draftEditor').setProperty('text', 'tim file danh sach sinh vien')
+        _process_events(400)
+        assert controller.snapshot['view'] == 'finder'
+        wanted = root.property('paperWantedHeight')
+        composer = root.findChild(QQuickItem, 'composer')
+        paper = root.findChild(QQuickItem, 'resultPaper')
+        assert root.property('preferredWindowHeight') == 48 + composer.height() + wanted - 22
+        assert paper.property('y') == pytest.approx(0)
+        assert paper.property('height') == pytest.approx(composer.property('y') + 22)
+        assert paper.property('height') < wanted
+        assert paper.property('clip')
+
+        view.resize(720, round(root.property('preferredWindowHeight')))
+        _process_events(100)
+        assert paper.property('height') == pytest.approx(wanted)
+        assert paper.property('y') == pytest.approx(0)
+        assert not paper.property('clip')
+    finally:
+        _dispose(view, controller)
