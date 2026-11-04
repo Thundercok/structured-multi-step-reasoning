@@ -63,6 +63,18 @@ def test_document_selection_goes_to_document_qa(app, monkeypatch):
     assert answer.call_args.args[2] == request.document_path
 
 
+@pytest.mark.parametrize("target, error", [
+    ({"target_turn_id": "turn-gone"}, "missing_referenced_turn"),
+    ({"target_artifact_id": "art-gone", "target_revision": 1}, "missing_referenced_artifact_revision"),
+])
+def test_missing_reference_fails_before_dispatch(app, target, error):
+    client = runtime()
+    turn_ref = SimpleNamespace(turn_id="turn-new", **target)
+    worker = create_execution_worker(client, ExecutionRequest("fixture", "exec-ref", turn_ref=turn_ref))
+    assert collect(app, worker).error == error
+    client.run.assert_not_called()
+
+
 def test_pre_cancelled_request_does_not_call_runtime(app):
     target = runtime()
     worker = create_execution_worker(target, ExecutionRequest("fixture", "exec-stop"))

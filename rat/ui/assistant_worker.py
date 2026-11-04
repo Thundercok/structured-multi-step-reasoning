@@ -4,7 +4,7 @@ from __future__ import annotations
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
-from rat.engine.execution import ExecutionRequest
+from rat.engine.execution import ExecutionRequest, validate_referenced_context
 
 
 class ErrorDocumentModel:
@@ -146,6 +146,10 @@ def create_execution_worker(runtime, request: ExecutionRequest, *, operation=Non
         if operation is None:
             raise ValueError("missing_operation_callback")
         return ArtifactWorker(operation, parent=parent, request=request, runtime=runtime)
+    try:
+        validate_referenced_context(request.context_snapshot())
+    except ValueError as exc:
+        return AssistantWorker(runtime, request.query, request=request, startup_error=str(exc), parent=parent)
     if request.lane == "document" and not request.document_path:
         return AssistantWorker(runtime, request.query, request=request,
                                startup_error="missing_selected_document", parent=parent)

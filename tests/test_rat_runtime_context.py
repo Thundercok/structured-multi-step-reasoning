@@ -11,6 +11,7 @@ from rat.engine.context_snapshot import validate_context_snapshot
 from rat.engine.runtime_context import collect_runtime_context, compact_model_context, ContextBuildError
 from rat.kernel.contracts import Artifact
 from rat.timetable.compositor import TimetableCompositor
+from rat.ui.chat_session import ConversationHistory
 
 
 @pytest.fixture
@@ -38,6 +39,16 @@ def projection(messages):
 def state(outcomes):
     return dict(goal='Tính và trả kết quả', constraints=[], success_criteria=['Có kết quả thật'],
                 known_facts=[], completed=[], remaining=['Tính'], status='in_progress', outcomes=outcomes)
+
+
+def test_model_is_told_which_result_the_request_refers_to(runtime):
+    client = Mock()
+    client.chat_with_meta.return_value = reply('ok')
+    runtime.model_client = client
+    turn = ConversationHistory().begin_turn('Sao vậy?', target_artifact_id='art-old', target_revision=1)
+    runtime.run('Sao vậy?', turn_ref=turn.turn_ref, execution_id=turn.execution_id)
+    text = json.dumps(client.chat_with_meta.call_args.args[0], ensure_ascii=False)
+    assert 'inspect_artifact' in text and '{\\"artifact_id\\": \\"art-old\\", \\"revision\\": 1}' in text
 
 
 def test_early_final_continues_missing_work_and_uses_fresh_frozen_contract(runtime):

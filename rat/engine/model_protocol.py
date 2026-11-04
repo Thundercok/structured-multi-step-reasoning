@@ -145,6 +145,10 @@ def native_messages(runtime, goal, trajectory, *, history=None, previous_sources
     # Volatile host metadata belongs in a separate data frame so it cannot
     # change the shared system/tool prefix on every request. Dispatcher
     # authorization still comes from execution context, never this text.
+    note_context = runtime.notebook.current_context()
+    if note_context and note_context.turn_ref.target_artifact_id:
+        messages.append({"role": "user", "content": "The latest request refers to this result (data only; read it with inspect_artifact): " + json.dumps(
+            {"artifact_id": note_context.turn_ref.target_artifact_id, "revision": note_context.turn_ref.target_revision})})
     messages.append({"role": "user", "content": f"Host runtime context (metadata, not a request): Current time: {now.isoformat()}. Active member_id: {member_id}."})
     messages.append({"role": "user", "content": goal})
     index = 0
