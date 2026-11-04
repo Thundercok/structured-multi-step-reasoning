@@ -858,7 +858,7 @@ def test_translate_text_worker_delivery_and_reuse(controller, monkeypatch):
     first_translator = controller._translator
     assert first_translator is not None
     assert controller.snapshot["answerText"] == "Dịch: Hello world"
-    assert "Đã dịch từ en sang vi" in controller.snapshot["status"]
+    assert "từ en sang vi" in controller.snapshot["status"]
 
     # Call again: reuses the exact same translator instance on controller
     controller.translateText("Second sentence")
@@ -870,14 +870,14 @@ def test_translate_text_worker_delivery_and_reuse(controller, monkeypatch):
 
     # 2. Text > 8000 chars: status message, no worker call
     controller.translateText("a" * 8001)
-    assert controller.snapshot["status"] == "Văn bản vượt quá giới hạn 8000 ký tự."
+    assert controller.snapshot["status"] == "Đoạn này dài quá, Chuột dịch tối đa 8.000 ký tự một lần."
 
     # 3. Translation failure: visible error status message, does not raise
     controller.translateText("fail_me")
     if getattr(controller, "_last_translation_thread", None):
         controller._last_translation_thread.join(timeout=2.0)
     app.processEvents()
-    assert "Dịch thất bại: Service unavailable" in controller.snapshot["status"]
+    assert "Chuột chưa dịch được: Service unavailable" in controller.snapshot["status"]
 
 
 def test_quick_pdf_startup_indexing_retries_when_busy(tmp_path, monkeypatch):

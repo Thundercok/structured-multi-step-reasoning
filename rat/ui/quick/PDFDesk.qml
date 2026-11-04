@@ -135,7 +135,7 @@ Rectangle {
     }
     readonly property bool hasFinderPreview: liveMode && liveSnapshot.view === "finder" && allFinderHits.length > 0
     readonly property bool incompletePreview: hasAnswerPreview && liveSnapshot.answerOutcome !== "completed"
-    readonly property string previewBody: liveSnapshot.answerExcerpt || (incompletePreview ? (liveSnapshot.status || "Chưa hoàn tất yêu cầu") : "Mở câu trả lời đầy đủ")
+    readonly property string previewBody: liveSnapshot.answerExcerpt || (incompletePreview ? (liveSnapshot.status || "Chuột chưa làm xong việc này.") : "Mở câu trả lời đầy đủ")
     readonly property string previewMeta: incompletePreview ? (liveSnapshot.answerOutcome === "cancelled" ? "Đã dừng · chưa hoàn tất" : "Chưa hoàn tất · mở để xem thông báo")
         : "Xem nhanh" + (liveSnapshot.answerReadScope ? " · " + liveSnapshot.answerReadScope : ((liveSnapshot.answerSources || []).length ? " · " + liveSnapshot.answerSources.length + " tham chiếu" : ""))
           + " · " + (liveSnapshot.answerVerification === "PASS" ? "Đạt kiểm tra được báo cáo" : liveSnapshot.answerVerification === "FAIL" ? "Kiểm tra chưa đạt" : "Chưa xác minh")
@@ -866,8 +866,8 @@ Rectangle {
                         color: desk.liveSnapshot.view === "answer" ? desk.accent : desk.selectedEdge
                     }
                     Label {
-                        text: desk.liveSnapshot.view === "answer" ? (desk.cancelledAnswer ? "Đã dừng yêu cầu" : "Câu trả lời của Chuột")
-                            : (desk.liveSnapshot.view === "busy" ? (desk.liveSnapshot.status || "Đang suy nghĩ…") : ("Trong tài liệu · " + (desk.liveSnapshot.fileName || "PDF")))
+                        text: desk.liveSnapshot.view === "answer" ? (desk.cancelledAnswer ? "Chuột dừng rồi" : "Câu trả lời của Chuột")
+                            : (desk.liveSnapshot.view === "busy" ? (desk.liveSnapshot.status || "Chuột đang nghĩ…") : ("Trong tài liệu · " + (desk.liveSnapshot.fileName || "PDF")))
                         elide: Text.ElideMiddle
                         Layout.maximumWidth: Math.min(215, Math.max(80, resultPaper.width - 150))
                         font.pixelSize: 11

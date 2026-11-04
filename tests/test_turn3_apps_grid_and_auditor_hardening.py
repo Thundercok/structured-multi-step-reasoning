@@ -67,7 +67,7 @@ class TestQuickPDFControllerAppsGrid:
         assert snap["view"] == "apps"
         assert snap["hasWorkbench"]
         assert snap["savedDraft"] == original_draft
-        assert "Ứng dụng đã cài đặt" in snap["status"]
+        assert "ứng dụng trên máy" in snap["status"]
 
         # User filters apps inside apps view
         ctrl.onComposerTextChanged("term")
@@ -152,7 +152,7 @@ class TestQuickPDFControllerBoundaryIntegrity:
 
         # Emit status matching current execution ID and generation
         ctrl._on_execution_status("exec-live", 2, "wait")
-        assert ctrl._status == "Đang chờ kết quả…"
+        assert ctrl._status == "Chuột đang chờ kết quả…"
         ctrl.close()
 
     def test_close_safely_cancels_active_worker(self):

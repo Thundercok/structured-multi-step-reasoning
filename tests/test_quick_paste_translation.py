@@ -49,7 +49,7 @@ def test_failed_translation_keeps_the_draft_and_can_be_retried(quick_env):
     control._translator = FakeTranslator(OSError("model missing"))
     editor = press_return(quick_env, PASSAGE)
 
-    wait_for(lambda: "Dịch thất bại" in (control.snapshot["status"] or ""))
+    wait_for(lambda: "Chuột chưa dịch được" in (control.snapshot["status"] or ""))
     assert editor.property("text") == PASSAGE
     assert not control._composer_translation
 

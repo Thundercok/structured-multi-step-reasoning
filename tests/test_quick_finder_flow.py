@@ -215,7 +215,7 @@ def test_quick_finder_open_app(finder_fixture):
     assert ok is True
     assert len(opened_urls) == 1
     assert finder_fixture["app_path"] in opened_urls[0].toLocalFile()
-    assert controller.snapshot['launchFeedback'] == 'Đã gửi yêu cầu mở Calculator.'
+    assert controller.snapshot['launchFeedback'] == 'Chuột đang mở Calculator.'
     assert not controller.snapshot['launchFeedbackError']
 
     controller.close()
@@ -256,7 +256,7 @@ def test_app_launch_failure_is_inline_and_keeps_workbench(finder_fixture, failur
         assert not controller.openSelectedHit(0)
         after = controller.snapshot
         assert after['launchFeedbackError']
-        assert 'Không thể' in after['launchFeedback']
+        assert 'không mở được' in after['launchFeedback']
         assert 'private OS details' not in after['launchFeedback']
         assert after['view'] == before['view']
         assert after['finderQuery'] == 'calc'
@@ -303,7 +303,7 @@ def test_described_file_can_open_outside_and_missing_file_is_inline(finder_fixtu
         assert [h['path'] for h in controller.snapshot['finderHits']] == [finder_fixture['txt_path']]
         assert controller.openSelectedHit(0)
         assert opened == [finder_fixture['txt_path']]
-        assert controller.snapshot['launchFeedback'] == 'Đã gửi yêu cầu mở danh_sach_lop.txt.'
+        assert controller.snapshot['launchFeedback'] == 'Chuột đang mở danh_sach_lop.txt.'
         Path(finder_fixture['txt_path']).unlink()
         assert not controller.openSelectedHit(0)
         assert controller.snapshot['launchFeedbackError']
@@ -311,7 +311,7 @@ def test_described_file_can_open_outside_and_missing_file_is_inline(finder_fixtu
         controller.onComposerTextChanged('tim file co noi dung nonexistenttopic')
         _process_events(250)
         assert not controller.snapshot['finderHits']
-        assert 'trong chỉ mục' in controller.snapshot['finderFeedback']
+        assert 'chưa thấy tệp khớp' in controller.snapshot['finderFeedback']
         assert not controller.snapshot['launchFeedback']
     finally:
         controller.close()
@@ -970,10 +970,10 @@ def test_dismiss_finder_restores_cancelled_or_empty_answer_state():
         controller._last_assistant_answer = ""
         controller._view = "answer"
         controller._expanded = True
-        controller._status = "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+        controller._status = "Chuột dừng rồi. Chữ bạn đang gõ vẫn còn."
 
         assert controller.snapshot["view"] == "answer"
-        assert controller.snapshot["status"] == "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+        assert controller.snapshot["status"] == "Chuột dừng rồi. Chữ bạn đang gõ vẫn còn."
 
         # Fake finder hits arrived
         controller._finder_hits = [{"kind": "application", "title": "Calculator", "path": "/Applications/Calculator.app"}]
@@ -989,7 +989,7 @@ def test_dismiss_finder_restores_cancelled_or_empty_answer_state():
         controller.dismissFinder()
         assert controller.snapshot["view"] == "answer"
         assert controller.snapshot["expanded"] is True
-        assert controller.snapshot["status"] == "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+        assert controller.snapshot["status"] == "Chuột dừng rồi. Chữ bạn đang gõ vẫn còn."
     finally:
         controller.close()
 
@@ -1103,8 +1103,8 @@ def test_controller_handle_composer_return_open_hit_vs_question_vs_nohits(tmp_pa
         assert res_empty is True
         assert len(opened) == 2
         assert len(submitted) == 1  # Not incremented!
-        assert "Không tìm thấy" in controller.snapshot["status"]
-        assert "Không tìm thấy" in controller.snapshot["finderFeedback"]
+        assert "không tìm ra" in controller.snapshot["status"]
+        assert "không tìm ra" in controller.snapshot["finderFeedback"]
     finally:
         controller.close()
 
@@ -1424,7 +1424,7 @@ def test_qml_composer_return_no_hits_feedback_and_tab_to_ask(finder_fixture):
         assert len(submitted) == 0
         status_label = root.findChild(QQuickItem, "composerDropStatus")
         assert status_label is not None
-        assert "Không tìm thấy" in status_label.property("text")
+        assert "không tìm ra" in status_label.property("text")
         assert "Tab" in status_label.property("text")
 
         # Now press Tab -> sends query to Chuột!

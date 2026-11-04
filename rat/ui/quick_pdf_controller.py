@@ -50,68 +50,90 @@ from rat.kernel.contracts import Artifact, SourceEvidence
 
 logger = logging.getLogger("rat.ui.quick_pdf_controller")
 
+# Mọi thông báo trên bàn nói bằng giọng Chuột: câu ngắn, nói chuyện gì xảy ra rồi làm gì tiếp, không dùng
+# từ kỹ thuật như "mô hình", "token", "ngân sách". Chi tiết kỹ thuật để ở nhật ký (`_events`).
+READY_STATUS = "Chuột sẵn sàng. Bạn cần gì?"
+THINKING_STATUS = "Chuột đang nghĩ…"
+ANSWERED_STATUS = "Xong rồi. Hỏi tiếp cứ gõ."
+STOPPED_STATUS = "Chuột dừng rồi."
+STOPPED_KEEPING_DRAFT_STATUS = "Chuột dừng rồi. Chữ bạn đang gõ vẫn còn."
+TIMEOUT_MESSAGE = "Chuột chờ lâu quá mà chưa có trả lời. Thử lại nhé."
+OLLAMA_DOWN_MESSAGE = "Chuột không gọi được Ollama. Xem Ollama đã chạy chưa nhé."
+TURN_STATUS_LABELS = {
+    "in_progress": "Chuột đang làm",
+    "completed": "đã xong",
+    "failed": "chưa xong",
+    "cancelled": "đã dừng",
+    "needs_input": "Chuột cần bạn nói thêm",
+}
+
+
+def finder_found_status(count: int, query: str) -> str:
+    return f"Chuột tìm ra {count} thứ cho '{query}'" if count else f"Chuột không tìm ra gì cho '{query}'"
+
+
 ERROR_MESSAGES = {
-    "file_not_found": "Tệp không còn tồn tại. Hãy chọn lại PDF.",
-    "file_unreadable": "Không đọc được tệp này. Kiểm tra quyền đọc hoặc chọn PDF khác.",
-    "not_pdf": "Hãy chọn một tệp PDF.",
-    "pdf_too_large": "Luồng này nhận PDF tối đa 64 MiB. Hãy chọn một phần tài liệu nhỏ hơn.",
-    "encrypted_pdf": "PDF yêu cầu mật khẩu. Hãy chọn bản đã mở khóa.",
-    "invalid_pdf": "PDF hỏng hoặc không đọc được cấu trúc. Hãy chọn lại hoặc xuất lại PDF.",
-    "empty_pdf": "PDF này không có trang nào.",
-    "pdf_engine_unavailable": "Bộ đọc PDF hoặc thành phần giải mã cần thiết chưa có sẵn.",
-    "no_text_page": "Trang này không có văn bản trích xuất; có thể là trang trắng hoặc scan/ảnh. OCR chưa chạy.",
-    "pdf_changed": "PDF đã thay đổi sau khi chọn. Hãy chọn lại trước khi tìm, đọc hoặc chép trích dẫn.",
-    "invalid_page": "Số trang nằm ngoài tệp PDF đang chọn.",
-    "empty_query": "Hãy nhập từ hoặc cụm từ cần tìm.",
-    "invalid_citation": "Đoạn chọn không khớp văn bản trang đã đọc. Hãy chọn lại đoạn trích.",
-    "open_failed": "Hệ thống chưa nhận yêu cầu mở PDF gốc.",
+    "file_not_found": "Chuột không thấy tệp này nữa. Chọn lại giúp Chuột nhé.",
+    "file_unreadable": "Chuột không mở được tệp này, có thể do quyền đọc. Thử tệp khác nhé.",
+    "not_pdf": "Chỗ này Chuột chỉ nhận PDF.",
+    "pdf_too_large": "PDF này nặng quá, Chuột nhận tối đa 64 MiB. Tách nhỏ rồi đưa lại nhé.",
+    "encrypted_pdf": "PDF này khóa mật khẩu. Mở khóa rồi đưa lại cho Chuột nhé.",
+    "invalid_pdf": "PDF này hỏng nên Chuột không đọc được. Xuất lại rồi thử nhé.",
+    "empty_pdf": "PDF này trống, không có trang nào.",
+    "pdf_engine_unavailable": "Chuột thiếu bộ đọc PDF nên chưa mở được tệp này.",
+    "no_text_page": "Trang này không có chữ để đọc, có thể là trang trắng hoặc ảnh scan. Chuột chưa chạy OCR.",
+    "pdf_changed": "PDF vừa đổi sau khi bạn chọn. Chọn lại để Chuột khỏi đọc nhầm nhé.",
+    "invalid_page": "Tệp này không có trang đó.",
+    "empty_query": "Bạn muốn Chuột tìm từ gì?",
+    "invalid_citation": "Đoạn bạn chọn không khớp với trang Chuột đã đọc. Chọn lại giúp nhé.",
+    "open_failed": "Máy chưa chịu mở PDF gốc. Thử lại nhé.",
 }
 
 
 ASSISTANT_ERROR_MESSAGES = {
-    "budget_exceeded": "Đã vượt hạn mức ngân sách xử lý.",
-    "timeout": "Hết thời gian chờ phản hồi từ mô hình. Bạn có thể thử lại.",
-    "model_timeout": "Hết thời gian chờ phản hồi từ mô hình. Bạn có thể thử lại.",
-    "unresolved": "Không thể giải quyết yêu cầu với dữ kiện hiện có.",
-    "cancelled": "Đã dừng · có thể gửi yêu cầu mới",
-    "empty_model_response": "Mô hình trả về nội dung rỗng. Bạn có thể thử gửi lại.",
-    "language_mismatch": "Mô hình không trả lời bằng tiếng Việt như yêu cầu. Bạn có thể thử gửi lại.",
-    "step_budget_exhausted": "Đã vượt số bước suy luận tối đa cho phép.",
-    "token_budget_exhausted": "Đã vượt hạn mức số lượng token tối đa.",
-    "task_plan_failed": "Không thể lập kế hoạch xử lý cho yêu cầu này.",
-    "verification_failed": "Kết quả không vượt qua bước kiểm tra đối chiếu dữ liệu.",
-    "selected_document_read_failed": "Không thể đọc nội dung tài liệu đã chọn.",
-    "selected_document_no_text": "Tài liệu đã chọn không có văn bản trích xuất được.",
-    "selected_document_context_too_large": "Tài liệu quá dài so với giới hạn ngữ cảnh.",
-    "missing_selected_document": "Chưa chọn tài liệu để thực hiện yêu cầu này.",
-    "live_model_disabled": "Mô hình ngôn ngữ đang bị tắt trong cấu hình.",
+    "budget_exceeded": "Việc này dài quá nên Chuột dừng giữa chừng. Thử chia nhỏ câu hỏi nhé.",
+    "timeout": TIMEOUT_MESSAGE,
+    "model_timeout": TIMEOUT_MESSAGE,
+    "unresolved": "Chuột chưa đủ dữ kiện để trả lời câu này.",
+    "cancelled": "Chuột dừng rồi. Bạn cần gì tiếp?",
+    "empty_model_response": "Chuột chưa nghĩ ra chữ nào. Gửi lại nhé.",
+    "language_mismatch": "Chuột lỡ không trả lời bằng tiếng Việt. Gửi lại nhé.",
+    "step_budget_exhausted": "Câu này nhiều bước quá nên Chuột dừng giữa chừng. Thử chia nhỏ nhé.",
+    "token_budget_exhausted": "Câu này dài quá sức Chuột một lượt. Thử chia nhỏ nhé.",
+    "task_plan_failed": "Chuột chưa nghĩ ra cách làm việc này.",
+    "verification_failed": "Chuột đối chiếu lại thấy kết quả không khớp dữ liệu.",
+    "selected_document_read_failed": "Chuột không đọc được tài liệu bạn chọn.",
+    "selected_document_no_text": "Tài liệu bạn chọn không có chữ để Chuột đọc.",
+    "selected_document_context_too_large": "Tài liệu này dài quá, Chuột không đọc hết một lượt được.",
+    "missing_selected_document": "Bạn chưa đưa tài liệu nào cho Chuột.",
+    "live_model_disabled": "Phần trả lời của Chuột đang tắt trong cấu hình.",
 }
 
 
 def describe_execution_error(err: Any) -> str:
     err_str = str(err or "").strip()
     if not err_str:
-        return "Không thể hoàn thành yêu cầu."
+        return "Chuột chưa làm xong việc này."
     if err_str in ASSISTANT_ERROR_MESSAGES:
         return ASSISTANT_ERROR_MESSAGES[err_str]
     err_low = err_str.lower()
     if "connection refused" in err_low or "failed to establish a new connection" in err_low or "connection_refused" in err_low:
-        return "Không thể kết nối với dịch vụ mô hình (Ollama). Hãy kiểm tra dịch vụ đã chạy chưa."
+        return OLLAMA_DOWN_MESSAGE
     if "timeout" in err_low or "timed out" in err_low:
-        return "Hết thời gian chờ phản hồi từ mô hình. Bạn có thể thử lại."
+        return TIMEOUT_MESSAGE
     if err_str.startswith("unknown_tool:"):
         tool_name = err_str.split(":", 1)[1]
-        return f"Công cụ '{tool_name}' không khả dụng hoặc chưa được hỗ trợ."
+        return f"Chuột chưa biết dùng công cụ '{tool_name}'."
     if err_str.startswith("task_plan_failed:"):
         detail = err_str.split(":", 1)[1]
         if "connection refused" in detail.lower() or "connection" in detail.lower():
-            return "Không thể kết nối với dịch vụ mô hình (Ollama). Hãy kiểm tra dịch vụ đã chạy chưa."
-        return f"Không thể lập kế hoạch xử lý: {detail}"
+            return OLLAMA_DOWN_MESSAGE
+        return f"Chuột chưa nghĩ ra cách làm việc này: {detail}"
     if err_str.startswith("worker_creation_failed:"):
-        return f"Không thể khởi tạo tiến trình xử lý: {err_str.split(':', 1)[1]}"
+        return f"Chuột chưa khởi động được: {err_str.split(':', 1)[1]}"
     if err_str.startswith("reasoning_policy_unavailable:"):
-        return "Chính sách suy luận chưa sẵn sàng."
-    return f"Chưa hoàn tất yêu cầu ({err_str})"
+        return "Chuột chưa sẵn sàng suy luận. Thử lại sau nhé."
+    return f"Chuột chưa làm xong việc này ({err_str})"
 
 
 QUESTION_WORDS = {
@@ -365,7 +387,7 @@ class QuickPDFController(QObject):
         self._preview_snippet = ""
         self._preview_card_index = -1
         self._unread = False
-        self._status = "Chuột sẵn sàng. Bạn cần gì?"
+        self._status = READY_STATUS
         self._error = ""
         self._events = []
         self._open_url = open_url
@@ -515,21 +537,21 @@ class QuickPDFController(QObject):
         )
         if busy:
             if self._request:
-                title = {"select": "Đang mở PDF.", "search": "Đang tìm trang khớp.", "page": "Đang đọc trang đã chọn."}[self._request.kind]
+                title = {"select": "Chuột đang mở PDF.", "search": "Chuột đang tìm trang khớp.", "page": "Chuột đang đọc trang bạn chọn."}[self._request.kind]
             else:
-                title = self._status or "Đang suy nghĩ…"
+                title = self._status or THINKING_STATUS
         elif view == "search":
             found = search.get("matched_pages", 0)
-            title = f"Tìm thấy {found} trang khớp." if found else "Chưa có trang khớp trong phần đã tìm."
+            title = f"Chuột tìm ra {found} trang khớp." if found else "Chuột chưa thấy trang nào khớp trong phần đã lật."
         elif view == "page":
             title = f"Trang PDF {page['page']} · {page['filename']}"
         elif view == "answer":
             title = self._last_user_query or "Câu trả lời"
         elif view == "finder":
             found = len(self._finder_hits)
-            title = f"Gợi ý tìm kiếm ({found})" if found else "Không có gợi ý khớp"
+            title = f"Chuột tìm ra {found} thứ" if found else "Chuột không tìm ra gì"
         elif view == "error":
-            title = "Cần xem lại PDF hoặc yêu cầu."
+            title = "Có chỗ Chuột chưa làm được."
         else:
             title = self._status
 
@@ -645,7 +667,7 @@ class QuickPDFController(QObject):
             "canBack": bool(self._search) and self._page_return_view == "search" and view in ("page", "error"),
             "canBackToAnswer": (view == "page" and self._page_return_view == "answer" and bool(self._last_assistant_answer or self._last_user_query)),
             "errorCode": self._error,
-            "errorText": ERROR_MESSAGES.get(self._error, "Không xử lý được yêu cầu này."),
+            "errorText": ERROR_MESSAGES.get(self._error, "Chuột chưa làm được việc này."),
             "events": list(self._events),
             "contradictionReport": self._telemetry.get("contradiction_report"),
             "finderHits": list(self._finder_hits),
@@ -708,7 +730,7 @@ class QuickPDFController(QObject):
             self._active_search_hit = None
             self._page_return_view = "none"
             self._view = "answer" if self._last_assistant_answer else "none"
-            self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
+            self._status = READY_STATUS if not self._last_assistant_answer else ANSWERED_STATUS
             self.changed.emit()
             return
         self._selection = None
@@ -726,7 +748,7 @@ class QuickPDFController(QObject):
             return
         else:
             path = value
-        self._status = "Đang kiểm tra PDF…"
+        self._status = "Chuột đang xem PDF…"
         self._begin("select", path)
 
     @pyqtSlot()
@@ -741,7 +763,7 @@ class QuickPDFController(QObject):
         self._active_search_hit = None
         self._page_return_view = "none"
         self._view = "answer" if self._last_assistant_answer else "none"
-        self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
+        self._status = READY_STATUS if not self._last_assistant_answer else ANSWERED_STATUS
         self.changed.emit()
 
     @pyqtSlot(result=bool)
@@ -791,7 +813,7 @@ class QuickPDFController(QObject):
         self._page_return_view = "none"
         self._expanded = True
         self._unread = False
-        self._status = "Đã trả lời · có thể hỏi tiếp" if self._last_assistant_answer else "Đã dừng yêu cầu"
+        self._status = ANSWERED_STATUS if self._last_assistant_answer else STOPPED_STATUS
         self.changed.emit()
 
     @pyqtSlot(int, result=bool)
@@ -941,7 +963,7 @@ class QuickPDFController(QObject):
 
         # Non-question search finished with no hits
         if self._finder_query == q and not self._finder_hits:
-            msg = "Không tìm thấy kết quả. Nhấn Tab hoặc thêm dấu '?' để hỏi Chuột."
+            msg = "Chuột không tìm ra. Nhấn Tab hoặc thêm dấu ? để hỏi thẳng."
             if self._view == "finder":
                 self._restore_pre_finder_state()
             self._finder_feedback = msg
@@ -976,7 +998,7 @@ class QuickPDFController(QObject):
 
     def _search_from(self, query, start):
         end = min(self._selection.page_count, start + 399)
-        self._status = f"Đang tìm từ khóa trong trang PDF {start}–{end}…"
+        self._status = f"Chuột đang lật tìm từ trang {start} đến {end}…"
         self._begin("search", self._selection, query, start)
 
     @pyqtSlot()
@@ -1001,7 +1023,7 @@ class QuickPDFController(QObject):
             self._page_return_view = "search"
         elif self._search and self._active_search_hit and self._active_search_hit.get("page") != page:
             self._active_search_hit = next((it for it in self._search.get("items", []) if it.get("page") == page), None)
-        self._status = f"Đang đọc trang PDF {page}…"
+        self._status = f"Chuột đang đọc trang {page}…"
         self._begin("page", self._selection, page)
 
     @pyqtSlot()
@@ -1017,10 +1039,10 @@ class QuickPDFController(QObject):
     @staticmethod
     def _search_summary(data):
         start, end = data["searched_range"]
-        return (f"Đã tìm trang PDF {start}–{end} / {data['page_count']}. "
-                f"{data['matched_pages']} trang khớp; đang hiện {len(data['items'])}. "
-                f"{len(data['textless_pages'])} trang không có văn bản trích xuất. "
-                "Tìm theo từ khóa; OCR chưa chạy.")
+        textless = len(data['textless_pages'])
+        return (f"Chuột lật trang {start}–{end} / {data['page_count']}: "
+                f"{data['matched_pages']} trang khớp, đang hiện {len(data['items'])}."
+                + (f" {textless} trang không có chữ, Chuột chưa chạy OCR nên bỏ qua." if textless else ""))
 
     def _show_error(self, code):
         if self._request:
@@ -1028,7 +1050,7 @@ class QuickPDFController(QObject):
             self._request = None
         self._error = code
         self._view = "error"
-        self._status = ERROR_MESSAGES.get(code, f"Lỗi: {code}")
+        self._status = ERROR_MESSAGES.get(code, f"Chuột gặp lỗi lạ: {code}")
         self._events.append(self._status)
         self._unread = not self._expanded
         self.changed.emit()
@@ -1045,7 +1067,7 @@ class QuickPDFController(QObject):
             return
         if request.kind == "select":
             self._selection = data
-            self._status = f"{data.path.name} · {data.page_count} trang PDF. Hỏi trực tiếp trong ô chat hoặc bấm ⌘F để tìm từ khóa."
+            self._status = f"Chuột đã mở {data.path.name}, {data.page_count} trang. Cứ hỏi, hoặc ⌘F để tìm từ khóa."
             if self._auto_read_on_select:
                 self._auto_read_on_select = False
                 self._expanded = True
@@ -1060,9 +1082,9 @@ class QuickPDFController(QObject):
         else:
             self._page = data
             self._view = "page"
-            self._status = (f"Đã đọc trang PDF {data['page']} · nhãn PDF {data['page_label']}. "
-                            + ("Văn bản đã cắt ở 8.000 ký tự. " if data["truncated"] else "")
-                            + "Bôi chọn đoạn muốn chép; nếu chưa chọn, dùng tối đa 500 ký tự đầu trang.")
+            self._status = (f"Chuột mở trang {data['page']} (nhãn {data['page_label']}). "
+                            + ("Chuột chỉ lấy 8.000 ký tự đầu. " if data["truncated"] else "")
+                            + "Bôi đoạn muốn chép; không bôi thì Chuột chép tối đa 500 ký tự đầu trang.")
             self._unread = not self._expanded
         self._events.append(self._status)
         self.changed.emit()
@@ -1105,7 +1127,7 @@ class QuickPDFController(QObject):
                 self._unread = False
             self._current_worker = None
 
-        self._status = "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+        self._status = STOPPED_KEEPING_DRAFT_STATUS
         self._events.append(self._status)
         self.changed.emit()
 
@@ -1221,7 +1243,7 @@ class QuickPDFController(QObject):
         self._last_user_query = snap.query
         self._last_assistant_answer = snap.answer or ""
         self._displayed_turn_id = turn_id
-        self._status = f"Lượt {turn_id} · {snap.status}"
+        self._status = f"Lượt {turn_id} · {TURN_STATUS_LABELS.get(snap.status, snap.status)}"
         self._expanded = True
         self._unread = False
         self.changed.emit()
@@ -1388,8 +1410,8 @@ class QuickPDFController(QObject):
                 partial_answer=f"Lỗi: {startup_err}",
             )
             self._last_user_query = q
-            self._last_assistant_answer = f"Không thể xử lý yêu cầu: {startup_err}"
-            self._status = f"Lỗi khởi tạo: {startup_err}"
+            self._last_assistant_answer = f"Chuột chưa làm được việc này: {startup_err}"
+            self._status = f"Chuột chưa khởi động được: {startup_err}"
             self._view = "answer"
             self._unread = not self._expanded
             self._events.append(self._status)
@@ -1401,7 +1423,7 @@ class QuickPDFController(QObject):
         self._current_turn_id = turn_ref.turn_id
         self._last_user_query = q
         self._unread = False
-        self._status = "Chuột đang xử lý yêu cầu…"
+        self._status = THINKING_STATUS
         self._events.append(f"Đã gửi yêu cầu: {q}")
         self.changed.emit()
 
@@ -1527,12 +1549,12 @@ class QuickPDFController(QObject):
         c_rep = self._telemetry.get("contradiction_report")
         if c_rep and not c_rep.get("passed"):
             count = len(c_rep.get("findings", []))
-            self._status = f"Phát hiện {count} mâu thuẫn trong chuỗi suy luận"
+            self._status = f"Chuột thấy {count} chỗ mâu thuẫn trong lập luận. Đọc kỹ giúp nhé."
             self._events.append(f"⚠️ ContradictionAuditor: {count} mâu thuẫn đơn điệu bị gắn cờ.")
         elif self._telemetry.get("bundle_review_status") == "synthetic_development_only":
-            self._status = "Bản thử nghiệm · kết quả fixture, chưa đánh giá model"
+            self._status = "Bản thử nghiệm: đây là kết quả mẫu, chưa phải câu trả lời thật của Chuột."
         else:
-            self._status = "Đã trả lời · có thể hỏi tiếp"
+            self._status = ANSWERED_STATUS
 
         self._events.append(self._status)
         self.changed.emit()
@@ -1542,9 +1564,9 @@ class QuickPDFController(QObject):
         if self._closed or self._current_worker is None or eid != self._current_execution_id or gen != self._chat_generation:
             return
         if status == "cancel":
-            self._status = "Đang dừng xử lý…"
+            self._status = "Chuột đang dừng…"
         elif status == "wait":
-            self._status = "Đang chờ kết quả…"
+            self._status = "Chuột đang chờ kết quả…"
         elif status not in ("working", "done", "error"):
             self._status = status
         self.changed.emit()
@@ -1682,12 +1704,12 @@ class QuickPDFController(QObject):
             if self._pre_finder_status:
                 self._status = self._pre_finder_status
             elif self._last_assistant_answer:
-                self._status = "Đã trả lời · có thể hỏi tiếp"
+                self._status = ANSWERED_STATUS
             elif self._last_user_query:
-                self._status = "Đã dừng yêu cầu. Nội dung đang nhập vẫn được giữ."
+                self._status = STOPPED_KEEPING_DRAFT_STATUS
         else:
             self._expanded = False
-            self._status = self._pre_finder_status or "Chuột sẵn sàng. Bạn cần gì?"
+            self._status = self._pre_finder_status or READY_STATUS
         self._pre_finder_view = "none"
         self._pre_finder_status = None
 
@@ -1720,7 +1742,7 @@ class QuickPDFController(QObject):
             self._pre_finder_status = self._status
         self._view = "finder"
         count = len(self._finder_hits)
-        self._status = f"Tìm thấy {count} gợi ý cho '{self._finder_query}'"
+        self._status = finder_found_status(count, self._finder_query)
         self._expanded = True
         self._unread = False
         self.changed.emit()
@@ -1773,9 +1795,9 @@ class QuickPDFController(QObject):
         if count == 0:
             if snapshot.intent and snapshot.intent.resource_kind in ("file", "slide", "report"):
                 self._finder_feedback = (
-                    "Chưa truy cập được chỉ mục tệp. Bạn có thể chọn tệp bằng nút đính kèm."
+                    "Chuột chưa vào được chỉ mục tệp. Bạn chọn tệp bằng nút đính kèm nhé."
                     if 'file_index_unavailable' in snapshot.errors else
-                    "Chưa thấy tệp khớp trong chỉ mục. Bạn nhớ thêm chủ đề, loại tệp hoặc thời gian không?"
+                    "Chuột chưa thấy tệp khớp. Bạn nhớ thêm chủ đề, loại tệp hoặc thời gian không?"
                 )
             had_hits = bool(self._finder_hits)
             self._finder_hits = []
@@ -1804,7 +1826,7 @@ class QuickPDFController(QObject):
             self._pre_finder_status = self._status
         self._finder_hits = hits
         self._view = "finder"
-        self._status = f"Tìm thấy {count} gợi ý cho '{snapshot.query}'"
+        self._status = finder_found_status(count, snapshot.query)
         self._expanded = True
         self._unread = False
         self.changed.emit()
@@ -1818,13 +1840,13 @@ class QuickPDFController(QObject):
             try:
                 revalidate_application_bundle(p)
             except Exception as exc:
-                self._launch_feedback = f"Không thể mở {p.name}: {exc}"
+                self._launch_feedback = f"Chuột không mở được {p.name}: {exc}"
                 self._launch_feedback_error = True
                 self.changed.emit()
                 return False
             return self._open_application(p)
         if not p.exists():
-            self._launch_feedback = f"Không thể mở {p.name}: tệp không còn ở vị trí đã tìm thấy."
+            self._launch_feedback = f"Chuột không mở được {p.name}: tệp đã rời chỗ cũ."
             self._launch_feedback_error = True
             self.changed.emit()
             return False
@@ -1833,8 +1855,8 @@ class QuickPDFController(QObject):
             accepted = bool(opener(QUrl.fromLocalFile(str(p.resolve()))))
         except Exception:
             accepted = False
-        self._launch_feedback = (f"Đã gửi yêu cầu mở {p.name}." if accepted
-                                 else f"Không thể gửi yêu cầu mở {p.name}. Bạn có thể thử lại.")
+        self._launch_feedback = (f"Chuột đang mở {p.name}." if accepted
+                                 else f"Chuột chưa mở được {p.name}. Thử lại nhé.")
         self._launch_feedback_error = not accepted
         self.changed.emit()
         return accepted
@@ -1860,8 +1882,8 @@ class QuickPDFController(QObject):
             logger.exception("Application launch through execution service failed")
             accepted, name = False, path.stem
         self._launch_feedback_error = not accepted
-        self._launch_feedback = (f"Đã gửi yêu cầu mở {name}." if accepted else
-                                 f"Không thể mở {name}. Kiểm tra bản cài đặt hoặc thử lại.")
+        self._launch_feedback = (f"Chuột đang mở {name}." if accepted else
+                                 f"Chuột không mở được {name}. Xem lại bản cài hoặc thử lại nhé.")
         self.changed.emit()
         return accepted
 
@@ -1877,7 +1899,7 @@ class QuickPDFController(QObject):
         self._expanded = True
         self._unread = False
         count = len(self._cached_apps_list)
-        self._status = f"Ứng dụng đã cài đặt ({count}) · Bấm icon hoặc Enter để mở"
+        self._status = f"Chuột thấy {count} ứng dụng trên máy. Bấm icon hoặc Enter để mở."
         self.changed.emit()
 
     @pyqtSlot(result=str)
@@ -1889,7 +1911,7 @@ class QuickPDFController(QObject):
         restored = self._saved_draft
         self._saved_draft = ""
         self._finder_query = ""
-        self._status = "Chuột sẵn sàng. Bạn cần gì?" if not self._last_assistant_answer else "Đã trả lời · có thể hỏi tiếp"
+        self._status = READY_STATUS if not self._last_assistant_answer else ANSWERED_STATUS
         self.changed.emit()
         return restored
 
@@ -1983,7 +2005,7 @@ class QuickPDFController(QObject):
             self._finder_hits = hits
             self._finder_query = query
             self._view = "finder"
-            self._status = f"Tìm thấy {len(hits)} gợi ý cho '{query}'"
+            self._status = finder_found_status(len(hits), query)
             self.changed.emit()
             return art.id
         except Exception as exc:
@@ -2029,15 +2051,15 @@ class QuickPDFController(QObject):
                 self._last_user_query = f"Dịch sang {payload.get('target_lang', 'vi')}"
                 self._last_assistant_answer = payload.get("text", "")
                 self._view = "answer"
-                self._status = f"Đã dịch từ {payload.get('source_lang', 'auto')} sang {payload.get('target_lang', 'vi')}"
+                self._status = f"Chuột dịch xong, từ {payload.get('source_lang', 'auto')} sang {payload.get('target_lang', 'vi')}."
                 self._expanded = True
             else:
-                err = payload.get("error") or "Không thể dịch văn bản."
-                self._status = f"Dịch thất bại: {err}"
+                err = payload.get("error") or "không rõ vì sao"
+                self._status = f"Chuột chưa dịch được: {err}"
             self.changed.emit()
         except Exception as exc:
             logger.warning("Error in translation delivered handler: %s", exc)
-            self._status = f"Dịch thất bại: {exc}"
+            self._status = f"Chuột chưa dịch được: {exc}"
             self.changed.emit()
 
     def _handle_quicklook_expand(self):
@@ -2053,11 +2075,11 @@ class QuickPDFController(QObject):
                 return ""
             clean_text = text.strip()
             if len(clean_text) > 8000:
-                self._status = "Văn bản vượt quá giới hạn 8000 ký tự."
+                self._status = "Đoạn này dài quá, Chuột dịch tối đa 8.000 ký tự một lần."
                 self.changed.emit()
                 return ""
 
-            self._status = "Đang dịch…"
+            self._status = "Chuột đang dịch…"
             self.changed.emit()
 
             def _worker():
@@ -2068,7 +2090,7 @@ class QuickPDFController(QObject):
                     if not translated:
                         self._translation_delivered.emit({
                             "ok": False,
-                            "error": "Không nhận được bản dịch.",
+                            "error": "không nhận được bản dịch",
                         })
                     else:
                         self._translation_delivered.emit({
@@ -2090,7 +2112,7 @@ class QuickPDFController(QObject):
             return ""
         except Exception as exc:
             logger.warning("translateText slot error: %s", exc)
-            self._status = f"Dịch thất bại: {exc}"
+            self._status = f"Chuột chưa dịch được: {exc}"
             self.changed.emit()
             return ""
 
@@ -2166,7 +2188,7 @@ class QuickPDFController(QObject):
             self._last_quicklook_thread = thread
         except Exception as exc:
             logger.warning("quickLookSelection slot error: %s", exc)
-            self._status = f"Lỗi phím tắt: {exc}"
+            self._status = f"Phím tắt chưa chạy được: {exc}"
             self.changed.emit()
 
     @pyqtSlot()
@@ -2275,14 +2297,14 @@ class QuickPDFController(QObject):
                 if self._finder_coordinator is not None:
                     self._finder_coordinator.cancel()
                 self._expanded = True
-                self._status = f"Chuột đang đọc {p.name} và phân tích câu hỏi…"
+                self._status = f"Chuột đang đọc {p.name}…"
                 self.changed.emit()
                 return self.submit(clean_terms, origin="ui_action")
             else:
                 self.selectFile(str(p), auto_read=is_pdf)
                 self._finder_hits = []
                 self._finder_query = ""
-                self._status = f"Đã chọn tài liệu: {p.name}"
+                self._status = f"Chuột đã lấy {p.name} ra bàn. Cứ hỏi."
                 self.changed.emit()
                 return True
         return False
