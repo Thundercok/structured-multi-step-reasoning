@@ -7,14 +7,17 @@ Button {
     property string keyText: ""
     property string labelText: ""
     property bool primary: false
+    // A hint only shows the key to press, so it must never take focus from the composer.
+    property bool passive: false
     text: labelText
-    hoverEnabled: true
-    focusPolicy: Qt.StrongFocus
+    hoverEnabled: !passive
+    focusPolicy: passive ? Qt.NoFocus : Qt.StrongFocus
+    activeFocusOnTab: !passive
     Accessible.name: labelText + ", " + keyText
     implicitWidth: implicitContentWidth + leftPadding + rightPadding
     implicitHeight: 26
-    leftPadding: 6
-    rightPadding: 6
+    leftPadding: passive ? 0 : 6
+    rightPadding: passive ? 0 : 6
     topPadding: 3
     bottomPadding: 3
     Layout.alignment: Qt.AlignVCenter

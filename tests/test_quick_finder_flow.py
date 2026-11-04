@@ -1204,9 +1204,8 @@ def test_qml_composer_return_key_opens_first_hit_when_unselected(finder_fixture)
         assert root.property("selectedFinderIndex") == -1
 
         # Check hint text for non-question: must show ↵ mở
-        status_label = root.findChild(QQuickItem, "composerDropStatus")
-        assert status_label is not None
-        assert "↵ mở" in status_label.property("text")
+        hints = {hint["key"]: hint["label"] for hint in root.property("composerKeyHints").toVariant()}
+        assert hints["↵"] == "mở"
 
         # Press Return directly
         QTest.keyClick(view, Qt.Key.Key_Return)

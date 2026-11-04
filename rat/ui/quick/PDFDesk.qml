@@ -227,6 +227,23 @@ Rectangle {
         expanded = true
         unread = false
     }
+    readonly property var composerKeyHints: {
+        if (!liveMode || pdfDropArea.containsDrag || (liveSnapshot.busy && !expanded)) return []
+        var view = liveSnapshot.view
+        if (view === "reading") return []
+        if (view === "finder") return [
+            {key: "↑↓", label: "chọn"},
+            {key: "↵", label: liveSnapshot.isQuestionQuery ? "hỏi Chuột" : "mở"},
+            {key: "Tab", label: width < 640 ? "hỏi Chuột" : "đưa vào bàn & hỏi Chuột"},
+            {key: "Esc", label: "đóng"}
+        ]
+        if (view === "page" || liveSnapshot.fileName) return [
+            {key: "↵", label: "hỏi Chuột"},
+            {key: "⌘F", label: "tìm chữ trong PDF"}
+        ]
+        if (view === "answer") return [{key: "↵", label: "hỏi tiếp Chuột"}]
+        return []
+    }
     function foldWorkbench() {
         if (liveMode) { liveController.setExpanded(false); editor.forceActiveFocus(); return }
         expanded = false
@@ -2911,15 +2928,30 @@ Rectangle {
                             color: desk.accent
                             opacity: 0.75
                         }
+                        Row {
+                            objectName: "composerKeyHintRow"
+                            visible: desk.composerKeyHints.length > 0
+                            spacing: 8
+                            Repeater {
+                                model: desk.composerKeyHints
+                                KeycapBadge {
+                                    required property var modelData
+                                    passive: true
+                                    keyText: modelData.key
+                                    labelText: modelData.label
+                                    implicitHeight: 22
+                                    topPadding: 0
+                                    bottomPadding: 0
+                                }
+                            }
+                        }
                         Label {
                             objectName: "composerDropStatus"
                             Layout.fillWidth: true
                             text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status
                                 : desk.liveSnapshot.view === "reading" ? "Bàn xem · đang chuẩn bị dữ liệu"
-                                : desk.liveSnapshot.view === "finder" ? (desk.liveSnapshot.isQuestionQuery ? "↑↓ chọn · ↵ hỏi Chuột · Tab đưa vào bàn & hỏi Chuột · Esc đóng" : "↑↓ chọn · ↵ mở · Tab đưa vào bàn & hỏi Chuột · Esc đóng")
-                                : (desk.liveSnapshot.view === "page" || desk.liveSnapshot.fileName) ? "↵ hỏi Chuột · ⌘F tìm chữ trong PDF"
-                                : desk.liveSnapshot.view === "answer" ? (desk.hasLatentFinderHits ? "↵ hỏi tiếp Chuột · Bấm ngăn trên mở tệp" : "↵ hỏi tiếp Chuột")
+                                : desk.composerKeyHints.length > 0 ? (desk.liveSnapshot.view === "answer" && desk.hasLatentFinderHits ? "Bấm ngăn trên mở tệp" : "")
                                 : desk.liveSnapshot.finderFeedback ? desk.liveSnapshot.finderFeedback
                                 : desk.liveSnapshot.status || "Chuột sẵn sàng"
                             elide: Text.ElideRight

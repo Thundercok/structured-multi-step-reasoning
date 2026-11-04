@@ -605,7 +605,13 @@ def test_source_metadata_title_and_composer_footer_presentation(app, controller,
         assert composer_status is not None
         status_text = composer_status.property("text")
         assert "Trang" not in status_text
-        assert status_text == "↵ hỏi Chuột · ⌘F tìm chữ trong PDF"
+        assert status_text == ""
+        assert root.property("composerKeyHints").toVariant() == [
+            {"key": "↵", "label": "hỏi Chuột"},
+            {"key": "⌘F", "label": "tìm chữ trong PDF"},
+        ]
+        hint_row = root.findChild(QQuickItem, "composerKeyHintRow")
+        assert hint_row.property("visible")
     finally:
         view.close()
 

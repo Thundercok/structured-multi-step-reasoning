@@ -24,7 +24,7 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 ## 1. Nhanh: mỗi lệnh một phím
 
-1.1 và 1.2 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
+1.1, 1.2 và 1.3 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
 
 | # | Bước | Xong khi |
 | --- | --- | --- |
