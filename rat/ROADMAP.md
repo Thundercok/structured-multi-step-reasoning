@@ -63,6 +63,17 @@ Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở 
 | 3.4 | Dòng đang chọn có nét gạch tay. Đã xong | Nhìn ra ngay, không che chữ |
 | 3.5 | Tờ giấy nhích nhẹ khi có kết quả, mỗi lần lệch một chút. Đã xong | Không hai lần giống hệt, không làm chậm |
 
+## Gộp UI Lite
+
+Lấy luồng thao tác của Lite (cái gì hiện ra, lúc nào, bấm gì), giữ chất liệu của bản chính (giấy, xấp giấy, độ lún, chuột có hồn). Không chép thẻ phẳng của Lite. Mỗi màn chỉ có một việc chính. Nguồn: `rat/ui/quick/MiniDesk.qml` và ảnh `audit/rat_lite_ui_polish_20261102/` ở tag `rat-lite-0.6.0`. Làm theo thứ tự bảng này; thẻ bản dịch là bước 2.8.
+
+| # | Bước | Xong khi |
+| --- | --- | --- |
+| 3.6 | Dòng "Build…" thành viên phím gọi bàn thật, lấy từ cấu hình. Đã xong | Thấy đúng phím đang đăng ký, chạy một cửa sổ thì không hứa phím nào; bản build nằm ở tooltip |
+| 2.8 | Thẻ bản dịch: một tờ trên xấp, hướng dịch là nhãn dán, ⇄ và Sao chép có độ lún, "Đoạn gốc" là tờ lót kéo ra được, chân tờ ghi cách làm đo được từ kết quả thật | Bản dịch ghi rõ Anh → Việt, mở được đoạn gốc ngay trên thẻ |
+| 3.7 | Câu mơ hồ thì hỏi một câu, hai nút kèm keycap: ↵ cho lựa chọn gợi ý, Tab cho lựa chọn kia | "Tìm file" / "Dịch" hiện đúng lúc, câu tìm kiếm và câu hỏi rõ ràng không bị hỏi lại |
+| 3.8 | Vị trí chuột và bong bóng trỏ vào ô nhập, chưa đổi tư thế | Không vỡ `bind_desk_window`, không lệch khỏi màn hình |
+
 ## 4. Táy máy
 
 | # | Bước | Xong khi |

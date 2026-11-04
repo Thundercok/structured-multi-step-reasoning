@@ -2941,21 +2941,30 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     Label { visible: desk.phase === "idle" && !desk.liveMode; text: "↵ Gửi · ⇧↵ Xuống dòng"; color: desk.muted; font.pixelSize: 11 }
-                    Label {
-                        objectName: "uiBuildLabel"
+                    // The summon key doubles as the handle for dragging the window. The build stays in its tooltip.
+                    Rectangle {
+                        objectName: "summonKeycap"
+                        readonly property string keyLabel: desk.liveSnapshot.shortcutLabel || ""
                         visible: desk.liveMode
-                        text: desk.uiBuildLabel
-                        textFormat: Text.PlainText
-                        color: desk.muted
-                        font.pixelSize: 10
-                        opacity: 0.65
-                        topPadding: 4
-                        bottomPadding: 4
-                        leftPadding: 0
-                        rightPadding: 2
-                        Accessible.name: "Bản build giao diện " + desk.uiBuildLabel
+                        implicitWidth: summonKeyText.implicitWidth + (keyLabel ? 10 : 2)
+                        implicitHeight: 18
+                        radius: 4
+                        color: keyLabel ? desk.utilitySurface : "transparent"
+                        border.width: keyLabel ? 1 : 0
+                        border.color: desk.edge
+                        Accessible.name: keyLabel ? "Phím gọi bàn " + keyLabel : "Kéo để di chuyển cửa sổ"
                         ToolTip.visible: dragHandle.containsMouse
-                        ToolTip.text: "Bản build giao diện · Kéo để di chuyển cửa sổ"
+                        ToolTip.delay: 500
+                        ToolTip.text: (keyLabel ? "Phím gọi bàn · " : "") + "Kéo để di chuyển cửa sổ · " + desk.uiBuildLabel
+                        Label {
+                            id: summonKeyText
+                            objectName: "summonKeyText"
+                            anchors.centerIn: parent
+                            text: parent.keyLabel || "RAT"
+                            textFormat: Text.PlainText
+                            color: desk.muted
+                            font.pixelSize: 10
+                        }
                         MouseArea { id: dragHandle; objectName: "dragHandle"; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.OpenHandCursor; onPressed: desk.moveRequested() }
                     }
                     RowLayout {

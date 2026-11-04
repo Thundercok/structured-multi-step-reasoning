@@ -174,7 +174,15 @@ class ResidentApplication(QObject):
             )
             if self.desk_view is not None:
                 self.desk_view.installEventFilter(self)
+            self._sync_desk_shortcut()
         return self.desk_view, self.desk_controller
+
+    def _sync_desk_shortcut(self) -> None:
+        """Show the summon key on the desk only while macOS actually has it registered."""
+        if self.desk_controller is None:
+            return
+        live = getattr(self.hotkey_manager, "status", "") in ("started", "listener_started")
+        self.desk_controller.set_shortcut_label(config.get_hotkey_display() if live else "")
 
     def request_quit(self, timeout: float = 3.0, on_finished: Optional[Any] = None) -> None:
         """
@@ -656,6 +664,7 @@ class ResidentApplication(QObject):
             on_quicklook=self.trigger_quicklook,
         )
         self.hotkey_manager.start()
+        self._sync_desk_shortcut()
 
         # 2. Start System Tray (Menu Bar resident item)
         self.tray_manager = SystemTrayManager(

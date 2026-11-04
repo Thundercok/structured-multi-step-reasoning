@@ -424,6 +424,7 @@ class QuickPDFController(QObject):
         self._translator = None
         self._composer_translation = False
         self._index_status = ""
+        self._shortcut_label = ""
         self._last_translation_thread = None
         self._last_quicklook_thread = None
 
@@ -649,6 +650,7 @@ class QuickPDFController(QObject):
             "title": title,
             "status": self._status,
             "indexStatus": self._index_status,
+            "shortcutLabel": self._shortcut_label,
             "query": self._last_user_query or search.get("query", ""),
             "userQuery": self._last_user_query,
             "answerText": self._last_assistant_answer,
@@ -1644,6 +1646,12 @@ class QuickPDFController(QObject):
             self._index_timer.start()
             self.refresh_index_progress()
         return started
+
+    def set_shortcut_label(self, label: str):
+        """The key that summons this desk. Empty when no such key is live, as in a one-window run."""
+        if label != self._shortcut_label:
+            self._shortcut_label = label
+            self.changed.emit()
 
     def refresh_index_progress(self):
         state = self._finder_semantic.progress()

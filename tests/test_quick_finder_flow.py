@@ -1564,3 +1564,29 @@ def test_backing_sheet_follows_the_nudge(finder_fixture):
         assert root.findChild(QQuickItem, 'paperBackingSheet').property('rotation') == pytest.approx(-0.4)
     finally:
         _dispose(view, controller)
+
+
+def test_summon_keycap_replaces_the_build_line_and_still_drags(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _paper_desk(finder_fixture, reduce_motion=True)
+    try:
+        root = view.rootObject()
+        cap_text = root.findChild(QQuickItem, 'summonKeyText')
+        assert cap_text.property('text') == 'RAT'
+        assert root.findChild(QQuickItem, 'dragHandle') is not None
+        assert root.findChild(QQuickItem, 'uiBuildLabel') is None
+        assert root.property('uiBuildLabel').startswith('Build ')
+
+        controller.set_shortcut_label('⌃⌥Space')
+        _process_events(50)
+        assert controller.snapshot['shortcutLabel'] == '⌃⌥Space'
+        assert cap_text.property('text') == '⌃⌥Space'
+        moves = []
+        root.moveRequested.connect(lambda: moves.append(True))
+        handle = root.findChild(QQuickItem, 'dragHandle')
+        center = handle.mapToScene(QPointF(handle.width() / 2, handle.height() / 2))
+        QTest.mousePress(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, center.toPoint())
+        QTest.mouseRelease(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, center.toPoint())
+        assert moves == [True]
+    finally:
+        _dispose(view, controller)
