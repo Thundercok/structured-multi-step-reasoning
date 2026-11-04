@@ -177,8 +177,10 @@ class ResidentApplication(QObject):
         """Show the summon key on the desk only while macOS actually has it registered."""
         if self.desk_controller is None:
             return
-        live = getattr(self.hotkey_manager, "status", "") in ("started", "listener_started")
-        self.desk_controller.set_shortcut_label(config.get_hotkey_display() if live else "")
+        manager = self.hotkey_manager
+        live = getattr(manager, "status", "") in ("started", "listener_started")
+        # The chord macOS actually holds, which is not read from config.global_hotkey.
+        self.desk_controller.set_shortcut_label(config.get_hotkey_display(manager.toggle_chord) if live else "")
 
     def request_quit(self, timeout: float = 3.0, on_finished: Optional[Any] = None) -> None:
         """

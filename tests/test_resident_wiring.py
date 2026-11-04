@@ -146,16 +146,17 @@ def test_carbon_hotkey_manager_wiring_with_fakes(qapp, monkeypatch):
     fake_ql.close.assert_called_once()
 
 
-def test_desk_shows_the_configured_key_only_while_it_is_live(qapp, monkeypatch):
+def test_desk_shows_the_registered_key_only_while_it_is_live(qapp, monkeypatch):
     resident = ResidentApplication(mode="desk")
     resident.desk_controller = Mock()
-    monkeypatch.setattr(config, "global_hotkey", "option_shift_space")
+    # A saved global_hotkey that was never registered must not reach the desk.
+    monkeypatch.setattr(config, "global_hotkey", "<cmd>+<shift>+<space>")
 
-    resident.hotkey_manager = SimpleNamespace(status="started")
+    resident.hotkey_manager = SimpleNamespace(status="started", toggle_chord="control_option_space")
     resident._sync_desk_shortcut()
-    resident.desk_controller.set_shortcut_label.assert_called_with("⌥⇧Space")
+    resident.desk_controller.set_shortcut_label.assert_called_with("⌃⌥Space")
 
-    resident.hotkey_manager = SimpleNamespace(status="error")
+    resident.hotkey_manager = SimpleNamespace(status="error", toggle_chord="control_option_space")
     resident._sync_desk_shortcut()
     resident.desk_controller.set_shortcut_label.assert_called_with("")
 

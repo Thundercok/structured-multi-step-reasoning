@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 # Default Paths
 HOME_DIR = Path.home()
@@ -124,9 +124,9 @@ class Config:
         if native_preload is not None:
             self.document_model_preload = native_preload.strip().lower() in ("1", "true", "yes")
 
-    def get_hotkey_display(self) -> str:
-        """Return native macOS symbols representation for global_hotkey."""
-        key = self.global_hotkey
+    def get_hotkey_display(self, key: Optional[str] = None) -> str:
+        """Return native macOS symbols representation for a chord, by default global_hotkey."""
+        key = key or self.global_hotkey
         if key in ("control_option_space", "^~space"):
             return "⌃⌥Space"
         if key in ("control_shift_space", "^$space"):
