@@ -1503,3 +1503,56 @@ def test_finder_row_shows_short_folder_and_keeps_full_path_in_tooltip(finder_fix
         assert not stroke.property('visible')
     finally:
         _dispose(view, controller)
+
+
+def _paper_desk(finder_fixture, reduce_motion):
+    controller = QuickPDFController(
+        finder_search=finder_fixture['search'], finder_catalog=finder_fixture['catalog'],
+        db_path=finder_fixture['db_path'], auto_init_finder=False, open_url=lambda url: True,
+    )
+    view = QQuickView()
+    view.setInitialProperties({'liveController': controller, 'darkMode': False, 'reduceMotion': reduce_motion})
+    view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / 'rat/ui/quick/PDFDesk.qml')))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    return view, controller
+
+
+def _type_and_read_sheets(view, text):
+    root = view.rootObject()
+    root.findChild(QQuickItem, 'draftEditor').setProperty('text', text)
+    _process_events(350)
+    return (root.findChild(QQuickItem, 'paperBackingSheet').property('rotation'),
+            root.findChild(QQuickItem, 'resultPaper').property('rotation'))
+
+
+def test_paper_shifts_on_new_results_only_and_the_text_sheet_stays_straight(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _paper_desk(finder_fixture, reduce_motion=False)
+    try:
+        calc, text_sheet = _type_and_read_sheets(view, 'calc')
+        assert text_sheet == 0
+        assert controller.snapshot['view'] == 'finder'
+        assert abs(calc + 0.9) >= 0.2
+
+        same, _ = _type_and_read_sheets(view, 'calc ')
+        assert same == calc
+
+        other, text_sheet = _type_and_read_sheets(view, 'tim file danh sach sinh vien')
+        assert text_sheet == 0
+        assert abs(other - calc) >= 0.2
+        assert -1.7 <= other <= -0.2
+    finally:
+        _dispose(view, controller)
+
+
+def test_reduced_motion_keeps_the_paper_still(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _paper_desk(finder_fixture, reduce_motion=True)
+    try:
+        first, _ = _type_and_read_sheets(view, 'calc')
+        second, _ = _type_and_read_sheets(view, 'tim file danh sach sinh vien')
+        assert first == second == pytest.approx(-0.9)
+    finally:
+        _dispose(view, controller)

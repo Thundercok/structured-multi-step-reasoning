@@ -25,6 +25,13 @@ Rectangle {
     property bool answerQuestionOpen: false
     property bool copied: false
     property bool readyForMotion: false
+    // How far the sheet behind the results has shifted. It rests where it lands until the next result.
+    property real paperNudge: 0
+    property string lastResultSignature: ""
+    Behavior on paperNudge {
+        enabled: desk.readyForMotion && !desk.reduceMotion
+        NumberAnimation { duration: 110; easing.type: Easing.OutBack }
+    }
     property var liveController: null
     property var liveSnapshot: ({})
     property int selectedFinderIndex: -1
@@ -175,6 +182,26 @@ Rectangle {
     signal moveRequested()
     signal closeRequested()
 
+    function resultSignature(snap) {
+        if (snap.view === "finder")
+            return "f:" + (snap.finderHits || []).slice(0, 3).map(function(hit) { return hit.path }).join("|")
+        if (snap.view === "answer" && !snap.busy && snap.answerText)
+            return "a:" + snap.userQuery + ":" + snap.answerText.length
+        return ""
+    }
+
+    // Moves on a new result, not on a keystroke that leaves the results as they were.
+    function nudgePaperFor(snap) {
+        const signature = resultSignature(snap)
+        if (!signature || signature === lastResultSignature) return
+        lastResultSignature = signature
+        if (reduceMotion || !readyForMotion) return
+        var next = paperNudge
+        while (Math.abs(next - paperNudge) < 0.25)
+            next = -0.7 + Math.random() * 1.3
+        paperNudge = next
+    }
+
     function syncLive() {
         if (!liveMode) return
         const next = liveController.snapshot
@@ -207,6 +234,7 @@ Rectangle {
             contextExpanded = false
             expandedEvidenceText = ""
         }
+        nudgePaperFor(next)
         liveSnapshot = next
         phase = next.phase
         expanded = next.expanded
@@ -678,12 +706,13 @@ Rectangle {
 
         Rectangle {
             visible: desk.expanded && desk.hasWorkbench
+            objectName: "paperBackingSheet"
             x: resultPaper.x - 6
             y: resultPaper.y - 5
             width: resultPaper.width
             height: resultPaper.height
             radius: 15
-            rotation: -0.9
+            rotation: -0.9 + desk.paperNudge
             antialiasing: true
             color: desk.backingColor
             border.width: 1
