@@ -37,6 +37,8 @@ Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở 
 
 2.0 đã xong. Đo trên máy thật 2026-11-03: quét còn 1,7 giây thay vì 63 giây, 327 PDF thay vì 14, và 286 tài liệu được đọc trong phút đầu.
 
+2.1 đã xong. Thử 2026-11-04 với `qwen3:4b-instruct` và embedder thật trên thư mục mẫu 3 file: câu "tiền cọc phòng trọ là bao nhiêu?" gọi `search_documents` rồi `read_document`, trả lời 7.000.000 đồng từ `giay_to_nha.txt`. Mất 147 giây khi máy đang chạy song song một model khác, nên chưa phải số đo tốc độ.
+
 | # | Bước | Xong khi |
 | --- | --- | --- |
 | 2.0 | Index đọc đúng tài liệu thật: bỏ qua repo code, ưu tiên PDF và Office, ghi dần ngay khi quét, dùng `config.indexed_directories` | Trên máy thật có PDF được index trong phút đầu (đo 2026-11-03: quét 63 giây mới bắt đầu, trần 5.000 file có 4.709 `.txt`, chỉ 14 PDF) |

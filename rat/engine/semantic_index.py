@@ -172,6 +172,17 @@ class SemanticIndex:
         with self._connect() as db:
             return db.execute('SELECT COUNT(*) FROM files').fetchone()[0]
 
+    def contains(self, path):
+        """True only while the file is unchanged since it was indexed."""
+        with self._lock, self._connect() as db:
+            row = db.execute('SELECT identity FROM files WHERE path = ?', (str(path),)).fetchone()
+        if row is None:
+            return False
+        try:
+            return json.loads(row[0]) == file_identity(path)
+        except OSError:
+            return False
+
     def invalidate_paths(self, paths):
         with self._lock, self._connect() as db:
             db.executemany('DELETE FROM files WHERE path = ?', [(p,) for p in paths])
