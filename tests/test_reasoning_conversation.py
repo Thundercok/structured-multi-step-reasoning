@@ -135,7 +135,7 @@ def test_typed_multiturn_conversation_uses_one_engine_and_preserves_history(quic
     assert '[2,4,6,8,10]' in backend.run_calls[2]['query']
     assert 'binary search' in backend.run_calls[2]['query'].lower()
     assert controller._reasoning_engine is quick_env.engine
-    assert 'fixture' in controller.snapshot['status']
+    assert 'kết quả mẫu' in controller.snapshot['status']
     editor = quick_env.root.findChild(QQuickItem, 'draftEditor')
     assert editor is not None
     editor.setProperty('text', 'Bản nháp đang soạn')
