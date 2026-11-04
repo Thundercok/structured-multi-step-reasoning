@@ -59,7 +59,7 @@ Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở 
 | --- | --- | --- |
 | 3.1 | Thông báo và lỗi cùng một giọng Chuột. Đã xong | Hết kiểu "Đã vượt hạn mức ngân sách xử lý" |
 | 3.2 | Nhấn có độ lún, sửa một chỗ trong `QuietButton` là lan khắp bàn. Đã xong | Đo vẫn trong ngân sách 1.1 |
-| 3.3 | Nhãn "Ứng dụng" thành nhãn dán, đường dẫn gọn lại | Dòng kết quả hết giống bảng dữ liệu |
+| 3.3 | Nhãn "Ứng dụng" thành nhãn dán, đường dẫn gọn lại. Đã xong | Dòng kết quả hết giống bảng dữ liệu |
 | 3.4 | Dòng đang chọn có nét gạch tay | Nhìn ra ngay, không che chữ |
 | 3.5 | Tờ giấy nhích nhẹ khi có kết quả, mỗi lần lệch một chút | Không hai lần giống hệt, không làm chậm |
 

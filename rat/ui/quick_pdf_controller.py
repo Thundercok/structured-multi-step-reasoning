@@ -68,6 +68,24 @@ TURN_STATUS_LABELS = {
 }
 
 
+FINDER_REASON_LABELS = {
+    "Khớp chủ đề ngữ nghĩa (Semantic)": "Khớp theo nghĩa",
+    "Khớp chỉ mục tài liệu": "Khớp tài liệu",
+}
+
+
+def short_folder(display_path: str) -> str:
+    """The last two folders of a path; the file name is already the row title."""
+    parts = [p for p in Path(display_path).parent.parts if p not in ("/", "~")]
+    return " › ".join(parts[-2:]) if parts else "Thư mục nhà"
+
+
+def finder_row_detail(kind: str, match_reason: str, display_path: str) -> str:
+    # The excerpt has its own line, so "Khớp nội dung: …" keeps only the part before the colon.
+    reason = FINDER_REASON_LABELS.get(match_reason, match_reason).split(":", 1)[0]
+    return reason if kind == "application" else f"{reason} · {short_folder(display_path)}"
+
+
 def finder_found_status(count: int, query: str) -> str:
     return f"Chuột tìm ra {count} thứ cho '{query}'" if count else f"Chuột không tìm ra gì cho '{query}'"
 
@@ -1774,6 +1792,7 @@ class QuickPDFController(QObject):
                 snippet = "~" + snippet[len(home_str):]
             p = Path(h.path)
             parent_name = p.parent.name if p.parent and p.parent.name else ""
+            match_reason = h.match_reason or ("Khớp tên ứng dụng" if h.kind == "application" else "Khớp chỉ mục tài liệu")
             raw_hits.append({
                 "resource_id": h.resource_id,
                 "kind": h.kind,
@@ -1783,8 +1802,10 @@ class QuickPDFController(QObject):
                 "file_name": p.name,
                 "display_path": display_path,
                 "origin": h.origin,
-                "match_reason": h.match_reason or ("Khớp tên ứng dụng" if h.kind == "application" else "Khớp chỉ mục tài liệu"),
+                "match_reason": match_reason,
+                "row_detail": finder_row_detail(h.kind, match_reason, display_path),
                 "snippet": snippet,
+                "excerpt": h.snippet if h.kind == "file" and h.snippet != h.path else "",
                 "bundle_id": h.bundle_id or "",
                 "is_pdf": h.path.lower().endswith(".pdf"),
             })

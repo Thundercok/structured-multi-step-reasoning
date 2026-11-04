@@ -22,7 +22,7 @@ from rat.crawler.db import Database
 from rat.engine.app_resolver import Application, ApplicationCatalog
 from rat.engine.meta_reasoner import build_composed_meta_reasoner
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator
-from rat.ui.quick_pdf_controller import QuickPDFController
+from rat.ui.quick_pdf_controller import QuickPDFController, finder_row_detail, short_folder
 from reasoning.bundle import create_synthetic_specimen_bundle
 
 
@@ -1443,3 +1443,50 @@ def test_qml_composer_return_no_hits_feedback_and_tab_to_ask(finder_fixture):
         app.processEvents()
 
 
+@pytest.mark.parametrize('display_path, folder', [
+    ('~/Documents/Hoc ky 2/Bai tap/Tuan 12/a.txt', 'Bai tap › Tuan 12'),
+    ('~/Documents/a.pdf', 'Documents'),
+    ('~/a.pdf', 'Thư mục nhà'),
+    ('/Volumes/USB/a.pdf', 'Volumes › USB'),
+])
+def test_short_folder_keeps_only_the_last_two_folders(display_path, folder):
+    assert short_folder(display_path) == folder
+
+
+def test_row_detail_speaks_plainly_and_drops_the_app_path():
+    assert finder_row_detail('file', 'Khớp chủ đề ngữ nghĩa (Semantic)', '~/Docs/Tuan 12/a.txt') == 'Khớp theo nghĩa · Docs › Tuan 12'
+    assert finder_row_detail('file', 'Khớp nội dung: tiền cọc hai tháng', '~/Docs/a.txt') == 'Khớp nội dung · Docs'
+    assert finder_row_detail('application', 'Khớp tên ứng dụng', '/Applications/Calculator.app') == 'Khớp tên ứng dụng'
+
+
+def test_finder_row_shows_short_folder_and_keeps_full_path_in_tooltip(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    controller = QuickPDFController(
+        finder_search=finder_fixture['search'], finder_catalog=finder_fixture['catalog'],
+        db_path=finder_fixture['db_path'], auto_init_finder=False, open_url=lambda url: True,
+    )
+    view = QQuickView()
+    view.setInitialProperties({'liveController': controller, 'darkMode': False, 'reduceMotion': True})
+    view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / 'rat/ui/quick/PDFDesk.qml')))
+    assert view.status() == QQuickView.Status.Ready
+    controller.ready()
+    view.show()
+    try:
+        controller.onComposerTextChanged('tim file co noi dung danh sach sinh vien')
+        _process_events(300)
+        hit = controller.snapshot['finderHits'][0]
+        assert hit['path'] == finder_fixture['txt_path']
+
+        def walk(item):
+            yield item
+            for child in item.childItems():
+                yield from walk(child)
+        by_name = {i.objectName(): i for i in walk(view.rootObject()) if i.objectName()}
+        detail = by_name['finderMatchReason_0'].property('text')
+        assert finder_fixture['txt_path'] not in detail
+        assert hit['display_path'] not in detail
+        assert short_folder(hit['display_path']) in detail
+        assert by_name['finderKind_0'].property('rotation') != 0
+        assert by_name['finderContentExcerpt_0'].property('text') != hit['display_path']
+    finally:
+        _dispose(view, controller)

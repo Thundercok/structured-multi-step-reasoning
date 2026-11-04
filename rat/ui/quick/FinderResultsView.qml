@@ -176,41 +176,56 @@ ColumnLayout {
                                         }
                                     }
 
-                                    Rectangle {
+                                    Item {
                                         id: kindBadge
-                                        radius: 4
-                                        color: desk.backingColor
+                                        objectName: "finderKind_" + index
+                                        readonly property bool isApp: modelData.kind === "application"
                                         implicitHeight: 18
-                                        implicitWidth: kindText.implicitWidth + 10
+                                        implicitWidth: kindText.implicitWidth + 12
+                                        rotation: index % 2 ? 2 : -2
                                         Layout.alignment: Qt.AlignVCenter
-                                        Label {
-                                            id: kindText
-                                            anchors.centerIn: parent
-                                            text: modelData.kind === "application" ? "Ứng dụng" : (modelData.is_pdf ? "PDF" : "Tệp")
-                                            textFormat: Text.PlainText
-                                            color: desk.muted
-                                            font.pixelSize: 10
-                                            font.weight: Font.Medium
+                                        Rectangle {
+                                            x: 1; y: 1
+                                            width: parent.width; height: parent.height
+                                            radius: 3
+                                            antialiasing: true
+                                            color: Qt.rgba(0, 0, 0, 0.16)
+                                        }
+                                        Rectangle {
+                                            anchors.fill: parent
+                                            radius: 3
+                                            antialiasing: true
+                                            color: kindBadge.isApp ? desk.accent : modelData.is_pdf ? desk.pdfInk : desk.backingColor
+                                            Label {
+                                                id: kindText
+                                                anchors.centerIn: parent
+                                                text: kindBadge.isApp ? "Ứng dụng" : (modelData.is_pdf ? "PDF" : "Tệp")
+                                                textFormat: Text.PlainText
+                                                color: kindBadge.isApp ? desk.accentText : modelData.is_pdf ? desk.paperColor : desk.ink
+                                                font.pixelSize: 10
+                                                font.weight: Font.DemiBold
+                                            }
                                         }
                                     }
                                 }
 
                                 Label {
                                     objectName: "finderMatchReason_" + index
-                                    text: (modelData.match_reason ? modelData.match_reason + " · " : "") + (modelData.display_path || modelData.path || modelData.snippet || "")
+                                    text: modelData.row_detail || ""
                                     textFormat: Text.PlainText
                                     color: desk.muted
                                     font.pixelSize: 11
-                                    elide: Text.ElideMiddle
+                                    elide: Text.ElideRight
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
+                                    ToolTip.delay: 500
                                     ToolTip.visible: hitMouseArea.containsMouse
                                     ToolTip.text: modelData.path || ""
                                 }
                                 Label {
                                     objectName: "finderContentExcerpt_" + index
-                                    visible: modelData.kind === "file" && Boolean(modelData.snippet)
-                                    text: "Trích từ chỉ mục · " + (modelData.snippet || "")
+                                    visible: Boolean(modelData.excerpt)
+                                    text: modelData.excerpt || ""
                                     textFormat: Text.PlainText
                                     color: desk.ink
                                     font.pixelSize: 11
