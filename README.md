@@ -2,16 +2,16 @@
 
 Student research (NCKH) that fine-tunes a small model, Qwen3-8B, to write its thinking in checkable
 steps (`<think>`, `Step`, `Calc`). It then edits a `Calc` result and measures whether the answer
-depends on that thinking. The object of study is the model. The working thesis: checking the
-thinking helps only when the answer really depends on it.
+depends on that thinking. The object of study is the model. **No thesis is held right now:** two
+were tested and dropped on 2026-11-04.
 
 The repository also holds **RAT**, the macOS app used as the project's demo. RAT is not part of the
 research claims and does not load the fine-tuned model yet.
 
 ## Status
 
-The [research plan](docs/research_plan.md) is a proposal. There is no final model yet, and results
-so far come from a 200-iteration trial adapter, so they say nothing final about model quality.
+The [research plan](docs/research_plan.md) is a proposal. There is no final model yet; fine-tuned
+results come from a 200-iteration trial adapter.
 
 | Gate | Requires | Result so far |
 | --- | --- | --- |
@@ -19,11 +19,11 @@ so far come from a 200-iteration trial adapter, so they say nothing final about 
 | 1. A gap exists | Base model follows an edited `Calc` less than 95% of the time | **No gap on GSM8K:** 0 of 53 kept the old answer |
 | 2. Room in the literature | No paper has done the main question | Passed provisionally, not yet a systematic review |
 | 3a. MATH is checkable | At least 50% of hard problems can be checked | **Not met:** 23.3%, continuing on a labelled subset |
-| 3b. MATH is hard enough | Comparison modes at most 90% correct | Measuring |
-| 4. A signal exists | Check catches at least 50% of wrong answers, at most 20% false alarms | Not reached |
+| 3b. MATH is hard enough | Comparison modes at most 90% correct | **Passed:** 64 and 55 of 100 |
+| 4. A signal exists | Check catches at least 50% of wrong answers, at most 20% false alarms | **Not met for checks on the thinking:** equation checks caught 2 of 82 |
 
-Negative results count as results. If gate 4 fails, the plan drops the Q1 target and writes up what
-was found.
+Under the plan, a failed gate 4 means choosing what to do next: drop the Q1 target and write up the
+negative result, or take a new direction. That decision is open.
 
 ## Research
 
@@ -93,11 +93,6 @@ pytest tests/test_quick_pdf.py tests/test_goal_routing.py
 ```
 
 Shortcuts: ⌃⌥Space shows or hides the desk. ⌥⇧R opens it and translates or explains the selected text.
-
-## Layout rules
-
-Research never imports RAT, and every tracked file has one owner.
-`tests/test_repo_boundaries.py` enforces this, so the two parts can still be separated later.
 
 ## History
 

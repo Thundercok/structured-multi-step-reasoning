@@ -44,9 +44,7 @@ on a 16 GB M1.
 
 ## Repo boundaries
 
-This stays one repo. Research and RAT stay separable: research never imports RAT, and
-RAT imports only the `structured_llm` modules listed in `tests/test_repo_boundaries.py`.
-New tracked files must fit an owner there. Do not create another repo unless the user asks.
+This stays one repo unless the user asks otherwise. Research never imports RAT; a test enforces it.
 RAT Lite now lives in `Thundercok/offline-tool-routing-agent`; do not add it back here. Its
 last working source here is tag `rat-lite-0.6.0`, which must stay.
 

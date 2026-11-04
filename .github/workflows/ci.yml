@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  research:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,8 +17,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest sympy
-      - name: Run research and boundary tests
+          python -m pip install pytest sympy certifi httpx
+      - name: Run Ubuntu-compatible tests
         run: |
           python -m pytest \
             tests/test_repo_boundaries.py \
@@ -27,22 +27,6 @@ jobs:
             tests/test_math_check.py \
             tests/test_math_data.py \
             tests/test_structured_trace.py \
-            -q
-
-  harness:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest certifi httpx
-      - name: Run Ubuntu-compatible RAT tests
-        run: |
-          python -m pytest \
             tests/test_accessibility_permissions.py \
             tests/test_adaptive_reranker.py \
             tests/test_app_catalog_cache.py \

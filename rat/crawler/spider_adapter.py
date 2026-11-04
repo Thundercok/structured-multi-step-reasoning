@@ -209,7 +209,7 @@ class SpiderAdapter:
         raise SpiderBinaryNotFoundError(
             "Không tìm thấy Spider binary trên hệ thống. "
             "Vui lòng thiết lập biến môi trường RAT_SPIDER_BIN hoặc cài đặt binary tại "
-            f"{DEFAULT_LOCAL_BIN} (xem hướng dẫn tại audit/spider_rat_adapter_20261016/)."
+            f"{DEFAULT_LOCAL_BIN}."
         )
 
     def is_available(self) -> bool:
