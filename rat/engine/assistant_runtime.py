@@ -321,7 +321,7 @@ class AssistantRuntime:
                     # extra discovery round trip or user-text routing.
                     selected.update({'read_document', 'search_book_pages',
                                      'read_book_page', 'deliver_document', 'synthesize_smart_note',
-                                     'find_file_or_app', 'reveal_in_finder'})
+                                     'find_file_or_app', 'reveal_in_finder', 'open_document'})
                     if self.artifact_store.find_by_kind('structured_note'):
                         selected.update({'update_note_action_item', 'expand_note_section'})
                 if snapshot and snapshot['observed_state']['lifecycle'].get('pending_input'):

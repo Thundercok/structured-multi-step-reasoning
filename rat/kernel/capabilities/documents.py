@@ -370,13 +370,15 @@ def create_documents_capability(db: Optional[Database] = None, semantic=None) ->
         observation_formatter=document_read_observation_pack))
 
     capability.register_operation(OperationDefinition("open_document",
-        "Open an exact indexed file in its default application only when the user explicitly requests opening it.",
+        "Open an indexed file in its default application so the user sees it. Call this when the user says open, mở or xem; "
+        "search_documents first if the path is unknown. Never call it otherwise.",
         {"type": "object", "properties": {"file_path": {"type": "string"}}, "required": ["file_path"]}, handle_open))
 
     capability.register_operation(OperationDefinition(
         "deliver_document",
-        "Attach an original indexed file when requested, using its exact observed path (search_documents first if unknown). "
-        "Returns a local reference, metadata and hash; does not open, copy or upload the file.",
+        "Attach an original indexed file to this chat as a reference, only when the user asks to attach or send it, using its exact observed path (search_documents first if unknown). "
+        "This does not open the file: when the user says open or mở, use open_document. "
+        "Returns a local reference, metadata and hash; does not copy or upload the file.",
         {"type": "object", "properties": {"file_path": {"type": "string"}},
          "required": ["file_path"]}, handle_deliver, artifact_kind="document_file"))
 

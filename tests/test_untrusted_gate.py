@@ -145,3 +145,46 @@ def test_direct_request_with_no_outside_content_runs_the_tool():
         response = runtime.run('mở calculator')
     assert ran == ['open_application']
     assert response.telemetry_breakdown['blocked_actions'] == []
+
+
+def _desk_runtime(tmp_path):
+    from rat.crawler.db import Database
+
+    path = tmp_path / 'hop_dong.txt'
+    path.write_text('Hợp đồng thuê phòng trọ.\n', encoding='utf-8')
+    db = Database(str(tmp_path / 'index.db'))
+    db.upsert_document({'file_path': str(path), 'file_name': path.name, 'file_ext': '.txt', 'file_size': 24,
+                        'created_at': 1.0, 'modified_at': 1.0, 'md5_hash': 'x', 'indexed_at': 1.0,
+                        'content_text': 'Hợp đồng thuê phòng trọ.', 'summary': 'Hợp đồng thuê phòng trọ.'})
+    return AssistantRuntime(discover_tools=True, db=db, compositor=MagicMock()), path
+
+
+def test_opening_a_found_file_runs_for_real_through_the_tool(tmp_path):
+    """The real tool and index check, stopping only at the macOS open command."""
+    runtime, path = _desk_runtime(tmp_path)
+    replies = [
+        {'message': {'role': 'assistant', 'tool_calls': [native_call('search_documents', {'query': 'hợp đồng'})]}},
+        {'message': {'role': 'assistant', 'tool_calls': [native_call('open_document', {'file_path': str(path)})]}},
+        {'message': {'role': 'assistant', 'content': 'Đã mở.'}},
+    ]
+    with patch('rat.engine.slm.slm_engine.chat_with_meta', side_effect=replies) as chat, \
+            patch('subprocess.run') as run:
+        response = runtime.run('tìm hợp đồng rồi mở nó')
+    run.assert_called_once()
+    assert run.call_args.args[0] == ['/usr/bin/open', str(path)]
+    assert response.telemetry_breakdown['blocked_actions'] == []
+    offered = {tool['function']['name'] if 'function' in tool else tool['name'] for tool in chat.call_args_list[0].args[1]}
+    assert 'open_document' in offered
+
+
+def test_a_file_cannot_get_itself_opened_when_nobody_asked(tmp_path):
+    runtime, path = _desk_runtime(tmp_path)
+    replies = [
+        {'message': {'role': 'assistant', 'tool_calls': [native_call('search_documents', {'query': 'hợp đồng'})]}},
+        {'message': {'role': 'assistant', 'tool_calls': [native_call('open_document', {'file_path': str(path)})]}},
+        {'message': {'role': 'assistant', 'content': 'Xong.'}},
+    ]
+    with patch('rat.engine.slm.slm_engine.chat_with_meta', side_effect=replies), patch('subprocess.run') as run:
+        response = runtime.run('tiền cọc là bao nhiêu?')
+    run.assert_not_called()
+    assert response.telemetry_breakdown['blocked_actions'][0]['tool'] == 'open_document'
