@@ -73,6 +73,7 @@ Lấy luồng thao tác của Lite (cái gì hiện ra, lúc nào, bấm gì), g
 | 2.8 | Thẻ bản dịch: một tờ trên xấp, hướng dịch là nhãn dán, ⇄ và Sao chép có độ lún, "Đoạn gốc" là tờ lót kéo ra được, chân tờ ghi cách làm đo được từ kết quả thật. Đã xong | Bản dịch ghi rõ Anh → Việt, mở được đoạn gốc ngay trên thẻ |
 | 3.7 | Câu mơ hồ thì hỏi một câu, hai nút kèm keycap: ↵ cho lựa chọn gợi ý, Tab cho lựa chọn kia. Đã xong | "Tìm file" / "Dịch" hiện đúng lúc, câu tìm kiếm và câu hỏi rõ ràng không bị hỏi lại |
 | 3.8 | Vị trí chuột và bong bóng trỏ vào ô nhập, chưa đổi tư thế. Đã xong | Không vỡ `bind_desk_window`, không lệch khỏi màn hình |
+| 3.9 | Chuột nấp sau mép ô nhập, chỉ ló ra khi có điều để nói, lặn khi đang đọc tờ kết quả. Đã xong | Gõ phím và có kết quả mới không làm nó ló; phím tắt, câu hỏi, lỗi và rê chuột thì có |
 
 ## 4. Táy máy
 

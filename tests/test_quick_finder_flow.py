@@ -13,7 +13,7 @@ os.environ.setdefault("QT_QUICK_BACKEND", "software")
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
 import pytest
-from PyQt6.QtCore import QCoreApplication, QEvent, QPointF, QUrl, Qt
+from PyQt6.QtCore import QCoreApplication, QEvent, QPoint, QPointF, QUrl, Qt
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 from PyQt6.QtGui import QGuiApplication
@@ -1594,26 +1594,97 @@ def _scene_rect(item):
     return top_left.x(), top_left.y(), top_left.x() + item.width(), top_left.y() + item.height()
 
 
-def test_rat_stands_beside_the_composer_when_there_is_room(finder_fixture):
+def _rat_and_composer(root):
+    return (_scene_rect(root.findChild(QQuickItem, 'mascotCrop')),
+            _scene_rect(root.findChild(QQuickItem, 'composer')))
+
+
+def _rat_visible(root):
+    return root.findChild(QQuickItem, 'mascotCrop').property('visible')
+
+
+def _tail_visible(root):
+    return root.findChild(QQuickItem, 'ratBubbleTail').property('visible')
+
+
+def test_rat_hides_behind_the_composer_with_only_its_head_showing(finder_fixture):
     app = QGuiApplication.instance() or QGuiApplication([])
     view, controller = _sized_desk(finder_fixture, 720)
     try:
         root = view.rootObject()
         assert root.property('ratBesideComposer')
-        rat = _scene_rect(root.findChild(QQuickItem, 'mascotCrop'))
-        composer = _scene_rect(root.findChild(QQuickItem, 'composer'))
+        assert _rat_visible(root)
+        assert not _tail_visible(root)
+        rat, composer = _rat_and_composer(root)
+        assert rat[1] == pytest.approx(composer[1] - root.property('ratPeekHeight'))
+        assert composer[1] < rat[3] <= composer[3]
+        assert composer[0] <= rat[0] and rat[2] <= composer[2]
+    finally:
+        _dispose(view, controller)
+
+
+def test_rat_comes_out_to_speak_and_goes_back(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _sized_desk(finder_fixture, 720)
+    try:
+        root = view.rootObject()
+        controller._set_shortcut_ack('Chuột đang lấy đoạn bạn bôi đen…')
+        _process_events(50)
+        rat, composer = _rat_and_composer(root)
         assert rat[0] >= composer[2]
         assert rat[2] <= view.width()
         assert rat[3] == pytest.approx(composer[3])
-        assert root.findChild(QQuickItem, 'ratBubbleTail').property('visible')
+        assert _tail_visible(root)
 
+        controller._set_shortcut_ack('')
+        _process_events(50)
+        rat, composer = _rat_and_composer(root)
+        assert rat[2] <= composer[2]
+        assert not _tail_visible(root)
+    finally:
+        _dispose(view, controller)
+
+
+def test_rat_stays_hidden_on_results_and_keystrokes(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _sized_desk(finder_fixture, 720)
+    try:
+        root = view.rootObject()
         root.findChild(QQuickItem, 'draftEditor').setProperty('text', 'calc')
         _process_events(400)
         assert controller.snapshot['view'] == 'finder'
-        assert root.findChild(QQuickItem, 'mascotCrop').property('visible')
+        assert not root.property('ratOut')
+        assert not _rat_visible(root)
+        assert not root.findChild(QQuickItem, 'ratHeadZone').property('enabled')
         paper = _scene_rect(root.findChild(QQuickItem, 'resultPaper'))
+        composer = _scene_rect(root.findChild(QQuickItem, 'composer'))
         assert paper[0] == pytest.approx(composer[0])
-        assert paper[2] <= rat[0]
+
+        # Speaking wins over reading: it comes out beside the paper, not over it.
+        controller._set_shortcut_ack('Đã chép đường dẫn a.txt.')
+        _process_events(50)
+        assert _rat_visible(root)
+        assert _scene_rect(root.findChild(QQuickItem, 'mascotCrop'))[0] >= paper[2]
+    finally:
+        _dispose(view, controller)
+
+
+def test_hover_brings_the_rat_out_without_it_fleeing_the_cursor(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _sized_desk(finder_fixture, 720)
+    try:
+        root = view.rootObject()
+        zone = root.findChild(QQuickItem, 'ratHeadZone')
+        head = zone.mapToScene(QPointF(zone.width() / 2, zone.height() / 2)).toPoint()
+        QTest.mouseMove(view, head)
+        _process_events(100)
+        assert root.property('ratOut')
+        # The rat has moved away and the pointer has not: it must stay out, not bounce back.
+        _process_events(200)
+        assert root.property('ratOut')
+        QTest.mouseMove(view, QPoint(2, 2))
+        _process_events(100)
+        assert not root.property('ratOut')
     finally:
         _dispose(view, controller)
 

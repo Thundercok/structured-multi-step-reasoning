@@ -33,7 +33,24 @@ Rectangle {
     readonly property bool intentChoiceOpen: intentChoiceText.length > 0 && intentChoiceText === editor.text
     // With room to spare, Chuột stands beside the composer and speaks into it. A narrow desk keeps it above.
     readonly property int ratBesideRoom: 92
+    readonly property int ratPeekHeight: 41
     readonly property bool ratBesideComposer: liveMode && !isSideBySidePdfActive && unit.width >= 580 + ratBesideRoom
+    // Chuột hides behind the composer and comes out only to say something, so that its coming out means something.
+    // Position derives from these two factors and the composer, so it can never lag a resizing window.
+    readonly property bool ratHasNews: Boolean(liveSnapshot.shortcutAck) || intentChoiceOpen || liveSnapshot.view === "error"
+        || Boolean(liveSnapshot.finderFeedback) || Boolean(liveSnapshot.launchFeedback) || copied
+    readonly property bool ratOut: ratBesideComposer && (ratHasNews || ratHeadZone.containsMouse || ratSideZone.containsMouse)
+    readonly property bool ratTucked: !ratOut && ((expanded && hasWorkbench) || hasLatentFinderHits)
+    property real ratPop: ratOut ? 1 : 0
+    property real ratTuck: ratTucked ? 1 : 0
+    Behavior on ratPop {
+        enabled: desk.readyForMotion && !desk.reduceMotion
+        NumberAnimation { duration: 110; easing.type: Easing.OutBack; easing.overshoot: 0.8 }
+    }
+    Behavior on ratTuck {
+        enabled: desk.readyForMotion && !desk.reduceMotion
+        NumberAnimation { duration: 90; easing.type: Easing.OutQuad }
+    }
     property real paperNudgeTarget: 0
     property real paperNudge: paperNudgeTarget
     property string lastResultSignature: ""
@@ -2521,17 +2538,22 @@ Rectangle {
         Item {
             id: mascotItem
             objectName: "mascotCrop"
-            visible: desk.ratBesideComposer ? true : (!desk.expanded && !desk.liveSnapshot.busy && !desk.isSideBySidePdfActive)
-            x: desk.ratBesideComposer ? composer.x + composer.width + 12 : Math.max(4, composer.x - 110)
-            y: (desk.ratBesideComposer ? composer.y + composer.height - height : composer.y - 116)
+            visible: desk.ratBesideComposer ? (desk.ratPop > 0.01 || desk.ratTuck < 0.99)
+                : (!desk.expanded && !desk.liveSnapshot.busy && !desk.isSideBySidePdfActive)
+            readonly property real hideX: composer.x + composer.width - 118
+            readonly property real hideY: composer.y - desk.ratPeekHeight + (desk.ratPeekHeight + 1) * desk.ratTuck
+            x: desk.ratBesideComposer ? hideX + (composer.x + composer.width + 12 - hideX) * desk.ratPop : Math.max(4, composer.x - 110)
+            y: (desk.ratBesideComposer ? hideY + (composer.y + composer.height - 110 - hideY) * desk.ratPop : composer.y - 116)
                 + (mascotWobble.running ? mascotWobble.offsetY : 0)
-            width: desk.ratBesideComposer ? 104 : 122
-            height: desk.ratBesideComposer ? 110 : 116
+            // Cropped while hiding: on the right so its tail stays out of sight, and below
+            // as it sinks so its feet never stick out under the composer.
+            width: desk.ratBesideComposer ? 62 + 42 * desk.ratPop : 122
+            height: desk.ratBesideComposer ? 110 - 30 * desk.ratTuck * (1 - desk.ratPop) : 116
             clip: true
             z: 4
             rotation: mascotWobble.running ? mascotWobble.rot : 0
             Image {
-                width: desk.ratBesideComposer ? parent.width : 180
+                width: desk.ratBesideComposer ? 104 : 180
                 height: width * (sourceSize.height / Math.max(1, sourceSize.width))
                 source: desk.mascotSource
                 fillMode: Image.PreserveAspectFit
@@ -2539,6 +2561,7 @@ Rectangle {
                 Accessible.ignored: true
             }
             MouseArea {
+                enabled: !desk.ratBesideComposer
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
@@ -2692,10 +2715,37 @@ Rectangle {
                 }
             }
         }
-        // The bubble's tail, from the composer to Chuột's mouth. Painted once.
+        // These stay put while Chuột moves. Hovering Chuột itself would make it flee the cursor and come back, forever.
+        MouseArea {
+            id: ratHeadZone
+            objectName: "ratHeadZone"
+            enabled: desk.ratBesideComposer && !desk.ratTucked
+            x: mascotItem.hideX
+            y: composer.y - desk.ratPeekHeight
+            width: 62
+            height: desk.ratPeekHeight
+            z: 3
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: mascotWobble.restart()
+        }
+        MouseArea {
+            id: ratSideZone
+            objectName: "ratSideZone"
+            enabled: desk.ratBesideComposer
+            x: composer.x + composer.width + 2
+            y: composer.y + composer.height - 110
+            width: 114
+            height: 110
+            z: 3
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: mascotWobble.restart()
+        }
+        // The bubble's tail, from the composer to Chuột's mouth, only while it speaks. Painted once.
         Canvas {
             objectName: "ratBubbleTail"
-            visible: desk.ratBesideComposer
+            visible: desk.ratBesideComposer && desk.ratPop > 0.6
             x: composer.x + composer.width - 2
             y: mascotItem.y + mascotItem.height * 0.43 - 6
             width: 22
