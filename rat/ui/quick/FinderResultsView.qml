@@ -361,6 +361,16 @@ ColumnLayout {
                 onClicked: desk.liveController.previewSelectedHit(desk.selectedFinderIndex)
             }
             KeycapBadge {
+                objectName: "finderCopyPathAction"
+                visible: bottomActionBar.selectedHit.kind === "file" && Boolean(bottomActionBar.selectedHit.path)
+                keyText: "⌘C"
+                labelText: "Chép đường dẫn"
+                onClicked: {
+                    desk.liveController.copySelectedHitPath(desk.selectedFinderIndex)
+                    editor.forceActiveFocus()
+                }
+            }
+            KeycapBadge {
                 visible: Boolean(bottomActionBar.selectedHit.path)
                 keyText: "⌘↵"
                 labelText: "Finder"

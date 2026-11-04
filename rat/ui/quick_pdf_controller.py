@@ -2433,6 +2433,19 @@ class QuickPDFController(QObject):
         return False
 
     @pyqtSlot(int, result=bool)
+    def copySelectedHitPath(self, index: int) -> bool:
+        """Copy a result's full path; the row itself only shows its last two folders."""
+        if not 0 <= index < len(self._finder_hits):
+            return False
+        hit = self._finder_hits[index]
+        if hit.get("kind") != "file" or not hit.get("path"):
+            return False
+        copied = self._set_and_verify_clipboard(hit["path"])
+        self._set_shortcut_ack(f"Đã chép đường dẫn {Path(hit['path']).name}." if copied
+                               else "Chuột chưa chép được đường dẫn này.", 1800)
+        return copied
+
+    @pyqtSlot(int, result=bool)
     def revealSelectedInFinder(self, index: int) -> bool:
         if 0 <= index < len(self._finder_hits):
             return self.revealInFinder(self._finder_hits[index]["path"])

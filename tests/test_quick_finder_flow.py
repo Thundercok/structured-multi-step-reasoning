@@ -1660,3 +1660,91 @@ def test_paper_fits_the_window_while_the_window_catches_up(finder_fixture):
         assert not paper.property('clip')
     finally:
         _dispose(view, controller)
+
+
+def _desk_with_file_hit(finder_fixture):
+    view, controller = _paper_desk(finder_fixture, reduce_motion=True)
+    root = view.rootObject()
+    editor = root.findChild(QQuickItem, 'draftEditor')
+    editor.setProperty('text', 'tim file danh sach sinh vien')
+    editor.forceActiveFocus()
+    _process_events(400)
+    assert controller.snapshot['view'] == 'finder'
+    assert controller.snapshot['finderHits'][0]['path'] == finder_fixture['txt_path']
+    return view, controller, root, editor
+
+
+def test_cmd_c_copies_the_selected_rows_full_path(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    app.clipboard().setText('before')
+    view, controller, root, _ = _desk_with_file_hit(finder_fixture)
+    try:
+        # With no row selected, ⌘C does not touch the clipboard.
+        QTest.keyClick(view, Qt.Key.Key_C, Qt.KeyboardModifier.ControlModifier)
+        _process_events(30)
+        assert app.clipboard().text() == 'before'
+
+        root.setProperty('selectedFinderIndex', 0)
+        _process_events(30)
+        QTest.keyClick(view, Qt.Key.Key_C, Qt.KeyboardModifier.ControlModifier)
+        _process_events(30)
+        assert app.clipboard().text() == finder_fixture['txt_path']
+        message = 'Đã chép đường dẫn danh_sach_lop.txt.'
+        assert controller.snapshot['shortcutAck'] == message
+        assert root.findChild(QQuickItem, 'composerDropStatus').property('text') == message
+        assert controller._shortcut_ack_timer.isActive()
+        assert root.property('selectedFinderIndex') == 0
+    finally:
+        _dispose(view, controller)
+
+
+def test_cmd_c_with_text_selected_copies_the_text_not_the_path(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    app.clipboard().setText('before')
+    view, controller, root, editor = _desk_with_file_hit(finder_fixture)
+    try:
+        root.setProperty('selectedFinderIndex', 0)
+        editor.select(0, 3)
+        _process_events(30)
+        assert editor.property('selectedText') == 'tim'
+        QTest.keyClick(view, Qt.Key.Key_C, Qt.KeyboardModifier.ControlModifier)
+        _process_events(30)
+        assert app.clipboard().text() == 'tim'
+        assert controller.snapshot['shortcutAck'] == ''
+    finally:
+        _dispose(view, controller)
+
+
+def test_copy_path_button_on_the_selected_row(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    app.clipboard().setText('before')
+    view, controller, root, editor = _desk_with_file_hit(finder_fixture)
+    try:
+        root.setProperty('selectedFinderIndex', 0)
+        _process_events(50)
+        button = root.findChild(QQuickItem, 'finderCopyPathAction')
+        assert button.property('visible')
+        center = button.mapToScene(QPointF(button.width() / 2, button.height() / 2)).toPoint()
+        QTest.mouseClick(view, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, center)
+        _process_events(30)
+        assert app.clipboard().text() == finder_fixture['txt_path']
+        assert editor.property('activeFocus')
+    finally:
+        _dispose(view, controller)
+
+
+def test_apps_and_bad_indexes_have_no_path_to_copy(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    app.clipboard().setText('before')
+    controller = QuickPDFController(
+        finder_search=finder_fixture['search'], finder_catalog=finder_fixture['catalog'],
+        db_path=finder_fixture['db_path'], auto_init_finder=False, open_url=lambda url: True,
+    )
+    try:
+        controller._finder_hits = [{'kind': 'application', 'path': '/Applications/Calculator.app'}]
+        assert not controller.copySelectedHitPath(0)
+        assert not controller.copySelectedHitPath(5)
+        assert not controller.copySelectedHitPath(-1)
+        assert app.clipboard().text() == 'before'
+    finally:
+        controller.close()

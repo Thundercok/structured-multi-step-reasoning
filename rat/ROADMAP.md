@@ -50,7 +50,7 @@ Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở 
 | 2.6 | Chỉ câu nói rõ "app", "mở" hoặc đúng tên app mới đưa app lên đầu; còn lại file trước. Đã xong | "chỉnh ảnh" có file thì ⌘1 mở file; "app chỉnh ảnh" và "mở word" vẫn ra app |
 | 2.7 | Đo độ đúng của tìm theo nghĩa trên file thật, rồi mới chỉnh ngưỡng và cách xếp hạng | Có bộ câu hỏi mẫu và tỉ lệ file đúng nằm trong 3 kết quả đầu. Công cụ: `tools/measure_search_quality.py`. Mốc 2026-11-03 trên 23 câu nháp, 2.710 file: top 1 là 3, top 3 là 11, không ra 9. Đã thử hybrid BM25 và dịch câu hỏi sang tiếng Anh: top 1 tăng lên 7 nhưng top 3 giảm còn 10, và thua trên nửa câu giữ riêng, nên chưa đổi cách xếp hạng. Chưa thử model embedding khác |
 | 2.8 | Thẻ bản dịch có hướng dịch và phần nguồn thu gọn được, lấy logic từ `MiniDesk.qml` ở tag `rat-lite-0.6.0`. Đã xong | Bản dịch ghi rõ Anh → Việt, mở được đoạn gốc ngay trên thẻ |
-| 2.9 | Chép đường dẫn từ dòng kết quả, lấy logic từ tag `rat-lite-0.6.0` | Có phím và thao tác trên dòng, báo đã chép |
+| 2.9 | Chép đường dẫn từ dòng kết quả, lấy logic từ tag `rat-lite-0.6.0`. Đã xong | Có phím và thao tác trên dòng, báo đã chép |
 | 2.10 | Phản hồi ngay khi nhấn phím tắt, lấy `shortcutAck` từ tag `rat-lite-0.6.0`. Đã xong | Nhấn phím thấy phản hồi ngay, kể cả khi việc còn đang chạy |
 
 ## 3. Có hồn: từng chi tiết

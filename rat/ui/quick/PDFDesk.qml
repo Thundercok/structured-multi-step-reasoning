@@ -351,6 +351,12 @@ Rectangle {
         var text = editor.text
         return (text.length >= 35 || text.indexOf("\n") >= 0) && liveController.isForeignPassage(text)
     }
+    // Only with a file row selected and no text selected, so ⌘C still copies text everywhere else.
+    function copySelectedRowPath() {
+        if (!liveMode || liveSnapshot.view !== "finder" || selectedFinderIndex < 0 || editor.selectedText) return false
+        var hit = (visibleFinderHits || [])[selectedFinderIndex] || {}
+        return hit.kind === "file" && liveController.copySelectedHitPath(selectedFinderIndex)
+    }
     function chooseTranslateDraft() {
         intentChoiceText = ""
         liveController.translatePassage(editor.text)
@@ -3032,6 +3038,10 @@ Rectangle {
                             event.accepted = false
                         }
                         Keys.onEscapePressed: event => { event.accepted = desk.liveMode && desk.escapeOneStep() }
+                        // The text field takes ⌘C before any Shortcut can, so a row's path is copied from here.
+                        Keys.onPressed: event => {
+                            if (event.matches(StandardKey.Copy) && desk.copySelectedRowPath()) event.accepted = true
+                        }
                         Keys.onTabPressed: event => {
                             if (desk.liveMode) {
                                 if (desk.intentChoiceOpen) {
