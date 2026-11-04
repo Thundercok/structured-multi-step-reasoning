@@ -45,7 +45,7 @@ def test_foreign_passage_translates_without_a_model_and_clears_the_composer(quic
     assert control._translator.calls == [PASSAGE]
     assert control._last_assistant_answer == "Bản dịch tiếng Việt."
     assert editor.property("text") == ""
-    assert quick_env.backend.run_calls == [] and quick_env.backend.embed_calls == []
+    assert quick_env.backend.run_calls == []
 
 
 def test_failed_translation_keeps_the_draft_and_can_be_retried(quick_env):

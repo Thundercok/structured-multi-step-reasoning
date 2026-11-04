@@ -20,7 +20,7 @@ import time
 from typing import Any, Callable, Dict, List, Optional
 
 from rat.engine.assistant_runtime import AgentResponse, AgentStep, AssistantRuntime
-from rat.engine.execution import ExecutionRequest, execution_response
+from rat.engine.execution import ExecutionRequest
 from rat.engine.verification import ExecutionEvidence
 from rat.kernel.contracts import ExecutionEvent
 
@@ -31,13 +31,8 @@ class AgentExecutionService:
     def __init__(
         self,
         runtime: AssistantRuntime,
-        *,
-        reasoning_engine: Optional[Any] = None,
-        allow_synthetic_policy: bool = False,
     ):
         self.runtime = runtime
-        self.reasoning_engine = reasoning_engine
-        self.allow_synthetic_policy = allow_synthetic_policy
         self._idempotency_cache: Dict[str, AgentResponse] = {}
         self._lock = threading.Lock()
 
@@ -314,24 +309,7 @@ class AgentExecutionService:
                 emit("turn_failed", error=resp.error)
             return resp
 
-        # Case C: Reasoning Engine strategy lane
-        if request.lane == "reasoning" and self.reasoning_engine is not None:
-            emit("dispatching", payload={"lane": "reasoning"})
-            res = self.reasoning_engine.run(request.query, **request.assistant_context())
-            resp = execution_response(request, res)
-            emit("observing")
-            emit("checking")
-            emit("deciding")
-            if not resp.error:
-                emit("turn_completed")
-                if request.idempotency_key:
-                    with self._lock:
-                        self._idempotency_cache[request.idempotency_key] = resp
-            else:
-                emit("turn_failed", error=resp.error)
-            return resp
-
-        # Case D: General multi-step structured reasoning loop
+        # Case C: General multi-step structured reasoning loop
         emit("dispatching", payload={"lane": "assistant"})
         run_ctx = request.assistant_context()
         if note_requirements.operation:

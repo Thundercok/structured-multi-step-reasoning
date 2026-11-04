@@ -69,14 +69,10 @@ class ResidentApplication(QObject):
     open_natal_signal = pyqtSignal()
     quicklook_signal = pyqtSignal()
 
-    def __init__(self, mode: str = "all", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
+    def __init__(self, mode: str = "all") -> None:
         install_crash_shield()
         self.app = QGuiApplication.instance() or QGuiApplication(sys.argv)
         super().__init__()
-        if reasoning_engine is not None:
-            from rat.ui.reasoning_host import install_reasoning_engine
-            install_reasoning_engine(self.app, reasoning_engine,
-                                     allow_synthetic_policy=allow_synthetic_policy)
         self.mode = mode
         self.app.setApplicationName("RAT · Trợ lý thông minh & PDF Desk")
         self.app.setQuitOnLastWindowClosed(False)  # Keep running resident in menu bar
@@ -714,7 +710,7 @@ class ResidentApplication(QObject):
         return self.app.exec()
 
 
-def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
+def run_resident_app(mode: str = "finder") -> None:
     """Launch the resident system with strict single-instance enforcement."""
     app = QGuiApplication.instance() or QGuiApplication(sys.argv)
 
@@ -729,9 +725,5 @@ def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synth
         logger.info(f"Cleaned up {killed} stale orphan rat process(es).")
 
     # 3. Launch the single resident application
-    if reasoning_engine is None:
-        res_app = ResidentApplication(mode=mode)
-    else:
-        res_app = ResidentApplication(mode=mode, reasoning_engine=reasoning_engine,
-                                      allow_synthetic_policy=allow_synthetic_policy)
+    res_app = ResidentApplication(mode=mode)
     sys.exit(res_app.run())

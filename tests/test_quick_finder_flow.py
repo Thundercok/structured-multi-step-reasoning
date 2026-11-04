@@ -19,11 +19,10 @@ from PyQt6.QtTest import QTest
 from PyQt6.QtGui import QGuiApplication
 
 from rat.crawler.db import Database
+from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.engine.app_resolver import Application, ApplicationCatalog
-from rat.engine.meta_reasoner import build_composed_meta_reasoner
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator
 from rat.ui.quick_pdf_controller import QuickPDFController, finder_row_detail, short_folder
-from reasoning.bundle import create_synthetic_specimen_bundle
 
 
 def _process_events(ms: int = 150):
@@ -41,22 +40,6 @@ def _dispose(view, controller):
     controller.deleteLater()
     QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
     QGuiApplication.processEvents()
-
-
-class RecordingBackend:
-    hidden_size = 2
-
-    def __init__(self, authored_answer="Tệp chứa danh sách sinh viên CNTT 2026."):
-        self.authored_answer = authored_answer
-        self.dispatches = []
-
-    def embed(self, query: str):
-        import numpy as np
-        return np.zeros(self.hidden_size, dtype=np.float32)
-
-    def run(self, strategy, query: str, should_cancel=None, deadline_monotonic=None, max_tokens=None):
-        self.dispatches.append(query)
-        return self.authored_answer, 0.95, 12
 
 
 @pytest.fixture
@@ -321,15 +304,13 @@ def test_quick_finder_ask_about_file(finder_fixture):
     """Clicking 'Hỏi về tệp' attaches the file context to assistant reasoning."""
     app = QGuiApplication.instance() or QGuiApplication([])
 
-    backend = RecordingBackend()
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
+    runtime = AssistantRuntime()
+    runtime.run = lambda query, **context: AgentResponse("Tệp chứa danh sách sinh viên CNTT 2026.", [], 0, 0, 12)
 
     controller = QuickPDFController(
         finder_search=finder_fixture["search"],
         finder_catalog=finder_fixture["catalog"],
-        reasoning_engine=engine,
-        allow_synthetic_policy=True,
+        assistant_runtime=runtime,
         auto_init_finder=False,
     )
     controller.ready()
@@ -840,7 +821,6 @@ def test_quick_finder_slice_see_more_and_min_mode(tmp_path):
 def test_finder_never_hijacks_active_answer_or_zero_hit_chat_and_exposes_drawer_tab(finder_fixture):
     """Build 2026.10.24.9: 0-hit chat stays folded, active Answer stays visible on follow-up typing, and drawer tab opens/returns cleanly."""
     from PyQt6.QtCore import QPointF
-    from rat.engine.assistant_runtime import AgentResponse
     from rat.ui.icon_provider import RatIconProvider
     from rat.ui.quick_app import bind_desk_window
 

@@ -22,17 +22,13 @@ def cli_main() -> None:
     run_cli()
 
 
-def run_resident_app(mode: str = "finder", *, reasoning_engine=None, allow_synthetic_policy=False) -> None:
+def run_resident_app(mode: str = "finder") -> None:
     # Qt and resident services are needed only for a GUI launch. Install the
     # GUI exception hooks before importing or constructing Qt components.
     from rat.os.crash_shield import install_crash_shield
     install_crash_shield()
     from rat.os.app import run_resident_app as launch
-    if reasoning_engine is None:
-        launch(mode=mode)
-    else:
-        launch(mode=mode, reasoning_engine=reasoning_engine,
-               allow_synthetic_policy=allow_synthetic_policy)
+    launch(mode=mode)
 
 
 def main() -> None:

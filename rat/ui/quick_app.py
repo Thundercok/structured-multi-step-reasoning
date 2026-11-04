@@ -90,8 +90,6 @@ def bind_desk_close(view, controller, *, quit_on_close: bool = True):
 
 def create_quick_desk(
     *,
-    reasoning_engine=None,
-    allow_synthetic_policy=False,
     assistant_runtime=None,
     conversation=None,
     dark_mode=False,
@@ -112,14 +110,9 @@ def create_quick_desk(
     if sys.platform == "darwin":
         app.setFont(QFont("Helvetica Neue", 13))
 
-    eng = reasoning_engine or (app.property("ratReasoningEngine") if hasattr(app, "property") else None)
-    allow_synth = allow_synthetic_policy or (app.property("ratAllowSyntheticPolicy") is True if hasattr(app, "property") else False)
-
     controller = QuickPDFController(
         assistant_runtime=assistant_runtime,
         conversation=conversation,
-        reasoning_engine=eng,
-        allow_synthetic_policy=allow_synth,
     )
     if hasattr(app, "clipboard") and app.clipboard() is not None:
         controller.copyReady.connect(app.clipboard().setText)
@@ -178,8 +171,6 @@ def create_quick_desk(
 def main(
     argv=None,
     *,
-    reasoning_engine=None,
-    allow_synthetic_policy=False,
     assistant_runtime=None,
     conversation=None,
 ):
@@ -208,8 +199,6 @@ def main(
     app = QGuiApplication.instance() or QGuiApplication([sys.argv[0]])
 
     view, controller = create_quick_desk(
-        reasoning_engine=reasoning_engine,
-        allow_synthetic_policy=allow_synthetic_policy,
         assistant_runtime=assistant_runtime,
         conversation=conversation,
         dark_mode=args.dark,

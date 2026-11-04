@@ -1,5 +1,4 @@
 """Legacy VGC uses the same arithmetic gate and only certifies source excerpts."""
-import pytest
 
 from rat.engine.vgc import VGCCertificate, VGCCascadeEngine, VGCVerificationStatus, VGCVerifier
 
@@ -52,27 +51,3 @@ def test_unsupported_rounding_does_not_gain_a_verified_label():
 def test_rounded_witness_is_not_accepted_as_an_exact_division():
     result = VGCVerifier.verify_calculation(VGCCertificate('3.3333', '3.3333'), '10 / 3')
     assert result.status == VGCVerificationStatus.INVALID
-
-
-@pytest.mark.parametrize('query', [
-    'CPA 9.1 với 100 tín chỉ, thêm một môn thì bao nhiêu?',
-    'Tính học phí cho 7 tín chỉ',
-    'Tính học phí 999 tín chỉ giá 12345 mỗi tín chỉ và giảm 10%',
-])
-def test_legacy_word_problems_do_not_invent_inputs_or_numeric_certificates(query):
-    from rat.engine.meta_reasoner import MetaReasonerEngine
-    result = MetaReasonerEngine().solve(query)
-    assert result.verification_status == 'unverifiable'
-    assert result.witness_proof is None
-    assert result.tokens == 0
-    assert result.confidence_kind == 'not_estimated'
-    assert 'không tự điền' in result.answer
-
-
-def test_meta_reasoner_returns_verified_literal_answer_with_zero_model_tokens():
-    from rat.engine.meta_reasoner import MetaReasonerEngine
-    result = MetaReasonerEngine().solve('tính (123 + 45) * 2')
-    assert result.verification_status == 'valid'
-    assert result.witness_proof == '336'
-    assert '336' in result.answer
-    assert result.tokens == 0 and result.confidence_kind == 'not_estimated'

@@ -30,14 +30,7 @@ from rat.engine.semantic_reranker import SemanticFuzzyReranker
 from rat.engine.selected_pdf import (
     SelectedPDFError, check_current, citation_text, select_pdf,
 )
-from rat.engine.execution import (
-    CONTEXT_ADAPTER_SCHEMA_VERSION,
-    ExecutionRequest,
-    build_execution_context_snapshot,
-    execution_response,
-    render_backend_input,
-    validate_referenced_context,
-)
+from rat.engine.execution import ExecutionRequest, execution_response
 from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.ui.chat_session import ConversationHistory, TurnSnapshot
 from rat.ui.answer_presentation import (
@@ -412,8 +405,6 @@ class QuickPDFController(QObject):
         preview_file=None,
         assistant_runtime: Optional[AssistantRuntime] = None,
         conversation: Optional[ConversationHistory] = None,
-        reasoning_engine: Optional[Any] = None,
-        allow_synthetic_policy: bool = False,
         finder_search: Optional[ProgressiveSearch] = None,
         finder_catalog: Optional[ApplicationCatalog] = None,
         finder_coordinator: Optional[SearchCoordinator] = None,
@@ -469,8 +460,6 @@ class QuickPDFController(QObject):
         # Unified shared runtime & conversation state
         self._assistant_runtime = assistant_runtime
         self._conversation = conversation
-        self._reasoning_engine = reasoning_engine
-        self._allow_synthetic_policy = allow_synthetic_policy
 
         self._current_worker = None
         self._execution_workers = set()
@@ -731,7 +720,6 @@ class QuickPDFController(QObject):
             "errorCode": self._error,
             "errorText": ERROR_MESSAGES.get(self._error, "Chuột chưa làm được việc này."),
             "events": list(self._events),
-            "contradictionReport": self._telemetry.get("contradiction_report"),
             "finderHits": list(self._finder_hits),
             "finderQuery": self._finder_query,
             "finderFeedback": self._finder_feedback,
@@ -1001,10 +989,10 @@ class QuickPDFController(QObject):
                 return self.openSelectedHit(idx)
             return False
 
-        # In document reading or active conversation views, or when explicitly hosted
-        # with a reasoning engine, Enter submits to the engine as indicated by the composer hint
+        # In document reading or active conversation views, Enter submits the
+        # question as indicated by the composer hint
         current_view = self.snapshot.get("view", "")
-        if current_view in ("answer", "page", "document") or self.snapshot.get("fileName") or self._reasoning_engine is not None:
+        if current_view in ("answer", "page", "document") or self.snapshot.get("fileName"):
             return False
 
         if is_question_query(q):
@@ -1376,15 +1364,7 @@ class QuickPDFController(QObject):
         turn_ref = turn_snap.turn_ref
         execution_id = turn_snap.execution_id
 
-        app_inst = QGuiApplication.instance()
-        engine = self._reasoning_engine
-        if engine is None and app_inst is not None:
-            engine = app_inst.property("ratReasoningEngine")
-        allow_synth = self._allow_synthetic_policy
-        if not allow_synth and app_inst is not None:
-            allow_synth = app_inst.property("ratAllowSyntheticPolicy") is True
-
-        lane = "document" if self._selection is not None else ("reasoning" if engine is not None else "auto")
+        lane = "document" if self._selection is not None else "auto"
 
         source_evidence = []
         if self._selection is not None:
@@ -1452,12 +1432,7 @@ class QuickPDFController(QObject):
         )
 
         try:
-            worker = create_execution_worker(
-                self.assistant_runtime,
-                request,
-                reasoning_engine=engine,
-                allow_synthetic_policy=allow_synth,
-            )
+            worker = create_execution_worker(self.assistant_runtime, request)
         except Exception as exc:
             self.conversation.fail_turn(turn_ref.turn_id, "failed", execution_id=execution_id)
             self._show_error(f"worker_creation_failed:{exc}")
@@ -1608,15 +1583,7 @@ class QuickPDFController(QObject):
         # Respect the user's current mode; a completed answer updates the preview.
         self._unread = not self._expanded
 
-        c_rep = self._telemetry.get("contradiction_report")
-        if c_rep and not c_rep.get("passed"):
-            count = len(c_rep.get("findings", []))
-            self._status = f"Chuột thấy {count} chỗ mâu thuẫn trong lập luận. Đọc kỹ giúp nhé."
-            self._events.append(f"⚠️ ContradictionAuditor: {count} mâu thuẫn đơn điệu bị gắn cờ.")
-        elif self._telemetry.get("bundle_review_status") == "synthetic_development_only":
-            self._status = "Bản thử nghiệm: đây là kết quả mẫu, chưa phải câu trả lời thật của Chuột."
-        else:
-            self._status = ANSWERED_STATUS
+        self._status = ANSWERED_STATUS
 
         self._events.append(self._status)
         self.changed.emit()

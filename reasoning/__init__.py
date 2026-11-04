@@ -1,11 +1,5 @@
 """
-reasoning — Core structured reasoning, optimal stopping, and strategy execution.
-Canonical implementation package for the RAT-CoT system.
+reasoning — Answer parsing and the sandboxed calculator kept from the earlier controller.
 """
 
-__all__ = [
-    "entry_predictor",
-    "optimal_stopping",
-    "reasoning_env",
-    "reasoning_strategies",
-]
+__all__ = ["reasoning_strategies"]

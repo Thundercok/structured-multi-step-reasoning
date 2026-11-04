@@ -76,7 +76,7 @@ Google Translate, MyMemory) that can run when API keys are set or local translat
 | `rat/os/` | Menu bar, hotkeys, permissions, daemon, shell integration |
 | `rat/ui/` | Qt Quick interface |
 | `rat/crawler/`, `timetable/`, `astrology/`, `plugins/` | File indexing and optional domain tools |
-| `reasoning/`, `research_scoring.py` | The earlier controller, which RAT still imports |
+| `reasoning/`, `research_scoring.py` | The sandboxed calculator and answer parsing left from the earlier controller |
 | `document_intake/` | PDF reading and OCR |
 | `tools/` | Model preparation and the hotkey helper |
 

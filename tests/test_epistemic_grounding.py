@@ -17,7 +17,6 @@ from rat.kernel.contracts import SourceEvidence
 from rat.engine.execution import (
     ExecutionRequest,
     build_execution_context_snapshot,
-    render_backend_input,
     validate_referenced_context,
 )
 from rat.ui.quick_pdf_controller import QuickPDFController
@@ -81,13 +80,6 @@ def test_execution_snapshot_source_evidence_grounding():
     assert len(snap["source_evidence"]) == 1
     assert snap["source_evidence"][0]["source_id"] == "src-pdf-1"
     assert snap["requires_grounding"] is True
-
-    # Validate that render_backend_input displays grounding section cleanly
-    rendered = render_backend_input("Vì sao độ phức tạp là log n?", snap)
-    assert "Authoritative Source Evidence (Grounding):" in rendered
-    assert "[src-pdf-1]" in rendered
-    assert "Page 5" in rendered
-    assert "Binary search has O(log n) complexity." in rendered
 
     # Validate referenced context passes when grounding is supplied
     validate_referenced_context(snap)

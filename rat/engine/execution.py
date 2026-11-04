@@ -84,84 +84,6 @@ def build_execution_context_snapshot(
     return snapshot
 
 
-def render_backend_input(query: str, snapshot: Optional[Dict[str, Any]] = None) -> str:
-    """Format the backend input snapshot for reasoning execution while keeping query clean for UI."""
-    clean_q = str(query).strip()
-    if not snapshot:
-        return clean_q
-
-    has_history = bool(snapshot.get("history"))
-    has_refs = bool(snapshot.get("turn_references"))
-    has_task = bool(snapshot.get("task_state"))
-    has_artifacts = bool(snapshot.get("artifact_refs"))
-    has_evidence = bool(snapshot.get("source_evidence"))
-    t_ref = snapshot.get("turn_ref") or {}
-    has_target = bool(t_ref.get("target_turn_id") or t_ref.get("target_artifact_id"))
-
-    if not (has_history or has_refs or has_task or has_artifacts or has_target or has_evidence):
-        return clean_q
-
-    sections = [f"[Conversation Context (schema: {snapshot.get('schema_version', CONTEXT_ADAPTER_SCHEMA_VERSION)})]"]
-
-    if has_target:
-        target_info = f"Referenced Prior Turn: {t_ref.get('target_turn_id')}"
-        if t_ref.get("target_artifact_id"):
-            target_info += f" | Target Artifact: {t_ref.get('target_artifact_id')}@v{t_ref.get('target_revision')}"
-        sections.append(target_info)
-
-    if has_refs:
-        sections.append("Prior Turn References:")
-        refs = snapshot["turn_references"]
-        pinned = [ref for ref in refs[:-4] if ref.get("turn_id") == t_ref.get("target_turn_id")]
-        for ref in pinned + refs[-4:]:
-            tid = ref.get("turn_id", "")
-            q = ref.get("user_query", "")
-            ans = ref.get("assistant_summary", "")
-            sections.append(f"- Turn {tid}: User: '{q}' -> Assistant: '{ans}'")
-    if has_history:
-        sections.append("Recent Dialogue:")
-        for msg in snapshot["history"][-4:]:
-            sections.append(f"- {msg.get('role', 'user')}: {msg.get('content', '')}")
-
-    if has_task and snapshot["task_state"]:
-        sections.append(f"Active Task State: {json.dumps(snapshot['task_state'], ensure_ascii=False)}")
-
-    if has_artifacts and snapshot["artifact_refs"]:
-        art_summaries = []
-        artifacts = snapshot["artifact_refs"]
-        pinned = [a for a in artifacts[:-4]
-                  if (a.get("id") or a.get("artifact_id")) == t_ref.get("target_artifact_id")
-                  and a.get("revision") == t_ref.get("target_revision")]
-        for a in pinned + artifacts[-4:]:
-            aid = a.get("id") or a.get("artifact_id")
-            rev = a.get("revision")
-            inputs = a.get("inputs") or {}
-            art_summaries.append(f"{aid}@v{rev} inputs={inputs}")
-        sections.append(f"Artifact State: {'; '.join(art_summaries)}")
-
-    if has_evidence:
-        sections.append("Authoritative Source Evidence (Grounding):")
-        for ev in snapshot["source_evidence"]:
-            ev_id = ev.get("source_id", "src")
-            kind = ev.get("kind", "source")
-            loc = []
-            if ev.get("path"):
-                loc.append(str(ev.get("path")))
-            if ev.get("page_num"):
-                loc.append(f"Page {ev.get('page_num')}")
-            loc_str = f" [{', '.join(loc)}]" if loc else ""
-            sha = f" sha256:{ev.get('sha256')[:8]}" if ev.get("sha256") else ""
-            excerpt = (ev.get("excerpt") or "").strip()
-            if excerpt:
-                sections.append(f"- [{ev_id}] ({kind}{loc_str}{sha}): \"{excerpt}\"")
-            else:
-                sections.append(f"- [{ev_id}] ({kind}{loc_str}{sha})")
-
-    sections.append("\n[Current Request]")
-    sections.append(clean_q)
-    return "\n".join(sections)
-
-
 def validate_referenced_context(snapshot):
     """Explicit references are required inputs, rather than hints to guess at."""
     if snapshot.get("requires_grounding") and not snapshot.get("source_evidence"):
@@ -208,9 +130,9 @@ class ExecutionRequest:
     _snapshot: dict = field(init=False, repr=False, compare=False)
 
     def __post_init__(self):
-        if self.lane not in {"auto", "assistant", "document", "reasoning", "operation"}:
+        if self.lane not in {"auto", "assistant", "document", "operation"}:
             raise ValueError("unknown_execution_lane")
-        if self.document_path and self.lane in {"reasoning", "operation"}:
+        if self.document_path and self.lane == "operation":
             raise ValueError("document_requires_qa_lane")
 
         if self.goal is None:
@@ -306,43 +228,7 @@ def execution_response(request, result):
         result.execution_id = request.execution_id or result.execution_id
         result.turn_id = getattr(request.turn_ref, "turn_id", None) or result.turn_id
         return result
-    ledger = dict(result.cost_ledger or {})
-    prompt_tokens = ledger.get("prompt_tokens")
-    generated_tokens = ledger.get("generated_tokens", result.tokens)
-    snap = getattr(result, "context_snapshot", None) or request.context_snapshot()
-    t_ref = getattr(request, "turn_ref", None)
-    target_turn_id = getattr(t_ref, "target_turn_id", None) if hasattr(t_ref, "target_turn_id") else (t_ref.get("target_turn_id") if isinstance(t_ref, dict) else None)
-    target_artifact_id = getattr(t_ref, "target_artifact_id", None) if hasattr(t_ref, "target_artifact_id") else (t_ref.get("target_artifact_id") if isinstance(t_ref, dict) else None)
-    target_revision = getattr(t_ref, "target_revision", None) if hasattr(t_ref, "target_revision") else (t_ref.get("target_revision") if isinstance(t_ref, dict) else None)
-
-    return AgentResponse(
-        answer=result.answer, steps=[], total_time_ms=result.latency_ms,
-        tool_call_count=0, token_estimate=generated_tokens,
-        prompt_tokens=prompt_tokens or 0, completion_tokens=generated_tokens,
-        total_tokens=(prompt_tokens or 0) + generated_tokens,
-        sources=list(result.citations),
-        error=None if result.status == "completed" else result.status,
-        token_scope="generated_tokens" if prompt_tokens is None else "prompt_and_completion",
-        execution_id=request.execution_id, turn_id=getattr(request.turn_ref, "turn_id", None),
-        completion_status="unchecked", answer_verification_status="UNKNOWN",
-        qa_telemetry={
-            "execution_lane": "reasoning",
-            "execution_mode": result.execution_mode,
-            "policy_source": result.policy_source,
-            "bundle_id": result.bundle_id,
-            "bundle_review_status": getattr(result, "bundle_review_status", None),
-            "cost_ledger": ledger,
-            "query_generation": request.generation,
-            "context_snapshot_schema": snap.get("schema_version") if snap else None,
-            "context_snapshot_hash": snap.get("snapshot_hash") if snap else None,
-            "backend_input": getattr(result, "backend_input", None),
-            "contradiction_report": getattr(result, "contradiction_report", None),
-            "user_displayed_query": request.query,
-            "target_turn_id": target_turn_id,
-            "target_artifact_id": target_artifact_id,
-            "target_revision": target_revision,
-        },
-    )
+    raise TypeError(f"unexpected_execution_result:{type(result).__name__}")
 
 
 def execution_step(step, number=1):

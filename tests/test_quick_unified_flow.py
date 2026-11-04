@@ -14,7 +14,6 @@ import time
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-import numpy as np
 import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -26,59 +25,32 @@ from PyQt6.QtGui import QFont, QGuiApplication
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 
-from rat.engine.execution import (
-    CONTEXT_ADAPTER_SCHEMA_VERSION,
-    ExecutionRequest,
-    build_execution_context_snapshot,
-    render_backend_input,
-)
-from rat.engine.meta_reasoner import build_composed_meta_reasoner
-from rat.engine.assistant_runtime import AssistantRuntime
+from rat.engine.assistant_runtime import AgentResponse, AssistantRuntime
 from rat.kernel.contracts import Artifact
 from rat.ui.chat_session import ConversationHistory
 from rat.ui.quick_pdf_controller import QuickPDFController
 from rat.ui.quick_app import bind_desk_window
-from reasoning.bundle import create_synthetic_specimen_bundle
 from tests.test_selected_pdf import write_pdf
 
 PROJECT = Path(__file__).resolve().parents[1]
 
 
 class RecordingBackend:
-    """Controllable double recording observed inputs, controls, and threads."""
-    hidden_size = 2
+    """Stands in for AssistantRuntime.run, recording observed inputs and threads."""
 
     def __init__(self, answer_text="authored synthetic answer", delay_s=0.0):
         self.answer_text = answer_text
         self.delay_s = delay_s
-        self.embed_calls = []
         self.run_calls = []
-        self.fail_on_strategy = None
 
-    def embed(self, query: str):
-        self.embed_calls.append((query, threading.current_thread()))
-        return np.zeros(self.hidden_size, dtype=np.float32)
-
-    def run(self, strategy, query: str, should_cancel=None, deadline_monotonic=None, max_tokens=None):
-        self.run_calls.append({
-            "strategy": strategy.name if hasattr(strategy, "name") else str(strategy),
-            "query": query,
-            "thread": threading.current_thread(),
-            "max_tokens": max_tokens,
-        })
-        if self.delay_s > 0:
-            t0 = time.monotonic()
-            while time.monotonic() - t0 < self.delay_s:
-                if should_cancel and should_cancel():
-                    raise RuntimeError("cancelled_in_backend")
-                if deadline_monotonic and time.monotonic() >= deadline_monotonic:
-                    raise TimeoutError("timeout_in_backend")
-                time.sleep(0.01)
-
-        if self.fail_on_strategy and (strategy == self.fail_on_strategy or strategy.name == self.fail_on_strategy):
-            raise RuntimeError(f"Simulated failure on strategy {strategy}")
-
-        return self.answer_text, 0.95, 12
+    def run(self, query, **context):
+        self.run_calls.append({"query": query, "context": context, "thread": threading.current_thread()})
+        started = time.monotonic()
+        while time.monotonic() - started < self.delay_s:
+            if context.get("should_cancel") and context["should_cancel"]():
+                return AgentResponse("", [], 0, 0, 0, error="cancelled")
+            time.sleep(0.01)
+        return AgentResponse(self.answer_text, [], 0, 0, 12)
 
 
 @pytest.fixture(scope="module")
@@ -133,17 +105,13 @@ def quick_env(app, tmp_path, monkeypatch):
     monkeypatch.setattr(slm_engine, "list_installed_models", lambda: [])
 
     backend = RecordingBackend()
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
-
     runtime = AssistantRuntime()
+    runtime.run = backend.run
     conversation = ConversationHistory()
 
     controller = QuickPDFController(
         assistant_runtime=runtime,
         conversation=conversation,
-        reasoning_engine=engine,
-        allow_synthetic_policy=True,
     )
     controller.ready()
 
@@ -173,8 +141,6 @@ def quick_env(app, tmp_path, monkeypatch):
         root=root,
         controller=controller,
         backend=backend,
-        engine=engine,
-        bundle=bundle,
         runtime=runtime,
         conversation=conversation,
         copied_texts=copied_texts,
@@ -219,11 +185,7 @@ def test_quick_step_1_explain_binary_search(quick_env):
 
     # 2. Telemetry and provenance
     telem = controller.snapshot["telemetry"]
-    assert telem["execution_lane"] == "reasoning"
-    assert telem["execution_mode"] == "online_policy"
-    assert telem["policy_source"] == quick_env.bundle.bundle_id
-    assert telem["context_snapshot_schema"] == CONTEXT_ADAPTER_SCHEMA_VERSION
-    assert telem["user_displayed_query"] == q1
+    assert telem["execution_lane"] == "assistant"
 
     # 3. Arithmetic verifier scope remains UNKNOWN
     snap = controller.conversation.get_turn("turn-1")
@@ -260,10 +222,8 @@ def test_quick_step_2_pass_array_and_target_retains_facts(quick_env):
 
     # Backend received Turn 1 context and facts
     last_call = backend.run_calls[-1]
-    backend_input = last_call["query"]
-    assert "binary search" in backend_input.lower()
-    assert "[2, 4, 6, 8, 10]" in backend_input or "2, 4, 6, 8, 10" in backend_input
-    assert "8" in backend_input
+    assert last_call["query"] == q2
+    assert "binary search" in str(last_call["context"]["history"]).lower()
 
     # UI displayed query remains strictly user's query
     assert controller.snapshot["userQuery"] == q2
@@ -314,11 +274,10 @@ def test_quick_step_3_followup_question_receives_referenced_facts(quick_env):
 
     # Transport verified: backend received referenced facts of target 8
     call = backend.run_calls[-1]
-    backend_input = call["query"]
-    assert "8" in backend_input
-    assert "Referenced Prior Turn: turn-2" in backend_input
-    assert "art-dsa-search@v1" in backend_input
-    assert "Sao phải dùng mid + 1?" in backend_input
+    assert call["query"] == q3
+    assert call["context"]["turn_ref"].target_turn_id == "turn-2"
+    assert call["context"]["turn_ref"].target_artifact_id == "art-dsa-search"
+    assert "Tìm 8 tại index 3" in str(call["context"]["turn_references"])
 
     # UI displays strictly q3 and answer in answerText
     assert controller.snapshot["userQuery"] == q3
@@ -439,7 +398,7 @@ def test_quick_step_6_cancellation_and_subsequent_query(quick_env):
     backend = quick_env.backend
 
     backend.delay_s = 0.5
-    submit_draft(view, root, "Tìm kiếm lâu và bị hủy...")
+    submit_draft(view, root, "Giải thích vì sao tìm kiếm lâu?")
     wait_for(lambda: controller.snapshot["busy"])
 
     # The live send control cancels through the actual QML click path.
@@ -472,97 +431,6 @@ def test_quick_step_6_cancellation_and_subsequent_query(quick_env):
     assert new_snap.execution_id != cancelled_snap.execution_id
     assert new_snap.status == "completed"
     assert new_snap.answer == backend.answer_text
-
-
-# --- Bước 7a: Quota cứng bằng 0 ---
-
-@pytest.mark.parametrize("cap_type", ["tokens", "requests", "strategies"])
-def test_quick_step_7a_quota_caps_zero_dispatches_zero(quick_env, cap_type):
-    backend = RecordingBackend()
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
-
-    kwargs = {}
-    if cap_type == "tokens":
-        kwargs["max_generated_tokens"] = 0
-    elif cap_type == "requests":
-        kwargs["max_underlying_requests"] = 0
-    elif cap_type == "strategies":
-        kwargs["max_strategy_invocations"] = 0
-
-    res = engine.solve("query requiring reasoning", **kwargs)
-    assert res.status == "budget_exceeded"
-    assert len(backend.embed_calls) == 0
-    assert len(backend.run_calls) == 0
-    assert res.cost_ledger["underlying_requests_dispatched"] == 0
-    assert res.cost_ledger["generated_tokens"] == 0
-    assert res.verification_status == "unverified"
-
-    # Ensure None does NOT act as 0
-    res_none = engine.solve("query with None cap", max_generated_tokens=None)
-    assert res_none.status == "completed"
-    assert len(backend.run_calls) > 0
-
-
-# --- Bước 7b: Thiếu context bắt buộc hoặc failure trước dispatch ---
-
-def test_quick_step_7b_missing_or_unreadable_context_returns_unresolved(quick_env):
-    controller = quick_env.controller
-    backend = quick_env.backend
-
-    # Submit request referencing non-existent turn/artifact
-    ok = controller.submit("Hỏi trên turn ảo", target_turn_id="turn-nonexistent-999")
-    assert not ok
-    assert len(backend.run_calls) == 0
-
-    # Turn in conversation recorded as failed with truthful error
-    turns = controller.conversation.turns()
-    assert len(turns) > 0
-    assert turns[-1].status == "failed"
-    assert "reasoning_context_unavailable" in turns[-1].answer
-
-
-# --- Bước 7c: Exception sau khi dispatch giữ chi phí thực tế ---
-
-def test_quick_step_7c_exception_after_dispatch_preserves_partial_cost():
-    backend = RecordingBackend()
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    backend.fail_on_strategy = "COT"
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
-
-    with pytest.raises(RuntimeError, match="Simulated failure on strategy"):
-        engine.solve("query ladder that fails")
-
-    assert len(backend.run_calls) == 1
-    assert backend.run_calls[0]["strategy"] == "COT"
-
-
-# --- Bước 7d: Timeout deadline ---
-
-def test_quick_step_7d_deadline_timeout_stops_and_preserves_cost(app):
-    backend = RecordingBackend(delay_s=0.2)
-    bundle, policy = create_synthetic_specimen_bundle(hidden_size=2)
-    engine = build_composed_meta_reasoner(bundle, backend, policy, allow_synthetic=True)
-
-    from rat.ui.reasoning_worker import OnlineReasoningWorker
-    worker = OnlineReasoningWorker(
-        engine,
-        "query ladder tight deadline",
-        execution_id="exec-timeout-quick",
-        timeout_s=0.04,
-    )
-    responses = []
-    worker.response_ready.connect(responses.append)
-    worker.start()
-    wait_for(lambda: worker.isFinished())
-    app.processEvents()
-
-    assert len(responses) == 1
-    res = responses[0]
-    assert res.status == "timeout"
-    assert res.verification_status == "unverified"
-    assert res.cost_ledger is not None
-    assert res.cost_ledger["status"] == "timeout"
 
 
 # --- Bước 8: PDF chọn / tìm / đọc / chép nguồn trên cùng UI ---

@@ -140,64 +140,12 @@ class ArtifactWorker(QThread):
             self.result_ready.emit(DispatchResult("error", error=str(exc)))
 
 
-def create_execution_worker(runtime, request: ExecutionRequest, *, reasoning_engine=None,
-                            allow_synthetic_policy=False, operation=None, parent=None):
-    """One desktop dispatch boundary; reuse existing workers and model owners.
-
-    Policy activation is explicit in the composition host. No model, bundle or
-    provider is discovered/loaded here, and selected-document QA takes precedence.
-    """
+def create_execution_worker(runtime, request: ExecutionRequest, *, operation=None, parent=None):
+    """One desktop dispatch boundary; reuse existing workers and model owners."""
     if request.lane == "operation":
         if operation is None:
             raise ValueError("missing_operation_callback")
         return ArtifactWorker(operation, parent=parent, request=request, runtime=runtime)
-    try:
-        has_prior_reasoning = False
-        t_refs = request.context.get("turn_references") or []
-        t_ref = getattr(request, "turn_ref", None)
-        target_tid = getattr(t_ref, "target_turn_id", None) if hasattr(t_ref, "target_turn_id") else (t_ref.get("target_turn_id") if isinstance(t_ref, dict) else None)
-        if target_tid:
-            has_prior_reasoning = True
-        elif t_refs and any(r.get("execution_lane") == "reasoning" or r.get("status") == "completed" for r in t_refs[-2:]):
-            has_prior_reasoning = True
-
-        wants_reasoning = not request.document_path and (
-            request.lane == "reasoning" or
-            (request.lane == "auto" and reasoning_engine is not None
-             and (reasoning_engine.is_reasoning_query(request.query) or has_prior_reasoning))
-        )
-    except Exception:
-        return AssistantWorker(runtime, request.query, request=request,
-            startup_error="reasoning_policy_unavailable:invalid_engine", parent=parent)
-    if wants_reasoning:
-        try:
-            controller = getattr(reasoning_engine, "_controller", None)
-            if controller is None or controller.bundle is None:
-                raise ValueError("reasoning_policy_unavailable")
-            from reasoning.bundle import validate_policy_bundle
-            validate_policy_bundle(controller.bundle, controller.policy, controller.backend,
-                                   allow_synthetic=allow_synthetic_policy)
-        except Exception as exc:
-            return AssistantWorker(runtime, request.query, request=request,
-                startup_error=f"reasoning_policy_unavailable:{type(exc).__name__}", parent=parent)
-        from rat.ui.reasoning_worker import OnlineReasoningWorker
-        snapshot = request.context_snapshot() if hasattr(request, "context_snapshot") else None
-        try:
-            from rat.engine.execution import validate_referenced_context
-            validate_referenced_context(snapshot)
-        except (TypeError, ValueError, AttributeError):
-            return AssistantWorker(runtime, request.query, request=request,
-                startup_error="reasoning_context_unavailable", parent=parent)
-        worker = OnlineReasoningWorker(
-            reasoning_engine, request.query, execution_id=request.execution_id,
-            query_generation=request.generation, timeout_s=request.timeout_s,
-            max_strategy_invocations=request.max_strategy_invocations,
-            max_underlying_requests=request.max_underlying_requests,
-            max_generated_tokens=request.max_generated_tokens,
-            context_snapshot=snapshot, parent=parent,
-        )
-        worker.execution_request = request
-        return worker
     if request.lane == "document" and not request.document_path:
         return AssistantWorker(runtime, request.query, request=request,
                                startup_error="missing_selected_document", parent=parent)
