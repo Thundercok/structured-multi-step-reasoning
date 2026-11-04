@@ -1590,3 +1590,64 @@ def test_summon_keycap_replaces_the_build_line_and_still_drags(finder_fixture):
         assert moves == [True]
     finally:
         _dispose(view, controller)
+
+
+def _sized_desk(finder_fixture, width):
+    controller = QuickPDFController(
+        finder_search=finder_fixture['search'], finder_catalog=finder_fixture['catalog'],
+        db_path=finder_fixture['db_path'], auto_init_finder=False, open_url=lambda url: True,
+    )
+    view = QQuickView()
+    view.setResizeMode(QQuickView.ResizeMode.SizeRootObjectToView)
+    view.setInitialProperties({'liveController': controller, 'darkMode': False, 'reduceMotion': True})
+    view.setSource(QUrl.fromLocalFile(str(Path(__file__).resolve().parents[1] / 'rat/ui/quick/PDFDesk.qml')))
+    assert view.status() == QQuickView.Status.Ready
+    view.resize(width, 400)
+    controller.ready()
+    view.show()
+    _process_events(100)
+    return view, controller
+
+
+def _scene_rect(item):
+    top_left = item.mapToScene(QPointF(0, 0))
+    return top_left.x(), top_left.y(), top_left.x() + item.width(), top_left.y() + item.height()
+
+
+def test_rat_stands_beside_the_composer_when_there_is_room(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _sized_desk(finder_fixture, 720)
+    try:
+        root = view.rootObject()
+        assert root.property('ratBesideComposer')
+        rat = _scene_rect(root.findChild(QQuickItem, 'mascotCrop'))
+        composer = _scene_rect(root.findChild(QQuickItem, 'composer'))
+        assert rat[0] >= composer[2]
+        assert rat[2] <= view.width()
+        assert rat[3] == pytest.approx(composer[3])
+        assert root.findChild(QQuickItem, 'ratBubbleTail').property('visible')
+
+        root.findChild(QQuickItem, 'draftEditor').setProperty('text', 'calc')
+        _process_events(400)
+        assert controller.snapshot['view'] == 'finder'
+        assert root.findChild(QQuickItem, 'mascotCrop').property('visible')
+        paper = _scene_rect(root.findChild(QQuickItem, 'resultPaper'))
+        assert paper[0] == pytest.approx(composer[0])
+        assert paper[2] <= rat[0]
+    finally:
+        _dispose(view, controller)
+
+
+def test_narrow_desk_keeps_the_rat_above_the_composer(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _sized_desk(finder_fixture, 520)
+    try:
+        root = view.rootObject()
+        assert not root.property('ratBesideComposer')
+        rat = _scene_rect(root.findChild(QQuickItem, 'mascotCrop'))
+        composer = _scene_rect(root.findChild(QQuickItem, 'composer'))
+        assert rat[3] == pytest.approx(composer[1])
+        assert rat[0] >= 0 and rat[2] <= view.width()
+        assert not root.findChild(QQuickItem, 'ratBubbleTail').property('visible')
+    finally:
+        _dispose(view, controller)

@@ -31,6 +31,9 @@ Rectangle {
     // The draft Enter stopped on to ask. Editing the draft retires the question by itself.
     property string intentChoiceText: ""
     readonly property bool intentChoiceOpen: intentChoiceText.length > 0 && intentChoiceText === editor.text
+    // With room to spare, Chuột stands beside the composer and speaks into it. A narrow desk keeps it above.
+    readonly property int ratBesideRoom: 92
+    readonly property bool ratBesideComposer: liveMode && !isSideBySidePdfActive && unit.width >= 580 + ratBesideRoom
     property real paperNudgeTarget: 0
     property real paperNudge: paperNudgeTarget
     property string lastResultSignature: ""
@@ -728,7 +731,7 @@ Rectangle {
         anchors.rightMargin: desk.liveMode ? 24 : 32
         anchors.bottomMargin: desk.liveMode ? 24 : 28
         height: parent.height - (desk.liveMode ? 48 : 100)
-        readonly property int paperOffset: desk.roomyActive ? 0 : (width < 520 ? 110 : 128)
+        readonly property int paperOffset: desk.roomyActive || desk.ratBesideComposer ? 0 : (width < 520 ? 110 : 128)
 
         Rectangle {
             visible: desk.expanded && desk.hasWorkbench
@@ -1101,7 +1104,7 @@ Rectangle {
                 RowLayout {
                     id: modeSwitcher
                     objectName: "modeSwitcher"
-                    visible: desk.liveMode && resultPaper.width >= 480 && desk.liveSnapshot.view !== "apps" && desk.liveSnapshot.view !== "finder"
+                    visible: desk.liveMode && resultPaper.width > 580 && desk.liveSnapshot.view !== "apps" && desk.liveSnapshot.view !== "finder"
                     spacing: 1
 
                     QuietButton {
@@ -1143,7 +1146,7 @@ Rectangle {
                 }
                 QuietButton {
                     objectName: "workspaceSizeButton"
-                    visible: resultPaper.width < 480
+                    visible: resultPaper.width <= 580
                     text: desk.roomyActive ? "Về gọn" : (resultPaper.width < 440 ? "↗" : "Mở rộng")
                     Accessible.name: desk.roomyActive ? "Đưa workbench về kích thước trước" : "Mở rộng workbench theo màn hình"
                     ToolTip.visible: hovered
@@ -2435,7 +2438,7 @@ Rectangle {
             id: note
             objectName: "notice"
             visible: !desk.expanded && desk.hasWorkbench
-            x: composer.x + 126
+            x: composer.x + (desk.ratBesideComposer ? 20 : 126)
             y: composer.y - height + (desk.hasAnswerPreview ? 12 : 7)
             width: desk.hasAnswerPreview || (desk.liveMode && desk.liveSnapshot.busy) || desk.hasFinderPreview ? Math.min(360, composer.width - 126) : Math.min(228, composer.width - 126)
             height: desk.hasAnswerPreview ? Math.max(76, Math.min(112, minPreviewContent.implicitHeight + topPadding + bottomPadding)) : desk.hasFinderPreview || desk.hasPagePreview || (desk.liveMode && desk.liveSnapshot.busy) ? Math.max(48, minPreviewContent.implicitHeight + topPadding + bottomPadding) : desk.noticeVisible ? 61 : 48
@@ -2512,16 +2515,17 @@ Rectangle {
         Item {
             id: mascotItem
             objectName: "mascotCrop"
-            visible: !desk.expanded && !desk.liveSnapshot.busy
-            x: Math.max(4, composer.x - 110)
-            y: composer.y - 116 + (mascotWobble.running ? mascotWobble.offsetY : 0)
-            width: 122
-            height: 116
+            visible: desk.ratBesideComposer ? true : (!desk.expanded && !desk.liveSnapshot.busy && !desk.isSideBySidePdfActive)
+            x: desk.ratBesideComposer ? composer.x + composer.width + 12 : Math.max(4, composer.x - 110)
+            y: (desk.ratBesideComposer ? composer.y + composer.height - height : composer.y - 116)
+                + (mascotWobble.running ? mascotWobble.offsetY : 0)
+            width: desk.ratBesideComposer ? 104 : 122
+            height: desk.ratBesideComposer ? 110 : 116
             clip: true
             z: 4
             rotation: mascotWobble.running ? mascotWobble.rot : 0
             Image {
-                width: 180
+                width: desk.ratBesideComposer ? parent.width : 180
                 height: width * (sourceSize.height / Math.max(1, sourceSize.width))
                 source: desk.mascotSource
                 fillMode: Image.PreserveAspectFit
@@ -2682,10 +2686,38 @@ Rectangle {
                 }
             }
         }
+        // The bubble's tail, from the composer to Chuột's mouth. Painted once.
+        Canvas {
+            objectName: "ratBubbleTail"
+            visible: desk.ratBesideComposer
+            x: composer.x + composer.width - 2
+            y: mascotItem.y + mascotItem.height * 0.43 - 6
+            width: 22
+            height: 18
+            z: 6
+            readonly property color fillColor: desk.inputColor
+            readonly property color lineColor: desk.edge
+            onFillColorChanged: requestPaint()
+            onLineColorChanged: requestPaint()
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                ctx.beginPath()
+                ctx.moveTo(0, 2)
+                ctx.lineTo(width - 1, 6)
+                ctx.lineTo(0, height - 2)
+                ctx.fillStyle = fillColor
+                ctx.fill()
+                ctx.strokeStyle = lineColor
+                ctx.lineWidth = 1
+                ctx.stroke()
+            }
+        }
         Rectangle {
             id: composer
             objectName: "composer"
-            x: desk.isSideBySidePdfActive ? resultPaper.x : Math.max(0, Math.floor((unit.width - width) / 2))
+            x: desk.isSideBySidePdfActive ? resultPaper.x
+                : Math.max(0, Math.floor((unit.width - width - (desk.ratBesideComposer ? desk.ratBesideRoom : 0)) / 2))
             width: desk.isSideBySidePdfActive ? resultPaper.width : Math.min(580, unit.width)
             anchors.bottom: parent.bottom
             height: desk.phase === "startup" ? 94 : Math.min(148, Math.max(94, editorColumn.implicitHeight + 18))
