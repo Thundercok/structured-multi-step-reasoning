@@ -24,14 +24,14 @@ chi tiết nhỏ nào cũng có hồn), bỏ chỗ nó bắt người chơi ch�
 
 ## 1. Nhanh: mỗi lệnh một phím
 
-1.1, 1.2 và 1.3 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
+Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở `tools/desk_latency_baseline.json`. Sau mỗi bước đổi giao diện, chạy với `--compare`.
 
 | # | Bước | Xong khi |
 | --- | --- | --- |
 | 1.1 | Script đo độ trễ: gọi bàn đến lúc gõ được, Enter đến lúc mở | Có số nền, các bước sau không được làm tệ hơn |
 | 1.2 | ⌘1, ⌘2, ⌘3 mở thẳng kết quả tương ứng | Chạy cả khi ô nhập còn chữ, số hiện ngay trên dòng |
 | 1.3 | Gợi ý phím ở ô nhập dùng `KeycapBadge` | Thấy phím thật thay vì chữ `↵` |
-| 1.4 | Esc luôn lùi đúng một bước | Từ mọi màn, không mất chữ đang gõ |
+| 1.4 | Esc luôn lùi đúng một bước; hết chỗ lùi thì cất bàn nếu app chạy thường trú | Từ mọi màn, không mất chữ đang gõ |
 
 ## 2. Thông minh hơn
 

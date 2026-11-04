@@ -16,6 +16,7 @@ Rectangle {
     property string previewScene: "idle"
     property string phase: "idle"
     property bool expanded: false
+    property bool residentDesk: false
     property bool unread: false
     property bool sourceOpen: false
     property bool logOpen: false
@@ -243,6 +244,28 @@ Rectangle {
         ]
         if (view === "answer") return [{key: "↵", label: "hỏi tiếp Chuột"}]
         return []
+    }
+    // Esc goes back one step from any screen and never touches what is being typed.
+    function escapeOneStep() {
+        var view = liveSnapshot.view
+        if (inlineFindOpen) inlineFindOpen = false
+        else if (view === "reading") liveController.closeReadingDesk()
+        else if (view === "apps") editor.text = liveController.closeAppsView()
+        else if (view === "finder" && selectedFinderIndex >= 0) selectedFinderIndex = -1
+        else if (view === "finder") liveController.dismissFinder()
+        else if (expanded && liveSnapshot.canBackToAnswer) liveController.backToAnswer()
+        else if (expanded && liveSnapshot.canBack) liveController.backToSearch()
+        else if (expanded) liveController.setExpanded(false)
+        else return escapeAtRest()
+        editor.forceActiveFocus()
+        return true
+    }
+    // Nothing left to go back from: put the desk away, keeping the draft for the next summon.
+    // A desk run on its own would quit on close, so there Esc does nothing.
+    function escapeAtRest() {
+        if (!residentDesk) return false
+        closeRequested()
+        return true
     }
     function foldWorkbench() {
         if (liveMode) { liveController.setExpanded(false); editor.forceActiveFocus(); return }
@@ -2808,29 +2831,7 @@ Rectangle {
                             }
                             event.accepted = false
                         }
-                        Keys.onEscapePressed: event => {
-                            if (desk.liveMode && desk.liveSnapshot.view === "reading") {
-                                event.accepted = true
-                                desk.liveController.closeReadingDesk()
-                                return
-                            }
-                            if (desk.liveMode && desk.liveSnapshot.view === "apps") {
-                                event.accepted = true
-                                var restored = desk.liveController.closeAppsView()
-                                editor.text = restored
-                                return
-                            }
-                            if (desk.liveMode && desk.liveSnapshot.view === "finder") {
-                                event.accepted = true
-                                if (desk.selectedFinderIndex >= 0) {
-                                    desk.selectedFinderIndex = -1
-                                } else {
-                                    desk.liveController.dismissFinder()
-                                }
-                                return
-                            }
-                            event.accepted = false
-                        }
+                        Keys.onEscapePressed: event => { event.accepted = desk.liveMode && desk.escapeOneStep() }
                         Keys.onTabPressed: event => {
                             if (desk.liveMode) {
                                 if (desk.liveSnapshot.view === "finder" && (desk.visibleFinderHits || []).length > 0) {
@@ -3061,26 +3062,8 @@ Rectangle {
     }
     Shortcut {
         sequence: "Escape"
-        enabled: desk.liveMode && (desk.expanded || desk.inlineFindOpen)
-        onActivated: {
-            if (desk.inlineFindOpen) {
-                desk.inlineFindOpen = false
-                editor.forceActiveFocus()
-            } else if (desk.liveSnapshot.view === "apps") {
-                var restored = desk.liveController.closeAppsView()
-                editor.text = restored
-                editor.forceActiveFocus()
-            } else if (desk.liveSnapshot.view === "finder") {
-                if (desk.selectedFinderIndex >= 0) {
-                    desk.selectedFinderIndex = -1
-                } else {
-                    desk.liveController.dismissFinder()
-                }
-                editor.forceActiveFocus()
-            } else {
-                desk.foldWorkbench()
-            }
-        }
+        enabled: desk.liveMode && (desk.expanded || desk.inlineFindOpen || !editor.activeFocus)
+        onActivated: desk.escapeOneStep()
     }
     Shortcut {
         sequence: "Ctrl+Shift+A"

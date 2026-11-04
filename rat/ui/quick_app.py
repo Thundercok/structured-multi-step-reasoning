@@ -142,6 +142,7 @@ def create_quick_desk(
         "liveController": controller,
         "darkMode": dark_mode or (app.styleHints().colorScheme() == Qt.ColorScheme.Dark if hasattr(app, "styleHints") else False),
         "reduceMotion": reduced_motion,
+        "residentDesk": not quit_on_close,
         "maxPaperHeight": max(220, min(460, available.height() - 280)),
         "mascotSource": QUrl.fromLocalFile(str(project / "rat/assets/rat_mascot_cutout.png")),
     })
