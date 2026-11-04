@@ -858,7 +858,7 @@ def test_translate_text_worker_delivery_and_reuse(controller, monkeypatch):
     first_translator = controller._translator
     assert first_translator is not None
     assert controller.snapshot["answerText"] == "Dịch: Hello world"
-    assert "từ en sang vi" in controller.snapshot["status"]
+    assert "Tiếng Anh → Tiếng Việt" in controller.snapshot["status"]
 
     # Call again: reuses the exact same translator instance on controller
     controller.translateText("Second sentence")

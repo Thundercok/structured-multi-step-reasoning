@@ -196,36 +196,14 @@ ColumnLayout {
                                         }
                                     }
 
-                                    Item {
-                                        id: kindBadge
+                                    StickerLabel {
                                         objectName: "finderKind_" + index
                                         readonly property bool isApp: modelData.kind === "application"
-                                        implicitHeight: 18
-                                        implicitWidth: kindText.implicitWidth + 12
-                                        rotation: index % 2 ? 2 : -2
+                                        text: isApp ? "Ứng dụng" : (modelData.is_pdf ? "PDF" : "Tệp")
+                                        fillColor: isApp ? desk.accent : modelData.is_pdf ? desk.pdfInk : desk.backingColor
+                                        textColor: isApp ? desk.accentText : modelData.is_pdf ? desk.paperColor : desk.ink
+                                        tilt: index % 2 ? 2 : -2
                                         Layout.alignment: Qt.AlignVCenter
-                                        Rectangle {
-                                            x: 1; y: 1
-                                            width: parent.width; height: parent.height
-                                            radius: 3
-                                            antialiasing: true
-                                            color: Qt.rgba(0, 0, 0, 0.16)
-                                        }
-                                        Rectangle {
-                                            anchors.fill: parent
-                                            radius: 3
-                                            antialiasing: true
-                                            color: kindBadge.isApp ? desk.accent : modelData.is_pdf ? desk.pdfInk : desk.backingColor
-                                            Label {
-                                                id: kindText
-                                                anchors.centerIn: parent
-                                                text: kindBadge.isApp ? "Ứng dụng" : (modelData.is_pdf ? "PDF" : "Tệp")
-                                                textFormat: Text.PlainText
-                                                color: kindBadge.isApp ? desk.accentText : modelData.is_pdf ? desk.paperColor : desk.ink
-                                                font.pixelSize: 10
-                                                font.weight: Font.DemiBold
-                                            }
-                                        }
                                     }
                                 }
 

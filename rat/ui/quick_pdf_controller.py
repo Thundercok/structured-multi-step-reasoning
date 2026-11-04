@@ -46,6 +46,7 @@ from rat.ui.answer_presentation import (
 from rat.ui.assistant_worker import create_execution_worker
 from rat.ui.pdf_snapshot_provider import PdfSnapshotRenderer
 from rat.ui.reading_coordinator import ReadingDeskCoordinator
+from rat.ui.translation_card import language_name, translation_card
 from rat.kernel.contracts import Artifact, SourceEvidence
 
 logger = logging.getLogger("rat.ui.quick_pdf_controller")
@@ -425,6 +426,8 @@ class QuickPDFController(QObject):
         self._composer_translation = False
         self._index_status = ""
         self._shortcut_label = ""
+        self._translation = None
+        self._translating = False
         self._last_translation_thread = None
         self._last_quicklook_thread = None
 
@@ -651,6 +654,9 @@ class QuickPDFController(QObject):
             "status": self._status,
             "indexStatus": self._index_status,
             "shortcutLabel": self._shortcut_label,
+            # A later answer replaces the translation, so an old card can never sit on top of it.
+            "translation": self._translation if self._translation and self._translation["text"] == self._last_assistant_answer else None,
+            "translating": self._translating,
             "query": self._last_user_query or search.get("query", ""),
             "userQuery": self._last_user_query,
             "answerText": self._last_assistant_answer,
@@ -2074,13 +2080,15 @@ class QuickPDFController(QObject):
             if not payload:
                 return
             from_composer, self._composer_translation = self._composer_translation, False
+            self._translating = False
             if payload.get("ok"):
                 if from_composer:
                     self.composerPassageTranslated.emit()
-                self._last_user_query = f"Dịch sang {payload.get('target_lang', 'vi')}"
+                self._translation = translation_card(payload)
+                self._last_user_query = f"Dịch sang {language_name(payload.get('target_lang', 'vi'))}"
                 self._last_assistant_answer = payload.get("text", "")
                 self._view = "answer"
-                self._status = f"Chuột dịch xong, từ {payload.get('source_lang', 'auto')} sang {payload.get('target_lang', 'vi')}."
+                self._status = f"Chuột dịch xong, {self._translation['direction']}."
                 self._expanded = True
             else:
                 err = payload.get("error") or "không rõ vì sao"
@@ -2090,6 +2098,17 @@ class QuickPDFController(QObject):
             logger.warning("Error in translation delivered handler: %s", exc)
             self._status = f"Chuột chưa dịch được: {exc}"
             self.changed.emit()
+
+    @pyqtSlot()
+    def flipTranslation(self):
+        """Swap sides: the translation becomes the new source, translated back the other way."""
+        card = self.snapshot["translation"]
+        if not card or self._translating:
+            return
+        if card["source"] == card["target"]:
+            self.translateText(card["sourceText"], "auto", "en" if card["target"] == "vi" else "vi")
+        else:
+            self.translateText(card["text"], card["target"], card["source"])
 
     def _handle_quicklook_expand(self):
         self.setExpanded(True)
@@ -2109,6 +2128,7 @@ class QuickPDFController(QObject):
                 return ""
 
             self._status = "Chuột đang dịch…"
+            self._translating = True
             self.changed.emit()
 
             def _worker():
@@ -2127,6 +2147,12 @@ class QuickPDFController(QObject):
                             "text": translated,
                             "source_lang": res.get("source_language", source_lang),
                             "target_lang": target_lang,
+                            "source_text": clean_text,
+                            "provider": res.get("provider", ""),
+                            "glossary_terms": res.get("glossary_terms", 0),
+                            "line_joins": res.get("line_joins", 0),
+                            "status": res.get("status", ""),
+                            "warnings": res.get("warnings", []),
                         })
                 except Exception as exc:
                     logger.warning("Snippet translation failed: %s", exc)

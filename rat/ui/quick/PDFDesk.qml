@@ -26,6 +26,8 @@ Rectangle {
     property bool copied: false
     property bool readyForMotion: false
     // How far the sheet behind the results has shifted. It rests where it lands until the next result.
+    readonly property var translation: liveSnapshot.view === "answer" ? (liveSnapshot.translation || null) : null
+    property bool translationSourceOpen: false
     property real paperNudgeTarget: 0
     property real paperNudge: paperNudgeTarget
     property string lastResultSignature: ""
@@ -230,6 +232,7 @@ Rectangle {
         }
         if (next.view !== "apps") selectedAppGridIndex = 0
         if (next.answerText !== liveSnapshot.answerText || next.userQuery !== liveSnapshot.userQuery) {
+            translationSourceOpen = false
             answerSourcesOpen = false
             answerQuestionOpen = false
             contextExpanded = false
@@ -896,7 +899,7 @@ Rectangle {
                         color: desk.liveSnapshot.view === "answer" ? desk.accent : desk.selectedEdge
                     }
                     Label {
-                        text: desk.liveSnapshot.view === "answer" ? (desk.cancelledAnswer ? "Chuột dừng rồi" : "Câu trả lời của Chuột")
+                        text: desk.liveSnapshot.view === "answer" ? (desk.translation ? "Bản dịch của Chuột" : desk.cancelledAnswer ? "Chuột dừng rồi" : "Câu trả lời của Chuột")
                             : (desk.liveSnapshot.view === "busy" ? (desk.liveSnapshot.status || "Chuột đang nghĩ…") : ("Trong tài liệu · " + (desk.liveSnapshot.fileName || "PDF")))
                         elide: Text.ElideMiddle
                         Layout.maximumWidth: Math.min(215, Math.max(80, resultPaper.width - 150))
@@ -1065,7 +1068,7 @@ Rectangle {
                 }
                 QuietButton {
                     objectName: "copyCitation"
-                    visible: Boolean(desk.liveSnapshot.canCopy)
+                    visible: Boolean(desk.liveSnapshot.canCopy) && !desk.translation
                     text: desk.copied ? "Đã chép" : (desk.liveSnapshot.view === "page" ? "Chép đoạn" : (desk.liveSnapshot.view === "answer" ? (resultPaper.width < 360 ? "Chép" : "Sao chép") : (resultPaper.width < 450 ? "Chép" : "Chép trích dẫn")))
                     iconName: desk.copied ? "check" : "copy"
                     leftPadding: resultPaper.width < 360 ? 5 : 8
@@ -1346,8 +1349,37 @@ Rectangle {
                     visible: desk.liveMode
                     Layout.fillWidth: true
                     spacing: desk.emptyCancelledAnswer ? 8 : 12
+                    RowLayout {
+                        objectName: "translationBar"
+                        visible: Boolean(desk.translation)
+                        Layout.fillWidth: true
+                        spacing: 8
+                        StickerLabel {
+                            objectName: "translationDirection"
+                            text: desk.translation ? desk.translation.direction : ""
+                            fillColor: desk.accent
+                            textColor: desk.accentText
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+                        Item { Layout.fillWidth: true }
+                        QuietButton {
+                            objectName: "translationFlip"
+                            text: "⇄"
+                            enabled: !desk.liveSnapshot.translating
+                            Accessible.name: "Đổi chiều dịch"
+                            ToolTip.visible: hovered
+                            ToolTip.text: "Đổi chiều: dịch ngược bản này"
+                            onClicked: desk.liveController.flipTranslation()
+                        }
+                        QuietButton {
+                            objectName: "translationCopy"
+                            text: desk.copied ? "Đã chép" : "Sao chép"
+                            iconName: desk.copied ? "check" : "copy"
+                            onClicked: desk.requestCopy()
+                        }
+                    }
                     ColumnLayout {
-                        visible: desk.liveSnapshot.view === "answer"
+                        visible: desk.liveSnapshot.view === "answer" && !desk.translation
                         Layout.fillWidth: true
                         spacing: 8
                         Rectangle {
@@ -1728,6 +1760,73 @@ Rectangle {
                         background: null
                         Accessible.name: "Câu trả lời của trợ lý"
                     }
+                    // The original lies under the translation as a sheet to pull out, by click or by dragging down.
+                    ColumnLayout {
+                        objectName: "translationSource"
+                        visible: Boolean(desk.translation) && Boolean(desk.translation.sourceText)
+                        Layout.fillWidth: true
+                        spacing: 4
+                        QuietButton {
+                            objectName: "translationSourceToggle"
+                            plain: true
+                            text: "Đoạn gốc"
+                            iconName: desk.translationSourceOpen ? "chevron-down" : "chevron-right"
+                            Accessible.name: desk.translationSourceOpen ? "Cất đoạn gốc" : "Kéo đoạn gốc ra"
+                            onClicked: desk.translationSourceOpen = !desk.translationSourceOpen
+                            DragHandler {
+                                target: null
+                                xAxis.enabled: false
+                                onTranslationChanged: {
+                                    if (translation.y > 8) desk.translationSourceOpen = true
+                                    else if (translation.y < -8) desk.translationSourceOpen = false
+                                }
+                            }
+                        }
+                        Rectangle {
+                            objectName: "translationSourceSheet"
+                            visible: desk.translationSourceOpen
+                            Layout.fillWidth: true
+                            implicitHeight: translationSourceText.implicitHeight + 16
+                            radius: desk.cardRadius
+                            color: desk.backingColor
+                            border.width: 1
+                            border.color: desk.edge
+                            transform: Translate {
+                                id: sourceSheetSlide
+                                y: desk.translationSourceOpen ? 0 : -8
+                                Behavior on y {
+                                    enabled: desk.readyForMotion && !desk.reduceMotion
+                                    NumberAnimation { duration: 90; easing.type: Easing.OutQuad }
+                                }
+                            }
+                            TextEdit {
+                                id: translationSourceText
+                                objectName: "translationSourceText"
+                                x: 10; y: 8
+                                width: parent.width - 20
+                                text: desk.translation ? desk.translation.sourceText : ""
+                                textFormat: TextEdit.PlainText
+                                wrapMode: TextEdit.Wrap
+                                readOnly: true
+                                selectByMouse: true
+                                color: desk.ink
+                                selectionColor: desk.accent
+                                selectedTextColor: desk.accentText
+                                font.pixelSize: 13
+                                Accessible.name: "Đoạn gốc"
+                            }
+                        }
+                    }
+                    Label {
+                        objectName: "translationMethod"
+                        visible: Boolean(desk.translation) && Boolean(desk.translation.method)
+                        Layout.fillWidth: true
+                        text: desk.translation ? desk.translation.method : ""
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        color: desk.muted
+                        font.pixelSize: 11
+                    }
                     Rectangle {
                         id: evidenceSourceCard
                         objectName: "evidenceSourceCard"
@@ -1910,7 +2009,7 @@ Rectangle {
                     ColumnLayout {
                         id: answerReferences
                         objectName: "answerReferences"
-                        visible: desk.liveSnapshot.view === "answer" && !desk.emptyCancelledAnswer
+                        visible: desk.liveSnapshot.view === "answer" && !desk.emptyCancelledAnswer && !desk.translation
                         Layout.fillWidth: true
                         spacing: 8
                         Item { Layout.preferredHeight: 4 }
