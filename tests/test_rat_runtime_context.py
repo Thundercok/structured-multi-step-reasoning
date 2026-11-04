@@ -169,7 +169,7 @@ def test_direct_native_loop_reads_and_hands_over_real_file_without_planner(runti
     assert {t['function']['name'] for t in calls[0].args[1]} == {
         'search_documents', 'read_document', 'search_book_pages', 'read_book_page',
         'deliver_document', 'inspect_artifact', 'request_operation_tools', 'synthesize_smart_note',
-        'find_file_or_app', 'reveal_in_finder'}
+        'find_file_or_app', 'reveal_in_finder', 'open_document'}
     assert 'calculate' not in {t['function']['name'] for t in calls[1].args[1]}
     # System/history stay stable. Observed context changes with tool receipts
     # and precedes the current request so small models do not repeat old work.
