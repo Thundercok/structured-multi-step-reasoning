@@ -23,7 +23,7 @@ from PyQt6.QtGui import QDesktopServices, QGuiApplication
 from rat.config import config
 from rat.engine.app_resolver import ApplicationCatalog, revalidate_application_bundle
 from rat.engine.finder_intent import parse_finder_intent
-from rat.engine.goal_routing import FIND, OPEN
+from rat.engine.goal_routing import FIND, OPEN, looks_like_passage
 from rat.engine.progressive_search import ProgressiveSearch, SearchCoordinator, SearchSnapshot
 from rat.engine.semantic_index import shared_index
 from rat.engine.semantic_reranker import SemanticFuzzyReranker
@@ -329,6 +329,7 @@ class QuickPDFController(QObject):
     _finder_delivered = pyqtSignal(object)
     _catalog_ready = pyqtSignal(object)
     _translation_delivered = pyqtSignal(object)
+    composerPassageTranslated = pyqtSignal()
     _quicklook_expand_delivered = pyqtSignal()
 
     def __init__(
@@ -381,6 +382,7 @@ class QuickPDFController(QObject):
         self._translation_delivered.connect(self._handle_translation_delivered, Qt.ConnectionType.QueuedConnection)
         self._quicklook_expand_delivered.connect(self._handle_quicklook_expand, Qt.ConnectionType.QueuedConnection)
         self._translator = None
+        self._composer_translation = False
         self._last_translation_thread = None
         self._last_quicklook_thread = None
 
@@ -1987,11 +1989,36 @@ class QuickPDFController(QObject):
             self._translator = SnippetTranslator()
         return self._translator
 
+    @pyqtSlot(str, result=bool)
+    def isForeignPassage(self, text: str) -> bool:
+        """A passage not in the user's language; translating it needs no model.
+
+        A selected document or attachment makes the text a question about that source.
+        """
+        clean = text.strip()
+        if self._selection is not None or self._assistant_sources or not looks_like_passage(clean):
+            return False
+        if all(re.fullmatch(r"\S*[/\\]\S*", line.strip()) for line in clean.splitlines() if line.strip()):
+            return False
+        from rat.engine.snippet_translation import detect_language
+        return detect_language(clean) not in (None, "vi")
+
+    @pyqtSlot(str)
+    def translatePassage(self, text: str):
+        """Translate the composer's text. It is cleared only once the translation arrives."""
+        if self._composer_translation:
+            return
+        self._composer_translation = len(text.strip()) <= 8000
+        self.translateText(text)
+
     def _handle_translation_delivered(self, payload: dict):
         try:
             if not payload:
                 return
+            from_composer, self._composer_translation = self._composer_translation, False
             if payload.get("ok"):
+                if from_composer:
+                    self.composerPassageTranslated.emit()
                 self._last_user_query = f"Dịch sang {payload.get('target_lang', 'vi')}"
                 self._last_assistant_answer = payload.get("text", "")
                 self._view = "answer"

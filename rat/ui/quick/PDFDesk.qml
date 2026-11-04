@@ -232,6 +232,7 @@ Rectangle {
         if (!liveMode || pdfDropArea.containsDrag || (liveSnapshot.busy && !expanded)) return []
         var view = liveSnapshot.view
         if (view === "reading") return []
+        if (liveController.isForeignPassage(editor.text)) return [{key: "↵", label: "dịch"}]
         if (view === "finder") return [
             {key: "↑↓", label: "chọn"},
             {key: "↵", label: liveSnapshot.isQuestionQuery ? "hỏi Chuột" : "mở"},
@@ -305,9 +306,15 @@ Rectangle {
         }
     }
 
+    function translateIfPassage() {
+        if (liveSnapshot.view === "reading" || !liveController.isForeignPassage(editor.text)) return false
+        liveController.translatePassage(editor.text)
+        return true
+    }
     function submitDraft() {
         if (liveMode) {
             if (!liveSnapshot.busy) {
+                if (translateIfPassage()) return
                 if (editor.text.trim() === "" && liveSnapshot.view === "finder" && (visibleFinderHits || []).length > 0) {
                     var hitIdx = selectedFinderIndex >= 0 ? selectedFinderIndex : 0
                     if (hitIdx < visibleFinderHits.length) {
@@ -376,6 +383,11 @@ Rectangle {
                     editor.text = restored
                 }
             }
+            return
+        }
+
+        if (liveMode && !liveSnapshot.busy && !hasCmdOrCtrl && !hasShift && selectedFinderIndex < 0 && translateIfPassage()) {
+            event.accepted = true
             return
         }
 
@@ -3059,6 +3071,11 @@ Rectangle {
         sequences: [StandardKey.Close, StandardKey.Quit]
         enabled: desk.liveMode
         onActivated: desk.closeRequested()
+    }
+    Connections {
+        target: desk.liveMode ? desk.liveController : null
+        ignoreUnknownSignals: true
+        function onComposerPassageTranslated() { editor.text = "" }
     }
     Shortcut {
         sequence: "Escape"

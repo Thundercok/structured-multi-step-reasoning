@@ -44,7 +44,7 @@ Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở 
 | 2.0 | Index đọc đúng tài liệu thật: bỏ qua repo code, ưu tiên PDF và Office, ghi dần ngay khi quét, dùng `config.indexed_directories` | Trên máy thật có PDF được index trong phút đầu (đo 2026-11-03: quét 63 giây mới bắt đầu, trần 5.000 file có 4.709 `.txt`, chỉ 14 PDF) |
 | 2.1 | Công cụ tìm của Chuột dùng index theo nghĩa | "tiền cọc phòng trọ là bao nhiêu?" trả lời từ file có sẵn và chỉ rõ file |
 | 2.2 | Ngăn tiếng Trung từ gốc, thử lại chỉ là lưới an toàn | Bộ câu tiếng Việt không còn kích hoạt thử lại |
-| 2.3 | Dán đoạn văn vào ô nhập là dịch, dùng lại nhận diện đoạn văn của `goal_routing` | Đoạn tiếng Anh dài ra bản dịch, không qua model |
+| 2.3 | Dán đoạn văn vào ô nhập rồi nhấn Enter là dịch, dùng lại nhận diện đoạn văn của `goal_routing`. Đã xong | Đoạn tiếng Anh dài ra bản dịch, không qua model |
 | 2.4 | Thả hoặc dán ảnh chụp để OCR rồi dịch, lấy `rat/ui/image_*.py` từ tag `rat-lite-0.6.0` | Ảnh chụp đoạn PDF ra bản dịch |
 | 2.5 | Tiến độ index hiện ở dòng trạng thái | Biết đang đọc tới đâu, ẩn khi xong |
 | 2.6 | Chỉ câu nói rõ "app", "mở" hoặc đúng tên app mới đưa app lên đầu; còn lại file trước. Đã xong | "chỉnh ảnh" có file thì ⌘1 mở file; "app chỉnh ảnh" và "mở word" vẫn ra app |

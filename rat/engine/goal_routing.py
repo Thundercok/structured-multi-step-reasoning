@@ -42,6 +42,11 @@ GREETING_OR_THANKS = re.compile(
 )
 
 
+def looks_like_passage(text):
+    """Text shaped like a passage to read, not a query someone typed."""
+    return '\n' in text or len(text.split()) >= 18
+
+
 @dataclass
 class GoalRoute:
     kind: str
@@ -166,7 +171,7 @@ class ToolGoalRouter:
         if len(text) < 240 and '\n' not in text and re.search(r'\.(?:pdf|docx?|xlsx?|pptx?|txt|md|csv|png|jpe?g|zip)\s*$',text,re.I):
             return self.direct('find_files', {'query':text}, 'filename')
         words = text.split()
-        paragraph = '\n' in text or len(words) >= 18
+        paragraph = looks_like_passage(text)
         if input_kind == 'pasted_text' and (len(words) >= 2 or len(text) >= 12):
             return self.direct('translate_text', dict(self.defaults, text=text), 'pasted_passage')
         is_short_open = len(words) <= 6 and '\n' not in text and not re.search(r'[.?!]\s*$', text)

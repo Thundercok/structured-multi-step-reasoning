@@ -74,6 +74,7 @@ def test_config_save_creates_directory_only_on_explicit_save(tmp_path):
     home = tmp_path / "home"
     home.mkdir()
     environment = dict(os.environ, HOME=str(home), RAT_DB_PATH=str(tmp_path / "selected.db"), PYTHONDONTWRITEBYTECODE="1")
+    environment.pop("RAT_STATE_DIR", None)
     program = """
 from pathlib import Path
 from rat.config import config
