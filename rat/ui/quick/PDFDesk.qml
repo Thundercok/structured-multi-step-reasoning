@@ -26,7 +26,8 @@ Rectangle {
     property bool copied: false
     property bool readyForMotion: false
     // How far the sheet behind the results has shifted. It rests where it lands until the next result.
-    property real paperNudge: 0
+    property real paperNudgeTarget: 0
+    property real paperNudge: paperNudgeTarget
     property string lastResultSignature: ""
     Behavior on paperNudge {
         enabled: desk.readyForMotion && !desk.reduceMotion
@@ -196,10 +197,10 @@ Rectangle {
         if (!signature || signature === lastResultSignature) return
         lastResultSignature = signature
         if (reduceMotion || !readyForMotion) return
-        var next = paperNudge
-        while (Math.abs(next - paperNudge) < 0.25)
+        var next = paperNudgeTarget
+        while (Math.abs(next - paperNudgeTarget) < 0.25)
             next = -0.7 + Math.random() * 1.3
-        paperNudge = next
+        paperNudgeTarget = next
     }
 
     function syncLive() {

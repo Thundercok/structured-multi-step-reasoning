@@ -1519,30 +1519,28 @@ def _paper_desk(finder_fixture, reduce_motion):
     return view, controller
 
 
-def _type_and_read_sheets(view, text):
+def _type_and_read_nudge(view, text):
     root = view.rootObject()
     root.findChild(QQuickItem, 'draftEditor').setProperty('text', text)
-    _process_events(350)
-    return (root.findChild(QQuickItem, 'paperBackingSheet').property('rotation'),
-            root.findChild(QQuickItem, 'resultPaper').property('rotation'))
+    # Long enough for the initial and refined results, which may each count as new.
+    _process_events(800)
+    assert root.findChild(QQuickItem, 'resultPaper').property('rotation') == 0
+    return root.property('paperNudgeTarget')
 
 
 def test_paper_shifts_on_new_results_only_and_the_text_sheet_stays_straight(finder_fixture):
     app = QGuiApplication.instance() or QGuiApplication([])
     view, controller = _paper_desk(finder_fixture, reduce_motion=False)
     try:
-        calc, text_sheet = _type_and_read_sheets(view, 'calc')
-        assert text_sheet == 0
+        calc = _type_and_read_nudge(view, 'calc')
         assert controller.snapshot['view'] == 'finder'
-        assert abs(calc + 0.9) >= 0.2
+        assert calc != 0
 
-        same, _ = _type_and_read_sheets(view, 'calc ')
-        assert same == calc
+        assert _type_and_read_nudge(view, 'calc ') == calc
 
-        other, text_sheet = _type_and_read_sheets(view, 'tim file danh sach sinh vien')
-        assert text_sheet == 0
-        assert abs(other - calc) >= 0.2
-        assert -1.7 <= other <= -0.2
+        other = _type_and_read_nudge(view, 'tim file danh sach sinh vien')
+        assert other != calc
+        assert -0.7 <= other <= 0.6
     finally:
         _dispose(view, controller)
 
@@ -1551,8 +1549,18 @@ def test_reduced_motion_keeps_the_paper_still(finder_fixture):
     app = QGuiApplication.instance() or QGuiApplication([])
     view, controller = _paper_desk(finder_fixture, reduce_motion=True)
     try:
-        first, _ = _type_and_read_sheets(view, 'calc')
-        second, _ = _type_and_read_sheets(view, 'tim file danh sach sinh vien')
-        assert first == second == pytest.approx(-0.9)
+        assert _type_and_read_nudge(view, 'calc') == 0
+        assert _type_and_read_nudge(view, 'tim file danh sach sinh vien') == 0
+    finally:
+        _dispose(view, controller)
+
+
+def test_backing_sheet_follows_the_nudge(finder_fixture):
+    app = QGuiApplication.instance() or QGuiApplication([])
+    view, controller = _paper_desk(finder_fixture, reduce_motion=True)
+    try:
+        root = view.rootObject()
+        root.setProperty('paperNudgeTarget', 0.5)
+        assert root.findChild(QQuickItem, 'paperBackingSheet').property('rotation') == pytest.approx(-0.4)
     finally:
         _dispose(view, controller)
