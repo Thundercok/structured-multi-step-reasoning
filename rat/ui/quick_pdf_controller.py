@@ -383,6 +383,7 @@ class QuickPDFController(QObject):
         self._quicklook_expand_delivered.connect(self._handle_quicklook_expand, Qt.ConnectionType.QueuedConnection)
         self._translator = None
         self._composer_translation = False
+        self._index_status = ""
         self._last_translation_thread = None
         self._last_quicklook_thread = None
 
@@ -607,6 +608,7 @@ class QuickPDFController(QObject):
             "activeContext": active_context,
             "title": title,
             "status": self._status,
+            "indexStatus": self._index_status,
             "query": self._last_user_query or search.get("query", ""),
             "userQuery": self._last_user_query,
             "answerText": self._last_assistant_answer,
@@ -1605,9 +1607,14 @@ class QuickPDFController(QObject):
 
     def refresh_index_progress(self):
         state = self._finder_semantic.progress()
-        busy = state.get("state") in ("scanning", "indexing")
-        if not busy:
+        kind = state.get("state")
+        if kind not in ("scanning", "indexing"):
             self._index_timer.stop()
+        status = {"scanning": "Chuột đang xem qua các thư mục…",
+                  "indexing": f"Chuột đang đọc tài liệu · {state.get('done', 0)}/{state.get('total', 0)}"}.get(kind, "")
+        if status != self._index_status:
+            self._index_status = status
+            self.changed.emit()
 
     @pyqtSlot(str)
     def onComposerTextChanged(self, text: str):

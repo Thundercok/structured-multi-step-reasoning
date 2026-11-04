@@ -46,7 +46,7 @@ Bước 1 đã xong. Đo bằng `tools/measure_desk_latency.py`, số nền ở 
 | 2.2 | Ngăn tiếng Trung từ gốc, thử lại chỉ là lưới an toàn | Bộ câu tiếng Việt không còn kích hoạt thử lại |
 | 2.3 | Dán đoạn văn vào ô nhập rồi nhấn Enter là dịch, dùng lại nhận diện đoạn văn của `goal_routing`. Đã xong | Đoạn tiếng Anh dài ra bản dịch, không qua model |
 | 2.4 | Thả hoặc dán ảnh chụp để OCR rồi dịch, lấy `rat/ui/image_*.py` từ tag `rat-lite-0.6.0` | Ảnh chụp đoạn PDF ra bản dịch |
-| 2.5 | Tiến độ index hiện ở dòng trạng thái | Biết đang đọc tới đâu, ẩn khi xong |
+| 2.5 | Tiến độ index hiện ở dòng trạng thái. Đã xong | Biết đang đọc tới đâu, ẩn khi xong |
 | 2.6 | Chỉ câu nói rõ "app", "mở" hoặc đúng tên app mới đưa app lên đầu; còn lại file trước. Đã xong | "chỉnh ảnh" có file thì ⌘1 mở file; "app chỉnh ảnh" và "mở word" vẫn ra app |
 | 2.7 | Đo độ đúng của tìm theo nghĩa trên file thật, rồi mới chỉnh ngưỡng và cách xếp hạng | Có bộ câu hỏi mẫu và tỉ lệ file đúng nằm trong 3 kết quả đầu. Công cụ: `tools/measure_search_quality.py`. Mốc 2026-11-03 trên 23 câu nháp, 2.710 file: top 1 là 3, top 3 là 11, không ra 9. Đã thử hybrid BM25 và dịch câu hỏi sang tiếng Anh: top 1 tăng lên 7 nhưng top 3 giảm còn 10, và thua trên nửa câu giữ riêng, nên chưa đổi cách xếp hạng. Chưa thử model embedding khác |
 

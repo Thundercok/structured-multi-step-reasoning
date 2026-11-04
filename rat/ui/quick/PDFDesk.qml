@@ -232,7 +232,7 @@ Rectangle {
         if (!liveMode || pdfDropArea.containsDrag || (liveSnapshot.busy && !expanded)) return []
         var view = liveSnapshot.view
         if (view === "reading") return []
-        if (liveController.isForeignPassage(editor.text)) return [{key: "↵", label: "dịch"}]
+        if (draftIsForeignPassage()) return [{key: "↵", label: "dịch"}]
         if (view === "finder") return [
             {key: "↑↓", label: "chọn"},
             {key: "↵", label: liveSnapshot.isQuestionQuery ? "hỏi Chuột" : "mở"},
@@ -306,8 +306,13 @@ Rectangle {
         }
     }
 
+    // Shorter text cannot be a passage, so typing a query never calls into Python for this.
+    function draftIsForeignPassage() {
+        var text = editor.text
+        return (text.length >= 35 || text.indexOf("\n") >= 0) && liveController.isForeignPassage(text)
+    }
     function translateIfPassage() {
-        if (liveSnapshot.view === "reading" || !liveController.isForeignPassage(editor.text)) return false
+        if (liveSnapshot.view === "reading" || !draftIsForeignPassage()) return false
         liveController.translatePassage(editor.text)
         return true
     }
@@ -2964,8 +2969,9 @@ Rectangle {
                             text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status
                                 : desk.liveSnapshot.view === "reading" ? "Bàn xem · đang chuẩn bị dữ liệu"
-                                : desk.composerKeyHints.length > 0 ? (desk.liveSnapshot.view === "answer" && desk.hasLatentFinderHits ? "Bấm ngăn trên mở tệp" : "")
+                                : desk.composerKeyHints.length > 0 ? (desk.liveSnapshot.view === "answer" && desk.hasLatentFinderHits ? "Bấm ngăn trên mở tệp" : desk.liveSnapshot.indexStatus)
                                 : desk.liveSnapshot.finderFeedback ? desk.liveSnapshot.finderFeedback
+                                : desk.liveSnapshot.view === "none" && desk.liveSnapshot.indexStatus ? desk.liveSnapshot.indexStatus
                                 : desk.liveSnapshot.status || "Chuột sẵn sàng"
                             elide: Text.ElideRight
                             color: pdfDropArea.containsDrag ? desk.accent : desk.muted
