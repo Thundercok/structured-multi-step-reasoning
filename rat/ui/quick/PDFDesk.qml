@@ -33,7 +33,7 @@ Rectangle {
     readonly property bool intentChoiceOpen: intentChoiceText.length > 0 && intentChoiceText === editor.text
     // With room to spare, Chuột stands beside the composer and speaks into it. A narrow desk keeps it above.
     readonly property int ratBesideRoom: 92
-    readonly property int ratPeekHeight: 41
+    readonly property int ratPeekHeight: 38
     readonly property bool ratBesideComposer: liveMode && !isSideBySidePdfActive && unit.width >= 580 + ratBesideRoom
     // Chuột hides behind the composer and comes out only to say something, so that its coming out means something.
     // Position derives from these two factors and the composer, so it can never lag a resizing window.
