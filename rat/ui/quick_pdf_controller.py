@@ -53,6 +53,7 @@ logger = logging.getLogger("rat.ui.quick_pdf_controller")
 
 # Mọi thông báo trên bàn nói bằng giọng Chuột: câu ngắn, nói chuyện gì xảy ra rồi làm gì tiếp, không dùng
 # từ kỹ thuật như "mô hình", "token", "ngân sách". Chi tiết kỹ thuật để ở nhật ký (`_events`).
+SHORTCUT_ACK_HOLD_MS = 4000
 READY_STATUS = "Chuột sẵn sàng. Bạn cần gì?"
 THINKING_STATUS = "Chuột đang nghĩ…"
 ANSWERED_STATUS = "Xong rồi. Hỏi tiếp cứ gõ."
@@ -400,6 +401,7 @@ class QuickPDFController(QObject):
     _translation_delivered = pyqtSignal(object)
     composerPassageTranslated = pyqtSignal()
     _quicklook_expand_delivered = pyqtSignal()
+    _shortcut_ack_delivered = pyqtSignal(str, int)
 
     def __init__(
         self,
@@ -450,10 +452,15 @@ class QuickPDFController(QObject):
         self._catalog_ready.connect(self._on_catalog_ready, Qt.ConnectionType.QueuedConnection)
         self._translation_delivered.connect(self._handle_translation_delivered, Qt.ConnectionType.QueuedConnection)
         self._quicklook_expand_delivered.connect(self._handle_quicklook_expand, Qt.ConnectionType.QueuedConnection)
+        self._shortcut_ack_delivered.connect(self._set_shortcut_ack, Qt.ConnectionType.QueuedConnection)
+        self._shortcut_ack_timer = QTimer(self)
+        self._shortcut_ack_timer.setSingleShot(True)
+        self._shortcut_ack_timer.timeout.connect(lambda: self._set_shortcut_ack("", 0))
         self._translator = None
         self._composer_translation = False
         self._index_status = ""
         self._shortcut_label = ""
+        self._shortcut_ack = ""
         self._translation = None
         self._translating = False
         self._last_translation_thread = None
@@ -682,6 +689,7 @@ class QuickPDFController(QObject):
             "status": self._status,
             "indexStatus": self._index_status,
             "shortcutLabel": self._shortcut_label,
+            "shortcutAck": self._shortcut_ack,
             # A later answer replaces the translation, so an old card can never sit on top of it.
             "translation": self._translation if self._translation and self._translation["text"] == self._last_assistant_answer else None,
             "translating": self._translating,
@@ -2123,6 +2131,9 @@ class QuickPDFController(QObject):
                 return
             from_composer, self._composer_translation = self._composer_translation, False
             self._translating = False
+            if self._shortcut_ack:
+                failed = "" if payload.get("ok") else f"Chuột chưa dịch được: {payload.get('error') or 'không rõ vì sao'}"
+                self._set_shortcut_ack(failed, SHORTCUT_ACK_HOLD_MS if failed else 0)
             if payload.get("ok"):
                 if from_composer:
                     self.composerPassageTranslated.emit()
@@ -2152,6 +2163,18 @@ class QuickPDFController(QObject):
         else:
             self.translateText(card["text"], card["target"], card["source"])
 
+    @pyqtSlot(str, int)
+    def _set_shortcut_ack(self, message: str, hold_ms: int = 0):
+        """What a global shortcut is doing right now. With hold_ms it clears itself; else the work clears it."""
+        if self._closed:
+            return
+        self._shortcut_ack_timer.stop()
+        if hold_ms:
+            self._shortcut_ack_timer.start(hold_ms)
+        if message != self._shortcut_ack:
+            self._shortcut_ack = message
+            self.changed.emit()
+
     def _handle_quicklook_expand(self):
         self.setExpanded(True)
 
@@ -2167,6 +2190,8 @@ class QuickPDFController(QObject):
             if len(clean_text) > 8000:
                 self._status = "Đoạn này dài quá, Chuột dịch tối đa 8.000 ký tự một lần."
                 self.changed.emit()
+                if self._shortcut_ack:
+                    self._shortcut_ack_delivered.emit(self._status, SHORTCUT_ACK_HOLD_MS)
                 return ""
 
             self._status = "Chuột đang dịch…"
@@ -2234,8 +2259,12 @@ class QuickPDFController(QObject):
     def quickLookSelection(self):
         """Shortcut order on worker thread: live selection first, clipboard only if copied within 2 minutes."""
         try:
-            if self._closed or self.snapshot["busy"]:
+            if self._closed:
                 return
+            if self.snapshot["busy"] or self._translating:
+                self._set_shortcut_ack("Chuột đang bận việc trước. Xong rồi bấm lại nhé.", SHORTCUT_ACK_HOLD_MS)
+                return
+            self._set_shortcut_ack("Chuột đang lấy đoạn bạn bôi đen…")
             current_change = self._update_clipboard_change()
 
             # Read clipboard on GUI thread safely before offloading
@@ -2265,16 +2294,21 @@ class QuickPDFController(QObject):
                             logger.debug("Live selection capture failed: %s", exc)
 
                     if selected_text:
+                        self._shortcut_ack_delivered.emit("Chuột đang dịch đoạn bôi đen…", 0)
                         self.translateText(selected_text)
                         return
 
                     # 2. Clipboard fallback only if copied within 2 minutes
                     if is_fresh_copy and clipboard_text.strip():
                         self._consumed_clipboard_change = current_change
+                        self._shortcut_ack_delivered.emit("Chuột đang dịch đoạn bạn vừa chép…", 0)
                         self.translateText(clipboard_text.strip())
                         return
 
                     # Fallback: expand Desk if neither selection nor fresh copy
+                    self._shortcut_ack_delivered.emit(
+                        "Chuột không thấy đoạn bôi đen. Bôi đen hoặc ⌘C rồi bấm lại." if trusted
+                        else "Chưa có quyền Trợ năng: ⌘C đoạn cần dịch rồi bấm lại.", SHORTCUT_ACK_HOLD_MS)
                     self._quicklook_expand_delivered.emit()
                 except Exception as exc:
                     logger.warning("quickLookSelection worker failed: %s", exc)

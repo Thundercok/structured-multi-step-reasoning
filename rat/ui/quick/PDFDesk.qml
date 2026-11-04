@@ -3162,7 +3162,7 @@ Rectangle {
                         }
                         Item { visible: desk.intentChoiceOpen; Layout.fillWidth: true }
                         Rectangle {
-                            visible: !desk.intentChoiceOpen && !pdfDropArea.containsDrag && !desk.liveSnapshot.busy && desk.liveSnapshot.view === "none" && !desk.liveSnapshot.fileName
+                            visible: !desk.intentChoiceOpen && !desk.liveSnapshot.shortcutAck && !pdfDropArea.containsDrag && !desk.liveSnapshot.busy && desk.liveSnapshot.view === "none" && !desk.liveSnapshot.fileName
                             implicitWidth: 6
                             implicitHeight: 6
                             radius: 3
@@ -3171,7 +3171,7 @@ Rectangle {
                         }
                         Row {
                             objectName: "composerKeyHintRow"
-                            visible: desk.composerKeyHints.length > 0 && !desk.intentChoiceOpen
+                            visible: desk.composerKeyHints.length > 0 && !desk.intentChoiceOpen && !desk.liveSnapshot.shortcutAck
                             spacing: 8
                             Repeater {
                                 model: desk.composerKeyHints
@@ -3191,6 +3191,7 @@ Rectangle {
                             visible: !desk.intentChoiceOpen
                             Layout.fillWidth: true
                             text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
+                                : desk.liveSnapshot.shortcutAck ? desk.liveSnapshot.shortcutAck
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status
                                 : desk.liveSnapshot.view === "reading" ? "Bàn xem · đang chuẩn bị dữ liệu"
                                 : desk.composerKeyHints.length > 0 ? (desk.liveSnapshot.view === "answer" && desk.hasLatentFinderHits ? "Bấm ngăn trên mở tệp" : desk.liveSnapshot.indexStatus)
@@ -3198,8 +3199,8 @@ Rectangle {
                                 : desk.liveSnapshot.view === "none" && desk.liveSnapshot.indexStatus ? desk.liveSnapshot.indexStatus
                                 : desk.liveSnapshot.status || "Chuột sẵn sàng"
                             elide: Text.ElideRight
-                            color: pdfDropArea.containsDrag ? desk.accent : desk.muted
-                            font.weight: pdfDropArea.containsDrag ? Font.Medium : Font.Normal
+                            color: pdfDropArea.containsDrag || desk.liveSnapshot.shortcutAck ? desk.accent : desk.muted
+                            font.weight: pdfDropArea.containsDrag || desk.liveSnapshot.shortcutAck ? Font.Medium : Font.Normal
                             font.pixelSize: 11
                         }
                     }

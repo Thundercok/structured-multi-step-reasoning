@@ -1,4 +1,6 @@
 """A long foreign passage in the composer is translated without calling a model."""
+import threading
+
 import pytest
 from PyQt6.QtCore import QPoint, QPointF, Qt
 from PyQt6.QtQuick import QQuickItem
@@ -281,3 +283,74 @@ def test_source_sheet_pulls_out_by_dragging(quick_env):
     QTest.mouseRelease(quick_env.view, Qt.MouseButton.LeftButton, none, start + QPoint(0, 48))
     QTest.qWait(30)
     assert root.property("translationSourceOpen") is True
+
+
+def _status_text(root):
+    return _named(root, "composerDropStatus").property("text")
+
+
+def _quicklook_env(monkeypatch, selection, trusted=True):
+    monkeypatch.setattr("rat.os.permissions.is_accessibility_trusted", lambda: trusted)
+    monkeypatch.setattr("rat.os.selected_text.read_selected_text", selection)
+
+
+def test_shortcut_answers_before_the_selection_is_read(quick_env, monkeypatch):
+    control, root = quick_env.controller, quick_env.root
+    control._translator = RecordingTranslator()
+    release = threading.Event()
+
+    def slow_selection():
+        release.wait(3)
+        return "Some selected words"
+    _quicklook_env(monkeypatch, slow_selection)
+
+    control.quickLookSelection()
+    # Nothing has been read yet, and the answer is already on the desk.
+    QTest.qWait(30)
+    assert not control._translator.calls
+    assert _status_text(root) == "Chuột đang lấy đoạn bạn bôi đen…"
+
+    release.set()
+    wait_for(lambda: control.snapshot["translation"] is not None)
+    assert control._translator.calls[0][0] == "Some selected words"
+    wait_for(lambda: control.snapshot["shortcutAck"] == "")
+    assert control._shortcut_ack == ""
+
+
+def test_shortcut_while_busy_says_so_and_does_not_start_again(quick_env, monkeypatch):
+    control, root = quick_env.controller, quick_env.root
+    control._translator = RecordingTranslator()
+    _quicklook_env(monkeypatch, lambda: "Some selected words")
+    control._translating = True
+    control.quickLookSelection()
+    QTest.qWait(30)
+    assert control._translator.calls == []
+    assert _status_text(root) == "Chuột đang bận việc trước. Xong rồi bấm lại nhé."
+    assert control._shortcut_ack_timer.isActive()
+    control._shortcut_ack_timer.timeout.emit()
+    assert control.snapshot["shortcutAck"] == ""
+    control._translating = False
+
+
+@pytest.mark.parametrize("trusted, message", [
+    (True, "Chuột không thấy đoạn bôi đen. Bôi đen hoặc ⌘C rồi bấm lại."),
+    (False, "Chưa có quyền Trợ năng: ⌘C đoạn cần dịch rồi bấm lại."),
+])
+def test_shortcut_with_nothing_to_translate_says_what_to_do(quick_env, monkeypatch, trusted, message):
+    control, root = quick_env.controller, quick_env.root
+    _quicklook_env(monkeypatch, lambda: "", trusted)
+    monkeypatch.setattr(control, "_get_clipboard_change_count", lambda: -1)
+    control.quickLookSelection()
+    wait_for(lambda: control.snapshot["shortcutAck"] == message)
+    QTest.qWait(30)
+    assert _status_text(root) == message
+    assert control._shortcut_ack_timer.isActive()
+
+
+def test_shortcut_translation_failure_is_shown_where_the_ack_was(quick_env, monkeypatch):
+    control = quick_env.controller
+    control._translator = FakeTranslator(OSError("model missing"))
+    _quicklook_env(monkeypatch, lambda: "Some selected words")
+    control.quickLookSelection()
+    wait_for(lambda: control.snapshot["shortcutAck"] == "Chuột chưa dịch được: model missing")
+    assert control._shortcut_ack_timer.isActive()
