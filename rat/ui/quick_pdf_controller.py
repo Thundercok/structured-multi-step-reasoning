@@ -452,6 +452,7 @@ class QuickPDFController(QObject):
         self._index_status = ""
         self._shortcut_label = ""
         self._shortcut_ack = ""
+        self._model_warning_checked = False
         self._translation = None
         self._translating = False
         self._last_translation_thread = None
@@ -1587,6 +1588,21 @@ class QuickPDFController(QObject):
 
         self._events.append(self._status)
         self.changed.emit()
+        self._warn_once_if_model_cannot_read_files()
+
+    def _warn_once_if_model_cannot_read_files(self):
+        """A small model answers "I will read the file" and then does not, so say why, once."""
+        if self._model_warning_checked or self.assistant_runtime.model_client is not None:
+            return
+        self._model_warning_checked = True
+
+        def check():
+            from rat.engine.slm import TOOL_CAPABLE_MODELS, assistant_can_use_tools
+            if not assistant_can_use_tools():
+                self._shortcut_ack_delivered.emit(
+                    f"Model này chưa đọc được file. Cài: ollama pull {TOOL_CAPABLE_MODELS[0]}", 8000)
+
+        threading.Thread(target=check, name="rat-assistant-model-check", daemon=True).start()
 
     @pyqtSlot(str, int, str)
     def _on_execution_status(self, eid: str, gen: int, status: str):

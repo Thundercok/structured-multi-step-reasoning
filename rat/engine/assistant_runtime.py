@@ -300,8 +300,8 @@ class AssistantRuntime:
         try:
             client = self.model_client
             if client is None:
-                from rat.engine.slm import slm_engine
-                client = slm_engine
+                from rat.engine.slm import assistant_engine
+                client = assistant_engine()
             messages = self._native_messages(goal, trajectory, **context)
             tool_defs = self.registry.to_tool_definitions()
             snapshot = context.get('context_snapshot')

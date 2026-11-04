@@ -354,3 +354,26 @@ def test_shortcut_translation_failure_is_shown_where_the_ack_was(quick_env, monk
     control.quickLookSelection()
     wait_for(lambda: control.snapshot["shortcutAck"] == "Chuột chưa dịch được: model missing")
     assert control._shortcut_ack_timer.isActive()
+
+
+def _finish_run(control):
+    control._warn_once_if_model_cannot_read_files()
+
+
+def test_small_model_warning_shows_once(quick_env, monkeypatch):
+    from rat.config import config
+    from rat.engine.slm import slm_engine
+
+    control = quick_env.controller
+    monkeypatch.setattr(control.assistant_runtime, "model_client", None)
+    monkeypatch.setattr(config, "assistant_model", "")
+    monkeypatch.setattr(slm_engine, "list_installed_models", lambda: ["qwen2.5:1.5b"])
+
+    _finish_run(control)
+    wait_for(lambda: "ollama pull qwen3:4b-instruct" in control.snapshot["shortcutAck"])
+    assert quick_env.root.property("ratOut")
+
+    control._set_shortcut_ack("", 0)
+    _finish_run(control)
+    QTest.qWait(80)
+    assert control.snapshot["shortcutAck"] == ""

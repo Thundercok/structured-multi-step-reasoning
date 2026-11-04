@@ -22,6 +22,11 @@ from rat.engine.slm_prompts import (
 logger = logging.getLogger("rat.slm")
 
 DEFAULT_SLM_MODEL = "qwen2.5:1.5b"
+# Models seen to really call tools through the assistant. Ollama reports `tools` for qwen2.5:1.5b too, yet
+# it never called one, so the capability flag cannot decide this. Measured 2026-11-05 on 6 file questions:
+# qwen3:4b-instruct read and answered 6/6 (median 20.5 s), qwen3:4b 4/6 (100.6 s, leaks its reasoning),
+# qwen2.5:1.5b 0/6.
+TOOL_CAPABLE_MODELS = ("qwen3:4b-instruct",)
 
 
 class SLMEngine:
@@ -350,3 +355,32 @@ class SLMEngine:
 
 # Global singleton instance
 slm_engine = SLMEngine()
+
+
+def pick_assistant_model(installed: List[str], explicit: str = "") -> Optional[str]:
+    """The model to answer with: the configured override if present, else a measured tool-capable one."""
+    names = {name.lower() for name in installed}
+    for candidate in (explicit, *TOOL_CAPABLE_MODELS):
+        if candidate and candidate.lower() in names:
+            return candidate
+    return None
+
+
+_assistant_engines: Dict[str, SLMEngine] = {}
+
+
+def assistant_engine() -> Any:
+    """The engine behind the assistant. Small background jobs keep using the lighter `slm_engine`."""
+    installed = slm_engine.list_installed_models()
+    model = pick_assistant_model(installed if isinstance(installed, list) else [], config.assistant_model)
+    if model is None:
+        return slm_engine
+    return _assistant_engines.setdefault(model, SLMEngine(model=model))
+
+
+def assistant_can_use_tools() -> bool:
+    """False only when Ollama answers and has no model known to call tools, so a warning would be true."""
+    installed = slm_engine.list_installed_models()
+    if not installed or not isinstance(installed, list):
+        return True
+    return pick_assistant_model(installed, config.assistant_model) is not None
