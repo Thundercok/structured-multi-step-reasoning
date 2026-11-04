@@ -22,7 +22,16 @@ Button {
     property int iconSize: 16
     property int trailingIconSize: 13
     property color iconColor: "transparent"
+    readonly property bool hasLip: !plain && !iconOnly
+    readonly property int pressDepth: down && !desk.reduceMotion ? (hasLip ? 2 : 1) : 0
+    // Face and label sink, the button itself stays: moving it would drop a press on its top edge.
+    property real pressTravel: pressDepth
+    Behavior on pressTravel {
+        enabled: !desk.reduceMotion
+        NumberAnimation { duration: 60; easing.type: Easing.OutQuad }
+    }
     contentItem: RowLayout {
+        transform: Translate { y: control.pressTravel }
         property color color: control.primary
             ? desk.accentText
             : control.plain
@@ -64,6 +73,7 @@ Button {
         }
     }
     background: Rectangle {
+        transform: Translate { y: control.pressTravel }
         visible: !control.plain
         radius: control.iconOnly ? 8 : 9
         color: control.primary
@@ -75,5 +85,16 @@ Button {
             ? desk.accent
             : (control.hovered || control.highlighted ? desk.selectedEdge : desk.edge)
         border.width: control.visualFocus ? 2 : (!control.primary && !control.iconOnly ? 1 : 0)
+        // The lip stays put while the face sinks onto it, which is what makes a press read as depth.
+        Rectangle {
+            visible: control.hasLip
+            z: -1
+            anchors.fill: parent
+            anchors.topMargin: 2
+            anchors.bottomMargin: -2
+            radius: parent.radius
+            color: control.primary ? Qt.darker(desk.accent, 1.35) : desk.edge
+            transform: Translate { y: -control.pressTravel }
+        }
     }
 }
