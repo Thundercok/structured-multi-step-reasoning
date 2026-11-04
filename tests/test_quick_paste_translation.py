@@ -1,6 +1,6 @@
 """A long foreign passage in the composer is translated without calling a model."""
 import pytest
-from PyQt6.QtCore import QPointF, Qt
+from PyQt6.QtCore import QPoint, QPointF, Qt
 from PyQt6.QtQuick import QQuickItem
 from PyQt6.QtTest import QTest
 
@@ -262,3 +262,22 @@ def test_a_search_is_not_asked_about(quick_env, fake_language):
     press_return(quick_env, "vehicle routing problem with time windows")
     QTest.qWait(30)
     assert not _choice_visible(quick_env.root)
+
+
+def test_source_sheet_pulls_out_by_dragging(quick_env):
+    control, root = quick_env.controller, quick_env.root
+    control._translator = RecordingTranslator()
+    press_return(quick_env, PASSAGE)
+    wait_for(lambda: control.snapshot["translation"] is not None)
+    QTest.qWait(50)
+    toggle = _named(root, "translationSourceToggle")
+    start = toggle.mapToScene(QPointF(toggle.width() / 2, toggle.height() / 2)).toPoint()
+    none = Qt.KeyboardModifier.NoModifier
+
+    QTest.mousePress(quick_env.view, Qt.MouseButton.LeftButton, none, start)
+    for step in range(1, 7):
+        QTest.mouseMove(quick_env.view, start + QPoint(0, step * 8))
+        QTest.qWait(10)
+    QTest.mouseRelease(quick_env.view, Qt.MouseButton.LeftButton, none, start + QPoint(0, 48))
+    QTest.qWait(30)
+    assert root.property("translationSourceOpen") is True
