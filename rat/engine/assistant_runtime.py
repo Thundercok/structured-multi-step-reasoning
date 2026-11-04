@@ -22,6 +22,7 @@ from typing import Any, Callable, Dict, List, Optional
 from uuid import uuid4
 from rat.kernel.profile import MAIN_PROFILE, resolve_profile
 
+from rat.engine.untrusted_gate import UntrustedContentGate
 from rat.engine.agent_types import (  # noqa: F401  (re-exported)
     AgentResponse,
     AgentStep,
@@ -412,6 +413,11 @@ class AssistantRuntime:
             execution_id=active_exec_id,
             generation=notes_generation,
         )
+        gate = UntrustedContentGate(goal, selected_document_path=selected_document_path,
+                                    previous_sources=previous_sources)
+        for prior in initial_steps or []:
+            if prior.tool_name:
+                gate.observe(prior.tool_name)
         def bind_contract(proposal, proposed_by):
             try:
                 if isinstance(proposal, TurnContract):
@@ -523,6 +529,7 @@ class AssistantRuntime:
             }
             self.enable_observation_pack = orig_obs_pack
             telemetry = {
+                "blocked_actions": list(gate.blocked),
                 "prompt_tokens": total_prompt,
                 "completion_tokens": total_completion,
                 "total_tokens": total_prompt + total_completion,
@@ -844,7 +851,7 @@ class AssistantRuntime:
             step_note_cursor = self.notebook.event_cursor()
             step_starting_revisions = {a.id: a.revision for a in self.artifact_store.list()}
             try:
-                result = self.execute_tool(
+                result = gate.check(name, args) or self.execute_tool(
                     name,
                     args,
                     member_id=member_id,
@@ -861,6 +868,7 @@ class AssistantRuntime:
                 result = {"error": str(exc)}
             duration = (time.perf_counter() - tool_started) * 1000
             tool_time += duration
+            gate.observe(name)
             step.tool_name, step.tool_args, step.tool_result = name, args, result
             step.note_events = self.notebook.events_since(step_note_cursor, self.notebook.conversation_id)
             v_tick = time.perf_counter()

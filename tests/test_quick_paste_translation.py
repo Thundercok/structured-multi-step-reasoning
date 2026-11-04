@@ -377,3 +377,20 @@ def test_small_model_warning_shows_once(quick_env, monkeypatch):
     _finish_run(control)
     QTest.qWait(80)
     assert control.snapshot["shortcutAck"] == ""
+
+
+def test_blocked_action_is_told_to_the_user(quick_env):
+    from rat.engine.assistant_runtime import AgentResponse
+
+    control, root = quick_env.controller, quick_env.root
+
+    def run(query, **context):
+        return AgentResponse("Tiền cọc là 7 triệu.", [], 0, 0, 12, telemetry_breakdown={
+            "blocked_actions": [{"tool": "open_application", "label": "mở ứng dụng"}]})
+    control.assistant_runtime.run = run
+    press_return(quick_env, "tiền cọc là bao nhiêu?")
+    wait_for(lambda: control.snapshot["shortcutAck"])
+    assert control.snapshot["answerText"] == "Tiền cọc là 7 triệu."
+    assert "Chuột đã chặn: mở ứng dụng" in control.snapshot["shortcutAck"]
+    assert root.property("ratOut")
+    assert "Đã chặn: open_application" in control.snapshot["events"]

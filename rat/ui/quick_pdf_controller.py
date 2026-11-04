@@ -1589,6 +1589,10 @@ class QuickPDFController(QObject):
         self._events.append(self._status)
         self.changed.emit()
         self._warn_once_if_model_cannot_read_files()
+        blocked = curr_telem.get("blocked_actions")
+        if blocked:
+            self._events.append("Đã chặn: " + ", ".join(item["tool"] for item in blocked))
+            self._set_shortcut_ack(f"Chuột đã chặn: {blocked[0]['label']}. Tệp tự yêu cầu việc này; muốn làm thì bạn cứ bảo.", 8000)
 
     def _warn_once_if_model_cannot_read_files(self):
         """A small model answers "I will read the file" and then does not, so say why, once."""
