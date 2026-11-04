@@ -158,3 +158,41 @@ def test_desk_shows_the_configured_key_only_while_it_is_live(qapp, monkeypatch):
     resident.hotkey_manager = SimpleNamespace(status="error")
     resident._sync_desk_shortcut()
     resident.desk_controller.set_shortcut_label.assert_called_with("")
+
+
+def test_daemon_prepares_the_desk_without_showing_it(qapp):
+    resident = ResidentApplication(mode="daemon")
+    resident._ensure_desk = Mock()
+    resident.toggle_spotlight = Mock()
+    with patch("rat.os.app.QTimer.singleShot") as single_shot:
+        resident._open_initial_window()
+    single_shot.assert_called_once_with(0, resident._preload_desk)
+    resident.toggle_spotlight.assert_not_called()
+
+    resident._preload_desk()
+    resident._ensure_desk.assert_called_once()
+
+
+def test_desk_preload_failure_waits_for_the_next_hotkey(qapp):
+    resident = ResidentApplication(mode="daemon")
+    resident._ensure_desk = Mock(side_effect=RuntimeError("no display"))
+    resident._preload_desk()
+    resident._ensure_desk.assert_called_once()
+
+
+def test_no_preload_while_quitting(qapp):
+    resident = ResidentApplication(mode="daemon")
+    resident._ensure_desk = Mock()
+    resident._shutdown_state = "cancelling"
+    resident._preload_desk()
+    resident._ensure_desk.assert_not_called()
+
+
+@pytest.mark.parametrize("mode", ["desk", "spotlight", "quick"])
+def test_visible_modes_still_open_the_desk_at_launch(qapp, mode):
+    resident = ResidentApplication(mode=mode)
+    resident.toggle_spotlight = Mock()
+    with patch("rat.os.app.QTimer.singleShot") as single_shot:
+        resident._open_initial_window()
+    resident.toggle_spotlight.assert_called_once()
+    single_shot.assert_not_called()

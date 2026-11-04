@@ -169,6 +169,14 @@ class TestCrashShield(unittest.TestCase):
         self.assertEqual(outcome, [True])
         self.assertTrue(res_app._clean_shutdown)
 
+    def test_daemon_preload_builds_the_desk_hidden(self):
+        from rat.os.app import ResidentApplication
+        res_app = ResidentApplication(mode="daemon")
+        self.addCleanup(self._dispose_resident, res_app)
+        res_app._preload_desk()
+        self.assertIsNotNone(res_app.desk_view)
+        self.assertFalse(res_app.desk_view.isVisible())
+
     def test_resident_app_request_quit_idempotent(self):
         """Verify calling request_quit multiple times is idempotent and does not recreate timers."""
         from rat.os.app import ResidentApplication

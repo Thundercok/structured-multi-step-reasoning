@@ -699,15 +699,29 @@ class ResidentApplication(QObject):
         if config.auto_watch and config.indexed_directories:
             QTimer.singleShot(2500, self._start_semester_warmup)
 
-        # 5. Open initial window based on mode
+        self._open_initial_window()
+
+        return self.app.exec()
+
+    def _open_initial_window(self) -> None:
+        """5. Open initial window based on mode."""
         if self.mode == "finder":
             self.open_finder()
         elif self.mode in ("spotlight", "desk", "quick"):
             self.toggle_spotlight()
         elif self.mode == "daemon":
             logger.info("Running in pure background resident daemon mode (Menu Bar & Global Hotkey active).")
+            QTimer.singleShot(0, self._preload_desk)
 
-        return self.app.exec()
+    def _preload_desk(self) -> None:
+        """Build the desk hidden, so the first hotkey after login answers at once instead of after seconds."""
+        if self.is_quitting:
+            return
+        try:
+            self._ensure_desk()
+        except Exception as e:
+            # The next hotkey tries again through the same path.
+            logger.warning(f"Could not prepare RAT Desk ahead of time: {e}")
 
 
 def run_resident_app(mode: str = "finder") -> None:
