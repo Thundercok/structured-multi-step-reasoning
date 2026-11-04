@@ -13,7 +13,7 @@ os.environ.setdefault("QT_QUICK_BACKEND", "software")
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
 import pytest
-from PyQt6.QtCore import QCoreApplication, QEvent, QUrl, Qt
+from PyQt6.QtCore import QCoreApplication, QEvent, QPointF, QUrl, Qt
 from PyQt6.QtQuick import QQuickItem, QQuickView
 from PyQt6.QtTest import QTest
 from PyQt6.QtGui import QGuiApplication
@@ -1472,7 +1472,7 @@ def test_finder_row_shows_short_folder_and_keeps_full_path_in_tooltip(finder_fix
     controller.ready()
     view.show()
     try:
-        controller.onComposerTextChanged('tim file co noi dung danh sach sinh vien')
+        view.rootObject().findChild(QQuickItem, 'draftEditor').setProperty('text', 'tim file danh sach sinh vien')
         _process_events(300)
         hit = controller.snapshot['finderHits'][0]
         assert hit['path'] == finder_fixture['txt_path']
@@ -1488,5 +1488,18 @@ def test_finder_row_shows_short_folder_and_keeps_full_path_in_tooltip(finder_fix
         assert short_folder(hit['display_path']) in detail
         assert by_name['finderKind_0'].property('rotation') != 0
         assert by_name['finderContentExcerpt_0'].property('text') != hit['display_path']
+
+        stroke = by_name['finderSelectionStroke_0']
+        assert not stroke.property('visible')
+        view.rootObject().setProperty('selectedFinderIndex', 0)
+        _process_events(100)
+        assert stroke.property('visible')
+        title = by_name['finderTitle_0']
+        card = by_name['finderHit_0']
+        title_left = title.mapToItem(card, QPointF(0, 0)).x()
+        assert stroke.property('x') + stroke.property('width') <= title_left
+        view.rootObject().setProperty('selectedFinderIndex', -1)
+        _process_events(50)
+        assert not stroke.property('visible')
     finally:
         _dispose(view, controller)

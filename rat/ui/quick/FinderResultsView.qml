@@ -84,17 +84,37 @@ ColumnLayout {
                             }
                         }
 
-                        Rectangle {
-                            id: selectionAccentBar
+                        // A pen stroke in the left gutter. Painted once per selection, never per frame.
+                        Canvas {
+                            objectName: "finderSelectionStroke_" + index
                             visible: hitCard.isSelected
-                            width: 3
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            anchors.margins: 4
-                            radius: 1.5
-                            color: desk.accent
+                            x: 4
+                            y: 3
+                            width: 7
+                            height: parent.height - 6
                             z: 2
+                            readonly property color inkColor: desk.accent
+                            onVisibleChanged: if (visible) requestPaint()
+                            onHeightChanged: if (visible) requestPaint()
+                            onInkColorChanged: if (visible) requestPaint()
+                            onPaint: {
+                                var ctx = getContext("2d")
+                                ctx.clearRect(0, 0, width, height)
+                                ctx.strokeStyle = inkColor
+                                ctx.lineCap = "round"
+                                ctx.lineJoin = "round"
+                                // The row index picks the wobble, so a stroke stays put but rows differ.
+                                var lean = index % 2 ? 1 : -1
+                                var mid = width / 2
+                                var seg = (height - 3) / 3
+                                ctx.lineWidth = 2.6
+                                ctx.beginPath()
+                                ctx.moveTo(mid - lean * 0.8, 1.5)
+                                ctx.quadraticCurveTo(mid + lean * 1.6, 1.5 + seg * 0.5, mid + lean * 0.3, 1.5 + seg)
+                                ctx.quadraticCurveTo(mid - lean * 1.5, 1.5 + seg * 1.5, mid - lean * 0.2, 1.5 + seg * 2)
+                                ctx.quadraticCurveTo(mid + lean * 1.2, 1.5 + seg * 2.5, mid + lean * 1.4, height - 1.5)
+                                ctx.stroke()
+                            }
                         }
 
                         RowLayout {
