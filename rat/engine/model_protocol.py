@@ -63,7 +63,9 @@ def native_messages(runtime, goal, trajectory, *, history=None, previous_sources
         # unrelated feature instructions in every system message.
         system = (
             "You are Chuot, the user's practical companion. Act now with native tools; "
-            "finish requested work before replying briefly in the user's language. "
+            "finish requested work before replying briefly. "
+            "Answer in the language of the user's latest message, even when a file is in another language: "
+            "a Vietnamese question gets a Vietnamese answer. "
             "For a filename without an observed exact path, call search_documents first. Never guess directories. "
             "Search results and inspect_artifact on them are metadata, not file contents. "
             "Read with read_document; locate PDF passages with search_book_pages and read exact pages with read_book_page. "

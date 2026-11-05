@@ -11,7 +11,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from rat.crawler.db import Database
 from rat.engine.assistant_runtime import AssistantRuntime
-from rat.engine.language_check import is_mainly_cjk, is_vietnamese
+from rat.engine.language_check import is_mainly_cjk, is_vietnamese, reads_as_english
 from rat.engine.selected_document_qa import answer_selected_document
 from rat.timetable.compositor import TimetableCompositor
 from rat.ui.quick_pdf_controller import QuickPDFController, describe_execution_error
@@ -175,3 +175,20 @@ def test_describe_execution_error_replaces_generic_message():
         msg = describe_execution_error(err)
         assert msg != "Yêu cầu chưa hoàn tất"
         assert len(msg) > 10
+
+
+@pytest.mark.parametrize("text, english", [
+    ("The deposit for a rental room is 7,000,000 VND.", True),
+    ("Based on the rental agreement document I found, the deposit (tiền cọc) for a rental room is 7.000.000 đồng.", True),
+    ("I don't have access to any information about a host.", True),
+    ("Tiền cọc phòng trọ là 7.000.000 đồng.", False),
+    ("Hợp đồng thuê hết hạn vào ngày 30 tháng 6 năm 2027.", False),
+    ("TCP là giao thức có kết nối, còn UDP thì không.", False),
+    ("Transformer là một kiến trúc mạng dùng cơ chế attention.", False),
+    ("Tệp `the file is in the folder` đã được mở.", False),
+    ("```python\nfor item in the_list:\n    print(item)\n```", False),
+    ("Paris", False),
+    ("", False),
+])
+def test_reads_as_english(text, english):
+    assert reads_as_english(text) is english

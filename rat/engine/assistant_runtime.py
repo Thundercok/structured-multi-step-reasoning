@@ -759,11 +759,12 @@ class AssistantRuntime:
                     continue
 
                 final_ans = decision.final_answer
-                from rat.engine.language_check import is_mainly_cjk, is_vietnamese
-                if final_ans and is_vietnamese(goal) and is_mainly_cjk(final_ans):
+                from rat.engine.language_check import is_mainly_cjk, is_vietnamese, reads_as_english
+                english = bool(final_ans) and reads_as_english(final_ans)
+                if final_ans and is_vietnamese(goal) and (is_mainly_cjk(final_ans) or english):
                     retry_context = dict(context)
                     retry_context["finish_only"] = True
-                    retry_inst = "Câu trả lời trước bị lỗi ngôn ngữ (chứa chữ Hán/tiếng Trung). Hãy trả lời hoàn toàn bằng tiếng Việt. Tuyệt đối không dùng chữ Hán hoặc tiếng Trung."
+                    retry_inst = "Câu trả lời trước không viết bằng tiếng Việt. Hãy viết lại toàn bộ bằng tiếng Việt, chỉ dùng thông tin đã có."
                     retry_decision = self._call_model(
                         f"{goal}\n\n[Yêu cầu bắt buộc: {retry_inst}]",
                         trajectory,
@@ -771,7 +772,7 @@ class AssistantRuntime:
                     )
                     if retry_decision.final_answer and not is_mainly_cjk(retry_decision.final_answer):
                         final_ans = retry_decision.final_answer
-                    else:
+                    elif not english:
                         step.thought = "Mô hình không trả lời bằng tiếng Việt như yêu cầu sau khi thử lại."
                         step.error = "language_mismatch"
                         return response(error="language_mismatch")

@@ -42,3 +42,20 @@ def is_mainly_cjk(text: str) -> bool:
     if total_letters > 0 and (cjk_count / total_letters) > 0.35:
         return True
     return cjk_count >= 5 and cjk_count > latin_count
+
+
+ENGLISH_FUNCTION_WORDS = frozenset({
+    "the", "is", "are", "was", "were", "a", "an", "of", "on", "in", "to", "for", "and", "that", "this", "it",
+    "i", "you", "with", "based", "from", "have", "has", "not", "don't", "can", "be", "by", "or", "as",
+})
+_CODE = re.compile(r"```.*?```|`[^`]*`", re.DOTALL)
+
+
+def reads_as_english(text: str) -> bool:
+    """True for English prose, even with Vietnamese terms quoted in it. Code does not count."""
+    words = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", _CODE.sub(" ", text or "").lower())
+    if len(words) < 4:
+        return False
+    english = sum(word in ENGLISH_FUNCTION_WORDS for word in words)
+    marked = sum(bool(VIETNAMESE_DIACRITICS_REGEX.search(word)) for word in words)
+    return english >= 2 and english > marked
