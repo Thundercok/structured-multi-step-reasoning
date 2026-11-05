@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-from unittest.mock import Mock
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from PyQt6.QtGui import QGuiApplication
@@ -11,6 +11,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from rat.crawler.db import Database
 from rat.engine.assistant_runtime import AssistantRuntime
+from rat.engine.model_protocol import decision_from_reply
 from rat.engine.language_check import is_mainly_cjk, is_vietnamese, reads_as_english
 from rat.engine.selected_document_qa import answer_selected_document
 from rat.timetable.compositor import TimetableCompositor
@@ -181,6 +182,9 @@ def test_describe_execution_error_replaces_generic_message():
     ("The deposit for a rental room is 7,000,000 VND.", True),
     ("Based on the rental agreement document I found, the deposit (tiền cọc) for a rental room is 7.000.000 đồng.", True),
     ("I don't have access to any information about a host.", True),
+    # Seen from the real model: English prose around a quoted Vietnamese sentence.
+    ('Your rental agreement expires on June 30, 2027. The document states: "Hợp đồng hết hạn ngày 30/06/2027."', True),
+    ('Tệp ghi rằng "the deposit is paid at signing" nên bạn đóng một lần khi ký.', False),
     ("Tiền cọc phòng trọ là 7.000.000 đồng.", False),
     ("Hợp đồng thuê hết hạn vào ngày 30 tháng 6 năm 2027.", False),
     ("TCP là giao thức có kết nối, còn UDP thì không.", False),
@@ -192,3 +196,53 @@ def test_describe_execution_error_replaces_generic_message():
 ])
 def test_reads_as_english(text, english):
     assert reads_as_english(text) is english
+
+
+CUT_ANSWER = "TCP là giao thức có kết nối. UDP thì không cần kết nối. TCP đảm bảo thứ tự và độ tin cậy nên th"
+
+
+def _reply(content=None, calls=None, done="length"):
+    message = {"role": "assistant"}
+    if content is not None:
+        message["content"] = content
+    if calls:
+        message["tool_calls"] = calls
+    return {"message": message, "done_reason": done, "prompt_tokens": 1, "completion_tokens": 640}
+
+
+def test_plain_answer_cut_short_is_kept_and_says_so():
+    decision = decision_from_reply(_reply(CUT_ANSWER), {}, 0.0)
+    assert decision.error is None
+    assert decision.final_answer.startswith("TCP là giao thức có kết nối. UDP thì không cần kết nối.")
+    assert "độ tin cậy" not in decision.final_answer
+    assert "nói tiếp" in decision.final_answer
+
+
+def test_complete_answer_is_untouched():
+    decision = decision_from_reply(_reply(CUT_ANSWER, done="stop"), {}, 0.0)
+    assert decision.final_answer == CUT_ANSWER
+
+
+def test_answer_with_no_sentence_end_is_kept_whole():
+    decision = decision_from_reply(_reply("một đoạn rất dài không có dấu câu nào cả"), {}, 0.0)
+    assert decision.final_answer.startswith("một đoạn rất dài không có dấu câu nào cả")
+
+
+@pytest.mark.parametrize("reply, context", [
+    (_reply('{"answer": "TCP là'), {}),
+    (_reply('[{"a": 1'), {}),
+    (_reply("TCP là giao thức."), {"answer_schema": {"type": "object"}}),
+    (_reply(None, calls=[{"function": {"name": "open_document", "arguments": {"file_path": "/x/a"}}}]), {}),
+])
+def test_cut_tool_calls_and_structured_replies_still_fail(reply, context):
+    decision = decision_from_reply(reply, context, 0.0)
+    assert decision.error == "model_output_truncated"
+
+
+def test_a_cut_answer_reaches_the_user_through_the_whole_loop():
+    runtime = AssistantRuntime(discover_tools=True, db=MagicMock(), compositor=MagicMock())
+    with patch("rat.engine.slm.slm_engine.chat_with_meta", return_value=_reply(CUT_ANSWER)):
+        response = runtime.run("khác nhau giữa TCP và UDP là gì?")
+    assert response.error is None
+    assert "UDP thì không cần kết nối." in response.answer
+    assert "nói tiếp" in response.answer

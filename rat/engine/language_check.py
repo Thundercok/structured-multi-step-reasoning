@@ -49,11 +49,14 @@ ENGLISH_FUNCTION_WORDS = frozenset({
     "i", "you", "with", "based", "from", "have", "has", "not", "don't", "can", "be", "by", "or", "as",
 })
 _CODE = re.compile(r"```.*?```|`[^`]*`", re.DOTALL)
+# What an answer quotes from a file says nothing about the language it is written in.
+_QUOTED = re.compile(r'"[^"]*"|“[^”]*”|\([^)]*\)')
 
 
 def reads_as_english(text: str) -> bool:
     """True for English prose, even with Vietnamese terms quoted in it. Code does not count."""
-    words = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", _CODE.sub(" ", text or "").lower())
+    prose = _QUOTED.sub(" ", _CODE.sub(" ", text or ""))
+    words = re.findall(r"[^\W\d_]+(?:'[^\W\d_]+)?", prose.lower())
     if len(words) < 4:
         return False
     english = sum(word in ENGLISH_FUNCTION_WORDS for word in words)
