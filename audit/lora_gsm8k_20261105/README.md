@@ -59,6 +59,22 @@ Sửa một kết quả `Calc` ở giữa, cho mô hình viết tiếp, rồi ph
   sau khác dự tính, chẳng hạn cộng thêm, đổi dấu (−1 thành 1) hay đọc lại đề. Chỉ 2 ca thật sự quay về đáp án cũ (2/68, 0,8–10,1%).
   Vì vậy con số 10,3% không nên đọc là mô hình bỏ qua phần suy nghĩ.
 
+## Kiểm chứng nhiễu theo checkpoint trên `valid.jsonl`
+
+Người dùng chốt ngày 2026-11-06 (kiểm chứng số 1 trong `error_reading.md`). **Luật ghi trước khi chấm câu nào; agent đề xuất.**
+
+- **Dữ liệu:** `data/structured_gsm8k_v1/valid.jsonl`, 99 câu, trước đây chỉ dùng để tính val loss. **Từ lượt này `valid.jsonl` không còn sạch.**
+  Không đọc tập test chính thức của GSM8K.
+- **Chế độ:** `tuned` của `gsm8k_plain_2000_s0` và `gsm8k_cf_2000_s0` ở checkpoint 1.000, 1.500 và 2.000, cùng `base_prefill`. Nhiệt độ 0,
+  tối đa 1.024 token, `evaluate.py` không đổi.
+- **Khoảng cách** của một checkpoint = số câu đúng của nó trừ số câu đúng của `base_prefill` trên cùng 99 câu. Dấu gồm âm, 0 hoặc dương.
+- **Đọc riêng cho từng adapter:**
+  - Nếu khoảng cách đổi dấu giữa ba checkpoint, hoặc chênh giữa lớn nhất và nhỏ nhất quá 5 câu, thì khoảng cách trên dev **chưa được giải thích
+    bằng dữ liệu**, vì nhiễu theo checkpoint đủ lớn để tạo ra nó.
+  - Ngược lại, khoảng cách ổn định. Khi đó mới coi mức giảm so với `base_prefill` là thật trên 99 câu này, và đọc tiếp cách giải thích bằng dữ liệu.
+- **Báo kèm, không dùng để kết luận:** `format_valid` từng checkpoint, khoảng Wilson 95%, McNemar ghép cặp với `base_prefill`. Cổng 0 vẫn đọc
+  trên dev, không đọc lại trên `valid`.
+
 ## Giới hạn
 
 - Một seed, 100 câu, GSM8K dễ. Bản phản thực có nhiều dòng hơn nhưng học cùng số vòng nên thấy ít epoch hơn.
