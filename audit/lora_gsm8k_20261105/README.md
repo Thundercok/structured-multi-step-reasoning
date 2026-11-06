@@ -75,6 +75,30 @@ Người dùng chốt ngày 2026-11-06 (kiểm chứng số 1 trong `error_readi
 - **Báo kèm, không dùng để kết luận:** `format_valid` từng checkpoint, khoảng Wilson 95%, McNemar ghép cặp với `base_prefill`. Cổng 0 vẫn đọc
   trên dev, không đọc lại trên `valid`.
 
+**Kết quả, 2026-11-06** (`valid/comparison_valid.json`, tạo bằng `PYTHONPATH=. .venv/bin/python audit/lora_gsm8k_20261105/compare_valid.py`).
+File câu hỏi `data/structured_gsm8k_v1/valid_eval.jsonl` được dựng từ `valid.jsonl` bằng `build_valid_eval.py` (SHA-256 `59905739…13f85`,
+không trùng câu nào với dev). Ngoặc là Wilson 95%. McNemar ghép cặp với `base_prefill`.
+
+| Chế độ | Đúng | Đúng định dạng | Khoảng cách | Chỉ adapter đúng / chỉ gốc đúng |
+| --- | ---: | ---: | ---: | --- |
+| `base_prefill` | 91 (84,9–95,8) | 62 | | |
+| thường, vòng 1.000 | 80 (72,0–87,4) | 85 (77,7–91,4) | −11 | 1 / 12, p = 0,003 |
+| thường, vòng 1.500 | 79 (70,8–86,5) | 94 (88,7–97,8) | −12 | 1 / 13, p = 0,002 |
+| thường, vòng 2.000 | 83 (75,3–89,8) | 89 (82,4–94,4) | −8 | 1 / 9, p = 0,022 |
+| phản thực, vòng 1.000 | 82 (74,2–89,0) | 79 (70,8–86,5) | −9 | 1 / 10, p = 0,012 |
+| phản thực, vòng 1.500 | 77 (68,6–84,8) | 87 (80,0–92,9) | −14 | 2 / 16, p = 0,001 |
+| phản thực, vòng 2.000 | 77 (68,6–84,8) | 84 (76,5–90,6) | −14 | 1 / 15, p < 0,001 |
+
+- **Theo luật: khoảng cách ổn định ở cả hai adapter.** Không đổi dấu. Chênh giữa các checkpoint là 4 câu với bản thường và đúng 5 câu
+  với bản phản thực, tức sát ngưỡng. Vậy mức giảm so với `base_prefill` là thật trên 99 câu này, không phải nhiễu của checkpoint.
+  Bước tiếp theo là giải thích bằng dữ liệu.
+- **Một seed:** luật này chỉ đo nhiễu giữa các checkpoint của cùng một lượt chạy, không đo nhiễu giữa các seed.
+- **Báo kèm, không dùng để kết luận:** `tuned_cf` vòng 2.000 chỉ đúng định dạng 84/99 trên `valid`, so với 95/100 trên dev. Bản thường được
+  89/99, so với 86/100 trên dev. Cổng 0 vẫn đọc trên dev theo luật, nhưng việc `tuned_cf` qua cổng có vẻ không vững khi đổi tập câu.
+- **Tạm dừng:** lượt bản thường vòng 1.000 dừng 12:05–15:55 vì máy rút sạc (pin 38%). Lượt vòng 2.000 dừng hai lần, mỗi lần một phút,
+  cũng vì rút sạc. Mã 145 trong `eval_log.txt` là do zsh trả về khi tiến trình bị `SIGSTOP`. `run_valid.sh` đã sửa để chờ đến khi
+  tiến trình thật sự kết thúc. Mọi lượt đều đủ 99 dòng.
+
 ## Giới hạn
 
 - Một seed, 100 câu, GSM8K dễ. Bản phản thực có nhiều dòng hơn nhưng học cùng số vòng nên thấy ít epoch hơn.

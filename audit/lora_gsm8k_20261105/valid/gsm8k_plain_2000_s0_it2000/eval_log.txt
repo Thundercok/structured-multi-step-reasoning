@@ -1,0 +1,4 @@
+cmd: .venv/bin/python -m structured_llm.evaluate --out audit/lora_gsm8k_20261105/valid/gsm8k_plain_2000_s0_it2000 --data data/structured_gsm8k_v1/valid_eval.jsonl --limit 99 --adapter adapters/checkpoints/gsm8k_plain_2000_s0_it2000 --modes tuned
+start: Fri Nov  6 19:06:43 +07 2026
+tuned {"n": 99, "correct": 83, "answered": 98, "format_valid": 89, "calc_accuracy": 0.975, "grounded_rate": 0.779, "mean_tokens": 163.3, "mean_seconds": 39.05, "truncated": 1, "detection": {"wrong": 16, "flagged_wrong": 5, "right": 83, "flagged_right": 10}}
+exit: 145 end: Fri Nov  6 20:11:23 +07 2026

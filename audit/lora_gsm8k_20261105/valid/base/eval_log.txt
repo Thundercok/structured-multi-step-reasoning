@@ -1,0 +1,4 @@
+cmd: .venv/bin/python -m structured_llm.evaluate --out audit/lora_gsm8k_20261105/valid/base --data data/structured_gsm8k_v1/valid_eval.jsonl --limit 99 --modes base_prefill
+start: Fri Nov  6 10:39:12 +07 2026
+base_prefill {"n": 99, "correct": 91, "answered": 99, "format_valid": 62, "calc_accuracy": 0.939, "grounded_rate": 0.755, "mean_tokens": 148.9, "mean_seconds": 38.39, "truncated": 0, "detection": {"wrong": 8, "flagged_wrong": 6, "right": 91, "flagged_right": 37}}
+exit: 0 end: Fri Nov  6 11:42:55 +07 2026

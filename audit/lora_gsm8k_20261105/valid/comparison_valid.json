@@ -1,0 +1,132 @@
+{
+  "base_prefill": {
+    "correct": 91,
+    "correct_ci": [
+      0.849,
+      0.958
+    ],
+    "format_valid": 62
+  },
+  "gsm8k_plain_2000_s0_it1000": {
+    "correct": 80,
+    "correct_ci": [
+      0.72,
+      0.874
+    ],
+    "format_valid": 85,
+    "format_valid_ci": [
+      0.777,
+      0.914
+    ],
+    "gap_vs_base_prefill": -11,
+    "only_tuned_correct": 1,
+    "only_base_correct": 12,
+    "mcnemar_p": 0.0034,
+    "truncated": 2
+  },
+  "gsm8k_plain_2000_s0_it1500": {
+    "correct": 79,
+    "correct_ci": [
+      0.708,
+      0.865
+    ],
+    "format_valid": 94,
+    "format_valid_ci": [
+      0.887,
+      0.978
+    ],
+    "gap_vs_base_prefill": -12,
+    "only_tuned_correct": 1,
+    "only_base_correct": 13,
+    "mcnemar_p": 0.0018,
+    "truncated": 0
+  },
+  "gsm8k_plain_2000_s0_it2000": {
+    "correct": 83,
+    "correct_ci": [
+      0.753,
+      0.898
+    ],
+    "format_valid": 89,
+    "format_valid_ci": [
+      0.824,
+      0.944
+    ],
+    "gap_vs_base_prefill": -8,
+    "only_tuned_correct": 1,
+    "only_base_correct": 9,
+    "mcnemar_p": 0.0215,
+    "truncated": 1
+  },
+  "gsm8k_plain_2000_s0_rule": {
+    "gaps": [
+      -11,
+      -12,
+      -8
+    ],
+    "sign_changes": false,
+    "range": 4,
+    "reading": "stable gap"
+  },
+  "gsm8k_cf_2000_s0_it1000": {
+    "correct": 82,
+    "correct_ci": [
+      0.742,
+      0.89
+    ],
+    "format_valid": 79,
+    "format_valid_ci": [
+      0.708,
+      0.865
+    ],
+    "gap_vs_base_prefill": -9,
+    "only_tuned_correct": 1,
+    "only_base_correct": 10,
+    "mcnemar_p": 0.0117,
+    "truncated": 4
+  },
+  "gsm8k_cf_2000_s0_it1500": {
+    "correct": 77,
+    "correct_ci": [
+      0.686,
+      0.848
+    ],
+    "format_valid": 87,
+    "format_valid_ci": [
+      0.8,
+      0.929
+    ],
+    "gap_vs_base_prefill": -14,
+    "only_tuned_correct": 2,
+    "only_base_correct": 16,
+    "mcnemar_p": 0.0013,
+    "truncated": 0
+  },
+  "gsm8k_cf_2000_s0_it2000": {
+    "correct": 77,
+    "correct_ci": [
+      0.686,
+      0.848
+    ],
+    "format_valid": 84,
+    "format_valid_ci": [
+      0.765,
+      0.906
+    ],
+    "gap_vs_base_prefill": -14,
+    "only_tuned_correct": 1,
+    "only_base_correct": 15,
+    "mcnemar_p": 0.0005,
+    "truncated": 2
+  },
+  "gsm8k_cf_2000_s0_rule": {
+    "gaps": [
+      -9,
+      -14,
+      -14
+    ],
+    "sign_changes": false,
+    "range": 5,
+    "reading": "stable gap"
+  }
+}
