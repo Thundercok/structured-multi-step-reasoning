@@ -1,0 +1,52 @@
+{
+  "train plain": {
+    "traces": 7059,
+    "steps_per_trace": 3.58,
+    "words_per_step": 13.9,
+    "steps_without_calc": 0.1,
+    "vacuous_calc": 0.015,
+    "chain_calc": 0.135,
+    "chain_calc_correct": "3070/3070",
+    "non_integer_answer": 0
+  },
+  "train cf-only rows": {
+    "traces": 3119,
+    "steps_per_trace": 3.19,
+    "words_per_step": 13.8,
+    "steps_without_calc": 0.019,
+    "vacuous_calc": 0.002,
+    "chain_calc": 0.118,
+    "chain_calc_correct": "1157/1157",
+    "non_integer_answer": 0
+  },
+  "tuned (plain)": {
+    "traces": 100,
+    "steps_per_trace": 4.04,
+    "words_per_step": 11.8,
+    "steps_without_calc": 0.196,
+    "vacuous_calc": 0.131,
+    "chain_calc": 0.152,
+    "chain_calc_correct": "48/50",
+    "non_integer_answer": 1
+  },
+  "tuned_cf": {
+    "traces": 100,
+    "steps_per_trace": 3.67,
+    "words_per_step": 13.0,
+    "steps_without_calc": 0.082,
+    "vacuous_calc": 0.101,
+    "chain_calc": 0.134,
+    "chain_calc_correct": "43/45",
+    "non_integer_answer": 2
+  },
+  "base_prefill": {
+    "traces": 100,
+    "steps_per_trace": 3.1,
+    "words_per_step": 16.2,
+    "steps_without_calc": 0.168,
+    "vacuous_calc": 0.015,
+    "chain_calc": 0.139,
+    "chain_calc_correct": "36/36",
+    "non_integer_answer": 0
+  }
+}
