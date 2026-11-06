@@ -1,0 +1,6 @@
+cmd: .venv/bin/python -m structured_llm.evaluate --limit 100 --out audit/lora_gsm8k_20261105/eval_base --modes base_prefill base_instructed base_showcalc
+start: Fri Nov  6 04:32:53 +07 2026
+base_prefill {"n": 100, "correct": 93, "answered": 100, "format_valid": 61, "calc_accuracy": 0.965, "grounded_rate": 0.75, "mean_tokens": 144.2, "mean_seconds": 16.28, "truncated": 0, "detection": {"wrong": 7, "flagged_wrong": 6, "right": 93, "flagged_right": 35}}
+base_instructed {"n": 100, "correct": 85, "answered": 86, "format_valid": 0, "calc_accuracy": null, "grounded_rate": null, "mean_tokens": 498.4, "mean_seconds": 45.08, "truncated": 14, "detection": {"wrong": 15, "flagged_wrong": 15, "right": 85, "flagged_right": 85}}
+base_showcalc {"n": 100, "correct": 85, "answered": 100, "format_valid": 0, "calc_accuracy": null, "grounded_rate": null, "mean_tokens": 139.3, "mean_seconds": 12.02, "truncated": 0, "detection": {"wrong": 15, "flagged_wrong": 15, "right": 85, "flagged_right": 85}}
+exit: 145 end: Fri Nov  6 06:35:20 +07 2026

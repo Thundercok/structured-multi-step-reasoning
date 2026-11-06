@@ -1,0 +1,116 @@
+cmd: .venv/bin/python -m structured_llm.intervene --run audit/lora_gsm8k_20261105/eval_base --modes base_prefill base_showcalc
+start: Fri Nov  6 06:49:25 +07 2026
+{
+  "base_prefill": {
+    "eligible": {
+      "n": 53,
+      "follows": 45,
+      "follows_rounded": 8,
+      "reverted": 0,
+      "other": 0,
+      "moved": 0,
+      "no_answer": 0
+    },
+    "eligibility_rate": 0.53,
+    "skipped": {
+      "ambiguous_propagation": 5,
+      "no_result_used_later": 3,
+      "invalid_format": 39
+    },
+    "rq1": {
+      "moved|clean": {
+        "n": 53,
+        "wrong": 1
+      }
+    },
+    "correct_only": {
+      "n": 52,
+      "follows": 44,
+      "follows_rounded": 8,
+      "reverted": 0,
+      "other": 0,
+      "moved": 0,
+      "no_answer": 0
+    },
+    "shared": {
+      "n": 25,
+      "follows": 20,
+      "follows_rounded": 5,
+      "reverted": 0,
+      "other": 0,
+      "moved": 0,
+      "no_answer": 0
+    },
+    "shared_correct_only": {
+      "n": 25,
+      "follows": 20,
+      "follows_rounded": 5,
+      "reverted": 0,
+      "other": 0,
+      "moved": 0,
+      "no_answer": 0
+    }
+  },
+  "base_showcalc": {
+    "eligible": {
+      "n": 40,
+      "follows": 26,
+      "follows_rounded": 5,
+      "reverted": 3,
+      "other": 1,
+      "moved": 5,
+      "no_answer": 0
+    },
+    "eligibility_rate": 0.4,
+    "skipped": {
+      "too_few_calcs": 6,
+      "no_result_used_later": 9,
+      "no_equations": 38,
+      "ambiguous_propagation": 4,
+      "change_does_not_reach_answer": 1,
+      "answer_needs_comparison": 2
+    },
+    "rq1": {
+      "moved|clean": {
+        "n": 32,
+        "wrong": 2
+      },
+      "moved|flagged": {
+        "n": 5,
+        "wrong": 0
+      },
+      "unmoved|clean": {
+        "n": 3,
+        "wrong": 0
+      }
+    },
+    "correct_only": {
+      "n": 38,
+      "follows": 24,
+      "follows_rounded": 5,
+      "reverted": 3,
+      "other": 1,
+      "moved": 5,
+      "no_answer": 0
+    },
+    "shared": {
+      "n": 25,
+      "follows": 16,
+      "follows_rounded": 4,
+      "reverted": 2,
+      "other": 0,
+      "moved": 3,
+      "no_answer": 0
+    },
+    "shared_correct_only": {
+      "n": 25,
+      "follows": 16,
+      "follows_rounded": 4,
+      "reverted": 2,
+      "other": 0,
+      "moved": 3,
+      "no_answer": 0
+    }
+  }
+}
+exit: 0 end: Fri Nov  6 07:08:54 +07 2026

@@ -1,0 +1,14 @@
+06:36:18 batt=7 ac=1 paused=0 load={ 1.56 2.05 2.08 }
+06:37:18 batt=7 ac=1 paused=0 load={ 1.75 2.00 2.06 }
+06:38:18 batt=7 ac=1 paused=0 load={ 2.22 2.08 2.08 }
+06:39:18 batt=7 ac=1 paused=0 load={ 2.13 2.07 2.08 }
+06:40:18 batt=7 ac=1 paused=0 load={ 2.23 2.10 2.08 }
+06:41:18 batt=7 ac=1 paused=0 load={ 2.02 2.06 2.07 }
+06:42:18 batt=7 ac=1 paused=0 load={ 1.89 2.00 2.05 }
+06:43:18 batt=7 ac=1 paused=0 load={ 2.19 2.08 2.07 }
+06:44:18 batt=7 ac=1 paused=0 load={ 1.89 2.01 2.05 }
+06:45:19 batt=7 ac=1 paused=0 load={ 2.52 2.16 2.10 }
+06:46:19 batt=7 ac=1 paused=0 load={ 2.64 2.28 2.15 }
+06:47:19 batt=7 ac=1 paused=0 load={ 2.47 2.30 2.16 }
+06:48:19 batt=7 ac=1 paused=0 load={ 1.95 2.19 2.13 }
+06:49:19 batt=7 ac=1 paused=0 load={ 1.96 2.14 2.12 }
