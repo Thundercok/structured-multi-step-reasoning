@@ -157,7 +157,11 @@ Làm từ rẻ đến đắt. Chốt ngưỡng trước khi chạy. Không đổ
 
 **Kết quả cổng 0 và 1 trên 100 câu dev GSM8K, 2026-11-03** ([chi tiết](../audit/gate1_dev100_20261103/README.md)):
 
-- **Cổng 0, chưa đạt:** adapter thử 200 vòng đạt `format_valid` 70%, so với ngưỡng 90%. Chưa có mô hình cuối.
+- **Cổng 0, lần đầu, chưa đạt:** adapter thử 200 vòng đạt `format_valid` 70%, so với ngưỡng 90%.
+- **Cổng 0, lượt 2.000 vòng ngày 2026-11-06, một seed** ([chi tiết](../audit/lora_gsm8k_20261105/README.md)): `tuned_cf` đạt
+  95/100 (KTC Wilson 88,8–97,8%), `tuned` thường không đạt với 86/100 (77,9–91,5%). Cùng 100 câu dev này, nên không phải tập sạch.
+  Cả hai đúng ít hơn `base_prefill` (83 và 87 so với 93). Can thiệp trên `tuned_cf`: 71 vết đủ điều kiện, 7/68 không theo, trong
+  đó chỉ 2 ca thật sự quay về đáp án cũ.
 - **Cổng 1 không đo được đúng như đã ghi:** `base_instructed` không viết dòng `Calc` nào, nên dùng `base_prefill` thay thế. Theo chuẩn chặt 45/53 (85%) đổi theo, nên qua trên giấy; nhưng 8 ca còn lại đọc tay đều là đáp án đã đổi rồi được làm tròn, và 0/53 giữ đáp án cũ. **Vì vậy không coi là có khoảng trống trên GSM8K.** Nhãn làm tròn được thêm sau khi xem kết quả, phải nêu rõ.
 - **Chưa quyết định bỏ RQ2:** GSM8K dễ, và mới có adapter 200 vòng. Chờ số trên MATH.
 
@@ -197,9 +201,10 @@ MATH-500 đầy đủ.
 Có 100 câu sai đòi hỏi 5.000 câu nếu đúng 98%, nhưng chỉ 1.001 câu nếu đúng 90% và 501 câu nếu đúng
 80%. **Vì vậy GSM8K train không đủ cho RQ1 và bộ khó là bắt buộc.**
 
-Ước tính, sẽ thay bằng số đo: huấn luyện khoảng 214 token mỗi vòng ở 15 token/giây, tức 2.000 vòng
-mất khoảng 8 giờ và một epoch khoảng 28 giờ. 2 loại mô hình với 3 seed ở 2.000 vòng mất khoảng 48
-giờ. Lượt đo cũ sinh khoảng 10 token/giây, nên 1.000 câu với 5 chế độ mất khoảng 30 đến 40 giờ. M1 làm
+Số đo ngày 2026-11-05 ([chi tiết](../audit/lora_gsm8k_20261105/README.md)), máy đang chạy việc khác: huấn luyện khoảng
+218 token mỗi vòng ở khoảng 40 token/giây, tức 2.000 vòng mất khoảng 3,2 giờ, gồm cả lượt val. Một epoch khoảng 11 giờ
+với bản thường và 16 giờ với bản phản thực. 2 loại mô hình với 3 seed ở 2.000 vòng mất khoảng 20 giờ. Ước tính cũ là
+15 token/giây và 48 giờ. Lượt đo cũ sinh khoảng 10 token/giây, nên 1.000 câu với 5 chế độ mất khoảng 30 đến 40 giờ. M1 làm
 được nếu chạy nhiều đêm. **Chưa cần thuê máy trước cổng 4.**
 
 ## Dữ liệu kiểm tra cuối
