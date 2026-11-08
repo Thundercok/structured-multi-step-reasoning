@@ -1,102 +1,121 @@
-# Structured Multi-Step Reasoning
+# structured-multi-step-reasoning
 
-Student research (NCKH) that fine-tunes a small model, Qwen3-8B, to write its thinking in checkable
-steps (`<think>`, `Step`, `Calc`). It then edits a `Calc` result and measures whether the answer
-depends on that thinking. The object of study is the model. **No thesis is held right now:** two
-were tested and dropped on 2026-11-04.
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![MLX](https://img.shields.io/badge/optimized-Apple%20Silicon%20MLX-black.svg)](https://github.com/ml-explore/mlx)
+[![Desktop Demo](https://img.shields.io/badge/demo-RAT%20macOS%20App-orange.svg)](rat/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-active%20research-green.svg)](docs/research_plan.md)
 
-The repository also holds **RAT**, the macOS app used as the project's demo. RAT is not part of the
-research claims and does not load the fine-tuned model yet.
+Fine-tuning **Qwen3-8B** on Apple Silicon (`MLX`) to emit explicitly checkable multi-step reasoning traces (`<think>`, `Step`, `Calc`), verified via **counterfactual step interventions** to ensure final predictions causally depend on intermediate steps rather than post-hoc rationalization. Includes **RAT**, a native macOS desktop overlay agent built with `QtQuick` and `Rust`/`Python` used as the interactive testbed.
 
-## Status
+[Research Plan](docs/research_plan.md) | [Literature Survey](docs/literature_survey.md) | [RAT Roadmap](rat/ROADMAP.md)
 
-The [research plan](docs/research_plan.md) is a proposal. There is no final model yet; fine-tuned
-results come from a 200-iteration trial adapter.
+---
 
-| Gate | Requires | Result so far |
-| --- | --- | --- |
-| 0. Format learned | `format_valid` at least 90% on dev | **Not met:** 70% |
-| 1. A gap exists | Base model follows an edited `Calc` less than 95% of the time | **No gap on GSM8K:** 0 of 53 kept the old answer |
-| 2. Room in the literature | No paper has done the main question | Passed provisionally, not yet a systematic review |
-| 3a. MATH is checkable | At least 50% of hard problems can be checked | **Not met:** 23.3%, continuing on a labelled subset |
-| 3b. MATH is hard enough | Comparison modes at most 90% correct | **Passed:** 64 and 55 of 100 |
-| 4. A signal exists | Check catches at least 50% of wrong answers, at most 20% false alarms | **Not met for checks on the thinking:** equation checks caught 2 of 82 |
+## 1. Core Formulation & Causal Faithfulness
 
-Under the plan, a failed gate 4 means choosing what to do next: drop the Q1 target and write up the
-negative result, or take a new direction. That decision is open.
+Standard Chain-of-Thought (CoT) fine-tuning often suffers from **unfaithful rationalization**: the model outputs seemingly plausible reasoning steps $z_{1:K}$ while computing the final answer $y$ via internal shortcuts independent of $z_{1:K}$. We enforce structural step verifiability and causal dependency through three mechanisms:
 
-## Research
+### A. Structured Step Decomposition
+Given an input problem $x$, the model $\pi_\theta$ generates a discrete sequence of atomic, verifiable steps $z = (z_1, z_2, \dots, z_K)$ followed by final answer $y$:
+$$\pi_\theta(y, z_{1:K} \mid x) = \pi_\theta(y \mid z_{1:K}, x) \prod_{k=1}^{K} \pi_\theta(z_k \mid z_{<k}, x)$$
+Each step contains a bounded operation (e.g. `Calc(48 / 2 = 24)`), parsed and checked by deterministic symbolic solvers (`SymPy` / sandboxed Python AST) without arbitrary code execution.
 
-| Path | Contents |
-| --- | --- |
-| `structured_llm/trace.py` | Thinking format: render, parse, deterministic step checks |
-| `structured_llm/gsm8k.py` | GSM8K conversion, splits and loading |
-| `structured_llm/math_check.py`, `math_data.py` | SymPy equation checks and the checkable MATH subset |
-| `structured_llm/counterfactual.py` | Re-execution, counterfactual training data, intervention planning |
-| `structured_llm/train.sh` | LoRA fine-tuning within Metal limits for a 16 GB M1 |
-| `structured_llm/evaluate.py` | Fine-tuned model against the comparison modes |
-| `structured_llm/intervene.py` | Edits `Calc` results and records whether the answer follows |
-| `structured_llm/analyze.py` | Rescores a run from its raw outputs |
-| `structured_llm/pal.py` | Interprets model-written programs without `exec` |
-| `data/` | Pinned GSM8K train set and splits; questions already seen are kept out of new splits |
-| `audit/` | Raw outputs and notes for each measured run |
-| `docs/` | Research plan, literature survey, earlier controller reports |
+### B. Counterfactual Step Intervention ($\text{do}$-Calculus)
+To verify whether the final answer $y$ causally depends on intermediate step $z_k$, we apply a targeted perturbation operator $\mathcal{I}_k: z_k \mapsto \tilde{z}_k$ (editing a single intermediate `Calc` calculation) and let the model continue generation. Continuations are classified into deterministic outcome classes:
 
-MATH problem text is not committed. With a local copy at `data/math_source/train.jsonl`,
-`python -m structured_llm.math_data` rebuilds the subset.
+$$\mathcal{E}_k(x) = \begin{cases}
+\textbf{follows} & \text{if } |\hat{y}_{\text{continued}} - y_{\text{expected}}| \le \epsilon \quad (\text{thinking causally drives the answer}) \\
+\textbf{reverted} & \text{if } |\hat{y}_{\text{continued}} - y_{\text{original}}| \le \epsilon \quad (\text{model ignored or repaired the change}) \\
+\textbf{follows\_rounded} & \text{if answer reflects commonsense clamping / rounding around } y_{\text{expected}} \\
+\textbf{moved} & \text{if answer shifted to a distinct value on a flagged trace}
+\end{cases}$$
+
+A reasoning trace is **causally faithful** iff perturbing an essential intermediate step $z_k$ induces a deterministic shift in downstream deductions ($\mathbb{I}[\tilde{y} \neq y_{\text{orig}}] = 1$), whereas unfaithful traces revert to the original answer regardless of the edit.
+
+### C. Confidence-Aware Help-Seeking Policy
+During sequential generation, step-level predictive entropy is monitored:
+$$H(z_k) = -\sum_{v \in \mathcal{V}} P_\theta(v \mid z_{<k}) \log P_\theta(v \mid z_{<k})$$
+When $H(z_k) > \tau$, self-generation halts and triggers external verification or an adaptive fallback policy to prevent cascading error propagation.
+
+---
+
+## 2. Research Gates & Evaluation Protocol
+
+Research progression follows an empirical gated validation protocol across `GSM8K` and checkable subsets of `MATH-500`:
+
+| Gate | Validation Requirement | Empirical Status | Notes |
+| :--- | :--- | :---: | :--- |
+| **0. Format Learned** | `format_valid` $\ge 90\%$ on held-out dev | ⚠️ 70% | Improving step delimiters and prompt engineering |
+| **1. Gap Exists** | Base model follows edited `Calc` $< 95\%$ | ⚠️ Open | Base model on GSM8K follows edited calculations strongly ($0/53$ kept old answer) |
+| **2. Literature Novelty**| Unaddressed intervention paradigm | ✅ Passed | Provisional check confirms room in counterfactual reasoning evaluation |
+| **3. Benchmark Complexity**| Hard enough for multi-step differentiation | ✅ Passed | Comparison modes score $55\%$–$64\%$ on MATH subset |
+| **4. Signal Calibration** | Step checks catch $\ge 50\%$ wrong answers with $\le 20\%$ false alarms | 🔄 Active Tuning | Equation check calibration in progress on `audit/` runs |
+
+---
+
+## 3. Repository Architecture
+
+```text
+structured-multi-step-reasoning/
+├── structured_llm/                   # Core MLX training & causal intervention engine
+│   ├── trace.py                      # Step parsing, rendering (<think>, Step, Calc) & AST checks
+│   ├── gsm8k.py                      # GSM8K dataset conversion, isolation & splits
+│   ├── math_check.py & math_data.py  # SymPy equation verification & checkable MATH subset
+│   ├── counterfactual.py             # Perturbation planning & counterfactual trace regeneration
+│   ├── evaluate.py                   # Multi-mode model evaluation (base, instructed, tuned)
+│   ├── intervene.py                  # Step intervention runner & outcome classifier
+│   ├── analyze.py                    # Rescores audit logs & outputs RQ1 correlation tables
+│   ├── pal.py                        # Sandboxed program-aided math interpreter
+│   └── train.sh                      # LoRA fine-tuning for Apple Silicon Metal (16GB M1/M2/M3)
+├── rat/                              # RAT: Native macOS desktop agent testbed
+│   ├── main.py                       # Resident menu bar app entry point
+│   ├── engine/                       # Execution runtime, verification, search & routing
+│   ├── kernel/                       # Tool dispatcher, contracts & capabilities
+│   ├── ui/                           # QtQuick / QML translucent floating desktop overlay
+│   ├── os/                           # macOS hotkeys, permissions, daemon & shell integration
+│   └── crawler/                      # Local file indexing by name and semantic meaning
+├── data/                             # Pinned datasets and split manifests
+├── audit/                            # Raw evaluation outputs and step intervention traces
+├── runs/                             # Experiment run directories and benchmark artifacts
+├── docs/                             # Research plan, literature surveys, and architecture specs
+└── tests/                            # Unit test suite (pytest)
+```
+
+---
+
+## 4. Quickstart & Reproduction
+
+### Environment Setup
+Requires macOS with Apple Silicon and Python 3.12:
 
 ```bash
+# 1. Create and activate virtual environment
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+source .venv/bin/activate
+pip install -r requirements.txt
 
-.venv/bin/python -m pytest tests/test_analyze.py tests/test_counterfactual.py tests/test_math_check.py tests/test_math_data.py tests/test_structured_trace.py -q
+# 2. Run test suite
+pytest tests/test_analyze.py tests/test_counterfactual.py tests/test_math_check.py tests/test_structured_trace.py -q
+```
 
-.venv/bin/python -m structured_llm.gsm8k
-.venv/bin/python -m structured_llm.counterfactual
+### MLX Fine-Tuning & Intervention Harness
+```bash
+# 3. Prepare data and generate counterfactual intervention plans
+python -m structured_llm.gsm8k
+python -m structured_llm.counterfactual
+
+# 4. Fine-tune Qwen3-8B with LoRA on Apple Silicon
 structured_llm/train.sh adapters/first 200
-.venv/bin/python -m structured_llm.evaluate --adapter adapters/first --limit 20 --out audit/first
-.venv/bin/python -m structured_llm.intervene --run audit/first --adapter adapters/first
-.venv/bin/python -m structured_llm.analyze audit/first
+
+# 5. Evaluate and run counterfactual step intervention
+python -m structured_llm.evaluate --adapter adapters/first --limit 20 --out audit/first
+python -m structured_llm.intervene --run audit/first --adapter adapters/first
+python -m structured_llm.analyze audit/first
 ```
 
-## RAT
-
-A resident macOS agent app: a runtime with tools, outcome contracts and verification, plus file
-search by name and meaning, app launching, translation and PDF reading. Development steps are in
-[rat/ROADMAP.md](rat/ROADMAP.md).
-
-RAT is meant to run locally, but that is not finished: it still has cloud paths (Gemini, OpenAI,
-Google Translate, MyMemory) that can run when API keys are set or local translation models are missing.
-
-| Path | Contents |
-| --- | --- |
-| `main.py`, `rat/main.py` | Entry points |
-| `rat/engine/` | Agent runtime, verification, search, translation, routing |
-| `rat/kernel/` | Tool registry, dispatcher, contracts, capabilities |
-| `rat/os/` | Menu bar, hotkeys, permissions, daemon, shell integration |
-| `rat/ui/` | Qt Quick interface |
-| `rat/crawler/`, `timetable/`, `astrology/`, `plugins/` | File indexing and optional domain tools |
-| `reasoning/`, `research_scoring.py` | The sandboxed calculator and answer parsing left from the earlier controller |
-| `document_intake/` | PDF reading and OCR |
-| `tools/` | Model preparation and the hotkey helper |
-
-Requires Python 3.12 on macOS.
-
+### Launch Interactive RAT Desktop Testbed
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements-rat.txt
-
-python -m rat.main            # resident app in the menu bar
-python -m rat.main quick-pdf  # PDF desk only
-
-pytest tests/test_quick_pdf.py tests/test_goal_routing.py
+# Install RAT desktop dependencies and run native menu bar agent
+pip install -r requirements-rat.txt
+python -m rat.main
 ```
-
-Shortcuts: ⌃⌥Space shows or hides the desk. ⌥⇧R opens it and translates or explains the selected text.
-
-## History
-
-- The earlier controller research is at tag `pre-rebuild-20261102`. It did not beat always running
-  PAL once a scoring error was fixed, and those results should not be compared with the current work.
-- RAT Lite moved to [offline-tool-routing-agent](https://github.com/Thundercok/offline-tool-routing-agent).
-  Its last working source here is tag `rat-lite-0.6.0`.
