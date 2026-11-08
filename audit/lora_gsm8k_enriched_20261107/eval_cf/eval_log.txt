@@ -1,0 +1,4 @@
+cmd: .venv/bin/python -m structured_llm.evaluate --limit 100 --out audit/lora_gsm8k_enriched_20261107/eval_cf --adapter adapters/gsm8k_cf_enriched_2000_s0 --modes tuned
+start: Sun Nov  8 05:15:09 +07 2026
+tuned {"n": 100, "correct": 87, "answered": 99, "format_valid": 95, "calc_accuracy": 0.99, "grounded_rate": 0.787, "mean_tokens": 160.1, "mean_seconds": 14.01, "truncated": 1, "detection": {"wrong": 13, "flagged_wrong": 5, "right": 87, "flagged_right": 7}}
+exit: 0 end: Sun Nov  8 05:38:38 +07 2026

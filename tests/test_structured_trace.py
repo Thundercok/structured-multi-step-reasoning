@@ -157,3 +157,19 @@ def test_prompt_ends_where_the_trace_starts():
 
 def test_rank_ignores_case_and_spacing():
     assert gsm8k.rank_key("A  b") == gsm8k.rank_key("a b")
+
+
+@pytest.mark.parametrize("expr, stated, expected_valid, expected_correct", [
+    ("20/100", "1/5", True, True),
+    ("\\frac{1}{2}+\\frac{1}{3}", "\\frac{5}{6}", True, True),
+    ("\\sqrt{16}", "4", True, True),
+    ("(x+1)^2", "x^2+2x+1", True, True),
+    ("(x+1)^2", "x^2+1", True, False),
+    ("2+3", "6", True, False),
+])
+def test_calc_expression_parsing_and_correctness(expr, stated, expected_valid, expected_correct):
+    text = f"<think>\nStep 1: Simplify.\nCalc: {expr}={stated}\n</think>\n\nAnswer: 1"
+    trace = parse(text)
+    assert (trace.errors == []) is expected_valid
+    assert calc_is_correct(expr, stated) is expected_correct
+

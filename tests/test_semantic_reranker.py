@@ -61,13 +61,11 @@ def test_compute_fuzzy_score():
 
 
 def test_reranker_real_db_latency():
-    from rat.ui.quick_pdf_controller import QuickPDFController
-    ctrl = QuickPDFController()
-    db_path = ctrl._db_path
-    if not Path(db_path).exists():
-        pytest.skip("rat.db not found")
+    db_path = Path.home() / ".rat" / "rat_index.db"
+    if not db_path.exists():
+        pytest.skip("real ~/.rat/rat_index.db not found")
 
-    reranker = SemanticFuzzyReranker(db_path)
+    reranker = SemanticFuzzyReranker(str(db_path))
     
     class DummyRequest:
         query = "bài toán vận tải và giao hàng"

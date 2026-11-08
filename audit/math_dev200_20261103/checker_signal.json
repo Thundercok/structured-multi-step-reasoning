@@ -1,0 +1,17 @@
+{
+ "base_showcalc": {
+  "correct": 118,
+  "false_latex_equation": {
+   "caught_wrong": "2/82",
+   "false_alarm_right": "0/118"
+  },
+  "differs_from_pal_all_100": {
+   "caught_wrong": "48/82",
+   "false_alarm_right": "20/118"
+  },
+  "differs_from_pal_where_pal_gave_a_number": {
+   "caught_wrong": "48/52",
+   "false_alarm_right": "20/104"
+  }
+ }
+}

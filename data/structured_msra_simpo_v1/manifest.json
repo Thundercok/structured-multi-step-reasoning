@@ -1,0 +1,20 @@
+{
+  "dataset_name": "structured_msra_simpo_v1",
+  "description": "Contrastive preference dataset for MSRA SimPO/DPO training (3 balanced categories)",
+  "train_pairs": 23358,
+  "train_distribution": {
+    "anti_laziness": 7786,
+    "anti_conservatism": 7786,
+    "adversarial_verification": 7786
+  },
+  "valid_pairs": 525,
+  "valid_distribution": {
+    "anti_laziness": 175,
+    "anti_conservatism": 175,
+    "adversarial_verification": 175
+  },
+  "sha256": {
+    "train.jsonl": "67fbe3237a563d1b606f265d663ae4dfc7abd796314f4d68d4ed83f7fb0581fc",
+    "valid.jsonl": "e0b38776824255d16ec855494877a434dc98770b13d0da1a184e6af95b1b021a"
+  }
+}

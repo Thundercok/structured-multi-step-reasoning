@@ -1,0 +1,4 @@
+e514c9177ef766f3  labels_a.json (agent pass, written before labels_b and before any program)
+996a382a8095f926  solution.jsonl
+b9a3a9f231b3c34b  labels_b_first_pass.json (agy, 39/39 same labels; labels_a sat in the parent folder, independence not established)
+89fb0cfb95ad6b73  labels_b.json (agy, fresh session, shuffled with new ids; seed 0e21f98790c1c271, new id = sha256(seed + id)[:6]; this pass is the one read under the rule, chosen before any program existed)

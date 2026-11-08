@@ -3,8 +3,9 @@
 Student research (NCKH): build a language model with structured thinking by fine-tuning
 Qwen3-8B, and test by intervention whether its answers really depend on that thinking.
 The object of study is the model, not a controller around it. Read
-`docs/research_plan.md` before changing scope, evaluation or claims. That plan is a
-proposal until the advisor confirms it in writing; never write that it was approved.
+`docs/research_plan.md` before changing scope, evaluation or claims.
+Note (2026-11-08): The advisor has ghosted communications. The student is proceeding
+with independent student research under strict pre-registered academic integrity protocols.
 
 ## Rebuild, 2026-11-02
 

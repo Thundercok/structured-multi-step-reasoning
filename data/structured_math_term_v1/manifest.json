@@ -1,0 +1,11 @@
+{
+  "source_dir": "data/math_source/structured_math_v1",
+  "max_seq_length": 512,
+  "required_closing_tag": "</think>\n\nAnswer:",
+  "train_total": 725,
+  "train_kept": 501,
+  "train_dropped_over_512": 224,
+  "valid_total": 76,
+  "valid_kept": 52,
+  "valid_dropped_over_512": 24
+}

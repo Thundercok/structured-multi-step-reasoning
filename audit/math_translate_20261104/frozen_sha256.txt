@@ -1,0 +1,5 @@
+b7ba22493931fb64  structured_llm/pal.py
+c6956bdf341dbe33  structured_llm/math_check.py
+4af16634606abcdc  structured_llm/evaluate.py
+c001279ff1ade657  audit/math_translate_20261104/translate.py
+954a54c0882aa4e0  audit/math_translate_20261104/translate_signal.py

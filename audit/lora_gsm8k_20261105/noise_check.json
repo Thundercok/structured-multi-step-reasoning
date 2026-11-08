@@ -1,0 +1,136 @@
+{
+  "base_prefill": {
+    "correct": 91,
+    "correct_ci": [
+      0.849,
+      0.958
+    ],
+    "format_valid": 62
+  },
+  "gsm8k_plain_2000_s0": {
+    "checkpoints": {
+      "1000": {
+        "correct": 80,
+        "correct_ci": [
+          0.72,
+          0.874
+        ],
+        "gap": -11,
+        "format_valid": 85,
+        "format_valid_ci": [
+          0.777,
+          0.914
+        ],
+        "only_this_correct": 1,
+        "only_base_correct": 12,
+        "mcnemar_p": 0.0034,
+        "truncated": 2
+      },
+      "1500": {
+        "correct": 79,
+        "correct_ci": [
+          0.708,
+          0.865
+        ],
+        "gap": -12,
+        "format_valid": 94,
+        "format_valid_ci": [
+          0.887,
+          0.978
+        ],
+        "only_this_correct": 1,
+        "only_base_correct": 13,
+        "mcnemar_p": 0.0018,
+        "truncated": 0
+      },
+      "2000": {
+        "correct": 83,
+        "correct_ci": [
+          0.753,
+          0.898
+        ],
+        "gap": -8,
+        "format_valid": 89,
+        "format_valid_ci": [
+          0.824,
+          0.944
+        ],
+        "only_this_correct": 1,
+        "only_base_correct": 9,
+        "mcnemar_p": 0.0215,
+        "truncated": 1
+      }
+    },
+    "gaps": [
+      -11,
+      -12,
+      -8
+    ],
+    "sign_change": false,
+    "spread": 4,
+    "reading": "gap stable across checkpoints"
+  },
+  "gsm8k_cf_2000_s0": {
+    "checkpoints": {
+      "1000": {
+        "correct": 82,
+        "correct_ci": [
+          0.742,
+          0.89
+        ],
+        "gap": -9,
+        "format_valid": 79,
+        "format_valid_ci": [
+          0.708,
+          0.865
+        ],
+        "only_this_correct": 1,
+        "only_base_correct": 10,
+        "mcnemar_p": 0.0117,
+        "truncated": 4
+      },
+      "1500": {
+        "correct": 77,
+        "correct_ci": [
+          0.686,
+          0.848
+        ],
+        "gap": -14,
+        "format_valid": 87,
+        "format_valid_ci": [
+          0.8,
+          0.929
+        ],
+        "only_this_correct": 2,
+        "only_base_correct": 16,
+        "mcnemar_p": 0.0013,
+        "truncated": 0
+      },
+      "2000": {
+        "correct": 77,
+        "correct_ci": [
+          0.686,
+          0.848
+        ],
+        "gap": -14,
+        "format_valid": 84,
+        "format_valid_ci": [
+          0.765,
+          0.906
+        ],
+        "only_this_correct": 1,
+        "only_base_correct": 15,
+        "mcnemar_p": 0.0005,
+        "truncated": 2
+      }
+    },
+    "gaps": [
+      -9,
+      -14,
+      -14
+    ],
+    "sign_change": false,
+    "spread": 5,
+    "reading": "gap stable across checkpoints"
+  }
+}

@@ -51,6 +51,16 @@ def values(text):
     return [float(token.replace(",", "")) for token in _TOKEN.findall(text)]
 
 
+def safe_float(val):
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        res = evaluate_expr(str(val))
+        if res is not None:
+            return float(res)
+        raise
+
+
 def fmt(value):
     if abs(value - round(value)) < 1e-9:
         return str(int(round(value)))
@@ -82,16 +92,17 @@ def reexecute(steps, changes, skip=0):
         new_calcs = []
         for expr, stated in step.calcs:
             seen += 1
+            stated_float = safe_float(stated)
             if seen <= skip:
                 new_calcs.append((expr, stated))
-                if float(stated) not in mapping:
-                    kept.add(float(stated))
+                if stated_float not in mapping:
+                    kept.add(stated_float)
                 continue
             new_expr = substitute(expr, mapping)
             value = evaluate_expr(new_expr)
             if value is None:
                 return None
-            old = float(stated)
+            old = stated_float
             unchanged = calc_is_correct(new_expr, stated)
             if old in mapping:
                 if unchanged or abs(mapping[old] - value) > 1e-6:
@@ -121,7 +132,10 @@ def _collides(old_calcs, new_calcs, question):
     question_values = set(values(question))
     for index, (old, new) in enumerate(zip(old_calcs, new_calcs)):
         if old[1] != new[1]:
-            value = float(old[1])
+            try:
+                value = safe_float(old[1])
+            except (ValueError, TypeError):
+                return True
             if (value in question_values or value in _operands(old_calcs[:index + 1])
                     or _also_written_as_word(question, value)):
                 return True
@@ -144,15 +158,15 @@ def _also_written_as_word(question, value):
     return bool(words and re.search(rf"\b(?:{words})\b", question, re.I))
 
 
-def counterfactual(row, seed):
+def counterfactual(row, seed, enrich_step1=False):
     """Return ({question, trace, answer}, None), or (None, reason) if the row is unsafe to change."""
-    text, reason = convert(row)
+    text, reason = convert(row, enrich_step1=enrich_step1)
     if text is None:
         return None, reason
     trace = parse(text)
     question, calcs = row["question"], flat_calcs(trace.steps)
-    results = [float(stated) for _, stated in calcs]
-    if abs(float(trace.answer) - results[-1]) > 1e-6:
+    results = [safe_float(stated) for _, stated in calcs]
+    if abs(safe_float(trace.answer) - results[-1]) > 1e-6:
         return None, "answer_not_last_calc"
     if _DECISION.search(question):
         return None, "answer_needs_comparison"
@@ -164,7 +178,7 @@ def counterfactual(row, seed):
     for expr, stated in calcs:
         if any(number not in known and number not in _COMMON_CONSTANTS for number in values(expr)):
             return None, "ungrounded_operand"
-        known.add(float(stated))
+        known.add(safe_float(stated))
     explained = set(in_question) | set(_operands(calcs)) | set(results)
     if any(number not in explained for step in trace.steps for number in values(step.text)):
         return None, "unexplained_number_in_text"
@@ -192,7 +206,7 @@ def counterfactual(row, seed):
         steps = reexecute(trace.steps, {value: new})
         if steps is None or _collides(calcs, flat_calcs(steps), question) or not _prose_equations_hold(steps):
             continue
-        new_results = [float(stated) for _, stated in flat_calcs(steps)]
+        new_results = [safe_float(stated) for _, stated in flat_calcs(steps)]
         if any(number <= 0 for number in new_results):
             continue
         if any(old.is_integer() and not number.is_integer() for old, number in zip(results, new_results)):
@@ -224,16 +238,26 @@ def plan_intervention(output, question, key):
     if len(calcs) < 2:
         return None, "too_few_calcs"
     correct = [calc_is_correct(*calc) for calc in calcs]
-    original = float(trace.answer)
+    try:
+        original = safe_float(trace.answer)
+    except (ValueError, TypeError):
+        return None, "invalid_format"
     flags = []
     if not all(correct):
         flags.append("wrong_calc")
-    if abs(original - float(calcs[-1][1])) > 1e-6:
+    try:
+        last_calc = safe_float(calcs[-1][1])
+        if abs(original - last_calc) > 1e-6:
+            flags.append("answer_not_last_calc")
+    except (ValueError, TypeError):
         flags.append("answer_not_last_calc")
     usable = correct.index(False) if not all(correct) else len(calcs) - 1
 
     in_question = set(values(question))
-    results = [float(stated) for _, stated in calcs]
+    try:
+        results = [safe_float(stated) for _, stated in calcs]
+    except (ValueError, TypeError):
+        return None, "invalid_format"
     target = None
     for index, value in enumerate(results[:usable]):
         later = {number for expr, _ in calcs[index + 1:] for number in values(expr)}
@@ -258,7 +282,7 @@ def plan_intervention(output, question, key):
         steps = reexecute(trace.steps, {old: new}, skip=target + 1)
         if steps is None or _collides(calcs, flat_calcs(steps), question):
             return None, "ambiguous_propagation"
-        expected = float(flat_calcs(steps)[-1][1])
+        expected = safe_float(flat_calcs(steps)[-1][1])
         if abs(expected - original) < 1e-6:
             return None, "change_does_not_reach_answer"
 
@@ -300,12 +324,19 @@ def plan_freeform_intervention(output, question, key):
         return None, "no_answer"
     correct = [calc_is_correct(*calc) for calc in calcs]
     flags = [] if all(correct) else ["wrong_calc"]
-    if abs(original - float(calcs[-1][1])) > 1e-6:
+    try:
+        last_calc = safe_float(calcs[-1][1])
+        if abs(original - last_calc) > 1e-6:
+            flags.append("answer_not_last_calc")
+    except (ValueError, TypeError):
         flags.append("answer_not_last_calc")
     usable = correct.index(False) if not all(correct) else len(calcs) - 1
 
     in_question = set(values(question))
-    results = [float(stated) for _, stated in calcs]
+    try:
+        results = [safe_float(stated) for _, stated in calcs]
+    except (ValueError, TypeError):
+        return None, "invalid_format"
     target = None
     for index, value in enumerate(results[:usable]):
         later = {number for expr, _ in calcs[index + 1:] for number in values(expr)}
@@ -330,7 +361,7 @@ def plan_freeform_intervention(output, question, key):
         changed = reexecute(steps, {old: new}, skip=target + 1)
         if changed is None or _collides(calcs, flat_calcs(changed), question):
             return None, "ambiguous_propagation"
-        expected = float(flat_calcs(changed)[-1][1])
+        expected = safe_float(flat_calcs(changed)[-1][1])
         if abs(expected - original) < 1e-6:
             return None, "change_does_not_reach_answer"
     prefix = output[:matches[target].start(2)] + fmt(new)
@@ -338,15 +369,20 @@ def plan_freeform_intervention(output, question, key):
             "original": original, "flags": flags}, None
 
 
-def build(source=None, output=CF_OUTPUT):
+def build(source=None, output=None, enrich_step1=False, base_dir=None):
+    if output is None:
+        output = Path("data/structured_gsm8k_cf_enriched_v1") if enrich_step1 else CF_OUTPUT
+    if base_dir is None:
+        base_dir = Path("data/structured_gsm8k_enriched_v1") if enrich_step1 else OUTPUT
+
     train, _, _ = load_splits(*([source] if source else []))
     reasons, rows = collections.Counter(), []
     for row in train:
-        trace, reason = convert(row)
+        trace, reason = convert(row, enrich_step1=enrich_step1)
         if trace is None:
             continue
         rows.append(training_row(row, trace))
-        made, reason = counterfactual(row, f"{SEED}:{row['question']}")
+        made, reason = counterfactual(row, f"{SEED}:{row['question']}", enrich_step1=enrich_step1)
         if made is None:
             reasons[reason] += 1
         else:
@@ -355,12 +391,14 @@ def build(source=None, output=CF_OUTPUT):
     random.Random(SEED).shuffle(rows)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(OUTPUT / "valid.jsonl", output / "valid.jsonl")
+    base_dir = Path(base_dir)
+    shutil.copyfile(base_dir / "valid.jsonl", output / "valid.jsonl")
     manifest = {
         "seed": SEED,
+        "enrich_step1": enrich_step1,
         "train_rows": len(rows),
         "counterfactual": dict(reasons),
-        "valid_is_unchanged_copy_of": str(OUTPUT / "valid.jsonl"),
+        "valid_is_unchanged_copy_of": str(base_dir / "valid.jsonl"),
         "sha256": {"train.jsonl": write_jsonl(output / "train.jsonl", rows)},
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
@@ -369,5 +407,8 @@ def build(source=None, output=CF_OUTPUT):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", default=CF_OUTPUT)
-    print(json.dumps(build(output=parser.parse_args().output), indent=2))
+    parser.add_argument("--output", default=None)
+    parser.add_argument("--base-dir", default=None)
+    parser.add_argument("--enrich", action="store_true", help="Enrich Step 1 prose with 'Calculate the ...'")
+    args = parser.parse_args()
+    print(json.dumps(build(output=args.output, enrich_step1=args.enrich, base_dir=args.base_dir), indent=2))

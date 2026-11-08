@@ -1,0 +1,6 @@
+b7ba22493931fb64  structured_llm/pal.py
+c6956bdf341dbe33  structured_llm/math_check.py
+4af16634606abcdc  structured_llm/evaluate.py
+5b08cba80292e7d6  audit/math_final_20261104/generate.py
+4a6be05dd84fe83f  audit/math_final_20261104/final_signal.py
+2ac64ef6f8275224  data/math_source/structured_math_v1/dev_301_500.jsonl

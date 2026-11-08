@@ -1,0 +1,69 @@
+cmd: .venv/bin/python -m structured_llm.intervene --run audit/lora_gsm8k_enriched_20261107/eval_cf --modes tuned --adapter adapters/gsm8k_cf_enriched_2000_s0
+start: Sun Nov  8 05:38:38 +07 2026
+{
+  "tuned": {
+    "eligible": {
+      "n": 66,
+      "follows": 55,
+      "follows_rounded": 6,
+      "reverted": 2,
+      "other": 2,
+      "moved": 1,
+      "no_answer": 0
+    },
+    "eligibility_rate": 0.66,
+    "skipped": {
+      "ambiguous_propagation": 11,
+      "no_result_used_later": 10,
+      "invalid_format": 5,
+      "too_few_calcs": 5,
+      "answer_needs_comparison": 3
+    },
+    "rq1": {
+      "moved|clean": {
+        "n": 63,
+        "wrong": 5
+      },
+      "moved|flagged": {
+        "n": 1,
+        "wrong": 0
+      },
+      "unmoved|clean": {
+        "n": 1,
+        "wrong": 0
+      },
+      "unmoved|flagged": {
+        "n": 1,
+        "wrong": 0
+      }
+    },
+    "correct_only": {
+      "n": 61,
+      "follows": 52,
+      "follows_rounded": 6,
+      "reverted": 2,
+      "other": 0,
+      "moved": 1,
+      "no_answer": 0
+    },
+    "shared": {
+      "n": 66,
+      "follows": 55,
+      "follows_rounded": 6,
+      "reverted": 2,
+      "other": 2,
+      "moved": 1,
+      "no_answer": 0
+    },
+    "shared_correct_only": {
+      "n": 61,
+      "follows": 52,
+      "follows_rounded": 6,
+      "reverted": 2,
+      "other": 0,
+      "moved": 1,
+      "no_answer": 0
+    }
+  }
+}
+exit: 0 end: Sun Nov  8 05:49:01 +07 2026

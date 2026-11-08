@@ -1,0 +1,36 @@
+{
+  "tuned": {
+    "n": 100,
+    "correct": 87,
+    "answered": 99,
+    "format_valid": 95,
+    "calc_accuracy": 0.99,
+    "grounded_rate": 0.787,
+    "mean_tokens": 160.1,
+    "mean_seconds": 14.01,
+    "truncated": 1,
+    "detection": {
+      "wrong": 13,
+      "flagged_wrong": 5,
+      "right": 87,
+      "flagged_right": 7
+    }
+  },
+  "tuned_tool": {
+    "n": 100,
+    "correct": 87,
+    "answered": 99,
+    "format_valid": 97,
+    "calc_accuracy": 0.99,
+    "grounded_rate": 0.797,
+    "mean_tokens": 159.3,
+    "mean_seconds": 20.9,
+    "truncated": 1,
+    "detection": {
+      "wrong": 13,
+      "flagged_wrong": 4,
+      "right": 87,
+      "flagged_right": 5
+    }
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "total": 19,
+  "recovered": 15,
+  "recovered_rate": 0.7895,
+  "results": [
+    {
+      "id": "038474b6381afcc3",
+      "gold": "15",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 42.21,
+      "output": "<think>\nStep 1: Calculate the 10+10=20 students\nCalc: 10+10=20\nStep 2: The 5 parents chaperones stayed\nCalc: 5=5\nStep 3: The 2 teachers stayed\nCalc: 2=2\nStep 4: The 20-10=10 students stayed\nCalc: 20-10=10\nStep 5: The 5-2=3 chaperones stayed\nCalc: 5-2=3\nStep 6: The 10 students + 3 chaperones + 2 teachers = 15 people\nCalc: 10+3+2=15\n</think>\n\nAnswer: 15"
+    },
+    {
+      "id": "04163f5aa483ba62",
+      "gold": "39",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 44.69,
+      "output": "<think>\nStep 1: Calculate the 10 liters of gas Mr. Deane will buy today: 10 liters * $1.4/liter = $14.\nCalc: 10*1.4=14\nStep 2: The gas price will drop to $1.4 - $0.4 = $1.0 per liter on Friday.\nCalc: 1.4-0.4=1.0\nStep 3: Calculate the 25 liters of gas Mr. Deane will buy on Friday: 25 liters * $1.0/liter = $25.\nCalc: 25*1.0=25\nStep 4: Add the cost of the gas Mr. Deane will buy today and on Friday: $14 + $25 = $39.\nCalc: 14+25=39\n</think>\n\nAnswer: 39"
+    },
+    {
+      "id": "042222699d72fed8",
+      "gold": "2",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 23.72,
+      "output": "<think>\nStep 1: Calculate the 20*30=600 minutes\nCalc: 20*30=600\nStep 2: So he has to watch 600/5=120 minutes a day\nCalc: 600/5=120\nStep 3: So he has to watch 120/60=2 hours a day\nCalc: 120/60=2\n</think>\n\nAnswer: 2"
+    },
+    {
+      "id": "04483c3169b33b6c",
+      "gold": "100",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 46.46,
+      "output": "<think>\nStep 1: Calculate the 20 coins Tina puts in the first hour: 20 = 20\nCalc: 20=20\nStep 2: During the next two hours she puts in 30 coins each time: 30+30 = 60\nCalc: 30+30=60\nStep 3: During the fourth hour she puts in 40 coins: 40 = 40\nCalc: 40=40\nStep 4: During the fifth hour her mother asks to borrow some money so she takes 20 coins out: 20 = 20\nCalc: 20=20\nStep 5: After the fifth hour, Tina has 20+60+40-20 = 100 coins left.\nCalc: 20+60+40-20=100\n</think>\n\nAnswer: 100"
+    },
+    {
+      "id": "045a4b9ccf6aec5e",
+      "gold": "2",
+      "correct": true,
+      "format_valid": false,
+      "seconds": 42.07,
+      "output": "<think>\nStep 1: Calculate the 2:00 pm to 2:30 pm show length: 2:30 pm - 2:00 pm = 30 minutes\nCalc: 2:30-2:00=30 minutes\nStep 2: Max watches the show every weekday but misses the Friday episode, so he watches 4 days/episodes\nCalc: 5 days/week - 1 day = 4 days\nStep 3: Max watches 4 days * 30 minutes/day = 120 minutes\nCalc: 4*30=120\nStep 4: Convert 120 minutes to hours: 120 minutes / 60 minutes/hour = 2 hours\nCalc: 120/60=2\n</think>\n\nAnswer: 2"
+    },
+    {
+      "id": "0483a43e2f2eb64f",
+      "gold": "3450",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 41.23,
+      "output": "<think>\nStep 1: Calculate the 12 weeks of training cost: 12 weeks * $250/week = $3000\nCalc: 12*250=3000\nStep 2: The insurance covers 90% of the certification cost, so she pays 10%: $3000 * 10% = $300\nCalc: 3000*.10=300\nStep 3: The total cost is the adoption fee + training cost + her share of the certification cost: $150 + $3000 + $300 = $3450\nCalc: 150+3000+300=3450\n</think>\n\nAnswer: 3450"
+    },
+    {
+      "id": "0490d52692d50709",
+      "gold": "1525",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 66.39,
+      "output": "<think>\nStep 1: Calculate the 5% discount on the regular seminar fee of $150: 5/100*$150 = $7.50\nCalc: 5/100*150=7.50\nStep 2: Subtract the discount from the regular fee to find the discounted price: $150 - $7.50 = $142.50\nCalc: 150-7.50=142.50\nStep 3: The school registered 10 teachers, so the total cost of the seminar is $142.50 * 10 = $1425\nCalc: 142.50*10=1425\nStep 4: The school also released a $10 food allowance for each of the 10 teachers, so the total food allowance cost is $10 * 10 = $100\nCalc: 10*10=100\nStep 5: The total cost of the school is the cost of the seminar plus the food allowance: $1425 + $100 = $1525\nCalc: 1425+100=1525\n</think>\n\nAnswer: 1525"
+    },
+    {
+      "id": "04d03ed7ef44df0f",
+      "gold": "88",
+      "correct": false,
+      "format_valid": true,
+      "seconds": 36.26,
+      "output": "<think>\nStep 1: Calculate the 20% of the green marbles to find the number of yellow marbles.\nStep 2: The total number of marbles in the box is three times the number of green marbles, so 3*green = total.\nStep 3: The total number of marbles is also equal to the sum of red, green, yellow, and the other color.\nStep 4: The other color is 100 - (20+30+20) = 30 marbles.\nCalc: 20+30+20+30=100\n</think>\n\nAnswer: 30"
+    },
+    {
+      "id": "0533264eebcd1271",
+      "gold": "210",
+      "correct": false,
+      "format_valid": true,
+      "seconds": 32.26,
+      "output": "<think>\nStep 1: Calculate the 5*10=$50\nCalc: 5*10=50\nStep 2: The two online books cost $40, so 2*40=$80\nCalc: 2*40=80\nStep 3: The three books from the bookstore cost 3*80=$240\nCalc: 3*80=240\nStep 4: In total, Martha spent 50+80+240=$370\nCalc: 50+80+240=370\n</think>\n\nAnswer: 370"
+    },
+    {
+      "id": "0535a2bff1af6bf6",
+      "gold": "460",
+      "correct": false,
+      "format_valid": true,
+      "seconds": 68.08,
+      "output": "<think>\nStep 1: Calculate the 130 - 20 = 110 carriages in Norfolk.\nCalc: 130-20=110\nStep 2: Calculate the 110 + 100 = 210 carriages in Euston and Norfolk.\nCalc: 110+100=210\nStep 3: Calculate the 100 + 20 = 120 carriages in Flying Scotsman.\nCalc: 100+20=120\nStep 4: Calculate the 210 + 120 = 330 carriages in all.\nCalc: 210+120=330\n</think>\n\nAnswer: 330"
+    },
+    {
+      "id": "0556de23517ccdd9",
+      "gold": "8",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 277.06,
+      "output": "<think>\nStep 1: Calculate the 50 spotted brown toads per acre: 50=50\nStep 2: Since one-quarter of the brown toads are spotted, there are 50*4=200 brown toads per acre.\nCalc: 50*4=200\nStep 3: For every green toad, there are 25 brown toads, meaning there are 25/1=25 brown toads per green toad.\nCalc: 25/1=25\nStep 4: Therefore, there are 200/25=8 green toads per acre.\nCalc: 200/25=8\n</think>\n\nAnswer: 8"
+    },
+    {
+      "id": "0557ecbe0fb5a4e5",
+      "gold": "504",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 30.04,
+      "output": "<think>\nStep 1: Calculate the 1000 pieces Luke has left after the first day.\nStep 2: Calculate the 20% of the remaining pieces Luke has left after the second day.\nStep 3: Calculate the 30% of the remaining pieces Luke has left after the third day.\nCalc: 1000-1000*.10=900\nCalc: 900-900*.20=720\nCalc: 720-720*.30=504\n</think>\n\nAnswer: 504"
+    },
+    {
+      "id": "056e151c2a6302a0",
+      "gold": "25",
+      "correct": false,
+      "format_valid": true,
+      "seconds": 33.15,
+      "output": "<think>\nStep 1: Calculate the 5 mistakes as a percentage of the total number of items on the math quiz: 5/100 = 0.05\nCalc: 5/100=0.05\nStep 2: Since Louie obtained 80% on the math quiz, this means he got 80/100 = 0.8 of the items correct.\nCalc: 80/100=0.8\nStep 3: The total number of items on the math quiz is 100/0.8 = 125\nCalc: 100/0.8=125\n</think>\n\nAnswer: 125"
+    },
+    {
+      "id": "05846387ad38a89f",
+      "gold": "25",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 26.86,
+      "output": "<think>\nStep 1: Calculate the 500 cards * 1/4 = 125 cards are duplicates.\nCalc: 500*1/4=125\nStep 2: Marco traded 1/5 of the duplicates, so he traded 125 cards * 1/5 = 25 cards.\nCalc: 125*1/5=25\nStep 3: He traded 25 cards and got 25 new cards.\nCalc: 25=25\n</think>\n\nAnswer: 25"
+    },
+    {
+      "id": "0587b07c1310b2e9",
+      "gold": "310",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 50.15,
+      "output": "<think>\nStep 1: Calculate the 1st kilometer donation: $10\nCalc: 10=10\nStep 2: Calculate the 2nd kilometer donation: $10*2=$20\nCalc: 10*2=20\nStep 3: Calculate the 3rd kilometer donation: $20*2=$40\nCalc: 20*2=40\nStep 4: Calculate the 4th kilometer donation: $40*2=$80\nCalc: 40*2=80\nStep 5: Calculate the 5th kilometer donation: $80*2=$160\nCalc: 80*2=160\nStep 6: Add up all the donations: $10+$20+$40+$80+$160=$310\nCalc: 10+20+40+80+160=310\n</think>\n\nAnswer: 310"
+    },
+    {
+      "id": "059e17683f37d34f",
+      "gold": "150",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 32.53,
+      "output": "<think>\nStep 1: Calculate the 50% increase on Saturday's sales: 50/100*60 = 30\nCalc: 50/100*60=30\nStep 2: Add the increase to Saturday's sales to find Sunday's sales: 60+30 = 90\nCalc: 60+30=90\nStep 3: Add Saturday and Sunday's sales to find the total: 60+90 = 150\nCalc: 60+90=150\n</think>\n\nAnswer: 150"
+    },
+    {
+      "id": "05e8ecc8a76f822d",
+      "gold": "76",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 29.37,
+      "output": "<think>\nStep 1: Calculate the 100% of the students by dividing the number of seventh graders by the percentage of seventh graders: 64/32*100 = 200 students\nCalc: 64/32*100=200\nStep 2: Calculate the number of sixth graders by multiplying the total number of students by the percentage of sixth graders: 200*38/100 = 76 students\nCalc: 200*38/100=76\n</think>\n\nAnswer: 76"
+    },
+    {
+      "id": "05fb4a9144667e40",
+      "gold": "12",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 43.83,
+      "output": "<think>\nStep 1: Calculate the 19 x 2 = 38 doughnuts eaten.\nCalc: 19*2=38\nStep 2: Subtract the eaten doughnuts from the total to find the remaining doughnuts: 50 - 38 = 12 doughnuts left.\nCalc: 50-38=12\n</think>\n\nAnswer: 12"
+    },
+    {
+      "id": "069d04281bd76b37",
+      "gold": "3",
+      "correct": true,
+      "format_valid": true,
+      "seconds": 37.56,
+      "output": "<think>\nStep 1: Calculate the 1200/20=60 hours Doris needs to work to earn $1200.\nCalc: 1200/20=60\nStep 2: Calculate the total hours Doris can work in a week: 3*5=15 hours on weekdays and 5 hours on Saturday for a total of 15+5=20 hours.\nCalc: 3*5+5=20\nStep 3: Calculate the number of weeks it will take Doris to earn enough money: 60/20=3 weeks.\nCalc: 60/20=3\n</think>\n\nAnswer: 3"
+    }
+  ]
+}

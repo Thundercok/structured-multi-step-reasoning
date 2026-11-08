@@ -396,3 +396,44 @@ def test_run_program(text, value):
 ])
 def test_run_program_rejects(text):
     assert run_program(text) is None
+
+
+@pytest.mark.parametrize("text, value", [
+    ("def f(a, b=2):\n    return a + b\nresult = f(3)", 5.0),
+    ("n = 0\nwhile n < 5:\n    n += 1\nresult = n", 5.0),
+    ("seen = set()\nfor i in range(10):\n    seen.add(i % 3)\nresult = len(seen)", 3.0),
+    ("import math\nresult = math.gcd(12, 18) + math.factorial(3)", 12.0),
+    ("from math import sqrt\nresult = sqrt(16)", 4.0),
+    ("from itertools import permutations\nresult = len(list(permutations(range(4))))", 24.0),
+    ("from fractions import Fraction\nresult = Fraction(1, 2) + Fraction(1, 4)", 0.75),
+    ("a = [0] * 3\na[1] += 2\nresult = sum(a)", 2.0),
+    ("result = sum(int(d) for d in str(123))", 6.0),
+    ("result = sum(1 for i in range(10) if i % 2 == 0 and i > 2)", 3.0),
+    ("x, y = 2, 3\nresult = x ** y", 8.0),
+    ("t = 0\nfor i in range(5):\n    if i == 3:\n        break\n    t += i\nresult = t", 3.0),
+    ("def fib(n):\n    return n if n < 2 else fib(n - 1) + fib(n - 2)\nresult = fib(10)", 55.0),
+    ("d = {}\nd[1] = 2\nresult = d.get(1)", 2.0),
+])
+def test_full_interpreter_runs(text, value):
+    assert run_program(text, full=True) == value
+
+
+@pytest.mark.parametrize("text", [
+    "import os\nresult = 1",
+    "import sympy\nresult = 1",
+    "from math import __loader__\nresult = 1",
+    "result = open('x')",
+    "result = (1).__class__",
+    "result = ''.__class__",
+    "result = eval('1+1')",
+    "result = getattr(1, 'real')",
+    "f = lambda x: x\nresult = f(1)",
+    "result = [0] * 10 ** 9",
+    "result = 2 ** 100000",
+    "while True:\n    pass\nresult = 1",
+    "def f():\n    return f()\nresult = f()",
+    "result = 'text'",
+    "x = 1",
+])
+def test_full_interpreter_rejects(text):
+    assert run_program(text, full=True) is None

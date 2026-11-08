@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 # Spacing isn't part of the format: "Step 1:The" and "Calc: 1 + 1 = 2" mean the same thing.
 _STEP = re.compile(r"Step (\d+):\s*(\S.*)")
 _CALC = re.compile(r"Calc:\s*([^=]+?)\s*=\s*(-?(?:\d+\.?\d*|\.\d+))")
-_ANSWER = re.compile(r"Answer: \$?(-?[\d,]*\.?\d+)\s*")
+_ANSWER = re.compile(r"Answer:\s*(?:\\boxed\{([^}]*)\}|\$?(-?[\d,]*\.?\d+)|\$?(\S.*))\s*$")
 _NUMBER = re.compile(r"\d[\d,]*\.?\d*|\.\d+")
 _SIGNED_NUMBER = re.compile(r"(?<![\w.])-?(?:\d[\d,]*\.?\d*|\.\d+)|(?<=-)\d[\d,]*\.?\d*")
 _OPS = {
@@ -55,6 +55,13 @@ def render(steps, answer):
     return "\n".join(lines)
 
 
+def is_valid_expr(text):
+    if not text or ".." in text or re.search(r"\d+\.\d+\.\d+", text):
+        return False
+    from .math_check import to_expression
+    return to_expression(text) is not None
+
+
 def parse(text):
     """Parse strictly; anything outside the grammar is recorded in errors."""
     text = text.strip()
@@ -70,14 +77,26 @@ def parse(text):
             if int(match[1]) != len(steps) + 1:
                 errors.append("step_number")
             steps.append(Step(match[2]))
-        elif (match := _CALC.fullmatch(line)) and steps:
-            steps[-1].calcs.append((match[1].strip(), match[2]))
+        elif match := _CALC.fullmatch(line):
+            if steps:
+                steps[-1].calcs.append((match[1].strip(), match[2]))
+            else:
+                errors.append("line_outside_grammar")
+        elif line.startswith("Calc:") and "=" in line:
+            expr_part, _, stated_part = line.removeprefix("Calc:").partition("=")
+            expr_str = expr_part.strip()
+            stated_str = stated_part.strip()
+            if steps and is_valid_expr(expr_str) and is_valid_expr(stated_str):
+                steps[-1].calcs.append((expr_str, stated_str))
+            else:
+                errors.append("line_outside_grammar")
         elif line:
             errors.append("line_outside_grammar")
     if not steps:
         errors.append("no_steps")
     if match := _ANSWER.fullmatch(tail.strip()):
-        answer = match[1].replace(",", "")
+        ans_str = match[1] or match[2] or match[3]
+        answer = ans_str.strip().replace(",", "") if ans_str else None
     else:
         errors.append("answer_line")
     return Trace(steps, answer, errors)
@@ -108,12 +127,21 @@ def calc_is_correct(expr, stated):
     try:
         result = float(stated)
     except ValueError:
-        return False
-    if value is None:
-        return False
-    decimals = len(stated.partition(".")[2])
-    tolerance = 0.5 * 10**-decimals if decimals else 0
-    return abs(value - result) <= tolerance + 1e-9
+        result = None
+    if value is not None and result is not None:
+        decimals = len(stated.partition(".")[2])
+        tolerance = 0.5 * 10**-decimals if decimals else 0
+        return abs(value - result) <= tolerance + 1e-9
+
+    from .math_check import compare, parse as parse_sym, to_expression, TRUE
+    left_str = to_expression(expr)
+    right_str = to_expression(stated)
+    if left_str and right_str:
+        left_sym = parse_sym(left_str)
+        right_sym = parse_sym(right_str)
+        if left_sym is not None and right_sym is not None:
+            return compare(left_sym, right_sym) == TRUE
+    return False
 
 
 def _numbers(text):
@@ -168,8 +196,14 @@ def check(text, question, gold=None):
             grounded += number in known
         known |= _numbers(stated)
 
-    answer = float(trace.answer) if trace.answer is not None else None
-    last = float(calcs[-1][1]) if calcs and _NUMBER.search(calcs[-1][1]) else None
+    try:
+        answer = float(trace.answer) if trace.answer is not None else None
+    except ValueError:
+        answer = None
+    try:
+        last = float(calcs[-1][1]) if calcs and _NUMBER.search(calcs[-1][1]) else None
+    except ValueError:
+        last = None
     loose = loose_answer(text)
     vacuous = sum(not re.search(r"\d\s*[-+*/]", expr) for expr, _ in calcs)
     return {

@@ -1,0 +1,85 @@
+{
+ "correct": {
+  "solution": 118,
+  "pal": 112,
+  "translated_program": 137
+ },
+ "translated_program_vs_solution": {
+  "only_first": 29,
+  "only_second": 10,
+  "mcnemar_p": 0.0034
+ },
+ "translated_program_vs_pal": {
+  "only_first": 36,
+  "only_second": 11,
+  "mcnemar_p": 0.0003
+ },
+ "flag_either": {
+  "caught": {
+   "count": "61/82",
+   "ci": [
+    0.64,
+    0.826
+   ]
+  },
+  "false_alarm": {
+   "count": "20/118",
+   "ci": [
+    0.112,
+    0.247
+   ]
+  }
+ },
+ "right_when_translated_agrees": {
+  "count": "108/131",
+  "ci": [
+   0.75,
+   0.88
+  ]
+ },
+ "mean_tokens": {
+  "solution": 664.9,
+  "translated": 176.8,
+  "pal": 412.3
+ },
+ "translated_catches_hand_read": {
+  "plan_without_computing": 12,
+  "answer_line_garbled": 9,
+  "hand_step_redone_right": 7,
+  "flag_for_another_reason": 6
+ },
+ "only_pal_catches_hand_read": {
+  "reasoning_error_copied": 10,
+  "scorer_or_prompt_noise": 2
+ },
+ "refusals": [
+  [
+   "TypeError",
+   6
+  ],
+  [
+   "SyntaxError",
+   4
+  ],
+  [
+   "non-numeric result",
+   3
+  ],
+  [
+   "unsupported: functools",
+   1
+  ],
+  [
+   "unsupported: math",
+   1
+  ],
+  [
+   "unsupported: sympy",
+   1
+  ],
+  [
+   "unsupported: constant",
+   1
+  ]
+ ]
+}

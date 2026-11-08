@@ -1,0 +1,19 @@
+{
+  "seed": "structured-gsm8k-cf-v1",
+  "enrich_step1": true,
+  "train_rows": 10180,
+  "counterfactual": {
+    "made": 3119,
+    "answer_needs_comparison": 200,
+    "ungrounded_operand": 1720,
+    "answer_not_last_calc": 360,
+    "no_valid_change": 1078,
+    "no_safe_number": 286,
+    "number_glued_to_text": 18,
+    "unexplained_number_in_text": 280
+  },
+  "valid_is_unchanged_copy_of": "data/structured_gsm8k_enriched_v1/valid.jsonl",
+  "sha256": {
+    "train.jsonl": "a4d46a84320c5051e98be000ee540b8415bf267f049f530deb44fbf43c5f279e"
+  }
+}

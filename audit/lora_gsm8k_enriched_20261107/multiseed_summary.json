@@ -1,0 +1,19 @@
+{
+  "seeds": {
+    "s0": {
+      "n": 100,
+      "correct": 87,
+      "accuracy": 87.0,
+      "format_valid": 95,
+      "format_valid_rate": 95.0,
+      "following_rate": 92.42424242424242
+    }
+  },
+  "num_seeds": 1,
+  "accuracy_mean": 87.0,
+  "accuracy_std": 0.0,
+  "format_valid_mean": 95.0,
+  "format_valid_std": 0.0,
+  "following_rate_mean": 92.42,
+  "following_rate_std": 0.0
+}

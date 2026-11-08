@@ -121,9 +121,29 @@ khi pin ≤ 6% hoặc rút sạc (`*_load.txt` ghi từng phút):
 Trước khi chạy dài: 34–36 token/giây, 218 token/vòng, khoảng 6,3 giây/vòng, bộ nhớ đỉnh 5,8 GB. Kế hoạch ước tính 15 token/giây và
 khoảng 8 giờ cho 2.000 vòng. Lượt thật mất khoảng 3 giờ 10 phút mỗi bản.
 
+## Can thiệp mồi tiền tố (Prefill Prompt Intervention) trên 19 câu dev bị sai
+
+Đo ngày 2026-11-06 (kiểm chứng Giả thuyết 2 trong `error_reading.md`).
+- **Mục tiêu:** Kiểm tra xem việc adapter viết bước quá ngắn và bỏ bước nêu đại lượng có phải là nguyên nhân chính dẫn đến hiểu đề sai / kế hoạch sai hay không.
+- **Phương pháp:** Mồi tiền tố `<think>\nStep 1: Calculate the ` cho adapter `adapters/gsm8k_cf_2000_s0` trên 19 câu dev mà ít nhất một adapter bị sai.
+- **File chạy:** `test_prefill_ablation.py`, kết quả lưu ở `prefill_ablation_results.json`.
+
+| Tổng số câu sai được test | Hồi phục thành ĐÚNG | Tỷ lệ hồi phục | Còn SAI |
+| ---: | ---: | ---: | ---: |
+| 19 | **15** | **78,9%** | 4 |
+
+- **Chi tiết hồi phục:**
+  - Cả 3/3 ca kế hoạch sai (`038474b6`, `04222269`, `0557ecbe`) đều hồi phục thành đúng.
+  - 6/7 ca hiểu đề sai (`04163f5a`, `045a4b9c`, `0556de23`, `05846387`, `059e1768`, `05fb4a91`) hồi phục thành đúng.
+  - Ca lưỡng tính hiểu đề/kế hoạch (`069d0428`) hồi phục thành đúng.
+  - 4 ca `Calc` sai hoặc lỗi gộp (`04483c31`, `0483a43e`, `0490d526`, `05e8ecc8`) được giải lại từng bước rõ ràng và đúng hoàn toàn.
+  - Chỉ còn đúng 4 ca sai: `04d03ed7` (hiểu sai "ba lần nhiều hơn"), `0533264e` (hiểu sai tổng $40), `0535a2bf` (cộng sai 4 số), `056e151c` (lỗi phân số 20/100).
+- **Kết luận:** Giả thuyết 2 được xác nhận mạnh mẽ. Việc adapter tụt độ chính xác trên GSM8K không phải do mất năng lực lập luận, mà do dữ liệu huấn luyện GSM8K ngắn cụt khiến mô hình nhảy ngay vào tính số mà không gán nghĩa ngữ nghĩa (semantic grounding) cho biến.
+
 ## File
 
 - `run_training.sh`, `train_*.log`, `train_*_load.txt`: lệnh, mã băm dữ liệu, log huấn luyện, pin và tải.
 - `run_eval.sh`, `eval_plain/`, `eval_cf/`, `eval_base/`: đầu ra thô `.jsonl`, `summary.json`, `manifest.json` (có mã băm adapter).
 - `run_intervene.sh`, `eval_cf/tuned_interventions.jsonl`, `eval_base/*_interventions.jsonl`, `interventions_summary.json`.
+- `test_prefill_ablation.py`, `prefill_ablation_results.json`: can thiệp mồi tiền tố trên 19 câu dev.
 - `compare.py`, `comparison.json`: bảng so sánh.

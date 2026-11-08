@@ -1,0 +1,32 @@
+{
+ "base_prefill": {
+  "correct": 63,
+  "false_latex_equation": {
+   "caught_wrong": "2/37",
+   "false_alarm_right": "0/63"
+  },
+  "differs_from_pal_all_100": {
+   "caught_wrong": "21/37",
+   "false_alarm_right": "10/63"
+  },
+  "differs_from_pal_where_pal_gave_a_number": {
+   "caught_wrong": "21/22",
+   "false_alarm_right": "10/51"
+  }
+ },
+ "base_showcalc": {
+  "correct": 64,
+  "false_latex_equation": {
+   "caught_wrong": "0/36",
+   "false_alarm_right": "0/64"
+  },
+  "differs_from_pal_all_100": {
+   "caught_wrong": "23/36",
+   "false_alarm_right": "6/64"
+  },
+  "differs_from_pal_where_pal_gave_a_number": {
+   "caught_wrong": "23/23",
+   "false_alarm_right": "6/50"
+  }
+ }
+}

@@ -1,0 +1,506 @@
+{
+  "total_target_questions": 19,
+  "old_plain_correct_on_19": 10,
+  "old_plain_failed": 9,
+  "old_plain_format_valid_on_19": 15,
+  "old_cf_correct_on_19": 7,
+  "old_cf_failed": 12,
+  "old_cf_format_valid_on_19": 18,
+  "old_cf_prefilled_correct_on_19": 15,
+  "new_enriched_plain_available": true,
+  "new_enriched_plain_tool_available": true,
+  "new_enriched_cf_available": true,
+  "new_enriched_cf_tool_available": true,
+  "enriched_plain": {
+    "correct_on_19": 13,
+    "recovered_rate": 68.4,
+    "recovered_from_old_plain_9_failures": 6,
+    "recovered_from_old_cf_12_failures": 8,
+    "format_valid": 18,
+    "details": [
+      {
+        "id": "038474b6381afcc3",
+        "correct": true,
+        "format_valid": false,
+        "gold": "15"
+      },
+      {
+        "id": "04163f5aa483ba62",
+        "correct": true,
+        "format_valid": true,
+        "gold": "39"
+      },
+      {
+        "id": "042222699d72fed8",
+        "correct": true,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "045a4b9ccf6aec5e",
+        "correct": false,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "0490d52692d50709",
+        "correct": true,
+        "format_valid": true,
+        "gold": "1525"
+      },
+      {
+        "id": "0535a2bff1af6bf6",
+        "correct": true,
+        "format_valid": true,
+        "gold": "460"
+      },
+      {
+        "id": "0556de23517ccdd9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "8"
+      },
+      {
+        "id": "0557ecbe0fb5a4e5",
+        "correct": false,
+        "format_valid": true,
+        "gold": "504"
+      },
+      {
+        "id": "05846387ad38a89f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "25"
+      },
+      {
+        "id": "059e17683f37d34f",
+        "correct": false,
+        "format_valid": true,
+        "gold": "150"
+      },
+      {
+        "id": "05fb4a9144667e40",
+        "correct": true,
+        "format_valid": true,
+        "gold": "12"
+      },
+      {
+        "id": "069d04281bd76b37",
+        "correct": false,
+        "format_valid": true,
+        "gold": "3"
+      },
+      {
+        "id": "04483c3169b33b6c",
+        "correct": true,
+        "format_valid": true,
+        "gold": "100"
+      },
+      {
+        "id": "0483a43e2f2eb64f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "3450"
+      },
+      {
+        "id": "04d03ed7ef44df0f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "88"
+      },
+      {
+        "id": "0533264eebcd1271",
+        "correct": false,
+        "format_valid": true,
+        "gold": "210"
+      },
+      {
+        "id": "056e151c2a6302a0",
+        "correct": false,
+        "format_valid": true,
+        "gold": "25"
+      },
+      {
+        "id": "0587b07c1310b2e9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "310"
+      },
+      {
+        "id": "05e8ecc8a76f822d",
+        "correct": true,
+        "format_valid": true,
+        "gold": "76"
+      }
+    ]
+  },
+  "enriched_plain_tool": {
+    "correct_on_19": 13,
+    "recovered_rate": 68.4,
+    "recovered_from_old_plain_9_failures": 6,
+    "recovered_from_old_cf_12_failures": 8,
+    "format_valid": 18,
+    "details": [
+      {
+        "id": "038474b6381afcc3",
+        "correct": true,
+        "format_valid": false,
+        "gold": "15"
+      },
+      {
+        "id": "04163f5aa483ba62",
+        "correct": true,
+        "format_valid": true,
+        "gold": "39"
+      },
+      {
+        "id": "042222699d72fed8",
+        "correct": true,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "045a4b9ccf6aec5e",
+        "correct": false,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "0490d52692d50709",
+        "correct": true,
+        "format_valid": true,
+        "gold": "1525"
+      },
+      {
+        "id": "0535a2bff1af6bf6",
+        "correct": true,
+        "format_valid": true,
+        "gold": "460"
+      },
+      {
+        "id": "0556de23517ccdd9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "8"
+      },
+      {
+        "id": "0557ecbe0fb5a4e5",
+        "correct": false,
+        "format_valid": true,
+        "gold": "504"
+      },
+      {
+        "id": "05846387ad38a89f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "25"
+      },
+      {
+        "id": "059e17683f37d34f",
+        "correct": false,
+        "format_valid": true,
+        "gold": "150"
+      },
+      {
+        "id": "05fb4a9144667e40",
+        "correct": true,
+        "format_valid": true,
+        "gold": "12"
+      },
+      {
+        "id": "069d04281bd76b37",
+        "correct": false,
+        "format_valid": true,
+        "gold": "3"
+      },
+      {
+        "id": "04483c3169b33b6c",
+        "correct": true,
+        "format_valid": true,
+        "gold": "100"
+      },
+      {
+        "id": "0483a43e2f2eb64f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "3450"
+      },
+      {
+        "id": "04d03ed7ef44df0f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "88"
+      },
+      {
+        "id": "0533264eebcd1271",
+        "correct": false,
+        "format_valid": true,
+        "gold": "210"
+      },
+      {
+        "id": "056e151c2a6302a0",
+        "correct": false,
+        "format_valid": true,
+        "gold": "25"
+      },
+      {
+        "id": "0587b07c1310b2e9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "310"
+      },
+      {
+        "id": "05e8ecc8a76f822d",
+        "correct": true,
+        "format_valid": true,
+        "gold": "76"
+      }
+    ]
+  },
+  "enriched_cf": {
+    "correct_on_19": 15,
+    "recovered_rate": 78.9,
+    "recovered_from_old_plain_9_failures": 7,
+    "recovered_from_old_cf_12_failures": 10,
+    "format_valid": 18,
+    "details": [
+      {
+        "id": "038474b6381afcc3",
+        "correct": true,
+        "format_valid": true,
+        "gold": "15"
+      },
+      {
+        "id": "04163f5aa483ba62",
+        "correct": true,
+        "format_valid": true,
+        "gold": "39"
+      },
+      {
+        "id": "042222699d72fed8",
+        "correct": true,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "045a4b9ccf6aec5e",
+        "correct": true,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "0490d52692d50709",
+        "correct": true,
+        "format_valid": true,
+        "gold": "1525"
+      },
+      {
+        "id": "0535a2bff1af6bf6",
+        "correct": false,
+        "format_valid": true,
+        "gold": "460"
+      },
+      {
+        "id": "0556de23517ccdd9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "8"
+      },
+      {
+        "id": "0557ecbe0fb5a4e5",
+        "correct": false,
+        "format_valid": true,
+        "gold": "504"
+      },
+      {
+        "id": "05846387ad38a89f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "25"
+      },
+      {
+        "id": "059e17683f37d34f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "150"
+      },
+      {
+        "id": "05fb4a9144667e40",
+        "correct": true,
+        "format_valid": true,
+        "gold": "12"
+      },
+      {
+        "id": "069d04281bd76b37",
+        "correct": true,
+        "format_valid": true,
+        "gold": "3"
+      },
+      {
+        "id": "04483c3169b33b6c",
+        "correct": true,
+        "format_valid": true,
+        "gold": "100"
+      },
+      {
+        "id": "0483a43e2f2eb64f",
+        "correct": false,
+        "format_valid": true,
+        "gold": "3450"
+      },
+      {
+        "id": "04d03ed7ef44df0f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "88"
+      },
+      {
+        "id": "0533264eebcd1271",
+        "correct": false,
+        "format_valid": true,
+        "gold": "210"
+      },
+      {
+        "id": "056e151c2a6302a0",
+        "correct": true,
+        "format_valid": false,
+        "gold": "25"
+      },
+      {
+        "id": "0587b07c1310b2e9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "310"
+      },
+      {
+        "id": "05e8ecc8a76f822d",
+        "correct": true,
+        "format_valid": true,
+        "gold": "76"
+      }
+    ]
+  },
+  "enriched_cf_tool": {
+    "correct_on_19": 15,
+    "recovered_rate": 78.9,
+    "recovered_from_old_plain_9_failures": 7,
+    "recovered_from_old_cf_12_failures": 10,
+    "format_valid": 18,
+    "details": [
+      {
+        "id": "038474b6381afcc3",
+        "correct": true,
+        "format_valid": true,
+        "gold": "15"
+      },
+      {
+        "id": "04163f5aa483ba62",
+        "correct": true,
+        "format_valid": true,
+        "gold": "39"
+      },
+      {
+        "id": "042222699d72fed8",
+        "correct": true,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "045a4b9ccf6aec5e",
+        "correct": true,
+        "format_valid": true,
+        "gold": "2"
+      },
+      {
+        "id": "0490d52692d50709",
+        "correct": true,
+        "format_valid": true,
+        "gold": "1525"
+      },
+      {
+        "id": "0535a2bff1af6bf6",
+        "correct": false,
+        "format_valid": true,
+        "gold": "460"
+      },
+      {
+        "id": "0556de23517ccdd9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "8"
+      },
+      {
+        "id": "0557ecbe0fb5a4e5",
+        "correct": false,
+        "format_valid": true,
+        "gold": "504"
+      },
+      {
+        "id": "05846387ad38a89f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "25"
+      },
+      {
+        "id": "059e17683f37d34f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "150"
+      },
+      {
+        "id": "05fb4a9144667e40",
+        "correct": true,
+        "format_valid": true,
+        "gold": "12"
+      },
+      {
+        "id": "069d04281bd76b37",
+        "correct": true,
+        "format_valid": true,
+        "gold": "3"
+      },
+      {
+        "id": "04483c3169b33b6c",
+        "correct": true,
+        "format_valid": true,
+        "gold": "100"
+      },
+      {
+        "id": "0483a43e2f2eb64f",
+        "correct": false,
+        "format_valid": true,
+        "gold": "3450"
+      },
+      {
+        "id": "04d03ed7ef44df0f",
+        "correct": true,
+        "format_valid": true,
+        "gold": "88"
+      },
+      {
+        "id": "0533264eebcd1271",
+        "correct": false,
+        "format_valid": true,
+        "gold": "210"
+      },
+      {
+        "id": "056e151c2a6302a0",
+        "correct": true,
+        "format_valid": false,
+        "gold": "25"
+      },
+      {
+        "id": "0587b07c1310b2e9",
+        "correct": true,
+        "format_valid": true,
+        "gold": "310"
+      },
+      {
+        "id": "05e8ecc8a76f822d",
+        "correct": true,
+        "format_valid": true,
+        "gold": "76"
+      }
+    ]
+  }
+}

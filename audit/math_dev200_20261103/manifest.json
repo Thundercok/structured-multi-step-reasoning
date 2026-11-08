@@ -1,0 +1,12 @@
+{
+  "model": "mlx-community/Qwen3-8B-4bit",
+  "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+  "adapter": null,
+  "adapter_sha256": null,
+  "data": "data/math_source/structured_math_v1/dev_101_300.jsonl",
+  "data_sha256": "cd712b94a1d3d60bc5a1f766d22e529557d97ee49bc64e62cfa2286b1ad91796",
+  "limit": 200,
+  "max_tokens": 2048,
+  "temperature": 0.0,
+  "machine": "macOS-26.5.2-arm64-arm-64bit"
+}

@@ -1,0 +1,595 @@
+{
+  "math_lora_tuned": {
+    "n": 100,
+    "correct": 40,
+    "correct_ci": [
+      0.309,
+      0.498
+    ],
+    "format_valid": 42,
+    "format_valid_ci": [
+      0.328,
+      0.518
+    ],
+    "mean_tokens": 633.0,
+    "truncated": 45,
+    "caught_wrong": "57/60",
+    "caught_wrong_ci": [
+      0.863,
+      0.983
+    ],
+    "false_alarm_right": "28/40",
+    "false_alarm_ci": [
+      0.546,
+      0.819
+    ],
+    "clean_with_vacuous_calc": 13,
+    "vs_base_prefill": {
+      "shared": 100,
+      "only_this_correct": 6,
+      "only_baseline_correct": 29,
+      "mcnemar_p": 0.0001
+    },
+    "vs_base_showcalc": {
+      "shared": 100,
+      "only_this_correct": 7,
+      "only_baseline_correct": 31,
+      "mcnemar_p": 0.0001
+    },
+    "base_prefill_on_shared": {
+      "n": 100,
+      "correct": 63,
+      "correct_ci": [
+        0.532,
+        0.718
+      ],
+      "format_valid": 6,
+      "format_valid_ci": [
+        0.028,
+        0.125
+      ],
+      "mean_tokens": 566.6,
+      "truncated": 10,
+      "caught_wrong": "35/37",
+      "caught_wrong_ci": [
+        0.823,
+        0.985
+      ],
+      "false_alarm_right": "63/63",
+      "false_alarm_ci": [
+        0.943,
+        1.0
+      ],
+      "clean_with_vacuous_calc": 0
+    },
+    "vs_base_prefill_shared": {
+      "shared": 100,
+      "only_this_correct": 6,
+      "only_baseline_correct": 29,
+      "mcnemar_p": 0.0001
+    },
+    "base_showcalc_on_shared": {
+      "n": 100,
+      "correct": 64,
+      "correct_ci": [
+        0.542,
+        0.727
+      ],
+      "format_valid": 0,
+      "format_valid_ci": [
+        0.0,
+        0.037
+      ],
+      "mean_tokens": 787.3,
+      "truncated": 10,
+      "caught_wrong": "36/36",
+      "caught_wrong_ci": [
+        0.904,
+        1.0
+      ],
+      "false_alarm_right": "64/64",
+      "false_alarm_ci": [
+        0.943,
+        1.0
+      ],
+      "clean_with_vacuous_calc": 0
+    },
+    "vs_base_showcalc_shared": {
+      "shared": 100,
+      "only_this_correct": 7,
+      "only_baseline_correct": 31,
+      "mcnemar_p": 0.0001
+    },
+    "error_anatomy": {
+      "non_truncated": {
+        "n": 55,
+        "correct": 40,
+        "format_valid": 42,
+        "invalid_format_n": 13,
+        "invalid_format_but_correct": 8,
+        "error_counts": {
+          "line_outside_grammar": 13
+        }
+      },
+      "truncated": {
+        "n": 45,
+        "repetition_loop_n": 34,
+        "long_derivation_n": 11
+      }
+    }
+  },
+  "math_lora_term": {
+    "n": 100,
+    "correct": 38,
+    "correct_ci": [
+      0.291,
+      0.478
+    ],
+    "format_valid": 52,
+    "format_valid_ci": [
+      0.423,
+      0.615
+    ],
+    "mean_tokens": 579.3,
+    "truncated": 38,
+    "caught_wrong": "55/62",
+    "caught_wrong_ci": [
+      0.785,
+      0.944
+    ],
+    "false_alarm_right": "23/38",
+    "false_alarm_ci": [
+      0.447,
+      0.744
+    ],
+    "clean_with_vacuous_calc": 17,
+    "vs_base_prefill": {
+      "shared": 100,
+      "only_this_correct": 4,
+      "only_baseline_correct": 29,
+      "mcnemar_p": 0.0
+    },
+    "vs_base_showcalc": {
+      "shared": 100,
+      "only_this_correct": 4,
+      "only_baseline_correct": 30,
+      "mcnemar_p": 0.0
+    },
+    "base_prefill_on_shared": {
+      "n": 100,
+      "correct": 63,
+      "correct_ci": [
+        0.532,
+        0.718
+      ],
+      "format_valid": 6,
+      "format_valid_ci": [
+        0.028,
+        0.125
+      ],
+      "mean_tokens": 566.6,
+      "truncated": 10,
+      "caught_wrong": "35/37",
+      "caught_wrong_ci": [
+        0.823,
+        0.985
+      ],
+      "false_alarm_right": "63/63",
+      "false_alarm_ci": [
+        0.943,
+        1.0
+      ],
+      "clean_with_vacuous_calc": 0
+    },
+    "vs_base_prefill_shared": {
+      "shared": 100,
+      "only_this_correct": 4,
+      "only_baseline_correct": 29,
+      "mcnemar_p": 0.0
+    },
+    "base_showcalc_on_shared": {
+      "n": 100,
+      "correct": 64,
+      "correct_ci": [
+        0.542,
+        0.727
+      ],
+      "format_valid": 0,
+      "format_valid_ci": [
+        0.0,
+        0.037
+      ],
+      "mean_tokens": 787.3,
+      "truncated": 10,
+      "caught_wrong": "36/36",
+      "caught_wrong_ci": [
+        0.904,
+        1.0
+      ],
+      "false_alarm_right": "64/64",
+      "false_alarm_ci": [
+        0.943,
+        1.0
+      ],
+      "clean_with_vacuous_calc": 0
+    },
+    "vs_base_showcalc_shared": {
+      "shared": 100,
+      "only_this_correct": 4,
+      "only_baseline_correct": 30,
+      "mcnemar_p": 0.0
+    },
+    "vs_math_lora_tuned": {
+      "shared": 100,
+      "only_this_correct": 11,
+      "only_baseline_correct": 13,
+      "mcnemar_p": 0.8388
+    },
+    "error_anatomy": {
+      "non_truncated": {
+        "n": 62,
+        "correct": 38,
+        "format_valid": 52,
+        "invalid_format_n": 10,
+        "invalid_format_but_correct": 5,
+        "error_counts": {
+          "line_outside_grammar": 10
+        }
+      },
+      "truncated": {
+        "n": 38,
+        "repetition_loop_n": 26,
+        "long_derivation_n": 12
+      }
+    }
+  },
+  "base_prefill": {
+    "n": 100,
+    "correct": 63,
+    "correct_ci": [
+      0.532,
+      0.718
+    ],
+    "format_valid": 6,
+    "format_valid_ci": [
+      0.028,
+      0.125
+    ],
+    "mean_tokens": 566.6,
+    "truncated": 10,
+    "caught_wrong": "35/37",
+    "caught_wrong_ci": [
+      0.823,
+      0.985
+    ],
+    "false_alarm_right": "63/63",
+    "false_alarm_ci": [
+      0.943,
+      1.0
+    ],
+    "clean_with_vacuous_calc": 0,
+    "vs_base_showcalc": {
+      "shared": 100,
+      "only_this_correct": 14,
+      "only_baseline_correct": 15,
+      "mcnemar_p": 1.0
+    }
+  },
+  "base_showcalc": {
+    "n": 100,
+    "correct": 64,
+    "correct_ci": [
+      0.542,
+      0.727
+    ],
+    "format_valid": 0,
+    "format_valid_ci": [
+      0.0,
+      0.037
+    ],
+    "mean_tokens": 787.3,
+    "truncated": 10,
+    "caught_wrong": "36/36",
+    "caught_wrong_ci": [
+      0.904,
+      1.0
+    ],
+    "false_alarm_right": "64/64",
+    "false_alarm_ci": [
+      0.943,
+      1.0
+    ],
+    "clean_with_vacuous_calc": 0,
+    "vs_base_prefill": {
+      "shared": 100,
+      "only_this_correct": 15,
+      "only_baseline_correct": 14,
+      "mcnemar_p": 1.0
+    }
+  },
+  "base_pal": {
+    "n": 100,
+    "correct": 55,
+    "correct_ci": [
+      0.452,
+      0.644
+    ],
+    "format_valid": 0,
+    "format_valid_ci": [
+      0.0,
+      0.037
+    ],
+    "mean_tokens": 461.3,
+    "truncated": 6,
+    "caught_wrong": "45/45",
+    "caught_wrong_ci": [
+      0.921,
+      1.0
+    ],
+    "false_alarm_right": "55/55",
+    "false_alarm_ci": [
+      0.935,
+      1.0
+    ],
+    "clean_with_vacuous_calc": 0,
+    "vs_base_prefill": {
+      "shared": 100,
+      "only_this_correct": 14,
+      "only_baseline_correct": 22,
+      "mcnemar_p": 0.243
+    },
+    "vs_base_showcalc": {
+      "shared": 100,
+      "only_this_correct": 12,
+      "only_baseline_correct": 21,
+      "mcnemar_p": 0.1628
+    }
+  },
+  "interventions": {
+    "tuned": {
+      "eligible": {
+        "n": 2,
+        "follows": 1,
+        "follows_rounded": 0,
+        "reverted": 0,
+        "other": 0,
+        "moved": 1,
+        "no_answer": 0
+      },
+      "eligibility_rate": 0.02,
+      "skipped": {
+        "invalid_format": 47,
+        "ambiguous_propagation": 1,
+        "too_few_calcs": 11,
+        "non_numeric_answer": 33,
+        "answer_needs_comparison": 1,
+        "no_result_used_later": 5
+      },
+      "rq1": {
+        "moved|clean": {
+          "n": 1,
+          "wrong": 0
+        },
+        "moved|flagged": {
+          "n": 1,
+          "wrong": 0
+        }
+      },
+      "correct_only": {
+        "n": 2,
+        "follows": 1,
+        "follows_rounded": 0,
+        "reverted": 0,
+        "other": 0,
+        "moved": 1,
+        "no_answer": 0
+      },
+      "shared": {
+        "n": 2,
+        "follows": 1,
+        "follows_rounded": 0,
+        "reverted": 0,
+        "other": 0,
+        "moved": 1,
+        "no_answer": 0
+      },
+      "shared_correct_only": {
+        "n": 2,
+        "follows": 1,
+        "follows_rounded": 0,
+        "reverted": 0,
+        "other": 0,
+        "moved": 1,
+        "no_answer": 0
+      }
+    }
+  },
+  "rq2_math_gate": {
+    "live_planner_counts": {
+      "invalid_format": 47,
+      "non_numeric_answer": 33,
+      "too_few_calcs": 11,
+      "no_result_used_later": 5,
+      "eligible": 2,
+      "ambiguous_propagation": 1,
+      "answer_needs_comparison": 1
+    },
+    "status": "unmeasurable (< 30 eligible traces)",
+    "official_evaluation": {
+      "eligible_n": 2,
+      "unflagged_n": 1,
+      "not_followed": 0,
+      "not_followed_rate": 0.0,
+      "follows": 1,
+      "follows_rounded": 0,
+      "reverted": 0,
+      "other": 0,
+      "moved": 1,
+      "status": "unmeasurable (< 30 eligible traces)"
+    }
+  },
+  "by_level": {
+    "Level 3": {
+      "n": 25,
+      "base_prefill_correct": 18,
+      "base_showcalc_correct": 22,
+      "base_pal_correct": 18,
+      "lora_correct": 14,
+      "lora_format_valid": 16,
+      "lora_truncated": 7,
+      "lora_non_trunc_n": 18,
+      "lora_non_trunc_correct": 14,
+      "term_correct": 18,
+      "term_format_valid": 21,
+      "term_truncated": 2,
+      "term_non_trunc_n": 23,
+      "term_non_trunc_correct": 18
+    },
+    "Level 4": {
+      "n": 23,
+      "base_prefill_correct": 16,
+      "base_showcalc_correct": 14,
+      "base_pal_correct": 13,
+      "lora_correct": 11,
+      "lora_format_valid": 9,
+      "lora_truncated": 9,
+      "lora_non_trunc_n": 14,
+      "lora_non_trunc_correct": 11,
+      "term_correct": 8,
+      "term_format_valid": 12,
+      "term_truncated": 8,
+      "term_non_trunc_n": 15,
+      "term_non_trunc_correct": 8
+    },
+    "Level 5": {
+      "n": 52,
+      "base_prefill_correct": 29,
+      "base_showcalc_correct": 28,
+      "base_pal_correct": 24,
+      "lora_correct": 15,
+      "lora_format_valid": 17,
+      "lora_truncated": 29,
+      "lora_non_trunc_n": 23,
+      "lora_non_trunc_correct": 15,
+      "term_correct": 12,
+      "term_format_valid": 19,
+      "term_truncated": 28,
+      "term_non_trunc_n": 24,
+      "term_non_trunc_correct": 12
+    }
+  },
+  "by_subject": {
+    "algebra": {
+      "n": 27,
+      "base_prefill_correct": 25,
+      "base_showcalc_correct": 23,
+      "base_pal_correct": 21,
+      "lora_correct": 18,
+      "lora_format_valid": 18,
+      "lora_truncated": 5,
+      "lora_non_trunc_n": 22,
+      "lora_non_trunc_correct": 18,
+      "term_correct": 16,
+      "term_format_valid": 17,
+      "term_truncated": 7,
+      "term_non_trunc_n": 20,
+      "term_non_trunc_correct": 16
+    },
+    "counting_and_probability": {
+      "n": 11,
+      "base_prefill_correct": 5,
+      "base_showcalc_correct": 6,
+      "base_pal_correct": 5,
+      "lora_correct": 3,
+      "lora_format_valid": 4,
+      "lora_truncated": 7,
+      "lora_non_trunc_n": 4,
+      "lora_non_trunc_correct": 3,
+      "term_correct": 3,
+      "term_format_valid": 7,
+      "term_truncated": 3,
+      "term_non_trunc_n": 8,
+      "term_non_trunc_correct": 3
+    },
+    "geometry": {
+      "n": 16,
+      "base_prefill_correct": 4,
+      "base_showcalc_correct": 6,
+      "base_pal_correct": 5,
+      "lora_correct": 2,
+      "lora_format_valid": 5,
+      "lora_truncated": 10,
+      "lora_non_trunc_n": 6,
+      "lora_non_trunc_correct": 2,
+      "term_correct": 3,
+      "term_format_valid": 8,
+      "term_truncated": 7,
+      "term_non_trunc_n": 9,
+      "term_non_trunc_correct": 3
+    },
+    "intermediate_algebra": {
+      "n": 18,
+      "base_prefill_correct": 9,
+      "base_showcalc_correct": 10,
+      "base_pal_correct": 9,
+      "lora_correct": 4,
+      "lora_format_valid": 3,
+      "lora_truncated": 13,
+      "lora_non_trunc_n": 5,
+      "lora_non_trunc_correct": 4,
+      "term_correct": 5,
+      "term_format_valid": 7,
+      "term_truncated": 11,
+      "term_non_trunc_n": 7,
+      "term_non_trunc_correct": 5
+    },
+    "number_theory": {
+      "n": 13,
+      "base_prefill_correct": 8,
+      "base_showcalc_correct": 8,
+      "base_pal_correct": 8,
+      "lora_correct": 5,
+      "lora_format_valid": 3,
+      "lora_truncated": 5,
+      "lora_non_trunc_n": 8,
+      "lora_non_trunc_correct": 5,
+      "term_correct": 2,
+      "term_format_valid": 5,
+      "term_truncated": 7,
+      "term_non_trunc_n": 6,
+      "term_non_trunc_correct": 2
+    },
+    "prealgebra": {
+      "n": 11,
+      "base_prefill_correct": 10,
+      "base_showcalc_correct": 8,
+      "base_pal_correct": 6,
+      "lora_correct": 7,
+      "lora_format_valid": 8,
+      "lora_truncated": 2,
+      "lora_non_trunc_n": 9,
+      "lora_non_trunc_correct": 7,
+      "term_correct": 8,
+      "term_format_valid": 8,
+      "term_truncated": 1,
+      "term_non_trunc_n": 10,
+      "term_non_trunc_correct": 8
+    },
+    "precalculus": {
+      "n": 4,
+      "base_prefill_correct": 2,
+      "base_showcalc_correct": 3,
+      "base_pal_correct": 1,
+      "lora_correct": 1,
+      "lora_format_valid": 1,
+      "lora_truncated": 3,
+      "lora_non_trunc_n": 1,
+      "lora_non_trunc_correct": 1,
+      "term_correct": 1,
+      "term_format_valid": 0,
+      "term_truncated": 2,
+      "term_non_trunc_n": 2,
+      "term_non_trunc_correct": 1
+    }
+  }
+}

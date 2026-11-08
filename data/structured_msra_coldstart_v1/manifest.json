@@ -1,0 +1,34 @@
+{
+  "dataset_name": "structured_msra_coldstart_v1",
+  "description": "Stage 1 Structural Cold-Start SFT dataset combining GSM8K and MATH checkable in MSRA XML format",
+  "counts": {
+    "train_total": 7786,
+    "train_gsm8k": 7061,
+    "train_math": 725,
+    "valid_total": 175,
+    "valid_gsm8k": 99,
+    "valid_math": 76
+  },
+  "stats": {
+    "gsm8k_train": {
+      "total_read": 7061,
+      "converted_valid": 7061
+    },
+    "gsm8k_valid": {
+      "total_read": 99,
+      "converted_valid": 99
+    },
+    "math_train": {
+      "total_read": 725,
+      "converted_valid": 725
+    },
+    "math_valid": {
+      "total_read": 76,
+      "converted_valid": 76
+    }
+  },
+  "sha256": {
+    "train.jsonl": "1f8ea6eaae94c7360e5b0e88b49f92e79e0fd231c51807ebc1bb7ddd39d088c9",
+    "valid.jsonl": "84ba1f41806eeb86f2f8f4208fbbe42bdb38270971302b531e470461a0aacbdd"
+  }
+}

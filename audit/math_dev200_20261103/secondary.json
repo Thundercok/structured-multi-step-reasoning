@@ -1,0 +1,134 @@
+{
+ "states": {
+  "agree": {
+   "right": 84,
+   "wrong": 4
+  },
+  "differ": {
+   "right": 20,
+   "wrong": 48
+  },
+  "no_value": {
+   "right": 14,
+   "wrong": 30
+  }
+ },
+ "right_when_agree": {
+  "count": "84/88",
+  "ci": [
+   0.889,
+   0.982
+  ]
+ },
+ "right_overall": {
+  "count": "118/200",
+  "ci": [
+   0.521,
+   0.656
+  ]
+ },
+ "share_agree": {
+  "count": "88/200",
+  "ci": [
+   0.373,
+   0.509
+  ]
+ },
+ "numeric_gold": {
+  "caught": {
+   "count": "24/47",
+   "ci": [
+    0.372,
+    0.647
+   ]
+  },
+  "false_alarm": {
+   "count": "8/80",
+   "ci": [
+    0.052,
+    0.185
+   ]
+  }
+ },
+ "symbolic_gold": {
+  "caught": {
+   "count": "24/35",
+   "ci": [
+    0.52,
+    0.814
+   ]
+  },
+  "false_alarm": {
+   "count": "12/38",
+   "ci": [
+    0.191,
+    0.475
+   ]
+  }
+ },
+ "not_truncated": {
+  "caught": {
+   "count": "40/62",
+   "ci": [
+    0.521,
+    0.753
+   ]
+  },
+  "false_alarm": {
+   "count": "20/118",
+   "ci": [
+    0.112,
+    0.247
+   ]
+  }
+ },
+ "truncated_flag_alone": {
+  "caught": {
+   "count": "20/82",
+   "ci": [
+    0.164,
+    0.347
+   ]
+  },
+  "false_alarm": {
+   "count": "0/118",
+   "ci": [
+    0.0,
+    0.032
+   ]
+  }
+ },
+ "flag_differ_or_no_value": {
+  "caught": {
+   "count": "78/82",
+   "ci": [
+    0.881,
+    0.981
+   ]
+  },
+  "false_alarm": {
+   "count": "34/118",
+   "ci": [
+    0.214,
+    0.376
+   ]
+  }
+ },
+ "if_read_cases_counted_right": {
+  "correct": 126,
+  "caught": {
+   "count": "41/74",
+   "ci": [
+    0.441,
+    0.662
+   ]
+  },
+  "false_alarm": {
+   "count": "27/126",
+   "ci": [
+    0.152,
+    0.294
+   ]
+  }
+ }
+}
