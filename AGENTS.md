@@ -54,7 +54,7 @@ on a 16 GB M1.
 ## Repo boundaries
 
 This repository is dedicated 100% to research (Qwen3-8B structured reasoning, counterfactuals, and interventions).
-RAT has been fully separated into `Thundercok/interpretable-ml-research`.
+RAT has been fully separated into `Thundercok/selective-delegation-agent`.
 Research never imports RAT; `tests/test_repo_boundaries.py` enforces it.
 Tag `rat-lite-0.6.0` remains preserved in git history.
 
