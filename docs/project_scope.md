@@ -83,6 +83,27 @@ dữ liệu đã review, split hợp lệ và run artifacts đúng protocol. Kh�
 loại bằng chứng để thay thế loại khác. Không suy ra cải thiện accuracy, chi phí
 hay latency từ việc tích hợp UI hoặc tái sử dụng thư viện.
 
+## Ranh giới học thuật: Verification, Validation, Confidence và Correctness
+
+Để đảm bảo tính khoa học và không thổi phồng kết quả (defensible claims), dự án định nghĩa rành mạch 4 khái niệm:
+
+1. **Verification (Kiểm chứng hình thức):** Kiểm tra xem đầu ra có thỏa mãn một ràng buộc hình thức cục bộ cụ thể (schema hợp lệ, cú pháp không lỗi, biểu thức chạy ra kết quả khớp claim, số có xuất hiện trong tài liệu). PASS ở bước này chỉ mô tả việc vượt qua quy tắc kiểm tra đó, **KHÔNG** đồng nghĩa đáp án đúng toàn diện.
+2. **Validation (Xác nhận giá trị thực tế):** Đánh giá xem luồng xử lý hoặc ứng dụng có đáp ứng đúng mục tiêu thực tế của người dùng/tác vụ hay không.
+3. **Confidence (Độ tự tin):** Điểm số tự tin nội tại ($\hat{p} \in [0, 1]$ từ logprob hoặc calibrated predictor). Điểm tự tin cao không bảo đảm tính đúng (mô hình hoàn toàn có thể tự tin vào một kết quả sai - overconfidence).
+4. **Correctness (Độ đúng chân lý):** Độ đúng đắn thực sự khi so sánh với ground-truth (nhãn chuẩn). Không thể tự động suy ra correctness chỉ từ Verification PASS hoặc Confidence cao.
+
+### Phạm vi và giới hạn của Local Verifier
+
+- **Kiểm tra được (In-scope / Deterministic):**
+  - Cú pháp & schema AST (JSON, regex, Python structure).
+  - Chạy biểu thức số học trên sandbox để đối chiếu số trong claim.
+  - Kiểm tra đối chiếu ký tự thô (lexical presence / hallucinated numbers detection).
+  - Đối chiếu contract giữa tham số gọi tool và artifact trả về.
+- **Không kiểm tra được (Out-of-scope / Blind spots):**
+  - Không suy diễn ngữ nghĩa (*semantic entailment* — không xác định được con số trích xuất có dùng đúng quan hệ ngữ nghĩa trong câu hay không).
+  - Không đánh giá được mức độ thỏa mãn câu hỏi mở của người dùng.
+  - Không phải bộ giải logic tổng quát (*general theorem prover*) cho mọi bài toán ngoài các template quy định sẵn.
+
 Điểm vào nghiên cứu vẫn là `python -m experiments.research_study`. Giữ tách
 train/calibration/test, phân biệt synthetic/development/held-out, generated-token
 cost/full inference cost và replay time/online latency. Stage 0, dataset review,

@@ -38,12 +38,12 @@ flowchart LR
     R -. Evidence informs implementation .-> A
 ```
 
-## Unified Execution Contract vs. Escalated Agentic Reasoning
+## Execution Design: Deterministic Fast-Path vs. Model Escalation
 
-RAT implements a strict 2-tier architectural separation:
-- **Shared Reasoning Contract**: Every action flows through the same `ToolContract`, `CapabilityDispatcher`, observable `Artifact`, and `Verifier`.
-- **Tier 0 (`DIRECT` Fast-Path — 0 LLM calls)**: Deterministic routines (macOS Spotlight search, on-device `CTranslate2` translation, directory reorganization preview) execute via `ToolGoalRouter` instantly with zero model inference cost.
-- **Tier 1+ (`VCoT / Multi-Step Agent Loop` — Optimal Stopping)**: Escalates only when intent demands multi-step planning, iterative clarification, or deep explanation under rigorous token budget management.
+RAT separates execution into two complementary tiers:
+- **Shared Execution Contracts**: Actions are structured around shared `ToolContract`, `CapabilityDispatcher`, observable `Artifact`, and `Verifier` interfaces where applicable.
+- **Tier 0 (`DIRECT` Fast-Path — 0 LLM calls)**: Deterministic routines (e.g. macOS Spotlight search, on-device `CTranslate2` translation, directory reorganization preview) execute via `ToolGoalRouter` with zero model inference calls, bounded by local CPU and I/O execution.
+- **Tier 1+ (`VCoT / Multi-Step Agent Loop` — Optimal Stopping)**: Escalates to language model reasoning based on predicted routing policy and calibrated stopping thresholds when simpler paths are insufficient.
 
 ## Quickstart
 
@@ -160,14 +160,29 @@ remain unchanged; the review makes no model calls and does not change Stage 0.
 | Entry without escalation | Remove escalation while retaining the full policy's entry choices |
 | Full policy | Combine routing with calibrated ladder stopping |
 
+### Methodological Trade-offs vs. Prior Art
+
+| Method | Intervention Point | Model Weights | Core Advantage | Concrete Trade-offs & Limitations |
+| --- | --- | --- | --- | --- |
+| **Route to Reason (RTR)** | $t=0$ (One-shot) | Frozen | Minimal routing overhead; single-step policy decision. | Cannot recover if initial difficulty routing mispredicts. |
+| **ESC / ReASC** | Post-sample (within Self-Consistency) | Frozen | Reduces sample counts compared to full $K$-sample SC. | Still incurs multi-candidate generation costs; restricted to consensus tasks. |
+| **Settle / SABER** | Within-chain (token-level) | Requires SFT / RL | Fine-grained token-level termination without external checks. | Requires domain-specific fine-tuning; cannot run on frozen commodity SLMs. |
+| **RAT-CoT (Proposed)** | Dual-stage ($t=0$ entry + inter-strategy ladder) | Frozen | Combines calibrated Bayesian stopping with deterministic local verification. | **Coordination overhead**: Incurs local CPU runtime and parser/grammar extraction bounds. |
+
 Every method uses the same recorded outputs for a query, strategy and seed.
 Escalation pays for every executed strategy. Thresholds use `calibration`;
 routing predictors use `train`; reported comparisons use only `test`.
 
 The legacy action named `TOT` in the MLX adapter generates candidates and selects
 one; it is **not a full Tree-of-Thoughts search**. ReAct currently exposes a
-calculator, not document search. Confidence is a heuristic signal, not a verified
-probability of correctness. The one-shot baseline is not an official
+calculator, not document search. 
+
+Confidence is a heuristic or calibrated signal, not ground-truth correctness.
+Local verification checks deterministic execution or syntax contracts (e.g. valid AST,
+sandboxed calculation reproduction, lexical presence); a `PASS` report verifies the
+bounded check, not semantic entailment or overall correctness. See 
+[project scope](docs/project_scope.md) for the formal distinctions between verification, 
+validation, confidence, and correctness. The one-shot baseline is not an official
 reproduction of Route-to-Reason.
 
 ## Evidence and project layout
