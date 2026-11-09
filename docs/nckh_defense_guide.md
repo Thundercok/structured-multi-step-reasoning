@@ -338,19 +338,19 @@ flowchart LR
 
 - **Đáp án Tiếng Việt (VN):**
   > "Kính thưa Quý Thầy Cô trong Hội đồng,  
-  > Để đảm bảo tính chặt chẽ thực nghiệm và loại bỏ hoàn toàn yếu tố ngẫu nhiên do cỡ mẫu nhỏ, chúng em đã thực hiện một đợt đánh giá mở rộng quy mô lớn (Scale-up Benchmark) trên **300 câu hỏi held-out hoàn toàn độc lập** và quét can thiệp toàn diện theo độ sâu bước ($k = 1, 2, \dots, K-1$) tại `audit/scaleup_eval_300_20261109/REPORT.md`:  
-  > 1. **Kiểm định Thống kê Ghép cặp McNemar ($p < 0.01$):**  
-  >    - Trên 167 bài toán cùng đạt điều kiện can thiệp của cả 2 mô hình, `Enriched CF` đạt tỷ lệ tuân thủ chính xác (`exact follows`) là **81.4% (136/167)** so với **71.3% (119/167)** của `Enriched Plain SFT`.  
-  >    - Số cặp bất đồng đạt **$D = 35$** ($26$ bài chỉ CF tuân thủ đúng vs. $9$ bài chỉ Plain tuân thủ).  
-  >    - Kiểm định Exact Binomial McNemar hai phía cho ra **$p = 0.00599 < 0.01$** (một phía $p = 0.00299$). Điều này khẳng định với độ tin cậy $>99\%$ rằng dữ liệu counterfactual trực tiếp rèn luyện cho mô hình khả năng bám sát nhân quả vượt trội chứ không hề là dao động ngẫu nhiên.  
-  > 2. **Bác bỏ hoàn toàn Giả thuyết Quán tính Ngữ cảnh (Contextual Inertia):**  
-  >    - Khi can thiệp sâu ($N = 238$ lượt can thiệp trên toàn bộ 224 bài làm đúng của cả 2 mô hình), tỷ lệ quay xe về đáp án cũ (`reverted`) ở bước $k = 1$ là **4.5%** (do lực hút từ vựng của đề bài chưa bị phân rã), nhưng khi sang bước $k = 2$ giảm xuống **1.3%**, bước $k = 3$ là **3.0%**, và bước $k = 4$ đạt **0.0%** (100% tuân thủ nhân quả).  
-  >    - Kết quả này chứng minh cơ chế attention của mô hình khi suy luận đa bước có cấu trúc bám điều kiện rất vững chắc vào biến trung gian vừa sinh ra ở bước trước, chứ không bị trôi dạt hay lật lại kết quả ban đầu!"
+  > Chúng em đo trên 199 câu ngoài file huấn luyện, gồm 100 câu dev và 99 câu valid. Hai nhóm này đã được xem hoặc dùng trong lúc phát triển, nên đây là kết quả thăm dò; tập test chính thức vẫn được niêm phong. Lần tính đầu ghi 300 câu, nhưng 100 trong số 101 câu thêm vào nằm trong file huấn luyện nên chúng em đã loại ra (`audit/scaleup_eval_300_20261109/CORRECTION.md`).  
+  > 1. **So sánh ghép cặp McNemar:**  
+  >    - Độ đúng của `Enriched CF` và `Enriched Plain SFT` là 165/199 và 164/199 ($p = 1.0$), tức chưa thấy khác biệt; điều này không chứng minh hai bên bằng nhau.  
+  >    - Trên 114 lần sửa một bước mà cả hai mô hình đều được đo, `Enriched CF` đổi đáp án đúng theo bước đã sửa **81.6% (93/114)**, `Enriched Plain SFT` là **71.1% (81/114)**.  
+  >    - Có 24 cặp bất đồng (18 lần chỉ CF theo, 6 lần chỉ Plain theo), McNemar chính xác hai phía cho **$p = 0.0227$**. Vì CF được huấn luyện đúng kiểu sửa này và trên các câu này chưa có mốc mô hình gốc, kết quả chỉ cho thấy CF bám theo bước sửa nhiều hơn Plain, chưa cho thấy nó trung thực hơn nói chung.  
+  > 2. **Quán tính ngữ cảnh ở các bước sâu:**  
+  >    - Với 162 lượt sửa từ 94 câu mà cả hai mô hình đều làm đúng, tỷ lệ `Enriched CF` quay về đáp án cũ là **5.2%** ở $k = 1$, **2.0%** ở $k = 2$, **4.8%** ở $k = 3$ và **0.0%** ở $k = 4$.  
+  >    - Chúng em chưa thấy tỷ lệ này tăng theo độ sâu, nhưng tổng cộng chỉ có 6 lần quay về nên chưa thể kết luận chắc. Phép đo này chỉ nhìn vào văn bản mô hình sinh ra, không nói được gì về cơ chế attention bên trong."
 
 - **English Answer (EN):**
-  > "To rule out sample size artifacts and verify that counterfactual fine-tuning delivers genuine, non-random causal adherence, we conducted a rigorous scale-up evaluation across $N = 300$ held-out problems and an exhaustive step-depth sweep ($N = 238$ interventions across steps $k = 1, 2, \dots, K-1$) documented in `audit/scaleup_eval_300_20261109/REPORT.md`:  
-  > 1. **Statistically Significant Causal Compliance ($p < 0.01$):** Across 167 shared intervention episodes, `Enriched CF` achieves an **81.4%** exact following rate vs. **71.3%** for `Enriched Plain SFT`. With $D = 35$ discordant pairs ($26$ CF wins vs. $9$ Plain wins), the exact two-sided McNemar test yields **$p = 0.00599 < 0.01$** ($p = 0.00299$ one-sided), rigorously proving causal superiority at the 99% confidence level.  
-  > 2. **Refutation of Contextual Inertia at Depth:** Rather than decaying downstream, causal adherence remains above **95%** at intermediate steps $k \ge 2$, with answer reversion dropping from 4.5% at $k = 1$ to **1.3% at $k = 2$** and **0.0% at $k = 4$**. This confirms that the model autoregressively conditions on newly computed variables without snapping back to pre-intervention priors."
+  > "We measured 199 questions outside the training files: Dev-100 and 99 validation questions. Both splits were read or used during development, so this is exploratory, and the official test set remains sealed. An earlier count of 300 included 100 questions from the training files, which we excluded (`audit/scaleup_eval_300_20261109/CORRECTION.md`).  
+  > 1. **Adherence to an edited step:** Accuracy is 165/199 for `Enriched CF` and 164/199 for `Enriched Plain SFT` ($p = 1.0$), so we detect no difference, which does not establish equivalence. Across 114 shared intervention episodes, exact following is **81.6%** vs. **71.1%** ($D = 24$, $18$ CF wins vs. $6$ Plain wins, exact two-sided McNemar **$p = 0.0227$**). CF was trained on this kind of edit and these questions have no base-model baseline, so this shows higher adherence than Plain, not greater faithfulness in general.  
+  > 2. **Contextual inertia at depth:** Across 162 interventions from 94 questions both models answered correctly, `Enriched CF` reverts **5.2%** at $k = 1$, **2.0%** at $k = 2$, **4.8%** at $k = 3$ and **0.0%** at $k = 4$. We see no increase with depth, but with only 6 reversions in total this is not conclusive. The test measures generated text, not internal mechanisms."
 
 ---
 

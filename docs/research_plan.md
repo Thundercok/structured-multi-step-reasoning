@@ -55,6 +55,8 @@ Anthology và Google Scholar. Theo dõi arXiv hằng tháng, vì nhiều bài �
 hoạch, không có phép tính, đúng 23/34; có viết phép tính thì đúng 58/59. Đây là tương quan.
 11/12 câu CoT sai không viết phép tính nào. Câu sai vẫn có confidence 0,94 đến 0,98.
 
+**Đính chính ngày 2026-11-09:** bộ N=300 ở `audit/scaleup_eval_300_20261109/` không phải held-out, vì 100/101 câu `heldout_tail` có trong file huấn luyện. Trên 199 câu dev và valid còn lại: độ đúng CF và Plain là 165 và 164 (p = 1,0), `follows` chính xác 93 và 81 trên 114 (p = 0,0227). Đây vẫn là kết quả thăm dò ([chi tiết](../audit/scaleup_eval_300_20261109/CORRECTION.md)).
+
 ## Câu hỏi nghiên cứu
 
 - **RQ1, cơ chế (mới, đóng góp chính).** Giá trị dự đoán câu sai của kiểm tra tất định có tăng

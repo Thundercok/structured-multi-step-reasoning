@@ -1,7 +1,7 @@
 """Comprehensive Scale-up Evaluation (N=300 & Exhaustive Step-Depth Sweep)
 
 Runs an extensive evaluation comparing Enriched CF vs. Enriched Plain SFT:
-1. 300 disjoint held-out questions (Dev-100 + Valid-100 + Held-out Tail 100).
+1. 300 questions (Dev-100 + Valid-99 + 101 from the training pool). These are not held-out; see CORRECTION.md in the audit folder.
 2. Clean performance & Paired McNemar test on Clean Accuracy.
 3. Standard intermediate interventions.
 4. Exhaustive Step-Depth Sweep across all intermediate steps k on common correct items.
@@ -71,14 +71,14 @@ def prepare_300_dataset():
             print(f"[Dataset] Using existing {out_file} (N=300)")
             return out_file
 
-    print("[Dataset] Building 300 disjoint held-out questions...")
+    print("[Dataset] Building 300 development questions...")
     dev_src = ROOT / "data/structured_gsm8k_enriched_v1/dev.jsonl"
     dev_items = [dict(json.loads(l), split="dev") for l in dev_src.read_text().splitlines() if l.strip()]
 
     valid_src = ROOT / "data/structured_gsm8k_v1/valid_eval.jsonl"
     valid_items = [dict(json.loads(l), split="valid") for l in valid_src.read_text().splitlines() if l.strip()]
 
-    # Tail 101 items from untouched pool
+    # Last 101 items of the training pool; the "heldout_tail" label is kept to match the saved data
     train_pool, valid_pool, dev_pool = gsm8k.load_splits()
     tail_items = []
     for row in train_pool[-101:]:

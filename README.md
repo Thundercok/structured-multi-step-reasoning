@@ -44,43 +44,46 @@ When $H(z_k) > \tau$, self-generation halts and triggers external verification o
 
 ## 2. Empirical Results & Step Intervention Benchmarks
 
-We evaluate the fine-tuned structured **Qwen3-8B** models on a comprehensive scale-up benchmark of $N = 300$ held-out problems (combining `Dev-100`, `Valid-100`, and held-out training pool tails) and test reasoning step dependence via deterministic intermediate step interventions $\text{do}(z_k \leftarrow \tilde{z}_k)$.
+We evaluate the fine-tuned structured **Qwen3-8B** models on $N = 199$ questions outside the training files (`Dev-100` and 99 validation questions) and test reasoning step dependence via deterministic intermediate step interventions $\text{do}(z_k \leftarrow \tilde{z}_k)$. Both splits were read or used during development, so these results are exploratory. The official GSM8K test set remains sealed.
 
-### A. Scale-Up Performance & Intervention Taxonomy ($N=300$)
+> [!WARNING]
+> **Correction (2026-11-09):** this analysis was first reported on $N = 300$ "held-out" questions, but 100 of its 101 `heldout_tail` questions appear in the training files. They are excluded below. The all-300 figures, for transparency: accuracy 251 vs. 244 ($p = 0.3817$), exact `follows` 136 vs. 119 of 167 ($p = 0.00599$). See [`CORRECTION.md`](audit/scaleup_eval_300_20261109/CORRECTION.md).
 
-Across $N = 300$ held-out items, counterfactual fine-tuning incurs zero capability tax on natural reasoning while enforcing statistically superior behavioral adherence over standard supervised fine-tuning (SFT):
+### A. Accuracy & Intervention Taxonomy ($N=199$)
 
-| Model Checkpoint | Clean Acc ($N=300$) | Shared Interventions ($N$) | Exact `follows` | `follows_rounded` | Total Adherence | `reverted` (Unfaithful) | `moved` / `other` |
+Accuracy shows no detectable difference between counterfactual fine-tuning and standard supervised fine-tuning (SFT). The counterfactual model follows an edited step more often:
+
+| Model Checkpoint | Clean Acc ($N=199$) | Shared Interventions ($N$) | Exact `follows` | `follows_rounded` | Total Adherence | `reverted` | `moved` / `other` |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Enriched CF (Proposed)** | **83.67%** (251/300) | 167 | **81.4%** (136) | 11.4% (19) | **92.8%** (155/167) | **1.8%** (3) | 5.4% (9) |
-| **Enriched Plain SFT (Baseline)** | 81.33% (244/300) | 167 | 71.3% (119) | 15.0% (25) | 86.2% (144/167) | 3.0% (5) | 10.8% (18) |
+| **Enriched CF** | 82.9% (165/199) | 114 | **81.6%** (93) | 11.4% (13) | **93.0%** (106/114) | 2.6% (3) | 4.4% (5) |
+| **Enriched Plain SFT** | 82.4% (164/199) | 114 | 71.1% (81) | 15.8% (18) | 86.8% (99/114) | 3.5% (4) | 9.6% (11) |
 
-* **Paired McNemar Test on Clean Accuracy ($N=300$)**:
-  * Both Correct ($n_{11}$): 224 | Both Wrong ($n_{00}$): 29 | CF+ Plain- ($n_{01}$): 27 | Plain+ CF- ($n_{10}$): 20
-  * Discordant Pairs: $D = 47$ ($p = 0.3817$). Confirms counterfactual training preserves core mathematical problem-solving capability.
-* **Paired McNemar Test on Intervention Adherence ($N=167$ Shared Episodes)**:
-  * Exact `follows`: Enriched CF **81.4%** vs. Enriched Plain **71.3%**
-  * Discordant Pairs: **$D = 35$** ($CF+=26, Plain+=9$)
-  * **Exact McNemar Significance: Two-sided $p = \mathbf{0.00599} < 0.01$ | One-sided $p = \mathbf{0.00299}$**
-  * **Statistical Conclusion**: Fine-tuning on counterfactual traces produces a statistically significant ($p < 0.01$), non-random improvement in downstream deduction adherence, substantially reducing unfaithful rationalizations (`reverted`: $1.8\%$ vs. $3.0\%$) and unstructured deviations.
+* **Paired McNemar Test on Clean Accuracy ($N=199$)**:
+  * Both Correct ($n_{11}$): 150 | Both Wrong ($n_{00}$): 20 | CF+ Plain- ($n_{01}$): 15 | Plain+ CF- ($n_{10}$): 14
+  * Discordant Pairs: $D = 29$ ($p = 1.0$). This detects no difference; it does not establish that the models are equivalent.
+* **Paired McNemar Test on Intervention Adherence ($N=114$ Shared Episodes)**:
+  * Exact `follows`: Enriched CF **81.6%** vs. Enriched Plain **71.1%**
+  * Discordant Pairs: **$D = 24$** ($CF+=18, Plain+=6$)
+  * **Exact McNemar, two-sided: $p = 0.0227$**
+  * **Limits**: Enriched CF was trained on this kind of edit, and these questions have no base-model intervention baseline. The result shows higher adherence than plain SFT, not greater faithfulness in general. The `reverted` counts (3 vs. 4) are too small to compare.
 
-### B. Exhaustive Step Sweep & Positional Decay ($k$ vs. Outcome)
+### B. Step Sweep by Position ($k$ vs. Outcome)
 
-To test whether models suffer from **Contextual Inertia** (where deductions at deeper steps snap back to memorized answers), we perform an exhaustive step sweep across all intermediate steps ($k = 1, 2, \dots, K-1$) on the $n_{11} = 224$ concordant clean-correct items ($N = 238$ swept intervention episodes):
+To check whether deeper steps snap back to the original answer more often (**Contextual Inertia**), we sweep the intermediate steps ($k = 1, 2, \dots, K-1$) of questions both models answered correctly ($N = 162$ episodes from 94 questions):
 
-* **Step Sweep Discordant Pairs**: $D = 28$ ($CF+=20, Plain+=8$, Exact McNemar two-sided $p = \mathbf{0.03570} < 0.05$).
-* **Positional Decay Breakdown**:
+* **Step Sweep Discordant Pairs**: $D = 24$ ($CF+=17, Plain+=7$, exact McNemar two-sided $p = 0.0639$). Episodes from the same question are not independent, so this $p$ is approximate.
+* **Enriched CF by Position**:
 
-| Intervened Step Position | Total Samples ($n$) | Total Adherence (`follows` + `_rounded`) | `reverted` (Prompt Gravity) | `moved` | `other` |
+| Intervened Step Position | Total Samples ($n$) | Total Adherence (`follows` + `_rounded`) | `reverted` | `moved` | `other` |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **$k = 1$ (Early Step)** | 111 | 93.7% (104) | **4.5%** (5) | 0.9% (1) | 0.9% (1) |
-| **$k = 2$ (Mid Step)** | 75 | 96.0% (72) | **1.3%** (1) | 0.0% (0) | 2.7% (2) |
-| **$k = 3$ (Deeper Step)** | 33 | 97.0% (32) | **3.0%** (1) | 0.0% (0) | 0.0% (0) |
-| **$k = 4$ (Deep Step)** | 13 | 100.0% (13) | **0.0%** (0) | 0.0% (0) | 0.0% (0) |
-| **$k = 5$ (Tail Step)** | 6 | 83.3% (5) | 16.7% (1) | 0.0% (0) | 0.0% (0) |
+| **$k = 1$** | 77 | 93.5% (72) | 5.2% (4) | 0.0% (0) | 1.3% (1) |
+| **$k = 2$** | 50 | 94.0% (47) | 2.0% (1) | 0.0% (0) | 4.0% (2) |
+| **$k = 3$** | 21 | 95.2% (20) | 4.8% (1) | 0.0% (0) | 0.0% (0) |
+| **$k = 4$** | 11 | 100.0% (11) | 0.0% (0) | 0.0% (0) | 0.0% (0) |
+| **$k = 5$** | 3 | 100.0% (3) | 0.0% (0) | 0.0% (0) | 0.0% (0) |
 
 > [!NOTE]
-> **Empirical Refutation of Contextual Inertia:** Downstream answer reversion does **not** monotonically increase with reasoning depth $k$. Instead, reversions occur predominantly at early steps ($k = 1$, 4.5%) where prompt lexical gravity is strongest. Deeper intermediate steps ($k \ge 2$) exhibit $>95\%$ adherence, confirming that the autoregressive attention head firmly conditions on the newly deduced variable rather than reverting to the pre-intervention state.
+> Reversions do not rise with depth in this sample, but there are only 6 reversions in total and few episodes at $k \ge 4$. This measures behavior on generated text; it says nothing about attention or other internal mechanisms.
 
 ### C. Qualitative Case Studies from Empirical Traces
 
