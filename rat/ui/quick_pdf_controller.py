@@ -181,6 +181,17 @@ def is_question_query(text: str) -> bool:
         return False
     if q.endswith(("?", "？")):
         return True
+    if re.search(r"https?://", q, re.I):
+        return True
+    q_low = q.lower()
+    instant_keywords = (
+        "bói", "boi", "kinh dịch", "kinh dich", "gieo quẻ", "gieo que", "bói quẻ", "boi que", "quẻ dịch", "que dich", "lên quẻ", "len que",
+        "lenormand", "rút bài", "rut bai", "bói bài", "boi bai", "bói lenormand", "boi lenormand",
+        "thời khóa biểu", "thoi khoa bieu", "lịch học", "lich hoc", "tkb", "xem lịch", "xem lich",
+        "hôm nay học gì", "hom nay hoc gi", "mai học gì", "mai hoc gi",
+    )
+    if any(k in q_low for k in instant_keywords):
+        return True
     words = q.split()
     if FIND.match(q) or (OPEN.match(q) and len(words) <= 6):
         return False
@@ -393,6 +404,8 @@ class QuickPDFController(QObject):
     _catalog_ready = pyqtSignal(object)
     _translation_delivered = pyqtSignal(object)
     composerPassageTranslated = pyqtSignal()
+    imageDropAccepted = pyqtSignal(str)
+    engagementRequested = pyqtSignal()
     _quicklook_expand_delivered = pyqtSignal()
     _shortcut_ack_delivered = pyqtSignal(str, int)
 
@@ -414,6 +427,8 @@ class QuickPDFController(QObject):
         super().__init__(parent)
         self._ready = False
         self._closed = False
+        self._drop_active = False
+        self._image_receive_token = 0
         self._worker = None
         self._request = None
         self._serial = 0
@@ -469,6 +484,7 @@ class QuickPDFController(QObject):
         self._chat_generation = 0
         self._last_user_query = ""
         self._last_assistant_answer = ""
+        self._artifact_card: Optional[Dict[str, Any]] = None
         self._displayed_turn_id = None
         self._telemetry = {}
         self._assistant_sources = []
@@ -664,6 +680,7 @@ class QuickPDFController(QObject):
         return {
             "phase": "startup" if not self._ready else "working" if busy else "result" if self._view != "none" else "idle",
             "busy": busy,
+            "dropActive": self._drop_active,
             "expanded": self._expanded,
             "workspaceMode": self._workspace_mode,
             "previewPageNumber": self._preview_page,
@@ -682,6 +699,7 @@ class QuickPDFController(QObject):
             "shortcutAck": self._shortcut_ack,
             # A later answer replaces the translation, so an old card can never sit on top of it.
             "translation": self._translation if self._translation and self._translation["text"] == self._last_assistant_answer else None,
+            "artifactCard": self._artifact_card,
             "translating": self._translating,
             "query": self._last_user_query or search.get("query", ""),
             "userQuery": self._last_user_query,
@@ -1316,6 +1334,126 @@ class QuickPDFController(QObject):
                 pass
         return committed
 
+    def _dispatch_instant_tool(self, q: str, origin: str = "chat") -> bool:
+        """Handle standalone instant tools: Kinh Dịch, Lenormand, Web crawl, and Timetable."""
+        q_low = q.lower()
+        res_card: Optional[Dict[str, Any]] = None
+        ans_text: str = ""
+
+        # 1. Kinh Dịch
+        iching_keywords = (
+            "kinh dịch", "kinh dich", "gieo quẻ", "gieo que",
+            "bói quẻ", "boi que", "bói dịch", "boi dich",
+            "quẻ dịch", "que dich", "lên quẻ", "len que"
+        )
+        if any(k in q_low for k in iching_keywords):
+            from rat.engine.divination import cast_iching
+            res_card = cast_iching(q)
+            ch_str = f" (Hào {', '.join(str(l) for l in res_card['changing_lines'])} động)" if res_card['changing_lines'] else ""
+            ans_text = (
+                f"🔮 Quẻ Kinh Dịch: {res_card['hexagram_name']}{ch_str}\n"
+                f"• Thượng: {res_card['upper_trigram']} · Hạ: {res_card['lower_trigram']}\n"
+                f"• Ý nghĩa: {res_card['meaning']}\n"
+                f"• Lời khuyên của Chuột: {res_card['advice']}"
+            )
+            if res_card.get("transformed"):
+                t = res_card["transformed"]
+                ans_text += f"\n\n🔄 Quẻ Biến: {t['name']} ({t['upper']} trên {t['lower']})\n• {t['meaning']}"
+
+        # 2. Lenormand
+        elif any(k in q_low for k in (
+            "lenormand", "rút bài", "rut bai", "bói bài", "boi bai",
+            "bói lenormand", "boi lenormand", "rút 3 lá", "rut 3 la"
+        )):
+            from rat.engine.divination import draw_lenormand
+            res_card = draw_lenormand(q, count=3)
+            cards_lines = []
+            for i, c in enumerate(res_card["cards"]):
+                cards_lines.append(f"{i+1}. {c['slot']}: [{c['number']}] {c['icon']} {c['name']} — {c['meaning']}")
+            ans_text = (
+                f"🃏 Rút 3 lá bài Lenormand:\n\n"
+                + "\n".join(cards_lines) + "\n\n"
+                f"✨ Thông điệp: {res_card['summary']}"
+            )
+
+        # 3. Web Crawl / Reader
+        elif re.search(r"https?://", q, re.I):
+            from rat.engine.web_reader import fetch_web_summary, extract_url
+            url = extract_url(q) or q
+            res_card = fetch_web_summary(url)
+            bullets_text = "\n".join(f"• {b}" for b in res_card["bullets"]) if res_card["bullets"] else res_card["summary"]
+            ans_text = (
+                f"🌐 Tóm tắt trang: {res_card['title']} ({res_card['domain']})\n\n"
+                f"{bullets_text}\n\n"
+                f"🔗 Nguồn: {res_card['url']}"
+            )
+
+        # 4. Thời khóa biểu
+        elif any(k in q_low for k in (
+            "thời khóa biểu", "thoi khoa bieu", "lịch học", "lich hoc",
+            "tkb", "xem lịch", "xem lich", "hôm nay học gì", "hom nay hoc gi", "mai học gì", "mai hoc gi"
+        )):
+            from rat.engine.runtime_tools import get_schedule
+            compositor = getattr(self.assistant_runtime, "compositor", None)
+            if compositor is None:
+                from rat.kernel.profile import _main_compositor
+                compositor = _main_compositor()
+
+            target_day = "today"
+            if "mai" in q_low or "tomorrow" in q_low:
+                target_day = "tomorrow"
+            elif any(w in q_low for w in ("thứ 2", "thu 2", "t2", "thứ hai", "thu hai")):
+                target_day = "T2"
+            elif any(w in q_low for w in ("thứ 3", "thu 3", "t3", "thứ ba", "thu ba")):
+                target_day = "T3"
+            elif any(w in q_low for w in ("thứ 4", "thu 4", "t4", "thứ tư", "thu tu")):
+                target_day = "T4"
+            elif any(w in q_low for w in ("thứ 5", "thu 5", "t5", "thứ năm", "thu nam")):
+                target_day = "T5"
+            elif any(w in q_low for w in ("thứ 6", "thu 6", "t6", "thứ sáu", "thu sau")):
+                target_day = "T6"
+            elif any(w in q_low for w in ("thứ 7", "thu 7", "t7", "thứ bảy", "thu bay")):
+                target_day = "T7"
+            elif any(w in q_low for w in ("chủ nhật", "chu nhat", "cn")):
+                target_day = "CN"
+
+            sessions = get_schedule(compositor, target_date=target_day)
+            day_display = "Hôm nay" if target_day == "today" else "Ngày mai" if target_day == "tomorrow" else target_day
+            if sessions:
+                day_display = sessions[0].get("day", day_display)
+                lines = []
+                for s in sessions:
+                    instr = f" ({s['instructor']})" if s.get('instructor') else ""
+                    lines.append(f"• [{s['time']}] {s['course_name']} — Phòng {s['room']}{instr}")
+                ans_text = f"📅 Thời khóa biểu: {day_display}\n\n" + "\n".join(lines)
+            else:
+                ans_text = f"📅 Thời khóa biểu: {day_display}\n\n🎉 Bạn không có tiết học nào trong ngày này. Thảnh thơi nghỉ ngơi nhé!"
+
+            res_card = {
+                "visual_type": "timetable",
+                "day": day_display,
+                "target_date": target_day,
+                "sessions": sessions,
+            }
+
+        if res_card is not None:
+            turn_snap = self.conversation.begin_turn(q, kind="chat")
+            self.conversation.complete_turn(turn_snap.turn_ref.turn_id, ans_text, execution_id=turn_snap.execution_id)
+            self._current_turn_id = turn_snap.turn_ref.turn_id
+            self._displayed_turn_id = turn_snap.turn_ref.turn_id
+            self._current_execution_id = turn_snap.execution_id
+            self._last_user_query = q
+            self._last_assistant_answer = ans_text
+            self._artifact_card = res_card
+            self._view = "answer"
+            self._unread = not self._expanded
+            self._status = ANSWERED_STATUS
+            self._events.append(f"Chuột đã xong {res_card.get('visual_type')}: {q}")
+            self.changed.emit()
+            return True
+
+        return False
+
     def submit(
         self,
         query: str,
@@ -1343,6 +1481,11 @@ class QuickPDFController(QObject):
         self._finder_hits = []
         if self._finder_coordinator is not None:
             self._finder_coordinator.cancel()
+
+        if self._selection is None and self._dispatch_instant_tool(q, origin=origin):
+            return True
+
+        self._artifact_card = None
 
         history_messages = self.conversation.messages_with_turn_ids()
         turn_references = self.conversation.turn_references()
@@ -2309,9 +2452,116 @@ class QuickPDFController(QObject):
             self._status = f"Phím tắt chưa chạy được: {exc}"
             self.changed.emit()
 
+    @pyqtSlot(bool)
+    def setDropActive(self, active: bool):
+        if self._drop_active != active:
+            self._drop_active = active
+            self.changed.emit()
+
+    def beginImageReceive(self) -> int:
+        self._image_receive_token += 1
+        self._status = "Chuột đang nhận ảnh…"
+        self.changed.emit()
+        return self._image_receive_token
+
+    def isImageReceiveCurrent(self, token: int) -> bool:
+        return self._image_receive_token == token and not self._closed
+
+    def finishImageReceive(self, token: int, image=None, label: str = "Ảnh vừa thả", instruction: str = "", error: str = ""):
+        if not self.isImageReceiveCurrent(token):
+            return
+        if error:
+            self._status = f"Chuột chưa nhận được ảnh: {error}"
+            self.changed.emit()
+            return
+        if image is not None:
+            self.acceptDroppedImage(image, label, instruction)
+
+    def image_input_error(self, message: str):
+        self._status = message
+        self.changed.emit()
+
+    @pyqtSlot(str, result=bool)
+    @pyqtSlot(str, str, result=bool)
+    def acceptDroppedImageUrl(self, url_or_path: str, instruction: str = "") -> bool:
+        """Accept an image file dropped into RAT Desk, run OCR, and translate."""
+        try:
+            from rat.ui.image_input import image_from_url
+            image, label = image_from_url(url_or_path)
+            return self.acceptDroppedImage(image, label, instruction)
+        except Exception as exc:
+            logger.warning("acceptDroppedImageUrl failed: %s", exc)
+            self._status = f"Chuột chưa nhận được ảnh: {exc}"
+            self.changed.emit()
+            return False
+
+    def acceptDroppedImage(self, image: Any, label: str = "Ảnh vừa thả", instruction: str = "") -> bool:
+        """Capture text from dropped or pasted image via OCR and translate."""
+        if self._translating or self._closed:
+            return False
+        self._status = "Chuột đang đọc chữ trong ảnh…"
+        self._translating = True
+        self.imageDropAccepted.emit(instruction)
+        self.changed.emit()
+
+        def _worker():
+            try:
+                from rat.engine.snippet_translation import capture_text
+                capture_res = capture_text(mode="image", image_input=image)
+                ocr_text = capture_res.get("text", "").strip()
+                if not ocr_text:
+                    self._translation_delivered.emit({
+                        "ok": False,
+                        "error": "không nhận ra chữ trong ảnh",
+                    })
+                    return
+                # Translate OCR'd text
+                target_lang = "vi"
+                translator = self._get_translator()
+                res = translator.translate(ocr_text, source="auto", target=target_lang)
+                translated = res.get("text", "")
+                if not translated:
+                    self._translation_delivered.emit({
+                        "ok": False,
+                        "error": "không nhận được bản dịch sau khi đọc ảnh",
+                    })
+                else:
+                    self._translation_delivered.emit({
+                        "ok": True,
+                        "text": translated,
+                        "source_text": ocr_text,
+                        "source_lang": res.get("source_lang", "auto"),
+                        "target_lang": target_lang,
+                        "origin": f"ocr:{image.origin}",
+                        "method": "ocr+apple_translate" if "apple" in res.get("engine", "") else "ocr+offline",
+                        "duration": res.get("duration", 0.0),
+                    })
+            except Exception as exc:
+                logger.warning("Image OCR/translation worker error: %s", exc)
+                self._translation_delivered.emit({
+                    "ok": False,
+                    "error": str(exc),
+                })
+
+        threading.Thread(target=_worker, daemon=True, name="RatImageOCRTranslator").start()
+        return True
+
     @pyqtSlot()
     def translateClipboard(self):
         cb = QGuiApplication.clipboard()
+        if not cb:
+            return
+        mime = cb.mimeData()
+        if mime:
+            from rat.ui.image_input import ENCODED_IMAGE_TYPES, image_from_mime
+            if mime.hasImage() or any(mime.hasFormat(k) for k in ENCODED_IMAGE_TYPES):
+                try:
+                    image, label = image_from_mime(mime, clipboard=True)
+                    self._consumed_clipboard_change = self._update_clipboard_change()
+                    self.acceptDroppedImage(image, label)
+                    return
+                except Exception as exc:
+                    logger.debug("Clipboard image extraction not applicable: %s", exc)
         text = cb.text() if cb else ""
         if text.strip():
             self._consumed_clipboard_change = self._update_clipboard_change()

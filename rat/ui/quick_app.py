@@ -103,6 +103,8 @@ def create_quick_desk(
     from PyQt6.QtGui import QFont, QGuiApplication
     from PyQt6.QtQuick import QQuickView, QQuickWindow
     from rat.ui.icon_provider import RatIconProvider
+    from rat.ui.image_drop import ImageDropFilter
+    from rat.ui.image_preview import ImagePreviewProvider
     from rat.ui.quick_pdf_controller import QuickPDFController
 
     app = QGuiApplication.instance() or QGuiApplication([sys.argv[0]])
@@ -121,6 +123,7 @@ def create_quick_desk(
     QQuickWindow.setDefaultAlphaBuffer(True)
     view = QQuickView()
     RatIconProvider.register(view.engine(), "icon")
+    view.engine().addImageProvider("input-preview", ImagePreviewProvider())
     surface_format = view.format()
     surface_format.setAlphaBufferSize(8)
     view.setFormat(surface_format)
@@ -146,6 +149,8 @@ def create_quick_desk(
         controller.close()
         return None, None
 
+    image_drop = ImageDropFilter(view, controller)
+
     root = view.rootObject()
     width = min(720, available.width() - 48)
     height = round(root.property("preferredWindowHeight"))
@@ -165,6 +170,7 @@ def create_quick_desk(
     view._resize_timer = resize_timer
     view._close_timer = close_timer
     view._controller = controller
+    view._image_drop = image_drop
     return view, controller
 
 
