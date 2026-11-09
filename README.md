@@ -47,6 +47,24 @@ RAT separates execution into two complementary tiers:
 
 ## Quickstart
 
+### 1-Minute Reproducible Verification (Clean Setup)
+
+To reproduce the core mechanism, verify architectural decoupling, and run the end-to-end reasoning demo on any fresh machine:
+
+```bash
+# 1. Environment setup (zero GUI or large model weight downloads required)
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-research.txt
+
+# 2. Run the reproducible end-to-end demo (Fast-path, verifier gate, escalation)
+python -m scripts.run_reproducible_demo
+
+# 3. Run the core mechanism & architectural decoupling test suite
+pytest tests/test_core_mechanism_proof.py tests/test_architecture_anti_overengineering.py tests/test_rat_headless_cli.py -v
+```
+*Expected test outcome:* **35 passed in under 10 seconds**.
+
 ### RAT Lite development workflow — user decision, 2026-10-29
 
 RAT Lite work may be committed and pushed to `main` as small, coherent steps.
@@ -260,6 +278,21 @@ python -m pytest tests/test_research_scoring.py tests/test_development_data_audi
 
 Collaboration hub:
 [Thundercok/nesy-docai](https://github.com/Thundercok/nesy-docai).
+
+## Supported Platforms, Limitations & Known Failure Modes
+
+### Supported Platforms
+- **Headless Research & Core Engine**: Platform-independent (macOS, Linux, WSL). Requires Python 3.10+ and packages in `requirements-research.txt`. Zero GUI or GPU requirements for smoke/replay.
+- **On-Device SLM Inference**: Apple Silicon (M1/M2/M3/M4) with macOS 14+ via `mlx-lm` and CTranslate2.
+- **Desktop UI (RAT Mini)**: macOS 14+ with Accessibility and Spotlight indexing permissions.
+
+### Empirical Limitations & Failure Modes (Demonstrated in Tests)
+1. **Semantic Formulation Mismatch (Guard PASS $\ne$ Correctness)**:
+   The local arithmetic verifier checks whether the sandbox execution of an expression matches the claimed value. It *cannot* verify whether the mathematical formula itself faithfully models the user's natural language question (e.g. calculating perimeter $(10+5)\times 2$ when area $10 \times 5$ was requested; verifier passes, but answer is wrong).
+2. **Lexical Grounding Blind Spots**:
+   The document fact verifier checks exact number and excerpt presence to catch blatant hallucinations. It *cannot* resolve complex semantic relations (e.g. distinguishing *"Alice scored 100"* from *"Bob scored 100"* if both entities appear in the text).
+3. **Replay vs. Online Latency Gap**:
+   Measured token savings in offline paired evaluations reflect generation reduction, not linear wall-clock speedups, due to fixed router overhead and local verification execution time.
 
 ## Reused document intake
 
