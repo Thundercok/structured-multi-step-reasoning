@@ -107,8 +107,8 @@ def train_simpo(
     out_dir = Path(output_adapter)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    from structured_llm.evaluate import MODEL_ID, model_path
-    resolved_model = model_path() if model_name == MODEL_ID else model_name
+    from .mlx_backend import DEFAULT_MODEL_ID, resolve_local_model_path
+    resolved_model = resolve_local_model_path(model_name) if model_name == DEFAULT_MODEL_ID else model_name
     print(f"=== Loading model: {resolved_model} ===")
     model, tokenizer = load(resolved_model)
     model.freeze()

@@ -7,6 +7,19 @@ and fine-tuned LoRA adapters with incremental token streaming and early stop det
 from typing import Any, Callable, Dict, List, Optional
 
 
+DEFAULT_MODEL_ID = "mlx-community/Qwen3-8B-4bit"
+DEFAULT_MODEL_REVISION = "545dc4251c05440727734bcd94334791f6ab0192"
+
+
+def resolve_local_model_path(model_id: str = DEFAULT_MODEL_ID, revision: str = DEFAULT_MODEL_REVISION) -> str:
+    """Resolve locally cached model path from huggingface hub if available."""
+    try:
+        from huggingface_hub import snapshot_download
+        return snapshot_download(model_id, revision=revision, local_files_only=True)
+    except Exception:
+        return model_id
+
+
 class MLXGeneratorBackend:
     """Generator backend powered by MLX Language Models (mlx_lm).
 
@@ -36,8 +49,7 @@ class MLXGeneratorBackend:
             if not self.model_path:
                 raise ValueError("Neither model/tokenizer nor model_path was provided.")
             from mlx_lm import load
-            from structured_llm.evaluate import MODEL_ID, model_path
-            resolved_path = model_path() if self.model_path == MODEL_ID else self.model_path
+            resolved_path = resolve_local_model_path(self.model_path) if self.model_path == DEFAULT_MODEL_ID else self.model_path
             self.model, self.tokenizer = load(
                 resolved_path,
                 adapter_path=self.adapter_path,
