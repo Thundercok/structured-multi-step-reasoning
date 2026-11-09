@@ -1,0 +1,8 @@
+{
+  "source_dir": "data/structured_math_term_v1",
+  "rule": "random sample, seed structured-math-term-random131-v1",
+  "source_train": 501,
+  "train": 131,
+  "train_one_step": 95,
+  "valid": 52
+}

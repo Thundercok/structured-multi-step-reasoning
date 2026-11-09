@@ -1,0 +1,8 @@
+{
+  "source_dir": "data/structured_math_term_v1",
+  "rule": "steps >= 2",
+  "source_train": 501,
+  "train": 131,
+  "train_one_step": 0,
+  "valid": 52
+}

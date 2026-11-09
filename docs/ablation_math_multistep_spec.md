@@ -2,6 +2,8 @@
 
 > **Mục tiêu**: Xác định bằng thực nghiệm nhân quả liệu tỷ lệ cao các mẫu 1-Step (65%) trong tập huấn luyện có phải là nguyên nhân chính khiến mô hình biến `Step 1` thành đoạn văn độc thoại khổng lồ và rơi vào vòng lặp tham lam (greedy repetition loops) hay không.
 
+> **Thay thế ngày 2026-11-09, trước khi chấm bất kỳ kết quả nào:** thiết kế ở mục 1–4 có nhiễu, xem mục 5. Lượt `math_lora_multistep_1000_s0` đã dừng ở vòng 650 và không được chấm.
+
 ---
 
 ## 1. Giả thuyết Khoa học & Tiêu chí Bác bỏ
@@ -52,3 +54,26 @@
 | Vòng lặp nguyên dòng `Calc` | 7/45 | *Cần đo* |
 | Độ chính xác tổng thể | 40/100 | *Cần đo* |
 | Đúng cú pháp (`format_valid`) | 42/100 | *Cần đo* |
+
+---
+
+## 5. Thiết kế sạch (ghi ngày 2026-11-09, trước khi huấn luyện)
+
+**Vì sao đổi.** Trong tập lọc 252 bài, 121 bài (48%) dài hơn 512 token nên bị cắt mất đoạn kết khi học, so với 31% ở tập gốc. Số lượt đọc mỗi bài cũng khác (4,0 so với 1,4). Vì vậy không tách được tác động của bài một bước. Ngoài ra lệnh chấm ở mục 3 thiếu `--limit`, nên chỉ chạy 20 câu.
+
+**Hai tập, cùng lấy từ `data/structured_math_term_v1` (không bài nào bị cắt), cùng 131 bài, cùng `valid.jsonl`:**
+
+| Nhóm | Dữ liệu | Quy tắc | Bài một bước |
+| --- | --- | --- | --- |
+| Can thiệp | `data/structured_math_term_multistep131_v1` | Mọi bài có từ 2 bước | 0 |
+| Đối chứng | `data/structured_math_term_random131_v1` | Chọn ngẫu nhiên, seed trong `tools/build_math_clean_ablation_dataset.py` | 95 |
+
+Cả hai huấn luyện 1.000 vòng, `max-seq` 512, seed 0, rồi chấm trên 100 câu `data/math_source/structured_math_v1/dev.jsonl` với `--limit 100 --modes tuned --max-tokens 1024`.
+
+**Quy tắc đọc, chốt trước khi có kết quả:**
+
+- **Chỉ số chính:** số đầu ra bị cắt ở 1.024 token trên 100 câu, so ghép cặp bằng McNemar chính xác hai phía.
+- **Ủng hộ giả thuyết** nếu nhóm can thiệp bị cắt ít hơn và $p < 0{,}05$. Các trường hợp còn lại là **không ủng hộ**.
+- `format_valid`, độ đúng và số lần cắt ở bài có đúng 1 bước chỉ là chỉ số phụ, báo cáo đầy đủ nhưng không dùng để kết luận.
+- Nếu không ủng hộ, chỉ kết luận rằng bỏ bài một bước không làm giảm cắt cụt ở quy mô này, không suy ra giới hạn của vết phẳng.
+- Giới hạn: một seed, 131 bài, độ dài trung vị vẫn khác nhau (385 và 299 token) vì bài nhiều bước vốn dài hơn, và 100 câu dev đã được đọc trước đó, nên đây là kết quả thăm dò.
