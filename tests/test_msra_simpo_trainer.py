@@ -2,8 +2,9 @@
 
 import json
 from pathlib import Path
-import mlx.core as mx
 import pytest
+
+mx = pytest.importorskip("mlx.core", reason="MLX is required on Apple Silicon")
 from structured_llm.msra.train_simpo import build_preference_batch, iterate_dataset
 
 # Run CPU

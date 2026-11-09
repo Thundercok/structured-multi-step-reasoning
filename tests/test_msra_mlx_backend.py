@@ -2,6 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 import pytest
+
+pytest.importorskip("mlx_lm", reason="mlx-lm is required for MLX backend tests")
 from structured_llm.msra.mlx_backend import MLXGeneratorBackend
 
 
