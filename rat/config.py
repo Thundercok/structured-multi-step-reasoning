@@ -32,6 +32,9 @@ SUPPORTED_EXTENSIONS = {
     # Code & Configs
     ".py", ".js", ".jsx", ".ts", ".tsx", ".html", ".css", ".json", ".yaml", ".yml",
     ".toml", ".sh", ".sql", ".xml", ".log",
+    ".java", ".c", ".cpp", ".h", ".hpp", ".cs",
+    # Archives
+    ".zip",
     # Images (Metadata & OCR)
     ".jpg", ".jpeg", ".png", ".webp"
 }

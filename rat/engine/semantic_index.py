@@ -30,7 +30,8 @@ MAX_FILES = 5000
 MAX_FILE_BYTES = 80_000_000
 CHUNK_CHARS = 600
 CHUNKS_PER_FILE = 3
-KEYWORD_WEIGHT = 0.3
+KEYWORD_WEIGHT = 0.10
+FILENAME_KEYWORD_WEIGHT = 0.10
 # Vision OCR is slow, so scanned PDFs are read a few at a time, newest first.
 OCR_FILES_PER_PASS = 30
 OCR_PAUSE_S = 0.5
@@ -200,11 +201,12 @@ class SemanticIndex:
                                    identity=json.loads(r[4]), modified_at=r[5]) for r in rows]
                 # Words of each chunk plus its file name, accent-folded, for keyword agreement.
                 self._words = [word_set(r[2] + ' ' + Path(r[0]).stem) for r in rows]
+                self._fn_words = [word_set(Path(r[0]).stem) for r in rows]
                 self._matrix = (np.vstack([np.frombuffer(r[3], dtype=np.float32) for r in rows])
                                 if rows else np.empty((0, 384), dtype=np.float32))
             return self._matrix, self._rows
 
-    def search(self, query, should_cancel=lambda: False, limit=40, floor=0.35, spread=0.12):
+    def search(self, query, should_cancel=lambda: False, limit=40, floor=0.35, spread=0.18):
         with self._lock:
             self._active_queries += 1
         try:
@@ -217,17 +219,27 @@ class SemanticIndex:
             # Meaning alone ranks near neighbours closely; words the user typed that
             # literally appear in the document break those ties.
             terms = word_set(query) - STOPWORDS
-            agreement = np.array([len(terms & words) / len(terms) if terms else 0.0 for words in self._words],
-                                 dtype=np.float32)
-            scores = matrix @ vector + KEYWORD_WEIGHT * agreement
+            raw_sim = matrix @ vector
+            if terms:
+                fn_agree = np.array([len(terms & words) / len(terms) for words in self._fn_words],
+                                    dtype=np.float32)
+                all_agree = np.array([len(terms & words) / len(terms) for words in self._words],
+                                     dtype=np.float32)
+                scores = raw_sim + FILENAME_KEYWORD_WEIGHT * fn_agree + KEYWORD_WEIGHT * all_agree
+            else:
+                scores = raw_sim
+
             order = np.argsort(-scores)[:limit]
-            best = float(scores[order[0]])
-            # Weak neighbours are noise, not "related"; keep a band near the best match.
-            cutoff = max(floor, best - spread)
+            best_score = float(scores[order[0]])
+            raw_best = float(np.max(raw_sim))
+            # Keep a band near the best match, but ensure high semantic matches are not
+            # starved out by keyword outliers on unrelated documents.
+            score_cutoff = max(floor, best_score - spread)
+            raw_cutoff = max(floor, raw_best - spread)
             results, seen = [], set()
             for i in order:
-                if scores[i] < cutoff:
-                    break
+                if scores[i] < score_cutoff and raw_sim[i] < raw_cutoff:
+                    continue
                 row = rows[i]
                 # One best chunk per file: rank fusion would otherwise reward long files.
                 if row['file_path'] in seen:

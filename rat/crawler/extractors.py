@@ -281,6 +281,56 @@ def extract_text_from_image(file_path: str) -> str:
     return "\n".join(texts)
 
 
+def extract_text_from_zip(file_path: str) -> str:
+    """Extract file listing and text previews from a .zip archive safely."""
+    import zipfile
+    try:
+        with zipfile.ZipFile(file_path, "r") as z:
+            info_list = z.infolist()
+            # Safety check: prevent zip bomb
+            total_uncompressed = sum(info.file_size for info in info_list)
+            if total_uncompressed > 100 * 1024 * 1024:
+                lines = [f"Archive: {Path(file_path).name} (Oversized: {total_uncompressed} bytes)", "Contained files:"]
+                lines.extend(f"- {info.filename} ({info.file_size} bytes)" for info in info_list[:500])
+                return "\n".join(lines)[:MAX_CHARS_PER_DOC]
+
+            lines = [f"Archive: {Path(file_path).name}", "Contained files:"]
+            for info in info_list:
+                if info.is_dir():
+                    continue
+                lines.append(f"- {info.filename} ({info.file_size} bytes)")
+
+            text_exts = {
+                ".txt", ".md", ".java", ".py", ".c", ".cpp", ".h", ".hpp", ".cs",
+                ".json", ".xml", ".csv", ".html", ".sh"
+            }
+            snippets = []
+            current_len = len("\n".join(lines))
+            for info in info_list:
+                if info.is_dir() or info.file_size > 50 * 1024 or info.file_size == 0:
+                    continue
+                sub_ext = Path(info.filename).suffix.lower()
+                if sub_ext in text_exts or info.filename.endswith((".al.txt", ".am.txt", ".el.txt")):
+                    try:
+                        raw = z.read(info.filename)
+                        sample = raw.decode("utf-8", errors="ignore").strip()
+                        if sample:
+                            preview = f"--- File: {info.filename} ---\n{sample[:800]}"
+                            snippets.append(preview)
+                            current_len += len(preview) + 2
+                            if current_len >= MAX_CHARS_PER_DOC:
+                                break
+                    except Exception:
+                        pass
+
+            if snippets:
+                lines.append("\nFile Previews:\n" + "\n\n".join(snippets))
+            return "\n".join(lines)[:MAX_CHARS_PER_DOC]
+    except Exception as exc:
+        logger.debug("Failed to extract zip %s: %s", file_path, exc)
+        return ""
+
+
 def extract_document_content(file_path: str) -> str:
     """
     Dispatcher to extract deep text content based on file extension.
@@ -297,12 +347,14 @@ def extract_document_content(file_path: str) -> str:
         return extract_text_from_xlsx(file_path)
     elif ext == ".csv":
         return extract_text_from_csv(file_path)
+    elif ext == ".zip":
+        return extract_text_from_zip(file_path)
     elif ext in [".jpg", ".jpeg", ".png", ".webp"]:
         return extract_text_from_image(file_path)
     elif ext in [
         ".txt", ".md", ".markdown", ".rst", ".py", ".js", ".jsx", ".ts", ".tsx",
         ".html", ".css", ".json", ".yaml", ".yml", ".toml", ".sh", ".sql",
-        ".xml", ".log", ".rtf"
+        ".xml", ".log", ".rtf", ".java", ".c", ".cpp", ".h", ".hpp", ".cs"
     ]:
         return extract_text_from_plaintext(file_path)
     else:
