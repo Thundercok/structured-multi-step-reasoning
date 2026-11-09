@@ -17,40 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest sympy certifi httpx
-      - name: Run Ubuntu-compatible tests
+          python -m pip install pytest sympy certifi httpx numpy
+      - name: Run research tests
         run: |
-          python -m pytest \
-            tests/test_repo_boundaries.py \
-            tests/test_analyze.py \
-            tests/test_counterfactual.py \
-            tests/test_math_check.py \
-            tests/test_math_data.py \
-            tests/test_structured_trace.py \
-            tests/test_accessibility_permissions.py \
-            tests/test_adaptive_reranker.py \
-            tests/test_app_catalog_cache.py \
-            tests/test_architecture_anti_overengineering.py \
-            tests/test_artifact_store_lifecycle.py \
-            tests/test_contradiction_auditor.py \
-            tests/test_curriculum_mapper.py \
-            tests/test_document_model_startup.py \
-            tests/test_document_search_names.py \
-            tests/test_feedback_features.py \
-            tests/test_feedback_log.py \
-            tests/test_fts_phrases.py \
-            tests/test_goal_routing.py \
-            tests/test_natal_places.py \
-            tests/test_pdf_reading_presentation.py \
-            tests/test_pdf_text.py \
-            tests/test_query_cache.py \
-            tests/test_query_compounds.py \
-            tests/test_rat_chat_session.py \
-            tests/test_report_and_edges.py \
-            tests/test_reranker_golden.py \
-            tests/test_semester_ranking.py \
-            tests/test_slm_chat.py \
-            tests/test_translation_glossary.py \
-            tests/test_universal_timetable.py \
-            tests/test_vgc_cascade.py \
-            -q
+          python -m pytest -q
