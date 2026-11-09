@@ -61,6 +61,74 @@ Rectangle {
         enabled: desk.readyForMotion && !desk.reduceMotion
         NumberAnimation { duration: 110; easing.type: Easing.OutBack }
     }
+
+    // Tactile paper dragging and dismiss physics (Step 4.1 & 4.3)
+    property real paperDragTargetX: 0
+    property real paperDragTargetY: 0
+    property real paperDragX: paperDragTargetX
+    property real paperDragY: paperDragTargetY
+    property bool paperDismissing: false
+    Behavior on paperDragX {
+        enabled: desk.readyForMotion && !desk.reduceMotion
+        NumberAnimation {
+            duration: desk.paperDismissing ? 95 : 110
+            easing.type: desk.paperDismissing ? Easing.InQuad : Easing.OutBack
+            easing.overshoot: 1.35
+        }
+    }
+    Behavior on paperDragY {
+        enabled: desk.readyForMotion && !desk.reduceMotion
+        NumberAnimation {
+            duration: desk.paperDismissing ? 95 : 110
+            easing.type: desk.paperDismissing ? Easing.InQuad : Easing.OutBack
+            easing.overshoot: 1.35
+        }
+    }
+    Timer {
+        id: paperDismissTimer
+        interval: 95
+        repeat: false
+        onTriggered: {
+            desk.paperDismissing = false
+            desk.paperDragTargetX = 0
+            desk.paperDragTargetY = 0
+            desk.paperDragX = 0
+            desk.paperDragY = 0
+            desk.foldWorkbench()
+        }
+    }
+    function dismissPaperWithFlick(targetX, targetY) {
+        desk.paperDismissing = true
+        desk.paperDragTargetX = targetX
+        desk.paperDragTargetY = targetY
+        paperDismissTimer.restart()
+    }
+
+    // Repeated mascot poke reactions (Step 4.2)
+    property int pokeStreak: 0
+    Timer {
+        id: pokeResetTimer
+        interval: 1400
+        repeat: false
+        onTriggered: desk.pokeStreak = 0
+    }
+    function pokeRat() {
+        pokeResetTimer.restart()
+        desk.pokeStreak = (desk.pokeStreak % 3) + 1
+        if (desk.pokeStreak === 1) {
+            mascotStartle.stop()
+            mascotShudder.stop()
+            mascotWobble.restart()
+        } else if (desk.pokeStreak === 2) {
+            mascotWobble.stop()
+            mascotShudder.stop()
+            mascotStartle.restart()
+        } else {
+            mascotWobble.stop()
+            mascotStartle.stop()
+            mascotShudder.restart()
+        }
+    }
     property var liveController: null
     property var liveSnapshot: ({})
     property int selectedFinderIndex: -1
@@ -571,11 +639,16 @@ Rectangle {
         enabled: desk.liveMode
         onDropped: drop => {
             if (drop.hasUrls && drop.urls.length === 1) {
-                if (desk.liveSnapshot.view === "reading" && /\.json$/i.test(String(drop.urls[0]))) {
-                    drop.accepted = desk.liveController.importReadingProfile(String(drop.urls[0]))
+                var urlStr = String(drop.urls[0]);
+                if (desk.liveSnapshot.view === "reading" && /\.json$/i.test(urlStr)) {
+                    drop.accepted = desk.liveController.importReadingProfile(urlStr)
                     return
                 }
-                desk.liveController.openPdfDocument(String(drop.urls[0]))
+                if (/\.(png|jpe?g|webp|bmp|tiff?)$/i.test(urlStr)) {
+                    drop.accepted = desk.liveController.acceptDroppedImageUrl(urlStr)
+                    return
+                }
+                desk.liveController.openPdfDocument(urlStr)
                 drop.accepted = true
             } else drop.accepted = false
         }
@@ -774,6 +847,14 @@ Rectangle {
             border.width: 1
             border.color: desk.edge
             z: 0
+            transform: [
+                Translate { x: desk.paperDragX * 0.65; y: desk.paperDragY * 0.65 },
+                Rotation {
+                    origin.x: width / 2
+                    origin.y: height / 2
+                    angle: desk.paperDragX * 0.02
+                }
+            ]
         }
         Rectangle {
             id: sidePdfPane
@@ -933,6 +1014,44 @@ Rectangle {
             color: desk.paperColor
             border.color: desk.edge
             z: 1
+            transform: [
+                Translate { x: desk.paperDragX; y: desk.paperDragY },
+                Rotation {
+                    origin.x: resultPaper.width / 2
+                    origin.y: resultPaper.height / 2
+                    angle: desk.paperDragX * 0.035
+                }
+            ]
+
+            DragHandler {
+                id: paperDrag
+                target: null
+                enabled: desk.expanded && desk.hasWorkbench && !desk.paperDismissing
+                grabPermissions: PointerHandler.CanTakeOverFromItems | PointerHandler.ApprovesTakeOverByAnything
+                onActiveChanged: {
+                    if (!active) {
+                        var vx = centroid.velocity.x
+                        var vy = centroid.velocity.y
+                        var dx = desk.paperDragTargetX
+                        var dy = desk.paperDragTargetY
+                        // 4.3: Ném tờ giấy đi để bỏ kết quả
+                        var thrown = (dy < -60 || Math.abs(dx) > 130 || vy < -300 || Math.abs(vx) > 450)
+                        if (thrown) {
+                            desk.dismissPaperWithFlick(dx < 0 || vx < 0 ? -240 : 240, dy < 0 || vy < 0 ? -160 : 160)
+                        } else {
+                            // 4.1: Kéo xấp giấy có độ nảy (thả ra nảy về 0)
+                            desk.paperDragTargetX = 0
+                            desk.paperDragTargetY = 0
+                        }
+                    }
+                }
+                onTranslationChanged: {
+                    if (active) {
+                        desk.paperDragTargetX = Math.max(-180, Math.min(180, translation.x))
+                        desk.paperDragTargetY = Math.max(-120, Math.min(50, translation.y))
+                    }
+                }
+            }
             RowLayout {
                 id: liveHeader
                 visible: desk.liveMode
@@ -1791,6 +1910,13 @@ Rectangle {
                             }
                         }
                     }
+                    ArtifactCard {
+                        id: visualArtifactCard
+                        objectName: "visualArtifactCard"
+                        visible: desk.liveSnapshot.view === "answer" && Boolean(desk.liveSnapshot.artifactCard)
+                        cardData: desk.liveSnapshot.artifactCard || ({})
+                        Layout.fillWidth: true
+                    }
                     TextArea {
                         id: answerText
                         objectName: "answerText"
@@ -2549,14 +2675,14 @@ Rectangle {
             readonly property real outY: desk.ratBesideComposer ? composer.y + composer.height - 110 : composer.y - 110
             x: desk.ratPeeks ? hideX + (outX - hideX) * desk.ratPop : Math.max(4, composer.x - 110)
             y: (desk.ratPeeks ? hideY + (outY - hideY) * desk.ratPop : composer.y - 116)
-                + (mascotWobble.running ? mascotWobble.offsetY : 0)
+                + (mascotWobble.running ? mascotWobble.offsetY : (mascotStartle.running ? mascotStartle.offsetY : (mascotShudder.running ? mascotShudder.offsetY : 0)))
             // Cropped while hiding: on the right so its tail stays out of sight, and below
             // as it sinks so its feet never stick out under the composer.
             width: desk.ratPeeks ? 62 + 42 * desk.ratPop : 122
             height: desk.ratPeeks ? 110 - 30 * desk.ratTuck * (1 - desk.ratPop) : 116
             clip: true
             z: 4
-            rotation: mascotWobble.running ? mascotWobble.rot : 0
+            rotation: mascotWobble.running ? mascotWobble.rot : (mascotStartle.running ? mascotStartle.rot : (mascotShudder.running ? mascotShudder.rot : 0))
             Image {
                 width: desk.ratPeeks ? 104 : 180
                 height: width * (sourceSize.height / Math.max(1, sourceSize.width))
@@ -2570,17 +2696,36 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: mascotWobble.restart()
+                onClicked: desk.pokeRat()
             }
             SequentialAnimation {
                 id: mascotWobble
                 property real offsetY: 0
                 property real rot: 0
-                NumberAnimation { target: mascotWobble; property: "offsetY"; from: 0; to: -6; duration: 80; easing.type: Easing.OutQuad }
-                NumberAnimation { target: mascotWobble; property: "rot"; from: 0; to: 3; duration: 60 }
-                NumberAnimation { target: mascotWobble; property: "rot"; from: 3; to: -3; duration: 80 }
-                NumberAnimation { target: mascotWobble; property: "rot"; from: -3; to: 0; duration: 60 }
-                NumberAnimation { target: mascotWobble; property: "offsetY"; from: -6; to: 0; duration: 100; easing.type: Easing.OutBounce }
+                NumberAnimation { target: mascotWobble; property: "offsetY"; from: 0; to: -6; duration: 40; easing.type: Easing.OutQuad }
+                NumberAnimation { target: mascotWobble; property: "rot"; from: 0; to: 3; duration: 25 }
+                NumberAnimation { target: mascotWobble; property: "rot"; from: 3; to: -3; duration: 30 }
+                NumberAnimation { target: mascotWobble; property: "rot"; from: -3; to: 0; duration: 25 }
+                NumberAnimation { target: mascotWobble; property: "offsetY"; from: -6; to: 0; duration: 45; easing.type: Easing.OutBounce }
+            }
+            SequentialAnimation {
+                id: mascotStartle
+                property real offsetY: 0
+                property real rot: 0
+                NumberAnimation { target: mascotStartle; property: "offsetY"; from: 0; to: -12; duration: 45; easing.type: Easing.OutQuad }
+                NumberAnimation { target: mascotStartle; property: "rot"; from: 0; to: -5; duration: 30 }
+                NumberAnimation { target: mascotStartle; property: "rot"; from: -5; to: 0; duration: 25 }
+                NumberAnimation { target: mascotStartle; property: "offsetY"; from: -12; to: 0; duration: 55; easing.type: Easing.OutBounce }
+            }
+            SequentialAnimation {
+                id: mascotShudder
+                property real offsetY: 0
+                property real rot: 0
+                NumberAnimation { target: mascotShudder; property: "rot"; from: 0; to: -7; duration: 22 }
+                NumberAnimation { target: mascotShudder; property: "rot"; from: -7; to: 7; duration: 24 }
+                NumberAnimation { target: mascotShudder; property: "rot"; from: 7; to: -5; duration: 22 }
+                NumberAnimation { target: mascotShudder; property: "rot"; from: -5; to: 5; duration: 22 }
+                NumberAnimation { target: mascotShudder; property: "rot"; from: 5; to: 0; duration: 20 }
             }
         }
         Rectangle {
@@ -2732,7 +2877,7 @@ Rectangle {
             z: 3
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: mascotWobble.restart()
+            onClicked: desk.pokeRat()
         }
         MouseArea {
             id: ratSideZone
@@ -2745,7 +2890,7 @@ Rectangle {
             z: 3
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: mascotWobble.restart()
+            onClicked: desk.pokeRat()
         }
         // The bubble's tail, from the composer to Chuột's mouth, only while it speaks. Painted once.
         Canvas {
@@ -3255,7 +3400,7 @@ Rectangle {
                             objectName: "composerDropStatus"
                             visible: !desk.intentChoiceOpen
                             Layout.fillWidth: true
-                            text: pdfDropArea.containsDrag ? "Thả PDF vào bàn Chuột"
+                            text: pdfDropArea.containsDrag ? "Thả PDF hoặc ảnh chụp vào bàn Chuột"
                                 : desk.liveSnapshot.shortcutAck ? desk.liveSnapshot.shortcutAck
                                 : (desk.liveSnapshot.busy && !desk.expanded) ? desk.liveSnapshot.status
                                 : desk.liveSnapshot.view === "reading" ? "Bàn xem · đang chuẩn bị dữ liệu"
