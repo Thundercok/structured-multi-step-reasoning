@@ -22,6 +22,7 @@ Comparisons between modes should use `shared`, the questions eligible in every m
 import argparse
 import collections
 import json
+import math
 import re
 from pathlib import Path
 
@@ -32,7 +33,31 @@ from .trace import loose_answer
 _TOLERANCE = 0.01
 # Free-form modes: base_showcalc writes outside <think>, so classify needs the block closed.
 _FREEFORM = {"base_showcalc": "<think>\n\n</think>\n\n", "base_native": ""}
-_MOVED = ("follows", "follows_rounded", "other", "moved")
+_MOVED = ("follows", "follows_rounded", "follows_approximate", "other", "moved")
+
+
+def is_defensible_rounding(answer: float, expected: float, tolerance: float = _TOLERANCE) -> bool:
+    """Check if answer reflects a defensible rounding, floor, ceil, or commonsense clamping.
+
+    Distinguishes genuine rounding (e.g. 84 for 83.33, 0 for -1) from arbitrary numeric drift.
+    """
+    # 1. Non-negative domain clamping (e.g. -1 -> 0 for counts or monetary amounts)
+    if expected < 0 and abs(answer - 0.0) <= tolerance:
+        return True
+
+    # 2. Integer rounding, floor, or ceil (only valid if expected is not already an integer)
+    if abs(expected - round(expected)) > tolerance:
+        for fn in (round, math.floor, math.ceil):
+            if abs(answer - fn(expected)) <= tolerance:
+                return True
+
+    # 3. Decimal rounding to 1 or 2 places
+    for decimals in (1, 2):
+        rounded = round(expected, decimals)
+        if abs(expected - rounded) > tolerance and abs(answer - rounded) <= tolerance:
+            return True
+
+    return False
 
 
 def classify(continued, plan):
@@ -45,14 +70,17 @@ def classify(continued, plan):
         return "reverted"
     if plan["expected"] is None:
         return "moved"
-    # 84 days for 83.33, or $0 left for -1: the change arrived, then the model applied common sense.
+    if is_defensible_rounding(answer, plan["expected"]):
+        return "follows_rounded"
     close = max(1.0, 0.01 * abs(plan["expected"]))
-    return "follows_rounded" if abs(answer - plan["expected"]) <= close else "other"
+    if abs(answer - plan["expected"]) <= close:
+        return "follows_approximate"
+    return "other"
 
 
 def tally(records):
     counts = collections.Counter(record["outcome"] for record in records)
-    outcomes = ("follows", "follows_rounded", "reverted", "other", "moved", "no_answer")
+    outcomes = ("follows", "follows_rounded", "follows_approximate", "reverted", "other", "moved", "no_answer")
     return {"n": len(records), **{key: counts[key] for key in outcomes}}
 
 

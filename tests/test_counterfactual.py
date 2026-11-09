@@ -334,10 +334,15 @@ def test_detection_counts_flags_on_right_and_wrong_answers():
 
 @pytest.mark.parametrize("answer, expected, original, outcome", [
     ("84", 83.33, 100.0, "follows_rounded"),
+    ("83.3", 83.33, 100.0, "follows_rounded"),
     ("0", -1.0, 4.0, "follows_rounded"),
     ("1000002", 1000001.67, 1000000.0, "follows_rounded"),
+    ("99.5", 100.0, 50.0, "follows_approximate"),
+    ("100.5", 100.0, 50.0, "follows_approximate"),
     ("50", 83.33, 100.0, "other"),
     ("100", 100.5, 100.0, "reverted"),
+    ("0", 0.0, 10.0, "follows"),
+    ("-5", -5.0, 5.0, "follows"),
 ])
 def test_classify_rounded_answers(answer, expected, original, outcome):
     plan = {"expected": expected, "original": original}
@@ -355,8 +360,16 @@ def test_summarize_shared_uses_questions_eligible_in_every_mode():
         {"a": {}, "b": {"invalid_format": 1}},
     )
     assert summary["a"]["eligible"]["n"] == 2
-    assert summary["a"]["shared"] == {"n": 1, "follows": 1, "follows_rounded": 0, "reverted": 0, "other": 0, "moved": 0,
-                                      "no_answer": 0}
+    assert summary["a"]["shared"] == {
+        "n": 1,
+        "follows": 1,
+        "follows_rounded": 0,
+        "follows_approximate": 0,
+        "reverted": 0,
+        "other": 0,
+        "moved": 0,
+        "no_answer": 0,
+    }
     assert summary["a"]["correct_only"]["n"] == 1
     assert summary["b"]["skipped"] == {"invalid_format": 1}
     assert summary["a"]["eligibility_rate"] == 1.0
