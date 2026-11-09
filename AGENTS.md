@@ -53,9 +53,10 @@ on a 16 GB M1.
 
 ## Repo boundaries
 
-This stays one repo unless the user asks otherwise. Research never imports RAT; a test enforces it.
-RAT Lite now lives in `Thundercok/offline-tool-routing-agent`; do not add it back here. Its
-last working source here is tag `rat-lite-0.6.0`, which must stay.
+This repository is dedicated 100% to research (Qwen3-8B structured reasoning, counterfactuals, and interventions).
+RAT has been fully separated into `Thundercok/interpretable-ml-research`.
+Research never imports RAT; `tests/test_repo_boundaries.py` enforces it.
+Tag `rat-lite-0.6.0` remains preserved in git history.
 
 ## Git
 
