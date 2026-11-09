@@ -18,13 +18,13 @@ from typing import Any, Dict, List, Optional, Sequence
 READS_OUTSIDE_CONTENT = frozenset({
     "read_document", "read_book_page", "search_book_pages", "expand_document_context",
     "search_documents", "find_file_or_app", "inspect_artifact", "read_web_page",
-    "import_schedule", "load_reading_profile",
+    "import_schedule", "load_reading_profile", "inspect_archive", "search_filesystem_live",
 })
 
 # No effect outside this run: they read, compute, or arrange what is already on screen.
 SAFE_AFTER_OUTSIDE_CONTENT = frozenset({
     "read_document", "read_book_page", "search_book_pages", "expand_document_context",
-    "search_documents", "find_file_or_app", "inspect_artifact",
+    "search_documents", "find_file_or_app", "inspect_artifact", "inspect_archive", "search_filesystem_live",
     "calculate", "compose_result_table", "detect_conflicts", "find_free_slots",
     "get_group_availability", "get_schedule", "locate_room", "request_operation_tools",
     "search_birth_places", "select_work_results", "update_task_state",

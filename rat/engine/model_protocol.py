@@ -31,6 +31,7 @@ def native_messages(runtime, goal, trajectory, *, history=None, previous_sources
         "Choose their order; retrieve available facts before asking the user. Read sources before describing their contents. "
         "search_documents returns file metadata, not file contents; inspect_artifact on that search only rereads metadata. "
         "Use read_document for contents, or read_book_page for an exact PDF page; use search_book_pages to locate a passage. "
+        "Use inspect_archive to inspect .zip contents, and search_filesystem_live to search files on the filesystem by pattern. "
         "Use observed result IDs and revisions for changes; never invent a target or resolve ambiguity by guessing. "
         "Incomplete inputs can be submitted to an operation that supports asking for them inline. Export only when requested. "
         "When the user asks for a local file, use deliver_document on its observed indexed path to attach the original. "

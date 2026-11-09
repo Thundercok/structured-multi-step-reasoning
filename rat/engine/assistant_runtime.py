@@ -37,7 +37,7 @@ from rat.engine.model_protocol import (
     operation_planning_schema,
     plan_task,
 )
-from rat.engine.runtime_tools import calculate, get_schedule, search_documents
+from rat.engine.runtime_tools import calculate, get_schedule, inspect_archive, search_documents, search_filesystem_live
 
 from rat.engine.controller import (
     AgentStateTracker,
@@ -233,6 +233,8 @@ class AssistantRuntime:
         return search_documents(self.db, query, limit)
 
     tool_calculate = staticmethod(calculate)
+    tool_inspect_archive = staticmethod(inspect_archive)
+    tool_search_filesystem_live = staticmethod(search_filesystem_live)
 
     def execute_tool(
         self,

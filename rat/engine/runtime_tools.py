@@ -205,3 +205,91 @@ def calculate(expression):
         return value
 
     return str(evaluate(tree.body))
+
+
+def inspect_archive(archive_path: str, target_entry: Optional[str] = None, max_chars: int = 3000) -> Dict[str, Any]:
+    """Inspect contents of a .zip archive or preview an entry inside it."""
+    import zipfile
+    from pathlib import Path
+    p = Path(archive_path).expanduser().resolve()
+    if not p.exists() or not p.is_file():
+        return {"error": "file_not_found", "path": str(p), "entries": []}
+    if p.suffix.lower() != ".zip":
+        return {"error": "unsupported_archive_format", "path": str(p), "entries": []}
+
+    try:
+        with zipfile.ZipFile(p, "r") as z:
+            info_list = z.infolist()
+            if target_entry:
+                clean_target = target_entry.lstrip("/")
+                match = next((info for info in info_list if info.filename == clean_target or info.filename.endswith("/" + clean_target)), None)
+                if not match:
+                    return {
+                        "archive_name": p.name,
+                        "error": "entry_not_found",
+                        "target_entry": target_entry,
+                        "available_entries": [info.filename for info in info_list if not info.is_dir()][:50],
+                    }
+                if match.is_dir():
+                    return {"archive_name": p.name, "error": "target_is_directory", "target_entry": target_entry}
+                if match.file_size > 10 * 1024 * 1024:
+                    return {"archive_name": p.name, "error": "entry_too_large", "file_size": match.file_size}
+                raw = z.read(match.filename)
+                content = raw.decode("utf-8", errors="ignore")[:max_chars]
+                return {
+                    "archive_name": p.name,
+                    "entry_name": match.filename,
+                    "file_size": match.file_size,
+                    "content": content,
+                    "truncated": len(raw) > max_chars,
+                }
+
+            entries = []
+            for info in info_list:
+                entries.append({
+                    "filename": info.filename,
+                    "is_dir": info.is_dir(),
+                    "size_bytes": info.file_size,
+                })
+            return {
+                "archive_name": p.name,
+                "path": str(p),
+                "total_entries": len(entries),
+                "entries": entries[:100],
+            }
+    except Exception as exc:
+        return {"error": f"read_archive_failed: {exc}", "path": str(p), "entries": []}
+
+
+def search_filesystem_live(pattern: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    """Live macOS Spotlight / mdfind fallback search for files matching pattern."""
+    import shutil
+    import subprocess
+    from pathlib import Path
+    clean_pattern = (pattern or "").strip().strip("'\"")
+    if not clean_pattern or len(clean_pattern) < 2:
+        return []
+
+    if shutil.which("mdfind"):
+        try:
+            cmd = ["mdfind", "-name", clean_pattern]
+            res = subprocess.run(cmd, capture_output=True, text=True, timeout=3.0)
+            paths = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+            filtered = []
+            for path_str in paths:
+                if "/Library/" in path_str or "/." in path_str or "/node_modules/" in path_str:
+                    continue
+                p = Path(path_str)
+                if p.exists():
+                    filtered.append({
+                        "filename": p.name,
+                        "path": str(p),
+                        "size_bytes": p.stat().st_size if p.is_file() else 0,
+                        "is_dir": p.is_dir(),
+                    })
+                if len(filtered) >= max_results:
+                    break
+            return filtered
+        except Exception:
+            return []
+    return []

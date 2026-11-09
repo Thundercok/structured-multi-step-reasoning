@@ -502,4 +502,69 @@ def create_documents_capability(db: Optional[Database] = None, semantic=None) ->
         artifact_kind="document_expanded_context",
     ))
 
+    def handle_inspect_archive(args, **context):
+        from rat.engine.runtime_tools import inspect_archive
+        archive_path = args["archive_path"]
+        target_entry = args.get("target_entry")
+        max_chars = args.get("max_chars", 3000)
+        return inspect_archive(archive_path, target_entry=target_entry, max_chars=max_chars)
+
+    def handle_search_filesystem_live(args, **context):
+        from rat.engine.runtime_tools import search_filesystem_live
+        pattern = args["pattern"]
+        max_results = args.get("max_results", 10)
+        return {"items": search_filesystem_live(pattern, max_results=max_results)}
+
+    capability.register_operation(OperationDefinition(
+        name="inspect_archive",
+        description="Inspect the files contained inside a .zip archive, or read a specific text/code file within the archive without extracting to disk.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "archive_path": {
+                    "type": "string",
+                    "description": "Path to the .zip archive file.",
+                },
+                "target_entry": {
+                    "type": "string",
+                    "description": "Optional relative path of a specific file inside the archive to read.",
+                },
+                "max_chars": {
+                    "type": "integer",
+                    "description": "Maximum characters to return when reading an entry (default 3000).",
+                    "default": 3000,
+                    "minimum": 1,
+                    "maximum": 8000,
+                },
+            },
+            "required": ["archive_path"],
+        },
+        handler=handle_inspect_archive,
+        artifact_kind="archive_content",
+    ))
+
+    capability.register_operation(OperationDefinition(
+        name="search_filesystem_live",
+        description="Live search across the filesystem (via macOS Spotlight) when a file is not yet found in the indexed database or when looking by pattern/name.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "pattern": {
+                    "type": "string",
+                    "description": "File name or pattern to search for, e.g. 'Lab9' or '523C0012'.",
+                },
+                "max_results": {
+                    "type": "integer",
+                    "description": "Maximum results to return (default 10).",
+                    "default": 10,
+                    "minimum": 1,
+                    "maximum": 30,
+                },
+            },
+            "required": ["pattern"],
+        },
+        handler=handle_search_filesystem_live,
+        artifact_kind="filesystem_search",
+    ))
+
     return capability
