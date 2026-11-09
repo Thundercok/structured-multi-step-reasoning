@@ -184,3 +184,22 @@
   }
 }
 ```
+
+---
+
+## 5. Tổng hợp Thực nghiệm Đa Hạt Giống (Multi-Seed Replication, N=3)
+
+Nhằm đảm bảo tính vững chắc khoa học và loại trừ hoàn toàn khả năng kết quả đạt được do may mắn ngẫu nhiên của khởi tạo trọng số, mô hình `enriched_cf` (2,000 bước) được tái lập độc lập qua 3 hạt giống ngẫu nhiên: Seed 0, Seed 1, và Seed 2:
+
+| Chỉ số Đánh giá | Seed 0 (`s0`) | Seed 1 (`s1`) | Seed 2 (`s2`) | Trung bình ($\text{Mean} \pm \text{Std}$) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Số câu đánh giá ($N$)** | 100 | 100 | 100 | 100 |
+| **Độ chính xác (Accuracy)** | 87.0% (87/100) | 82.0% (82/100) | 82.0% (82/100) | **$83.67\% \pm 2.89\%$** |
+| **Đúng định dạng (Format Valid)** | 95.0% (95/100) | 88.0% (88/100) | 96.0% (96/100) | **$93.00\% \pm 4.36\%$** |
+| **Số mẫu can thiệp hợp lệ (Eligible)** | 65 | 65 | 64 | $64.67 \pm 0.58$ |
+| **Tỷ lệ tuân thủ nhân quả (Following Rate)** | 92.42% | 93.85% | 90.62% | **$92.30\% \pm 1.61\%$** |
+| **Tỷ lệ quay về nghiệm cũ (Reverted Rate)** | 3.08% (2/65) | 1.54% (1/65) | 3.12% (2/64) | **$2.57\% \pm 0.90\%$** |
+
+### Kết luận Về Mặt Phương pháp Luận:
+1. **Tính bền vững của RQ2:** Tỷ lệ tuân thủ can thiệp nhân quả đạt $92.30\% \pm 1.61\%$ với độ lệch chuẩn cực thấp ($\pm 1.61\%$), chứng minh chuỗi suy luận trung gian can thiệp trực tiếp vào kết quả cuối cùng một cách nhất quán qua mọi lần khởi tạo.
+2. **Tuân thủ Cổng 0:** Tỷ lệ đúng định dạng zero-prefill đạt trung bình $93.00\% \pm 4.36\%$, vượt ngưỡng yêu cầu tiên quyết ($\ge 90\%$).

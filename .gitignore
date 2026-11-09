@@ -82,7 +82,10 @@ data/structured_msra_coldstart_v1/*.jsonl
 data/structured_msra_simpo_v1/*.jsonl
 audit/lora_gsm8k_enriched_20261107/*/*.jsonl
 audit/lora_math_20261107/*/*.jsonl
+audit/scaleup_eval_300_20261109/*/*.jsonl
+audit/scaleup_eval_300_20261109/data/*.jsonl
 docs/paper/*.aux
 docs/paper/*.bbl
 docs/paper/*.blg
 docs/paper/*.out
+

@@ -1,0 +1,58 @@
+{
+  "tuned": {
+    "eligible": {
+      "n": 65,
+      "follows": 53,
+      "follows_rounded": 8,
+      "reverted": 1,
+      "other": 3,
+      "moved": 0,
+      "no_answer": 0
+    },
+    "eligibility_rate": 0.65,
+    "skipped": {
+      "ambiguous_propagation": 11,
+      "no_result_used_later": 6,
+      "invalid_format": 12,
+      "too_few_calcs": 4,
+      "answer_needs_comparison": 2
+    },
+    "rq1": {
+      "moved|clean": {
+        "n": 64,
+        "wrong": 7
+      },
+      "unmoved|clean": {
+        "n": 1,
+        "wrong": 0
+      }
+    },
+    "correct_only": {
+      "n": 58,
+      "follows": 46,
+      "follows_rounded": 8,
+      "reverted": 1,
+      "other": 3,
+      "moved": 0,
+      "no_answer": 0
+    },
+    "shared": {
+      "n": 65,
+      "follows": 53,
+      "follows_rounded": 8,
+      "reverted": 1,
+      "other": 3,
+      "moved": 0,
+      "no_answer": 0
+    },
+    "shared_correct_only": {
+      "n": 58,
+      "follows": 46,
+      "follows_rounded": 8,
+      "reverted": 1,
+      "other": 3,
+      "moved": 0,
+      "no_answer": 0
+    }
+  }
+}

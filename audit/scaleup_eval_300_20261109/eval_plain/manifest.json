@@ -1,0 +1,9 @@
+{
+  "model": "mlx-community/Qwen3-8B-4bit",
+  "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+  "adapter": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/adapters/gsm8k_enriched_2000_s0",
+  "data": "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/scaleup_eval_300_20261109/data/dev_300.jsonl",
+  "limit": 300,
+  "max_tokens": 1024,
+  "machine": "macOS-26.5.2-arm64-arm-64bit"
+}

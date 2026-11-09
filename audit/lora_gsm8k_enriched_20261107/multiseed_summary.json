@@ -7,13 +7,29 @@
       "format_valid": 95,
       "format_valid_rate": 95.0,
       "following_rate": 92.42424242424242
+    },
+    "s1": {
+      "n": 100,
+      "correct": 82,
+      "accuracy": 82.0,
+      "format_valid": 88,
+      "format_valid_rate": 88.0,
+      "following_rate": 93.84615384615384
+    },
+    "s2": {
+      "n": 100,
+      "correct": 82,
+      "accuracy": 82.0,
+      "format_valid": 96,
+      "format_valid_rate": 96.0,
+      "following_rate": 90.625
     }
   },
-  "num_seeds": 1,
-  "accuracy_mean": 87.0,
-  "accuracy_std": 0.0,
-  "format_valid_mean": 95.0,
-  "format_valid_std": 0.0,
-  "following_rate_mean": 92.42,
-  "following_rate_std": 0.0
+  "num_seeds": 3,
+  "accuracy_mean": 83.67,
+  "accuracy_std": 2.89,
+  "format_valid_mean": 93.0,
+  "format_valid_std": 4.36,
+  "following_rate_mean": 92.3,
+  "following_rate_std": 1.61
 }

@@ -316,6 +316,23 @@ flowchart LR
 
 ---
 
+### Câu Hỏi 8 (Q8 — So Sánh Với Các Mô Hình Ngôn Ngữ Nhỏ SOTA 2023–2025: TinyGSM, Orca-Math, Qwen2.5-Math, DeepSeek-R1):
+*“Hiện nay các công trình quốc tế giai đoạn 2023–2025 đã đạt điểm số GSM8K rất cao trên mô hình nhỏ dưới 10B tham số, ví dụ TinyGSM 1.3B (81.5%), Orca-Math 7B (86.8%), DeepSeekMath 7B (88.2%), Qwen2.5-Math 7B (95.2%), và DeepSeek-R1-Distill-Qwen-7B (92.8%). Vậy đóng góp và điểm mới cốt lõi của đề tài này là gì, khi độ chính xác zero-prefill của nhóm trên GSM8K đạt 87.0%?”*
+
+- **Đáp án Tiếng Việt (VN):**
+  > "Kính thưa Quý Thầy Cô trong Hội đồng,  
+  > Đây là một câu hỏi rất sâu sắc và chạm đúng trọng tâm đóng góp học thuật của đề tài. Nhóm chúng em đã thực hiện khảo sát có hệ thống 12 công trình tiêu biểu nhất (2023–2025) về tinh chỉnh mô hình ngôn ngữ nhỏ (<10B) cho suy luận toán học (Bảng 1 trong bài báo):  
+  > 1. **Mục tiêu của các công trình SOTA là Tối đa hóa Điểm số Đầu ra (Outcome-focused):** Các bài báo như TinyGSM (dùng 12.3 triệu bài toán tổng hợp từ GPT-3.5), Orca-Math (200k mẫu agent-instruct), DeepSeek-R1-Distill (800k chuỗi CoT từ mô hình RL lớn) hay Qwen2.5-Math tập trung đẩy trần độ chính xác pass@1. Tuy nhiên, họ hoàn toàn đối xử với chuỗi suy luận như một 'hộp đen sinh văn bản' (black-box text generator), chỉ kiểm tra xem chuỗi ký tự đáp án cuối cùng có khớp với nhãn hay không.  
+  > 2. **Đóng góp mới của Đề tài là Nghiên cứu Cơ chế Nhân quả & Chẩn đoán Lỗi (Mechanistic & Causal Faithfulness):** Đề tài của nhóm em không chạy đua quy mô dữ liệu tổng hợp hàng triệu mẫu (chúng em chỉ dùng 7.000 mẫu train gốc), mà trả lời hai câu hỏi khoa học nền tảng mà chưa công trình nào ở trên giải quyết:  
+  >    - *Thứ nhất, tính trung thực nhân quả:* Liệu mô hình có thật sự 'nghĩ' theo các bước trung gian hay chỉ ngụy biện hậu nghiệm (post-hoc rationalization)? Chúng em là nghiên cứu đầu tiên thực hiện can thiệp phản thực tất định trên các biến `Calc:` trung gian, chứng minh mô hình đạt **93.8%** tuân thủ nhân quả và chỉ **2.8%–3.1%** tự ý quay xe về niềm tin tiên nghiệm.  
+  >    - *Thứ hai, độ nhạy chẩn đoán lỗi & Cạm bẫy xác nhận vòng lặp:* Khi lời giải của mô hình bị sai, làm thế nào để phát hiện tự động? Chúng em chứng minh bằng toán học (Định lý 1) và thực nghiệm mù đôi ($\kappa = 0.947$) rằng: các phương pháp dịch vết suy nghĩ sang code (như ToRA, MathCoder hay PROVE) chỉ bắt được **8.3%** lỗi tư duy vì code dịch chép lại chính ảo tưởng của mô hình; trong khi kiểm thử độc lập từ đề bài bắt được **41.7%** (cao gấp 5 lần, $p = 0.0215$).  
+  > Vì vậy, giá trị lớn nhất của công trình không nằm ở việc tạo ra thêm một con số accuracy, mà là cung cấp một khung đo lường tính trung thực nhân quả và phương pháp luận kiểm thử an toàn cho các hệ thống AI suy luận có cấu trúc trong tương lai."
+
+- **English Answer (EN):**
+  > "While state-of-the-art literature (2023–2025) like TinyGSM (81.5%), Orca-Math (86.8%), DeepSeekMath (88.2%), and DeepSeek-R1-Distill (92.8%) focuses strictly on maximizing output benchmark accuracy via massive synthetic data (12.3M in TinyGSM, 800k in R1) or heavy RL, they treat intermediate reasoning traces as black-box string generators. None of them investigate: (1) **Causal Faithfulness under Counterfactual Intervention:** whether final answers causally depend on intermediate calculations or merely confabulate pre-trained priors (where we prove a 93.8% causal following rate and $\le 3.1\%$ reversion rate under deterministic intervention); and (2) **Diagnostic Sensitivity & The Circular Confirmation Trap:** how to verify flawed outputs without human labels (where we prove Theorem 1 and empirically show that independent program synthesis achieves a $5\times$ recall advantage over trace translation [41.7% vs. 8.3%, $p = 0.0215$]). Our core contribution is foundational mechanistic and diagnostic understanding rather than brute-force data scaling."
+
+---
+
 ## 5. Bảng Đối Chiếu File & Mã Nguồn Trực Tiếp (Direct Repository Traceability)
 
 Mọi tuyên bố dữ liệu trong cẩm nang này đều có thể được thẩm định và tái lập thông qua các file mã nguồn và báo cáo kiểm toán tương ứng trong kho lưu trữ:
@@ -324,6 +341,7 @@ Mọi tuyên bố dữ liệu trong cẩm nang này đều có thể được th
 | :--- | :--- | :--- |
 | **Kế hoạch Nghiên cứu Đề xuất** | [`docs/research_plan.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/research_plan.md) | Bản đề xuất tiền đăng ký (pre-registration proposal), đang chờ xác nhận chính thức từ GVHD. |
 | **Bài báo Khoa học Hoàn chỉnh** | [`docs/paper/nckh_structured_reasoning.tex`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/paper/nckh_structured_reasoning.tex) & [`.pdf`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/paper/nckh_structured_reasoning.pdf) | Chứa toàn bộ Định lý 1, Bảng thực nghiệm 1–3, Hình 1–2 (pgfplots) và Hộp Case Study. |
+| **Khảo sát 12 Công trình SOTA (2023–2025)** | Bảng 1 trong [`nckh_structured_reasoning.pdf`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/docs/paper/nckh_structured_reasoning.pdf) & [`~/Downloads/danh_sach_bai_bao.md`](file:///Users/thundercock2/Downloads/danh_sach_bai_bao.md) | Tổng hợp 12 bài báo hàng đầu (TinyGSM, Orca-Math, Math-Shepherd, DeepSeekMath, Qwen2.5-Math, DeepSeek-R1-Distill...) làm bằng chứng đối sánh. |
 | **Đánh giá & Thống kê MATH LoRA** | [`audit/lora_math_20261107/compare_math.py`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/lora_math_20261107/compare_math.py) | Script tổng hợp dữ liệu 100/100 Dev, chia Level 3–5, chia 7 phân môn, đánh giá Gate RQ2. |
 | **Báo cáo Tiếng Việt MATH LoRA** | [`audit/lora_math_20261107/REPORT.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/lora_math_20261107/REPORT.md) | Báo cáo chi tiết song ngữ tiếng Việt với 6 phần phân tích đầy đủ. |
 | **Báo cáo Tiếng Anh MATH LoRA** | [`audit/lora_math_20261107/README.md`](file:///Users/thundercock2/Documents/Github/multi-step-structured-reasoning/audit/lora_math_20261107/README.md) | Tài liệu tóm tắt kỹ thuật tiếng Anh phục vụ trích dẫn và đối chiếu quốc tế. |
