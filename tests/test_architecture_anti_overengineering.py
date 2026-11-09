@@ -93,3 +93,24 @@ def test_mini_quick_controller_stays_below_god_object_threshold():
         f"rat/ui/mini_quick_controller.py exceeded 1150-line threshold ({line_count} lines)"
     )
 
+
+def test_core_engine_and_kernel_have_zero_ui_dependencies():
+    """Verify clean architectural layering: rat/engine and rat/kernel must never import PyQt6 or rat.ui."""
+    banned_imports = ("PyQt6", "PySide6", "rat.ui", "AppKit")
+    core_dirs = [ROOT / "rat/engine", ROOT / "rat/kernel"]
+    violations = []
+
+    for c_dir in core_dirs:
+        for py_path in c_dir.rglob("*.py"):
+            content = py_path.read_text(encoding="utf-8")
+            for banned in banned_imports:
+                for line in content.splitlines():
+                    stripped = line.strip()
+                    if stripped.startswith("#"):
+                        continue
+                    if f"import {banned}" in stripped or f"from {banned}" in stripped:
+                        violations.append(f"{py_path.relative_to(ROOT)}: {stripped}")
+
+    assert not violations, f"Architectural violation: Core engine imports UI/Qt:\n" + "\n".join(violations)
+
+

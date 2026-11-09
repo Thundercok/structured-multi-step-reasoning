@@ -194,6 +194,20 @@ reproduction of Route-to-Reason.
 - [Legacy simulation report](docs/reasoning_benchmark_results.md): archived numbers excluded from model-performance claims.
 - `structured_reasoning.ipynb` and `pipeline.py`: exploratory implementations, not the publication entry point.
 
+### Architectural Layering & Decoupling
+
+The codebase enforces strict, one-way architectural boundaries:
+
+1. **Layer 1: Headless Research Harness (`experiments/`, `reasoning/`, `optimal_stopping.py`)**
+   - Pure headless evaluation, synthetic smoke runs, and reproducible paired replays.
+   - Depends only on standard Python / MLX; zero dependencies on Qt, UI, or desktop services.
+2. **Layer 2: Core Reasoning Engine & Capability Contracts (`rat/engine/`, `rat/kernel/`)**
+   - Deterministic fast-paths, operation verifier contracts (`OperationVerifier`), and execution service.
+   - Decoupled from GUI: verified by `test_core_engine_and_kernel_have_zero_ui_dependencies`.
+3. **Layer 3: Desktop UI & System Integrations (`rat/ui/`, `rat/os/`, `rat/mini.py`)**
+   - Presentation layer (QML, PyQt6), global shortcut listener, and macOS accessibility bridges.
+   - Pure consumer of Layer 2; can be completely disabled in headless/CI environments.
+
 The earlier README's headline accuracy, speedup, crash-free and globally optimal
 policy claims have been withdrawn from the overview because the current
 artifacts do not establish them. Passing software tests does not establish
