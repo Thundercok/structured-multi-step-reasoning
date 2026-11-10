@@ -77,3 +77,17 @@ Cả hai huấn luyện 1.000 vòng, `max-seq` 512, seed 0, rồi chấm trên 1
 - `format_valid`, độ đúng và số lần cắt ở bài có đúng 1 bước chỉ là chỉ số phụ, báo cáo đầy đủ nhưng không dùng để kết luận.
 - Nếu không ủng hộ, chỉ kết luận rằng bỏ bài một bước không làm giảm cắt cụt ở quy mô này, không suy ra giới hạn của vết phẳng.
 - Giới hạn: một seed, 131 bài, độ dài trung vị vẫn khác nhau (385 và 299 token) vì bài nhiều bước vốn dài hơn, và 100 câu dev đã được đọc trước đó, nên đây là kết quả thăm dò.
+
+**Kết quả (chấm xong 2026-11-10 lúc 20:00, `audit/lora_math_multistep_clean_20261109/comparison.json`):**
+
+| Chỉ số | Can thiệp | Đối chứng | Chỉ bên này có (can thiệp / đối chứng) | p |
+| --- | :---: | :---: | :---: | :---: |
+| Bị cắt ở 1.024 token (chính) | 20 | 25 | 10 / 15 | 0,424 |
+| Đúng | 40 | 44 | 9 / 13 | 0,523 |
+| `format_valid` | 44 | 46 | 18 / 20 | 0,871 |
+| Bị cắt, đầu ra chỉ có 1 bước | 4 | 11 | | |
+| Bị cắt do lặp nguyên dòng `Calc` | 4 | 6 | | |
+
+Loss kiểm định ở vòng 1.000: 1,451 (can thiệp) và 1,408 (đối chứng).
+
+**Kết luận theo quy tắc trên: không ủng hộ.** Ở quy mô này, bỏ bài một bước không làm giảm cắt cụt một cách rõ rệt. Không suy ra giới hạn của vết phẳng. Chênh lệch ở dòng "đầu ra chỉ có 1 bước" (4 so với 11) chỉ là chỉ số phụ, không dùng để kết luận.

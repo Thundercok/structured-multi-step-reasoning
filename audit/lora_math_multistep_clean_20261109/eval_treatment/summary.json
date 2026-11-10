@@ -1,0 +1,19 @@
+{
+  "tuned": {
+    "n": 100,
+    "correct": 40,
+    "answered": 79,
+    "format_valid": 44,
+    "calc_accuracy": 0.764,
+    "grounded_rate": 0.577,
+    "mean_tokens": 547.8,
+    "mean_seconds": 47.64,
+    "truncated": 20,
+    "detection": {
+      "wrong": 60,
+      "flagged_wrong": 55,
+      "right": 40,
+      "flagged_right": 34
+    }
+  }
+}
