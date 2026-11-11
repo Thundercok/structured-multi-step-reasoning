@@ -340,6 +340,8 @@ GSM8K.
 ### Giao thức Niêm phong Tiền đăng ký (Pre-Registered Protocol for Sealed Test Evaluation)
 *Ghi nhận ngày 2026-11-08, chốt trước khi tải hoặc mở bất kỳ tập test niêm phong nào.*
 
+> **Sửa đổi ngày 2026-11-11, trước khi tải tập test:** phần GSM8K được thay bằng [sealed_test_gsm8k_prereg.md](sealed_test_gsm8k_prereg.md). Giả thuyết chính chuyển sang tỉ lệ `follows` của CF so với Plain, T2 chuyển thành kiểm không thua kém với biên 3 điểm, và một số chế độ được cắt bỏ. MATH-500 vẫn niêm phong.
+
 1. **Nguyên tắc phong tỏa (Sealed Boundary Integrity):**
    - Tuyệt đối không đọc, duyệt tay, hoặc sử dụng bất kỳ câu hỏi nào từ tập test GSM8K chính thức (1.319 câu) và MATH-500 (500 câu) để huấn luyện hay tinh chỉnh bất kỳ siêu tham số nào.
    - Tập test chỉ được chạy đúng một lần (single evaluation pass) sau khi hoàn tất toàn bộ quá trình huấn luyện và đóng băng vĩnh viễn trọng số adapter.
