@@ -60,7 +60,9 @@ The official GSM8K test set was run once, 2026-11-11 to 2026-11-13, under a prot
 * **H1 supported:** 66 vs. 34 discordant pairs, exact two-sided McNemar $p = 0.0018$; paired difference +4.8 points (95% CI +1.9 to +7.7).
 * **Accuracy, CF vs. Plain:** 115 vs. 103 discordant pairs, $p = 0.46$. No difference detected.
 * **Not met:** CF is 8.7 points less accurate than `base_prefill` (95% CI −10.8 to −6.7), so the pre-registered 3-point non-inferiority criterion fails. `Calc` lines with a wrong result: 44 of 4,332 (1.02%), just above the pre-registered 1% bound.
-* **Limits:** one seed per model; each model is intervened on its own trace, so pairs are matched by question, not by trace. Enriched CF was trained on this kind of edit, and the base model was not intervened on, so the result shows higher adherence than plain SFT, not greater faithfulness in general.
+* **Post-hoc, not pre-registered:** on the 441 questions where all three models had an intervention plan, exact `follows` was 376 (85.3%) for `base_prefill`, 362 (82.1%) for CF and 346 (78.5%) for Plain. Plain is below the base model (18 vs. 48, $p = 0.0003$); CF vs. base is not significant (19 vs. 33, $p = 0.070$). So H1 reads as CF losing less step-following than plain SFT, not raising it above the base model.
+* **Limits:** one seed per model; each model is intervened on its own trace, so pairs are matched by question, not by trace. Enriched CF was trained on this kind of edit, so the result shows higher adherence than plain SFT, not greater faithfulness in general.
+* **Prior work:** training on intervened traces is not new ([LIFT](https://arxiv.org/abs/2509.13334) uses the same model and benchmark; also [FRODO](https://arxiv.org/abs/2402.13950), [CCR](https://arxiv.org/abs/2509.01544)), and [Lobo et al.](https://arxiv.org/abs/2411.15382) report that plain SFT lowers faithfulness relative to the base model. This study is a pre-registered, sealed-test replication of those effects. See [`related_work_survey_20261114.md`](docs/related_work_survey_20261114.md).
 
 ### Development Results ($N = 199$, exploratory)
 
