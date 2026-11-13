@@ -129,3 +129,20 @@ Nếu rơi vào dòng thứ hai, đó chỉ là giả thuyết cho thí nghiệm
 | Can thiệp | 20 | 45 | 5 / 30 | < 0,001 |
 
 Cả hai nhóm đều bị cắt ít hơn lượt gốc nhiều, dù nhóm đối chứng vẫn có 95 bài một bước. Phép so này còn lẫn số bài và số lượt đọc, nên chỉ nêu giả thuyết cho thí nghiệm sau: bài huấn luyện bị cắt ở 512 token gây ra đầu ra bị cắt.
+
+**Kết quả vòng 150 (chấm xong 2026-11-11, `audit/lora_math_multistep_clean_20261109/comparison_150.json`):**
+
+| Chỉ số | Can thiệp | Đối chứng | Chỉ bên này có (can thiệp / đối chứng) | p |
+| --- | :---: | :---: | :---: | :---: |
+| Bị cắt ở 1.024 token (chính) | 36 | 50 | 9 / 23 | 0,020 |
+| Đúng | 43 | 38 | 20 / 15 | 0,500 |
+| `format_valid` | 29 | 31 | 17 / 19 | 0,868 |
+| Bị cắt, đầu ra chỉ có 1 bước | 10 | 43 | | |
+| Bị cắt do lặp nguyên dòng `Calc` | 13 | 30 | | |
+
+**Đọc theo quy tắc trên: không nhất quán.** Vòng 150 đạt điều kiện của mục 5 (nhóm can thiệp bị cắt ít hơn, $p = 0{,}020$), vòng 1.000 thì không ($p = 0{,}424$). Kết luận của thí nghiệm vẫn là không ủng hộ, và cần seed mới trước khi nói gì thêm về tác động của bài một bước.
+
+Ghi nhận thêm, chỉ là thăm dò:
+
+- Cả hai nhóm bị cắt nhiều hơn ở vòng 150 (36 và 50) so với vòng 1.000 (20 và 25). Loss kiểm định thấp nhất không đi cùng ít cắt cụt nhất.
+- Nhóm đối chứng ở vòng 150 không học bài bị cắt nào mà vẫn bị cắt 50 ca, nhiều hơn 45 ca của lượt gốc. Điều này làm yếu giả thuyết về bài huấn luyện bị cắt nêu ở trên: số lượt đọc mỗi bài (khoảng 1,1 ở vòng 150, 1,4 ở lượt gốc, 7,6 ở vòng 1.000) cũng giải thích được các con số đó.
