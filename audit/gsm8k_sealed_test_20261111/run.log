@@ -1,0 +1,171 @@
+>>> prepare at Wed Nov 11 17:37:24 +07 2026
+{"url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/test.jsonl", "raw_sha256": "3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14", "items_sha256": "409973ee7b2edd947e5e334c39052186df3489ff98e7cab0aa443421d453531b", "rows": 1319, "overlap_with_train_valid_dev": 0}
+>>> clean cf at Wed Nov 11 17:37:25 +07 2026
+>>> clean plain at Thu Nov 12 01:17:33 +07 2026
+>>> interventions cf at Thu Nov 12 15:34:03 +07 2026
+>>> interventions plain at Thu Nov 12 20:44:31 +07 2026
+>>> primary analysis at Fri Nov 13 04:26:48 +07 2026
+{
+  "questions": 1319,
+  "excluded": 0,
+  "H1_follows_cf_vs_plain": {
+    "n": 671,
+    "x": 544,
+    "y": 512,
+    "only_x": 66,
+    "only_y": 34,
+    "p": 0.0017899303914868526,
+    "diff": 0.04769001490312966,
+    "ci95": [
+      0.018704155386315424,
+      0.07667587441994389
+    ],
+    "verdict": "supports"
+  },
+  "S1_accuracy_cf_vs_plain": {
+    "n": 1319,
+    "x": 1052,
+    "y": 1040,
+    "only_x": 115,
+    "only_y": 103,
+    "p": 0.4563410015092822,
+    "diff": 0.009097801364670205,
+    "ci95": [
+      -0.012836447592849446,
+      0.031032050322189857
+    ]
+  },
+  "T1_format_valid_cf": {
+    "k": 1212,
+    "n": 1319,
+    "rate": 0.9188779378316907,
+    "wilson95": [
+      0.9028986337437955,
+      0.9324244449455444
+    ],
+    "met": true
+  },
+  "T3_calc_error_cf": {
+    "calcs": 4332,
+    "wrong": 44,
+    "rate": 0.010156971375807941,
+    "met": false
+  },
+  "S3_taxonomy": {
+    "cf": {
+      "follows": 544,
+      "other": 48,
+      "follows_rounded": 29,
+      "moved": 17,
+      "reverted": 26,
+      "no_answer": 2,
+      "follows_approximate": 5
+    },
+    "plain": {
+      "follows": 512,
+      "follows_approximate": 5,
+      "follows_rounded": 35,
+      "other": 49,
+      "moved": 27,
+      "reverted": 41,
+      "no_answer": 2
+    },
+    "planned_cf": 781,
+    "planned_plain": 808
+  },
+  "S4_truncated": {
+    "cf": 11,
+    "plain": 27
+  }
+}
+>>> base_prefill at Fri Nov 13 04:26:48 +07 2026
+>>> full analysis at Fri Nov 13 17:25:32 +07 2026
+{
+  "questions": 1319,
+  "excluded": 0,
+  "H1_follows_cf_vs_plain": {
+    "n": 671,
+    "x": 544,
+    "y": 512,
+    "only_x": 66,
+    "only_y": 34,
+    "p": 0.0017899303914868526,
+    "diff": 0.04769001490312966,
+    "ci95": [
+      0.018704155386315424,
+      0.07667587441994389
+    ],
+    "verdict": "supports"
+  },
+  "S1_accuracy_cf_vs_plain": {
+    "n": 1319,
+    "x": 1052,
+    "y": 1040,
+    "only_x": 115,
+    "only_y": 103,
+    "p": 0.4563410015092822,
+    "diff": 0.009097801364670205,
+    "ci95": [
+      -0.012836447592849446,
+      0.031032050322189857
+    ]
+  },
+  "T1_format_valid_cf": {
+    "k": 1212,
+    "n": 1319,
+    "rate": 0.9188779378316907,
+    "wilson95": [
+      0.9028986337437955,
+      0.9324244449455444
+    ],
+    "met": true
+  },
+  "T3_calc_error_cf": {
+    "calcs": 4332,
+    "wrong": 44,
+    "rate": 0.010156971375807941,
+    "met": false
+  },
+  "S3_taxonomy": {
+    "cf": {
+      "follows": 544,
+      "other": 48,
+      "follows_rounded": 29,
+      "moved": 17,
+      "reverted": 26,
+      "no_answer": 2,
+      "follows_approximate": 5
+    },
+    "plain": {
+      "follows": 512,
+      "follows_approximate": 5,
+      "follows_rounded": 35,
+      "other": 49,
+      "moved": 27,
+      "reverted": 41,
+      "no_answer": 2
+    },
+    "planned_cf": 781,
+    "planned_plain": 808
+  },
+  "S4_truncated": {
+    "cf": 11,
+    "plain": 27,
+    "base_prefill": 3
+  },
+  "S2_noninferiority_cf_vs_base_prefill": {
+    "n": 1319,
+    "x": 1052,
+    "y": 1167,
+    "only_x": 41,
+    "only_y": 156,
+    "p": 5.3763645900084383e-17,
+    "diff": -0.08718726307808947,
+    "ci95": [
+      -0.10750583981169656,
+      -0.06686868634448237
+    ],
+    "met": false
+  }
+}
+>>> finished at Fri Nov 13 17:25:32 +07 2026

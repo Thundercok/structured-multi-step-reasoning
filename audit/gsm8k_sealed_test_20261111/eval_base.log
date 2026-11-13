@@ -1,0 +1,1 @@
+base_prefill {"n": 1319, "correct": 1167, "answered": 1315, "format_valid": 804, "calc_accuracy": 0.964, "grounded_rate": 0.799, "mean_tokens": 161.6, "mean_seconds": 35.41, "truncated": 3, "detection": {"wrong": 152, "flagged_wrong": 91, "right": 1167, "flagged_right": 467}}

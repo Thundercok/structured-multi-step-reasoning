@@ -1,0 +1,73 @@
+{
+  "questions": 1319,
+  "excluded": 0,
+  "H1_follows_cf_vs_plain": {
+    "n": 671,
+    "x": 544,
+    "y": 512,
+    "only_x": 66,
+    "only_y": 34,
+    "p": 0.0017899303914868526,
+    "diff": 0.04769001490312966,
+    "ci95": [
+      0.018704155386315424,
+      0.07667587441994389
+    ],
+    "verdict": "supports"
+  },
+  "S1_accuracy_cf_vs_plain": {
+    "n": 1319,
+    "x": 1052,
+    "y": 1040,
+    "only_x": 115,
+    "only_y": 103,
+    "p": 0.4563410015092822,
+    "diff": 0.009097801364670205,
+    "ci95": [
+      -0.012836447592849446,
+      0.031032050322189857
+    ]
+  },
+  "T1_format_valid_cf": {
+    "k": 1212,
+    "n": 1319,
+    "rate": 0.9188779378316907,
+    "wilson95": [
+      0.9028986337437955,
+      0.9324244449455444
+    ],
+    "met": true
+  },
+  "T3_calc_error_cf": {
+    "calcs": 4332,
+    "wrong": 44,
+    "rate": 0.010156971375807941,
+    "met": false
+  },
+  "S3_taxonomy": {
+    "cf": {
+      "follows": 544,
+      "other": 48,
+      "follows_rounded": 29,
+      "moved": 17,
+      "reverted": 26,
+      "no_answer": 2,
+      "follows_approximate": 5
+    },
+    "plain": {
+      "follows": 512,
+      "follows_approximate": 5,
+      "follows_rounded": 35,
+      "other": 49,
+      "moved": 27,
+      "reverted": 41,
+      "no_answer": 2
+    },
+    "planned_cf": 781,
+    "planned_plain": 808
+  },
+  "S4_truncated": {
+    "cf": 11,
+    "plain": 27
+  }
+}

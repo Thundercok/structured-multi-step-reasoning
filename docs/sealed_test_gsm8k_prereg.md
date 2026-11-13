@@ -80,3 +80,7 @@ Những phần sau không chạy trong lượt này. Nếu chạy sau, chúng ph
 - Chạy: `audit/gsm8k_sealed_test_20261111/run.sh`
 - Chấm: `audit/gsm8k_sealed_test_20261111/analyze.py`. Script này được commit cùng bản đăng ký và đã thử trên đầu ra
   dev N=300 trước khi tải tập test.
+
+## Kết quả
+
+Đã chạy xong ngày 2026-11-13: H1 được ủng hộ, S2 và T3 không đạt. Xem [RESULTS.md](../audit/gsm8k_sealed_test_20261111/RESULTS.md).
