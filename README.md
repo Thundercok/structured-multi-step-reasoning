@@ -60,7 +60,7 @@ The official GSM8K test set was run once, 2026-11-11 to 2026-11-13, under a prot
 * **H1 supported:** 66 vs. 34 discordant pairs, exact two-sided McNemar $p = 0.0018$; paired difference +4.8 points (95% CI +1.9 to +7.7).
 * **Accuracy, CF vs. Plain:** 115 vs. 103 discordant pairs, $p = 0.46$. No difference detected.
 * **Not met:** CF is 8.7 points less accurate than `base_prefill` (95% CI −10.8 to −6.7), so the pre-registered 3-point non-inferiority criterion fails. `Calc` lines with a wrong result: 44 of 4,332 (1.02%), just above the pre-registered 1% bound.
-* **Limits:** one seed per model; each model is intervened on its own trace, so pairs are matched by question, not by trace.
+* **Limits:** one seed per model; each model is intervened on its own trace, so pairs are matched by question, not by trace. Enriched CF was trained on this kind of edit, and the base model was not intervened on, so the result shows higher adherence than plain SFT, not greater faithfulness in general.
 
 ### Development Results ($N = 199$, exploratory)
 
