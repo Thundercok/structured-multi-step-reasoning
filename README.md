@@ -44,7 +44,27 @@ When $H(z_k) > \tau$, self-generation halts and triggers external verification o
 
 ## 2. Empirical Results & Step Intervention Benchmarks
 
-We evaluate the fine-tuned structured **Qwen3-8B** models on $N = 199$ questions outside the training files (`Dev-100` and 99 validation questions) and test reasoning step dependence via deterministic intermediate step interventions $\text{do}(z_k \leftarrow \tilde{z}_k)$. Both splits were read or used during development, so these results are exploratory. The official GSM8K test set remains sealed.
+We test reasoning step dependence via deterministic intermediate step interventions $\text{do}(z_k \leftarrow \tilde{z}_k)$: one intermediate `Calc` result is changed, and we check whether the final answer follows the changed value.
+
+### Sealed GSM8K Test ($N = 1{,}319$, pre-registered)
+
+The official GSM8K test set was run once, 2026-11-11 to 2026-11-13, under a protocol pushed before the test file was downloaded ([`sealed_test_gsm8k_prereg.md`](docs/sealed_test_gsm8k_prereg.md), commit `bfa6181b`). Full numbers: [`RESULTS.md`](audit/gsm8k_sealed_test_20261111/RESULTS.md).
+
+| Measure | Enriched CF (seed 0) | Enriched Plain (seed 0) | `base_prefill` |
+| :--- | :---: | :---: | :---: |
+| **H1 (primary): exact `follows`**, 671 shared episodes | **544 (81.1%)** | 512 (76.3%) | — |
+| Accuracy | 1,052 (79.8%) | 1,040 (78.8%) | 1,167 (88.5%) |
+| Format valid | 1,212 (91.9%) | — | — |
+| Truncated at 1,024 tokens | 11 | 27 | 3 |
+
+* **H1 supported:** 66 vs. 34 discordant pairs, exact two-sided McNemar $p = 0.0018$; paired difference +4.8 points (95% CI +1.9 to +7.7).
+* **Accuracy, CF vs. Plain:** 115 vs. 103 discordant pairs, $p = 0.46$. No difference detected.
+* **Not met:** CF is 8.7 points less accurate than `base_prefill` (95% CI −10.8 to −6.7), so the pre-registered 3-point non-inferiority criterion fails. `Calc` lines with a wrong result: 44 of 4,332 (1.02%), just above the pre-registered 1% bound.
+* **Limits:** one seed per model; each model is intervened on its own trace, so pairs are matched by question, not by trace.
+
+### Development Results ($N = 199$, exploratory)
+
+The analyses below use `Dev-100` and 99 validation questions. Both splits were read or used during development, so they are exploratory; the sealed test above is the confirmatory result.
 
 > [!WARNING]
 > **Correction (2026-11-09):** this analysis was first reported on $N = 300$ "held-out" questions, but 100 of its 101 `heldout_tail` questions appear in the training files. They are excluded below. The all-300 figures, for transparency: accuracy 251 vs. 244 ($p = 0.3817$), exact `follows` 136 vs. 119 of 167 ($p = 0.00599$). See [`CORRECTION.md`](audit/scaleup_eval_300_20261109/CORRECTION.md).
