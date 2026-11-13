@@ -1,0 +1,51 @@
+{
+  "planned": {
+    "cf": 781,
+    "plain": 808,
+    "base_prefill": 581
+  },
+  "shared_all_three": 441,
+  "follows": {
+    "cf": 362,
+    "plain": 346,
+    "base_prefill": 376
+  },
+  "taxonomy": {
+    "cf": {
+      "other": 26,
+      "follows": 362,
+      "follows_rounded": 22,
+      "reverted": 18,
+      "no_answer": 2,
+      "moved": 8,
+      "follows_approximate": 3
+    },
+    "plain": {
+      "follows": 346,
+      "other": 23,
+      "follows_rounded": 26,
+      "reverted": 27,
+      "moved": 15,
+      "no_answer": 2,
+      "follows_approximate": 2
+    },
+    "base_prefill": {
+      "follows": 376,
+      "follows_rounded": 22,
+      "reverted": 21,
+      "follows_approximate": 5,
+      "other": 10,
+      "moved": 7
+    }
+  },
+  "cf_vs_base_prefill": {
+    "only_adapter": 19,
+    "only_base": 33,
+    "p": 0.07039422106706228
+  },
+  "plain_vs_base_prefill": {
+    "only_adapter": 18,
+    "only_base": 48,
+    "p": 0.00028711844966164033
+  }
+}

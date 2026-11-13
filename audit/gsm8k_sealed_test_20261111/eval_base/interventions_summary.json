@@ -1,0 +1,67 @@
+{
+  "base_prefill": {
+    "eligible": {
+      "n": 581,
+      "follows": 490,
+      "follows_rounded": 26,
+      "follows_approximate": 6,
+      "reverted": 31,
+      "other": 17,
+      "moved": 11,
+      "no_answer": 0
+    },
+    "eligibility_rate": 0.44,
+    "skipped": {
+      "invalid_format": 522,
+      "ambiguous_propagation": 122,
+      "change_does_not_reach_answer": 8,
+      "too_few_calcs": 15,
+      "no_result_used_later": 58,
+      "answer_needs_comparison": 13
+    },
+    "rq1": {
+      "moved|clean": {
+        "n": 539,
+        "wrong": 35
+      },
+      "moved|flagged": {
+        "n": 11,
+        "wrong": 5
+      },
+      "unmoved|clean": {
+        "n": 31,
+        "wrong": 2
+      }
+    },
+    "correct_only": {
+      "n": 539,
+      "follows": 464,
+      "follows_rounded": 24,
+      "follows_approximate": 5,
+      "reverted": 29,
+      "other": 11,
+      "moved": 6,
+      "no_answer": 0
+    },
+    "shared": {
+      "n": 581,
+      "follows": 490,
+      "follows_rounded": 26,
+      "follows_approximate": 6,
+      "reverted": 31,
+      "other": 17,
+      "moved": 11,
+      "no_answer": 0
+    },
+    "shared_correct_only": {
+      "n": 539,
+      "follows": 464,
+      "follows_rounded": 24,
+      "follows_approximate": 5,
+      "reverted": 29,
+      "other": 11,
+      "moved": 6,
+      "no_answer": 0
+    }
+  }
+}

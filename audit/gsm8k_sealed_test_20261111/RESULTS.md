@@ -51,3 +51,21 @@ Số câu có kế hoạch can thiệp: CF 781, Plain 808.
   Cũng không được nói tỉ lệ tính sai dưới 1%.
 - **Giới hạn:** mỗi mô hình chỉ có seed 0. Mỗi mô hình bị can thiệp trên vết của chính nó, nên cặp so sánh là theo câu
   hỏi, không theo cùng một vết.
+
+## Phân tích hậu nghiệm: can thiệp trên `base_prefill` (không đăng ký trước)
+
+Ghi ngày 2026-11-13, trước khi chạy. Lý do: trên dev, `base_prefill` đi theo bước bị sửa 53/53 lần, nên cần biết H1 là "CF tăng mức phụ thuộc vào bước" hay "tinh chỉnh làm giảm, CF giảm ít hơn". Lệnh: `python -m structured_llm.intervene --run audit/gsm8k_sealed_test_20261111/eval_base --modes base_prefill --max-tokens 512`, cùng bộ lập và bộ phân loại như hai adapter. So sánh `follows` chính xác trên các câu cả ba mô hình đều có kế hoạch, McNemar hai phía, bằng `posthoc_base.py`. Kết quả này chỉ mô tả, không thay kết luận H1.
+
+**Kết quả (2026-11-14).** Số câu có kế hoạch: CF 781, Plain 808, `base_prefill` 581. Trên 441 câu cả ba đều có kế hoạch:
+
+| | CF | Plain | `base_prefill` |
+| --- | :---: | :---: | :---: |
+| `follows` | 362 (82,1%) | 346 (78,5%) | 376 (85,3%) |
+| `reverted` | 18 | 27 | 21 |
+| `moved` | 8 | 15 | 7 |
+| `other` | 26 | 23 | 10 |
+
+- Plain so với gốc: 18/48 cặp lệch, p = 0,0003. Plain đi theo bước bị sửa ít hơn gốc.
+- CF so với gốc: 19/33 cặp lệch, p = 0,070. Chưa thấy khác biệt có ý nghĩa, nghiêng về phía gốc cao hơn.
+- Cách đọc mô tả: tinh chỉnh thường làm giảm mức đi theo bước; CF giữ mức này gần với mô hình gốc. H1 hợp với "CF giảm ít hơn" hơn là "CF tăng lên trên mức gốc".
+- Giới hạn: gốc có ít kế hoạch hơn (581), nên tập 441 câu là tập con được chọn lọc và khác tập 671 của H1.
