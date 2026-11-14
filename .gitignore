@@ -7,55 +7,25 @@ __pycache__/
 .coverage
 htmlcov/
 *.db
-.rat/
 build/
 dist/
-*.dmg
-dmg_temp/
 
 *.log
-
-# Pinned translation data is restored by tools/prepare_rat_translation_models.py.
-rat/assets/translation/*/model/
-rat/assets/translation/*/sentencepiece.model
-# Pinned embedding model is restored by tools/prepare_rat_embedding_model.py.
-rat/assets/embedding/models--*/
-artifacts/rat_mini_local_mt_20261027/downloads/
 
 .venv/
 runs/
 outputs/
-nesy_docai/intake/vision_native_bin
-integrations/nesy_docai/tmp/
-*pool*.json
 
-# Recovery material and deferred standalone DocAI state
+# Recovery material
 .migration-backups/
-modules/docai/local_state/
-modules/docai/nesy_docai/intake/vision_native_bin
 
-# Local work directories and scratch materials
+# Local work directories
 work/
 *.tar.gz
-scratch/*.tar.gz
-scratch/debug_images/
-scratch/inspected/
-scratch/sprites/
-rat/assets/sprites/
-scratch/build_spider/
-scratch/*.html
-scratch/font_test_*.png
-scratch/native_specimen_*.png
-scratch/test_*.png
-scratch/capture_overnight_specimens.py
-scratch/debug_capture.py
-scratch/generate_specimens.py
-scratch/inspect_narrow.py
 
 # Internal operational & migration artifacts
 docs/repository_migration.md
 audit/repository_migration_*/
-.migration-backups/
 AGENTS.md
 CLAUDE.md
 
@@ -88,4 +58,3 @@ docs/paper/*.aux
 docs/paper/*.bbl
 docs/paper/*.blg
 docs/paper/*.out
-
