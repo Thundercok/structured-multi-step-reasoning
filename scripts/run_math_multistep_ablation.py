@@ -27,29 +27,98 @@ REPORT_MD = OUT_DIR / "REPORT.md"
 BASELINE_FILE = ROOT / "audit/lora_math_20261107/eval/tuned.jsonl"
 
 
+def get_latest_checkpoint(adapter_dir: Path):
+    ckpt_1000 = adapter_dir / "0001000_adapters.safetensors"
+    if ckpt_1000.is_file():
+        return ckpt_1000, 1000
+    ckpt_files = sorted(adapter_dir.glob("[0-9]*_adapters.safetensors"))
+    if not ckpt_files:
+        return None, 0
+    latest_file = ckpt_files[-1]
+    try:
+        step = int(latest_file.name.split("_")[0])
+        return latest_file, step
+    except Exception:
+        return None, 0
+
+
 def run_training():
     print("=" * 70)
     print("PHASE 1: TRAINING ADAPTER (1,000 ITERS, MULTI-STEP DATA)")
     print("=" * 70)
-    safetensors = ADAPTER / "adapters.safetensors"
-    if safetensors.is_file():
-        print(f"[Train] Found existing adapter at {safetensors}, skipping training.")
+    latest_ckpt, step = get_latest_checkpoint(ADAPTER)
+    if step >= 1000:
+        print(f"[Train] Found complete adapter (step {step} >= 1000), skipping training.")
         return
 
-    cmd = [
-        "zsh",
-        str(ROOT / "structured_llm/train.sh"),
-        str(ADAPTER),
-        "1000",
-        str(DATA_DIR),
-        "512",
-        "0",
-    ]
+    model_dir = Path(os.environ.get("HF_HOME", Path.home() / ".cache/huggingface")) / "hub/models--mlx-community--Qwen3-8B-4bit/snapshots/545dc4251c05440727734bcd94334791f6ab0192"
+    env = os.environ.copy()
+    env["HF_HUB_OFFLINE"] = "1"
+    env["MLX_MAX_OPS_PER_BUFFER"] = "10"
+    env["MLX_MAX_MB_PER_BUFFER"] = "512"
+
+    if 0 < step < 1000:
+        remaining = 1000 - step
+        print(f"[Train] Resuming from step {step} ({remaining} iterations remaining)...")
+        cmd = [
+            str(ROOT / ".venv/bin/python"),
+            "-m",
+            "mlx_lm",
+            "lora",
+            "--model",
+            str(model_dir),
+            "--train",
+            "--data",
+            str(DATA_DIR),
+            "--fine-tune-type",
+            "lora",
+            "--num-layers",
+            "8",
+            "--batch-size",
+            "1",
+            "--iters",
+            str(remaining),
+            "--learning-rate",
+            "5e-5",
+            "--max-seq-length",
+            "512",
+            "--grad-checkpoint",
+            "--steps-per-report",
+            "10",
+            "--steps-per-eval",
+            "50",
+            "--val-batches",
+            "10",
+            "--save-every",
+            "50",
+            "--adapter-path",
+            str(ADAPTER),
+            "--seed",
+            "0",
+            "--resume-adapter-file",
+            str(latest_ckpt),
+        ]
+    else:
+        print("[Train] Starting fresh training (1,000 iters)...")
+        cmd = [
+            "zsh",
+            str(ROOT / "structured_llm/train.sh"),
+            str(ADAPTER),
+            "1000",
+            str(DATA_DIR),
+            "512",
+            "0",
+        ]
+
     print(f"[Train] Executing: {' '.join(cmd)}")
     t0 = time.time()
-    res = subprocess.run(cmd, cwd=str(ROOT))
+    res = subprocess.run(cmd, cwd=str(ROOT), env=env)
     if res.returncode != 0:
         raise RuntimeError(f"Training failed with exit code {res.returncode}")
+    import shutil
+    final_safetensors = ADAPTER / "adapters.safetensors"
+    if final_safetensors.is_file():
+        shutil.copy2(final_safetensors, ADAPTER / "0001000_adapters.safetensors")
     print(f"[Train] Completed in {(time.time() - t0) / 60:.1f} minutes.")
 
 
@@ -76,6 +145,10 @@ def run_evaluation():
         str(DEV_DATA),
         "--out",
         str(EVAL_DIR),
+        "--limit",
+        "100",
+        "--modes",
+        "tuned",
         "--max-tokens",
         "1024",
     ]
@@ -194,7 +267,7 @@ def generate_comparative_report(ablation_recs):
 
 ## 1. Bảng Đo Lường Thực Nghiệm So Sánh
 
-| Chỉ số | Baseline Control (`math_lora_1000_s0`) | Treatment Ablation (`math_lora_multistep_1000_s0`) | Độ lệch ($\Delta$) |
+| Chỉ số | Baseline Control (`math_lora_1000_s0`) | Treatment Ablation (`math_lora_multistep_1000_s0`) | Độ lệch ($\\Delta$) |
 | :--- | :---: | :---: | :---: |
 | **Tập huấn luyện (Train Size)** | 725 (65.2% 1-Step) | **252 (100% $\\ge 2$ Steps)** | -473 (-65.2%) |
 | **Độ chính xác tổng thể** | {base_stats['correct']}/100 ({base_stats['correct']}%) | **{ab_stats['correct']}/100 ({ab_stats['correct']}%)** | {ab_stats['correct'] - base_stats['correct']:+d}% |
