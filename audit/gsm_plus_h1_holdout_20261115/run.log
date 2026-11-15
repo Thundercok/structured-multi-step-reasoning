@@ -1,0 +1,8 @@
+>>> prepare at Sun Nov 15 17:20:56 +07 2026
+{"raw_sha256": "885c279bfa9cde767ea23f79fd462d566fa0dbf6af9f2dcf30c75aa94f3d4041", "items_sha256": "d079e99a5b9cef8d887f28ac39ac20b0a1b14cdee5b003a451d67087651f6e7a", "numerical_substitution": 1319, "pool": 1319, "holdout": 819, "shared_with_first_500": 0}
+>>> clean cf at Sun Nov 15 17:20:56 +07 2026
+>>> clean plain at Sun Nov 15 21:22:13 +07 2026
+>>> interventions cf at Mon Nov 16 01:29:52 +07 2026
+>>> interventions plain at Mon Nov 16 03:02:06 +07 2026
+>>> analysis at Mon Nov 16 04:33:41 +07 2026
+>>> done at Mon Nov 16 04:33:41 +07 2026

@@ -1,0 +1,86 @@
+{
+  "questions": 819,
+  "H1_follows_cf_vs_plain": {
+    "n": 428,
+    "x": 336,
+    "y": 330,
+    "only_x": 32,
+    "only_y": 26,
+    "p": 0.5118423084381689,
+    "diff": 0.014018691588785047,
+    "ci95": [
+      -0.020831340413386648,
+      0.048868723590956745
+    ],
+    "verdict": "does not support"
+  },
+  "accuracy": {
+    "cf": {
+      "k": 624,
+      "wilson95": [
+        0.731554854836383,
+        0.7898092492704369
+      ]
+    },
+    "plain": {
+      "k": 605,
+      "wilson95": [
+        0.7075520387738302,
+        0.7676306295379801
+      ]
+    }
+  },
+  "accuracy_cf_vs_plain": {
+    "n": 819,
+    "x": 624,
+    "y": 605,
+    "only_x": 77,
+    "only_y": 58,
+    "p": 0.12101372565511773,
+    "diff": 0.0231990231990232,
+    "ci95": [
+      -0.004561069845554294,
+      0.050959116243600694
+    ]
+  },
+  "planned": {
+    "cf": 508,
+    "plain": 513
+  },
+  "taxonomy": {
+    "cf": {
+      "follows": 385,
+      "moved": 38,
+      "follows_rounded": 21,
+      "other": 35,
+      "reverted": 18,
+      "follows_approximate": 9,
+      "no_answer": 2
+    },
+    "plain": {
+      "follows": 387,
+      "other": 35,
+      "moved": 33,
+      "no_answer": 3,
+      "reverted": 23,
+      "follows_rounded": 28,
+      "follows_approximate": 4
+    }
+  },
+  "truncated": {
+    "cf": 13,
+    "plain": 20
+  },
+  "pooled_1319_descriptive": {
+    "n": 690,
+    "x": 533,
+    "y": 523,
+    "only_x": 62,
+    "only_y": 52,
+    "diff": 0.014492753623188406,
+    "ci95": [
+      -0.01581649654331633,
+      0.04480200378969314
+    ]
+  }
+}
