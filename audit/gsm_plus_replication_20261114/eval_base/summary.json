@@ -1,0 +1,19 @@
+{
+  "base_prefill": {
+    "n": 500,
+    "correct": 424,
+    "answered": 494,
+    "format_valid": 294,
+    "calc_accuracy": 0.966,
+    "grounded_rate": 0.783,
+    "mean_tokens": 165.1,
+    "mean_seconds": 17.98,
+    "truncated": 3,
+    "detection": {
+      "wrong": 76,
+      "flagged_wrong": 49,
+      "right": 424,
+      "flagged_right": 176
+    }
+  }
+}

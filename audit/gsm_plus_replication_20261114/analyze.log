@@ -1,0 +1,106 @@
+{
+  "questions": 500,
+  "H1_follows_cf_vs_plain": {
+    "n": 262,
+    "x": 197,
+    "y": 193,
+    "only_x": 30,
+    "only_y": 26,
+    "p": 0.6888797607233396,
+    "diff": 0.015267175572519083,
+    "ci95": [
+      -0.04068331286631199,
+      0.07121766401135016
+    ],
+    "verdict": "does not support"
+  },
+  "H2_follows_plain_vs_base_prefill": {
+    "n": 185,
+    "x": 142,
+    "y": 159,
+    "only_x": 10,
+    "only_y": 27,
+    "p": 0.007632078602910042,
+    "diff": -0.0918918918918919,
+    "ci95": [
+      -0.1549600243197077,
+      -0.028823759464076087
+    ],
+    "verdict": "supports"
+  },
+  "accuracy": {
+    "cf": {
+      "k": 378,
+      "wilson95": [
+        0.7164951931439073,
+        0.791601144539778
+      ]
+    },
+    "plain": {
+      "k": 369,
+      "wilson95": [
+        0.6977470833575388,
+        0.7746237305827623
+      ]
+    },
+    "base_prefill": {
+      "k": 424,
+      "wilson95": [
+        0.8138858517125613,
+        0.8768076073261983
+      ]
+    }
+  },
+  "follows_cf_vs_base_prefill": {
+    "n": 178,
+    "x": 146,
+    "y": 154,
+    "only_x": 14,
+    "only_y": 22,
+    "p": 0.2429849540349096,
+    "diff": -0.0449438202247191,
+    "ci95": [
+      -0.11067927543405223,
+      0.020791634984614032
+    ]
+  },
+  "planned": {
+    "cf": 298,
+    "plain": 317,
+    "base_prefill": 214
+  },
+  "taxonomy": {
+    "cf": {
+      "follows_approximate": 5,
+      "other": 22,
+      "follows": 223,
+      "follows_rounded": 13,
+      "reverted": 14,
+      "moved": 18,
+      "no_answer": 3
+    },
+    "plain": {
+      "follows": 224,
+      "no_answer": 3,
+      "follows_rounded": 20,
+      "moved": 27,
+      "reverted": 17,
+      "other": 23,
+      "follows_approximate": 3
+    },
+    "base_prefill": {
+      "moved": 5,
+      "follows": 180,
+      "other": 11,
+      "follows_rounded": 7,
+      "follows_approximate": 2,
+      "reverted": 8,
+      "no_answer": 1
+    }
+  },
+  "truncated": {
+    "cf": 10,
+    "plain": 5,
+    "base_prefill": 3
+  }
+}

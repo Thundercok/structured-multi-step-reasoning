@@ -1,0 +1,19 @@
+{
+  "url": "https://huggingface.co/datasets/qintongli/GSM-Plus/resolve/3b708db57b96a16e8e3368ed2956990c0809440e/data/test-00000-of-00001.jsonl",
+  "raw_sha256": "885c279bfa9cde767ea23f79fd462d566fa0dbf6af9f2dcf30c75aa94f3d4041",
+  "items_sha256": "e7ba71253d0f23f92d004d28e03855faff1ec229cf9b0f8e2d77be55d9b7b107",
+  "rows": 10552,
+  "perturbation_types": [
+    "adding operation",
+    "critical thinking",
+    "digit expansion",
+    "distraction insertion",
+    "integer-decimal-fraction conversion",
+    "numerical substitution",
+    "problem understanding",
+    "reversing operation"
+  ],
+  "numerical_substitution": 1319,
+  "overlap_with_train_valid_dev": 0,
+  "sampled": 500
+}
