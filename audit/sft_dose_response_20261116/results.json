@@ -1,0 +1,149 @@
+{
+  "questions": 500,
+  "T1_base_vs_50": {
+    "n": 113,
+    "x": 94,
+    "y": 90,
+    "only_x": 12,
+    "only_y": 8,
+    "p": 0.5034446716308594,
+    "diff": 0.035398230088495575,
+    "ci95": [
+      -0.0418950703387872,
+      0.11269153051577835
+    ],
+    "verdict": "does not support"
+  },
+  "T2_50_vs_2000": {
+    "n": 143,
+    "x": 113,
+    "y": 102,
+    "only_x": 17,
+    "only_y": 6,
+    "p": 0.03468966484069824,
+    "diff": 0.07692307692307693,
+    "ci95": [
+      0.012411653987463342,
+      0.1414344998586905
+    ],
+    "verdict": "does not support"
+  },
+  "reading": "not distinguishable",
+  "curve_descriptive": {
+    "base": {
+      "planned": 214,
+      "follows": 180,
+      "follows_rate": 0.8411214953271028,
+      "accuracy": 424,
+      "accuracy_wilson95": [
+        0.8138858517125613,
+        0.8768076073261983
+      ],
+      "truncated": 3,
+      "answer_format": {
+        "number": 500
+      },
+      "taxonomy": {
+        "moved": 5,
+        "follows": 180,
+        "other": 11,
+        "follows_rounded": 7,
+        "follows_approximate": 2,
+        "reverted": 8,
+        "no_answer": 1
+      }
+    },
+    "50": {
+      "planned": 168,
+      "follows": 129,
+      "follows_rate": 0.7678571428571429,
+      "accuracy": 387,
+      "accuracy_wilson95": [
+        0.7353316422926235,
+        0.8084902191344461
+      ],
+      "truncated": 30,
+      "answer_format": {
+        "number": 500
+      },
+      "taxonomy": {
+        "follows": 129,
+        "moved": 8,
+        "no_answer": 9,
+        "reverted": 8,
+        "follows_approximate": 2,
+        "follows_rounded": 8,
+        "other": 4
+      }
+    },
+    "200": {
+      "planned": 192,
+      "follows": 141,
+      "follows_rate": 0.734375,
+      "accuracy": 370,
+      "accuracy_wilson95": [
+        0.6998260397638378,
+        0.7765142768146172
+      ],
+      "truncated": 10,
+      "answer_format": {
+        "number": 500
+      },
+      "taxonomy": {
+        "follows": 141,
+        "no_answer": 1,
+        "follows_rounded": 15,
+        "reverted": 14,
+        "moved": 11,
+        "other": 8,
+        "follows_approximate": 2
+      }
+    },
+    "1000": {
+      "planned": 274,
+      "follows": 199,
+      "follows_rate": 0.7262773722627737,
+      "accuracy": 380,
+      "accuracy_wilson95": [
+        0.7206732029933738,
+        0.7953621399666191
+      ],
+      "truncated": 8,
+      "answer_format": {
+        "number": 500
+      },
+      "taxonomy": {
+        "follows": 199,
+        "reverted": 11,
+        "follows_rounded": 18,
+        "follows_approximate": 1,
+        "other": 17,
+        "moved": 24,
+        "no_answer": 4
+      }
+    },
+    "2000": {
+      "planned": 317,
+      "follows": 224,
+      "follows_rate": 0.7066246056782335,
+      "accuracy": 369,
+      "accuracy_wilson95": [
+        0.6977470833575388,
+        0.7746237305827623
+      ],
+      "truncated": 5,
+      "answer_format": {
+        "number": 500
+      },
+      "taxonomy": {
+        "follows": 224,
+        "no_answer": 3,
+        "follows_rounded": 20,
+        "moved": 27,
+        "reverted": 17,
+        "other": 23,
+        "follows_approximate": 3
+      }
+    }
+  }
+}

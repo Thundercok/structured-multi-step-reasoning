@@ -1,0 +1,12 @@
+{
+  "model": "mlx-community/Qwen3-8B-4bit",
+  "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+  "adapter": "adapters/gsm8k_enriched_ckpt50_s0",
+  "adapter_sha256": "54b3ce534d875b50b6dab90dfc762ba49faeb54090c0266ae5cc5ba2db8e35f7",
+  "data": "data/gsm_plus_v1/test.jsonl",
+  "data_sha256": "e7ba71253d0f23f92d004d28e03855faff1ec229cf9b0f8e2d77be55d9b7b107",
+  "limit": 500,
+  "max_tokens": 1024,
+  "temperature": 0.0,
+  "machine": "macOS-26.5.2-arm64-arm-64bit"
+}
