@@ -4,190 +4,170 @@
 [![MLX](https://img.shields.io/badge/optimized-Apple%20Silicon%20MLX-black.svg)](https://github.com/ml-explore/mlx)
 [![Status](https://img.shields.io/badge/status-active%20research-green.svg)](docs/research_plan.md)
 
-Fine-tuning **Qwen3-8B** on Apple Silicon (`MLX`) to emit explicitly checkable multi-step reasoning traces (`<think>`, `Step`, `Calc`), evaluated via **counterfactual step interventions** to assess the behavioral dependence of final predictions on intermediate reasoning steps rather than post-hoc rationalization.
+Đề tài nghiên cứu khoa học sinh viên (NCKH). Câu hỏi chính: **khi một mô hình ngôn ngữ viết ra các bước giải toán,
+đáp án cuối của nó có thật sự dựa vào các bước đó không?** Hay mô hình đã "biết" đáp án từ trước, và các bước chỉ
+viết ra cho có?
 
-> [!NOTE]
-> **Repository Boundary:** This repository is dedicated 100% to research on structured reasoning models, counterfactual dataset synthesis, and intervention auditing. The native macOS desktop overlay agent (RAT) has been fully separated into its own independent repository: [`Thundercok/selective-delegation-agent`](https://github.com/Thundercok/selective-delegation-agent). Research code in this tree never imports or depends on RAT.
-
-[Research Plan](docs/research_plan.md) | [Literature Survey](docs/literature_survey.md)
-
----
-
-## 1. Core Formulation & Behavioral Step Dependence
-
-Standard Chain-of-Thought (CoT) fine-tuning often suffers from **unfaithful rationalization**: the model outputs seemingly plausible reasoning steps $z_{1:K}$ while computing the final answer $y$ via internal shortcuts independent of $z_{1:K}$. We evaluate and enforce structural step verifiability and behavioral dependency through three mechanisms:
-
-### A. Structured Step Decomposition
-Given an input problem $x$, the model $\pi_\theta$ generates a discrete sequence of atomic, verifiable steps $z = (z_1, z_2, \dots, z_K)$ followed by final answer $y$:
-$$\pi_\theta(y, z_{1:K} \mid x) = \pi_\theta(y \mid z_{1:K}, x) \prod_{k=1}^{K} \pi_\theta(z_k \mid z_{<k}, x)$$
-Each step contains a bounded operation (e.g. `Calc(48 / 2 = 24)`), parsed and checked by deterministic symbolic solvers (`SymPy` / sandboxed Python AST) without arbitrary code execution.
-
-### B. Counterfactual Step Intervention
-To evaluate whether the downstream derivation $y$ behaviorally depends on an intermediate step $z_k$, we apply a targeted perturbation operator $\mathcal{I}_k: z_k \mapsto \tilde{z}_k$ (editing a single intermediate `Calc` calculation) and let the model continue generation. Continuations are classified into deterministic outcome classes:
-
-$$\mathcal{E}_k(x) = \begin{cases}
-\textbf{follows} & \text{if } |\hat{y}_{\text{continued}} - y_{\text{expected}}| \le \epsilon \quad (\text{continued derivation quantitatively incorporates the perturbed step}) \\
-\textbf{reverted} & \text{if } |\hat{y}_{\text{continued}} - y_{\text{original}}| \le \epsilon \quad (\text{model reverts to prompt's unperturbed state or ignores edit}) \\
-\textbf{follows\_rounded} & \text{if answer reflects commonsense domain clamping or defensible mathematical rounding around } y_{\text{expected}} \\
-\textbf{follows\_approximate} & \text{if answer is within tolerance window of } y_{\text{expected}} \text{ without meeting defensible rounding criteria} \\
-\textbf{moved} & \text{if answer shifted to a distinct value on a flagged trace where } y_{\text{expected}} \text{ is uncomputable}
-\end{cases}$$
-
-A reasoning trace exhibits **behavioral dependence** on intermediate steps when perturbing an essential intermediate step $z_k$ induces a corresponding shift in downstream deductions, whereas unfaithful traces revert to the original answer regardless of the injected perturbation. Note that textual interventions in autoregressive decoding measure behavioral sensitivity to generated prefix tokens, rather than internal neural causal mechanisms.
-
-### C. Confidence-Aware Help-Seeking Policy
-During sequential generation, step-level predictive entropy is monitored:
-$$H(z_k) = -\sum_{v \in \mathcal{V}} P_\theta(v \mid z_{<k}) \log P_\theta(v \mid z_{<k})$$
-When $H(z_k) > \tau$, self-generation halts and triggers external verification or an adaptive fallback policy to prevent cascading error propagation.
+Mô hình được dùng là Qwen3-8B, tinh chỉnh trên MacBook (Apple Silicon, thư viện MLX) bằng các bài toán đố
+GSM8K.
 
 ---
 
-## 2. Empirical Results & Step Intervention Benchmarks
+## Ý tưởng trong một phút
 
-We test reasoning step dependence via deterministic intermediate step interventions $\text{do}(z_k \leftarrow \tilde{z}_k)$: one intermediate `Calc` result is changed, and we check whether the final answer follows the changed value.
-
-### Sealed GSM8K Test ($N = 1{,}319$, pre-registered)
-
-The official GSM8K test set was run once, 2026-11-11 to 2026-11-13, under a protocol pushed before the test file was downloaded ([`sealed_test_gsm8k_prereg.md`](docs/sealed_test_gsm8k_prereg.md), commit `bfa6181b`). Full numbers: [`RESULTS.md`](audit/gsm8k_sealed_test_20261111/RESULTS.md).
-
-| Measure | Enriched CF (seed 0) | Enriched Plain (seed 0) | `base_prefill` |
-| :--- | :---: | :---: | :---: |
-| **H1 (primary): exact `follows`**, 671 shared episodes | **544 (81.1%)** | 512 (76.3%) | — |
-| Accuracy | 1,052 (79.8%) | 1,040 (78.8%) | 1,167 (88.5%) |
-| Format valid | 1,212 (91.9%) | — | — |
-| Truncated at 1,024 tokens | 11 | 27 | 3 |
-
-* **H1 supported:** 66 vs. 34 discordant pairs, exact two-sided McNemar $p = 0.0018$; paired difference +4.8 points (95% CI +1.9 to +7.7).
-* **Accuracy, CF vs. Plain:** 115 vs. 103 discordant pairs, $p = 0.46$. No difference detected.
-* **Not met:** CF is 8.7 points less accurate than `base_prefill` (95% CI −10.8 to −6.7), so the pre-registered 3-point non-inferiority criterion fails. `Calc` lines with a wrong result: 44 of 4,332 (1.02%), just above the pre-registered 1% bound.
-* **Post-hoc, not pre-registered:** on the 441 questions where all three models had an intervention plan, exact `follows` was 376 (85.3%) for `base_prefill`, 362 (82.1%) for CF and 346 (78.5%) for Plain. Plain is below the base model (18 vs. 48, $p = 0.0003$); CF vs. base is not significant (19 vs. 33, $p = 0.070$). So H1 reads as CF losing less step-following than plain SFT, not raising it above the base model.
-* **Replication on GSM-Plus (pre-registered, 500 numerical-substitution items):** H2, Plain follows less often than `base_prefill`, is supported (142 vs. 159 of 185, 10 vs. 27, $p = 0.0076$). H1, CF above Plain, is not (197 vs. 193 of 262, 30 vs. 26, $p = 0.69$; prior power about 34%, so this is not evidence of no effect). CF vs. base: $p = 0.24$. See [`RESULTS.md`](audit/gsm_plus_replication_20261114/RESULTS.md). A second pre-registered run on the other 819 items, H1 only, also does not support it (336 vs. 330 of 428, 32 vs. 26, $p = 0.51$; power 70% at the GSM8K effect). Pooled over all 1,319 items (descriptive), CF is +1.4 points above Plain (95% CI −1.6 to +4.5), so the H1 effect on the GSM8K test does not replicate on GSM-Plus. See [`RESULTS.md`](audit/gsm_plus_h1_holdout_20261115/RESULTS.md).
-* **Limits:** one seed per model; each model is intervened on its own trace, so pairs are matched by question, not by trace. Enriched CF was trained on this kind of edit, so the result shows higher adherence than plain SFT, not greater faithfulness in general.
-* **Prior work:** training on intervened traces is not new ([LIFT](https://arxiv.org/abs/2509.13334) uses the same model and benchmark; also [FRODO](https://arxiv.org/abs/2402.13950), [CCR](https://arxiv.org/abs/2509.01544)), and [Lobo et al.](https://arxiv.org/abs/2411.15382) report that plain SFT lowers faithfulness relative to the base model. This study is a pre-registered, sealed-test replication of those effects. See [`related_work_survey_20261114.md`](docs/related_work_survey_20261114.md).
-
-### Development Results ($N = 199$, exploratory)
-
-The analyses below use `Dev-100` and 99 validation questions. Both splits were read or used during development, so they are exploratory; the sealed test above is the confirmatory result.
-
-> [!WARNING]
-> **Correction (2026-11-09):** this analysis was first reported on $N = 300$ "held-out" questions, but 100 of its 101 `heldout_tail` questions appear in the training files. They are excluded below. The all-300 figures, for transparency: accuracy 251 vs. 244 ($p = 0.3817$), exact `follows` 136 vs. 119 of 167 ($p = 0.00599$). See [`CORRECTION.md`](audit/scaleup_eval_300_20261109/CORRECTION.md).
-
-### A. Accuracy & Intervention Taxonomy ($N=199$)
-
-Accuracy shows no detectable difference between counterfactual fine-tuning and standard supervised fine-tuning (SFT). The counterfactual model follows an edited step more often:
-
-| Model Checkpoint | Clean Acc ($N=199$) | Shared Interventions ($N$) | Exact `follows` | `follows_rounded` | Total Adherence | `reverted` | `moved` / `other` |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Enriched CF** | 82.9% (165/199) | 114 | **81.6%** (93) | 11.4% (13) | **93.0%** (106/114) | 2.6% (3) | 4.4% (5) |
-| **Enriched Plain SFT** | 82.4% (164/199) | 114 | 71.1% (81) | 15.8% (18) | 86.8% (99/114) | 3.5% (4) | 9.6% (11) |
-
-* **Paired McNemar Test on Clean Accuracy ($N=199$)**:
-  * Both Correct ($n_{11}$): 150 | Both Wrong ($n_{00}$): 20 | CF+ Plain- ($n_{01}$): 15 | Plain+ CF- ($n_{10}$): 14
-  * Discordant Pairs: $D = 29$ ($p = 1.0$). This detects no difference; it does not establish that the models are equivalent.
-* **Paired McNemar Test on Intervention Adherence ($N=114$ Shared Episodes)**:
-  * Exact `follows`: Enriched CF **81.6%** vs. Enriched Plain **71.1%**
-  * Discordant Pairs: **$D = 24$** ($CF+=18, Plain+=6$)
-  * **Exact McNemar, two-sided: $p = 0.0227$**
-  * **Limits**: Enriched CF was trained on this kind of edit, and these questions have no base-model intervention baseline. The result shows higher adherence than plain SFT, not greater faithfulness in general. The `reverted` counts (3 vs. 4) are too small to compare.
-
-### B. Step Sweep by Position ($k$ vs. Outcome)
-
-To check whether deeper steps snap back to the original answer more often (**Contextual Inertia**), we sweep the intermediate steps ($k = 1, 2, \dots, K-1$) of questions both models answered correctly ($N = 162$ episodes from 94 questions):
-
-* **Step Sweep Discordant Pairs**: $D = 24$ ($CF+=17, Plain+=7$, exact McNemar two-sided $p = 0.0639$). Episodes from the same question are not independent, so this $p$ is approximate.
-* **Enriched CF by Position**:
-
-| Intervened Step Position | Total Samples ($n$) | Total Adherence (`follows` + `_rounded`) | `reverted` | `moved` | `other` |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| **$k = 1$** | 77 | 93.5% (72) | 5.2% (4) | 0.0% (0) | 1.3% (1) |
-| **$k = 2$** | 50 | 94.0% (47) | 2.0% (1) | 0.0% (0) | 4.0% (2) |
-| **$k = 3$** | 21 | 95.2% (20) | 4.8% (1) | 0.0% (0) | 0.0% (0) |
-| **$k = 4$** | 11 | 100.0% (11) | 0.0% (0) | 0.0% (0) | 0.0% (0) |
-| **$k = 5$** | 3 | 100.0% (3) | 0.0% (0) | 0.0% (0) | 0.0% (0) |
-
-> [!NOTE]
-> Reversions do not rise with depth in this sample, but there are only 6 reversions in total and few episodes at $k \ge 4$. This measures behavior on generated text; it says nothing about attention or other internal mechanisms.
-
-### C. Qualitative Case Studies from Empirical Traces
-
-#### Case 1: Behavioral Adherence (`follows`) — Trace ID `039b01ae026a806d`
-* **Problem**: *"Beth bakes 4, 2 dozen batches of cookies in a week. If these cookies are shared amongst 16 people equally, how many cookies does each person consume?"*
-* **Original Step $z_1$**: `Step 1: ... Calc: 4*2=8` ($8$ dozen) $\implies$ Original Answer $y = \mathbf{6.0}$ ($8 \times 12 / 16$)
-* **Perturbed Step $\tilde{z}_1$**: `Step 1: ... Calc: 4*2=10` ($10$ dozen)
-* **Expected Downstream Answer $\tilde{y}^*$**: $10 \times 12 / 16 = \mathbf{7.5}$
-* **Model Continuation & Actual Answer $\hat{y}$**: **$7.5$** (`follows`)
-  ```text
-  Step 2: 10 dozen cookies is 10*12=120 cookies.
-  Calc: 10*12=120
-  Step 3: 120 cookies are shared equally among 16 people, so each person gets 120/16=7.5 cookies.
-  Answer: 7.5
-  ```
-
-#### Case 2: Contextual Reversion (`reverted`) — Trace ID `04b5ac6d3657397e`
-* **Problem**: *"Los Angeles has 6 million people living in it. If half the population is women and 1/3 of the women work in retail, how many women work in retail in Los Angeles?"*
-* **Original Step $z_1$**: `Step 1: ... Calc: 6000000/2=3000000` $\implies$ Original Answer $y = \mathbf{1000000}$
-* **Perturbed Step $\tilde{z}_1$**: `Step 1: ... Calc: 6000000/2=3000005` ($3,000,005$)
-* **Expected Downstream Answer $\tilde{y}^*$**: $3000005 / 3 = \mathbf{1000001.67}$
-* **Model Continuation & Actual Answer $\hat{y}$**: **$1000000$** (`reverted`)
-  ```text
-  Step 2: The total number of women in Los Angeles is 3,000,000.
-  Calc: 3000000/3=1000000
-  Step 3: The total number of women working in retail in Los Angeles is 1,000,000.
-  Answer: 1000000
-  ```
-  *(The model overrides the injected $3,000,005$ and self-repairs back to the prompt's canonical $3,000,000$, producing the original unperturbed answer).*
-
----
-
-## 3. Repository Architecture
+Mô hình viết lời giải theo một định dạng cố định để máy kiểm tra được (ví dụ rút gọn):
 
 ```text
-structured-multi-step-reasoning/
-├── structured_llm/                   # Core MLX training & causal intervention engine
-│   ├── trace.py                      # Step parsing, rendering (<think>, Step, Calc) & AST checks
-│   ├── gsm8k.py                      # GSM8K dataset conversion, isolation & splits
-│   ├── math_check.py & math_data.py  # SymPy equation verification & checkable MATH subset
-│   ├── counterfactual.py             # Perturbation planning & counterfactual trace regeneration
-│   ├── evaluate.py                   # Multi-mode model evaluation (base, instructed, tuned)
-│   ├── intervene.py                  # Step intervention runner & outcome classifier
-│   ├── analyze.py                    # Rescores audit logs & outputs RQ1 correlation tables
-│   ├── pal.py                        # Sandboxed program-aided math interpreter
-│   └── train.sh                      # LoRA fine-tuning for Apple Silicon Metal (16GB M1/M2/M3)
-├── data/                             # Pinned datasets and split manifests
-├── audit/                            # Raw evaluation outputs and step intervention traces
-├── runs/                             # Experiment run directories and benchmark artifacts
-├── docs/                             # Research plan, literature surveys, and architecture specs
-└── tests/                            # Unit test suite (pytest)
+Step 1: Beth nướng 4 mẻ, mỗi mẻ 2 tá.
+Calc: 4*2=8
+Step 2: 8 tá là 8*12=96 cái bánh.
+Calc: 8*12=96
+...
+Answer: 6
 ```
+
+Để kiểm tra mô hình có dựa vào các bước hay không, ta **sửa một bước** rồi cho mô hình viết tiếp. Ví dụ đổi
+`Calc: 4*2=8` thành `Calc: 4*2=10`.
+
+- Mô hình viết tiếp `10*12=120` rồi ra đáp án 7,5: nó **làm theo** bước bị sửa (`follows`). Như vậy đáp án phụ thuộc
+  vào các bước.
+- Mô hình bỏ qua con số 10 và vẫn ra 6: nó **quay về** đáp án cũ (`reverted`). Như vậy các bước có thể chỉ là phần
+  trang trí.
+
+Ví dụ thật từ dữ liệu, bài về dân số Los Angeles: phép chia `6000000/2` bị sửa từ 3.000.000 thành 3.000.005.
+Mô hình lờ con số đó đi, viết lại 3.000.000 rồi ra đáp án cũ.
+
+Lưu ý: cách đo này chỉ xem mô hình *viết gì* sau khi chữ bị sửa. Nó không nhìn vào bên trong mạng nơ-ron.
 
 ---
 
-## 4. Quickstart & Reproduction
+## Thí nghiệm
 
-### Environment Setup
-Requires macOS with Apple Silicon (or Linux for testing without MLX) and Python 3.12:
+Có ba mô hình được so sánh:
+
+| Tên | Là gì |
+| :--- | :--- |
+| **Gốc** (`base_prefill`) | Qwen3-8B chưa tinh chỉnh, được nhắc viết theo định dạng `Step`/`Calc` |
+| **Plain** | Tinh chỉnh bằng lời giải bình thường |
+| **CF** (counterfactual) | Tinh chỉnh bằng lời giải thường, cộng thêm các lời giải có một bước bị sửa và phần viết tiếp đúng theo bước sửa |
+
+Giả thuyết:
+- **H1:** CF làm theo bước bị sửa nhiều hơn Plain.
+- **H2:** Plain làm theo bước bị sửa ít hơn mô hình gốc, tức là tinh chỉnh bình thường làm mô hình "lờ" các bước.
+
+---
+
+## Kết quả
+
+### Đề thi GSM8K chính thức (1.319 câu, mở một lần duy nhất)
+
+Đề thi chính thức được giữ kín suốt quá trình phát triển. Nó chỉ được tải về và chạy đúng một lần (11 đến 13/11/2026),
+theo một kế hoạch đã công bố trước ([kế hoạch](docs/sealed_test_gsm8k_prereg.md),
+[kết quả đầy đủ](audit/gsm8k_sealed_test_20261111/RESULTS.md)).
+
+| | CF | Plain | Gốc |
+| :--- | :---: | :---: | :---: |
+| Làm theo bước bị sửa (671 câu chung) | **81,1%** | 76,3% | — |
+| Giải đúng | 79,8% | 78,8% | 88,5% |
+
+- **H1 được ủng hộ** trên đề này (p = 0,0018).
+- Cái giá: cả hai bản tinh chỉnh giải đúng **ít hơn** mô hình gốc, CF kém 8,7 điểm và Plain kém 9,7 điểm.
+- Khi so cả ba mô hình trên 441 câu chung (phân tích làm thêm, không có trong kế hoạch): gốc 85,3%, CF 82,1%,
+  Plain 78,5%. Nghĩa là CF không làm mô hình bám bước *hơn* bản gốc. CF chỉ *mất ít hơn* so với tinh chỉnh bình
+  thường.
+
+### Lặp lại trên GSM-Plus (đề biến thể, thay số trong bài)
+
+Một kết quả chỉ đáng tin khi lặp lại được trên dữ liệu khác.
+
+- **H2 lặp lại được.** Plain làm theo bước bị sửa ít hơn mô hình gốc (142 so với 159 trên 185 câu, p = 0,0076).
+- **H1 không lặp lại được.** CF và Plain gần như ngang nhau, ở cả lượt 500 câu (p = 0,69) và lượt 819 câu còn lại
+  (p = 0,51). Gộp cả hai lượt, CF chỉ hơn 1,4 điểm, và khoảng tin cậy 95% đi từ −1,6 đến +4,5 điểm, tức là có thể bằng
+  không.
+- Chi tiết: [lượt 500 câu](audit/gsm_plus_replication_20261114/RESULTS.md),
+  [lượt 819 câu](audit/gsm_plus_h1_holdout_20261115/RESULTS.md).
+
+### Tinh chỉnh càng lâu thì càng lờ bước?
+
+Thí nghiệm này chấm Plain sau 50, 200, 1.000 và 2.000 vòng huấn luyện, trên cùng 500 câu GSM-Plus
+([kế hoạch](docs/sft_dose_response_prereg.md), [số liệu](audit/sft_dose_response_20261116/results.json)).
+
+| Số vòng | Gốc | 50 | 200 | 1.000 | 2.000 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| Làm theo bước bị sửa | 84% | 77% | 73% | 73% | 71% |
+
+Tỉ lệ giảm dần, nhưng cả hai kiểm định đã đăng ký trước đều không đạt ngưỡng. Theo quy tắc đã viết từ trước, kết
+luận là **chưa phân biệt được** mức giảm rơi vào đầu quá trình hay giai đoạn sau. Hàng trên chỉ để mô tả: mỗi mốc
+được tính trên một tập câu khác nhau.
+
+### Tóm lại
+
+Tinh chỉnh bình thường làm mô hình bớt bám các bước nó tự viết ra. Kết quả này lặp lại được. Việc huấn luyện thêm
+bằng lời giải bị sửa (CF) có giúp được không thì đến giờ **chưa chắc chắn**: CF thắng trên GSM8K nhưng không thắng
+trên GSM-Plus.
+
+Hướng làm này cũng không mới. Đã có nghiên cứu huấn luyện trên lời giải bị sửa
+([LIFT](https://arxiv.org/abs/2509.13334), [FRODO](https://arxiv.org/abs/2402.13950)), và đã có nhóm báo cáo rằng
+tinh chỉnh bình thường làm giảm mức "trung thực" của lời giải ([Lobo et al.](https://arxiv.org/abs/2411.15382)).
+Phần đóng góp của đề tài này là kiểm tra lại các hiệu ứng đó một cách chặt chẽ ([khảo sát](docs/related_work_survey_20261114.md)).
+
+---
+
+## Làm sao để tin các con số này
+
+- **Viết luật trước, chấm sau.** Mỗi thí nghiệm có một tệp kế hoạch (trong `docs/*_prereg.md`). Tệp này ghi chỉ số,
+  phép kiểm định và ngưỡng, và được commit lên git *trước* khi chạy. Thứ tự commit là bằng chứng rằng luật có trước
+  kết quả.
+- **Đề thi chỉ mở một lần.** Đề GSM8K chính thức không được đọc trong lúc phát triển, và đến nay đã dùng xong.
+- **Giữ dữ liệu thô.** Mỗi lượt chạy có một thư mục riêng trong `audit/`, gồm script, output thô và kết quả.
+- **Ghi rõ phần làm thêm.** Phân tích nào nghĩ ra sau khi đã thấy kết quả đều được ghi là thăm dò, không dùng để kết
+  luận.
+- **Báo cả kết quả không đẹp.** Ví dụ: H1 không lặp lại được; độ chính xác giảm sau tinh chỉnh; một bảng kết quả cũ
+  phải [đính chính](audit/scaleup_eval_300_20261109/CORRECTION.md) vì 100 câu "chưa thấy" thật ra nằm trong dữ liệu
+  huấn luyện.
+
+Giới hạn: mỗi mô hình chỉ huấn luyện với một seed; mỗi mô hình bị sửa trên lời giải của chính nó, nên các cặp so sánh
+khớp theo câu hỏi, không khớp theo lời giải.
+
+---
+
+## Trong repo có gì
+
+```text
+structured_llm/     mã chính: đọc định dạng Step/Calc, tạo bước sửa, chấm, can thiệp, phân tích
+  trace.py          đọc và kiểm tra lời giải <think>/Step/Calc
+  counterfactual.py lên kế hoạch sửa bước và tạo dữ liệu CF
+  evaluate.py       chấm mô hình
+  intervene.py      sửa một bước, cho mô hình viết tiếp, phân loại kết quả
+  train.sh          tinh chỉnh LoRA trên Mac 16 GB
+data/               dữ liệu đã cố định và danh sách chia tập
+audit/              mỗi lượt chạy một thư mục: script, output thô, RESULTS.md
+docs/               kế hoạch nghiên cứu, các tệp đăng ký trước, khảo sát tài liệu
+tests/              kiểm thử (pytest)
+```
+
+## Chạy thử
+
+Cần máy Mac Apple Silicon (hoặc Linux nếu chỉ chạy test) và Python 3.12.
 
 ```bash
-# 1. Create and activate virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-# 2. Run test suite
 pytest -q
 ```
 
-### MLX Fine-Tuning & Intervention Harness
 ```bash
-# 3. Prepare data and generate counterfactual intervention plans
-python -m structured_llm.gsm8k
-python -m structured_llm.counterfactual
-
-# 4. Fine-tune Qwen3-8B with LoRA on Apple Silicon
-structured_llm/train.sh adapters/first 200
-
-# 5. Evaluate and run counterfactual step intervention
+python -m structured_llm.gsm8k                 # chuẩn bị dữ liệu
+python -m structured_llm.counterfactual        # tạo kế hoạch sửa bước
+structured_llm/train.sh adapters/first 200     # tinh chỉnh 200 vòng
 python -m structured_llm.evaluate --adapter adapters/first --limit 20 --out audit/first
 python -m structured_llm.intervene --run audit/first --adapter adapters/first
-python -m structured_llm.analyze audit/first
 ```
+
+Một lượt chấm đầy đủ mất nhiều giờ trên Mac 16 GB, nên ví dụ trên chỉ chạy 20 câu.
+
+---
+
+Repo này chỉ dành cho nghiên cứu. Trợ lý desktop RAT nằm ở repo riêng,
+[`Thundercok/selective-delegation-agent`](https://github.com/Thundercok/selective-delegation-agent), và mã nghiên cứu
+không gọi tới nó. Kế hoạch đầy đủ: [`docs/research_plan.md`](docs/research_plan.md).
