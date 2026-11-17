@@ -1,0 +1,25 @@
+{
+  "rows": {
+    "self": 229,
+    "human": 229
+  },
+  "self": {
+    "off_format": 0,
+    "tokens_mean": 209.4,
+    "tokens_median": 202,
+    "tokens_p10": 134.0,
+    "tokens_p90": 293.0,
+    "tokens_max": 441,
+    "over_512": 0
+  },
+  "human": {
+    "off_format": 0,
+    "tokens_mean": 210.2,
+    "tokens_median": 207,
+    "tokens_p10": 133.0,
+    "tokens_p90": 288.0,
+    "tokens_max": 477,
+    "over_512": 0
+  },
+  "problems": []
+}
