@@ -1,0 +1,174 @@
+{
+  "exploratory": true,
+  "cases": {
+    "reverted": 36,
+    "follows": 1969
+  },
+  "skipped": {
+    "answer_text_mismatch": 13
+  },
+  "reverted_lead": [
+    23,
+    36
+  ],
+  "follows_lead": [
+    1649,
+    1969
+  ],
+  "fisher_p": 0.0048243117025419495,
+  "reading": "no evidence of a bug at this decision point",
+  "final_layer_sanity": {
+    "reverted_d_last_negative": 36,
+    "follows_d_last_positive": 1969
+  },
+  "mean_d_by_layer": {
+    "reverted": [
+      0.689,
+      0.583,
+      0.48,
+      0.266,
+      0.066,
+      -0.248,
+      -0.381,
+      -0.392,
+      -0.379,
+      -0.429,
+      -0.544,
+      -0.782,
+      -0.892,
+      -0.94,
+      -1.155,
+      -1.199,
+      -1.533,
+      -1.421,
+      -1.272,
+      -1.3,
+      -1.483,
+      -1.212,
+      -1.858,
+      -2.116,
+      -3.113,
+      -3.458,
+      -3.589,
+      -4.105,
+      -5.859,
+      -11.135,
+      -11.831,
+      -11.55,
+      -14.428,
+      -15.782,
+      -13.787,
+      -10.189
+    ],
+    "follows": [
+      0.588,
+      0.666,
+      0.695,
+      0.479,
+      0.281,
+      0.059,
+      -0.088,
+      0.039,
+      0.039,
+      0.004,
+      -0.305,
+      -0.355,
+      -0.389,
+      -0.257,
+      -0.372,
+      -0.513,
+      -0.707,
+      -0.692,
+      -0.572,
+      -0.622,
+      -0.635,
+      -0.499,
+      0.452,
+      1.47,
+      2.051,
+      2.919,
+      3.177,
+      3.592,
+      5.151,
+      12.491,
+      13.743,
+      13.107,
+      16.501,
+      16.283,
+      14.472,
+      10.689
+    ]
+  },
+  "by_adapter": {
+    "adapters/gsm8k_cf_enriched_2000_s0": {
+      "reverted_lead": [
+        5,
+        7
+      ],
+      "follows_lead": [
+        493,
+        585
+      ]
+    },
+    "adapters/gsm8k_enriched_2000_s0": {
+      "reverted_lead": [
+        8,
+        11
+      ],
+      "follows_lead": [
+        506,
+        595
+      ]
+    },
+    "adapters/gsm8k_enriched_ckpt1000_s0": {
+      "reverted_lead": [
+        3,
+        4
+      ],
+      "follows_lead": [
+        155,
+        189
+      ]
+    },
+    "adapters/gsm8k_enriched_ckpt200_s0": {
+      "reverted_lead": [
+        3,
+        6
+      ],
+      "follows_lead": [
+        113,
+        134
+      ]
+    },
+    "adapters/gsm8k_enriched_ckpt50_s0": {
+      "reverted_lead": [
+        0,
+        0
+      ],
+      "follows_lead": [
+        106,
+        123
+      ]
+    },
+    "adapters/trace_human_200_s0": {
+      "reverted_lead": [
+        2,
+        3
+      ],
+      "follows_lead": [
+        121,
+        151
+      ]
+    },
+    "adapters/trace_self_200_s0": {
+      "reverted_lead": [
+        2,
+        5
+      ],
+      "follows_lead": [
+        155,
+        192
+      ]
+    }
+  }
+}

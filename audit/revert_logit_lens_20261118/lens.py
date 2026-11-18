@@ -26,7 +26,7 @@ Reading rule (fixed before running):
 Limitation known before running: by the answer token, the model may already have rewritten the old value in its
 continuation, so this looks at the last decision, not the first.
 
-    python lens.py run   # writes cases.jsonl (per-layer d) and results.json
+    python lens.py run   # appends to cases.jsonl (per-layer d, or a skip reason); resumes; then results.json
 """
 
 import json
@@ -90,8 +90,17 @@ def run():
     sys.path.insert(0, str(ROOT))
     from structured_llm.evaluate import prompt_for
 
-    done, skipped, loaded = [], {}, None
+    out = HERE / "cases.jsonl"
+    seen = {(r["run"], r["id"]) for r in map(json.loads, out.read_text().splitlines())} if out.exists() else set()
+    handle, loaded = out.open("a"), None
+
+    def emit(record):
+        handle.write(json.dumps(record) + "\n")
+        handle.flush()
+
     for n, c in enumerate(cases()):
+        if (c["run"], c["id"]) in seen:
+            continue
         if c["adapter"] != loaded:
             model, tok = load(str(MODEL), adapter_path=str(ROOT / c["adapter"]))
             hf, loaded = tok._tokenizer, c["adapter"]
@@ -101,18 +110,18 @@ def run():
         text = prompt + c["text"]
         at = text.rfind("Answer:")
         if at < len(prompt):
-            skipped["no_answer_line"] = skipped.get("no_answer_line", 0) + 1
+            emit({"run": c["run"], "id": c["id"], "skipped": "no_answer_line"})
             continue
         start = next((i for i in range(at + 7, len(text)) if text[i].isdigit() or text[i] == "-"), None)
         if start is None or not text.startswith(c["written"], start):
-            skipped["answer_text_mismatch"] = skipped.get("answer_text_mismatch", 0) + 1
+            emit({"run": c["run"], "id": c["id"], "skipped": "answer_text_mismatch"})
             continue
         dig = start + c["index"]
         enc = hf(text, return_offsets_mapping=True, add_special_tokens=False)
         ids, offs = enc["input_ids"], enc["offset_mapping"]
         t = next((i for i, (a, b) in enumerate(offs) if a <= dig < b), None) if dig is not None else None
         if t is None or offs[t] != (dig, dig + 1) or ids[t] != digit_id[text[dig]]:
-            skipped["answer_digit_mismatch"] = skipped.get("answer_digit_mismatch", 0) + 1
+            emit({"run": c["run"], "id": c["id"], "skipped": "answer_digit_mismatch"})
             continue
         pos = t - 1
         h = model.model.embed_tokens(mx.array([ids[:t]]))
@@ -124,10 +133,16 @@ def run():
             d.append(float(logits[digit_id[c["exp_digit"]]] - logits[digit_id[c["orig_digit"]]]))
             mx.eval(h)
         assert pos == len(ids[:t]) - 1
-        done.append({k: c[k] for k in ("run", "adapter", "id", "outcome", "index", "exp_digit", "orig_digit")} | {"d": d})
+        emit({k: c[k] for k in ("run", "adapter", "id", "outcome", "index", "exp_digit", "orig_digit")} | {"d": d})
         if n % 50 == 0:
             print(f"{n}", flush=True)
-    (HERE / "cases.jsonl").write_text("".join(json.dumps(r) + "\n" for r in done))
+    handle.close()
+    records = [json.loads(line) for line in out.read_text().splitlines()]
+    done = [r for r in records if "skipped" not in r]
+    skipped = {}
+    for r in records:
+        if "skipped" in r:
+            skipped[r["skipped"]] = skipped.get(r["skipped"], 0) + 1
 
     rev = [r for r in done if r["outcome"] == "reverted"]
     fol = [r for r in done if r["outcome"] == "follows"]
