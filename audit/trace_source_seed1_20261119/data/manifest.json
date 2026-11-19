@@ -1,0 +1,13 @@
+{
+  "eval": "audit/trace_source_20261117/gen/base_prefill.jsonl",
+  "records": 400,
+  "kept": 229,
+  "dropped": {
+    "bad_format": 148,
+    "wrong_answer": 11,
+    "wrong_calc": 11,
+    "truncated": 1
+  },
+  "self_train_sha256": "fc3008919661319244a09d90acd352b6be95a5a586f6b6b1777c28239c6edf03",
+  "human_train_sha256": "3723d40bcec4491bf76cf1621812232dd84a1653c7ec0bf309815538120a5a50"
+}
