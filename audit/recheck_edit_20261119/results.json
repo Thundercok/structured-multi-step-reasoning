@@ -1,0 +1,93 @@
+{
+  "exploratory": true,
+  "pairs": 140,
+  "recheck": {
+    "self": 0,
+    "human": 0
+  },
+  "discordant": {
+    "human_only": 0,
+    "self_only": 0
+  },
+  "mcnemar_p": 1.0,
+  "reading": "not distinguishable",
+  "descriptive": {
+    "self_pairs": {
+      "recheck_value": {
+        "none": 140
+      },
+      "outcome_by_recheck": {
+        "none": {
+          "follows": 126,
+          "moved": 3,
+          "reverted": 3,
+          "follows_rounded": 4,
+          "follows_approximate": 2,
+          "other": 2
+        }
+      }
+    },
+    "human_pairs": {
+      "recheck_value": {
+        "none": 140
+      },
+      "outcome_by_recheck": {
+        "none": {
+          "follows": 114,
+          "moved": 5,
+          "reverted": 8,
+          "other": 5,
+          "no_answer": 2,
+          "follows_rounded": 5,
+          "follows_approximate": 1
+        }
+      }
+    },
+    "self_all": {
+      "recheck_value": {
+        "none": 227
+      },
+      "outcome_by_recheck": {
+        "none": {
+          "follows": 201,
+          "follows_rounded": 7,
+          "reverted": 7,
+          "moved": 4,
+          "other": 4,
+          "follows_approximate": 3,
+          "no_answer": 1
+        }
+      }
+    },
+    "human_all": {
+      "recheck_value": {
+        "none": 208,
+        "old": 1
+      },
+      "outcome_by_recheck": {
+        "none": {
+          "follows": 158,
+          "moved": 11,
+          "no_answer": 7,
+          "reverted": 13,
+          "other": 9,
+          "follows_approximate": 4,
+          "follows_rounded": 6
+        },
+        "old": {
+          "other": 1
+        }
+      }
+    },
+    "h3_self_follows_human_not": {
+      "n": 18,
+      "human_recheck": 0,
+      "self_recheck": 0
+    },
+    "h3_human_follows_self_not": {
+      "n": 6,
+      "human_recheck": 0,
+      "self_recheck": 0
+    }
+  }
+}
