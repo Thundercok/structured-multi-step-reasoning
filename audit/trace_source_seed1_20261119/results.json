@@ -1,0 +1,153 @@
+{
+  "questions": 500,
+  "H3_self_vs_human": {
+    "n": 144,
+    "x": 131,
+    "y": 117,
+    "only_x": 19,
+    "only_y": 5,
+    "p": 0.006610751152038574,
+    "diff": 0.09722222222222222,
+    "ci95": [
+      0.032461280875158594,
+      0.16198316356928585
+    ]
+  },
+  "alpha": 0.05,
+  "reading": "trace source matters; self traces keep step-following better",
+  "training_set": {
+    "eval": "audit/trace_source_20261117/gen/base_prefill.jsonl",
+    "records": 400,
+    "kept": 229,
+    "dropped": {
+      "bad_format": 148,
+      "wrong_answer": 11,
+      "wrong_calc": 11,
+      "truncated": 1
+    },
+    "self_train_sha256": "fc3008919661319244a09d90acd352b6be95a5a586f6b6b1777c28239c6edf03",
+    "human_train_sha256": "3723d40bcec4491bf76cf1621812232dd84a1653c7ec0bf309815538120a5a50"
+  },
+  "training_check": {
+    "rows": {
+      "self": 229,
+      "human": 229
+    },
+    "self": {
+      "off_format": 0,
+      "tokens_mean": 209.4,
+      "tokens_median": 202,
+      "tokens_p10": 134.0,
+      "tokens_p90": 293.0,
+      "tokens_max": 441,
+      "over_512": 0
+    },
+    "human": {
+      "off_format": 0,
+      "tokens_mean": 210.2,
+      "tokens_median": 207,
+      "tokens_p10": 133.0,
+      "tokens_p90": 288.0,
+      "tokens_max": 477,
+      "over_512": 0
+    },
+    "problems": []
+  },
+  "descriptive": {
+    "self": {
+      "planned": 223,
+      "follows": 194,
+      "follows_rate": 0.8699551569506726,
+      "accuracy": 409,
+      "accuracy_wilson95": [
+        0.7817973646706083,
+        0.8493535547958443
+      ],
+      "truncated": 9,
+      "answer_format": {
+        "number": 500
+      },
+      "format_valid": 330,
+      "taxonomy": {
+        "follows": 194,
+        "follows_rounded": 10,
+        "reverted": 5,
+        "other": 7,
+        "follows_approximate": 3,
+        "moved": 4
+      }
+    },
+    "human": {
+      "planned": 220,
+      "follows": 167,
+      "follows_rate": 0.759090909090909,
+      "accuracy": 354,
+      "accuracy_wilson95": [
+        0.6666807682036219,
+        0.7461475061643724
+      ],
+      "truncated": 51,
+      "answer_format": {
+        "number": 500
+      },
+      "format_valid": 318,
+      "taxonomy": {
+        "follows": 167,
+        "other": 12,
+        "follows_rounded": 10,
+        "no_answer": 7,
+        "moved": 8,
+        "reverted": 11,
+        "follows_approximate": 5
+      }
+    },
+    "base": {
+      "planned": 214,
+      "follows": 180,
+      "follows_rate": 0.8411214953271028,
+      "accuracy": 424,
+      "accuracy_wilson95": [
+        0.8138858517125613,
+        0.8768076073261983
+      ],
+      "truncated": 3,
+      "answer_format": {
+        "number": 500
+      },
+      "format_valid": 294,
+      "taxonomy": {
+        "moved": 5,
+        "follows": 180,
+        "other": 11,
+        "follows_rounded": 7,
+        "follows_approximate": 2,
+        "reverted": 8,
+        "no_answer": 1
+      }
+    },
+    "plain_2000": {
+      "planned": 317,
+      "follows": 224,
+      "follows_rate": 0.7066246056782335,
+      "accuracy": 369,
+      "accuracy_wilson95": [
+        0.6977470833575388,
+        0.7746237305827623
+      ],
+      "truncated": 5,
+      "answer_format": {
+        "number": 500
+      },
+      "format_valid": 461,
+      "taxonomy": {
+        "follows": 224,
+        "no_answer": 3,
+        "follows_rounded": 20,
+        "moved": 27,
+        "reverted": 17,
+        "other": 23,
+        "follows_approximate": 3
+      }
+    }
+  }
+}
