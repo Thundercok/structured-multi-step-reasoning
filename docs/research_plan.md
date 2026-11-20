@@ -412,3 +412,16 @@ Q1 thường mất nhiều tháng, nên mục tiêu thực tế cho tháng 5 là
 | Tinh chỉnh làm giảm độ trung thực | Vẫn là kết quả; có 3 seed và đo ngay ở cổng 1 |
 | Mô hình 8B bị hỏi về chữ "lớn" trong tên đề tài | Giải trình trực tiếp trước hội đồng dựa trên định nghĩa phổ quát SLM/LLM trong văn liệu |
 | Người phản biện hỏi "sao không dùng công cụ tính" | Đưa `base_tool` vào làm mốc so sánh ngay từ đầu |
+
+## Backlog
+
+Ghi ngày 2026-11-16. Chưa làm, chờ kết quả khảo sát tính mới về lái suy luận bằng vector.
+
+| Việc | Ghi chú |
+| --- | --- |
+| Thử lái bằng vector trên Qwen3-8B | **Tạm dừng (2026-11-20):** bản nháp `docs/steer_vector_prereg.md` nhắm vào hiệu ứng CF − Plain vốn không lặp lại trên GSM-Plus (p = 0,51) và thiếu power trên dev. Xếp lại để tập trung vào thí nghiệm trộn tỉ lệ nguồn vết (H3) |
+| So qua các chặng huấn luyện của MiMo-7B | `XiaomiMiMo/MiMo-7B-Base`, `-SFT`, `-RL-Zero`, `-RL` (MIT, có bản MLX 4-bit). Đo cùng phép thử ở từng chặng |
+
+Khảo sát 2026-11-16: việc thứ nhất gần như đã có người làm. Zhao và cs. (arXiv 2510.24941) lái được model dùng hoặc bỏ qua từng bước suy luận. Jia và cs. (arXiv 2609.25366) sửa một bước trên GSM8K với model 7B đến 9B, và lái cộng thêm chỉ lật được khoảng 25% ca. Chỗ còn trống hẹp: so vector lái với LoRA phản thực trên cùng phép đo; chưa kiểm kỹ.
+
+Khảo sát khe hẹp, 2026-11-16: chưa thấy bài nào hỏi hiệu ứng của LoRA phản thực lên việc làm theo bước có nằm trên một hướng tuyến tính hay không. Các bài gần nhất: Tanneru và cs. (2406.10625) so sửa trạng thái với tinh chỉnh, cả hai đều yếu; Sinii và cs. (2505.18706) huấn luyện một vector mỗi lớp bằng RL, đạt độ đúng toán ngang RL đầy đủ, nhưng không đo độ trung thực; Shih và cs. (2606.29522) thấy lái thành công không có nghĩa là tái tạo đúng phép tính tự nhiên. Rủi ro: hiệu ứng cần tái tạo nhỏ (544 so với 512 trên 671), nên cần nhiều câu.
