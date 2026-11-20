@@ -1,0 +1,47 @@
+{
+  "exploratory": true,
+  "items": 100,
+  "tests": {
+    "s0/A": {
+      "n": 100,
+      "median_diff": 0.0069,
+      "human_higher": 51,
+      "p": 0.1009883366808758
+    },
+    "s0/B": {
+      "n": 100,
+      "median_diff": 0.1003,
+      "human_higher": 91,
+      "p": 3.471444579736631e-16
+    },
+    "s1/A": {
+      "n": 100,
+      "median_diff": 0.0237,
+      "human_higher": 63,
+      "p": 0.026340272003444493
+    },
+    "s1/B": {
+      "n": 100,
+      "median_diff": 0.1499,
+      "human_higher": 100,
+      "p": 3.89655984509591e-18
+    }
+  },
+  "reading": "not consistent across seeds and texts",
+  "mean_kl": {
+    "trace_self_200_s0/A": 1.0597,
+    "trace_self_200_s0/B": 0.9432,
+    "trace_human_200_s0/A": 1.0413,
+    "trace_human_200_s0/B": 1.0401,
+    "trace_self_200_s1/A": 1.0044,
+    "trace_self_200_s1/B": 0.8697,
+    "trace_human_200_s1/A": 1.0165,
+    "trace_human_200_s1/B": 1.0142
+  },
+  "follows_rate_all_plans": {
+    "trace_self_200_s0": 0.885,
+    "trace_human_200_s0": 0.756,
+    "trace_self_200_s1": 0.87,
+    "trace_human_200_s1": 0.759
+  }
+}
