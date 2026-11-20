@@ -1,0 +1,85 @@
+{
+  "exploratory": true,
+  "cap_tokens": 500,
+  "per_seed": {
+    "seed0": {
+      "pairs_all": 140,
+      "pairs_uncapped": 138,
+      "follows_uncapped": {
+        "self": 124,
+        "human": 114
+      },
+      "discordant_uncapped": {
+        "self_only": 16,
+        "human_only": 6
+      },
+      "p": 0.052478790283203125,
+      "direction": "self",
+      "descriptive": {
+        "capped_in_pairs": {
+          "self": 0,
+          "human": 2
+        },
+        "capped_all_plans": {
+          "self": 1,
+          "human": 7
+        },
+        "discordant_all_self_only": {
+          "n": 18,
+          "human_capped": 2
+        },
+        "discordant_all_human_only": {
+          "n": 6,
+          "self_capped": 0
+        },
+        "capped_outcomes": {
+          "self": {
+            "no_answer": 1
+          },
+          "human": {
+            "no_answer": 7
+          }
+        }
+      }
+    },
+    "seed1": {
+      "pairs_all": 144,
+      "pairs_uncapped": 141,
+      "follows_uncapped": {
+        "self": 128,
+        "human": 117
+      },
+      "discordant_uncapped": {
+        "self_only": 16,
+        "human_only": 5
+      },
+      "p": 0.02660369873046875,
+      "direction": "self",
+      "descriptive": {
+        "capped_in_pairs": {
+          "self": 0,
+          "human": 3
+        },
+        "capped_all_plans": {
+          "self": 0,
+          "human": 7
+        },
+        "discordant_all_self_only": {
+          "n": 19,
+          "human_capped": 3
+        },
+        "discordant_all_human_only": {
+          "n": 5,
+          "self_capped": 0
+        },
+        "capped_outcomes": {
+          "self": {},
+          "human": {
+            "no_answer": 7
+          }
+        }
+      }
+    }
+  },
+  "reading": "mixed"
+}
