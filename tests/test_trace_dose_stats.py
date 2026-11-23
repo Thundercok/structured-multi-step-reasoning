@@ -73,3 +73,61 @@ def test_nonlinearity_lrt_flags_binary_step_function():
 
     assert out["nonlinearity_lrt_3df"]["converged"]
     assert out["nonlinearity_lrt_3df"]["p"] < 1e-3
+
+
+def _simulate_cells(n_questions, beta_human, tau, rng, flag_prob=0.0):
+    """Like _simulate_rows, plus one logit offset per (seed, ratio) adapter (training-run noise)
+    and flagged traces whose `follows` is unreachable."""
+    mod = _load_analyze()
+    cell = {(s, p): rng.normal(0.0, tau) for s in mod.SEEDS for p in mod.RATIOS}
+    u = rng.normal(0.0, 1.0, n_questions)
+    rows = []
+    for q in range(n_questions):
+        for s in mod.SEEDS:
+            for pct in mod.RATIOS:
+                if rng.random() < 0.15:
+                    continue
+                frac = mod.HUMAN_COUNTS[pct] / mod.N_TRAIN
+                known = not rng.random() < flag_prob
+                p = float(special.expit(1.5 + beta_human * frac + 0.1 * s + cell[(s, pct)] + u[q]))
+                rows.append({"id": f"q{q:04d}", "seed": s, "ratio": pct, "human_frac": frac,
+                             "expected_known": known, "follows": known and bool(rng.random() < p)})
+    return rows
+
+
+def test_adapter_level_test_keeps_size_under_training_noise():
+    # The question-only GLMM LRT rejects ~0.26 here (audit/trace_dose_20261120/amendment_20261123).
+    mod = _load_analyze()
+    rng = np.random.default_rng(2026)
+    ps = [mod.adapter_level_test(_simulate_cells(300, 0.0, 0.2, rng))["p"] for _ in range(300)]
+    assert np.mean(np.array(ps) < 0.05) <= 0.09
+
+
+def test_adapter_level_test_detects_h3_sized_slope():
+    mod = _load_analyze()
+    rng = np.random.default_rng(11)
+    out = mod.adapter_level_test(_simulate_cells(500, -0.9, 0.1, rng))
+    assert out["n_cells"] == 10 and out["df"] == 7
+    assert out["b_human"] < 0 and out["p"] < 0.05
+    assert set(out["level_mean_logit"]) == {"0", "25", "50", "75", "100"}
+
+
+def test_planned_rows_marks_flagged_traces():
+    mod = _load_analyze()
+    ints = {"a": {"outcome": "follows", "expected": 12.0}, "b": {"outcome": "moved", "expected": None}}
+    rows = {r["id"]: r for r in mod._planned_rows(ints, 1, 50)}
+    assert rows["a"]["expected_known"] and rows["a"]["follows"]
+    assert not rows["b"]["expected_known"] and not rows["b"]["follows"]
+    assert rows["a"]["human_frac"] == mod.HUMAN_COUNTS[50] / mod.N_TRAIN
+
+
+def test_amended_statistics_uses_b1_rows_for_primary():
+    mod = _load_analyze()
+    rng = np.random.default_rng(5)
+    rows = _simulate_cells(120, -0.9, 0.0, rng, flag_prob=0.1)
+    out = mod.amended_statistics(rows)
+    n_b1 = sum(c["n"] for c in out["H4_primary_adapter_level"]["cells"].values())
+    n_all = sum(c["n"] for c in out["secondary_original_metric_adapter_level"]["cells"].values())
+    assert n_b1 == sum(r["expected_known"] for r in rows) < n_all == len(rows)
+    assert out["reading"] in {"not distinguishable", mod._reading(0.0, -1.0), mod._reading(0.0, 1.0)}
+    assert "reading" in out["descriptive_glmm_B1"]

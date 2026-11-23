@@ -1,5 +1,11 @@
 """Preregistered analysis for docs/trace_dose_prereg.md: trace-source mixing dose response.
 
+Amendment 2026-11-23 (docs/trace_dose_prereg_amendment_20261123.md), applied by analyze_run:
+  - Primary H4 is `adapter_level_test` (10 adapter logits, OLS, t-test with 7 df), not the GLMM LRT below.
+  - Primary metric (B1) counts only planned interventions whose expected answer is known.
+  - Every GLMM below is reported as descriptive only.
+The text that follows describes the original registered GLMM.
+
 Fits a 1D random-intercept logistic regression (Gauss-Hermite quadrature, 21 nodes):
     logit P(follows_ij = 1 | u_i) = beta_0 + beta_human * x_ij + beta_seed * s_ij + sigma * u_i
 where i indexes question, x_ij is exact human fraction k/229 in {0, 57/229, 114/229, 172/229, 1},
@@ -48,6 +54,94 @@ def _load_sealed():
 
 def _follows(record):
     return record["outcome"] == "follows"
+
+
+def _planned_rows(ints, seed, pct):
+    """One row per planned intervention. `expected_known` is False for flagged original traces
+    (wrong Calc, or answer not from the last Calc): plan_intervention sets expected=None and
+    `follows` is unreachable there. Amendment 2026-11-23 (B1) keeps only expected_known rows."""
+    frac = HUMAN_COUNTS[pct] / N_TRAIN
+    return [{
+        "id": qid,
+        "seed": seed,
+        "ratio": pct,
+        "human_frac": frac,
+        "follows": _follows(rec),
+        "expected_known": rec["expected"] is not None,
+    } for qid, rec in ints.items()]
+
+
+def adapter_level_test(rows):
+    """Amendment 2026-11-23 (A): one logit per (seed, ratio) adapter, OLS on human_frac + seed,
+    two-sided t-test on the human_frac slope. Training-run noise then enters the residual
+    instead of being read as dose effect (the question-only GLMM rejects too often under it)."""
+    counts = defaultdict(lambda: [0, 0])
+    for r in rows:
+        c = counts[(r["seed"], r["ratio"])]
+        c[0] += 1
+        c[1] += r["follows"]
+    cells = sorted(counts)
+    X = np.array([[1.0, HUMAN_COUNTS[pct] / N_TRAIN, float(s)] for s, pct in cells])
+    y = np.array([special.logit((counts[c][1] + 0.5) / (counts[c][0] + 1.0)) for c in cells])
+    dof = len(y) - X.shape[1]
+    if dof < 1:
+        raise ValueError(f"adapter-level test needs more than 3 cells, got {len(y)}")
+    b, *_ = np.linalg.lstsq(X, y, rcond=None)
+    s2 = float(np.sum((y - X @ b) ** 2)) / dof
+    se = math.sqrt(s2 * float(np.linalg.inv(X.T @ X)[1, 1]))
+    t = float(b[1]) / se if se > 0 else math.copysign(math.inf, float(b[1]))
+    level_means = {
+        str(pct): round(float(np.mean([y[i] for i, (_, p) in enumerate(cells) if p == pct])), 6)
+        for pct in sorted({p for _, p in cells})
+    }
+    return {
+        "n_cells": len(cells),
+        "df": dof,
+        "b_human": round(float(b[1]), 6),
+        "b_seed": round(float(b[2]), 6),
+        "se_human": round(se, 6),
+        "t": round(t, 6),
+        "p": float(2 * stats.t.sf(abs(t), dof)),
+        "cells": {f"s{s}_r{pct}": {"n": counts[(s, pct)][0], "follows": counts[(s, pct)][1],
+                                   "logit": round(float(y[i]), 6)}
+                  for i, (s, pct) in enumerate(cells)},
+        "level_mean_logit": level_means,
+    }
+
+
+def _reading(p, slope):
+    if p >= ALPHA:
+        return "not distinguishable"
+    if slope < 0:
+        return "dose-response supported; higher human-trace fraction lowers step-following"
+    return "opposite direction; higher human-trace fraction raises step-following"
+
+
+def _common_to_all_cells(rows):
+    by_cell = defaultdict(set)
+    for r in rows:
+        by_cell[(r["seed"], r["ratio"])].add(r["id"])
+    if len(by_cell) < len(SEEDS) * len(RATIOS):
+        return []
+    common = set.intersection(*by_cell.values())
+    return [r for r in rows if r["id"] in common]
+
+
+def amended_statistics(rows):
+    """Amendment 2026-11-23: primary H4 = adapter-level test on B1 rows (expected known).
+    Every GLMM is descriptive only; its p-values may be too small."""
+    b1 = [r for r in rows if r["expected_known"]]
+    primary = adapter_level_test(b1)
+    common = _common_to_all_cells(b1)
+    return {
+        "amendment": "docs/trace_dose_prereg_amendment_20261123.md",
+        "H4_primary_adapter_level": primary,
+        "reading": _reading(primary["p"], primary["b_human"]),
+        "sensitivity_common_to_all_cells_adapter_level": adapter_level_test(common) if common else None,
+        "secondary_original_metric_adapter_level": adapter_level_test(rows),
+        "descriptive_glmm_B1": run_dose_statistics(b1),
+        "descriptive_glmm_original_metric": run_dose_statistics(rows),
+    }
 
 
 def _group_by_question(rows):
@@ -243,17 +337,12 @@ def analyze_run(run_dir):
             cells[(s, pct)] = (evals, ints)
 
             frac = HUMAN_COUNTS[pct] / N_TRAIN
-            for qid, rec in ints.items():
-                planned_rows.append({
-                    "id": qid,
-                    "seed": s,
-                    "ratio": pct,
-                    "human_frac": frac,
-                    "follows": _follows(rec),
-                })
+            planned_rows.extend(_planned_rows(ints, s, pct))
 
             n_plan = len(ints)
             n_fol = sum(_follows(r) for r in ints.values())
+            n_flagged = sum(r["expected"] is None for r in ints.values())
+            n_fol_b1 = sum(_follows(r) for r in ints.values() if r["expected"] is not None)
             n_acc = sum(correct(evals[i]) for i in all_ids)
             descriptive[key] = {
                 "seed": s,
@@ -262,6 +351,10 @@ def analyze_run(run_dir):
                 "planned": n_plan,
                 "follows": n_fol,
                 "follows_rate": round(n_fol / n_plan, 6) if n_plan else None,
+                "flagged_trace": n_flagged,
+                "flagged_trace_rate": round(n_flagged / n_plan, 6) if n_plan else None,
+                "follows_B1": n_fol_b1,
+                "follows_rate_B1": round(n_fol_b1 / (n_plan - n_flagged), 6) if n_plan > n_flagged else None,
                 "accuracy": n_acc,
                 "accuracy_wilson95": wilson(n_acc, len(all_ids)),
                 "format_valid": sum(bool(evals[i]["check"]["format_valid"]) for i in all_ids),
@@ -269,7 +362,7 @@ def analyze_run(run_dir):
                 "taxonomy": dict(Counter(r["outcome"] for r in ints.values())),
             }
 
-    stats_out = run_dose_statistics(planned_rows)
+    stats_out = amended_statistics(planned_rows)
 
     # Fresh paired McNemar checks per seed: 0 vs 100 (H3 replication) and 25 vs 75
     paired_checks = {}

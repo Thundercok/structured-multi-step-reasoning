@@ -63,7 +63,7 @@ phải báo cáo và lùi về Bản A theo quy tắc đọc.
 
 ## 2. Thay đổi B — câu có vết gốc bị gắn cờ (`expected = None`)
 
-> **Cần người làm đề tài quyết.** Đây là điểm dễ bị hỏi "chọn sau khi thấy dữ liệu" nhất.
+> Đây là điểm dễ bị hỏi "chọn sau khi thấy dữ liệu" nhất: lựa chọn dựa trên khám phá H3 ở dưới, không dựa trên H4.
 
 ### Bối cảnh
 
@@ -78,11 +78,13 @@ Khám phá trên H3 (đã thấy, khác câu đo với H4):
 | 0 | 4/227 / 17/209 | 0,885 / 0,756 | 0,901 / 0,823 | 13 / 5 | p ≈ 0,10 |
 | 1 | 4/223 / 12/220 | 0,870 / 0,759 | 0,886 / 0,803 | 19 / 4 | p ≈ 0,003 |
 
-### Đề xuất (chọn một)
+### Quyết định: B1 (người làm đề tài chọn ngày 2026-11-23)
 
-- **B1 (khuyên dùng):** chỉ số chính = `follows` trên các quan sát có kế hoạch **và** có `expected` khác None.
-  Tỉ lệ vết bị gắn cờ báo cáo cho từng ô như một chỉ số riêng (chất lượng vết), kèm chỉ số gốc như phân tích phụ.
-- **B2:** giữ chỉ số gốc làm chính, báo cáo B1 như độ nhạy.
+- **Chỉ số chính của H4** = `follows` trên các quan sát có kế hoạch **và** có `expected` khác None. Phép kiểm cấp
+  adapter ở mục 1 dùng $n_c$, $f_c$ tính theo định nghĩa này.
+- **Báo cáo riêng cho từng ô:** tỉ lệ vết bị gắn cờ (`expected = None` / số có kế hoạch), như một chỉ số chất lượng vết.
+- **Phân tích phụ:** chỉ số gốc (`follows` trên mọi quan sát có kế hoạch), qua cùng phép kiểm cấp adapter.
+- Phương án bị loại: B2 (giữ chỉ số gốc làm chính).
 
 Rủi ro của B1: đây là lọc theo đặc tính của chính từng adapter, giống như lọc theo "có kế hoạch" đã có. Phải báo
 cáo tỉ lệ đủ điều kiện cho từng ô (prereg gốc đã yêu cầu như vậy).
@@ -95,6 +97,6 @@ cáo tỉ lệ đủ điều kiện cho từng ô (prereg gốc đã yêu cầu 
 
 ## 4. Việc phải làm trước `analyze`
 
-1. Chọn B1 hoặc B2, xác nhận mục 0, đổi trạng thái file thành "có hiệu lực", rồi commit.
+1. ~~Chọn B1 hoặc B2~~ (đã chọn B1). Xác nhận mục 0, đổi trạng thái file thành "có hiệu lực", rồi commit.
 2. Thêm phép kiểm cấp adapter vào `analyze.py`, kèm test tái hiện mức báo nhầm ~0,05 khi τ > 0.
 3. Thêm một dòng trỏ tới file này ở đầu `docs/trace_dose_prereg.md`.
