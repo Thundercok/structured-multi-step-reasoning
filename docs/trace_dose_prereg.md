@@ -1,5 +1,8 @@
 # Đăng ký trước: liều lượng vết người (0 / 25 / 50 / 75 / 100%) và mức bám bước
 
+> **Đã sửa đổi 2026-11-23, trước khi phân tích:** phép kiểm chính H4 và chỉ số chính đã đổi. Xem
+> `docs/trace_dose_prereg_amendment_20261123.md`. Phần dưới đây giữ nguyên bản gốc để đối chiếu.
+
 Ghi ngày 2026-11-20, trước khi tạo dữ liệu trộn, huấn luyện adapter mới hoặc chạy bất kỳ đánh giá nào trên tập đo.
 Người làm đề tài đã chốt luận điểm mục tiêu (Bản B trong `docs/paper/outline_20261116.md`) và các lựa chọn thiết kế
 (D1–D5) ngày 2026-11-20. Mã: `structured_llm/trace_mix.py`, `audit/trace_dose_20261120/analyze.py`,

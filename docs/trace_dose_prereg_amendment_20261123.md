@@ -1,14 +1,16 @@
-# Sửa đổi đăng ký trước H4 (bản nháp, 2026-11-23)
+# Sửa đổi đăng ký trước H4 (2026-11-23)
 
-> **Trạng thái: NHÁP — chưa có hiệu lực.** Chỉ có hiệu lực khi người làm đề tài duyệt và commit file này
-> **trước** khi chạy `run_phase.sh analyze`. Sửa đổi cho `docs/trace_dose_prereg.md` (commit `c437df0`).
+> **Trạng thái: CÓ HIỆU LỰC từ 2026-11-23**, theo yêu cầu của người làm đề tài, trước khi chạy `run_phase.sh analyze`.
+> Sửa đổi cho `docs/trace_dose_prereg.md` (commit `c437df0`). Bản nháp đầu: commit `5acf368`.
 
 ## 0. Ai đã thấy gì trước khi viết sửa đổi này
 
 - **Chưa ai xem kết quả H4.** Lúc viết (2026-11-23), 5/5 ô seed 0 đã chạy xong eval và can thiệp và nằm trên đĩa
   máy M1, nhưng theo session chạy máy thì chưa ai mở tỉ lệ `follows`, accuracy hay bảng phân loại của bất kỳ ô
   nào. Seed 1 chưa chạy. `analyze` chưa chạy. Phiên viết bản nháp này (chạy trên cloud) không truy cập được đầu ra H4.
-  *[Người làm đề tài xác nhận dòng này trước khi commit.]*
+  *Căn cứ của dòng này:* nhật ký session chạy trên M1 ghi "mình giữ đúng luật chưa mở xem tỷ lệ `follows` trước khi
+  xong Seed 1". Người làm đề tài yêu cầu áp dụng sửa đổi nhưng **chưa trả lời trực tiếp** câu hỏi xác nhận. Nếu sau
+  này thấy dòng này sai, phải ghi lại tại đây, và H4 khi đó chỉ được báo cáo như phân tích khám phá.
 - **Đã thấy dữ liệu H3** (`audit/trace_source_20261117`, `audit/trace_source_seed1_20261119`; khác câu đo với H4,
   nhưng là **cùng adapter** ở hai mức 0% và 100%). Phân tích khám phá trên H3 (mục 2) là lý do đề xuất thay đổi B.
   Ghi rõ ở đây để người đọc tự cân nhắc.
@@ -97,6 +99,6 @@ cáo tỉ lệ đủ điều kiện cho từng ô (prereg gốc đã yêu cầu 
 
 ## 4. Việc phải làm trước `analyze`
 
-1. ~~Chọn B1 hoặc B2~~ (đã chọn B1). Xác nhận mục 0, đổi trạng thái file thành "có hiệu lực", rồi commit.
-2. Thêm phép kiểm cấp adapter vào `analyze.py`, kèm test tái hiện mức báo nhầm ~0,05 khi τ > 0.
-3. Thêm một dòng trỏ tới file này ở đầu `docs/trace_dose_prereg.md`.
+1. ~~Chọn B1 hoặc B2~~ (đã chọn B1). ~~Đổi trạng thái thành "có hiệu lực"~~ (2026-11-23).
+2. ~~Thêm phép kiểm cấp adapter vào `analyze.py`, kèm test~~ (commit `d2404e6`).
+3. ~~Thêm một dòng trỏ tới file này ở đầu `docs/trace_dose_prereg.md`~~.
