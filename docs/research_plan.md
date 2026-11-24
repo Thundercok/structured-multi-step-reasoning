@@ -1,5 +1,6 @@
 # Kế hoạch nghiên cứu và lộ trình Q1
 
+Cập nhật: 2026-11-23. **Đích nộp song song đã chốt:** **NCKH** + **EACL 2027 Student Research Workshop (SRW)** (hạn nộp trực tiếp: **2026-12-15**, chuẩn ACL ẩn danh ARR: Short Paper 4 trang hoặc Long Paper 8 trang; thí nghiệm chính đang chạy là `audit/trace_dose_20261120/`).
 Cập nhật: 2026-11-08. **Ghi chú tình trạng hướng dẫn: Giảng viên hướng dẫn không phản hồi / mất liên lạc (advisor ghosted).**
 Kế hoạch ban đầu là đề xuất gửi thầy duyệt; tuy nhiên do giảng viên hướng dẫn không còn phản hồi sau nhiều lần liên lạc, người làm nghiên cứu (sinh viên) chủ động tự chủ học thuật, trực tiếp quyết định lộ trình và bảo vệ đề tài độc lập. Mọi tiêu chuẩn liêm chính khoa học (tiền đăng ký ngưỡng, đóng băng tập test, kiểm tra định lượng khách quan) tiếp tục được duy trì nghiêm ngặt để tự chịu trách nhiệm khoa học. Đề cương ban đầu đã nộp vẫn ghi "không huấn luyện lại trọng số" ở mục 4 và lấy bộ điều phối làm đối tượng ở mục 3; sinh viên sẽ bảo vệ trực tiếp về sự chuyển hướng mô hình tự thân này trước Hội đồng.
 
