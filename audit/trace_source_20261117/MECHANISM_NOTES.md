@@ -18,7 +18,7 @@ Counting `broad_follows = {follows, follows_rounded, follows_approximate}` on co
    - Seed 0: `human` **7/209** (~3.3%) vs `self` **1/227** (~0.4%)
    - Seed 1: `human` **7/220** (~3.2%) vs `self` **0/223** (0.0%)
    - Example: `242bde961e2d3931` (`human` enters a repetition loop until `max_tokens`).
-3. **Measurement Artifact (`expected=None` $\to$ `moved`):**
+3. **Flagged original traces (`expected=None` $\to$ never `follows`):** not a labeler bug. `plan_intervention` (`structured_llm/counterfactual.py:226-232`) keeps traces with a wrong `Calc` or an answer not taken from the last `Calc`, but cannot compute `expected` for them. Excluding them, `self > human` remains (seed 0: 0.901 vs 0.823, discordant 13/5, McNemar p ≈ 0.10; seed 1: 0.886 vs 0.803, 19/4, p ≈ 0.003; exploratory). H4 uses this exclusion as its primary metric (amendment B1).
    - Seed 0: `human` 17/209 (**8.1%**) vs `self` 4/227 (**1.8%**)
    - Seed 1: `human` 12/220 (**5.5%**) vs `self` 4/223 (**1.8%**)
    - When `human`'s original trace lacks a clean downstream `Calc` dependency graph, `expected` is `None`, making `follows` unachievable even when the continuation actually uses the edited value (e.g., `0ae35915a207a5ad`, where `human` computes `61` from `72` but is labeled `moved`).

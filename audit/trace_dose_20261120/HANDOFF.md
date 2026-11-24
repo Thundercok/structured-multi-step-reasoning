@@ -29,11 +29,12 @@
   - `100%` = existing `adapters/trace_human_200_s{0,1}`
   - `25/50/75%` = newly trained `adapters/trace_mix{25,50,75}_200_s{0,1}` (all 6 trained & saved on 2026-11-20).
 - **Clean held-out evaluation set:** First 500 questions of `data/gsm_plus_v1/holdout_819.jsonl` (sha256 `d079e99a...`, 0 overlap with H3's 500 questions, never evaluated on any `trace_*` adapter).
-- **Primary test (H4, `audit/trace_dose_20261120/analyze.py`):**
-  - 1D random-intercept logistic GLMM (21-point Gauss–Hermite quadrature):
-    `logit P(follows_ij = 1 | u_i) = beta_0 + beta_human * x_ij + beta_seed * s_ij + sigma * u_i`
-  - Two-sided LRT (1 df) at $\alpha = 0.05$.
-  - Secondary diagnostics already coded & unit-tested (`tests/test_trace_dose_stats.py`, 394/394 pytest passing): 3-df nonlinearity LRT (linear vs 5-level categorical), common-intersection GLMM (all 10 cells), per-seed GLMMs, fresh H3 McNemar (`0% vs 100%`, `25% vs 75%`), and full `format_valid` / `accuracy` / `taxonomy` table (to address the reviewer objection *"self didn't learn anything"*).
+- **Primary test (H4) — AMENDED 2026-11-23, before analysis** (`docs/trace_dose_prereg_amendment_20261123.md`, commits `5acf368`, `d2404e6`, `d4dbcd8`):
+  - **Why:** the registered question-only GLMM LRT treats ~5,000 rows as independent although there are only 10 training runs. In simulation (`audit/trace_dose_20261120/amendment_20261123/`) it rejects 0.11 / 0.26 / 0.43 under the null when each adapter has its own logit offset τ = 0.1 / 0.2 / 0.3.
+  - **Primary now:** `adapter_level_test` in `analyze.py` — one logit per (seed, ratio) adapter, OLS on human fraction + seed, two-sided t-test, 7 df, α = 0.05 (size 0.03–0.04 in the same simulation).
+  - **Primary metric (B1, chosen by the student):** `follows` among planned interventions whose `expected` is known. Flagged original traces (`expected = None`: wrong `Calc`, or answer not from the last `Calc`) cannot reach `follows`; their rate is reported per cell as a trace-quality metric.
+  - **Secondary / descriptive:** same test on the original metric; same test on items eligible in all 10 cells; the original GLMM LRT, 3-df nonlinearity LRT, common-intersection and per-seed GLMMs (descriptive only — their p-values may be too small); fresh McNemar (`0% vs 100%`, `25% vs 75%`); `format_valid` / `accuracy` / `taxonomy` table.
+  - **Known limit:** the 0% and 100% adapters are the H3 adapters, so H4 is independent of H3 in questions, not in adapters.
 
 ## 3. Current Status (as of 2026-11-23 08:18 +07)
 
@@ -74,7 +75,7 @@
    - Pull ~5–10 discordant pairs from H3 (`audit/trace_source_20261117` — NOT from `trace_dose_20261120`!) where `self` follows and `human` does not, and read them together with the user to diagnose the mechanism qualitatively.
    - Run a proper Gate-2 literature survey on *"self-generated vs human-written CoT traces × faithfulness / counterfactual step dependence"* (beyond Gekhman 2024 & SDFT 2024).
 3. **Once all 10 cells finish:**
-   - Run `./audit/trace_dose_20261120/run_phase.sh analyze` (if not already auto-run) **without modifying `analyze.py`**.
-   - Write `audit/trace_dose_20261120/RESULTS.md` strictly following the preregistered reading rule (including nonlinearity check and `format_valid`/`accuracy` defense against *"self didn't learn anything"*).
+   - Run `./audit/trace_dose_20261120/run_phase.sh analyze` (if not already auto-run) with `analyze.py` at commit `d2404e6` or later (amended analysis), **without further changes to it**.
+   - Write `audit/trace_dose_20261120/RESULTS.md` strictly following the amended reading rule: read `H4_primary_adapter_level` and top-level `reading`; report the GLMMs only as descriptive (including nonlinearity check and `format_valid`/`accuracy` defense against *"self didn't learn anything"*).
    - Update `docs/research_plan.md` and `docs/paper/outline_20261116.md` with the user in the loop.
 4. **Collaboration style:** Keep replies short, bite-sized, one step at a time (AI Research Partner Charter in `AGENTS.md`). Do not commit/push unless asked.
