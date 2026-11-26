@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest sympy numpy
+          python -m pip install pytest sympy numpy scipy
       - name: Run research tests
         run: |
           python -m pytest -q

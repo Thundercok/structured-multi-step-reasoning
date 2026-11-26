@@ -58,3 +58,7 @@ docs/paper/*.aux
 docs/paper/*.bbl
 docs/paper/*.blg
 docs/paper/*.out
+
+# Large or re-downloadable artifacts: commit the sha256/manifest, not the file
+audit/probe_early_answer_20261118/features.npz
+data/gsm_plus_v1/
