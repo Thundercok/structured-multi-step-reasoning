@@ -1,0 +1,116 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 245, in <module>
+    run(args.adapter, args.limit, args.out, args.modes, args.max_tokens, args.data)
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 217, in run
+    text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]) + prefill,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 106, in generate_text
+    return generate(model, tokenizer, prompt=prompt, max_tokens=max_tokens, sampler=sampler, verbose=False), 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 779, in generate
+    for response in stream_generate(model, tokenizer, prompt, **kwargs):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 716, in stream_generate
+    for n, (token, logprobs, from_draft) in enumerate(token_generator):
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 706, in <genexpr>
+    (token, logprobs, False) for token, logprobs in token_generator
+                                                    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 460, in generate_step
+    mx.async_eval(next_y, next_logprobs)
+RuntimeError: [METAL] Command buffer execution failed: Insufficient Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory).
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 245, in <module>
+    run(args.adapter, args.limit, args.out, args.modes, args.max_tokens, args.data)
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 217, in run
+    text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]) + prefill,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 106, in generate_text
+    return generate(model, tokenizer, prompt=prompt, max_tokens=max_tokens, sampler=sampler, verbose=False), 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 779, in generate
+    for response in stream_generate(model, tokenizer, prompt, **kwargs):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 716, in stream_generate
+    for n, (token, logprobs, from_draft) in enumerate(token_generator):
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 706, in <genexpr>
+    (token, logprobs, False) for token, logprobs in token_generator
+                                                    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 442, in generate_step
+    mx.eval([c.state for c in prompt_cache])
+RuntimeError: [METAL] Command buffer execution failed: Insufficient Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory).
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 245, in <module>
+    run(args.adapter, args.limit, args.out, args.modes, args.max_tokens, args.data)
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 217, in run
+    text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]) + prefill,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 106, in generate_text
+    return generate(model, tokenizer, prompt=prompt, max_tokens=max_tokens, sampler=sampler, verbose=False), 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 779, in generate
+    for response in stream_generate(model, tokenizer, prompt, **kwargs):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 716, in stream_generate
+    for n, (token, logprobs, from_draft) in enumerate(token_generator):
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 706, in <genexpr>
+    (token, logprobs, False) for token, logprobs in token_generator
+                                                    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 442, in generate_step
+    mx.eval([c.state for c in prompt_cache])
+RuntimeError: [METAL] Command buffer execution failed: Insufficient Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory).
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 245, in <module>
+    run(args.adapter, args.limit, args.out, args.modes, args.max_tokens, args.data)
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 217, in run
+    text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]) + prefill,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 106, in generate_text
+    return generate(model, tokenizer, prompt=prompt, max_tokens=max_tokens, sampler=sampler, verbose=False), 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 779, in generate
+    for response in stream_generate(model, tokenizer, prompt, **kwargs):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 716, in stream_generate
+    for n, (token, logprobs, from_draft) in enumerate(token_generator):
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 706, in <genexpr>
+    (token, logprobs, False) for token, logprobs in token_generator
+                                                    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 442, in generate_step
+    mx.eval([c.state for c in prompt_cache])
+RuntimeError: [METAL] Command buffer execution failed: Insufficient Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory).
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 245, in <module>
+    run(args.adapter, args.limit, args.out, args.modes, args.max_tokens, args.data)
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 217, in run
+    text, tool_calls = generate_text(mode, model, tokenizer, prompt_for(mode, item["question"]) + prefill,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/thundercock2/Documents/Github/multi-step-structured-reasoning/structured_llm/evaluate.py", line 106, in generate_text
+    return generate(model, tokenizer, prompt=prompt, max_tokens=max_tokens, sampler=sampler, verbose=False), 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 779, in generate
+    for response in stream_generate(model, tokenizer, prompt, **kwargs):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 716, in stream_generate
+    for n, (token, logprobs, from_draft) in enumerate(token_generator):
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 706, in <genexpr>
+    (token, logprobs, False) for token, logprobs in token_generator
+                                                    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/mlx_lm/generate.py", line 442, in generate_step
+    mx.eval([c.state for c in prompt_cache])
+RuntimeError: [METAL] Command buffer execution failed: Insufficient Memory (00000008:kIOGPUCommandBufferCallbackErrorOutOfMemory).
+tuned {"n": 500, "correct": 367, "answered": 465, "format_valid": 314, "calc_accuracy": 0.981, "grounded_rate": 0.798, "mean_tokens": 227.3, "mean_seconds": 26.21, "truncated": 35, "detection": {"wrong": 133, "flagged_wrong": 95, "right": 367, "flagged_right": 132}}

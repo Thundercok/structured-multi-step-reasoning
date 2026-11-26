@@ -1,13 +1,14 @@
 # Handoff: Trace-Source Dose Response (`trace_dose_20261120`)
 
-**Updated:** 2026-11-23 16:25 +07
-**Preregistration commit (pushed before mixing/training/eval):** `c437df01` on `main`
+**Updated:** 2026-11-27 00:12 +07
+**Preregistration commit (pushed before mixing/training/eval):** `c437df01` on `main` (amendment in effect: `d4dbcd80`, `docs/trace_dose_prereg_amendment_20261123.md`)
 **Target Venues (Dual-Track):**
 - **NCKH** (Primary student research defense/paper: `docs/paper/nckh_structured_reasoning.tex`)
-- **EACL 2027 Student Research Workshop (SRW)** — Direct submission deadline: **2026-12-15**
+- **EACL 2027 Student Research Workshop (SRW)** — Direct submission deadline: **2026-12-15** (AoE safe; Notification: **2027-01-05**, Camera-ready: **2027-01-19**)
+  - **OpenReview:** `https://openreview.net/group?id=eacl.org/EACL/2027/SRW`
   - **Format:** Official ACL template; **Short Paper locked (4 pages content, 5p camera-ready)**; references/appendices/limitations unlimited.
   - **Anonymity:** ARR double-blind anonymity policy (no author names, affiliations, or identifying links in submitted PDF; non-anonymous preprints allowed under ARR).
-  - **Current Action:** `s0_r100` resumed in background at 16:10 +07; Seed 1 (`s1_r0..100`) remains.
+  - **Hardware Constraint:** Seed 1 MUST stay on Apple Silicon MLX (`mlx-community/Qwen3-8B-4bit`) — do NOT move to Colab CUDA (quantization confounder vs Seed 0).
 
 ## 1. Strategic Context (Why We Pivoted Here)
 
@@ -36,16 +37,15 @@
   - **Secondary / descriptive:** same test on the original metric; same test on items eligible in all 10 cells; the original GLMM LRT, 3-df nonlinearity LRT, common-intersection and per-seed GLMMs (descriptive only — their p-values may be too small); fresh McNemar (`0% vs 100%`, `25% vs 75%`); `format_valid` / `accuracy` / `taxonomy` table.
   - **Known limit:** the 0% and 100% adapters are the H3 adapters, so H4 is independent of H3 in questions, not in adapters.
 
-## 3. Current Status (as of 2026-11-23 08:18 +07)
+## 3. Current Status (as of 2026-11-27)
 
 - **Training:** 10/10 adapters `OK`.
-- **Eval + Interventions:**
-  - `s0_r0`: `500/500`, `245/245` (DONE)
-  - `s0_r25`: `500/500`, `246/246` (DONE)
-  - `s0_r50`: `500/500`, `253/253` (DONE)
-  - `s0_r75`: `500/500`, `218/224` (running now, ~2 min left → then `s0_r100` starts)
-  - `s0_r100` + `s1_r0..100`: pending (~3.4h per cell on idle M1).
-- **Do NOT peek** at `follows` outcomes on partial cells before all 10 finish.
+- **Eval + Interventions:** **10/10 DONE** (Seed 0 + Seed 1 all `500/500`, all interventions complete).
+- **Analysis & Report:** `results.json` generated (2026-11-25) and `RESULTS.md` written (2026-11-27).
+  - **Primary H4 (adapter-level OLS, B1):** `b_human = -0.6489`, `t(7) = -5.380`, **`p = 0.00103`** (supported).
+  - **Monotonicity rule:** B1 5-level mean logits `2.120 / 1.795 / 1.571 / 1.639 / 1.386` (flat/slight bump at 50%→75%) → **drop "monotonically"**, frame as **dose-dependent erosion**.
+  - **Reviewer defense:** `format_valid` comparable (314–341/500), `accuracy` drops from ~81.4% (0%) to ~72.0% (100%) with `truncated` rising from 9–10 to 35–50.
+- **Nothing running in background.**
 
 ## 4. Operational Commands & Machine Constraints
 
@@ -53,11 +53,11 @@
   ```bash
   ./audit/trace_dose_20261120/run_phase.sh status
   ```
-- **Resume safely if stopped/restarted** (replace cell list with only incomplete cells so it doesn't waste 10s reloading completed cells; keep Metal buffer limits + auto-retry because 16 GB M1 occasionally throws transient `kIOGPUCommandBufferCallbackErrorOutOfMemory` after ~180–200 generations):
+- **Resume Seed 1 safely** (keep Metal buffer limits + auto-retry because 16 GB M1 occasionally throws transient `kIOGPUCommandBufferCallbackErrorOutOfMemory` after ~180–200 generations):
   ```bash
   caffeinate -i zsh -c '
     export MLX_MAX_OPS_PER_BUFFER=10 MLX_MAX_MB_PER_BUFFER=512
-    for cell in "0 100" "1 0" "1 25" "1 50" "1 75" "1 100"; do
+    for cell in "1 0" "1 25" "1 50" "1 75" "1 100"; do
       s=${cell% *}; r=${cell#* }; tries=0
       until ./audit/trace_dose_20261120/run_phase.sh eval $s $r; do
         tries=$((tries + 1)); [[ $tries -ge 20 ]] && exit 1; sleep 5
@@ -68,14 +68,15 @@
   ```
 - **User habit:** User frequently pauses/closes laptop for class or plays League of Legends on this M1 16 GB. Always kill MLX before gaming; both `evaluate` and `intervene` flush every item to `.jsonl` so stopping loses at most ~1 item (~20s).
 
-## 5. Next Steps for This Evening / After Completion
+## 5. Next Steps (18 days to EACL 2027 SRW deadline 2026-12-15)
 
-1. **First:** Run `./audit/trace_dose_20261120/run_phase.sh status` and check whether `results.json` exists or if Seed 1 still needs resuming.
-2. **While machine runs (CPU-free human work):**
-   - Pull ~5–10 discordant pairs from H3 (`audit/trace_source_20261117` — NOT from `trace_dose_20261120`!) where `self` follows and `human` does not, and read them together with the user to diagnose the mechanism qualitatively.
-   - Run a proper Gate-2 literature survey on *"self-generated vs human-written CoT traces × faithfulness / counterfactual step dependence"* (beyond Gekhman 2024 & SDFT 2024).
-3. **Once all 10 cells finish:**
-   - Run `./audit/trace_dose_20261120/run_phase.sh analyze` (if not already auto-run) with `analyze.py` at commit `d2404e6` or later (amended analysis), **without further changes to it**.
-   - Write `audit/trace_dose_20261120/RESULTS.md` strictly following the amended reading rule: read `H4_primary_adapter_level` and top-level `reading`; report the GLMMs only as descriptive (including nonlinearity check and `format_valid`/`accuracy` defense against *"self didn't learn anything"*).
-   - Update `docs/research_plan.md` and `docs/paper/outline_20261116.md` with the user in the loop.
-4. **Collaboration style:** Keep replies short, bite-sized, one step at a time (AI Research Partner Charter in `AGENTS.md`). Do not commit/push unless asked.
+1. **Completed:**
+   - All 10 cells evaluated & intervened (`s0_r0..100`, `s1_r0..100`).
+   - `results.json` computed without modifying `analyze.py`.
+   - `audit/trace_dose_20261120/RESULTS.md` written strictly following prereg + amendment.
+   - Qualitative inspection of H3 discordant pairs (`audit/trace_source_20261117/MECHANISM_NOTES.md`).
+2. **Immediate next moves (CPU-free, toward EACL 2027 SRW 4-page Short Paper):**
+   - Run Gate-2 literature survey on *"self-generated vs human-written CoT traces × faithfulness / counterfactual step dependence"*.
+   - Update `docs/research_plan.md` & `docs/paper/outline_20261116.md` with the H4 outcome (dose-dependent erosion, dropping "monotonically").
+   - Draft the 4-page ACL Short Paper (anonymous ARR format) + dose-response figure for EACL 2027 SRW.
+3. **Collaboration style:** Keep replies short, bite-sized, one step at a time (AI Research Partner Charter in `AGENTS.md`). Do not commit/push unless asked.

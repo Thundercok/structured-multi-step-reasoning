@@ -1,0 +1,56 @@
+{
+  "n_rows": 229,
+  "ratios": {
+    "0": {
+      "human_count": 0,
+      "off_format": 0,
+      "tokens_mean": 209.4,
+      "tokens_median": 202,
+      "tokens_p10": 134.0,
+      "tokens_p90": 293.0,
+      "tokens_max": 441,
+      "over_512": 0
+    },
+    "25": {
+      "human_count": 57,
+      "off_format": 0,
+      "tokens_mean": 209.4,
+      "tokens_median": 205,
+      "tokens_p10": 136.0,
+      "tokens_p90": 287.0,
+      "tokens_max": 441,
+      "over_512": 0
+    },
+    "50": {
+      "human_count": 114,
+      "off_format": 0,
+      "tokens_mean": 210.0,
+      "tokens_median": 208,
+      "tokens_p10": 135.0,
+      "tokens_p90": 287.0,
+      "tokens_max": 477,
+      "over_512": 0
+    },
+    "75": {
+      "human_count": 172,
+      "off_format": 0,
+      "tokens_mean": 209.7,
+      "tokens_median": 207,
+      "tokens_p10": 134.0,
+      "tokens_p90": 286.0,
+      "tokens_max": 477,
+      "over_512": 0
+    },
+    "100": {
+      "human_count": 229,
+      "off_format": 0,
+      "tokens_mean": 210.2,
+      "tokens_median": 207,
+      "tokens_p10": 133.0,
+      "tokens_p90": 288.0,
+      "tokens_max": 477,
+      "over_512": 0
+    }
+  },
+  "problems": []
+}
