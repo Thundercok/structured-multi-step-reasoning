@@ -1,0 +1,94 @@
+\begin{thebibliography}{18}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Akter et~al.(2025)Akter, Shihab, and Sharma}]{akter2025ccr}
+Sanjeda Akter, Ibne~Farabi Shihab, and Anuj Sharma. 2025.
+\newblock Causal consistency regularization: Training verifiably sensitive reasoning in large language models.
+\newblock \emph{arXiv preprint arXiv:2509.01544}.
+
+\bibitem[{Cobbe et~al.(2021)Cobbe, Kosaraju, Bavarian, Chen, Jun, Kaiser, Plappert, Tworek, Hilton, Nakano et~al.}]{cobbe2021training}
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, et~al. 2021.
+\newblock Training verifiers to solve math word problems.
+\newblock \emph{arXiv preprint arXiv:2110.14168}.
+
+\bibitem[{Gekhman et~al.(2024)Gekhman, Yona, Aharoni, Eyal, Feder, Reichart, and Herzig}]{gekhman2024does}
+Zorik Gekhman, Gal Yona, Roee Aharoni, Matan Eyal, Amir Feder, Roi Reichart, and Jonathan Herzig. 2024.
+\newblock Does fine-tuning {LLMs} on new knowledge encourage hallucinations?
+\newblock In \emph{Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing}.
+
+\bibitem[{Han et~al.(2026)Han, Lee, and Do}]{han2026rfeval}
+Yunseok Han, Yejoon Lee, and Jaeyoung Do. 2026.
+\newblock {RFEval}: Benchmarking reasoning faithfulness under counterfactual reasoning intervention in large reasoning models.
+\newblock \emph{arXiv preprint arXiv:2602.17053}.
+
+\bibitem[{Hase and Potts(2026)}]{hase2026cst}
+Peter Hase and Christopher Potts. 2026.
+\newblock Counterfactual simulation training for chain-of-thought faithfulness.
+\newblock \emph{arXiv preprint arXiv:2602.20710}.
+
+\bibitem[{Lanham et~al.(2023)Lanham, Chen, Radhakrishnan, Steiner, Denison, Hernandez, Li, Durmus, Hubinger, Perez et~al.}]{lanham2023measuring}
+Tamera Lanham, Anna Chen, Ansh Radhakrishnan, Benoit Steiner, Carson Denison, Danny Hernandez, Dustin Li, Esin Durmus, Evan Hubinger, Ethan Perez, et~al. 2023.
+\newblock Measuring faithfulness in chain-of-thought reasoning.
+\newblock \emph{arXiv preprint arXiv:2307.13702}.
+
+\bibitem[{Li et~al.(2024)Li, Cui, Zhao, Kong, and Bi}]{li2024gsmplus}
+Qintong Li, Leyang Cui, Xueliang Zhao, Lingpeng Kong, and Wei Bi. 2024.
+\newblock {GSM-Plus}: A comprehensive benchmark for evaluating the robustness of {LLMs} as mathematical problem solvers.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}.
+
+\bibitem[{Lobo et~al.(2024)Lobo, Agarwal, and Lakkaraju}]{lobo2024impact}
+Elita Lobo, Chirag Agarwal, and Himabindu Lakkaraju. 2024.
+\newblock On the impact of fine-tuning on chain-of-thought reasoning.
+\newblock \emph{arXiv preprint arXiv:2411.15382}.
+
+\bibitem[{Meng and Kong(2026)}]{meng2026chainoffaith}
+Fanyu Meng and Zhaodan Kong. 2026.
+\newblock Chain of faith: Policy-internal rewards for reasoning reliance.
+\newblock \emph{arXiv preprint arXiv:2611.02672}.
+
+\bibitem[{Paul et~al.(2024)Paul, West, Bosselut, and Faltings}]{paul2024frodo}
+Debjit Paul, Robert West, Antoine Bosselut, and Boi Faltings. 2024.
+\newblock Making reasoning matter: Measuring and improving faithfulness of chain-of-thought reasoning.
+\newblock In \emph{Findings of the Association for Computational Linguistics: EMNLP 2024}.
+
+\bibitem[{Peng et~al.(2026)Peng, Chen, Luo, Wen, Li, Feng, Le, Yang, An, Song, Zhang, and Wang}]{peng2026posthoc}
+Guangyue Peng, Zongchao Chen, Wen Luo, Yuntao Wen, Wei Li, Ruixiang Feng, Ran Le, Chen Yang, Zhenwei An, Yang Song, Tao Zhang, and Houfeng Wang. 2026.
+\newblock Measuring and mitigating post-hoc rationalization in reverse chain-of-thought generation.
+\newblock \emph{arXiv preprint arXiv:2602.14469}.
+
+\bibitem[{Shenfeld et~al.(2026)Shenfeld, Damani, H{\"u}botter, and Agrawal}]{shenfeld2026sdft}
+Idan Shenfeld, Mehul Damani, Jonas H{\"u}botter, and Pulkit Agrawal. 2026.
+\newblock Self-distillation enables continual learning.
+\newblock \emph{arXiv preprint arXiv:2601.19897}.
+
+\bibitem[{Swaroop et~al.(2025)Swaroop, Chaudhary, Zhu, Dev, and Sharma}]{swaroop2025lift}
+Anand Swaroop, Maheep Chaudhary, Kevin Zhu, Sunishchal Dev, and Vasu Sharma. 2025.
+\newblock {LIFT}: Likelihood-based intervention faithfulness training.
+\newblock \emph{arXiv preprint arXiv:2509.13334}.
+
+\bibitem[{Turpin et~al.(2024)Turpin, Michael, Perez, and Bowman}]{turpin2024language}
+Miles Turpin, Julian Michael, Ethan Perez, and Samuel~R Bowman. 2024.
+\newblock Language models don't always say what they think: Unfaithful explanations in chain-of-thought prompting.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~36.
+
+\bibitem[{Wang et~al.(2026)Wang, Yao, Huang, Tang, and Yao}]{wang2026case}
+Ziming Wang, Yinghua Yao, Changwu Huang, Ke~Tang, and Xin Yao. 2026.
+\newblock {CASE}: Causal alignment and structural enforcement for improving chain-of-thought faithfulness.
+\newblock \emph{arXiv preprint arXiv:2607.18820}.
+
+\bibitem[{Xu et~al.(2026)Xu, Zhao, Chen, Kang, and Cohan}]{xu2026evidencebypass}
+Ruoran Xu, Yilun Zhao, Ziyu Chen, Xiaoqiang Kang, and Arman Cohan. 2026.
+\newblock Better answers, weaker evidence control: Evidence bypass in on-policy distillation.
+\newblock \emph{arXiv preprint arXiv:2611.01967}.
+
+\bibitem[{Zhang et~al.(2026)Zhang, Liu, Lin, Yang, Dai, Luo, Jiang, Hou, Zeng, Geng, and Guo}]{zhang2026onpolicysft}
+Miaosen Zhang, Yishan Liu, Shuxia Lin, Xu~Yang, Qi~Dai, Chong Luo, Weihao Jiang, Peng Hou, Anxiang Zeng, Xin Geng, and Baining Guo. 2026.
+\newblock Towards on-policy {SFT}: Distribution discriminant theory and its applications in {LLM} training.
+\newblock \emph{arXiv preprint arXiv:2602.12222}.
+
+\bibitem[{Zhao et~al.(2026)Zhao, Chen, Tong, Fan, Ye, Li, Ma, Li, and Shen}]{zhao2026onpolicyefficient}
+Anhao Zhao, Ziyang Chen, Junlong Tong, Yingqi Fan, Fanghua Ye, Shuhao Li, Yunpu Ma, Wenjie Li, and Xiaoyu Shen. 2026.
+\newblock On-policy supervised fine-tuning for efficient reasoning.
+\newblock \emph{arXiv preprint arXiv:2602.13407}.
+
+\end{thebibliography}
