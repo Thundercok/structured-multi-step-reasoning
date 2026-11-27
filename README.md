@@ -3,13 +3,15 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![MLX](https://img.shields.io/badge/optimized-Apple%20Silicon%20MLX-black.svg)](https://github.com/ml-explore/mlx)
 [![Status](https://img.shields.io/badge/status-active%20research-green.svg)](docs/research_plan.md)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20adapters-trace--dose%20LoRA-yellow.svg)](https://huggingface.co/thundercockk/qwen3-8b-trace-dose-lora)
 
 Đề tài nghiên cứu khoa học sinh viên (NCKH). Câu hỏi chính: **khi một mô hình ngôn ngữ viết ra các bước giải toán,
 đáp án cuối của nó có thật sự dựa vào các bước đó không?** Hay mô hình đã "biết" đáp án từ trước, và các bước chỉ
 viết ra cho có?
 
 Mô hình được dùng là Qwen3-8B, tinh chỉnh trên MacBook (Apple Silicon, thư viện MLX) bằng các bài toán đố
-GSM8K.
+GSM8K. 10 adapter LoRA của thí nghiệm trace-dose (H4) có trên
+[Hugging Face](https://huggingface.co/thundercockk/qwen3-8b-trace-dose-lora).
 
 ---
 
