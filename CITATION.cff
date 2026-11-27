@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "Structured Multi-Step Reasoning"
+abstract: "Fine-tuning Qwen3-8B to write its thinking in checkable steps, and testing by intervention whether answers depend on it."
+authors:
+  - family-names: "Huynh"
+    given-names: "Nhat Huy"
+repository-code: "https://github.com/Thundercok/structured-multi-step-reasoning"
+license: MIT
