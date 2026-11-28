@@ -15,6 +15,17 @@ GSM8K. 10 adapter LoRA của thí nghiệm trace-dose (H4) có trên
 
 ---
 
+## Contents
+
+- [Ý tưởng trong một phút](#y-tuong-trong-mot-phut)
+- [Thí nghiệm](#thi-nghiem)
+- [Kết quả](#ket-qua)
+- [Làm sao để tin các con số này](#lam-sao-de-tin-cac-con-so-nay)
+- [Trong repo có gì](#trong-repo-co-gi)
+- [Chạy thử](#chay-thu)
+
+---
+
 ## Ý tưởng trong một phút
 
 Mô hình viết lời giải theo một định dạng cố định để máy kiểm tra được (ví dụ rút gọn):
