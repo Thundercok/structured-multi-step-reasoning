@@ -182,5 +182,5 @@ Một lượt chấm đầy đủ mất nhiều giờ trên Mac 16 GB, nên ví 
 ---
 
 Repo này chỉ dành cho nghiên cứu. Trợ lý desktop RAT nằm ở repo riêng,
-[`Thundercok/selective-delegation-agent`](https://github.com/Thundercok/deterministic-local-assistant), và mã nghiên cứu
+[`Thundercok/deterministic-local-assistant`](https://github.com/Thundercok/deterministic-local-assistant), và mã nghiên cứu
 không gọi tới nó. Kế hoạch đầy đủ: [`docs/research_plan.md`](docs/research_plan.md).
